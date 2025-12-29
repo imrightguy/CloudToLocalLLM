@@ -83,8 +83,7 @@ The development environment is a hybrid of **WSL 2 (Ubuntu 24.04)** and **Window
 | Tool | Environment | Status | Notes |
 | :--- | :--- | :--- | :--- |
 | **Node.js** | WSL (NVM) | ✅ Ready | v22+. Managed via `nvm`. Use native `npm`. |
-| **Git** | WSL / Win | ❌ PROHIBITED | use `github-mcp-server` instead. `gh` allowed. |
-
+| Git | WSL / Win | ✅ PERMITTED | Use for local sync (pull/fetch/commit). |
 | **GH CLI** | WSL | ✅ Ready | v2.40+. GitHub CLI for PRs/Issues. |
 | **Auth0 CLI** | WSL | ✅ Ready | v1.25.0+. |
 | **Sentry CLI**| WSL | ✅ Ready | v2.58.2+. |
@@ -100,12 +99,11 @@ We adhere to a "Remember, then Act" philosophy, utilizing a persistent Knowledge
 #### The Knowledge Graph Protocol (`memory`)
 Agents **MUST** use the `memory` tool to persist key architectural insights and user preferences.
 
-### Version Control Protocol (STRICT)
-**Status:** MANDATORY / ZERO TOLERANCE
+### Version Control Protocol
 
-*   **Github MCP (`github-mcp-server`):** Agents **MUST** use the `github-mcp-server` tools for all git operations (commits, diffs, file history, PR creation/updates).
-*   **Prohibited (`git`):** The `git` CLI command is **STRICTLY PROHIBITED**. Do not run `git` commands in the terminal.
-*   **Allowed (`gh`):** The GitHub CLI (`gh`) is **PERMITTED** for complex operations not covered by the MCP server, but the MCP server is preferred.
+*   **Github MCP (`github-mcp-server`):** Agents **SHOULD** use the `github-mcp-server` tools for GitHub-specific metadata operations (PR creation, issue management, cross-repo search).
+*   **Git CLI:** The `git` CLI command is **PERMITTED** for local repository state management (committing, fetching, pulling, and branch synchronization).
+*   **Allowed (`gh`):** The GitHub CLI (`gh`) is **PERMITTED** for complex operations not covered by the MCP server.
 
 **Protocol Checklist:**
 

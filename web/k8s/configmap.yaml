@@ -6,3 +6,4 @@ metadata:
 data:
   API_BASE_URL: "https://api.cloudtolocalllm.online"
   STREAMING_BASE_URL: "https://streaming.cloudtolocalllm.online"
+

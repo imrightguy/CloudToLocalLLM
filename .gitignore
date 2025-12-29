@@ -125,7 +125,7 @@ sentry.properties
 
 # Platform-specific local config
 android/local.properties
-android/.gradle/
+**/.gradle/
 android/app/build/
 ios/Pods/
 ios/.symlinks/
