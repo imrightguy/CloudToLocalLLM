@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
+## [8.1.0] - 2025-12-29
+# Changelog
+
+## 8.1.0 (Unreleased)
+
+### Features
+
+*   Enhanced Cloudflare API integration for tunnel diagnostics, DNS automation, and implementation plan.
+*   Updated cloudflared error 1033 SOP v1.5.0 and secure diagnostic script.
+
+### Bug Fixes
+
+*   Fix ArgoCD cloudflared configuration to use HTTP instead of HTTPS.
+*   Fix ArgoCD 502 errors: enable HA deployment, remove insecure mode, fix Ingress host to cloudtolocalllm.online, add TLS configuration.
+*   Resolve ArgoCD 502 gateway and optimize cloudflared stability.
+*   Resolve secrets deployment failure and optimize pipeline.
+*   Resolve grep option error in build pipeline.
+*   Ensure actions/checkout is executed before gh commands in orchestrator.
+
+### Documentation
+
+*   Consolidate agent context into Gemini.md and reorganize repository documentation.
+*   Add remaining consolidated documentation files.
+*   Consolidate knowledge assets and enforce clean-root governance policy.
+*   Finalize cleanup of last remaining stray documentation files.
+*   Update Auth0 tenant references to correct domain.
+
+### Refactoring
+
+*   Secure refactor of cloudflared diagnostic and repair scripts, updated SOP v1.6.0.
+*   Remove legacy auth providers and fix test suite.
+*   Use jq for secure secret injection in deployment pipeline.
+
+### Chore
+
+*   Align concurrency and use jq for secure secret injection.
+*   Update Argo CD repository URLs to the correct organization and bootstrap clean sync.
+*   Remove deprecated and unused aad_oauth package.
+*   Remove playwright e2e tests and configuration files.
+*   Sync remaining protocol, aws, and k8s configuration changes.
+*   Finalize sync of all remaining local platform and infrastructure changes.
+*   Push all pending local changes (Android, K8s, Gemini).
+*   Update Gemini rules, Android gradle wrapper, and Java boilerplate.
+*   Trigger deployment to apply updated auth0 secrets.
+*   Update stabilization report with comprehensive findings.
+
 ## [8.0.0] - 2025-12-29
 markdown
 ## Changelog
