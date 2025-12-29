@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## [8.0.0] - 2025-12-29
+markdown
+## Changelog
+
+### Version 8.0.0
+
+#### Features
+*   **Cloudflare API Integration:** Enhanced Cloudflare API integration for tunnel diagnostics, DNS automation, and implementation plan.
+*   **Cloudflared Error SOP:** Updated cloudflared error 1033 SOP to v1.5.0 and implemented a secure diagnostic script.
+*   **Secure Secret Injection:** Added secure secret injection to the deployment pipeline.
+
+#### Bug Fixes
+*   **ArgoCD 502 Errors:** Resolved ArgoCD 502 gateway errors and optimized cloudflared stability.
+*   **ArgoCD Configuration:** Fixed ArgoCD cloudflared configuration to use HTTP instead of HTTPS.
+*   **Build Pipeline Error:** Resolved a grep option error in the build pipeline.
+*   **Orchestrator Checkout:** Ensured actions/checkout is executed before gh commands in the orchestrator.
+*   **Secrets Deployment Failure:** Resolved secrets deployment failure and optimized the pipeline.
+
+#### Refactoring
+*   **Cloudflared Scripts:** Secure refactor of cloudflared diagnostic and repair scripts, updated SOP v1.6.0.
+*   **Secure Secret Injection:** Used jq for secure secret injection in the deployment pipeline.
+
+#### Documentation
+*   **Documentation Consolidation:** Consolidated knowledge assets and enforced clean-root governance policy.
+*   **Agent Context:** Consolidated agent context into Gemini.md and reorganized repository documentation.
+*   **Consolidated Documentation:** Added remaining consolidated documentation files.
+*   **Stray Documentation Cleanup:** Finalized cleanup of last remaining stray documentation files.
+*   **Auth0 Tenant Update:** Updated Auth0 tenant references to the correct domain.
+
+#### Chore
+*   **Dependencies:** Bumped versions to 7.14.32, 7.15.0, 7.15.1, 7.15.2, 7.16.0, 7.16.1, 7.16.2, 7.16.3, 7.17.0, 7.17.1, 7.18.0.
+*   **Deployment:** Multiple deployment promotions.
+*   **Argo CD Repository URLs:** Updated Argo CD repository URLs to the correct organization and bootstrap clean sync.
+*   **Auth0 Secrets:** Triggered deployment to apply updated auth0 secrets.
+*   **Playwright Tests:** Removed playwright e2e tests and configuration files.
+*   **Gemini Rules:** Updated Gemini rules, Android gradle wrapper, and Java boilerplate.
+*   **Concurrency Alignment:** Aligned concurrency and use jq for secure secret injection.
+*   **Protocol Sync:** Synced remaining protocol, aws, and k8s configuration changes.
+*   **Platform Sync:** Finalized sync of all remaining local platform and infrastructure changes.
+*   **Pending Changes:** Pushed all pending local changes (Android, K8s, Gemini).
+*   **Credentials Sanitization:** Sanitize credentials and refine sync script.
+*   **Stabilization Report:** Updated stabilization report with comprehensive findings.
+*   **Deprecated Package Removal:** Removed deprecated and unused aad_oauth package.
+
 ## [7.18.0] - 2025-12-27
 # Changelog
 

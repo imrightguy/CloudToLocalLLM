@@ -1,8 +1,8 @@
 {
-  "web": "7.18.0",
-  "api": "7.18.0-api",
-  "postgres": "7.18.0-postgres",
-  "streaming_proxy": "7.18.0-proxy",
-  "base": "7.18.0-base",
-  "last_updated": "2025-12-27T11:12:34Z"
+  "web": "8.0.0",
+  "api": "8.0.0-api",
+  "postgres": "8.0.0-postgres",
+  "streaming_proxy": "8.0.0-proxy",
+  "base": "8.0.0-base",
+  "last_updated": "2025-12-29T17:12:30Z"
 }
