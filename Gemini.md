@@ -83,7 +83,8 @@ The development environment is a hybrid of **WSL 2 (Ubuntu 24.04)** and **Window
 | Tool | Environment | Status | Notes |
 | :--- | :--- | :--- | :--- |
 | **Node.js** | WSL (NVM) | ✅ Ready | v22+. Managed via `nvm`. Use native `npm`. |
-| **Git** | WSL / Win | ✅ Ready | v2.43+. Native bash hooks active. |
+| **Git** | WSL / Win | ❌ PROHIBITED | use `github-mcp-server` instead. `gh` allowed. |
+
 | **GH CLI** | WSL | ✅ Ready | v2.40+. GitHub CLI for PRs/Issues. |
 | **Auth0 CLI** | WSL | ✅ Ready | v1.25.0+. |
 | **Sentry CLI**| WSL | ✅ Ready | v2.58.2+. |
@@ -93,25 +94,69 @@ The development environment is a hybrid of **WSL 2 (Ubuntu 24.04)** and **Window
 
 ## 7. Repository Governance & Philosophy
 
-### The Sequential Thinking Mandate
-We adhere to a strict "Think, then Act" philosophy, reinforced by a mandatory **Sequential Thinking Protocol** for all complex tasks.
+### The Knowledge Graph Mandate
+We adhere to a "Remember, then Act" philosophy, utilizing a persistent Knowledge Graph to maintain context across interactions.
 
-#### The Sequential Thinking Protocol (`sequentialthinking`)
-For any task involving complexity, ambiguity, debugging, or multi-step reasoning, agents **MUST** use the `sequentialthinking` tool to structure their cognitive process.
+#### The Knowledge Graph Protocol (`memory`)
+Agents **MUST** use the `memory` tool to persist key architectural insights and user preferences.
+
+### Version Control Protocol (STRICT)
+**Status:** MANDATORY / ZERO TOLERANCE
+
+*   **Github MCP (`github-mcp-server`):** Agents **MUST** use the `github-mcp-server` tools for all git operations (commits, diffs, file history, PR creation/updates).
+*   **Prohibited (`git`):** The `git` CLI command is **STRICTLY PROHIBITED**. Do not run `git` commands in the terminal.
+*   **Allowed (`gh`):** The GitHub CLI (`gh`) is **PERMITTED** for complex operations not covered by the MCP server, but the MCP server is preferred.
 
 **Protocol Checklist:**
-- **Define explicit steps:** Break down the problem into granular, actionable phases.
-- **Document intermediate states:** Record the system state before and after each logical step.
-- **Validate each step:** Prove that the current step succeeded before moving to the next.
-- **Measure progress:** Track how far along the plan I am.
-- **Iterate on findings:** If a step reveals new information, loop back and adjust the plan.
+
+- **Capture Insights:** Store verified facts about the system architecture.
+- **Maintain Context:** Record user decisions and preferences.
+- **Query First:** Check the graph for existing context before asking the user.
 
 #### Deep Analysis (`codebase_investigator`)
 Do not guess about the codebase. For requests requiring broad context, **MUST** use `codebase_investigator` as the entry point.
 
+### Cognitive & Efficiency Protocol (STRICT)
+**Status:** MANDATORY / ZERO TOLERANCE
+
+To maximize efficiency and intelligence, the following protocols are enforced:
+
+#### 1. Sequential Thinking (`sequential-thinking`)
+*   **Requirement:** Agents **MUST** use the `sequential-thinking` tool to plan complex tasks, architect solutions, or debug difficult issues before taking action.
+*   **Goal:** Prevent wasted steps and ensure a linear, logical progression.
+
+#### 2. Active Knowledge Graph Maintenance
+*   **Query First:** Agents **MUST** check the Knowledge Graph (`memory`) for context before asking questions or reading files.
+*   **Update-as-you-go:** Agents **MUST** update the Knowledge Graph *while* scanning files or learning new information. Do not wait for a dedicated "cleanup" phase.
+*   **Persistence:** Store architectural insights, user preferences, and key decisions immediately.
+
+#### 3. Deep Analysis (`codebase_investigator`)
+*   **Broad Context:** Use `codebase_investigator` for broad context searches.
+*   **Prohibition:** Do not manually walk the file tree when a specialized agent can retrieve the information more efficiently.
+
+### Available MCP Tools
+
+The following Model Context Protocol (MCP) tools are integrated and available for use:
+
+| Category | Tools | Description |
+| :--- | :--- | :--- |
+| **Version Control** | `create_branch`, `create_pull_request`, `get_file_contents` (and other `github-mcp-server` tools) | **MANDATORY** for all git operations. |
+| **Core** | `read_file`, `write_file`, `list_directory`, `search_file_content`, `glob`, `replace`, `run_shell_command` | File system and shell operations. |
+
+| **Flutter/Dart** | `run_tests`, `analyze_files`, `dart_fix`, `dart_format`, `pub`, `flutter_driver`, `launch_app`, `hot_reload` | Full Flutter/Dart development lifecycle. |
+| **Web/Browser** | `web_fetch`, `google_web_search`, `navigate_page`, `click`, `fill`, `take_screenshot` | Web scraping and browser automation (Puppeteer). |
+| **Documentation** | `list_doc_sources`, `fetch_docs`, `resolve-library-id`, `get-library-docs` | Access to external documentation libraries. |
+| **Images** | `generate_image`, `edit_image`, `generate_icon` | AI image and icon generation. |
+| **Security** | `find_line_numbers` | Security analysis helpers. |
+| **Agentic** | `delegate_to_agent` | specialized sub-agents (e.g., `codebase_investigator`). |
+| **Cognitive** | `memory`, `sequential-thinking` | Knowledge Graph persistence & Advanced reasoning/planning. |
+
+
 ## 8. CLI & Shell Strategy (WSL & PowerShell)
 
-*   **Prioritize WSL:** Execute Linux-native tools (`git`, `gh`, `npm`, `flutter`, `sentry-cli`, `auth0`) via `wsl -d Ubuntu-24.04 bash -c '...'`.
+*   **Prioritize WSL:** Execute Linux-native tools (`gh`, `npm`, `flutter`, `sentry-cli`, `auth0`) via `wsl -d Ubuntu-24.04 bash -c '...'`.
+*   **Git Prohibition:** Do NOT use `git`. Use the Github MCP tools instead.
+*   **Deprecation:** Do NOT use `aad_oauth`. It is no longer supported and should not be loaded.
 *   **Path Translation:** Use `wslpath` for cross-OS path translation when passing Windows paths to WSL tools.
 *   **PowerShell for Host:** Use PowerShell for host-level tools or when specifically requested.
 *   **No Placeholders:** Never use placeholders for secrets. If a secret is missing, verify its existence in external infra before replacement.
@@ -158,6 +203,11 @@ Do not guess about the codebase. For requests requiring broad context, **MUST** 
 - Use `package:web/web.dart` and `dart:js_interop` instead of the deprecated `js` package for Flutter Web.
 
 ## 11. Coding Style & Naming Conventions
+- **Java/Kotlin (Android):**
+    - 4-space indent for Java/Kotlin.
+    - `PascalCase` for classes.
+    - `camelCase` for methods/variables.
+    - Use Kotlin for new Android code where possible.
 - **Dart/Flutter:**
     - 2-space indent.
     - `PascalCase` for classes/widgets.
