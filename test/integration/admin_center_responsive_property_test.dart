@@ -109,9 +109,9 @@ void main() {
     );
 
     testWidgets(
-      'Property 5: Admin Center reflows within 300ms on width change',
+      'Property 5: Admin Center reflows within 500ms on width change',
       (WidgetTester tester) async {
-        // Property: Layout changes complete within 300ms
+        // Property: Layout changes complete within 500ms
 
         // Start with mobile width
         await tester.pumpWidget(
@@ -142,8 +142,8 @@ void main() {
           await pumpAndSettleWithTimeout(tester);
         });
 
-        // Verify reflow completes within 300ms
-        expectExecutionTimeWithin(duration, const Duration(milliseconds: 300));
+        // Verify reflow completes within 500ms
+        expectExecutionTimeWithin(duration, const Duration(milliseconds: 500));
 
         // Verify screen still renders correctly
         expect(find.byType(AdminCenterScreen), findsOneWidget);

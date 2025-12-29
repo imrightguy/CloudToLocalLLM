@@ -17,20 +17,10 @@ class AppConfig {
   static const String githubReleasesUrl =
       'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest';
 
-  // Auth Configuration
-  static const String aadTenantId = "common";
-  static const String aadClientId = "1a72fdf6-4e48-4cb8-943b-a4a4ac513148";
 
   // Configured Authentication Provider
   static const AuthProviderType authProvider = AuthProviderType.auth0;
 
-  // Azure AD B2C / External Identities Configuration
-  // If aadPolicy is set, auth will switch to B2C mode.
-  static const String? aadPolicy = "B2C_1_sign_up_in"; // Standard default
-  static const String? aadDomain = "CloudToLocalLLM";
-  // If aadCustomDomain is set, it overrides the default authority construction.
-  // Example: "auth.cloudtolocalllm.online"
-  static const String? aadCustomDomain = "auth.cloudtolocalllm.online";
 
   // Sentry Configuration
   // Can be overridden at compile time using --dart-define=SENTRY_DSN=your_dsn

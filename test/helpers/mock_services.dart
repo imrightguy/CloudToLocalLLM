@@ -5,15 +5,42 @@
 /// requiring full service initialization.
 library;
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
+import 'package:get_it/get_it.dart';
+import 'package:cloudtolocalllm/di/locator.dart' as di;
+import 'package:cloudtolocalllm/services/auth_service.dart';
+import 'package:cloudtolocalllm/services/admin_center_service.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
+import 'package:cloudtolocalllm/models/user_model.dart';
+import 'package:cloudtolocalllm/models/admin_role_model.dart';
 
 /// Initialize mock plugins for testing
 Future<void> initializeMockPlugins() async {
   // Set up SharedPreferences mock
+  // Set up SharedPreferences mock
   SharedPreferences.setMockInitialValues({});
+  
+  // Reset and setup GetIt
+  final locator = GetIt.instance;
+  await locator.reset();
+  
+  // Register basic mocks needed by most screens
+  locator.registerSingleton<SettingsPreferenceService>(SettingsPreferenceService());
+  
+  // Register MockAuthService
+  final authService = MockAuthService();
+  locator.registerSingleton<AuthService>(authService as AuthService); // Cast using shim if needed, or implementer
+  
+  // Register MockAdminCenterService
+  final adminService = MockAdminCenterService();
+  locator.registerSingleton<AdminCenterService>(adminService as AdminCenterService);
+  
+  // Register PlatformAdapter
+  locator.registerSingleton<PlatformAdapter>(PlatformAdapter(PlatformDetectionService()));
 }
 
 /// Mock JWT Service for testing
@@ -64,79 +91,118 @@ class MockSessionStorage {
 }
 
 /// Mock AuthService for testing
-class MockAuthService extends ChangeNotifier {
-  bool _isAuthenticated = false;
+class MockAuthService extends ChangeNotifier implements AuthService {
+  final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _areAuthenticatedServicesLoaded = ValueNotifier<bool>(false);
+  final Completer<void> _sessionBootstrapCompleter = Completer<void>();
+
   String? _accessToken;
-  String? _userId;
-  Map<String, dynamic>? _userProfile;
+  UserModel? _currentUser;
+  
+  @override
+  ValueNotifier<bool> get isAuthenticated => _isAuthenticated;
+  
+  @override
+  ValueNotifier<bool> get isLoading => _isLoading;
+  
+  @override
+  ValueNotifier<bool> get areAuthenticatedServicesLoaded => _areAuthenticatedServicesLoaded;
+  
+  @override
+  bool get isSessionBootstrapComplete => true;
+  
+  @override
+  Future<void> get sessionBootstrapFuture => Future.value();
 
-  bool get isAuthenticated => _isAuthenticated;
-  String? get accessToken => _accessToken;
-  String? get userId => _userId;
-  Map<String, dynamic>? get userProfile => _userProfile;
+  @override
+  UserModel? get currentUser => _currentUser;
+  
+  // Platform getters - default to false/mock
+  @override
+  bool get isWeb => false;
 
+  @override
+  Future<void> init() async {
+    _sessionBootstrapCompleter.complete();
+  }
+
+  @override
   Future<void> login() async {
-    _isAuthenticated = true;
+    _isAuthenticated.value = true;
     _accessToken = 'mock_access_token';
-    _userId = 'mock_user_id';
-    _userProfile = {
-      'sub': 'mock_user_id',
-      'email': 'test@example.com',
-      'name': 'Test User',
-    };
+    _currentUser = UserModel(
+      id: 'mock_user_id',
+      email: 'christopher.maltais@gmail.com',
+      name: 'Test User',
+      picture: 'https://example.com/avatar.png',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
     notifyListeners();
   }
 
+  @override
   Future<void> logout() async {
-    _isAuthenticated = false;
+    _isAuthenticated.value = false;
     _accessToken = null;
-    _userId = null;
-    _userProfile = null;
+    _currentUser = null;
     notifyListeners();
   }
 
+  @override
   Future<bool> checkSession() async {
-    return _isAuthenticated;
+    return _isAuthenticated.value;
   }
+  
+  @override
+  Future<String?> getAccessToken() async {
+    return _accessToken;
+  }
+  
+  @override
+  Future<String?> getValidatedAccessToken() async {
+    return _accessToken;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// Mock AdminCenterService for testing
-class MockAdminCenterService extends ChangeNotifier {
+class MockAdminCenterService extends ChangeNotifier implements AdminCenterService {
   bool _isLoading = false;
   String? _error;
-  List<Map<String, dynamic>> _users = [];
+  List<AdminRoleModel> _adminRoles = [];
+  Map<String, dynamic>? _dashboardMetrics;
 
+  @override
   bool get isLoading => _isLoading;
+  
+  @override
   String? get error => _error;
-  List<Map<String, dynamic>> get users => _users;
+  
+  @override
+  bool get isInitialized => true;
+  
+  @override
+  List<AdminRoleModel> get adminRoles => _adminRoles;
+  
+  @override
+  Map<String, dynamic>? get dashboardMetrics => _dashboardMetrics;
 
-  Future<void> loadUsers() async {
-    _isLoading = true;
-    notifyListeners();
-
-    await Future.delayed(const Duration(milliseconds: 100));
-
-    _users = [
-      {
-        'id': 'user1',
-        'email': 'user1@example.com',
-        'name': 'User One',
-      },
-      {
-        'id': 'user2',
-        'email': 'user2@example.com',
-        'name': 'User Two',
-      },
-    ];
-
-    _isLoading = false;
-    notifyListeners();
+  @override
+  Future<void> initialize() async {
+    // No-op
+  }
+  
+  @override
+  bool hasPermission(AdminPermission permission) {
+    return true; // Grant all permissions for testing by default
   }
 
-  Future<void> deleteUser(String userId) async {
-    _users.removeWhere((user) => user['id'] == userId);
-    notifyListeners();
-  }
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// Creates a mock AuthService with optional authentication state
