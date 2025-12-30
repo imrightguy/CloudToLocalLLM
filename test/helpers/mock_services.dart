@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
 import 'package:get_it/get_it.dart';
-import 'package:cloudtolocalllm/di/locator.dart' as di;
 import 'package:cloudtolocalllm/services/auth_service.dart';
 import 'package:cloudtolocalllm/services/admin_center_service.dart';
 import 'package:cloudtolocalllm/services/settings_preference_service.dart';

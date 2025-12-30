@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Flutter Version](https://img.shields.io/badge/Flutter-3.5%2B-blue.svg)](https://flutter.dev)
-[![Node.js Version](https://img.shields.io/badge/Node.js-22%2B-green.svg)](https://nodejs.org)
+[![Node.js Version](https://img.shields.io/badge/Node.js-24%2B-green.svg)](https://nodejs.org)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Web-lightgrey.svg)]()
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange.svg)]()
 
@@ -38,6 +38,17 @@ To use CloudToLocalLLM locally, you only need one thing:
 *   **[Ollama](https://ollama.com/download):** This is the engine that runs the AI models.
     *   After installing, pull a model to get started: `ollama pull llama3.2`
 
+### Installed Versions (Verified on Linux)
+- Flutter: 3.38.5
+- Node.js: 24.12.0
+- npm: 11.6.2
+- Ollama: 0.13.5
+- Git: 2.51.0
+- Docker: 28.2.2
+- kubectl: v1.35.0
+
+Status: All CLI tools installed and verified. Run `flutter doctor`, `node --version`, `ollama --version`, `docker --version`, `kubectl version --client` to confirm.
+
 ## 📥 Download & Install
 
 ### Windows & Linux
@@ -69,7 +80,7 @@ If you are a developer looking to contribute or build from source, follow these 
 
 ### Build from Source (WSL Ubuntu 24.04)
 
-**Prerequisites:** [Flutter Linux SDK](https://docs.flutter.dev/get-started/install/linux) (3.5+), [Node.js](https://nodejs.org/) (22 LTS), and Git.
+**Prerequisites:** [Flutter Linux SDK](https://docs.flutter.dev/get-started/install/linux) (3.5+), [Node.js](https://nodejs.org/) (24 LTS), and Git.
 
 1.  **Clone the Repository:**
     ```bash

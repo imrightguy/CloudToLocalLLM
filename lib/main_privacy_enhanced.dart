@@ -11,7 +11,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'services/auth_service.dart';
 import 'auth/auth_provider_factory.dart';
 
-import 'auth/providers/auth0_auth_provider.dart';
 import 'services/enhanced_user_tier_service.dart';
 import 'services/ollama_service.dart';
 import 'services/streaming_proxy_service.dart';

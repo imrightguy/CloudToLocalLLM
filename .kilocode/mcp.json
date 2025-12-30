@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "sequentialthinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "cloudflare": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://observability.mcp.cloudflare.com/sse"
+      ]
+    }
+  }
+}
