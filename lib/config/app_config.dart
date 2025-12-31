@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class AppConfig {
   // App Information
   static const String appName = 'CloudToLocalLLM';
-  static const String appVersion = '8.1.0';
+  static const String appVersion = '10.1.0';
   static const String appDescription =
       'Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.';
 
@@ -52,7 +52,6 @@ class AppConfig {
   static const double tabletBreakpoint = 1024.0;
 
   // Feature Flags
-  static const bool enableSupabase = false;
   static const bool enableDarkMode = true;
   static const bool enableAnalytics = false; // Disabled for privacy
   static const bool enableDebugMode = true; // Enabled for v3.5.2 development
@@ -125,8 +124,6 @@ class AppConfig {
   static const String bridgeRegisterUrl = '$apiBaseUrl/ollama/bridge/register';
 }
 
-/// Supported Authentication Providers
 enum AuthProviderType {
   auth0,
-  supabase,
 }

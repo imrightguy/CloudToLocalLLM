@@ -1,0 +1,20 @@
+{
+  "name": "cloudtolocalllm-auth-backend",
+  "version": "1.0.0",
+  "description": "Auth0 JWT validation backend for CloudToLocalLLM",
+  "main": "auth/handlers.js",
+  "scripts": {
+    "start": "node auth/handlers.js",
+    "dev": "nodemon auth/handlers.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "express-jwt": "^8.3.4",
+    "jwks-rsa": "^3.1.0",
+    "express-rate-limit": "^7.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

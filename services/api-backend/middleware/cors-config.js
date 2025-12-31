@@ -20,6 +20,7 @@ const ALLOWED_ORIGINS = [
   'https://cloudtolocalllm.online',
   'https://docs.cloudtolocalllm.online',
   'https://admin.cloudtolocalllm.online',
+  'https://api.cloudtolocalllm.online',
   // Development origins
   ...(process.env.NODE_ENV === 'development'
     ? [

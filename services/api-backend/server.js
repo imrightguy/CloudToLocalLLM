@@ -7,9 +7,7 @@ dotenv.config();
 
 // Initialize Sentry IMMEDIATELY - before any other code runs
 Sentry.init({
-  dsn:
-    process.env.SENTRY_DSN ||
-    'https://b2fd3263e0ad7b490b0583f7df2e165a@o4509853774315520.ingest.us.sentry.io/4509853780541440',
+  dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV || 'development',
   release: process.env.VERSION || process.env.npm_package_version,
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
@@ -431,88 +429,88 @@ registerRoutes('/health', (req, res) => {
     });
 });
 
-// TEMPORARY DEBUG ENDPOINT
-app.get('/debug-dump', async(req, res) => {
-  try {
-    const debugInfo = {
-      timestamp: new Date().toISOString(),
-      env: {
-        DB_TYPE: process.env.DB_TYPE,
-        NODE_ENV: process.env.NODE_ENV,
-      },
-      migrator: dbMigrator ? dbMigrator.constructor.name : 'null',
-    };
-
-    if (dbMigrator && dbMigrator.pool) {
-      const client = await dbMigrator.pool.connect();
-      try {
-        // 1. Schema Check
-        const columns = await client.query(`
-          SELECT column_name, data_type 
-          FROM information_schema.columns 
-          WHERE table_name = 'users'
-        `);
-        debugInfo.usersColumns = columns.rows;
-
-        // 2. Migration Check
-        const migrations = await client.query(
-          'SELECT * FROM schema_migrations ORDER BY applied_at DESC LIMIT 5',
-        );
-        debugInfo.migrations = migrations.rows;
-
-        // 3. UUID Generaton Test
-        try {
-          const uuidResult = await client.query(
-            'SELECT gen_random_uuid() as val',
-          );
-          debugInfo.uuidGenTest = {
-            success: true,
-            value: uuidResult.rows[0].val,
-          };
-        } catch (uuidError) {
-          debugInfo.uuidGenTest = { success: false, error: uuidError.message };
-        }
-
-        // 4. WRITE TEST (Relying on Default ID)
-        try {
-          const testJwtId = 'debug-test-default-' + Date.now();
-
-          await client.query('BEGIN');
-          const insertResult = await client.query(
-            `INSERT INTO users (jwt_id, email, name, created_at, updated_at)
-             VALUES ($1, $2, $3, NOW(), NOW())
-             RETURNING id`,
-            [testJwtId, 'debug-default@test.local', 'Debug User Default'],
-          );
-
-          await client.query('ROLLBACK');
-          debugInfo.writeTestDefaultId = {
-            success: true,
-            insertedId: insertResult.rows[0].id,
-          };
-        } catch (writeError) {
-          await client.query('ROLLBACK');
-          debugInfo.writeTestDefaultId = {
-            success: false,
-            error: writeError.message,
-            code: writeError.code,
-            detail: writeError.detail,
-          };
-        }
-      } catch (e) {
-        debugInfo.dbError = e.message;
-      } finally {
-        client.release();
-      }
-    } else {
-      debugInfo.dbStatus = 'Not connected or initialized';
-    }
-
-    res.json(debugInfo);
-  } catch (error) {
-    res.status(500).json({ error: error.message, stack: error.stack });
-  }
-});
+// TEMPORARY DEBUG ENDPOINT - DISABLED FOR SECURITY
+// app.get('/debug-dump', async(req, res) => {
+//   try {
+//     const debugInfo = {
+//       timestamp: new Date().toISOString(),
+//       env: {
+//         DB_TYPE: process.env.DB_TYPE,
+//         NODE_ENV: process.env.NODE_ENV,
+//       },
+//       migrator: dbMigrator ? dbMigrator.constructor.name : 'null',
+//     };
+//
+//     if (dbMigrator && dbMigrator.pool) {
+//       const client = await dbMigrator.pool.connect();
+//       try {
+//         // 1. Schema Check
+//         const columns = await client.query(`
+//           SELECT column_name, data_type
+//           FROM information_schema.columns
+//           WHERE table_name = 'users'
+//         `);
+//         debugInfo.usersColumns = columns.rows;
+//
+//         // 2. Migration Check
+//         const migrations = await client.query(
+//           'SELECT * FROM schema_migrations ORDER BY applied_at DESC LIMIT 5',
+//         );
+//         debugInfo.migrations = migrations.rows;
+//
+//         // 3. UUID Generaton Test
+//         try {
+//           const uuidResult = await client.query(
+//             'SELECT gen_random_uuid() as val',
+//           );
+//           debugInfo.uuidGenTest = {
+//             success: true,
+//             value: uuidResult.rows[0].val,
+//           };
+//         } catch (uuidError) {
+//           debugInfo.uuidGenTest = { success: false, error: uuidError.message };
+//         }
+//
+//         // 4. WRITE TEST (Relying on Default ID)
+//         try {
+//           const testJwtId = 'debug-test-default-' + Date.now();
+//
+//           await client.query('BEGIN');
+//           const insertResult = await client.query(
+//             `INSERT INTO users (jwt_id, email, name, created_at, updated_at)
+//              VALUES ($1, $2, $3, NOW(), NOW())
+//              RETURNING id`,
+//             [testJwtId, 'debug-default@test.local', 'Debug User Default'],
+//           );
+//
+//           await client.query('ROLLBACK');
+//           debugInfo.writeTestDefaultId = {
+//             success: true,
+//             insertedId: insertResult.rows[0].id,
+//           };
+//         } catch (writeError) {
+//           await client.query('ROLLBACK');
+//           debugInfo.writeTestDefaultId = {
+//             success: false,
+//             error: writeError.message,
+//             code: writeError.code,
+//             detail: writeError.detail,
+//           };
+//         }
+//       } catch (e) {
+//         debugInfo.dbError = e.message;
+//       } finally {
+//         client.release();
+//       }
+//     } else {
+//       debugInfo.dbStatus = 'Not connected or initialized';
+//     }
+//
+//     res.json(debugInfo);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message, stack: error.stack });
+//   }
+// });
 
 // API Version Information Endpoint
 // Returns information about supported API versions

@@ -2,6 +2,129 @@
 
 All notable changes to this project will be documented in this file.
 
+## [10.1.0] - 2025-12-31
+## v10.1.0
+
+### Features
+*   Migrate from Supabase to Auth0 PKCE auth pipeline (bc51953)
+*   Migrate to Auth0 PKCE stateless JWT pipeline (remove Supabase, 50% LOC reduction, mutex races fixed, backend stubs) (43f1cb9)
+
+### Bug Fixes
+*   Resolve grep option error in build pipeline (485f36c)
+*   Fix ArgoCD cloudflared configuration to use HTTP instead of HTTPS (61f673c)
+
+### Security
+*   Harden cors and disable debug endpoint (c4dcfe1)
+
+### Refactoring
+*   Remove legacy auth providers and fix test suite (04fa52a)
+*   Secure refactor of cloudflared diagnostic and repair scripts, updated SOP v1.6.0 (71f00be)
+
+### Documentation
+*   Finalize cleanup of last remaining stray documentation files (3296194)
+*   Update Auth0 tenant references to correct domain (95302fd)
+*   Add remaining consolidated documentation files (4db9e92)
+*   Consolidate agent context into Gemini.md and reorganize repository documentation (0df0d99)
+*   Consolidate knowledge assets and enforce clean-root governance policy (d8a3c3e)
+
+### Chore
+*   Bump version to 10.0.0 (c9e2fab)
+*   Add development environment configs, setup scripts, and minor cleanups (78c38d2)
+*   Bump version to 8.1.0 (2452374)
+*   Remove deprecated and unused aad_oauth package (ebd52df)
+*   Sync remaining protocol, aws, and k8s configuration changes (c0f877e)
+*   Finalize sync of all remaining local platform and infrastructure changes [no git] (939bf8d)
+*   Push all pending local changes (Android, K8s, Gemini) [no git] (0f10b02)
+*   Update Gemini rules, Android gradle wrapper, and Java boilerplate [no git] (bb8fea6)
+*   Update Argo CD repository URLs to the correct organization and bootstrap clean sync (acd1f26)
+*   Trigger deployment to apply updated auth0 secrets (693ef91)
+*   Remove playwright e2e tests and configuration files (b3edfc7)
+*   Bump version to 7.18.0 (4ba56e6)
+*   Bump version to 7.17.1 (2891002)
+*   Bump version to 7.17.0 (63e8389)
+*   Bump version to 7.16.3 (9944368)
+*   Bump version to 7.16.2 (65294f5)
+
+## [10.0.0] - 2025-12-31
+# Changelog
+
+## 10.0.0
+
+### Features
+* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Supabase, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
+* Migrated from Supabase to Auth0 PKCE auth pipeline.
+* Updated cloudflared error 1033 SOP v1.5.0 and secure diagnostic script.
+* Enhanced Cloudflare API integration for tunnel diagnostics, DNS automation, and implementation plan.
+
+### Bug Fixes
+* Fixed ArgoCD cloudflared configuration to use HTTP instead of HTTPS.
+* Resolved grep option error in build pipeline.
+* Ensured actions/checkout is executed before gh commands in orchestrator.
+* Fixed ArgoCD 502 errors by enabling HA deployment, removing insecure mode, fixing Ingress host to cloudtolocalllm.online, and adding TLS configuration.
+
+### Refactoring
+* Removed legacy auth providers and fixed test suite.
+* Secure refactor of cloudflared diagnostic and repair scripts, updated SOP v1.6.0.
+
+### Documentation
+* Finalized cleanup of last remaining stray documentation files.
+* Updated Auth0 tenant references to correct domain.
+* Added remaining consolidated documentation files.
+* Consolidated agent context into Gemini.md and reorganized repository documentation.
+* Consolidated knowledge assets and enforce clean-root governance policy.
+
+### Chore
+* Removed deprecated and unused aad_oauth package.
+* Synced remaining protocol, aws, and k8s configuration changes.
+* Finalized sync of all remaining local platform and infrastructure changes.
+* Pushed all pending local changes (Android, K8s, Gemini).
+* Updated Gemini rules, Android gradle wrapper, and Java boilerplate.
+* Updated Argo CD repository URLs to the correct organization and bootstrap clean sync.
+* Triggered deployment to apply updated auth0 secrets.
+* Removed playwright e2e tests and configuration files.
+* Aligned concurrency and use jq for secure secret injection.
+* Added development environment configs, setup scripts, and minor cleanups.
+* Update stabilization report with comprehensive findings.
+
+## [9.0.0] - 2025-12-31
+# Changelog
+
+## 9.0.0 (Unreleased)
+
+### Features
+* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Supabase, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
+* Updated cloudflared error 1033 SOP v1.5.0 and secure diagnostic script.
+
+### Bug Fixes
+* Fixed ArgoCD cloudflared configuration to use HTTP instead of HTTPS.
+* Fixed ArgoCD 502 errors by enabling HA deployment, removing insecure mode, fixing Ingress host to cloudtolocalllm.online, and adding TLS configuration.
+* Resolved grep option error in build pipeline.
+* Ensured actions/checkout is executed before gh commands in orchestrator.
+
+### Refactoring
+* Removed legacy auth providers and fixed test suite.
+* Secure refactor of cloudflared diagnostic and repair scripts, updated SOP v1.6.0.
+* Used jq for secure secret injection in deployment pipeline.
+
+### Documentation
+* Finalized cleanup of last remaining stray documentation files.
+* Updated Auth0 tenant references to correct domain.
+* Added remaining consolidated documentation files.
+* Consolidated agent context into Gemini.md and reorganized repository documentation.
+* Consolidated knowledge assets and enforce clean-root governance policy.
+
+### Chore
+* Removed deprecated and unused aad_oauth package.
+* Synced remaining protocol, aws, and k8s configuration changes.
+* Finalized sync of all remaining local platform and infrastructure changes.
+* Pushed all pending local changes (Android, K8s, Gemini).
+* Updated Gemini rules, Android gradle wrapper, and Java boilerplate.
+* Updated Argo CD repository URLs to the correct organization and bootstrap clean sync.
+* Triggered deployment to apply updated auth0 secrets.
+* Removed playwright e2e tests and configuration files.
+* Added development environment configs, setup scripts, and minor cleanups.
+* Aligned concurrency and use jq for secure secret injection.
+
 ## [8.1.0] - 2025-12-29
 # Changelog
 
