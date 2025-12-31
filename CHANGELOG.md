@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [10.0.0] - 2025-12-31
+# Changelog
+
+## 10.0.0
+
+### Features
+* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Supabase, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
+* Migrated from Supabase to Auth0 PKCE auth pipeline.
+* Updated cloudflared error 1033 SOP v1.5.0 and secure diagnostic script.
+* Enhanced Cloudflare API integration for tunnel diagnostics, DNS automation, and implementation plan.
+
+### Bug Fixes
+* Fixed ArgoCD cloudflared configuration to use HTTP instead of HTTPS.
+* Resolved grep option error in build pipeline.
+* Ensured actions/checkout is executed before gh commands in orchestrator.
+* Fixed ArgoCD 502 errors by enabling HA deployment, removing insecure mode, fixing Ingress host to cloudtolocalllm.online, and adding TLS configuration.
+
+### Refactoring
+* Removed legacy auth providers and fixed test suite.
+* Secure refactor of cloudflared diagnostic and repair scripts, updated SOP v1.6.0.
+
+### Documentation
+* Finalized cleanup of last remaining stray documentation files.
+* Updated Auth0 tenant references to correct domain.
+* Added remaining consolidated documentation files.
+* Consolidated agent context into Gemini.md and reorganized repository documentation.
+* Consolidated knowledge assets and enforce clean-root governance policy.
+
+### Chore
+* Removed deprecated and unused aad_oauth package.
+* Synced remaining protocol, aws, and k8s configuration changes.
+* Finalized sync of all remaining local platform and infrastructure changes.
+* Pushed all pending local changes (Android, K8s, Gemini).
+* Updated Gemini rules, Android gradle wrapper, and Java boilerplate.
+* Updated Argo CD repository URLs to the correct organization and bootstrap clean sync.
+* Triggered deployment to apply updated auth0 secrets.
+* Removed playwright e2e tests and configuration files.
+* Aligned concurrency and use jq for secure secret injection.
+* Added development environment configs, setup scripts, and minor cleanups.
+* Update stabilization report with comprehensive findings.
+
 ## [9.0.0] - 2025-12-31
 # Changelog
 
