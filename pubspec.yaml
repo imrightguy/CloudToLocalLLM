@@ -43,6 +43,7 @@ dependencies:
   window_manager: ^0.5.1
 
   flutter_secure_storage: ^9.2.2
+  mutex: ^3.0.1
   path_provider: ^2.1.5
   path: ^1.9.0
 
@@ -74,7 +75,6 @@ dependencies:
 
   meta: any
   package_info_plus: ^9.0.0
-  supabase_flutter: 2.8.3
 
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0

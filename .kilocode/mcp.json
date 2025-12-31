@@ -20,6 +20,16 @@
         "mcp-remote",
         "https://observability.mcp.cloudflare.com/sse"
       ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "env": {
+        "DEFAULT_MINIMUM_TOKENS": ""
+      }
     }
   }
 }

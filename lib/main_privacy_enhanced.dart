@@ -6,8 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'config/theme.dart';
 import 'config/router.dart';
 import 'config/app_config.dart';
-import 'config/supabase_config.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'services/auth_service.dart';
 import 'auth/auth_provider_factory.dart';
 
@@ -36,14 +34,6 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Conditionally initialize Supabase if it is the active provider or if specifically enabled
-  if (AppConfig.authProvider == AuthProviderType.supabase || AppConfig.enableSupabase) {
-    await Supabase.initialize(
-      url: SupabaseConfig.url,
-      anonKey: SupabaseConfig.anonKey,
-    );
-  }
 
   // Initialize platform detection early
   final platformManager = PlatformServiceManager();
