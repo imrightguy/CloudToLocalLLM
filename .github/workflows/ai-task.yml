@@ -36,7 +36,7 @@ jobs:
       - name: "Run AI Agent"
         id: "run_ai_agent"
         env:
-          KILOCODE_API_KEY: "${{ secrets.KILOCODE_API_KEY }}"
+          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
           TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"

@@ -49,7 +49,7 @@ jobs:
       - name: "Run AI pull request review"
         id: "ai_pr_review"
         env:
-          KILOCODE_API_KEY: "${{ secrets.KILOCODE_API_KEY }}"
+          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
           ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"

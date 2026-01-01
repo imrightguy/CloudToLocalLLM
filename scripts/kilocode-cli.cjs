@@ -11,7 +11,7 @@ const https = require('https');
 
 const args = process.argv.slice(2);
 const prompt = args.filter(arg => !arg.startsWith('-')).join(' ');
-const apiKey = process.env.KILOCODE_API_KEY;
+const apiKey = process.env.OPENAI_API_KEY;
 
 if (!prompt) {
   console.error('Usage: kilocode-cli <prompt>');
@@ -19,12 +19,12 @@ if (!prompt) {
 }
 
 if (!apiKey) {
-  console.error('Error: KILOCODE_API_KEY environment variable is not set.');
+  console.error('Error: OPENAI_API_KEY environment variable is not set.');
   process.exit(1);
 }
 
 const data = JSON.stringify({
-  model: 'x-ai/grok-code-fast-1',
+  model: 'gpt-4',
   messages: [
     {
       role: 'system',
@@ -40,7 +40,7 @@ const data = JSON.stringify({
 });
 
 const options = {
-  hostname: 'api.x.ai',
+  hostname: 'api.openai.com',
   port: 443,
   path: '/v1/chat/completions',
   method: 'POST',

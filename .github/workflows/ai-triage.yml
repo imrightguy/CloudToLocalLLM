@@ -63,7 +63,7 @@ jobs:
         if: |-
           ${{ steps.get_labels.outputs.available_labels != '' }}
         env:
-          KILOCODE_API_KEY: "${{ secrets.KILOCODE_API_KEY }}"
+          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
           ISSUE_TITLE: "${{ github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.issue.body }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
