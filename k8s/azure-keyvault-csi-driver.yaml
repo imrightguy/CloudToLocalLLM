@@ -27,11 +27,11 @@ spec:
     # Option 2: Use Service Principal
     usePodIdentity: "false"
     useVMManagedIdentity: "false"
-    clientId: "<AZURE_CLIENT_ID>"  # Replace with client ID from azure-dns-config secret
-    clientSecret: "<AZURE_CLIENT_SECRET>"  # Replace with client secret from azure-dns-config secret
+    clientId: "${AZURE_CLIENT_ID}"  # Injected from GitHub Secrets
+    clientSecret: "${AZURE_CLIENT_SECRET}"  # Injected from GitHub Secrets
     
     keyvaultName: "cloudtolocalllm-kv"
-    tenantId: "<AZURE_TENANT_ID>"  # Replace with tenant ID from azure-dns-config secret
+    tenantId: "${AZURE_TENANT_ID}"  # Injected from GitHub Secrets
     
     # Objects to sync from Key Vault to Kubernetes
     objects: |
@@ -169,9 +169,9 @@ stringData:
   # DO NOT commit actual secrets to git - use GitHub Secrets or environment variables
   # Get values from existing secret: kubectl get secret azure-dns-config -n cert-manager -o json
   # Or use the setup script: .\scripts\setup-azure-keyvault-cert-sync.ps1
-  client-id: "<AZURE_CLIENT_ID>"
-  client-secret: "<AZURE_CLIENT_SECRET>"
-  tenant-id: "<AZURE_TENANT_ID>"
+  client-id: "${AZURE_CLIENT_ID}"
+  client-secret: "${AZURE_CLIENT_SECRET}"
+  tenant-id: "${AZURE_TENANT_ID}"
 
 ---
 # RBAC for cert sync

@@ -10,7 +10,7 @@ data:
       # Note: These values should be provided via alertmanager-secrets
       # Alertmanager does not support environment variable substitution in the config file directly
       # unless using a startup script or sidecar. Using placeholders.
-      slack_api_url: 'http://placeholder-slack-webhook'
+      slack_api_url: '${SLACK_WEBHOOK_URL}'
       smtp_smarthost: 'localhost:25'
       smtp_from: 'alerts@cloudtolocalllm.online'
     

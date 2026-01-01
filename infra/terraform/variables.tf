@@ -33,3 +33,27 @@ variable "vm_size" {
   type        = string
   default     = "Standard_DS2_v2"
 }
+
+variable "azure_client_id" {
+  description = "The Client ID for the Azure Service Principal"
+  type        = string
+  sensitive   = true
+}
+
+variable "azure_client_secret" {
+  description = "The Client Secret for the Azure Service Principal"
+  type        = string
+  sensitive   = true
+}
+
+variable "azure_tenant_id" {
+  description = "The Tenant ID for the Azure Service Principal"
+  type        = string
+  sensitive   = true
+}
+
+variable "azure_subscription_id" {
+  description = "The Subscription ID for the Azure Service Principal"
+  type        = string
+  sensitive   = true
+}

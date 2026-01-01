@@ -35,6 +35,14 @@
         "LOG_LEVEL": "error",
         "DISABLE_CONSOLE_OUTPUT": "true"
       }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/"
+      ]
     }
   }
 }

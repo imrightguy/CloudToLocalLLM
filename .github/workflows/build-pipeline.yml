@@ -261,6 +261,15 @@ jobs:
           STRIPE_LIVE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_LIVE_PUBLISHABLE_KEY }}
           STRIPE_LIVE_WEBHOOK_SECRET: ${{ secrets.STRIPE_LIVE_WEBHOOK_SECRET }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          GCIP_API_KEY: ${{ secrets.GCIP_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          GRAFANA_CLOUD_PROMETHEUS_URL: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_URL }}
+          GRAFANA_CLOUD_PROMETHEUS_USER: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_USER }}
+          GRAFANA_CLOUD_PROMETHEUS_TOKEN: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_TOKEN }}
         run: |
           # Use jq to construct a valid Kubernetes Secret JSON to ensure proper character escaping
           # This resolves "found unknown escape character" errors common with envsubst
@@ -305,6 +314,22 @@ jobs:
               }
             }' | kubectl apply -f -
 
+          # Deploy Web Secrets
+          jq -n \
+            --arg gcip_api_key "$GCIP_API_KEY" \
+            '{
+              apiVersion: "v1",
+              kind: "Secret",
+              metadata: {
+                name: "web-secrets",
+                namespace: "cloudtolocalllm"
+              },
+              type: "Opaque",
+              stringData: {
+                "gcip-api-key": $gcip_api_key
+              }
+            }' | kubectl apply -f -
+
       - name: Deploy Optimized Cloudflare Tunnel
         run: |
           # Calculate SHA of ConfigMap to trigger rolling restart if config changed
@@ -316,10 +341,22 @@ jobs:
           envsubst '$CLOUDFLARED_CONFIG_SHA' < k8s/deployments/overlays/managed/cloudflared-tunnel.yaml | kubectl apply -f -
 
       - name: Deploy Monitoring Configuration
+        env:
+          GRAFANA_CLOUD_PROMETHEUS_URL: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_URL }}
+          GRAFANA_CLOUD_PROMETHEUS_USER: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_USER }}
+          GRAFANA_CLOUD_PROMETHEUS_TOKEN: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         run: |
           # Ensure monitoring configurations (Prometheus/Alertmanager) are up to date
-          kubectl apply -f k8s/deployments/base/prometheus-config.yaml
-          kubectl apply -f k8s/deployments/base/alertmanager-config.yaml
+          envsubst '$GRAFANA_CLOUD_PROMETHEUS_URL,$GRAFANA_CLOUD_PROMETHEUS_USER,$GRAFANA_CLOUD_PROMETHEUS_TOKEN' < k8s/deployments/base/prometheus-config.yaml | kubectl apply -f -
+          envsubst '$SLACK_WEBHOOK_URL,$SMTP_HOST,$SMTP_PORT,$SMTP_USERNAME,$SMTP_PASSWORD' < k8s/deployments/base/alertmanager-config.yaml | kubectl apply -f -
+          
+          # Deploy Azure Key Vault CSI Driver Integration
+          envsubst '$AZURE_CLIENT_ID,$AZURE_CLIENT_SECRET,$AZURE_TENANT_ID' < k8s/azure-keyvault-csi-driver.yaml | kubectl apply -f -
 
   promote_to_gitops:
     needs: [build_api, build_web, deploy_secrets]

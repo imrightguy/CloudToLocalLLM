@@ -1,6 +1,12 @@
 name: "🔎 AI Code Review"
 
 on:
+  schedule:
+    - cron: "0 0 * * *" # Runs daily at midnight
+  push:
+    branches: [main, release]
+  pull_request:
+    branches: [main, release]
   workflow_call:
     inputs:
       additional_context:

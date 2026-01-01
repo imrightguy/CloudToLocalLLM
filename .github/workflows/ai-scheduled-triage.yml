@@ -2,19 +2,17 @@ name: "📋 AI Scheduled Issue Triage"
 
 on:
   schedule:
-    - cron: "0 * * * *" # Runs every hour
+    - cron: "0 0 * * *" # Runs daily at midnight
   pull_request:
     branches:
       - "main"
+      - "release"
       - "release/**/*"
-    paths:
-      - ".github/workflows/ai-scheduled-triage.yml"
   push:
     branches:
       - "main"
+      - "release"
       - "release/**/*"
-    paths:
-      - ".github/workflows/ai-scheduled-triage.yml"
   workflow_dispatch:
 
 concurrency:
