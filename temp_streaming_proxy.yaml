@@ -1,0 +1,172 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: streaming-proxy-sa
+  namespace: cloudtolocalllm
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: streaming-proxy-role
+  namespace: cloudtolocalllm
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: streaming-proxy-rolebinding
+  namespace: cloudtolocalllm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: streaming-proxy-role
+subjects:
+  - kind: ServiceAccount
+    name: streaming-proxy-sa
+    namespace: cloudtolocalllm
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streaming-proxy
+  namespace: cloudtolocalllm
+  annotations:
+    argocd.argoproj.io/sync-wave: "15"
+  labels:
+    app: streaming-proxy
+    tier: backend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: streaming-proxy
+  template:
+    metadata:
+      labels:
+        app: streaming-proxy
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/api/tunnel/metrics"
+    spec:
+      serviceAccountName: streaming-proxy-sa
+      imagePullSecrets:
+        - name: regcred
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      initContainers:
+        - name: wait-for-redis
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z redis-tunnel-state 6379; do echo waiting for redis; sleep 2; done;",
+            ]
+      containers:
+        - name: streaming-proxy
+          image: cloudtolocalllm/streaming-proxy:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3001
+              protocol: TCP
+
+          # Environment variables from ConfigMap and Secrets
+          envFrom:
+            - configMapRef:
+                name: streaming-proxy-config
+            - secretRef:
+                name: streaming-proxy-secrets
+
+          # Additional environment variables
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: streaming-proxy-config
+                  key: otel_exporter_jaeger_endpoint
+                  optional: true
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: 25m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          # Startup probe - checks if container has started successfully
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+
+          # Liveness probe - checks if container is alive
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+
+          # Readiness probe - checks if container is ready to handle traffic
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Volume mounts
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+
+      # Volumes
+      volumes:
+        - name: tmp
+          emptyDir: {}
+
+      # Pod disruption budget for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - streaming-proxy
+                topologyKey: kubernetes.io/hostname
+
+      # Termination grace period for graceful shutdown
+      terminationGracePeriodSeconds: 30

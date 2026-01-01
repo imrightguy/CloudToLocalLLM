@@ -75,9 +75,9 @@ DEPLOYMENT RULES:
 - Desktop: windows/, linux/, desktop code
 - Mobile: android/, ios/, mobile code"
 
-# Helper: Enforce KILOCODE_API_KEY
-if [ -z "$KILOCODE_API_KEY" ]; then
-    echo "❌ ERROR: KILOCODE_API_KEY is not set."
+# Helper: Enforce KILOCODE_TOKEN
+if [ -z "$KILOCODE_TOKEN" ] && [ -z "$KILOCODE_API_KEY" ]; then
+    echo "❌ ERROR: KILOCODE_TOKEN is not set."
     exit 1
 fi
 

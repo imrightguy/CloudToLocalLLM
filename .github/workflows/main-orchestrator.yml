@@ -120,7 +120,7 @@ jobs:
 
       - name: Orchestration Logic
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
@@ -141,7 +141,7 @@ jobs:
               exit 1
           fi
 
-          echo "Running Kilocode analysis (GPT-4)..."
+          echo "Running Kilocode analysis (Grok)..."
           # Health check for Kilocode API
           echo "Performing Kilocode API health check..."
           if ! timeout 30 kilocode "Health check: Respond with OK" > /dev/null 2>&1; then

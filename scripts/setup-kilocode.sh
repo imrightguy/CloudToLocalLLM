@@ -24,7 +24,7 @@ if [ -z "$API_KEY" ]; then
 fi
 
 # Export the key for the current session
-export KILOCODE_API_KEY="$API_KEY"
+export KILOCODE_TOKEN="$API_KEY"
 echo ""
 echo "✅ API Key configured for this session."
 
@@ -45,11 +45,11 @@ if [ $EXIT_CODE -eq 0 ] && [ -n "$TEST_RESPONSE" ]; then
     
     echo ""
     echo "To persist this key, add the following to your shell profile (e.g., ~/.bashrc or ~/.zshrc):"
-    echo "export KILOCODE_API_KEY='$API_KEY'"
+    echo "export KILOCODE_TOKEN='$API_KEY'"
     
     echo ""
-    echo "For GitHub Actions, add a secret named KILOCODE_API_KEY:"
-    echo "gh secret set KILOCODE_API_KEY --body '$API_KEY'"
+    echo "For GitHub Actions, add a secret named KILOCODE_TOKEN:"
+    echo "gh secret set KILOCODE_TOKEN --body '$API_KEY'"
 else
     echo "❌ Verification failed."
     echo "Exit code: $EXIT_CODE"

@@ -39,9 +39,9 @@ PROMPT="You are a semantic versioning expert. Analyze these git commits and dete
 # Call Kilocode
 echo "🚀 Calling Kilocode AI to analyze commits..."
 
-# Enforce KILOCODE_API_KEY
-if [ -z "$KILOCODE_API_KEY" ]; then
-    echo "❌ ERROR: KILOCODE_API_KEY is not set. Strict mode requires credentials."
+# Enforce KILOCODE_TOKEN
+if [ -z "$KILOCODE_TOKEN" ] && [ -z "$KILOCODE_API_KEY" ]; then
+    echo "❌ ERROR: KILOCODE_TOKEN is not set. Strict mode requires credentials."
     exit 1
 fi
 

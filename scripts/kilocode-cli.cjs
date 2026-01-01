@@ -11,7 +11,11 @@ const https = require('https');
 
 const args = process.argv.slice(2);
 const prompt = args.filter(arg => !arg.startsWith('-')).join(' ');
-const apiKey = process.env.OPENAI_API_KEY;
+
+// Prioritize KILOCODE_TOKEN, fallback to KILOCODE_API_KEY or OPENAI_API_KEY
+const apiKey = process.env.KILOCODE_TOKEN || process.env.KILOCODE_API_KEY || process.env.OPENAI_API_KEY;
+const apiHostname = process.env.KILOCODE_API_HOST || 'api.kilocode.ai';
+const apiModel = process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1';
 
 if (!prompt) {
   console.error('Usage: kilocode-cli <prompt>');
@@ -19,12 +23,12 @@ if (!prompt) {
 }
 
 if (!apiKey) {
-  console.error('Error: OPENAI_API_KEY environment variable is not set.');
+  console.error('Error: KILOCODE_TOKEN environment variable is not set.');
   process.exit(1);
 }
 
 const data = JSON.stringify({
-  model: 'gpt-4',
+  model: apiModel,
   messages: [
     {
       role: 'system',
@@ -36,18 +40,18 @@ const data = JSON.stringify({
     }
   ],
   temperature: 0.1,
-  max_tokens: 1024
+  max_tokens: 2048
 });
 
 const options = {
-  hostname: 'api.openai.com',
+  hostname: apiHostname,
   port: 443,
   path: '/v1/chat/completions',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${apiKey}`,
-    'Content-Length': data.length
+    'Content-Length': Buffer.byteLength(data)
   },
   timeout: 60000 // 60 seconds timeout
 };
