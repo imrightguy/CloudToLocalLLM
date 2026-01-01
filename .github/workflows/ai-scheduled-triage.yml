@@ -93,6 +93,7 @@ jobs:
           ${{ steps.find_issues.outputs.issues_to_triage != '[]' }}
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN }}"
+          KILOCODE_MODEL: "${{ vars.KILOCODE_MODEL }}"
           ISSUES_TO_TRIAGE: "${{ steps.find_issues.outputs.issues_to_triage }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
         run: |

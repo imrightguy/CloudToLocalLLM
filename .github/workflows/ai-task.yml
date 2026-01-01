@@ -43,6 +43,7 @@ jobs:
         id: "run_ai_agent"
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN }}"
+          KILOCODE_MODEL: "${{ vars.KILOCODE_MODEL }}"
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
           TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"

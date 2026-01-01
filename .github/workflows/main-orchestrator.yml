@@ -121,6 +121,7 @@ jobs:
       - name: Orchestration Logic
         env:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN }}
+          KILOCODE_MODEL: ${{ vars.KILOCODE_MODEL }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e

@@ -70,6 +70,7 @@ jobs:
           ${{ steps.get_labels.outputs.available_labels != '' }}
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN }}"
+          KILOCODE_MODEL: "${{ vars.KILOCODE_MODEL }}"
           ISSUE_TITLE: "${{ github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.issue.body }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"

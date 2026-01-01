@@ -56,6 +56,7 @@ jobs:
         id: "ai_pr_review"
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN }}"
+          KILOCODE_MODEL: "${{ vars.KILOCODE_MODEL }}"
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
           ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"
