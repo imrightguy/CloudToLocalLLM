@@ -76,7 +76,7 @@ DEPLOYMENT RULES:
 - Mobile: android/, ios/, mobile code"
 
 # Helper: Enforce KILOCODE_TOKEN
-if [ -z "$KILOCODE_TOKEN" ] && [ -z "$KILOCODE_API_KEY" ]; then
+if [ -z "$KILOCODE_TOKEN" ]; then
     echo "❌ ERROR: KILOCODE_TOKEN is not set."
     exit 1
 fi

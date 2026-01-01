@@ -60,7 +60,7 @@ sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
 
 **Configuration**:
 - **Model**: xAI Grok-Code-Fast-1
-- **API Key**: Stored in `KILOCODE_API_KEY` environment variable
+- **API Key**: Stored in `KILOCODE_TOKEN` environment variable
 - **Timeout**: Configured for reliable analysis
 - **Fallback**: Graceful error handling with manual override options
 
@@ -306,7 +306,7 @@ gh run view <run-id> --log | grep "Unified Deployment Summary" -A 20
 kilocode "Analyze this change: fix auth login loop"
 
 # Check environment
-echo $KILOCODE_API_KEY
+echo $KILOCODE_TOKEN
 ```
 
 **Common Issues**:

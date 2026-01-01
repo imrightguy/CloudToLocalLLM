@@ -28,4 +28,4 @@ The GitHub Actions workflows were failing due to inconsistent usage of the `kilo
 
 ## Remaining Actions (User Required)
 - **Azure OIDC:** Verify that Azure Federated Credentials are updated for the new repository name `CloudToLocalLLM-online/CloudToLocalLLM`.
-- **Secrets:** Ensure `KILOCODE_API_KEY` and `PAT_TOKEN` are set in GitHub Secrets.
+- **Secrets:** Ensure `KILOCODE_TOKEN` and `PAT_TOKEN` are set in GitHub Secrets.

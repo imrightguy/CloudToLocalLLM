@@ -19,20 +19,20 @@
 
    Or manually add to GitHub Secrets:
    ```bash
-   gh secret set KILOCODE_API_KEY --body 'your_api_key_here'
+   gh secret set KILOCODE_TOKEN --body 'your_api_key_here'
    ```
 
 4. **Verify**:
    ```bash
    gh secret list | grep KILOCODE
-   # Should show: KILOCODE_API_KEY
+   # Should show: KILOCODE_TOKEN
    ```
 
 ## Test Locally (Optional)
 
 ```bash
 # Export your key (if not using setup script)
-export KILOCODE_API_KEY='your_key_here'
+export KILOCODE_TOKEN='your_key_here'
 
 # Test version analysis
 ./scripts/analyze-version-bump.sh
@@ -43,7 +43,7 @@ export KILOCODE_API_KEY='your_key_here'
 
 ## Fallback Behavior
 
-If `KILOCODE_API_KEY` is not set:
+If `KILOCODE_TOKEN` is not set:
 - ✅ Workflow still works
 - ⚠️  Defaults to PATCH bump
 - ⚠️  No intelligent analysis

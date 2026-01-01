@@ -12,8 +12,8 @@ const https = require('https');
 const args = process.argv.slice(2);
 const prompt = args.filter(arg => !arg.startsWith('-')).join(' ');
 
-// Prioritize KILOCODE_TOKEN, fallback to KILOCODE_API_KEY or OPENAI_API_KEY
-const apiKey = process.env.KILOCODE_TOKEN || process.env.KILOCODE_API_KEY || process.env.OPENAI_API_KEY;
+// Use KILOCODE_TOKEN for authentication
+const apiKey = process.env.KILOCODE_TOKEN;
 const apiHostname = process.env.KILOCODE_API_HOST || 'api.kilocode.ai';
 const apiModel = process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1';
 

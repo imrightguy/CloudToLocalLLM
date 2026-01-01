@@ -309,7 +309,7 @@ CloudToLocalLLM is designed to be provider agnostic:
    kilocode "Respond with just OK"
    
    # Check Kilocode API key
-   echo $KILOCODE_API_KEY
+   echo $KILOCODE_TOKEN
    
    # Manual analysis run
    ./scripts/analyze-platforms.sh
