@@ -84,10 +84,10 @@ rules:
   - apiGroups: [""]
     resources: ["endpoints"]
     verbs: ["get", "list", "watch"]
-  # Read Pods for pod discovery
+  # Manage Pods for streaming proxies
   - apiGroups: [""]
     resources: ["pods"]
-    verbs: ["get", "list", "watch"]
+    verbs: ["get", "list", "watch", "create", "delete", "patch"]
 
 ---
 # Role for PostgreSQL (read-only access to ConfigMaps and Secrets)

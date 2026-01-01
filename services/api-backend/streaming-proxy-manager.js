@@ -1,10 +1,13 @@
-import Docker from 'dockerode';
+import * as k8s from '@kubernetes/client-node';
 import crypto from 'crypto';
 import winston from 'winston';
 import { getUserTier, shouldUseDirectTunnel } from './middleware/tier-check.js';
 
-// Initialize Docker client
-const docker = new Docker();
+// Initialize K8s client
+const kc = new k8s.KubeConfig();
+kc.loadFromDefault();
+const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+const namespace = process.env.K8S_NAMESPACE || 'cloudtolocalllm';
 
 // Logger for proxy management
 const logger = winston.createLogger({
@@ -26,13 +29,12 @@ const logger = winston.createLogger({
 });
 
 /**
- * StreamingProxyManager - Manages ephemeral streaming proxy containers
+ * StreamingProxyManager - Manages ephemeral streaming proxy pods in Kubernetes
  * Implements zero-storage, multi-tenant architecture with complete user isolation
  */
 export class StreamingProxyManager {
   constructor() {
     this.activeProxies = new Map(); // userId -> proxy metadata
-    this.proxyNetworks = new Map(); // userId -> network info
     this.cleanupInterval = null;
 
     // Start periodic cleanup
@@ -44,72 +46,11 @@ export class StreamingProxyManager {
    */
   generateProxyId(userId) {
     const hash = crypto.createHash('sha256').update(userId).digest('hex');
-    return `cloudtolocalllm-proxy-${hash.substring(0, 12)}`;
+    return `proxy-${hash.substring(0, 12)}`;
   }
 
   /**
-   * Generate isolated network name for user
-   */
-  generateNetworkName(userId) {
-    const hash = crypto.createHash('sha256').update(userId).digest('hex');
-    return `cloudtolocalllm-user-${hash.substring(0, 12)}-net`;
-  }
-
-  /**
-   * Create isolated Docker network for user
-   */
-  async createUserNetwork(userId) {
-    const networkName = this.generateNetworkName(userId);
-
-    try {
-      // Check if network already exists
-      const networks = await docker.listNetworks({
-        filters: { name: [networkName] },
-      });
-
-      if (networks.length > 0) {
-        logger.info(`User network already exists: ${networkName}`);
-        return networks[0];
-      }
-
-      // Create isolated network
-      const network = await docker.createNetwork({
-        Name: networkName,
-        Driver: 'bridge',
-        Internal: false, // Allow external access for API communication
-        IPAM: {
-          Driver: 'default',
-          Config: [
-            {
-              Subnet: `172.${20 + Math.floor(Math.random() * 200)}.0.0/24`,
-            },
-          ],
-        },
-        Labels: {
-          'cloudtolocalllm.user': userId,
-          'cloudtolocalllm.type': 'user-network',
-          'cloudtolocalllm.created': new Date().toISOString(),
-        },
-      });
-
-      logger.info(`Created isolated network for user: ${networkName}`);
-      return network;
-    } catch (error) {
-      logger.error(`Failed to create user network: ${networkName}`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Provision streaming proxy container for user with tier-aware logic
-   * For free tier users, returns direct tunnel configuration instead of container
-   * For premium/enterprise users, provisions isolated container environment
-   *
-   * @param {string} userId - User identifier from JWT
-   * @param {string} _userToken - User authentication token (unused but kept for compatibility)
-   * @param {Object} user - Decoded JWT user object for tier detection
-   * @returns {Promise<Object>} Proxy configuration object
-   * @throws {Error} If provisioning fails
+   * Provision streaming proxy pod for user with tier-aware logic
    */
   async provisionProxy(userId, _userToken, user = null) {
     // Input validation
@@ -126,7 +67,7 @@ export class StreamingProxyManager {
         const userTier = getUserTier(user);
 
         logger.info(
-          '� [StreamingProxy] Free tier user detected, providing direct tunnel access',
+          'ℹ️ [StreamingProxy] Free tier user detected, providing direct tunnel access',
           {
             userTier,
             userId,
@@ -134,13 +75,13 @@ export class StreamingProxyManager {
           },
         );
 
-        // Return direct tunnel configuration instead of container
+        // Return direct tunnel configuration instead of pod
         const directTunnelConfig = {
           userId,
           proxyId: `direct-tunnel-${userId}`,
           directTunnel: true,
           endpoint: `/api/direct-proxy/${userId}`,
-          port: null, // No container port needed
+          port: null,
           createdAt: new Date(),
           lastActivity: new Date(),
           status: 'direct-tunnel',
@@ -148,20 +89,12 @@ export class StreamingProxyManager {
           type: 'direct-tunnel',
         };
 
-        // Log successful direct tunnel provision
-        logger.info(' [StreamingProxy] Direct tunnel configured successfully', {
-          userId,
-          userTier,
-          proxyId: directTunnelConfig.proxyId,
-          duration: Date.now() - startTime,
-        });
-
         return directTunnelConfig;
       }
 
-      // Premium/Enterprise tier container provisioning
+      // Premium/Enterprise tier pod provisioning
       logger.info(
-        '� [StreamingProxy] Premium tier user detected, provisioning container',
+        '🚀 [StreamingProxy] Premium tier user detected, provisioning pod',
         {
           userId,
           userTier: getUserTier(user),
@@ -169,83 +102,82 @@ export class StreamingProxyManager {
         },
       );
 
-      // Check if proxy already exists (for premium/enterprise users)
+      // Check if proxy already exists
       if (this.activeProxies.has(userId)) {
         const existingProxy = this.activeProxies.get(userId);
         logger.info(`Proxy already exists for user: ${userId}`);
         return existingProxy;
       }
 
-      // Create isolated network
-      const network = await this.createUserNetwork(userId);
-      const networkName = this.generateNetworkName(userId);
-
-      // Container configuration for simplified tunnel-aware container
-      const containerConfig = {
-        Image: 'cloudtolocalllm-streaming-proxy:latest',
-        name: proxyId,
-        Env: [
-          `USER_ID=${userId}`,
-          `PROXY_ID=${proxyId}`,
-          'NODE_ENV=production',
-          'LOG_LEVEL=info',
-          // Set OLLAMA_BASE_URL to point to tunnel proxy endpoint
-          `OLLAMA_BASE_URL=http://api-backend:8080/api/tunnel/${userId}`,
-          'API_BASE_URL=http://api-backend:8080',
-        ],
-        Labels: {
-          'cloudtolocalllm.user': userId,
-          'cloudtolocalllm.type': 'streaming-proxy',
-          'cloudtolocalllm.created': new Date().toISOString(),
-        },
-        HostConfig: {
-          Memory: 512 * 1024 * 1024, // 512MB RAM limit
-          CpuShares: 512, // 0.5 CPU core limit
-          NetworkMode: networkName,
-          RestartPolicy: { Name: 'no' }, // No restart - ephemeral by design
-          AutoRemove: true, // Auto-remove when stopped
-        },
-        NetworkingConfig: {
-          EndpointsConfig: {
-            [networkName]: {},
-            'cloudtolocalllm-network': {}, // Connect to main network for API access
+      // Pod configuration
+      const podManifest = {
+        apiVersion: 'v1',
+        kind: 'Pod',
+        metadata: {
+          name: proxyId,
+          namespace: namespace,
+          labels: {
+            app: 'streaming-proxy',
+            'cloudtolocalllm.user': userId,
+            'cloudtolocalllm.type': 'streaming-proxy',
           },
+        },
+        spec: {
+          containers: [
+            {
+              name: 'proxy',
+              image: 'imrightguycloudtolocalllm.azurecr.io/streaming-proxy:latest',
+              env: [
+                { name: 'USER_ID', value: userId },
+                { name: 'PROXY_ID', value: proxyId },
+                { name: 'NODE_ENV', value: 'production' },
+                { name: 'LOG_LEVEL', value: 'info' },
+                { name: 'OLLAMA_BASE_URL', value: `http://api-backend:8080/api/tunnel/${userId}` },
+                { name: 'API_BASE_URL', value: 'http://api-backend:8080' },
+              ],
+              resources: {
+                requests: {
+                  memory: '128Mi',
+                  cpu: '100m',
+                },
+                limits: {
+                  memory: '512Mi',
+                  cpu: '500m',
+                },
+              },
+              ports: [{ containerPort: 8080 }],
+            },
+          ],
+          restartPolicy: 'Never',
         },
       };
 
-      // Create and start container
-      const container = await docker.createContainer(containerConfig);
-      await container.start();
-
-      // Get container info and set up proxy
-      await container.inspect(); // Ensure container is running
-      const proxyPort = 8080; // Internal port
+      // Create pod
+      await k8sApi.createNamespacedPod(namespace, podManifest);
 
       // Store proxy metadata
       const proxyMetadata = {
         userId,
         proxyId,
-        containerId: container.id,
-        containerName: proxyId,
-        networkName,
-        port: proxyPort,
+        podName: proxyId,
         createdAt: new Date(),
         lastActivity: new Date(),
-        status: 'running',
+        status: 'provisioning',
       };
 
       this.activeProxies.set(userId, proxyMetadata);
-      this.proxyNetworks.set(userId, { network, networkName });
 
-      logger.info(`Provisioned streaming proxy for user: ${userId}`, {
+      logger.info(`Provisioned streaming proxy pod for user: ${userId}`, {
         proxyId,
-        containerId: container.id,
-        networkName,
+        namespace,
       });
 
       return proxyMetadata;
     } catch (error) {
-      logger.error(`Failed to provision proxy for user: ${userId}`, error);
+      logger.error(`Failed to provision proxy for user: ${userId}`, {
+        error: error.message,
+        body: error.body,
+      });
       throw error;
     }
   }
@@ -261,29 +193,11 @@ export class StreamingProxyManager {
         return false;
       }
 
-      // Stop and remove container
-      const container = docker.getContainer(proxyMetadata.containerId);
-      await container.stop({ t: 10 }); // 10 second grace period
-
-      // Container will auto-remove due to AutoRemove: true
-
-      // Clean up network
-      const networkInfo = this.proxyNetworks.get(userId);
-      if (networkInfo) {
-        try {
-          await networkInfo.network.remove();
-          logger.info(`Removed user network: ${networkInfo.networkName}`);
-        } catch (networkError) {
-          logger.warn(
-            `Failed to remove network: ${networkInfo.networkName}`,
-            networkError,
-          );
-        }
-      }
+      // Delete pod
+      await k8sApi.deleteNamespacedPod(proxyMetadata.podName, namespace);
 
       // Remove from tracking
       this.activeProxies.delete(userId);
-      this.proxyNetworks.delete(userId);
 
       logger.info(`Terminated streaming proxy for user: ${userId}`, {
         proxyId: proxyMetadata.proxyId,
@@ -292,7 +206,10 @@ export class StreamingProxyManager {
 
       return true;
     } catch (error) {
-      logger.error(`Failed to terminate proxy for user: ${userId}`, error);
+      logger.error(`Failed to terminate proxy for user: ${userId}`, {
+        error: error.message,
+        body: error.body,
+      });
       return false;
     }
   }
@@ -306,21 +223,28 @@ export class StreamingProxyManager {
       return { status: 'not-found', userId };
     }
 
+    if (proxyMetadata.status === 'direct-tunnel') {
+      return proxyMetadata;
+    }
+
     try {
-      // Check container health
-      const container = docker.getContainer(proxyMetadata.containerId);
-      const containerInfo = await container.inspect();
+      // Check pod status
+      const response = await k8sApi.readNamespacedPod(proxyMetadata.podName, namespace);
+      const pod = response.body;
 
       return {
-        status: containerInfo.State.Running ? 'running' : 'stopped',
+        status: pod.status.phase.toLowerCase(),
         userId,
         proxyId: proxyMetadata.proxyId,
         createdAt: proxyMetadata.createdAt,
         lastActivity: proxyMetadata.lastActivity,
-        health: containerInfo.State.Health?.Status || 'unknown',
+        podIP: pod.status.podIP,
       };
     } catch (error) {
-      logger.error(`Failed to get proxy status for user: ${userId}`, error);
+      logger.error(`Failed to get proxy status for user: ${userId}`, {
+        error: error.message,
+        body: error.body,
+      });
       return { status: 'error', userId, error: error.message };
     }
   }
