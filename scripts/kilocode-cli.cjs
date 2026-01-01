@@ -3,9 +3,8 @@
 /**
  * Kilocode CLI Wrapper
  * 
- * This script provides a simple interface for AI-powered CI/CD analysis 
- * using the Kilocode API. It supports configuration via kilocode.config.json
- * and environment variables.
+ * Simplified configuration loading for Kilocode API.
+ * Prioritizes kilocode.config.json if available.
  */
 
 const fs = require('fs');
@@ -15,50 +14,39 @@ const https = require('https');
 const args = process.argv.slice(2);
 const prompt = args.filter(arg => !arg.startsWith('-')).join(' ');
 
-// 1. Load Configuration from kilocode.config.json if available
-let configToken = null;
-let configModel = null;
-let configPosthogKey = null;
-
-const configPath = path.join(process.cwd(), 'kilocode.config.json');
-if (fs.existsSync(configPath)) {
-  try {
-    const rawConfig = fs.readFileSync(configPath, 'utf8');
-    const config = JSON.parse(rawConfig);
-    
-    // Look for the default or kilocode provider
-    if (config.providers && Array.isArray(config.providers)) {
-      const provider = config.providers.find(p => p.provider === 'kilocode') || 
-                       config.providers.find(p => p.id === 'default');
-      
-      if (provider) {
-        configToken = provider.kilocodeToken;
-        configModel = provider.kilocodeModel;
-        configPosthogKey = provider.kilocodePosthogApiKey;
-        // console.log('Loaded configuration from kilocode.config.json');
-      }
-    }
-  } catch (err) {
-    console.warn('Warning: Failed to parse kilocode.config.json:', err.message);
-  }
-}
-
-// 2. Resolve final configuration (Env vars override config file if set explicitly, 
-//    but in this workflow context, the config file usually contains the secrets)
-const apiKey = process.env.KILOCODE_TOKEN || configToken;
-const apiHostname = process.env.KILOCODE_API_HOST || 'api.kilocode.ai';
-const apiModel = process.env.KILOCODE_MODEL || configModel || 'x-ai/grok-code-fast-1';
-const posthogApiKey = process.env.KILOCODE_POSTHOG_API_KEY || configPosthogKey;
-
 if (!prompt) {
   console.error('Usage: kilocode-cli <prompt>');
   process.exit(1);
 }
 
+// Default values from environment
+let apiKey = process.env.KILOCODE_TOKEN;
+let apiModel = process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1';
+let posthogApiKey = process.env.KILOCODE_POSTHOG_API_KEY;
+
+// Override from kilocode.config.json if present
+const configPath = path.join(process.cwd(), 'kilocode.config.json');
+if (fs.existsSync(configPath)) {
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    // Simple logic: Take the first provider's config
+    if (config.providers && Array.isArray(config.providers) && config.providers.length > 0) {
+      const provider = config.providers[0];
+      if (provider.kilocodeToken) apiKey = provider.kilocodeToken;
+      if (provider.kilocodeModel) apiModel = provider.kilocodeModel;
+      if (provider.kilocodePosthogApiKey) posthogApiKey = provider.kilocodePosthogApiKey;
+    }
+  } catch (e) {
+    console.warn('Warning: Failed to read kilocode.config.json', e.message);
+  }
+}
+
 if (!apiKey) {
-  console.error('Error: KILOCODE_TOKEN not found in environment or kilocode.config.json');
+  console.error('Error: KILOCODE_TOKEN not found (env or config).');
   process.exit(1);
 }
+
+const apiHostname = process.env.KILOCODE_API_HOST || 'api.kilocode.ai';
 
 const data = JSON.stringify({
   model: apiModel,
@@ -82,7 +70,6 @@ const headers = {
   'Content-Length': Buffer.byteLength(data)
 };
 
-// Add PostHog Key if available (may be required for some endpoints/tracking)
 if (posthogApiKey) {
   headers['x-posthog-api-key'] = posthogApiKey;
 }
@@ -93,56 +80,44 @@ const options = {
   path: '/v1/chat/completions',
   method: 'POST',
   headers: headers,
-  timeout: 60000 // 60 seconds timeout
+  timeout: 60000
 };
 
-const makeRequest = () => {
-  const req = https.request(options, (res) => {
-    let body = '';
-    res.on('data', (chunk) => {
-      body += chunk;
-    });
-
-    res.on('end', () => {
-      if (res.statusCode >= 400) {
-        console.error(`Kilocode API Error (${res.statusCode}):`, body);
-        // If 405, it might be the wrong endpoint or method. 
-        // We log it clearly for debugging.
+const req = https.request(options, (res) => {
+  let body = '';
+  res.on('data', chunk => body += chunk);
+  res.on('end', () => {
+    if (res.statusCode >= 400) {
+      console.error(`Kilocode API Error (${res.statusCode}):`, body);
+      process.exit(1);
+    }
+    try {
+      const response = JSON.parse(body);
+      if (response.choices?.[0]?.message?.content) {
+        let text = response.choices[0].message.content;
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        console.log(text);
+      } else {
+        console.error('Unexpected response format:', body);
         process.exit(1);
       }
-
-      try {
-        const response = JSON.parse(body);
-        if (response.choices && response.choices[0] && response.choices[0].message) {
-          let text = response.choices[0].message.content;
-          // Clean markdown code blocks if present
-          text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-          console.log(text);
-        } else {
-          console.error('Unexpected response format:', body);
-          process.exit(1);
-        }
-      } catch (e) {
-        console.error('Failed to parse response:', e.message);
-        console.error('Body:', body);
-        process.exit(1);
-      }
-    });
+    } catch (e) {
+      console.error('Failed to parse response:', e.message, body);
+      process.exit(1);
+    }
   });
+});
 
-  req.on('error', (e) => {
-    console.error('Request failed:', e.message);
-    process.exit(1);
-  });
+req.on('error', (e) => {
+  console.error('Request failed:', e.message);
+  process.exit(1);
+});
 
-  req.on('timeout', () => {
-    console.error('Request timed out after 60 seconds');
-    req.destroy();
-    process.exit(1);
-  });
+req.on('timeout', () => {
+  req.destroy();
+  console.error('Request timed out');
+  process.exit(1);
+});
 
-  req.write(data);
-  req.end();
-};
-
-makeRequest();
+req.write(data);
+req.end();
