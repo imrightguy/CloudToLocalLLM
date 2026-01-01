@@ -32,8 +32,8 @@ app.use(cors({
   }
 }));
 
-const AUTH0_DOMAIN = 'your-domain.auth0.com'; // Replace
-const AUDIENCE = 'your-audience'; // Replace
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || 'your-domain.auth0.com';
+const AUDIENCE = process.env.AUTH0_AUDIENCE || 'your-audience';
 
 const checkJwt = expressjwt({
   secret: jwksRsa.expressJwtSecret({
