@@ -40,7 +40,7 @@ const data = JSON.stringify({
 });
 
 const options = {
-  hostname: 'api.kilocode.ai',
+  hostname: 'api.x.ai',
   port: 443,
   path: '/v1/chat/completions',
   method: 'POST',
