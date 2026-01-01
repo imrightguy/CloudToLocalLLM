@@ -122,9 +122,85 @@ jobs:
         env:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN }}
           KILOCODE_MODEL: ${{ vars.KILOCODE_MODEL }}
+          KILOCODE_POSTHOG_API_KEY: ${{ secrets.KILOCODE_POSTHOG_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
+
+          # Generate Kilocode Configuration
+          cat <<EOF > kilocode.config.json
+          {
+            "version": "1.0.0",
+            "mode": "code",
+            "telemetry": true,
+            "provider": "default",
+            "providers": [
+              {
+                "id": "default",
+                "provider": "kilocode",
+                "kilocodeToken": "$KILOCODE_TOKEN",
+                "kilocodeModel": "$KILOCODE_MODEL",
+                "kilocodePosthogApiKey": "$KILOCODE_POSTHOG_API_KEY"
+              }
+            ],
+            "autoApproval": {
+              "enabled": true,
+              "read": {
+                "enabled": true,
+                "outside": false
+              },
+              "write": {
+                "enabled": true,
+                "outside": true,
+                "protected": false
+              },
+              "browser": {
+                "enabled": true
+              },
+              "retry": {
+                "enabled": true,
+                "delay": 10
+              },
+              "mcp": {
+                "enabled": true
+              },
+              "mode": {
+                "enabled": true
+              },
+              "subtasks": {
+                "enabled": true
+              },
+              "execute": {
+                "enabled": true,
+                "allowed": [
+                  "ls",
+                  "cat",
+                  "echo",
+                  "pwd",
+                  "mkdir",
+                  "cd",
+                  "kubectl",
+                  "curl"
+                ],
+                "denied": [
+                  "rm -rf",
+                  "sudo rm",
+                  "mkfs",
+                  "dd if="
+                ]
+              },
+              "question": {
+                "enabled": false,
+                "timeout": 60
+              },
+              "todo": {
+                "enabled": true
+              }
+            },
+            "theme": "dark",
+            "customThemes": {}
+          }
+          EOF
           
           if [ -f scripts/kilocode-cli.cjs ]; then
             chmod +x scripts/kilocode-cli.cjs
