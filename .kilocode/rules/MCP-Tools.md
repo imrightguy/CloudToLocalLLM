@@ -35,3 +35,33 @@
 - No compute/JSON parse native.
 - File restrictions per mode (architect: .md$).
 - Exec: New terminal, may truncate long output.
+
+## MCP Server Tools
+
+### context7 (`@upstash/context7-mcp`)
+- [`mcp--context7--resolve-library-id`](MCP-Tools.md): Resolve library ID from package name.
+- [`mcp--context7--query-docs`](MCP-Tools.md): Query up-to-date docs and code examples.
+
+### memory (`@modelcontextprotocol/server-memory`)
+Knowledge graph management:
+- [`mcp--memory--create_entities`](MCP-Tools.md)
+- [`mcp--memory--create_relations`](MCP-Tools.md)
+- [`mcp--memory--add_observations`](MCP-Tools.md)
+- [`mcp--memory--delete_entities`](MCP-Tools.md)
+- [`mcp--memory--delete_observations`](MCP-Tools.md)
+- [`mcp--memory--delete_relations`](MCP-Tools.md)
+- [`mcp--memory--read_graph`](MCP-Tools.md)
+- [`mcp--memory--search_nodes`](MCP-Tools.md)
+- [`mcp--memory--open_nodes`](MCP-Tools.md)
+
+### sequentialthinking (`@modelcontextprotocol/server-sequential-thinking`)
+- [`mcp--sequentialthinking--sequentialthinking`](MCP-Tools.md): Structured chain-of-thought for complex tasks.
+
+### playwright (`@playwright/mcp@0.0.38`, configured in `.kilocode/mcp.json`)
+
+**Guidelines for Web Testing:**
+- Prefer [`mcp_playwright_*`](MCP-Tools.md) tools over `browser_action` for E2E testing with assertions, screenshots, traces.
+- Examples: `playwright_navigate`, `playwright_screenshot`, `playwright_click`.
+- Setup: `npx playwright install`
+- Run tests: `npx playwright test`
+- Reference: [docs/development/MCP_TOOLS_SETUP.md](docs/development/MCP_TOOLS_SETUP.md), test/e2e/*.spec.js
