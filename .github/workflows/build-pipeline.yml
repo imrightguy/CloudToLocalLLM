@@ -244,6 +244,16 @@ jobs:
       - name: Get AKS Credentials
         run: |
           az aks get-credentials --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --name ${{ env.AZURE_CLUSTER_NAME }} --overwrite-existing
+      - name: Create Image Pull Secret
+        run: |
+          az acr credential show --name ${{ env.ACR_NAME }} --query "passwords[0].value" -o tsv | xargs -I {} \
+          kubectl create secret docker-registry regcred \
+            --docker-server=${{ env.ACR_NAME }}.azurecr.io \
+            --docker-username=${{ env.ACR_NAME }} \
+            --docker-password={} \
+            --namespace=cloudtolocalllm \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy Kubernetes Secrets
         env:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
@@ -270,6 +280,9 @@ jobs:
           GRAFANA_CLOUD_PROMETHEUS_URL: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_URL }}
           GRAFANA_CLOUD_PROMETHEUS_USER: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_USER }}
           GRAFANA_CLOUD_PROMETHEUS_TOKEN: ${{ secrets.GRAFANA_CLOUD_PROMETHEUS_TOKEN }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          POSTGRES_AUTH_PASSWORD: ${{ secrets.POSTGRES_AUTH_PASSWORD }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
           # Use jq to construct a valid Kubernetes Secret JSON to ensure proper character escaping
           # This resolves "found unknown escape character" errors common with envsubst
