@@ -24,6 +24,23 @@ let apiKey = process.env.KILOCODE_TOKEN;
 let apiModel = process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1';
 let posthogApiKey = process.env.KILOCODE_POSTHOG_API_KEY;
 
+/**
+ * Resolve a config value that may reference an environment variable.
+ * Supports ${VAR_NAME} and $VAR_NAME.
+ */
+function resolveEnvRef(value) {
+  if (typeof value !== 'string') return value;
+
+  const trimmed = value.trim();
+  const braced = trimmed.match(/^\$\{([A-Z0-9_]+)\}$/);
+  if (braced) return process.env[braced[1]];
+
+  const bare = trimmed.match(/^\$([A-Z0-9_]+)$/);
+  if (bare) return process.env[bare[1]];
+
+  return value;
+}
+
 // Override from kilocode.config.json if present
 const configPath = path.join(process.cwd(), 'kilocode.config.json');
 if (fs.existsSync(configPath)) {
@@ -32,9 +49,13 @@ if (fs.existsSync(configPath)) {
     // Simple logic: Take the first provider's config
     if (config.providers && Array.isArray(config.providers) && config.providers.length > 0) {
       const provider = config.providers[0];
-      if (provider.kilocodeToken) apiKey = provider.kilocodeToken;
-      if (provider.kilocodeModel) apiModel = provider.kilocodeModel;
-      if (provider.kilocodePosthogApiKey) posthogApiKey = provider.kilocodePosthogApiKey;
+      const resolvedToken = resolveEnvRef(provider.kilocodeToken);
+      const resolvedModel = resolveEnvRef(provider.kilocodeModel);
+      const resolvedPosthog = resolveEnvRef(provider.kilocodePosthogApiKey);
+
+      if (resolvedToken) apiKey = resolvedToken;
+      if (resolvedModel) apiModel = resolvedModel;
+      if (resolvedPosthog) posthogApiKey = resolvedPosthog;
     }
   } catch (e) {
     console.warn('Warning: Failed to read kilocode.config.json', e.message);
@@ -47,6 +68,7 @@ if (!apiKey) {
 }
 
 const apiHostname = process.env.KILOCODE_API_HOST || 'api.kilocode.ai';
+const apiPath = process.env.KILOCODE_API_PATH || '/v1/chat/completions';
 
 const data = JSON.stringify({
   model: apiModel,
@@ -77,7 +99,7 @@ if (posthogApiKey) {
 const options = {
   hostname: apiHostname,
   port: 443,
-  path: '/v1/chat/completions',
+  path: apiPath,
   method: 'POST',
   headers: headers,
   timeout: 60000

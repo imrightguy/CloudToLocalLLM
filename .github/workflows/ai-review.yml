@@ -55,7 +55,9 @@ jobs:
       - name: "Run AI pull request review"
         id: "ai_pr_review"
         env:
-          KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN }}"
+          # Prefer wiring to existing secret names without renaming secrets.
+          # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
+          KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "${{ vars.KILOCODE_MODEL }}"
           KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
@@ -64,7 +66,7 @@ jobs:
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
           # Generate Kilocode Configuration
-          cat <<EOF > kilocode.config.json
+          cat <<'EOF' > kilocode.config.json
           {
             "version": "1.0.0",
             "mode": "code",
@@ -74,9 +76,9 @@ jobs:
               {
                 "id": "default",
                 "provider": "kilocode",
-                "kilocodeToken": "$KILOCODE_TOKEN",
-                "kilocodeModel": "$KILOCODE_MODEL",
-                "kilocodePosthogApiKey": "$KILOCODE_POSTHOG_API_KEY"
+                "kilocodeToken": "${KILOCODE_TOKEN}",
+                "kilocodeModel": "${KILOCODE_MODEL}",
+                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
             ],
             "autoApproval": {
@@ -174,8 +176,9 @@ jobs:
             echo "📝 Error details:"
             cat ai_error.log
             echo "::group::Debug Information"
-            echo "Environment:"
-            env | sort
+            echo "KILOCODE_TOKEN set: $([ -n \"$KILOCODE_TOKEN\" ] && echo yes || echo no)"
+            echo "KILOCODE_MODEL: $KILOCODE_MODEL"
+            echo "KILOCODE_POSTHOG_API_KEY set: $([ -n \"$KILOCODE_POSTHOG_API_KEY\" ] && echo yes || echo no)"
             echo "::endgroup::"
             exit 1
           fi

@@ -120,15 +120,30 @@ jobs:
 
       - name: Orchestration Logic
         env:
-          KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN }}
+          # Prefer wiring to existing secret names without renaming secrets.
+          # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
+          KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
           KILOCODE_MODEL: ${{ vars.KILOCODE_MODEL }}
           KILOCODE_POSTHOG_API_KEY: ${{ secrets.KILOCODE_POSTHOG_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
 
+          # Safe CI validation: confirm token is present and can reach the API without printing secrets.
+          if [ -z "$KILOCODE_TOKEN" ]; then
+            echo "::error::Missing Kilocode token. Expected secrets.KILOCODE_TOKEN or secrets.KILOCODE_API_KEY."
+            exit 1
+          fi
+          API_HOST="${KILOCODE_API_HOST:-api.kilocode.ai}"
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${KILOCODE_TOKEN}" "https://${API_HOST}/v1/models" || true)
+          if [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ]; then
+            echo "::warning::Kilocode API connectivity check failed (no HTTP response)"
+          else
+            echo "Kilocode API connectivity check: HTTP ${HTTP_CODE}"
+          fi
+
           # Generate Kilocode Configuration
-          cat <<EOF > kilocode.config.json
+          cat <<'EOF' > kilocode.config.json
           {
             "version": "1.0.0",
             "mode": "code",
@@ -138,9 +153,9 @@ jobs:
               {
                 "id": "default",
                 "provider": "kilocode",
-                "kilocodeToken": "$KILOCODE_TOKEN",
-                "kilocodeModel": "$KILOCODE_MODEL",
-                "kilocodePosthogApiKey": "$KILOCODE_POSTHOG_API_KEY"
+                "kilocodeToken": "${KILOCODE_TOKEN}",
+                "kilocodeModel": "${KILOCODE_MODEL}",
+                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
             ],
             "autoApproval": {
