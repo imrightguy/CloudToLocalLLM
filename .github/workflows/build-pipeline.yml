@@ -344,14 +344,16 @@ jobs:
             }' | kubectl apply -f -
 
       - name: Deploy Optimized Cloudflare Tunnel
+        env:
+          CLOUDFLARE_TUNNEL_ID: ${{ secrets.CLOUDFLARE_TUNNEL_ID }}
         run: |
           # Calculate SHA of ConfigMap to trigger rolling restart if config changed
           # Use -- to terminate option processing for grep and avoid "unrecognized option '---'"
           CONFIG_MAP_YAML=$(sed -n '/kind: ConfigMap/,/---/p' k8s/deployments/overlays/managed/cloudflared-tunnel.yaml | grep -v -- "---")
           export CLOUDFLARED_CONFIG_SHA=$(echo "$CONFIG_MAP_YAML" | sha256sum | cut -d' ' -f1)
           
-          # Use envsubst to inject the SHA into the Deployment and apply
-          envsubst '$CLOUDFLARED_CONFIG_SHA' < k8s/deployments/overlays/managed/cloudflared-tunnel.yaml | kubectl apply -f -
+          # Use envsubst to inject the SHA and Tunnel ID into the Deployment and apply
+          envsubst '$CLOUDFLARED_CONFIG_SHA,$CLOUDFLARE_TUNNEL_ID' < k8s/deployments/overlays/managed/cloudflared-tunnel.yaml | kubectl apply -f -
 
       - name: Deploy Monitoring Configuration
         env:

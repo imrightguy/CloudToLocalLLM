@@ -3,11 +3,19 @@
 # Uses artifacts from the Universal Builder
 # ============================================================================
 
-# Use custom Fedora base (cloudtolocalllm/base:latest)
-FROM cloudtolocalllm/base:latest
+# Use custom base image
+ARG BASE_REGISTRY=cloudtolocalllm
+FROM ${BASE_REGISTRY}/base:latest
 
 # Switch to root to ensure directory setup
 USER root
+
+# Ensure Node.js and npm are installed (fallback if base image is missing them)
+RUN if ! command -v npm &> /dev/null; then \
+    apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get install -y nodejs; \
+    fi
 
 # Create isolated data directories
 WORKDIR /api
