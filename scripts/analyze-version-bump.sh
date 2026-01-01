@@ -2,15 +2,15 @@
 set -e
 set -o pipefail
 
-# Script to analyze commits and determine version bump using Gemini AI
+# Script to analyze commits and determine version bump using Kilocode AI
 # Outputs: new_version and bump_type to GITHUB_OUTPUT
 
 # Enable error tracing
 trap 'echo "Error on line $LINENO"' ERR
 
-echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
-echo "Analyzing Commits with Gemini AI"
-echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Analyzing Commits with Kilocode AI"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Get current version
 CURRENT_VERSION=$(jq -r '.version' assets/version.json)
@@ -31,33 +31,33 @@ echo "Commits to analyze:"
 echo "$COMMITS"
 echo ""
 
-# Prepare prompt for Gemini (escape special characters for JSON)
+# Prepare prompt for Kilocode (escape special characters for JSON)
 COMMITS_ESCAPED=$(echo "$COMMITS" | sed 's/"/\"/g' | tr '\n' ' ')
 
 PROMPT="You are a semantic versioning expert. Analyze these git commits and determine the appropriate version bump. Current version: $CURRENT_VERSION. Commits: $COMMITS_ESCAPED. Rules: BREAKING CHANGE or breaking: means MAJOR bump (x.0.0). feat: or feature: means MINOR bump (0.x.0) ONLY if it adds significant NEW user-facing functionality. Backend improvements, infrastructure changes, provider swaps (e.g., changing auth provider), enabling work, or fixes (even if labeled feat) should be PATCH (0.0.x) if they do not change the user experience. fix: or bugfix: means PATCH bump (0.0.x). chore:, docs:, style:, refactor:, test: means PATCH bump (0.0.x). If multiple types, use the highest priority (MAJOR > MINOR > PATCH). Respond with ONLY a JSON object with this exact format: {\"bump_type\": \"major or minor or patch\", \"new_version\": \"x.y.z\", \"reasoning\": \"brief explanation\"}. Do not include any other text, markdown, code blocks, or formatting. Only the raw JSON object."
 
-# Call Gemini
-echo "🚀 Calling Gemini AI to analyze commits..."
+# Call Kilocode
+echo "🚀 Calling Kilocode AI to analyze commits..."
 
-# Enforce GEMINI_API_KEY
-if [ -z "$GEMINI_API_KEY" ]; then
-    echo "❌ ERROR: GEMINI_API_KEY is not set. Strict mode requires credentials."
+# Enforce KILOCODE_API_KEY
+if [ -z "$KILOCODE_API_KEY" ]; then
+    echo "❌ ERROR: KILOCODE_API_KEY is not set. Strict mode requires credentials."
     exit 1
 fi
 
-if ! command -v gemini >/dev/null 2>&1; then
-    echo "❌ ERROR: 'gemini' command not found."
+if ! command -v kilocode >/dev/null 2>&1; then
+    echo "❌ ERROR: 'kilocode' command not found."
     exit 1
 fi
 
-# Call Gemini and capture both stdout and stderr
+# Call Kilocode and capture both stdout and stderr
 set +e
-RESPONSE=$(gemini --yolo --prompt "$PROMPT" 2>&1)
+RESPONSE=$(kilocode "$PROMPT" 2>&1)
 EXIT_CODE=$?
 set -e
 
 if [ $EXIT_CODE -ne 0 ] || [ -z "$RESPONSE" ]; then
-    echo "❌ CRITICAL FAILURE: Gemini CLI failed with exit code: $EXIT_CODE"
+    echo "❌ CRITICAL FAILURE: Kilocode CLI failed with exit code: $EXIT_CODE"
     echo "$RESPONSE"
     exit 1
 fi
@@ -66,7 +66,7 @@ fi
 JSON_RESPONSE=$(echo "$RESPONSE" | sed -n '/{/,/}/p')
 
 if ! echo "$JSON_RESPONSE" | jq empty >/dev/null 2>&1; then
-    echo "❌ CRITICAL FAILURE: Invalid JSON response from Gemini."
+    echo "❌ CRITICAL FAILURE: Invalid JSON response from Kilocode."
     echo "$RESPONSE"
     exit 1
 fi
@@ -77,25 +77,25 @@ NEW_VERSION=$(echo "$JSON_RESPONSE" | jq -r '.new_version')
 REASONING=$(echo "$JSON_RESPONSE" | jq -r '.reasoning')
 
 if [ "$BUMP_TYPE" == "null" ] || [ "$NEW_VERSION" == "null" ]; then
-    echo "❌ CRITICAL FAILURE: Missing required fields in Gemini response."
+    echo "❌ CRITICAL FAILURE: Missing required fields in Kilocode response."
     exit 1
 fi
 
 echo ""
-echo "✅ Gemini Analysis:"
+echo "✅ Kilocode Analysis:"
 echo "  Bump type: $BUMP_TYPE"
 echo "  New version: $NEW_VERSION"
 echo "  Reasoning: $REASONING"
 
 # Validate version format
 if ! echo "$NEW_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-    echo "❌ CRITICAL FAILURE: Invalid version format from Gemini: $NEW_VERSION"
+    echo "❌ CRITICAL FAILURE: Invalid version format from Kilocode: $NEW_VERSION"
     echo "Strict mode requires valid AI output. Terminating."
     exit 1
 fi
 
 echo ""
-echo "âœ… Version Decision:"
+echo "✅ Version Decision:"
 echo "  Current: $CURRENT_VERSION"
 echo "  New:     $NEW_VERSION"
 echo "  Type:    $BUMP_TYPE"

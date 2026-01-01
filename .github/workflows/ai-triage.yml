@@ -63,7 +63,7 @@ jobs:
         if: |-
           ${{ steps.get_labels.outputs.available_labels != '' }}
         env:
-          GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+          KILOCODE_API_KEY: "${{ secrets.KILOCODE_API_KEY }}"
           ISSUE_TITLE: "${{ github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.issue.body }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
@@ -85,13 +85,13 @@ jobs:
 
           echo "🔄 Starting AI issue analysis..."
           
-          # Ensure local gemini CLI is usable
-          if [ -f scripts/gemini-cli.cjs ]; then
-            chmod +x scripts/gemini-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/gemini-cli.cjs" /usr/local/bin/gemini
+          # Ensure local kilocode CLI is usable
+          if [ -f scripts/kilocode-cli.cjs ]; then
+            chmod +x scripts/kilocode-cli.cjs
+            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
           fi
 
-          if ! gemini "$PROMPT" > raw_output.json 2> ai_error.log; then
+          if ! kilocode "$PROMPT" > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
             echo "📝 Error details:"
             cat ai_error.log

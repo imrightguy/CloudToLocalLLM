@@ -1,38 +1,38 @@
-# Setting Up Gemini CLI for AI-Powered Versioning
+# Setting Up Kilocode CLI for AI-Powered Versioning
 
 ## Get Your API Key
 
-1. **Go to Google AI Studio**:
-   - Visit: https://makersuite.google.com/app/apikey
-   - Or: https://aistudio.google.com/app/apikey
+1. **Go to Kilocode Console**:
+   - Visit: https://kilocode.ai/console
+   - Or: https://api.kilocode.ai/console
 
 2. **Create API Key**:
-   - Click "Create API Key"
-   - Select "Create API key in new project" (or existing project)
-   - Copy the generated key
+   - Navigate to API Keys section
+   - Create a new JWT token
+   - Copy the generated token
 
-3. **Configure Gemini**:
+3. **Configure Kilocode**:
    Run the setup script to configure your environment:
    ```bash
-   ./scripts/setup-gemini.sh 'your_api_key_here'
+   ./scripts/setup-kilocode.sh 'your_api_key_here'
    ```
 
    Or manually add to GitHub Secrets:
    ```bash
-   gh secret set GEMINI_API_KEY --body 'your_api_key_here'
+   gh secret set KILOCODE_API_KEY --body 'your_api_key_here'
    ```
 
 4. **Verify**:
    ```bash
-   gh secret list | grep GEMINI
-   # Should show: GEMINI_API_KEY
+   gh secret list | grep KILOCODE
+   # Should show: KILOCODE_API_KEY
    ```
 
 ## Test Locally (Optional)
 
 ```bash
 # Export your key (if not using setup script)
-export GEMINI_API_KEY='your_key_here'
+export KILOCODE_API_KEY='your_key_here'
 
 # Test version analysis
 ./scripts/analyze-version-bump.sh
@@ -43,7 +43,7 @@ export GEMINI_API_KEY='your_key_here'
 
 ## Fallback Behavior
 
-If `GEMINI_API_KEY` is not set:
+If `KILOCODE_API_KEY` is not set:
 - ✅ Workflow still works
 - ⚠️  Defaults to PATCH bump
 - ⚠️  No intelligent analysis
@@ -51,14 +51,14 @@ If `GEMINI_API_KEY` is not set:
 
 ## Cost
 
-- **Gemini API**: Free tier includes 60 requests/minute
+- **Kilocode API**: Free tier includes generous limits for `grok-code-fast-1`
 - **Each version bump**: 1 API call
 - **Typical usage**: ~10-50 calls/month
 - **Cost**: $0 (within free tier)
 
 ## Privacy
 
-Gemini receives:
+Kilocode receives:
 - ✅ Commit messages (public repo info)
 - ✅ Current version number
 - ❌ No source code
@@ -67,7 +67,7 @@ Gemini receives:
 
 ## Alternative: Manual Versioning
 
-If you prefer not to use Gemini:
+If you prefer not to use Kilocode:
 
 ```bash
 # Disable version-bump workflow
@@ -84,12 +84,9 @@ git push origin --tags
 
 ## Quota Limits
 
-Google AI Studio Free Tier:
-- **60 requests/minute**
-- **1,500 requests/day**
+Kilocode Free Tier:
 - **Sufficient for**: 100+ deployments/day
-
-If you hit limits:
-- Workflow falls back to PATCH bump
-- No deployment failure
-- Consider upgrading to paid tier
+- If you hit limits:
+  - Workflow falls back to PATCH bump
+  - No deployment failure
+  - Consider upgrading to paid tier

@@ -1,6 +1,6 @@
-# Gemini Protocol & Repository Governance
+# Kilocode Protocol & Repository Governance
 
-This document defines the mandatory operational protocols for AI Agents (Gemini, Kilocode, etc.) interacting with this repository.
+This document defines the mandatory operational protocols for AI Agents (Kilocode, Gemini, etc.) interacting with this repository.
 
 ## 1. 🛡️ Root Directory Preservation Protocol (RDPP)
 
@@ -17,7 +17,7 @@ To maintain repository integrity and reduce cognitive load, a strict "clean-root
 Only the following files are permitted to reside in the repository root:
 - **Essential Toolchain Configurations:** `.gitignore`, `.gitattributes`, `LICENSE`, `package.json`, `pubspec.yaml`, `Makefile`, `docker-compose.yml`, `playwright.config.js`.
 - **Project Entry Points:** `README.md`, `CHANGELOG.md`.
-- **Agent Instructions:** `Gemini.md`, `.kiro/` (steering), `.cursor/` (rules).
+- **Agent Instructions:** `Gemini.md` (Legacy/Governance), `.kiro/` (steering), `.cursor/` (rules).
 
 ### Migration Directive
 If an operation generates a file that would normally reside in the root, it **MUST** be redirected to an appropriate subdirectory:

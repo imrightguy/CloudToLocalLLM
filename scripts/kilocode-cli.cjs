@@ -1,46 +1,58 @@
 #!/usr/bin/env node
 
-// Simple Gemini CLI wrapper for version analysis using GitHub Copilot
+/**
+ * Kilocode CLI Wrapper
+ * 
+ * This script replaces gemini-cli.cjs and provides a simple interface for
+ * AI-powered CI/CD analysis using the Kilocode API and grok-code-fast-1 model.
+ */
 
 const https = require('https');
 
 const args = process.argv.slice(2);
 const prompt = args.filter(arg => !arg.startsWith('-')).join(' ');
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.KILOCODE_API_KEY;
 
 if (!prompt) {
-  console.error('Usage: gemini-cli <prompt>');
+  console.error('Usage: kilocode-cli <prompt>');
   process.exit(1);
 }
 
 if (!apiKey) {
-  console.error('Error: GEMINI_API_KEY environment variable is not set.');
+  console.error('Error: KILOCODE_API_KEY environment variable is not set.');
   process.exit(1);
 }
 
 const data = JSON.stringify({
-  contents: [{
-    parts: [{ text: prompt }]
-  }],
-  generationConfig: {
-    temperature: 0.1,
-    maxOutputTokens: 1024
-  }
+  model: 'x-ai/grok-code-fast-1',
+  messages: [
+    {
+      role: 'system',
+      content: 'You are a CI/CD orchestration assistant. You analyze code changes and decide on version bumps and deployment strategies. Respond ONLY with valid JSON.'
+    },
+    {
+      role: 'user',
+      content: prompt
+    }
+  ],
+  temperature: 0.1,
+  max_tokens: 1024
 });
 
 const options = {
-  hostname: 'generativelanguage.googleapis.com',
+  hostname: 'api.kilocode.ai',
   port: 443,
-  path: `/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+  path: '/v1/chat/completions',
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${apiKey}`,
     'Content-Length': data.length
   },
   timeout: 60000 // 60 seconds timeout
 };
 
-const makeRequest = (retryCount = 0) => {
+const makeRequest = () => {
   const req = https.request(options, (res) => {
     let body = '';
     res.on('data', (chunk) => {
@@ -49,15 +61,15 @@ const makeRequest = (retryCount = 0) => {
 
     res.on('end', () => {
       if (res.statusCode >= 400) {
-        console.error(`Gemini API Error (${res.statusCode}):`, body);
+        console.error(`Kilocode API Error (${res.statusCode}):`, body);
         process.exit(1);
       }
 
       try {
         const response = JSON.parse(body);
-        if (response.candidates && response.candidates[0] && response.candidates[0].content && response.candidates[0].content.parts[0]) {
-          let text = response.candidates[0].content.parts[0].text;
-          // Clean markdown code blocks
+        if (response.choices && response.choices[0] && response.choices[0].message) {
+          let text = response.choices[0].message.content;
+          // Clean markdown code blocks if present
           text = text.replace(/```json/g, '').replace(/```/g, '').trim();
           console.log(text);
         } else {
@@ -78,7 +90,7 @@ const makeRequest = (retryCount = 0) => {
   });
 
   req.on('timeout', () => {
-    console.error('Request timed out after 180 seconds');
+    console.error('Request timed out after 60 seconds');
     req.destroy();
     process.exit(1);
   });
@@ -88,4 +100,3 @@ const makeRequest = (retryCount = 0) => {
 };
 
 makeRequest();
-

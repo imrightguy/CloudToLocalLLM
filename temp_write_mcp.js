@@ -1,4 +1,6 @@
-{
+import fs from 'fs';
+
+const config = {
   "mcpServers": {
     "cloudflare": {
       "alwaysAllow": [
@@ -135,7 +137,12 @@
       "command": "npx"
     }
   }
-}
+};
+
+fs.writeFileSync('.kilocode/mcp.json', JSON.stringify(config, null, 2));
+console.log('Successfully wrote .kilocode/mcp.json');
+
+const config = {
   "mcpServers": {
     "cloudflare": {
       "alwaysAllow": [
@@ -272,5 +279,8 @@
       "command": "npx"
     }
   }
-}
+};
+
+fs.writeFileSync('.kilocode/mcp.json', JSON.stringify(config, null, 2));
+console.log('Successfully wrote .kilocode/mcp.json');
 

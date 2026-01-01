@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Generate CHANGELOG.md using Gemini AI based on git commits
+# Generate CHANGELOG.md using Kilocode AI based on git commits
 # Usage: ./generate-changelog.sh <new-version>
 
 NEW_VERSION="$1"
@@ -30,7 +30,7 @@ if [ -z "$COMMITS" ]; then
     exit 0
 fi
 
-# Prepare prompt for Gemini
+# Prepare prompt for Kilocode
 PROMPT="Analyze the following git commits and generate a professional CHANGELOG entry for version $NEW_VERSION.
 Group changes into categories: Features, Bug Fixes, Security, Performance, Documentation, Refactoring, and Chore.
 Use Markdown format. Output ONLY the changelog content.
@@ -38,22 +38,22 @@ Use Markdown format. Output ONLY the changelog content.
 Commits:
 $COMMITS"
 
-# Get response from Gemini
-if ! command -v gemini >/dev/null 2>&1; then
-    echo "❌ CRITICAL FAILURE: 'gemini' command not found. Ensure the Gemini CLI is installed and in your PATH."
+# Get response from Kilocode
+if ! command -v kilocode >/dev/null 2>&1; then
+    echo "❌ CRITICAL FAILURE: 'kilocode' command not found. Ensure the Kilocode CLI is installed and in your PATH."
     exit 1
 fi
 
-echo "🚀 Requesting changelog from Gemini AI..."
-# Use gemini CLI to generate the changelog
-CHANGELOG_ENTRY=$(gemini "$PROMPT" --yolo --model gemini-1.5-flash)
+echo "🚀 Requesting changelog from Kilocode AI..."
+# Use kilocode CLI to generate the changelog
+CHANGELOG_ENTRY=$(kilocode "$PROMPT")
 
 if [ -z "$CHANGELOG_ENTRY" ]; then
-    echo "❌ CRITICAL FAILURE: Gemini AI returned an empty response. Cannot generate changelog."
+    echo "❌ CRITICAL FAILURE: Kilocode AI returned an empty response. Cannot generate changelog."
     exit 1
 fi
 
-echo "✅ Received response from Gemini."
+echo "✅ Received response from Kilocode."
 
 # Clean up the response (remove code blocks if any)
 CHANGELOG_ENTRY=$(echo "$CHANGELOG_ENTRY" | sed 's/```markdown//g' | sed 's/```//g')

@@ -49,7 +49,7 @@ jobs:
       - name: "Run AI pull request review"
         id: "ai_pr_review"
         env:
-          GEMINI_API_KEY: "${{ secrets.GEMINI_API_KEY }}"
+          KILOCODE_API_KEY: "${{ secrets.KILOCODE_API_KEY }}"
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
           ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"
@@ -77,16 +77,16 @@ jobs:
           EOF
           echo "🔄 Starting AI PR review..."
           
-          # Ensure local gemini CLI is usable
-          if [ -f scripts/gemini-cli.cjs ]; then
-            chmod +x scripts/gemini-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/gemini-cli.cjs" /usr/local/bin/gemini
+          # Ensure local kilocode CLI is usable
+          if [ -f scripts/kilocode-cli.cjs ]; then
+            chmod +x scripts/kilocode-cli.cjs
+            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
           fi
 
           TITLE_ESCAPED=$(echo "$ISSUE_TITLE" | sed 's/\"/\\\\\"/g')
           BODY_ESCAPED=$(echo "$ISSUE_BODY" | sed 's/\"/\\\\\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/\"/\\\\\"/g')
-          if ! gemini "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
+          if ! kilocode "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
             echo "📝 Error details:"
             cat ai_error.log

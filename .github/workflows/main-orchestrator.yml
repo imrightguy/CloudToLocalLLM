@@ -117,14 +117,14 @@ jobs:
 
       - name: Orchestration Logic
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          KILOCODE_API_KEY: ${{ secrets.KILOCODE_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           
-          if [ -f scripts/gemini-cli.cjs ]; then
-            chmod +x scripts/gemini-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/gemini-cli.cjs" /usr/local/bin/gemini
+          if [ -f scripts/kilocode-cli.cjs ]; then
+            chmod +x scripts/kilocode-cli.cjs
+            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
           fi
 
           VERSION=$(cat assets/version.json | jq -r '.version' || echo "7.0.0")
@@ -133,13 +133,13 @@ jobs:
           BUMP_NEEDED="false"
           NEW_VERSION="$VERSION"
 
-          if ! command -v gemini &> /dev/null; then
-              echo "❌ ERROR: gemini command not found. Strict orchestration requires Gemini."
+          if ! command -v kilocode &> /dev/null; then
+              echo "❌ ERROR: kilocode command not found. Strict orchestration requires Kilocode."
               exit 1
           fi
 
-          echo "Running Gemini analysis..."
-          gemini "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json
+          echo "Running Kilocode analysis (grok-code-fast-1)..."
+          kilocode "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json
 
           CLEAN_RESPONSE=$(cat raw_output.json)
           echo "Cleaned response: $CLEAN_RESPONSE"
@@ -148,7 +148,7 @@ jobs:
           NEW_VERSION=$(echo "$CLEAN_RESPONSE" | jq -r '.new_version' | xargs)
 
           if [ "$BUMP_NEEDED" == "null" ] || [ "$NEW_VERSION" == "null" ]; then
-              echo "❌ ERROR: Gemini returned null values or invalid JSON. Strict orchestration failed."
+              echo "❌ ERROR: Kilocode returned null values or invalid JSON. Strict orchestration failed."
               exit 1
           fi
 

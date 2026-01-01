@@ -20,7 +20,7 @@ graph LR
 ### Key Components
 
 1. **AI Analysis Job** (`ai_analysis`)
-   - Integrated Gemini CLI with Gemini 2.0 Flash
+   - Integrated Kilocode CLI with xAI Grok-Code-Fast-1
    - Analyzes commits and file changes
    - Determines platform deployment needs
    - Calculates semantic version bumps
@@ -76,14 +76,14 @@ workflow_dispatch:
 
 ## AI Analysis Integration
 
-### Gemini CLI Setup
+### Kilocode CLI Setup
 
-The workflow automatically sets up and tests Gemini CLI:
+The workflow automatically sets up and tests Kilocode CLI:
 
 ```bash
-chmod +x scripts/gemini-cli.cjs
-sudo ln -sf "$(pwd)/scripts/gemini-cli.cjs" /usr/local/bin/gemini-cli
-gemini-cli "Respond with just OK"
+chmod +x scripts/kilocode-cli.cjs
+sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
+kilocode "Respond with just OK"
 ```
 
 ### Analysis Process
@@ -312,7 +312,7 @@ gh run list --workflow="deploy.yml" --limit 5
 gh run view <run-id>
 
 # Check AI analysis
-gh run view <run-id> --log | grep "Gemini Analysis"
+gh run view <run-id> --log | grep "Kilocode Analysis"
 
 # View deployment summary
 gh run view <run-id> --log | grep "Deployment Decision Summary" -A 10
@@ -321,8 +321,8 @@ gh run view <run-id> --log | grep "Deployment Decision Summary" -A 10
 ### Common Issues
 
 1. **AI Analysis Failures**
-   - Check Gemini API key validity
-   - Verify Gemini CLI installation
+   - Check Kilocode API key validity
+   - Verify Kilocode CLI installation
    - Review analysis script execution
 
 2. **Build Failures**
@@ -341,8 +341,8 @@ gh run view <run-id> --log | grep "Deployment Decision Summary" -A 10
 # Test AI analysis locally
 ./scripts/analyze-platforms.sh
 
-# Check Gemini CLI
-gemini-cli "Respond with just OK"
+# Check Kilocode CLI
+kilocode "Respond with just OK"
 
 # Verify version files
 jq -r '.version' assets/version.json

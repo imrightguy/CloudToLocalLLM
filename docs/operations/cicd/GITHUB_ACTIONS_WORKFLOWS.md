@@ -15,7 +15,7 @@ CloudToLocalLLM uses GitHub Actions for automated CI/CD pipelines. This document
 - **Workflow dispatch**: Manual trigger with deployment type override options
 
 **Key Features**:
-- **Integrated AI Analysis**: Built-in Gemini CLI with Gemini 2.0 Flash analysis
+- **Integrated AI Analysis**: Built-in Kilocode CLI with xAI Grok-Code-Fast-1 analysis
 - **Intelligent Platform Detection**: Determines which platforms need updates based on file changes
 - **Semantic Versioning**: Automatically calculates and applies version bumps
 - **Conditional Multi-Platform Builds**: Cloud services, desktop apps, and mobile (future)
@@ -166,7 +166,7 @@ graph TD
 
 ### AI-Powered Platform Detection
 
-The `analyze-platforms.sh` script uses **Gemini AI with Gemini 2.0 Flash** to intelligently determine which platforms need updates:
+The `analyze-platforms.sh` script uses **Kilocode AI with xAI Grok-Code-Fast-1** to intelligently determine which platforms need updates:
 
 **Cloud Deployment Triggers** (`needs_cloud=true`):
 - Changes to `web/`, `lib/`, `services/`, `k8s/`, `config/`
@@ -201,18 +201,18 @@ The AI system automatically determines semantic version bumps based on commit an
 
 ## AI Analysis System
 
-### Gemini CLI Integration
+### Kilocode CLI Integration
 
-The CI/CD pipeline integrates **Gemini CLI** with **Gemini 2.0 Flash** for intelligent change analysis:
+The CI/CD pipeline integrates **Kilocode CLI** with **xAI Grok-Code-Fast-1** for intelligent change analysis:
 
 **Setup**:
 ```bash
-# Install Gemini CLI
-chmod +x scripts/gemini-cli.cjs
-sudo ln -sf "$(pwd)/scripts/gemini-cli.cjs" /usr/local/bin/gemini-cli
+# Install Kilocode CLI
+chmod +x scripts/kilocode-cli.cjs
+sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
 
 # Test installation
-gemini-cli "Respond with just OK"
+kilocode "Respond with just OK"
 ```
 
 **Analysis Process**:
@@ -303,13 +303,13 @@ CloudToLocalLLM is designed to be provider agnostic:
 
 ### AI Analysis Issues
 
-1. **Gemini CLI Failures**:
+1. **Kilocode CLI Failures**:
    ```bash
-   # Test Gemini CLI connectivity
-   gemini-cli "Respond with just OK"
+   # Test Kilocode CLI connectivity
+   kilocode "Respond with just OK"
    
-   # Check Gemini API key
-   echo $GEMINI_API_KEY
+   # Check Kilocode API key
+   echo $KILOCODE_API_KEY
    
    # Manual analysis run
    ./scripts/analyze-platforms.sh
@@ -390,7 +390,7 @@ gh workflow run deploy-aks.yml -f version_tag=4.5.0-cloud-abc123
 gh run view <run-id> --log
 
 # Check AI analysis output
-grep "Gemini Analysis" <workflow-log>
+grep "Kilocode Analysis" <workflow-log>
 ```
 
 ## Future Enhancements

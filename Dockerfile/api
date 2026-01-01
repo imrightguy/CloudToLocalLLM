@@ -40,9 +40,9 @@ COPY services/api-backend/ ./
 # Copy Cloud Run specific configurations
 COPY services/api-backend/database/migrate-pg.js ./migrate-database.js
 
-# Install Gemini CLI
-COPY scripts/gemini-cli.cjs /usr/local/bin/gemini-cli
-RUN chmod +x /usr/local/bin/gemini-cli
+# Install Kilocode CLI
+COPY scripts/kilocode-cli.cjs /usr/local/bin/kilocode
+RUN chmod +x /usr/local/bin/kilocode
 
 # Create necessary directories and set permissions
 RUN mkdir -p /app/data /app/logs /app/backups && \

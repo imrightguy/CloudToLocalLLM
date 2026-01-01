@@ -3,12 +3,12 @@ set -e
 # Load nvm if available
 [ -s "/home/rightguy/.nvm/nvm.sh" ] && source "/home/rightguy/.nvm/nvm.sh"
 
-# Analyze which platforms need updates using Gemini AI
+# Analyze which platforms need updates using Kilocode AI
 # Outputs: new_version, needs_managed, needs_local, needs_desktop, needs_mobile
 
-echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
-echo "Analyzing Platform Changes with Gemini AI"
-echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Analyzing Platform Changes with Kilocode AI"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Get current version
 CURRENT_VERSION=$(jq -r '.version' assets/version.json)
@@ -34,7 +34,7 @@ if echo "$CHANGED_FILES" | grep -qE "(web/|lib/.*auth|lib/.*router|lib/config/|s
     echo "ðŸŒ  DETECTED WEB-RELATED CHANGES - Cloud deployment will be forced"
 fi
 
-# Prepare prompt for Gemini - properly escape for JSON
+# Prepare prompt for Kilocode - properly escape for JSON
 COMMITS_ESCAPED=$(echo "$COMMITS" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | tr '\n' ' ')
 FILES_ESCAPED=$(echo "$CHANGED_FILES" | sed 's/"/\\"/g' | sed 's/\\/\\\\/g' | tr '\n' ' ')
 
@@ -75,26 +75,26 @@ DEPLOYMENT RULES:
 - Desktop: windows/, linux/, desktop code
 - Mobile: android/, ios/, mobile code"
 
-# Helper: Enforce GEMINI_API_KEY
-if [ -z "$GEMINI_API_KEY" ]; then
-    echo "❌ ERROR: GEMINI_API_KEY is not set."
+# Helper: Enforce KILOCODE_API_KEY
+if [ -z "$KILOCODE_API_KEY" ]; then
+    echo "❌ ERROR: KILOCODE_API_KEY is not set."
     exit 1
 fi
 
-# Get response from Gemini
-echo "🚀 Sending request to Gemini AI..."
-if ! command -v gemini >/dev/null 2>&1; then
-    echo "❌ ERROR: 'gemini' command not found."
+# Get response from Kilocode
+echo "🚀 Sending request to Kilocode AI..."
+if ! command -v kilocode >/dev/null 2>&1; then
+    echo "❌ ERROR: 'kilocode' command not found."
     exit 1
 fi
 
 set +e
-RESPONSE=$(gemini --yolo --model gemini-1.5-flash --prompt "$PROMPT" 2>&1)
+RESPONSE=$(kilocode "$PROMPT" 2>&1)
 EXIT_CODE=$?
 set -e
 
 if [ $EXIT_CODE -ne 0 ]; then
-    echo "❌ CRITICAL FAILURE: Gemini analysis failed"
+    echo "❌ CRITICAL FAILURE: Kilocode analysis failed"
     echo "$RESPONSE"
     exit 1
 fi
@@ -103,7 +103,7 @@ fi
 JSON_RESPONSE=$(echo "$RESPONSE" | sed -n '/{/,/}/p')
 
 if ! echo "$JSON_RESPONSE" | jq empty >/dev/null 2>&1; then
-    echo "❌ CRITICAL FAILURE: Invalid JSON response from Gemini."
+    echo "❌ CRITICAL FAILURE: Invalid JSON response from Kilocode."
     echo "$RESPONSE"
     exit 1
 fi
@@ -133,11 +133,11 @@ fi
 
 # Strict validation
 if [ "$SEMANTIC_VERSION_NEW" == "null" ] || [ -z "$SEMANTIC_VERSION_NEW" ] || [ "$NEEDS_MANAGED" == "null" ]; then
-    echo "❌ CRITICAL FAILURE: Failed to parse required fields from Gemini response"
+    echo "❌ CRITICAL FAILURE: Failed to parse required fields from Kilocode response"
     exit 1
 fi
 
-echo "âœ… Gemini Analysis:"
+echo "✅ Kilocode Analysis:"
 echo "  Bump type: $BUMP_TYPE"
 echo "  New version: $NEW_VERSION"
 echo "  Managed: $NEEDS_MANAGED"

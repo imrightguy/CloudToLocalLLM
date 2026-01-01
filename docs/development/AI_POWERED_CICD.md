@@ -2,7 +2,7 @@
 
 ## Overview
 
-CloudToLocalLLM uses an innovative **unified AI-powered CI/CD system** that consolidates analysis, building, and deployment into a single intelligent workflow. This system leverages **Gemini CLI** with **Gemini 2.0 Flash** to make intelligent decisions about when and where to deploy changes, eliminating the complexity of orchestrated workflows while maintaining sophisticated deployment logic.
+CloudToLocalLLM uses an innovative **unified AI-powered CI/CD system** that consolidates analysis, building, and deployment into a single intelligent workflow. This system leverages **Kilocode CLI** with **xAI Grok-Code-Fast-1** to make intelligent decisions about when and where to deploy changes, eliminating the complexity of orchestrated workflows while maintaining sophisticated deployment logic.
 
 ## Architecture
 
@@ -33,7 +33,7 @@ sequenceDiagram
     participant Dev as Developer
     participant Main as main branch
     participant Deploy as deploy.yml (Unified)
-    participant AI as Gemini AI
+    participant AI as Kilocode AI
     participant Build as Multi-Platform Builds
     participant Cloud as Azure AKS
 
@@ -49,18 +49,18 @@ sequenceDiagram
 
 ## AI Analysis System
 
-### Gemini CLI Integration
+### Kilocode CLI Integration
 
 **Installation**:
 ```bash
 # The CLI is automatically set up in GitHub Actions
-chmod +x scripts/gemini-cli.cjs
-sudo ln -sf "$(pwd)/scripts/gemini-cli.cjs" /usr/local/bin/gemini-cli
+chmod +x scripts/kilocode-cli.cjs
+sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
 ```
 
 **Configuration**:
-- **Model**: Gemini 2.0 Flash
-- **API Key**: Stored in `GEMINI_API_KEY` environment variable
+- **Model**: xAI Grok-Code-Fast-1
+- **API Key**: Stored in `KILOCODE_API_KEY` environment variable
 - **Timeout**: Configured for reliable analysis
 - **Fallback**: Graceful error handling with manual override options
 
@@ -277,7 +277,7 @@ gh run list --workflow="deploy.yml" --limit 5
 gh run view <run-id>
 
 # Check AI analysis output
-gh run view <run-id> --log | grep "Gemini Analysis"
+gh run view <run-id> --log | grep "Kilocode Analysis"
 
 # Check deployment decision summary
 gh run view <run-id> --log | grep "Deployment Decision Summary" -A 10
@@ -302,17 +302,17 @@ gh run view <run-id> --log | grep "Unified Deployment Summary" -A 20
 # Run analysis locally
 ./scripts/analyze-platforms.sh
 
-# Test Gemini CLI
-gemini-cli "Analyze this change: fix auth login loop"
+# Test Kilocode CLI
+kilocode "Analyze this change: fix auth login loop"
 
 # Check environment
-echo $GEMINI_API_KEY
+echo $KILOCODE_API_KEY
 ```
 
 **Common Issues**:
 
 1. **AI Analysis Fails**:
-   - Check Gemini API key validity
+   - Check Kilocode API key validity
    - Verify network connectivity
    - Review prompt formatting
 
@@ -344,7 +344,7 @@ echo $GEMINI_API_KEY
 
 ### Security Considerations
 
-1. **API Key Management**: Secure Gemini API key in GitHub Secrets
+1. **API Key Management**: Secure Kilocode API key in GitHub Secrets
 2. **Branch Protection**: Protect platform branches from direct pushes
 3. **Audit Trail**: All AI decisions logged in workflow runs
 4. **Fallback Procedures**: Manual deployment options available
