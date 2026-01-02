@@ -143,7 +143,7 @@ jobs:
           fi
 
           # Generate Kilocode Configuration
-          cat <<'EOF' > kilocode.config.json
+          cat <<EOF > kilocode.config.json
           {
             "version": "1.0.0",
             "mode": "code",
@@ -222,6 +222,22 @@ jobs:
             sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
           fi
 
+          # Create runner configuration
+          mkdir -p ~/.kilocode
+          cat <<EOF > ~/.kilocode/config.json
+          {
+            "providers": [
+              {
+                "id": "default",
+                "provider": "kilocode",
+                "kilocodeToken": "${KILOCODE_TOKEN}",
+                "kilocodeModel": "${KILOCODE_MODEL}",
+                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
+              }
+            ]
+          }
+          EOF
+
           VERSION=$(cat assets/version.json | jq -r '.version' || echo "7.0.0")
           COMMIT_MSG=$(git log -1 --pretty=%B)
           
@@ -236,7 +252,7 @@ jobs:
           echo "Running Kilocode analysis (Grok)..."
           # Health check for Kilocode API
           echo "Performing Kilocode API health check..."
-          if ! timeout 30 kilocode --token $KILOCODE_TOKEN --model $KILOCODE_MODEL "Health check: Respond with OK" > /dev/null 2>&1; then
+          if ! timeout 30 kilocode "Health check: Respond with OK" > /dev/null 2>&1; then
             echo "::warning::Kilocode API health check failed, but proceeding with analysis"
           else
             echo "✅ Kilocode API health check passed"
@@ -246,7 +262,7 @@ jobs:
           RETRY_COUNT=0
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Attempting Kilocode analysis (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
-            if timeout 120 kilocode --token $KILOCODE_TOKEN --model $KILOCODE_MODEL "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
+            if timeout 120 kilocode "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
               echo "✅ Kilocode analysis completed successfully"
               break
             else
