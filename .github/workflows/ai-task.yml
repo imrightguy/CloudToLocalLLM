@@ -31,6 +31,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT_TOKEN }}
+
+      - name: "Install KiloCode CLI"
+        run: npm install -g @kilocode/cli
+
       - name: "Mint identity token"
         id: "mint_identity_token"
         if: |-
@@ -71,11 +75,6 @@ jobs:
           }
           EOF
 
-          if [ ! -f scripts/kilocode-cli.cjs ]; then
-            echo "::error::scripts/kilocode-cli.cjs not found"
-            exit 1
-          fi
-
           mkdir -p .ai-agent
           cat > .ai-agent/settings.json <<EOF
           {
@@ -101,7 +100,7 @@ jobs:
           TITLE_ESCAPED=$(echo "$TITLE" | sed 's/"/\"/g')
           DESC_ESCAPED=$(echo "$DESCRIPTION" | sed 's/"/\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/"/\"/g')
-          if ! node scripts/kilocode-cli.cjs "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
+          if ! kilocode "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent failed"
             cat ai_error.log
             exit 1

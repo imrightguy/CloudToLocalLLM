@@ -64,6 +64,9 @@ jobs:
             core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
             return labelNames;
 
+      - name: "Install KiloCode CLI"
+        run: npm install -g @kilocode/cli
+
       - name: "Run AI issue analysis"
         id: "ai_analysis"
         if: |-
@@ -110,12 +113,6 @@ jobs:
           {\"labels\": [\"bug\", \"priority: low\"]}"
 
           echo "🔄 Starting AI issue analysis..."
-
-          # Ensure local kilocode CLI is usable
-          if [ -f scripts/kilocode-cli.cjs ]; then
-            chmod +x scripts/kilocode-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
-          fi
 
           if ! kilocode "$PROMPT" > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
