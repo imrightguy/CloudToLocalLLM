@@ -132,6 +132,8 @@ if (!apiKey) {
 
 const apiHostname = process.env.KILOCODE_API_HOST || 'api.kilocode.ai';
 const apiPath = process.env.KILOCODE_API_PATH || '/v1/chat/completions';
+const maxRetries = parseInt(process.env.KILOCODE_MAX_RETRIES) || 3;
+const retryDelay = parseInt(process.env.KILOCODE_RETRY_DELAY) || 2000; // 2 seconds
 
 const data = JSON.stringify({
   model: apiModel,
@@ -159,50 +161,78 @@ if (posthogApiKey) {
   headers['x-posthog-api-key'] = posthogApiKey;
 }
 
-const options = {
-  hostname: apiHostname,
-  port: 443,
-  path: apiPath,
-  method: 'POST',
-  headers: headers,
-  timeout: 60000
-};
+function makeRequest(retryCount = 0) {
+  const options = {
+    hostname: apiHostname,
+    port: 443,
+    path: apiPath,
+    method: 'POST',
+    headers: headers,
+    timeout: 60000
+  };
 
-const req = https.request(options, (res) => {
-  let body = '';
-  res.on('data', chunk => body += chunk);
-  res.on('end', () => {
-    if (res.statusCode >= 400) {
-      console.error(`Kilocode API Error (${res.statusCode}):`, body);
-      process.exit(1);
-    }
-    try {
-      const response = JSON.parse(body);
-      if (response.choices?.[0]?.message?.content) {
-        let text = response.choices[0].message.content;
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        console.log(text);
-      } else {
-        console.error('Unexpected response format:', body);
+  const req = https.request(options, (res) => {
+    let body = '';
+    res.on('data', chunk => body += chunk);
+    res.on('end', () => {
+      if (res.statusCode === 404) {
+        console.error(`Kilocode API Error (${res.statusCode}): Endpoint not found. Check API path: ${apiPath}`);
+        process.exit(1);
+      } else if (res.statusCode === 405) {
+        console.error(`Kilocode API Error (${res.statusCode}): Method not allowed. API may not support POST on this endpoint.`);
+        process.exit(1);
+      } else if (res.statusCode >= 400) {
+        if (retryCount < maxRetries && (res.statusCode >= 500 || res.statusCode === 429)) {
+          console.warn(`API Error (${res.statusCode}), retrying in ${retryDelay}ms... (${retryCount + 1}/${maxRetries})`);
+          setTimeout(() => makeRequest(retryCount + 1), retryDelay);
+          return;
+        }
+        console.error(`Kilocode API Error (${res.statusCode}):`, body);
         process.exit(1);
       }
-    } catch (e) {
-      console.error('Failed to parse response:', e.message, body);
-      process.exit(1);
-    }
+      try {
+        const response = JSON.parse(body);
+        if (response.choices?.[0]?.message?.content) {
+          let text = response.choices[0].message.content;
+          text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+          console.log(text);
+        } else if (response.error) {
+          console.error('API Error:', response.error.message || response.error);
+          process.exit(1);
+        } else {
+          console.error('Unexpected response format:', body);
+          process.exit(1);
+        }
+      } catch (e) {
+        console.error('Failed to parse response:', e.message, body);
+        process.exit(1);
+      }
+    });
   });
-});
 
-req.on('error', (e) => {
-  console.error('Request failed:', e.message);
-  process.exit(1);
-});
+  req.on('error', (e) => {
+    if (retryCount < maxRetries) {
+      console.warn(`Request failed: ${e.message}, retrying in ${retryDelay}ms... (${retryCount + 1}/${maxRetries})`);
+      setTimeout(() => makeRequest(retryCount + 1), retryDelay);
+      return;
+    }
+    console.error('Request failed:', e.message);
+    process.exit(1);
+  });
 
-req.on('timeout', () => {
-  req.destroy();
-  console.error('Request timed out');
-  process.exit(1);
-});
+  req.on('timeout', () => {
+    req.destroy();
+    if (retryCount < maxRetries) {
+      console.warn(`Request timed out, retrying in ${retryDelay}ms... (${retryCount + 1}/${maxRetries})`);
+      setTimeout(() => makeRequest(retryCount + 1), retryDelay);
+      return;
+    }
+    console.error('Request timed out');
+    process.exit(1);
+  });
 
-req.write(data);
-req.end();
+  req.write(data);
+  req.end();
+}
+
+makeRequest();

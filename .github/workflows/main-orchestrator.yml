@@ -166,29 +166,17 @@ jobs:
           echo "Running Kilocode analysis (Grok)..."
           # Health check for Kilocode API
           echo "Performing Kilocode API health check..."
-          if ! timeout 30 npx @kilocode/cli "Health check: Respond with OK" > /dev/null 2>&1; then
+          if ! timeout 30 bash scripts/kilocode-cli.sh "Health check: Respond with OK" > /dev/null 2>&1; then
             echo "::warning::Kilocode API health check failed, but proceeding with analysis"
           else
             echo "✅ Kilocode API health check passed"
           fi
 
-          MAX_RETRIES=3
-          RETRY_COUNT=0
-          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            echo "Attempting Kilocode analysis (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
-            if timeout 120 npx @kilocode/cli "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
-              echo "✅ Kilocode analysis completed successfully"
-              break
-            else
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                echo "⚠️ Kilocode API call failed (attempt $RETRY_COUNT/$MAX_RETRIES), retrying in 15 seconds..."
-                sleep 15
-              fi
-            fi
-          done
-          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-            echo "::error::Kilocode API failed after $MAX_RETRIES attempts - AI integration is mandatory"
+          echo "Attempting Kilocode analysis..."
+          if timeout 120 bash scripts/kilocode-cli.sh "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
+            echo "✅ Kilocode analysis completed successfully"
+          else
+            echo "::error::Kilocode API analysis failed"
             echo "Error details:"
             cat ai_error.log
             echo "Raw output:"

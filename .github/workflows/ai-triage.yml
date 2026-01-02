@@ -114,7 +114,7 @@ jobs:
 
           echo "🔄 Starting AI issue analysis..."
 
-          if ! npx @kilocode/cli "$PROMPT" > raw_output.json 2> ai_error.log; then
+          if ! bash scripts/kilocode-cli.sh "$PROMPT" > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
             echo "📝 Error details:"
             cat ai_error.log

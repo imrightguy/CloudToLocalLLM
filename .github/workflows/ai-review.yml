@@ -106,7 +106,7 @@ jobs:
           TITLE_ESCAPED=$(echo "$ISSUE_TITLE" | sed 's/\"/\\\\\"/g')
           BODY_ESCAPED=$(echo "$ISSUE_BODY" | sed 's/\"/\\\\\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/\"/\\\\\"/g')
-          if ! npx @kilocode/cli "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
+          if ! bash scripts/kilocode-cli.sh "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
             echo "📝 Error details:"
             cat ai_error.log
