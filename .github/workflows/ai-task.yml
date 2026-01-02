@@ -32,9 +32,6 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: "Install KiloCode CLI"
-        run: npm install -g @kilocode/cli
-
       - name: "Mint identity token"
         id: "mint_identity_token"
         if: |-
@@ -61,7 +58,8 @@ jobs:
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
           # Configure Kilocode
-          cat <<EOF > kilocode.config.json
+          mkdir -p ~/.kilocode
+          cat <<EOF > ~/.kilocode/config.json
           {
             "providers": [
               {
@@ -100,7 +98,7 @@ jobs:
           TITLE_ESCAPED=$(echo "$TITLE" | sed 's/"/\"/g')
           DESC_ESCAPED=$(echo "$DESCRIPTION" | sed 's/"/\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/"/\"/g')
-          if ! kilocode "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
+          if ! npx @kilocode/cli "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent failed"
             cat ai_error.log
             exit 1

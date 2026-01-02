@@ -116,9 +116,6 @@ jobs:
           fetch-depth: 50
           fetch-tags: true
 
-      - name: Install KiloCode CLI
-        run: npm install -g @kilocode/cli
-
       - name: Orchestration Logic
         env:
           # Prefer wiring to existing secret names without renaming secrets.
@@ -144,7 +141,8 @@ jobs:
           fi
 
           # Create runner configuration replicating local Kilocode CLI config
-          cat <<EOF > kilocode.config.json
+          mkdir -p ~/.kilocode
+          cat <<EOF > ~/.kilocode/config.json
           {
             "providers": [
               {
@@ -168,7 +166,7 @@ jobs:
           echo "Running Kilocode analysis (Grok)..."
           # Health check for Kilocode API
           echo "Performing Kilocode API health check..."
-          if ! timeout 30 kilocode "Health check: Respond with OK" > /dev/null 2>&1; then
+          if ! timeout 30 npx @kilocode/cli "Health check: Respond with OK" > /dev/null 2>&1; then
             echo "::warning::Kilocode API health check failed, but proceeding with analysis"
           else
             echo "✅ Kilocode API health check passed"
@@ -178,7 +176,7 @@ jobs:
           RETRY_COUNT=0
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Attempting Kilocode analysis (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)..."
-            if timeout 120 kilocode "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
+            if timeout 120 npx @kilocode/cli "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
               echo "✅ Kilocode analysis completed successfully"
               break
             else

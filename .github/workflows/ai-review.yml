@@ -52,16 +52,14 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: "Install KiloCode CLI"
-        run: npm install -g @kilocode/cli
-
       - name: "Configure Kilocode"
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "x-ai/grok-code-fast-1"
           KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
         run: |
-          cat <<EOF > kilocode.config.json
+          mkdir -p ~/.kilocode
+          cat <<EOF > ~/.kilocode/config.json
           {
             "providers": [
               {
@@ -108,7 +106,7 @@ jobs:
           TITLE_ESCAPED=$(echo "$ISSUE_TITLE" | sed 's/\"/\\\\\"/g')
           BODY_ESCAPED=$(echo "$ISSUE_BODY" | sed 's/\"/\\\\\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/\"/\\\\\"/g')
-          if ! kilocode "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
+          if ! npx @kilocode/cli "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
             echo "📝 Error details:"
             cat ai_error.log
