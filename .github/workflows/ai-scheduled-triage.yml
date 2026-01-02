@@ -101,7 +101,8 @@ jobs:
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
         run: |
           # Configure Kilocode
-          cat <<EOF > kilocode.config.json
+          mkdir -p ~/.kilocode
+          cat <<EOF > ~/.kilocode/config.json
           {
             "providers": [
               {
@@ -114,11 +115,6 @@ jobs:
             ]
           }
           EOF
-
-          if [ ! -f scripts/kilocode-cli.cjs ]; then
-            echo "::error::scripts/kilocode-cli.cjs not found"
-            exit 1
-          fi
 
           # Loop through issues one by one for maximum robustness
           RESULTS="[]"
@@ -137,7 +133,7 @@ jobs:
             Return ONLY a valid JSON object: {\"labels_to_set\": [\"label1\", \"label2\"]}. ALL strings must be double-quoted."
 
             echo "🔄 Triaging issue #$NUMBER with Kilocode AI..."
-            if ! RESPONSE_RAW=$(node scripts/kilocode-cli.cjs "$PROMPT" 2>cli_error.log); then
+            if ! RESPONSE_RAW=$(bash scripts/kilocode-cli.sh "$PROMPT" 2>cli_error.log); then
               echo "⚠️ Failed to triage #$NUMBER"
               echo "📝 Error details:"
               cat cli_error.log

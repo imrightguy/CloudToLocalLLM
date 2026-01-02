@@ -9,8 +9,8 @@ set -euo pipefail
 API_KEY="${KILOCODE_TOKEN:-}"
 API_MODEL="${KILOCODE_MODEL:-x-ai/grok-code-fast-1}"
 POSTHOG_API_KEY="${KILOCODE_POSTHOG_API_KEY:-}"
-API_HOST="${KILOCODE_API_HOST:-api.kilocode.ai}"
-API_PATH="${KILOCODE_API_PATH:-/v1/chat/completions}"
+API_HOST="${KILOCODE_API_HOST:-kilo.ai}"
+API_PATH="${KILOCODE_API_PATH:-/api/v1/chat/completions}"
 MAX_RETRIES="${KILOCODE_MAX_RETRIES:-3}"
 RETRY_DELAY="${KILOCODE_RETRY_DELAY:-2}"
 
