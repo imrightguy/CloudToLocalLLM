@@ -9,8 +9,8 @@ set -euo pipefail
 API_KEY="${KILOCODE_TOKEN:-}"
 API_MODEL="${KILOCODE_MODEL:-x-ai/grok-code-fast-1}"
 POSTHOG_API_KEY="${KILOCODE_POSTHOG_API_KEY:-}"
-API_HOST="${KILOCODE_API_HOST:-kilo.ai}"
-API_PATH="${KILOCODE_API_PATH:-/api/v1/chat/completions}"
+API_HOST="${KILOCODE_API_HOST:-api.kilocode.ai}"
+API_PATH="${KILOCODE_API_PATH:-/v1/chat/completions}"
 MAX_RETRIES="${KILOCODE_MAX_RETRIES:-3}"
 RETRY_DELAY="${KILOCODE_RETRY_DELAY:-2}"
 
@@ -115,9 +115,9 @@ make_request() {
 
   if ! response=$(curl -s -w "\n%{http_code}" \
     --max-time 60 \
+    -X GET \
     "${HEADERS[@]}" \
-    -d "$JSON_PAYLOAD" \
-    "https://$API_HOST$API_PATH" 2>/dev/null); then
+    "https://$API_HOST$API_PATH?prompt=$(echo "$PROMPT" | jq -Rr @uri 2>/dev/null || echo "$PROMPT" | sed 's/ /%20/g')" 2>/dev/null); then
 
     if [ $attempt -le "$MAX_RETRIES" ]; then
       echo "Request failed (attempt $attempt/$MAX_RETRIES), retrying in ${RETRY_DELAY}s..." >&2

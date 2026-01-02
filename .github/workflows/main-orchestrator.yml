@@ -132,8 +132,8 @@ jobs:
             echo "::error::Missing Kilocode token. Expected secrets.KILOCODE_TOKEN or secrets.KILOCODE_API_KEY."
             exit 1
           fi
-          API_HOST="${KILOCODE_API_HOST:-kilo.ai}"
-          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${KILOCODE_TOKEN}" "https://${API_HOST}/api/v1/models" || true)
+          API_HOST="${KILOCODE_API_HOST:-api.kilocode.ai}"
+          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${KILOCODE_TOKEN}" "https://${API_HOST}/v1/models" || true)
           if [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ]; then
             echo "::warning::Kilocode API connectivity check failed (no HTTP response)"
           else

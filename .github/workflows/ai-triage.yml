@@ -64,9 +64,6 @@ jobs:
             core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
             return labelNames;
 
-      - name: "Install KiloCode CLI"
-        run: npm install -g @kilocode/cli
-
       - name: "Run AI issue analysis"
         id: "ai_analysis"
         if: |-
