@@ -27,7 +27,7 @@ env:
 
 jobs:
   review:
-    runs-on: "blacksmith-4vcpu-ubuntu-2404"
+    runs-on: ubuntu-latest
     timeout-minutes: 7
     permissions:
       contents: "read"
@@ -52,35 +52,39 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: "Run AI pull request review"
-        id: "ai_pr_review"
+      - name: "Configure Kilocode"
         env:
-          # Prefer wiring to existing secret names without renaming secrets.
-          # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "x-ai/grok-code-fast-1"
           KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
-          GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
-          ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
-          ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"
-          ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
-          # Create runner configuration replicating local Kilocode CLI config
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
+          cat <<EOF > kilocode.config.json
           {
             "providers": [
               {
                 "id": "default",
                 "provider": "kilocode",
                 "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "x-ai/grok-code-fast-1",
+                "kilocodeModel": "${KILOCODE_MODEL}",
                 "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
             ]
           }
           EOF
+          
+          if [ ! -f scripts/kilocode-cli.cjs ]; then
+            echo "::error::scripts/kilocode-cli.cjs not found"
+            exit 1
+          fi
 
+      - name: "Run AI pull request review"
+        id: "ai_pr_review"
+        env:
+          GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
+          ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
+          ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"
+          ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
+        run: |
           mkdir -p .ai-agent
           cat > .ai-agent/settings.json <<EOF
           {
@@ -103,16 +107,10 @@ jobs:
           EOF
           echo "🔄 Starting AI PR review..."
 
-          # Ensure local kilocode CLI is usable
-          if [ -f scripts/kilocode-cli.cjs ]; then
-            chmod +x scripts/kilocode-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
-          fi
-
           TITLE_ESCAPED=$(echo "$ISSUE_TITLE" | sed 's/\"/\\\\\"/g')
           BODY_ESCAPED=$(echo "$ISSUE_BODY" | sed 's/\"/\\\\\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/\"/\\\\\"/g')
-          if ! kilocode "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
+          if ! node scripts/kilocode-cli.cjs "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent CLI failed"
             echo "📝 Error details:"
             cat ai_error.log

@@ -28,7 +28,7 @@ env:
 
 jobs:
   triage:
-    runs-on: "blacksmith-4vcpu-ubuntu-2404"
+    runs-on: ubuntu-latest
     timeout-minutes: 7
     permissions:
       contents: "read"
@@ -100,21 +100,25 @@ jobs:
           ISSUES_TO_TRIAGE: "${{ steps.find_issues.outputs.issues_to_triage }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
         run: |
-          # Create runner configuration replicating local Kilocode CLI config
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
+          # Configure Kilocode
+          cat <<EOF > kilocode.config.json
           {
             "providers": [
               {
                 "id": "default",
                 "provider": "kilocode",
                 "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "x-ai/grok-code-fast-1",
+                "kilocodeModel": "${KILOCODE_MODEL}",
                 "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
             ]
           }
           EOF
+
+          if [ ! -f scripts/kilocode-cli.cjs ]; then
+            echo "::error::scripts/kilocode-cli.cjs not found"
+            exit 1
+          fi
 
           # Loop through issues one by one for maximum robustness
           RESULTS="[]"
@@ -133,12 +137,7 @@ jobs:
             Return ONLY a valid JSON object: {\"labels_to_set\": [\"label1\", \"label2\"]}. ALL strings must be double-quoted."
 
             echo "🔄 Triaging issue #$NUMBER with Kilocode AI..."
-            # Ensure local kilocode CLI is usable
-            if [ -f scripts/kilocode-cli.cjs ]; then
-              chmod +x scripts/kilocode-cli.cjs
-              sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
-            fi
-            if ! RESPONSE_RAW=$(kilocode "$PROMPT" 2>cli_error.log); then
+            if ! RESPONSE_RAW=$(node scripts/kilocode-cli.cjs "$PROMPT" 2>cli_error.log); then
               echo "⚠️ Failed to triage #$NUMBER"
               echo "📝 Error details:"
               cat cli_error.log
@@ -175,7 +174,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
   label:
-    runs-on: "blacksmith-4vcpu-ubuntu-2404"
+    runs-on: ubuntu-latest
     needs:
       - "triage"
     if: |-

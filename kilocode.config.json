@@ -1,0 +1,10 @@
+{
+  "providers": [
+    {
+      "id": "default",
+      "provider": "kilocode",
+      "kilocodeToken": "dummy-token",
+      "kilocodeModel": "x-ai/grok-code-fast-1"
+    }
+  ]
+}

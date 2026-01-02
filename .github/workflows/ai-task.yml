@@ -14,9 +14,13 @@ on:
         description: "Context for AI Agent"
         required: false
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event_name }}-${{ github.ref || github.event.pull_request.number || github.event.issue.number }}"
+  cancel-in-progress: true
+
 jobs:
   execute_task:
-    runs-on: "blacksmith-4vcpu-ubuntu-2404"
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: "write"
@@ -52,21 +56,25 @@ jobs:
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
-          # Create runner configuration replicating local Kilocode CLI config
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
+          # Configure Kilocode
+          cat <<EOF > kilocode.config.json
           {
             "providers": [
               {
                 "id": "default",
                 "provider": "kilocode",
                 "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "x-ai/grok-code-fast-1",
+                "kilocodeModel": "${KILOCODE_MODEL}",
                 "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
             ]
           }
           EOF
+
+          if [ ! -f scripts/kilocode-cli.cjs ]; then
+            echo "::error::scripts/kilocode-cli.cjs not found"
+            exit 1
+          fi
 
           mkdir -p .ai-agent
           cat > .ai-agent/settings.json <<EOF
@@ -90,16 +98,10 @@ jobs:
           EOF
           echo "🔄 Starting AI Agent execution..."
 
-          # Ensure local kilocode CLI is usable
-          if [ -f scripts/kilocode-cli.cjs ]; then
-            chmod +x scripts/kilocode-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
-          fi
-          
           TITLE_ESCAPED=$(echo "$TITLE" | sed 's/"/\"/g')
           DESC_ESCAPED=$(echo "$DESCRIPTION" | sed 's/"/\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/"/\"/g')
-          if ! kilocode "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
+          if ! node scripts/kilocode-cli.cjs "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
             echo "::error::AI Agent failed"
             cat ai_error.log
             exit 1
