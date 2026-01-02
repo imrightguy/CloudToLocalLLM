@@ -9,13 +9,61 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const https = require('https');
 
 const args = process.argv.slice(2);
+const configureCi = args.includes('--configure-ci');
 const prompt = args.filter(arg => !arg.startsWith('-')).join(' ');
+
+// --configure-ci: Helper to set up CI environment
+if (configureCi) {
+  const isCI = process.env.CI || process.env.GITHUB_ACTIONS;
+  if (!isCI) {
+    console.warn('Warning: --configure-ci is intended for CI environments.');
+  }
+
+  const token = process.env.KILOCODE_TOKEN;
+  const model = process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1';
+  const posthog = process.env.KILOCODE_POSTHOG_API_KEY;
+
+  if (!token) {
+    console.error('Error: KILOCODE_TOKEN environment variable is required for configuration.');
+    process.exit(1);
+  }
+
+  const configDir = path.join(os.homedir(), '.kilocode');
+  const configPath = path.join(configDir, 'config.json');
+
+  try {
+    if (!fs.existsSync(configDir)) {
+      fs.mkdirSync(configDir, { recursive: true });
+    }
+
+    const config = {
+      providers: [
+        {
+          id: "default",
+          provider: "kilocode",
+          kilocodeToken: token,
+          kilocodeModel: model,
+          kilocodePosthogApiKey: posthog
+        }
+      ]
+    };
+
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+    console.log(`Successfully configured CI environment at: ${configPath}`);
+    process.exit(0);
+  } catch (e) {
+    console.error('Failed to write CI configuration:', e.message);
+    process.exit(1);
+  }
+}
 
 if (!prompt) {
   console.error('Usage: kilocode-cli <prompt>');
+  console.error('       kilocode-cli --configure-ci');
   process.exit(1);
 }
 
@@ -41,24 +89,39 @@ function resolveEnvRef(value) {
   return value;
 }
 
-// Override from kilocode.config.json if present
-const configPath = path.join(process.cwd(), 'kilocode.config.json');
-if (fs.existsSync(configPath)) {
-  try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    // Simple logic: Take the first provider's config
-    if (config.providers && Array.isArray(config.providers) && config.providers.length > 0) {
-      const provider = config.providers[0];
-      const resolvedToken = resolveEnvRef(provider.kilocodeToken);
-      const resolvedModel = resolveEnvRef(provider.kilocodeModel);
-      const resolvedPosthog = resolveEnvRef(provider.kilocodePosthogApiKey);
+// Configuration loading logic
+const configPaths = [
+  path.join(process.cwd(), 'kilocode.config.json'),
+  path.join(os.homedir(), '.kilocode', 'config.json')
+];
 
-      if (resolvedToken) apiKey = resolvedToken;
-      if (resolvedModel) apiModel = resolvedModel;
-      if (resolvedPosthog) posthogApiKey = resolvedPosthog;
+let configLoaded = false;
+
+for (const configPath of configPaths) {
+  if (fs.existsSync(configPath)) {
+    try {
+      if (process.env.CI || process.env.GITHUB_ACTIONS) {
+        console.log(`Loading configuration from: ${configPath}`);
+      }
+      
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      // Simple logic: Take the first provider's config
+      if (config.providers && Array.isArray(config.providers) && config.providers.length > 0) {
+        const provider = config.providers[0];
+        const resolvedToken = resolveEnvRef(provider.kilocodeToken);
+        const resolvedModel = resolveEnvRef(provider.kilocodeModel);
+        const resolvedPosthog = resolveEnvRef(provider.kilocodePosthogApiKey);
+
+        if (resolvedToken) apiKey = resolvedToken;
+        if (resolvedModel) apiModel = resolvedModel;
+        if (resolvedPosthog) posthogApiKey = resolvedPosthog;
+        
+        configLoaded = true;
+        break; // Stop after finding the first valid config
+      }
+    } catch (e) {
+      console.warn(`Warning: Failed to read config from ${configPath}`, e.message);
     }
-  } catch (e) {
-    console.warn('Warning: Failed to read kilocode.config.json', e.message);
   }
 }
 
