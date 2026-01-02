@@ -23,12 +23,15 @@
 - **fetch_instructions**: For create_mode/mcp_server.
 
 ## Usage Guidelines
+- **MCP Tool Priority Protocol**: Use MCP tools extensively in all relevant tasks to enhance efficiency and accuracy. Prefer MCP tools over native CLI or manual operations whenever possible.
 - **Sequential**: One tool per step, wait for result.
 - **KG Integration**: Update KG before/after major ops (explicit text).
 - **Precision**: read_file before apply_diff.
 - **Safety**: Workspace relative paths, user approval.
 - **Efficiency**: Multiple tools parallel if independent; iterative for dependent.
 - **sequentialThinking**: Prefix responses: 1.Analyze 2.Plan 3.Execute 4.KG Update 5.Reflect.
+- **Repository Tools Integration**: Incorporate library (li) tools from this repository wherever applicable. Use scripts/ for DevOps, lib/ for utilities, to enhance workflows.
+- **Continuous Monitoring**: Periodically verify MCP tool functionality and update integrations as new tools or repository changes emerge.
 
 ## Limitations
 - Iterative (no batch).
@@ -41,6 +44,7 @@
 ### context7 (`@upstash/context7-mcp`)
 - [`mcp--context7--resolve-library-id`](MCP-Tools.md): Resolve library ID from package name.
 - [`mcp--context7--query-docs`](MCP-Tools.md): Query up-to-date docs and code examples.
+- **Note**: Requires API key configuration in .kilocode/mcp.json env. Currently non-functional due to missing key.
 
 ### memory (`@modelcontextprotocol/server-memory`)
 Knowledge graph management:

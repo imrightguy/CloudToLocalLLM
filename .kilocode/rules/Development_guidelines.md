@@ -24,6 +24,14 @@
 - No direct git; use github-mcp-server tools.
 - Use wsl -d Ubuntu-24.04 for Linux tools.
 
+## MCP Tools Integration
+- Prioritize MCP tools for all operations to enhance efficiency and accuracy.
+- Use memory tools for knowledge graph management and queries.
+- Use sequentialthinking tool for complex reasoning and planning.
+- Use playwright tools for web testing and automation.
+- Use context7 tools for library documentation and code examples (ensure API key is configured).
+- Incorporate repository library tools (scripts/, lib/) wherever applicable for DevOps and utility tasks.
+
 ## Additional Mandatory Guidelines
 - Mandatory sequentialThinking in all commits/PRs
 - KnowledgeGraph audits pre-merge
