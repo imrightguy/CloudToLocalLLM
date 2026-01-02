@@ -142,87 +142,7 @@ jobs:
             echo "Kilocode API connectivity check: HTTP ${HTTP_CODE}"
           fi
 
-          # Generate Kilocode Configuration
-          cat <<EOF > kilocode.config.json
-          {
-            "version": "1.0.0",
-            "mode": "code",
-            "telemetry": true,
-            "provider": "default",
-            "providers": [
-              {
-                "id": "default",
-                "provider": "kilocode",
-                "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "${KILOCODE_MODEL}",
-                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
-              }
-            ],
-            "autoApproval": {
-              "enabled": true,
-              "read": {
-                "enabled": true,
-                "outside": false
-              },
-              "write": {
-                "enabled": true,
-                "outside": true,
-                "protected": false
-              },
-              "browser": {
-                "enabled": true
-              },
-              "retry": {
-                "enabled": true,
-                "delay": 10
-              },
-              "mcp": {
-                "enabled": true
-              },
-              "mode": {
-                "enabled": true
-              },
-              "subtasks": {
-                "enabled": true
-              },
-              "execute": {
-                "enabled": true,
-                "allowed": [
-                  "ls",
-                  "cat",
-                  "echo",
-                  "pwd",
-                  "mkdir",
-                  "cd",
-                  "kubectl",
-                  "curl"
-                ],
-                "denied": [
-                  "rm -rf",
-                  "sudo rm",
-                  "mkfs",
-                  "dd if="
-                ]
-              },
-              "question": {
-                "enabled": false,
-                "timeout": 60
-              },
-              "todo": {
-                "enabled": true
-              }
-            },
-            "theme": "dark",
-            "customThemes": {}
-          }
-          EOF
-          
-          if [ -f scripts/kilocode-cli.cjs ]; then
-            chmod +x scripts/kilocode-cli.cjs
-            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
-          fi
-
-          # Create runner configuration
+          # Create runner configuration replicating local Kilocode CLI config
           mkdir -p ~/.kilocode
           cat <<EOF > ~/.kilocode/config.json
           {
@@ -231,12 +151,17 @@ jobs:
                 "id": "default",
                 "provider": "kilocode",
                 "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "${KILOCODE_MODEL}",
+                "kilocodeModel": "x-ai/grok-code-fast-1",
                 "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
             ]
           }
           EOF
+
+          if [ -f scripts/kilocode-cli.cjs ]; then
+            chmod +x scripts/kilocode-cli.cjs
+            sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
+          fi
 
           VERSION=$(cat assets/version.json | jq -r '.version' || echo "7.0.0")
           COMMIT_MSG=$(git log -1 --pretty=%B)

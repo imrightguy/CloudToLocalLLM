@@ -52,78 +52,19 @@ jobs:
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
-          # Generate Kilocode Configuration
-          cat <<'EOF' > kilocode.config.json
+          # Create runner configuration replicating local Kilocode CLI config
+          mkdir -p ~/.kilocode
+          cat <<EOF > ~/.kilocode/config.json
           {
-            "version": "1.0.0",
-            "mode": "code",
-            "telemetry": true,
-            "provider": "default",
             "providers": [
               {
                 "id": "default",
                 "provider": "kilocode",
                 "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "${KILOCODE_MODEL}",
+                "kilocodeModel": "x-ai/grok-code-fast-1",
                 "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
               }
-            ],
-            "autoApproval": {
-              "enabled": true,
-              "read": {
-                "enabled": true,
-                "outside": false
-              },
-              "write": {
-                "enabled": true,
-                "outside": true,
-                "protected": false
-              },
-              "browser": {
-                "enabled": true
-              },
-              "retry": {
-                "enabled": true,
-                "delay": 10
-              },
-              "mcp": {
-                "enabled": true
-              },
-              "mode": {
-                "enabled": true
-              },
-              "subtasks": {
-                "enabled": true
-              },
-              "execute": {
-                "enabled": true,
-                "allowed": [
-                  "ls",
-                  "cat",
-                  "echo",
-                  "pwd",
-                  "mkdir",
-                  "cd",
-                  "kubectl",
-                  "curl"
-                ],
-                "denied": [
-                  "rm -rf",
-                  "sudo rm",
-                  "mkfs",
-                  "dd if="
-                ]
-              },
-              "question": {
-                "enabled": false,
-                "timeout": 60
-              },
-              "todo": {
-                "enabled": true
-              }
-            },
-            "theme": "dark",
-            "customThemes": {}
+            ]
           }
           EOF
 
@@ -148,7 +89,7 @@ jobs:
           }
           EOF
           echo "🔄 Starting AI Agent execution..."
-          
+
           # Ensure local kilocode CLI is usable
           if [ -f scripts/kilocode-cli.cjs ]; then
             chmod +x scripts/kilocode-cli.cjs
