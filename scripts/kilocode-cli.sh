@@ -42,9 +42,8 @@ resolve_env_ref() {
   fi
 }
 
-# Configuration loading logic
+# Configuration loading logic - prioritize user config
 CONFIG_PATHS=(
-  "$(pwd)/kilocode.config.json"
   "$HOME/.kilocode/config.json"
 )
 
