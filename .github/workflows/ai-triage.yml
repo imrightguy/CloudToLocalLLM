@@ -72,7 +72,7 @@ jobs:
           # Prefer wiring to existing secret names without renaming secrets.
           # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
-          KILOCODE_MODEL: "${{ vars.KILOCODE_MODEL }}"
+          KILOCODE_MODEL: "x-ai/grok-code-fast-1"
           KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
           ISSUE_TITLE: "${{ github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.issue.body }}"
