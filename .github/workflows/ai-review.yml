@@ -32,7 +32,7 @@ defaults:
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   # Official Kilocode CLI Docker image
-  KILOCODE_IMAGE: kilocode/cli:latest
+  KILOCODE_IMAGE: kiloai/cli:latest
 
 jobs:
   review:
