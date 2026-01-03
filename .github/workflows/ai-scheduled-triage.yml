@@ -152,8 +152,9 @@ jobs:
               echo "✅ Successfully triaged issue #$NUMBER"
               
               # Robust JSON extraction using Python
-              python3 -c "
+              cat > extract_json.py <<'EOF'
               import sys, json, re
+
               try:
                   with open('raw_output.json', 'r') as f:
                       content = f.read()
@@ -171,7 +172,11 @@ jobs:
                           except:
                               continue
                   print('[]')
-              " > labels.json
+              except Exception as e:
+                  print(f"Error: {e}", file=sys.stderr)
+                  print('[]')
+              EOF
+              python3 extract_json.py > labels.json
               
               LABELS=$(cat labels.json)
             else

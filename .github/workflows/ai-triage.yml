@@ -156,8 +156,9 @@ jobs:
           echo "✅ AI issue analysis completed successfully"
 
           # Robust JSON extraction using Python
-          python3 -c "
+          cat > extract_json.py <<'EOF'
           import sys, json, re
+
           try:
               with open('raw_output.json', 'r') as f:
                   content = f.read()
@@ -174,9 +175,13 @@ jobs:
                               sys.exit(0)
                       except:
                           continue
-              print('Error: No valid JSON found')
+              print('Error: No valid JSON found', file=sys.stderr)
               sys.exit(1)
-          " > clean_output.json
+          except Exception as e:
+              print(f"Error: {e}", file=sys.stderr)
+              sys.exit(1)
+          EOF
+          python3 extract_json.py > clean_output.json
 
           if [ -s clean_output.json ]; then
             cp clean_output.json raw_output.json
