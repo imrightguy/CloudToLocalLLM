@@ -9,8 +9,6 @@ permissions:
 on:
   schedule:
     - cron: "0 * * * *" # Runs hourly
-  pull_request:
-    branches: [main, release]
   workflow_call:
     inputs:
       additional_context:
