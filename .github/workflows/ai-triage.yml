@@ -176,9 +176,15 @@ jobs:
                       except:
                           continue
               print('Error: No valid JSON found', file=sys.stderr)
+              with open('raw_output.json', 'r') as f:
+                  print("DEBUG: Raw Output Content:", file=sys.stderr)
+                  print(f.read(), file=sys.stderr)
               sys.exit(1)
           except Exception as e:
               print(f"Error: {e}", file=sys.stderr)
+              with open('raw_output.json', 'r') as f:
+                  print("DEBUG: Raw Output Content:", file=sys.stderr)
+                  print(f.read(), file=sys.stderr)
               sys.exit(1)
           EOF
           python3 extract_json.py > clean_output.json

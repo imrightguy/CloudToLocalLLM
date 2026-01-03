@@ -164,7 +164,8 @@ jobs:
             # Health check for Kilocode API
             echo "Performing Kilocode API health check..."
             # Use echo pipe to avoid TUI/interactive issues and suppress TUI with CI env vars
-            if ! echo "Health check: Respond with OK" | timeout 60 docker run --rm -i \
+            set +e # Disable exit on error for the check
+            echo "Health check: Respond with OK" | timeout 300 docker run --rm -i \
               -v "$(pwd):/workspace" \
               -e CI=true \
               -e TERM=dumb \
@@ -174,8 +175,12 @@ jobs:
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              kilocode --auto > /dev/null 2>&1; then
-              echo "::warning::Kilocode API health check failed on attempt $((RETRY_COUNT + 1))"
+              kilocode --auto > /dev/null 2>&1
+            EXIT_CODE=$?
+            set -e # Re-enable exit on error
+            
+            if [ $EXIT_CODE -ne 0 ]; then
+              echo "::warning::Kilocode API health check failed on attempt $((RETRY_COUNT + 1)). Exit Code: $EXIT_CODE"
             else
               echo "✅ Kilocode API health check passed"
               
@@ -235,9 +240,15 @@ jobs:
                           continue
               
               print('Error: No valid JSON found', file=sys.stderr)
+              with open('raw_output.json', 'r') as f:
+                  print("DEBUG: Raw Output Content:", file=sys.stderr)
+                  print(f.read(), file=sys.stderr)
               sys.exit(1)
           except Exception as e:
               print(f"Error reading file: {e}", file=sys.stderr)
+              with open('raw_output.json', 'r') as f:
+                  print("DEBUG: Raw Output Content:", file=sys.stderr)
+                  print(f.read(), file=sys.stderr)
               sys.exit(1)
           EOF
           # Fix indentation by stripping leading spaces from the heredoc content
