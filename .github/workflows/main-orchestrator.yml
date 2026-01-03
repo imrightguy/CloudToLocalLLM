@@ -151,7 +151,11 @@ jobs:
           
           # Configure Kilocode settings for JSON output
           mkdir -p .ai-agent
-          echo '{ "output": { "format": "json" } }' > .ai-agent/settings.json
+          cat > .ai-agent/settings.json <<EOF
+          {
+            "output": { "format": "json" }
+          }
+          EOF
 
           echo "Running Kilocode analysis (Grok)..."
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
@@ -200,7 +204,14 @@ jobs:
 
           echo "✅ Kilocode analysis completed successfully"
 
-          CLEAN_RESPONSE=$(cat raw_output.json)
+          # Attempt to extract JSON from potential TUI output
+          sed -n '/^{/,/^}/p' raw_output.json > clean_output.json
+          if [ -s clean_output.json ]; then
+            CLEAN_RESPONSE=$(cat clean_output.json)
+          else
+            CLEAN_RESPONSE=$(cat raw_output.json)
+          fi
+          
           echo "Cleaned response: $CLEAN_RESPONSE"
 
           BUMP_NEEDED=$(echo "$CLEAN_RESPONSE" | jq -r '.version_bump_needed' | xargs)

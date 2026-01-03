@@ -112,7 +112,11 @@ jobs:
         run: |
           # Configure Kilocode settings for JSON output
           mkdir -p .ai-agent
-          echo '{ "output": { "format": "json" } }' > .ai-agent/settings.json
+          cat > .ai-agent/settings.json <<EOF
+          {
+            "output": { "format": "json" }
+          }
+          EOF
 
           # Loop through issues one by one for maximum robustness
           RESULTS="[]"
