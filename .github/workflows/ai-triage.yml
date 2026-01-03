@@ -172,59 +172,6 @@ jobs:
           echo "✅ AI issue analysis completed successfully"
 
 
-          def strip_ansi(text):
-              # Strip standard ANSI
-              text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
-              # Strip other escape sequences like OSC
-              text = re.sub(r'\x1B].*?[\x07\x1B\\]', '', text)
-              return text
-
-          try:
-              with open('raw_output.json', 'r') as f:
-                  content = f.read()
-              
-              content = strip_ansi(content)
-              
-              # Strategy: Find valid JSON blocks and pick the one with expected keys
-              # Try line-by-line first
-              lines = content.splitlines()
-              for line in reversed(lines):
-                  line = line.strip()
-                  line = re.sub(r'^[>\s\-\:]+', '', line)
-                  if line.startswith('{') and line.endswith('}'):
-                      try:
-                          data = json.loads(line)
-                          if isinstance(data, dict) and 'labels' in data:
-                              print(json.dumps(data))
-                              sys.exit(0)
-                      except:
-                          continue
-
-              # Fallback: Find any JSON-like block
-              matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
-              if matches:
-                  for match in reversed(matches):
-                      block = match.group(0)
-                      start = block.rfind('{')
-                      end = block.find('}', start) + 1
-                      if start != -1 and end > start:
-                          try:
-                              data = json.loads(block[start:end])
-                              if isinstance(data, dict) and 'labels' in data:
-                                  print(json.dumps(data))
-                                  sys.exit(0)
-                          except:
-                              continue
-              
-              print('Error: No valid JSON found', file=sys.stderr)
-              print("DEBUG: Content after ANSI strip:", file=sys.stderr)
-              print(content, file=sys.stderr)
-              sys.exit(1)
-          except Exception as e:
-              print(f"Error: {e}", file=sys.stderr)
-              sys.exit(1)
-          EOF
-          python3 extract_json.py > clean_output.json
 
 
       - name: "KiloCode Fallback"
