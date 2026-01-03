@@ -83,7 +83,7 @@ jobs:
       - name: az acr login
         run: az acr login --name ${{ env.ACR_NAME }}
       - name: Build and Push Base
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: config/docker/Dockerfile.base
@@ -117,7 +117,7 @@ jobs:
       - name: az acr login
         run: az acr login --name ${{ env.ACR_NAME }}
       - name: Build and Push API
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: services/api-backend/Dockerfile.prod
@@ -153,7 +153,7 @@ jobs:
       - name: az acr login
         run: az acr login --name ${{ env.ACR_NAME }}
       - name: Build and Push Web
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: config/docker/Dockerfile.web
