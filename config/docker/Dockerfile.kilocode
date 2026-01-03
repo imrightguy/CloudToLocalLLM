@@ -1,25 +1,30 @@
 # Dockerfile for KiloCode CLI
 # Provides a consistent Node.js environment for running code analysis
 
-FROM ubuntu:24.04
+# Use official Node.js alpine image for a smaller footprint
+FROM node:24-alpine AS build
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Create non-root user
+RUN addgroup -g 1001 -S kilocode && \
+    adduser -S -D -H -u 1001 -s /sbin/nologin -G kilocode kilocode
 
-# Install Node.js 24
-RUN apt-get update && \
-    apt-get install -y curl ca-certificates gnupg && \
-    mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
 # Copy the KiloCode CLI script
-COPY scripts/kilocode-cli.cjs /usr/local/bin/kilocode-cli.cjs
+COPY --chown=kilocode:kilocode scripts/kilocode-cli.cjs /usr/local/bin/kilocode-cli.cjs
 
 # Make executable
 RUN chmod +x /usr/local/bin/kilocode-cli.cjs
+
+# Final lightweight stage
+FROM node:24-alpine
+
+RUN apk add --no-cache bash curl
+
+COPY --from=build /usr/local/bin/kilocode-cli.cjs /usr/local/bin/kilocode-cli.cjs
+
+# Security: Switch to non-root user
+USER 1001
 
 # Set entrypoint
 ENTRYPOINT ["node", "/usr/local/bin/kilocode-cli.cjs"]
