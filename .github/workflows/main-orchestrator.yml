@@ -163,29 +163,34 @@ jobs:
             
             # Health check for Kilocode API
             echo "Performing Kilocode API health check..."
-            if ! timeout 60 docker run --rm \
+            # Use echo pipe to avoid TUI/interactive issues and suppress TUI with CI env vars
+            if ! echo "Health check: Respond with OK" | timeout 60 docker run --rm -i \
               -v "$(pwd):/workspace" \
+              -e CI=true \
+              -e TERM=dumb \
               -e KILO_PROVIDER_TYPE=kilocode \
               -e KILOCODE_TOKEN \
               -e KILOCODE_MODEL \
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              kilocode --auto "Health check: Respond with OK" > /dev/null 2>&1; then
+              kilocode --auto > /dev/null 2>&1; then
               echo "::warning::Kilocode API health check failed on attempt $((RETRY_COUNT + 1))"
             else
               echo "✅ Kilocode API health check passed"
               
               echo "Attempting Kilocode analysis..."
-              if timeout 300 docker run --rm \
+              if echo "$PROMPT" | timeout 300 docker run --rm -i \
                 -v "$(pwd):/workspace" \
+                -e CI=true \
+                -e TERM=dumb \
                 -e KILO_PROVIDER_TYPE=kilocode \
                 -e KILOCODE_TOKEN \
                 -e KILOCODE_MODEL \
                 -e KILO_TELEMETRY=false \
                 -e KILO_AUTO_APPROVAL_ENABLED=true \
                 ${{ env.KILOCODE_IMAGE }} \
-                kilocode --auto "$PROMPT" > raw_output.json 2>ai_error.log; then
+                kilocode --auto > raw_output.json 2>ai_error.log; then
                 SUCCESS=true
                 break
               fi
@@ -204,11 +209,37 @@ jobs:
 
           echo "✅ Kilocode analysis completed successfully"
 
-          # Attempt to extract JSON from potential TUI output
-          sed -n '/^{/,/^}/p' raw_output.json > clean_output.json
+          # Robust JSON extraction using Python
+          python3 -c "
+          import sys, json, re
+          try:
+              with open('raw_output.json', 'r') as f:
+                  content = f.read()
+              # Try to find the last valid JSON object in the output
+              matches = list(re.finditer(r'\{[^{}]*\}', content))
+              if not matches:
+                  # Try finding JSON with nested braces (heuristic)
+                  matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+              
+              if matches:
+                  # Check the last match first as it's likely the final response
+                  for match in reversed(matches):
+                      try:
+                          json_obj = json.loads(match.group(0))
+                          # Validate required fields
+                          if 'version_bump_needed' in json_obj:
+                              print(json.dumps(json_obj))
+                              sys.exit(0)
+                      except:
+                          continue
+              print('Error: No valid JSON found')
+              sys.exit(1)
+          " > clean_output.json
+
           if [ -s clean_output.json ]; then
             CLEAN_RESPONSE=$(cat clean_output.json)
           else
+            echo "::warning::Failed to extract JSON from output. Using raw output for debugging."
             CLEAN_RESPONSE=$(cat raw_output.json)
           fi
           

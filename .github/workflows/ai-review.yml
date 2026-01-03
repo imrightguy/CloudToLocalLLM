@@ -112,8 +112,11 @@ jobs:
           
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES..."
-            if timeout 300 docker run --rm \
+            # Use echo pipe to avoid TUI/interactive issues and suppress TUI with CI env vars
+            if echo "$PROMPT" | timeout 300 docker run --rm -i \
               -v "$(pwd):/workspace" \
+              -e CI=true \
+              -e TERM=dumb \
               -e KILO_PROVIDER_TYPE=kilocode \
               -e KILOCODE_TOKEN \
               -e KILOCODE_MODEL \
@@ -121,7 +124,7 @@ jobs:
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               -e GITHUB_TOKEN \
               ${{ env.KILOCODE_IMAGE }} \
-              kilocode --auto "$PROMPT" > raw_output.json 2> ai_error.log; then
+              kilocode --auto > raw_output.json 2> ai_error.log; then
               SUCCESS=true
               break
             else

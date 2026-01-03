@@ -135,19 +135,50 @@ jobs:
             Return ONLY a valid JSON object: {\"labels_to_set\": [\"label1\", \"label2\"]}. ALL strings must be double-quoted."
 
             echo "🔄 Triaging issue #$NUMBER with Kilocode AI..."
-            RESPONSE_RAW=$(docker run --rm \
+            
+            # Use echo pipe to avoid TUI/interactive issues and suppress TUI with CI env vars
+            if echo "$PROMPT" | timeout 300 docker run --rm -i \
               -v "$(pwd):/workspace" \
+              -e CI=true \
+              -e TERM=dumb \
               -e KILO_PROVIDER_TYPE=kilocode \
               -e KILOCODE_TOKEN \
               -e KILOCODE_MODEL \
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              kilocode --auto "$PROMPT" 2>cli_error.log)
-            echo "✅ Successfully triaged issue #$NUMBER"
-
-            # Extract labels safely. We handle potential non-JSON noise from the AI.
-            LABELS=$(echo "$RESPONSE_RAW" | sed -n '/{/,/}/p' | jq -c '.labels_to_set' 2>/dev/null || echo "[]")
+              kilocode --auto > raw_output.json 2>cli_error.log; then
+              
+              echo "✅ Successfully triaged issue #$NUMBER"
+              
+              # Robust JSON extraction using Python
+              python3 -c "
+              import sys, json, re
+              try:
+                  with open('raw_output.json', 'r') as f:
+                      content = f.read()
+                  matches = list(re.finditer(r'\{[^{}]*\}', content))
+                  if not matches:
+                      matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+                  
+                  if matches:
+                      for match in reversed(matches):
+                          try:
+                              json_obj = json.loads(match.group(0))
+                              if 'labels_to_set' in json_obj:
+                                  print(json.dumps(json_obj['labels_to_set']))
+                                  sys.exit(0)
+                          except:
+                              continue
+                  print('[]')
+              " > labels.json
+              
+              LABELS=$(cat labels.json)
+            else
+              echo "::warning::Failed to triage issue #$NUMBER"
+              cat cli_error.log
+              LABELS="[]"
+            fi
             
             # Ensure LABELS is a valid JSON array
             if [[ ! "$LABELS" =~ ^\[.*\]$ ]]; then
