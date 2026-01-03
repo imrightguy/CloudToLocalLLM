@@ -111,14 +111,6 @@ jobs:
           fetch-depth: 50
           fetch-tags: true
 
-      - name: "Azure Login"
-        uses: azure/login@v1
-        with:
-          auth-type: SERVICE_PRINCIPAL
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
       - name: "Pull Official Kilocode CLI Image"
         run: |
           echo "Pulling official Kilocode CLI image from Docker Hub..."
