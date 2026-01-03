@@ -31,7 +31,7 @@ defaults:
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   # Official Kilocode CLI Docker image
-  KILOCODE_IMAGE: kilocode/cli:latest
+  KILOCODE_IMAGE: kiloai/cli:latest
 
 jobs:
   triage:
@@ -133,13 +133,6 @@ jobs:
           VALID JSON EXAMPLE:
           {\"labels\": [\"bug\", \"priority: low\"]}"
 
-          # Configure Kilocode settings for JSON output
-          mkdir -p .ai-agent
-          cat > .ai-agent/settings.json <<EOF
-          {
-            "output": { "format": "json" }
-          }
-          EOF
 
           echo "🔄 Starting AI issue analysis..."
           
@@ -161,7 +154,7 @@ jobs:
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              --auto "$PROMPT" > raw_output.json 2> ai_error.log; then
+              --auto --json "$PROMPT" > raw_output.json 2> ai_error.log; then
               SUCCESS=true
               break
             else
@@ -178,9 +171,6 @@ jobs:
           fi
           echo "✅ AI issue analysis completed successfully"
 
-          # Robust JSON extraction using Python
-          python3 -c "import sys, textwrap; print(textwrap.dedent(sys.stdin.read()))" > extract_json.py <<'EOF'
-          import sys, json, re
 
           def strip_ansi(text):
               # Strip standard ANSI
@@ -236,11 +226,6 @@ jobs:
           EOF
           python3 extract_json.py > clean_output.json
 
-          if [ -s clean_output.json ]; then
-            cp clean_output.json raw_output.json
-          else
-            echo "::warning::Failed to extract JSON from output. Using raw output for debugging."
-          fi
 
       - name: "KiloCode Fallback"
         if: failure()
@@ -257,7 +242,7 @@ jobs:
         if: |-
           ${{ steps.ai_analysis.outcome == 'success' }}
         run: |
-          LABELS=$(echo '${{ steps.ai_analysis.outputs.ai_output }}' | jq -r '.labels | join(",")')
+          LABELS=$(jq -r '.labels // empty | join(",")' raw_output.json)
           echo "labels=$LABELS" >> $GITHUB_OUTPUT
 
   label:

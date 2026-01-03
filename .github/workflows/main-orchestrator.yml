@@ -170,13 +170,6 @@ jobs:
           # Prepare the prompt
           PROMPT="Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. IMPORTANT: Perform STATIC ANALYSIS ONLY. DO NOT try to run the code, install dependencies, or execute build commands. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}."
           
-          # Configure Kilocode settings for JSON output
-          mkdir -p .ai-agent
-          cat > .ai-agent/settings.json <<EOF
-          {
-            "output": { "format": "json" }
-          }
-          EOF
 
           echo "🔄 Running Kilocode analysis (Grok)..."
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
@@ -216,7 +209,7 @@ jobs:
                 -e KILO_TELEMETRY=false \
                 -e KILO_AUTO_APPROVAL_ENABLED=true \
                 ${{ env.KILOCODE_IMAGE }} \
-                --auto "$PROMPT" > raw_output.json 2>ai_error.log; then
+                --auto --json "$PROMPT" > raw_output.json 2>ai_error.log; then
                 SUCCESS=true
                 break
               fi
@@ -235,82 +228,18 @@ jobs:
 
           echo "✅ Kilocode analysis completed successfully"
 
-          # Robust JSON extraction using Python
-          python3 -c "import sys, textwrap; print(textwrap.dedent(sys.stdin.read()))" > extract_json.py <<'EOF'
-          import sys, json, re
+          CLEAN_RESPONSE=$(jq . raw_output.json 2>/dev/null || echo "null")
 
-          def strip_ansi(text):
-              # Strip standard ANSI
-              text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
-              # Strip other escape sequences like OSC
-              text = re.sub(r'\x1B].*?[\x07\x1B\\]', '', text)
-              return text
-
-          try:
-              with open('raw_output.json', 'r') as f:
-                  content = f.read()
-              
-              content = strip_ansi(content)
-              
-              # Strategy: Find valid JSON blocks and pick the one with expected keys
-              # Try line-by-line first (common for CLI output)
-              lines = content.splitlines()
-              for line in reversed(lines):
-                  line = line.strip()
-                  # Remove common CLI prefixes like "> ", "- ", or "result: "
-                  line = re.sub(r'^[>\s\-\:]+', '', line)
-                  if line.startswith('{') and line.endswith('}'):
-                      try:
-                          data = json.loads(line)
-                          if isinstance(data, dict) and 'version_bump_needed' in data:
-                              print(json.dumps(data))
-                              sys.exit(0)
-                      except:
-                          continue
-
-              # Fallback: Find any JSON-like block in the whole content
-              matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
-              if matches:
-                  for match in reversed(matches):
-                      block = match.group(0)
-                      # Find last { and first } within this block to be precise
-                      start = block.rfind('{')
-                      end = block.find('}', start) + 1
-                      if start != -1 and end > start:
-                          try:
-                              data = json.loads(block[start:end])
-                              if isinstance(data, dict) and 'version_bump_needed' in data:
-                                  print(json.dumps(data))
-                                  sys.exit(0)
-                          except:
-                              continue
-              
-              print('Error: No valid JSON found', file=sys.stderr)
-              print("DEBUG: Content after ANSI strip:", file=sys.stderr)
-              print(content, file=sys.stderr)
-              sys.exit(1)
-          except Exception as e:
-              print(f"Error: {e}", file=sys.stderr)
-              sys.exit(1)
-          EOF
-          python3 extract_json.py > clean_output.json
-
-          if [ -s clean_output.json ]; then
-            CLEAN_RESPONSE=$(cat clean_output.json)
+          if [ "$CLEAN_RESPONSE" != "null" ]; then
+            BUMP_NEEDED=$(echo "$CLEAN_RESPONSE" | jq -r '.version_bump_needed // "false"')
+            NEW_VERSION=$(echo "$CLEAN_RESPONSE" | jq -r '.new_version // "'"$VERSION"'"')
           else
-            echo "::warning::Failed to extract JSON from output. Using raw output for debugging."
-            CLEAN_RESPONSE=$(cat raw_output.json)
+            echo "::warning::No valid JSON found in output, using defaults"
+            BUMP_NEEDED="false"
+            NEW_VERSION="$VERSION"
           fi
-          
-          echo "Cleaned response: $CLEAN_RESPONSE"
 
-          BUMP_NEEDED=$(echo "$CLEAN_RESPONSE" | jq -r '.version_bump_needed' | xargs)
-          NEW_VERSION=$(echo "$CLEAN_RESPONSE" | jq -r '.new_version' | xargs)
-
-          if [ "$BUMP_NEEDED" == "null" ] || [ "$NEW_VERSION" == "null" ]; then
-              echo "❌ ERROR: Kilocode returned null values or invalid JSON. Strict orchestration failed."
-              exit 1
-          fi
+          echo "Extracted - Bump needed: $BUMP_NEEDED, New version: $NEW_VERSION"
 
           if [ "$BUMP_NEEDED" == "true" ]; then
             echo "Bumping version to $NEW_VERSION"

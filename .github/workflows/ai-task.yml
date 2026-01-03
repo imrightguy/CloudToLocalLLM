@@ -98,26 +98,6 @@ jobs:
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
-          mkdir -p .ai-agent
-          cat > .ai-agent/settings.json <<EOF
-          {
-            "model": { "maxSessionTurns": 25 },
-            "output": { "format": "json" },
-            "mcpServers": {
-              "github": {
-                "command": "docker",
-                "args": [
-                  "run", "-i", "--rm",
-                  "-e", "GITHUB_PERSONAL_ACCESS_TOKEN",
-                  "ghcr.io/github/github-mcp-server:v0.18.0"
-                ],
-                "env": {
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"
-                }
-              }
-            }
-          }
-          EOF
           echo "🔄 Starting AI Agent execution..."
 
           TITLE_ESCAPED=$(echo "$TITLE" | sed 's/"/\"/g')
@@ -145,7 +125,7 @@ jobs:
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               -e GITHUB_TOKEN \
               ${{ env.KILOCODE_IMAGE }} \
-              --auto "$PROMPT" > raw_output.json 2> ai_error.log; then
+              --auto --json "$PROMPT" > raw_output.json 2> ai_error.log; then
               SUCCESS=true
               break
             else
@@ -162,9 +142,6 @@ jobs:
           fi
           echo "✅ AI Agent completed successfully"
 
-          # Robust JSON extraction using Python
-          python3 -c "import sys, textwrap; print(textwrap.dedent(sys.stdin.read()))" > extract_json.py <<'EOF'
-          import sys, json, re
 
           def strip_ansi(text):
               text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
@@ -193,7 +170,6 @@ jobs:
           except:
               sys.exit(1)
           EOF
-          python3 extract_json.py > clean_output.json && cp clean_output.json raw_output.json || true
 
       - name: "KiloCode Fallback"
         if: steps.run_ai_agent.outcome == 'failure'
