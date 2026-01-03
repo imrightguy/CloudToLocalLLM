@@ -136,8 +136,8 @@ jobs:
 
             echo "🔄 Triaging issue #$NUMBER with Kilocode AI..."
             
-            # Use echo pipe to avoid TUI/interactive issues and suppress TUI with CI env vars
-            if echo "$PROMPT" | timeout 300 docker run --rm -i \
+            # Use arguments instead of pipe and remove explicit 'kilocode' command (assuming ENTRYPOINT)
+            if timeout 300 docker run --rm \
               -v "$(pwd):/workspace" \
               -e CI=true \
               -e TERM=dumb \
@@ -147,7 +147,7 @@ jobs:
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              kilocode --auto > raw_output.json 2>cli_error.log; then
+              --auto "$PROMPT" > raw_output.json 2>cli_error.log; then
               
               echo "✅ Successfully triaged issue #$NUMBER"
               

@@ -163,9 +163,11 @@ jobs:
             
             # Health check for Kilocode API
             echo "Performing Kilocode API health check..."
-            # Use echo pipe to avoid TUI/interactive issues and suppress TUI with CI env vars
+            # Health check for Kilocode API
+            echo "Performing Kilocode API health check..."
+            # Use arguments instead of pipe and remove explicit 'kilocode' command (assuming ENTRYPOINT)
             set +e # Disable exit on error for the check
-            echo "Health check: Respond with OK" | timeout 300 docker run --rm -i \
+            timeout 300 docker run --rm \
               -v "$(pwd):/workspace" \
               -e CI=true \
               -e TERM=dumb \
@@ -175,7 +177,7 @@ jobs:
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              kilocode --auto > /dev/null 2>&1
+              --auto "Health check: Respond with OK" > /dev/null 2>&1
             EXIT_CODE=$?
             set -e # Re-enable exit on error
             
@@ -185,7 +187,7 @@ jobs:
               echo "✅ Kilocode API health check passed"
               
               echo "Attempting Kilocode analysis..."
-              if echo "$PROMPT" | timeout 300 docker run --rm -i \
+              if timeout 300 docker run --rm \
                 -v "$(pwd):/workspace" \
                 -e CI=true \
                 -e TERM=dumb \
@@ -195,7 +197,7 @@ jobs:
                 -e KILO_TELEMETRY=false \
                 -e KILO_AUTO_APPROVAL_ENABLED=true \
                 ${{ env.KILOCODE_IMAGE }} \
-                kilocode --auto > raw_output.json 2>ai_error.log; then
+                --auto "$PROMPT" > raw_output.json 2>ai_error.log; then
                 SUCCESS=true
                 break
               fi
@@ -215,7 +217,7 @@ jobs:
           echo "✅ Kilocode analysis completed successfully"
 
           # Robust JSON extraction using Python
-          cat > extract_json.py <<'EOF'
+          python3 -c "import sys, textwrap; print(textwrap.dedent(sys.stdin.read()))" > extract_json.py <<'EOF'
           import sys, json, re
 
           try:
@@ -251,8 +253,6 @@ jobs:
                   print(f.read(), file=sys.stderr)
               sys.exit(1)
           EOF
-          # Fix indentation by stripping leading spaces from the heredoc content
-          sed -i 's/^[[:space:]]\{10\}//' extract_json.py
           python3 extract_json.py > clean_output.json
 
           if [ -s clean_output.json ]; then
