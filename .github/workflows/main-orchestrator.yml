@@ -147,8 +147,12 @@ jobs:
           SUCCESS=false
           
           # Prepare the prompt
-          PROMPT="Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}."
+          PROMPT="Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. IMPORTANT: Perform STATIC ANALYSIS ONLY. DO NOT try to run the code, install dependencies, or execute build commands. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}."
           
+          # Configure Kilocode settings for JSON output
+          mkdir -p .ai-agent
+          echo '{ "output": { "format": "json" } }' > .ai-agent/settings.json
+
           echo "Running Kilocode analysis (Grok)..."
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES..."

@@ -110,6 +110,10 @@ jobs:
           VALID JSON EXAMPLE:
           {\"labels\": [\"bug\", \"priority: low\"]}"
 
+          # Configure Kilocode settings for JSON output
+          mkdir -p .ai-agent
+          echo '{ "output": { "format": "json" } }' > .ai-agent/settings.json
+
           echo "🔄 Starting AI issue analysis..."
           
           # Implementation of robust error handling with retries and timeout

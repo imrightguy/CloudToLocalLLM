@@ -110,6 +110,10 @@ jobs:
           ISSUES_TO_TRIAGE: "${{ steps.find_issues.outputs.issues_to_triage }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
         run: |
+          # Configure Kilocode settings for JSON output
+          mkdir -p .ai-agent
+          echo '{ "output": { "format": "json" } }' > .ai-agent/settings.json
+
           # Loop through issues one by one for maximum robustness
           RESULTS="[]"
           echo "🔍 Triaging issues one by one..."
