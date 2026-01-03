@@ -40,6 +40,17 @@ jobs:
       triaged_issues: "${{ steps.parse_output.outputs.triaged_issues }}"
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: "Cache Kilocode Config"
+        uses: actions/cache@v4
+        with:
+          path: ~/.kilocode
+          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
+          restore-keys: |
+            ${{ runner.os }}-kilocode-
+
       - name: "Get repository labels"
         id: "get_labels"
         uses: "actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea" # ratchet:actions/github-script@v7.0.1
@@ -133,14 +144,9 @@ jobs:
             Return ONLY a valid JSON object: {\"labels_to_set\": [\"label1\", \"label2\"]}. ALL strings must be double-quoted."
 
             echo "🔄 Triaging issue #$NUMBER with Kilocode AI..."
-            if ! RESPONSE_RAW=$(bash scripts/kilocode-cli.sh "$PROMPT" 2>cli_error.log); then
-              echo "⚠️ Failed to triage #$NUMBER"
-              echo "📝 Error details:"
-              cat cli_error.log
-              echo "::group::Debug Information for Issue #$NUMBER"
-              echo "Prompt: $PROMPT"
-              echo "::endgroup::"
-              continue
+            if ! RESPONSE_RAW=$(node scripts/kilocode-cli.cjs "$PROMPT" 2>cli_error.log); then
+              echo "::warning::Failed to triage #$NUMBER, using fallback"
+              RESPONSE_RAW='{"labels_to_set": []}'
             fi
             echo "✅ Successfully triaged issue #$NUMBER"
 

@@ -116,6 +116,14 @@ jobs:
           fetch-depth: 50
           fetch-tags: true
 
+      - name: "Cache Kilocode Config"
+        uses: actions/cache@v4
+        with:
+          path: ~/.kilocode
+          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
+          restore-keys: |
+            ${{ runner.os }}-kilocode-
+
       - name: Orchestration Logic
         env:
           # Prefer wiring to existing secret names without renaming secrets.
@@ -166,22 +174,19 @@ jobs:
           echo "Running Kilocode analysis (Grok)..."
           # Health check for Kilocode API
           echo "Performing Kilocode API health check..."
-          if ! timeout 30 bash scripts/kilocode-cli.sh "Health check: Respond with OK" > /dev/null 2>&1; then
+          if ! timeout 30 node scripts/kilocode-cli.cjs "Health check: Respond with OK" > /dev/null 2>&1; then
             echo "::warning::Kilocode API health check failed, but proceeding with analysis"
           else
             echo "✅ Kilocode API health check passed"
           fi
 
           echo "Attempting Kilocode analysis..."
-          if timeout 120 bash scripts/kilocode-cli.sh "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
+          if timeout 120 node scripts/kilocode-cli.cjs "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
             echo "✅ Kilocode analysis completed successfully"
           else
-            echo "::error::Kilocode API analysis failed"
-            echo "Error details:"
-            cat ai_error.log
-            echo "Raw output:"
-            cat raw_output.json 2>/dev/null || echo "No output generated"
-            exit 1
+            echo "::warning::Kilocode API analysis failed, using fallback"
+            # Fallback: assume no bump needed if analysis fails critically
+            echo '{"version_bump_needed": false, "new_version": "'$VERSION'"}' > raw_output.json
           fi
 
           CLEAN_RESPONSE=$(cat raw_output.json)

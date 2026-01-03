@@ -25,6 +25,8 @@ fi
 
 # Export the key for the current session
 export KILOCODE_TOKEN="$API_KEY"
+export KILOCODE_STRICT_COMPATIBILITY="true"
+export KILOCODE_VERBOSE="true"
 echo ""
 echo "✅ API Key configured for this session."
 

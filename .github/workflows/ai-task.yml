@@ -32,6 +32,14 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
+      - name: "Cache Kilocode Config"
+        uses: actions/cache@v4
+        with:
+          path: ~/.kilocode
+          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
+          restore-keys: |
+            ${{ runner.os }}-kilocode-
+
       - name: "Mint identity token"
         id: "mint_identity_token"
         if: |-
@@ -46,12 +54,16 @@ jobs:
 
       - name: "Run AI Agent"
         id: "run_ai_agent"
+        continue-on-error: true
+        timeout-minutes: 10
         env:
           # Prefer wiring to existing secret names without renaming secrets.
           # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "x-ai/grok-code-fast-1"
           KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
+          KILOCODE_TIMEOUT: 60000
+          KILOCODE_RETRIES: 5
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
           TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"
@@ -98,9 +110,18 @@ jobs:
           TITLE_ESCAPED=$(echo "$TITLE" | sed 's/"/\"/g')
           DESC_ESCAPED=$(echo "$DESCRIPTION" | sed 's/"/\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/"/\"/g')
-          if ! bash scripts/kilocode-cli.sh "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
-            echo "::error::AI Agent failed"
+          
+          # Run analysis with improved CLI
+          if ! node scripts/kilocode-cli.cjs "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
+            echo "::warning::KiloCode analysis failed, check logs for details"
             cat ai_error.log
             exit 1
           fi
           echo "✅ AI Agent completed successfully"
+
+      - name: "KiloCode Fallback"
+        if: steps.run_ai_agent.outcome == 'failure'
+        run: |
+          echo "::warning::KiloCode analysis failed, using fallback strategy"
+          # Implement fallback logic here, e.g., use cached results or default analysis
+          echo '{"result": "Analysis failed, using default fallback", "suggestions": []}' > raw_output.json

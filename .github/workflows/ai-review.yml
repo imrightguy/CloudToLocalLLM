@@ -52,6 +52,14 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
+      - name: "Cache Kilocode Config"
+        uses: actions/cache@v4
+        with:
+          path: ~/.kilocode
+          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
+          restore-keys: |
+            ${{ runner.os }}-kilocode-
+
       - name: "Configure Kilocode"
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
@@ -106,15 +114,15 @@ jobs:
           TITLE_ESCAPED=$(echo "$ISSUE_TITLE" | sed 's/\"/\\\\\"/g')
           BODY_ESCAPED=$(echo "$ISSUE_BODY" | sed 's/\"/\\\\\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/\"/\\\\\"/g')
-          if ! bash scripts/kilocode-cli.sh "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
-            echo "::error::AI Agent CLI failed"
-            echo "📝 Error details:"
+          if ! node scripts/kilocode-cli.cjs "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
+            echo "::warning::AI Agent CLI failed, check logs for details"
             cat ai_error.log
-            echo "::group::Debug Information"
-            echo "KILOCODE_TOKEN set: $([ -n \"$KILOCODE_TOKEN\" ] && echo yes || echo no)"
-            echo "KILOCODE_MODEL: $KILOCODE_MODEL"
-            echo "KILOCODE_POSTHOG_API_KEY set: $([ -n \"$KILOCODE_POSTHOG_API_KEY\" ] && echo yes || echo no)"
-            echo "::endgroup::"
             exit 1
           fi
           echo "✅ AI PR review completed successfully"
+
+      - name: "KiloCode Fallback"
+        if: failure()
+        run: |
+          echo "::warning::AI review failed, using fallback"
+          echo '{"result": "Review failed, using default fallback", "suggestions": []}' > raw_output.json

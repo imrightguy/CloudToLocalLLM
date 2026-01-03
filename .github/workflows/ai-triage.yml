@@ -38,6 +38,18 @@ jobs:
       issues: "read"
       pull-requests: "read"
     steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: "Cache Kilocode Config"
+        uses: actions/cache@v4
+        with:
+          path: ~/.kilocode
+          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
+          restore-keys: |
+            ${{ runner.os }}-kilocode-
+
       - name: "Get repository labels"
         id: "get_labels"
         uses: "actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea" # ratchet:actions/github-script@v7.0.1
@@ -111,18 +123,18 @@ jobs:
 
           echo "🔄 Starting AI issue analysis..."
 
-          if ! bash scripts/kilocode-cli.sh "$PROMPT" > raw_output.json 2> ai_error.log; then
-            echo "::error::AI Agent CLI failed"
-            echo "📝 Error details:"
+          if ! node scripts/kilocode-cli.cjs "$PROMPT" > raw_output.json 2> ai_error.log; then
+            echo "::warning::AI Agent CLI failed, check logs for details"
             cat ai_error.log
-            echo "::group::Debug Information"
-            echo "KILOCODE_TOKEN set: $([ -n \"$KILOCODE_TOKEN\" ] && echo yes || echo no)"
-            echo "KILOCODE_MODEL: $KILOCODE_MODEL"
-            echo "KILOCODE_POSTHOG_API_KEY set: $([ -n \"$KILOCODE_POSTHOG_API_KEY\" ] && echo yes || echo no)"
-            echo "::endgroup::"
             exit 1
           fi
           echo "✅ AI issue analysis completed successfully"
+
+      - name: "KiloCode Fallback"
+        if: failure()
+        run: |
+          echo "::warning::AI triage failed, using fallback"
+          echo '{"labels": []}' > raw_output.json
           CLEAN_JSON=$(cat raw_output.json)
           echo "ai_output<<EOF" >> $GITHUB_OUTPUT
           echo "$CLEAN_JSON" >> $GITHUB_OUTPUT
