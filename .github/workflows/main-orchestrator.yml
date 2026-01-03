@@ -116,6 +116,14 @@ jobs:
           fetch-depth: 50
           fetch-tags: true
 
+      - name: "Azure Login"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: "Log in to Azure Container Registry"
+        run: az acr login --name imrightguycloudtolocalllm
+
       - name: "Cache Kilocode Config"
         uses: actions/cache@v4
         with:
@@ -171,23 +179,33 @@ jobs:
           BUMP_NEEDED="false"
           NEW_VERSION="$VERSION"
 
+          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/kilocode-cli:latest"
+
           echo "Running Kilocode analysis (Grok)..."
           # Health check for Kilocode API
           echo "Performing Kilocode API health check..."
-          if ! timeout 30 node scripts/kilocode-cli.cjs "Health check: Respond with OK" > /dev/null 2>&1; then
-            echo "::warning::Kilocode API health check failed, but proceeding with analysis"
+          if ! timeout 30 docker run --rm -v $(pwd):/app -w /app \
+            -e KILOCODE_TOKEN \
+            -e KILOCODE_MODEL \
+            -e KILOCODE_POSTHOG_API_KEY \
+            $IMAGE_TAG "Health check: Respond with OK" > /dev/null 2>&1; then
+            echo "::error::Kilocode API health check failed"
+            exit 1
           else
             echo "✅ Kilocode API health check passed"
           fi
 
           echo "Attempting Kilocode analysis..."
-          if timeout 120 node scripts/kilocode-cli.cjs "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
-            echo "✅ Kilocode analysis completed successfully"
-          else
-            echo "::warning::Kilocode API analysis failed, using fallback"
-            # Fallback: assume no bump needed if analysis fails critically
-            echo '{"version_bump_needed": false, "new_version": "'$VERSION'"}' > raw_output.json
+          if ! timeout 120 docker run --rm -v $(pwd):/app -w /app \
+            -e KILOCODE_TOKEN \
+            -e KILOCODE_MODEL \
+            -e KILOCODE_POSTHOG_API_KEY \
+            $IMAGE_TAG "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
+            echo "::error::Kilocode analysis failed"
+            exit 1
           fi
+
+          echo "✅ Kilocode analysis completed successfully"
 
           CLEAN_RESPONSE=$(cat raw_output.json)
           echo "Cleaned response: $CLEAN_RESPONSE"
