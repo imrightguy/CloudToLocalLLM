@@ -8,7 +8,7 @@ FROM node:24-alpine AS build
 RUN addgroup -g 1001 -S kilocode && \
     adduser -S -D -H -u 1001 -s /sbin/nologin -G kilocode kilocode
 
-WORKDIR /app
+WORKDIR /workspace
 
 # Copy the KiloCode CLI script
 COPY --chown=kilocode:kilocode scripts/kilocode-cli.cjs /usr/local/bin/kilocode-cli.cjs

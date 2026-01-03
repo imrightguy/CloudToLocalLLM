@@ -15,7 +15,7 @@ concurrency:
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   # Official Kilocode CLI Docker image
-  KILOCODE_IMAGE: kiloai/cli:latest
+  KILOCODE_IMAGE: kilocode/cli:latest
 
 defaults:
   run:
@@ -111,11 +111,34 @@ jobs:
           fetch-depth: 50
           fetch-tags: true
 
+      - name: "Validate Secrets"
+        run: |
+          echo "Checking for required secrets..."
+          if [ -z "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}" ]; then
+            echo "::error::Missing KILOCODE_TOKEN or KILOCODE_API_KEY secret"
+            exit 1
+          fi
+          echo "✅ Required secrets are present"
+
+      - name: "Authenticate with Docker Hub"
+        run: |
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ] && [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          else
+            echo "::info::Docker Hub credentials not found, skipping authentication"
+          fi
+
       - name: "Pull Official Kilocode CLI Image"
         run: |
           echo "Pulling official Kilocode CLI image from Docker Hub..."
           docker pull ${{ env.KILOCODE_IMAGE }}
           echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
+
+      - name: "Health Check Container"
+        run: |
+          echo "Verifying container execution..."
+          docker run --rm --entrypoint node ${{ env.KILOCODE_IMAGE }} --version
+          echo "✅ Container is functional"
 
       - name: Orchestration Logic
         env:
@@ -220,37 +243,63 @@ jobs:
           python3 -c "import sys, textwrap; print(textwrap.dedent(sys.stdin.read()))" > extract_json.py <<'EOF'
           import sys, json, re
 
+          def strip_ansi(text):
+              ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+              return ansi_escape.sub('', text)
+
           try:
               with open('raw_output.json', 'r') as f:
                   content = f.read()
               
+              content = strip_ansi(content)
+              
               # Try to find the last valid JSON object in the output
-              matches = list(re.finditer(r'\{[^{}]*\}', content))
+              # Generic match for { ... } including nested braces (recursive logic not needed for simple response)
+              # But to be safe, we iterate over all { ... } candidates that look like JSON
               
-              if not matches:
-                  # Try finding JSON with nested braces (heuristic)
-                  matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+              # Strategy: Find all substrings starting with { and ending with }
+              # This is O(N^2) but fine for log files.
+              # We search from the end to find the last valid JSON.
               
-              if matches:
-                  for match in reversed(matches):
-                      try:
-                          json_obj = json.loads(match.group(0))
-                          if 'version_bump_needed' in json_obj:
-                              print(json.dumps(json_obj))
-                              sys.exit(0)
-                      except:
-                          continue
+              candidates = []
+              for match in re.finditer(r'\{', content):
+                  start = match.start()
+                  # Try to parse from this start to every subsequent closing brace
+                  # Optimization: Just take chunks that look like complete JSON
+                  # Simple approach: Regex for balanced braces is hard.
+                  # Let's rely on the assumption that the response is at the end.
+                  pass
+
+              # Regex for non-nested JSON
+              simple_matches = list(re.finditer(r'\{[^{}]*\}', content))
+              
+              # Regex for potentially nested (one level) or just loose matching
+              # We use a greedy match for the whole block if simple fails
+              complex_matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+              
+              all_matches = simple_matches + complex_matches
+              
+              for match in reversed(all_matches):
+                  candidate = match.group(0)
+                  try:
+                      json_obj = json.loads(candidate)
+                      if 'version_bump_needed' in json_obj:
+                          print(json.dumps(json_obj))
+                          sys.exit(0)
+                  except:
+                      continue
+              
+              # Fallback: Try to clean the " > " prefix if it exists inside the match?
+              # Actually, strip_ansi should have handled codes.
+              # If " > " is text, it breaks JSON.
+              # content = content.replace(" > {", "{") ?
               
               print('Error: No valid JSON found', file=sys.stderr)
-              with open('raw_output.json', 'r') as f:
-                  print("DEBUG: Raw Output Content:", file=sys.stderr)
-                  print(f.read(), file=sys.stderr)
+              print("DEBUG: Content after ANSI strip:", file=sys.stderr)
+              print(content, file=sys.stderr)
               sys.exit(1)
           except Exception as e:
               print(f"Error reading file: {e}", file=sys.stderr)
-              with open('raw_output.json', 'r') as f:
-                  print("DEBUG: Raw Output Content:", file=sys.stderr)
-                  print(f.read(), file=sys.stderr)
               sys.exit(1)
           EOF
           python3 extract_json.py > clean_output.json

@@ -32,7 +32,7 @@ defaults:
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   # Official Kilocode CLI Docker image
-  KILOCODE_IMAGE: kiloai/cli:latest
+  KILOCODE_IMAGE: kilocode/cli:latest
 
 jobs:
   review:
@@ -61,11 +61,34 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
+      - name: "Validate Secrets"
+        run: |
+          echo "Checking for required secrets..."
+          if [ -z "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}" ]; then
+            echo "::error::Missing KILOCODE_TOKEN or KILOCODE_API_KEY secret"
+            exit 1
+          fi
+          echo "✅ Required secrets are present"
+
+      - name: "Authenticate with Docker Hub"
+        run: |
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ] && [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          else
+            echo "::info::Docker Hub credentials not found, skipping authentication"
+          fi
+
       - name: "Pull Official Kilocode CLI Image"
         run: |
           echo "Pulling official Kilocode CLI image from Docker Hub..."
           docker pull ${{ env.KILOCODE_IMAGE }}
           echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
+
+      - name: "Health Check Container"
+        run: |
+          echo "Verifying container execution..."
+          docker run --rm --entrypoint node ${{ env.KILOCODE_IMAGE }} --version
+          echo "✅ Container is functional"
 
       - name: "Run AI pull request review"
         id: "ai_pr_review"
