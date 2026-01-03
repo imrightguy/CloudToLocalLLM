@@ -52,22 +52,25 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: "Cache Kilocode Config"
-        uses: actions/cache@v4
+      - name: "Log in to Azure Container Registry"
+        uses: azure/docker-login@v2
         with:
-          path: ~/.kilocode
-          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
-          restore-keys: |
-            ${{ runner.os }}-kilocode-
+          login-server: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: "Configure Kilocode"
+      - name: "Run AI pull request review"
+        id: "ai_pr_review"
         env:
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "x-ai/grok-code-fast-1"
           KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
+          GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
+          ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
+          ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"
+          ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
+          cat <<EOF > kilocode.config.json
           {
             "providers": [
               {
@@ -81,14 +84,6 @@ jobs:
           }
           EOF
 
-      - name: "Run AI pull request review"
-        id: "ai_pr_review"
-        env:
-          GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
-          ISSUE_TITLE: "${{ github.event.pull_request.title || github.event.issue.title }}"
-          ISSUE_BODY: "${{ github.event.pull_request.body || github.event.issue.body }}"
-          ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
-        run: |
           mkdir -p .ai-agent
           cat > .ai-agent/settings.json <<EOF
           {
@@ -114,7 +109,13 @@ jobs:
           TITLE_ESCAPED=$(echo "$ISSUE_TITLE" | sed 's/\"/\\\\\"/g')
           BODY_ESCAPED=$(echo "$ISSUE_BODY" | sed 's/\"/\\\\\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/\"/\\\\\"/g')
-          if ! node scripts/kilocode-cli.cjs "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
+          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/kilocode-cli:latest"
+          if ! docker run --rm -v $(pwd):/app -w /app \
+            -e KILOCODE_TOKEN \
+            -e KILOCODE_MODEL \
+            -e KILOCODE_POSTHOG_API_KEY \
+            -e GITHUB_TOKEN \
+            $IMAGE_TAG "Please review this pull request. Title: $TITLE_ESCAPED. Body: $BODY_ESCAPED. Context: $CONTEXT_ESCAPED." > raw_output.json 2> ai_error.log; then
             echo "::warning::AI Agent CLI failed, check logs for details"
             cat ai_error.log
             exit 1

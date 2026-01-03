@@ -52,6 +52,13 @@ jobs:
           permission-issues: "write"
           permission-pull-requests: "write"
 
+      - name: "Log in to Azure Container Registry"
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
       - name: "Run AI Agent"
         id: "run_ai_agent"
         continue-on-error: true
@@ -70,8 +77,7 @@ jobs:
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
           # Configure Kilocode
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
+          cat <<EOF > kilocode.config.json
           {
             "providers": [
               {
@@ -110,9 +116,17 @@ jobs:
           TITLE_ESCAPED=$(echo "$TITLE" | sed 's/"/\"/g')
           DESC_ESCAPED=$(echo "$DESCRIPTION" | sed 's/"/\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/"/\"/g')
-          
-          # Run analysis with improved CLI
-          if ! node scripts/kilocode-cli.cjs "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
+
+          # Run analysis with containerized CLI from ACR
+          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/kilocode-cli:latest"
+          if ! docker run --rm -v $(pwd):/app -w /app \
+            -e KILOCODE_TOKEN \
+            -e KILOCODE_MODEL \
+            -e KILOCODE_POSTHOG_API_KEY \
+            -e KILOCODE_TIMEOUT \
+            -e KILOCODE_RETRIES \
+            -e GITHUB_TOKEN \
+            $IMAGE_TAG "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
             echo "::warning::KiloCode analysis failed, check logs for details"
             cat ai_error.log
             exit 1
