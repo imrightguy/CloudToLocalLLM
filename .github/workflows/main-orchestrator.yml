@@ -162,8 +162,6 @@ jobs:
           BUMP_NEEDED="false"
           NEW_VERSION="$VERSION"
 
-          echo "Running Kilocode analysis (Grok)..."
-          
           # Implementation of robust error handling with retries and timeout
           MAX_RETRIES=3
           RETRY_COUNT=0
@@ -180,12 +178,10 @@ jobs:
           }
           EOF
 
-          echo "Running Kilocode analysis (Grok)..."
+          echo "🔄 Running Kilocode analysis (Grok)..."
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES..."
             
-            # Health check for Kilocode API
-            echo "Performing Kilocode API health check..."
             # Health check for Kilocode API
             echo "Performing Kilocode API health check..."
             # Use arguments instead of pipe and remove explicit 'kilocode' command (assuming ENTRYPOINT)
@@ -244,8 +240,11 @@ jobs:
           import sys, json, re
 
           def strip_ansi(text):
-              ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-              return ansi_escape.sub('', text)
+              # Strip standard ANSI
+              text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
+              # Strip other escape sequences like OSC
+              text = re.sub(r'\x1B].*?[\x07\x1B\\]', '', text)
+              return text
 
           try:
               with open('raw_output.json', 'r') as f:
@@ -253,53 +252,45 @@ jobs:
               
               content = strip_ansi(content)
               
-              # Try to find the last valid JSON object in the output
-              # Generic match for { ... } including nested braces (recursive logic not needed for simple response)
-              # But to be safe, we iterate over all { ... } candidates that look like JSON
-              
-              # Strategy: Find all substrings starting with { and ending with }
-              # This is O(N^2) but fine for log files.
-              # We search from the end to find the last valid JSON.
-              
-              candidates = []
-              for match in re.finditer(r'\{', content):
-                  start = match.start()
-                  # Try to parse from this start to every subsequent closing brace
-                  # Optimization: Just take chunks that look like complete JSON
-                  # Simple approach: Regex for balanced braces is hard.
-                  # Let's rely on the assumption that the response is at the end.
-                  pass
+              # Strategy: Find valid JSON blocks and pick the one with expected keys
+              # Try line-by-line first (common for CLI output)
+              lines = content.splitlines()
+              for line in reversed(lines):
+                  line = line.strip()
+                  # Remove common CLI prefixes like "> ", "- ", or "result: "
+                  line = re.sub(r'^[>\s\-\:]+', '', line)
+                  if line.startswith('{') and line.endswith('}'):
+                      try:
+                          data = json.loads(line)
+                          if isinstance(data, dict) and 'version_bump_needed' in data:
+                              print(json.dumps(data))
+                              sys.exit(0)
+                      except:
+                          continue
 
-              # Regex for non-nested JSON
-              simple_matches = list(re.finditer(r'\{[^{}]*\}', content))
-              
-              # Regex for potentially nested (one level) or just loose matching
-              # We use a greedy match for the whole block if simple fails
-              complex_matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
-              
-              all_matches = simple_matches + complex_matches
-              
-              for match in reversed(all_matches):
-                  candidate = match.group(0)
-                  try:
-                      json_obj = json.loads(candidate)
-                      if 'version_bump_needed' in json_obj:
-                          print(json.dumps(json_obj))
-                          sys.exit(0)
-                  except:
-                      continue
-              
-              # Fallback: Try to clean the " > " prefix if it exists inside the match?
-              # Actually, strip_ansi should have handled codes.
-              # If " > " is text, it breaks JSON.
-              # content = content.replace(" > {", "{") ?
+              # Fallback: Find any JSON-like block in the whole content
+              matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+              if matches:
+                  for match in reversed(matches):
+                      block = match.group(0)
+                      # Find last { and first } within this block to be precise
+                      start = block.rfind('{')
+                      end = block.find('}', start) + 1
+                      if start != -1 and end > start:
+                          try:
+                              data = json.loads(block[start:end])
+                              if isinstance(data, dict) and 'version_bump_needed' in data:
+                                  print(json.dumps(data))
+                                  sys.exit(0)
+                          except:
+                              continue
               
               print('Error: No valid JSON found', file=sys.stderr)
               print("DEBUG: Content after ANSI strip:", file=sys.stderr)
               print(content, file=sys.stderr)
               sys.exit(1)
           except Exception as e:
-              print(f"Error reading file: {e}", file=sys.stderr)
+              print(f"Error: {e}", file=sys.stderr)
               sys.exit(1)
           EOF
           python3 extract_json.py > clean_output.json

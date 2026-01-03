@@ -164,6 +164,39 @@ jobs:
           fi
           echo "✅ AI PR review completed successfully"
 
+          # Robust JSON extraction using Python
+          python3 -c "import sys, textwrap; print(textwrap.dedent(sys.stdin.read()))" > extract_json.py <<'EOF'
+          import sys, json, re
+
+          def strip_ansi(text):
+              text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
+              text = re.sub(r'\x1B].*?[\x07\x1B\\]', '', text)
+              return text
+
+          try:
+              with open('raw_output.json', 'r') as f:
+                  content = f.read()
+              content = strip_ansi(content)
+              matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+              if matches:
+                  for match in reversed(matches):
+                      block = match.group(0)
+                      start = block.rfind('{')
+                      end = block.find('}', start) + 1
+                      if start != -1 and end > start:
+                          try:
+                              data = json.loads(block[start:end])
+                              if isinstance(data, dict):
+                                  print(json.dumps(data))
+                                  sys.exit(0)
+                          except:
+                              continue
+              sys.exit(1)
+          except:
+              sys.exit(1)
+          EOF
+          python3 extract_json.py > clean_output.json && cp clean_output.json raw_output.json || true
+
       - name: "KiloCode Fallback"
         if: failure()
         run: |

@@ -183,8 +183,11 @@ jobs:
           import sys, json, re
 
           def strip_ansi(text):
-              ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-              return ansi_escape.sub('', text)
+              # Strip standard ANSI
+              text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
+              # Strip other escape sequences like OSC
+              text = re.sub(r'\x1B].*?[\x07\x1B\\]', '', text)
+              return text
 
           try:
               with open('raw_output.json', 'r') as f:
@@ -192,19 +195,37 @@ jobs:
               
               content = strip_ansi(content)
               
-              matches = list(re.finditer(r'\{[^{}]*\}', content))
-              if not matches:
-                  matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
-              
-              if matches:
-                  for match in reversed(matches):
+              # Strategy: Find valid JSON blocks and pick the one with expected keys
+              # Try line-by-line first
+              lines = content.splitlines()
+              for line in reversed(lines):
+                  line = line.strip()
+                  line = re.sub(r'^[>\s\-\:]+', '', line)
+                  if line.startswith('{') and line.endswith('}'):
                       try:
-                          json_obj = json.loads(match.group(0))
-                          if 'labels' in json_obj:
-                              print(json.dumps(json_obj))
+                          data = json.loads(line)
+                          if isinstance(data, dict) and 'labels' in data:
+                              print(json.dumps(data))
                               sys.exit(0)
                       except:
                           continue
+
+              # Fallback: Find any JSON-like block
+              matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
+              if matches:
+                  for match in reversed(matches):
+                      block = match.group(0)
+                      start = block.rfind('{')
+                      end = block.find('}', start) + 1
+                      if start != -1 and end > start:
+                          try:
+                              data = json.loads(block[start:end])
+                              if isinstance(data, dict) and 'labels' in data:
+                                  print(json.dumps(data))
+                                  sys.exit(0)
+                          except:
+                              continue
+              
               print('Error: No valid JSON found', file=sys.stderr)
               print("DEBUG: Content after ANSI strip:", file=sys.stderr)
               print(content, file=sys.stderr)
