@@ -1,5 +1,9 @@
 name: "🤖 AI Task Execution"
 
+permissions:
+  contents: write
+  id-token: write
+
 on:
   schedule:
     - cron: "0 0 * * *" # Runs daily at midnight
@@ -7,6 +11,7 @@ on:
     branches: [main, release]
   pull_request:
     branches: [main, release]
+  workflow_dispatch:
   workflow_call:
     inputs:
       additional_context:
@@ -17,6 +22,10 @@ on:
 concurrency:
   group: "${{ github.workflow }}-${{ github.event_name }}-${{ github.ref || github.event.pull_request.number || github.event.issue.number }}"
   cancel-in-progress: true
+
+env:
+  # Official Kilocode CLI Docker image
+  KILOCODE_IMAGE: kilocode/cli:latest
 
 jobs:
   execute_task:
@@ -32,14 +41,6 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: "Cache Kilocode Config"
-        uses: actions/cache@v4
-        with:
-          path: ~/.kilocode
-          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
-          restore-keys: |
-            ${{ runner.os }}-kilocode-
-
       - name: "Mint identity token"
         id: "mint_identity_token"
         if: |-
@@ -52,13 +53,11 @@ jobs:
           permission-issues: "write"
           permission-pull-requests: "write"
 
-      - name: "Azure Login"
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: "Log in to Azure Container Registry"
-        run: az acr login --name imrightguycloudtolocalllm
+      - name: "Pull Official Kilocode CLI Image"
+        run: |
+          echo "Pulling official Kilocode CLI image from Docker Hub..."
+          docker pull ${{ env.KILOCODE_IMAGE }}
+          echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
 
       - name: "Run AI Agent"
         id: "run_ai_agent"
@@ -69,7 +68,6 @@ jobs:
           # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "x-ai/grok-code-fast-1"
-          KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
           KILOCODE_TIMEOUT: 60000
           KILOCODE_RETRIES: 5
           GITHUB_TOKEN: "${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}"
@@ -77,21 +75,6 @@ jobs:
           DESCRIPTION: "${{ github.event.pull_request.body || github.event.issue.body }}"
           ADDITIONAL_CONTEXT: "${{ inputs.additional_context }}"
         run: |
-          # Configure Kilocode
-          cat <<EOF > kilocode.config.json
-          {
-            "providers": [
-              {
-                "id": "default",
-                "provider": "kilocode",
-                "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "${KILOCODE_MODEL}",
-                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
-              }
-            ]
-          }
-          EOF
-
           mkdir -p .ai-agent
           cat > .ai-agent/settings.json <<EOF
           {
@@ -118,18 +101,37 @@ jobs:
           DESC_ESCAPED=$(echo "$DESCRIPTION" | sed 's/"/\"/g')
           CONTEXT_ESCAPED=$(echo "$ADDITIONAL_CONTEXT" | sed 's/"/\"/g')
 
-          # Run analysis with containerized CLI from ACR
-          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/kilocode-cli:latest"
-          if ! docker run --rm -v $(pwd):/app -w /app \
-            -e KILOCODE_TOKEN \
-            -e KILOCODE_MODEL \
-            -e KILOCODE_POSTHOG_API_KEY \
-            -e KILOCODE_TIMEOUT \
-            -e KILOCODE_RETRIES \
-            -e GITHUB_TOKEN \
-            $IMAGE_TAG "TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request." > raw_output.json 2> ai_error.log; then
-            echo "::warning::KiloCode analysis failed, check logs for details"
-            cat ai_error.log
+          PROMPT="TITLE: $TITLE_ESCAPED. DESCRIPTION: $DESC_ESCAPED. CONTEXT: $CONTEXT_ESCAPED. Please assist with the request."
+          
+          # Implementation of robust error handling with retries and timeout
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          SUCCESS=false
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES..."
+            if timeout 600 docker run --rm \
+              -v "$(pwd):/workspace" \
+              -e KILO_PROVIDER_TYPE=kilocode \
+              -e KILOCODE_TOKEN \
+              -e KILOCODE_MODEL \
+              -e KILO_TELEMETRY=false \
+              -e KILO_AUTO_APPROVAL_ENABLED=true \
+              -e GITHUB_TOKEN \
+              ${{ env.KILOCODE_IMAGE }} \
+              kilocode --auto "$PROMPT" > raw_output.json 2> ai_error.log; then
+              SUCCESS=true
+              break
+            else
+              echo "::warning::Attempt $((RETRY_COUNT + 1)) failed. CLI Exit Code: $?"
+              cat ai_error.log
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              [ $RETRY_COUNT -lt $MAX_RETRIES ] && sleep 15
+            fi
+          done
+          
+          if [ "$SUCCESS" = false ]; then
+            echo "::error::AI Agent CLI failed after $MAX_RETRIES attempts"
             exit 1
           fi
           echo "✅ AI Agent completed successfully"

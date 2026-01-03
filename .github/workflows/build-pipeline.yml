@@ -38,8 +38,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
+          auth-type: SERVICE_PRINCIPAL
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -71,8 +72,9 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.ref || github.ref }}
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
+          auth-type: SERVICE_PRINCIPAL
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -104,8 +106,9 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.ref || github.ref }}
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
+          auth-type: SERVICE_PRINCIPAL
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -139,8 +142,9 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.ref || github.ref }}
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
+          auth-type: SERVICE_PRINCIPAL
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -236,8 +240,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
+          auth-type: SERVICE_PRINCIPAL
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

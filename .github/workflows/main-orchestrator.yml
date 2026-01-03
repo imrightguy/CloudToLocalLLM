@@ -2,18 +2,11 @@ name: "🔀 Main Orchestrator"
 
 on:
   push:
-    branches: [main, release, "fix/*", "feat/*", "!dependabot/**"]
+    branches: [main]
     paths-ignore:
       - "assets/version.json"
       - "pubspec.yaml"
       - "package.json"
-  pull_request:
-    branches: [main, release]
-    types: [opened, reopened, synchronize]
-  issues:
-    types: [opened, reopened]
-  issue_comment:
-    types: [created]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,6 +14,8 @@ concurrency:
 
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+  # Official Kilocode CLI Docker image
+  KILOCODE_IMAGE: kilocode/cli:latest
 
 defaults:
   run:
@@ -119,18 +114,16 @@ jobs:
       - name: "Azure Login"
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          auth-type: SERVICE_PRINCIPAL
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: "Log in to Azure Container Registry"
-        run: az acr login --name imrightguycloudtolocalllm
-
-      - name: "Cache Kilocode Config"
-        uses: actions/cache@v4
-        with:
-          path: ~/.kilocode
-          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
-          restore-keys: |
-            ${{ runner.os }}-kilocode-
+      - name: "Pull Official Kilocode CLI Image"
+        run: |
+          echo "Pulling official Kilocode CLI image from Docker Hub..."
+          docker pull ${{ env.KILOCODE_IMAGE }}
+          echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
 
       - name: Orchestration Logic
         env:
@@ -138,40 +131,15 @@ jobs:
           # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
           KILOCODE_MODEL: x-ai/grok-code-fast-1
-          KILOCODE_POSTHOG_API_KEY: ${{ secrets.KILOCODE_POSTHOG_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
 
-          # Safe CI validation: confirm token is present and can reach the API without printing secrets.
+          # Safe CI validation: confirm token is present
           if [ -z "$KILOCODE_TOKEN" ]; then
             echo "::error::Missing Kilocode token. Expected secrets.KILOCODE_TOKEN or secrets.KILOCODE_API_KEY."
             exit 1
           fi
-          API_HOST="${KILOCODE_API_HOST:-api.kilocode.ai}"
-          HTTP_CODE=$(curl -sS -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${KILOCODE_TOKEN}" "https://${API_HOST}/v1/models" || true)
-          if [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ]; then
-            echo "::warning::Kilocode API connectivity check failed (no HTTP response)"
-          else
-            echo "Kilocode API connectivity check: HTTP ${HTTP_CODE}"
-          fi
-
-          # Create runner configuration replicating local Kilocode CLI config
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
-          {
-            "providers": [
-              {
-                "id": "default",
-                "provider": "kilocode",
-                "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "${KILOCODE_MODEL}",
-                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
-              }
-            ]
-          }
-          EOF
-
 
           VERSION=$(cat assets/version.json | jq -r '.version' || echo "7.0.0")
           COMMIT_MSG=$(git log -1 --pretty=%B)
@@ -179,29 +147,58 @@ jobs:
           BUMP_NEEDED="false"
           NEW_VERSION="$VERSION"
 
-          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/kilocode-cli:latest"
-
           echo "Running Kilocode analysis (Grok)..."
-          # Health check for Kilocode API
-          echo "Performing Kilocode API health check..."
-          if ! timeout 30 docker run --rm -v $(pwd):/app -w /app \
-            -e KILOCODE_TOKEN \
-            -e KILOCODE_MODEL \
-            -e KILOCODE_POSTHOG_API_KEY \
-            $IMAGE_TAG "Health check: Respond with OK" > /dev/null 2>&1; then
-            echo "::error::Kilocode API health check failed"
-            exit 1
-          else
-            echo "✅ Kilocode API health check passed"
-          fi
-
-          echo "Attempting Kilocode analysis..."
-          if ! timeout 120 docker run --rm -v $(pwd):/app -w /app \
-            -e KILOCODE_TOKEN \
-            -e KILOCODE_MODEL \
-            -e KILOCODE_POSTHOG_API_KEY \
-            $IMAGE_TAG "Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}." > raw_output.json 2>ai_error.log; then
-            echo "::error::Kilocode analysis failed"
+          
+          # Implementation of robust error handling with retries and timeout
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          SUCCESS=false
+          
+          # Prepare the prompt
+          PROMPT="Analyze the latest changes and decide if a release is needed. Version=$VERSION. Commit message: $COMMIT_MSG. Respond ONLY with a JSON object like {\"version_bump_needed\": boolean, \"new_version\": \"string\"}."
+          
+          echo "Running Kilocode analysis (Grok)..."
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES..."
+            
+            # Health check for Kilocode API
+            echo "Performing Kilocode API health check..."
+            if ! timeout 60 docker run --rm \
+              -v "$(pwd):/workspace" \
+              -e KILO_PROVIDER_TYPE=kilocode \
+              -e KILOCODE_TOKEN \
+              -e KILOCODE_MODEL \
+              -e KILO_TELEMETRY=false \
+              -e KILO_AUTO_APPROVAL_ENABLED=true \
+              ${{ env.KILOCODE_IMAGE }} \
+              kilocode --auto "Health check: Respond with OK" > /dev/null 2>&1; then
+              echo "::warning::Kilocode API health check failed on attempt $((RETRY_COUNT + 1))"
+            else
+              echo "✅ Kilocode API health check passed"
+              
+              echo "Attempting Kilocode analysis..."
+              if timeout 300 docker run --rm \
+                -v "$(pwd):/workspace" \
+                -e KILO_PROVIDER_TYPE=kilocode \
+                -e KILOCODE_TOKEN \
+                -e KILOCODE_MODEL \
+                -e KILO_TELEMETRY=false \
+                -e KILO_AUTO_APPROVAL_ENABLED=true \
+                ${{ env.KILOCODE_IMAGE }} \
+                kilocode --auto "$PROMPT" > raw_output.json 2>ai_error.log; then
+                SUCCESS=true
+                break
+              fi
+            fi
+            
+            echo "::warning::Attempt $((RETRY_COUNT + 1)) failed. CLI Exit Code: $?"
+            cat ai_error.log 2>/dev/null || true
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            [ $RETRY_COUNT -lt $MAX_RETRIES ] && sleep 15
+          done
+          
+          if [ "$SUCCESS" = false ]; then
+            echo "::error::Kilocode analysis failed after $MAX_RETRIES attempts"
             exit 1
           fi
 

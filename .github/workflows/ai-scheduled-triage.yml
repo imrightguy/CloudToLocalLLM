@@ -25,6 +25,8 @@ defaults:
 
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+  # Official Kilocode CLI Docker image
+  KILOCODE_IMAGE: kilocode/cli:latest
 
 jobs:
   triage:
@@ -43,20 +45,11 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: "Log in to Azure Container Registry"
-        uses: azure/docker-login@v2
-        with:
-          login-server: ${{ secrets.ACR_REGISTRY }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
-
-      - name: "Cache Kilocode Config"
-        uses: actions/cache@v4
-        with:
-          path: ~/.kilocode
-          key: ${{ runner.os }}-kilocode-${{ hashFiles('scripts/kilocode-cli.cjs') }}
-          restore-keys: |
-            ${{ runner.os }}-kilocode-
+      - name: "Pull Official Kilocode CLI Image"
+        run: |
+          echo "Pulling official Kilocode CLI image from Docker Hub..."
+          docker pull ${{ env.KILOCODE_IMAGE }}
+          echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
 
       - name: "Get repository labels"
         id: "get_labels"
@@ -114,26 +107,9 @@ jobs:
           # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
           KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
           KILOCODE_MODEL: "x-ai/grok-code-fast-1"
-          KILOCODE_POSTHOG_API_KEY: "${{ secrets.KILOCODE_POSTHOG_API_KEY }}"
           ISSUES_TO_TRIAGE: "${{ steps.find_issues.outputs.issues_to_triage }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
         run: |
-          # Configure Kilocode
-          mkdir -p ~/.kilocode
-          cat <<EOF > ~/.kilocode/config.json
-          {
-            "providers": [
-              {
-                "id": "default",
-                "provider": "kilocode",
-                "kilocodeToken": "${KILOCODE_TOKEN}",
-                "kilocodeModel": "${KILOCODE_MODEL}",
-                "kilocodePosthogApiKey": "${KILOCODE_POSTHOG_API_KEY}"
-              }
-            ]
-          }
-          EOF
-
           # Loop through issues one by one for maximum robustness
           RESULTS="[]"
           echo "🔍 Triaging issues one by one..."
@@ -151,15 +127,15 @@ jobs:
             Return ONLY a valid JSON object: {\"labels_to_set\": [\"label1\", \"label2\"]}. ALL strings must be double-quoted."
 
             echo "🔄 Triaging issue #$NUMBER with Kilocode AI..."
-            IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/kilocode-cli:latest"
-            if ! RESPONSE_RAW=$(docker run --rm -v $(pwd):/app -w /app \
+            RESPONSE_RAW=$(docker run --rm \
+              -v "$(pwd):/workspace" \
+              -e KILO_PROVIDER_TYPE=kilocode \
               -e KILOCODE_TOKEN \
               -e KILOCODE_MODEL \
-              -e KILOCODE_POSTHOG_API_KEY \
-              $IMAGE_TAG "$PROMPT" 2>cli_error.log); then
-              echo "::warning::Failed to triage #$NUMBER, using fallback"
-              RESPONSE_RAW='{"labels_to_set": []}'
-            fi
+              -e KILO_TELEMETRY=false \
+              -e KILO_AUTO_APPROVAL_ENABLED=true \
+              ${{ env.KILOCODE_IMAGE }} \
+              kilocode --auto "$PROMPT" 2>cli_error.log)
             echo "✅ Successfully triaged issue #$NUMBER"
 
             # Extract labels safely. We handle potential non-JSON noise from the AI.

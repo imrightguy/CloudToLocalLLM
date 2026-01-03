@@ -1,12 +1,28 @@
-name: "Build KiloCode Docker Image"
+name: "Build KiloCode Docker Image (DEPRECATED)"
+
+# DEPRECATED: This workflow is no longer needed.
+# The project now uses the official kilocode/cli Docker image from Docker Hub.
+# See: plans/DOCKER_KILOCODE_CLI_MIGRATION.md
+#
+# Keeping this file for reference only. The workflow is disabled.
 
 on:
-  push:
-    branches: [main, release]
-    paths:
-      - 'config/docker/Dockerfile.kilocode'
-      - 'scripts/kilocode-cli.cjs'
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force build (not recommended - use official image instead)'
+        required: false
+        default: false
+        type: boolean
+
+# Disabled - use official kilocode/cli image instead
+# on:
+#   push:
+#     branches: [main, release]
+#     paths:
+#       - 'config/docker/Dockerfile.kilocode'
+#       - 'scripts/kilocode-cli.cjs'
+#   workflow_dispatch:
 
 env:
   REGISTRY: ${{ secrets.ACR_REGISTRY }}
@@ -15,11 +31,21 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # Only run if explicitly forced via workflow_dispatch
+    if: ${{ github.event.inputs.force_build == 'true' }}
     permissions:
       contents: read
       id-token: write
 
     steps:
+      - name: "⚠️ Deprecation Warning"
+        run: |
+          echo "::warning::This workflow is DEPRECATED. Use the official kilocode/cli Docker image instead."
+          echo "::warning::See plans/DOCKER_KILOCODE_CLI_MIGRATION.md for migration details."
+          echo ""
+          echo "Official image: kilocode/cli:latest"
+          echo "Docker Hub: https://hub.docker.com/r/kilocode/cli"
+
       - name: "Checkout repository"
         uses: actions/checkout@v4
 
@@ -29,13 +55,12 @@ jobs:
       - name: "Set up Docker Buildx"
         uses: docker/setup-buildx-action@v3
 
-      - name: "Azure Login"
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: "Log in to Azure Container Registry"
-        run: az acr login --name imrightguycloudtolocalllm
+        uses: azure/docker-login@v2
+        with:
+          login-server: imrightguycloudtolocalllm.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: "Extract metadata"
         id: meta
