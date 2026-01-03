@@ -67,11 +67,27 @@ jobs:
             echo "::info::Docker Hub credentials not found, skipping authentication"
           fi
 
-      - name: "Pull Official Kilocode CLI Image"
+      - name: "Cache Docker Image"
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.docker-cache
+          key: docker-kiloai-cli-${{ hashFiles('config/docker/Dockerfile.kilocode') }}
+          restore-keys: |
+            docker-kiloai-cli-
+    
+      - name: "Load Cached Docker Image"
         run: |
-          echo "Pulling official Kilocode CLI image from Docker Hub..."
-          docker pull ${{ env.KILOCODE_IMAGE }}
-          echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
+          if [ -f /tmp/.docker-cache/image.tar ]; then
+            echo "Loading cached Docker image..."
+            docker load < /tmp/.docker-cache/image.tar
+            echo "✅ Cached image loaded"
+          else
+            echo "No cached image found, pulling..."
+            docker pull ${{ env.KILOCODE_IMAGE }}
+            mkdir -p /tmp/.docker-cache
+            docker save ${{ env.KILOCODE_IMAGE }} > /tmp/.docker-cache/image.tar
+            echo "✅ Image pulled and cached"
+          fi
 
       - name: "Health Check Container"
         run: |
@@ -154,7 +170,7 @@ jobs:
               -e KILO_TELEMETRY=false \
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               ${{ env.KILOCODE_IMAGE }} \
-              --auto --json "$PROMPT" > raw_output.json 2> ai_error.log; then
+              --auto --json "$PROMPT" 2> ai_error.log > raw_output.json; then
               SUCCESS=true
               break
             else

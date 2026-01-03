@@ -209,7 +209,7 @@ jobs:
                 -e KILO_TELEMETRY=false \
                 -e KILO_AUTO_APPROVAL_ENABLED=true \
                 ${{ env.KILOCODE_IMAGE }} \
-                --auto --json "$PROMPT" > raw_output.json 2>ai_error.log; then
+                --auto --json "$PROMPT" 2>ai_error.log > raw_output.json; then
                 SUCCESS=true
                 break
               fi

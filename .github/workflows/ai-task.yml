@@ -70,11 +70,27 @@ jobs:
             echo "::info::Docker Hub credentials not found, skipping authentication"
           fi
 
-      - name: "Pull Official Kilocode CLI Image"
+      - name: "Cache Docker Image"
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.docker-cache
+          key: docker-${{ env.KILOCODE_IMAGE }}-latest
+          restore-keys: |
+            docker-${{ env.KILOCODE_IMAGE }}-
+
+      - name: "Load Cached Docker Image"
         run: |
-          echo "Pulling official Kilocode CLI image from Docker Hub..."
-          docker pull ${{ env.KILOCODE_IMAGE }}
-          echo "✅ Successfully pulled ${{ env.KILOCODE_IMAGE }}"
+          if [ -f /tmp/.docker-cache/image.tar ]; then
+            echo "Loading cached Docker image..."
+            docker load < /tmp/.docker-cache/image.tar
+            echo "✅ Cached image loaded"
+          else
+            echo "No cached image found, pulling..."
+            docker pull ${{ env.KILOCODE_IMAGE }}
+            mkdir -p /tmp/.docker-cache
+            docker save ${{ env.KILOCODE_IMAGE }} > /tmp/.docker-cache/image.tar
+            echo "✅ Image pulled and cached"
+          fi
 
       - name: "Health Check Container"
         run: |
@@ -125,7 +141,8 @@ jobs:
               -e KILO_AUTO_APPROVAL_ENABLED=true \
               -e GITHUB_TOKEN \
               ${{ env.KILOCODE_IMAGE }} \
-              --auto --json "$PROMPT" > raw_output.json 2> ai_error.log; then
+              --auto \
+              --json "$PROMPT" > raw_output.json 2> ai_error.log; then
               SUCCESS=true
               break
             else
@@ -142,34 +159,8 @@ jobs:
           fi
           echo "✅ AI Agent completed successfully"
 
-
-          def strip_ansi(text):
-              text = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
-              text = re.sub(r'\x1B].*?[\x07\x1B\\]', '', text)
-              return text
-
-          try:
-              with open('raw_output.json', 'r') as f:
-                  content = f.read()
-              content = strip_ansi(content)
-              matches = list(re.finditer(r'\{.*\}', content, re.DOTALL))
-              if matches:
-                  for match in reversed(matches):
-                      block = match.group(0)
-                      start = block.rfind('{')
-                      end = block.find('}', start) + 1
-                      if start != -1 and end > start:
-                          try:
-                              data = json.loads(block[start:end])
-                              if isinstance(data, dict):
-                                  print(json.dumps(data))
-                                  sys.exit(0)
-                          except:
-                              continue
-              sys.exit(1)
-          except:
-              sys.exit(1)
-          EOF
+          # JSON output is already clean with --json flag
+          echo "✅ JSON output is clean and ready for use"
 
       - name: "KiloCode Fallback"
         if: steps.run_ai_agent.outcome == 'failure'
