@@ -6,20 +6,10 @@ on:
 
 env:
   KILOCODE_IMAGE: kiloai/cli:latest
+  KILOCODE_MODEL: x-ai/grok-code-fast-1
 
 jobs:
-  validate_prerequisites:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: "Validate Environment"
-        run: |
-          echo "Validating build environment..."
-          # Instead of running a complex script, we just ensure the native binary is reachable in the container
-          docker run --rm ${{ env.KILOCODE_IMAGE }} --version
-
   detect_changes:
-    needs: validate_prerequisites
     runs-on: ubuntu-latest
     outputs:
       components: ${{ steps.analyze.outputs.components }}
@@ -32,23 +22,23 @@ jobs:
         id: analyze
         env:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
+          KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
-          # Use the native Kilocode CLI directly for analysis
-          # This replaces the dependency on the deleted .cjs script
-          
+          # Upstream void analysis logic: targeted purging starts here.
           DIFF=$(git diff HEAD^ HEAD)
           PROMPT="Analyze the following git diff and identify which components need to be rebuilt. Respond ONLY with a JSON object like {\"components\": [\"api\", \"web\"]}. Diff: ${DIFF:0:2000}"
           
-          echo "Analyzing changes with Kilocode CLI..."
+          echo "Analyzing changes with native Kilocode CLI..."
           docker run --rm \
             -v "$(pwd):/workspace" \
             -e KILO_PROVIDER_TYPE=kilocode \
             -e KILOCODE_TOKEN \
+            -e KILOCODE_MODEL \
             ${{ env.KILOCODE_IMAGE }} \
             --auto --json "$PROMPT" > analysis.json
             
           COMPONENTS=$(jq -r '.components | join(",")' analysis.json)
-          echo "Identified components: $COMPONENTS"
+          echo "Identified components for targeted purging: $COMPONENTS"
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
 
   build_base:

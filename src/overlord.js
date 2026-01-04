@@ -49,6 +49,7 @@ async function synchronize(source = 'periodic-polling') {
 
     // Manifest detection logic: The Overlord must know its targets.
     const changes = detectChanges();
+    // Using the official CLI with explicit environment variable propagation
     const prompt = `Analyze these changes and identify components for deployment: ${changes.substring(0, 2000)}. IMPORTANT: Perform STATIC ANALYSIS ONLY. Respond ONLY with JSON.`;
 
     while (retryCount < MAX_RETRIES) {
@@ -58,15 +59,27 @@ async function synchronize(source = 'periodic-polling') {
             // API Health check (Mandatory rite)
             execSync('kilocode --auto "Respond with OK"', {
                 cwd: '/workspace',
-                env: { ...process.env, CI: 'true', TERM: 'dumb', KILO_PROVIDER_TYPE: 'kilocode' },
+                env: { 
+                    ...process.env, 
+                    CI: 'true', 
+                    TERM: 'dumb', 
+                    KILO_PROVIDER_TYPE: 'kilocode',
+                    KILOCODE_MODEL: process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1'
+                },
                 stdio: 'ignore'
             });
 
-            // Actual execution - Native CLI call without wrapper
+            // Actual execution - Native CLI call with full environment propagation
             const output = execSync(`kilocode --auto --json "${prompt}"`, {
                 cwd: '/workspace',
                 encoding: 'utf8',
-                env: { ...process.env, CI: 'true', TERM: 'dumb', KILO_PROVIDER_TYPE: 'kilocode' }
+                env: { 
+                    ...process.env, 
+                    CI: 'true', 
+                    TERM: 'dumb', 
+                    KILO_PROVIDER_TYPE: 'kilocode',
+                    KILOCODE_MODEL: process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1'
+                }
             });
 
             fs.writeFileSync(GHOST_MANIFEST, output);
@@ -76,7 +89,7 @@ async function synchronize(source = 'periodic-polling') {
             break;
 
         } catch (error) {
-            console.error(`[Overlord] Attempt ${retryCount + 1} failed.`);
+            console.error(`[Overlord] Attempt ${retryCount + 1} failed: ${error.message}`);
             retryCount++;
             if (retryCount < MAX_RETRIES) await new Promise(r => setTimeout(r, 15000));
         }
