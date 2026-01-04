@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kilocode-gitops-controller
+  namespace: kilocode-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kilocode-gitops-controller
+  template:
+    metadata:
+      labels:
+        app: kilocode-gitops-controller
+    spec:
+      serviceAccountName: kilocode-controller-sa
+      containers:
+      - name: trigger-sidecar
+        image: node:20-slim
+        command: ["node", "src/sidecar.js"]
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KILOCODE_EXEC_PATH
+          value: "/usr/local/bin/kilocode"
+        - name: LOG_PATH
+          value: "/logs/audit.jsonl"
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: audit-logs
+          mountPath: /logs
+      - name: kilocode-engine
+        image: kilocode/cli:latest
+        command: ["sleep", "infinity"] # Controlled by sidecar via signal/socket
+        env:
+        - name: KILO_PROVIDER_TYPE
+          value: "kilocode"
+        - name: KILOCODE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: kilocode-secrets
+              key: token
+        volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: audit-logs
+          mountPath: /logs
+        - name: git-ssh-key
+          mountPath: /root/.ssh
+          readOnly: true
+      volumes:
+      - name: workspace
+        emptyDir: {}
+      - name: audit-logs
+        persistentVolumeClaim:
+          claimName: kilocode-audit-pvc
+      - name: git-ssh-key
+        secret:
+          secretName: git-ssh-key
+          defaultMode: 0400
