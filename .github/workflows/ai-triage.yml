@@ -183,6 +183,16 @@ jobs:
           fi
           echo "✅ AI issue analysis completed successfully"
 
+          CLEAN_JSON=$(cat raw_output.json)
+          if ! echo "$CLEAN_JSON" | jq -e . >/dev/null 2>&1; then
+            echo "::warning::AI output is not valid JSON: $CLEAN_JSON"
+            CLEAN_JSON='{"labels": []}'
+            echo "$CLEAN_JSON" > raw_output.json
+          fi
+          echo "ai_output<<EOF" >> $GITHUB_OUTPUT
+          echo "$CLEAN_JSON" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
 
 
 
@@ -205,7 +215,7 @@ jobs:
         if: |-
           ${{ steps.ai_analysis.outcome == 'success' }}
         run: |
-          LABELS=$(jq -r '.labels // empty | join(",")' raw_output.json)
+          LABELS=$(echo '${{ steps.ai_analysis.outputs.ai_output }}' | jq -r '.labels // [] | join(",")')
           echo "labels=$LABELS" >> $GITHUB_OUTPUT
 
   label:
