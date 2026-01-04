@@ -5,7 +5,7 @@ on:
     types: [orchestrator-build]
 
 env:
-  KILOCODE_IMAGE: kiloai/cli:latest
+  KILOCODE_IMAGE: kilocode/cli:latest
   KILOCODE_MODEL: x-ai/grok-code-fast-1
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       
       - name: "Analyze Changes"
         id: analyze
@@ -25,30 +25,69 @@ jobs:
           KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
           # Upstream void analysis logic: targeted purging starts here.
-          DIFF=$(git diff HEAD^ HEAD)
+          echo "Forensic audit of the upstream void..."
+          
+          # Capture diff with error handling
+          DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
+          if [ -z "$DIFF" ]; then
+            echo "No changes detected in the void. Standing down."
+            echo "components=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Prepare prompt for the Overlord
           PROMPT="Analyze the following git diff and identify which components need to be rebuilt. Respond ONLY with a JSON object like {\"components\": [\"api\", \"web\"]}. Diff: ${DIFF:0:2000}"
           
-          echo "Analyzing changes with native Kilocode CLI..."
+          echo "Consulting the Overlord with native Kilocode CLI..."
+          
+          # Execute analysis with strict JSON capturing
+          # We use a temporary file to separate CLI logs from JSON response
           docker run --rm \
             -v "$(pwd):/workspace" \
             -e KILO_PROVIDER_TYPE=kilocode \
             -e KILOCODE_TOKEN \
             -e KILOCODE_MODEL \
+            -e CI=true \
             ${{ env.KILOCODE_IMAGE }} \
-            --auto --json "$PROMPT" > analysis.json
+            --auto --json "$PROMPT" > raw_response.json 2>cli_debug.log || {
+              echo "Overlord consultation failed. Witness the carnage:"
+              cat cli_debug.log
+              exit 1
+            }
             
-          COMPONENTS=$(jq -r '.components | join(",")' analysis.json)
+          echo "Raw response from Overlord:"
+          cat raw_response.json
+          
+          # Clean and validate JSON
+          if ! jq -e . raw_response.json > /dev/null 2>&1; then
+            echo "Heretical response detected. Attempting to extract JSON from the wreckage..."
+            # Try to grep for the first { and last }
+            sed -n '/{/,/}/p' raw_response.json > clean_response.json
+          else
+            cp raw_response.json clean_response.json
+          fi
+
+          # Final verification
+          if ! jq -e . clean_response.json > /dev/null 2>&1; then
+            echo "Fatal error: Overlord response is irredeemably corrupted."
+            cat clean_response.json
+            exit 1
+          fi
+
+          COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
           echo "Identified components for targeted purging: $COMPONENTS"
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
 
   build_base:
     needs: detect_changes
+    if: needs.detect_changes.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building base images..."
 
   deploy_secrets:
     needs: detect_changes
+    if: needs.detect_changes.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - run: echo "Deploying secrets..."
@@ -69,25 +108,28 @@ jobs:
 
   promote_to_gitops:
     needs: [build_api, build_web]
-    if: always()
+    if: always() && needs.detect_changes.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - run: echo "Promoting to GitOps..."
 
   create_release:
     needs: promote_to_gitops
+    if: needs.detect_changes.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - run: echo "Creating release..."
 
   build_linux:
     needs: detect_changes
+    if: contains(needs.detect_changes.outputs.components, 'linux')
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building Linux app..."
 
   build_windows:
     needs: detect_changes
+    if: contains(needs.detect_changes.outputs.components, 'windows')
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building Windows app..."
