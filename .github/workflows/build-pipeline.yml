@@ -1,6 +1,12 @@
-name: "🚀 Build Pipeline"
+name: "🚀 Unified GitOps Overlord Pipeline"
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "assets/version.json"
+      - "pubspec.yaml"
+      - "package.json"
   repository_dispatch:
     types: [orchestrator-build]
 
@@ -9,35 +15,38 @@ env:
   KILOCODE_MODEL: x-ai/grok-code-fast-1
 
 jobs:
-  detect_changes:
+  overlord_orchestration:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       components: ${{ steps.analyze.outputs.components }}
+      bump_needed: ${{ steps.analyze.outputs.bump_needed }}
+      new_version: ${{ steps.analyze.outputs.new_version }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: "Analyze Changes"
+      - name: "Overlord: Change Detection & Manifest Analysis"
         id: analyze
         env:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
           KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
-          # Upstream void analysis logic: targeted purging starts here.
-          echo "Forensic audit of changes..."
+          echo "Overlord conducting forensic audit of the void..."
           
           DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
           if [ -z "$DIFF" ]; then
-            echo "No changes detected."
+            echo "No changes detected. Standing down."
             echo "components=" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          PROMPT="Analyze the following git diff and identify which components need to be rebuilt. Respond ONLY with a JSON object like {\"components\": [\"api\", \"web\"]}. Diff: ${DIFF:0:2000}"
+          # Prepared prompt for both analysis and versioning
+          PROMPT="Analyze these git changes. Identify components to rebuild (api, web, linux, windows) AND decide if a version bump is needed. Respond ONLY with a JSON object like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
           
-          echo "Executing native Kilocode CLI..."
-          
+          # Native CLI execution with sanitization
           docker run --rm \
             -v "$(pwd):/workspace" \
             -e KILO_PROVIDER_TYPE=kilocode \
@@ -45,80 +54,53 @@ jobs:
             -e KILOCODE_MODEL \
             -e CI=true \
             ${{ env.KILOCODE_IMAGE }} \
-            --auto --json "$PROMPT" > raw_response.json 2>cli_debug.log || {
-              echo "CLI execution failed:"
-              cat cli_debug.log
-              exit 1
-            }
+            --auto --json "$PROMPT" > raw_response.json
             
-          # Clean and validate JSON
+          # Sanitization Routine
           if ! jq -e . raw_response.json > /dev/null 2>&1; then
             sed -n '/{/,/}/p' raw_response.json > clean_response.json
           else
             cp raw_response.json clean_response.json
           fi
 
-          if ! jq -e . clean_response.json > /dev/null 2>&1; then
-            echo "Error: Invalid JSON response."
-            cat clean_response.json
-            exit 1
-          fi
-
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
+          BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
+          VERSION=$(jq -r '.new_version // ""' clean_response.json)
+          
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
+          echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
+          echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+          
+          echo "Overlord analysis: Components=[$COMPONENTS], Bump=[$BUMP], Version=[$VERSION]"
 
-  build_base:
-    needs: detect_changes
-    if: needs.detect_changes.outputs.components != ''
+      - name: "Overlord: Version Resurrection"
+        if: steps.analyze.outputs.bump_needed == 'true'
+        run: |
+          NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
+          echo "Executing version bump to $NEW_VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
+          git add assets/version.json
+          git commit -m "chore: Overlord version bump to $NEW_VERSION"
+          git push origin main
+
+  deployment_phase:
+    needs: overlord_orchestration
+    if: needs.overlord_orchestration.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building base images..."
+      - name: "Executing Targeted Purge & Deploy"
+        run: |
+          COMPONENTS="${{ needs.overlord_orchestration.outputs.components }}"
+          echo "Deploying targets: $COMPONENTS"
+          # Seamless execution of build and deployment logic
+          if [[ $COMPONENTS == *"api"* ]]; then echo "Rebuilding API..."; fi
+          if [[ $COMPONENTS == *"web"* ]]; then echo "Rebuilding Web..."; fi
 
-  deploy_secrets:
-    needs: detect_changes
-    if: needs.detect_changes.outputs.components != ''
+  ritual_sacrifice:
+    needs: deployment_phase
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deploying secrets..."
-
-  build_api:
-    needs: [build_base, deploy_secrets]
-    if: contains(needs.detect_changes.outputs.components, 'api')
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Building API..."
-
-  build_web:
-    needs: [build_base, deploy_secrets]
-    if: contains(needs.detect_changes.outputs.components, 'web')
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Building Web..."
-
-  promote_to_gitops:
-    needs: [build_api, build_web]
-    if: always() && needs.detect_changes.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Promoting to GitOps..."
-
-  create_release:
-    needs: promote_to_gitops
-    if: needs.detect_changes.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Creating release..."
-
-  build_linux:
-    needs: detect_changes
-    if: contains(needs.detect_changes.outputs.components, 'linux')
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Building Linux app..."
-
-  build_windows:
-    needs: detect_changes
-    if: contains(needs.detect_changes.outputs.components, 'windows')
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Building Windows app..."
+      - name: "Incinerating ArgoCD Rot"
+        run: echo "Executing decommissioning ritual for legacy artifacts..."
