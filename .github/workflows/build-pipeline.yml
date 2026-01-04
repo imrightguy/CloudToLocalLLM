@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0 # Full depth for forensic audit
       
       - name: "Orchestrator: Forensic Analysis"
         id: analyze
@@ -28,18 +28,24 @@ jobs:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
           KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
-          echo "Analyzing changes for handoff..."
+          echo "Executing diagnostic audit of the upstream void..."
           
-          DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
+          # Use fetch-depth awareness for robust diff capture
+          if [ "${{ github.event_name }}" == "push" ]; then
+            DIFF=$(git diff ${{ github.event.before }} ${{ github.event.after }} || git diff HEAD^ HEAD)
+          else
+            DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
+          fi
+
           if [ -z "$DIFF" ]; then
-            echo "components=" >> $GITHUB_OUTPUT
+            echo "components=api,web,linux,windows" >> $GITHUB_OUTPUT
             echo "bump_needed=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           PROMPT="Analyze changes. Identify components (api, web, linux, windows) AND decide if version bump is needed. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
           
-          # Native CLI execution
+          # Native CLI execution with forensic audit routines
           docker run --rm \
             -v "$(pwd):/workspace" \
             -e KILO_PROVIDER_TYPE=kilocode \
@@ -57,7 +63,8 @@ jobs:
           fi
 
           if ! jq -e . clean_response.json > /dev/null 2>&1; then
-            echo '{"components":[],"version_bump_needed":false}' > clean_response.json
+             # Emergency fallback: targeted purging of all components
+             echo '{"components":["api","web","linux","windows"],"version_bump_needed":false}' > clean_response.json
           fi
 
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
@@ -67,6 +74,7 @@ jobs:
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Diagnostic: Components discovered: $COMPONENTS"
 
   # Legacy Build Jobs
   build_base:
@@ -97,7 +105,7 @@ jobs:
     steps:
       - run: echo "Building Web..."
 
-  # Decoupled GitHub Release: Triggers immediately after builds
+  # GitHub Release: Decoupled for optimized lead time
   create_github_release:
     needs: [build_api, build_web]
     if: needs.orchestrator_entry.outputs.bump_needed == 'true'
@@ -109,7 +117,6 @@ jobs:
           NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
           echo "Creating release for $NEW_VERSION..."
 
-  # Downstream tasks run concurrently with release
   promote_to_gitops:
     needs: [build_api, build_web]
     if: always() && needs.orchestrator_entry.outputs.components != ''
