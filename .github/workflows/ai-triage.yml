@@ -192,6 +192,10 @@ jobs:
           echo "::warning::AI triage failed, using fallback"
           echo '{"labels": []}' > raw_output.json
           CLEAN_JSON=$(cat raw_output.json)
+          if ! echo "$CLEAN_JSON" | jq -e . >/dev/null 2>&1; then
+            echo "::warning::AI output is not valid JSON: $CLEAN_JSON"
+            CLEAN_JSON='{"labels": []}'
+          fi
           echo "ai_output<<EOF" >> $GITHUB_OUTPUT
           echo "$CLEAN_JSON" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
