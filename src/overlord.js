@@ -62,7 +62,7 @@ async function synchronize(source = 'periodic-polling') {
                 stdio: 'ignore'
             });
 
-            // Actual execution
+            // Actual execution - Native CLI call without wrapper
             const output = execSync(`kilocode --auto --json "${prompt}"`, {
                 cwd: '/workspace',
                 encoding: 'utf8',
