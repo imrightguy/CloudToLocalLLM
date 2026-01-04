@@ -47,26 +47,18 @@ jobs:
           KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
           echo "Executing forensic audit of changes..."
-          
           if [ "${{ github.event_name }}" == "push" ]; then
-            if [ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]; then
-              DIFF=$(git diff HEAD^ HEAD)
-            else
-              DIFF=$(git diff ${{ github.event.before }} ${{ github.event.after }})
-            fi
+            DIFF=$(git diff ${{ github.event.before }} ${{ github.event.after }} || git diff HEAD^ HEAD)
           else
             DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
           fi
-
           if [ -z "$DIFF" ]; then
             echo "components=api,web,linux,windows" >> $GITHUB_OUTPUT
             echo "bump_needed=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-
           VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
           PROMPT="Analyze changes. Identify components (api, web, linux, windows) AND decide if version bump is needed for version $VERSION. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
-          
           docker run --rm \
             -v "$(pwd):/workspace" \
             -e KILO_PROVIDER_TYPE=kilocode \
@@ -75,21 +67,17 @@ jobs:
             -e CI=true \
             ${{ env.KILOCODE_IMAGE }} \
             --auto --json "$PROMPT" > raw_response.json
-            
           if ! jq -e . raw_response.json > /dev/null 2>&1; then
             sed -n '/{/,/}/p' raw_response.json > clean_response.json
           else
             cp raw_response.json clean_response.json
           fi
-
           if ! jq -e . clean_response.json > /dev/null 2>&1; then
              echo '{"components":["api","web","linux","windows"],"version_bump_needed":false}' > clean_response.json
           fi
-
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
           BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
           NEW_VERSION=$(jq -r '.new_version // ""' clean_response.json)
-          
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$VERSION" >> $GITHUB_OUTPUT
@@ -100,7 +88,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
-          echo "Executing version bump to $NEW_VERSION"
+          echo "Executing automated version bump to $NEW_VERSION"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
@@ -113,49 +101,81 @@ jobs:
     if: needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building base images..."
+      - uses: actions/checkout@v4
+      - name: Build Base Images
+        run: |
+          docker build -t cloudtolocalllm-base:latest -f Dockerfile/Dockerfile.base .
+          docker build -t cloudtolocalllm-build:latest -f Dockerfile/Dockerfile.build .
 
   deploy_secrets:
     needs: orchestrator_entry
     if: needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deploying secrets..."
+      - uses: actions/checkout@v4
+      - name: Deploy Cluster Secrets
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          chmod +x scripts/setup-github-secrets-aks.sh
+          ./scripts/setup-github-secrets-aks.sh
 
   build_api:
     needs: [build_base, deploy_secrets]
     if: contains(needs.orchestrator_entry.outputs.components, 'api')
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building API..."
+      - uses: actions/checkout@v4
+      - name: Build API Backend
+        run: |
+          cd services/api-backend
+          docker build -t cloudtolocalllm-api:latest .
+          docker run --rm cloudtolocalllm-api:latest npm test
 
   build_web:
     needs: [build_base, deploy_secrets]
     if: contains(needs.orchestrator_entry.outputs.components, 'web')
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building Web..."
+      - uses: actions/checkout@v4
+      - name: Build Web Frontend
+        run: |
+          cd web
+          npm install
+          npm run build
+          npm test
 
   build_linux:
     needs: orchestrator_entry
     if: contains(needs.orchestrator_entry.outputs.components, 'linux')
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Building Linux app..."
+      - uses: actions/checkout@v4
+      - name: Build Linux Desktop
+        run: |
+          # Native build command for Linux
+          flutter build linux --release
 
   build_windows:
     needs: orchestrator_entry
     if: contains(needs.orchestrator_entry.outputs.components, 'windows')
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - run: echo "Building Windows app..."
+      - uses: actions/checkout@v4
+      - name: Build Windows Desktop
+        run: |
+          flutter build windows --release
 
   promote_to_gitops:
     needs: [build_api, build_web, build_linux, build_windows]
     if: always() && needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Promoting to GitOps..."
+      - uses: actions/checkout@v4
+      - name: Promote to GitOps Stronghold
+        run: |
+          chmod +x scripts/deploy-in-cluster.sh
+          ./scripts/deploy-in-cluster.sh
 
   create_github_release:
     needs: promote_to_gitops
@@ -163,7 +183,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: "Executing release"
+      - name: Create Production Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
-          echo "Creating release for $NEW_VERSION..."
+          gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Overlord"
