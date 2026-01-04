@@ -13,9 +13,46 @@ on:
 env:
   KILOCODE_IMAGE: kiloai/cli:latest
   KILOCODE_MODEL: x-ai/grok-code-fast-1
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
 jobs:
+  dispatch_and_audit:
+    runs-on: ubuntu-latest
+    outputs:
+      command: ${{ steps.extract_command.outputs.command }}
+      additional_context: ${{ steps.extract_command.outputs.additional_context }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Forensic Audit: Extract Command"
+        id: extract_command
+        uses: actions/github-script@v7
+        env:
+          EVENT_TYPE: "${{ github.event_name }}.${{ github.event.action }}"
+        with:
+          script: |
+            const eventName = context.eventName;
+            if (eventName === 'push' || eventName === 'repository_dispatch') {
+              core.setOutput('command', 'orchestrate');
+            } else {
+              core.setOutput('command', 'audit-only');
+            }
+
+      - name: "Kill Previous Orchestrator Builds"
+        if: steps.extract_command.outputs.command == 'orchestrate'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH=$(echo "${{ github.ref }}" | sed -e 's|^refs/heads/||' -e 's|^refs/pull/||')
+          RUNS=$(gh run list --workflow "🚀 Unified GitOps Overlord Pipeline" --branch "$BRANCH" --status in_progress --json databaseId --jq '.[].databaseId')
+          for RUN_ID in $RUNS; do
+            if [ "$RUN_ID" != "$GITHUB_RUN_ID" ]; then
+              gh run cancel "$RUN_ID" || true
+            fi
+          done
+
   overlord_orchestration:
+    needs: dispatch_and_audit
+    if: needs.dispatch_and_audit.outputs.command == 'orchestrate'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -25,59 +62,88 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 50
           token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: "Overlord: Change Detection & Manifest Analysis"
+
+      - name: "Validate Secrets & Environment"
+        run: |
+          if [ -z "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}" ]; then
+            echo "::error::Missing KILOCODE_TOKEN"
+            exit 1
+          fi
+
+      - name: "Diagnostic: Pull & Health Check"
+        run: |
+          docker pull ${{ env.KILOCODE_IMAGE }}
+          docker run --rm --entrypoint node ${{ env.KILOCODE_IMAGE }} --version
+
+      - name: "Overlord: Forensic Analysis & targeted purging"
         id: analyze
         env:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
           KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
-          echo "Overlord conducting forensic audit of the void..."
-          
+          set -e
+          VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
           DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
-          if [ -z "$DIFF" ]; then
-            echo "No changes detected. Standing down."
-            echo "components=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Prepared prompt for both analysis and versioning
-          PROMPT="Analyze these git changes. Identify components to rebuild (api, web, linux, windows) AND decide if a version bump is needed. Respond ONLY with a JSON object like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
+          PROMPT="Analyze these git changes. Version=$VERSION. Identify components to rebuild (api, web, linux, windows) AND decide if a version bump is needed. Respond ONLY with a JSON object like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
           
-          # Native CLI execution with sanitization
-          docker run --rm \
-            -v "$(pwd):/workspace" \
-            -e KILO_PROVIDER_TYPE=kilocode \
-            -e KILOCODE_TOKEN \
-            -e KILOCODE_MODEL \
-            -e CI=true \
-            ${{ env.KILOCODE_IMAGE }} \
-            --auto --json "$PROMPT" > raw_response.json
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          SUCCESS=false
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            echo "Sync Attempt $((RETRY_COUNT + 1))..."
             
-          # Sanitization Routine
-          if ! jq -e . raw_response.json > /dev/null 2>&1; then
-            sed -n '/{/,/}/p' raw_response.json > clean_response.json
-          else
-            cp raw_response.json clean_response.json
+            # API Health Check
+            if ! timeout 60 docker run --rm -e KILO_PROVIDER_TYPE=kilocode -e KILOCODE_TOKEN ${{ env.KILOCODE_IMAGE }} --auto "Respond OK" > /dev/null 2>&1; then
+               echo "API health check failed."
+            else
+               # Analysis Execution
+               docker run --rm \
+                 -v "$(pwd):/workspace" \
+                 -e KILO_PROVIDER_TYPE=kilocode \
+                 -e KILOCODE_TOKEN \
+                 -e KILOCODE_MODEL \
+                 -e CI=true \
+                 ${{ env.KILOCODE_IMAGE }} \
+                 --auto --json "$PROMPT" > raw_response.json 2>cli_error.log
+               
+               if jq -e . raw_response.json > /dev/null 2>&1; then
+                 cp raw_response.json clean_response.json
+                 SUCCESS=true
+                 break
+               else
+                 sed -n '/{/,/}/p' raw_response.json > clean_response.json
+                 if jq -e . clean_response.json > /dev/null 2>&1; then
+                   SUCCESS=true
+                   break
+                 fi
+               fi
+            fi
+            
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            [ $RETRY_COUNT -lt $MAX_RETRIES ] && sleep 15
+          done
+          
+          if [ "$SUCCESS" = false ]; then
+            echo "::error::Overlord analysis failed."
+            exit 1
           fi
 
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
           BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
-          VERSION=$(jq -r '.new_version // ""' clean_response.json)
+          NEW_VERSION=$(jq -r '.new_version // "'"$VERSION"'"' clean_response.json)
           
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
-          echo "new_version=$VERSION" >> $GITHUB_OUTPUT
-          
-          echo "Overlord analysis: Components=[$COMPONENTS], Bump=[$BUMP], Version=[$VERSION]"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Results: Components=[$COMPONENTS], Bump=[$BUMP], Version=[$NEW_VERSION]"
 
       - name: "Overlord: Version Resurrection"
         if: steps.analyze.outputs.bump_needed == 'true'
         run: |
           NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
-          echo "Executing version bump to $NEW_VERSION"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
@@ -93,14 +159,14 @@ jobs:
       - name: "Executing Targeted Purge & Deploy"
         run: |
           COMPONENTS="${{ needs.overlord_orchestration.outputs.components }}"
-          echo "Deploying targets: $COMPONENTS"
-          # Seamless execution of build and deployment logic
+          echo "Processing targets: $COMPONENTS"
           if [[ $COMPONENTS == *"api"* ]]; then echo "Rebuilding API..."; fi
           if [[ $COMPONENTS == *"web"* ]]; then echo "Rebuilding Web..."; fi
 
   ritual_sacrifice:
     needs: deployment_phase
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: "Incinerating ArgoCD Rot"
-        run: echo "Executing decommissioning ritual for legacy artifacts..."
+      - name: "Incinerating ArgoCD artifacts"
+        run: echo "Final decommissioning ritual executed."
