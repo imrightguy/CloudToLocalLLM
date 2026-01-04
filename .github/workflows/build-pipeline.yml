@@ -351,14 +351,34 @@ jobs:
       - name: Deploy Optimized Cloudflare Tunnel
         env:
           CLOUDFLARE_TUNNEL_ID: ${{ secrets.CLOUDFLARE_TUNNEL_ID }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
+          # Securely create tunnel-credentials secret using jq
+          jq -n --arg token "$CLOUDFLARE_TUNNEL_TOKEN" \
+            '{apiVersion: "v1", kind: "Secret", metadata: {name: "tunnel-credentials", namespace: "cloudtolocalllm"}, type: "Opaque", stringData: {token: $token}}' \
+            | kubectl apply -f -
+
           # Calculate SHA of ConfigMap to trigger rolling restart if config changed
-          # Use -- to terminate option processing for grep and avoid "unrecognized option '---'"
           CONFIG_MAP_YAML=$(sed -n '/kind: ConfigMap/,/---/p' k8s/deployments/overlays/managed/cloudflared-tunnel.yaml | grep -v -- "---")
           export CLOUDFLARED_CONFIG_SHA=$(echo "$CONFIG_MAP_YAML" | sha256sum | cut -d' ' -f1)
           
           # Use envsubst to inject the SHA and Tunnel ID into the Deployment and apply
           envsubst '$CLOUDFLARED_CONFIG_SHA,$CLOUDFLARE_TUNNEL_ID' < k8s/deployments/overlays/managed/cloudflared-tunnel.yaml | kubectl apply -f -
+          
+          # Force rollout restart to ensure tunnel stability
+          kubectl rollout restart deployment/cloudflared -n cloudtolocalllm
+
+      - name: Cloudflare Cache Purge
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_EMAIL: "cmaltais@cloudtolocalllm.online"
+        run: |
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "X-Auth-Email: ${CLOUDFLARE_EMAIL}" \
+            -H "X-Auth-Key: ${CLOUDFLARE_API_KEY}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
 
       - name: Deploy Monitoring Configuration
         env:

@@ -71,31 +71,11 @@ data:
     metrics: 0.0.0.0:2000
     no-autoupdate: true
     ingress:
-      # App Subdomain - API Backend (WS Tunnel)
+      # App Subdomain - API Backend (Unified Tunnel & API)
       - hostname: app.cloudtolocalllm.online
-        path: /ws
+        path: /(ws|api/tunnel|ssh|health|api)
         service: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
       
-      # App Subdomain - API Backend (Tunnel API)
-      - hostname: app.cloudtolocalllm.online
-        path: /api/tunnel
-        service: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
-
-      # App Subdomain - API Backend (SSH Tunnel)
-      - hostname: app.cloudtolocalllm.online
-        path: /ssh
-        service: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
-      
-      # App Subdomain - API Backend Health
-      - hostname: app.cloudtolocalllm.online
-        path: /health
-        service: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
-
-      # App Subdomain - API Backend
-      - hostname: app.cloudtolocalllm.online
-        path: /api
-        service: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
-
       # App Subdomain - Web Frontend (Root)
       - hostname: app.cloudtolocalllm.online
         service: http://web.cloudtolocalllm.svc.cluster.local:8080
