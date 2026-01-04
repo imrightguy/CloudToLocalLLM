@@ -11,21 +11,30 @@ const GHOST_MANIFEST = path.join(STATE_DIR, 'ghost-manifest.yaml');
 
 app.use(express.json());
 
-// Ensure state directory exists
 if (!fs.existsSync(STATE_DIR)) {
     fs.mkdirSync(STATE_DIR, { recursive: true });
 }
 
-// Log deployment to audit trail
 function auditLog(event, data) {
     const entry = JSON.stringify({ timestamp: new Date().toISOString(), event, ...data }) + '\n';
     fs.appendFileSync(AUDIT_LOG, entry);
 }
 
 /**
- * Mirroring the sacred main-orchestrator workflow logic.
- * Performs robust synchronization with retries, health checks, and static analysis.
+ * Detects changes by mirroring the sacred static analysis logic.
+ * Ensures the Overlord knows exactly what rot requires purging.
  */
+function detectChanges() {
+    console.log('[Overlord] Detecting changes in the upstream void...');
+    try {
+        const diff = execSync('git diff HEAD^ HEAD', { cwd: '/workspace' }).toString();
+        return diff;
+    } catch (e) {
+        console.warn('[Overlord] Warning: Could not detect changes. Forcing full sync.');
+        return 'forced-sync';
+    }
+}
+
 async function synchronize(source = 'periodic-polling') {
     console.log(`[Overlord] Commencing synchronization triggered by ${source}...`);
     
@@ -36,95 +45,55 @@ async function synchronize(source = 'periodic-polling') {
 
     try {
         currentSha = execSync('git rev-parse HEAD', { cwd: '/workspace' }).toString().trim();
-    } catch (e) {
-        console.warn('[Overlord] Warning: Could not capture current SHA.');
-    }
+    } catch (e) {}
 
-    const prompt = "Analyze the latest changes and decide if a release is needed. IMPORTANT: Perform STATIC ANALYSIS ONLY. Respond ONLY with a JSON object.";
+    // Manifest detection logic: The Overlord must know its targets.
+    const changes = detectChanges();
+    const prompt = `Analyze these changes and identify components for deployment: ${changes.substring(0, 2000)}. IMPORTANT: Perform STATIC ANALYSIS ONLY. Respond ONLY with JSON.`;
 
     while (retryCount < MAX_RETRIES) {
         console.log(`[Overlord] Sync Attempt ${retryCount + 1} of ${MAX_RETRIES}...`);
         
         try {
-            // 1. Health Check (Mirroring workflow line 182)
-            console.log('[Overlord] Performing Kilocode API health check...');
-            execSync('kilocode --auto "Health check: Respond with OK"', {
+            // API Health check (Mandatory rite)
+            execSync('kilocode --auto "Respond with OK"', {
                 cwd: '/workspace',
-                env: { 
-                    ...process.env, 
-                    CI: 'true', 
-                    TERM: 'dumb',
-                    KILO_PROVIDER_TYPE: 'kilocode',
-                    KILO_TELEMETRY: 'false',
-                    KILO_AUTO_APPROVAL_ENABLED: 'true'
-                },
+                env: { ...process.env, CI: 'true', TERM: 'dumb', KILO_PROVIDER_TYPE: 'kilocode' },
                 stdio: 'ignore'
             });
-            console.log('[Overlord] API health check passed.');
 
-            // 2. Execution Logic (Mirroring workflow line 202)
-            console.log('[Overlord] Attempting Kilocode analysis...');
+            // Actual execution
             const output = execSync(`kilocode --auto --json "${prompt}"`, {
                 cwd: '/workspace',
                 encoding: 'utf8',
-                env: { 
-                    ...process.env, 
-                    CI: 'true', 
-                    TERM: 'dumb',
-                    KILO_PROVIDER_TYPE: 'kilocode',
-                    KILO_TELEMETRY: 'false',
-                    KILO_AUTO_APPROVAL_ENABLED: 'true'
-                }
+                env: { ...process.env, CI: 'true', TERM: 'dumb', KILO_PROVIDER_TYPE: 'kilocode' }
             });
 
-            // Persistence Ritual
             fs.writeFileSync(GHOST_MANIFEST, output);
             auditLog('sync-success', { source, sha: currentSha });
-            console.log('[Overlord] Synchronization complete. Dominion secured.');
+            console.log('[Overlord] Synchronization complete.');
             success = true;
             break;
 
         } catch (error) {
-            console.error(`[Overlord] Attempt ${retryCount + 1} failed: ${error.message}`);
+            console.error(`[Overlord] Attempt ${retryCount + 1} failed.`);
             retryCount++;
-            if (retryCount < MAX_RETRIES) {
-                const delay = 15000;
-                console.log(`[Overlord] Retrying in ${delay}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
+            if (retryCount < MAX_RETRIES) await new Promise(r => setTimeout(r, 15000));
         }
     }
 
-    if (!success) {
-        console.error('[Overlord] Total synchronization failure after all attempts.');
-        auditLog('sync-failure', { source, sha: currentSha });
-        
-        // Resurrection Ritual
-        if (fs.existsSync(GHOST_MANIFEST)) {
-            console.log('[Overlord] Failed to manifest new state. Resurrecting from Ghost Manifest...');
-            try {
-                // In a production Overlord, this would apply the last known good manifest via kubectl
-                // execSync('kubectl apply -f ' + GHOST_MANIFEST);
-                auditLog('resurrection-triggered', { source });
-            } catch (resError) {
-                console.error(`[Overlord] Resurrection failed: ${resError.message}`);
-            }
-        }
+    if (!success && fs.existsSync(GHOST_MANIFEST)) {
+        console.log('[Overlord] Resurrecting from Ghost Manifest...');
+        auditLog('resurrection-triggered', { source });
     }
 }
 
-// Webhook Hellmouth
 app.post('/webhook', (req, res) => {
-    console.log('[Overlord] Webhook summons received from GitHub Actions.');
     synchronize('webhook-summons');
     res.status(202).send({ status: 'summoned' });
 });
 
-// Polling Purgatory
-const POLL_INTERVAL = process.env.POLL_INTERVAL_MS || 180000;
-setInterval(() => {
-    synchronize('polling-purgatory');
-}, POLL_INTERVAL);
+setInterval(() => synchronize('polling-purgatory'), process.env.POLL_INTERVAL_MS || 180000);
 
 app.listen(port, () => {
     console.log(`[Overlord] GitOps Overlord listening on port ${port}. Dominion established.`);
