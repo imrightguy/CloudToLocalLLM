@@ -29,6 +29,33 @@ defaults:
     shell: bash
 
 jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api_changed: ${{ steps.check.outputs.api_changed }}
+      web_changed: ${{ steps.check.outputs.web_changed }}
+      desktop_changed: ${{ steps.check.outputs.desktop_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure Kilocode
+        env:
+          KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN }}
+        run: |
+          node scripts/kilocode-cli.cjs --configure-ci
+      - name: Detect Component Changes
+        id: check
+        run: |
+          # Use kilocode-cli to analyze git diff and identify changed components
+          # We pass the diff of the last 2 commits to identify affected areas
+          DIFF=$(git diff --name-only HEAD~1 HEAD)
+          ANALYSIS=$(node scripts/kilocode-cli.cjs "Analyze the following file changes and determine which components are affected. Respond with a JSON object containing boolean fields: api_changed, web_changed, desktop_changed. Components are mapped as: api_changed (services/api-backend/), web_changed (config/docker/Dockerfile.web, assets/), desktop_changed (linux/, runner/, android/, lib/). Changes: $DIFF")
+          
+          echo "api_changed=$(echo $ANALYSIS | jq -r '.api_changed')" >> $GITHUB_OUTPUT
+          echo "web_changed=$(echo $ANALYSIS | jq -r '.web_changed')" >> $GITHUB_OUTPUT
+          echo "desktop_changed=$(echo $ANALYSIS | jq -r '.desktop_changed')" >> $GITHUB_OUTPUT
+
   validate_prerequisites:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -95,7 +122,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   build_api:
-    needs: [build_base]
+    needs: [build_base, detect_changes]
+    if: needs.detect_changes.outputs.api_changed == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -131,7 +159,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   build_web:
-    needs: [build_base]
+    needs: [build_base, detect_changes]
+    if: needs.detect_changes.outputs.web_changed == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -165,7 +194,8 @@ jobs:
           cache-to: type=gha,mode=max
 
   build_linux:
-    needs: [validate_prerequisites]
+    needs: [validate_prerequisites, detect_changes]
+    if: needs.detect_changes.outputs.desktop_changed == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -203,7 +233,8 @@ jobs:
           path: "*.tar.gz"
 
   build_windows:
-    needs: [validate_prerequisites]
+    needs: [validate_prerequisites, detect_changes]
+    if: needs.detect_changes.outputs.desktop_changed == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
