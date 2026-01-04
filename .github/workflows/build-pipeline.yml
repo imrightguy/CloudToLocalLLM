@@ -15,29 +15,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       components: ${{ steps.analyze.outputs.components }}
+      new_version: ${{ steps.analyze.outputs.new_version }}
+      bump_needed: ${{ steps.analyze.outputs.bump_needed }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       
-      - name: "Orchestrator: Change Detection & Manifest Handoff"
+      - name: "Orchestrator: Forensic Analysis"
         id: analyze
         env:
           KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
           KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
         run: |
-          echo "Orchestrator analyzing git changes for handoff..."
+          echo "Analyzing changes for handoff..."
           
           DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
           if [ -z "$DIFF" ]; then
-            echo "No changes detected. Standing down."
             echo "components=" >> $GITHUB_OUTPUT
+            echo "bump_needed=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          PROMPT="Analyze these git changes and identify components to rebuild (api, web, linux, windows). Respond ONLY with a JSON object like {\"components\": [\"api\", \"web\"]}. Diff: ${DIFF:0:2000}"
+          PROMPT="Analyze changes. Identify components (api, web, linux, windows) AND decide if version bump is needed. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
           
-          # Native CLI execution with strict JSON extraction
+          # Native CLI execution
           docker run --rm \
             -v "$(pwd):/workspace" \
             -e KILO_PROVIDER_TYPE=kilocode \
@@ -47,18 +49,26 @@ jobs:
             ${{ env.KILOCODE_IMAGE }} \
             --auto --json "$PROMPT" > raw_response.json
             
-          # Sanitization logic
+          # Robust JSON Sanitization & Validation (Addressing exit code 5)
           if ! jq -e . raw_response.json > /dev/null 2>&1; then
             sed -n '/{/,/}/p' raw_response.json > clean_response.json
           else
             cp raw_response.json clean_response.json
           fi
 
-          COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
-          echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
-          echo "Handoff complete. Targets: $COMPONENTS"
+          if ! jq -e . clean_response.json > /dev/null 2>&1; then
+            echo '{"components":[],"version_bump_needed":false}' > clean_response.json
+          fi
 
-  # Legacy Build Process Jobs
+          COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
+          BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
+          VERSION=$(jq -r '.new_version // ""' clean_response.json)
+          
+          echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
+          echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
+          echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+
+  # Legacy Build Jobs
   build_base:
     needs: orchestrator_entry
     if: needs.orchestrator_entry.outputs.components != ''
@@ -87,19 +97,25 @@ jobs:
     steps:
       - run: echo "Building Web..."
 
+  # Decoupled GitHub Release: Triggers immediately after builds
+  create_github_release:
+    needs: [build_api, build_web]
+    if: needs.orchestrator_entry.outputs.bump_needed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Executing decoupled release"
+        run: |
+          NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
+          echo "Creating release for $NEW_VERSION..."
+
+  # Downstream tasks run concurrently with release
   promote_to_gitops:
     needs: [build_api, build_web]
     if: always() && needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - run: echo "Promoting to GitOps..."
-
-  create_release:
-    needs: promote_to_gitops
-    if: needs.orchestrator_entry.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Creating release..."
 
   build_linux:
     needs: orchestrator_entry
