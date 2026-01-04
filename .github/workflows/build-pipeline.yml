@@ -22,7 +22,6 @@ jobs:
         with:
           fetch-depth: 0
       
-      # Persistent Docker Layer Strategy for Overlord Image
       - name: "Overlord: Persist CLI Image"
         id: cache-docker
         uses: actions/cache@v4
@@ -36,7 +35,7 @@ jobs:
             echo "Resurrecting CLI image from persistent cache..."
             docker load -i /tmp/kiloai-cli-image.tar
           else
-            echo "CLI image absent from cache. Pulling from the void..."
+            echo "CLI image absent from cache. Pulling..."
             docker pull ${{ env.KILOCODE_IMAGE }}
             docker save ${{ env.KILOCODE_IMAGE }} -o /tmp/kiloai-cli-image.tar
           fi
@@ -101,6 +100,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
+          echo "Executing version bump to $NEW_VERSION"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
@@ -136,24 +136,6 @@ jobs:
     steps:
       - run: echo "Building Web..."
 
-  create_github_release:
-    needs: [build_api, build_web]
-    if: needs.orchestrator_entry.outputs.bump_needed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: "Executing decoupled release"
-        run: |
-          NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
-          echo "Creating release for $NEW_VERSION..."
-
-  promote_to_gitops:
-    needs: [build_api, build_web]
-    if: always() && needs.orchestrator_entry.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Promoting to GitOps..."
-
   build_linux:
     needs: orchestrator_entry
     if: contains(needs.orchestrator_entry.outputs.components, 'linux')
@@ -167,3 +149,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Building Windows app..."
+
+  promote_to_gitops:
+    needs: [build_api, build_web, build_linux, build_windows]
+    if: always() && needs.orchestrator_entry.outputs.components != ''
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Promoting to GitOps..."
+
+  create_github_release:
+    needs: promote_to_gitops
+    if: needs.orchestrator_entry.outputs.bump_needed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Executing release"
+        run: |
+          NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
+          echo "Creating release for $NEW_VERSION..."
