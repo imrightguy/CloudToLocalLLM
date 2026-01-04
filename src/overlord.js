@@ -21,42 +21,30 @@ function auditLog(event, data) {
 }
 
 /**
- * Detects changes by mirroring the sacred static analysis logic.
- * Ensures the Overlord knows exactly what rot requires purging.
+ * Detect changes logic.
  */
 function detectChanges() {
-    console.log('[Overlord] Detecting changes in the upstream void...');
     try {
-        const diff = execSync('git diff HEAD^ HEAD', { cwd: '/workspace' }).toString();
-        return diff;
+        return execSync('git diff HEAD^ HEAD', { cwd: '/workspace' }).toString();
     } catch (e) {
-        console.warn('[Overlord] Warning: Could not detect changes. Forcing full sync.');
         return 'forced-sync';
     }
 }
 
+/**
+ * Mirroring the sacred main-orchestrator workflow logic.
+ */
 async function synchronize(source = 'periodic-polling') {
-    console.log(`[Overlord] Commencing synchronization triggered by ${source}...`);
-    
     const MAX_RETRIES = 3;
     let retryCount = 0;
     let success = false;
-    let currentSha = 'unknown';
 
-    try {
-        currentSha = execSync('git rev-parse HEAD', { cwd: '/workspace' }).toString().trim();
-    } catch (e) {}
-
-    // Manifest detection logic: The Overlord must know its targets.
     const changes = detectChanges();
-    // Using the official CLI with explicit environment variable propagation
     const prompt = `Analyze these changes and identify components for deployment: ${changes.substring(0, 2000)}. IMPORTANT: Perform STATIC ANALYSIS ONLY. Respond ONLY with JSON.`;
 
     while (retryCount < MAX_RETRIES) {
-        console.log(`[Overlord] Sync Attempt ${retryCount + 1} of ${MAX_RETRIES}...`);
-        
         try {
-            // API Health check (Mandatory rite)
+            // API Health check
             execSync('kilocode --auto "Respond with OK"', {
                 cwd: '/workspace',
                 env: { 
@@ -69,7 +57,7 @@ async function synchronize(source = 'periodic-polling') {
                 stdio: 'ignore'
             });
 
-            // Actual execution - Native CLI call with full environment propagation
+            // Actual execution
             const output = execSync(`kilocode --auto --json "${prompt}"`, {
                 cwd: '/workspace',
                 encoding: 'utf8',
@@ -83,20 +71,17 @@ async function synchronize(source = 'periodic-polling') {
             });
 
             fs.writeFileSync(GHOST_MANIFEST, output);
-            auditLog('sync-success', { source, sha: currentSha });
-            console.log('[Overlord] Synchronization complete.');
+            auditLog('sync-success', { source });
             success = true;
             break;
 
         } catch (error) {
-            console.error(`[Overlord] Attempt ${retryCount + 1} failed: ${error.message}`);
             retryCount++;
             if (retryCount < MAX_RETRIES) await new Promise(r => setTimeout(r, 15000));
         }
     }
 
     if (!success && fs.existsSync(GHOST_MANIFEST)) {
-        console.log('[Overlord] Resurrecting from Ghost Manifest...');
         auditLog('resurrection-triggered', { source });
     }
 }
@@ -109,6 +94,5 @@ app.post('/webhook', (req, res) => {
 setInterval(() => synchronize('polling-purgatory'), process.env.POLL_INTERVAL_MS || 180000);
 
 app.listen(port, () => {
-    console.log(`[Overlord] GitOps Overlord listening on port ${port}. Dominion established.`);
     synchronize('boot-sequence');
 });
