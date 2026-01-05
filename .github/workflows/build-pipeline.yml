@@ -123,8 +123,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Deploy Cluster Secrets
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           chmod +x scripts/setup-github-secrets-aks.sh
           ./scripts/setup-github-secrets-aks.sh
 
@@ -201,6 +203,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Promote to GitOps Stronghold
         run: |
+          mkdir -p k8s/overlays
           chmod +x scripts/deploy-in-cluster.sh
           ./scripts/deploy-in-cluster.sh
 
