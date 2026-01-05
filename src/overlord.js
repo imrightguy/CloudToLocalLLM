@@ -32,6 +32,34 @@ function detectChanges() {
 }
 
 /**
+ * Cloudflare Tunnel Remediation Logic.
+ * Ensures tunnel instances are reconciled and recovered.
+ */
+function remediateTunnels() {
+    console.log('[Overlord] Auditing Cloudflare Tunnel status...');
+    try {
+        // Forensic audit of running tunnel pods
+        const pods = execSync('kubectl get pods -l app=cloudflared -o json', { encoding: 'utf8' });
+        const podData = JSON.parse(pods);
+        
+        const unhealthy = podData.items.filter(pod => 
+            pod.status.phase !== 'Running' || 
+            pod.status.containerStatuses.some(cs => !cs.ready)
+        );
+
+        if (unhealthy.length > 0) {
+            console.log(`[Overlord] Unhealthy tunnels detected: ${unhealthy.length}. Triggering remediation...`);
+            unhealthy.forEach(pod => {
+                execSync(`kubectl delete pod ${pod.metadata.name}`, { stdio: 'ignore' });
+            });
+            auditLog('tunnel-remediation', { count: unhealthy.length });
+        }
+    } catch (e) {
+        console.error(`[Overlord] Tunnel remediation failed: ${e.message}`);
+    }
+}
+
+/**
  * Mirroring the sacred main-orchestrator workflow logic.
  */
 async function synchronize(source = 'periodic-polling') {
@@ -72,6 +100,10 @@ async function synchronize(source = 'periodic-polling') {
 
             fs.writeFileSync(GHOST_MANIFEST, output);
             auditLog('sync-success', { source });
+            
+            // Reconcile Cloudflare Tunnels post-sync
+            remediateTunnels();
+            
             success = true;
             break;
 
@@ -89,6 +121,27 @@ async function synchronize(source = 'periodic-polling') {
 app.post('/webhook', (req, res) => {
     synchronize('webhook-summons');
     res.status(202).send({ status: 'summoned' });
+});
+
+// Production-grade monitoring endpoint for telemetry
+app.get('/metrics', (req, res) => {
+    try {
+        const auditData = fs.readFileSync(AUDIT_LOG, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
+        const tunnelPods = execSync('kubectl get pods -l app=cloudflared -o json', { encoding: 'utf8' });
+        
+        res.json({
+            status: 'online',
+            last_sync: auditData.reverse().find(entry => entry.event === 'sync-success')?.timestamp,
+            tunnel_health: JSON.parse(tunnelPods).items.map(pod => ({
+                name: pod.metadata.name,
+                status: pod.status.phase,
+                ready: pod.status.containerStatuses.every(cs => cs.ready)
+            })),
+            drift_detected: auditData.some(entry => entry.event === 'sync-failure')
+        });
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: e.message });
+    }
 });
 
 setInterval(() => synchronize('polling-purgatory'), process.env.POLL_INTERVAL_MS || 180000);
