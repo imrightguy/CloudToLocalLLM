@@ -161,7 +161,6 @@ jobs:
       - name: Build Linux Desktop
         run: |
           echo "Building Linux app..."
-          # Insert actual flutter/native build commands here
 
   build_windows:
     needs: orchestrator_entry
@@ -172,7 +171,6 @@ jobs:
       - name: Build Windows Desktop
         run: |
           echo "Building Windows app..."
-          # Insert actual flutter/native build commands here
 
   promote_to_gitops:
     needs: [build_api, build_web, build_linux, build_windows]
