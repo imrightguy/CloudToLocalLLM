@@ -111,8 +111,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build Base Images
         run: |
-          docker build -t cloudtolocalllm-base:latest -f Dockerfile/Dockerfile.base .
-          docker build -t cloudtolocalllm-build:latest -f Dockerfile/Dockerfile.build .
+          docker build -t cloudtolocalllm-base:latest -f config/docker/Dockerfile.base .
+          docker build -t cloudtolocalllm-build:latest -f config/docker/Dockerfile.build .
 
   deploy_secrets:
     needs: orchestrator_entry
@@ -161,7 +161,6 @@ jobs:
       - name: Build Linux Desktop
         run: |
           echo "Building Linux app..."
-          # Real build logic restored
 
   build_windows:
     needs: orchestrator_entry
@@ -172,7 +171,6 @@ jobs:
       - name: Build Windows Desktop
         run: |
           echo "Building Windows app..."
-          # Real build logic restored
 
   promote_to_gitops:
     needs: [build_api, build_web, build_linux, build_windows]
