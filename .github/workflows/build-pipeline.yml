@@ -54,13 +54,13 @@ jobs:
           fi
           
           if [ -z "$DIFF" ]; then
-            echo "components=api,web,linux,windows" >> $GITHUB_OUTPUT
+            echo "components=api,web,postgres,streaming,linux,windows" >> $GITHUB_OUTPUT
             echo "bump_needed=false" >> $GITHUB_OUTPUT
             exit 0
           fi
           
           VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
-          PROMPT="Analyze changes. Identify components (api, web, linux, windows) AND decide if version bump is needed for version $VERSION. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
+          PROMPT="Analyze changes. Identify components (api, web, postgres, streaming, linux, windows) AND decide if version bump is needed for version $VERSION. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
           
           docker run --rm \
             -v "$(pwd):/workspace" \
@@ -78,7 +78,7 @@ jobs:
           fi
           
           if ! jq -e . clean_response.json > /dev/null 2>&1; then
-             echo '{"components":["api","web","linux","windows"],"version_bump_needed":false}' > clean_response.json
+             echo '{"components":["api","web","postgres","streaming","linux","windows"],"version_bump_needed":false}' > clean_response.json
           fi
           
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
@@ -152,6 +152,26 @@ jobs:
           npm run build
           npm test
 
+  build_postgres:
+    needs: [build_base, deploy_secrets]
+    if: contains(needs.orchestrator_entry.outputs.components, 'postgres')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Postgres Service
+        run: |
+          docker build -t cloudtolocalllm-postgres:latest -f config/docker/Dockerfile.postgres .
+
+  build_streaming:
+    needs: [build_base, deploy_secrets]
+    if: contains(needs.orchestrator_entry.outputs.components, 'streaming')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Streaming Proxy
+        run: |
+          docker build -t cloudtolocalllm-streaming:latest -f config/docker/Dockerfile.streaming-proxy .
+
   build_linux:
     needs: orchestrator_entry
     if: contains(needs.orchestrator_entry.outputs.components, 'linux')
@@ -173,7 +193,7 @@ jobs:
           echo "Building Windows app..."
 
   promote_to_gitops:
-    needs: [build_api, build_web, build_linux, build_windows]
+    needs: [build_api, build_web, build_postgres, build_streaming, build_linux, build_windows]
     if: always() && needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
