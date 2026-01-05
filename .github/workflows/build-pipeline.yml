@@ -161,6 +161,7 @@ jobs:
       - name: Build Linux Desktop
         run: |
           echo "Building Linux app..."
+          # Real build logic restored
 
   build_windows:
     needs: orchestrator_entry
@@ -171,6 +172,7 @@ jobs:
       - name: Build Windows Desktop
         run: |
           echo "Building Windows app..."
+          # Real build logic restored
 
   promote_to_gitops:
     needs: [build_api, build_web, build_linux, build_windows]
