@@ -66,7 +66,7 @@ class Auth0AuthProvider implements AuthProvider {
       try {
         final credentials = await _auth0.webAuthentication(scheme: _scheme).login();
         await _storeCredentials(credentials);
-        final user = await _getUserFromIdToken(credentials.idToken!);
+        final user = await _getUserFromIdToken(credentials.idToken);
         _currentUser = user;
         _authSubject.add(true);
       } catch (e) {

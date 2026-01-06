@@ -41,6 +41,7 @@
     "express": "^5.1.0",
     "express-oauth2-jwt-bearer": "^1.7.1",
     "express-rate-limit": "^7.1.5",
+    "fs-extra": "^11.3.3",
     "googleapis": "^166.0.0",
     "helmet": "^8.1.0",
     "ioredis": "^5.4.1",
@@ -56,11 +57,14 @@
     "stripe": "^20.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
+    "systeminformation": "^5.30.0",
+    "undici": "^7.18.2",
     "uuid": "^13.0.0",
     "validator": "^13.15.23",
     "winston": "^3.19.0",
     "winston-transport": "^4.9.0",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
