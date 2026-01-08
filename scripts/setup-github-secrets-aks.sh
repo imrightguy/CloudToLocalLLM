@@ -493,7 +493,13 @@ main() {
     validate_github_cli
     load_azure_config
     collect_secrets
-    set_github_secrets
+    
+    if [[ "${CI:-}" != "true" ]]; then
+        set_github_secrets
+    else
+        log_info "Running in CI environment - skipping secret updates (read-only mode)"
+    fi
+    
     validate_secrets
     generate_summary
     
