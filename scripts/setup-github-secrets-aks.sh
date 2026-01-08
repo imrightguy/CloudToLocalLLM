@@ -496,11 +496,11 @@ main() {
     
     if [[ "${CI:-}" != "true" ]]; then
         set_github_secrets
+        validate_secrets
     else
-        log_info "Running in CI environment - skipping secret updates (read-only mode)"
+        log_info "Running in CI environment - skipping secret updates and API validation (read-only mode)"
     fi
     
-    validate_secrets
     generate_summary
     
     log_success "All done! ðŸŽ‰"
