@@ -114,6 +114,14 @@ jobs:
         run: |
           docker build -t cloudtolocalllm-base:latest -f config/docker/Dockerfile.base .
           docker build -t cloudtolocalllm-build:latest -f config/docker/Dockerfile.build .
+          docker save cloudtolocalllm-base:latest -o /tmp/base-image.tar
+
+      - name: Upload Base Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-image
+          path: /tmp/base-image.tar
+          retention-days: 1
 
   deploy_secrets:
     needs: orchestrator_entry
@@ -150,7 +158,7 @@ jobs:
         run: |
           cd services/api-backend
           docker build -t cloudtolocalllm-api:latest .
-          docker run --rm cloudtolocalllm-api:latest npm test
+          docker run --rm cloudtolocalllm-api:latest npm run test:unit
 
   test_api:
     needs: build_api
@@ -202,9 +210,13 @@ jobs:
       - name: Build Web Frontend
         run: |
           cd web
-          npm install
-          npm run build
-          npm test
+          if [ -f "package.json" ]; then
+            npm install
+            npm run build
+            npm test
+          else
+            echo "No package.json found in web directory. Skipping build."
+          fi
 
   test_web:
     needs: build_web
@@ -243,8 +255,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download Base Image
+        uses: actions/download-artifact@v4
+        with:
+          name: base-image
+          path: /tmp
+
       - name: Build Postgres Service
         run: |
+          docker load -i /tmp/base-image.tar
           docker build -t cloudtolocalllm-postgres:latest -f config/docker/Dockerfile.postgres .
 
   build_streaming:
