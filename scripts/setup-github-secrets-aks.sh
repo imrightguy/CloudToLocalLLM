@@ -129,7 +129,16 @@ load_azure_config() {
     log_section "Loading Azure Configuration"
     
     if [[ ! -f "$CONFIG_FILE" ]]; then
-        log_error "Configuration file not found: $CONFIG_FILE"
+        log_warning "Configuration file not found: $CONFIG_FILE"
+        
+        # Check if we have env vars instead (CI scenario)
+        if [[ -n "${AZURE_SUBSCRIPTION_ID:-}" && -n "${AZURE_TENANT_ID:-}" && -n "${AZURE_CLIENT_ID:-}" && -n "${AZURE_KEY_VAULT_NAME:-}" ]]; then
+            log_success "Using environment variables for Azure configuration"
+            GITHUB_REPO="${GITHUB_REPOSITORY:-}"
+            return
+        fi
+
+        log_error "Configuration file not found and environment variables missing."
         log_info "Run: ./scripts/setup-azure-aks-infrastructure.sh"
         exit 1
     fi
