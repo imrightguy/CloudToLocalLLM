@@ -129,10 +129,17 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
+          # App Secrets for script validation/set
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          CLOUDFLARE_DNS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           chmod +x scripts/setup-github-secrets-aks.sh
-          ./scripts/setup-github-secrets-aks.sh
+          ./scripts/setup-github-secrets-aks.sh --non-interactive
 
   build_api:
     needs: [build_base, deploy_secrets]
