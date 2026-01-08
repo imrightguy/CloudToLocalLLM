@@ -80,7 +80,7 @@ async function synchronize(source = 'periodic-polling') {
                     CI: 'true',
                     TERM: 'dumb',
                     GEMINI_PROVIDER_TYPE: 'gemini-cli',
-                    GEMINI_CLI_MODEL: process.env.GEMINI_CLI_MODEL || 'google/gemini-2.0-flash-exp'
+                    GEMINI_CLI_MODEL: process.env.GEMINI_CLI_MODEL || 'google/gemini-2.5-flash'
                 },
                 stdio: 'ignore'
             });
@@ -94,7 +94,7 @@ async function synchronize(source = 'periodic-polling') {
                     CI: 'true',
                     TERM: 'dumb',
                     GEMINI_PROVIDER_TYPE: 'gemini-cli',
-                    GEMINI_CLI_MODEL: process.env.GEMINI_CLI_MODEL || 'google/gemini-2.0-flash-exp'
+                    GEMINI_CLI_MODEL: process.env.GEMINI_CLI_MODEL || 'google/gemini-2.5-flash'
                 }
             });
 

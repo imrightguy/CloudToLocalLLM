@@ -9,7 +9,7 @@ on:
 
 env:
   GEMINI_CLI_IMAGE: kiloai/cli:latest
-  GEMINI_CLI_MODEL: google/gemini-2.0-flash-exp
+  GEMINI_CLI_MODEL: google/gemini-2.5-flash
 
 jobs:
   orchestrator_entry:

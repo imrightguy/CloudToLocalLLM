@@ -4,7 +4,7 @@
       "id": "default",
       "provider": "gemini-cli",
       "gemini-cliToken": "dummy-token",
-      "gemini-cliModel": "x-ai/grok-code-fast-1"
+      "gemini-cliModel": "google/gemini-2.5-flash"
     }
   ]
 }

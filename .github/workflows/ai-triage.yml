@@ -125,7 +125,7 @@ jobs:
           # Prefer wiring to existing secret names without renaming secrets.
           # The CLI expects GEMINI_CLI_TOKEN, but some repos store this as GOOGLE_API_KEY.
           GEMINI_CLI_TOKEN: "${{ secrets.GEMINI_CLI_TOKEN || secrets.GOOGLE_API_KEY }}"
-          GEMINI_CLI_MODEL: "google/gemini-2.0-flash-exp"
+          GEMINI_CLI_MODEL: "google/gemini-2.5-flash"
           ISSUE_TITLE: "${{ github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.issue.body }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
