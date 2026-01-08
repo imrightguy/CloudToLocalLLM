@@ -27,7 +27,7 @@ defaults:
 env:
   SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
   # Official Kilocode CLI Docker image
-  KILOCODE_IMAGE: kiloai/cli:latest
+  GEMINI_CLI_IMAGE: kiloai/cli:latest
 
 jobs:
   triage:
@@ -49,8 +49,8 @@ jobs:
       - name: "Validate Secrets"
         run: |
           echo "Checking for required secrets..."
-          if [ -z "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}" ]; then
-            echo "::error::Missing KILOCODE_TOKEN or KILOCODE_API_KEY secret"
+          if [ -z "${{ secrets.GEMINI_CLI_TOKEN || secrets.GOOGLE_API_KEY }}" ]; then
+            echo "::error::Missing GEMINI_CLI_TOKEN or GOOGLE_API_KEY secret"
             exit 1
           fi
           echo "✅ Required secrets are present"
@@ -67,10 +67,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.docker-cache
-          key: docker-kiloai-cli-${{ hashFiles('config/docker/Dockerfile.kilocode') }}
+          key: docker-gemini-cli-${{ hashFiles('config/docker/Dockerfile.gemini-cli') }}
           restore-keys: |
-            docker-kiloai-cli-
-    
+            docker-gemini-cli-
+
       - name: "Load Cached Docker Image"
         run: |
           if [ -f /tmp/.docker-cache/image.tar ]; then
@@ -79,16 +79,16 @@ jobs:
             echo "✅ Cached image loaded"
           else
             echo "No cached image found, pulling..."
-            docker pull ${{ env.KILOCODE_IMAGE }}
+            docker pull ${{ env.GEMINI_CLI_IMAGE }}
             mkdir -p /tmp/.docker-cache
-            docker save ${{ env.KILOCODE_IMAGE }} > /tmp/.docker-cache/image.tar
+            docker save ${{ env.GEMINI_CLI_IMAGE }} > /tmp/.docker-cache/image.tar
             echo "✅ Image pulled and cached"
           fi
 
       - name: "Health Check Container"
         run: |
           echo "Verifying container execution..."
-          docker run --rm --entrypoint node ${{ env.KILOCODE_IMAGE }} --version
+          docker run --rm --entrypoint node ${{ env.GEMINI_CLI_IMAGE }} --version
           echo "✅ Container is functional"
 
       - name: "Get repository labels"
@@ -123,9 +123,9 @@ jobs:
           ${{ steps.get_labels.outputs.available_labels != '' }}
         env:
           # Prefer wiring to existing secret names without renaming secrets.
-          # The CLI expects KILOCODE_TOKEN, but some repos store this as KILOCODE_API_KEY.
-          KILOCODE_TOKEN: "${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}"
-          KILOCODE_MODEL: "x-ai/grok-code-fast-1"
+          # The CLI expects GEMINI_CLI_TOKEN, but some repos store this as GOOGLE_API_KEY.
+          GEMINI_CLI_TOKEN: "${{ secrets.GEMINI_CLI_TOKEN || secrets.GOOGLE_API_KEY }}"
+          GEMINI_CLI_MODEL: "google/gemini-2.0-flash-exp"
           ISSUE_TITLE: "${{ github.event.issue.title }}"
           ISSUE_BODY: "${{ github.event.issue.body }}"
           AVAILABLE_LABELS: "${{ steps.get_labels.outputs.available_labels }}"
@@ -147,12 +147,12 @@ jobs:
 
 
           echo "🔄 Starting AI issue analysis..."
-          
+
           # Implementation of robust error handling with retries and timeout
           MAX_RETRIES=3
           RETRY_COUNT=0
           SUCCESS=false
-          
+
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES..."
             # Use arguments instead of pipe and remove explicit 'kilocode' command (assuming ENTRYPOINT)
@@ -160,12 +160,12 @@ jobs:
               -v "$(pwd):/workspace" \
               -e CI=true \
               -e TERM=dumb \
-              -e KILO_PROVIDER_TYPE=kilocode \
-              -e KILOCODE_TOKEN \
-              -e KILOCODE_MODEL \
-              -e KILO_TELEMETRY=false \
-              -e KILO_AUTO_APPROVAL_ENABLED=true \
-              ${{ env.KILOCODE_IMAGE }} \
+              -e GEMINI_PROVIDER_TYPE=gemini-cli \
+              -e GEMINI_CLI_TOKEN \
+              -e GEMINI_CLI_MODEL \
+              -e GEMINI_TELEMETRY=false \
+              -e GEMINI_AUTO_APPROVAL_ENABLED=true \
+              ${{ env.GEMINI_CLI_IMAGE }} \
               --auto --json "$PROMPT" 2> ai_error.log > raw_output.json; then
               SUCCESS=true
               break
@@ -176,7 +176,7 @@ jobs:
               [ $RETRY_COUNT -lt $MAX_RETRIES ] && sleep 15
             fi
           done
-          
+
           if [ "$SUCCESS" = false ]; then
             echo "::error::AI Agent CLI failed after $MAX_RETRIES attempts"
             exit 1
@@ -192,9 +192,6 @@ jobs:
           echo "ai_output<<EOF" >> $GITHUB_OUTPUT
           echo "$CLEAN_JSON" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
-
-
 
       - name: "KiloCode Fallback"
         if: failure()

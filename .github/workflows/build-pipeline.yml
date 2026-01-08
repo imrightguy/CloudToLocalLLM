@@ -8,8 +8,8 @@ on:
     types: [orchestrator-build]
 
 env:
-  KILOCODE_IMAGE: kiloai/cli:latest
-  KILOCODE_MODEL: x-ai/grok-code-fast-1
+  GEMINI_CLI_IMAGE: kiloai/cli:latest
+  GEMINI_CLI_MODEL: google/gemini-2.0-flash-exp
 
 jobs:
   orchestrator_entry:
@@ -27,25 +27,25 @@ jobs:
         id: cache-docker
         uses: actions/cache@v4
         with:
-          path: /tmp/kiloai-cli-image.tar
-          key: ${{ runner.os }}-docker-kiloai-cli-${{ env.KILOCODE_IMAGE }}
+          path: /tmp/gemini-cli-image.tar
+          key: ${{ runner.os }}-docker-gemini-cli-${{ env.GEMINI_CLI_IMAGE }}
 
       - name: "Overlord: Manifest CLI Image"
         run: |
-          if [ -f /tmp/kiloai-cli-image.tar ]; then
+          if [ -f /tmp/gemini-cli-image.tar ]; then
             echo "Resurrecting CLI image from persistent cache..."
-            docker load -i /tmp/kiloai-cli-image.tar
+            docker load -i /tmp/gemini-cli-image.tar
           else
             echo "CLI image absent from cache. Pulling..."
-            docker pull ${{ env.KILOCODE_IMAGE }}
-            docker save ${{ env.KILOCODE_IMAGE }} -o /tmp/kiloai-cli-image.tar
+            docker pull ${{ env.GEMINI_CLI_IMAGE }}
+            docker save ${{ env.GEMINI_CLI_IMAGE }} -o /tmp/gemini-cli-image.tar
           fi
 
       - name: "Orchestrator: Forensic Analysis"
         id: analyze
         env:
-          KILOCODE_TOKEN: ${{ secrets.KILOCODE_TOKEN || secrets.KILOCODE_API_KEY }}
-          KILOCODE_MODEL: ${{ env.KILOCODE_MODEL }}
+          GEMINI_CLI_TOKEN: ${{ secrets.GEMINI_CLI_TOKEN || secrets.GOOGLE_API_KEY }}
+          GEMINI_CLI_MODEL: ${{ env.GEMINI_CLI_MODEL }}
         run: |
           echo "Executing forensic audit of changes..."
           if [ "${{ github.event_name }}" == "push" ]; then
@@ -65,11 +65,11 @@ jobs:
           
           docker run --rm \
             -v "$(pwd):/workspace" \
-            -e KILO_PROVIDER_TYPE=kilocode \
-            -e KILOCODE_TOKEN \
-            -e KILOCODE_MODEL \
+            -e GEMINI_PROVIDER_TYPE=gemini-cli \
+            -e GEMINI_CLI_TOKEN \
+            -e GEMINI_CLI_MODEL \
             -e CI=true \
-            ${{ env.KILOCODE_IMAGE }} \
+            ${{ env.GEMINI_CLI_IMAGE }} \
             --auto --json "$PROMPT" > raw_response.json
             
           if ! jq -e . raw_response.json > /dev/null 2>&1; then
