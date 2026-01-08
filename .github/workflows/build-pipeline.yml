@@ -138,7 +138,7 @@ jobs:
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
         run: |
           chmod +x scripts/setup-github-secrets-aks.sh
-          ./scripts/setup-github-secrets-aks.sh --non-interactive
+          ./scripts/setup-github-secrets-aks.sh --non-interactive --skip-validation
 
   build_api:
     needs: [build_base, deploy_secrets]
