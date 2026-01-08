@@ -161,6 +161,11 @@ jobs:
           # Run unit tests on host (requires dev dependencies not in prod image)
           npm ci
           npm run test:unit
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
 
   test_api:
     needs: build_api
@@ -236,6 +241,9 @@ jobs:
           else
             echo "Skipping Web E2E tests: No package.json found"
           fi
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
 
   security_scan_web:
     needs: build_web
