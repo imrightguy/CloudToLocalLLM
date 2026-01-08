@@ -2,56 +2,70 @@
 
 This directory contains all CI/CD workflows for CloudToLocalLLM.
 
-## Workflow Overview
+## Current Workflow Overview
 
-### 1. **Deploy to Azure AKS** (`deploy-aks.yml`)
-**Primary CI/CD workflow for production**
+### **Build Pipeline** (`build-pipeline.yml`)
+**Unified CI/CD workflow using AI-powered orchestration**
 
-- **Trigger:** Push to `main` branch (any changes)
+- **Trigger:**
+  - Push to `main` branch
+  - Manual dispatch via `workflow_dispatch`
+  - Repository dispatch with type `orchestrator-build`
 
 - **Jobs:**
-  1. **build** - Builds and pushes Docker images to Docker Hub
-     - API image: `cloudtolocalllm/cloudtolocalllm-api:main-{commit-sha}` and `latest`
-     - Web image: `cloudtolocalllm/cloudtolocalllm-web:main-{commit-sha}` and `latest`
-     - Uses Docker Buildx with GitHub Actions cache
-  
-  2. **deploy** - Deploys to Azure AKS (waits for build to complete)
-     - Updates Kubernetes deployments with new images
-     - Waits for rollout completion
-     - Verifies deployment health
-     - Purges Cloudflare cache
-     - Configures DNS and SSL
+   1. **orchestrator_entry** - AI-powered component analysis
+      - Uses KiloCode AI to analyze git changes
+      - Determines which components need building (api, web, postgres, streaming, linux, windows)
+      - Handles automated version bumping when needed
+      - Outputs component list and version info
 
-- **Manual Trigger:** Can be triggered manually via `workflow_dispatch`
+   2. **build_base** - Base Docker images
+      - Builds `cloudtolocalllm-base:latest` and `cloudtolocalllm-build:latest`
+      - Provides common build environment
 
-- **Status:** ✅ Active - single source of truth for production deployments
+   3. **deploy_secrets** - Cluster secrets management
+      - Deploys GitHub secrets to AKS cluster
+      - Uses Azure credentials for authentication
+
+   4. **build_api** - API Backend
+      - Builds `cloudtolocalllm-api:latest`
+      - Runs `npm test` for API validation
+
+   5. **build_web** - Web Frontend
+      - Builds web application
+      - Runs `npm install` and `npm run build`
+      - Executes `npm test` for frontend validation
+
+   6. **build_postgres** - PostgreSQL Service
+      - Builds PostgreSQL container image
+
+   7. **build_streaming** - Streaming Proxy
+      - Builds streaming proxy service
+
+   8. **build_linux** - Linux Desktop
+      - Placeholder for Linux desktop build
+
+   9. **build_windows** - Windows Desktop
+      - Placeholder for Windows desktop build (runs on windows-latest)
+
+   10. **promote_to_gitops** - GitOps deployment
+       - Updates Kubernetes overlays
+       - Executes cluster deployment scripts
+
+   11. **create_github_release** - Release management
+       - Creates GitHub releases for version bumps
+       - Tags releases with new version numbers
+
+- **AI Integration:** Uses KiloCode (xAI Grok) for intelligent build orchestration
+- **Status:** ✅ Active - unified pipeline with AI component detection
 
 ---
 
-### 2. **Build Release** (`build-release.yml`)
-**Desktop application build and release**
+### **AI Triage** (`ai-triage.yml`)
+**Automated issue management and PR handling**
 
-- **Trigger:** Push of version tags (e.g., `v4.5.0`)
-
-- **Jobs:**
-  1. **version-info** - Extracts version from pubspec.yaml
-  2. **build-desktop** - Builds Windows desktop app
-  3. **create-release** - Creates GitHub release with artifacts
-
-- **Artifacts:**
-  - Windows installer (.exe)
-  - Portable package (.zip)
-  - SHA256 checksums
-
-- **Status:** ✅ Active for releases
-
----
-
-### 3. **Bootstrap Secrets** (`bootstrap-secrets.yml`)
-**Secrets management workflow**
-
-- **Purpose:** Initialize and manage GitHub secrets
-- **Status:** ✅ Available for manual dispatch
+- **Purpose:** AI-powered issue triage and management
+- **Status:** ✅ Active for repository automation
 
 ---
 
@@ -60,82 +74,87 @@ This directory contains all CI/CD workflows for CloudToLocalLLM.
 ### For Main Branch (Production)
 ```
 Push to main
-    ↓
-Deploy to Azure AKS workflow triggers
-    ├─ Build Job
-    │  ├─ Build API image
-    │  ├─ Push to Docker Hub
-    │  ├─ Build Web image
-    │  └─ Push to Docker Hub
-    ├─ Deploy Job (waits for build)
-    │  ├─ Update AKS deployments
-    │  ├─ Wait for rollout
-    │  ├─ Verify health
-    │  └─ Purge cache & configure DNS
-    └─ Complete
-```
-
-### For Releases
-```
-Push tag (v*.*.*)
-    ↓
-Build Release workflow triggers
-    ├─ Extract version
-    ├─ Build desktop app
-    ├─ Create GitHub release
-    └─ Complete
+     ↓
+Build Pipeline triggers
+     ├─ Orchestrator analyzes changes with AI
+     │  ├─ Determines components to build
+     │  └─ Handles version bumping if needed
+     ├─ Build Base Images
+     ├─ Deploy Secrets to AKS
+     ├─ Parallel Component Builds
+     │  ├─ API Backend (with tests)
+     │  ├─ Web Frontend (with tests)
+     │  ├─ PostgreSQL
+     │  ├─ Streaming Proxy
+     │  ├─ Linux Desktop (placeholder)
+     │  └─ Windows Desktop (placeholder)
+     ├─ Promote to GitOps
+     └─ Create GitHub Release (if version bumped)
 ```
 
 ## Environment Variables
 
-All workflows use these environment variables:
-
 ```yaml
-REGISTRY: cloudtolocalllm
-API_IMAGE: cloudtolocalllm/cloudtolocalllm-api
-WEB_IMAGE: cloudtolocalllm/cloudtolocalllm-web
+KILOCODE_IMAGE: kiloai/cli:latest
+KILOCODE_MODEL: x-ai/grok-code-fast-1
 ```
 
 ## Required Secrets
 
-For workflows to function, these secrets must be configured:
-
+- `KILOCODE_TOKEN` - KiloCode API token for AI orchestration
+- `GITHUB_TOKEN` - GitHub token for repository operations
+- `AZURE_CREDENTIALS` - Azure service principal credentials
 - `DOCKERHUB_USERNAME` - Docker Hub username
 - `DOCKERHUB_TOKEN` - Docker Hub access token
-- `AZURE_CREDENTIALS` - Azure service principal credentials (JSON)
-- `CLOUDFLARE_API_TOKEN` - Cloudflare API token (optional, for cache purge)
 
 ## Troubleshooting
 
 ### Workflow Not Triggering
-1. Check branch name matches trigger condition
-2. Verify path filters match changed files
-3. Check secrets are configured
+1. Check branch name matches trigger condition (`main`)
+2. Verify repository dispatch events use correct type
+3. Check KiloCode token is configured
 4. Review workflow syntax in GitHub Actions UI
 
 ### Build Failures
 1. Check Docker Hub credentials
-2. Verify Dockerfile paths are correct
-3. Review build logs in GitHub Actions
+2. Verify KiloCode API token for AI orchestration
+3. Review AI analysis output for component detection
+4. Check Azure credentials for secret deployment
 
 ### Deployment Failures
-1. Verify Azure credentials
-2. Check AKS cluster is accessible
-3. Verify Kubernetes manifests are valid
-4. Check image tags match deployed versions
+1. Verify Azure AKS cluster access
+2. Check Kubernetes manifests in `k8s/` directory
+3. Review GitOps deployment scripts
+4. Check cloudflared tunnel connectivity
+
+### AI Orchestration Issues
+1. Verify `KILOCODE_TOKEN` is set
+2. Check AI model availability (`x-ai/grok-code-fast-1`)
+3. Review git diff analysis in orchestrator logs
+4. Validate component detection logic
 
 ## Best Practices
 
-1. **Always test on develop first** - Use develop branch to validate changes
-2. **Use PRs for review** - Build images run on PRs for validation
-3. **Tag for releases** - Use semantic versioning for desktop releases
-4. **Monitor deployments** - Check GitHub Actions for deployment status
-5. **Keep secrets secure** - Never commit secrets to repository
+1. **Use meaningful commit messages** - AI orchestration relies on commit content
+2. **Test changes on feature branches** - Avoid direct main pushes for complex changes
+3. **Monitor AI decisions** - Review orchestrator output for build decisions
+4. **Keep secrets updated** - Regularly rotate API tokens and credentials
+5. **Use repository dispatch** - For external trigger of builds when needed
 
-## Future Improvements
+## Current Issues & Improvements Needed
 
-- [ ] Add automated testing to CI/CD pipeline
-- [ ] Add security scanning for Docker images
+### Critical Issues
+- ❌ **No tunnel connectivity testing** - Cloudflared endpoints return 530 errors
+- ❌ **Limited testing coverage** - Only basic npm test, no integration tests
+- ❌ **No security scanning** - Missing vulnerability checks
+- ❌ **No rollback mechanisms** - Failed deployments require manual intervention
+
+### Planned Improvements
+- [ ] Add cloudflared tunnel health validation
+- [ ] Implement comprehensive testing (unit, integration, e2e)
+- [ ] Add security scanning (Trivy, Snyk)
+- [ ] Implement automated rollback on deployment failure
 - [ ] Add performance benchmarking
-- [ ] Add automated rollback on deployment failure
-- [ ] Add Slack notifications for deployment status
+- [ ] Add Slack/Teams notifications for deployment status
+- [ ] Implement canary deployments
+- [ ] Add monitoring and alerting integration

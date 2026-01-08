@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
 import '../models/tunnel_config.dart';
@@ -184,12 +185,73 @@ class TunnelService extends ChangeNotifier {
     }
 
     try {
-      // Simple ping test
-      // In production, this could make a real request
-      await Future.delayed(const Duration(milliseconds: 500));
-      return _client!.isConnected;
-    } catch (e) {
+      // Real WebSocket connection test
+      final testWebSocket = await _createTestWebSocketConnection();
+      if (testWebSocket != null) {
+        await testWebSocket.close();
+        return true;
+      }
       return false;
+    } catch (e) {
+      debugPrint('[TunnelService] Connection test failed: $e');
+      return false;
+    }
+  }
+
+  /// Create a test WebSocket connection to verify tunnel functionality
+  Future<WebSocket?> _createTestWebSocketConnection() async {
+    try {
+      final config = TunnelConfig(
+        userId: _authService.currentUser?.id ?? '',
+        cloudProxyUrl: kDebugMode ? AppConfig.tunnelSshUrl : AppConfig.tunnelSshUrl,
+        localBackendUrl: 'http://localhost:11434',
+        authToken: await _authService.getValidatedAccessToken() ?? '',
+        enableCloudProxy: true,
+      );
+
+      // Create a test WebSocket connection
+      final wsUrl = Uri.parse(config.cloudProxyUrl.replaceFirst('http', 'ws'));
+      final webSocket = await WebSocket.connect(wsUrl.toString(),
+        headers: {
+          'Authorization': 'Bearer ${config.authToken}',
+          'X-Tunnel-Test': 'true',
+        },
+      );
+
+      // Send a test message and expect a response
+      webSocket.add('{"type":"ping","timestamp":"${DateTime.now().toIso8601String()}"}');
+
+      // Wait for response with timeout
+      final completer = Completer<bool>();
+      webSocket.listen(
+        (message) {
+          if (message.toString().contains('pong')) {
+            completer.complete(true);
+          }
+        },
+        onError: (error) => completer.complete(false),
+        onDone: () => completer.complete(false),
+      );
+
+      // Timeout after 5 seconds
+      final timeout = Timer(const Duration(seconds: 5), () {
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
+      });
+
+      final success = await completer.future;
+      timeout.cancel();
+
+      if (success) {
+        return webSocket;
+      } else {
+        await webSocket.close();
+        return null;
+      }
+    } catch (e) {
+      debugPrint('[TunnelService] Failed to create test WebSocket: $e');
+      return null;
     }
   }
 

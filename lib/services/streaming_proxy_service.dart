@@ -1,21 +1,58 @@
+import 'dart:async';
+import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../config/app_config.dart';
 import 'auth_service.dart';
 
+/// Represents a queued request for parallel processing
+class _QueuedRequest {
+  final String method;
+  final String path;
+  final Map<String, dynamic>? data;
+  final Completer<Map<String, dynamic>> completer;
+  final DateTime queuedAt;
+
+  _QueuedRequest(this.method, this.path, this.data, this.completer)
+      : queuedAt = DateTime.now();
+}
+
+/// Represents an active request being processed
+class _ActiveRequest {
+  final String id;
+  final DateTime startedAt;
+  final Completer<Map<String, dynamic>> completer;
+
+  _ActiveRequest(this.id, this.completer) : startedAt = DateTime.now();
+
+  Duration get duration => DateTime.now().difference(startedAt);
+}
+
 /// Service for managing streaming proxy connections
 /// Handles proxy lifecycle, status monitoring, and connection management
+/// Features connection multiplexing and parallel request processing
 class StreamingProxyService extends ChangeNotifier {
   final String _baseUrl;
   final Duration _timeout;
   final AuthService? _authService;
   final Dio _dio = Dio();
 
+  // Connection multiplexing and parallel processing
+  final Queue<_QueuedRequest> _requestQueue = Queue<_QueuedRequest>();
+  final Set<_ActiveRequest> _activeRequests = {};
+  static const int _maxConcurrentRequests = 5;
+  Timer? _queueProcessor;
+
   bool _isProxyRunning = false;
   String? _proxyId;
   DateTime? _proxyCreatedAt;
   String? _error;
   bool _isLoading = false;
+
+  // Performance metrics
+  int _totalRequests = 0;
+  int _successfulRequests = 0;
+  Duration _averageResponseTime = Duration.zero;
 
   StreamingProxyService({
     String? baseUrl,
@@ -35,6 +72,87 @@ class StreamingProxyService extends ChangeNotifier {
     _dio.options.baseUrl = _baseUrl;
     _dio.options.connectTimeout = _timeout;
     _dio.options.receiveTimeout = _timeout;
+
+    // Start queue processor
+    _startQueueProcessor();
+  }
+
+  void _startQueueProcessor() {
+    _queueProcessor = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      _processQueue();
+    });
+  }
+
+  void _processQueue() {
+    // Process queued requests up to the concurrency limit
+    while (_activeRequests.length < _maxConcurrentRequests && _requestQueue.isNotEmpty) {
+      final request = _requestQueue.removeFirst();
+      _executeRequest(request);
+    }
+  }
+
+  Future<void> _executeRequest(_QueuedRequest request) async {
+    final requestId = '${request.method}_${request.path}_${DateTime.now().millisecondsSinceEpoch}';
+    final activeRequest = _ActiveRequest(requestId, request.completer);
+    _activeRequests.add(activeRequest);
+
+    try {
+      final startTime = DateTime.now();
+      final headers = await _getHeaders();
+
+      Response response;
+      switch (request.method) {
+        case 'GET':
+          response = await _dio.get(
+            request.path,
+            options: Options(headers: headers),
+          );
+          break;
+        case 'POST':
+          response = await _dio.post(
+            request.path,
+            data: request.data,
+            options: Options(headers: headers),
+          );
+          break;
+        case 'PUT':
+          response = await _dio.put(
+            request.path,
+            data: request.data,
+            options: Options(headers: headers),
+          );
+          break;
+        case 'DELETE':
+          response = await _dio.delete(
+            request.path,
+            options: Options(headers: headers),
+          );
+          break;
+        default:
+          throw UnsupportedError('HTTP method ${request.method} not supported');
+      }
+
+      final responseTime = DateTime.now().difference(startTime);
+      _updateMetrics(true, responseTime);
+
+      request.completer.complete(response.data);
+    } catch (e) {
+      _updateMetrics(false, activeRequest.duration);
+      request.completer.completeError(e);
+    } finally {
+      _activeRequests.remove(activeRequest);
+    }
+  }
+
+  void _updateMetrics(bool success, Duration responseTime) {
+    _totalRequests++;
+    if (success) {
+      _successfulRequests++;
+    }
+
+    // Update rolling average response time
+    final totalResponseTime = _averageResponseTime * (_totalRequests - 1) + responseTime;
+    _averageResponseTime = totalResponseTime ~/ _totalRequests;
   }
 
   // Getters
@@ -58,42 +176,29 @@ class StreamingProxyService extends ChangeNotifier {
     return headers;
   }
 
-  /// Start streaming proxy for current user
+  /// Start streaming proxy for current user with connection multiplexing
   Future<bool> startProxy() async {
+    final completer = Completer<Map<String, dynamic>>();
+    final request = _QueuedRequest('POST', '/proxy/start', null, completer);
+
+    _requestQueue.add(request);
+
     try {
-      _setLoading(true);
-      _clearError();
+      final response = await completer.future;
 
-      if (kDebugMode) {
-        debugPrint('[StreamingProxy] Starting proxy...');
-      }
+      if (response['success'] == true) {
+        _proxyId = response['proxy']['proxyId'];
+        _proxyCreatedAt = DateTime.parse(response['proxy']['createdAt']);
+        _isProxyRunning = true;
 
-      final headers = await _getHeaders();
-      final response = await _dio.post(
-        '/proxy/start',
-        options: Options(headers: headers),
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-        if (data['success'] == true) {
-          _proxyId = data['proxy']['proxyId'];
-          _proxyCreatedAt = DateTime.parse(data['proxy']['createdAt']);
-          _isProxyRunning = true;
-
-          if (kDebugMode) {
-            debugPrint('[StreamingProxy] Proxy started: $_proxyId');
-          }
-
-          notifyListeners();
-          return true;
-        } else {
-          _setError('Failed to start proxy: ${data['message']}');
-          return false;
+        if (kDebugMode) {
+          debugPrint('[StreamingProxy] Proxy started: $_proxyId');
         }
+
+        notifyListeners();
+        return true;
       } else {
-        final errorData = response.data;
-        _setError('Failed to start proxy: ${errorData['message']}');
+        _setError('Failed to start proxy: ${response['message']}');
         return false;
       }
     } catch (e) {
@@ -102,8 +207,6 @@ class StreamingProxyService extends ChangeNotifier {
         debugPrint('[StreamingProxy] Start error: $e');
       }
       return false;
-    } finally {
-      _setLoading(false);
     }
   }
 
@@ -259,7 +362,9 @@ class StreamingProxyService extends ChangeNotifier {
 
   @override
   void dispose() {
-    // Clean up any resources
+    _queueProcessor?.cancel();
+    _requestQueue.clear();
+    _activeRequests.clear();
     super.dispose();
   }
 }
