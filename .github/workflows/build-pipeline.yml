@@ -137,7 +137,6 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           chmod +x scripts/setup-github-secrets-aks.sh
           ./scripts/setup-github-secrets-aks.sh --non-interactive
 
