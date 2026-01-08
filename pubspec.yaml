@@ -9,7 +9,7 @@ environment:
   sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
-  sentry_flutter: ^9.8.0
+  sentry_flutter: ^9.9.2
   flutter:
     sdk: flutter
 
