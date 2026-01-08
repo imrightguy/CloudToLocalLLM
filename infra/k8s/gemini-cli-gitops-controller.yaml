@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kilocode-gitops-overlord
-  namespace: kilocode-system
+  name: gemini-cli-gitops-overlord
+  namespace: gemini-cli-system
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kilocode-gitops-overlord
+      app: gemini-cli-gitops-overlord
   template:
     metadata:
       labels:
-        app: kilocode-gitops-overlord
+        app: gemini-cli-gitops-overlord
     spec:
-      serviceAccountName: kilocode-controller-sa
+      serviceAccountName: gemini-cli-controller-sa
       containers:
       - name: overlord
-        image: kilocode/gitops-overlord:latest
+        image: gemini-cli/gitops-overlord:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
         - name: KILO_PROVIDER_TYPE
-          value: "kilocode"
+          value: "gemini-cli"
         - name: KILOCODE_TOKEN
           valueFrom:
             secretKeyRef:
-              name: kilocode-secrets
+              name: gemini-cli-secrets
               key: token
         - name: POLL_INTERVAL_MS
           value: "180000"
@@ -52,13 +52,13 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kilocode-controller-sa
-  namespace: kilocode-system
+  name: gemini-cli-controller-sa
+  namespace: gemini-cli-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kilocode-dominion-role
+  name: gemini-cli-dominion-role
 rules:
 - apiGroups: ["*"]
   resources: ["*"]
@@ -67,12 +67,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: kilocode-controller-binding
+  name: gemini-cli-controller-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kilocode-dominion-role
+  name: gemini-cli-dominion-role
 subjects:
 - kind: ServiceAccount
-  name: kilocode-controller-sa
-  namespace: kilocode-system
+  name: gemini-cli-controller-sa
+  namespace: gemini-cli-system

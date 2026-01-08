@@ -5,26 +5,26 @@
 FROM node:24-alpine AS build
 
 # Create non-root user
-RUN addgroup -g 1001 -S kilocode && \
-    adduser -S -D -H -u 1001 -s /sbin/nologin -G kilocode kilocode
+RUN addgroup -g 1001 -S gemini-cli && \
+    adduser -S -D -H -u 1001 -s /sbin/nologin -G gemini-cli gemini-cli
 
 WORKDIR /workspace
 
 # Copy the KiloCode CLI script
-COPY --chown=kilocode:kilocode scripts/kilocode-cli.cjs /usr/local/bin/kilocode-cli.cjs
+COPY --chown=gemini-cli:gemini-cli scripts/gemini-cli-cli.cjs /usr/local/bin/gemini-cli-cli.cjs
 
 # Make executable
-RUN chmod +x /usr/local/bin/kilocode-cli.cjs
+RUN chmod +x /usr/local/bin/gemini-cli-cli.cjs
 
 # Final lightweight stage
 FROM node:24-alpine
 
 RUN apk add --no-cache bash curl
 
-COPY --from=build /usr/local/bin/kilocode-cli.cjs /usr/local/bin/kilocode-cli.cjs
+COPY --from=build /usr/local/bin/gemini-cli-cli.cjs /usr/local/bin/gemini-cli-cli.cjs
 
 # Security: Switch to non-root user
 USER 1001
 
 # Set entrypoint
-ENTRYPOINT ["node", "/usr/local/bin/kilocode-cli.cjs"]
+ENTRYPOINT ["node", "/usr/local/bin/gemini-cli-cli.cjs"]

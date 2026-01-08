@@ -41,9 +41,9 @@ function remediateTunnels() {
         // Forensic audit of running tunnel pods
         const pods = execSync('kubectl get pods -l app=cloudflared -o json', { encoding: 'utf8' });
         const podData = JSON.parse(pods);
-        
-        const unhealthy = podData.items.filter(pod => 
-            pod.status.phase !== 'Running' || 
+
+        const unhealthy = podData.items.filter(pod =>
+            pod.status.phase !== 'Running' ||
             pod.status.containerStatuses.some(cs => !cs.ready)
         );
 
@@ -73,37 +73,37 @@ async function synchronize(source = 'periodic-polling') {
     while (retryCount < MAX_RETRIES) {
         try {
             // API Health check
-            execSync('kilocode --auto "Respond with OK"', {
+            execSync('gemini-cli --auto "Respond with OK"', {
                 cwd: '/workspace',
-                env: { 
-                    ...process.env, 
-                    CI: 'true', 
-                    TERM: 'dumb', 
-                    KILO_PROVIDER_TYPE: 'kilocode',
-                    KILOCODE_MODEL: process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1'
+                env: {
+                    ...process.env,
+                    CI: 'true',
+                    TERM: 'dumb',
+                    GEMINI_PROVIDER_TYPE: 'gemini-cli',
+                    GEMINI_CLI_MODEL: process.env.GEMINI_CLI_MODEL || 'google/gemini-2.0-flash-exp'
                 },
                 stdio: 'ignore'
             });
 
             // Actual execution
-            const output = execSync(`kilocode --auto --json "${prompt}"`, {
+            const output = execSync(`gemini-cli --auto --json "${prompt}"`, {
                 cwd: '/workspace',
                 encoding: 'utf8',
-                env: { 
-                    ...process.env, 
-                    CI: 'true', 
-                    TERM: 'dumb', 
-                    KILO_PROVIDER_TYPE: 'kilocode',
-                    KILOCODE_MODEL: process.env.KILOCODE_MODEL || 'x-ai/grok-code-fast-1'
+                env: {
+                    ...process.env,
+                    CI: 'true',
+                    TERM: 'dumb',
+                    GEMINI_PROVIDER_TYPE: 'gemini-cli',
+                    GEMINI_CLI_MODEL: process.env.GEMINI_CLI_MODEL || 'google/gemini-2.0-flash-exp'
                 }
             });
 
             fs.writeFileSync(GHOST_MANIFEST, output);
             auditLog('sync-success', { source });
-            
+
             // Reconcile Cloudflare Tunnels post-sync
             remediateTunnels();
-            
+
             success = true;
             break;
 
@@ -128,7 +128,7 @@ app.get('/metrics', (req, res) => {
     try {
         const auditData = fs.readFileSync(AUDIT_LOG, 'utf8').split('\n').filter(Boolean).map(JSON.parse);
         const tunnelPods = execSync('kubectl get pods -l app=cloudflared -o json', { encoding: 'utf8' });
-        
+
         res.json({
             status: 'online',
             last_sync: auditData.reverse().find(entry => entry.event === 'sync-success')?.timestamp,

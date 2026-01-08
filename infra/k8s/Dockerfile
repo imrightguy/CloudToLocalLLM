@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Official Kilocode CLI Installation Rites
-RUN curl -sSL https://api.kilocode.ai/install.sh | bash && \
-    ln -sf /root/.kilocode/bin/kilocode /usr/local/bin/kilocode
+RUN curl -sSL https://api.gemini-cli.ai/install.sh | bash && \
+    ln -sf /root/.gemini-cli/bin/gemini-cli /usr/local/bin/gemini-cli
 
 # Overlord triggering logic
 WORKDIR /app

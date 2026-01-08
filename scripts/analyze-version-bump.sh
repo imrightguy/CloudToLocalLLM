@@ -45,14 +45,14 @@ if [ -z "$KILOCODE_TOKEN" ]; then
     exit 1
 fi
 
-if ! command -v kilocode >/dev/null 2>&1; then
-    echo "❌ ERROR: 'kilocode' command not found."
+if ! command -v gemini-cli >/dev/null 2>&1; then
+    echo "❌ ERROR: 'gemini-cli' command not found."
     exit 1
 fi
 
 # Call Kilocode and capture both stdout and stderr
 set +e
-RESPONSE=$(kilocode "$PROMPT" 2>&1)
+RESPONSE=$(gemini-cli "$PROMPT" 2>&1)
 EXIT_CODE=$?
 set -e
 

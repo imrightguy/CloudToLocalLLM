@@ -1,0 +1,10 @@
+{
+  "providers": [
+    {
+      "id": "default",
+      "provider": "gemini-cli",
+      "gemini-cliToken": "dummy-token",
+      "gemini-cliModel": "x-ai/grok-code-fast-1"
+    }
+  ]
+}

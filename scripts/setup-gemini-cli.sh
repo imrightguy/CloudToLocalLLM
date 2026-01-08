@@ -35,10 +35,10 @@ echo "Verifying API key with a test request..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Ensure the script is executable
-chmod +x "$SCRIPT_DIR/kilocode-cli.cjs"
+chmod +x "$SCRIPT_DIR/gemini-cli-cli.cjs"
 
 # Run a test request
-TEST_RESPONSE=$(node "$SCRIPT_DIR/kilocode-cli.cjs" "Hello, are you working?")
+TEST_RESPONSE=$(node "$SCRIPT_DIR/gemini-cli-cli.cjs" "Hello, are you working?")
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ] && [ -n "$TEST_RESPONSE" ]; then

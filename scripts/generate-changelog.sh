@@ -39,14 +39,14 @@ Commits:
 $COMMITS"
 
 # Get response from Kilocode
-if ! command -v kilocode >/dev/null 2>&1; then
-    echo "❌ CRITICAL FAILURE: 'kilocode' command not found. Ensure the Kilocode CLI is installed and in your PATH."
+if ! command -v gemini-cli >/dev/null 2>&1; then
+    echo "❌ CRITICAL FAILURE: 'gemini-cli' command not found. Ensure the Kilocode CLI is installed and in your PATH."
     exit 1
 fi
 
 echo "🚀 Requesting changelog from Kilocode AI..."
-# Use kilocode CLI to generate the changelog
-CHANGELOG_ENTRY=$(kilocode "$PROMPT")
+# Use gemini-cli CLI to generate the changelog
+CHANGELOG_ENTRY=$(gemini-cli "$PROMPT")
 
 if [ -z "$CHANGELOG_ENTRY" ]; then
     echo "❌ CRITICAL FAILURE: Kilocode AI returned an empty response. Cannot generate changelog."
