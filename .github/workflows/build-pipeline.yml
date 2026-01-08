@@ -228,7 +228,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Web E2E Tests
         run: |
-          if [ -f "package.json" ]; then
+          if [ -f "web/package.json" ]; then
             cd web
             npm install -D @playwright/test
             npx playwright install
