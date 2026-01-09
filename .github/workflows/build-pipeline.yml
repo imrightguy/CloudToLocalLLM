@@ -43,7 +43,24 @@ jobs:
           fi
 
           VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
-          PROMPT="Analyze changes. Identify components (api, web, postgres, streaming, linux, windows) AND decide if version bump is needed for version $VERSION. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
+          PROMPT="Analyze the provided git diff and current version ($VERSION).
+
+          1. Identify affected components from this list: [api, web, postgres, streaming, linux, windows].
+          2. Decide if a version bump is needed based on these rules:
+             - MAJOR: Breaking changes.
+             - MINOR: New features (feat:) or significant additions.
+             - PATCH: Bug fixes (fix:), refactors, documentation, or internal CI/CD logic improvements.
+             - Every push SHOULD generally result in at least a PATCH bump if functional logic or CI was fixed.
+
+          Respond ONLY with JSON:
+          {
+            \"components\": [\"api\", ...],
+            \"version_bump_needed\": true/false,
+            \"new_version\": \"x.y.z\",
+            \"reasoning\": \"Brief explanation of decision\"
+          }
+
+          Diff: ${DIFF:0:2000}"
 
           node scripts/gemini-orchestrator.cjs "$PROMPT" --json > raw_response.json
             
@@ -54,13 +71,15 @@ jobs:
           fi
 
           if ! jq -e . clean_response.json > /dev/null 2>&1; then
-             echo '{"components":["api","web","postgres","streaming","linux","windows"],"version_bump_needed":false}' > clean_response.json
+             echo '{"components":["api","web","postgres","streaming","linux","windows"],"version_bump_needed":false,"reasoning":"Parsing failure, using defaults"}' > clean_response.json
           fi
 
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
           BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
           NEW_VERSION=$(jq -r '.new_version // ""' clean_response.json)
+          REASON=$(jq -r '.reasoning // "No reason provided"' clean_response.json)
 
+          echo "Orchestrator Decision: $REASON"
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
