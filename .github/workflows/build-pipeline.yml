@@ -177,7 +177,7 @@ jobs:
           # Run unit tests on host (requires dev dependencies not in prod image)
           # Skip database-dependent tests in CI (no PostgreSQL service configured)
           npm ci
-          npm run test:unit -- --testPathIgnorePatterns="tunnel-.*\.test\.js|proxy-usage\.test\.js"
+          npm run test:unit -- --testPathIgnorePatterns="tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js"
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
