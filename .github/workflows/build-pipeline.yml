@@ -183,6 +183,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
           STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+          AUTH0_DOMAIN: "dev-local.auth0.com"
+          AUTH0_AUDIENCE: "https://api.cloudtolocalllm.com"
 
   test_api:
     needs: build_api
