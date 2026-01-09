@@ -14,4 +14,4 @@ fi
 
 # Delegate to the local Node.js implementation
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-node "$DIR/gemini-orchestrator.js" "$@"
+node "$DIR/gemini-orchestrator.cjs" "$@"

@@ -45,7 +45,7 @@ jobs:
           VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
           PROMPT="Analyze changes. Identify components (api, web, postgres, streaming, linux, windows) AND decide if version bump is needed for version $VERSION. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
 
-          node scripts/gemini-orchestrator.js "$PROMPT" --json > raw_response.json
+          node scripts/gemini-orchestrator.cjs "$PROMPT" --json > raw_response.json
             
           if ! jq -e . raw_response.json > /dev/null 2>&1; then
             sed -n '/{/,/}/p' raw_response.json > clean_response.json
