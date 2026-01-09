@@ -75,12 +75,12 @@ jest.mock('ws', () => {
         (h) => h !== handler,
       );
     }
-    send(_data) {}
+    send(_data) { }
     close() {
       this.readyState = this.CLOSED;
     }
   }
-  MockWebSocket.Server = class {};
+  MockWebSocket.Server = class { };
   return MockWebSocket;
 });
 
@@ -145,6 +145,30 @@ global.console = {
 // Cleanup after each test
 afterEach(() => {
   jest.clearAllMocks();
+});
+
+// Cleanup after all tests complete in this worker
+afterAll(async () => {
+  // Close database pool if it was initialized (within worker process)
+  try {
+    const dbPool = await import('../database/db-pool.js');
+    if (dbPool.closePool) {
+      await dbPool.closePool();
+    }
+  } catch {
+    // Pool may not have been initialized
+  }
+
+  // Clear request queue service to stop all pending timeouts
+  try {
+    const { getRequestQueueService } = await import('../services/request-queue-service.js');
+    const queueService = getRequestQueueService();
+    if (queueService && queueService.clearAllQueues) {
+      queueService.clearAllQueues();
+    }
+  } catch {
+    // Queue service may not have been initialized
+  }
 });
 
 // Global error handler for unhandled promises
