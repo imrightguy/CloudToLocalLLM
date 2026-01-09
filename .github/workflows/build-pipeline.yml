@@ -23,24 +23,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Overlord: Persist CLI Image"
-        id: cache-docker
-        uses: actions/cache@v4
-        with:
-          path: /tmp/gemini-cli-image.tar
-          key: ${{ runner.os }}-docker-gemini-cli-${{ env.GEMINI_CLI_IMAGE }}
-
-      - name: "Overlord: Manifest CLI Image"
-        run: |
-          if [ -f /tmp/gemini-cli-image.tar ]; then
-            echo "Resurrecting CLI image from persistent cache..."
-            docker load -i /tmp/gemini-cli-image.tar
-          else
-            echo "CLI image absent from cache. Pulling..."
-            docker pull ${{ env.GEMINI_CLI_IMAGE }}
-            docker save ${{ env.GEMINI_CLI_IMAGE }} -o /tmp/gemini-cli-image.tar
-          fi
-
       - name: "Orchestrator: Forensic Analysis"
         id: analyze
         env:
@@ -63,14 +45,7 @@ jobs:
           VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
           PROMPT="Analyze changes. Identify components (api, web, postgres, streaming, linux, windows) AND decide if version bump is needed for version $VERSION. Respond ONLY with JSON like {\"components\": [\"api\"], \"version_bump_needed\": true, \"new_version\": \"1.2.3\"}. Diff: ${DIFF:0:2000}"
 
-          docker run --rm \
-            -v "$(pwd):/workspace" \
-            -e GEMINI_PROVIDER_TYPE=gemini-cli \
-            -e GEMINI_CLI_TOKEN \
-            -e GEMINI_CLI_MODEL \
-            -e CI=true \
-            ${{ env.GEMINI_CLI_IMAGE }} \
-            --auto --json "$PROMPT" > raw_response.json
+          node scripts/gemini-orchestrator.js "$PROMPT" --json > raw_response.json
             
           if ! jq -e . raw_response.json > /dev/null 2>&1; then
             sed -n '/{/,/}/p' raw_response.json > clean_response.json
@@ -97,6 +72,9 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
           echo "Executing automated version bump to $NEW_VERSION"
+          # Ensure gemini-cli is in PATH for the script
+          chmod +x scripts/gemini-cli.sh
+          sudo ln -s $(pwd)/scripts/gemini-cli.sh /usr/local/bin/gemini-cli
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json

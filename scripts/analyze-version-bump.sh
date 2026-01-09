@@ -52,7 +52,7 @@ fi
 
 # Call Kilocode and capture both stdout and stderr
 set +e
-RESPONSE=$(gemini-cli "$PROMPT" 2>&1)
+RESPONSE=$(gemini-cli "$PROMPT" --json 2>&1)
 EXIT_CODE=$?
 set -e
 

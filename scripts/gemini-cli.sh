@@ -12,6 +12,6 @@ if [ "$1" == "--configure-ci" ]; then
   exit 0
 fi
 
-# Pass through arguments to the native gemini-cli binary
-# Ensure we capture the prompt correctly if it's the last argument
-gemini-cli "$@"
+# Delegate to the local Node.js implementation
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+node "$DIR/gemini-orchestrator.js" "$@"
