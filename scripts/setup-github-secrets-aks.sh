@@ -253,7 +253,6 @@ collect_secrets() {
     echo "  â€¢ SENTRY_DSN (optional)"
     echo "  â€¢ CLOUDFLARE_DNS_TOKEN (required)"
     echo "  â€¢ CLOUDFLARE_TUNNEL_TOKEN (required)"
-    echo "  â€¢ SUPABASE_JWT_SECRET (required)"
     echo ""
     
     if [[ "$NON_INTERACTIVE" != "true" ]]; then
@@ -332,8 +331,6 @@ collect_secrets() {
     log_success "CLOUDFLARE_TUNNEL_TOKEN: ****"
     
     # Supabase JWT secret
-    SUPABASE_JWT_SECRET=$(get_secret_value "SUPABASE_JWT_SECRET" "Supabase JWT Secret" false false)
-    log_success "SUPABASE_JWT_SECRET: ****"
     
     log_success "All secrets collected"
 }
@@ -380,7 +377,6 @@ set_github_secrets() {
     set_secret "SENTRY_DSN" "$SENTRY_DSN"
     set_secret "CLOUDFLARE_DNS_TOKEN" "$CLOUDFLARE_DNS_TOKEN"
     set_secret "CLOUDFLARE_TUNNEL_TOKEN" "$CLOUDFLARE_TUNNEL_TOKEN"
-    set_secret "SUPABASE_JWT_SECRET" "$SUPABASE_JWT_SECRET"
     
     log_success "All secrets configured in GitHub"
 }
@@ -401,7 +397,6 @@ validate_secrets() {
         "STRIPE_TEST_SECRET_KEY"
         "CLOUDFLARE_DNS_TOKEN"
         "CLOUDFLARE_TUNNEL_TOKEN"
-        "SUPABASE_JWT_SECRET"
     )
     
     local all_secrets=$(gh secret list --repo "$GITHUB_REPO" 2>/dev/null || echo "")
@@ -475,7 +470,7 @@ Application Secrets:
   STRIPE_TEST_SECRET_KEY: [redacted]
   CLOUDFLARE_DNS_TOKEN: [redacted]
   CLOUDFLARE_TUNNEL_TOKEN: [redacted]
-  SUPABASE_JWT_SECRET: [redacted]
+  # SUPABASE_JWT_SECRET: [redacted]
   SENTRY_DSN: ${SENTRY_DSN:-[not set]}
 
 âš ï¸  IMPORTANT: Keep this file secure and never commit it to version control!
