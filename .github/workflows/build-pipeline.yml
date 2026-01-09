@@ -431,7 +431,7 @@ jobs:
               echo "✅ $endpoint - OK (HTTP $status_code)"
             elif [ "$status_code" -eq 530 ]; then
               echo "❌ $endpoint - FAILED (HTTP $status_code - Origin DNS Error)"
-              ((failed_tests++))
+              failed_tests=$((failed_tests + 1))
             else
               echo "⚠️  $endpoint - WARNING (HTTP $status_code)"
             fi
@@ -557,13 +557,13 @@ jobs:
           fi
 
           successful_jobs=0
-          [ "$orchestrator_status" = "success" ] && ((successful_jobs++))
-          [ "$gitops_status" = "success" ] && ((successful_jobs++))
-          [ "$tunnel_status" = "success" ] && ((successful_jobs++))
-          [ "$cloudflare_status" = "success" ] && ((successful_jobs++))
+          [ "$orchestrator_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
+          [ "$gitops_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
+          [ "$tunnel_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
+          [ "$cloudflare_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
 
           if [ "$release_status" != "skipped" ]; then
-            [ "$release_status" = "success" ] && ((successful_jobs++))
+            [ "$release_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
           fi
 
           success_rate=$((successful_jobs * 100 / total_jobs))
