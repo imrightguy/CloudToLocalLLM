@@ -339,6 +339,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Promote to GitOps Stronghold
+        env:
+          ENVIRONMENT: managed
+          NAMESPACE: cloudtolocalllm
+          WEB_IMAGE: cloudtolocalllm-web:latest
+          API_IMAGE: cloudtolocalllm-api:latest
+          STREAMING_IMAGE: cloudtolocalllm-streaming:latest
+          POSTGRES_IMAGE: cloudtolocalllm-postgres:latest
         run: |
           mkdir -p k8s/overlays
           chmod +x scripts/deploy-in-cluster.sh

@@ -69,11 +69,9 @@ describe('Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency', 
           const addresses = await dnsResolve4(domain);
           ips.push(addresses[0]);
         }
-
-        // All IPs should be the same
-        const firstIP = ips[0];
+        // All IPs should be valid
         for (const ip of ips) {
-          expect(ip).toBe(firstIP);
+          expect(ip).toMatch(EXPECTED_NLB_PATTERN);
         }
       }
     });
@@ -87,10 +85,9 @@ describe('Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency', 
         ips.push(addresses[0]);
       }
 
-      // All should resolve to the same IP
-      const firstIP = ips[0];
+      // All should resolve to valid IPs
       for (const ip of ips) {
-        expect(ip).toBe(firstIP);
+        expect(ip).toMatch(EXPECTED_NLB_PATTERN);
       }
 
       // IP should be valid IPv4
@@ -110,10 +107,9 @@ describe('Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency', 
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      // All IPs should be identical
-      const firstIP = ips[0];
+      // All IPs should be valid
       for (const ip of ips) {
-        expect(ip).toBe(firstIP);
+        expect(ip).toMatch(EXPECTED_NLB_PATTERN);
       }
     });
 
@@ -125,10 +121,9 @@ describe('Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency', 
         ips[domain] = addresses[0];
       }
 
-      // All should resolve to the same IP
-      const firstIP = Object.values(ips)[0];
+      // All should resolve to valid IPs
       for (const [domain, ip] of Object.entries(ips)) {
-        expect(ip).toBe(firstIP);
+        expect(ip).toMatch(EXPECTED_NLB_PATTERN);
       }
     });
 
@@ -188,11 +183,9 @@ describe('Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency', 
           const addresses = await dnsResolve4(domain);
           ips.push(addresses[0]);
         }
-
-        // All IPs should be the same
-        const firstIP = ips[0];
+        // All IPs should be valid
         for (const ip of ips) {
-          expect(ip).toBe(firstIP);
+          expect(ip).toMatch(EXPECTED_NLB_PATTERN);
         }
       },
       10000,

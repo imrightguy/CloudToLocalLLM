@@ -5,7 +5,7 @@ echo "Deploying to environment: $ENVIRONMENT"
 echo "Namespace: $NAMESPACE"
 
 # Generate full manifest
-kustomize build --load-restrictor LoadRestrictionsNone k8s/overlays/$ENVIRONMENT > full-manifest.yaml
+kustomize build --load-restrictor LoadRestrictionsNone k8s/apps/local/overlays/$ENVIRONMENT > full-manifest.yaml
 
 # Update image tags (using sed as we don't have the exact SHA in the image unless passed as env var)
 # We will rely on env vars passed to the job
