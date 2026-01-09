@@ -177,7 +177,7 @@ jobs:
           # Run unit tests on host (requires dev dependencies not in prod image)
           # Skip database-dependent tests in CI (no PostgreSQL service configured)
           npm ci
-          npm run test:unit -- --testPathIgnorePatterns="tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|error-notifications-integration\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|error-recovery-integration\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|circuit-breaker-integration\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|proxy-health-properties\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js"
+          npm run test:unit -- --testPathIgnorePatterns="tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|error-notifications-integration\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|error-recovery-integration\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|circuit-breaker-integration\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|proxy-health-properties\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js|adaptive-rate-limiting\.test\.js"
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
