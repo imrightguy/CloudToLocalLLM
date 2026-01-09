@@ -102,15 +102,23 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
           echo "Executing automated version bump to $NEW_VERSION"
-          # Ensure gemini-cli is in PATH for the script
-          chmod +x scripts/gemini-cli.sh
-          sudo ln -s $(pwd)/scripts/gemini-cli.sh /usr/local/bin/gemini-cli
+
+          # Setup git with GH_TOKEN permissions
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Update version
           jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
-          git add assets/version.json
-          git commit -m "chore: automated version bump to $NEW_VERSION"
-          git push origin main
+
+          if git diff --quiet assets/version.json; then
+            echo "No changes in version file. Skipping commit."
+          else
+            git add assets/version.json
+            git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
+            
+            # Using authenticated remote URL for the push
+            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
+          fi
 
   build_base:
     needs: orchestrator_entry
