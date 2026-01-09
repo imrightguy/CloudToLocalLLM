@@ -11,6 +11,10 @@ env:
   GEMINI_CLI_IMAGE: kiloai/cli:latest
   GEMINI_CLI_MODEL: google/gemini-2.5-flash
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   orchestrator_entry:
     runs-on: ubuntu-latest
@@ -76,11 +80,18 @@ jobs:
 
           COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
           BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
+
+          # If a bump is needed but no components identified, default to 'api' to ensure propagation
+          if [ "$BUMP" == "true" ] && [ -z "$COMPONENTS" ]; then
+            COMPONENTS="api"
+          fi
+
           NEW_VERSION=$(jq -r '.new_version // ""' clean_response.json)
           REASON=$(jq -r '.reasoning // "No reason provided"' clean_response.json)
 
           echo "Orchestrator Decision: $REASON"
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
+
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
