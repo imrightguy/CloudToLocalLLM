@@ -11,6 +11,7 @@ metadata:
   namespace: cloudtolocalllm
   labels:
     app: cloudflared
+  # Updated tunnel configuration for correct tunnel ID and service routing
 spec:
   replicas: 2 # Increased for High Availability
   selector:
