@@ -212,7 +212,7 @@ jobs:
           DB_PORT: 5432
           DB_NAME: cloudtolocalllm
           DB_USER: appuser
-          DB_PASSWORD: appuser
+          DB_PASSWORD: apppassword
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
