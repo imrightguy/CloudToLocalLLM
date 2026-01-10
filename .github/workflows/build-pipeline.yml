@@ -177,7 +177,7 @@ jobs:
           # Run unit tests on host (requires dev dependencies not in prod image)
           # Skip database-dependent tests in CI (no PostgreSQL service configured)
           npm ci
-          npm run test:unit -- --forceExit --testPathIgnorePatterns=".*integration\.test\.js|.*properties\.test\.js|tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js|adaptive-rate-limiting\.test\.js|cached-query-wrapper\.test\.js|deployment-sequencing\.test\.js|quota-management\.test\.js|rate-limit-exemptions\.test\.js|rate-limit-metrics\.test\.js|rbac\.test\.js|read-replica-routing\.test\.js|user-deletion\.test\.js|user-profile\.test\.js"
+          npm run test:unit -- --forceExit --detectOpenHandles --testPathIgnorePatterns=".*integration\.test\.js|.*properties\.test\.js|tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js|adaptive-rate-limiting\.test\.js|cached-query-wrapper\.test\.js|deployment-sequencing\.test\.js|quota-management\.test\.js|rate-limit-exemptions\.test\.js|rate-limit-metrics\.test\.js|rbac\.test\.js|read-replica-routing\.test\.js|user-deletion\.test\.js|user-profile\.test\.js"
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
@@ -189,22 +189,43 @@ jobs:
     needs: build_api
     if: contains(needs.orchestrator_entry.outputs.components, 'api')
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: cloudtolocalllm
+          APP_USER_PASSWORD: appuser
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v4
-      - name: API Integration Tests
+      - name: API Database Tests
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: cloudtolocalllm
+          DB_USER: appuser
+          DB_PASSWORD: appuser
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
-          echo "Running API integration tests..."
-          # Start API container for testing
-          docker run -d --name api-test -p 3001:3001 cloudtolocalllm-api:latest
-          sleep 10
+          echo "Running API database-dependent tests..."
+          cd services/api-backend
 
-          # Run integration tests
-          curl -f http://localhost:3001/health || (echo "API health check failed" && exit 1)
+          # Install dependencies
+          npm ci
 
-          # Clean up
-          docker stop api-test
-          docker rm api-test
-          echo "✅ API integration tests passed"
+          # Run database-dependent tests
+          npm run test:unit -- --testPathPattern=".*integration\.test\.js|.*properties\.test\.js|tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js|adaptive-rate-limiting\.test\.js|cached-query-wrapper\.test\.js|deployment-sequencing\.test\.js|quota-management\.test\.js|rate-limit-exemptions\.test\.js|rate-limit-metrics\.test\.js|rbac\.test\.js|read-replica-routing\.test\.js|user-deletion\.test\.js|user-profile\.test\.js" --forceExit
+
+          echo "✅ API database tests passed"
 
   security_scan_api:
     needs: build_api
