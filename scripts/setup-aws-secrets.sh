@@ -27,6 +27,7 @@ NC='\033[0m'
 CONFIG_FILE=".aws-deployment-config.json"
 NON_INTERACTIVE="false"
 SKIP_VALIDATION="false"
+EKS_CLUSTER_NAME="cloudtolocalllm-eks"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
