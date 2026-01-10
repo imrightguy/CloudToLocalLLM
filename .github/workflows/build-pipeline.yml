@@ -157,16 +157,6 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           audience: sts.amazonaws.com
       - name: Deploy Cluster Secrets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          AWS_SECRETS_MANAGER_SECRET_ID: ${{ secrets.AWS_SECRETS_MANAGER_SECRET_ID || 'cloudtolocalllm/production' }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
-          CLOUDFLARE_DNS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
-          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
         run: |
           chmod +x scripts/setup-aws-secrets.sh
           ./scripts/setup-aws-secrets.sh --non-interactive --skip-validation
