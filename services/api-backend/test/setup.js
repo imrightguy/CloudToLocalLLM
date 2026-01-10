@@ -38,6 +38,26 @@ jest.mock('winston', () => ({
   },
 }));
 
+// Mock Sentry to prevent it from keeping the process alive
+jest.mock('@sentry/node', () => ({
+  init: jest.fn(),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  startTransaction: jest.fn(() => ({
+    finish: jest.fn(),
+    startChild: jest.fn(() => ({
+      finish: jest.fn(),
+    })),
+  })),
+  addBreadcrumb: jest.fn(),
+  setUser: jest.fn(),
+  setTag: jest.fn(),
+  setContext: jest.fn(),
+  close: jest.fn().mockResolvedValue(true),
+  createSentryWinstonTransport: jest.fn(() => class MockTransport { }),
+  setupExpressErrorHandler: jest.fn(),
+}));
+
 // Mock Docker operations
 jest.mock('dockerode', () => {
   return jest.fn().mockImplementation(() => ({
@@ -168,6 +188,14 @@ afterAll(async () => {
     }
   } catch {
     // Queue service may not have been initialized
+  }
+
+  // Close FailoverManager if initialized
+  try {
+    const { closeFailoverManager } = await import('../database/failover-manager.js');
+    await closeFailoverManager();
+  } catch {
+    // Failover manager may not have been initialized
   }
 });
 
