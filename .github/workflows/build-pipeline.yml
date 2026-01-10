@@ -370,12 +370,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Configure kubectl for EKS
-        uses: aws-actions/amazon-eks-authenticate@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          cluster-name: ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }}
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Promote to GitOps Stronghold
         env:
           ENVIRONMENT: managed
@@ -402,12 +398,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Configure kubectl for EKS
-        uses: aws-actions/amazon-eks-authenticate@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          cluster-name: ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }}
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Rollback Failed Deployment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
