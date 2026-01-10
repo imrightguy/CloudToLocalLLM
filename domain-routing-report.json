@@ -1,0 +1,34 @@
+{
+  "domain_routing_diagnostic": {
+    "timestamp": "2026-01-10 15:41:30",
+    "total_tests": 19,
+    "passed_tests": 6,
+    "failed_tests": 8,
+    "skipped_tests": 5,
+    "success_rate": 31
+  },
+  "domains_tested": [
+  "cloudtolocalllm.online",
+  "app.cloudtolocalllm.online",
+  "api.cloudtolocalllm.online",
+  "argocd.cloudtolocalllm.online",
+  "grafana.cloudtolocalllm.online"
+],
+  "services_tested": [
+  "web:8080",
+  "api-backend:8080",
+  "streaming-proxy:3001",
+  "argocd-server:80",
+  "grafana:3000"
+],
+  "tunnel_status": {
+    "pods_running": 0,
+    "config_exists": false
+  },
+  "critical_findings": [
+    "8 routing tests failed - domain routing is broken"
+    "Success rate below 80% - major routing issues detected"
+    "Cloudflare tunnel is not running - all external access broken"
+  ],
+  "routing_ready": false
+}
