@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Webhook Rate Limiting Tests
  *
  * Tests for webhook rate limiting functionality including:

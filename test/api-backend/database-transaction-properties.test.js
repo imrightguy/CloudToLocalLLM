@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * @fileoverview Property-Based Tests for Database Transaction Consistency
  *
  * **Feature: api-backend-enhancement, Property 12: Database transaction consistency**

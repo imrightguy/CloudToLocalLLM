@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Tunnel Lifecycle Property-Based Tests
  *
  * Property-based tests for tunnel state transitions and consistency

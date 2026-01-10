@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Tunnel Failover Management Tests
  *
  * Tests for tunnel endpoint failover and load balancing:

@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Tunnel Usage Service Tests
  *
  * Tests for tunnel usage tracking and billing functionality:
@@ -16,6 +22,9 @@
  * @fileoverview Tunnel usage service tests
  * @version 1.0.0
  */
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { v4 as uuidv4 } from 'uuid';

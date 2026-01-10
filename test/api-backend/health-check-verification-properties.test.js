@@ -1,4 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
 import fc from 'fast-check';
 
 /**

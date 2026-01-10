@@ -198,8 +198,8 @@ export class ProxyHealthService {
           this.onHealthStatusChanged(proxyId, previousStatus, newStatus);
         }
 
-        // Trigger recovery if unhealthy
-        if (newStatus === 'unhealthy' && this.onRecoveryNeeded) {
+        // Trigger recovery if unhealthy and recovery attempts not exceeded
+        if (newStatus === 'unhealthy' && this.onRecoveryNeeded && currentStatus.recoveryAttempts < this.maxRecoveryAttempts) {
           this.onRecoveryNeeded(proxyId, error);
         }
       }

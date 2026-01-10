@@ -189,16 +189,22 @@ export class SystemLoadMonitor {
       return;
     }
 
-    const load = this.currentMetrics.getLoadPercentage();
+    const avgMetrics = this.getAverageMetrics();
+    const load = parseFloat(avgMetrics.loadPercentage);
     let newMultiplier = 1.0;
 
-    if (this.currentMetrics.isCriticalLoad()) {
+    // Determine load level based on average load
+    const isCritical = load >= 80;
+    const isHigh = load >= 60;
+    const isMedium = load > 40;
+
+    if (isCritical) {
       // Critical load: reduce to 25% of normal limits
       newMultiplier = 0.25;
-    } else if (this.currentMetrics.isHighLoad()) {
+    } else if (isHigh) {
       // High load: reduce to 50% of normal limits
       newMultiplier = 0.5;
-    } else if (load > 40) {
+    } else if (isMedium) {
       // Medium load: reduce to 75% of normal limits
       newMultiplier = 0.75;
     } else {
@@ -211,10 +217,11 @@ export class SystemLoadMonitor {
       this.logger.info('Adaptive rate limit multiplier adjusted', {
         previousMultiplier: this.adaptiveMultiplier.toFixed(2),
         newMultiplier: newMultiplier.toFixed(2),
-        systemLoad: load.toFixed(2),
-        loadLevel: this.currentMetrics.getLoadLevel(),
-        cpuUsage: this.currentMetrics.cpuUsage.toFixed(2),
-        memoryUsage: this.currentMetrics.memoryUsage.toFixed(2),
+        averageSystemLoad: load.toFixed(2),
+        loadLevel: isCritical ? 'critical' : isHigh ? 'high' : isMedium ? 'medium' : 'low',
+        cpuUsage: avgMetrics.cpuUsage,
+        memoryUsage: avgMetrics.memoryUsage,
+        sampleCount: avgMetrics.sampleCount,
         activeRequests: this.currentMetrics.activeRequests,
         queuedRequests: this.currentMetrics.queuedRequests,
       });

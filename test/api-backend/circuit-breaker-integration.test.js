@@ -1,4 +1,10 @@
 import express from 'express';
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
 import request from 'supertest';
 import {
   createCircuitBreakerMiddleware,

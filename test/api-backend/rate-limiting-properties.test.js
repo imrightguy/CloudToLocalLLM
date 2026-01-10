@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * @fileoverview Property-Based Tests for Rate Limiting
  *
  * **Feature: api-backend-enhancement, Property 9: Rate limit enforcement consistency**

@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Infrastructure Recreation Property Test
  *
  * **Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency (IaC aspect)**

@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Administrative Data Flush Service Tests
  *
  * Comprehensive test suite for the CloudToLocalLLM administrative data flush system

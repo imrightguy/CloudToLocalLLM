@@ -91,6 +91,7 @@ export class RequestQueueService {
       promise: null,
       resolve: null,
       reject: null,
+      processed: false,
     };
 
     // Create promise for this request
@@ -100,16 +101,15 @@ export class RequestQueueService {
 
       // Set timeout for queued request
       const timeoutId = setTimeout(() => {
-        this.removeFromQueue(identifier, queueType, queueEntry.id);
-        this.stats.totalExpired++;
+        if (this.removeFromQueue(identifier, queueType, queueEntry.id)) {
+          this.stats.totalExpired++;
 
-        logger.warn(`Queued request expired for ${queueType} ${identifier}`, {
-          queueType,
-          identifier,
-          queuedDuration: Date.now() - queueEntry.queuedAt,
-        });
-
-        reject(new Error('QUEUE_TIMEOUT'));
+          logger.warn(`Queued request expired for ${queueType} ${identifier}`, {
+            queueType,
+            identifier,
+            queuedDuration: Date.now() - queueEntry.queuedAt,
+          });
+        }
       }, this.queueTimeoutMs);
 
       queueEntry.timeoutId = timeoutId;
@@ -150,6 +150,13 @@ export class RequestQueueService {
     }
 
     const queueEntry = queue.shift();
+
+    // Check if already processed
+    if (queueEntry.processed) {
+      return null;
+    }
+
+    queueEntry.processed = true;
 
     // Clear timeout
     if (queueEntry.timeoutId) {
@@ -197,6 +204,13 @@ export class RequestQueueService {
 
     const queueEntry = queue[index];
 
+    // Check if already processed
+    if (queueEntry.processed) {
+      return false;
+    }
+
+    queueEntry.processed = true;
+
     // Clear timeout
     if (queueEntry.timeoutId) {
       clearTimeout(queueEntry.timeoutId);
@@ -204,6 +218,9 @@ export class RequestQueueService {
 
     queue.splice(index, 1);
     this.stats.currentQueuedRequests--;
+
+    // Reject the promise for timeout
+    queueEntry.reject(new Error('QUEUE_TIMEOUT'));
 
     return true;
   }
@@ -252,7 +269,10 @@ export class RequestQueueService {
         if (entry.timeoutId) {
           clearTimeout(entry.timeoutId);
         }
-        entry.reject(new Error('Queue cleared'));
+        if (!entry.processed) {
+          entry.processed = true;
+          entry.reject(new Error('Queue cleared'));
+        }
       }
     }
     this.userQueues.clear();
@@ -263,7 +283,10 @@ export class RequestQueueService {
         if (entry.timeoutId) {
           clearTimeout(entry.timeoutId);
         }
-        entry.reject(new Error('Queue cleared'));
+        if (!entry.processed) {
+          entry.processed = true;
+          entry.reject(new Error('Queue cleared'));
+        }
       }
     }
     this.ipQueues.clear();

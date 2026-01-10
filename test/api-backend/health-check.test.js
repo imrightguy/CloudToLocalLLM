@@ -1,4 +1,10 @@
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
 import { HealthCheckService } from '../../services/api-backend/services/health-check.js';
 
 describe('HealthCheckService', () => {

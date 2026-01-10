@@ -652,7 +652,8 @@ export class ErrorNotificationService extends EventEmitter {
    */
   resetErrorCounts() {
     this.errorCounts.clear();
-    logger.info('Error counts reset');
+    this.lastNotificationTime.clear();
+    logger.info('Error counts and notification cooldowns reset');
   }
 
   /**

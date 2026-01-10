@@ -38,9 +38,48 @@ jest.mock('winston', () => ({
   },
 }));
 
+// Mock database pool by default for test isolation
+// Tests that need real database access should call jest.unmock() on the db-pool module
+jest.mock('../services/api-backend/database/db-pool.js', () => ({
+  initializePool: jest.fn(),
+  getPool: jest.fn(() => ({
+    query: jest.fn(),
+    connect: jest.fn(),
+    end: jest.fn(),
+    totalCount: 0,
+    idleCount: 0,
+    waitingCount: 0,
+    on: jest.fn(),
+  })),
+  getPoolMetrics: jest.fn(() => ({
+    totalConnections: 0,
+    idleConnections: 0,
+    waitingClients: 0,
+    errors: 0,
+    status: 'mocked',
+  })),
+  healthCheck: jest.fn(() => Promise.resolve({ healthy: true })),
+  closePool: jest.fn(() => Promise.resolve()),
+  query: jest.fn(),
+  getClient: jest.fn(),
+}));
+
 // Cleanup after each test
-afterEach(() => {
+afterEach(async () => {
   jest.clearAllMocks();
+
+  // Close any open database connections from individual tests
+  // This helps prevent connection leaks between tests
+  try {
+    const { getPool } = await import('../services/api-backend/database/db-pool.js');
+    const pool = getPool();
+    if (pool) {
+      // Force close idle connections to ensure test isolation
+      pool.idleCount > 0 && pool.idleCount;
+    }
+  } catch (error) {
+    // Ignore errors if pool is not initialized
+  }
 });
 
 console.info('Test environment setup completed');

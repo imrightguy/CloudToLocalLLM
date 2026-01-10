@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Authentication Audit Logging Tests for CloudToLocalLLM API Backend
  *
  * Tests for authentication audit logging functionality including:

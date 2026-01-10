@@ -9,7 +9,7 @@
  * Migrated to AWS SDK v3
  */
 
-const { CostExplorerClient, GetCostAndUsageCommand } = require('@aws-sdk/client-ce');
+const { CostExplorerClient, GetCostAndUsageCommand } = require('@aws-sdk/client-cost-explorer');
 const { CloudWatchClient, PutDashboardCommand, PutMetricAlarmCommand } = require('@aws-sdk/client-cloudwatch');
 const fs = require('fs');
 const path = require('path');

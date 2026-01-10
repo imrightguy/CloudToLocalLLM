@@ -5,6 +5,9 @@
  * Requirements: 2.8
  */
 
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
 import request from 'supertest';
 import express from 'express';
 import crypto from 'crypto';

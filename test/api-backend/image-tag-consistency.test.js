@@ -1,4 +1,10 @@
 /**
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
+// Unmock database pool for integration tests
+jest.unmock('../../services/api-backend/database/db-pool.js');
+
  * Image Tag Consistency Property Test
  * 
  * **Feature: aws-eks-deployment, Property 3: Image Tag Consistency**
