@@ -1,0 +1,22 @@
+name: "🔧 Fix Tunnel Credentials"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix_tunnel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          audience: sts.amazonaws.com
+      - name: Fix Tunnel Credentials
+        env:
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+        run: |
+          chmod +x scripts/fix-tunnel-credentials.sh
+          ./scripts/fix-tunnel-credentials.sh
