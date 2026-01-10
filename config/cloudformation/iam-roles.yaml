@@ -157,7 +157,7 @@ Resources:
             Action: 'sts:AssumeRoleWithWebIdentity'
             Condition:
               StringEquals:
-                !Sub 'oidc.eks.${AWS::Region}.amazonaws.com/id/EXAMPLEID:sub': 'system:serviceaccount:cloudtolocalllm:default'
+                "oidc.eks.${AWS::Region}.amazonaws.com/id/EXAMPLEID:sub": 'system:serviceaccount:cloudtolocalllm:default'
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy'
       Tags:

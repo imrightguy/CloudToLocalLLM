@@ -18,8 +18,9 @@ Parameters:
   
   NodeInstanceType:
     Type: String
-    Default: t3.medium
+    Default: t3.small
     AllowedValues:
+      - t3.small
       - t3.medium
       - t3.large
       - t3.xlarge
@@ -80,15 +81,6 @@ Resources:
           - !Ref NodeSecurityGroupId
         EndpointPrivateAccess: true
         EndpointPublicAccess: true
-      Logging:
-        ClusterLogging:
-          - LogTypes:
-              - api
-              - audit
-              - authenticator
-              - controllerManager
-              - scheduler
-            Enabled: true
       Tags:
         - Key: Name
           Value: !Ref ClusterName
@@ -106,18 +98,10 @@ Resources:
       Subnets: !Ref PrivateSubnetIds
       InstanceTypes:
         - !Ref NodeInstanceType
-      DesiredSize: !Ref DesiredNodeCount
-      MinSize: !Ref MinNodeCount
-      MaxSize: !Ref MaxNodeCount
       ScalingConfig:
         DesiredSize: !Ref DesiredNodeCount
         MinSize: !Ref MinNodeCount
         MaxSize: !Ref MaxNodeCount
-      Tags:
-        - Key: Name
-          Value: !Sub '${ClusterName}-node-group'
-        - Key: Environment
-          Value: production
 
   # Auto Scaling Group Tags for Cluster Autoscaler
   NodeGroupAutoScalingTag:
@@ -265,8 +249,6 @@ Outputs:
   ClusterSecurityGroupId:
     Description: EKS Cluster Security Group ID
     Value: !GetAtt EKSCluster.ClusterSecurityGroupId
-    Export:
-      Name: !Sub '${ClusterName}-sg-id'
 
   NodeGroupId:
     Description: Node Group ID

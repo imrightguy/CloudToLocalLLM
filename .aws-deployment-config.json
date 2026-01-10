@@ -1,0 +1,9 @@
+{
+  "AWS_REGION": "us-east-1",
+  "CLUSTER_NAME": "cloudtolocalllm-eks",
+  "AWS_SECRETS_MANAGER_SECRET_ID": "cloudtolocalllm/production",
+  "EKS_CLUSTER_ENDPOINT": "https://0682372CDD6A68D8CBBC05C520A27647.gr7.us-east-1.eks.amazonaws.com",
+  "EKS_CLUSTER_ARN": "arn:aws:eks:us-east-1:422017356244:cluster/cloudtolocalllm-eks",
+  "GITHUB_ACTIONS_ROLE_ARN": "arn:aws:iam::422017356244:role/github-actions-role",
+  "GITHUB_REPO": "CloudToLocalLLM-online/CloudToLocalLLM"
+}

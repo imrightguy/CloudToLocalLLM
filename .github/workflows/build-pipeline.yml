@@ -145,15 +145,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Deploy Cluster Secrets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
-          # App Secrets for script validation/set
+          AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          AWS_SECRETS_MANAGER_SECRET_ID: ${{ secrets.AWS_SECRETS_MANAGER_SECRET_ID || 'cloudtolocalllm/production' }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
@@ -161,8 +163,8 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
         run: |
-          chmod +x scripts/setup-github-secrets-aks.sh
-          ./scripts/setup-github-secrets-aks.sh --non-interactive --skip-validation
+          chmod +x scripts/setup-aws-secrets.sh
+          ./scripts/setup-aws-secrets.sh --non-interactive --skip-validation
 
   build_api:
     needs: [build_base, deploy_secrets]
@@ -361,6 +363,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Configure kubectl for EKS
+        uses: aws-actions/amazon-eks-authenticate@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          cluster-name: ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }}
       - name: Promote to GitOps Stronghold
         env:
           ENVIRONMENT: managed
@@ -380,6 +395,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Configure kubectl for EKS
+        uses: aws-actions/amazon-eks-authenticate@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          cluster-name: ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }}
       - name: Rollback Failed Deployment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
