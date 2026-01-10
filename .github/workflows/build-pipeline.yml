@@ -4,12 +4,17 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  repository_dispatch:
-    types: [orchestrator-build]
+  # repository_dispatch disabled to prevent redundant builds
+  # repository_dispatch:
+  #   types: [orchestrator-build]
 
 env:
   GEMINI_CLI_IMAGE: kiloai/cli:latest
   GEMINI_CLI_MODEL: google/gemini-2.5-flash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -110,15 +115,15 @@ jobs:
           # Update version
           jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
 
-          if git diff --quiet assets/version.json; then
-            echo "No changes in version file. Skipping commit."
-          else
-            git add assets/version.json
-            git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
-            
-            # Using authenticated remote URL for the push
-            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
-          fi
+           if git diff --quiet assets/version.json; then
+             echo "No changes in version file. Skipping commit."
+           else
+             git add assets/version.json
+             git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
+
+             # Using authenticated remote URL for the push
+             git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
+           fi
 
   build_base:
     needs: orchestrator_entry
