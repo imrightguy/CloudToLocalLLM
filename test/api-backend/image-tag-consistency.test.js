@@ -32,13 +32,36 @@ const dockerImageTagArbitrary = () => {
 };
 
 /**
+ * Generate a valid repository name
+ * Must start and end with alphanumeric, can contain hyphens in the middle
+ */
+const repositoryNameArbitrary = () => {
+  return fc.oneof(
+    // Single character names
+    fc.stringOf(fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')), { minLength: 1, maxLength: 1 }),
+    // Multi-character names with optional hyphens
+    fc.tuple(
+      fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')),
+      fc.stringOf(
+        fc.oneof(
+          fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split('')),
+          fc.constant('-')
+        ),
+        { minLength: 0, maxLength: 20 }
+      ),
+      fc.constantFrom(...'abcdefghijklmnopqrstuvwxyz0123456789'.split(''))
+    ).map(([first, middle, last]) => first + middle + last)
+  );
+};
+
+/**
  * Generate a valid Docker image reference
  * Format: registry/namespace/repository:tag
  */
 const dockerImageReferenceArbitrary = () => {
   return fc.record({
     registry: fc.constant('cloudtolocalllm'),
-    repository: fc.stringMatching(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/),
+    repository: repositoryNameArbitrary(),
     tag: dockerImageTagArbitrary(),
   });
 };
@@ -96,7 +119,7 @@ function pushImageToRegistry(imageRef) {
  */
 function pullImageFromRegistry(imageRef, tag = 'commit') {
   const pullTag = tag === 'latest' ? imageRef.latest : imageRef.commit;
-  
+
   assert(pullTag, `Cannot pull image with tag: ${tag}`);
 
   return {
@@ -174,7 +197,7 @@ describe('Image Tag Consistency Property Tests', () => {
     test('should tag images with commit SHA', () => {
       fc.assert(
         fc.property(
-          fc.stringMatching(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/),
+          repositoryNameArbitrary(),
           commitSHAArbitrary(),
           (repository, commitSHA) => {
             const imageRef = buildAndTagImage(repository, commitSHA);
