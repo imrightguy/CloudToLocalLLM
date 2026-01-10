@@ -225,18 +225,21 @@ export class ErrorRecoveryService {
    * @returns {Promise} - Result of function
    */
   async _executeWithTimeout(fn, timeoutMs, _recoveryId) {
-    return Promise.race([
-      fn(),
-      new Promise((_, reject) =>
-        setTimeout(
-          () =>
-            reject(
-              new Error(`Recovery procedure timeout after ${timeoutMs}ms`),
-            ),
-          timeoutMs,
-        ),
-      ),
-    ]);
+    let timeoutId;
+
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(() => {
+        reject(new Error(`Recovery procedure timeout after ${timeoutMs}ms`));
+      }, timeoutMs);
+    });
+
+    try {
+      return await Promise.race([fn(), timeoutPromise]);
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    }
   }
 
   /**
@@ -267,7 +270,7 @@ export class ErrorRecoveryService {
       successRate:
         status.recoveryCount > 0
           ? ((status.successCount / status.recoveryCount) * 100).toFixed(2) +
-            '%'
+          '%'
           : 'N/A',
       description: procedure?.description || 'Unknown',
       prerequisites: procedure?.prerequisites || [],
@@ -382,8 +385,8 @@ export class ErrorRecoveryService {
           this.metrics.totalRecoveryAttempts > 0
             ? (
               (this.metrics.successfulRecoveries /
-                  this.metrics.totalRecoveryAttempts) *
-                100
+                this.metrics.totalRecoveryAttempts) *
+              100
             ).toFixed(2) + '%'
             : 'N/A',
         averageRecoveryTime: this.metrics.averageRecoveryTime + 'ms',
