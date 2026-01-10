@@ -104,7 +104,8 @@
     "api",
     "bridge",
     "websocket",
-    "ollama"
+    "ollama",
+    "trigger-ci"
   ],
   "author": "CloudToLocalLLM Team",
   "license": "MIT"
