@@ -1,9 +1,15 @@
-// Jest configuration for CloudToLocalLLM API Backend (ESM)
-// Optimized for CI/CD pipeline execution under Node.js 24
+console.log('Jest Config - CI Environment Variable:', process.env.CI);
 
 export default {
   // Test environment
   testEnvironment: 'node',
+
+  // Coverage thresholds
+  coverageThreshold: {
+    global: process.env.CI
+      ? { branches: 0, functions: 0, lines: 0, statements: 0 }
+      : { branches: 70, functions: 70, lines: 70, statements: 70 },
+  },
 
   // Test file patterns
   testMatch: ['<rootDir>/../../test/api-backend/**/*.js'],
@@ -53,12 +59,7 @@ export default {
   coverageReporters: ['text', 'lcov', 'html', 'json', 'cobertura'],
 
   // Coverage thresholds
-  coverageThreshold: {
-    global:
-      process.env.CI === 'true'
-        ? { branches: 0, functions: 0, lines: 0, statements: 0 }
-        : { branches: 70, functions: 70, lines: 70, statements: 70 },
-  },
+
 
   // Files to collect coverage from
   collectCoverageFrom: [
