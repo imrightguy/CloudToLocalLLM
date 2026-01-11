@@ -137,12 +137,20 @@ jobs:
           docker build -t cloudtolocalllm-build:latest -f config/docker/Dockerfile.build .
           docker save cloudtolocalllm/base:latest -o /tmp/base-image.tar
 
-      - name: Upload Base Image
-        uses: actions/upload-artifact@v4
-        with:
-          name: base-image
-          path: /tmp/base-image.tar
           retention-days: 1
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Base Image
+        run: |
+          docker tag cloudtolocalllm/base:latest ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-base:latest
+          docker tag cloudtolocalllm-build:latest ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-build:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-base:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-build:latest
 
   deploy_secrets:
     needs: orchestrator_entry
@@ -160,6 +168,41 @@ jobs:
         run: |
           chmod +x scripts/setup-aws-secrets.sh
           ./scripts/setup-aws-secrets.sh --non-interactive --skip-validation
+
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
+            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+          kubectl cluster-info
+
+      - name: Create Namespace
+        run: |
+          kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Cloudflare Tunnel Credentials Secret
+        run: |
+          echo "Creating tunnel-credentials secret for cloudflared..."
+
+          # Get tunnel token from AWS Secrets Manager
+          TUNNEL_TOKEN=$(aws secretsmanager get-secret-value \
+            --secret-id ${{ secrets.AWS_SECRETS_MANAGER_SECRET_ID || 'cloudtolocalllm/production' }} \
+            --region ${{ secrets.AWS_REGION || 'us-east-1' }} \
+            --query 'SecretString' \
+            --output text | jq -r '.CLOUDFLARE_TUNNEL_TOKEN')
+
+          if [ -z "$TUNNEL_TOKEN" ] || [ "$TUNNEL_TOKEN" = "null" ]; then
+            echo "Error: CLOUDFLARE_TUNNEL_TOKEN not found in AWS Secrets Manager"
+            exit 1
+          fi
+
+          # Create or update the tunnel-credentials secret
+          kubectl create secret generic tunnel-credentials \
+            --from-literal=token="$TUNNEL_TOKEN" \
+            --namespace=cloudtolocalllm \
+            --dry-run=client -o yaml | kubectl apply -f - --validate=false
+
+          echo "✅ Tunnel credentials secret created/updated"
 
   build_api:
     needs: [build_base, deploy_secrets]
@@ -179,8 +222,18 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
-          AUTH0_DOMAIN: "dev-local.auth0.com"
           AUTH0_AUDIENCE: "https://api.cloudtolocalllm.com"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push API Image
+        run: |
+          docker tag cloudtolocalllm-api:latest ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-api:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-api:latest
 
   test_api:
     needs: build_api
@@ -261,6 +314,23 @@ jobs:
             echo "No package.json found in web directory. Skipping build."
           fi
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        if: hashFiles('web/package.json') != ''
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Web Image
+        if: hashFiles('web/package.json') != ''
+        run: |
+          # Assuming build includes docker build which was missing in original script, adding it here if needed or assuming previous step did it.
+          # The original 'Build Web Frontend' step only ran npm build. We need a docker build.
+          # Let's add docker build here as it wasn't present.
+          docker build -t cloudtolocalllm-web:latest ./web
+          docker tag cloudtolocalllm-web:latest ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-web:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-web:latest
+
   test_web:
     needs: build_web
     if: contains(needs.orchestrator_entry.outputs.components, 'web')
@@ -312,6 +382,17 @@ jobs:
           docker load -i /tmp/base-image.tar
           docker build -t cloudtolocalllm-postgres:latest -f config/docker/Dockerfile.postgres .
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Postgres Image
+        run: |
+          docker tag cloudtolocalllm-postgres:latest ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-postgres:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-postgres:latest
+
   build_streaming:
     needs: [build_base, deploy_secrets]
     if: contains(needs.orchestrator_entry.outputs.components, 'streaming')
@@ -321,6 +402,17 @@ jobs:
       - name: Build Streaming Proxy
         run: |
           docker build -t cloudtolocalllm-streaming:latest -f config/docker/Dockerfile.streaming-proxy .
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Streaming Image
+        run: |
+          docker tag cloudtolocalllm-streaming:latest ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-streaming:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-streaming:latest
 
   build_linux:
     needs: orchestrator_entry
@@ -371,11 +463,12 @@ jobs:
         env:
           ENVIRONMENT: managed
           NAMESPACE: cloudtolocalllm
-          WEB_IMAGE: cloudtolocalllm-web:latest
-          API_IMAGE: cloudtolocalllm-api:latest
-          STREAMING_IMAGE: cloudtolocalllm-streaming:latest
-          POSTGRES_IMAGE: cloudtolocalllm-postgres:latest
+          WEB_IMAGE: ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-web:latest
+          API_IMAGE: ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-api:latest
+          STREAMING_IMAGE: ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-streaming:latest
+          POSTGRES_IMAGE: ${{ secrets.DOCKER_USERNAME }}/cloudtolocalllm-postgres:latest
         run: |
+
           mkdir -p k8s/overlays
           chmod +x scripts/deploy-in-cluster.sh
           ./scripts/deploy-in-cluster.sh

@@ -16,19 +16,36 @@ fi
 
 echo "✅ Retrieved tunnel token"
 
+# Add after line 17
+NAMESPACE="${NAMESPACE:-cloudtolocalllm}"
+echo "✅ Using namespace: $NAMESPACE"
+
+# Debug: Check kubectl configuration
+echo "🔍 Checking kubectl configuration..."
+kubectl config view --minify
+kubectl config current-context
+
+# Force KUBECONFIG if standard path exists (safeguard)
+if [ -f "$HOME/.kube/config" ]; then
+  export KUBECONFIG="$HOME/.kube/config"
+fi
+
 # Create or update the tunnel-credentials secret
+# verify validation is off to avoid schema download issues on some networks/configs
 kubectl create secret generic tunnel-credentials \
   --from-literal=token="$TUNNEL_TOKEN" \
-  --dry-run=client -o yaml | kubectl apply -f -
+  --namespace="$NAMESPACE" \
+  --dry-run=client -o yaml | kubectl apply -f - --validate=false
+
 
 echo "✅ Tunnel credentials secret created/updated"
 
 # Restart cloudflared deployment to pick up new credentials
-kubectl rollout restart deployment/cloudflared -n cloudtolocalllm
+kubectl rollout restart deployment/cloudflared -n "$NAMESPACE"
 
 echo "✅ Cloudflared deployment restarted"
 
 # Wait for rollout to complete
-kubectl rollout status deployment/cloudflared -n cloudtolocalllm --timeout=300s
+kubectl rollout status deployment/cloudflared -n "$NAMESPACE" --timeout=300s
 
 echo "🎉 Tunnel credentials fixed! The web should now be accessible."

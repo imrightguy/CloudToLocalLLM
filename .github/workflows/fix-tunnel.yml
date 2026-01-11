@@ -18,9 +18,24 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           audience: sts.amazonaws.com
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
+            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+          kubectl cluster-info
+
+      - name: Create Namespace
+        run: |
+          kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+          echo "Namespace checked/created"
+
       - name: Fix Tunnel Credentials
         env:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
+          echo "Debug: Verifying kubeconfig"
+          ls -la ~/.kube/config || echo "Config file missing!"
+          cat ~/.kube/config
           chmod +x scripts/fix-tunnel-credentials.sh
           ./scripts/fix-tunnel-credentials.sh
