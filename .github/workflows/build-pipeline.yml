@@ -164,10 +164,6 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           audience: sts.amazonaws.com
-      - name: Deploy Cluster Secrets
-        run: |
-          chmod +x scripts/setup-aws-secrets.sh
-          ./scripts/setup-aws-secrets.sh --non-interactive --skip-validation
 
       - name: Configure kubectl for EKS
         run: |
@@ -179,6 +175,11 @@ jobs:
       - name: Create Namespace
         run: |
           kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Cluster Secrets
+        run: |
+          chmod +x scripts/setup-aws-secrets.sh
+          ./scripts/setup-aws-secrets.sh --non-interactive --skip-validation
 
       - name: Create Cloudflare Tunnel Credentials Secret
         run: |
