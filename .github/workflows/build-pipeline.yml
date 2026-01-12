@@ -269,15 +269,7 @@ jobs:
           echo "Building Windows app..."
 
   create_github_release:
-    needs:
-      [
-        build_api,
-        build_web,
-        build_postgres,
-        build_streaming,
-        build_linux,
-        build_windows,
-      ]
+    needs: [build_linux, build_windows]
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
