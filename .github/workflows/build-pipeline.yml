@@ -33,6 +33,11 @@ jobs:
       web_changed: ${{ steps.analyze.outputs.web_changed }}
       postgres_changed: ${{ steps.analyze.outputs.postgres_changed }}
       streaming_changed: ${{ steps.analyze.outputs.streaming_changed }}
+      base_needs_build: ${{ steps.analyze.outputs.base_needs_build }}
+      api_needs_build: ${{ steps.analyze.outputs.api_needs_build }}
+      web_needs_build: ${{ steps.analyze.outputs.web_needs_build }}
+      postgres_needs_build: ${{ steps.analyze.outputs.postgres_needs_build }}
+      streaming_needs_build: ${{ steps.analyze.outputs.streaming_needs_build }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,6 +45,8 @@ jobs:
 
       - name: "Orchestrator: Forensic Analysis"
         id: analyze
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Executing git-based analysis of changes..."
           if [ "${{ github.event_name }}" == "push" ]; then
@@ -54,33 +61,83 @@ jobs:
           COMPONENTS=""
 
           # Check for changes in specific paths
-          if echo "$DIFF_FILES" | grep -q "services/api-backend/"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -q "web/"; then COMPONENTS="$COMPONENTS,web"; fi
-          if echo "$DIFF_FILES" | grep -q "config/docker/Dockerfile.postgres"; then COMPONENTS="$COMPONENTS,postgres"; fi
-          if echo "$DIFF_FILES" | grep -q "config/docker/Dockerfile.streaming-proxy"; then COMPONENTS="$COMPONENTS,streaming"; fi
-
+          if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web"; fi
+          if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
+          if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
+ 
           # Infrastructure or global changes trigger all
-          if echo "$DIFF_FILES" | grep -qE "k8s/|.github/|config/docker/Dockerfile.base"; then 
+          if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/|config/docker/Dockerfile.base|config/docker/Dockerfile.build"; then 
             COMPONENTS="api,web,postgres,streaming,linux,windows"
           fi
-
+ 
           # Granular Change Detection
           BASE_CHANGED="false"
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.base|config/docker/Dockerfile.build"; then BASE_CHANGED="true"; fi
-
+ 
           API_CHANGED="false"
-          if echo "$DIFF_FILES" | grep -q "services/api-backend/"; then API_CHANGED="true"; fi
-
+          if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then API_CHANGED="true"; fi
+ 
           WEB_CHANGED="false"
-          if echo "$DIFF_FILES" | grep -q "web/"; then WEB_CHANGED="true"; fi
-
+          if echo "$DIFF_FILES" | grep -qE "web/|build/web/|config/docker/Dockerfile.web"; then WEB_CHANGED="true"; fi
+ 
           POSTGRES_CHANGED="false"
-          if echo "$DIFF_FILES" | grep -q "config/docker/Dockerfile.postgres"; then POSTGRES_CHANGED="true"; fi
+          if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then POSTGRES_CHANGED="true"; fi
           if [ "$BASE_CHANGED" == "true" ]; then POSTGRES_CHANGED="true"; fi
-
+ 
           STREAMING_CHANGED="false"
-          if echo "$DIFF_FILES" | grep -q "config/docker/Dockerfile.streaming-proxy"; then STREAMING_CHANGED="true"; fi
+          if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then STREAMING_CHANGED="true"; fi
 
+
+          OWNER="${GITHUB_REPOSITORY%%/*}"
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          REPO_NAME_LOWER="${REPO_NAME,,}"
+
+          check_ghcr_tag() {
+            local package="$1"
+            local tag="$2"
+            local package_path="${REPO_NAME_LOWER}/${package}"
+            local encoded="${package_path//\//%2F}"
+
+            for scope in orgs users; do
+              if gh api "/${scope}/${OWNER}/packages/container/${encoded}/versions?per_page=100" > /tmp/ghcr_versions.json 2>/dev/null; then
+                if jq -e --arg tag "$tag" '.[] | select(.metadata.container.tags[]? == $tag)' /tmp/ghcr_versions.json >/dev/null; then
+                  return 0
+                fi
+                return 1
+              fi
+            done
+
+            return 1
+          }
+
+          BASE_NEEDS_BUILD="$BASE_CHANGED"
+          if [ "$BASE_CHANGED" == "true" ]; then
+            if check_ghcr_tag "base" "$GITHUB_SHA" && check_ghcr_tag "build" "$GITHUB_SHA"; then
+              BASE_NEEDS_BUILD="false"
+            fi
+          fi
+
+          API_NEEDS_BUILD="$API_CHANGED"
+          if [ "$API_CHANGED" == "true" ] && check_ghcr_tag "api" "$GITHUB_SHA"; then
+            API_NEEDS_BUILD="false"
+          fi
+
+          WEB_NEEDS_BUILD="$WEB_CHANGED"
+          if [ "$WEB_CHANGED" == "true" ] && check_ghcr_tag "web" "$GITHUB_SHA"; then
+            WEB_NEEDS_BUILD="false"
+          fi
+
+          POSTGRES_NEEDS_BUILD="$POSTGRES_CHANGED"
+          if [ "$POSTGRES_CHANGED" == "true" ] && check_ghcr_tag "postgres" "$GITHUB_SHA"; then
+            POSTGRES_NEEDS_BUILD="false"
+          fi
+
+          STREAMING_NEEDS_BUILD="$STREAMING_CHANGED"
+          if [ "$STREAMING_CHANGED" == "true" ] && check_ghcr_tag "streaming" "$GITHUB_SHA"; then
+            STREAMING_NEEDS_BUILD="false"
+          fi
+ 
           # Clean up leading comma
           COMPONENTS=$(echo "$COMPONENTS" | sed 's/^,//')
 
@@ -109,7 +166,12 @@ jobs:
           echo "web_changed=$WEB_CHANGED" >> $GITHUB_OUTPUT
           echo "postgres_changed=$POSTGRES_CHANGED" >> $GITHUB_OUTPUT
           echo "streaming_changed=$STREAMING_CHANGED" >> $GITHUB_OUTPUT
-
+          echo "base_needs_build=$BASE_NEEDS_BUILD" >> $GITHUB_OUTPUT
+          echo "api_needs_build=$API_NEEDS_BUILD" >> $GITHUB_OUTPUT
+          echo "web_needs_build=$WEB_NEEDS_BUILD" >> $GITHUB_OUTPUT
+          echo "postgres_needs_build=$POSTGRES_NEEDS_BUILD" >> $GITHUB_OUTPUT
+          echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
+ 
       - name: "Orchestrator: Commit Version Bump"
         if: steps.analyze.outputs.bump_needed == 'true'
         env:
@@ -141,76 +203,82 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: needs.ai_change_analysis.outputs.base_changed == 'true'
+        if: needs.ai_change_analysis.outputs.base_needs_build == 'true'
 
       - name: Build Base Images
-        if: needs.ai_change_analysis.outputs.base_changed == 'true'
+        if: needs.ai_change_analysis.outputs.base_needs_build == 'true'
         run: |
           docker build -t cloudtolocalllm/base:latest -f config/docker/Dockerfile.base .
           docker build -t cloudtolocalllm-build:latest -f config/docker/Dockerfile.build .
 
       - name: Downcase Repo Name
-        if: needs.ai_change_analysis.outputs.base_changed == 'true'
+        if: needs.ai_change_analysis.outputs.base_needs_build == 'true'
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: needs.ai_change_analysis.outputs.base_changed == 'true'
+        if: needs.ai_change_analysis.outputs.base_needs_build == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Base Image
-        if: needs.ai_change_analysis.outputs.base_changed == 'true'
+        if: needs.ai_change_analysis.outputs.base_needs_build == 'true'
         run: |
           docker tag cloudtolocalllm/base:latest ghcr.io/${{ env.REPO_LOWER }}/base:latest
+          docker tag cloudtolocalllm/base:latest ghcr.io/${{ env.REPO_LOWER }}/base:${GITHUB_SHA}
           docker tag cloudtolocalllm-build:latest ghcr.io/${{ env.REPO_LOWER }}/build:latest
+          docker tag cloudtolocalllm-build:latest ghcr.io/${{ env.REPO_LOWER }}/build:${GITHUB_SHA}
           docker push ghcr.io/${{ env.REPO_LOWER }}/base:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/base:${GITHUB_SHA}
           docker push ghcr.io/${{ env.REPO_LOWER }}/build:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/build:${GITHUB_SHA}
 
   build_api:
     needs: build_base
-    if: contains(needs.ai_change_analysis.outputs.components, 'api')
+    if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: needs.ai_change_analysis.outputs.api_changed == 'true'
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
       - name: Build API Backend
-        if: needs.ai_change_analysis.outputs.api_changed == 'true'
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
         run: |
           cd services/api-backend
           docker build -t cloudtolocalllm-api:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} .
 
       - name: Downcase Repo Name
-        if: needs.ai_change_analysis.outputs.api_changed == 'true'
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: needs.ai_change_analysis.outputs.api_changed == 'true'
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push API Image
-        if: needs.ai_change_analysis.outputs.api_changed == 'true'
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
         run: |
           docker tag cloudtolocalllm-api:latest ghcr.io/${{ env.REPO_LOWER }}/api:latest
+          docker tag cloudtolocalllm-api:latest ghcr.io/${{ env.REPO_LOWER }}/api:${GITHUB_SHA}
           docker push ghcr.io/${{ env.REPO_LOWER }}/api:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/api:${GITHUB_SHA}
 
   build_web:
     needs: build_base
-    if: contains(needs.ai_change_analysis.outputs.components, 'web')
+    if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: needs.ai_change_analysis.outputs.web_changed == 'true'
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
       - name: Build Web Frontend
-        if: needs.ai_change_analysis.outputs.web_changed == 'true'
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         run: |
           if [ -f "web/package.json" ]; then
             docker build -t cloudtolocalllm-web:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} ./web
@@ -219,86 +287,92 @@ jobs:
           fi
 
       - name: Downcase Repo Name
-        if: needs.ai_change_analysis.outputs.web_changed == 'true'
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: needs.ai_change_analysis.outputs.web_changed == 'true'
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Web Image
-        if: needs.ai_change_analysis.outputs.web_changed == 'true' && hashFiles('web/package.json') != ''
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true' && hashFiles('web/package.json') != ''
         run: |
           docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:latest
+          docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:${GITHUB_SHA}
           docker push ghcr.io/${{ env.REPO_LOWER }}/web:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/web:${GITHUB_SHA}
 
   build_postgres:
     needs: build_base
-    if: contains(needs.ai_change_analysis.outputs.components, 'postgres')
+    if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: needs.ai_change_analysis.outputs.postgres_changed == 'true'
+        if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
 
       - name: Downcase Repo Name
-        if: needs.ai_change_analysis.outputs.postgres_changed == 'true'
+        if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: needs.ai_change_analysis.outputs.postgres_changed == 'true'
+        if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Postgres Service
-        if: needs.ai_change_analysis.outputs.postgres_changed == 'true'
+        if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
         run: |
           docker build -t cloudtolocalllm-postgres:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} -f config/docker/Dockerfile.postgres .
 
       - name: Push Postgres Image
-        if: needs.ai_change_analysis.outputs.postgres_changed == 'true'
+        if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
         run: |
           docker tag cloudtolocalllm-postgres:latest ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
+          docker tag cloudtolocalllm-postgres:latest ghcr.io/${{ env.REPO_LOWER }}/postgres:${GITHUB_SHA}
           docker push ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/postgres:${GITHUB_SHA}
 
   build_streaming:
     needs: build_base
-    if: contains(needs.ai_change_analysis.outputs.components, 'streaming')
+    if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
+        if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
       - name: Build Streaming Proxy
-        if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
+        if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
         run: |
           docker build -t cloudtolocalllm-streaming:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} -f config/docker/Dockerfile.streaming-proxy .
 
       - name: Downcase Repo Name
-        if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
+        if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
+        if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Streaming Image
-        if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
+        if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
         run: |
           docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
+          docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:${GITHUB_SHA}
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:${GITHUB_SHA}
 
   build_linux:
     needs: ai_change_analysis
