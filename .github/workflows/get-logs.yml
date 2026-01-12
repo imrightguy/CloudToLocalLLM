@@ -28,6 +28,7 @@ jobs:
           kubectl get deployments -n cloudtolocalllm -o wide
           kubectl get statefulsets -n cloudtolocalllm -o wide
           kubectl get pods -n cloudtolocalllm -o wide
+          kubectl get secrets -n cloudtolocalllm
           echo "🔍 Describing api-backend pods:"
           kubectl describe pods -n cloudtolocalllm -l app=api-backend
           
