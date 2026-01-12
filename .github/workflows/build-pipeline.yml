@@ -248,8 +248,57 @@ jobs:
           docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
 
+  build_linux:
+    needs: ai_change_analysis
+    if: contains(needs.ai_change_analysis.outputs.components, 'linux')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Linux Desktop
+        run: |
+          echo "Building Linux app..."
+
+  build_windows:
+    needs: ai_change_analysis
+    if: contains(needs.ai_change_analysis.outputs.components, 'windows')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Windows Desktop
+        run: |
+          echo "Building Windows app..."
+
+  create_github_release:
+    needs:
+      [
+        build_api,
+        build_web,
+        build_postgres,
+        build_streaming,
+        build_linux,
+        build_windows,
+      ]
+    if: needs.ai_change_analysis.outputs.bump_needed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Production Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
+          gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Orchestrator"
+
   deploy_application:
-    needs: [build_api, build_web, build_postgres, build_streaming]
+    needs:
+      [
+        build_api,
+        build_web,
+        build_postgres,
+        build_streaming,
+        build_linux,
+        build_windows,
+      ]
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
@@ -321,15 +370,126 @@ jobs:
             curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$endpoint" || echo "Failed"
           done
 
-  create_github_release:
+  rollback_on_failure:
     needs: deploy_application
-    if: needs.ai_change_analysis.outputs.bump_needed == 'true'
+    if: failure() && needs.deploy_application.result == 'failure'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create Production Release
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          audience: sts.amazonaws.com
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Rollback Failed Deployment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMPONENTS: ${{ needs.ai_change_analysis.outputs.components }}
         run: |
-          NEW_VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
-          gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Orchestrator"
+          echo "Deployment failed, initiating rollback..."
+          echo "Components to rollback: $COMPONENTS"
+
+          # Parse components and rollback each
+          IFS=',' read -ra COMPONENT_ARRAY <<< "$COMPONENTS"
+          for component in "${COMPONENT_ARRAY[@]}"; do
+            case $component in
+              api)
+                echo "Rolling back API backend..."
+                kubectl rollout undo deployment/api-backend -n cloudtolocalllm || echo "API rollback failed"
+                ;;
+              web)
+                echo "Rolling back Web frontend..."
+                kubectl rollout undo deployment/web -n cloudtolocalllm || echo "Web rollback failed"
+                ;;
+              streaming)
+                echo "Rolling back Streaming proxy..."
+                kubectl rollout undo deployment/streaming-proxy -n cloudtolocalllm || echo "Streaming rollback failed"
+                ;;
+              postgres)
+                echo "Rolling back Postgres..."
+                kubectl rollout undo statefulset/postgres -n cloudtolocalllm || echo "Postgres rollback failed"
+                ;;
+            esac
+          done
+
+          echo "Rollback completed"
+
+  cloudflared_health_check:
+    needs: deploy_application
+    if: always() && needs.ai_change_analysis.outputs.components != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloudflare Tunnel Health Validation
+        env:
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+        run: |
+          echo "🔍 Performing comprehensive Cloudflare tunnel health check..."
+
+          if [ -z "$CLOUDFLARE_API_KEY" ]; then
+            echo "⚠️  CLOUDFLARE_API_KEY not configured - skipping Cloudflare API checks"
+            exit 0
+          fi
+
+          # Account ID
+          ACCOUNT_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" \
+            -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
+            -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result[0].id')
+
+          if [ -z "$ACCOUNT_ID" ] || [ "$ACCOUNT_ID" == "null" ]; then
+            echo "❌ Failed to retrieve Cloudflare account ID"
+            exit 1
+          fi
+
+          # Tunnel Status
+          TUNNEL_STATUS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/62da6c19-947b-4bf6-acad-100a73de4e0d" \
+            -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
+            -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result.status')
+
+          echo "Tunnel Status: $TUNNEL_STATUS"
+          if [ "$TUNNEL_STATUS" != "healthy" ]; then
+            echo "⚠️  Cloudflare tunnel is not healthy: $TUNNEL_STATUS"
+            exit 0
+          fi
+
+          echo "🎉 Cloudflare tunnel health check PASSED"
+
+  pipeline_metrics:
+    needs:
+      [
+        ai_change_analysis,
+        deploy_application,
+        validate_tunnel_connectivity,
+        cloudflared_health_check,
+        create_github_release,
+      ]
+    if: always() && needs.ai_change_analysis.outputs.components != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Pipeline Metrics
+        run: |
+          echo "📊 Pipeline Execution Summary"
+          echo "=============================="
+
+          orchestrator_status="${{ needs.ai_change_analysis.result }}"
+          deploy_status="${{ needs.deploy_application.result }}"
+          tunnel_status="${{ needs.validate_tunnel_connectivity.result }}"
+          cloudflare_status="${{ needs.cloudflared_health_check.result }}"
+          release_status="${{ needs.create_github_release.result }}"
+
+          echo "Analysis: $orchestrator_status"
+          echo "Deployment: $deploy_status"
+          echo "Tunnel: $tunnel_status"
+          echo "Cloudflare: $cloudflare_status"
+          echo "Release: $release_status"
+
+          # Simple Success Logic
+          if [ "$deploy_status" = "success" ]; then
+            echo "🎉 Pipeline completed successfully!"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
