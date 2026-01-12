@@ -378,16 +378,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download Base Image
-        uses: actions/download-artifact@v4
-        with:
-          name: base-image
-          path: /tmp
-
-      - name: Build Postgres Service
-        run: |
-          docker load -i /tmp/base-image.tar
-          docker build -t cloudtolocalllm-postgres:latest -f config/docker/Dockerfile.postgres .
 
       - name: Downcase Repo Name
         run: |
@@ -399,6 +389,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Postgres Service
+        run: |
+          docker build -t cloudtolocalllm-postgres:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} -f config/docker/Dockerfile.postgres .
 
       - name: Push Postgres Image
         run: |
