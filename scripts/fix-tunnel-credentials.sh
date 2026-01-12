@@ -37,6 +37,9 @@ kubectl create secret generic tunnel-credentials \
 
 echo "✅ Tunnel credentials secret created/updated"
 
+echo "🔍 Applying updated tunnel configuration..."
+kubectl apply -f k8s/apps/local/ingress-cloudflared/shared/overlays/managed/cloudflared-tunnel.yaml -n "$NAMESPACE" --validate=false
+
 # Restart cloudflared deployment to pick up new credentials
 kubectl rollout restart deployment/cloudflared -n "$NAMESPACE"
 
