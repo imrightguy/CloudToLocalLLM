@@ -22,7 +22,7 @@ permissions:
   packages: write
 
 jobs:
-  orchestrator_entry:
+  ai_change_analysis:
     runs-on: ubuntu-latest
     outputs:
       components: ${{ steps.analyze.outputs.components }}
@@ -109,8 +109,8 @@ jobs:
            fi
 
   build_base:
-    needs: orchestrator_entry
-    if: needs.orchestrator_entry.outputs.components != ''
+    needs: ai_change_analysis
+    if: needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -139,7 +139,7 @@ jobs:
 
   build_api:
     needs: build_base
-    if: contains(needs.orchestrator_entry.outputs.components, 'api')
+    if: contains(needs.ai_change_analysis.outputs.components, 'api')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -166,7 +166,7 @@ jobs:
 
   build_web:
     needs: build_base
-    if: contains(needs.orchestrator_entry.outputs.components, 'web')
+    if: contains(needs.ai_change_analysis.outputs.components, 'web')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -197,7 +197,7 @@ jobs:
 
   build_postgres:
     needs: build_base
-    if: contains(needs.orchestrator_entry.outputs.components, 'postgres')
+    if: contains(needs.ai_change_analysis.outputs.components, 'postgres')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -224,7 +224,7 @@ jobs:
 
   build_streaming:
     needs: build_base
-    if: contains(needs.orchestrator_entry.outputs.components, 'streaming')
+    if: contains(needs.ai_change_analysis.outputs.components, 'streaming')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -250,7 +250,7 @@ jobs:
 
   deploy_application:
     needs: [build_api, build_web, build_postgres, build_streaming]
-    if: always() && needs.orchestrator_entry.outputs.components != ''
+    if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -304,7 +304,7 @@ jobs:
 
   validate_tunnel_connectivity:
     needs: deploy_application
-    if: always() && needs.orchestrator_entry.outputs.components != ''
+    if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - name: Test Cloudflared Tunnel Endpoints
@@ -323,7 +323,7 @@ jobs:
 
   create_github_release:
     needs: deploy_application
-    if: needs.orchestrator_entry.outputs.bump_needed == 'true'
+    if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -331,5 +331,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
+          NEW_VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
           gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Orchestrator"
