@@ -28,6 +28,7 @@ jobs:
       components: ${{ steps.analyze.outputs.components }}
       new_version: ${{ steps.analyze.outputs.new_version }}
       bump_needed: ${{ steps.analyze.outputs.bump_needed }}
+      base_changed: ${{ steps.analyze.outputs.base_changed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,6 +60,11 @@ jobs:
             COMPONENTS="api,web,postgres,streaming,linux,windows"
           fi
 
+          BASE_CHANGED="false"
+          if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.base|config/docker/Dockerfile.build"; then
+            BASE_CHANGED="true"
+          fi
+
           # Clean up leading comma
           COMPONENTS=$(echo "$COMPONENTS" | sed 's/^,//')
 
@@ -82,6 +88,7 @@ jobs:
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "base_changed=$BASE_CHANGED" >> $GITHUB_OUTPUT
 
       - name: "Orchestrator: Commit Version Bump"
         if: steps.analyze.outputs.bump_needed == 'true'
@@ -114,23 +121,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: needs.ai_change_analysis.outputs.base_changed == 'true'
+
       - name: Build Base Images
+        if: needs.ai_change_analysis.outputs.base_changed == 'true'
         run: |
           docker build -t cloudtolocalllm/base:latest -f config/docker/Dockerfile.base .
           docker build -t cloudtolocalllm-build:latest -f config/docker/Dockerfile.build .
 
       - name: Downcase Repo Name
+        if: needs.ai_change_analysis.outputs.base_changed == 'true'
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
+        if: needs.ai_change_analysis.outputs.base_changed == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Base Image
+        if: needs.ai_change_analysis.outputs.base_changed == 'true'
         run: |
           docker tag cloudtolocalllm/base:latest ghcr.io/${{ env.REPO_LOWER }}/base:latest
           docker tag cloudtolocalllm-build:latest ghcr.io/${{ env.REPO_LOWER }}/build:latest
