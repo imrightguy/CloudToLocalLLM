@@ -1,0 +1,34 @@
+name: '🔧 Fix Backend Services'
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  fix_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          audience: sts.amazonaws.com
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
+            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Terminate and Recreate All Pods
+        run: |
+          echo "🗑️ Terminating all pods in namespace..."
+          kubectl delete pods --all -n cloudtolocalllm --force --grace-period=0
+          
+          echo "⏳ Waiting for recreation..."
+          sleep 30
+          
+          echo "📋 Current pod status:"
+          kubectl get pods -n cloudtolocalllm
