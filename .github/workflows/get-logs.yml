@@ -3,6 +3,10 @@ name: '🔍 Get Tunnel Logs'
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   get_logs:
     runs-on: ubuntu-latest
