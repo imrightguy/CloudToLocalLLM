@@ -22,13 +22,27 @@ jobs:
           aws eks update-kubeconfig \
             --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
-      - name: Terminate and Recreate All Pods
+      - name: Nuclear Reset and Redeploy
+        env:
+          ENVIRONMENT: managed
+          NAMESPACE: cloudtolocalllm
+          WEB_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
+          API_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
+          STREAMING_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
+          POSTGRES_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:latest
         run: |
-          echo "🗑️ Terminating all pods in namespace..."
-          kubectl delete pods --all -n cloudtolocalllm --force --grace-period=0
+          echo "☢️ NUCLEAR RESET: Deleting all resources in $NAMESPACE..."
+          kubectl delete deployment --all -n $NAMESPACE --force --grace-period=0 || true
+          kubectl delete statefulset --all -n $NAMESPACE --force --grace-period=0 || true
+          kubectl delete configmap --all -n $NAMESPACE --force --grace-period=0 || true
+          kubectl delete pod --all -n $NAMESPACE --force --grace-period=0 || true
           
-          echo "⏳ Waiting for recreation..."
-          sleep 30
+          echo "⏳ Waiting for cleanup..."
+          sleep 10
           
-          echo "📋 Current pod status:"
-          kubectl get pods -n cloudtolocalllm
+          echo "🚀 Redeploying using standard script..."
+          chmod +x scripts/deploy-in-cluster.sh
+          ./scripts/deploy-in-cluster.sh
+          
+          echo "📋 Post-reset status:"
+          kubectl get pods -n $NAMESPACE
