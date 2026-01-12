@@ -24,5 +24,6 @@ jobs:
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Get Cloudflared Logs
         run: |
+          kubectl get nodes
           kubectl get pods -n cloudtolocalllm
           kubectl logs -n cloudtolocalllm -l app=cloudflared --tail=100
