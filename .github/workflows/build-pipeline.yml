@@ -33,7 +33,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Orchestrator: Git Analysis"
+      - name: "Orchestrator: Forensic Analysis"
         id: analyze
         run: |
           echo "Executing git-based analysis of changes..."
