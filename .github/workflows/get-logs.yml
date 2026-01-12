@@ -25,9 +25,9 @@ jobs:
       - name: Get Cloudflared Logs
         run: |
           kubectl get nodes
-          kubectl get deployments -n cloudtolocalllm
-          kubectl get statefulsets -n cloudtolocalllm
-          kubectl get pods -n cloudtolocalllm
+          kubectl get deployments -n cloudtolocalllm -o wide
+          kubectl get statefulsets -n cloudtolocalllm -o wide
+          kubectl get pods -n cloudtolocalllm -o wide
           echo "🔍 Describing api-backend pods:"
           kubectl describe pods -n cloudtolocalllm -l app=api-backend
           
