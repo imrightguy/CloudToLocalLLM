@@ -33,71 +33,53 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Orchestrator: Forensic Analysis"
+      - name: "Orchestrator: Git Analysis"
         id: analyze
-        env:
-          GEMINI_CLI_TOKEN: ${{ secrets.GEMINI_CLI_TOKEN || secrets.GOOGLE_API_KEY }}
-          GEMINI_CLI_MODEL: ${{ env.GEMINI_CLI_MODEL }}
         run: |
-          echo "Executing forensic audit of changes..."
+          echo "Executing git-based analysis of changes..."
           if [ "${{ github.event_name }}" == "push" ]; then
-            DIFF=$(git diff ${{ github.event.before }} ${{ github.event.after }} || git diff HEAD^ HEAD)
+            DIFF_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} || git diff --name-only HEAD^ HEAD)
           else
-            DIFF=$(git diff HEAD^ HEAD || git diff HEAD)
+            DIFF_FILES=$(git diff --name-only HEAD^ HEAD || git diff --name-only HEAD)
           fi
 
-          if [ -z "$DIFF" ]; then
-            echo "components=api,web,postgres,streaming,linux,windows" >> $GITHUB_OUTPUT
-            echo "bump_needed=false" >> $GITHUB_OUTPUT
-            exit 0
+          echo "Changed files:"
+          echo "$DIFF_FILES"
+
+          COMPONENTS=""
+
+          # Check for changes in specific paths
+          if echo "$DIFF_FILES" | grep -q "services/api-backend/"; then COMPONENTS="$COMPONENTS,api"; fi
+          if echo "$DIFF_FILES" | grep -q "web/"; then COMPONENTS="$COMPONENTS,web"; fi
+          if echo "$DIFF_FILES" | grep -q "config/docker/Dockerfile.postgres"; then COMPONENTS="$COMPONENTS,postgres"; fi
+          if echo "$DIFF_FILES" | grep -q "config/docker/Dockerfile.streaming-proxy"; then COMPONENTS="$COMPONENTS,streaming"; fi
+
+          # Infrastructure or global changes trigger all
+          if echo "$DIFF_FILES" | grep -qE "k8s/|.github/|config/docker/Dockerfile.base"; then 
+            COMPONENTS="api,web,postgres,streaming,linux,windows"
           fi
 
-          VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
-          PROMPT="Analyze the provided git diff and current version ($VERSION).
+          # Clean up leading comma
+          COMPONENTS=$(echo "$COMPONENTS" | sed 's/^,//')
 
-          1. Identify affected components from this list: [api, web, postgres, streaming, linux, windows].
-          2. Decide if a version bump is needed based on these rules:
-             - MAJOR: Breaking changes.
-             - MINOR: New features (feat:) or significant additions.
-             - PATCH: Bug fixes (fix:), refactors, documentation, or internal CI/CD logic improvements.
-             - Every push SHOULD generally result in at least a PATCH bump if functional logic or CI was fixed.
-
-          Respond ONLY with JSON:
-          {
-            \"components\": [\"api\", ...],
-            \"version_bump_needed\": true/false,
-            \"new_version\": \"x.y.z\",
-            \"reasoning\": \"Brief explanation of decision\"
-          }
-
-          Diff: ${DIFF:0:2000}"
-
-          node scripts/gemini-orchestrator.cjs "$PROMPT" --json > raw_response.json
-            
-          if ! jq -e . raw_response.json > /dev/null 2>&1; then
-            sed -n '/{/,/}/p' raw_response.json > clean_response.json
+          # Calculate Version Bump (Simple Auto-Patch)
+          if [ -n "$COMPONENTS" ]; then
+            BUMP="true"
+            CURRENT_VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
+            # Split version into array
+            IFS='.' read -r -a v <<< "$CURRENT_VERSION"
+            # Increment patch
+            v[2]=$((v[2] + 1))
+            NEW_VERSION="${v[0]}.${v[1]}.${v[2]}"
+            REASON="Automated patch bump for changed components: $COMPONENTS"
           else
-            cp raw_response.json clean_response.json
+            BUMP="false"
+            NEW_VERSION=""
+            REASON="No buildable components changed"
           fi
-
-          if ! jq -e . clean_response.json > /dev/null 2>&1; then
-             echo '{"components":["api","web","postgres","streaming","linux","windows"],"version_bump_needed":false,"reasoning":"Parsing failure, using defaults"}' > clean_response.json
-          fi
-
-          COMPONENTS=$(jq -r '.components | join(",")' clean_response.json)
-          BUMP=$(jq -r '.version_bump_needed // "false"' clean_response.json)
-
-          # If a bump is needed but no components identified, default to 'api' to ensure propagation
-          if [ "$BUMP" == "true" ] && [ -z "$COMPONENTS" ]; then
-            COMPONENTS="api"
-          fi
-
-          NEW_VERSION=$(jq -r '.new_version // ""' clean_response.json)
-          REASON=$(jq -r '.reasoning // "No reason provided"' clean_response.json)
 
           echo "Orchestrator Decision: $REASON"
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
-
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
