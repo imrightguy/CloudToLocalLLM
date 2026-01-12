@@ -184,16 +184,14 @@ jobs:
         run: |
           echo "Creating tunnel-credentials secret for cloudflared..."
 
-          # Get tunnel token from AWS Secrets Manager
-          TUNNEL_TOKEN=$(aws secretsmanager get-secret-value \
-            --secret-id ${{ secrets.AWS_SECRETS_MANAGER_SECRET_ID || 'cloudtolocalllm/production' }} \
-            --region ${{ secrets.AWS_REGION || 'us-east-1' }} \
-            --query 'SecretString' \
-            --output text | jq -r '.CLOUDFLARE_TUNNEL_TOKEN')
+          echo "Creating tunnel-credentials secret for cloudflared..."
 
-          if [ -z "$TUNNEL_TOKEN" ] || [ "$TUNNEL_TOKEN" = "null" ]; then
-            echo "Error: CLOUDFLARE_TUNNEL_TOKEN not found in AWS Secrets Manager"
-            exit 1
+          # Use GitHub Secret directly to avoid AWS Secrets Manager lock-in
+          TUNNEL_TOKEN="${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}"
+
+          if [ -z "$TUNNEL_TOKEN" ]; then
+             echo "Error: CLOUDFLARE_TUNNEL_TOKEN GitHub secret is not set"
+             exit 1
           fi
 
           # Create or update the tunnel-credentials secret
