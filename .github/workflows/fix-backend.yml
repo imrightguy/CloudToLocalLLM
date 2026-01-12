@@ -11,6 +11,7 @@ jobs:
   fix_backend:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -35,6 +36,7 @@ jobs:
           kubectl delete deployment --all -n $NAMESPACE --force --grace-period=0 || true
           kubectl delete statefulset --all -n $NAMESPACE --force --grace-period=0 || true
           kubectl delete configmap --all -n $NAMESPACE --force --grace-period=0 || true
+          # Skip deleting secrets to preserve tunnel-credentials
           kubectl delete pod --all -n $NAMESPACE --force --grace-period=0 || true
           
           echo "⏳ Waiting for cleanup..."
