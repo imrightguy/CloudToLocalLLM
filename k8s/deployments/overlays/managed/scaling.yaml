@@ -4,7 +4,7 @@ metadata:
   name: api-backend
   namespace: cloudtolocalllm
 spec:
-  replicas: 3
+  replicas: 1
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -12,4 +12,4 @@ metadata:
   name: web
   namespace: cloudtolocalllm
 spec:
-  replicas: 3
+  replicas: 1

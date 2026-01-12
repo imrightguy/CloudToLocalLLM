@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-backend
+  namespace: cloudtolocalllm
+spec:
+  template:
+    spec:
+      containers:
+        - name: api-backend
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: cloudtolocalllm
+spec:
+  template:
+    spec:
+      containers:
+        - name: web
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streaming-proxy
+  namespace: cloudtolocalllm
+spec:
+  template:
+    spec:
+      containers:
+        - name: streaming-proxy
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

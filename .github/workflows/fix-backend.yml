@@ -32,15 +32,7 @@ jobs:
           STREAMING_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
           POSTGRES_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:latest
         run: |
-          echo "☢️ NUCLEAR RESET: Deleting all resources in $NAMESPACE..."
-          kubectl delete deployment --all -n $NAMESPACE --force --grace-period=0 || true
-          kubectl delete statefulset --all -n $NAMESPACE --force --grace-period=0 || true
-          kubectl delete configmap --all -n $NAMESPACE --force --grace-period=0 || true
-          # Skip deleting secrets to preserve tunnel-credentials
-          kubectl delete pod --all -n $NAMESPACE --force --grace-period=0 || true
-          
-          echo "⏳ Waiting for cleanup..."
-          sleep 10
+          echo "ℹ️ Skipping nuclear reset to preserve current progress..."
           
           echo "🚀 Redeploying using standard script..."
           chmod +x scripts/deploy-in-cluster.sh

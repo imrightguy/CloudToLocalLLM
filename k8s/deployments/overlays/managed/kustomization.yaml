@@ -8,3 +8,4 @@ resources:
 patches:
   - path: env-patch.yaml
   - path: scaling.yaml
+  - path: resource-patch.yaml
