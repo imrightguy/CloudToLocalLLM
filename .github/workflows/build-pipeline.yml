@@ -302,7 +302,7 @@ jobs:
 
   build_linux:
     needs: ai_change_analysis
-    if: contains(needs.ai_change_analysis.outputs.components, 'linux')
+    if: false # contains(needs.ai_change_analysis.outputs.components, 'linux')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -312,7 +312,7 @@ jobs:
 
   build_windows:
     needs: ai_change_analysis
-    if: contains(needs.ai_change_analysis.outputs.components, 'windows')
+    if: false # contains(needs.ai_change_analysis.outputs.components, 'windows')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -322,7 +322,7 @@ jobs:
 
   create_github_release:
     needs: [build_linux, build_windows]
-    if: needs.ai_change_analysis.outputs.bump_needed == 'true'
+    if: false # needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
