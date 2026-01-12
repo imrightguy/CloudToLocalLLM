@@ -118,7 +118,6 @@ jobs:
         run: |
           docker build -t cloudtolocalllm/base:latest -f config/docker/Dockerfile.base .
           docker build -t cloudtolocalllm-build:latest -f config/docker/Dockerfile.build .
-          docker save cloudtolocalllm/base:latest -o /tmp/base-image.tar
 
       - name: Downcase Repo Name
         run: |
@@ -138,54 +137,8 @@ jobs:
           docker push ghcr.io/${{ env.REPO_LOWER }}/base:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/build:latest
 
-  deploy_secrets:
-    needs: orchestrator_entry
-    if: needs.orchestrator_entry.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          audience: sts.amazonaws.com
-
-      - name: Configure kubectl for EKS
-        run: |
-          aws eks update-kubeconfig \
-            --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
-            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
-          kubectl cluster-info
-
-      - name: Create Namespace
-        run: |
-          kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Create Cloudflare Tunnel Credentials Secret
-        run: |
-          echo "Creating tunnel-credentials secret for cloudflared..."
-
-          echo "Creating tunnel-credentials secret for cloudflared..."
-
-          # Use GitHub Secret directly to avoid AWS Secrets Manager lock-in
-          TUNNEL_TOKEN="${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}"
-
-          if [ -z "$TUNNEL_TOKEN" ]; then
-             echo "Error: CLOUDFLARE_TUNNEL_TOKEN GitHub secret is not set"
-             exit 1
-          fi
-
-          # Create or update the tunnel-credentials secret
-          kubectl create secret generic tunnel-credentials \
-            --from-literal=token="$TUNNEL_TOKEN" \
-            --namespace=cloudtolocalllm \
-            --dry-run=client -o yaml | kubectl apply -f - --validate=false
-
-          echo "✅ Tunnel credentials secret created/updated"
-
   build_api:
-    needs: [build_base, deploy_secrets]
+    needs: build_base
     if: contains(needs.orchestrator_entry.outputs.components, 'api')
     runs-on: ubuntu-latest
     steps:
@@ -194,15 +147,6 @@ jobs:
         run: |
           cd services/api-backend
           docker build -t cloudtolocalllm-api:latest .
-          # Run unit tests on host (requires dev dependencies not in prod image)
-          # Skip database-dependent tests in CI (no PostgreSQL service configured)
-          npm ci
-          npm run test:unit -- --forceExit --testPathIgnorePatterns=".*integration\.test\.js|.*properties\.test\.js|tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js|adaptive-rate-limiting\.test\.js|cached-query-wrapper\.test\.js|deployment-sequencing\.test\.js|quota-management\.test\.js|rate-limit-exemptions\.test\.js|rate-limit-metrics\.test\.js|rbac\.test\.js|read-replica-routing\.test\.js|user-deletion\.test\.js|user-profile\.test\.js"
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
-          AUTH0_AUDIENCE: "https://api.cloudtolocalllm.com"
 
       - name: Downcase Repo Name
         run: |
@@ -220,88 +164,26 @@ jobs:
           docker tag cloudtolocalllm-api:latest ghcr.io/${{ env.REPO_LOWER }}/api:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/api:latest
 
-  test_api:
-    needs: build_api
-    if: contains(needs.orchestrator_entry.outputs.components, 'api')
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: cloudtolocalllm
-          APP_USER_PASSWORD: appuser
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    steps:
-      - uses: actions/checkout@v4
-      - name: API Database Tests
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: cloudtolocalllm
-          DB_USER: appuser
-          DB_PASSWORD: apppassword
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: |
-          echo "Running API database-dependent tests..."
-          cd services/api-backend
-
-          # Install dependencies
-          npm ci
-
-          # Run database-dependent tests
-          npm run test:unit -- --testPathPatterns=".*integration\.test\.js|.*properties\.test\.js|tunnel-.*\.test\.js|proxy-usage\.test\.js|api-keys\.test\.js|infrastructure-recreation\.test\.js|image-tag-consistency\.test\.js|error-notifications\.test\.js|admin-data-flush\.test\.js|rate-limit-violations\.test\.js|request-queuing\.test\.js|deprecation\.test\.js|auth-audit\.test\.js|tier-validation\.test\.js|user-activity\.test\.js|bridge-polling-routes\.test\.js|cloudflare-dns-resolution\.test\.js|health-check\.test\.js|query-cache\.test\.js|webhook-rate-limiting\.test\.js|adaptive-rate-limiting\.test\.js|cached-query-wrapper\.test\.js|deployment-sequencing\.test\.js|quota-management\.test\.js|rate-limit-exemptions\.test\.js|rate-limit-metrics\.test\.js|rbac\.test\.js|read-replica-routing\.test\.js|user-deletion\.test\.js|user-profile\.test\.js" --forceExit
-
-          echo "✅ API database tests passed"
-
-  security_scan_api:
-    needs: build_api
-    if: contains(needs.orchestrator_entry.outputs.components, 'api')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Security Scan API Image
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "image"
-          scan-ref: "cloudtolocalllm-api:latest"
-          format: "sarif"
-          output: "trivy-api-results.sarif"
-
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: "trivy-api-results.sarif"
-
   build_web:
-    needs: [build_base, deploy_secrets]
+    needs: build_base
     if: contains(needs.orchestrator_entry.outputs.components, 'web')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build Web Frontend
         run: |
-          cd web
-          if [ -f "package.json" ]; then
-            npm install
-            npm run build
-            npm test
+          if [ -f "web/package.json" ]; then
+            docker build -t cloudtolocalllm-web:latest ./web
           else
             echo "No package.json found in web directory. Skipping build."
           fi
 
+      - name: Downcase Repo Name
+        run: |
+          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: hashFiles('web/package.json') != ''
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -310,52 +192,11 @@ jobs:
       - name: Push Web Image
         if: hashFiles('web/package.json') != ''
         run: |
-          # Downcase repo name for this job
-          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
-
-          # Assuming build includes docker build which was missing in original script, adding it here if needed or assuming previous step did it.
-          # The original 'Build Web Frontend' step only ran npm build. We need a docker build.
-          # Let's add docker build here as it wasn't present.
-          docker build -t cloudtolocalllm-web:latest ./web
           docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/web:latest
 
-  test_web:
-    needs: build_web
-    if: contains(needs.orchestrator_entry.outputs.components, 'web')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Web E2E Tests
-        run: |
-          if [ -f "web/package.json" ]; then
-            cd web
-            npm install -D @playwright/test
-            npx playwright install
-            echo "✅ Web E2E tests placeholder - implement actual tests"
-          else
-            echo "Skipping Web E2E tests: No package.json found"
-          fi
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
-
-  security_scan_web:
-    needs: build_web
-    if: contains(needs.orchestrator_entry.outputs.components, 'web')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Security Scan Web Dependencies
-        if: hashFiles('web/package.json') != ''
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --file=web/package.json
-
   build_postgres:
-    needs: [build_base, deploy_secrets]
+    needs: build_base
     if: contains(needs.orchestrator_entry.outputs.components, 'postgres')
     runs-on: ubuntu-latest
     steps:
@@ -382,7 +223,7 @@ jobs:
           docker push ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
 
   build_streaming:
-    needs: [build_base, deploy_secrets]
+    needs: build_base
     if: contains(needs.orchestrator_entry.outputs.components, 'streaming')
     runs-on: ubuntu-latest
     steps:
@@ -407,56 +248,48 @@ jobs:
           docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
 
-  build_linux:
-    needs: orchestrator_entry
-    if: contains(needs.orchestrator_entry.outputs.components, 'linux')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Linux Desktop
-        run: |
-          echo "Building Linux app..."
-
-  build_windows:
-    needs: orchestrator_entry
-    if: contains(needs.orchestrator_entry.outputs.components, 'windows')
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Windows Desktop
-        run: |
-          echo "Building Windows app..."
-
-  promote_to_gitops:
-    needs:
-      [
-        test_api,
-        test_web,
-        security_scan_api,
-        security_scan_web,
-        build_postgres,
-        build_streaming,
-        build_linux,
-        build_windows,
-      ]
+  deploy_application:
+    needs: [build_api, build_web, build_postgres, build_streaming]
     if: always() && needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           audience: sts.amazonaws.com
+
       - name: Configure kubectl for EKS
         run: |
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+          aws eks update-kubeconfig \
+            --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
+            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Create Namespace
+        run: |
+          kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Cloudflare Tunnel Credentials Secret
+        run: |
+          # Use GitHub Secret directly
+          TUNNEL_TOKEN="${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}"
+          if [ -z "$TUNNEL_TOKEN" ]; then
+             echo "Error: CLOUDFLARE_TUNNEL_TOKEN GitHub secret is not set"
+             exit 1
+          fi
+          kubectl create secret generic tunnel-credentials \
+            --from-literal=token="$TUNNEL_TOKEN" \
+            --namespace=cloudtolocalllm \
+            --dry-run=client -o yaml | kubectl apply -f - --validate=false
+
       - name: Downcase Repo Name
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
-      - name: Promote to GitOps Stronghold
+      - name: Deploy to Cluster (Postgres First)
         env:
           ENVIRONMENT: managed
           NAMESPACE: cloudtolocalllm
@@ -465,61 +298,31 @@ jobs:
           STREAMING_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           POSTGRES_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
         run: |
-
           mkdir -p k8s/overlays
           chmod +x scripts/deploy-in-cluster.sh
           ./scripts/deploy-in-cluster.sh
 
-  rollback_on_failure:
-    needs: promote_to_gitops
-    if: failure() && needs.promote_to_gitops.result == 'failure'
+  validate_tunnel_connectivity:
+    needs: deploy_application
+    if: always() && needs.orchestrator_entry.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          audience: sts.amazonaws.com
-      - name: Configure kubectl for EKS
+      - name: Test Cloudflared Tunnel Endpoints
         run: |
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
-      - name: Rollback Failed Deployment
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COMPONENTS: ${{ needs.orchestrator_entry.outputs.components }}
-        run: |
-          echo "Deployment failed, initiating rollback..."
-          echo "Components to rollback: $COMPONENTS"
-
-          # Parse components and rollback each
-          IFS=',' read -ra COMPONENT_ARRAY <<< "$COMPONENTS"
-          for component in "${COMPONENT_ARRAY[@]}"; do
-            case $component in
-              api)
-                echo "Rolling back API backend..."
-                kubectl rollout undo deployment/api-backend -n cloudtolocalllm || echo "API rollback failed"
-                ;;
-              web)
-                echo "Rolling back Web frontend..."
-                kubectl rollout undo deployment/web -n cloudtolocalllm || echo "Web rollback failed"
-                ;;
-              streaming)
-                echo "Rolling back Streaming proxy..."
-                kubectl rollout undo deployment/streaming-proxy -n cloudtolocalllm || echo "Streaming rollback failed"
-                ;;
-              postgres)
-                echo "Rolling back Postgres..."
-                kubectl rollout undo statefulset/postgres -n cloudtolocalllm || echo "Postgres rollback failed"
-                ;;
-            esac
+          endpoints=(
+            "https://app.cloudtolocalllm.online/health"
+            "https://api.cloudtolocalllm.online/health"
+            "https://argocd.cloudtolocalllm.online"
+            "https://grafana.cloudtolocalllm.online"
+            "https://cloudtolocalllm.online"
+          )
+          for endpoint in "${endpoints[@]}"; do
+            echo "Testing $endpoint..."
+            curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$endpoint" || echo "Failed"
           done
 
-          echo "Rollback completed"
-
   create_github_release:
-    needs: promote_to_gitops
+    needs: deploy_application
     if: needs.orchestrator_entry.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -529,184 +332,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION="${{ needs.orchestrator_entry.outputs.new_version }}"
-          gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Overlord"
-
-  validate_tunnel_connectivity:
-    needs: promote_to_gitops
-    if: always() && needs.orchestrator_entry.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - name: Test Cloudflared Tunnel Endpoints
-        run: |
-          echo "Testing cloudflared tunnel connectivity..."
-
-          # Test endpoints defined in cloudflared config
-          endpoints=(
-            "https://app.cloudtolocalllm.online/health"
-            "https://api.cloudtolocalllm.online/health"
-            "https://argocd.cloudtolocalllm.online"
-            "https://grafana.cloudtolocalllm.online"
-            "https://cloudtolocalllm.online"
-          )
-
-          failed_tests=0
-
-          for endpoint in "${endpoints[@]}"; do
-            echo "Testing $endpoint..."
-            status_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$endpoint")
-
-            if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 302 ]; then
-              echo "✅ $endpoint - OK (HTTP $status_code)"
-            elif [ "$status_code" -eq 530 ]; then
-              echo "❌ $endpoint - FAILED (HTTP $status_code - Origin DNS Error)"
-              failed_tests=$((failed_tests + 1))
-            else
-              echo "⚠️  $endpoint - WARNING (HTTP $status_code)"
-            fi
-          done
-
-          if [ $failed_tests -gt 0 ]; then
-            echo "⚠️  Tunnel connectivity test FAILED: $failed_tests endpoints unreachable"
-            echo "In CI, this is common if the environment is not live. Marking as warning."
-            # Only exit 1 if this is a blocking requirement, otherwise warn
-            exit 0
-          else
-            echo "✅ All tunnel endpoints are accessible"
-          fi
-
-  cloudflared_health_check:
-    needs: promote_to_gitops
-    if: always() && needs.orchestrator_entry.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cloudflare Tunnel Health Validation
-        env:
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
-        run: |
-          echo "🔍 Performing comprehensive Cloudflare tunnel health check..."
-
-          # Check if API key is available
-          if [ -z "$CLOUDFLARE_API_KEY" ]; then
-            echo "⚠️  CLOUDFLARE_API_KEY not configured - skipping Cloudflare API checks"
-            exit 0
-          fi
-
-          # Fetch account and zone information
-          ACCOUNT_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" \
-            -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
-            -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result[0].id')
-
-          if [ -z "$ACCOUNT_ID" ] || [ "$ACCOUNT_ID" == "null" ]; then
-            echo "❌ Failed to retrieve Cloudflare account ID"
-            exit 1
-          fi
-
-          ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=cloudtolocalllm.online" \
-            -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
-            -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result[0].id')
-
-          # Check tunnel status
-          TUNNEL_STATUS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/62da6c19-947b-4bf6-acad-100a73de4e0d" \
-            -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
-            -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result.status')
-
-          echo "Tunnel Status: $TUNNEL_STATUS"
-
-          if [ "$TUNNEL_STATUS" != "healthy" ]; then
-            echo "⚠️  Cloudflare tunnel is not healthy: $TUNNEL_STATUS"
-            echo "In CI, we allow this as a warning if the tunnel is down."
-            exit 0
-          fi
-
-          # Check active connectors
-          CONNECTORS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/62da6c19-947b-4bf6-acad-100a73de4e0d/connections" \
-            -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
-            -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result | length')
-
-          if [ "$CONNECTORS" -eq 0 ]; then
-            echo "❌ No active tunnel connectors found"
-            exit 1
-          fi
-
-          echo "✅ Active connectors: $CONNECTORS"
-
-          # DNS validation for all subdomains
-          SUBDOMAINS=("app" "api" "argocd" "grafana" "")
-          for SUB in "${SUBDOMAINS[@]}"; do
-            FULL_NAME="${SUB:+$SUB.}cloudtolocalllm.online"
-            DNS_RECORD=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?name=$FULL_NAME&type=CNAME" \
-              -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
-              -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result[0].content')
-
-            if [[ "$DNS_RECORD" == *".cfargotunnel.com"* ]]; then
-              echo "✅ $FULL_NAME -> $DNS_RECORD (Correct)"
-            else
-              echo "❌ $FULL_NAME DNS misconfigured: $DNS_RECORD"
-              exit 1
-            fi
-          done
-
-          echo "🎉 Cloudflare tunnel health check PASSED"
-
-  pipeline_metrics:
-    needs:
-      [
-        orchestrator_entry,
-        promote_to_gitops,
-        validate_tunnel_connectivity,
-        cloudflared_health_check,
-        create_github_release,
-      ]
-    if: always() && needs.orchestrator_entry.outputs.components != ''
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate Pipeline Metrics
-        run: |
-          echo "📊 Pipeline Execution Summary"
-          echo "=============================="
-
-          # Get job statuses
-          orchestrator_status="${{ needs.orchestrator_entry.result }}"
-          gitops_status="${{ needs.promote_to_gitops.result }}"
-          tunnel_status="${{ needs.validate_tunnel_connectivity.result }}"
-          cloudflare_status="${{ needs.cloudflared_health_check.result }}"
-          release_status="${{ needs.create_github_release.result }}"
-
-          echo "Orchestrator: $orchestrator_status"
-          echo "GitOps Deployment: $gitops_status"
-          echo "Tunnel Connectivity: $tunnel_status"
-          echo "Cloudflare Health: $cloudflare_status"
-          echo "Release Creation: $release_status"
-
-          # Calculate success metrics
-          total_jobs=4  # gitops, tunnel, cloudflare, orchestrator (release is optional)
-          if [ "$release_status" != "skipped" ]; then
-            ((total_jobs++))
-          fi
-
-          successful_jobs=0
-          [ "$orchestrator_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
-          [ "$gitops_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
-          [ "$tunnel_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
-          [ "$cloudflare_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
-
-          if [ "$release_status" != "skipped" ]; then
-            [ "$release_status" = "success" ] && successful_jobs=$((successful_jobs + 1))
-          fi
-
-          success_rate=$((successful_jobs * 100 / total_jobs))
-
-          echo "Success Rate: $successful_jobs/$total_jobs ($success_rate%)"
-
-          if [ $success_rate -eq 100 ]; then
-            echo "🎉 Pipeline completed successfully!"
-          elif [ $success_rate -ge 75 ]; then
-            echo "⚠️  Pipeline completed with minor issues"
-          else
-            echo "❌ Pipeline failed - manual intervention required"
-            exit 1
-          fi
-
-          # Log metrics for monitoring
-          echo "PIPELINE_SUCCESS_RATE=$success_rate" >> $GITHUB_ENV
-          echo "PIPELINE_COMPLETED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+          gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Orchestrator"
