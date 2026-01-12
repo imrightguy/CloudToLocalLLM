@@ -26,4 +26,8 @@ jobs:
         run: |
           kubectl get nodes
           kubectl get pods -n cloudtolocalllm
+          echo "🔍 Describing api-backend pods:"
+          kubectl describe pods -n cloudtolocalllm -l app=api-backend
+          
+          echo "🔍 Logs for api-backend:"
           kubectl logs -n cloudtolocalllm -l app=api-backend --tail=100 --all-containers
