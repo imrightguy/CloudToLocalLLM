@@ -78,7 +78,7 @@ For complete technical details, see .
 
 ### **Authentication & Authorization**
 - **JWT Tokens**: Secure token-based authentication.
-- **Supabase Auth Integration**: Enterprise-grade authentication provider.
+- **Auth0 Integration**: Enterprise-grade authentication provider.
 - **Token Management**: Automatic refresh and secure storage.
 
 ### **Network Security**

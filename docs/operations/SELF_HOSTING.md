@@ -198,22 +198,22 @@ To update the application to the latest version from Git:
         ```bash
         docker compose build --no-cache webapp
         ```
-    *   If other services (e.g., `admin-daemon`) were updated, build them too:
+    *   If other services (e.g., `api-backend`) were updated, build them too:
         ```bash
-        docker compose build admin-daemon
+        docker compose build api-backend
         ```
 4.  **Recreate and Restart Services**:
     Apply the changes by recreating the containers. `--force-recreate` ensures new images are used. `--no-deps` can be used if you only want to recreate specific services.
     ```bash
-    docker compose up -d --force-recreate webapp admin-daemon # Add other updated services
+    docker compose up -d --force-recreate webapp api-backend # Add other updated services
     ```
     Or to recreate all:
     ```bash
     docker compose up -d --force-recreate
     ```
-
+ 
 ## ⚙️ Troubleshooting Common Issues
-
+ 
 - **Docker Permission Errors**:
     - Ensure the `cloudllm` user is part of the `docker` group (`sudo usermod -aG docker cloudllm`, then log out/in).
     - Ensure `/opt/cloudtolocalllm` and its subdirectories (especially `certbot/` and any other volume mounts) are owned by `cloudllm`: `sudo chown -R cloudllm:cloudllm /opt/cloudtolocalllm`.
@@ -228,7 +228,7 @@ To update the application to the latest version from Git:
     - Use `docker compose` (with a space). The `scripts/deploy/deploy_to_vps.sh` script aims to install the Docker Compose v2 plugin.
 - **General Service Issues**:
     - `docker compose ps` to see container status.
-    - `docker compose logs <service_name>` to view logs (e.g., `docker compose logs webapp`, `docker compose logs fusionauth`).
+    - `docker compose logs <service_name>` to view logs (e.g., `docker compose logs webapp`, `docker compose logs api-backend`).
     - Refer to `scripts/troubleshooting_commands.sh` for more diagnostic commands.
     - Check system logs: `journalctl -u docker.service` or `/var/log/syslog`.
 

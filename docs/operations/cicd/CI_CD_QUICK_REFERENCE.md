@@ -9,20 +9,21 @@ arn:aws:iam::422017356244:role/github-actions-role
 
 ### GitHub Actions Workflows
 
-#### 1. Deploy to AWS EKS
-**File**: `.github/workflows/deploy-aws-eks.yml`
-
+#### 1. Build Pipeline
+**File**: `.github/workflows/build-pipeline.yml`
+ 
 **Triggers**:
-- Push to `main` branch (with code changes)
+- Push to `main` branch
 - Manual workflow dispatch
-
+ 
 **What it does**:
-1. Authenticates to AWS using OIDC
-2. Builds Docker images for web and API
-3. Pushes images to Docker Hub
-4. Deploys to AWS EKS cluster
-5. Verifies deployment health
-6. Rolls back on failure
+1. Analyzes changes to determine which components need building
+2. Checks GHCR for existing SHA-tagged images
+3. Authenticates to AWS using OIDC
+4. Builds Docker images (if needed) and pushes to GHCR
+5. Deploys to AWS EKS cluster
+6. Verifies tunnel and cloudflare connectivity
+
 
 **Environment Variables**:
 - `AWS_REGION`: us-east-1
@@ -31,8 +32,8 @@ arn:aws:iam::422017356244:role/github-actions-role
 - `NAMESPACE`: cloudtolocalllm
 
 **Required Secrets**:
-- `DOCKERHUB_USERNAME`: Docker Hub username
-- `DOCKERHUB_TOKEN`: Docker Hub access token
+- `DOCKERHUB_USERNAME`: GHCR username
+- `DOCKERHUB_TOKEN`: GHCR access token
 
 #### 2. Test OIDC Authentication
 **File**: `.github/workflows/test-oidc-auth.yml`
@@ -98,9 +99,9 @@ gh run view <RUN_ID> --log
 3. Check AWS credentials are configured correctly
 
 ### Workflow fails with "Docker image push failed"
-1. Verify Docker Hub credentials in GitHub Secrets
-2. Check Docker Hub repository exists
-3. Verify Docker Hub token has push permissions
+1. Verify GHCR credentials in GitHub Secrets
+2. Check GHCR repository exists
+3. Verify GHCR token has push permissions
 
 ### Workflow fails with "EKS cluster not found"
 1. Verify EKS cluster exists in AWS

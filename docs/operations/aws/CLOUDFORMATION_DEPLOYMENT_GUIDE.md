@@ -16,7 +16,7 @@ The CloudFormation templates are organized into three main stacks:
 - AWS Account ID: 422017356244
 - GitHub OIDC Provider already configured in AWS
 - CloudFormation permissions in your AWS account
-- Docker Hub credentials for container images
+- GitHub Container Registry (GHCR) access for container images
 
 ## Deployment Steps
 

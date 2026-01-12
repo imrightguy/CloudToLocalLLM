@@ -277,9 +277,9 @@ kubectl create secret docker-registry dockerhub-secret \
 
 # Create application secrets
 kubectl create secret generic app-secrets \
-  --from-literal=supabase-auth-domain=$JWT_ISSUER_DOMAIN \
-  --from-literal=supabase-auth-client-id=$JWT_CLIENT_ID \
-  --from-literal=supabase-auth-client-secret=$JWT_CLIENT_SECRET \
+  --from-literal=auth0-domain=$AUTH0_DOMAIN \
+  --from-literal=auth0-client-id=$AUTH0_CLIENT_ID \
+  --from-literal=auth0-client-secret=$AUTH0_CLIENT_SECRET \
   -n cloudtolocalllm
 ```
 

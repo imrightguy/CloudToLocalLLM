@@ -185,17 +185,13 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage
 - `gh release create` - Create release
 - `gh workflow run` - Run GitHub Actions workflow
 
-### Azure CLI (az)
-- `az login` - Authenticate with Azure
-- `az group create` - Create resource group
-- `az aks create` - Create AKS cluster
-- `az acr build` - Build container image in ACR
-- `az acr login` - Login to Azure Container Registry
-- `az keyvault secret set` - Set Key Vault secret
-- `az keyvault secret show` - Get Key Vault secret
-- `az dns record-set a add-record` - Add DNS A record
-- `az vm list` - List virtual machines
-- `az deployment group create` - Deploy to resource group
+### AWS CLI (aws)
+- `aws configure` - Configure AWS credentials
+- `aws eks update-kubeconfig --name cluster-name` - Update kubeconfig for EKS
+- `aws s3 ls` - List S3 buckets
+- `aws ec2 describe-instances` - List EC2 instances
+- `aws iam list-users` - List IAM users
+- `aws service-quotas list-service-quotas --service-code eks` - Check EKS quotas
 
 ### kubectl
 - `kubectl get pods` - List pods
@@ -314,48 +310,41 @@ try {
 - Layer caching: copy package files first, install deps, then copy source
 
 ### Free Tier Only Policy
-
+ 
 **STRICTLY ENFORCED**: All cloud resources must stay within free tier limits. Non-compliance is not acceptable.
-
-### Azure Free Tier Limits (Must Respect)
-- **Compute**: Azure App Service - 10 apps, 1 GB storage
-- **Databases**: Azure SQL Database - 250 GB, 32 KB IOPS
-- **Storage**: 5 GB Blob Storage, 5 GB File Storage
-- **Bandwidth**: 15 GB egress/month
-- **Key Vault**: 10,000 operations/month
-- **Azure Functions**: 1 million requests/month
-
+ 
+### AWS Free Tier Limits (Must Respect)
+- **Compute**: AWS EC2 t3.micro/t2.micro (if used), EKS (control plane is not free, but using Fargate/Nodes within limits)
+- **Databases**: RDS (if used) within free tier limits
+- **Storage**: S3 5GB, EBS 30GB
+- **Bandwidth**: 15GB egress/month
+ 
 ### Prohibited Resources (Will Cause Charges)
-- **NEVER create**: AKS clusters, VM Scale Sets, Virtual Machines
-- **NEVER create**: Container Registries (ACR)
-- **NEVER create**: Load Balancers, Public IPs (beyond free tier)
-- **NEVER create**: Log Analytics workspaces with paid tiers
-- **NEVER create**: Azure Kubernetes Service, Container Apps with consumption plans
-
+- **NEVER create**: High-instance count EKS clusters, VM Scale Sets, large Virtual Machines
+- **NEVER create**: Large Container Registries (beyond free limits)
+- **NEVER create**: Load Balancers (beyond free tier/credits)
+- **NEVER create**: Managed databases with high IOPS
+ 
 ### Required Pre-Creation Checks
-Before creating any Azure resource:
-1. Verify it has a free tier option: `az consumption price list --product-name "Free" --output table`
-2. Check current usage: `az consumption usage list --query "[].{Service:serviceName,Cost:pretaxCost}" --output table`
-3. Use Azure Pricing Calculator for any new resource type
-
+Before creating any AWS resource:
+1. Verify it has a free tier option.
+2. Check current usage: `aws service-quotas` or Billing Dashboard.
+3. Use AWS Pricing Calculator for any new resource type.
+ 
 ### Post-Creation Validation
-After any `az` command that creates resources:
+After any `aws` command that creates resources:
 ```bash
 # Verify no paid resources were created
-az resource list --query "[].{Type:type,Name:name}" --output table
-
-# Check for unexpected costs
-az consumption usage list --query "[?pretaxCost > '0'].{Service:serviceName,Cost:pretaxCost}" --output table
+aws resourcegroupstaggingapi get-resources
 ```
-
+ 
 ### Free Tier Alternatives
 | Paid Resource Type | Free Tier Alternative |
 |-------------------|---------------------|
-| AKS | Local Docker/Kubernetes or Azure Arc (if eligible) |
-| ACR | ghcr.io or Docker Hub |
-| VMs | Azure Static Web Apps, Azure Functions |
-| Key Vault (paid) | Use Azure Web Apps + App Configuration (free) |
-| Log Analytics | Built-in Azure Monitor metrics (free tier) |
+| EKS (High Cost) | Single-node k3s/Docker on EC2 (Free Tier) |
+| ECR (Paid) | ghcr.io or Docker Hub |
+| Large VMs | t3.micro / t2.micro |
+
 
 ### Violation Response
 If charges are detected:
@@ -396,7 +385,7 @@ CloudToLocalLLM/
 
 - Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
 - Keep commits focused and atomic
-- Use agent prefix for automated commits: `ai(Cursor): description`
+- Use agent prefix for automated commits: `ai(OpenCode): description`
 
 ## Key Files & Locations
 
