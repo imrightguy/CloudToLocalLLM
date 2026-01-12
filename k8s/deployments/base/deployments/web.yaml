@@ -67,8 +67,8 @@ spec:
                   key: API_DOMAIN
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "25m"
+              memory: "64Mi"
+              cpu: "10m"
             limits:
               memory: "512Mi"
               cpu: "500m"

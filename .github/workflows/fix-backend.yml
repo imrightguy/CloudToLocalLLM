@@ -32,7 +32,12 @@ jobs:
           STREAMING_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
           POSTGRES_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:latest
         run: |
-          echo "ℹ️ Skipping nuclear reset to preserve current progress..."
+          echo "☢️ NUCLEAR PRUNING: Deleting non-essential resources..."
+          kubectl delete deployment alertmanager blackbox-exporter builder coturn grafana prometheus -n $NAMESPACE --force --grace-period=0 || true
+          kubectl delete statefulset postgres-auth redis-tunnel-state -n $NAMESPACE --force --grace-period=0 || true
+          
+          echo "🗑️ Cleaning up pods..."
+          kubectl delete pod --all -n $NAMESPACE --force --grace-period=0 || true
           
           echo "🚀 Redeploying using standard script..."
           chmod +x scripts/deploy-in-cluster.sh
