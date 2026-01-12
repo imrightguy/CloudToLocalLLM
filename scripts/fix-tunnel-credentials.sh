@@ -25,10 +25,7 @@ echo "🔍 Checking kubectl configuration..."
 kubectl config view --minify
 kubectl config current-context
 
-# Force KUBECONFIG if standard path exists (safeguard)
-if [ -f "$HOME/.kube/config" ]; then
-  export KUBECONFIG="$HOME/.kube/config"
-fi
+
 
 # Create or update the tunnel-credentials secret
 # verify validation is off to avoid schema download issues on some networks/configs
