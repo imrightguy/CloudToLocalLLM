@@ -65,7 +65,7 @@ metadata:
   namespace: cloudtolocalllm
 data:
   config.yaml: |
-    tunnel: ee26f195-904b-4406-a8ae-9265c9971004
+    tunnel: 62da6c19-947b-4bf6-acad-100a73de4e0d
     metrics: 0.0.0.0:2000
     no-autoupdate: true
     ingress:

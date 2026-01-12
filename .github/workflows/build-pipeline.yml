@@ -563,7 +563,7 @@ jobs:
           fi
 
           # Tunnel Status
-          TUNNEL_STATUS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/ee26f195-904b-4406-a8ae-9265c9971004" \
+          TUNNEL_STATUS=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/62da6c19-947b-4bf6-acad-100a73de4e0d" \
             -H "X-Auth-Email: cmaltais@cloudtolocalllm.online" \
             -H "X-Auth-Key: $CLOUDFLARE_API_KEY" | jq -r '.result.status')
 

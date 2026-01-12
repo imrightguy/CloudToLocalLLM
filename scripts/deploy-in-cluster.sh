@@ -73,7 +73,7 @@ sed -i "s|cloudtolocalllm/postgres:latest|$POSTGRES_IMAGE|g" full-manifest.yaml
 
 log_info "Injecting configuration..."
 # Hardcoded ID from health check - ideally should be dynamic but fixing for immediate stability
-TUNNEL_ID="ee26f195-904b-4406-a8ae-9265c9971004"
+TUNNEL_ID="62da6c19-947b-4bf6-acad-100a73de4e0d"
 CONFIG_SHA="sha-$(date +%s)" # Simple timestamp for config churn
 
 sed -i "s|\${CLOUDFLARE_TUNNEL_ID}|$TUNNEL_ID|g" full-manifest.yaml
