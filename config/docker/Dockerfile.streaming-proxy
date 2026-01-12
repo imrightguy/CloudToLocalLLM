@@ -1,14 +1,16 @@
 # Simplified container for tunnel-aware applications
 # Uses standard HTTP libraries to communicate through tunnel proxy
 
-FROM node:24-alpine AS production
+ARG BASE_REGISTRY=cloudtolocalllm
+FROM ${BASE_REGISTRY}/base:latest
 
-# Install curl for health checks and HTTP requests
-RUN apk add --no-cache curl
+# Switch to root to install dependencies
+USER root
 
-# Security: Create non-root user
-RUN addgroup -g 1001 -S appuser && \
-    adduser -S -D -H -u 1001 -s /sbin/nologin -G appuser appuser
+# Install curl for health checks
+RUN apt-get update && \
+  apt-get install -y curl && \
+  rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -86,16 +88,16 @@ server.listen(port, () => {
 });
 EOF
 
-# Security: Set proper ownership and permissions
-RUN chown -R appuser:appuser /app && \
-    chmod +x /app/*.js
+# Security: Set proper ownership
+RUN chown -R cloudtolocalllm:cloudtolocalllm /app && \
+  chmod +x /app/*.js
 
 # Health check for container monitoring
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1
 
-# Security: Switch to non-root user
-USER appuser
+# Security: Switch to non-root user (from base)
+USER cloudtolocalllm
 
 # Expose health check port
 EXPOSE 8080
@@ -104,7 +106,6 @@ EXPOSE 8080
 ENV NODE_ENV=production
 ENV HEALTH_PORT=8080
 ENV LOG_LEVEL=info
-# OLLAMA_BASE_URL will be set by container orchestrator to tunnel proxy endpoint
 
 # Start health check server by default
 CMD ["node", "health-check.js"]

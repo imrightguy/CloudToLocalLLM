@@ -181,7 +181,7 @@ jobs:
         if: needs.ai_change_analysis.outputs.api_changed == 'true'
         run: |
           cd services/api-backend
-          docker build -t cloudtolocalllm-api:latest .
+          docker build -t cloudtolocalllm-api:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} .
 
       - name: Downcase Repo Name
         if: needs.ai_change_analysis.outputs.api_changed == 'true'
@@ -213,7 +213,7 @@ jobs:
         if: needs.ai_change_analysis.outputs.web_changed == 'true'
         run: |
           if [ -f "web/package.json" ]; then
-            docker build -t cloudtolocalllm-web:latest ./web
+            docker build -t cloudtolocalllm-web:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} ./web
           else
             echo "No package.json found in web directory. Skipping build."
           fi
@@ -279,7 +279,7 @@ jobs:
       - name: Build Streaming Proxy
         if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
         run: |
-          docker build -t cloudtolocalllm-streaming:latest -f config/docker/Dockerfile.streaming-proxy .
+          docker build -t cloudtolocalllm-streaming:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} -f config/docker/Dockerfile.streaming-proxy .
 
       - name: Downcase Repo Name
         if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
