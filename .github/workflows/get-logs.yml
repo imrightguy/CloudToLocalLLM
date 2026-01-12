@@ -26,4 +26,4 @@ jobs:
         run: |
           kubectl get nodes
           kubectl get pods -n cloudtolocalllm
-          kubectl logs -n cloudtolocalllm -l app=cloudflared --tail=100
+          kubectl logs -n cloudtolocalllm -l app=api-backend --tail=100 --all-containers
