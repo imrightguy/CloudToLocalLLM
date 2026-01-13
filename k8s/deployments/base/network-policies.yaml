@@ -77,6 +77,14 @@ spec:
       ports:
         - protocol: TCP
           port: 8080
+    # Allow from Cloudflare Tunnel
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cloudflared
+      ports:
+        - protocol: TCP
+          port: 8080
 
 ---
 # Allow ingress to API backend from Ingress controller
@@ -100,14 +108,6 @@ spec:
         - namespaceSelector:
             matchLabels:
               name: ingress-nginx
-      ports:
-        - protocol: TCP
-          port: 3000
-    # Allow from Cloudflare Tunnel
-    - from:
-        - podSelector:
-            matchLabels:
-              app: cloudflared
       ports:
         - protocol: TCP
           port: 3000
@@ -145,6 +145,8 @@ spec:
       ports:
         - protocol: TCP
           port: 3000
+        - protocol: TCP
+          port: 8080
     # Allow DNS
     - to:
         - namespaceSelector:
