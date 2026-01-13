@@ -499,7 +499,13 @@ jobs:
           # Apply everything else
           kubectl apply -f full-manifest.yaml -n $NAMESPACE
           
-          echo "Deployment submitted."
+          echo "Waiting for deployments to roll out..."
+          kubectl rollout status deployment/web -n $NAMESPACE --timeout=10m
+          kubectl rollout status deployment/api-backend -n $NAMESPACE --timeout=10m
+          kubectl rollout status deployment/streaming-proxy -n $NAMESPACE --timeout=10m
+          kubectl rollout status deployment/cloudflared -n $NAMESPACE --timeout=10m
+          
+          echo "Deployment submitted and verified."
 
   validate_tunnel_connectivity:
     needs: deploy_application
