@@ -476,7 +476,11 @@ jobs:
           
           echo "Waiting for Postgres..."
           kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=5m || echo "Warning: Postgres rollout timed out"
-          
+
+          # Delete StatefulSets with PVC changes before applying new specs
+          kubectl delete statefulset postgres-auth -n $NAMESPACE --ignore-not-found=true
+          kubectl delete statefulset redis-tunnel-state -n $NAMESPACE --ignore-not-found=true
+
           # Apply everything else
           kubectl apply -f full-manifest.yaml -n $NAMESPACE
           
