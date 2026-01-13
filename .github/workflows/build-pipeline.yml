@@ -435,13 +435,6 @@ jobs:
             --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: Hard Reset Cluster
-        env:
-          NAMESPACE: cloudtolocalllm
-        run: |
-          chmod +x scripts/hard-reset.sh
-          ./scripts/hard-reset.sh
-
       - name: Create Cloudflare Tunnel Credentials Secret
         run: |
           # Use GitHub Secret directly
