@@ -67,11 +67,11 @@ spec:
                   key: API_DOMAIN
           resources:
             requests:
-              memory: "64Mi"
+              memory: "32Mi"
               cpu: "10m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "128Mi"
+              cpu: "250m"
           startupProbe:
             httpGet:
               path: /health

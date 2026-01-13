@@ -62,10 +62,10 @@ spec:
               mountPath: /var/lib/postgresql/data
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "100m"
+              memory: "64Mi"
+              cpu: "25m"
             limits:
-              memory: "1Gi"
+              memory: "512Mi"
               cpu: "500m"
           startupProbe:
             exec:
