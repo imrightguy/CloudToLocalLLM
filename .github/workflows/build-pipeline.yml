@@ -485,8 +485,45 @@ jobs:
           )
           for endpoint in "${endpoints[@]}"; do
             echo "Testing $endpoint..."
-            curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$endpoint" || echo "Failed"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$endpoint" || echo "Failed")
+            echo "Status: $STATUS"
+            if [ "$STATUS" != "200" ]; then
+              echo "❌ Endpoint $endpoint failed with status $STATUS"
+              exit 1
+            fi
           done
+
+  debug_cluster_state:
+    needs: deploy_application
+    if: always() && needs.ai_change_analysis.outputs.components != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          audience: sts.amazonaws.com
+      - name: Configure kubectl for EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+      - name: Get Pods and Logs
+        run: |
+          echo "=== PODS ==="
+          kubectl get pods -n cloudtolocalllm
+          
+          echo "=== WEB LOGS ==="
+          kubectl logs -n cloudtolocalllm -l app=web --tail=50 --all-containers=true || true
+          
+          echo "=== API LOGS ==="
+          kubectl logs -n cloudtolocalllm -l app=api-backend --tail=50 || true
+          
+          echo "=== TUNNEL LOGS ==="
+          kubectl logs -n cloudtolocalllm -l app=cloudflared --tail=50 || true
+          
+          echo "=== NETWORK POLICIES ==="
+          kubectl get networkpolicies -n cloudtolocalllm
 
   rollback_on_failure:
     needs: deploy_application
