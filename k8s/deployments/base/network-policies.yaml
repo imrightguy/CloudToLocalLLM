@@ -103,6 +103,22 @@ spec:
       ports:
         - protocol: TCP
           port: 3000
+    # Allow from Cloudflare Tunnel
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cloudflared
+      ports:
+        - protocol: TCP
+          port: 3000
+    # Allow from Cloudflare Tunnel
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cloudflared
+      ports:
+        - protocol: TCP
+          port: 3000
 
 ---
 # Allow web app to communicate with API backend
