@@ -470,17 +470,23 @@ jobs:
           sed -i "s|\${CLOUDFLARED_CONFIG_SHA}|$CONFIG_SHA|g" full-manifest.yaml
           
           echo "Applying manifests..."
+
+          # Clean up stateful resources to ensure PVC resizing and resource limits
+          echo "Cleaning up stateful resources..."
+          kubectl delete statefulset postgres postgres-auth redis-tunnel-state -n $NAMESPACE --ignore-not-found=true --wait=true
+          kubectl delete deployment cloudflared -n $NAMESPACE --ignore-not-found=true --wait=true
+          
+          # Delete PVCs to allow resizing to 1Gi (User confirmed no data retention)
+          kubectl delete pvc -l app=postgres -n $NAMESPACE --ignore-not-found=true
+          kubectl delete pvc -l app=postgres-auth -n $NAMESPACE --ignore-not-found=true
+          kubectl delete pvc -l app=redis-tunnel-state -n $NAMESPACE --ignore-not-found=true
           
           # Apply Postgres Statefully first
           kubectl apply -f full-manifest.yaml -l app=postgres -n $NAMESPACE
           
           echo "Waiting for Postgres..."
           kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=5m || echo "Warning: Postgres rollout timed out"
-
-          # Delete StatefulSets with PVC changes before applying new specs
-          kubectl delete statefulset postgres-auth -n $NAMESPACE --ignore-not-found=true
-          kubectl delete statefulset redis-tunnel-state -n $NAMESPACE --ignore-not-found=true
-
+          
           # Apply everything else
           kubectl apply -f full-manifest.yaml -n $NAMESPACE
           

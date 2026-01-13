@@ -13,7 +13,9 @@ metadata:
     app: cloudflared
   # Updated tunnel configuration for correct tunnel ID and service routing
 spec:
-  replicas: 2 # Increased for High Availability
+  replicas: 1 # Single replica to save resources
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: cloudflared
