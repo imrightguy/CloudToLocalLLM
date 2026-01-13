@@ -96,6 +96,11 @@ if ! kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
     kubectl create namespace "$NAMESPACE"
 fi
 
+# Cleanup stuck pods to free up resources and force RS reconciliation
+log_info "Cleaning up stuck pods..."
+kubectl delete pods --field-selector=status.phase=Pending -n $NAMESPACE --ignore-not-found=true
+kubectl delete pods --field-selector=status.phase=Failed -n $NAMESPACE --ignore-not-found=true
+
 echo "Deploying Postgres first..."
 kubectl apply -f full-manifest.yaml -l app=postgres -n $NAMESPACE --validate=false
 

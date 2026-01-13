@@ -510,6 +510,9 @@ jobs:
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
       - name: Get Pods and Logs
         run: |
+          echo "=== NODES ==="
+          kubectl describe nodes
+          
           echo "=== PODS ==="
           kubectl get pods -n cloudtolocalllm
           
