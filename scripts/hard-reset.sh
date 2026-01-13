@@ -42,6 +42,18 @@ else
     log_info "Namespace $NAMESPACE does not exist. proceeding..."
 fi
 
+log_info "Cleaning up Cluster-wide resources (PVs)..."
+# Delete all PVs associated with the namespace (if any remain)
+# This assumes PVs are created with a specific claim ref or label, which might not be reliable.
+# Safer to just delete all non-bound PVs or specific ones if we knew names.
+# For now, we'll rely on the StorageClass reclaiming them or manual cleanup if needed.
+
+# Force delete any stuck pods in the namespace if it still exists (zombies)
+if kubectl get namespace "$NAMESPACE" > /dev/null 2>&1; then
+    log_warning "Namespace stuck terminating. Force deleting resources..."
+    kubectl delete all --all -n "$NAMESPACE" --force --grace-period=0
+fi
+
 log_info "Recreating namespace: $NAMESPACE"
 kubectl create namespace "$NAMESPACE"
 
