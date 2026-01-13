@@ -69,23 +69,29 @@ jobs:
           # Infrastructure or global changes trigger all
           if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/|config/docker/Dockerfile.base|config/docker/Dockerfile.build"; then 
             COMPONENTS="api,web,postgres,streaming,linux,windows"
+            BASE_CHANGED="true"
+            API_CHANGED="true"
+            WEB_CHANGED="true"
+            POSTGRES_CHANGED="true"
+            STREAMING_CHANGED="true"
           fi
  
           # Granular Change Detection
-          BASE_CHANGED="false"
+          # BASE_CHANGED handled above or initialized
+          if [ -z "$BASE_CHANGED" ]; then BASE_CHANGED="false"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.base|config/docker/Dockerfile.build"; then BASE_CHANGED="true"; fi
  
-          API_CHANGED="false"
+          if [ -z "$API_CHANGED" ]; then API_CHANGED="false"; fi
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then API_CHANGED="true"; fi
  
-          WEB_CHANGED="false"
+          if [ -z "$WEB_CHANGED" ]; then WEB_CHANGED="false"; fi
           if echo "$DIFF_FILES" | grep -qE "web/|build/web/|config/docker/Dockerfile.web"; then WEB_CHANGED="true"; fi
  
-          POSTGRES_CHANGED="false"
+          if [ -z "$POSTGRES_CHANGED" ]; then POSTGRES_CHANGED="false"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then POSTGRES_CHANGED="true"; fi
           if [ "$BASE_CHANGED" == "true" ]; then POSTGRES_CHANGED="true"; fi
  
-          STREAMING_CHANGED="false"
+          if [ -z "$STREAMING_CHANGED" ]; then STREAMING_CHANGED="false"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then STREAMING_CHANGED="true"; fi
 
 
