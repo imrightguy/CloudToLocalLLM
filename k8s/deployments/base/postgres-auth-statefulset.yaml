@@ -95,7 +95,7 @@ spec:
         storageClassName: default
         resources:
           requests:
-            storage: 5Gi # Smaller storage for auth data only
+            storage: 1Gi # Smaller storage for auth data only
 ---
 apiVersion: v1
 kind: ConfigMap
