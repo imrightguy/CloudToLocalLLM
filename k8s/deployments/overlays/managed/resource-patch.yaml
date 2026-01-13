@@ -10,11 +10,11 @@ spec:
         - name: api-backend
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: "64Mi"
+              cpu: "25m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "256Mi"
+              cpu: "200m"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,11 +28,11 @@ spec:
         - name: web
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: "32Mi"
+              cpu: "10m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "128Mi"
+              cpu: "250m"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,8 +46,8 @@ spec:
         - name: streaming-proxy
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "50m"
+              memory: "64Mi"
+              cpu: "25m"
             limits:
               memory: "512Mi"
               cpu: "500m"

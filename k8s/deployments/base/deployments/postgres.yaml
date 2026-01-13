@@ -60,6 +60,7 @@ spec:
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
+              subPath: postgres-data
           resources:
             requests:
               memory: "64Mi"
@@ -100,3 +101,12 @@ spec:
       volumes:
         - name: postgres-data
           emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: default
+        resources:
+          requests:
+            storage: 1Gi
