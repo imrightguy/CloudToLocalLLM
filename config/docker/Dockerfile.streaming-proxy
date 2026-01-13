@@ -1,111 +1,46 @@
-# Simplified container for tunnel-aware applications
-# Uses standard HTTP libraries to communicate through tunnel proxy
+# ============================================================================
+# Runtime Dockerfile for CloudToLocalLLM Streaming Proxy
+# Uses artifacts from the Universal Builder
+# ============================================================================
 
+# Use custom base image
 ARG BASE_REGISTRY=cloudtolocalllm
 FROM ${BASE_REGISTRY}/base:latest
 
-# Switch to root to install dependencies
+# Switch to root to ensure directory setup
 USER root
 
-# Install curl for health checks
-RUN apt-get update && \
-  apt-get install -y curl && \
-  rm -rf /var/lib/apt/lists/*
+# Ensure Node.js and npm are installed (fallback if base image is missing them)
+RUN if ! command -v npm &> /dev/null; then \
+    apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get install -y nodejs; \
+    fi
 
-# Set working directory
+# Create app directory
 WORKDIR /app
+RUN chown cloudtolocalllm:cloudtolocalllm /app
 
-# Create simple HTTP client script for testing tunnel connectivity
-COPY <<'EOF' test-tunnel.js
-const http = require('http');
-const https = require('https');
-
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-const USER_ID = process.env.USER_ID;
-
-console.log(`Testing tunnel connectivity for user: ${USER_ID}`);
-console.log(`OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}`);
-
-// Simple health check request
-const url = new URL('/api/tags', OLLAMA_BASE_URL);
-const client = url.protocol === 'https:' ? https : http;
-
-const req = client.request(url, {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
-    'User-Agent': 'CloudToLocalLLM-Container/1.0'
-  }
-}, (res) => {
-  console.log(`Response status: ${res.statusCode}`);
-  console.log(`Response headers:`, res.headers);
-  
-  let data = '';
-  res.on('data', chunk => data += chunk);
-  res.on('end', () => {
-    console.log('Response body:', data);
-    process.exit(res.statusCode === 200 ? 0 : 1);
-  });
-});
-
-req.on('error', (error) => {
-  console.error('Request failed:', error.message);
-  process.exit(1);
-});
-
-req.setTimeout(30000, () => {
-  console.error('Request timeout');
-  req.destroy();
-  process.exit(1);
-});
-
-req.end();
-EOF
-
-# Create health check script
-COPY <<'EOF' health-check.js
-const http = require('http');
-
-// Simple health check that verifies container is running
-const server = http.createServer((req, res) => {
-  if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({
-      status: 'healthy',
-      userId: process.env.USER_ID,
-      ollamaBaseUrl: process.env.OLLAMA_BASE_URL,
-      timestamp: new Date().toISOString()
-    }));
-  } else {
-    res.writeHead(404);
-    res.end('Not found');
-  }
-});
-
-const port = process.env.HEALTH_PORT || 8080;
-server.listen(port, () => {
-  console.log(`Health check server listening on port ${port}`);
-});
-EOF
-
-# Security: Set proper ownership
-RUN chown -R cloudtolocalllm:cloudtolocalllm /app && \
-  chmod +x /app/*.js
-
-# Health check for container monitoring
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
-
-# Security: Switch to non-root user (from base)
+# Switch to non-root user
 USER cloudtolocalllm
 
-# Expose health check port
-EXPOSE 8080
+# Copy package files
+COPY --chown=cloudtolocalllm:cloudtolocalllm services/streaming-proxy/package*.json ./
 
-# Environment variables for tunnel configuration
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY --chown=cloudtolocalllm:cloudtolocalllm services/streaming-proxy/ .
+
+# Build TypeScript
+RUN npm run build
+
+# Set environment variables
 ENV NODE_ENV=production
-ENV HEALTH_PORT=8080
-ENV LOG_LEVEL=info
+ENV PORT=3001
 
-# Start health check server by default
-CMD ["node", "health-check.js"]
+EXPOSE 3001
+
+# Start the actual server (compiled JS)
+CMD [ "node", "dist/server.js" ]

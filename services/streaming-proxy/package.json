@@ -9,6 +9,7 @@
     "health": "node health-check.js",
     "test-tunnel": "node test-tunnel.js",
     "dev": "node --inspect proxy-server.js",
+    "build": "tsc",
     "test": "echo \"No tests specified\" && exit 0",
     "lint": "eslint .",
     "format": "eslint . --fix"

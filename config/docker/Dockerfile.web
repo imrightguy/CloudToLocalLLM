@@ -1,22 +1,20 @@
 # ============================================================================
 # Multi-stage Dockerfile for CloudToLocalLLM Web Application
 # Stage 1: Build Flutter web application (using pre-built Flutter image)
-# Stage 2: Serve with nginx (non-root)
+# Stage 2: Serve with nginx (on Ubuntu base)
 # ============================================================================
 
 # ---- Stage 1: Build Flutter Web App ----
 FROM ghcr.io/cirruslabs/flutter:stable AS builder
 
 # Fix Flutter SDK ownership and permissions (must be done as root)
-# Cirrus containers have Flutter SDK at /sdks/flutter, owned by root
-# We need to give the non-root user (UID 1000) access to write to cache
 RUN chown -R 1000:1000 /sdks/flutter && \
     chmod -R u+w /sdks/flutter
 
-# Fix Git safe directory (Flutter SDK uses Git internally) - done as root for global config
+# Fix Git safe directory
 RUN git config --global --add safe.directory /sdks/flutter
 
-# Create app directory and fix ownership (must be done as root)
+# Create app directory and fix ownership
 WORKDIR /app
 RUN mkdir -p /app && \
     chown -R 1000:1000 /app
@@ -28,48 +26,46 @@ USER 1000
 ARG BUILD_SHA
 ENV BUILD_SHA=${BUILD_SHA}
 
-# Force cache invalidation when BUILD_SHA changes
-RUN echo "Building from commit: ${BUILD_SHA}"
-
 # Copy source code from build context
 COPY --chown=1000:1000 . .
 
-# Clean previous build artifacts to ensure fresh build
+# Clean previous build artifacts
 RUN flutter clean
 
-# Get dependencies (Flutter will create .dart_tool and other cache dirs)
+# Get dependencies
 RUN flutter pub get
 
-# Verify web/index.html exists and show its content for debugging
-RUN echo "Checking web/index.html..." && \
-    if [ -f web/index.html ]; then \
-      echo "✓ web/index.html found" && \
-      grep -i "service worker" web/index.html | head -5 || echo "No service worker text found"; \
-    else \
-      echo "✗ web/index.html NOT FOUND"; \
-      exit 1; \
-    fi
+# Build Flutter web app
+RUN flutter build web --release
 
-# Build Flutter web app (default renderer)
-RUN echo "Building Flutter web app..." && \
-    flutter build web --release && \
-    echo "Flutter web build completed successfully" && \
-    ls -la build/web/ | head -20
+# ---- Stage 2: Serve with Nginx (Ubuntu Base) ----
+ARG BASE_REGISTRY=cloudtolocalllm
+FROM ${BASE_REGISTRY}/base:latest
 
-# ---- Stage 2: Serve with Nginx (non-root) ----
-FROM nginxinc/nginx-unprivileged:alpine
+USER root
+
+# Install Nginx
+RUN apt-get update && \
+    apt-get install -y nginx && \
+    rm -rf /var/lib/apt/lists/* && \
+    chown -R cloudtolocalllm:cloudtolocalllm /var/www/html && \
+    chown -R cloudtolocalllm:cloudtolocalllm /var/log/nginx && \
+    chown -R cloudtolocalllm:cloudtolocalllm /var/lib/nginx && \
+    chown -R cloudtolocalllm:cloudtolocalllm /etc/nginx/conf.d
 
 # Copy custom nginx configuration
 COPY config/docker/nginx-web.conf /etc/nginx/conf.d/default.conf
 
 # Copy built Flutter web app from builder stage
-COPY --from=builder --chown=nginx:nginx /app/build/web /usr/share/nginx/html
+COPY --from=builder --chown=cloudtolocalllm:cloudtolocalllm /app/build/web /var/www/html
 
-# Verify the web app was copied correctly
-RUN echo "Verifying web app installation..." && \
-    ls -la /usr/share/nginx/html/ && \
-    if [ ! -f /usr/share/nginx/html/index.html ]; then \
-      echo "ERROR: index.html not found in web app directory"; \
-      exit 1; \
-    fi && \
-    echo "Web app verified successfully"
+# Forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+    && ln -sf /dev/stderr /var/log/nginx/error.log
+
+# Switch to non-root user
+USER cloudtolocalllm
+
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]

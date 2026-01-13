@@ -45,9 +45,7 @@ services:
 
   # API Backend (WebSocket Tunnel + REST API)
   api-backend:
-    build:
-      context: .
-      dockerfile: services/api-backend/Dockerfile.prod
+    image: ghcr.io/cloudtolocalllm/api:latest
     container_name: cloudtolocalllm-api-backend
     restart: unless-stopped
     environment:
@@ -102,9 +100,7 @@ services:
 
   # Streaming Proxy (WebSocket Tunnel)
   streaming-proxy:
-    build:
-      context: services/streaming-proxy
-      dockerfile: Dockerfile
+    image: ghcr.io/cloudtolocalllm/streaming:latest
     container_name: cloudtolocalllm-streaming-proxy
     restart: unless-stopped
     environment:
@@ -124,9 +120,7 @@ services:
 
   # Web Application (Flutter + Nginx)
   web:
-    build:
-      context: .
-      dockerfile: config/docker/Dockerfile.web
+    image: ghcr.io/cloudtolocalllm/web:latest
     container_name: cloudtolocalllm-web
     restart: unless-stopped
     networks:
