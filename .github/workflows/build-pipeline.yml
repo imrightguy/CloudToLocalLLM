@@ -435,9 +435,12 @@ jobs:
             --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
             --region ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: Create Namespace
+      - name: Hard Reset Cluster
+        env:
+          NAMESPACE: cloudtolocalllm
         run: |
-          kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+          chmod +x scripts/hard-reset.sh
+          ./scripts/hard-reset.sh
 
       - name: Create Cloudflare Tunnel Credentials Secret
         run: |
@@ -456,7 +459,7 @@ jobs:
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
-      - name: Deploy to Cluster (Postgres First)
+      - name: Deploy to Cluster (Clean & Direct)
         env:
           ENVIRONMENT: managed
           NAMESPACE: cloudtolocalllm
@@ -465,9 +468,38 @@ jobs:
           STREAMING_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           POSTGRES_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
         run: |
-          mkdir -p k8s/overlays
-          chmod +x scripts/deploy-in-cluster.sh
-          ./scripts/deploy-in-cluster.sh
+          echo "Generating manifests for $ENVIRONMENT..."
+          
+          # Setup Kustomize
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+          
+          # Build Manifests
+          kustomize build --load-restrictor LoadRestrictionsNone k8s/deployments/overlays/$ENVIRONMENT > full-manifest.yaml
+          
+          # Inject Images & Config
+          sed -i "s|cloudtolocalllm/web:latest|$WEB_IMAGE|g" full-manifest.yaml
+          sed -i "s|cloudtolocalllm/api-backend:latest|$API_IMAGE|g" full-manifest.yaml
+          sed -i "s|cloudtolocalllm/streaming-proxy:latest|$STREAMING_IMAGE|g" full-manifest.yaml
+          sed -i "s|cloudtolocalllm/postgres:latest|$POSTGRES_IMAGE|g" full-manifest.yaml
+          
+          TUNNEL_ID="62da6c19-947b-4bf6-acad-100a73de4e0d"
+          CONFIG_SHA="sha-$(date +%s)"
+          sed -i "s|\${CLOUDFLARE_TUNNEL_ID}|$TUNNEL_ID|g" full-manifest.yaml
+          sed -i "s|\${CLOUDFLARED_CONFIG_SHA}|$CONFIG_SHA|g" full-manifest.yaml
+          
+          echo "Applying manifests..."
+          
+          # Apply Postgres Statefully first
+          kubectl apply -f full-manifest.yaml -l app=postgres -n $NAMESPACE
+          
+          echo "Waiting for Postgres..."
+          kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=5m || echo "Warning: Postgres rollout timed out"
+          
+          # Apply everything else
+          kubectl apply -f full-manifest.yaml -n $NAMESPACE
+          
+          echo "Deployment submitted."
 
   validate_tunnel_connectivity:
     needs: deploy_application
