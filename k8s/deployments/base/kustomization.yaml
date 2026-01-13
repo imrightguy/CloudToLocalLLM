@@ -18,10 +18,10 @@ resources:
   - deployments/streaming-proxy-secret.yaml
   - configmaps/streaming-proxy-configmap.yaml
   - jobs/cloudflare-purge-job.yaml
-  - alertmanager-config.yaml
-  - prometheus-config.yaml
-  - utilities/monitoring.yaml
-  - utilities/blackbox-exporter.yaml
+  # - alertmanager-config.yaml
+  # - prometheus-config.yaml
+  # - utilities/monitoring.yaml
+  # - utilities/blackbox-exporter.yaml
   - utilities/coturn.yaml
   # - utilities/streaming-proxy-servicemonitor.yaml  # Requires Prometheus Operator CRDs
   - postgres-auth-statefulset.yaml
