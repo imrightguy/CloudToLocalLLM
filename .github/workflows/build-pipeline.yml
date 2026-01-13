@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force build of all containers'
+        required: false
+        default: false
+        type: boolean
   # repository_dispatch disabled to prevent redundant builds
   # repository_dispatch:
   #   types: [orchestrator-build]
@@ -75,6 +81,17 @@ jobs:
             POSTGRES_CHANGED="true"
             STREAMING_CHANGED="true"
           fi
+
+          # Manual Force Build Override
+          if [ "${{ inputs.force_build }}" == "true" ]; then
+            echo "MANUAL FORCE BUILD DETECTED"
+            COMPONENTS="api,web,postgres,streaming,linux,windows"
+            BASE_CHANGED="true"
+            API_CHANGED="true"
+            WEB_CHANGED="true"
+            POSTGRES_CHANGED="true"
+            STREAMING_CHANGED="true"
+          fi
  
           # Granular Change Detection
           # BASE_CHANGED handled above or initialized
@@ -118,29 +135,29 @@ jobs:
           }
 
           BASE_NEEDS_BUILD="$BASE_CHANGED"
-          if [ "$BASE_CHANGED" == "true" ]; then
+          if [ "$BASE_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ]; then
             if check_ghcr_tag "base" "$GITHUB_SHA" && check_ghcr_tag "build" "$GITHUB_SHA"; then
               BASE_NEEDS_BUILD="false"
             fi
           fi
-
+ 
           API_NEEDS_BUILD="$API_CHANGED"
-          if [ "$API_CHANGED" == "true" ] && check_ghcr_tag "api" "$GITHUB_SHA"; then
+          if [ "$API_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "api" "$GITHUB_SHA"; then
             API_NEEDS_BUILD="false"
           fi
-
+ 
           WEB_NEEDS_BUILD="$WEB_CHANGED"
-          if [ "$WEB_CHANGED" == "true" ] && check_ghcr_tag "web" "$GITHUB_SHA"; then
+          if [ "$WEB_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "web" "$GITHUB_SHA"; then
             WEB_NEEDS_BUILD="false"
           fi
-
+ 
           POSTGRES_NEEDS_BUILD="$POSTGRES_CHANGED"
-          if [ "$POSTGRES_CHANGED" == "true" ] && check_ghcr_tag "postgres" "$GITHUB_SHA"; then
+          if [ "$POSTGRES_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "postgres" "$GITHUB_SHA"; then
             POSTGRES_NEEDS_BUILD="false"
           fi
-
+ 
           STREAMING_NEEDS_BUILD="$STREAMING_CHANGED"
-          if [ "$STREAMING_CHANGED" == "true" ] && check_ghcr_tag "streaming" "$GITHUB_SHA"; then
+          if [ "$STREAMING_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "streaming" "$GITHUB_SHA"; then
             STREAMING_NEEDS_BUILD="false"
           fi
  
