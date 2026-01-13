@@ -1,4 +1,4 @@
-name: "🚀 Build Pipeline"
+name: "🚀 Deployment"
 
 on:
   push:
@@ -397,39 +397,6 @@ jobs:
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:${GITHUB_SHA}
 
-  build_linux:
-    needs: ai_change_analysis
-    if: false # contains(needs.ai_change_analysis.outputs.components, 'linux')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Linux Desktop
-        run: |
-          echo "Building Linux app..."
-
-  build_windows:
-    needs: ai_change_analysis
-    if: false # contains(needs.ai_change_analysis.outputs.components, 'windows')
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Windows Desktop
-        run: |
-          echo "Building Windows app..."
-
-  create_github_release:
-    needs: [build_linux, build_windows]
-    if: false # needs.ai_change_analysis.outputs.bump_needed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Create Production Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          NEW_VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
-          gh release create "v$NEW_VERSION" --title "Release v$NEW_VERSION" --notes "Automated release by Orchestrator"
-
   deploy_application:
     needs:
       [
@@ -437,8 +404,6 @@ jobs:
         build_web,
         build_postgres,
         build_streaming,
-        build_linux,
-        build_windows,
       ]
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
@@ -676,7 +641,6 @@ jobs:
         deploy_application,
         validate_tunnel_connectivity,
         cloudflared_health_check,
-        create_github_release,
       ]
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
@@ -690,13 +654,11 @@ jobs:
           deploy_status="${{ needs.deploy_application.result }}"
           tunnel_status="${{ needs.validate_tunnel_connectivity.result }}"
           cloudflare_status="${{ needs.cloudflared_health_check.result }}"
-          release_status="${{ needs.create_github_release.result }}"
 
           echo "Analysis: $orchestrator_status"
           echo "Deployment: $deploy_status"
           echo "Tunnel: $tunnel_status"
           echo "Cloudflare: $cloudflare_status"
-          echo "Release: $release_status"
 
           # Simple Success Logic
           if [ "$deploy_status" = "success" ]; then
