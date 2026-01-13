@@ -24,4 +24,3 @@ resources:
   # - utilities/blackbox-exporter.yaml
   - utilities/coturn.yaml
   # - utilities/streaming-proxy-servicemonitor.yaml  # Requires Prometheus Operator CRDs
-  - postgres-auth-statefulset.yaml

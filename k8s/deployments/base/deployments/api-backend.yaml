@@ -103,10 +103,7 @@ spec:
                   name: cloudtolocalllm-secrets
                   key: postgres-user
             - name: AUTH_DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: cloudtolocalllm-config
-                  key: AUTH_DB_HOST
+              value: "postgres"
             - name: AUTH_DB_PORT
               valueFrom:
                 configMapKeyRef:
@@ -268,10 +265,7 @@ spec:
                   name: cloudtolocalllm-secrets
                   key: postgres-user
             - name: AUTH_DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: cloudtolocalllm-config
-                  key: AUTH_DB_HOST
+              value: "postgres"
             - name: AUTH_DB_PORT
               valueFrom:
                 configMapKeyRef:

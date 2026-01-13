@@ -41,14 +41,6 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres-auth
-  namespace: cloudtolocalllm
-spec:
-  replicas: 1
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
   name: redis-tunnel-state
   namespace: cloudtolocalllm
 spec:

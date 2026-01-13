@@ -6,7 +6,6 @@ resources:
   - ../../base/deployments/api-backend.yaml
   - ../../base/deployments/streaming-proxy.yaml
   - ../../base/deployments/postgres.yaml
-  - ../../base/postgres-auth-statefulset.yaml
   - ../../base/deployments/redis.yaml
   - ../../base/services/web.yaml
   - ../../base/services/api-backend.yaml
