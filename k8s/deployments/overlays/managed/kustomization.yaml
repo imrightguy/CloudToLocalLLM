@@ -18,6 +18,7 @@ resources:
   # - ../../base/secrets/acr-credentials.yaml # Secrets are managed externally/manually usually
   - ../../base/network-policies.yaml
   - ../../base/cloudflared-egress.yaml
+  - ../../base/rbac.yaml
   - cloudflared-tunnel.yaml
 
 patches:
