@@ -300,14 +300,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
-      - name: Build Web Frontend
+      
+      - name: Setup Flutter
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Build Flutter Web
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         run: |
-          if [ -f "web/package.json" ]; then
-            docker build -t cloudtolocalllm-web:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} ./web
-          else
-            echo "No package.json found in web directory. Skipping build."
-          fi
+          flutter config --no-analytics
+          flutter pub get
+          flutter build web --release --no-tree-shake-icons
+      
+      - name: Build Web Container
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
+        run: |
+          docker build -t cloudtolocalllm-web:latest --build-arg BASE_REGISTRY=ghcr.io/${{ env.REPO_LOWER }} -f config/docker/Dockerfile.web .
 
       - name: Downcase Repo Name
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
@@ -323,7 +333,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Web Image
-        if: needs.ai_change_analysis.outputs.web_needs_build == 'true' && hashFiles('web/package.json') != ''
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         run: |
           docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:latest
           docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:${GITHUB_SHA}
