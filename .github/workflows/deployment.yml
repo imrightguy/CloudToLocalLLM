@@ -446,6 +446,34 @@ jobs:
             --namespace=cloudtolocalllm \
             --dry-run=client -o yaml | kubectl apply -f - --validate=false
 
+      - name: Create Application Secrets
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'postgres' }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
+          POSTGRES_AUTH_PASSWORD: ${{ secrets.POSTGRES_AUTH_PASSWORD || 'postgres' }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'default-jwt-secret' }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN || '' }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE || '' }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID || '' }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET || '' }}
+          STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY || '' }}
+          STRIPE_TEST_PUBLISHABLE_KEY: ${{ secrets.STRIPE_TEST_PUBLISHABLE_KEY || '' }}
+          STRIPE_TEST_WEBHOOK_SECRET: ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET || '' }}
+          STRIPE_LIVE_SECRET_KEY: ${{ secrets.STRIPE_LIVE_SECRET_KEY || '' }}
+          STRIPE_LIVE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_LIVE_PUBLISHABLE_KEY || '' }}
+          STRIPE_LIVE_WEBHOOK_SECRET: ${{ secrets.STRIPE_LIVE_WEBHOOK_SECRET || '' }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN || '' }}
+        run: |
+          # Process secrets.yaml template with envsubst
+          # Use a temporary file to avoid piping issues and ensure clean content
+          envsubst < k8s/secrets.yaml > k8s/secrets.processed.yaml
+          
+          # Apply the processed secret to the cluster
+          kubectl apply -f k8s/secrets.processed.yaml -n cloudtolocalllm
+          
+          # Clean up
+          rm k8s/secrets.processed.yaml
+
       - name: Downcase Repo Name
         run: |
           echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
