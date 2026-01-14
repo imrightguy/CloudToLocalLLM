@@ -475,7 +475,10 @@ jobs:
           echo "Cleaning up stateful resources..."
           # Explicitly delete postgres-auth (zombie) and others
           kubectl delete statefulset postgres postgres-auth redis-tunnel-state -n $NAMESPACE --ignore-not-found=true --wait=true
-          kubectl delete deployment cloudflared -n $NAMESPACE --ignore-not-found=true --wait=true
+          kubectl delete deployment cloudflared api-backend web streaming-proxy -n $NAMESPACE --ignore-not-found=true --wait=true
+          
+          # Force delete any stuck pods to clear the node
+          kubectl delete pods --all -n $NAMESPACE --force --grace-period=0 --ignore-not-found=true
           
           # Delete PVCs to allow resizing to 1Gi (User confirmed no data retention)
           kubectl delete pvc -l app=postgres -n $NAMESPACE --ignore-not-found=true
@@ -488,6 +491,13 @@ jobs:
           echo "Waiting for Postgres..."
           if ! kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=5m; then
             echo "❌ Postgres rollout failed! Aborting deployment."
+            echo "=== POSTGRES STATUS ==="
+            kubectl get statefulset postgres -n $NAMESPACE -o yaml
+            kubectl describe statefulset postgres -n $NAMESPACE
+            echo "=== PODS ==="
+            kubectl get pods -n $NAMESPACE
+            echo "=== EVENTS ==="
+            kubectl get events -n $NAMESPACE --sort-by='.metadata.creationTimestamp'
             exit 1
           fi
           
