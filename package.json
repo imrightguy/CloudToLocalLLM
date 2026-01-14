@@ -18,7 +18,7 @@
     "@modelcontextprotocol/sdk": "^1.24.3",
     "@playwright/test": "^1.56.1",
     "dotenv": "^16.3.1",
-    "zod": "^3.23.8"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "fast-check": "^4.3.0",
