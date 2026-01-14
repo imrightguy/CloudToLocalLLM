@@ -486,7 +486,10 @@ jobs:
           kubectl apply -f full-manifest.yaml -l app=postgres -n $NAMESPACE
           
           echo "Waiting for Postgres..."
-          kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=5m || echo "Warning: Postgres rollout timed out"
+          if ! kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=5m; then
+            echo "❌ Postgres rollout failed! Aborting deployment."
+            exit 1
+          fi
           
           # Apply everything else
           kubectl apply -f full-manifest.yaml -n $NAMESPACE
