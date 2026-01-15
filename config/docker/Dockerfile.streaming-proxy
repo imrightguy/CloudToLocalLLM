@@ -17,15 +17,14 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-RUN addgroup -g 1000 -S nodejs && \
-    adduser -S -D -H -u 1000 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
-
 COPY services/streaming-proxy/package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
-USER nodejs
+RUN chown -R node:node /app
+
+USER node
 
 ENV NODE_ENV=production
 ENV PORT=3001
