@@ -1,42 +1,36 @@
 # ============================================================================
 # Runtime Dockerfile for CloudToLocalLLM API Backend
-# Uses artifacts from the Universal Builder
+# Uses standard Node.js Alpine images
 # ============================================================================
 
-# Use custom base image
-ARG BASE_REGISTRY=cloudtolocalllm
-FROM ${BASE_REGISTRY}/base:latest
+FROM node:24-alpine AS builder
 
-# Switch to root to ensure directory setup
-USER root
+WORKDIR /app
 
-# Ensure Node.js and npm are installed (fallback if base image is missing them)
-RUN if ! command -v npm &> /dev/null; then \
-    apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    apt-get install -y nodejs; \
-    fi
+COPY services/api-backend/package*.json ./
+RUN apk add --no-cache python3 make g++
+RUN npm ci --omit=dev
 
-# Create isolated data directories
-WORKDIR /api
-RUN mkdir -p /api/data /api/logs && \
-    chown -R cloudtolocalllm:cloudtolocalllm /api
+COPY services/api-backend/ ./
 
-# Copy package files and install production dependencies
-COPY --chown=cloudtolocalllm:cloudtolocalllm services/api-backend/package*.json ./
-RUN npm install --omit=dev
+FROM node:24-alpine
 
-# Copy application source
-COPY --chown=cloudtolocalllm:cloudtolocalllm services/api-backend/ .
+RUN apk add --no-cache curl
 
-# Switch to non-root user
-USER cloudtolocalllm
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
 
-# Set environment variables
-ENV LOG_DIR=/api/logs
-ENV DB_PATH=/api/data/cloudtolocalllm.db
-ENV SSH_PORT=2222
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app ./
+
+RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app
+
+USER nodejs
+
+ENV LOG_DIR=/app/logs
 
 EXPOSE 3000
-EXPOSE 8080
-CMD [ "npm", "start" ]
+
+CMD ["npm", "start"]

@@ -1,39 +1,35 @@
 # ============================================================================
 # Runtime Dockerfile for CloudToLocalLLM Streaming Proxy
-# Uses artifacts from the Universal Builder
+# Uses standard Node.js Alpine images
 # ============================================================================
 
-# Use custom Fedora base (cloudtolocalllm/base:latest)
-FROM cloudtolocalllm/base:latest
-
-# Switch to root to install Node.js
-USER root
-# Install NVM and Node.js 24
-# We need to install as the cloudtolocalllm user to match the builder
-USER cloudtolocalllm
-ENV NVM_DIR=/home/cloudtolocalllm/.nvm
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
-    . "$NVM_DIR/nvm.sh" && \
-    nvm install 24 && \
-    nvm alias default 24 && \
-    nvm use default && \
-    ln -s $(dirname $(nvm which default)) /home/cloudtolocalllm/node-bin
-
-# Add Node.js to PATH
-ENV PATH="/home/cloudtolocalllm/node-bin:$PATH"
-
-# Switch back to root for directory setup if needed, but we are already cloudtolocalllm below
-USER root
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Copy artifacts (node_modules + code) from local filesystem
-# Ensure ownership by cloudtolocalllm
-COPY --chown=cloudtolocalllm:cloudtolocalllm services/streaming-proxy/node_modules ./node_modules
-COPY --chown=cloudtolocalllm:cloudtolocalllm services/streaming-proxy/ .
+COPY package*.json ./
+RUN npm ci
 
-# Switch to non-root user
-USER cloudtolocalllm
+COPY . ./
+RUN npm run build
 
-EXPOSE 8081
-CMD [ "node", "dist/main.js" ]
+FROM node:24-alpine
+
+WORKDIR /app
+
+RUN addgroup -g 1000 -S nodejs && \
+    adduser -S -D -H -u 1000 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+USER nodejs
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+EXPOSE 3001
+
+CMD ["node", "dist/server.js"]

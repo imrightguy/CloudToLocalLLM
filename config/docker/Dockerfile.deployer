@@ -2,30 +2,27 @@
 # Deployer Dockerfile for CloudToLocalLLM
 # Contains kubectl, kustomize, and psql for in-cluster deployment tasks
 # ============================================================================
-FROM cloudtolocalllm/base:latest
+FROM alpine:3.20
 
 USER root
 
-# Install kubectl
+RUN apk add --no-cache bash ca-certificates curl git openssl postgresql-client
+
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl
 
-# Install kustomize
 RUN curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && \
     mv kustomize /usr/local/bin/
 
-# Install PostgreSQL client (psql)
-RUN dnf -y install postgresql && \
-    dnf clean all
+RUN addgroup -g 1000 -S deployer && \
+    adduser -S -D -H -u 1000 -h /app -s /bin/sh -G deployer deployer
 
-# Switch back to non-root user
-USER cloudtolocalllm
 WORKDIR /app
 
-# Copy scripts and manifests
-COPY --chown=cloudtolocalllm:cloudtolocalllm k8s/ k8s/
-COPY --chown=cloudtolocalllm:cloudtolocalllm scripts/ scripts/
+COPY --chown=deployer:deployer k8s/ k8s/
+COPY --chown=deployer:deployer scripts/ scripts/
 
-# Ensure script is executable (fix for Windows creation)
 RUN chmod +x scripts/deploy-in-cluster.sh
+
+USER deployer

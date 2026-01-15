@@ -1,31 +1,29 @@
-ARG BASE_REGISTRY=cloudtolocalllm
-FROM ${BASE_REGISTRY}/base:latest
+FROM node:24-alpine AS builder
 
-# Switch to root to install dependencies
-USER root
+WORKDIR /app
 
-# Install deps using files in the build context (services/api-backend as context)
 COPY package*.json ./
-# Build tools for native modules (sqlite3) - with robust retry for network issues
-RUN apt-get update && \
-    (apt-get install -y python3 make g++ || \
-    (echo "First attempt failed, retrying with --fix-missing..." && sleep 10 && apt-get update && apt-get install -y python3 make g++ --fix-missing) || \
-    (echo "Second attempt failed, trying with different mirror..." && sleep 15 && sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && apt-get update && apt-get install -y python3 make g++ --fix-missing)) && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache python3 make g++
+RUN npm ci --omit=dev
 
-RUN npm ci --omit=dev --ignore-scripts && npm rebuild sqlite3 && npm cache clean --force
+COPY . ./
 
-# Copy application source
-COPY . .
+FROM node:24-alpine
 
-# Fix ownership for cloudtolocalllm user and ensure logs dir exists
-RUN mkdir -p /app/logs && chown -R cloudtolocalllm:cloudtolocalllm /app
+RUN apk add --no-cache curl
 
-# Health port
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app ./
+
+RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app
+
+USER nodejs
+
 EXPOSE 3000
 
-# Run as non-root
-USER cloudtolocalllm
-
-# Start with npm script to ensure proper environment
 CMD ["npm", "start"]

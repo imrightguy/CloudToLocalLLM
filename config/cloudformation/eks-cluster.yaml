@@ -18,8 +18,9 @@ Parameters:
   
   NodeInstanceType:
     Type: String
-    Default: t3.small
+    Default: t3.micro
     AllowedValues:
+      - t3.micro
       - t3.small
       - t3.medium
       - t3.large
@@ -28,23 +29,23 @@ Parameters:
   
   DesiredNodeCount:
     Type: Number
-    Default: 2
+    Default: 1
     MinValue: 1
-    MaxValue: 10
+    MaxValue: 1
     Description: Desired number of nodes in the cluster
   
   MinNodeCount:
     Type: Number
     Default: 1
     MinValue: 1
-    MaxValue: 5
+    MaxValue: 1
     Description: Minimum number of nodes
   
   MaxNodeCount:
     Type: Number
-    Default: 5
-    MinValue: 2
-    MaxValue: 20
+    Default: 1
+    MinValue: 1
+    MaxValue: 1
     Description: Maximum number of nodes
   
   EKSServiceRoleArn:
@@ -116,82 +117,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/eks/${ClusterName}/cluster'
-      RetentionInDays: 30
-
-  # Network Load Balancer for Ingress
-  NetworkLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties:
-      Name: !Sub '${ClusterName}-nlb'
-      Type: network
-      Scheme: internet-facing
-      IpAddressType: ipv4
-      Subnets: !Ref PrivateSubnetIds
-      Tags:
-        - Key: Name
-          Value: !Sub '${ClusterName}-nlb'
-        - Key: Environment
-          Value: production
-
-  # Target Group for HTTP
-  HTTPTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub '${ClusterName}-http-tg'
-      Port: 80
-      Protocol: TCP
-      VpcId: !Ref VPCId
-      TargetType: ip
-      HealthCheckEnabled: true
-      HealthCheckProtocol: TCP
-      HealthCheckPort: '80'
-      HealthCheckIntervalSeconds: 30
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-      Tags:
-        - Key: Name
-          Value: !Sub '${ClusterName}-http-tg'
-
-  # Target Group for HTTPS
-  HTTPSTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties:
-      Name: !Sub '${ClusterName}-https-tg'
-      Port: 443
-      Protocol: TCP
-      VpcId: !Ref VPCId
-      TargetType: ip
-      HealthCheckEnabled: true
-      HealthCheckProtocol: TCP
-      HealthCheckPort: '443'
-      HealthCheckIntervalSeconds: 30
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
-      Tags:
-        - Key: Name
-          Value: !Sub '${ClusterName}-https-tg'
-
-  # Listener for HTTP
-  HTTPListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !GetAtt NetworkLoadBalancer.LoadBalancerArn
-      Port: 80
-      Protocol: TCP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !GetAtt HTTPTargetGroup.TargetGroupArn
-
-  # Listener for HTTPS
-  HTTPSListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !GetAtt NetworkLoadBalancer.LoadBalancerArn
-      Port: 443
-      Protocol: TCP
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !GetAtt HTTPSTargetGroup.TargetGroupArn
+      RetentionInDays: 7
 
   # CloudWatch Alarms for Cluster Health
   UnhealthyNodeCountAlarm:
@@ -255,30 +181,6 @@ Outputs:
     Value: !Ref NodeGroup
     Export:
       Name: !Sub '${ClusterName}-node-group-id'
-
-  LoadBalancerDNS:
-    Description: Network Load Balancer DNS Name
-    Value: !GetAtt NetworkLoadBalancer.DNSName
-    Export:
-      Name: !Sub '${ClusterName}-nlb-dns'
-
-  LoadBalancerArn:
-    Description: Network Load Balancer ARN
-    Value: !GetAtt NetworkLoadBalancer.LoadBalancerArn
-    Export:
-      Name: !Sub '${ClusterName}-nlb-arn'
-
-  HTTPTargetGroupArn:
-    Description: HTTP Target Group ARN
-    Value: !GetAtt HTTPTargetGroup.TargetGroupArn
-    Export:
-      Name: !Sub '${ClusterName}-http-tg-arn'
-
-  HTTPSTargetGroupArn:
-    Description: HTTPS Target Group ARN
-    Value: !GetAtt HTTPSTargetGroup.TargetGroupArn
-    Export:
-      Name: !Sub '${ClusterName}-https-tg-arn'
 
   ClusterLogGroupName:
     Description: CloudWatch Log Group for Cluster Logs

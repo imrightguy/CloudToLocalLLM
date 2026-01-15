@@ -17,13 +17,9 @@
         "clusterLogging": [
             {
                 "types": [
-                    "api",
-                    "audit",
-                    "authenticator",
-                    "controllerManager",
-                    "scheduler"
+                    "api"
                 ],
-                "enabled": true
+                "enabled": false
             }
         ]
     }

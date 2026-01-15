@@ -1,36 +1,20 @@
-# ============================================================================
+# ==========================================================================
 # Custom Postgres Image for CloudToLocalLLM
-# Based on cloudtolocalllm/base:latest (Fedora)
-# ============================================================================
-ARG BASE_REGISTRY=cloudtolocalllm
-FROM ${BASE_REGISTRY}/base:latest
+# Based on the standard Postgres Alpine image
+# ==========================================================================
+FROM postgres:16-alpine
 
-# Install PostgreSQL
 USER root
-# Ubuntu/Debian uses 'postgresql' instead of 'postgresql-server'
-RUN apt-get update && \
-    apt-get install -y postgresql postgresql-contrib findutils bash && \
-    rm -rf /var/lib/apt/lists/*
 
-# Add PostgreSQL binaries to PATH (Ubuntu 24.04 uses Postgres 16)
-ENV PATH="/usr/lib/postgresql/16/bin:$PATH"
+RUN apk add --no-cache bash
 
-# Create directories and fix permissions
-RUN mkdir -p /var/lib/postgresql/data /docker-entrypoint-initdb.d /var/run/postgresql && \
-    chown -R cloudtolocalllm:cloudtolocalllm /var/lib/postgresql /docker-entrypoint-initdb.d /var/run/postgresql
-
-# Copy entrypoint and init scripts
 COPY config/docker/postgres-entrypoint.sh /usr/local/bin/
 COPY config/docker/postgres-init.sh /docker-entrypoint-initdb.d/01-init.sh
 
-# Make scripts executable
 RUN chmod +x /usr/local/bin/postgres-entrypoint.sh /docker-entrypoint-initdb.d/01-init.sh
 
-# Switch to non-root user
-USER cloudtolocalllm
+USER postgres
 
-# Expose Postgres port
 EXPOSE 5432
 
-# Set entrypoint
 ENTRYPOINT ["/usr/local/bin/postgres-entrypoint.sh"]

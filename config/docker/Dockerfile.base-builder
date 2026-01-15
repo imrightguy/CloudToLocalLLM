@@ -1,23 +1,20 @@
 # Base Builder Image for CloudToLocalLLM
-# Inherits from our custom base (Fedora + cloudtolocalllm user)
+# Uses standard Fedora image
 
-FROM cloudtolocalllm/base:latest
+FROM fedora:40
 
 # Switch to root for installation
 USER root
 
 # Install Base Tools
 RUN dnf -y update && \
-    dnf -y install git curl wget unzip which xz make gcc-c++ && \
+    dnf -y install git curl wget unzip which xz make gcc-c++ java-21-openjdk-devel && \
     dnf clean all
 
-# Install Java (for Android/Flutter tools)
-# Fedora Rawhide likely moved to Java 21+
-RUN dnf -y install java-21-openjdk-devel && \
-    dnf clean all
+# Create non-root user
+RUN useradd -u 1000 -m -s /bin/bash cloudtolocalllm
 
 # Install Flutter SDK
-# We install it to /opt/flutter and give ownership to 'cloudtolocalllm'
 ENV FLUTTER_ROOT=/opt/flutter
 RUN mkdir -p $FLUTTER_ROOT && \
     chown -R cloudtolocalllm:cloudtolocalllm $FLUTTER_ROOT
@@ -36,11 +33,9 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
     ln -s $(dirname $(nvm which default)) /home/cloudtolocalllm/node-bin
 
 # Add Node.js and Flutter to PATH
-# We use the symlink created above to avoid hardcoding the version
 ENV PATH="/home/cloudtolocalllm/node-bin:$FLUTTER_ROOT/bin:$FLUTTER_ROOT/bin/cache/dart-sdk/bin:$PATH"
 
 # Download and extract Flutter SDK
-# Using stable channel
 RUN git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_ROOT
 
 # Pre-download Flutter artifacts

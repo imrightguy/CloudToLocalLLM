@@ -1,46 +1,35 @@
 # ============================================================================
 # Runtime Dockerfile for CloudToLocalLLM Streaming Proxy
-# Uses artifacts from the Universal Builder
+# Uses standard Node.js Alpine images
 # ============================================================================
 
-# Use custom base image
-ARG BASE_REGISTRY=cloudtolocalllm
-FROM ${BASE_REGISTRY}/base:latest
+FROM node:24-alpine AS builder
 
-# Switch to root to ensure directory setup
-USER root
-
-# Ensure Node.js and npm are installed (fallback if base image is missing them)
-RUN if ! command -v npm &> /dev/null; then \
-    apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    apt-get install -y nodejs; \
-    fi
-
-# Create app directory
 WORKDIR /app
-RUN chown cloudtolocalllm:cloudtolocalllm /app
 
-# Switch to non-root user
-USER cloudtolocalllm
-
-# Copy package files
-COPY --chown=cloudtolocalllm:cloudtolocalllm services/streaming-proxy/package*.json ./
-
-# Install dependencies
+COPY services/streaming-proxy/package*.json ./
 RUN npm ci
 
-# Copy source code
-COPY --chown=cloudtolocalllm:cloudtolocalllm services/streaming-proxy/ .
-
-# Build TypeScript
+COPY services/streaming-proxy/ ./
 RUN npm run build
 
-# Set environment variables
+FROM node:24-alpine
+
+WORKDIR /app
+
+RUN addgroup -g 1000 -S nodejs && \
+    adduser -S -D -H -u 1000 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
+
+COPY services/streaming-proxy/package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+USER nodejs
+
 ENV NODE_ENV=production
 ENV PORT=3001
 
 EXPOSE 3001
 
-# Start the actual server (compiled JS)
-CMD [ "node", "dist/server.js" ]
+CMD ["node", "dist/server.js"]
