@@ -363,30 +363,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Configure kubectl
-        run: |
-          az aks get-credentials --resource-group cloudtolocalllm-rg --name cloudtolocalllm-aks --overwrite-existing
-
-      - name: Create Cloudflare Tunnel Credentials Secret
-        run: |
-          # Use GitHub Secret directly
-          TUNNEL_TOKEN="${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}"
-          if [ -z "$TUNNEL_TOKEN" ]; then
-             echo "Error: CLOUDFLARE_TUNNEL_TOKEN GitHub secret is not set"
-             exit 1
-          fi
-          kubectl create secret generic tunnel-credentials \
-            --from-literal=token="$TUNNEL_TOKEN" \
-            --namespace=cloudtolocalllm \
-            --dry-run=client -o yaml | kubectl apply -f - --validate=false
-
-      - name: Create Application Secrets
+      - name: Provision Azure VM
+        if: needs.ai_change_analysis.outputs.components != ''
         env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          # Login using the JSON credential
+          echo "$AZURE_CREDENTIALS" > azure_creds.json
+          az login --service-principal \
+            -u $(jq -r .clientId azure_creds.json) \
+            -p $(jq -r .clientSecret azure_creds.json) \
+            --tenant $(jq -r .tenantId azure_creds.json)
+          rm azure_creds.json
+
+          # Run provisioning script
+          chmod +x infra/azure/create-swarm-vm.sh
+          ./infra/azure/create-swarm-vm.sh
+
+      - name: Deploy to Swarm
+        if: needs.ai_change_analysis.outputs.components != ''
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'postgres' }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
           POSTGRES_AUTH_PASSWORD: ${{ secrets.POSTGRES_AUTH_PASSWORD || 'postgres' }}
@@ -402,93 +401,57 @@ jobs:
           STRIPE_LIVE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_LIVE_PUBLISHABLE_KEY || '' }}
           STRIPE_LIVE_WEBHOOK_SECRET: ${{ secrets.STRIPE_LIVE_WEBHOOK_SECRET || '' }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN || '' }}
+          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
         run: |
-          # Process secrets.yaml template with envsubst
-          # Use a temporary file to avoid piping issues and ensure clean content
-          envsubst < k8s/secrets.yaml > k8s/secrets.processed.yaml
+          # Get VM IP
+          echo "$AZURE_CREDENTIALS" > azure_creds.json
+          az login --service-principal \
+            -u $(jq -r .clientId azure_creds.json) \
+            -p $(jq -r .clientSecret azure_creds.json) \
+            --tenant $(jq -r .tenantId azure_creds.json)
           
-          # Apply the processed secret to the cluster
-          kubectl apply -f k8s/secrets.processed.yaml -n cloudtolocalllm
-          
-          # Clean up
-          rm k8s/secrets.processed.yaml
+          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm --query publicIps -o tsv)
+          echo "Deploying to $IP..."
 
-      - name: Downcase Repo Name
-        run: |
-          echo "REPO_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $IP >> ~/.ssh/known_hosts
 
-      - name: Deploy to Cluster (Clean & Direct)
-        env:
-          ENVIRONMENT: managed
-          NAMESPACE: cloudtolocalllm
-          WEB_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/web:latest
-          API_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/api:latest
-          STREAMING_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
-          POSTGRES_IMAGE: ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
-        run: |
-          echo "Generating manifests for $ENVIRONMENT..."
-          
-          # Setup Kustomize
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          sudo mv kustomize /usr/local/bin/
-          
-          # Build Manifests
-          kustomize build --load-restrictor LoadRestrictionsNone k8s/deployments/overlays/$ENVIRONMENT > full-manifest.yaml
-          
-          # Inject Images & Config
-          sed -i "s|cloudtolocalllm/web:latest|$WEB_IMAGE|g" full-manifest.yaml
-          sed -i "s|cloudtolocalllm/api-backend:latest|$API_IMAGE|g" full-manifest.yaml
-          sed -i "s|cloudtolocalllm/streaming-proxy:latest|$STREAMING_IMAGE|g" full-manifest.yaml
-          sed -i "s|cloudtolocalllm/postgres:latest|$POSTGRES_IMAGE|g" full-manifest.yaml
-          
-          TUNNEL_ID="62da6c19-947b-4bf6-acad-100a73de4e0d"
-          CONFIG_SHA="sha-$(date +%s)"
-          sed -i "s|\${CLOUDFLARE_TUNNEL_ID}|$TUNNEL_ID|g" full-manifest.yaml
-          sed -i "s|\${CLOUDFLARED_CONFIG_SHA}|$CONFIG_SHA|g" full-manifest.yaml
-          
-          echo "Applying manifests..."
+          # Copy Stack File
+          scp docker-stack.yml azureuser@$IP:~/docker-stack.yml
 
-          # Clean up stateful resources to ensure PVC resizing and resource limits
-          echo "Cleaning up stateful resources..."
-          # Explicitly delete postgres-auth (zombie) and others
-          kubectl delete statefulset postgres postgres-auth redis-tunnel-state -n $NAMESPACE --ignore-not-found=true --wait=true
-          kubectl delete deployment cloudflared api-backend web streaming-proxy -n $NAMESPACE --ignore-not-found=true --wait=true
-          
-          # Force delete any stuck pods to clear the node
-          kubectl delete pods --all -n $NAMESPACE --force --grace-period=0 --ignore-not-found=true
-          
-          # Delete PVCs to allow resizing to 1Gi (User confirmed no data retention)
-          kubectl delete pvc -l app=postgres -n $NAMESPACE --ignore-not-found=true
-          kubectl delete pvc -l app=postgres-auth -n $NAMESPACE --ignore-not-found=true
-          kubectl delete pvc -l app=redis-tunnel-state -n $NAMESPACE --ignore-not-found=true
-          
-          # Apply Postgres Statefully first
-          kubectl apply -f full-manifest.yaml -l app=postgres -n $NAMESPACE
-          
-          echo "Waiting for Postgres..."
-          # Increased timeout to 10m to allow image pull and initialization
-          if ! kubectl rollout status statefulset/postgres -n $NAMESPACE --timeout=10m; then
-            echo "❌ Postgres rollout failed! Aborting deployment."
-            echo "=== POSTGRES STATUS ==="
-            kubectl get statefulset postgres -n $NAMESPACE -o yaml
-            kubectl describe statefulset postgres -n $NAMESPACE
-            echo "=== PODS ==="
-            kubectl get pods -n $NAMESPACE
-            echo "=== EVENTS ==="
-            kubectl get events -n $NAMESPACE --sort-by='.metadata.creationTimestamp'
-            exit 1
-          fi
-          
-          # Apply everything else
-          kubectl apply -f full-manifest.yaml -n $NAMESPACE
-          
-          echo "Waiting for deployments to roll out..."
-          kubectl rollout status deployment/web -n $NAMESPACE --timeout=10m
-          kubectl rollout status deployment/api-backend -n $NAMESPACE --timeout=10m
-          kubectl rollout status deployment/streaming-proxy -n $NAMESPACE --timeout=10m
-          kubectl rollout status deployment/cloudflared -n $NAMESPACE --timeout=10m
-          
-          echo "Deployment submitted and verified."
+          # Deploy via SSH
+          # Inject secrets as env vars for now (simple migration)
+          ssh azureuser@$IP <<EOF
+            export POSTGRES_USER="$POSTGRES_USER"
+            export POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
+            export POSTGRES_AUTH_PASSWORD="$POSTGRES_AUTH_PASSWORD"
+            export JWT_SECRET="$JWT_SECRET"
+            export AUTH0_DOMAIN="$AUTH0_DOMAIN"
+            export AUTH0_AUDIENCE="$AUTH0_AUDIENCE"
+            export AUTH0_CLIENT_ID="$AUTH0_CLIENT_ID"
+            export AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET"
+            export STRIPE_TEST_SECRET_KEY="$STRIPE_TEST_SECRET_KEY"
+            export STRIPE_TEST_PUBLISHABLE_KEY="$STRIPE_TEST_PUBLISHABLE_KEY"
+            export STRIPE_TEST_WEBHOOK_SECRET="$STRIPE_TEST_WEBHOOK_SECRET"
+            export STRIPE_LIVE_SECRET_KEY="$STRIPE_LIVE_SECRET_KEY"
+            export STRIPE_LIVE_PUBLISHABLE_KEY="$STRIPE_LIVE_PUBLISHABLE_KEY"
+            export STRIPE_LIVE_WEBHOOK_SECRET="$STRIPE_LIVE_WEBHOOK_SECRET"
+            export SENTRY_DSN="$SENTRY_DSN"
+            export CLOUDFLARE_TUNNEL_TOKEN="$CLOUDFLARE_TUNNEL_TOKEN"
+
+            # Login to GHCR
+            echo "${GH_TOKEN}" | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+            
+            # Pull latest images
+            sudo -E docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
+            
+            # Prune old images to save space
+            sudo docker system prune -af
+          EOF
+
 
   validate_tunnel_connectivity:
     needs: deploy_application

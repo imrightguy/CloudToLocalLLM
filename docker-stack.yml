@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cloudtolocalllm}
+      POSTGRES_USER: ${POSTGRES_USER:-appuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cloudtolocalllm_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  # Redis for Tunnel State
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - cloudtolocalllm_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  # API Backend
+  api-backend:
+    image: ghcr.io/cloudtolocalllm/api:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_TYPE: postgresql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-cloudtolocalllm}
+      DB_USER: ${POSTGRES_USER:-appuser}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+    networks:
+      - cloudtolocalllm_net
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        failure_action: rollback
+
+  # Streaming Proxy
+  streaming-proxy:
+    image: ghcr.io/cloudtolocalllm/streaming:latest
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      API_BACKEND_URL: http://api-backend:3000
+    networks:
+      - cloudtolocalllm_net
+    deploy:
+      replicas: 1
+
+  # Web Frontend (Nginx serving Flutter)
+  web:
+    image: ghcr.io/cloudtolocalllm/web:latest
+    networks:
+      - cloudtolocalllm_net
+    deploy:
+      replicas: 1
+
+  # Cloudflare Tunnel (Ingress)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - cloudtolocalllm_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  cloudtolocalllm_net:
+    driver: overlay
+
+volumes:
+  postgres_data:
+  redis_data:
