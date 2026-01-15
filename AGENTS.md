@@ -185,13 +185,13 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage
 - `gh release create` - Create release
 - `gh workflow run` - Run GitHub Actions workflow
 
-### AWS CLI (aws)
-- `aws configure` - Configure AWS credentials
-- `aws eks update-kubeconfig --name cluster-name` - Update kubeconfig for EKS
-- `aws s3 ls` - List S3 buckets
-- `aws ec2 describe-instances` - List EC2 instances
-- `aws iam list-users` - List IAM users
-- `aws service-quotas list-service-quotas --service-code eks` - Check EKS quotas
+### Azure CLI (az)
+- `az login` - Log in to Azure
+- `az aks get-credentials --resource-group rg --name cluster` - Get kubeconfig
+- `az group create` - Create resource group
+- `az aks create` - Create AKS cluster
+- `az acr list` - List container registries
+- `az vm list-sizes` - List VM sizes
 
 ### kubectl
 - `kubectl get pods` - List pods
@@ -313,37 +313,38 @@ try {
  
 **STRICTLY ENFORCED**: All cloud resources must stay within free tier limits. Non-compliance is not acceptable.
  
-### AWS Free Tier Limits (Must Respect)
-- **Compute**: AWS EC2 t3.micro/t2.micro (if used), EKS (control plane is not free, but using Fargate/Nodes within limits)
-- **Databases**: RDS (if used) within free tier limits
-- **Storage**: S3 5GB, EBS 30GB
-- **Bandwidth**: 15GB egress/month
- 
+### Azure Free Tier Limits (Must Respect)
+- **Compute**: Azure B-series VMs (B1s/B2s) within free monthly limits.
+- **Kubernetes**: AKS Free Tier (Cluster management is free).
+- **Databases**: Azure Database for PostgreSQL Flexible Server (Free Tier B1ms for 12 months).
+- **Storage**: Managed Disks (P6 or smaller within free limits), Blob Storage.
+- **Bandwidth**: First 100GB/month outbound is free.
+
 ### Prohibited Resources (Will Cause Charges)
-- **NEVER create**: High-instance count EKS clusters, VM Scale Sets, large Virtual Machines
-- **NEVER create**: Large Container Registries (beyond free limits)
-- **NEVER create**: Load Balancers (beyond free tier/credits)
-- **NEVER create**: Managed databases with high IOPS
- 
+- **NEVER create**: Standard SKU Load Balancers (Basic is free, or use NodePort/Ingress/Tunnel).
+- **NEVER create**: Application Gateway or Azure Front Door (unless within credits).
+- **NEVER create**: Azure Container Registry (ACR) unless Basic SKU and necessary (use GHCR).
+- **NEVER create**: Premium SSDs or large Managed Disks.
+
 ### Required Pre-Creation Checks
-Before creating any AWS resource:
+Before creating any Azure resource:
 1. Verify it has a free tier option.
-2. Check current usage: `aws service-quotas` or Billing Dashboard.
-3. Use AWS Pricing Calculator for any new resource type.
- 
+2. Check current usage: `az consumption usage list`.
+3. Use Azure Pricing Calculator.
+
 ### Post-Creation Validation
-After any `aws` command that creates resources:
+After any `az` command that creates resources:
 ```bash
 # Verify no paid resources were created
-aws resourcegroupstaggingapi get-resources
+az resource list --output table
 ```
- 
+
 ### Free Tier Alternatives
 | Paid Resource Type | Free Tier Alternative |
 |-------------------|---------------------|
-| EKS (High Cost) | Single-node k3s/Docker on EC2 (Free Tier) |
-| ECR (Paid) | ghcr.io or Docker Hub |
-| Large VMs | t3.micro / t2.micro |
+| AKS Standard LB | AKS Basic LB or Cloudflare Tunnel |
+| ACR (Paid) | ghcr.io or Docker Hub |
+| Large VMs | Standard_B2s / B1s |
 
 
 ### Violation Response

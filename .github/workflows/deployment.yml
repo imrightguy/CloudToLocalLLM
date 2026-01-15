@@ -363,18 +363,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
-          audience: sts.amazonaws.com
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Configure kubectl for EKS
+      - name: Configure kubectl
         run: |
-          aws eks update-kubeconfig \
-            --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} \
-            --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+          az aks get-credentials --resource-group cloudtolocalllm-rg --name cloudtolocalllm-aks --overwrite-existing
 
       - name: Create Cloudflare Tunnel Credentials Secret
         run: |
@@ -530,9 +526,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           audience: sts.amazonaws.com
-      - name: Configure kubectl for EKS
+      - name: Configure kubectl
         run: |
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+          az aks get-credentials --resource-group cloudtolocalllm-rg --name cloudtolocalllm-aks --overwrite-existing
       - name: Get Pods and Logs
         run: |
           echo "=== NODES ==="
@@ -565,9 +561,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN || 'arn:aws:iam::422017356244:role/github-actions-role' }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
           audience: sts.amazonaws.com
-      - name: Configure kubectl for EKS
+      - name: Configure kubectl
         run: |
-          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME || 'cloudtolocalllm-eks' }} --region ${{ secrets.AWS_REGION || 'us-east-1' }}
+          az aks get-credentials --resource-group cloudtolocalllm-rg --name cloudtolocalllm-aks --overwrite-existing
       - name: Rollback Failed Deployment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
