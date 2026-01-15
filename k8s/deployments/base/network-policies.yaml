@@ -110,7 +110,7 @@ spec:
               name: ingress-nginx
       ports:
         - protocol: TCP
-          port: 3000
+          port: 8080
     # Allow from Cloudflare Tunnel
     - from:
         - podSelector:
@@ -118,7 +118,23 @@ spec:
               app: cloudflared
       ports:
         - protocol: TCP
-          port: 3000
+          port: 8080
+    # Allow from Web App
+    - from:
+        - podSelector:
+            matchLabels:
+              app: web
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow from Streaming Proxy
+    - from:
+        - podSelector:
+            matchLabels:
+              app: streaming-proxy
+      ports:
+        - protocol: TCP
+          port: 8080
 
 ---
 # Allow web app to communicate with API backend
@@ -144,10 +160,9 @@ spec:
               app: api-backend
       ports:
         - protocol: TCP
-          port: 3000
-        - protocol: TCP
           port: 8080
     # Allow DNS
+
     - to:
         - namespaceSelector:
             matchLabels:
@@ -240,8 +255,9 @@ spec:
               app: api-backend
       ports:
         - protocol: TCP
-          port: 3000
+          port: 8080
     # Allow DNS
+
     - to:
         - namespaceSelector:
             matchLabels:
