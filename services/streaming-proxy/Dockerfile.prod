@@ -3,16 +3,6 @@
 # Uses standard Node.js Alpine images
 # ============================================================================
 
-FROM node:24-alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . ./
-RUN npm run build
-
 FROM node:24-alpine
 
 WORKDIR /app
@@ -20,7 +10,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/dist ./dist
+COPY . ./
 
 RUN chown -R node:node /app
 
@@ -31,4 +21,4 @@ ENV PORT=3001
 
 EXPOSE 3001
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "proxy-server.js"]
