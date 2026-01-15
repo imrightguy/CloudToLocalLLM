@@ -1,19 +1,19 @@
 {
     "name": "cloudtolocalllm-aks",
-    "location": "eastus",
+    "location": "centralus",
     "resourceGroup": "cloudtolocalllm-rg",
     "kubernetesVersion": "1.29",
     "nodePools": [
         {
             "name": "nodepool1",
             "count": 1,
-            "vmSize": "Standard_B2s",
+            "vmSize": "Standard_D2s_v3",
             "osType": "Linux",
             "mode": "System"
         }
     ],
     "networkProfile": {
-        "loadBalancerSku": "basic",
+        "loadBalancerSku": "standard",
         "networkPlugin": "kubenet"
     }
 }

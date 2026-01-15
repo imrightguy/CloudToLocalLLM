@@ -40,7 +40,7 @@ data:
 
   # Kubernetes cluster configuration
   CLUSTER_NAME: "cloudtolocalllm-aks"
-  CLUSTER_REGION: "eastus"
+  CLUSTER_REGION: "centralus"
   NAMESPACE: "cloudtolocalllm"
 
 
