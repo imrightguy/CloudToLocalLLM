@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:${DOCKER_TAG}
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-cloudtolocalllm}
       POSTGRES_USER: ${POSTGRES_USER:-appuser}
@@ -32,7 +32,7 @@ services:
 
   # API Backend
   api-backend:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:${DOCKER_TAG}
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -57,7 +57,7 @@ services:
 
   # Streaming Proxy
   streaming-proxy:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:${DOCKER_TAG}
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -69,7 +69,7 @@ services:
 
   # Web Frontend (Nginx serving Flutter)
   web:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
     networks:
       - cloudtolocalllm_net
     deploy:

@@ -126,30 +126,15 @@ jobs:
           }
 
           API_NEEDS_BUILD="$API_CHANGED"
-          if [ "$API_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "api" "$GITHUB_SHA"; then
-            API_NEEDS_BUILD="false"
-          fi
- 
           WEB_NEEDS_BUILD="$WEB_CHANGED"
-          if [ "$WEB_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "web" "$GITHUB_SHA"; then
-            WEB_NEEDS_BUILD="false"
-          fi
- 
           POSTGRES_NEEDS_BUILD="$POSTGRES_CHANGED"
-          if [ "$POSTGRES_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "postgres" "$GITHUB_SHA"; then
-            POSTGRES_NEEDS_BUILD="false"
-          fi
- 
           STREAMING_NEEDS_BUILD="$STREAMING_CHANGED"
-          if [ "$STREAMING_CHANGED" == "true" ] && [ "${{ inputs.force_build }}" != "true" ] && check_ghcr_tag "streaming" "$GITHUB_SHA"; then
-            STREAMING_NEEDS_BUILD="false"
-          fi
- 
+
           # Clean up leading comma
           COMPONENTS=$(echo "$COMPONENTS" | sed 's/^,//')
 
           # Calculate Version Bump (Simple Auto-Patch)
-          if [ -n "$COMPONENTS" ]; then
+          if [ -n "$COMPONENTS" ] || [ "${{ inputs.force_build }}" == "true" ]; then
             BUMP="true"
             CURRENT_VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
             # Split version into array
@@ -158,6 +143,15 @@ jobs:
             v[2]=$((v[2] + 1))
             NEW_VERSION="${v[0]}.${v[1]}.${v[2]}"
             REASON="Automated patch bump for changed components: $COMPONENTS"
+            
+            # STRICT VERSIONING ENFORCEMENT
+            # If we bump the version, we MUST build all components to ensure 
+            # they all exist with the new version tag (e.g. :1.2.3)
+            # This allows the docker-stack.yml to use ${DOCKER_TAG} safely.
+            API_NEEDS_BUILD="true"
+            WEB_NEEDS_BUILD="true"
+            POSTGRES_NEEDS_BUILD="true"
+            STREAMING_NEEDS_BUILD="true"
           else
             BUMP="false"
             NEW_VERSION=""
@@ -233,8 +227,10 @@ jobs:
         run: |
           docker tag cloudtolocalllm-api:latest ghcr.io/${{ env.REPO_LOWER }}/api:latest
           docker tag cloudtolocalllm-api:latest ghcr.io/${{ env.REPO_LOWER }}/api:${GITHUB_SHA}
+          docker tag cloudtolocalllm-api:latest ghcr.io/${{ env.REPO_LOWER }}/api:${{ needs.ai_change_analysis.outputs.new_version }}
           docker push ghcr.io/${{ env.REPO_LOWER }}/api:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/api:${GITHUB_SHA}
+          docker push ghcr.io/${{ env.REPO_LOWER }}/api:${{ needs.ai_change_analysis.outputs.new_version }}
 
   build_web:
     needs: ai_change_analysis
@@ -280,8 +276,10 @@ jobs:
         run: |
           docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:latest
           docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:${GITHUB_SHA}
+          docker tag cloudtolocalllm-web:latest ghcr.io/${{ env.REPO_LOWER }}/web:${{ needs.ai_change_analysis.outputs.new_version }}
           docker push ghcr.io/${{ env.REPO_LOWER }}/web:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/web:${GITHUB_SHA}
+          docker push ghcr.io/${{ env.REPO_LOWER }}/web:${{ needs.ai_change_analysis.outputs.new_version }}
 
   build_postgres:
     needs: ai_change_analysis
@@ -314,8 +312,10 @@ jobs:
         run: |
           docker tag cloudtolocalllm-postgres:latest ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
           docker tag cloudtolocalllm-postgres:latest ghcr.io/${{ env.REPO_LOWER }}/postgres:${GITHUB_SHA}
+          docker tag cloudtolocalllm-postgres:latest ghcr.io/${{ env.REPO_LOWER }}/postgres:${{ needs.ai_change_analysis.outputs.new_version }}
           docker push ghcr.io/${{ env.REPO_LOWER }}/postgres:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/postgres:${GITHUB_SHA}
+          docker push ghcr.io/${{ env.REPO_LOWER }}/postgres:${{ needs.ai_change_analysis.outputs.new_version }}
 
   build_streaming:
     needs: ai_change_analysis
@@ -347,8 +347,10 @@ jobs:
         run: |
           docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:${GITHUB_SHA}
+          docker tag cloudtolocalllm-streaming:latest ghcr.io/${{ env.REPO_LOWER }}/streaming:${{ needs.ai_change_analysis.outputs.new_version }}
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:latest
           docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:${GITHUB_SHA}
+          docker push ghcr.io/${{ env.REPO_LOWER }}/streaming:${{ needs.ai_change_analysis.outputs.new_version }}
 
   deploy_application:
     needs:
@@ -403,6 +405,7 @@ jobs:
           STRIPE_LIVE_WEBHOOK_SECRET: ${{ secrets.STRIPE_LIVE_WEBHOOK_SECRET || '' }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN || '' }}
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
           # Get VM IP
           echo "$AZURE_CREDENTIALS" > azure_creds.json
@@ -442,11 +445,18 @@ jobs:
             export STRIPE_LIVE_WEBHOOK_SECRET="$STRIPE_LIVE_WEBHOOK_SECRET"
             export SENTRY_DSN="$SENTRY_DSN"
             export CLOUDFLARE_TUNNEL_TOKEN="$CLOUDFLARE_TUNNEL_TOKEN"
+            export DOCKER_TAG="$DOCKER_TAG"
 
             # Login to GHCR
             echo "${GH_TOKEN}" | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
             
             # Pull latest images
+            # Explicitly pull the versioned images to ensure availability
+            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:$DOCKER_TAG
+            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:$DOCKER_TAG
+            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:$DOCKER_TAG
+            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:$DOCKER_TAG
+            
             sudo -E docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
             
             # Prune old images to save space
