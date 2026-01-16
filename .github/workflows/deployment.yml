@@ -353,6 +353,7 @@ jobs:
   deploy_application:
     needs:
       [
+        ai_change_analysis,
         build_api,
         build_web,
         build_postgres,
@@ -454,7 +455,7 @@ jobs:
 
 
   validate_tunnel_connectivity:
-    needs: deploy_application
+    needs: [ai_change_analysis, deploy_application]
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
@@ -490,7 +491,7 @@ jobs:
           fi
 
   debug_swarm_state:
-    needs: deploy_application
+    needs: [ai_change_analysis, deploy_application]
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
@@ -587,7 +588,7 @@ jobs:
           EOF
 
   cloudflared_health_check:
-    needs: deploy_application
+    needs: [ai_change_analysis, deploy_application]
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
