@@ -7,10 +7,10 @@ set -e
 # - Ubuntu 24.04 LTS
 # - Cloud-init for Docker installation
 
-RESOURCE_GROUP="cloudtolocalllm-rg"
-LOCATION="centralus"
+RESOURCE_GROUP="cloudtolocalllm-rg-eastus"
+LOCATION="eastus"
 VM_NAME="cloudtolocalllm-swarm"
-VM_SIZE="Standard_B2ms"
+VM_SIZE="Standard_B2s"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
 
