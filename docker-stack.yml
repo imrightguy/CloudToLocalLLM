@@ -14,6 +14,11 @@ services:
       - cloudtolocalllm_net
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          memory: 512M
+        limits:
+          memory: 1024M
       restart_policy:
         condition: on-failure
 
@@ -27,6 +32,11 @@ services:
       - cloudtolocalllm_net
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          memory: 64M
+        limits:
+          memory: 128M
       restart_policy:
         condition: on-failure
 
@@ -51,6 +61,11 @@ services:
       - cloudtolocalllm_net
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          memory: 512M
+        limits:
+          memory: 1024M
       update_config:
         order: start-first
         failure_action: rollback
@@ -66,6 +81,11 @@ services:
       - cloudtolocalllm_net
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          memory: 256M
+        limits:
+          memory: 512M
 
   # Web Frontend (Nginx serving Flutter)
   web:
@@ -74,6 +94,11 @@ services:
       - cloudtolocalllm_net
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          memory: 64M
+        limits:
+          memory: 128M
 
   # Cloudflare Tunnel (Ingress)
   cloudflared:
@@ -85,6 +110,11 @@ services:
       - cloudtolocalllm_net
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          memory: 128M
+        limits:
+          memory: 256M
       restart_policy:
         condition: on-failure
 
