@@ -46,22 +46,27 @@ runcmd:
   - docker swarm init || true
 EOF
 
-echo "🚀 Creating VM: $VM_NAME ($VM_SIZE)..."
-az vm create \
-    --resource-group $RESOURCE_GROUP \
-    --name $VM_NAME \
-    --image Ubuntu2404 \
-    --size $VM_SIZE \
-    --admin-username $ADMIN_USERNAME \
-    --ssh-key-values $SSH_KEY_PATH \
-    --custom-data cloud-init.yaml \
-    --public-ip-sku Standard \
-    --location $VM_LOCATION \
-    --vnet-name "${VM_NAME}-vnet-westus2" \
-    --public-ip-address "${VM_NAME}-ip-westus2" \
-    --nsg "${VM_NAME}-nsg-westus2"
+echo "🔍 Checking if VM $VM_NAME already exists in $RESOURCE_GROUP..."
+if az vm show --resource-group $RESOURCE_GROUP --name $VM_NAME > /dev/null 2>&1; then
+    echo "✅ VM $VM_NAME already exists. Skipping creation to avoid unnecessary capacity checks."
+else
+    echo "🚀 Creating VM: $VM_NAME ($VM_SIZE) in $VM_LOCATION..."
+    az vm create \
+        --resource-group $RESOURCE_GROUP \
+        --name $VM_NAME \
+        --image Ubuntu2404 \
+        --size $VM_SIZE \
+        --admin-username $ADMIN_USERNAME \
+        --ssh-key-values $SSH_KEY_PATH \
+        --custom-data cloud-init.yaml \
+        --public-ip-sku Standard \
+        --location $VM_LOCATION \
+        --vnet-name "${VM_NAME}-vnet-westus2" \
+        --public-ip-address "${VM_NAME}-ip-westus2" \
+        --nsg "${VM_NAME}-nsg-westus2"
+fi
 
-echo "🔓 Opening SSH Port..."
+echo "🔓 Ensuring SSH Port is open..."
 az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000
 
 echo "✅ VM Created Successfully!"

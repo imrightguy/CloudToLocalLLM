@@ -71,7 +71,7 @@ jobs:
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
  
           # Infrastructure or global changes trigger all
-          if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/"; then 
+          if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/|docker-stack.yml|assets/|package.json"; then 
             COMPONENTS="api,web,postgres,streaming,linux,windows"
             API_CHANGED="true"
             WEB_CHANGED="true"
@@ -465,12 +465,14 @@ jobs:
             # Login to GHCR
             echo "${GH_TOKEN}" | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
             
-            # Pull latest images
+            # Pull latest images sequentially to avoid OOM on small VMs
             # Explicitly pull the versioned images to ensure availability
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:$DOCKER_TAG
+            sudo docker pull cloudflare/cloudflared:2024.12.2
+            sudo docker pull redis:7-alpine
             
             sudo -E docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
             

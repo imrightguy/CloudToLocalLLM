@@ -102,7 +102,7 @@ services:
 
   # Cloudflare Tunnel (Ingress)
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2024.12.2
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
