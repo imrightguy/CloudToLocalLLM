@@ -7,10 +7,10 @@ set -e
 # - Ubuntu 24.04 LTS
 # - Cloud-init for Docker installation
 
-RESOURCE_GROUP="cloudtolocalllm-rg-eastus"
-LOCATION="eastus"
+RESOURCE_GROUP="cloudtolocalllm-rg"
+LOCATION="centralus"
 VM_NAME="cloudtolocalllm-swarm"
-VM_SIZE="Standard_B2s"
+VM_SIZE="Standard_B1ms"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
 
@@ -23,7 +23,7 @@ fi
 echo "🚀 Creating Resource Group: $RESOURCE_GROUP..."
 az group create --name $RESOURCE_GROUP --location $LOCATION
 
-# Cloud-init config to install Docker & Init Swarm
+# Cloud-init config to install Docker & Init Swarm & Setup Swap
 cat <<EOF > cloud-init.yaml
 #cloud-config
 package_update: true
@@ -32,6 +32,13 @@ packages:
   - docker.io
   - docker-compose-v2
 runcmd:
+  # Enable Swap (Crucial for B1ms 2GB RAM)
+  - fallocate -l 4G /swapfile
+  - chmod 600 /swapfile
+  - mkswap /swapfile
+  - swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  # Setup Docker
   - systemctl start docker
   - systemctl enable docker
   - usermod -aG docker $ADMIN_USERNAME
