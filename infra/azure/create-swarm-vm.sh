@@ -48,7 +48,6 @@ az vm create \
     --ssh-key-values $SSH_KEY_PATH \
     --custom-data cloud-init.yaml \
     --public-ip-sku Standard \
-    --nsg-rule NONE \
     --open-ports 22
 
 echo "✅ VM Created Successfully!"
