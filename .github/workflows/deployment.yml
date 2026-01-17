@@ -370,7 +370,14 @@ jobs:
         if: needs.ai_change_analysis.outputs.components != ''
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         run: |
+          # Setup SSH keys for provisioning
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+
           # Login using the JSON credential
           echo "$AZURE_CREDENTIALS" > azure_creds.json
           az login --service-principal \
