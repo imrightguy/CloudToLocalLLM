@@ -47,8 +47,10 @@ az vm create \
     --admin-username $ADMIN_USERNAME \
     --ssh-key-values $SSH_KEY_PATH \
     --custom-data cloud-init.yaml \
-    --public-ip-sku Standard \
-    --open-ports 22
+    --public-ip-sku Standard
+
+echo "🔓 Opening SSH Port..."
+az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000
 
 echo "✅ VM Created Successfully!"
 IP=$(az vm show -d -g $RESOURCE_GROUP -n $VM_NAME --query publicIps -o tsv)
