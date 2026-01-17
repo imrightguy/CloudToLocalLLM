@@ -9,8 +9,8 @@ set -e
 
 RESOURCE_GROUP="cloudtolocalllm-rg"
 LOCATION="centralus"
-VM_LOCATION="eastus2"
-VM_NAME="cloudtolocalllm-swarm-eastus2"
+VM_LOCATION="westus2"
+VM_NAME="cloudtolocalllm-swarm-westus2"
 VM_SIZE="Standard_B2s"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
@@ -57,9 +57,9 @@ az vm create \
     --custom-data cloud-init.yaml \
     --public-ip-sku Standard \
     --location $VM_LOCATION \
-    --vnet-name "${VM_NAME}-vnet-eastus2" \
-    --public-ip-address "${VM_NAME}-ip-eastus2" \
-    --nsg "${VM_NAME}-nsg-eastus2"
+    --vnet-name "${VM_NAME}-vnet-westus2" \
+    --public-ip-address "${VM_NAME}-ip-westus2" \
+    --nsg "${VM_NAME}-nsg-westus2"
 
 echo "🔓 Opening SSH Port..."
 az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000

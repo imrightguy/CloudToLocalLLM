@@ -430,9 +430,8 @@ jobs:
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
           # Get VM IP
-          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm-eastus --query publicIps -o tsv)
-          echo "Deploying to $IP..."
-
+          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm-westus2 --query publicIps -o tsv)
+          
           # Setup SSH
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
@@ -536,7 +535,7 @@ jobs:
           rm azure_creds.json
 
           # Get VM IP
-          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm-eastus --query publicIps -o tsv)
+          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm-westus2 --query publicIps -o tsv)
           
           # Setup SSH
           mkdir -p ~/.ssh
@@ -592,7 +591,7 @@ jobs:
           rm azure_creds.json
 
           # Get VM IP
-          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm-eastus --query publicIps -o tsv)
+          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm-westus2 --query publicIps -o tsv)
           
           # Setup SSH
           mkdir -p ~/.ssh
