@@ -10,7 +10,7 @@ set -e
 RESOURCE_GROUP="cloudtolocalllm-rg"
 LOCATION="centralus"
 VM_LOCATION="eastus"
-VM_NAME="cloudtolocalllm-swarm"
+VM_NAME="cloudtolocalllm-swarm-eastus"
 VM_SIZE="Standard_B2s"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
