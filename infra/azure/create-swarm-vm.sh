@@ -8,7 +8,7 @@ set -e
 # - Cloud-init for Docker installation
 
 RESOURCE_GROUP="cloudtolocalllm-rg"
-LOCATION="eastus"
+LOCATION="centralus"
 VM_NAME="cloudtolocalllm-swarm"
 VM_SIZE="Standard_B2s"
 ADMIN_USERNAME="azureuser"
