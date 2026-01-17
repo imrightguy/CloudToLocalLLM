@@ -9,9 +9,9 @@ set -e
 
 RESOURCE_GROUP="cloudtolocalllm-rg"
 LOCATION="centralus"
-VM_LOCATION="westus2"
-VM_NAME="cloudtolocalllm-swarm-westus2"
-VM_SIZE="Standard_B2s"
+VM_LOCATION="centralus"
+VM_NAME="cloudtolocalllm-swarm"
+VM_SIZE="Standard_D2as_v4"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
 
@@ -61,9 +61,9 @@ else
         --custom-data cloud-init.yaml \
         --public-ip-sku Standard \
         --location $VM_LOCATION \
-        --vnet-name "${VM_NAME}-vnet-westus2" \
-        --public-ip-address "${VM_NAME}-ip-westus2" \
-        --nsg "${VM_NAME}-nsg-westus2"
+    --vnet-name "${VM_NAME}VNET" \
+    --public-ip-address "${VM_NAME}PublicIP" \
+    --nsg "${VM_NAME}NSG"
 fi
 
 echo "🔓 Ensuring SSH Port is open..."
