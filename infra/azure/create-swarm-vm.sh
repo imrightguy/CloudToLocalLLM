@@ -64,12 +64,12 @@ else
     --vnet-name "${VM_NAME}VNET" \
     --public-ip-address "${VM_NAME}PublicIP" \
     --nsg "${VM_NAME}NSG"
+
+    echo "🔓 Opening SSH Port..."
+    az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000
 fi
 
-echo "🔓 Ensuring SSH Port is open..."
-az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000
-
-echo "✅ VM Created Successfully!"
+echo "✅ Infrastructure Ready!"
 IP=$(az vm show -d -g $RESOURCE_GROUP -n $VM_NAME --query publicIps -o tsv)
 echo "Public IP: $IP"
 echo "SSH Command: ssh $ADMIN_USERNAME@$IP"
