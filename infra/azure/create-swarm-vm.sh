@@ -9,8 +9,9 @@ set -e
 
 RESOURCE_GROUP="cloudtolocalllm-rg"
 LOCATION="centralus"
+VM_LOCATION="eastus"
 VM_NAME="cloudtolocalllm-swarm"
-VM_SIZE="Standard_D2as_v4"
+VM_SIZE="Standard_B2s"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"
 
@@ -55,9 +56,7 @@ az vm create \
     --ssh-key-values $SSH_KEY_PATH \
     --custom-data cloud-init.yaml \
     --public-ip-sku Standard \
-    --priority Spot \
-    --eviction-policy Deallocate \
-    --max-price -1
+    --location $VM_LOCATION
 
 echo "🔓 Opening SSH Port..."
 az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000
