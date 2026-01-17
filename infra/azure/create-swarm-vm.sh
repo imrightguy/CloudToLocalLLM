@@ -56,7 +56,10 @@ az vm create \
     --ssh-key-values $SSH_KEY_PATH \
     --custom-data cloud-init.yaml \
     --public-ip-sku Standard \
-    --location $VM_LOCATION
+    --location $VM_LOCATION \
+    --vnet-name "${VM_NAME}-vnet-eastus" \
+    --public-ip-address "${VM_NAME}-ip-eastus" \
+    --nsg "${VM_NAME}-nsg-eastus"
 
 echo "🔓 Opening SSH Port..."
 az vm open-port --resource-group $RESOURCE_GROUP --name $VM_NAME --port 22 --priority 1000
