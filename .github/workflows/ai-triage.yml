@@ -6,15 +6,16 @@ permissions:
   issues: write
   pull-requests: write
 
-on:
-  schedule:
-    - cron: "0 * * * *" # Runs hourly
-  workflow_call:
-    inputs:
-      additional_context:
-        type: "string"
-        description: "Any additional context from the request"
-        required: false
+# on:
+#   schedule:
+#     - cron: "0 * * * *" # Runs hourly
+#   workflow_call:
+#     inputs:
+#       additional_context:
+#         type: "string"
+#         description: "Any additional context from the request"
+#         required: false
+on: [workflow_dispatch] # Keep as manual only to effectively disable automation
 
 concurrency:
   group: "${{ github.workflow }}-triage-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number }}"
