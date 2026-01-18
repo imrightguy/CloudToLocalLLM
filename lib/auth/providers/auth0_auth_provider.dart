@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
@@ -12,8 +11,9 @@ import '../auth_provider.dart';
 import '../../models/user_model.dart';
 
 class Auth0AuthProvider implements AuthProvider {
-  static const String _domain = 'your-domain.auth0.com'; // Replace with your Auth0 domain
-  static const String _clientId = 'your-client-id'; // Replace with your Client ID
+  static const String _domain = 'dev-vivn1fcgzi0c2czy.us.auth0.com';
+  static const String _clientId = 'mm7lIRm33LGyoQ0FKCy04x88fsgnbvr1';
+  static const String _audience = 'https://api.cloudtolocalllm.online';
   static const String _scheme = 'cloudtolocalllm';
 
   final Auth0 _auth0 = Auth0(_domain, _clientId);
@@ -49,22 +49,42 @@ class Auth0AuthProvider implements AuthProvider {
   }
 
   Future<bool> _isTokenValid(String token) async {
-    return await compute(_validateToken, {'token': token, 'domain': _domain, 'clientId': _clientId});
+    return await compute(_validateToken,
+        {'token': token, 'domain': _domain, 'audience': _audience});
   }
 
-  static bool _validateToken(Map<String, String> params) {
-    final token = params['token']!;
+  static bool _validateToken(Map<String, dynamic> params) {
+    final token = params['token'] as String;
     if (JwtDecoder.isExpired(token)) return false;
     final payload = JwtDecoder.decode(token);
-    return payload['iss'] == 'https://${params['domain']}/' &&
-           payload['aud']?.contains(params['clientId']!) == true;
+    final iss = payload['iss'];
+    final aud = payload['aud'];
+    final expectedIssuer = 'https://${params['domain']}/';
+    final expectedAudience = params['audience'] as String?;
+
+    // Check issuer
+    if (iss != expectedIssuer) return false;
+
+    // Check audience (can be string or list for API tokens)
+    if (expectedAudience != null) {
+      if (aud is String) {
+        return aud == expectedAudience;
+      } else if (aud is List) {
+        return aud.contains(expectedAudience);
+      }
+    }
+    return true;
   }
 
   @override
   Future<void> login() async {
     await _mutex.protect(() async {
       try {
-        final credentials = await _auth0.webAuthentication(scheme: _scheme).login();
+        final credentials =
+            await _auth0.webAuthentication(scheme: _scheme).login(
+          audience: _audience,
+          scopes: {'openid', 'profile', 'email', 'offline_access'},
+        );
         await _storeCredentials(credentials);
         final user = await _getUserFromIdToken(credentials.idToken);
         _currentUser = user;
@@ -80,7 +100,8 @@ class Auth0AuthProvider implements AuthProvider {
     await _storage.write(key: 'access_token', value: credentials.accessToken);
     await _storage.write(key: 'id_token', value: credentials.idToken);
     if (credentials.refreshToken != null) {
-      await _storage.write(key: 'refresh_token', value: credentials.refreshToken);
+      await _storage.write(
+          key: 'refresh_token', value: credentials.refreshToken);
     }
   }
 
@@ -132,7 +153,8 @@ class Auth0AuthProvider implements AuthProvider {
       final response = await http.post(
         Uri.parse('https://$_domain/oauth/token'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'grant_type=refresh_token&client_id=$_clientId&refresh_token=$refreshToken',
+        body:
+            'grant_type=refresh_token&client_id=$_clientId&refresh_token=$refreshToken',
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
