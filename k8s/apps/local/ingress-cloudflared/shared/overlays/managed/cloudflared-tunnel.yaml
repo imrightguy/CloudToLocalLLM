@@ -12,7 +12,7 @@ metadata:
   labels:
     app: cloudflared
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: cloudflared
@@ -48,10 +48,15 @@ spec:
             httpGet:
               path: /ready
               port: 2000
-
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 2000
+            initialDelaySeconds: 10
+            periodSeconds: 10
       volumes:
         - name: config
           configMap:
@@ -104,10 +109,6 @@ data:
       - hostname: api.cloudtolocalllm.online
         service: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
       
-      # Argo CD UI
-      - hostname: argocd.cloudtolocalllm.online
-        service: http://argocd-server.argocd.svc.cluster.local:80
-
       # Grafana UI
       - hostname: grafana.cloudtolocalllm.online
         service: http://grafana.cloudtolocalllm.svc.cluster.local:3000

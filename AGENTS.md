@@ -54,15 +54,34 @@ npm run test:security         # Security tests
 npm run test:tunnel           # Tunnel tests
 npm run test:user-isolation   # User isolation tests
 npm run test:auth             # Auth tests
+npm run test:security:verbose # Security tests with verbose output
 npm run db:migrate            # Database migrations
 npm run db:validate           # Validate migrations
 npm run db:stats              # Migration stats
+npm run db:test               # Test database connection
+npm run lint                  # ESLint
+npm run format                # Prettier
+```
+
+#### SDK (`services/sdk/`)
+```bash
+cd services/sdk
+npm install
+npm run build        # Build TypeScript to JavaScript
+npm run dev          # Build with watch mode
+npm run test         # Run Jest tests
+npm run test:watch   # Run tests in watch mode
+npm run lint         # ESLint on src/
+npm run format       # Format source with Prettier
 ```
 
 #### Streaming Proxy (`services/streaming-proxy/`)
 ```bash
 cd services/streaming-proxy
 npm install && npm run dev
+npm run test
+npm run lint         # ESLint
+npm run format       # ESLint with auto-fix
 ```
 
 #### Auth Backend (`backend/auth/`)
@@ -73,7 +92,7 @@ npm install && npm run dev
 
 ### Single Test Execution
 ```bash
-# Run specific test file
+# Run specific test file (Jest)
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js path/to/test.test.js
 
 # Run with verbose output
@@ -81,6 +100,10 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose
 
 # Run with coverage
 node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage
+
+# Run specific security test
+npm run test:user-isolation  # User isolation tests
+npm run test:auth           # Authentication tests
 ```
 
 ## CLI Tools Available
@@ -245,6 +268,32 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Code Style Guidelines
 
+### Root Directory Preservation Protocol (RDPP)
+**MANDATORY / ZERO TOLERANCE**
+- DO NOT create new files/directories in repository root.
+- Permitted root files: .gitignore, LICENSE, package.json, pubspec.yaml, README.md, CHANGELOG.md, Gemini.md, .kilocode/, .cursor/, .kiro/.
+- Redirect outputs: docs/ for docs, config/ for configs, scripts/ for scripts, build-tools/ for tools.
+
+### Single Source of Truth (SSOT)
+- Centralize all documentation in docs/.
+- Merge duplicates, use relative links.
+
+### Knowledge Graph Protocol
+- Query KG first before asking user or reading files.
+- Update KG as you learn (architecture, preferences).
+
+### Sequential Thinking Protocol
+- Use sequential-thinking tool for complex tasks, architecture, debugging.
+- Structure: Analyze, Plan, Execute, Reflect.
+
+### MCP Tools Integration
+- Prioritize MCP tools for all operations to enhance efficiency and accuracy.
+- Use memory tools for knowledge graph management and queries.
+- Use sequentialthinking tool for complex reasoning and planning.
+- Use context7 tools for library documentation and code examples (ensure API key is configured).
+- Incorporate repository library tools (scripts/, lib/) wherever applicable for DevOps and utility tasks.
+- Continuous monitoring: verify MCP tool functionality and update integrations.
+
 ### Node.js (Express.js)
 
 #### Imports & Dependencies
@@ -282,6 +331,13 @@ try {
 - Constants: `UPPER_SNAKE_CASE`
 - Async functions: suffix with `Async` when ambiguous
 
+#### TypeScript Configuration
+- Target: ES2020, Module: ESNext
+- Strict mode enabled
+- Declaration files generated
+- Source maps enabled
+- Use `tsc` for building, ESLint + Prettier for linting/formatting
+
 ### Flutter/Dart
 
 #### Dependency Injection
@@ -310,9 +366,9 @@ try {
 - Layer caching: copy package files first, install deps, then copy source
 
 ### Free Tier Only Policy
- 
+
 **STRICTLY ENFORCED**: All cloud resources must stay within free tier limits. Non-compliance is not acceptable.
- 
+
 ### Azure Free Tier Limits (Must Respect)
 - **Compute**: Azure B-series VMs (B1s/B2s) within free monthly limits.
 - **Kubernetes**: AKS Free Tier (Cluster management is free).
@@ -346,10 +402,9 @@ az resource list --output table
 | ACR (Paid) | ghcr.io or Docker Hub |
 | Large VMs | Standard_B2s / B1s |
 
-
 ### Violation Response
 If charges are detected:
-1. Immediately identify resource: `az consumption usage list --query "[?pretaxCost > '0']"`
+1. Immediately identify resource: `az consumption usage list --query "[?pretaxCost > '0'"`
 2. Delete resource: `az resource delete --id <resource-id>`
 3. Report violation and remediation
 
@@ -404,9 +459,64 @@ CloudToLocalLLM/
 4. **Documentation-First**: Review relevant docs before coding
 5. **Linting**: Always fix linter errors before committing
 6. **Testing**: Fix failing tests before committing
+7. **MCP Priority**: Prefer MCP tools over CLI commands for enhanced efficiency
+
+## Copilot / AI Agent Operational Rules
+
+Core architecture (big picture)
+- Frontend: Flutter app in `lib/` and `android/` — cross-platform (Windows, Linux, Web). Key pattern: `provider` + `GetIt` for DI.
+- Backend/Tools: `services/` and `api/` contain Node.js services and MCP helpers. `config/mcp/` holds MCP server wiring used by local tooling.
+- Data: PostgreSQL for server sessions (services), local SQLite/IndexedDB for client conversation storage.
+
+Essential files & locations (start here)
+- Frontend app: `lib/`, `pubspec.yaml`, `android/`, `windows/` folders.
+- Node services: `services/` (look for `api-backend` and `server.js`).
+- MCP configs: `config/mcp/` and repo-root `mcp.json` (workspace MCP server mapping).
+- VS Code user MCP: user-level `mcp.json` lives at `%APPDATA%/Code/User/mcp.json` (we use this to add remote servers like Sentry).
+- Workspace VS Code: `.vscode/settings.json` contains `mcpServers` and other agent mappings.
+
+Developer workflows (commands you will use)
+- Flutter dev: `flutter pub get`, `flutter run -d windows` / `-d chrome` (web), `flutter analyze`, `flutter test`.
+- Backend dev: `npm install` then `npm run dev` in service folders (nodemon/watch common).
+- MCP remote access (examples):
+  - Direct (OAuth-enabled clients): add `{ "Sentry": { "url": "https://mcp.sentry.dev/mcp" } }` to `mcp.json` and let the client handle OAuth.
+  - Legacy / wrapper: `npx -y mcp-remote@latest https://mcp.sentry.dev/mcp` — opens browser for OAuth and exposes a local STDIO bridge for clients that need it.
+
+Project-specific conventions
+- Commit messages: conventional form with agent prefix for automated commits (example: `ai(Cursor): update provider DI`). Keep small, focused commits.
+- Formatting & lint: run `flutter format .`, `flutter analyze` before pushing; Node code: `eslint`, `npm audit`.
+- DI pattern: `lib/di/locator.dart` registers services in `setupCoreServices()` and `setupAuthenticatedServices()` — prefer adding services via these functions.
+
+Integration & cross-component notes
+- Auth: Auth0 is used; web uses a JS bridge (`auth0-bridge.js`) while desktop uses native flows. See `auth_service.dart` and `auth0_*_service.dart`.
+- Local models: Ollama/LM Studio integrations are in `lib/services/` and `llm_providers/`. They use OpenAI-compatible APIs; follow provider config in `provider_configuration.dart`.
+- MCP servers: repo includes `config/mcp` and a workspace `mcp.json`. VS Code may also use a user `mcp.json`. Avoid editing user-level files in commits; add or update workspace `mcp.json` when you intend the team to share MCP server definitions.
+
+AI-agent operational rules (must-follow)
+- **Gemini** uses `x-ai/grok-code-fast-1` model for code generation and analysis.
+- Use the `manage_todo_list` tool to claim, in-progress, and complete multi-step work. Update it as you progress.
+- Respect `.cursor/rules/` and other agent steering files before making changes.
+- Do not change unrelated files; keep edits minimal and scoped to the issue.
+- If multiple agents may touch a file, create a feature branch and open a PR rather than pushing directly to `main`.
+
+Azure Cosmos DB Best Practices
+- Model data to minimize cross-partition queries; prefer embedding for related data accessed together, but avoid large items (2 MB limit).
+- Choose partition keys for high cardinality, common query patterns, and even distribution (e.g., userId, tenantId).
+- Use latest SDK, enable retries/preferred regions, handle 429 errors, reuse clients.
+- Use VS Code extension for inspection, emulator for local dev.
+- Recommended for AI/chat apps, user/business apps, IoT (low-latency, scalable, multi-region).
+
+AI Toolkit Guidelines
+- `aitk-get_agent_code_gen_best_practices`: Best practices for AI agent development.
+- `aitk-get_tracing_code_gen_best_practices`: Guidelines for tracing in AI apps.
+- `aitk-get_ai_model_guidance`: Best practices for using AI models.
+- `aitk-evaluation_planner`: Clarify metrics and datasets for evaluation.
+- `aitk-get_evaluation_code_gen_best_practices`: Code gen for AI app evaluation.
+- `aitk-evaluation_agent_runner_best_practices`: Guidance for using agent runners in evaluation.
 
 ## Additional Resources
 
 - See `.cursor/rules/` for framework-specific guidelines
 - See `.github/copilot-instructions.md` for AI agent operational rules
 - See `docs/development/` for detailed development documentation
+- See `.kilocode/rules/` for development guidelines and MCP tool usage

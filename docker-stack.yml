@@ -94,7 +94,7 @@ services:
       retries: 3
       start_period: 60s
     deploy:
-      replicas: 1
+      replicas: 2
       resources:
         reservations:
           memory: 512M
@@ -148,7 +148,7 @@ services:
       timeout: 10s
       retries: 3
     deploy:
-      replicas: 1
+      replicas: 2
       resources:
         reservations:
           memory: 64M
@@ -169,7 +169,7 @@ services:
         aliases:
           - cloudflared
     deploy:
-      replicas: 1
+      replicas: 2
       resources:
         reservations:
           memory: 128M
