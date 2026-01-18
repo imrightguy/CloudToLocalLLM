@@ -27,6 +27,9 @@ services:
           memory: 512M
         limits:
           memory: 1024M
+      update_config:
+        order: start-first
+        failure_action: rollback
       restart_policy:
         condition: on-failure
 
@@ -52,6 +55,9 @@ services:
           memory: 64M
         limits:
           memory: 128M
+      update_config:
+        order: start-first
+        failure_action: rollback
       restart_policy:
         condition: on-failure
 
@@ -116,6 +122,9 @@ services:
           memory: 256M
         limits:
           memory: 512M
+      update_config:
+        order: start-first
+        failure_action: rollback
 
   # Web Frontend (Nginx serving Flutter)
   web:
@@ -136,6 +145,9 @@ services:
           memory: 128M
         limits:
           memory: 256M
+      update_config:
+        order: start-first
+        failure_action: rollback
 
   # Cloudflare Tunnel (Ingress)
   cloudflared:
@@ -152,6 +164,9 @@ services:
           memory: 128M
         limits:
           memory: 256M
+      update_config:
+        order: start-first
+        failure_action: rollback
       restart_policy:
         condition: on-failure
 
