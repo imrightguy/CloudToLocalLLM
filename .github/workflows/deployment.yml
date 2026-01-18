@@ -463,6 +463,15 @@ jobs:
             source .env.remote
             rm .env.remote
 
+            # NUCLEAR RESET (Safe): Stop stack and clear old images
+            echo "🛑 Stopping existing stack..."
+            sudo docker stack rm cloudtolocalllm || true
+            echo "⏳ Waiting for cleanup..."
+            sleep 20
+            
+            # Prune old images to ensure fresh start (DO NOT prune volumes)
+            sudo docker image prune -af
+
             # Login to GHCR
             echo "${GH_TOKEN}" | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
             
@@ -474,16 +483,14 @@ jobs:
             sudo docker pull cloudflare/cloudflared:2024.12.2
             sudo docker pull redis:7-alpine
             
+            # Fresh Deploy
             sudo -E docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
             
             # Wait for services to stabilize
             echo "Waiting for services to stabilize..."
-            sleep 30
+            sleep 60
             sudo docker stack services cloudtolocalllm
             sudo docker stack ps cloudtolocalllm
-            
-            # Prune old images to save space
-            sudo docker system prune -af
           EOF
 
 

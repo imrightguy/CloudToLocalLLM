@@ -6,10 +6,16 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+# Use npm ci to ensure exact versions from package-lock.json
+# Including dev dependencies for the build process (like eslint/prettier if they are part of prepublish)
+# and then pruning is usually better, but here we just need a clean install.
+RUN npm ci
 
 # Copy source code (respects .dockerignore)
 COPY . .
+
+# Prune dev dependencies before copying to final image
+RUN npm prune --omit=dev
 
 # --- Runner Stage ---
 FROM node:24-alpine
@@ -23,7 +29,7 @@ RUN apk add --no-cache curl wget bash
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
 
-# Copy from builder
+# Copy EVERYTHING from builder stage (the app and pruned node_modules)
 COPY --from=builder /app /app
 
 # Fix permissions
