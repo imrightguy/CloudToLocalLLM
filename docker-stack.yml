@@ -6,8 +6,8 @@ services:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:${DOCKER_TAG}
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-cloudtolocalllm}
-      POSTGRES_USER: ${POSTGRES_USER:-appuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -16,7 +16,7 @@ services:
           - postgres
           - postgres.cloudtolocalllm.svc.cluster.local
     healthcheck:
-      test: pg_isready -U $${POSTGRES_USER:-appuser} -d $${POSTGRES_DB:-cloudtolocalllm}
+      test: pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-cloudtolocalllm}
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,12 +71,12 @@ services:
       NODE_ENV: production
       PORT: 8080
       DB_TYPE: postgresql
-      DB_HOST: postgres.cloudtolocalllm.svc.cluster.local
+      DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${POSTGRES_DB:-cloudtolocalllm}
-      DB_USER: ${POSTGRES_USER:-appuser}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      REDIS_HOST: redis.cloudtolocalllm.svc.cluster.local
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
       AUTH0_DOMAIN: ${AUTH0_DOMAIN}
@@ -110,7 +110,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      API_BACKEND_URL: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
+      API_BACKEND_URL: http://api-backend:8080
     networks:
       cloudtolocalllm_net:
         aliases:
@@ -164,7 +164,9 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
-      - cloudtolocalllm_net
+      cloudtolocalllm_net:
+        aliases:
+          - cloudflared
     deploy:
       replicas: 1
       resources:

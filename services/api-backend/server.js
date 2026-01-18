@@ -808,7 +808,7 @@ let authService = null;
 let dbMigrator = null;
 let authDbMigrator = null;
 
-async function initializeTunnelSystem() {
+async function initializeTunnelSystem(retries = 5) {
   console.log('DEBUG: Starting initializeTunnelSystem function');
   logger.info('Starting initialization of tunnel system...');
   try {
@@ -822,7 +822,24 @@ async function initializeTunnelSystem() {
     // Initialize application database
     dbMigrator = new DatabaseMigratorPG();
 
-    await dbMigrator.initialize();
+    // Add retry logic for database connection
+    let connected = false;
+    let attempt = 0;
+    while (!connected && attempt < retries) {
+      try {
+        await dbMigrator.initialize();
+        connected = true;
+      } catch (err) {
+        attempt++;
+        logger.warn(`Database connection attempt ${attempt} failed: ${err.message}. Retrying in 5s...`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+    }
+    
+    if (!connected) {
+      throw new Error('Could not connect to database after multiple attempts');
+    }
+
     await dbMigrator.createMigrationsTable();
     await dbMigrator.applyInitialSchema();
 
