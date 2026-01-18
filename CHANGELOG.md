@@ -2,8 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [10.1.0] - 2025-12-31
-## v10.1.0
+## [10.1.147] - 2026-01-18
+* chore: automated version bump to 10.1.148 [skip ci] (b004929)
+
+## [10.1.147] - 2025-12-31
+## v10.1.147
 
 ### Features
 *   Migrate from Supabase to Auth0 PKCE auth pipeline (bc51953)

@@ -125,6 +125,64 @@ echo "11. Generating Changelog..."
 chmod +x scripts/generate-changelog.sh
 ./scripts/generate-changelog.sh "$NEW_VERSION"
 
+# 12. Update root package.json
+echo "12. Updating root package.json..."
+if [ -f "package.json" ]; then
+    jq --arg version "$NEW_VERSION" '.version = $version' package.json > /tmp/root-package.json
+    mv /tmp/root-package.json package.json
+fi
+
+# 13. Update .env.production.template
+echo "13. Updating .env.production.template..."
+if [ -f "config/.env.production.template" ]; then
+    sed -i "s/CloudToLocalLLM v[0-9]\+\.[0-9]\+\.[0-9]\+/CloudToLocalLLM v${NEW_VERSION}/g" config/.env.production.template
+    sed -i "s/APP_VERSION=[0-9]\+\.[0-9]\+\.[0-9]\+/APP_VERSION=${NEW_VERSION}/g" config/.env.production.template
+fi
+
+# 14. Update test setup and documentation files that might have hardcoded versions
+echo "14. Updating miscellaneous version references..."
+# Also look for 10.1.147 since that was the common base before my changes
+grep -rlE "3\.10\.0|10\.1\.0" . --exclude-dir=.git --exclude-dir=node_modules | xargs sed -i "s/3\.10\.0/${NEW_VERSION}/g; s/10\.1\.0/${NEW_VERSION}/g" 2>/dev/null || true
+
+echo ""
+echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
+echo "âœ… All Version References Updated"
+echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
+echo ""
+echo "Files updated:"
+echo "  âœ… assets/version.json â†’ $NEW_VERSION"
+echo "  âœ… assets/component-versions.json â†’ all services"
+echo "  âœ… pubspec.yaml â†’ ${NEW_VERSION}+${BUILD_NUMBER}"
+echo "  âœ… services/api-backend/package.json â†’ $NEW_VERSION"
+echo "  âœ… services/streaming-proxy/package.json â†’ $NEW_VERSION"
+echo "  âœ… root package.json â†’ $NEW_VERSION"
+echo "  âœ… config/.env.production.template"
+echo "  âœ… lib/main.dart â†’ v${NEW_VERSION}"
+echo "  âœ… README.md â†’ updated badges"
+echo "  âœ… docs/VERSIONING.md â†’ updated examples"
+echo "  âœ… SECURITY.md â†’ added new version row"
+echo "  âœ… lib/config/app_config.dart â†’ $NEW_VERSION"
+echo "  âœ… CHANGELOG.md â†’ prepended new version entry"
+echo ""
+
+echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
+echo "âœ… All Version References Updated"
+echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
+echo ""
+echo "Files updated:"
+echo "  âœ… assets/version.json â†’ $NEW_VERSION"
+echo "  âœ… assets/component-versions.json â†’ all services"
+echo "  âœ… pubspec.yaml â†’ ${NEW_VERSION}+${BUILD_NUMBER}"
+echo "  âœ… services/api-backend/package.json â†’ $NEW_VERSION"
+echo "  âœ… services/streaming-proxy/package.json â†’ $NEW_VERSION"
+echo "  âœ… root package.json â†’ $NEW_VERSION"
+echo "  âœ… config/.env.production.template"
+echo "  âœ… lib/main.dart â†’ v${NEW_VERSION}"
+echo "  âœ… README.md â†’ updated badges"
+echo "  âœ… docs/VERSIONING.md â†’ updated examples"
+echo "  âœ… SECURITY.md â†’ added new version row"
+echo "  âœ… lib/config/app_config.dart â†’ $NEW_VERSION"
+echo "  âœ… CHANGELOG.md â†’ prepended new version entry"
 echo ""
 echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
 echo "âœ… All Version References Updated"

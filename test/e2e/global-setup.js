@@ -1,5 +1,5 @@
 /**
- * CloudToLocalLLM v3.10.0 Global Test Setup
+ * CloudToLocalLLM v10.1.147 Global Test Setup
  * Prepares environment for authentication loop analysis
  */
 
@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function globalSetup(config) {
-  console.log(' CloudToLocalLLM v3.10.0 Authentication Loop Analysis Setup');
+  console.log(' CloudToLocalLLM v10.1.147 Authentication Loop Analysis Setup');
   console.log('================================================================');
 
   // Create test results directory
@@ -115,10 +115,10 @@ async function globalSetup(config) {
             const versionData = await versionResponse.json();
             console.log(` Version endpoint accessible: v${versionData.version}`);
 
-            if (versionData.version === '3.10.0') {
-              console.log(` Correct version deployed (3.10.0)`);
+            if (versionData.version === '10.1.147') {
+              console.log(` Correct version deployed (10.1.147)`);
             } else {
-              console.log(`  Unexpected version: ${versionData.version} (expected 3.10.0)`);
+              console.log(`  Unexpected version: ${versionData.version} (expected 10.1.147)`);
             }
           } else {
             console.log(`  Version endpoint not accessible (HTTP ${versionResponse.status})`);
@@ -139,7 +139,7 @@ async function globalSetup(config) {
   // Create test configuration summary
   const testConfig = {
     timestamp: new Date().toISOString(),
-    version: '3.10.0',
+    version: '10.1.147',
     deploymentUrl: process.env.DEPLOYMENT_URL,
     hasJWTCredentials: !!(process.env.JWT_TEST_EMAIL && process.env.JWT_TEST_PASSWORD),
     testEnvironment: process.env.CI ? 'CI' : 'LOCAL',

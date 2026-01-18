@@ -179,18 +179,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Update version
-          jq --arg v "$NEW_VERSION" '.version = $v' assets/version.json > tmp.json && mv tmp.json assets/version.json
+          # Synchronize all version references across the project
+          chmod +x scripts/update-all-versions.sh scripts/generate-changelog.sh
+          ./scripts/update-all-versions.sh "$NEW_VERSION" "${{ github.sha }}"
 
-           if git diff --quiet assets/version.json; then
-             echo "No changes in version file. Skipping commit."
-           else
-             git add assets/version.json
-             git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
+          # Check if there are any changes to commit
+          # (Excluding files that might have changed but aren't related to versioning)
+          if git diff --quiet; then
+            echo "No changes detected. Skipping commit."
+          else
+            # Stage all changes made by the version script
+            # This includes pubspec.yaml, package.jsons, main.dart, app_config.dart, etc.
+            git add .
+            git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
 
-             # Using authenticated remote URL for the push
-             git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
-           fi
+            # Using authenticated remote URL for the push
+            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
+          fi
 
   build_api:
     needs: ai_change_analysis

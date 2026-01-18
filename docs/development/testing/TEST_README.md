@@ -1,8 +1,8 @@
-# CloudToLocalLLM v3.10.0 Authentication Loop Analysis Tests
+# CloudToLocalLLM v10.1.147 Authentication Loop Analysis Tests
 
 ## 🎯 Overview
 
-This test suite uses Playwright to perform comprehensive end-to-end analysis of the authentication login loop issue in CloudToLocalLLM v3.10.0. The tests are specifically designed to verify that the race condition fix implemented in this version is working correctly in production environments.
+This test suite uses Playwright to perform comprehensive end-to-end analysis of the authentication login loop issue in CloudToLocalLLM v10.1.147. The tests are specifically designed to verify that the race condition fix implemented in this version is working correctly in production environments.
 
 ## 🔧 What the Tests Do
 
@@ -25,7 +25,7 @@ This test suite uses Playwright to perform comprehensive end-to-end analysis of 
 
 ### Prerequisites
 - Node.js 16+ installed
-- Access to deployed CloudToLocalLLM v3.10.0 application
+- Access to deployed CloudToLocalLLM v10.1.147 application
 - Optional: JWT test credentials for full flow testing
 
 ### Installation
@@ -174,7 +174,7 @@ Tests run on multiple browsers by default:
 
 3. **"Infinite loop detected"**
    - This indicates the race condition fix is NOT working
-   - Check if the correct version (3.10.0) is deployed
+   - Check if the correct version (10.1.147) is deployed
    - Review JWT configuration for callback URLs
 
 4. **"Callback processing too fast"**
@@ -223,7 +223,7 @@ This will:
 
 ## 🎯 Success Criteria
 
-For the v3.10.0 fix to be considered successful:
+For the v10.1.147 fix to be considered successful:
 
 1. **No Login Loops**: Zero infinite redirect cycles detected
 2. **Proper Timing**: Callback processing >100ms consistently
@@ -239,8 +239,8 @@ If tests fail or issues are detected:
 2. **Analyze JSON Data**: Examine detailed flow in `auth-loop-analysis-*.json`
 3. **Check Screenshots**: Visual evidence in `test-results/screenshots/`
 4. **Review Network Traffic**: HAR file analysis for API issues
-5. **Verify Deployment**: Ensure correct version (3.10.0) is deployed
+5. **Verify Deployment**: Ensure correct version (10.1.147) is deployed
 
 ---
 
-**🎉 These tests verify that the critical login loop race condition has been resolved in CloudToLocalLLM v3.10.0!**
+**🎉 These tests verify that the critical login loop race condition has been resolved in CloudToLocalLLM v10.1.147!**

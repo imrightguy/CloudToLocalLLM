@@ -1,4 +1,4 @@
-# CloudToLocalLLM v3.10.0 Deployment Verification Script
+# CloudToLocalLLM v10.1.147 Deployment Verification Script
 # Verifies that the login loop race condition fix is working correctly
 
 [CmdletBinding()]
@@ -27,7 +27,7 @@ if (Test-Path $utilsPath) {
     function Write-LogError { param($Message) Write-Host "[ERROR] $Message" -ForegroundColor Red }
 }
 
-Write-Host "CloudToLocalLLM v3.10.0 Deployment Verification" -ForegroundColor Cyan
+Write-Host "CloudToLocalLLM v10.1.147 Deployment Verification" -ForegroundColor Cyan
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -71,7 +71,7 @@ try {
     $versionResponse = Invoke-WebRequest -Uri $versionUrl -TimeoutSec $TimeoutSeconds -UseBasicParsing
     $versionData = $versionResponse.Content | ConvertFrom-Json
     
-    if ($versionData.version -eq "3.10.0") {
+    if ($versionData.version -eq "10.1.147") {
         Write-LogSuccess " Correct version deployed: $($versionData.version)"
         Write-LogInfo "   Build number: $($versionData.build_number)"
         $TestResults["Version Check"] = $true

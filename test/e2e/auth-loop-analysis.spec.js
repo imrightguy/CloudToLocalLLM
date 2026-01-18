@@ -1,4 +1,4 @@
-// CloudToLocalLLM v3.10.0 Authentication Loop Analysis Test
+// CloudToLocalLLM v10.1.147 Authentication Loop Analysis Test
 // Comprehensive E2E test to analyze and verify the login loop race condition fix
 
 import { test, expect } from '@playwright/test';
@@ -18,7 +18,7 @@ const CONFIG = {
 // Test data collection
 let testReport = {
   startTime: new Date().toISOString(),
-  version: '3.10.0',
+  version: '10.1.147',
   deploymentUrl: CONFIG.DEPLOYMENT_URL,
   events: [],
   networkRequests: [],
@@ -30,7 +30,7 @@ let testReport = {
   timings: {},
 };
 
-test.describe('CloudToLocalLLM v3.10.0 Authentication Loop Analysis', () => {
+test.describe('CloudToLocalLLM v10.1.147 Authentication Loop Analysis', () => {
   let page;
   let context;
 
@@ -129,14 +129,14 @@ test.describe('CloudToLocalLLM v3.10.0 Authentication Loop Analysis', () => {
       const versionResponse = await page.request.get(`${CONFIG.DEPLOYMENT_URL}/version.json`);
       const versionData = await versionResponse.json();
 
-      if (versionData.version === '3.10.0') {
+      if (versionData.version === '10.1.147') {
         testReport.events.push({
           timestamp: new Date().toISOString(),
           event: 'VERSION_VERIFIED',
           data: versionData
         });
       } else {
-        testReport.issues.push(`Unexpected version: ${versionData.version}, expected 3.10.0`);
+        testReport.issues.push(`Unexpected version: ${versionData.version}, expected 10.1.147`);
       }
     } catch (error) {
       testReport.issues.push(`Failed to verify version: ${error.message}`);

@@ -40,23 +40,24 @@ $COMMITS"
 
 # Get response from Kilocode
 if ! command -v gemini-cli >/dev/null 2>&1; then
-    echo "❌ CRITICAL FAILURE: 'gemini-cli' command not found. Ensure the Kilocode CLI is installed and in your PATH."
-    exit 1
+    echo "⚠️  WARNING: 'gemini-cli' command not found. Skipping AI changelog generation."
+    # If gemini-cli is missing, we still want to add the version header to CHANGELOG.md
+    # even if the content is just the commit list or empty for now.
+    CHANGELOG_ENTRY="$COMMITS"
+else
+    echo "🚀 Requesting changelog from Kilocode AI..."
+    # Use gemini-cli CLI to generate the changelog
+    CHANGELOG_ENTRY=$(gemini-cli "$PROMPT")
+
+    if [ -z "$CHANGELOG_ENTRY" ]; then
+        echo "⚠️  WARNING: Kilocode AI returned an empty response. Using raw commit list."
+        CHANGELOG_ENTRY="$COMMITS"
+    else
+        echo "✅ Received response from Kilocode."
+        # Clean up the response (remove code blocks if any)
+        CHANGELOG_ENTRY=$(echo "$CHANGELOG_ENTRY" | sed 's/```markdown//g' | sed 's/```//g')
+    fi
 fi
-
-echo "🚀 Requesting changelog from Kilocode AI..."
-# Use gemini-cli CLI to generate the changelog
-CHANGELOG_ENTRY=$(gemini-cli "$PROMPT")
-
-if [ -z "$CHANGELOG_ENTRY" ]; then
-    echo "❌ CRITICAL FAILURE: Kilocode AI returned an empty response. Cannot generate changelog."
-    exit 1
-fi
-
-echo "✅ Received response from Kilocode."
-
-# Clean up the response (remove code blocks if any)
-CHANGELOG_ENTRY=$(echo "$CHANGELOG_ENTRY" | sed 's/```markdown//g' | sed 's/```//g')
 
 # Prepend to CHANGELOG.md
 DATE=$(date +"%Y-%m-%d")
