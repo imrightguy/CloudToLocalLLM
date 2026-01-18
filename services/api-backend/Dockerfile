@@ -24,6 +24,6 @@ RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app
 
 USER nodejs
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["npm", "start"]

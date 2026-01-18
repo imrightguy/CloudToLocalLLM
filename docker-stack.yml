@@ -45,7 +45,7 @@ services:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:${DOCKER_TAG}
     environment:
       NODE_ENV: production
-      PORT: 3000
+      PORT: 8080
       DB_TYPE: postgresql
       DB_HOST: postgres
       DB_PORT: 5432
@@ -76,7 +76,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      API_BACKEND_URL: http://api-backend:3000
+      API_BACKEND_URL: http://api-backend:8080
     networks:
       - cloudtolocalllm_net
     deploy:
