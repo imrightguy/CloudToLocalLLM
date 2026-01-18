@@ -168,7 +168,7 @@ afterEach(() => {
 });
 
 // Cleanup after all tests complete in this worker
-afterAll(async () => {
+afterAll(async() => {
   // Close database pool if it was initialized (within worker process)
   try {
     const dbPool = await import('../database/db-pool.js');

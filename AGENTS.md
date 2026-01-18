@@ -241,14 +241,17 @@ node --experimental-vm-modules ./node_modules/jest/bin/jest.js --coverage
 - `cloudflare dns record create` - Create DNS record
 - `cloudflare cache purge` - Purge cache
 
-### MCP Tools
+### MCP Tools - USE THESE EXTENSIVELY
+- `auth0-*` - Auth0 management and configuration (NEW!)
 - `mcp-sequentialthinking` - Structured problem-solving
 - `mcp-context7` - Library documentation lookup
 - `mcp-memory` - Knowledge graph storage
+- `context7-*` - Library documentation and code examples
+- `memory-*` - Knowledge graph management
 
-## MCP Tools Installation
+## MCP Tools Installation & Usage
 
-### Required MCP Tools for Agents
+### Required MCP Tools for Agents - NOW AVAILABLE
 ```bash
 # Run the setup script
 ./setup-opencode-mcp.sh
@@ -261,10 +264,46 @@ npm install @modelcontextprotocol/server-sequential-thinking @upstash/context7-m
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-### Available MCP Tools
+### Available MCP Tools - USE THESE AS MUCH AS POSSIBLE
+
+#### Auth0 Management Tools (NEW!)
+- **auth0_list_applications**: List all Auth0 applications
+- **auth0_get_application**: Get details about a specific Auth0 application
+- **auth0_create_application**: Create a new Auth0 application
+- **auth0_update_application**: Update an existing Auth0 application
+- **auth0_list_resource_servers**: List all resource servers (APIs)
+- **auth0_get_resource_server**: Get details about a specific resource server
+- **auth0_create_resource_server**: Create a new resource server (API)
+- **auth0_update_resource_server**: Update an existing resource server
+- **auth0_list_actions**: List all Auth0 actions
+- **auth0_get_action**: Get details about a specific action
+- **auth0_create_action**: Create a new Auth0 action
+- **auth0_update_action**: Update an existing Auth0 action
+- **auth0_deploy_action**: Deploy an Auth0 action
+- **auth0_list_logs**: List Auth0 tenant logs
+- **auth0_get_log**: Get a specific log entry
+- **auth0_list_forms**: List all Auth0 forms
+- **auth0_get_form**: Get details about a specific form
+- **auth0_create_form**: Create a new Auth0 form
+- **auth0_update_form**: Update an existing Auth0 form
+
+#### Library Documentation Tools
+- **context7_resolve-library-id**: Resolve package names to Context7 library IDs
+- **context7_query-docs**: Query up-to-date documentation and code examples
+
+#### Knowledge Graph Tools
+- **memory_create_entities**: Create new entities in knowledge graph
+- **memory_create_relations**: Create relations between entities
+- **memory_add_observations**: Add observations to existing entities
+- **memory_delete_entities**: Remove entities from knowledge graph
+- **memory_delete_observations**: Remove specific observations
+- **memory_delete_relations**: Remove relations between entities
+- **memory_read_graph**: Read entire knowledge graph
+- **memory_search_nodes**: Search entities by query
+- **memory_open_nodes**: Retrieve specific entities
+
+#### Problem-Solving Tools
 - **sequentialthinking**: Dynamic problem-solving through structured thinking process
-- **context7**: Retrieve up-to-date library documentation and code examples
-- **memory**: Persistent knowledge graph for storing information across sessions
 
 ## Code Style Guidelines
 
@@ -287,12 +326,13 @@ export PATH="$HOME/.local/bin:$PATH"
 - Structure: Analyze, Plan, Execute, Reflect.
 
 ### MCP Tools Integration
-- Prioritize MCP tools for all operations to enhance efficiency and accuracy.
+- **MANDATORY**: USE MCP TOOLS AS MUCH AS POSSIBLE for all operations to enhance efficiency and accuracy.
+- **Auth0 Operations**: Use auth0_* MCP tools for ALL Auth0 management tasks (applications, APIs, actions, logs, forms).
 - Use memory tools for knowledge graph management and queries.
 - Use sequentialthinking tool for complex reasoning and planning.
 - Use context7 tools for library documentation and code examples (ensure API key is configured).
 - Incorporate repository library tools (scripts/, lib/) wherever applicable for DevOps and utility tasks.
-- Continuous monitoring: verify MCP tool functionality and update integrations.
+- Continuous monitoring: verify MCP tool functionality and update integrations as new tools emerge.
 
 ### Node.js (Express.js)
 
@@ -459,7 +499,7 @@ CloudToLocalLLM/
 4. **Documentation-First**: Review relevant docs before coding
 5. **Linting**: Always fix linter errors before committing
 6. **Testing**: Fix failing tests before committing
-7. **MCP Priority**: Prefer MCP tools over CLI commands for enhanced efficiency
+7. **MCP Priority**: USE MCP TOOLS AS MUCH AS POSSIBLE - prefer over CLI commands for enhanced efficiency
 
 ## Copilot / AI Agent Operational Rules
 

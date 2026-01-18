@@ -291,7 +291,7 @@ export class ResourceMonitor {
     }
 
     this.isRunning = true;
-    this.timer = setInterval(async () => {
+    this.timer = setInterval(async() => {
       try {
         const metrics = await collectResourceMetrics();
         this.metrics.push(metrics);

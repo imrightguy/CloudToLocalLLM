@@ -743,24 +743,26 @@ async function initializeTunnelSystem(retries = 10) {
       try {
         attempt++;
         logger.info(`Database initialization attempt ${attempt}/${retries}...`);
-        
+
         await dbMigrator.initialize();
         await dbMigrator.createMigrationsTable();
         await dbMigrator.applyInitialSchema();
-        
+
         console.log('DEBUG: About to run migrations');
         await dbMigrator.migrate();
-        
+
         console.log('DEBUG: Validating database schema');
         const validation = await dbMigrator.validateSchema();
         if (!validation.allValid) {
           throw new Error('Database schema validation failed');
         }
-        
+
         connected = true;
         logger.info('Database system fully initialized and migrated');
       } catch (err) {
-        if (attempt >= retries) throw err;
+        if (attempt >= retries) {
+          throw err;
+        }
         logger.warn(`Database initialization attempt ${attempt} failed: ${err.message}. Retrying in 5s...`);
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
