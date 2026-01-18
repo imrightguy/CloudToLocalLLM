@@ -431,42 +431,42 @@ jobs:
         run: |
           # Get VM IP
           IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm --query publicIps -o tsv)
-          
+          echo "Deploying to $IP..."
+
           # Setup SSH
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $IP >> ~/.ssh/known_hosts
 
-          # Copy Stack File
-          scp docker-stack.yml azureuser@$IP:~/docker-stack.yml
+          # Generate safe env file for remote execution
+          {
+            vars=(
+              POSTGRES_USER POSTGRES_PASSWORD POSTGRES_AUTH_PASSWORD 
+              JWT_SECRET AUTH0_DOMAIN AUTH0_AUDIENCE AUTH0_CLIENT_ID 
+              AUTH0_CLIENT_SECRET STRIPE_TEST_SECRET_KEY STRIPE_TEST_PUBLISHABLE_KEY 
+              STRIPE_TEST_WEBHOOK_SECRET STRIPE_LIVE_SECRET_KEY STRIPE_LIVE_PUBLISHABLE_KEY 
+              STRIPE_LIVE_WEBHOOK_SECRET SENTRY_DSN CLOUDFLARE_TUNNEL_TOKEN DOCKER_TAG
+              GH_TOKEN GITHUB_ACTOR
+            )
+            for var in "${vars[@]}"; do
+              printf "export %s=%q\n" "$var" "${!var}"
+            done
+          } > .env.remote
+
+          # Copy Stack and Env Files
+          scp docker-stack.yml .env.remote azureuser@$IP:~/
 
           # Deploy via SSH
-          # Inject secrets as env vars for now (simple migration)
-          ssh azureuser@$IP <<EOF
-            export POSTGRES_USER="$POSTGRES_USER"
-            export POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
-            export POSTGRES_AUTH_PASSWORD="$POSTGRES_AUTH_PASSWORD"
-            export JWT_SECRET="$JWT_SECRET"
-            export AUTH0_DOMAIN="$AUTH0_DOMAIN"
-            export AUTH0_AUDIENCE="$AUTH0_AUDIENCE"
-            export AUTH0_CLIENT_ID="$AUTH0_CLIENT_ID"
-            export AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET"
-            export STRIPE_TEST_SECRET_KEY="$STRIPE_TEST_SECRET_KEY"
-            export STRIPE_TEST_PUBLISHABLE_KEY="$STRIPE_TEST_PUBLISHABLE_KEY"
-            export STRIPE_TEST_WEBHOOK_SECRET="$STRIPE_TEST_WEBHOOK_SECRET"
-            export STRIPE_LIVE_SECRET_KEY="$STRIPE_LIVE_SECRET_KEY"
-            export STRIPE_LIVE_PUBLISHABLE_KEY="$STRIPE_LIVE_PUBLISHABLE_KEY"
-            export STRIPE_LIVE_WEBHOOK_SECRET="$STRIPE_LIVE_WEBHOOK_SECRET"
-            export SENTRY_DSN="$SENTRY_DSN"
-            export CLOUDFLARE_TUNNEL_TOKEN="$CLOUDFLARE_TUNNEL_TOKEN"
-            export DOCKER_TAG="$DOCKER_TAG"
+          ssh azureuser@$IP <<'EOF'
+            # Load environment
+            source .env.remote
+            rm .env.remote
 
             # Login to GHCR
             echo "${GH_TOKEN}" | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
             
-            # Pull latest images sequentially to avoid OOM on small VMs
-            # Explicitly pull the versioned images to ensure availability
+            # Pull latest images sequentially
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:$DOCKER_TAG
