@@ -1,24 +1,42 @@
-FROM node:24-alpine
+# --- Build Stage ---
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Install runtime utilities and build tools for native modules
-RUN apk add --no-cache curl wget bash python3 make g++
+# Install build dependencies for native modules (pg, etc.)
+RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including dev if needed for build steps)
-# Then prune to keep image small
-RUN npm ci && npm prune --omit=dev
+# Install ALL dependencies (production + dev for any build scripts)
+RUN npm ci
 
-# Copy application source
+# Copy source code
 COPY . .
 
-# Ensure logs directory exists and set permissions
-RUN mkdir -p logs && chown -R node:node /app
+# Prune dev dependencies
+RUN npm prune --omit=dev
 
-USER node
+# --- Runner Stage ---
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Install runtime utilities
+RUN apk add --no-cache curl wget bash
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
+
+# Copy pruned node_modules and app from builder
+COPY --from=builder /app /app
+
+# Fix permissions
+RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app
+
+USER nodejs
 
 EXPOSE 8080
 

@@ -13,6 +13,7 @@ services:
     networks:
       cloudtolocalllm_net:
         aliases:
+          - postgres
           - postgres.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: pg_isready -U $${POSTGRES_USER:-appuser} -d $${POSTGRES_DB:-cloudtolocalllm}
@@ -42,9 +43,10 @@ services:
     networks:
       cloudtolocalllm_net:
         aliases:
+          - redis
           - redis.cloudtolocalllm.svc.cluster.local
     healthcheck:
-      test: redis-cli ping
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -81,6 +83,7 @@ services:
     networks:
       cloudtolocalllm_net:
         aliases:
+          - api-backend
           - api-backend.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1
@@ -109,6 +112,7 @@ services:
     networks:
       cloudtolocalllm_net:
         aliases:
+          - streaming-proxy
           - streaming-proxy.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: wget --quiet --tries=1 --spider http://127.0.0.1:3001/health || exit 1
@@ -132,6 +136,7 @@ services:
     networks:
       cloudtolocalllm_net:
         aliases:
+          - web
           - web.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1
