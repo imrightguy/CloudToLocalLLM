@@ -4,6 +4,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:${DOCKER_TAG}
+    user: "1001:1001"
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-cloudtolocalllm}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
