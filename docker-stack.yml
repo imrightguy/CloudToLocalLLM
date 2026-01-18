@@ -71,7 +71,7 @@ services:
     networks:
       - cloudtolocalllm_net
     healthcheck:
-      test: curl -f http://localhost:8080/health || exit 1
+      test: wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -97,7 +97,7 @@ services:
     networks:
       - cloudtolocalllm_net
     healthcheck:
-      test: curl -f http://localhost:3001/health || exit 1
+      test: wget --quiet --tries=1 --spider http://127.0.0.1:3001/health || exit 1
       interval: 30s
       timeout: 10s
       retries: 3
@@ -115,7 +115,7 @@ services:
     networks:
       - cloudtolocalllm_net
     healthcheck:
-      test: wget --quiet --tries=1 --spider http://localhost:8080/health || exit 1
+      test: wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1
       interval: 30s
       timeout: 10s
       retries: 3

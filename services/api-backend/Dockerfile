@@ -2,24 +2,31 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+# Install build dependencies for native modules
 RUN apk add --no-cache python3 make g++
+
+COPY package*.json ./
 RUN npm ci --omit=dev
 
-COPY . ./
+# Copy source code (respects .dockerignore)
+COPY . .
 
+# --- Runner Stage ---
 FROM node:24-alpine
-
-RUN apk add --no-cache curl
-
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
 
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app ./
+# Install utilities for healthchecks
+RUN apk add --no-cache curl wget bash
 
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
+
+# Copy from builder
+COPY --from=builder /app /app
+
+# Fix permissions
 RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app
 
 USER nodejs
