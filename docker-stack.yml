@@ -12,6 +12,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - cloudtolocalllm_net
+    healthcheck:
+      test: pg_isready -U $${POSTGRES_USER:-appuser} -d $${POSTGRES_DB:-cloudtolocalllm}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     deploy:
       replicas: 1
       resources:
@@ -30,6 +36,11 @@ services:
       - redis_data:/data
     networks:
       - cloudtolocalllm_net
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       replicas: 1
       resources:
@@ -59,6 +70,12 @@ services:
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
     networks:
       - cloudtolocalllm_net
+    healthcheck:
+      test: curl -f http://localhost:8080/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     deploy:
       replicas: 1
       resources:
@@ -79,6 +96,11 @@ services:
       API_BACKEND_URL: http://api-backend:8080
     networks:
       - cloudtolocalllm_net
+    healthcheck:
+      test: curl -f http://localhost:3001/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       replicas: 1
       resources:
@@ -92,13 +114,18 @@ services:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
     networks:
       - cloudtolocalllm_net
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://localhost:8080/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       replicas: 1
       resources:
         reservations:
-          memory: 64M
-        limits:
           memory: 128M
+        limits:
+          memory: 256M
 
   # Cloudflare Tunnel (Ingress)
   cloudflared:
@@ -121,6 +148,8 @@ services:
 networks:
   cloudtolocalllm_net:
     driver: overlay
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
 
 volumes:
   postgres_data:

@@ -476,6 +476,12 @@ jobs:
             
             sudo -E docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
             
+            # Wait for services to stabilize
+            echo "Waiting for services to stabilize..."
+            sleep 30
+            sudo docker stack services cloudtolocalllm
+            sudo docker stack ps cloudtolocalllm
+            
             # Prune old images to save space
             sudo docker system prune -af
           EOF
@@ -483,39 +489,41 @@ jobs:
 
   validate_tunnel_connectivity:
     needs: [ai_change_analysis, deploy_application]
-    if: always() && needs.ai_change_analysis.outputs.components != ''
+    if: always() && needs.ai_change_analysis.outputs.components != '' && needs.deploy_application.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Test Cloudflared Tunnel Endpoints
         run: |
-          # Only test endpoints that exist in Docker Swarm stack
-          # app.cloudtolocalllm.online -> web service
-          # api.cloudtolocalllm.online -> api-backend service
-          # cloudtolocalllm.online -> web service (main domain)
           endpoints=(
-            "https://cloudtolocalllm.online"
-            "https://app.cloudtolocalllm.online"
+            "https://cloudtolocalllm.online/health"
+            "https://app.cloudtolocalllm.online/health"
             "https://api.cloudtolocalllm.online/health"
           )
           
-          failed=0
+          max_retries=10
+          delay=15
+          
           for endpoint in "${endpoints[@]}"; do
-            echo "Testing $endpoint..."
-            # Allow 200, 301, 302 as valid responses
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 -L "$endpoint" || echo "Failed")
-            echo "Status: $STATUS"
-            if [[ "$STATUS" != "200" && "$STATUS" != "301" && "$STATUS" != "302" ]]; then
-              echo "⚠️  Endpoint $endpoint returned $STATUS (may still be starting up)"
-              failed=1
-            else
-              echo "✅ Endpoint $endpoint is healthy"
+            echo "🔍 Checking $endpoint..."
+            success=0
+            for ((i=1; i<=max_retries; i++)); do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -L "$endpoint" || echo "Failed")
+              echo "  Attempt $i: $STATUS"
+              if [[ "$STATUS" == "200" ]]; then
+                echo "  ✅ $endpoint is healthy"
+                success=1
+                break
+              fi
+              echo "  ⚠️  Wait $delay seconds..."
+              sleep $delay
+            done
+            
+            if [ $success -eq 0 ]; then
+              echo "❌ $endpoint failed after $max_retries attempts"
+              exit 1
             fi
           done
-          
-          if [ $failed -eq 1 ]; then
-            echo "⚠️  Some endpoints not responding - services may still be starting"
-            # Don't fail the job, just warn - services may need time to start
-          fi
+          echo "🎉 All endpoints are healthy"
 
   debug_swarm_state:
     needs: [ai_change_analysis, deploy_application]

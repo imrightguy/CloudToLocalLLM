@@ -21,7 +21,7 @@ Sentry.init({
 });
 
 // Configuration from environment variables
-const PORT = process.env.HEALTH_PORT || 8081;
+const PORT = process.env.PORT || 3001;
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 const USER_ID = process.env.USER_ID; // Injected by container orchestrator
 const PROXY_ID = process.env.PROXY_ID; // Unique proxy identifier
