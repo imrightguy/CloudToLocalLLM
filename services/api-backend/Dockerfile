@@ -9,7 +9,7 @@ RUN apk add --no-cache python3 make g++
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (production + dev for any build scripts)
+# Install ALL dependencies
 RUN npm ci
 
 # Copy source code
@@ -26,17 +26,17 @@ WORKDIR /app
 # Install runtime utilities
 RUN apk add --no-cache curl wget bash
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G nodejs -g nodejs nodejs
+# Create cloudtolocalllm user with UID 1001
+RUN addgroup -g 1001 -S cloudtolocalllm && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G cloudtolocalllm -g cloudtolocalllm cloudtolocalllm
 
 # Copy pruned node_modules and app from builder
 COPY --from=builder /app /app
 
 # Fix permissions
-RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app
+RUN mkdir -p /app/logs && chown -R cloudtolocalllm:cloudtolocalllm /app
 
-USER nodejs
+USER cloudtolocalllm
 
 EXPOSE 8080
 

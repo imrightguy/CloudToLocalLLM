@@ -2,18 +2,22 @@
 FROM node:24-alpine
 WORKDIR /app
 
-# Install deps using files in the build context (services/streaming-proxy as context)
+# Create cloudtolocalllm user with UID 1001
+RUN addgroup -g 1001 -S cloudtolocalllm && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G cloudtolocalllm -g cloudtolocalllm cloudtolocalllm
+
+# Install deps using files in the build context
 COPY package*.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 # Copy application source
 COPY . .
 
-# Fix ownership for node user
-RUN chown -R node:node /app
+# Fix ownership
+RUN chown -R cloudtolocalllm:cloudtolocalllm /app
 
 EXPOSE 3001
-USER node
+USER cloudtolocalllm
 
 # Start with npm script to ensure proper environment
 CMD ["npm", "start"]

@@ -66,16 +66,17 @@ services:
   # API Backend
   api-backend:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:${DOCKER_TAG}
+    user: "1001:1001"
     environment:
       NODE_ENV: production
       PORT: 8080
       DB_TYPE: postgresql
-      DB_HOST: postgres
+      DB_HOST: postgres.cloudtolocalllm.svc.cluster.local
       DB_PORT: 5432
       DB_NAME: ${POSTGRES_DB:-cloudtolocalllm}
       DB_USER: ${POSTGRES_USER:-appuser}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      REDIS_HOST: redis
+      REDIS_HOST: redis.cloudtolocalllm.svc.cluster.local
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET}
       AUTH0_DOMAIN: ${AUTH0_DOMAIN}
@@ -105,10 +106,11 @@ services:
   # Streaming Proxy
   streaming-proxy:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:${DOCKER_TAG}
+    user: "1001:1001"
     environment:
       NODE_ENV: production
       PORT: 3001
-      API_BACKEND_URL: http://api-backend:8080
+      API_BACKEND_URL: http://api-backend.cloudtolocalllm.svc.cluster.local:8080
     networks:
       cloudtolocalllm_net:
         aliases:
@@ -133,6 +135,7 @@ services:
   # Web Frontend (Nginx serving Flutter)
   web:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
+    user: "1001:1001"
     networks:
       cloudtolocalllm_net:
         aliases:

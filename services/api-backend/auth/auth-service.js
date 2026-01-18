@@ -151,7 +151,7 @@ export class AuthService {
       );
 
       if (session) {
-        return session.is_active === 1 || session.is_active === true;
+        return session.is_active === true;
       }
 
       return false;
@@ -456,7 +456,7 @@ export class AuthService {
       const result = await this.runQuery(
         'SELECT * FROM user_sessions' +
          `
-         WHERE id = ? AND is_active = 1 AND expires_at > NOW()`,
+         WHERE id = ? AND is_active = true AND expires_at > NOW()`,
         [sessionId],
         'get',
       );
@@ -476,7 +476,7 @@ export class AuthService {
 
       if (session) {
         await this.runQuery(
-          'UPDATE user_sessions SET is_active = 0 WHERE id = ?',
+          'UPDATE user_sessions SET is_active = false WHERE id = ?',
           [sessionId],
           'run',
         );
@@ -496,7 +496,7 @@ export class AuthService {
   async cleanupUserSessions(userId) {
     try {
       const countResult = await this.runQuery(
-        'SELECT COUNT(*) as count FROM user_sessions WHERE user_id = ? AND is_active = 1',
+        'SELECT COUNT(*) as count FROM user_sessions WHERE user_id = ? AND is_active = true',
         [userId],
         'get',
       );
@@ -506,12 +506,12 @@ export class AuthService {
         const sessionsToRemove = activeCount - this.config.MAX_SESSIONS_PER_USER + 1;
         const subQuery = `
           SELECT id FROM user_sessions
-          WHERE user_id = ? AND is_active = 1
+          WHERE user_id = ? AND is_active = true
           ORDER BY last_activity ASC
           LIMIT ?
         `;
         await this.runQuery(
-          `UPDATE user_sessions SET is_active = 0 WHERE id IN (${subQuery})`,
+          `UPDATE user_sessions SET is_active = false WHERE id IN (${subQuery})`,
           [userId, sessionsToRemove],
           'run',
         );
@@ -571,7 +571,7 @@ export class AuthService {
           return;
         }
         const result = await this.runQuery(
-          'UPDATE user_sessions SET is_active = 0 WHERE expires_at < NOW() AND is_active = 1',
+          'UPDATE user_sessions SET is_active = false WHERE expires_at < NOW() AND is_active = true',
           [],
           'run',
         );
@@ -586,9 +586,9 @@ export class AuthService {
 
   async getAuthStats() {
     try {
-      const activeSessions = await this.runQuery('SELECT COUNT(*) as count FROM user_sessions WHERE is_active = 1', [], 'get');
+      const activeSessions = await this.runQuery('SELECT COUNT(*) as count FROM user_sessions WHERE is_active = true', [], 'get');
       const validSessions = await this.runQuery('SELECT COUNT(*) as count FROM user_sessions WHERE expires_at > NOW()', [], 'get');
-      const activeUsers = await this.runQuery('SELECT COUNT(DISTINCT user_id) as count FROM user_sessions WHERE is_active = 1', [], 'get');
+      const activeUsers = await this.runQuery('SELECT COUNT(DISTINCT user_id) as count FROM user_sessions WHERE is_active = true', [], 'get');
       const interval = 'NOW() - INTERVAL \'24 HOURS\'';
       const authEvents = await this.runQuery(`SELECT COUNT(*) as count FROM audit_logs WHERE resource_type = 'authentication' AND created_at > ${interval}`, [], 'get');
       const securityEvents = await this.runQuery(`SELECT COUNT(*) as count FROM audit_logs WHERE resource_type = 'security' AND created_at > ${interval}`, [], 'get');
