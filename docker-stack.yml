@@ -150,9 +150,9 @@ services:
       replicas: 1
       resources:
         reservations:
-          memory: 128M
+          memory: 64M
         limits:
-          memory: 256M
+          memory: 128M
       update_config:
         order: start-first
         failure_action: rollback
@@ -183,8 +183,7 @@ services:
 networks:
   cloudtolocalllm_net:
     driver: overlay
-    driver_opts:
-      com.docker.network.driver.mtu: 1450
+    attachable: true
 
 volumes:
   postgres_data:
