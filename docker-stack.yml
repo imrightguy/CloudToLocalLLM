@@ -11,7 +11,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - cloudtolocalllm_net
+      cloudtolocalllm_net:
+        aliases:
+          - postgres.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: pg_isready -U $${POSTGRES_USER:-appuser} -d $${POSTGRES_DB:-cloudtolocalllm}
       interval: 10s
@@ -35,7 +37,9 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - cloudtolocalllm_net
+      cloudtolocalllm_net:
+        aliases:
+          - redis.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: redis-cli ping
       interval: 10s
@@ -69,7 +73,9 @@ services:
       AUTH0_DOMAIN: ${AUTH0_DOMAIN}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
     networks:
-      - cloudtolocalllm_net
+      cloudtolocalllm_net:
+        aliases:
+          - api-backend.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1
       interval: 30s
@@ -95,7 +101,9 @@ services:
       PORT: 3001
       API_BACKEND_URL: http://api-backend:8080
     networks:
-      - cloudtolocalllm_net
+      cloudtolocalllm_net:
+        aliases:
+          - streaming-proxy.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: wget --quiet --tries=1 --spider http://127.0.0.1:3001/health || exit 1
       interval: 30s
@@ -113,7 +121,9 @@ services:
   web:
     image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
     networks:
-      - cloudtolocalllm_net
+      cloudtolocalllm_net:
+        aliases:
+          - web.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1
       interval: 30s
