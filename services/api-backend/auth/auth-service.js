@@ -196,10 +196,16 @@ export class AuthService {
               if (err) {
                 reject(err);
               } else {
-                if (decodedToken.aud !== this.config.AUTH0_AUDIENCE) {
+                const aud = decodedToken.aud;
+                const expectedAudience = this.config.AUTH0_AUDIENCE;
+                const audMatch = Array.isArray(aud) 
+                  ? aud.includes(expectedAudience) 
+                  : aud === expectedAudience;
+
+                if (!audMatch) {
                   reject(
                     new Error(
-                      `Invalid audience: expected ${this.config.AUTH0_AUDIENCE}, got ${decodedToken.aud}`,
+                      `Invalid audience: expected ${expectedAudience}, got ${aud}`,
                     ),
                   );
                 } else {
