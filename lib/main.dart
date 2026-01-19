@@ -57,7 +57,7 @@ import 'package:cloudtolocalllm/utils/platform_file_utils.dart'
 void main(List<String> args) async {
   // Immediate logging to verify Dart entry point is reached
   // Build trigger: force new release tag
-  print('----- DART MAIN START ----- v10.1.153');
+  print('----- DART MAIN START ----- v10.1.154');
 
   // Handle command-line arguments (OAuth callback URLs)
   if (args.isNotEmpty) {

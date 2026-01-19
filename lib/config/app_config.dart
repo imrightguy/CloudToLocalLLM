@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class AppConfig {
   // App Information
   static const String appName = 'CloudToLocalLLM';
-  static const String appVersion = '10.1.153';
+  static const String appVersion = '10.1.154';
   static const String appDescription =
       'Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.';
 
