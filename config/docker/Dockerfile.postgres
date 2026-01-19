@@ -24,4 +24,8 @@ USER postgres
 
 EXPOSE 5432
 
+# Health check - verify PostgreSQL is ready to accept connections
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
+  CMD pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cloudtolocalllm} || exit 1
+
 ENTRYPOINT ["/usr/local/bin/postgres-entrypoint.sh"]

@@ -16,8 +16,15 @@ COPY . .
 # Fix ownership
 RUN chown -R cloudtolocalllm:cloudtolocalllm /app
 
+# Install wget for health checks
+RUN apk add --no-cache wget
+
 EXPOSE 3001
 USER cloudtolocalllm
+
+# Health check - verify streaming proxy is responding
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://127.0.0.1:3001/health || exit 1
 
 # Start with npm script to ensure proper environment
 CMD ["npm", "start"]

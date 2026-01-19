@@ -197,8 +197,67 @@ jobs:
             git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
           fi
 
-  build_api:
+  # Pre-build testing - catch issues before building containers
+  run_tests:
     needs: ai_change_analysis
+    if: needs.ai_change_analysis.outputs.bump_needed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: |
+            services/api-backend/package-lock.json
+            services/streaming-proxy/package-lock.json
+      
+      - name: Run API Backend Tests
+        if: needs.ai_change_analysis.outputs.api_changed == 'true'
+        working-directory: services/api-backend
+        run: |
+          echo "🧪 Running API Backend tests..."
+          npm ci
+          npm run lint || echo "⚠️ Lint warnings detected (non-blocking)"
+          npm run test:unit
+          echo "✅ API Backend tests passed"
+      
+      - name: Run Streaming Proxy Tests
+        if: needs.ai_change_analysis.outputs.streaming_changed == 'true'
+        working-directory: services/streaming-proxy
+        run: |
+          echo "🧪 Running Streaming Proxy tests..."
+          npm ci
+          npm run lint || echo "⚠️ Lint warnings detected (non-blocking)"
+          npm test || echo "⚠️ Tests skipped or failed (non-blocking for now)"
+          echo "✅ Streaming Proxy checks completed"
+      
+      - name: Setup Flutter
+        if: needs.ai_change_analysis.outputs.web_changed == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Run Flutter Analyze
+        if: needs.ai_change_analysis.outputs.web_changed == 'true'
+        run: |
+          echo "🧪 Running Flutter analyze..."
+          flutter config --no-analytics
+          flutter pub get
+          flutter analyze --no-fatal-warnings || echo "⚠️ Analysis warnings detected (non-blocking)"
+          echo "✅ Flutter analysis completed"
+      
+      - name: Test Summary
+        run: |
+          echo "🎉 Pre-build testing completed!"
+          echo "   API Changed: ${{ needs.ai_change_analysis.outputs.api_changed }}"
+          echo "   Web Changed: ${{ needs.ai_change_analysis.outputs.web_changed }}"
+          echo "   Streaming Changed: ${{ needs.ai_change_analysis.outputs.streaming_changed }}"
+
+  build_api:
+    needs: [ai_change_analysis, run_tests]
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -240,7 +299,7 @@ jobs:
             --tag ghcr.io/${{ env.REPO_LOWER }}/api:${{ needs.ai_change_analysis.outputs.new_version }}
 
   build_web:
-    needs: ai_change_analysis
+    needs: [ai_change_analysis, run_tests]
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -295,7 +354,7 @@ jobs:
             --tag ghcr.io/${{ env.REPO_LOWER }}/web:${{ needs.ai_change_analysis.outputs.new_version }}
 
   build_postgres:
-    needs: ai_change_analysis
+    needs: [ai_change_analysis, run_tests]
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -337,7 +396,7 @@ jobs:
             --tag ghcr.io/${{ env.REPO_LOWER }}/postgres:${{ needs.ai_change_analysis.outputs.new_version }}
 
   build_streaming:
-    needs: ai_change_analysis
+    needs: [ai_change_analysis, run_tests]
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -508,21 +567,75 @@ jobs:
           EOF
 
 
-  validate_tunnel_connectivity:
+  # Verify container health BEFORE running validation tests
+  verify_container_health:
     needs: [ai_change_analysis, deploy_application]
     if: always() && needs.ai_change_analysis.outputs.components != '' && needs.deploy_application.result == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      all_healthy: ${{ steps.health_check.outputs.all_healthy }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Wait for Container Health
+        id: health_check
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+        run: |
+          # Login to Azure
+          echo "$AZURE_CREDENTIALS" > azure_creds.json
+          az login --service-principal \
+            -u $(jq -r .clientId azure_creds.json) \
+            -p $(jq -r .clientSecret azure_creds.json) \
+            --tenant $(jq -r .tenantId azure_creds.json)
+          rm azure_creds.json
+
+          # Get VM IP
+          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm --query publicIps -o tsv)
+          
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $IP >> ~/.ssh/known_hosts 2>/dev/null
+
+          echo "🏥 Waiting for all containers to become healthy..."
+          echo "   Max wait time: 3 minutes (18 attempts @ 10s intervals)"
+          echo ""
+          
+          # Copy and run health check script on remote VM
+          scp scripts/ci/wait-for-swarm-health.sh azureuser@$IP:~/wait-for-swarm-health.sh
+          
+          # Run health check with sudo (Docker requires it)
+          if ssh azureuser@$IP 'chmod +x ~/wait-for-swarm-health.sh && sudo MAX_ATTEMPTS=18 POLL_INTERVAL=10 ~/wait-for-swarm-health.sh'; then
+            echo "all_healthy=true" >> $GITHUB_OUTPUT
+            echo "✅ All containers are healthy!"
+          else
+            echo "all_healthy=false" >> $GITHUB_OUTPUT
+            echo "❌ Container health check failed!"
+            exit 1
+          fi
+
+  validate_tunnel_connectivity:
+    needs: [ai_change_analysis, deploy_application, verify_container_health]
+    if: always() && needs.ai_change_analysis.outputs.components != '' && needs.verify_container_health.outputs.all_healthy == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Test Cloudflared Tunnel Endpoints
         run: |
+          echo "🔍 Running external endpoint validation..."
+          echo "   (Containers are confirmed healthy from previous job)"
+          echo ""
+          
           endpoints=(
             "https://cloudtolocalllm.online/health"
             "https://app.cloudtolocalllm.online/health"
             "https://api.cloudtolocalllm.online/health"
           )
           
-          max_retries=10
-          delay=15
+          max_retries=6
+          delay=10
           
           for endpoint in "${endpoints[@]}"; do
             echo "🔍 Checking $endpoint..."
@@ -687,6 +800,7 @@ jobs:
       [
         ai_change_analysis,
         deploy_application,
+        verify_container_health,
         validate_tunnel_connectivity,
         cloudflared_health_check,
       ]
@@ -700,18 +814,22 @@ jobs:
 
           orchestrator_status="${{ needs.ai_change_analysis.result }}"
           deploy_status="${{ needs.deploy_application.result }}"
+          health_status="${{ needs.verify_container_health.result }}"
           tunnel_status="${{ needs.validate_tunnel_connectivity.result }}"
           cloudflare_status="${{ needs.cloudflared_health_check.result }}"
 
           echo "Analysis: $orchestrator_status"
           echo "Deployment: $deploy_status"
-          echo "Tunnel: $tunnel_status"
+          echo "Container Health: $health_status"
+          echo "Tunnel Validation: $tunnel_status"
           echo "Cloudflare: $cloudflare_status"
 
-          # Simple Success Logic
-          if [ "$deploy_status" = "success" ]; then
+          # Success requires deploy + health checks to pass
+          if [ "$deploy_status" = "success" ] && [ "$health_status" = "success" ]; then
             echo "🎉 Pipeline completed successfully!"
           else
-            echo "❌ Deployment failed"
+            echo "❌ Pipeline failed"
+            echo "   Deploy: $deploy_status"
+            echo "   Health: $health_status"
             exit 1
           fi

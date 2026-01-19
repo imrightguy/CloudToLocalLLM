@@ -4,10 +4,11 @@ export default {
   // Test environment
   testEnvironment: 'node',
 
-  // Coverage thresholds
+  // Coverage thresholds - enforced in both CI and local dev
+  // Lower thresholds for CI (50%) vs local (70%) to allow gradual improvement
   coverageThreshold: {
     global: process.env.CI
-      ? { branches: 0, functions: 0, lines: 0, statements: 0 }
+      ? { branches: 50, functions: 50, lines: 50, statements: 50 }
       : { branches: 70, functions: 70, lines: 70, statements: 70 },
   },
 
