@@ -48,7 +48,7 @@ jobs:
       postgres_needs_build: ${{ steps.analyze.outputs.postgres_needs_build }}
       streaming_needs_build: ${{ steps.analyze.outputs.streaming_needs_build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -203,7 +203,7 @@ jobs:
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -261,7 +261,7 @@ jobs:
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
       - name: Build API Backend
         if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
@@ -303,7 +303,7 @@ jobs:
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
       
       - name: Setup Flutter
@@ -358,7 +358,7 @@ jobs:
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
 
       - name: Downcase Repo Name
@@ -400,7 +400,7 @@ jobs:
     if: needs.ai_change_analysis.outputs.bump_needed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
       - name: Build Streaming Proxy
         if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
@@ -448,7 +448,7 @@ jobs:
     if: needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Provision Azure VM
         if: needs.ai_change_analysis.outputs.components != ''
@@ -575,7 +575,7 @@ jobs:
     outputs:
       all_healthy: ${{ steps.health_check.outputs.all_healthy }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Wait for Container Health
         id: health_check
@@ -664,7 +664,7 @@ jobs:
     if: always() && needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get Swarm Status
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -718,7 +718,7 @@ jobs:
     if: failure() && needs.deploy_application.result == 'failure'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Rollback Swarm Deployment
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
