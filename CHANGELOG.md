@@ -219,6 +219,10 @@ All notable changes to this project will be documented in this file.
 * refactor(ci): scope release job to desktop builds (5debacb5)
 
 ## [10.1.147] - 2026-01-18
+* feat(auth/version): comprehensive Auth0 fix and synchronized versioning 10.1.147 (2f73db97)
+* chore: automated version bump to 10.1.148 [skip ci] (b0049296)
+
+## [10.1.147] - 2026-01-18
 * chore: automated version bump to 10.1.148 [skip ci] (b004929)
 
 ## [10.1.147] - 2025-12-31

@@ -12,13 +12,13 @@ BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 BUILD_TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
 
 if [ -z "$NEW_VERSION" ]; then
-    echo "âŒ Usage: $0 <new-version> <commit-sha>"
+    echo "â Œ Usage: $0 <new-version> <commit-sha>"
     exit 1
 fi
 
-echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
+echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
 echo "Updating All Version References"
-echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
+echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
 echo "New version: $NEW_VERSION"
 echo "Commit SHA: $SHORT_SHA"
 echo ""
@@ -141,8 +141,8 @@ fi
 
 # 14. Update test setup and documentation files that might have hardcoded versions
 echo "14. Updating miscellaneous version references..."
-# Also look for 10.1.147 since that was the common base before my changes
-grep -rlE "3\.10\.0|10\.1\.0" . --exclude-dir=.git --exclude-dir=node_modules | xargs sed -i "s/3\.10\.0/${NEW_VERSION}/g; s/10\.1\.0/${NEW_VERSION}/g" 2>/dev/null || true
+# EXCLUDE lock files and package.json files from this mass replacement to avoid breaking dependencies
+grep -rlE "3\.10\.0|10\.1\.0" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*-lock.json" --exclude="package.json" | xargs sed -i "s/3\.10\.0/${NEW_VERSION}/g; s/10\.1\.0/${NEW_VERSION}/g" 2>/dev/null || true
 
 echo ""
 echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
@@ -164,41 +164,3 @@ echo "  âœ… SECURITY.md â†’ added new version row"
 echo "  âœ… lib/config/app_config.dart â†’ $NEW_VERSION"
 echo "  âœ… CHANGELOG.md â†’ prepended new version entry"
 echo ""
-
-echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
-echo "âœ… All Version References Updated"
-echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
-echo ""
-echo "Files updated:"
-echo "  âœ… assets/version.json â†’ $NEW_VERSION"
-echo "  âœ… assets/component-versions.json â†’ all services"
-echo "  âœ… pubspec.yaml â†’ ${NEW_VERSION}+${BUILD_NUMBER}"
-echo "  âœ… services/api-backend/package.json â†’ $NEW_VERSION"
-echo "  âœ… services/streaming-proxy/package.json â†’ $NEW_VERSION"
-echo "  âœ… root package.json â†’ $NEW_VERSION"
-echo "  âœ… config/.env.production.template"
-echo "  âœ… lib/main.dart â†’ v${NEW_VERSION}"
-echo "  âœ… README.md â†’ updated badges"
-echo "  âœ… docs/VERSIONING.md â†’ updated examples"
-echo "  âœ… SECURITY.md â†’ added new version row"
-echo "  âœ… lib/config/app_config.dart â†’ $NEW_VERSION"
-echo "  âœ… CHANGELOG.md â†’ prepended new version entry"
-echo ""
-echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
-echo "âœ… All Version References Updated"
-echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
-echo ""
-echo "Files updated:"
-echo "  âœ… assets/version.json â†’ $NEW_VERSION"
-echo "  âœ… assets/component-versions.json â†’ all services"
-echo "  âœ… pubspec.yaml â†’ ${NEW_VERSION}+${BUILD_NUMBER}"
-echo "  âœ… services/api-backend/package.json â†’ $NEW_VERSION"
-echo "  âœ… services/streaming-proxy/package.json â†’ $NEW_VERSION"
-echo "  âœ… lib/main.dart â†’ v${NEW_VERSION}"
-echo "  âœ… README.md â†’ updated badges"
-echo "  âœ… docs/VERSIONING.md â†’ updated examples"
-echo "  âœ… SECURITY.md â†’ added new version row"
-echo "  âœ… lib/config/app_config.dart â†’ $NEW_VERSION"
-echo "  âœ… CHANGELOG.md â†’ prepended new version entry"
-echo ""
-
