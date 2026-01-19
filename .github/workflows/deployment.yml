@@ -386,7 +386,7 @@ jobs:
         build_postgres,
         build_streaming,
       ]
-    if: always() && needs.ai_change_analysis.outputs.components != ''
+    if: needs.ai_change_analysis.outputs.components != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
