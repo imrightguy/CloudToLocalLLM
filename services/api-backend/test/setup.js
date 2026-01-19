@@ -8,6 +8,8 @@ process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-secret-key';
 process.env.JWT_ISSUER_DOMAIN = 'test.jwt.com';
 process.env.JWT_AUDIENCE = 'test-audience';
+process.env.AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || 'test.jwt.com';
+process.env.AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || 'test-audience';
 process.env.LOG_LEVEL = 'error'; // Reduce log noise in tests
 
 // Global test timeout
@@ -167,6 +169,7 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+/* global afterAll */
 // Cleanup after all tests complete in this worker
 afterAll(async() => {
   // Close database pool if it was initialized (within worker process)

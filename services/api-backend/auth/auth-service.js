@@ -144,15 +144,16 @@ export class AuthService {
   async isTokenActive(userId, token) {
     const tokenHash = this.hashToken(token);
     try {
-      const session = await this.runQuery(
-        'SELECT is_active FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
-        [userId, tokenHash],
-        'get',
-      );
+        const session = await this.runQuery(
+          'SELECT is_active FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
+          [userId, tokenHash],
+          'get',
+        );
 
-      if (session) {
-        return session.is_active === true;
-      }
+        if (session) {
+          return session.is_active === true;
+        }
+
 
       return false;
     } catch (error) {
@@ -198,8 +199,8 @@ export class AuthService {
               } else {
                 const aud = decodedToken.aud;
                 const expectedAudience = this.config.AUTH0_AUDIENCE;
-                const audMatch = Array.isArray(aud) 
-                  ? aud.includes(expectedAudience) 
+                const audMatch = Array.isArray(aud)
+                  ? aud.includes(expectedAudience)
                   : aud === expectedAudience;
 
                 if (!audMatch) {
@@ -212,12 +213,14 @@ export class AuthService {
                   resolve(decodedToken);
                 }
               }
-            },
+            }
           );
-        });
+          });
+
 
         this.logger.info('Token verification successful (Audience verified)');
       }
+
 
       const session = await this.createOrUpdateSession(payload, token, req);
 

@@ -36,6 +36,7 @@ export class StreamingProxyManager {
   constructor() {
     this.activeProxies = new Map(); // userId -> proxy metadata
     this.cleanupInterval = null;
+    // Note: k8s client is declared at module scope; keep instance usage minimal per process
 
     // Start periodic cleanup
     this.startCleanupProcess();

@@ -2,7 +2,7 @@
 // Runs once after all tests
 
 export default async function globalTeardown() {
-  console.log('🧹 Cleaning up global test environment...');
+  console.log('🧹 Cleaning up global test environment...'); // eslint-disable-line no-console
 
   // Close database pool if it was initialized
   try {
