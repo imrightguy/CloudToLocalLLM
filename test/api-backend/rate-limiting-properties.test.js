@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * @fileoverview Property-Based Tests for Rate Limiting
  *
@@ -22,7 +20,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * **Validates: Requirements 6.1, 6.2, 6.3**
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import fc from 'fast-check';
 
 /**

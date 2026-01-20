@@ -11,6 +11,7 @@
 - **Sandbox**: Use docker-compose for risky ops if applicable.
 - **Logging**: Redirect to raw_output.json if long-running.
 - **Repository Tools**: Incorporate scripts from scripts/ directory for DevOps tasks like deployment, monitoring, and setup.
+- **Auth0 Operations**: Use `auth0` CLI tools for ALL Auth0 management tasks (applications, APIs, actions, logs, forms).
 
 ## Examples from History
 - `ls -la`: Executed in /home/rightguy/dev/CloudToLocalLLM, partial output (SIGINT).

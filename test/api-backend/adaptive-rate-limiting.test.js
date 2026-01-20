@@ -1,9 +1,5 @@
 /**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
 
  * @fileoverview Tests for Adaptive Rate Limiting
  * Tests system load monitoring and adaptive rate limit adjustment

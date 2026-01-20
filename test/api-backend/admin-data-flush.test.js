@@ -1,17 +1,5 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
-
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
-
- * Administrative Data Flush Service Tests
- *
- * Comprehensive test suite for the CloudToLocalLLM administrative data flush system
- * Tests security, functionality, error handling, and audit trail features
- */
-
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+/* global jest */
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { AdminDataFlushService } from '../admin-data-flush-service.js';
 import Docker from 'dockerode';
 
@@ -427,11 +415,12 @@ describe('AdminDataFlushService', () => {
     });
 
     it('should return flush history with correct limit', () => {
-      // Add some mock history entries
+      // Add some mock history entries with distinct timestamps
+      const now = Date.now();
       for (let i = 0; i < 10; i++) {
         adminService.flushHistory.push({
           operationId: `op-${i}`,
-          startTime: new Date(),
+          startTime: new Date(now + i * 1000), // Distinct timestamps
           status: 'completed',
         });
       }

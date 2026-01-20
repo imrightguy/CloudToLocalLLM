@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * @fileoverview Property-Based Tests for Database Transaction Consistency
  *
@@ -25,7 +23,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * **Validates: Requirements 9.4**
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import fc from 'fast-check';
 
 /**

@@ -9,7 +9,7 @@ spec:
       serviceAccountName: deployer-sa
       containers:
         - name: deployer
-          image: cloudtolocalllm/deployer:latest
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/deployer:latest
           command: ["/bin/bash", "-c"]
           args:
             - |

@@ -421,7 +421,7 @@ describe('CloudWatch Metrics Collection - Property Tests', () => {
 
     test('should collect metrics with valid timestamp for any pod', () => {
       fc.assert(
-        fc.property(fc.date(), (date) => {
+        fc.property(fc.date({ noInvalidDate: true }), (date) => {
           const metric = generatePodMetric({ timestamp: date.toISOString() });
 
           expect(validateMetricTimestamp(metric)).toBe(true);

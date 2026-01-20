@@ -84,7 +84,7 @@ env:
   REGISTRY: cloudtolocalllm
   API_IMAGE: cloudtolocalllm/cloudtolocalllm-api
   WEB_IMAGE: cloudtolocalllm/cloudtolocalllm-web
-  STREAMING_PROXY_IMAGE: cloudtolocalllm/cloudtolocalllm-streaming-proxy  # Add this
+  STREAMING_PROXY_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming  # Add this
 
 jobs:
   deploy:
@@ -138,7 +138,7 @@ spec:
     spec:
       containers:
       - name: streaming-proxy
-        image: cloudtolocalllm/cloudtolocalllm-streaming-proxy:latest
+        image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
         ports:
         - containerPort: 3001
           name: websocket
@@ -347,13 +347,13 @@ npm install
 ### 2. Build Docker Image Locally (Optional)
 
 ```bash
-docker build -f services/streaming-proxy/Dockerfile.prod -t cloudtolocalllm/cloudtolocalllm-streaming-proxy:latest .
+docker build -f services/streaming-proxy/Dockerfile.prod -t ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest .
 ```
 
 ### 3. Push to Docker Hub (Optional)
 
 ```bash
-docker push cloudtolocalllm/cloudtolocalllm-streaming-proxy:latest
+docker push ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
 ```
 
 ### 4. Deploy to Kubernetes

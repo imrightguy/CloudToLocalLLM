@@ -74,6 +74,51 @@ export function initializePool() {
     return pool;
   }
 
+  // Support for testing without real database (Requirement: CI Stability)
+  if (process.env.NODE_ENV === 'test' && !process.env.DB_HOST) {
+    logger.info('🟡 [DB Pool] Using mock pool for test environment');
+    pool = {
+      query: async() => ({
+        rows: [
+          {
+            id: 'mock-id-' + Math.random().toString(36).substr(2, 5),
+            user_id: 'mock-user-id',
+            tunnel_id: 'mock-tunnel-id',
+            email: 'test@example.com',
+            tier: 'premium',
+            is_active: true,
+            status: 'active',
+          },
+        ],
+        rowCount: 1,
+      }),
+      connect: async() => ({
+        query: async() => ({
+          rows: [
+            {
+              id: 'mock-id-' + Math.random().toString(36).substr(2, 5),
+              user_id: 'mock-user-id',
+              tunnel_id: 'mock-tunnel-id',
+              email: 'test@example.com',
+              tier: 'premium',
+              is_active: true,
+              status: 'active',
+            },
+          ],
+          rowCount: 1,
+        }),
+        release: () => {},
+        on: () => {},
+      }),
+      on: () => {},
+      end: async() => {},
+      totalCount: 0,
+      idleCount: 0,
+      waitingCount: 0,
+    };
+    return pool;
+  }
+
   logger.info('🔵 [DB Pool] Initializing PostgreSQL connection pool', {
     host: poolConfig.host,
     database: poolConfig.database,

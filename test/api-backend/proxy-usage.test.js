@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Proxy Usage Tracking Tests
  *
@@ -17,7 +15,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * Validates: Requirements 5.9
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
 import { Pool } from 'pg';
 import ProxyUsageService from '../../services/api-backend/services/proxy-usage-service.js';
 import { v4 as uuidv4 } from 'uuid';

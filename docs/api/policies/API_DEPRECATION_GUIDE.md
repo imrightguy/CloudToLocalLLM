@@ -337,7 +337,7 @@ For questions about API deprecation or migration help:
 - **Email**: support@cloudtolocalllm.online
 - **Documentation**: https://docs.cloudtolocalllm.online
 - **API Docs**: https://api.cloudtolocalllm.online/api/docs
-- **GitHub Issues**: https://github.com/cloudtolocalllm/api-backend/issues
+- **GitHub Issues**: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
 
 ## Implementation Details
 

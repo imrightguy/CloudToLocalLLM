@@ -1,9 +1,9 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
+import { jest } from '@jest/globals';
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+
+/**
+
 
  * @fileoverview Tests for Bridge Polling Routes
  * Tests the HTTP polling bridge functionality including the new provider-status endpoint

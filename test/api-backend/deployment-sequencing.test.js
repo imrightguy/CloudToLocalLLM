@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Deployment Sequencing Property Test
  * 
@@ -18,7 +16,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
 
 import fc from 'fast-check';
 import assert from 'assert';
-import { describe, test, expect } from '@jest/globals';
+import { jest, describe, test, expect } from "@jest/globals";
 
 /**
  * Generate a unique ID for each deployment

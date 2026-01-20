@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Tunnel Configuration Management Tests
  *
@@ -21,7 +19,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @version 1.0.0
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { jest, describe, it, expect } from "@jest/globals";
 import {
   validateTunnelConfig,
   getDefaultTunnelConfig,

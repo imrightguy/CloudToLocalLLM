@@ -149,4 +149,4 @@ mountVersionedRoutes(app, '/users', {
 
 - Documentation: https://docs.cloudtolocalllm.online
 - Migration Guide: See API_VERSIONING_GUIDE.md
-- Issues: https://github.com/cloudtolocalllm/api-backend/issues
+- Issues: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues

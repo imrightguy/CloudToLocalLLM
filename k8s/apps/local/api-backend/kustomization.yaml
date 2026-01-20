@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ./shared/base/api-backend
 images:
-  - name: imrightguycloudtolocalllm.azurecr.io/api-backend
+  - name: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api
     newTag: main-1ebf1f7843b7278fc86964ccca37b9268a244160-api-backend
 patches:
   - patch: |-

@@ -1,9 +1,9 @@
-import express from 'express';
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
+import { jest } from '@jest/globals';
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+
+import express from 'express';
+
 
 import request from 'supertest';
 import {

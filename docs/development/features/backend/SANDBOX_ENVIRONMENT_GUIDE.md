@@ -644,7 +644,7 @@ jobs:
     
     services:
       api:
-        image: cloudtolocalllm/api-backend:latest
+        image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
         env:
           SANDBOX_MODE: true
           NODE_ENV: sandbox

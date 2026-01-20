@@ -14,15 +14,10 @@ import { Pool } from 'undici';
 import si from 'systeminformation';
 import fs from 'fs-extra';
 import { z } from 'zod';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Singleton HTTP pool
 // Note: allow unused in tests where pool is not initialized
-// eslint-disable-next-line no-unused-vars
+
 let httpPool = null;
 
 /**

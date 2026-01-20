@@ -120,7 +120,7 @@ services:
 
   # Web Application (Flutter + Nginx)
   web:
-    image: ghcr.io/cloudtolocalllm/web:latest
+    image: ghcr.io/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
     container_name: cloudtolocalllm-web
     restart: unless-stopped
     networks:

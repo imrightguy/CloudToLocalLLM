@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Webhook Rate Limiting Unit Tests
  *
@@ -16,7 +14,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 
 /**
  * Mock WebhookRateLimiterService for testing core logic

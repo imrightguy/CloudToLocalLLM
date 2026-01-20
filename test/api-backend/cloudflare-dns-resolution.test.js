@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Cloudflare DNS Resolution Consistency Tests
  *
@@ -21,7 +19,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * - Verify DNS propagation across multiple queries
  */
 
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { jest, describe, it, expect, beforeAll, afterAll } from "@jest/globals";
 import dns from 'dns';
 import { promisify } from 'util';
 

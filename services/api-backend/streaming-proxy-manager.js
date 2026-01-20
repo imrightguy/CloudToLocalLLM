@@ -60,7 +60,6 @@ export class StreamingProxyManager {
     }
 
     const proxyId = this.generateProxyId(userId);
-    const startTime = Date.now();
 
     try {
       // Check user tier - free tier users get direct tunnel access
@@ -127,7 +126,7 @@ export class StreamingProxyManager {
           containers: [
             {
               name: 'proxy',
-              image: 'imrightguycloudtolocalllm.azurecr.io/streaming-proxy:latest',
+              image: 'ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest',
               env: [
                 { name: 'USER_ID', value: userId },
                 { name: 'PROXY_ID', value: proxyId },

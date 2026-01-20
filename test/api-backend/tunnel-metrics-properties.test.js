@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Tunnel Metrics Aggregation Property-Based Tests
  *
@@ -24,7 +22,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 import { TunnelHealthService } from '../../services/api-backend/services/tunnel-health-service.js';
 
 describe('Tunnel Metrics Aggregation Property-Based Tests', () => {

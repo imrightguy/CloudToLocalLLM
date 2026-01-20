@@ -357,7 +357,7 @@ spec:
     spec:
       containers:
       - name: api-backend
-        image: cloudtolocalllm/api-backend:latest
+        image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
         ports:
         - containerPort: 8080
         envFrom:

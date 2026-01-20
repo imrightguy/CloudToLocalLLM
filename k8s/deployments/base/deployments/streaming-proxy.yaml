@@ -76,7 +76,7 @@ spec:
             ]
       containers:
         - name: streaming-proxy
-          image: cloudtolocalllm/streaming-proxy:latest
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
           imagePullPolicy: Always
           ports:
             - name: http

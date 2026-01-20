@@ -1,9 +1,9 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
+import { jest } from '@jest/globals';
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+
+/**
+
 
  * Database Performance Metrics API Integration Tests
  *

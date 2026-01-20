@@ -635,13 +635,15 @@ export class ErrorNotificationService extends EventEmitter {
    */
   getErrorStatistics() {
     const stats = {};
+    let totalFromCounts = 0;
     for (const [category, count] of this.errorCounts) {
       stats[category] = count;
+      totalFromCounts += count;
     }
 
     return {
-      totalErrors: this.metrics.totalErrorsDetected,
-      criticalErrors: this.metrics.criticalErrorsDetected,
+      totalErrors: totalFromCounts,
+      criticalErrors: this.metrics.criticalErrorsDetected, // Note: This is still lifetime
       errorsByCategory: stats,
       timestamp: new Date().toISOString(),
     };

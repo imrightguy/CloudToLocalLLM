@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ./shared/base/web-frontend
 images:
-  - name: imrightguycloudtolocalllm.azurecr.io/web
+  - name: ghcr.io/cloudtolocalllm-online/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web
     newTag: main-1ebf1f7843b7278fc86964ccca37b9268a244160
 patches:
   - patch: |-

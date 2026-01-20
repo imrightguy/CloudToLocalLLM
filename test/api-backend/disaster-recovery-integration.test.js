@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Disaster Recovery Integration Tests
  *
@@ -19,7 +17,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  *         the entire infrastructure from code
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { jest, describe, test, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

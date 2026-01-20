@@ -364,7 +364,7 @@ echo $KILOCODE_TOKEN
 The project currently runs on Azure AKS with plans for future AWS migration:
 
 1. **Azure AKS Production**: Current deployment target `cloudtolocalllm-aks`
-2. **Azure Container Registry**: Images stored in `imrightguycloudtolocalllm.azurecr.io`
+2. **Azure Container Registry**: Images stored in `ghcr.io/cloudtolocalllm-online/cloudtolocalllm`
 3. **Service Principal Auth**: Azure authentication via GitHub secrets
 4. **Future AWS Migration**: CloudFormation templates prepared for eventual migration
 

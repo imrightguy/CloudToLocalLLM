@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * API Deprecation Tests
  *
@@ -13,7 +11,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * Requirements: 12.5
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 import express from 'express';
 import request from 'supertest';
 import {

@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * AWS EKS Cost Optimization Property Tests
  *
@@ -14,7 +12,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * Validates: Requirements 2.1, 2.2, 2.4, 2.5
  */
 
-import { describe, test, expect } from '@jest/globals';
+import { jest, describe, test, expect } from "@jest/globals";
 import fc from 'fast-check';
 
 const AWS_ACCOUNT_ID = '422017356244';

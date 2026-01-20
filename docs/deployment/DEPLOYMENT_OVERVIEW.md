@@ -24,8 +24,8 @@ Deploy the full CloudToLocalLLM stack to **Kubernetes** using Dockerfiles and Ku
 ```bash
 # Build and push Docker images to your container registry
 docker build -f config/docker/Dockerfile.web \
-  -t your-registry.com/cloudtolocalllm/web:latest .
-docker push your-registry.com/cloudtolocalllm/web:latest
+  -t your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest .
+docker push your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 
 docker build -f services/api-backend/Dockerfile.prod \
   -t your-registry.com/cloudtolocalllm/api:latest .

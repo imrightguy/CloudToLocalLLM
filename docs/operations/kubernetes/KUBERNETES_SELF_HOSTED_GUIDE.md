@@ -66,13 +66,13 @@ docker login
 ```bash
 # Build and tag images for your registry
 docker build -f config/docker/Dockerfile.web \
-  -t your-registry.com/cloudtolocalllm/web:latest .
+  -t your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest .
 
 docker build -f services/api-backend/Dockerfile.prod \
   -t your-registry.com/cloudtolocalllm/api:latest .
 
 # Push to registry
-docker push your-registry.com/cloudtolocalllm/web:latest
+docker push your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 docker push your-registry.com/cloudtolocalllm/api:latest
 ```
 
@@ -85,7 +85,7 @@ docker push your-registry.com/cloudtolocalllm/api:latest
 spec:
   containers:
   - name: web
-    image: your-registry.com/cloudtolocalllm/web:latest
+    image: your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 ```
 
 **`k8s/api-backend-deployment.yaml`:**
@@ -358,7 +358,7 @@ kubectl logs <pod-name> -n cloudtolocalllm
 
 ```bash
 # Verify image exists in registry
-docker pull your-registry.com/cloudtolocalllm/web:latest
+docker pull your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 
 # Check image pull secrets
 kubectl get secrets -n cloudtolocalllm
@@ -400,11 +400,11 @@ nslookup app.yourdomain.com
 
 ```bash
 # Build new images
-docker build -f config/docker/Dockerfile.web -t your-registry.com/cloudtolocalllm/web:v2.0.0 .
-docker push your-registry.com/cloudtolocalllm/web:v2.0.0
+docker build -f config/docker/Dockerfile.web -t your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:v2.0.0 .
+docker push your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:v2.0.0
 
 # Update deployment
-kubectl set image deployment/web web=your-registry.com/cloudtolocalllm/web:v2.0.0 -n cloudtolocalllm
+kubectl set image deployment/web web=your-registry.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:v2.0.0 -n cloudtolocalllm
 
 # Or update manifest and apply
 kubectl apply -f k8s/web-deployment.yaml

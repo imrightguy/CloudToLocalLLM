@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * User Activity Tracking Unit Tests
  *
@@ -18,7 +16,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @version 1.0.0
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { jest, describe, it, expect } from "@jest/globals";
 import { ACTIVITY_ACTIONS, SEVERITY_LEVELS } from '../../services/api-backend/services/user-activity-service.js';
 
 describe('User Activity Tracking Constants', () => {

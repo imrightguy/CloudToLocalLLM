@@ -2,7 +2,7 @@
 // Runs once after all tests
 
 export default async function globalTeardown() {
-  console.log('🧹 Cleaning up global test environment...'); // eslint-disable-line no-console
+  console.log('🧹 Cleaning up global test environment...');
 
   // Close database pool if it was initialized
   try {
@@ -11,7 +11,7 @@ export default async function globalTeardown() {
       await dbPool.closePool();
       console.log('✅ Database pool closed successfully');
     }
-  } catch (error) {
+  } catch {
     // Pool may not have been initialized, that's fine
     console.log('ℹ️ Database pool not initialized or already closed');
   }
@@ -24,7 +24,7 @@ export default async function globalTeardown() {
       queueService.clearAllQueues();
       console.log('✅ Request queue service cleared successfully');
     }
-  } catch (error) {
+  } catch {
     // Queue service may not have been initialized, that's fine
     console.log('ℹ️ Request queue service not initialized or already cleared');
   }

@@ -256,7 +256,7 @@ Response:
 For questions about API versioning or migration help, contact:
 - Email: support@cloudtolocalllm.online
 - Documentation: https://docs.cloudtolocalllm.online
-- GitHub Issues: https://github.com/cloudtolocalllm/api-backend/issues
+- GitHub Issues: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
 
 ## Implementation Details
 

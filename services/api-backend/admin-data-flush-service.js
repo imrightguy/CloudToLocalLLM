@@ -17,14 +17,13 @@ import Docker from 'dockerode';
 import crypto from 'crypto';
 import logger from './logger.js';
 
-const docker = new Docker();
-
 /**
  * Administrative Data Flush Service
  * Handles secure clearing of all user data across the CloudToLocalLLM system
  */
 export class AdminDataFlushService {
-  constructor() {
+  constructor(dockerInstance = null) {
+    this.docker = dockerInstance || new Docker();
     this.activeFlushOperations = new Map(); // operationId -> operation metadata
     this.flushHistory = []; // Audit trail of flush operations
   }
@@ -247,28 +246,29 @@ export class AdminDataFlushService {
 
     try {
       // Get all CloudToLocalLLM containers
-      const containers = await docker.listContainers({
+      const containers = (await this.docker.listContainers({
         all: true,
         filters: {
           label: ['cloudtolocalllm.type'],
         },
-      });
+      })) || [];
 
       // Filter containers by user if specified
       const targetContainers = containers.filter((container) => {
-        const userLabel = container.Labels['cloudtolocalllm.user'];
+        const userLabel =
+          container.Labels && container.Labels['cloudtolocalllm.user'];
         return targetUserId ? userLabel === targetUserId : true;
       });
 
       // Stop and remove containers
       for (const containerInfo of targetContainers) {
         try {
-          const container = docker.getContainer(containerInfo.Id);
+          const container = this.docker.getContainer(containerInfo.Id);
 
           logger.info(' [AdminFlush] Stopping container', {
             containerId: containerInfo.Id,
-            containerName: containerInfo.Names[0],
-            user: containerInfo.Labels['cloudtolocalllm.user'],
+            containerName: containerInfo.Names ? containerInfo.Names[0] : 'unknown',
+            user: containerInfo.Labels ? containerInfo.Labels['cloudtolocalllm.user'] : 'unknown',
           });
 
           // Stop container with grace period
@@ -288,22 +288,23 @@ export class AdminDataFlushService {
       }
 
       // Get all CloudToLocalLLM networks
-      const networks = await docker.listNetworks({
+      const networks = (await this.docker.listNetworks({
         filters: {
           label: ['cloudtolocalllm.type=user-network'],
         },
-      });
+      })) || [];
 
       // Filter networks by user if specified
       const targetNetworks = networks.filter((network) => {
-        const userLabel = network.Labels['cloudtolocalllm.user'];
+        const userLabel =
+          network.Labels && network.Labels['cloudtolocalllm.user'];
         return targetUserId ? userLabel === targetUserId : true;
       });
 
       // Remove networks
       for (const networkInfo of targetNetworks) {
         try {
-          const network = docker.getNetwork(networkInfo.Id);
+          const network = this.docker.getNetwork(networkInfo.Id);
 
           logger.info(' [AdminFlush] Removing network', {
             networkId: networkInfo.Id,
@@ -470,14 +471,14 @@ export class AdminDataFlushService {
    */
   async getSystemStatistics() {
     try {
-      const containers = await docker.listContainers({
+      const containers = await this.docker.listContainers({
         all: true,
         filters: {
           label: ['cloudtolocalllm.type'],
         },
       });
 
-      const networks = await docker.listNetworks({
+      const networks = await this.docker.listNetworks({
         filters: {
           label: ['cloudtolocalllm.type=user-network'],
         },

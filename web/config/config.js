@@ -2,7 +2,7 @@
 window.cloudToLocalLLMConfig = {
   // API endpoints
   apiEndpoint: 'https://api.cloudtolocalllm.online',
-  wsEndpoint: 'wss://api.cloudtolocalllm.online/ws/tunnel',
+  wsEndpoint: 'wss://app.cloudtolocalllm.online/ws',
 
   // TURN server for WebRTC
   turnServer: {

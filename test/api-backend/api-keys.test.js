@@ -5,8 +5,9 @@
  * Requirements: 2.8
  */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
+import { jest } from '@jest/globals';
+
 
 import request from 'supertest';
 import express from 'express';

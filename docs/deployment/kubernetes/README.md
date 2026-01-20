@@ -93,8 +93,8 @@ doctl registry create cloudtolocalllm
 doctl registry login
 
 # Build and push images
-docker build -f config/docker/Dockerfile.web -t registry.digitalocean.com/cloudtolocalllm/web:latest .
-docker push registry.digitalocean.com/cloudtolocalllm/web:latest
+docker build -f config/docker/Dockerfile.web -t registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest .
+docker push registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 
 docker build -f services/api-backend/Dockerfile.prod -t registry.digitalocean.com/cloudtolocalllm/api:latest .
 docker push registry.digitalocean.com/cloudtolocalllm/api:latest
@@ -145,7 +145,7 @@ Edit deployment files and replace `YOUR_REGISTRY` with your actual registry:
 image: registry.digitalocean.com/cloudtolocalllm/api:latest
 
 # In web-deployment.yaml
-image: registry.digitalocean.com/cloudtolocalllm/web:latest
+image: registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 ```
 
 ### 4. Update Ingress Domains
@@ -285,7 +285,7 @@ kubectl set image -n cloudtolocalllm deployment/api-backend \
 
 # Update web application image
 kubectl set image -n cloudtolocalllm deployment/web \
-  web=registry.digitalocean.com/cloudtolocalllm/web:v2.0.0
+  web=registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:v2.0.0
 ```
 
 ### Database Backup

@@ -3,6 +3,15 @@ import { TunnelLogger } from '../utils/logger.js';
 import { getPool } from '../database/db-pool.js';
 
 /**
+ * Rate limit violation types
+ */
+export const VIOLATION_TYPES = {
+  WINDOW_LIMIT_EXCEEDED: 'window_limit_exceeded',
+  BURST_LIMIT_EXCEEDED: 'burst_limit_exceeded',
+  CONCURRENT_LIMIT_EXCEEDED: 'concurrent_limit_exceeded',
+};
+
+/**
  * @fileoverview Rate Limit Violations Service
  * Handles logging, tracking, and analysis of rate limit violations
  */
@@ -483,8 +492,15 @@ export class RateLimitViolationsService {
    * Get violations by endpoint
    * @param {string} endpoint - API endpoint
    * @param {Object} options - Query options
-   * @param {number} options.limit - Number of results
    * @param {string} options.startTime - Start time for filtering
+   * @param {string} options.endTime - End time for filtering
+   * @returns {Promise<Object>} Endpoint violation statistics
+   */
+  async getEndpointViolations(endpoint, options = {}) {
+    const { startTime = null, endTime = null } = options;
+
+    try {
+      let query = `
         SELECT
           COUNT(*) as violation_count,
           COUNT(DISTINCT user_id) as unique_users,
@@ -496,6 +512,7 @@ export class RateLimitViolationsService {
         FROM rate_limit_violations
         WHERE endpoint = $1
       `;
+
 
       const params = [endpoint];
       let paramIndex = 2;

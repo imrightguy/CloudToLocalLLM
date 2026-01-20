@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Property-Based Tests for User Tier System Validation
  *
@@ -14,7 +12,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * **Validates: Requirements 2.4**
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 import {
   getUserTier,
   getTierFeatures,

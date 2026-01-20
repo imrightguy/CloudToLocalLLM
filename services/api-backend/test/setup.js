@@ -60,6 +60,45 @@ jest.mock('@sentry/node', () => ({
   setupExpressErrorHandler: jest.fn(),
 }));
 
+// Mock pg to prevent real database connections
+jest.mock('pg', () => {
+  const mockPoolInstance = {
+    query: jest.fn().mockResolvedValue({
+      rows: [
+        {
+          id: 'mock-id-static',
+          user_id: 'mock-user-id',
+          tunnel_id: 'mock-tunnel-id',
+          email: 'test@example.com',
+          tier: 'premium',
+          is_active: true,
+          status: 'active',
+        },
+      ],
+      rowCount: 1,
+    }),
+    connect: jest.fn().mockResolvedValue({
+      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+      release: jest.fn(),
+      on: jest.fn(),
+    }),
+    on: jest.fn(),
+    end: jest.fn().mockResolvedValue(),
+    totalCount: 0,
+    idleCount: 0,
+    waitingCount: 0,
+  };
+  return {
+    Pool: jest.fn(() => mockPoolInstance),
+    default: {
+      Pool: jest.fn(() => mockPoolInstance),
+    },
+  };
+});
+
+// Mock Database Pool to prevent real connections in tests
+jest.mock('../database/db-pool.js');
+
 // Mock Docker operations
 jest.mock('dockerode', () => {
   return jest.fn().mockImplementation(() => ({

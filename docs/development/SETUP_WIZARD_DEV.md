@@ -328,7 +328,7 @@ Ensure Docker environment supports user containers:
 # docker-compose.yml additions
 services:
   streaming-proxy-template:
-    image: cloudtolocalllm/streaming-proxy:latest
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
     deploy:
       replicas: 0  # Template only, scaled per user
     environment:

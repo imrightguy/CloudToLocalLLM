@@ -144,15 +144,15 @@ export class AuthService {
   async isTokenActive(userId, token) {
     const tokenHash = this.hashToken(token);
     try {
-        const session = await this.runQuery(
-          'SELECT is_active FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
-          [userId, tokenHash],
-          'get',
-        );
+      const session = await this.runQuery(
+        'SELECT is_active FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
+        [userId, tokenHash],
+        'get',
+      );
 
-        if (session) {
-          return session.is_active === true;
-        }
+      if (session) {
+        return session.is_active === true;
+      }
 
 
       return false;
@@ -213,9 +213,9 @@ export class AuthService {
                   resolve(decodedToken);
                 }
               }
-            }
+            },
           );
-          });
+        });
 
 
         this.logger.info('Token verification successful (Audience verified)');

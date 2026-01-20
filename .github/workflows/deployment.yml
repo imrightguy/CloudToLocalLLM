@@ -217,6 +217,8 @@ jobs:
       - name: Run API Backend Tests
         if: needs.ai_change_analysis.outputs.api_changed == 'true'
         working-directory: services/api-backend
+        env:
+          CI: true
         run: |
           echo "🧪 Running API Backend tests..."
           npm ci
@@ -547,7 +549,7 @@ jobs:
             # Pull latest images sequentially
             # This ensures they are local before Swarm tries to update
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:$DOCKER_TAG
-            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:$DOCKER_TAG
+            sudo docker pull ghcr.io/cloudtolocalllm-online/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:$DOCKER_TAG
             sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:$DOCKER_TAG
             sudo docker pull cloudflare/cloudflared:2024.12.2

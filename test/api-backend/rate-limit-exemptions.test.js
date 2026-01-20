@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * @fileoverview Tests for Rate Limit Exemptions
  *
@@ -14,7 +12,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @fileoverview Rate limit exemptions tests
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import {
   RateLimitExemptionManager,
   createRateLimitExemptionMiddleware,

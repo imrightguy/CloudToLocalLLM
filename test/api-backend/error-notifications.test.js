@@ -1,19 +1,17 @@
+/* global jest */
+import { jest } from '@jest/globals';
+
+
 /**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
-
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
-
  * Error Notification Service Tests
- * 
+ *
  * Tests for critical error detection and notification mechanisms.
  * Validates notification configuration and delivery.
- * 
+ *
  * Requirement 7.9: THE API SHALL support error notifications for critical issues
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import {
   ErrorNotificationService,
   ErrorSeverity,
@@ -70,10 +68,12 @@ describe('ErrorNotificationService', () => {
 
     it('should categorize resource errors correctly', async () => {
       const error = new Error('Out of memory');
-      const result = await service.detectAndNotify(error);
+      await service.detectAndNotify(error);
 
-      expect(result.notification.category).toBe(ErrorCategory.RESOURCE);
+      const history = service.getErrorHistory();
+      expect(history[0].category).toBe(ErrorCategory.RESOURCE);
     });
+
 
     it('should categorize system errors correctly', async () => {
       const error = new Error('System error: critical failure');
@@ -193,7 +193,8 @@ describe('ErrorNotificationService', () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       service.registerNotificationHandler(NotificationChannel.LOG, handler);
 
-      const error = new Error('Database error');
+      // Use an error that results in HIGH severity (not CRITICAL) to test cooldown
+      const error = new Error('Some high error');
 
       // First notification should be sent
       const result1 = await service.detectAndNotify(error);
@@ -204,7 +205,7 @@ describe('ErrorNotificationService', () => {
       expect(result2.notificationSent).toBe(false);
 
       // Wait for cooldown to expire
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      await new Promise((resolve) => setTimeout(resolve, 1100));
 
       // Third notification after cooldown should be sent
       const result3 = await service.detectAndNotify(error);
@@ -232,7 +233,8 @@ describe('ErrorNotificationService', () => {
       const handler = jest.fn().mockResolvedValue(undefined);
       service.registerNotificationHandler(NotificationChannel.LOG, handler);
 
-      const error = new Error('Some error');
+      // Use an error that results in MEDIUM severity so threshold logic applies
+      const error = new Error('Minor notification');
 
       // First error - below threshold
       const result1 = await service.detectAndNotify(error);
@@ -343,6 +345,7 @@ describe('ErrorNotificationService', () => {
       expect(stats.totalErrors).toBe(1);
 
       service.resetErrorCounts();
+      service.resetMetrics();
       stats = service.getErrorStatistics();
       expect(stats.totalErrors).toBe(0);
     });

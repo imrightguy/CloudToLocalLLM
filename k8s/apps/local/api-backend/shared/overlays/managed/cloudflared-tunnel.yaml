@@ -110,6 +110,10 @@ data:
       - hostname: grafana.cloudtolocalllm.online
         service: http://grafana.cloudtolocalllm.svc.cluster.local:3000
 
+      # Streaming Subdomain - Streaming Proxy
+      - hostname: streaming.cloudtolocalllm.online
+        service: http://streaming-proxy.cloudtolocalllm.svc.cluster.local:3001
+
       # Root Domain - Web Frontend
       - hostname: cloudtolocalllm.online
         service: http://web.cloudtolocalllm.svc.cluster.local:8080

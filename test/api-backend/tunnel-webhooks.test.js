@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Tunnel Webhooks Tests
  *
@@ -21,7 +19,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 import { TunnelWebhookService } from '../../services/api-backend/services/tunnel-webhook-service.js';

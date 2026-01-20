@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Authentication Audit Logging Tests for CloudToLocalLLM API Backend
  *
@@ -17,7 +15,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  */
 
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
 import crypto from 'crypto';
 import { query } from '../../services/api-backend/database/db-pool.js';
 import {

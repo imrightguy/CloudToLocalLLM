@@ -236,6 +236,6 @@ curl "https://api.cloudtolocalllm.online/api/deprecation/endpoint-info?path=/v1/
 - **Documentation**: https://docs.cloudtolocalllm.online/api/deprecation
 - **API Docs**: https://api.cloudtolocalllm.online/api/docs
 - **Support**: support@cloudtolocalllm.online
-- **Issues**: https://github.com/cloudtolocalllm/api-backend/issues
+- **Issues**: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
 
 </content>

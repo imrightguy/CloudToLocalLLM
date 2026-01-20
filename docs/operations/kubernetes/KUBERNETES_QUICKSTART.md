@@ -29,8 +29,8 @@ doctl registry login
 
 # Build and push web image
 docker build -f config/docker/Dockerfile.web \
-  -t registry.digitalocean.com/cloudtolocalllm/web:latest .
-docker push registry.digitalocean.com/cloudtolocalllm/web:latest
+  -t registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest .
+docker push registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
 
 # Build and push API image
 docker build -f services/api-backend/Dockerfile.prod \
@@ -88,7 +88,7 @@ Edit `web-deployment.yaml`:
 ```yaml
 containers:
   - name: web
-    image: registry.digitalocean.com/cloudtolocalllm/web:latest  # Your registry
+    image: registry.digitalocean.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest  # Your registry
 ```
 
 ### 3.4 Update Ingress Domains

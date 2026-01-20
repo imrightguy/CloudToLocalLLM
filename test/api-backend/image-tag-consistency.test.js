@@ -2,8 +2,6 @@
 /* global jest */
 import { jest } from '@jest/globals';
 
-// Unmock database pool for integration tests (kept once)
-jest.unmock('../../services/api-backend/database/db-pool.js');
 
 /**
  * Image Tag Consistency Property Test

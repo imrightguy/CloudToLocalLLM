@@ -134,7 +134,7 @@ services:
 
   # Web Frontend (Nginx serving Flutter)
   web:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
+    image: ghcr.io/cloudtolocalllm-online/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
     user: "1001:1001"
     networks:
       cloudtolocalllm_net:

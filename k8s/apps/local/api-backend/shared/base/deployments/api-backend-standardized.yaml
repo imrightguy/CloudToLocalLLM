@@ -96,7 +96,7 @@ spec:
               cpu: "100m"
               memory: "128Mi"
         - name: db-migrate
-          image: imrightguycloudtolocalllm.azurecr.io/api-backend:7.10.9-202512190353-api-backend
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
           imagePullPolicy: Always
           command: ["npm", "run", "db:migrate"]
           securityContext:
@@ -274,7 +274,7 @@ spec:
               memory: "256Mi"
       containers:
         - name: api-backend
-          image: imrightguycloudtolocalllm.azurecr.io/api-backend:7.10.9-202512190353-api-backend
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Tunnel Lifecycle Management Tests
  *
@@ -20,7 +18,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
 import { TunnelService } from '../../services/api-backend/services/tunnel-service.js';
 import { getPool, initializePool } from '../../services/api-backend/database/db-pool.js';
 import { DatabaseMigratorPG } from '../../services/api-backend/database/migrate-pg.js';

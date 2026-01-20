@@ -88,9 +88,15 @@ export function getUserTier(user) {
   }
 
   try {
-    // Safely extract metadata with validation (Supabase structure)
-    const userMetadata = user.user_metadata || {};
-    const appMetadata = user.app_metadata || {};
+    // Safely extract metadata with validation (Supabase and Auth0 structures)
+    const userMetadata =
+      user.user_metadata ||
+      user['https://cloudtolocalllm.com/user_metadata'] ||
+      {};
+    const appMetadata =
+      user.app_metadata ||
+      user['https://cloudtolocalllm.com/app_metadata'] ||
+      {};
 
     // Validate metadata objects
     if (typeof userMetadata !== 'object' || typeof appMetadata !== 'object') {

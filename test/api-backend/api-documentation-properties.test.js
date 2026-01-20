@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * API Documentation Consistency Property-Based Tests
  *
@@ -16,7 +14,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * Feature: api-backend-enhancement, Property 15: API documentation consistency
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { jest, describe, it, expect } from "@jest/globals";
 import ChangelogService from '../../services/api-backend/services/changelog-service.js';
 
 describe('Property 15: API Documentation Consistency', () => {

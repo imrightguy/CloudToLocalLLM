@@ -406,7 +406,7 @@ The API uses URL-based versioning:
 For API support:
 
 - **Documentation**: https://docs.cloudtolocalllm.online
-- **Issues**: https://github.com/cloudtolocalllm/api-backend/issues
+- **Issues**: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
 - **Email**: support@cloudtolocalllm.online
 - **Discord**: https://discord.gg/cloudtolocalllm
 

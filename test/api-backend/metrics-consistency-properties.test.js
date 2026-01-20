@@ -1,9 +1,7 @@
-/**
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/* global jest */
 
-// Unmock database pool for integration tests
-jest.unmock('../../services/api-backend/database/db-pool.js');
+/**
+
 
  * Metrics Consistency Property-Based Tests
  *
@@ -16,7 +14,7 @@ jest.unmock('../../services/api-backend/database/db-pool.js');
  * Feature: api-backend-enhancement, Property 11: Metrics consistency
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { jest, describe, it, expect } from "@jest/globals";
 import AlertTriggeringService from '../../services/api-backend/services/alert-triggering-service.js';
 
 describe('Property 11: Metrics Consistency', () => {

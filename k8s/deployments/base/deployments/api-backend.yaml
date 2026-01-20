@@ -39,7 +39,7 @@ spec:
                 sleep 2
               done
         - name: db-migrate
-          image: cloudtolocalllm/api-backend:latest
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
           imagePullPolicy: Always
           command: ["npm", "run", "db:migrate"]
           securityContext:
@@ -207,7 +207,7 @@ spec:
                   optional: true
       containers:
         - name: api-backend
-          image: cloudtolocalllm/api-backend:latest
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

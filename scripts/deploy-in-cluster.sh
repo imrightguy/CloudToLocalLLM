@@ -66,9 +66,9 @@ kustomize build --load-restrictor LoadRestrictionsNone k8s/deployments/overlays/
 log_success "Generated full-manifest.yaml"
 
 log_info "Updating image tags..."
-sed -i "s|cloudtolocalllm/web:latest|$WEB_IMAGE|g" full-manifest.yaml
-sed -i "s|cloudtolocalllm/api-backend:latest|$API_IMAGE|g" full-manifest.yaml
-sed -i "s|cloudtolocalllm/streaming-proxy:latest|$STREAMING_IMAGE|g" full-manifest.yaml
+sed -i "s|ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest|$WEB_IMAGE|g" full-manifest.yaml
+sed -i "s|ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest|$API_IMAGE|g" full-manifest.yaml
+sed -i "s|ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest|$STREAMING_IMAGE|g" full-manifest.yaml
 sed -i "s|cloudtolocalllm/postgres:latest|$POSTGRES_IMAGE|g" full-manifest.yaml
 
 log_info "Injecting configuration..."
