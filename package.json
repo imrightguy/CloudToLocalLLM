@@ -1,6 +1,6 @@
 {
   "name": "cloudtolocalllm-backend",
-  "version": "10.1.169",
+  "version": "10.1.170",
   "description": "Backend services for CloudToLocalLLM",
   "main": "server.js",
   "type": "module",
