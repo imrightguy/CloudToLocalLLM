@@ -80,11 +80,11 @@ services:
     ports:
       - "8081:8080"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/healthz || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8080/healthz || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 120s
+      retries: 5
+      start_period: 180s
     deploy:
       replicas: 2
       resources:
@@ -108,10 +108,10 @@ services:
     ports:
       - "3001:3001"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:3001/health | grep healthy || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3001/health | grep healthy || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
       start_period: 60s
     deploy:
       replicas: 1
@@ -132,10 +132,10 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:8080/health | grep OK || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/health | grep OK || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
       start_period: 60s
     deploy:
       replicas: 2
@@ -159,11 +159,11 @@ services:
       - source: cloudflared_config
         target: /etc/cloudflared/config.yml
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:2000/ready || wget -q -O - http://localhost:2000/ready || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:2000/ready || exit 1"]
       interval: 1m
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     deploy:
       replicas: 2
       resources:
