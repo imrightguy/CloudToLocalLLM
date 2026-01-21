@@ -253,30 +253,33 @@ jobs:
             echo "✅ VM already running"
           fi
           
-          # Create deployment script with embedded values (parameters don't work reliably with run-command)
-          cat > ds.sh << 'DEPLOY_SCRIPT'
-          set -e
-          mkdir -p ~/deploy
-          cd ~/deploy
-          DEPLOY_SCRIPT
+          # Write GitHub token to temp file (avoids escaping issues in heredoc)
+          echo "${{ secrets.GITHUB_TOKEN }}" > /tmp/gh_token.txt
           
-          # Append with variable substitution
-          cat >> ds.sh << DEPLOY_SCRIPT
-          export DOCKER_TAG="${DOCKER_TAG}"
-          export POSTGRES_USER="${POSTGRES_USER}"
-          export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-          export JWT_SECRET="${JWT_SECRET}"
-          export CLOUDFLARE_TUNNEL_TOKEN="${CLOUDFLARE_TUNNEL_TOKEN}"
+          # Create deployment script using simple echo commands
+          {
+            echo '#!/bin/bash'
+            echo 'set -e'
+            echo 'mkdir -p ~/deploy'
+            echo 'cd ~/deploy'
+            echo "export DOCKER_TAG=\"${DOCKER_TAG}\""
+            echo "export POSTGRES_USER=\"${POSTGRES_USER}\""
+            echo "export POSTGRES_PASSWORD=\"${POSTGRES_PASSWORD}\""
+            echo "export JWT_SECRET=\"${JWT_SECRET}\""
+            echo "export CLOUDFLARE_TUNNEL_TOKEN=\"${CLOUDFLARE_TUNNEL_TOKEN}\""
+            echo ''
+            echo 'if [ ! -d ".git" ]; then'
+            echo "  git clone https://github.com/${{ github.repository }}.git ."
+            echo 'else'
+            echo '  git fetch origin main && git reset --hard origin/main'
+            echo 'fi'
+            echo ''
+            cat /tmp/gh_token.txt | head -c 1 > /dev/null  # Verify token exists
+            echo "echo '$(cat /tmp/gh_token.txt)' | docker login ghcr.io -u github-actions --password-stdin"
+            echo 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth'
+          } > ds.sh
           
-          if [ ! -d ".git" ]; then
-            git clone https://github.com/${{ github.repository }}.git .
-          else
-            git fetch origin main && git reset --hard origin/main
-          fi
-          
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u github-actions --password-stdin
-          docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
-          DEPLOY_SCRIPT
+          rm -f /tmp/gh_token.txt
           
           echo "📜 Deploying to VM..."
           # Use resource-group and name directly (more reliable than --ids for run-command)
