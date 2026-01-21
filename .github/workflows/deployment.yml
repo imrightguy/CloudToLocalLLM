@@ -22,7 +22,7 @@ env:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -58,9 +58,6 @@ jobs:
           else
             DIFF_FILES=$(git diff --name-only HEAD^ HEAD || git diff --name-only HEAD)
           fi
-
-          echo "Changed files:"
-          echo "$DIFF_FILES"
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
@@ -112,22 +109,6 @@ jobs:
           echo "web_needs_build=$WEB_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "postgres_needs_build=$POSTGRES_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
- 
-      - name: "Orchestrator: Commit Version Bump"
-        if: steps.analyze.outputs.bump_needed == 'true' && !contains(github.event.head_commit.message, '[skip ci]')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          chmod +x scripts/update-all-versions.sh
-          ./scripts/update-all-versions.sh "$NEW_VERSION" "${{ github.sha }}"
-          if ! git diff --quiet; then
-            git add .
-            git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
-            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
-          fi
 
   run_tests:
     needs: ai_change_analysis
@@ -259,6 +240,7 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
+          # Robust VM lookup
           VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
           if [ -z "$VM_ID" ]; then
             echo "❌ No Swarm VM found"
@@ -271,6 +253,7 @@ jobs:
           echo "✅ Target: $VM_NAME in $RG_NAME"
           az vm start --ids $VM_ID
           
+          # Create deployment script
           printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/${{ github.repository }}.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
           
           az vm run-command invoke --resource-group "$RG_NAME" --name "$VM_NAME" --command-id RunBashScript --scripts @ds.sh --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}"
