@@ -202,6 +202,7 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
+          # Robust VM lookup
           VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
           if [ -z "$VM_ID" ]; then
             echo "❌ No Swarm VM found"
@@ -211,6 +212,7 @@ jobs:
           echo "✅ Target VM ID: $VM_ID"
           az vm start --ids "$VM_ID"
           
+          # Create deployment script using printf
           printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/\$7.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
           
           az vm run-command invoke \
