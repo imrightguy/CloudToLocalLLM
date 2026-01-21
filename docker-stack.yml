@@ -14,7 +14,6 @@ services:
       cloudtolocalllm_net:
         aliases:
           - postgres
-          - postgres.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-cloudtolocalllm}
       interval: 10s
@@ -25,12 +24,9 @@ services:
       replicas: 1
       resources:
         reservations:
-          memory: 512M
+          memory: 256M
         limits:
-          memory: 1024M
-      update_config:
-        order: start-first
-        failure_action: rollback
+          memory: 512M
       restart_policy:
         condition: on-failure
 
@@ -44,7 +40,6 @@ services:
       cloudtolocalllm_net:
         aliases:
           - redis
-          - redis.cloudtolocalllm.svc.cluster.local
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -57,9 +52,6 @@ services:
           memory: 64M
         limits:
           memory: 128M
-      update_config:
-        order: start-first
-        failure_action: rollback
       restart_policy:
         condition: on-failure
 
@@ -85,7 +77,8 @@ services:
       cloudtolocalllm_net:
         aliases:
           - api-backend
-          - api-backend.cloudtolocalllm.svc.cluster.local
+    ports:
+      - "8081:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/healthz || exit 1"]
       interval: 30s
@@ -99,9 +92,6 @@ services:
           memory: 512M
         limits:
           memory: 1024M
-      update_config:
-        order: start-first
-        failure_action: rollback
 
   # Streaming Proxy
   streaming-proxy:
@@ -115,7 +105,8 @@ services:
       cloudtolocalllm_net:
         aliases:
           - streaming-proxy
-          - streaming-proxy.cloudtolocalllm.svc.cluster.local
+    ports:
+      - "3001:3001"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:3001/health | grep healthy || exit 1"]
       interval: 30s
@@ -129,9 +120,6 @@ services:
           memory: 256M
         limits:
           memory: 512M
-      update_config:
-        order: start-first
-        failure_action: rollback
 
   # Web Frontend (Nginx serving Flutter)
   web:
@@ -141,7 +129,8 @@ services:
       cloudtolocalllm_net:
         aliases:
           - web
-          - web.cloudtolocalllm.svc.cluster.local
+    ports:
+      - "8080:8080"
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:8080/health | grep OK || exit 1"]
       interval: 30s
@@ -155,9 +144,6 @@ services:
           memory: 64M
         limits:
           memory: 128M
-      update_config:
-        order: start-first
-        failure_action: rollback
 
   # Cloudflare Tunnel (Ingress)
   cloudflared:
@@ -185,9 +171,6 @@ services:
           memory: 128M
         limits:
           memory: 256M
-      update_config:
-        order: start-first
-        failure_action: rollback
       restart_policy:
         condition: on-failure
 
