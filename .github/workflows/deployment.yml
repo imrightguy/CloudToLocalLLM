@@ -59,6 +59,9 @@ jobs:
             DIFF_FILES=$(git diff --name-only HEAD^ HEAD || git diff --name-only HEAD)
           fi
 
+          echo "Changed files:"
+          echo "$DIFF_FILES"
+
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
           if echo "$DIFF_FILES" | grep -qE "web/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web"; fi
@@ -92,7 +95,6 @@ jobs:
           BUMP="false"
           NEW_VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
           
-          # Only bump if components changed AND this isn't a skip-ci push
           if [ -n "$COMPONENTS_CLEAN" ]; then
             BUMP="true"
             IFS='.' read -r -a v <<< "$NEW_VERSION"
@@ -111,22 +113,6 @@ jobs:
           echo "web_needs_build=$WEB_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "postgres_needs_build=$POSTGRES_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
- 
-      - name: "Orchestrator: Commit Version Bump"
-        if: steps.analyze.outputs.bump_needed == 'true' && !contains(github.event.head_commit.message, '[skip ci]')
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          chmod +x scripts/update-all-versions.sh
-          ./scripts/update-all-versions.sh "$NEW_VERSION" "${{ github.sha }}"
-          if ! git diff --quiet; then
-            git add .
-            git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
-            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
-          fi
 
   run_tests:
     needs: ai_change_analysis
@@ -222,10 +208,13 @@ jobs:
             exit 1
           fi
           
-          RG_NAME=$(az vm show --ids $VM_ID --query resourceGroup -o tsv)
-          VM_NAME=$(az vm show --ids $VM_ID --query name -o tsv)
-          az vm start --ids $VM_ID
+          echo "✅ Target VM ID: $VM_ID"
+          az vm start --ids "$VM_ID"
           
           printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/\$7.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
           
-          az vm run-command invoke --resource-group "$RG_NAME" --name "$VM_NAME" --command-id RunBashScript --scripts @ds.sh --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}" "${{ github.repository }}"
+          az vm run-command invoke \
+            --ids "$VM_ID" \
+            --command-id RunBashScript \
+            --scripts @ds.sh \
+            --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}" "${{ github.repository }}"
