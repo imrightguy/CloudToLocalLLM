@@ -404,12 +404,20 @@ app.all(
 // User tier endpoint
 registerRoutes('/user/tier', ...authenticateJWT, addTierInfo, ...userTierHandler);
 
+let isInitializing = true;
+
 // Health check endpoints
 app.get('/healthz', (req, res) => {
+  if (isInitializing) {
+    return res.status(503).send('Initializing');
+  }
   res.status(200).send('OK');
 });
 
 registerRoutes('/health', (req, res) => {
+  if (isInitializing) {
+    return res.status(503).json({ status: 'initializing' });
+  }
   healthCheckService
     .getHealthStatus()
     .then((healthStatus) => {
@@ -983,18 +991,20 @@ async function gracefulShutdown() {
 // Start server with enhanced tunnel system
 async function startServer() {
   logger.info('Starting server...');
-  try {
-    await initializeTunnelSystem();
-
-    server.listen(PORT, '0.0.0.0', () => {
-      logger.info(`CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info('WebSocket tunnel system is ready');
-    });
-  } catch (error) {
-    logger.error('Failed to start server', { error: error.message });
-    process.exit(1);
-  }
+  
+  // Listen early to pass healthchecks during initialization
+  server.listen(PORT, '0.0.0.0', async () => {
+    logger.info(`CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT} (Initializing...)`);
+    
+    try {
+      await initializeTunnelSystem();
+      isInitializing = false;
+      logger.info('Initialization complete, server ready.');
+    } catch (error) {
+      logger.error('Failed to initialize server', { error: error.message });
+      // Keep listening so we can report errors via health endpoint, but don't exit
+    }
+  });
 }
 
 // Start the server if not in test mode
