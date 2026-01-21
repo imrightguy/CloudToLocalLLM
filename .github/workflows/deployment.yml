@@ -508,8 +508,8 @@ jobs:
           RG_NAME=$(echo $VM_INFO | jq -r .rg)
           VM_NAME=$(echo $VM_INFO | jq -r .name)
           
-          if [ "$RG_NAME" == "null" ] || [ "$VM_NAME" == "null" ]; then
-            echo "❌ Could not find swarm VM. Falling back to defaults."
+          if [ "$RG_NAME" == "null" ] || [ "$RG_NAME" == "" ] || [ "$VM_NAME" == "null" ] || [ "$VM_NAME" == "" ]; then
+            echo "❌ Could not find swarm VM using query. Trying defaults."
             RG_NAME="cloudtolocalllm-rg"
             VM_NAME="cloudtolocalllm-swarm"
           fi
@@ -557,11 +557,13 @@ jobs:
           docker stack services cloudtolocalllm
           EOF
 
+          # Run the script on the VM
           az vm run-command invoke \
             -g $RG_NAME \
             -n $VM_NAME \
             --command-id RunBashScript \
-            --scripts @remote_deploy.sh
+            --scripts @remote_deploy.sh \
+            --verbose
           
           rm remote_deploy.sh
 
