@@ -253,10 +253,11 @@ jobs:
             echo "✅ VM already running"
           fi
           
-          # Write GitHub token to temp file (avoids escaping issues in heredoc)
-          echo "${{ secrets.GITHUB_TOKEN }}" > /tmp/gh_token.txt
+          # Store GitHub token in a variable (will be embedded in script)
+          GH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
           
           # Create deployment script using simple echo commands
+          # Note: We embed the token directly as a literal string
           {
             echo '#!/bin/bash'
             echo 'set -e'
@@ -274,12 +275,9 @@ jobs:
             echo '  git fetch origin main && git reset --hard origin/main'
             echo 'fi'
             echo ''
-            cat /tmp/gh_token.txt | head -c 1 > /dev/null  # Verify token exists
-            echo "echo '$(cat /tmp/gh_token.txt)' | docker login ghcr.io -u github-actions --password-stdin"
+            echo "echo \"${GH_TOKEN}\" | docker login ghcr.io -u github-actions --password-stdin"
             echo 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth'
           } > ds.sh
-          
-          rm -f /tmp/gh_token.txt
           
           echo "📜 Deploying to VM..."
           # Use resource-group and name directly (more reliable than --ids for run-command)
