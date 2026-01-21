@@ -121,7 +121,7 @@ class BulkOperationsService {
         operation,
         adminUserId,
         adminRole,
-        pool
+        pool,
       );
 
       operation.status = 'completed';
@@ -166,7 +166,7 @@ class BulkOperationsService {
           operationData,
           adminUserId,
           adminRole,
-          pool
+          pool,
         );
       case 'suspend':
         return await this._executeSuspend(
@@ -175,7 +175,7 @@ class BulkOperationsService {
           operationData,
           adminUserId,
           adminRole,
-          pool
+          pool,
         );
       case 'reactivate':
         return await this._executeReactivate(
@@ -183,7 +183,7 @@ class BulkOperationsService {
           userIds,
           adminUserId,
           adminRole,
-          pool
+          pool,
         );
       case 'delete':
         return await this._executeDelete(
@@ -192,7 +192,7 @@ class BulkOperationsService {
           operationData,
           adminUserId,
           adminRole,
-          pool
+          pool,
         );
       default:
         throw new Error(`Unknown operation type: ${type}`);
@@ -209,7 +209,7 @@ class BulkOperationsService {
     operationData,
     adminUserId,
     adminRole,
-    pool
+    pool,
   ) {
     const { tier } = operationData;
     const results = {
@@ -312,7 +312,7 @@ class BulkOperationsService {
     operationData,
     adminUserId,
     adminRole,
-    pool
+    pool,
   ) {
     const { reason } = operationData;
     const results = {
@@ -355,7 +355,7 @@ class BulkOperationsService {
         // Invalidate sessions
         await pool.query(
           'UPDATE user_sessions SET expires_at = NOW() WHERE user_id = $1 AND expires_at > NOW()',
-          [userId]
+          [userId],
         );
 
         // Log action
@@ -483,7 +483,7 @@ class BulkOperationsService {
     operationData,
     adminUserId,
     adminRole,
-    pool
+    pool,
   ) {
     const { softDelete = true } = operationData;
     const results = {
@@ -575,7 +575,7 @@ class BulkOperationsService {
       successCount: operation.successCount,
       failureCount: operation.failureCount,
       progress: Math.round(
-        (operation.processedUsers / operation.totalUsers) * 100
+        (operation.processedUsers / operation.totalUsers) * 100,
       ),
       createdAt: operation.createdAt,
       startedAt: operation.startedAt,

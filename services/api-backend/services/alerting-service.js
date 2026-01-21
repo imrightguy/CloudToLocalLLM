@@ -27,7 +27,7 @@ const EMAIL_FROM =
 const EMAIL_SMTP_HOST = process.env.ALERT_EMAIL_SMTP_HOST || 'smtp.gmail.com';
 const EMAIL_SMTP_PORT = parseInt(
   process.env.ALERT_EMAIL_SMTP_PORT || '587',
-  10
+  10,
 );
 const EMAIL_SMTP_USER = process.env.ALERT_EMAIL_SMTP_USER || '';
 const EMAIL_SMTP_PASS = process.env.ALERT_EMAIL_SMTP_PASS || '';
@@ -256,7 +256,7 @@ export async function sendAlert(
   title,
   message,
   metadata = {},
-  severity = 'error'
+  severity = 'error',
 ) {
   logger.warn(`[Alerting] Sending alert: ${alertType}`, { title, metadata });
 
@@ -271,7 +271,7 @@ export async function sendAlert(
 
   const successCount = Object.values(results).filter((r) => r.success).length;
   const totalCount = Object.values(results).filter(
-    (r) => r.reason !== 'not configured'
+    (r) => r.reason !== 'not configured',
   ).length;
 
   logger.info(
@@ -279,7 +279,7 @@ export async function sendAlert(
     {
       alertType,
       results,
-    }
+    },
   );
 
   return results;

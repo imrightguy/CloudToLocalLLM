@@ -37,7 +37,7 @@ router.get(
 
       const config = await webhookRateLimiterService.getWebhookRateLimitConfig(
         webhookId,
-        userId
+        userId,
       );
 
       res.json({
@@ -57,7 +57,7 @@ router.get(
         },
       });
     }
-  }
+  },
 );
 
 /**
@@ -93,7 +93,7 @@ router.put(
         await webhookRateLimiterService.setWebhookRateLimitConfig(
           webhookId,
           userId,
-          config
+          config,
         );
 
       res.json({
@@ -114,7 +114,7 @@ router.put(
         },
       });
     }
-  }
+  },
 );
 
 /**
@@ -136,12 +136,12 @@ router.get(
 
       const stats = await webhookRateLimiterService.getRateLimitStats(
         webhookId,
-        userId
+        userId,
       );
 
       const config = await webhookRateLimiterService.getWebhookRateLimitConfig(
         webhookId,
-        userId
+        userId,
       );
 
       res.json({
@@ -157,15 +157,15 @@ router.get(
           current_day_usage: stats.day_count,
           minute_remaining: Math.max(
             0,
-            config.rate_limit_per_minute - stats.minute_count
+            config.rate_limit_per_minute - stats.minute_count,
           ),
           hour_remaining: Math.max(
             0,
-            config.rate_limit_per_hour - stats.hour_count
+            config.rate_limit_per_hour - stats.hour_count,
           ),
           day_remaining: Math.max(
             0,
-            config.rate_limit_per_day - stats.day_count
+            config.rate_limit_per_day - stats.day_count,
           ),
         },
       });
@@ -181,7 +181,7 @@ router.get(
         },
       });
     }
-  }
+  },
 );
 
 export default router;

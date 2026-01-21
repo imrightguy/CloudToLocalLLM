@@ -38,7 +38,7 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'cloudtolocalllm-admin' },
   transports: [
@@ -47,7 +47,7 @@ const logger = winston.createLogger({
         winston.format.timestamp(),
         winston.format.printf(({ timestamp, level, message, ...meta }) => {
           return `${timestamp} [${level.toUpperCase()}]  [AdminPanel] ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
-        })
+        }),
       ),
     }),
   ],
@@ -86,7 +86,7 @@ app.use(
       includeSubDomains: true,
       preload: true,
     },
-  })
+  }),
 );
 
 // CORS configuration for admin interface
@@ -101,7 +101,7 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  })
+  }),
 );
 
 // Strict rate limiting for admin operations
@@ -210,11 +210,11 @@ app.get(
       });
 
       const userContainers = containers.filter(
-        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy'
+        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy',
       );
 
       const activeUsers = new Set(
-        userContainers.map((c) => c.Labels['cloudtolocalllm.user'])
+        userContainers.map((c) => c.Labels['cloudtolocalllm.user']),
       ).size;
 
       const stats = {
@@ -252,7 +252,7 @@ app.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 // Real-time system monitoring endpoint
@@ -309,7 +309,7 @@ app.get(
         code: 'REALTIME_DATA_FAILED',
       });
     }
-  }
+  },
 );
 
 // Container management endpoints
@@ -371,7 +371,7 @@ app.get(
               stats: null,
             };
           }
-        })
+        }),
       );
 
       res.json({
@@ -389,7 +389,7 @@ app.get(
         code: 'CONTAINER_LIST_FAILED',
       });
     }
-  }
+  },
 );
 
 // Helper function to calculate CPU percentage
@@ -454,7 +454,7 @@ app.get(
         code: 'NETWORK_LIST_FAILED',
       });
     }
-  }
+  },
 );
 
 // Active sessions monitoring endpoint
@@ -506,7 +506,7 @@ app.get(
         code: 'SESSIONS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 // System performance metrics endpoint
@@ -579,7 +579,7 @@ app.get(
         code: 'PERFORMANCE_METRICS_FAILED',
       });
     }
-  }
+  },
 );
 
 // User management endpoints
@@ -722,7 +722,7 @@ app.get(
               error: 'Failed to get detailed information',
             };
           }
-        })
+        }),
       );
 
       res.json({
@@ -746,7 +746,7 @@ app.get(
         code: 'USER_SESSIONS_FAILED',
       });
     }
-  }
+  },
 );
 
 // Terminate user session endpoint
@@ -809,7 +809,7 @@ app.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 // Configuration management endpoints
@@ -866,7 +866,7 @@ app.get(
         code: 'CONFIG_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 // Environment variables endpoint (read-only, filtered)
@@ -894,7 +894,7 @@ app.get(
       const filteredEnv = Object.entries(process.env)
         .filter(([key]) => {
           return !sensitiveKeys.some((sensitive) =>
-            key.toUpperCase().includes(sensitive)
+            key.toUpperCase().includes(sensitive),
           );
         })
         .reduce((acc, [key, value]) => {
@@ -923,7 +923,7 @@ app.get(
         code: 'ENV_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 // Feature flags management endpoint
@@ -976,7 +976,7 @@ app.get(
         code: 'FEATURES_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 // Service status endpoint
@@ -1038,7 +1038,7 @@ app.get(
         code: 'SERVICES_STATUS_FAILED',
       });
     }
-  }
+  },
 );
 
 // Enhanced container management endpoints
@@ -1124,7 +1124,7 @@ app.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 // Container resource usage endpoint
@@ -1175,11 +1175,11 @@ app.get(
         blockIO: {
           readBytes:
             stats.blkio_stats.io_service_bytes_recursive?.find(
-              (item) => item.op === 'Read'
+              (item) => item.op === 'Read',
             )?.value || 0,
           writeBytes:
             stats.blkio_stats.io_service_bytes_recursive?.find(
-              (item) => item.op === 'Write'
+              (item) => item.op === 'Write',
             )?.value || 0,
         },
         timestamp: new Date().toISOString(),
@@ -1202,7 +1202,7 @@ app.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 // Network topology endpoint
@@ -1247,7 +1247,7 @@ app.get(
               ipam: networkDetail.IPAM,
               options: networkDetail.Options,
             };
-          })
+          }),
         ),
         containers: containers.map((container) => ({
           id: container.Id,
@@ -1264,7 +1264,7 @@ app.get(
       topology.networks.forEach((network) => {
         network.containers.forEach((containerId) => {
           const container = topology.containers.find((c) =>
-            c.id.startsWith(containerId)
+            c.id.startsWith(containerId),
           );
           if (container) {
             topology.connections.push({
@@ -1292,7 +1292,7 @@ app.get(
         code: 'NETWORK_TOPOLOGY_FAILED',
       });
     }
-  }
+  },
 );
 
 // Import and mount existing admin routes

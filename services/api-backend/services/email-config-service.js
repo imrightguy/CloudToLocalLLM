@@ -38,7 +38,7 @@ class EmailConfigService {
       !['google_workspace', 'smtp_relay', 'sendgrid'].includes(config.provider)
     ) {
       errors.push(
-        'Invalid provider. Must be one of: google_workspace, smtp_relay, sendgrid'
+        'Invalid provider. Must be one of: google_workspace, smtp_relay, sendgrid',
       );
     }
 
@@ -116,7 +116,7 @@ class EmailConfigService {
 
       if (!validation.valid) {
         throw new Error(
-          `Configuration validation failed: ${validation.errors.join(', ')}`
+          `Configuration validation failed: ${validation.errors.join(', ')}`,
         );
       }
 
@@ -128,7 +128,7 @@ class EmailConfigService {
       if (googleOAuth) {
         encryptedGoogleToken = this._encryptData(googleOAuth.accessToken);
         encryptedGoogleRefreshToken = this._encryptData(
-          googleOAuth.refreshToken
+          googleOAuth.refreshToken,
         );
       }
 
@@ -230,12 +230,12 @@ class EmailConfigService {
       // Decrypt sensitive fields
       if (config.google_oauth_token_encrypted) {
         config.googleOAuthToken = this._decryptData(
-          config.google_oauth_token_encrypted
+          config.google_oauth_token_encrypted,
         );
       }
       if (config.google_oauth_refresh_token_encrypted) {
         config.googleOAuthRefreshToken = this._decryptData(
-          config.google_oauth_refresh_token_encrypted
+          config.google_oauth_refresh_token_encrypted,
         );
       }
       if (config.smtp_password_encrypted) {
@@ -284,17 +284,17 @@ class EmailConfigService {
       const configs = result.rows.map((config) => {
         if (config.google_oauth_token_encrypted) {
           config.googleOAuthToken = this._decryptData(
-            config.google_oauth_token_encrypted
+            config.google_oauth_token_encrypted,
           );
         }
         if (config.google_oauth_refresh_token_encrypted) {
           config.googleOAuthRefreshToken = this._decryptData(
-            config.google_oauth_refresh_token_encrypted
+            config.google_oauth_refresh_token_encrypted,
           );
         }
         if (config.smtp_password_encrypted) {
           config.smtpPassword = this._decryptData(
-            config.smtp_password_encrypted
+            config.smtp_password_encrypted,
           );
         }
         return config;
@@ -776,7 +776,7 @@ class EmailConfigService {
     const cipher = crypto.createCipheriv(
       'aes-256-gcm',
       Buffer.from(encryptionKey, 'hex'),
-      iv
+      iv,
     );
 
     let encrypted = cipher.update(data, 'utf8', 'hex');
@@ -807,7 +807,7 @@ class EmailConfigService {
     const decipher = crypto.createDecipheriv(
       'aes-256-gcm',
       Buffer.from(encryptionKey, 'hex'),
-      Buffer.from(iv, 'hex')
+      Buffer.from(iv, 'hex'),
     );
 
     decipher.setAuthTag(Buffer.from(authTag, 'hex'));

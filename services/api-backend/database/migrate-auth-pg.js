@@ -31,7 +31,7 @@ export class AuthDatabaseMigratorPG {
       idleTimeoutMillis: parseInt(process.env.AUTH_DB_POOL_IDLE || '30000', 10),
       connectionTimeoutMillis: parseInt(
         process.env.AUTH_DB_POOL_CONNECT_TIMEOUT || '30000',
-        10
+        10,
       ),
       ...config,
     };
@@ -84,7 +84,7 @@ export class AuthDatabaseMigratorPG {
                   `Auth migration statement warning: ${error.message}`,
                   {
                     statement: statement.substring(0, 100),
-                  }
+                  },
                 );
               }
             }

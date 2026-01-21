@@ -134,7 +134,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -200,7 +200,7 @@ router.post(
       // Search for user by email
       const userResult = await pool.query(
         'SELECT id, email, username FROM users WHERE email = $1',
-        [email.toLowerCase()]
+        [email.toLowerCase()],
       );
 
       if (userResult.rows.length === 0) {
@@ -220,7 +220,7 @@ router.post(
       // Check if user already has this role
       const existingRoleResult = await pool.query(
         'SELECT * FROM admin_roles WHERE user_id = $1 AND role = $2 AND is_active = true',
-        [user.id, role]
+        [user.id, role],
       );
 
       if (existingRoleResult.rows.length > 0) {
@@ -241,7 +241,7 @@ router.post(
         `INSERT INTO admin_roles (user_id, role, granted_by, granted_at, is_active)
        VALUES ($1, $2, $3, NOW(), true)
        RETURNING *`,
-        [user.id, role, req.adminUser.id]
+        [user.id, role, req.adminUser.id],
       );
 
       const assignedRole = roleResult.rows[0];
@@ -298,7 +298,7 @@ router.post(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -353,7 +353,7 @@ router.delete(
       // Get user information
       const userResult = await pool.query(
         'SELECT id, email, username FROM users WHERE id = $1',
-        [userId]
+        [userId],
       );
 
       if (userResult.rows.length === 0) {
@@ -386,7 +386,7 @@ router.delete(
       // Check if user has this active role
       const existingRoleResult = await pool.query(
         'SELECT * FROM admin_roles WHERE user_id = $1 AND role = $2 AND is_active = true',
-        [userId, role]
+        [userId, role],
       );
 
       if (existingRoleResult.rows.length === 0) {
@@ -396,7 +396,7 @@ router.delete(
             userId,
             email: user.email,
             role,
-          }
+          },
         );
         return res.status(404).json({
           error: 'Role not found',
@@ -412,7 +412,7 @@ router.delete(
         `UPDATE admin_roles 
        SET is_active = false, revoked_at = NOW(), updated_at = NOW()
        WHERE id = $1`,
-        [existingRole.id]
+        [existingRole.id],
       );
 
       // Log admin action
@@ -469,7 +469,7 @@ router.delete(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;

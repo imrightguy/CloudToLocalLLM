@@ -119,7 +119,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -210,7 +210,7 @@ router.post(
       // Generate confirmation token
       const confirmationData = adminDataFlushService.generateConfirmationToken(
         adminUserId,
-        targetUserId || 'ALL_USERS'
+        targetUserId || 'ALL_USERS',
       );
 
       // Log the preparation (but not the token)
@@ -244,7 +244,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -282,7 +282,7 @@ router.post(
         adminUserId,
         confirmationToken,
         targetUserId,
-        options
+        options,
       );
 
       // Log successful completion
@@ -315,7 +315,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -365,7 +365,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -408,7 +408,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -457,7 +457,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**

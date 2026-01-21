@@ -384,7 +384,7 @@ export function validatePreferences(preferences) {
   // Validate notifications if provided
   if (preferences.notifications !== undefined) {
     const notificationsValidation = validateNotifications(
-      preferences.notifications
+      preferences.notifications,
     );
     if (!notificationsValidation.valid) {
       return notificationsValidation;
@@ -549,7 +549,7 @@ export function logValidationError(
   userId,
   field,
   reason,
-  context = {}
+  context = {},
 ) {
   logger.warn('[InputValidation] Validation error', {
     endpoint,
@@ -574,7 +574,7 @@ export function validateInput(value, name, type) {
     if (
       typeof value !== 'string' ||
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        value
+        value,
       )
     ) {
       throw new Error(`Invalid ${name}: expected UUID`);

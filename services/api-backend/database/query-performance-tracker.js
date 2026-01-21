@@ -42,7 +42,7 @@ export function initializeQueryTracking() {
     {
       slowQueryThreshold: `${threshold}ms`,
       maxStoredQueries: 1000,
-    }
+    },
   );
 
   return {
@@ -295,20 +295,20 @@ export function analyzePerformance() {
       maxTime: typeStats.maxTime,
       slowCount: typeStats.slowCount,
       slowPercentage: ((typeStats.slowCount / typeStats.count) * 100).toFixed(
-        2
+        2,
       ),
     };
 
     // Generate recommendations
     if (typeStats.slowCount > typeStats.count * 0.1) {
       analysis.recommendations.push(
-        `${queryType} queries have ${typeStats.slowPercentage}% slow query rate - consider optimization`
+        `${queryType} queries have ${typeStats.slowPercentage}% slow query rate - consider optimization`,
       );
     }
 
     if (typeStats.maxTime > performanceMetrics.slowQueryThreshold * 5) {
       analysis.recommendations.push(
-        `${queryType} queries have very high max time (${typeStats.maxTime}ms) - investigate outliers`
+        `${queryType} queries have very high max time (${typeStats.maxTime}ms) - investigate outliers`,
       );
     }
   }

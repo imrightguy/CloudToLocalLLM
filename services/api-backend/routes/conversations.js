@@ -8,7 +8,7 @@ import winston from 'winston';
 
 export function createConversationRoutes(
   dbMigrator,
-  logger = winston.createLogger()
+  logger = winston.createLogger(),
 ) {
   logger.info('Creating conversation routes...');
   const router = express.Router();
@@ -64,7 +64,7 @@ id,
         FROM conversations
         WHERE user_id = $1
         ORDER BY updated_at DESC`,
-        [userId]
+        [userId],
       );
 
       // Get message counts for each conversation
@@ -77,7 +77,7 @@ id,
           FROM messages
           WHERE conversation_id = ANY($1)
           GROUP BY conversation_id`,
-          [conversationIds]
+          [conversationIds],
         );
 
         messageCounts = counts.reduce((acc, row) => {
@@ -137,7 +137,7 @@ id,
         `SELECT id, title, model, created_at, updated_at, metadata
         FROM conversations
         WHERE id = $1 AND user_id = $2`,
-        [conversationId, userId]
+        [conversationId, userId],
       );
 
       if (conversationRows.length === 0) {
@@ -163,7 +163,7 @@ id,
         FROM messages
         WHERE conversation_id = $1
         ORDER BY timestamp ASC`,
-        [conversationId]
+        [conversationId],
       );
 
       res.json({
@@ -227,7 +227,7 @@ id,
           `INSERT INTO conversations(user_id, title, model, metadata)
 VALUES($1, $2, $3, $4:: jsonb)
           RETURNING id, title, model, created_at, updated_at, metadata`,
-          [userId, title, model, JSON.stringify(req.body.metadata || {})]
+          [userId, title, model, JSON.stringify(req.body.metadata || {})],
         );
 
         const conversation = conversationRows[0];
@@ -260,7 +260,7 @@ VALUES($1, $2, $3, $4:: jsonb)
                 msg.error,
                 msg.timestamp,
                 msg.metadata,
-              ]
+              ],
             );
           }
         }
@@ -273,7 +273,7 @@ VALUES($1, $2, $3, $4:: jsonb)
           FROM messages
           WHERE conversation_id = $1
           ORDER BY timestamp ASC`,
-          [conversationId]
+          [conversationId],
         );
 
         res.status(201).json({
@@ -335,7 +335,7 @@ VALUES($1, $2, $3, $4:: jsonb)
         const { rows: conversationRows } = await client.query(
           `SELECT id FROM conversations
           WHERE id = $1 AND user_id = $2`,
-          [conversationId, userId]
+          [conversationId, userId],
         );
 
         if (conversationRows.length === 0) {
@@ -355,14 +355,14 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
               newTitle,
               newModel,
               JSON.stringify(metadata || {}),
-            ]
+            ],
           );
         } else {
           // Update existing conversation
           if (title) {
             await client.query(
               'UPDATE conversations SET title = $1 WHERE id = $2',
-              [title, conversationId]
+              [title, conversationId],
             );
           }
 
@@ -370,7 +370,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
           if (metadata) {
             await client.query(
               'UPDATE conversations SET metadata = $1::jsonb WHERE id = $2',
-              [JSON.stringify(metadata), conversationId]
+              [JSON.stringify(metadata), conversationId],
             );
           }
         }
@@ -380,7 +380,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
           // Delete existing messages
           await client.query(
             'DELETE FROM messages WHERE conversation_id = $1',
-            [conversationId]
+            [conversationId],
           );
 
           // Insert new messages
@@ -398,7 +398,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
                 msg.error || null,
                 msg.timestamp ? new Date(msg.timestamp) : new Date(),
                 msg.metadata ? JSON.stringify(msg.metadata) : '{}',
-              ]
+              ],
             );
           }
         }
@@ -410,7 +410,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
           `SELECT id, title, model, created_at, updated_at, metadata
           FROM conversations
           WHERE id = $1`,
-          [conversationId]
+          [conversationId],
         );
 
         const { rows: messageRows } = await dbMigrator.pool.query(
@@ -418,7 +418,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
           FROM messages
           WHERE conversation_id = $1
           ORDER BY timestamp ASC`,
-          [conversationId]
+          [conversationId],
         );
 
         res.json({
@@ -476,7 +476,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
         `DELETE FROM conversations
         WHERE id = $1 AND user_id = $2
         RETURNING id`,
-        [conversationId, userId]
+        [conversationId, userId],
       );
 
       if (rows.length === 0) {

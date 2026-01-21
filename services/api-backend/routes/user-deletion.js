@@ -40,7 +40,7 @@ export async function initializeUserDeletionService() {
       '[UserDeletionRoutes] Failed to initialize user deletion service',
       {
         error: error.message,
-      }
+      },
     );
     throw error;
   }
@@ -307,7 +307,7 @@ router.get('/:id/deletion-status', authenticateJWT, async (req, res) => {
           ...deletionInfo,
           restorationDeadline: new Date(
             new Date(deletionInfo.deletedAt).getTime() +
-              30 * 24 * 60 * 60 * 1000
+              30 * 24 * 60 * 60 * 1000,
           ).toISOString(),
         },
         timestamp: new Date().toISOString(),

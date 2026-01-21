@@ -14,7 +14,7 @@ export const proxyStartHandler = async (req, res) => {
     const proxyMetadata = await proxyManager.provisionProxy(
       userId,
       userToken,
-      req.user
+      req.user,
     );
 
     res.json({
@@ -73,13 +73,13 @@ export const proxyProvisionHandler = async (req, res) => {
     const { testMode = false } = req.body;
 
     logger.info(
-      `Provisioning streaming proxy for user: ${userId}, testMode: ${testMode}`
+      `Provisioning streaming proxy for user: ${userId}, testMode: ${testMode}`,
     );
 
     if (testMode) {
       // In test mode, simulate successful provisioning without creating actual containers
       logger.info(
-        `Test mode: Simulating proxy provisioning for user ${userId}`
+        `Test mode: Simulating proxy provisioning for user ${userId}`,
       );
 
       res.json({
@@ -100,7 +100,7 @@ export const proxyProvisionHandler = async (req, res) => {
     const proxyMetadata = await proxyManager.provisionProxy(
       userId,
       userToken,
-      req.user
+      req.user,
     );
 
     res.json({

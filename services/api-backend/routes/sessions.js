@@ -39,7 +39,7 @@ router.get('/current', authenticateJWT, async (req, res) => {
        JOIN users u ON s.user_id = u.id
        WHERE u.jwt_id = $1 AND s.is_active = true AND s.expires_at > NOW()
        ORDER BY s.last_activity DESC LIMIT 1`,
-      [req.user.sub]
+      [req.user.sub],
     );
 
     if (result.rows.length === 0) {
@@ -90,7 +90,7 @@ router.get('/validate/:token', async (req, res) => {
        FROM user_sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.session_token = $1 AND s.is_active = true AND s.expires_at > NOW()`,
-      [token]
+      [token],
     );
 
     if (result.rows.length === 0) {
@@ -102,7 +102,7 @@ router.get('/validate/:token', async (req, res) => {
     // Update last activity
     await db.query(
       'UPDATE user_sessions SET last_activity = NOW() WHERE id = $1',
-      [session.id]
+      [session.id],
     );
 
     res.json({
@@ -151,7 +151,7 @@ router.put('/tokens', async (req, res) => {
            last_activity = NOW()
        WHERE session_token = $4 AND is_active = true
        RETURNING id`,
-      [accessToken, idToken, refreshToken, sessionToken]
+      [accessToken, idToken, refreshToken, sessionToken],
     );
 
     if (result.rows.length === 0) {
@@ -175,7 +175,7 @@ router.delete('/:token', async (req, res) => {
 
     const result = await db.query(
       'UPDATE user_sessions SET is_active = false WHERE session_token = $1',
-      [token]
+      [token],
     );
 
     if (result.rowCount === 0) {
@@ -196,7 +196,7 @@ router.delete('/:token', async (req, res) => {
 router.post('/cleanup', async (req, res) => {
   try {
     const result = await db.query(
-      'DELETE FROM user_sessions WHERE expires_at < NOW() OR is_active = false'
+      'DELETE FROM user_sessions WHERE expires_at < NOW() OR is_active = false',
     );
 
     res.json({ deleted: result.rowCount });

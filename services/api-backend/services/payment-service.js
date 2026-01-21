@@ -170,7 +170,7 @@ class PaymentService {
   async getTransaction(transactionId) {
     const result = await this.db.query(
       'SELECT * FROM payment_transactions WHERE id = $1',
-      [transactionId]
+      [transactionId],
     );
 
     if (result.rows.length === 0) {
@@ -192,7 +192,7 @@ class PaymentService {
    */
   async getUserTransactions(
     userId,
-    { limit = 50, offset = 0, status = null } = {}
+    { limit = 50, offset = 0, status = null } = {},
   ) {
     let query = 'SELECT * FROM payment_transactions WHERE user_id = $1';
     const params = [userId];

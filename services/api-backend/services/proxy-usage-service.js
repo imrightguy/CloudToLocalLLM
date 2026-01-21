@@ -39,7 +39,7 @@ export class ProxyUsageService {
         '[ProxyUsageService] Failed to initialize proxy usage service',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -70,7 +70,7 @@ export class ProxyUsageService {
 
       if (!validEventTypes.includes(eventType)) {
         throw new Error(
-          `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`
+          `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`,
         );
       }
 
@@ -88,7 +88,7 @@ export class ProxyUsageService {
           eventData.durationSeconds || null,
           eventData.errorMessage || null,
           eventData.ipAddress || null,
-        ]
+        ],
       );
 
       logger.debug('[ProxyUsageService] Usage event recorded', {
@@ -122,7 +122,7 @@ export class ProxyUsageService {
       // Verify proxy ownership
       const proxyResult = await this.pool.query(
         'SELECT id FROM proxy_health_status WHERE proxy_id = $1 AND user_id = $2',
-        [proxyId, userId]
+        [proxyId, userId],
       );
 
       if (proxyResult.rows.length === 0) {
@@ -131,7 +131,7 @@ export class ProxyUsageService {
 
       const result = await this.pool.query(
         'SELECT * FROM proxy_usage_metrics WHERE proxy_id = $1 AND date = $2',
-        [proxyId, date]
+        [proxyId, date],
       );
 
       if (result.rows.length === 0) {
@@ -187,7 +187,7 @@ export class ProxyUsageService {
       // Verify proxy ownership
       const proxyResult = await this.pool.query(
         'SELECT id FROM proxy_health_status WHERE proxy_id = $1 AND user_id = $2',
-        [proxyId, userId]
+        [proxyId, userId],
       );
 
       if (proxyResult.rows.length === 0) {
@@ -198,7 +198,7 @@ export class ProxyUsageService {
         `SELECT * FROM proxy_usage_metrics 
          WHERE proxy_id = $1 AND date >= $2 AND date <= $3
          ORDER BY date ASC`,
-        [proxyId, startDate, endDate]
+        [proxyId, startDate, endDate],
       );
 
       return result.rows.map((metrics) => ({
@@ -222,7 +222,7 @@ export class ProxyUsageService {
           startDate,
           endDate,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -242,7 +242,7 @@ export class ProxyUsageService {
       const result = await this.pool.query(
         `SELECT * FROM proxy_usage_aggregation 
          WHERE user_id = $1 AND period_start = $2 AND period_end = $3`,
-        [userId, periodStart, periodEnd]
+        [userId, periodStart, periodEnd],
       );
 
       if (result.rows.length === 0) {
@@ -308,7 +308,7 @@ export class ProxyUsageService {
       // Get all proxies for the user
       const proxiesResult = await client.query(
         'SELECT proxy_id FROM proxy_health_status WHERE user_id = $1',
-        [userId]
+        [userId],
       );
 
       const proxyIds = proxiesResult.rows.map((row) => row.proxy_id);
@@ -324,7 +324,7 @@ export class ProxyUsageService {
            ON CONFLICT (user_id, period_start, period_end) 
            DO UPDATE SET updated_at = NOW()
            RETURNING *`,
-          [userId, userTier, periodStart, periodEnd]
+          [userId, userTier, periodStart, periodEnd],
         );
 
         await client.query('COMMIT');
@@ -343,7 +343,7 @@ export class ProxyUsageService {
            SUM(success_count) as total_success_count
          FROM proxy_usage_metrics 
          WHERE proxy_id = ANY($1) AND date >= $2 AND date <= $3`,
-        [proxyIds, periodStart, periodEnd]
+        [proxyIds, periodStart, periodEnd],
       );
 
       const aggregateData = aggregateResult.rows[0];
@@ -380,7 +380,7 @@ export class ProxyUsageService {
           Math.round(aggregateData.average_connection_duration_seconds || 0),
           aggregateData.total_error_count || 0,
           aggregateData.total_success_count || 0,
-        ]
+        ],
       );
 
       await client.query('COMMIT');
@@ -442,7 +442,7 @@ export class ProxyUsageService {
            WHERE user_id = $1 AND date >= $2 AND date <= $3
            GROUP BY date
            ORDER BY date ASC`,
-          [userId, startDate, endDate]
+          [userId, startDate, endDate],
         );
 
         return {
@@ -478,7 +478,7 @@ export class ProxyUsageService {
            WHERE user_id = $1 AND date >= $2 AND date <= $3
            GROUP BY proxy_id
            ORDER BY total_connections DESC`,
-          [userId, startDate, endDate]
+          [userId, startDate, endDate],
         );
 
         return {
@@ -527,7 +527,7 @@ export class ProxyUsageService {
         userId,
         userTier,
         periodStart,
-        periodEnd
+        periodEnd,
       );
 
       // Calculate billing based on tier

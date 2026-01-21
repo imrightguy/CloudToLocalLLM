@@ -40,7 +40,7 @@ export class TunnelHealthService {
         '[TunnelHealthService] Failed to initialize tunnel health service',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -58,7 +58,7 @@ export class TunnelHealthService {
         '[TunnelHealthService] Health checks already running for tunnel',
         {
           tunnelId,
-        }
+        },
       );
       return;
     }
@@ -106,7 +106,7 @@ export class TunnelHealthService {
     try {
       const endpointsResult = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE tunnel_id = $1',
-        [tunnelId]
+        [tunnelId],
       );
 
       if (endpointsResult.rows.length === 0) {
@@ -134,7 +134,7 @@ export class TunnelHealthService {
           `UPDATE tunnel_endpoints 
            SET health_status = $1, last_health_check = NOW() 
            WHERE id = $2`,
-          [healthStatus, endpoint.id]
+          [healthStatus, endpoint.id],
         );
       }
 
@@ -295,7 +295,7 @@ export class TunnelHealthService {
         `UPDATE tunnels 
          SET metrics = $1, updated_at = NOW() 
          WHERE id = $2`,
-        [JSON.stringify(metrics), tunnelId]
+        [JSON.stringify(metrics), tunnelId],
       );
 
       logger.debug('[TunnelHealthService] Metrics flushed to database', {
@@ -311,7 +311,7 @@ export class TunnelHealthService {
         {
           tunnelId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -329,7 +329,7 @@ export class TunnelHealthService {
       // Get tunnel
       const tunnelResult = await this.pool.query(
         'SELECT * FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId]
+        [tunnelId, userId],
       );
 
       const tunnel = tunnelResult.rows[0];
@@ -339,12 +339,12 @@ export class TunnelHealthService {
 
       const endpointsResult = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE tunnel_id = $1',
-        [tunnelId]
+        [tunnelId],
       );
 
       const endpoints = endpointsResult.rows;
       const healthyEndpoints = endpoints.filter(
-        (e) => e.health_status === 'healthy'
+        (e) => e.health_status === 'healthy',
       ).length;
 
       return {
@@ -373,7 +373,7 @@ export class TunnelHealthService {
           tunnelId,
           userId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -391,7 +391,7 @@ export class TunnelHealthService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId]
+        [tunnelId, userId],
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -401,7 +401,7 @@ export class TunnelHealthService {
       // Get endpoints
       const endpointsResult = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE tunnel_id = $1 ORDER BY priority DESC',
-        [tunnelId]
+        [tunnelId],
       );
 
       return endpointsResult.rows.map((endpoint) => ({
@@ -419,7 +419,7 @@ export class TunnelHealthService {
           tunnelId,
           userId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -437,7 +437,7 @@ export class TunnelHealthService {
       const validStatuses = ['healthy', 'unhealthy', 'unknown'];
       if (!validStatuses.includes(healthStatus)) {
         throw new Error(
-          `Invalid health status. Must be one of: ${validStatuses.join(', ')}`
+          `Invalid health status. Must be one of: ${validStatuses.join(', ')}`,
         );
       }
 
@@ -445,7 +445,7 @@ export class TunnelHealthService {
         `UPDATE tunnel_endpoints 
          SET health_status = $1, last_health_check = NOW() 
          WHERE id = $2`,
-        [healthStatus, endpointId]
+        [healthStatus, endpointId],
       );
 
       logger.info('[TunnelHealthService] Endpoint health status updated', {
@@ -458,7 +458,7 @@ export class TunnelHealthService {
         {
           endpointId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }

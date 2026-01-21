@@ -164,7 +164,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -235,7 +235,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -342,7 +342,7 @@ router.put(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -408,7 +408,7 @@ router.delete(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -468,7 +468,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -502,7 +502,7 @@ router.get(
         {
           adminUserId: req.adminUser.id,
           domain,
-        }
+        },
       );
 
       res.json({
@@ -530,7 +530,7 @@ router.get(
           domain: req.query?.domain,
           error: error.message,
           stack: error.stack,
-        }
+        },
       );
 
       res.status(500).json({
@@ -539,7 +539,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -691,7 +691,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;

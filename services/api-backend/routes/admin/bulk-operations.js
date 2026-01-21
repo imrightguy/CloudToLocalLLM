@@ -58,7 +58,7 @@ router.post(
       const operation = await bulkOperationsService.createBulkOperation(
         operationType,
         userIds,
-        operationData
+        operationData,
       );
 
       logger.info('✅ [BulkOps] Bulk operation created', {
@@ -85,7 +85,7 @@ router.post(
         code: 'BULK_OPERATION_CREATE_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -138,7 +138,7 @@ router.post(
         code: 'BULK_OPERATION_EXECUTE_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -191,7 +191,7 @@ router.get(
         code: 'STATUS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -235,7 +235,7 @@ router.get(
         code: 'HISTORY_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 export default router;

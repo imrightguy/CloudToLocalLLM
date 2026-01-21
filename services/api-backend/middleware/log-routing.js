@@ -89,12 +89,12 @@ async function sendToLoki(logs) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     if (!response.ok) {
       throw new Error(
-        `Loki returned ${response.status}: ${response.statusText}`
+        `Loki returned ${response.status}: ${response.statusText}`,
       );
     }
   } catch (error) {
@@ -143,12 +143,12 @@ async function sendToELK(logs) {
           'Content-Type': 'application/x-ndjson',
         },
         body: bulkPayload,
-      }
+      },
     );
 
     if (!response.ok) {
       throw new Error(
-        `ELK returned ${response.status}: ${response.statusText}`
+        `ELK returned ${response.status}: ${response.statusText}`,
       );
     }
 

@@ -34,14 +34,14 @@ export async function initializeWebhookEventFilterService() {
     filterService = new WebhookEventFilter();
     await filterService.initialize();
     logger.info(
-      '[WebhookEventFilterRoutes] Webhook event filter service initialized'
+      '[WebhookEventFilterRoutes] Webhook event filter service initialized',
     );
   } catch (error) {
     logger.error(
       '[WebhookEventFilterRoutes] Failed to initialize filter service',
       {
         error: error.message,
-      }
+      },
     );
     throw error;
   }
@@ -109,7 +109,7 @@ router.post(
       const filter = await filterService.createFilter(
         webhookId,
         userId,
-        filterConfig
+        filterConfig,
       );
 
       logger.info('[WebhookEventFilterRoutes] Filter created', {
@@ -152,7 +152,7 @@ router.post(
         message: 'Failed to create filter',
       });
     }
-  }
+  },
 );
 
 /**
@@ -224,7 +224,7 @@ router.get(
         message: 'Failed to retrieve filter',
       });
     }
-  }
+  },
 );
 
 /**
@@ -284,7 +284,7 @@ router.put(
       const filter = await filterService.updateFilter(
         webhookId,
         userId,
-        filterConfig
+        filterConfig,
       );
 
       logger.info('[WebhookEventFilterRoutes] Filter updated', {
@@ -326,7 +326,7 @@ router.put(
         message: 'Failed to update filter',
       });
     }
-  }
+  },
 );
 
 /**
@@ -389,7 +389,7 @@ router.delete(
         message: 'Failed to delete filter',
       });
     }
-  }
+  },
 );
 
 /**
@@ -447,7 +447,7 @@ router.post(
         message: 'Failed to validate filter',
       });
     }
-  }
+  },
 );
 
 /**
@@ -536,7 +536,7 @@ router.post(
         message: 'Failed to test filter',
       });
     }
-  }
+  },
 );
 
 export default router;

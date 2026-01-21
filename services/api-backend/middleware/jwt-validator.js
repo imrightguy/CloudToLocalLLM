@@ -169,7 +169,7 @@ export class JWTValidator {
 
     const tracker = this.validationAttempts.get(ip);
     const attemptCount = tracker.getAttemptCount(
-      this.config.validationWindowMs
+      this.config.validationWindowMs,
     );
 
     if (attemptCount >= this.config.maxValidationAttempts) {
@@ -413,7 +413,7 @@ export class JWTValidator {
       const scopes = claims.scope.split(' ');
       const suspiciousScopes = ['admin', 'root', 'superuser', 'system'];
       const foundSuspicious = scopes.filter((scope) =>
-        suspiciousScopes.some((sus) => scope.toLowerCase().includes(sus))
+        suspiciousScopes.some((sus) => scope.toLowerCase().includes(sus)),
       );
 
       if (foundSuspicious.length > 0) {
@@ -444,7 +444,7 @@ export class JWTValidator {
 
     const customClaims = Object.keys(claims).filter(
       (claim) =>
-        !standardClaims.includes(claim) && !claim.startsWith('https://')
+        !standardClaims.includes(claim) && !claim.startsWith('https://'),
     );
 
     if (customClaims.length > 0) {
@@ -489,7 +489,7 @@ export class JWTValidator {
     const cutoff = new Date(Date.now() - this.config.validationWindowMs);
     for (const [ip, tracker] of this.validationAttempts.entries()) {
       tracker.attempts = tracker.attempts.filter(
-        (timestamp) => timestamp > cutoff
+        (timestamp) => timestamp > cutoff,
       );
 
       if (tracker.attempts.length === 0) {
@@ -577,7 +577,7 @@ export function createJWTValidationMiddleware(config = {}) {
     if (!token) {
       const errorResponse = ErrorResponseBuilder.authenticationError(
         'Authorization header with Bearer token is required',
-        ERROR_CODES.AUTH_TOKEN_MISSING
+        ERROR_CODES.AUTH_TOKEN_MISSING,
       );
 
       validator.logger.logSecurity('auth_token_missing', null, {
@@ -615,7 +615,7 @@ export function createJWTValidationMiddleware(config = {}) {
         const errorResponse = ErrorResponseBuilder.createErrorResponse(
           result.errorCode,
           result.error,
-          result.statusCode
+          result.statusCode,
         );
 
         return res.status(result.statusCode).json(errorResponse);
@@ -671,7 +671,7 @@ export function createJWTValidationMiddleware(config = {}) {
 
       const errorResponse = ErrorResponseBuilder.internalServerError(
         'Token validation failed',
-        ERROR_CODES.INTERNAL_SERVER_ERROR
+        ERROR_CODES.INTERNAL_SERVER_ERROR,
       );
 
       res.status(500).json(errorResponse);

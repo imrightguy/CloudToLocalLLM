@@ -99,7 +99,7 @@ async function cleanSeedData() {
   try {
     console.log('Cleaning seed data...');
     console.log(
-      '⚠️  WARNING: This will delete all test data from the database'
+      '⚠️  WARNING: This will delete all test data from the database',
     );
 
     // Begin transaction
@@ -141,7 +141,7 @@ async function cleanSeedData() {
 
       console.log('  Deleting test users...');
       await client.query(
-        "DELETE FROM users WHERE email LIKE 'test.%@example.com'"
+        "DELETE FROM users WHERE email LIKE 'test.%@example.com'",
       );
 
       // Commit transaction

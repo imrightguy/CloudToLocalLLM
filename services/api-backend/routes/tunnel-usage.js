@@ -64,7 +64,7 @@ router.get(
       const metrics = await usageService.getTunnelUsageMetrics(
         tunnelId,
         userId,
-        date
+        date,
       );
 
       res.json({
@@ -106,7 +106,7 @@ router.get(
         },
       });
     }
-  }
+  },
 );
 
 /**
@@ -155,7 +155,7 @@ router.get(
         tunnelId,
         userId,
         startDate,
-        endDate
+        endDate,
       );
 
       res.json({
@@ -170,7 +170,7 @@ router.get(
           startDate: req.query.startDate,
           endDate: req.query.endDate,
           error: error.message,
-        }
+        },
       );
 
       if (error.message === 'Tunnel not found') {
@@ -201,7 +201,7 @@ router.get(
         },
       });
     }
-  }
+  },
 );
 
 /**
@@ -332,7 +332,7 @@ router.get('/users/usage/billing', authenticateJWT, async function (req, res) {
       userId,
       userTier,
       periodStart,
-      periodEnd
+      periodEnd,
     );
 
     res.json({
@@ -438,7 +438,7 @@ router.post(
           durationSeconds,
           errorMessage,
           ipAddress,
-        }
+        },
       );
 
       res.status(201).json({
@@ -470,7 +470,7 @@ router.post(
         },
       });
     }
-  }
+  },
 );
 
 export default router;

@@ -54,12 +54,12 @@ export class QuotaService {
       const result = await this.pool.query(
         `SELECT * FROM quota_definitions 
          WHERE tier = $1 AND resource_type = $2`,
-        [tier, resourceType]
+        [tier, resourceType],
       );
 
       if (result.rows.length === 0) {
         throw new Error(
-          `Quota definition not found for tier ${tier} and resource ${resourceType}`
+          `Quota definition not found for tier ${tier} and resource ${resourceType}`,
         );
       }
 
@@ -97,7 +97,7 @@ export class QuotaService {
       // Get all quota definitions for the tier
       const definitionsResult = await client.query(
         'SELECT * FROM quota_definitions WHERE tier = $1',
-        [userTier]
+        [userTier],
       );
 
       if (definitionsResult.rows.length === 0) {
@@ -123,7 +123,7 @@ export class QuotaService {
             definition.reset_period,
             periodStart.toISOString().split('T')[0],
             periodEnd.toISOString().split('T')[0],
-          ]
+          ],
         );
 
         if (result.rows.length > 0) {
@@ -175,12 +175,12 @@ export class QuotaService {
           resourceType,
           periodStart.toISOString().split('T')[0],
           periodEnd.toISOString().split('T')[0],
-        ]
+        ],
       );
 
       if (result.rows.length === 0) {
         throw new Error(
-          `Quota not found for user ${userId} and resource ${resourceType}`
+          `Quota not found for user ${userId} and resource ${resourceType}`,
         );
       }
 
@@ -259,12 +259,12 @@ export class QuotaService {
           resourceType,
           periodStart.toISOString().split('T')[0],
           periodEnd.toISOString().split('T')[0],
-        ]
+        ],
       );
 
       if (quotaResult.rows.length === 0) {
         throw new Error(
-          `Quota not found for user ${userId} and resource ${resourceType}`
+          `Quota not found for user ${userId} and resource ${resourceType}`,
         );
       }
 
@@ -279,7 +279,7 @@ export class QuotaService {
          SET current_usage = $1, is_exceeded = $2, exceeded_at = CASE WHEN $2 THEN NOW() ELSE exceeded_at END, updated_at = NOW()
          WHERE id = $3
          RETURNING *`,
-        [newUsage, isExceeded, quota.id]
+        [newUsage, isExceeded, quota.id],
       );
 
       // Record event
@@ -296,7 +296,7 @@ export class QuotaService {
           quota.limit_value,
           percentageUsed,
           JSON.stringify(details),
-        ]
+        ],
       );
 
       await client.query('COMMIT');
@@ -355,7 +355,7 @@ export class QuotaService {
           userId,
           periodStart.toISOString().split('T')[0],
           periodEnd.toISOString().split('T')[0],
-        ]
+        ],
       );
 
       return result.rows.map((row) => {
@@ -464,12 +464,12 @@ export class QuotaService {
           resourceType,
           periodStart.toISOString().split('T')[0],
           periodEnd.toISOString().split('T')[0],
-        ]
+        ],
       );
 
       if (result.rows.length === 0) {
         throw new Error(
-          `Quota not found for user ${userId} and resource ${resourceType}`
+          `Quota not found for user ${userId} and resource ${resourceType}`,
         );
       }
 

@@ -297,7 +297,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -376,7 +376,7 @@ router.get(
         {
           error: error.message,
           adminUserId: req.user?.sub,
-        }
+        },
       );
 
       res.status(500).json({
@@ -385,7 +385,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -478,7 +478,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;

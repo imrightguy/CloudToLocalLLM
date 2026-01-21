@@ -112,7 +112,7 @@ class EmailQueueService {
       if (templateName) {
         const template = await this.emailConfigService.getTemplate(
           templateName,
-          userId
+          userId,
         );
         if (!template) {
           throw new Error(`Template not found: ${templateName}`);
@@ -120,7 +120,7 @@ class EmailQueueService {
 
         const rendered = this.emailConfigService.renderTemplate(
           template,
-          templateData
+          templateData,
         );
         finalHtmlBody = rendered.htmlBody;
         finalTextBody = rendered.textBody;
@@ -240,14 +240,14 @@ class EmailQueueService {
       // Get user's email configuration
       const config = await this.emailConfigService.getConfiguration(
         email.user_id,
-        'google_workspace'
+        'google_workspace',
       );
 
       if (!config || !config.is_active) {
         // Try SMTP relay fallback
         const smtpConfig = await this.emailConfigService.getConfiguration(
           email.user_id,
-          'smtp_relay'
+          'smtp_relay',
         );
 
         if (smtpConfig && smtpConfig.is_active) {
@@ -288,7 +288,7 @@ class EmailQueueService {
       // Get fresh access token
       const accessToken = await this.googleWorkspaceService.getAccessToken(
         email.user_id,
-        config.google_oauth_token_encrypted
+        config.google_oauth_token_encrypted,
       );
 
       // Create email message
@@ -303,7 +303,7 @@ class EmailQueueService {
       // Send via Gmail API
       const result = await this.googleWorkspaceService.sendEmail(
         accessToken,
-        message
+        message,
       );
 
       // Store message ID for tracking
@@ -535,7 +535,7 @@ class EmailQueueService {
     if (userLimit && now < userLimit.resetTime) {
       if (userLimit.count >= this.USER_RATE_LIMIT) {
         throw new Error(
-          `User rate limit exceeded (${this.USER_RATE_LIMIT}/hour)`
+          `User rate limit exceeded (${this.USER_RATE_LIMIT}/hour)`,
         );
       }
     }
@@ -544,7 +544,7 @@ class EmailQueueService {
     if (now < this.systemRateLimit.resetTime) {
       if (this.systemRateLimit.count >= this.SYSTEM_RATE_LIMIT) {
         throw new Error(
-          `System rate limit exceeded (${this.SYSTEM_RATE_LIMIT}/hour)`
+          `System rate limit exceeded (${this.SYSTEM_RATE_LIMIT}/hour)`,
         );
       }
     }

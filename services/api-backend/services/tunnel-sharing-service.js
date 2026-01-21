@@ -40,7 +40,7 @@ export class TunnelSharingService {
         '[TunnelSharingService] Failed to initialize tunnel sharing service',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -63,7 +63,7 @@ export class TunnelSharingService {
     sharedWithUserId,
     permission = 'read',
     ipAddress,
-    userAgent
+    userAgent,
   ) {
     const client = await this.pool.connect();
     try {
@@ -73,26 +73,26 @@ export class TunnelSharingService {
       const validPermissions = ['read', 'write', 'admin'];
       if (!validPermissions.includes(permission)) {
         throw new Error(
-          `Invalid permission. Must be one of: ${validPermissions.join(', ')}`
+          `Invalid permission. Must be one of: ${validPermissions.join(', ')}`,
         );
       }
 
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       if (tunnelResult.rows.length === 0) {
         throw new Error(
-          'Tunnel not found or you do not have permission to share it'
+          'Tunnel not found or you do not have permission to share it',
         );
       }
 
       // Verify shared_with_user exists
       const userResult = await client.query(
         'SELECT id FROM users WHERE id = $1 AND is_active = true',
-        [sharedWithUserId]
+        [sharedWithUserId],
       );
 
       if (userResult.rows.length === 0) {
@@ -107,7 +107,7 @@ export class TunnelSharingService {
       // Check if already shared
       const existingShare = await client.query(
         'SELECT id FROM tunnel_shares WHERE tunnel_id = $1 AND owner_id = $2 AND shared_with_user_id = $3',
-        [tunnelId, ownerId, sharedWithUserId]
+        [tunnelId, ownerId, sharedWithUserId],
       );
 
       let shareId;
@@ -116,7 +116,7 @@ export class TunnelSharingService {
         shareId = existingShare.rows[0].id;
         await client.query(
           'UPDATE tunnel_shares SET permission = $1, updated_at = NOW(), is_active = true WHERE id = $2',
-          [permission, shareId]
+          [permission, shareId],
         );
       } else {
         // Create new share
@@ -124,7 +124,7 @@ export class TunnelSharingService {
         await client.query(
           `INSERT INTO tunnel_shares (id, tunnel_id, owner_id, shared_with_user_id, permission)
            VALUES ($1, $2, $3, $4, $5)`,
-          [shareId, tunnelId, ownerId, sharedWithUserId, permission]
+          [shareId, tunnelId, ownerId, sharedWithUserId, permission],
         );
       }
 
@@ -132,7 +132,7 @@ export class TunnelSharingService {
       await client.query(
         `INSERT INTO tunnel_access_logs (tunnel_id, user_id, action, permission, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, ownerId, 'share', permission, ipAddress, userAgent]
+        [tunnelId, ownerId, 'share', permission, ipAddress, userAgent],
       );
 
       await client.query('COMMIT');
@@ -181,7 +181,7 @@ export class TunnelSharingService {
     ownerId,
     sharedWithUserId,
     ipAddress,
-    userAgent
+    userAgent,
   ) {
     const client = await this.pool.connect();
     try {
@@ -190,19 +190,19 @@ export class TunnelSharingService {
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       if (tunnelResult.rows.length === 0) {
         throw new Error(
-          'Tunnel not found or you do not have permission to manage it'
+          'Tunnel not found or you do not have permission to manage it',
         );
       }
 
       // Revoke access
       const revokeResult = await client.query(
         'UPDATE tunnel_shares SET is_active = false, updated_at = NOW() WHERE tunnel_id = $1 AND owner_id = $2 AND shared_with_user_id = $3',
-        [tunnelId, ownerId, sharedWithUserId]
+        [tunnelId, ownerId, sharedWithUserId],
       );
 
       if (revokeResult.rowCount === 0) {
@@ -213,7 +213,7 @@ export class TunnelSharingService {
       await client.query(
         `INSERT INTO tunnel_access_logs (tunnel_id, user_id, action, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5)`,
-        [tunnelId, ownerId, 'revoke', ipAddress, userAgent]
+        [tunnelId, ownerId, 'revoke', ipAddress, userAgent],
       );
 
       await client.query('COMMIT');
@@ -249,12 +249,12 @@ export class TunnelSharingService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       if (tunnelResult.rows.length === 0) {
         throw new Error(
-          'Tunnel not found or you do not have permission to view shares'
+          'Tunnel not found or you do not have permission to view shares',
         );
       }
 
@@ -266,7 +266,7 @@ export class TunnelSharingService {
          JOIN users u ON ts.shared_with_user_id = u.id
          WHERE ts.tunnel_id = $1 AND ts.owner_id = $2
          ORDER BY ts.created_at DESC`,
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       return result.rows;
@@ -308,7 +308,7 @@ export class TunnelSharingService {
          WHERE ts.shared_with_user_id = $1 AND ts.is_active = true
          ORDER BY ts.created_at DESC
          LIMIT $2 OFFSET $3`,
-        [userId, limit, offset]
+        [userId, limit, offset],
       );
 
       return result.rows;
@@ -340,7 +340,7 @@ export class TunnelSharingService {
     expiresInHours = 24,
     maxUses = null,
     ipAddress,
-    userAgent
+    userAgent,
   ) {
     const client = await this.pool.connect();
     try {
@@ -350,19 +350,19 @@ export class TunnelSharingService {
       const validPermissions = ['read', 'write', 'admin'];
       if (!validPermissions.includes(permission)) {
         throw new Error(
-          `Invalid permission. Must be one of: ${validPermissions.join(', ')}`
+          `Invalid permission. Must be one of: ${validPermissions.join(', ')}`,
         );
       }
 
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       if (tunnelResult.rows.length === 0) {
         throw new Error(
-          'Tunnel not found or you do not have permission to create share tokens'
+          'Tunnel not found or you do not have permission to create share tokens',
         );
       }
 
@@ -374,14 +374,14 @@ export class TunnelSharingService {
       await client.query(
         `INSERT INTO tunnel_share_tokens (id, tunnel_id, owner_id, token, permission, expires_at, max_uses)
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [tokenId, tunnelId, ownerId, token, permission, expiresAt, maxUses]
+        [tokenId, tunnelId, ownerId, token, permission, expiresAt, maxUses],
       );
 
       // Log access
       await client.query(
         `INSERT INTO tunnel_access_logs (tunnel_id, user_id, action, permission, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, ownerId, 'create_token', permission, ipAddress, userAgent]
+        [tunnelId, ownerId, 'create_token', permission, ipAddress, userAgent],
       );
 
       await client.query('COMMIT');
@@ -430,12 +430,12 @@ export class TunnelSharingService {
       // Verify token ownership
       const tokenResult = await client.query(
         'SELECT tunnel_id FROM tunnel_share_tokens WHERE id = $1 AND owner_id = $2',
-        [tokenId, ownerId]
+        [tokenId, ownerId],
       );
 
       if (tokenResult.rows.length === 0) {
         throw new Error(
-          'Token not found or you do not have permission to revoke it'
+          'Token not found or you do not have permission to revoke it',
         );
       }
 
@@ -444,14 +444,14 @@ export class TunnelSharingService {
       // Revoke token
       await client.query(
         'UPDATE tunnel_share_tokens SET is_active = false WHERE id = $1',
-        [tokenId]
+        [tokenId],
       );
 
       // Log access
       await client.query(
         `INSERT INTO tunnel_access_logs (tunnel_id, user_id, action, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5)`,
-        [tunnelId, ownerId, 'revoke_token', ipAddress, userAgent]
+        [tunnelId, ownerId, 'revoke_token', ipAddress, userAgent],
       );
 
       await client.query('COMMIT');
@@ -485,12 +485,12 @@ export class TunnelSharingService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       if (tunnelResult.rows.length === 0) {
         throw new Error(
-          'Tunnel not found or you do not have permission to view tokens'
+          'Tunnel not found or you do not have permission to view tokens',
         );
       }
 
@@ -499,7 +499,7 @@ export class TunnelSharingService {
          FROM tunnel_share_tokens
          WHERE tunnel_id = $1 AND owner_id = $2
          ORDER BY created_at DESC`,
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       return result.rows;
@@ -526,7 +526,7 @@ export class TunnelSharingService {
       // Check if user is the owner
       const ownerResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId]
+        [tunnelId, userId],
       );
 
       if (ownerResult.rows.length > 0) {
@@ -542,7 +542,7 @@ export class TunnelSharingService {
         `SELECT permission FROM tunnel_shares 
          WHERE tunnel_id = $1 AND shared_with_user_id = $2 AND is_active = true
          AND (expires_at IS NULL OR expires_at > NOW())`,
-        [tunnelId, userId]
+        [tunnelId, userId],
       );
 
       if (shareResult.rows.length === 0) {
@@ -588,12 +588,12 @@ export class TunnelSharingService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, ownerId]
+        [tunnelId, ownerId],
       );
 
       if (tunnelResult.rows.length === 0) {
         throw new Error(
-          'Tunnel not found or you do not have permission to view access logs'
+          'Tunnel not found or you do not have permission to view access logs',
         );
       }
 
@@ -603,7 +603,7 @@ export class TunnelSharingService {
          WHERE tunnel_id = $1
          ORDER BY created_at DESC
          LIMIT $2 OFFSET $3`,
-        [tunnelId, limit, offset]
+        [tunnelId, limit, offset],
       );
 
       return result.rows;
@@ -632,7 +632,7 @@ export class TunnelSharingService {
     ownerId,
     newPermission,
     ipAddress,
-    userAgent
+    userAgent,
   ) {
     const client = await this.pool.connect();
     try {
@@ -642,19 +642,19 @@ export class TunnelSharingService {
       const validPermissions = ['read', 'write', 'admin'];
       if (!validPermissions.includes(newPermission)) {
         throw new Error(
-          `Invalid permission. Must be one of: ${validPermissions.join(', ')}`
+          `Invalid permission. Must be one of: ${validPermissions.join(', ')}`,
         );
       }
 
       // Verify share ownership
       const shareResult = await client.query(
         'SELECT tunnel_id FROM tunnel_shares WHERE id = $1 AND owner_id = $2',
-        [shareId, ownerId]
+        [shareId, ownerId],
       );
 
       if (shareResult.rows.length === 0) {
         throw new Error(
-          'Share not found or you do not have permission to update it'
+          'Share not found or you do not have permission to update it',
         );
       }
 
@@ -663,7 +663,7 @@ export class TunnelSharingService {
       // Update permission
       await client.query(
         'UPDATE tunnel_shares SET permission = $1, updated_at = NOW() WHERE id = $2',
-        [newPermission, shareId]
+        [newPermission, shareId],
       );
 
       // Log access
@@ -677,7 +677,7 @@ export class TunnelSharingService {
           newPermission,
           ipAddress,
           userAgent,
-        ]
+        ],
       );
 
       await client.query('COMMIT');

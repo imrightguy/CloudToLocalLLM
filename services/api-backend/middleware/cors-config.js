@@ -122,7 +122,7 @@ export const adminCorsOptions = {
       callback(null, true);
     } else {
       console.warn(
-        `CORS: Blocked admin request from unauthorized origin: ${origin}`
+        `CORS: Blocked admin request from unauthorized origin: ${origin}`,
       );
       callback(new Error('Not allowed by CORS - admin access only'));
     }
@@ -172,7 +172,7 @@ export const webhookCorsOptions = {
       callback(null, true);
     } else {
       console.warn(
-        `CORS: Blocked webhook request from unauthorized origin: ${origin}`
+        `CORS: Blocked webhook request from unauthorized origin: ${origin}`,
       );
       callback(new Error('Not allowed by CORS - webhook access only'));
     }
@@ -223,7 +223,7 @@ export function logCorsRequest(req, res, next) {
   if (origin) {
     const allowed = isOriginAllowed(origin);
     console.log(
-      `CORS Request: ${req.method} ${req.path} from ${origin} - ${allowed ? 'ALLOWED' : 'BLOCKED'}`
+      `CORS Request: ${req.method} ${req.path} from ${origin} - ${allowed ? 'ALLOWED' : 'BLOCKED'}`,
     );
   }
   next();

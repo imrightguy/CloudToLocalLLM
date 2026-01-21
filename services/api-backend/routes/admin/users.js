@@ -206,7 +206,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;
@@ -409,7 +409,7 @@ router.get(
             activeSessions: activeSessions.length,
             accountAge: Math.floor(
               (Date.now() - new Date(user.created_at).getTime()) /
-                (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24),
             ),
           },
         },
@@ -429,7 +429,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -533,16 +533,16 @@ router.patch(
 
           if (subDetails.rows.length > 0) {
             const periodStart = new Date(
-              subDetails.rows[0].current_period_start
+              subDetails.rows[0].current_period_start,
             );
             const periodEnd = new Date(subDetails.rows[0].current_period_end);
             const now = new Date();
 
             const totalDays = Math.ceil(
-              (periodEnd - periodStart) / (1000 * 60 * 60 * 24)
+              (periodEnd - periodStart) / (1000 * 60 * 60 * 24),
             );
             const remainingDays = Math.ceil(
-              (periodEnd - now) / (1000 * 60 * 60 * 24)
+              (periodEnd - now) / (1000 * 60 * 60 * 24),
             );
 
             if (remainingDays > 0) {
@@ -646,7 +646,7 @@ router.patch(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -803,7 +803,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -938,7 +938,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**

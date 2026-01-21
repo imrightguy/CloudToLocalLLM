@@ -35,7 +35,7 @@ export function createProxyFailoverRoutes(db, logger) {
       const result = await failoverService.createFailoverConfiguration(
         proxyId,
         userId,
-        config
+        config,
       );
 
       res.status(201).json({
@@ -98,7 +98,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   /**
@@ -123,7 +123,7 @@ export function createProxyFailoverRoutes(db, logger) {
       const result = await failoverService.registerProxyInstance(
         proxyId,
         userId,
-        instanceData
+        instanceData,
       );
 
       res.status(201).json({
@@ -201,7 +201,7 @@ export function createProxyFailoverRoutes(db, logger) {
         const result = await failoverService.updateInstanceHealth(
           instanceId,
           healthStatus,
-          metrics
+          metrics,
         );
 
         res.status(200).json({
@@ -222,7 +222,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   /**
@@ -295,7 +295,7 @@ export function createProxyFailoverRoutes(db, logger) {
           userId,
           sourceInstanceId,
           targetInstanceId,
-          reason || 'Manual failover'
+          reason || 'Manual failover',
         );
 
         res.status(200).json({
@@ -316,7 +316,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   /**
@@ -346,7 +346,7 @@ export function createProxyFailoverRoutes(db, logger) {
           eventId,
           status,
           errorMessage,
-          durationMs
+          durationMs,
         );
 
         res.status(200).json({
@@ -367,7 +367,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   /**
@@ -410,7 +410,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   /**
@@ -430,7 +430,7 @@ export function createProxyFailoverRoutes(db, logger) {
         const result = await failoverService.updateRedundancyStatus(
           proxyId,
           userId,
-          statusData
+          statusData,
         );
 
         res.status(200).json({
@@ -451,7 +451,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   /**
@@ -486,7 +486,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    }
+    },
   );
 
   return router;

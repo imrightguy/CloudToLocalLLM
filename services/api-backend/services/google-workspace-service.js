@@ -42,7 +42,7 @@ class GoogleWorkspaceService {
     this.oauth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
-      redirectUri
+      redirectUri,
     );
 
     this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -191,12 +191,12 @@ class GoogleWorkspaceService {
       // Decrypt tokens if they exist
       if (config.google_oauth_token_encrypted) {
         config.accessToken = this._decryptToken(
-          config.google_oauth_token_encrypted
+          config.google_oauth_token_encrypted,
         );
       }
       if (config.google_oauth_refresh_token_encrypted) {
         config.refreshToken = this._decryptToken(
-          config.google_oauth_refresh_token_encrypted
+          config.google_oauth_refresh_token_encrypted,
         );
       }
 
@@ -631,7 +631,7 @@ class GoogleWorkspaceService {
     const cipher = crypto.createCipheriv(
       'aes-256-gcm',
       Buffer.from(encryptionKey, 'hex'),
-      iv
+      iv,
     );
 
     let encrypted = cipher.update(token, 'utf8', 'hex');
@@ -662,7 +662,7 @@ class GoogleWorkspaceService {
     const decipher = crypto.createDecipheriv(
       'aes-256-gcm',
       Buffer.from(encryptionKey, 'hex'),
-      Buffer.from(iv, 'hex')
+      Buffer.from(iv, 'hex'),
     );
 
     decipher.setAuthTag(Buffer.from(authTag, 'hex'));

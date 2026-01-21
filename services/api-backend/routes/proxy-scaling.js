@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'proxy-scaling-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -72,7 +72,7 @@ router.post(
         const createdPolicy = await proxyScalingService.createScalingPolicy(
           proxyId,
           userId,
-          policy
+          policy,
         );
 
         logger.info('Scaling policy created/updated', {
@@ -108,7 +108,7 @@ router.post(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -172,7 +172,7 @@ router.get(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -210,7 +210,7 @@ router.post(
         const recordedMetrics = await proxyScalingService.recordLoadMetrics(
           proxyId,
           userId,
-          metrics
+          metrics,
         );
 
         logger.debug('Load metrics recorded', {
@@ -249,7 +249,7 @@ router.post(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -313,7 +313,7 @@ router.get(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -348,7 +348,7 @@ router.post(
 
       const decision = await proxyScalingService.evaluateScaling(
         proxyId,
-        userId
+        userId,
       );
 
       logger.info('Scaling evaluation completed', {
@@ -374,7 +374,7 @@ router.post(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -422,7 +422,7 @@ router.post(
           userId,
           newReplicaCount,
           reason || 'Manual scaling',
-          triggeredBy || 'manual'
+          triggeredBy || 'manual',
         );
 
         logger.info('Scaling operation executed', {
@@ -459,7 +459,7 @@ router.post(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -518,7 +518,7 @@ router.get(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 /**
@@ -554,7 +554,7 @@ router.get(
 
       const summary = await proxyScalingService.getScalingSummary(
         proxyId,
-        hoursBack
+        hoursBack,
       );
 
       logger.info('Scaling summary retrieved', {
@@ -579,7 +579,7 @@ router.get(
         code: 'PROXY_SCALING_004',
       });
     }
-  }
+  },
 );
 
 export default router;

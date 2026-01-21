@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'proxy-config-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -95,7 +95,7 @@ router.post(
       const createdConfig = await proxyConfigService.createProxyConfig(
         proxyId,
         userId,
-        configToUse
+        configToUse,
       );
 
       logger.info('Proxy configuration created', {
@@ -131,7 +131,7 @@ router.post(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -196,7 +196,7 @@ router.get(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -242,7 +242,7 @@ router.put(
         proxyId,
         userId,
         updates,
-        changeReason || 'Manual update'
+        changeReason || 'Manual update',
       );
 
       logger.info('Proxy configuration updated', {
@@ -286,7 +286,7 @@ router.put(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -354,7 +354,7 @@ router.delete(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -414,7 +414,7 @@ router.get(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -463,7 +463,7 @@ router.post(
         userId,
         config,
         description || '',
-        isDefault || false
+        isDefault || false,
       );
 
       logger.info('Configuration template created', {
@@ -497,7 +497,7 @@ router.post(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -544,7 +544,7 @@ router.get(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -598,7 +598,7 @@ router.get(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -634,7 +634,7 @@ router.post(
       const updatedConfig = await proxyConfigService.applyConfigTemplate(
         proxyId,
         userId,
-        templateId
+        templateId,
       );
 
       logger.info('Configuration template applied', {
@@ -670,7 +670,7 @@ router.post(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 /**
@@ -717,7 +717,7 @@ router.get(
         code: 'PROXY_CONFIG_002',
       });
     }
-  }
+  },
 );
 
 export default router;

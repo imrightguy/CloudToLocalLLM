@@ -91,8 +91,8 @@ export class TunnelLogger {
               ...meta,
             };
             return JSON.stringify(logEntry);
-          }
-        )
+          },
+        ),
       ),
       defaultMeta: { service: this.service },
       transports: [
@@ -109,8 +109,8 @@ export class TunnelLogger {
                   ? ` [user:${userId.substring(0, 8)}...]`
                   : '';
                 return `${timestamp} ${level}:${correlationStr}${userStr} ${message}`;
-              }
-            )
+              },
+            ),
           ),
         }),
       ],
@@ -311,12 +311,12 @@ export class ErrorResponseBuilder {
    */
   static authenticationError(
     message = 'Authentication required',
-    errorCode = ERROR_CODES.AUTH_TOKEN_MISSING
+    errorCode = ERROR_CODES.AUTH_TOKEN_MISSING,
   ) {
     return this.createErrorResponse(
       errorCode,
       message,
-      HTTP_STATUS_CODES.UNAUTHORIZED
+      HTTP_STATUS_CODES.UNAUTHORIZED,
     );
   }
 
@@ -328,12 +328,12 @@ export class ErrorResponseBuilder {
    */
   static serviceUnavailableError(
     message = 'Service temporarily unavailable',
-    errorCode = ERROR_CODES.DESKTOP_CLIENT_DISCONNECTED
+    errorCode = ERROR_CODES.DESKTOP_CLIENT_DISCONNECTED,
   ) {
     return this.createErrorResponse(
       errorCode,
       message,
-      HTTP_STATUS_CODES.SERVICE_UNAVAILABLE
+      HTTP_STATUS_CODES.SERVICE_UNAVAILABLE,
     );
   }
 
@@ -345,12 +345,12 @@ export class ErrorResponseBuilder {
    */
   static gatewayTimeoutError(
     message = 'Request timed out',
-    errorCode = ERROR_CODES.REQUEST_TIMEOUT
+    errorCode = ERROR_CODES.REQUEST_TIMEOUT,
   ) {
     return this.createErrorResponse(
       errorCode,
       message,
-      HTTP_STATUS_CODES.GATEWAY_TIMEOUT
+      HTTP_STATUS_CODES.GATEWAY_TIMEOUT,
     );
   }
 
@@ -362,12 +362,12 @@ export class ErrorResponseBuilder {
    */
   static badRequestError(
     message = 'Invalid request format',
-    errorCode = ERROR_CODES.INVALID_REQUEST_FORMAT
+    errorCode = ERROR_CODES.INVALID_REQUEST_FORMAT,
   ) {
     return this.createErrorResponse(
       errorCode,
       message,
-      HTTP_STATUS_CODES.BAD_REQUEST
+      HTTP_STATUS_CODES.BAD_REQUEST,
     );
   }
 
@@ -379,12 +379,12 @@ export class ErrorResponseBuilder {
    */
   static internalServerError(
     message = 'Internal server error',
-    errorCode = ERROR_CODES.INTERNAL_SERVER_ERROR
+    errorCode = ERROR_CODES.INTERNAL_SERVER_ERROR,
   ) {
     return this.createErrorResponse(
       errorCode,
       message,
-      HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR
+      HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
     );
   }
 }

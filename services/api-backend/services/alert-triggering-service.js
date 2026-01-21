@@ -137,7 +137,7 @@ class AlertTriggeringService {
         // Check against threshold
         const { shouldAlert, severity } = alertConfigService.checkThreshold(
           metric,
-          stats.latest
+          stats.latest,
         );
 
         if (shouldAlert) {
@@ -200,7 +200,7 @@ class AlertTriggeringService {
         title,
         message,
         metadata,
-        severity === 'critical' ? 'critical' : 'error'
+        severity === 'critical' ? 'critical' : 'error',
       );
 
       logger.warn('[Alert Triggering] Alert triggered', {

@@ -95,7 +95,7 @@ router.get('/', (req, res) => {
 
     // Format entries
     result.versions = result.versions.map((entry) =>
-      changelogService.formatChangelogEntry(entry)
+      changelogService.formatChangelogEntry(entry),
     );
 
     res.json(result);

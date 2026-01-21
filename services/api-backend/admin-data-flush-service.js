@@ -88,7 +88,7 @@ export class AdminDataFlushService {
 
       logger.info(
         ' [AdminFlush] Authentication data clearing completed',
-        clearedData
+        clearedData,
       );
       return clearedData;
     } catch (error) {
@@ -122,7 +122,7 @@ export class AdminDataFlushService {
       if (targetUserId) {
         logger.info(
           ' [AdminFlush] Clearing conversation cache for specific user',
-          { targetUserId }
+          { targetUserId },
         );
         // Clear user-specific conversation cache
         clearedData.conversations = 1; // Placeholder
@@ -134,7 +134,7 @@ export class AdminDataFlushService {
 
       logger.info(
         ' [AdminFlush] Conversation data clearing completed',
-        clearedData
+        clearedData,
       );
       return clearedData;
     } catch (error) {
@@ -168,7 +168,7 @@ export class AdminDataFlushService {
       if (targetUserId) {
         logger.info(
           ' [AdminFlush] Clearing preferences cache for specific user',
-          { targetUserId }
+          { targetUserId },
         );
         clearedData.preferences = 1;
       } else {
@@ -178,7 +178,7 @@ export class AdminDataFlushService {
 
       logger.info(
         ' [AdminFlush] Preferences data clearing completed',
-        clearedData
+        clearedData,
       );
       return clearedData;
     } catch (error) {
@@ -330,7 +330,7 @@ export class AdminDataFlushService {
 
       logger.info(
         ' [AdminFlush] Container and network clearing completed',
-        clearedData
+        clearedData,
       );
       return clearedData;
     } catch (error) {
@@ -349,7 +349,7 @@ export class AdminDataFlushService {
     adminUserId,
     confirmationToken,
     targetUserId = null,
-    options = {}
+    options = {},
   ) {
     const operationId = crypto.randomUUID();
     const startTime = new Date();
@@ -366,7 +366,7 @@ export class AdminDataFlushService {
       !this.validateConfirmationToken(
         confirmationToken,
         adminUserId,
-        targetUserId || 'ALL_USERS'
+        targetUserId || 'ALL_USERS',
       )
     ) {
       throw new Error('Invalid or expired confirmation token');
@@ -491,11 +491,11 @@ export class AdminDataFlushService {
       });
 
       const userContainers = containers.filter(
-        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy'
+        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy',
       );
 
       const activeUsers = new Set(
-        userContainers.map((c) => c.Labels['cloudtolocalllm.user'])
+        userContainers.map((c) => c.Labels['cloudtolocalllm.user']),
       ).size;
 
       return {

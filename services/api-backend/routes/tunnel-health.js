@@ -39,7 +39,7 @@ export async function initializeTunnelHealthService() {
       '[TunnelHealthRoutes] Failed to initialize tunnel health service',
       {
         error: error.message,
-      }
+      },
     );
     throw error;
   }
@@ -82,7 +82,7 @@ router.get('/:id/status', authenticateJWT, async (req, res) => {
 
     const statusSummary = await tunnelHealthService.getTunnelStatusSummary(
       tunnelId,
-      userId
+      userId,
     );
 
     logger.debug('[TunnelHealthRoutes] Tunnel status retrieved', {
@@ -154,7 +154,7 @@ router.get('/:id/health', authenticateJWT, async (req, res) => {
 
     const healthStatus = await tunnelHealthService.getEndpointHealthStatus(
       tunnelId,
-      userId
+      userId,
     );
 
     logger.debug('[TunnelHealthRoutes] Endpoint health status retrieved', {
@@ -229,7 +229,7 @@ router.post('/:id/health-check', authenticateJWT, async (req, res) => {
     const pool = getPool();
     const tunnelResult = await pool.query(
       'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-      [tunnelId, userId]
+      [tunnelId, userId],
     );
 
     if (tunnelResult.rows.length === 0) {
@@ -310,7 +310,7 @@ router.get('/:id/metrics', authenticateJWT, async (req, res) => {
     const pool = getPool();
     const tunnelResult = await pool.query(
       'SELECT metrics FROM tunnels WHERE id = $1 AND user_id = $2',
-      [tunnelId, userId]
+      [tunnelId, userId],
     );
 
     if (tunnelResult.rows.length === 0) {
@@ -410,7 +410,7 @@ router.post('/:id/metrics/record', authenticateJWT, async (req, res) => {
     const pool = getPool();
     const tunnelResult = await pool.query(
       'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-      [tunnelId, userId]
+      [tunnelId, userId],
     );
 
     if (tunnelResult.rows.length === 0) {
@@ -492,7 +492,7 @@ router.post('/:id/metrics/flush', authenticateJWT, async (req, res) => {
     const pool = getPool();
     const tunnelResult = await pool.query(
       'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-      [tunnelId, userId]
+      [tunnelId, userId],
     );
 
     if (tunnelResult.rows.length === 0) {

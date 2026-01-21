@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'proxy-usage-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -80,7 +80,7 @@ router.post(
         proxyId,
         userId,
         eventType,
-        eventData
+        eventData,
       );
 
       logger.info('Proxy usage event recorded', {
@@ -107,7 +107,7 @@ router.post(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -151,7 +151,7 @@ router.get(
       const metrics = await proxyUsageService.getProxyUsageMetrics(
         proxyId,
         userId,
-        date
+        date,
       );
 
       logger.info('Proxy usage metrics retrieved', {
@@ -178,7 +178,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -225,7 +225,7 @@ router.get(
         proxyId,
         userId,
         startDate,
-        endDate
+        endDate,
       );
 
       logger.info('Proxy usage metrics range retrieved', {
@@ -256,7 +256,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -319,7 +319,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -358,7 +358,7 @@ router.get(
         userId,
         userTier,
         periodStart,
-        periodEnd
+        periodEnd,
       );
 
       logger.info('Proxy usage aggregation retrieved', {
@@ -384,7 +384,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -423,7 +423,7 @@ router.post(
         userId,
         userTier,
         periodStart,
-        periodEnd
+        periodEnd,
       );
 
       logger.info('Proxy usage aggregated', {
@@ -450,7 +450,7 @@ router.post(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -489,7 +489,7 @@ router.get(
         userId,
         userTier,
         periodStart,
-        periodEnd
+        periodEnd,
       );
 
       logger.info('Proxy billing summary retrieved', {
@@ -515,7 +515,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  }
+  },
 );
 
 export default router;

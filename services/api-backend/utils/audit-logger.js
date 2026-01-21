@@ -68,7 +68,7 @@ export async function logAdminAction({
         JSON.stringify(details),
         ipAddress,
         userAgent,
-      ]
+      ],
     );
 
     const auditLog = result.rows[0];
@@ -297,7 +297,7 @@ export async function getAuditLogById(logId) {
 
     const result = await pool.query(
       'SELECT * FROM admin_audit_logs WHERE id = $1',
-      [logId]
+      [logId],
     );
 
     if (result.rows.length === 0) {

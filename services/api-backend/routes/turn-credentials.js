@@ -56,7 +56,7 @@ router.get('/credentials', authenticateJWT, (req, res) => {
       '[TURN Credentials] Credentials provided to authenticated user',
       {
         userId: req.user?.sub || req.user?.id,
-      }
+      },
     );
   } catch (error) {
     logger.error('🔴 [TURN Credentials] Error retrieving credentials', {

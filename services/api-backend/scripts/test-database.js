@@ -19,7 +19,7 @@ async function testDatabase() {
 
   if (dbType !== 'postgresql') {
     console.warn(
-      ' WARNING: DB_TYPE is not set to postgresql, but this project now exclusively uses PostgreSQL.'
+      ' WARNING: DB_TYPE is not set to postgresql, but this project now exclusively uses PostgreSQL.',
     );
   }
 
@@ -53,11 +53,11 @@ async function testDatabase() {
     console.log('Validation Results:');
     Object.entries(validation.results).forEach(([table, valid]) => {
       console.log(
-        `  ${valid ? '✅' : '❌'} ${table}: ${valid ? 'EXISTS' : 'MISSING'}`
+        `  ${valid ? '✅' : '❌'} ${table}: ${valid ? 'EXISTS' : 'MISSING'}`,
       );
     });
     console.log(
-      `\n Overall Status: ${validation.allValid ? '✅ VALID' : '❌ INVALID'}`
+      `\n Overall Status: ${validation.allValid ? '✅ VALID' : '❌ INVALID'}`,
     );
 
     // Test 5: Applied Migrations
@@ -79,13 +79,13 @@ async function testDatabase() {
 
     // Test UUID generation
     const { rows: uuidTest } = await migrator.pool.query(
-      'SELECT gen_random_uuid() as test_uuid'
+      'SELECT gen_random_uuid() as test_uuid',
     );
     console.log(` ✅ UUID generation: ${uuidTest[0].test_uuid}`);
 
     // Test JSONB operations
     const { rows: jsonTest } = await migrator.pool.query(
-      'SELECT \'{"test": true}\'::jsonb as test_json'
+      'SELECT \'{"test": true}\'::jsonb as test_json',
     );
     console.log(` ✅ JSONB support: ${JSON.stringify(jsonTest[0].test_json)}`);
 
@@ -99,7 +99,7 @@ async function testDatabase() {
     for (const table of tables) {
       try {
         const { rows } = await migrator.pool.query(
-          `SELECT COUNT(*) as count FROM ${table}`
+          `SELECT COUNT(*) as count FROM ${table}`,
         );
         console.log(` ✅ ${table}: ${rows[0].count} records`);
       } catch (e) {
@@ -120,7 +120,7 @@ async function testDatabase() {
 
     console.error('  1. Check PostgreSQL instance is running');
     console.error(
-      '  2. Verify environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD'
+      '  2. Verify environment variables: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD',
     );
     console.error('  3. Check database connectivity and permissions');
 

@@ -78,11 +78,11 @@ export function apiVersioningMiddleware() {
         res.set('Deprecation', 'true');
         res.set(
           'Sunset',
-          new Date(API_VERSIONS[version].sunsetAt).toUTCString()
+          new Date(API_VERSIONS[version].sunsetAt).toUTCString(),
         );
         res.set(
           'Warning',
-          `299 - "API version ${version} is deprecated. Migrate to v2 before ${API_VERSIONS[version].sunsetAt}"`
+          `299 - "API version ${version} is deprecated. Migrate to v2 before ${API_VERSIONS[version].sunsetAt}"`,
         );
       }
     } else {

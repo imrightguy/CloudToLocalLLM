@@ -39,7 +39,7 @@ export async function initializeTunnelSharingService() {
       '[TunnelSharingRoutes] Failed to initialize tunnel sharing service',
       {
         error: error.message,
-      }
+      },
     );
     throw error;
   }
@@ -104,7 +104,7 @@ router.post('/:id/shares', authenticateJWT, async (req, res) => {
       sharedWithUserId,
       permission,
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelSharingRoutes] Tunnel shared', {
@@ -267,7 +267,7 @@ router.delete(
         userId,
         sharedWithUserId,
         ipAddress,
-        userAgent
+        userAgent,
       );
 
       logger.info('[TunnelSharingRoutes] Tunnel access revoked', {
@@ -305,7 +305,7 @@ router.delete(
         message: 'Failed to revoke tunnel access',
       });
     }
-  }
+  },
 );
 
 /**
@@ -434,7 +434,7 @@ router.post('/:id/share-tokens', authenticateJWT, async (req, res) => {
       expiresInHours,
       maxUses,
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelSharingRoutes] Share token created', {
@@ -595,7 +595,7 @@ router.delete(
         tokenId,
         userId,
         ipAddress,
-        userAgent
+        userAgent,
       );
 
       logger.info('[TunnelSharingRoutes] Share token revoked', {
@@ -632,7 +632,7 @@ router.delete(
         message: 'Failed to revoke share token',
       });
     }
-  }
+  },
 );
 
 /**
@@ -679,7 +679,7 @@ router.get('/:id/access-logs', authenticateJWT, async (req, res) => {
       {
         limit,
         offset,
-      }
+      },
     );
 
     logger.debug('[TunnelSharingRoutes] Access logs retrieved', {
@@ -780,7 +780,7 @@ router.put(
         userId,
         permission,
         ipAddress,
-        userAgent
+        userAgent,
       );
 
       logger.info('[TunnelSharingRoutes] Share permission updated', {
@@ -826,7 +826,7 @@ router.put(
         message: 'Failed to update share permission',
       });
     }
-  }
+  },
 );
 
 export default router;

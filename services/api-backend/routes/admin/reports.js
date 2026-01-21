@@ -123,7 +123,7 @@ router.get(
         totalRevenue: parseFloat(overallMetrics.total_revenue),
         transactionCount: parseInt(overallMetrics.transaction_count),
         averageTransactionValue: parseFloat(
-          overallMetrics.average_transaction_value
+          overallMetrics.average_transaction_value,
         ),
       };
 
@@ -191,7 +191,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;
@@ -411,7 +411,7 @@ router.get(
           activeSubscriptions,
           churnRate: response.churnRate,
           mrr: monthlyRecurringRevenue,
-        }
+        },
       );
 
       res.json(response);
@@ -422,7 +422,7 @@ router.get(
           error: error.message,
           stack: error.stack,
           adminUserId: req.adminUser?.id,
-        }
+        },
       );
 
       res.status(500).json({
@@ -430,7 +430,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -701,7 +701,7 @@ router.get(
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader(
           'Content-Disposition',
-          `attachment; filename="${filename}.csv"`
+          `attachment; filename="${filename}.csv"`,
         );
         res.send(csv);
       } else if (format === 'pdf') {
@@ -713,11 +713,11 @@ router.get(
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader(
           'Content-Disposition',
-          `attachment; filename="${filename}.csv"`
+          `attachment; filename="${filename}.csv"`,
         );
         res.setHeader(
           'X-PDF-Note',
-          'PDF export not yet implemented, returning CSV format'
+          'PDF export not yet implemented, returning CSV format',
         );
         res.send(csv);
       }
@@ -758,5 +758,5 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );

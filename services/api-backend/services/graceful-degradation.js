@@ -14,14 +14,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'graceful-degradation' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -80,7 +80,7 @@ export class GracefulDegradationService {
     });
 
     logger.info(
-      `Service registered for degradation management: ${serviceName}`
+      `Service registered for degradation management: ${serviceName}`,
     );
   }
 
@@ -283,7 +283,7 @@ export class GracefulDegradationService {
     return {
       ...this.metrics,
       activeDegradedServices: Array.from(
-        this.degradationStates.values()
+        this.degradationStates.values(),
       ).filter((state) => state.isDegraded).length,
       timestamp: new Date().toISOString(),
     };
@@ -317,10 +317,10 @@ export class GracefulDegradationService {
       summary: {
         overallStatus: degradedServices.length === 0 ? 'healthy' : 'degraded',
         criticalDegradations: degradedServices.filter(
-          (s) => s.severity === 'critical'
+          (s) => s.severity === 'critical',
         ).length,
         warningDegradations: degradedServices.filter(
-          (s) => s.severity === 'warning'
+          (s) => s.severity === 'warning',
         ).length,
       },
     };

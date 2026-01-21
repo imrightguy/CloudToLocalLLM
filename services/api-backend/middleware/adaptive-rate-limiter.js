@@ -86,10 +86,10 @@ class AdaptiveUserTracker {
     const burstCutoff = new Date(now.getTime() - burstWindowMs);
 
     this.requests = this.requests.filter(
-      (timestamp) => timestamp > windowCutoff
+      (timestamp) => timestamp > windowCutoff,
     );
     this.burstRequests = this.burstRequests.filter(
-      (timestamp) => timestamp > burstCutoff
+      (timestamp) => timestamp > burstCutoff,
     );
   }
 
@@ -130,7 +130,7 @@ export class AdaptiveRateLimiter {
       () => {
         this.cleanup();
       },
-      5 * 60 * 1000
+      5 * 60 * 1000,
     ); // 5 minutes
 
     this.logger.info('Adaptive rate limiter initialized', {
@@ -183,7 +183,7 @@ export class AdaptiveRateLimiter {
 
     const counts = tracker.getCounts(
       this.config.baseWindowMs,
-      this.config.baseBurstWindowMs
+      this.config.baseBurstWindowMs,
     );
 
     // Check burst rate limit
@@ -322,7 +322,7 @@ export class AdaptiveRateLimiter {
 
     const counts = tracker.getCounts(
       this.config.baseWindowMs,
-      this.config.baseBurstWindowMs
+      this.config.baseBurstWindowMs,
     );
 
     return {
@@ -337,7 +337,7 @@ export class AdaptiveRateLimiter {
   cleanup() {
     const now = new Date();
     const inactiveThreshold = new Date(
-      now.getTime() - this.config.baseWindowMs * 2
+      now.getTime() - this.config.baseWindowMs * 2,
     );
     const trackersToRemove = [];
 
@@ -409,7 +409,7 @@ export function createAdaptiveRateLimitMiddleware(config = {}) {
     const result = rateLimiter.checkRateLimit(
       userId,
       correlationId,
-      requestContext
+      requestContext,
     );
 
     if (!result.allowed) {
@@ -421,10 +421,10 @@ export function createAdaptiveRateLimitMiddleware(config = {}) {
           'X-RateLimit-Remaining': Math.max(
             0,
             (result.limits?.window?.max || rateLimiter.config.baseMaxRequests) -
-              (result.limits?.window?.current || 0)
+              (result.limits?.window?.current || 0),
           ),
           'X-RateLimit-Reset': new Date(
-            Date.now() + result.retryAfter * 1000
+            Date.now() + result.retryAfter * 1000,
           ).toISOString(),
           'X-RateLimit-Adaptive': 'true',
           'X-RateLimit-Adaptive-Multiplier':
@@ -442,7 +442,7 @@ export function createAdaptiveRateLimitMiddleware(config = {}) {
           retryAfter: result.retryAfter,
           limits: result.limits,
           adaptive: true,
-        }
+        },
       );
 
       rateLimiter.completeRequest(userId);
@@ -455,10 +455,10 @@ export function createAdaptiveRateLimitMiddleware(config = {}) {
         'X-RateLimit-Limit': result.limits.window.max,
         'X-RateLimit-Remaining': Math.max(
           0,
-          result.limits.window.max - result.limits.window.current
+          result.limits.window.max - result.limits.window.current,
         ),
         'X-RateLimit-Reset': new Date(
-          Date.now() + this.config.baseWindowMs
+          Date.now() + this.config.baseWindowMs,
         ).toISOString(),
         'X-RateLimit-Adaptive': 'true',
         'X-RateLimit-Adaptive-Multiplier': result.limits.window.multiplier,

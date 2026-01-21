@@ -173,7 +173,7 @@ export class MetricsService {
       // Record request duration
       this.httpRequestDuration.observe(
         { method, route, status },
-        duration / 1000 // Convert to seconds
+        duration / 1000, // Convert to seconds
       );
 
       // Increment request counter
@@ -287,7 +287,7 @@ export class MetricsService {
       // Record query duration
       this.dbQueryDuration.observe(
         { query_type: queryType },
-        duration / 1000 // Convert to seconds
+        duration / 1000, // Convert to seconds
       );
 
       // Increment query counter

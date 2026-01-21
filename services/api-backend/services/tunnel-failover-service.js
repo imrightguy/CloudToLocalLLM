@@ -39,14 +39,14 @@ export class TunnelFailoverService {
         throw new Error('Database pool not initialized');
       }
       logger.info(
-        '[TunnelFailoverService] Tunnel failover service initialized'
+        '[TunnelFailoverService] Tunnel failover service initialized',
       );
     } catch (error) {
       logger.error(
         '[TunnelFailoverService] Failed to initialize tunnel failover service',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -70,7 +70,7 @@ export class TunnelFailoverService {
         `SELECT * FROM tunnel_endpoints 
          WHERE tunnel_id = $1 
          ORDER BY priority DESC, weight DESC`,
-        [tunnelId]
+        [tunnelId],
       );
 
       if (result.rows.length === 0) {
@@ -84,7 +84,7 @@ export class TunnelFailoverService {
 
       // Filter healthy endpoints
       const healthyEndpoints = endpoints.filter(
-        (e) => e.health_status === 'healthy'
+        (e) => e.health_status === 'healthy',
       );
 
       if (healthyEndpoints.length === 0) {
@@ -93,7 +93,7 @@ export class TunnelFailoverService {
           {
             tunnelId,
             totalEndpoints: endpoints.length,
-          }
+          },
         );
 
         // Fallback: return highest priority endpoint even if unhealthy
@@ -219,7 +219,7 @@ export class TunnelFailoverService {
         {
           endpointId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -248,7 +248,7 @@ export class TunnelFailoverService {
         {
           endpointId,
           error: error.message,
-        }
+        },
       );
     }
   }
@@ -265,14 +265,14 @@ export class TunnelFailoverService {
         `UPDATE tunnel_endpoints 
          SET health_status = $1, last_health_check = NOW() 
          WHERE id = $2`,
-        ['unhealthy', endpointId]
+        ['unhealthy', endpointId],
       );
 
       logger.info(
         '[TunnelFailoverService] Endpoint marked unhealthy in database',
         {
           endpointId,
-        }
+        },
       );
     } catch (error) {
       logger.error(
@@ -280,7 +280,7 @@ export class TunnelFailoverService {
         {
           endpointId,
           error: error.message,
-        }
+        },
       );
     }
   }
@@ -297,14 +297,14 @@ export class TunnelFailoverService {
         `UPDATE tunnel_endpoints 
          SET health_status = $1, last_health_check = NOW() 
          WHERE id = $2`,
-        ['healthy', endpointId]
+        ['healthy', endpointId],
       );
 
       logger.info(
         '[TunnelFailoverService] Endpoint marked healthy in database',
         {
           endpointId,
-        }
+        },
       );
     } catch (error) {
       logger.error('[TunnelFailoverService] Failed to mark endpoint healthy', {
@@ -342,7 +342,7 @@ export class TunnelFailoverService {
       {
         endpointId,
         tunnelId,
-      }
+      },
     );
   }
 
@@ -360,7 +360,7 @@ export class TunnelFailoverService {
         '[TunnelFailoverService] Recovery checks stopped for endpoint',
         {
           endpointId,
-        }
+        },
       );
     }
   }
@@ -377,7 +377,7 @@ export class TunnelFailoverService {
       // Get endpoint details
       const result = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE id = $1',
-        [endpointId]
+        [endpointId],
       );
 
       if (result.rows.length === 0) {
@@ -420,7 +420,7 @@ export class TunnelFailoverService {
         {
           endpointId,
           error: error.message,
-        }
+        },
       );
       return false;
     }
@@ -471,7 +471,7 @@ export class TunnelFailoverService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId]
+        [tunnelId, userId],
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -481,7 +481,7 @@ export class TunnelFailoverService {
       // Get endpoints
       const endpointsResult = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE tunnel_id = $1',
-        [tunnelId]
+        [tunnelId],
       );
 
       const endpoints = endpointsResult.rows.map((endpoint) => {
@@ -506,10 +506,10 @@ export class TunnelFailoverService {
       });
 
       const healthyCount = endpoints.filter(
-        (e) => e.healthStatus === 'healthy'
+        (e) => e.healthStatus === 'healthy',
       ).length;
       const unhealthyCount = endpoints.filter(
-        (e) => e.healthStatus === 'unhealthy'
+        (e) => e.healthStatus === 'unhealthy',
       ).length;
 
       return {
@@ -520,7 +520,7 @@ export class TunnelFailoverService {
           healthy: healthyCount,
           unhealthy: unhealthyCount,
           recovering: Array.from(this.recoveryIntervals.keys()).filter((id) =>
-            endpoints.some((e) => e.id === id)
+            endpoints.some((e) => e.id === id),
           ).length,
         },
       };
@@ -547,7 +547,7 @@ export class TunnelFailoverService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId]
+        [tunnelId, userId],
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -557,7 +557,7 @@ export class TunnelFailoverService {
       // Verify endpoint belongs to tunnel
       const endpointResult = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE id = $1 AND tunnel_id = $2',
-        [endpointId, tunnelId]
+        [endpointId, tunnelId],
       );
 
       if (endpointResult.rows.length === 0) {
@@ -581,7 +581,7 @@ export class TunnelFailoverService {
           endpointId,
           userId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -610,7 +610,7 @@ export class TunnelFailoverService {
         {
           endpointId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }

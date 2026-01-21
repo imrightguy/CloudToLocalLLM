@@ -87,7 +87,7 @@ class CloudflareDNSService {
 
         // Retry after waiting
         await new Promise((resolve) =>
-          setTimeout(resolve, this.rateLimitRetryAfter * 1000)
+          setTimeout(resolve, this.rateLimitRetryAfter * 1000),
         );
         return this._makeRequest(method, endpoint, body);
       }
@@ -151,7 +151,7 @@ class CloudflareDNSService {
       const response = await this._makeRequest(
         'POST',
         `/zones/${this.zoneId}/dns_records`,
-        recordData
+        recordData,
       );
 
       if (!response.success) {
@@ -243,7 +243,7 @@ class CloudflareDNSService {
       const response = await this._makeRequest(
         'PUT',
         `/zones/${this.zoneId}/dns_records/${dbRecord.provider_record_id}`,
-        updateData
+        updateData,
       );
 
       if (!response.success) {
@@ -311,7 +311,7 @@ class CloudflareDNSService {
       // Delete record via Cloudflare API
       const response = await this._makeRequest(
         'DELETE',
-        `/zones/${this.zoneId}/dns_records/${dbRecord.provider_record_id}`
+        `/zones/${this.zoneId}/dns_records/${dbRecord.provider_record_id}`,
       );
 
       if (!response.success) {

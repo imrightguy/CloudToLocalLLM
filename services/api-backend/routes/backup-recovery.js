@@ -59,7 +59,7 @@ router.post(
         correlationId,
       });
     }
-  }
+  },
 );
 
 /**
@@ -140,7 +140,7 @@ router.get(
         correlationId,
       });
     }
-  }
+  },
 );
 
 /**
@@ -190,7 +190,7 @@ router.post(
         correlationId,
       });
     }
-  }
+  },
 );
 
 /**
@@ -251,7 +251,7 @@ router.post(
         correlationId,
       });
     }
-  }
+  },
 );
 
 /**
@@ -299,7 +299,7 @@ router.delete(
         correlationId,
       });
     }
-  }
+  },
 );
 
 export default router;

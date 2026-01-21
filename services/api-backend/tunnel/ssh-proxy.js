@@ -126,7 +126,7 @@ export class SSHProxy {
         },
         (client) => {
           this._handleSSHClient(client);
-        }
+        },
       );
 
       this.logger.info('SSHProxy started successfully', {
@@ -480,7 +480,7 @@ export class SSHProxy {
 
     while (
       Array.from(this.userConnections.values()).some(
-        (conn) => conn.port === port
+        (conn) => conn.port === port,
       )
     ) {
       port++;
@@ -505,7 +505,7 @@ export class SSHProxy {
         this.logger.info('Connection timeout, cleaning up', { userId });
         this._cleanupConnection(userId);
       },
-      5 * 60 * 1000
+      5 * 60 * 1000,
     );
 
     this.connectionTimeouts.set(userId, timeout);

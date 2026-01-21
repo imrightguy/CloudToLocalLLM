@@ -45,7 +45,7 @@ export async function initializeUserProfileService() {
       '[UserProfileRoutes] Failed to initialize user profile service',
       {
         error: error.message,
-      }
+      },
     );
     throw error;
   }
@@ -362,7 +362,7 @@ router.put('/preferences', authenticateJWT, async (req, res) => {
 
     const updatedPreferences = await userProfileService.updateUserPreferences(
       userId,
-      validation.data
+      validation.data,
     );
 
     logger.info('[UserProfile] Preferences updated', {
@@ -453,7 +453,7 @@ router.put('/avatar', authenticateJWT, async (req, res) => {
 
     const updatedProfile = await userProfileService.updateUserAvatar(
       userId,
-      avatarUrl
+      avatarUrl,
     );
 
     logger.info('[UserProfile] Avatar updated', {

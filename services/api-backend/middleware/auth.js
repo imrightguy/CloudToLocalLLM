@@ -21,10 +21,10 @@ const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
 if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
   console.warn(
-    ' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).'
+    ' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).',
   );
   console.warn(
-    ' [WARNING] Authentication features will return 503 Service Unavailable.'
+    ' [WARNING] Authentication features will return 503 Service Unavailable.',
   );
 }
 
@@ -110,7 +110,7 @@ export async function syncSession(req, res, next) {
       const session = await authService.syncSession(tokenPayload, token, req);
       if (!session || !session.is_active) {
         logger.warn(
-          ` [Auth] Access denied: Session revoked or inactive for user ${userId}`
+          ` [Auth] Access denied: Session revoked or inactive for user ${userId}`,
         );
         return res.status(401).json({
           error: 'Unauthorized',
@@ -158,7 +158,7 @@ export async function optionalAuth(req, res, next) {
       if (syncErr) {
         logger.debug(
           ' [Auth] Optional auth session sync failed:',
-          syncErr.message
+          syncErr.message,
         );
       }
       next();
@@ -230,7 +230,7 @@ export function requireScope(requiredScope) {
 
     if (!userScopes.includes(requiredScope)) {
       logger.warn(
-        ` [Auth] User ${req.user.sub} missing required scope: ${requiredScope}`
+        ` [Auth] User ${req.user.sub} missing required scope: ${requiredScope}`,
       );
       return res.status(403).json({
         error: 'Insufficient permissions',
@@ -282,7 +282,7 @@ export function authenticateContainer(req, res, next) {
   if (
     !crypto.timingSafeEqual(
       Buffer.from(signature),
-      Buffer.from(expectedSignature)
+      Buffer.from(expectedSignature),
     )
   ) {
     return res.status(403).json({

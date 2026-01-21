@@ -19,7 +19,7 @@ import { logger } from '../utils/logger.js';
 export async function executeWithRetryAndCircuitBreaker(
   serviceName,
   fn,
-  options = {}
+  options = {},
 ) {
   const {
     retryConfig = {},
@@ -96,7 +96,7 @@ export function createRetryableClient(serviceName, client, options = {}) {
             circuitBreakerConfig,
             context: client,
             args,
-          }
+          },
         );
       };
     }

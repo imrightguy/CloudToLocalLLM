@@ -34,7 +34,7 @@ export function initHttpPool(baseUrl, options = {}) {
   const poolSize = parseInt(process.env.UNDICI_POOL_SIZE || '100', 10);
   const keepAliveTimeout = parseInt(
     process.env.UNDICI_KEEP_ALIVE_TIMEOUT || '60000',
-    10
+    10,
   );
 
   httpPool = new Pool(baseUrl, {
@@ -94,7 +94,7 @@ export const resourceMetricsSchema = z.object({
       iface: z.string(),
       rx: z.number(),
       tx: z.number(),
-    })
+    }),
   ),
 });
 

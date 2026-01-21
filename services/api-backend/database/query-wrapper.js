@@ -106,7 +106,7 @@ export function wrapPoolQuery(originalQuery) {
     return executeTrackedQuery(
       () => originalQuery.call(this, queryText, params),
       queryText,
-      params
+      params,
     );
   };
 }
@@ -123,7 +123,7 @@ export function wrapClientQuery(originalQuery) {
     return executeTrackedQuery(
       () => originalQuery.call(this, queryText, params),
       queryText,
-      params
+      params,
     );
   };
 }
@@ -142,12 +142,12 @@ export function wrapPool(pool) {
     return executeTrackedQuery(
       () => originalQuery(queryText, params),
       queryText,
-      params
+      params,
     );
   };
 
   logger.info(
-    '🔵 [Query Wrapper] Pool query method wrapped for performance tracking'
+    '🔵 [Query Wrapper] Pool query method wrapped for performance tracking',
   );
 
   return pool;
@@ -167,7 +167,7 @@ export function wrapClient(client) {
     return executeTrackedQuery(
       () => originalQuery(queryText, params),
       queryText,
-      params
+      params,
     );
   };
 

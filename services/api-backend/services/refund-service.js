@@ -76,7 +76,7 @@ class RefundService {
       ];
       if (!validReasons.includes(reason)) {
         throw new Error(
-          `Invalid refund reason. Must be one of: ${validReasons.join(', ')}`
+          `Invalid refund reason. Must be one of: ${validReasons.join(', ')}`,
         );
       }
 
@@ -133,7 +133,7 @@ class RefundService {
       await this._updateTransactionStatus(
         transactionId,
         refundAmount,
-        transaction.amount
+        transaction.amount,
       );
 
       // Log admin action in audit log
@@ -244,7 +244,7 @@ class RefundService {
   async getTransactionRefunds(transactionId) {
     const result = await this.db.query(
       'SELECT * FROM refunds WHERE transaction_id = $1 ORDER BY created_at DESC',
-      [transactionId]
+      [transactionId],
     );
 
     return result.rows;
@@ -257,7 +257,7 @@ class RefundService {
   async _getTransaction(transactionId) {
     const result = await this.db.query(
       'SELECT * FROM payment_transactions WHERE id = $1',
-      [transactionId]
+      [transactionId],
     );
 
     if (result.rows.length === 0) {
@@ -307,7 +307,7 @@ class RefundService {
   async _updateTransactionStatus(
     transactionId,
     refundAmount,
-    transactionAmount
+    transactionAmount,
   ) {
     // Determine new status
     let newStatus;
@@ -319,7 +319,7 @@ class RefundService {
 
     await this.db.query(
       'UPDATE payment_transactions SET status = $1, updated_at = NOW() WHERE id = $2',
-      [newStatus, transactionId]
+      [newStatus, transactionId],
     );
   }
 

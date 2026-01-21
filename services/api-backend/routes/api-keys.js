@@ -253,7 +253,7 @@ router.patch('/:keyId', authenticateJWT, async (req, res) => {
     // Validate updates
     const allowedFields = ['name', 'description', 'scopes', 'rateLimit'];
     const invalidFields = Object.keys(updates).filter(
-      (field) => !allowedFields.includes(field)
+      (field) => !allowedFields.includes(field),
     );
 
     if (invalidFields.length > 0) {
@@ -379,7 +379,7 @@ router.post(
         code: 'ROTATION_FAILED',
       });
     }
-  }
+  },
 );
 
 /**

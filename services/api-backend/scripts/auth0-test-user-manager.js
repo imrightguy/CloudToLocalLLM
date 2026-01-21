@@ -25,7 +25,7 @@ function getCredentials() {
 
   if (!domain || !clientId || !clientSecret) {
     throw new Error(
-      'Missing Auth0 credentials (AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)'
+      'Missing Auth0 credentials (AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)',
     );
   }
 

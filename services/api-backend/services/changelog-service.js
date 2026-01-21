@@ -139,7 +139,7 @@ class ChangelogService {
   getCurrentApiVersion() {
     try {
       const packageJson = JSON.parse(
-        fs.readFileSync(this.packageJsonPath, 'utf-8')
+        fs.readFileSync(this.packageJsonPath, 'utf-8'),
       );
       return packageJson.version;
     } catch (error) {

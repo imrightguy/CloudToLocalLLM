@@ -113,7 +113,7 @@ export async function logUserActivity(options = {}) {
         ipAddress,
         userAgent,
         severity,
-      ]
+      ],
     );
 
     const activityLog = result.rows[0];
@@ -164,7 +164,7 @@ export async function updateUserUsageMetrics(userId) {
     // Check if metrics record exists
     const existingResult = await query(
       'SELECT id FROM user_usage_metrics WHERE user_id = $1',
-      [userId]
+      [userId],
     );
 
     if (existingResult.rows.length === 0) {
@@ -173,7 +173,7 @@ export async function updateUserUsageMetrics(userId) {
         `INSERT INTO user_usage_metrics (user_id, total_requests, total_api_calls, total_tunnels_created, total_tunnels_active, last_activity)
          VALUES ($1, 1, 0, 0, 0, NOW())
          RETURNING id, user_id, total_requests, last_activity`,
-        [userId]
+        [userId],
       );
 
       return result.rows[0];
@@ -184,7 +184,7 @@ export async function updateUserUsageMetrics(userId) {
          SET total_requests = total_requests + 1, last_activity = NOW()
          WHERE user_id = $1
          RETURNING id, user_id, total_requests, last_activity`,
-        [userId]
+        [userId],
       );
 
       return result.rows[0];
@@ -361,7 +361,7 @@ export async function getUserUsageMetrics(userId) {
               total_data_transferred_bytes, last_activity, created_at, updated_at, metadata
        FROM user_usage_metrics
        WHERE user_id = $1`,
-      [userId]
+      [userId],
     );
 
     if (result.rows.length === 0) {

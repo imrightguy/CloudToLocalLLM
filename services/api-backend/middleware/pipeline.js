@@ -91,7 +91,7 @@ export function setupMiddlewarePipeline(app, options = {}) {
         },
       },
       crossOriginResourcePolicy: { policy: 'cross-origin' },
-    })
+    }),
   );
 
   // 5. Request Logging - Log all requests with correlation IDs

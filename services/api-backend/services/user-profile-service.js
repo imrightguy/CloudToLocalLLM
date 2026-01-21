@@ -145,7 +145,7 @@ export class UserProfileService {
           'PUT /api/users/profile',
           userId,
           'profile',
-          validation.error
+          validation.error,
         );
         throw new Error(validation.error);
       }
@@ -248,7 +248,7 @@ export class UserProfileService {
           'PUT /api/users/preferences',
           userId,
           'preferences',
-          validation.error
+          validation.error,
         );
         throw new Error(validation.error);
       }
@@ -346,7 +346,7 @@ export class UserProfileService {
         'PUT /api/users/avatar',
         userId,
         'avatarUrl',
-        urlValidation.error
+        urlValidation.error,
       );
       throw new Error(urlValidation.error);
     }

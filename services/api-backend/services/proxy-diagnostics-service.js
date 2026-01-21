@@ -15,14 +15,14 @@ export class ProxyDiagnosticsService {
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.errors({ stack: true }),
-          winston.format.json()
+          winston.format.json(),
         ),
         defaultMeta: { service: 'proxy-diagnostics' },
         transports: [
           new winston.transports.Console({
             format: winston.format.combine(
               winston.format.timestamp(),
-              winston.format.simple()
+              winston.format.simple(),
             ),
           }),
         ],
@@ -38,15 +38,15 @@ export class ProxyDiagnosticsService {
     this.maxLogsPerProxy = parseInt(process.env.PROXY_MAX_LOGS || '1000', 10);
     this.maxErrorsPerProxy = parseInt(
       process.env.PROXY_MAX_ERRORS || '100',
-      10
+      10,
     );
     this.maxEventsPerProxy = parseInt(
       process.env.PROXY_MAX_EVENTS || '500',
-      10
+      10,
     );
     this.logRetentionMs = parseInt(
       process.env.PROXY_LOG_RETENTION || '3600000',
-      10
+      10,
     ); // 1 hour default
   }
 
@@ -293,7 +293,7 @@ export class ProxyDiagnosticsService {
     const diagnosticStatus = this.analyzeDiagnostics(
       proxyId,
       recentErrors,
-      recentLogs
+      recentLogs,
     );
 
     return {
@@ -335,7 +335,7 @@ export class ProxyDiagnosticsService {
     const suggestions = this.generateTroubleshootingSuggestions(
       proxyId,
       recentErrors,
-      recentEvents
+      recentEvents,
     );
 
     return {
@@ -472,7 +472,7 @@ export class ProxyDiagnosticsService {
 
     // Check for connection issues (case-insensitive)
     const connectionErrors = errors.filter((e) =>
-      e.message.toLowerCase().includes('connection')
+      e.message.toLowerCase().includes('connection'),
     );
     if (connectionErrors.length > 5) {
       issues.push({
@@ -484,7 +484,7 @@ export class ProxyDiagnosticsService {
 
     // Check for timeout issues (case-insensitive)
     const timeoutErrors = errors.filter((e) =>
-      e.message.toLowerCase().includes('timeout')
+      e.message.toLowerCase().includes('timeout'),
     );
     if (timeoutErrors.length > 5) {
       issues.push({
@@ -498,7 +498,7 @@ export class ProxyDiagnosticsService {
     const resourceErrors = errors.filter(
       (e) =>
         e.message.toLowerCase().includes('memory') ||
-        e.message.toLowerCase().includes('resource')
+        e.message.toLowerCase().includes('resource'),
     );
     if (resourceErrors.length > 3) {
       issues.push({
@@ -578,7 +578,7 @@ export class ProxyDiagnosticsService {
     const cutoffTime = Date.now() - this.logRetentionMs;
 
     const filteredLogs = logs.filter(
-      (log) => new Date(log.timestamp).getTime() > cutoffTime
+      (log) => new Date(log.timestamp).getTime() > cutoffTime,
     );
 
     if (filteredLogs.length < logs.length) {

@@ -32,7 +32,7 @@ export function createRequestQueuingMiddleware(options = {}) {
     // Get rate limit info from response headers (set by rate limiter)
     const rateLimitLimit = parseInt(req.get('X-RateLimit-Limit') || '100');
     const rateLimitRemaining = parseInt(
-      req.get('X-RateLimit-Remaining') || rateLimitLimit
+      req.get('X-RateLimit-Remaining') || rateLimitLimit,
     );
 
     // Check if we should queue this request
@@ -69,7 +69,7 @@ export function createRequestQueuingMiddleware(options = {}) {
           identifier,
           method: req.method,
           path: req.path,
-        }
+        },
       );
 
       return res.status(429).json({
@@ -98,7 +98,7 @@ export function createRequestQueuingMiddleware(options = {}) {
           queuedDuration: result.queuedDuration,
           method: req.method,
           path: req.path,
-        }
+        },
       );
 
       // Add queue info to response headers
@@ -115,7 +115,7 @@ export function createRequestQueuingMiddleware(options = {}) {
           error: error.message,
           method: req.method,
           path: req.path,
-        }
+        },
       );
 
       if (error.message === 'QUEUE_TIMEOUT') {

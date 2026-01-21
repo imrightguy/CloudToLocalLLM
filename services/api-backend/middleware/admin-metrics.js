@@ -446,7 +446,7 @@ export function trackAuthAttempt(result, reason = '') {
 export function updateDbPoolMetrics(
   poolSize,
   idleConnections,
-  waitingRequests
+  waitingRequests,
 ) {
   adminDbPoolSize.set(poolSize);
   adminDbPoolIdleConnections.set(idleConnections);

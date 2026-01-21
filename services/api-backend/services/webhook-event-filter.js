@@ -72,7 +72,7 @@ export class WebhookEventFilter {
           const pattern = filterConfig.eventPatterns[i];
           if (typeof pattern !== 'string' || pattern.trim().length === 0) {
             errors.push(
-              `Event pattern at index ${i} must be a non-empty string`
+              `Event pattern at index ${i} must be a non-empty string`,
             );
           }
           // Validate pattern format (simple validation)
@@ -92,11 +92,11 @@ export class WebhookEventFilter {
         errors.push('Property filters must be an object');
       } else {
         for (const [key, value] of Object.entries(
-          filterConfig.propertyFilters
+          filterConfig.propertyFilters,
         )) {
           if (!this._isValidPropertyFilter(value)) {
             errors.push(
-              `Invalid property filter for "${key}": ${JSON.stringify(value)}`
+              `Invalid property filter for "${key}": ${JSON.stringify(value)}`,
             );
           }
         }
@@ -205,14 +205,14 @@ export class WebhookEventFilter {
       const validation = this.validateFilterConfig(filterConfig);
       if (!validation.isValid) {
         throw new Error(
-          `Invalid filter configuration: ${validation.errors.join(', ')}`
+          `Invalid filter configuration: ${validation.errors.join(', ')}`,
         );
       }
 
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT id FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (webhookResult.rows.length === 0) {
@@ -225,7 +225,7 @@ export class WebhookEventFilter {
         `INSERT INTO webhook_event_filters (id, webhook_id, user_id, filter_config, is_active)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
-        [filterId, webhookId, userId, JSON.stringify(filterConfig), true]
+        [filterId, webhookId, userId, JSON.stringify(filterConfig), true],
       );
 
       await client.query('COMMIT');
@@ -261,7 +261,7 @@ export class WebhookEventFilter {
     try {
       const result = await this.pool.query(
         'SELECT * FROM webhook_event_filters WHERE webhook_id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (result.rows.length === 0) {
@@ -296,14 +296,14 @@ export class WebhookEventFilter {
       const validation = this.validateFilterConfig(filterConfig);
       if (!validation.isValid) {
         throw new Error(
-          `Invalid filter configuration: ${validation.errors.join(', ')}`
+          `Invalid filter configuration: ${validation.errors.join(', ')}`,
         );
       }
 
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT id FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (webhookResult.rows.length === 0) {
@@ -316,7 +316,7 @@ export class WebhookEventFilter {
          SET filter_config = $1, updated_at = NOW()
          WHERE webhook_id = $2 AND user_id = $3
          RETURNING *`,
-        [JSON.stringify(filterConfig), webhookId, userId]
+        [JSON.stringify(filterConfig), webhookId, userId],
       );
 
       await client.query('COMMIT');
@@ -351,7 +351,7 @@ export class WebhookEventFilter {
     try {
       const result = await this.pool.query(
         'DELETE FROM webhook_event_filters WHERE webhook_id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (result.rowCount === 0) {
@@ -393,7 +393,7 @@ export class WebhookEventFilter {
     if (filterConfig.eventPatterns && filterConfig.eventPatterns.length > 0) {
       const eventMatches = this._matchesEventPattern(
         event.type,
-        filterConfig.eventPatterns
+        filterConfig.eventPatterns,
       );
 
       if (filterType === 'include' && !eventMatches) {
@@ -408,7 +408,7 @@ export class WebhookEventFilter {
     // Check property filters
     if (filterConfig.propertyFilters) {
       for (const [key, filter] of Object.entries(
-        filterConfig.propertyFilters
+        filterConfig.propertyFilters,
       )) {
         const value = this._getNestedProperty(event, key);
 

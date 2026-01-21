@@ -99,7 +99,7 @@ router.post('/:proxyId/webhooks', authenticateJWT, async (req, res) => {
       userId,
       proxyId,
       url,
-      events
+      events,
     );
 
     logger.info('[ProxyWebhookRoutes] Webhook registered', {
@@ -286,7 +286,7 @@ router.get(
         message: 'Failed to retrieve webhook',
       });
     }
-  }
+  },
 );
 
 /**
@@ -335,7 +335,7 @@ router.put(
       const webhook = await webhookService.updateWebhook(
         webhookId,
         userId,
-        updateData
+        updateData,
       );
 
       logger.info('[ProxyWebhookRoutes] Webhook updated', {
@@ -377,7 +377,7 @@ router.put(
         message: 'Failed to update webhook',
       });
     }
-  }
+  },
 );
 
 /**
@@ -448,7 +448,7 @@ router.delete(
         message: 'Failed to delete webhook',
       });
     }
-  }
+  },
 );
 
 /**
@@ -495,7 +495,7 @@ router.get(
       const deliveries = await webhookService.getDeliveryHistory(
         webhookId,
         userId,
-        { limit, offset }
+        { limit, offset },
       );
 
       logger.debug('[ProxyWebhookRoutes] Delivery history retrieved', {
@@ -534,7 +534,7 @@ router.get(
         message: 'Failed to retrieve delivery history',
       });
     }
-  }
+  },
 );
 
 /**
@@ -604,7 +604,7 @@ router.get(
         message: 'Failed to retrieve delivery status',
       });
     }
-  }
+  },
 );
 
 export default router;

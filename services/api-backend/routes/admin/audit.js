@@ -52,7 +52,7 @@ router.get(
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.min(
         200,
-        Math.max(1, parseInt(req.query.limit) || 100)
+        Math.max(1, parseInt(req.query.limit) || 100),
       );
       const offset = (page - 1) * limit;
       const adminUserId = req.query.adminUserId?.trim();
@@ -219,7 +219,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;
@@ -352,7 +352,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -538,7 +538,7 @@ router.get(
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="${filename}"`
+        `attachment; filename="${filename}"`,
       );
       res.setHeader('Content-Length', Buffer.byteLength(csvContent));
 
@@ -571,7 +571,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**

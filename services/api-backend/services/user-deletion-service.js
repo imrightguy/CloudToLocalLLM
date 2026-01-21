@@ -117,28 +117,28 @@ export class UserDeletionService {
         // Delete user sessions
         const sessionsResult = await client.query(
           'DELETE FROM user_sessions WHERE user_id = $1',
-          [userUuid]
+          [userUuid],
         );
         cleanupStats.sessionsDeleted = sessionsResult.rowCount;
 
         // Delete tunnel connections
         const tunnelsResult = await client.query(
           'DELETE FROM tunnel_connections WHERE user_id = $1',
-          [userId]
+          [userId],
         );
         cleanupStats.tunnelsDeleted = tunnelsResult.rowCount;
 
         // Delete audit logs
         const auditResult = await client.query(
           'DELETE FROM audit_logs WHERE user_id = $1',
-          [userId]
+          [userId],
         );
         cleanupStats.auditLogsDeleted = auditResult.rowCount;
 
         // Delete API usage records
         const apiUsageResult = await client.query(
           'DELETE FROM api_usage WHERE user_id = $1',
-          [userId]
+          [userId],
         );
         cleanupStats.apiUsageDeleted = apiUsageResult.rowCount;
 
@@ -148,28 +148,28 @@ export class UserDeletionService {
            WHERE conversation_id IN (
              SELECT id FROM conversations WHERE user_id = $1
            )`,
-          [userId]
+          [userId],
         );
         cleanupStats.messagesDeleted = messagesResult.rowCount;
 
         // Delete conversations
         const conversationsResult = await client.query(
           'DELETE FROM conversations WHERE user_id = $1',
-          [userId]
+          [userId],
         );
         cleanupStats.conversationsDeleted = conversationsResult.rowCount;
 
         // Delete user preferences
         const preferencesResult = await client.query(
           'DELETE FROM user_preferences WHERE user_id = $1',
-          [userUuid]
+          [userUuid],
         );
         cleanupStats.preferencesDeleted = preferencesResult.rowCount;
 
         // Delete user
         const deleteResult = await client.query(
           'DELETE FROM users WHERE id = $1',
-          [userUuid]
+          [userUuid],
         );
         cleanupStats.userDeleted = deleteResult.rowCount > 0;
 
@@ -276,7 +276,7 @@ export class UserDeletionService {
         {
           userId,
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -369,25 +369,25 @@ export class UserDeletionService {
       // Delete all related data
       const sessionsResult = await client.query(
         'DELETE FROM user_sessions WHERE user_id = $1',
-        [userUuid]
+        [userUuid],
       );
       cleanupStats.sessionsDeleted = sessionsResult.rowCount;
 
       const tunnelsResult = await client.query(
         'DELETE FROM tunnel_connections WHERE user_id = $1',
-        [userId]
+        [userId],
       );
       cleanupStats.tunnelsDeleted = tunnelsResult.rowCount;
 
       const auditResult = await client.query(
         'DELETE FROM audit_logs WHERE user_id = $1',
-        [userId]
+        [userId],
       );
       cleanupStats.auditLogsDeleted = auditResult.rowCount;
 
       const apiUsageResult = await client.query(
         'DELETE FROM api_usage WHERE user_id = $1',
-        [userId]
+        [userId],
       );
       cleanupStats.apiUsageDeleted = apiUsageResult.rowCount;
 
@@ -396,26 +396,26 @@ export class UserDeletionService {
          WHERE conversation_id IN (
            SELECT id FROM conversations WHERE user_id = $1
          )`,
-        [userId]
+        [userId],
       );
       cleanupStats.messagesDeleted = messagesResult.rowCount;
 
       const conversationsResult = await client.query(
         'DELETE FROM conversations WHERE user_id = $1',
-        [userId]
+        [userId],
       );
       cleanupStats.conversationsDeleted = conversationsResult.rowCount;
 
       const preferencesResult = await client.query(
         'DELETE FROM user_preferences WHERE user_id = $1',
-        [userUuid]
+        [userUuid],
       );
       cleanupStats.preferencesDeleted = preferencesResult.rowCount;
 
       // Delete user
       const deleteResult = await client.query(
         'DELETE FROM users WHERE id = $1',
-        [userUuid]
+        [userUuid],
       );
       cleanupStats.userDeleted = deleteResult.rowCount > 0;
 

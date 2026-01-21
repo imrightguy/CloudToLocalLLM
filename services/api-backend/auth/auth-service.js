@@ -67,7 +67,7 @@ export class AuthService {
       this.initialized = true;
 
       this.logger.info(
-        'Authentication service initialized (Auth0 RS256/ES256)'
+        'Authentication service initialized (Auth0 RS256/ES256)',
       );
 
       // Start session cleanup
@@ -147,7 +147,7 @@ export class AuthService {
       const session = await this.runQuery(
         'SELECT is_active FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
         [userId, tokenHash],
-        'get'
+        'get',
       );
 
       if (session) {
@@ -208,14 +208,14 @@ export class AuthService {
                 if (!audMatch) {
                   reject(
                     new Error(
-                      `Invalid audience: expected ${expectedAudience}, got ${aud}`
-                    )
+                      `Invalid audience: expected ${expectedAudience}, got ${aud}`,
+                    ),
                   );
                 } else {
                   resolve(decodedToken);
                 }
               }
-            }
+            },
           );
         });
 
@@ -274,7 +274,7 @@ export class AuthService {
             } else {
               resolve(decodedToken);
             }
-          }
+          },
         );
       });
 
@@ -302,7 +302,7 @@ export class AuthService {
       const existingUser = await this.runQuery(
         'SELECT id FROM users WHERE jwt_id = ?',
         [auth0Id],
-        'get'
+        'get',
       );
 
       if (existingUser) {
@@ -314,7 +314,7 @@ export class AuthService {
       const existingByEmail = await this.runQuery(
         'SELECT id FROM users WHERE email = ?',
         [userEmail],
-        'get'
+        'get',
       );
 
       if (existingByEmail) {
@@ -342,7 +342,7 @@ export class AuthService {
             userInfo.locale,
             existingByEmail.id,
           ],
-          'run'
+          'run',
         );
         return existingByEmail.id;
       }
@@ -362,7 +362,7 @@ export class AuthService {
           userInfo.email_verified || false,
           userInfo.locale,
         ],
-        'run'
+        'run',
       );
 
       if (newUser && newUser.rows && newUser.rows.length > 0) {
@@ -397,14 +397,14 @@ export class AuthService {
       const existingSession = await this.runQuery(
         'SELECT * FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
         [userId, tokenHash],
-        'get'
+        'get',
       );
 
       if (existingSession) {
         await this.runQuery(
           'UPDATE user_sessions SET last_activity = NOW(), expires_at = ? WHERE id = ?',
           [expiresAt, existingSession.id],
-          'run'
+          'run',
         );
         return existingSession;
       }
@@ -417,13 +417,13 @@ export class AuthService {
         'INSERT INTO user_sessions (user_id, jwt_token_hash, expires_at, ip_address, user_agent, session_token)' +
           'VALUES (?, ?, ?, ?, ?, ?)',
         [userId, tokenHash, expiresAt, ip, userAgent, this.generateSessionId()],
-        'run'
+        'run',
       );
 
       const session = await this.runQuery(
         'SELECT * FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
         [userId, tokenHash],
-        'get'
+        'get',
       );
 
       if (!session) {
@@ -443,7 +443,7 @@ export class AuthService {
         const existingSession = await this.runQuery(
           'SELECT * FROM user_sessions WHERE user_id = ? AND jwt_token_hash = ?',
           [userId, tokenHash],
-          'get'
+          'get',
         );
         if (existingSession) {
           return existingSession;
@@ -460,7 +460,7 @@ export class AuthService {
           `
          WHERE id = ? AND is_active = true AND expires_at > NOW()`,
         [sessionId],
-        'get'
+        'get',
       );
       return result || null;
     } catch {
@@ -473,14 +473,14 @@ export class AuthService {
       const session = await this.runQuery(
         'SELECT user_id FROM user_sessions WHERE id = ?',
         [sessionId],
-        'get'
+        'get',
       );
 
       if (session) {
         await this.runQuery(
           'UPDATE user_sessions SET is_active = false WHERE id = ?',
           [sessionId],
-          'run'
+          'run',
         );
         await this.logAuditEvent('session_invalidated', 'authentication', {
           userId: session.user_id,
@@ -500,7 +500,7 @@ export class AuthService {
       const countResult = await this.runQuery(
         'SELECT COUNT(*) as count FROM user_sessions WHERE user_id = ? AND is_active = true',
         [userId],
-        'get'
+        'get',
       );
 
       const activeCount = parseInt(countResult.count);
@@ -516,7 +516,7 @@ export class AuthService {
         await this.runQuery(
           `UPDATE user_sessions SET is_active = false WHERE id IN (${subQuery})`,
           [userId, sessionsToRemove],
-          'run'
+          'run',
         );
       }
     } catch (error) {
@@ -555,7 +555,7 @@ export class AuthService {
           metadata.ip || null,
           metadata.userAgent || null,
         ],
-        'run'
+        'run',
       );
     } catch (error) {
       this.logger.error(`Failed to log audit event: ${error.message}`);
@@ -584,7 +584,7 @@ export class AuthService {
           const result = await this.runQuery(
             'UPDATE user_sessions SET is_active = false WHERE expires_at < NOW() AND is_active = true',
             [],
-            'run'
+            'run',
           );
           if (result.changes > 0) {
             this.logger.info('Cleaned up expired sessions', {
@@ -595,7 +595,7 @@ export class AuthService {
           this.logger.error('Session cleanup failed', { error: error.message });
         }
       },
-      15 * 60 * 1000
+      15 * 60 * 1000,
     );
   }
 
@@ -604,28 +604,28 @@ export class AuthService {
       const activeSessions = await this.runQuery(
         'SELECT COUNT(*) as count FROM user_sessions WHERE is_active = true',
         [],
-        'get'
+        'get',
       );
       const validSessions = await this.runQuery(
         'SELECT COUNT(*) as count FROM user_sessions WHERE expires_at > NOW()',
         [],
-        'get'
+        'get',
       );
       const activeUsers = await this.runQuery(
         'SELECT COUNT(DISTINCT user_id) as count FROM user_sessions WHERE is_active = true',
         [],
-        'get'
+        'get',
       );
       const interval = "NOW() - INTERVAL '24 HOURS'";
       const authEvents = await this.runQuery(
         `SELECT COUNT(*) as count FROM audit_logs WHERE resource_type = 'authentication' AND created_at > ${interval}`,
         [],
-        'get'
+        'get',
       );
       const securityEvents = await this.runQuery(
         `SELECT COUNT(*) as count FROM audit_logs WHERE resource_type = 'security' AND created_at > ${interval}`,
         [],
-        'get'
+        'get',
       );
 
       return {

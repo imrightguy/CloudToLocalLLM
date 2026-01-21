@@ -163,7 +163,7 @@ router.post('/', authenticateJWT, async (req, res) => {
       userId,
       { name, config, endpoints },
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelRoutes] Tunnel created', {
@@ -388,7 +388,7 @@ router.put('/:id', authenticateJWT, async (req, res) => {
       userId,
       updateData,
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelRoutes] Tunnel updated', {
@@ -542,7 +542,7 @@ router.post('/:id/start', authenticateJWT, async (req, res) => {
       userId,
       'connecting',
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelRoutes] Tunnel started', {
@@ -619,7 +619,7 @@ router.post('/:id/stop', authenticateJWT, async (req, res) => {
       userId,
       'disconnected',
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelRoutes] Tunnel stopped', {
@@ -938,7 +938,7 @@ router.put('/:id/config', authenticateJWT, async (req, res) => {
       userId,
       configUpdate,
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelRoutes] Tunnel config updated', {
@@ -1013,7 +1013,7 @@ router.post('/:id/config/reset', authenticateJWT, async (req, res) => {
       tunnelId,
       userId,
       ipAddress,
-      userAgent
+      userAgent,
     );
 
     logger.info('[TunnelRoutes] Tunnel config reset', {

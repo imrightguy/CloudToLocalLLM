@@ -71,10 +71,10 @@ async function testAuthFlow() {
       // Decode token to show info (without verification)
       const decoded = jwt.decode(TEST_TOKEN);
       console.log(
-        `   Token User: ${decoded?.email || decoded?.sub || 'Unknown'}`
+        `   Token User: ${decoded?.email || decoded?.sub || 'Unknown'}`,
       );
       console.log(
-        `   Token Expires: ${new Date(decoded?.exp * 1000).toISOString()}`
+        `   Token Expires: ${new Date(decoded?.exp * 1000).toISOString()}`,
       );
 
       const response = await fetch(`${SERVICE_URL}/ollama/bridge/status`, {
@@ -106,7 +106,7 @@ async function testAuthFlow() {
   } else {
     console.log('\n  Test 3: Skipped (no TEST_TOKEN provided)');
     console.log(
-      '   To test authenticated requests, set TEST_TOKEN environment variable'
+      '   To test authenticated requests, set TEST_TOKEN environment variable',
     );
     console.log('   with a valid JWT JWT token');
   }
@@ -126,16 +126,16 @@ async function testAuthFlow() {
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': response.headers.get(
-        'Access-Control-Allow-Origin'
+        'Access-Control-Allow-Origin',
       ),
       'Access-Control-Allow-Methods': response.headers.get(
-        'Access-Control-Allow-Methods'
+        'Access-Control-Allow-Methods',
       ),
       'Access-Control-Allow-Headers': response.headers.get(
-        'Access-Control-Allow-Headers'
+        'Access-Control-Allow-Headers',
       ),
       'Access-Control-Allow-Credentials': response.headers.get(
-        'Access-Control-Allow-Credentials'
+        'Access-Control-Allow-Credentials',
       ),
     };
 
@@ -166,7 +166,7 @@ async function testAuthFlow() {
         fetch(`${SERVICE_URL}/api/db/health`).then((r) => ({
           index: i,
           status: r.status,
-        }))
+        })),
       );
 
     const results = await Promise.all(promises);
@@ -176,7 +176,7 @@ async function testAuthFlow() {
     console.log(`    ${successful} requests successful`);
     if (rateLimited > 0) {
       console.log(
-        `     ${rateLimited} requests rate limited (this is expected behavior)`
+        `     ${rateLimited} requests rate limited (this is expected behavior)`,
       );
     }
   } catch (error) {

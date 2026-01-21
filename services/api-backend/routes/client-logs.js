@@ -15,7 +15,7 @@ async function ensureLogDirectory() {
     if (logDir !== '/tmp/logs') {
       console.warn(
         `[ClientLogs] Failed to access configured log directory ${logDir}, falling back to /tmp/logs`,
-        error.message
+        error.message,
       );
       logDir = '/tmp/logs';
       logFilePath = path.join(logDir, logFileName);

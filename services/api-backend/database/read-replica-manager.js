@@ -83,14 +83,14 @@ export class ReadReplicaManager {
       }
 
       logger.info(
-        '✅ [Read Replica] Read replica manager initialized successfully'
+        '✅ [Read Replica] Read replica manager initialized successfully',
       );
     } catch (error) {
       logger.error(
         '🔴 [Read Replica] Failed to initialize read replica manager',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -146,7 +146,7 @@ export class ReadReplicaManager {
     if (healthyReplicas.length === 0) {
       // No healthy replicas - use primary
       logger.warn(
-        '⚠️ [Read Replica] No healthy replicas available, using primary'
+        '⚠️ [Read Replica] No healthy replicas available, using primary',
       );
       this.metrics.replicaFailovers++;
       return this.primaryPool;
@@ -181,7 +181,7 @@ export class ReadReplicaManager {
           '⚠️ [Read Replica] Read query failed on replica, retrying on primary',
           {
             error: error.message,
-          }
+          },
         );
 
         try {
@@ -192,7 +192,7 @@ export class ReadReplicaManager {
             '🔴 [Read Replica] Query failed on both replica and primary',
             {
               error: primaryError.message,
-            }
+            },
           );
           throw primaryError;
         }
@@ -248,7 +248,7 @@ export class ReadReplicaManager {
   startHealthChecks() {
     const interval = parseInt(
       process.env.REPLICA_HEALTH_CHECK_INTERVAL || '30000',
-      10
+      10,
     );
 
     this.healthCheckInterval = setInterval(async () => {
@@ -408,7 +408,7 @@ let replicaManager = null;
  */
 export async function initializeReadReplicaManager(
   primaryConfig,
-  replicaConfigs = []
+  replicaConfigs = [],
 ) {
   if (replicaManager) {
     return replicaManager;

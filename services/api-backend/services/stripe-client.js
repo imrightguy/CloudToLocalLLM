@@ -35,7 +35,7 @@ class StripeClient {
         ? 'STRIPE_SECRET_KEY_PROD'
         : 'STRIPE_SECRET_KEY_TEST';
       throw new Error(
-        `Stripe API key not configured. Please set ${envVar} environment variable.`
+        `Stripe API key not configured. Please set ${envVar} environment variable.`,
       );
     }
 

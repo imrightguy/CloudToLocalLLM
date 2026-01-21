@@ -112,7 +112,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
             ip: req.ip,
             userAgent: req.get('User-Agent'),
             requestId,
-          }
+          },
         );
 
         return res.status(403).json({
@@ -227,8 +227,8 @@ export function createDirectProxyRoutes(tunnelProxy) {
         new Promise((_, reject) =>
           setTimeout(
             () => reject(new Error('Request timeout')),
-            REQUEST_TIMEOUT
-          )
+            REQUEST_TIMEOUT,
+          ),
         ),
       ]);
 

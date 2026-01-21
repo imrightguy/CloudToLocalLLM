@@ -161,7 +161,7 @@ export function hasPermission(userRoles, requiredPermissions) {
 
   // Get all permissions for user's roles
   const userPermissions = userRoles.flatMap(
-    (role) => ROLE_PERMISSIONS[role] || []
+    (role) => ROLE_PERMISSIONS[role] || [],
   );
 
   // Check for super admin wildcard
@@ -189,7 +189,7 @@ export function hasAnyPermission(userRoles, requiredPermissions) {
     : [requiredPermissions];
 
   const userPermissions = userRoles.flatMap(
-    (role) => ROLE_PERMISSIONS[role] || []
+    (role) => ROLE_PERMISSIONS[role] || [],
   );
 
   // Check for super admin wildcard
@@ -429,7 +429,7 @@ export function requireRole(requiredRoles, options = {}) {
 export function requireAdmin() {
   return requireRole(
     [ROLES.SUPER_ADMIN, ROLES.SUPPORT_ADMIN, ROLES.FINANCE_ADMIN],
-    { requireAll: false }
+    { requireAll: false },
   );
 }
 

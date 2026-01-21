@@ -70,7 +70,7 @@ export function getUserTier(user) {
   // Input validation
   if (!user || typeof user !== 'object') {
     logger.debug(
-      ' [TierCheck] No user object provided, defaulting to free tier'
+      ' [TierCheck] No user object provided, defaulting to free tier',
     );
     return USER_TIERS.FREE;
   }
@@ -82,7 +82,7 @@ export function getUserTier(user) {
       {
         userObject: typeof user,
         hasSub: !!user.sub,
-      }
+      },
     );
     return USER_TIERS.FREE;
   }
@@ -132,7 +132,7 @@ export function getUserTier(user) {
         ' [TierCheck] No tier information found, defaulting to free',
         {
           userId: user.sub,
-        }
+        },
       );
       return USER_TIERS.FREE;
     }
@@ -160,7 +160,7 @@ export function getUserTier(user) {
         userId: user.sub,
         error: error.message,
         stack: error.stack,
-      }
+      },
     );
     return USER_TIERS.FREE;
   }
@@ -191,7 +191,7 @@ export function getTierFeatures(tier) {
       {
         requestedTier: tier,
         normalizedTier: normalizedTier,
-      }
+      },
     );
     return TIER_FEATURES[USER_TIERS.FREE];
   }
@@ -252,14 +252,14 @@ export function requireTier(requiredTier) {
   // Validate required tier at middleware creation time
   if (!requiredTier || typeof requiredTier !== 'string') {
     throw new Error(
-      `Invalid requiredTier provided to requireTier middleware: ${requiredTier}`
+      `Invalid requiredTier provided to requireTier middleware: ${requiredTier}`,
     );
   }
 
   const normalizedRequiredTier = requiredTier.toLowerCase().trim();
   if (!Object.values(USER_TIERS).includes(normalizedRequiredTier)) {
     throw new Error(
-      `Unknown tier provided to requireTier middleware: ${requiredTier}`
+      `Unknown tier provided to requireTier middleware: ${requiredTier}`,
     );
   }
 

@@ -79,10 +79,10 @@ class SubscriptionService {
         tier,
         status: this._mapSubscriptionStatus(stripeSubscription.status),
         currentPeriodStart: new Date(
-          stripeSubscription.current_period_start * 1000
+          stripeSubscription.current_period_start * 1000,
         ),
         currentPeriodEnd: new Date(
-          stripeSubscription.current_period_end * 1000
+          stripeSubscription.current_period_end * 1000,
         ),
         cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
         canceledAt: stripeSubscription.canceled_at
@@ -164,7 +164,7 @@ class SubscriptionService {
       if (updates.priceId) {
         // Get current subscription items
         const stripeSubscription = await this.stripe.subscriptions.retrieve(
-          existingSubscription.stripe_subscription_id
+          existingSubscription.stripe_subscription_id,
         );
 
         stripeUpdates.items = [
@@ -182,7 +182,7 @@ class SubscriptionService {
       // Update Stripe subscription
       const stripeSubscription = await this.stripe.subscriptions.update(
         existingSubscription.stripe_subscription_id,
-        stripeUpdates
+        stripeUpdates,
       );
 
       // Update database
@@ -267,13 +267,13 @@ class SubscriptionService {
       if (immediate) {
         // Cancel immediately
         stripeSubscription = await this.stripe.subscriptions.cancel(
-          existingSubscription.stripe_subscription_id
+          existingSubscription.stripe_subscription_id,
         );
       } else {
         // Cancel at period end
         stripeSubscription = await this.stripe.subscriptions.update(
           existingSubscription.stripe_subscription_id,
-          { cancel_at_period_end: true }
+          { cancel_at_period_end: true },
         );
       }
 
@@ -333,7 +333,7 @@ class SubscriptionService {
   async getSubscription(subscriptionId) {
     const result = await this.db.query(
       'SELECT * FROM subscriptions WHERE id = $1',
-      [subscriptionId]
+      [subscriptionId],
     );
 
     if (result.rows.length === 0) {
@@ -352,7 +352,7 @@ class SubscriptionService {
   async getUserSubscriptions(userId) {
     const result = await this.db.query(
       'SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY created_at DESC',
-      [userId]
+      [userId],
     );
 
     return result.rows;
@@ -413,7 +413,7 @@ class SubscriptionService {
     // Check if user already has a customer ID
     const userResult = await this.db.query(
       'SELECT email FROM users WHERE id = $1',
-      [userId]
+      [userId],
     );
 
     if (userResult.rows.length === 0) {
@@ -425,7 +425,7 @@ class SubscriptionService {
     // Check if customer already exists in subscriptions table
     const existingSubscription = await this.db.query(
       'SELECT stripe_customer_id FROM subscriptions WHERE user_id = $1 AND stripe_customer_id IS NOT NULL LIMIT 1',
-      [userId]
+      [userId],
     );
 
     if (existingSubscription.rows.length > 0) {
@@ -531,7 +531,7 @@ class SubscriptionService {
     // Find subscription in database by Stripe subscription ID
     const result = await this.db.query(
       'SELECT id FROM subscriptions WHERE stripe_subscription_id = $1',
-      [subscription.id]
+      [subscription.id],
     );
 
     if (result.rows.length > 0) {
@@ -556,7 +556,7 @@ class SubscriptionService {
             ? new Date(subscription.canceled_at * 1000)
             : null,
           subscriptionId,
-        ]
+        ],
       );
     }
   }
@@ -577,7 +577,7 @@ class SubscriptionService {
            canceled_at = NOW(),
            updated_at = NOW()
        WHERE stripe_subscription_id = $1`,
-      [subscription.id]
+      [subscription.id],
     );
   }
 

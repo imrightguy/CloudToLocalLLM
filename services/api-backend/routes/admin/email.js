@@ -52,7 +52,7 @@ function initializeServices(pool) {
     emailQueueService = new EmailQueueService(
       pool,
       googleWorkspaceService,
-      emailConfigService
+      emailConfigService,
     );
   }
 }
@@ -109,7 +109,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -230,7 +230,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -247,7 +247,7 @@ router.get(
       initializeServices(pool);
 
       const configs = await emailConfigService.getAllConfigurations(
-        req.adminUser.id
+        req.adminUser.id,
       );
 
       const sanitizedConfigs = configs.map((config) => ({
@@ -286,7 +286,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -350,7 +350,7 @@ router.delete(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -385,7 +385,7 @@ router.post(
       }
 
       const config = await googleWorkspaceService.getOAuthConfiguration(
-        req.adminUser.id
+        req.adminUser.id,
       );
 
       if (!config) {
@@ -480,7 +480,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -497,7 +497,7 @@ router.get(
       initializeServices(pool);
 
       const config = await googleWorkspaceService.getOAuthConfiguration(
-        req.adminUser.id
+        req.adminUser.id,
       );
 
       const status = {
@@ -534,7 +534,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -551,7 +551,7 @@ router.get(
       initializeServices(pool);
 
       const config = await googleWorkspaceService.getOAuthConfiguration(
-        req.adminUser.id
+        req.adminUser.id,
       );
 
       if (!config) {
@@ -562,7 +562,7 @@ router.get(
       }
 
       const quotaData = await googleWorkspaceService.getQuotaUsage(
-        req.adminUser.id
+        req.adminUser.id,
       );
 
       logger.info('✅ [AdminEmail] Gmail quota retrieved', {
@@ -596,7 +596,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -620,7 +620,7 @@ router.get(
         {
           limit,
           offset,
-        }
+        },
       );
 
       const countQuery = `
@@ -671,7 +671,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -787,7 +787,7 @@ router.post(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -909,7 +909,7 @@ router.put(
         details: {
           templateName: updateName,
           fieldsUpdated: Object.keys(req.body).filter(
-            (k) => req.body[k] !== undefined
+            (k) => req.body[k] !== undefined,
           ),
         },
         ipAddress: req.ip,
@@ -953,7 +953,7 @@ router.put(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -1034,7 +1034,7 @@ router.delete(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -1177,7 +1177,7 @@ router.get(
               successRate:
                 metrics.total_count > 0
                   ? ((metrics.sent_count / metrics.total_count) * 100).toFixed(
-                      2
+                      2,
                     )
                   : 0,
             },
@@ -1233,7 +1233,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -1310,7 +1310,7 @@ router.get(
 
       // Validate sort parameters
       const sortBy = ['created_at', 'sent_at', 'status'].includes(
-        req.query.sortBy
+        req.query.sortBy,
       )
         ? req.query.sortBy
         : 'created_at';
@@ -1432,7 +1432,7 @@ router.get(
         details: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;

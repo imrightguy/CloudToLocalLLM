@@ -45,7 +45,7 @@ export class TunnelWebhookService {
         '[TunnelWebhookService] Failed to initialize webhook service',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -64,7 +64,7 @@ export class TunnelWebhookService {
     userId,
     tunnelId,
     url,
-    events = ['tunnel.status_changed']
+    events = ['tunnel.status_changed'],
   ) {
     const client = await this.pool.connect();
     try {
@@ -102,7 +102,7 @@ export class TunnelWebhookService {
       if (tunnelId) {
         const tunnelResult = await client.query(
           'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-          [tunnelId, userId]
+          [tunnelId, userId],
         );
 
         if (tunnelResult.rows.length === 0) {
@@ -119,7 +119,7 @@ export class TunnelWebhookService {
         `INSERT INTO tunnel_webhooks (id, user_id, tunnel_id, url, events, secret)
          VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [webhookId, userId, tunnelId, url, events, secret]
+        [webhookId, userId, tunnelId, url, events, secret],
       );
 
       await client.query('COMMIT');
@@ -156,7 +156,7 @@ export class TunnelWebhookService {
     try {
       const result = await this.pool.query(
         'SELECT * FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (result.rows.length === 0) {
@@ -228,7 +228,7 @@ export class TunnelWebhookService {
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT * FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (webhookResult.rows.length === 0) {
@@ -314,7 +314,7 @@ export class TunnelWebhookService {
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT * FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (webhookResult.rows.length === 0) {
@@ -365,7 +365,7 @@ export class TunnelWebhookService {
          WHERE user_id = $1 AND is_active = true 
          AND (tunnel_id IS NULL OR tunnel_id = $2)
          AND $3 = ANY(events)`,
-        [userId, tunnelId, eventType]
+        [userId, tunnelId, eventType],
       );
 
       const webhooks = webhooksResult.rows;
@@ -375,7 +375,7 @@ export class TunnelWebhookService {
         await client.query(
           `INSERT INTO tunnel_webhook_events (webhook_id, tunnel_id, user_id, event_type, event_data)
            VALUES ($1, $2, $3, $4, $5)`,
-          [webhook.id, tunnelId, userId, eventType, JSON.stringify(eventData)]
+          [webhook.id, tunnelId, userId, eventType, JSON.stringify(eventData)],
         );
       }
 
@@ -388,14 +388,14 @@ export class TunnelWebhookService {
           tunnelId,
           userId,
           eventType,
-          eventData
+          eventData,
         ).catch((error) => {
           logger.error(
             '[TunnelWebhookService] Failed to queue webhook delivery',
             {
               webhookId: webhook.id,
               error: error.message,
-            }
+            },
           );
         });
       }
@@ -434,7 +434,7 @@ export class TunnelWebhookService {
     tunnelId,
     userId,
     eventType,
-    eventData
+    eventData,
   ) {
     const client = await this.pool.connect();
     try {
@@ -460,7 +460,7 @@ export class TunnelWebhookService {
           eventType,
           JSON.stringify(payload),
           'pending',
-        ]
+        ],
       );
 
       await client.query('COMMIT');
@@ -500,7 +500,7 @@ export class TunnelWebhookService {
         `SELECT d.*, w.url, w.secret FROM tunnel_webhook_deliveries d
          JOIN tunnel_webhooks w ON d.webhook_id = w.id
          WHERE d.id = $1`,
-        [deliveryId]
+        [deliveryId],
       );
 
       if (deliveryResult.rows.length === 0) {
@@ -524,7 +524,7 @@ export class TunnelWebhookService {
       if (delivery.attempt_count >= delivery.max_attempts) {
         await client.query(
           'UPDATE tunnel_webhook_deliveries SET status = $1, updated_at = NOW() WHERE id = $2',
-          ['failed', deliveryId]
+          ['failed', deliveryId],
         );
 
         logger.warn('[TunnelWebhookService] Max retries exceeded', {
@@ -565,7 +565,7 @@ export class TunnelWebhookService {
             `UPDATE tunnel_webhook_deliveries 
              SET status = $1, http_status_code = $2, delivered_at = NOW(), updated_at = NOW()
              WHERE id = $3`,
-            ['delivered', statusCode, deliveryId]
+            ['delivered', statusCode, deliveryId],
           );
 
           logger.info('[TunnelWebhookService] Webhook delivered successfully', {
@@ -579,7 +579,7 @@ export class TunnelWebhookService {
             deliveryId,
             delivery.attempt_count,
             statusCode,
-            'HTTP ' + statusCode
+            'HTTP ' + statusCode,
           );
         }
       } catch (error) {
@@ -588,7 +588,7 @@ export class TunnelWebhookService {
           deliveryId,
           delivery.attempt_count,
           null,
-          error.message
+          error.message,
         );
       }
     } catch (error) {
@@ -630,7 +630,7 @@ export class TunnelWebhookService {
           errorMessage,
           nextRetryAt,
           deliveryId,
-        ]
+        ],
       );
 
       logger.info('[TunnelWebhookService] Webhook retry scheduled', {
@@ -659,7 +659,7 @@ export class TunnelWebhookService {
     try {
       const result = await this.pool.query(
         'SELECT * FROM tunnel_webhook_deliveries WHERE id = $1',
-        [deliveryId]
+        [deliveryId],
       );
 
       if (result.rows.length === 0) {
@@ -689,7 +689,7 @@ export class TunnelWebhookService {
       // Verify webhook ownership
       const webhookResult = await this.pool.query(
         'SELECT id FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId]
+        [webhookId, userId],
       );
 
       if (webhookResult.rows.length === 0) {
@@ -701,7 +701,7 @@ export class TunnelWebhookService {
       const result = await this.pool.query(
         `SELECT * FROM tunnel_webhook_deliveries WHERE webhook_id = $1 
          ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-        [webhookId, limit, offset]
+        [webhookId, limit, offset],
       );
 
       return result.rows;
@@ -728,7 +728,7 @@ export class TunnelWebhookService {
          WHERE status IN ('pending', 'retrying') 
          AND (next_retry_at IS NULL OR next_retry_at <= NOW())
          AND attempt_count < max_attempts
-         LIMIT 100`
+         LIMIT 100`,
       );
 
       const deliveries = result.rows;

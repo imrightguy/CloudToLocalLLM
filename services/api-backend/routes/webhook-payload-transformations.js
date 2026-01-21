@@ -63,7 +63,7 @@ router.post(
       const result = await transformer.createTransformation(
         webhookId,
         userId,
-        transformConfig
+        transformConfig,
       );
 
       res.status(201).json({
@@ -75,7 +75,7 @@ router.post(
         '[WebhookTransformationRoutes] Failed to create transformation',
         {
           error: error.message,
-        }
+        },
       );
 
       res.status(500).json({
@@ -83,7 +83,7 @@ router.post(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -120,7 +120,7 @@ router.get(
         '[WebhookTransformationRoutes] Failed to get transformation',
         {
           error: error.message,
-        }
+        },
       );
 
       res.status(500).json({
@@ -128,7 +128,7 @@ router.get(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -162,7 +162,7 @@ router.put(
       const result = await transformer.updateTransformation(
         webhookId,
         userId,
-        transformConfig
+        transformConfig,
       );
 
       res.status(200).json({
@@ -174,7 +174,7 @@ router.put(
         '[WebhookTransformationRoutes] Failed to update transformation',
         {
           error: error.message,
-        }
+        },
       );
 
       res.status(500).json({
@@ -182,7 +182,7 @@ router.put(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -213,7 +213,7 @@ router.delete(
         '[WebhookTransformationRoutes] Failed to delete transformation',
         {
           error: error.message,
-        }
+        },
       );
 
       res.status(500).json({
@@ -221,7 +221,7 @@ router.delete(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -249,7 +249,7 @@ router.post(
         '[WebhookTransformationRoutes] Failed to validate transformation',
         {
           error: error.message,
-        }
+        },
       );
 
       res.status(500).json({
@@ -257,7 +257,7 @@ router.post(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 /**
@@ -297,7 +297,7 @@ router.post(
       // Apply transformation
       const transformedPayload = transformer.transformPayload(
         payload,
-        transformation
+        transformation,
       );
 
       res.status(200).json({
@@ -310,7 +310,7 @@ router.post(
         '[WebhookTransformationRoutes] Failed to test transformation',
         {
           error: error.message,
-        }
+        },
       );
 
       res.status(500).json({
@@ -318,7 +318,7 @@ router.post(
         message: error.message,
       });
     }
-  }
+  },
 );
 
 export default router;

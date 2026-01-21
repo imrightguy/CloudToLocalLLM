@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'proxy-metrics-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -80,7 +80,7 @@ router.post(
         proxyId,
         userId,
         eventType,
-        metrics
+        metrics,
       );
 
       logger.info('Proxy metrics event recorded', {
@@ -107,7 +107,7 @@ router.post(
         code: 'PROXY_METRICS_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -151,7 +151,7 @@ router.get(
       const metrics = await proxyMetricsService.getProxyMetricsDaily(
         proxyId,
         userId,
-        date
+        date,
       );
 
       logger.info('Proxy daily metrics retrieved', {
@@ -178,7 +178,7 @@ router.get(
         code: 'PROXY_METRICS_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -225,7 +225,7 @@ router.get(
         proxyId,
         userId,
         startDate,
-        endDate
+        endDate,
       );
 
       logger.info('Proxy daily metrics range retrieved', {
@@ -256,7 +256,7 @@ router.get(
         code: 'PROXY_METRICS_003',
       });
     }
-  }
+  },
 );
 
 /**
@@ -303,7 +303,7 @@ router.get(
         proxyId,
         userId,
         periodStart,
-        periodEnd
+        periodEnd,
       );
 
       logger.info('Proxy aggregated metrics retrieved', {
@@ -332,7 +332,7 @@ router.get(
         code: 'PROXY_METRICS_003',
       });
     }
-  }
+  },
 );
 
 export default router;

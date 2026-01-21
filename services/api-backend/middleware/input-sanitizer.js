@@ -28,7 +28,7 @@ export function sanitizeString(input) {
   // Remove any potential script tags
   sanitized = sanitized.replace(
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    ''
+    '',
   );
 
   // Remove any potential event handlers

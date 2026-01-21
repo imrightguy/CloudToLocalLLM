@@ -52,7 +52,7 @@ const poolConfig = {
   // Timeout settings (Requirement 17)
   connectionTimeoutMillis: parseInt(
     process.env.DB_POOL_CONNECT_TIMEOUT || '30000',
-    10
+    10,
   ), // 30 seconds
   idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE || '600000', 10), // 10 minutes
 
@@ -185,7 +185,7 @@ export function initializePool() {
   });
 
   logger.info(
-    '✅ [DB Pool] PostgreSQL connection pool initialized successfully'
+    '✅ [DB Pool] PostgreSQL connection pool initialized successfully',
   );
 
   return pool;

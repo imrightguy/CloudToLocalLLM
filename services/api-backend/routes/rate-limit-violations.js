@@ -66,7 +66,7 @@ router.get(
         code: 'VIOLATIONS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -117,7 +117,7 @@ router.get(
         code: 'VIOLATIONS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -161,7 +161,7 @@ router.get(
         code: 'STATS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -205,7 +205,7 @@ router.get(
         code: 'STATS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -248,7 +248,7 @@ router.get(
         code: 'TOP_VIOLATORS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -291,7 +291,7 @@ router.get(
         code: 'TOP_IPS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 /**
@@ -335,7 +335,7 @@ router.get(
         code: 'ENDPOINT_VIOLATIONS_RETRIEVAL_FAILED',
       });
     }
-  }
+  },
 );
 
 export default router;

@@ -13,14 +13,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: { service: 'sandbox-middleware' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -69,7 +69,7 @@ export const sandboxLoggingMiddleware = (req, res, next) => {
     });
 
     logger.debug(
-      `Sandbox request logged: ${req.method} ${req.path} (${responseTime}ms)`
+      `Sandbox request logged: ${req.method} ${req.path} (${responseTime}ms)`,
     );
 
     // Call original send
@@ -95,7 +95,7 @@ export const sandboxDataIsolationMiddleware = (req, res, next) => {
   res.set('X-Sandbox-Mode', 'true');
 
   logger.debug(
-    `Data isolation enabled for sandbox request: ${req.method} ${req.path}`
+    `Data isolation enabled for sandbox request: ${req.method} ${req.path}`,
   );
 
   next();
@@ -118,7 +118,7 @@ export const sandboxRateLimitMiddleware = (req, res, next) => {
   };
 
   logger.debug(
-    `Sandbox rate limits applied: ${config.rateLimits.requestsPerMinute} req/min`
+    `Sandbox rate limits applied: ${config.rateLimits.requestsPerMinute} req/min`,
   );
 
   next();

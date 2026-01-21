@@ -17,12 +17,12 @@ import { sendAlert } from '../services/alerting-service.js';
 // Monitoring configuration
 const HEALTH_CHECK_INTERVAL = parseInt(
   process.env.DB_HEALTH_CHECK_INTERVAL || '30000',
-  10
+  10,
 ); // 30 seconds
 const POOL_EXHAUSTION_THRESHOLD = 0.9; // Alert when 90% of pool is in use
 const METRICS_LOG_INTERVAL = parseInt(
   process.env.DB_METRICS_LOG_INTERVAL || '60000',
-  10
+  10,
 ); // 60 seconds
 
 let healthCheckTimer = null;
@@ -224,7 +224,7 @@ async function alertHealthCheckFailure(result) {
       responseTime: result.responseTime,
       timestamp: result.timestamp,
     },
-    'critical'
+    'critical',
   );
 }
 
@@ -258,7 +258,7 @@ async function alertPoolExhaustion(metrics, maxConnections, usageRatio) {
       waitingClients: metrics.waitingCount,
       idleConnections: metrics.idleCount,
     },
-    'critical'
+    'critical',
   );
 }
 

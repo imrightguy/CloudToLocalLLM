@@ -38,7 +38,7 @@ export class ProxyMetricsService {
         '[ProxyMetricsService] Failed to initialize proxy metrics service',
         {
           error: error.message,
-        }
+        },
       );
       throw error;
     }
@@ -59,7 +59,7 @@ export class ProxyMetricsService {
 
       if (!validEventTypes.includes(eventType)) {
         throw new Error(
-          `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`
+          `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`,
         );
       }
 
@@ -85,7 +85,7 @@ export class ProxyMetricsService {
           metrics.connectionCount || 0,
           metrics.concurrentConnections || 0,
           metrics.errorMessage || null,
-        ]
+        ],
       );
 
       logger.debug('[ProxyMetricsService] Metrics event recorded', {
@@ -119,7 +119,7 @@ export class ProxyMetricsService {
       // Verify proxy ownership
       const proxyResult = await this.pool.query(
         'SELECT id FROM proxy_health_status WHERE proxy_id = $1 AND user_id = $2',
-        [proxyId, userId]
+        [proxyId, userId],
       );
 
       if (proxyResult.rows.length === 0) {
@@ -128,7 +128,7 @@ export class ProxyMetricsService {
 
       const result = await this.pool.query(
         'SELECT * FROM proxy_metrics_daily WHERE proxy_id = $1 AND date = $2',
-        [proxyId, date]
+        [proxyId, date],
       );
 
       if (result.rows.length === 0) {
@@ -194,7 +194,7 @@ export class ProxyMetricsService {
       // Verify proxy ownership
       const proxyResult = await this.pool.query(
         'SELECT id FROM proxy_health_status WHERE proxy_id = $1 AND user_id = $2',
-        [proxyId, userId]
+        [proxyId, userId],
       );
 
       if (proxyResult.rows.length === 0) {
@@ -205,7 +205,7 @@ export class ProxyMetricsService {
         `SELECT * FROM proxy_metrics_daily 
          WHERE proxy_id = $1 AND date >= $2 AND date <= $3
          ORDER BY date ASC`,
-        [proxyId, startDate, endDate]
+        [proxyId, startDate, endDate],
       );
 
       return result.rows.map((metrics) => ({
@@ -251,7 +251,7 @@ export class ProxyMetricsService {
       // Verify proxy ownership
       const proxyResult = await this.pool.query(
         'SELECT id FROM proxy_health_status WHERE proxy_id = $1 AND user_id = $2',
-        [proxyId, userId]
+        [proxyId, userId],
       );
 
       if (proxyResult.rows.length === 0) {
@@ -261,7 +261,7 @@ export class ProxyMetricsService {
       const result = await this.pool.query(
         `SELECT * FROM proxy_metrics_aggregation 
          WHERE proxy_id = $1 AND period_start = $2 AND period_end = $3`,
-        [proxyId, periodStart, periodEnd]
+        [proxyId, periodStart, periodEnd],
       );
 
       if (result.rows.length === 0) {
@@ -348,7 +348,7 @@ export class ProxyMetricsService {
            AVG(uptime_percentage) as average_uptime_percentage
          FROM proxy_metrics_daily 
          WHERE proxy_id = $1 AND date >= $2 AND date <= $3`,
-        [proxyId, periodStart, periodEnd]
+        [proxyId, periodStart, periodEnd],
       );
 
       const aggregateData = aggregateResult.rows[0];
@@ -396,7 +396,7 @@ export class ProxyMetricsService {
           aggregateData.peak_concurrent_connections || 0,
           aggregateData.average_concurrent_connections || 0,
           aggregateData.average_uptime_percentage || 100,
-        ]
+        ],
       );
 
       await client.query('COMMIT');
