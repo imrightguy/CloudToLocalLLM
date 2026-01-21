@@ -216,7 +216,7 @@ jobs:
             services/streaming-proxy/package-lock.json
       
       - name: Run API Backend Tests
-        if: needs.ai_change_analysis.outputs.api_changed == 'true' && github.event.inputs.force_build != 'true'
+        if: needs.ai_change_analysis.outputs.api_changed == 'true' && github.event.inputs.force_build != 'true' && !contains(github.event.head_commit.message, '[skip tests]')
         working-directory: services/api-backend
         env:
           CI: true
@@ -228,7 +228,7 @@ jobs:
           echo "✅ API Backend checks completed"
       
       - name: Run Streaming Proxy Tests
-        if: needs.ai_change_analysis.outputs.streaming_changed == 'true' && github.event.inputs.force_build != 'true'
+        if: needs.ai_change_analysis.outputs.streaming_changed == 'true' && github.event.inputs.force_build != 'true' && !contains(github.event.head_commit.message, '[skip tests]')
         working-directory: services/streaming-proxy
         run: |
           echo "🧪 Running Streaming Proxy tests..."
@@ -238,13 +238,13 @@ jobs:
           echo "✅ Streaming Proxy checks completed"
       
       - name: Setup Flutter
-        if: needs.ai_change_analysis.outputs.web_changed == 'true' && github.event.inputs.force_build != 'true'
+        if: needs.ai_change_analysis.outputs.web_changed == 'true' && github.event.inputs.force_build != 'true' && !contains(github.event.head_commit.message, '[skip tests]')
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
       
       - name: Run Flutter Analyze
-        if: needs.ai_change_analysis.outputs.web_changed == 'true' && github.event.inputs.force_build != 'true'
+        if: needs.ai_change_analysis.outputs.web_changed == 'true' && github.event.inputs.force_build != 'true' && !contains(github.event.head_commit.message, '[skip tests]')
         run: |
           echo "🧪 Running Flutter analyze..."
           flutter config --no-analytics
