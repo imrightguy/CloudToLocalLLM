@@ -1,8 +1,8 @@
 {
-  "web": "10.1.168",
-  "api": "10.1.168-api",
-  "postgres": "10.1.168-postgres",
-  "streaming_proxy": "10.1.168-proxy",
-  "base": "10.1.168-base",
-  "last_updated": "2026-01-21T17:38:25Z"
+  "web": "10.1.169",
+  "api": "10.1.169-api",
+  "postgres": "10.1.169-postgres",
+  "streaming_proxy": "10.1.169-proxy",
+  "base": "10.1.169-base",
+  "last_updated": "2026-01-21T17:43:58Z"
 }
