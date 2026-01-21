@@ -509,7 +509,20 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $IP >> ~/.ssh/known_hosts
+          
+          echo "⏳ Waiting for SSH to be ready on $IP..."
+          for i in {1..30}; do
+            if ssh-keyscan -H $IP >> ~/.ssh/known_hosts 2>/dev/null; then
+              echo "✅ SSH is ready!"
+              break
+            fi
+            echo "  Attempt $i: VM not reachable yet, waiting 10s..."
+            sleep 10
+            if [ $i -eq 30 ]; then
+              echo "❌ Timeout waiting for SSH"
+              exit 1
+            fi
+          done
 
           # Generate safe env file for remote execution
           {
