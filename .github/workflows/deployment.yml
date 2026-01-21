@@ -59,6 +59,9 @@ jobs:
             DIFF_FILES=$(git diff --name-only HEAD^ HEAD || git diff --name-only HEAD)
           fi
 
+          echo "Changed files:"
+          echo "$DIFF_FILES"
+
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
           if echo "$DIFF_FILES" | grep -qE "web/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web"; fi
@@ -111,7 +114,7 @@ jobs:
           echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
  
       - name: "Orchestrator: Commit Version Bump"
-        if: steps.analyze.outputs.bump_needed == 'true'
+        if: steps.analyze.outputs.bump_needed == 'true' && !contains(github.event.head_commit.message, '[skip ci]')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -232,7 +235,11 @@ jobs:
 
   deploy:
     needs: [ai_change_analysis, build_api, build_web, build_postgres, build_streaming]
-    if: always() && needs.ai_change_analysis.outputs.components != ''
+    if: always() && needs.ai_change_analysis.outputs.components != '' && 
+        (needs.build_api.result == 'success' || needs.build_api.result == 'skipped') &&
+        (needs.build_web.result == 'success' || needs.build_web.result == 'skipped') &&
+        (needs.build_postgres.result == 'success' || needs.build_postgres.result == 'skipped') &&
+        (needs.build_streaming.result == 'success' || needs.build_streaming.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -253,21 +260,17 @@ jobs:
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
           VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
+          if [ -z "$VM_ID" ]; then
+            echo "❌ No Swarm VM found"
+            exit 1
+          fi
+          
           RG_NAME=$(az vm show --ids $VM_ID --query resourceGroup -o tsv)
           VM_NAME=$(az vm show --ids $VM_ID --query name -o tsv)
+          
+          echo "✅ Target: $VM_NAME in $RG_NAME"
           az vm start --ids $VM_ID
           
-          # Create deployment script without HEREDOC indentation issues
-          echo "set -e" > ds.sh
-          echo "mkdir -p ~/deploy" >> ds.sh
-          echo "cd ~/deploy" >> ds.sh
-          echo "export DOCKER_TAG=\"\$1\"" >> ds.sh
-          echo "export POSTGRES_USER=\"\$2\"" >> ds.sh
-          echo "export POSTGRES_PASSWORD=\"\$3\"" >> ds.sh
-          echo "export JWT_SECRET=\"\$4\"" >> ds.sh
-          echo "export CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"" >> ds.sh
-          echo "if [ ! -d \".git\" ]; then git clone https://github.com/${{ github.repository }}.git .; else git fetch origin main && git reset --hard origin/main; fi" >> ds.sh
-          echo "echo \"\$6\" | docker login ghcr.io -u github-actions --password-stdin" >> ds.sh
-          echo "docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth" >> ds.sh
+          printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/${{ github.repository }}.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
           
           az vm run-command invoke --resource-group "$RG_NAME" --name "$VM_NAME" --command-id RunBashScript --scripts @ds.sh --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}"
