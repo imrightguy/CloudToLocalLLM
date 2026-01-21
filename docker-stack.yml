@@ -152,20 +152,13 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
-      cloudtolocalllm_net:
-        aliases:
-          - cloudflared
+      - cloudtolocalllm_net
+      - host
     configs:
       - source: cloudflared_config
         target: /etc/cloudflared/config.yml
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:2000/ready || wget -q -O - http://127.0.0.1:2000/ready || exit 1"]
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 60s
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         reservations:
           memory: 128M
