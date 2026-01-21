@@ -72,13 +72,13 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"],
-        connectSrc: ["'self'", 'wss:', 'https:'],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        frameSrc: ["'none'"],
-        objectSrc: ["'none'"],
+        defaultSrc: ['\'self\''],
+        connectSrc: ['\'self\'', 'wss:', 'https:'],
+        scriptSrc: ['\'self\'', '\'unsafe-inline\''],
+        styleSrc: ['\'self\'', '\'unsafe-inline\''],
+        imgSrc: ['\'self\'', 'data:', 'https:'],
+        frameSrc: ['\'none\''],
+        objectSrc: ['\'none\''],
       },
     },
     hsts: {
@@ -177,7 +177,7 @@ app.get(
   '/api/admin/system/stats',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] System statistics requested', {
         adminUserId: req.user.sub,
@@ -260,7 +260,7 @@ app.get(
   '/api/admin/system/realtime',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.debug(' [AdminPanel] Real-time system data requested', {
         adminUserId: req.user.sub,
@@ -317,7 +317,7 @@ app.get(
   '/api/admin/containers',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Container list requested', {
         adminUserId: req.user.sub,
@@ -416,7 +416,7 @@ app.get(
   '/api/admin/networks',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Network list requested', {
         adminUserId: req.user.sub,
@@ -462,7 +462,7 @@ app.get(
   '/api/admin/sessions',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Active sessions requested', {
         adminUserId: req.user.sub,
@@ -514,7 +514,7 @@ app.get(
   '/api/admin/system/performance',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.debug(' [AdminPanel] Performance metrics requested', {
         adminUserId: req.user.sub,
@@ -670,7 +670,7 @@ app.get(
   '/api/admin/users/:userId/sessions',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       const { userId } = req.params;
 
@@ -754,7 +754,7 @@ app.post(
   '/api/admin/users/:userId/sessions/:containerId/terminate',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       const { userId, containerId } = req.params;
 
@@ -817,7 +817,7 @@ app.get(
   '/api/admin/config',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] System configuration requested', {
         adminUserId: req.user.sub,
@@ -874,7 +874,7 @@ app.get(
   '/api/admin/config/environment',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Environment variables requested', {
         adminUserId: req.user.sub,
@@ -931,7 +931,7 @@ app.get(
   '/api/admin/config/features',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Feature flags requested', {
         adminUserId: req.user.sub,
@@ -984,7 +984,7 @@ app.get(
   '/api/admin/config/services',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Service status requested', {
         adminUserId: req.user.sub,
@@ -1048,7 +1048,7 @@ app.get(
   '/api/admin/containers/:containerId/logs',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       const { containerId } = req.params;
       const { lines = 100, follow = false } = req.query;
@@ -1132,7 +1132,7 @@ app.get(
   '/api/admin/containers/:containerId/stats',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       const { containerId } = req.params;
 
@@ -1210,7 +1210,7 @@ app.get(
   '/api/admin/network/topology',
   authenticateJWT,
   requireAdmin,
-  async (req, res) => {
+  async(req, res) => {
     try {
       logger.info(' [AdminPanel] Network topology requested', {
         adminUserId: req.user.sub,
