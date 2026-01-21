@@ -126,7 +126,7 @@ export async function initializeTunnelService() {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/', authenticateJWT, async(req, res) => {
+router.post('/', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -163,7 +163,7 @@ router.post('/', authenticateJWT, async(req, res) => {
       userId,
       { name, config, endpoints },
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelRoutes] Tunnel created', {
@@ -216,7 +216,7 @@ router.post('/', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/', authenticateJWT, async(req, res) => {
+router.get('/', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -284,7 +284,7 @@ router.get('/', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id', authenticateJWT, async(req, res) => {
+router.get('/:id', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -358,7 +358,7 @@ router.get('/:id', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/:id', authenticateJWT, async(req, res) => {
+router.put('/:id', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -388,7 +388,7 @@ router.put('/:id', authenticateJWT, async(req, res) => {
       userId,
       updateData,
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelRoutes] Tunnel updated', {
@@ -443,7 +443,7 @@ router.put('/:id', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.delete('/:id', authenticateJWT, async(req, res) => {
+router.delete('/:id', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -513,7 +513,7 @@ router.delete('/:id', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/start', authenticateJWT, async(req, res) => {
+router.post('/:id/start', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -542,7 +542,7 @@ router.post('/:id/start', authenticateJWT, async(req, res) => {
       userId,
       'connecting',
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelRoutes] Tunnel started', {
@@ -590,7 +590,7 @@ router.post('/:id/start', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/stop', authenticateJWT, async(req, res) => {
+router.post('/:id/stop', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -619,7 +619,7 @@ router.post('/:id/stop', authenticateJWT, async(req, res) => {
       userId,
       'disconnected',
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelRoutes] Tunnel stopped', {
@@ -669,7 +669,7 @@ router.post('/:id/stop', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/metrics', authenticateJWT, async(req, res) => {
+router.get('/:id/metrics', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -740,7 +740,7 @@ router.get('/:id/metrics', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/activity', authenticateJWT, async(req, res) => {
+router.get('/:id/activity', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -819,7 +819,7 @@ router.get('/:id/activity', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/config', authenticateJWT, async(req, res) => {
+router.get('/:id/config', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -893,7 +893,7 @@ router.get('/:id/config', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/:id/config', authenticateJWT, async(req, res) => {
+router.put('/:id/config', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -938,7 +938,7 @@ router.put('/:id/config', authenticateJWT, async(req, res) => {
       userId,
       configUpdate,
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelRoutes] Tunnel config updated', {
@@ -985,7 +985,7 @@ router.put('/:id/config', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/config/reset', authenticateJWT, async(req, res) => {
+router.post('/:id/config/reset', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -1013,7 +1013,7 @@ router.post('/:id/config/reset', authenticateJWT, async(req, res) => {
       tunnelId,
       userId,
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelRoutes] Tunnel config reset', {

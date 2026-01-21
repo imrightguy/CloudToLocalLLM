@@ -16,14 +16,14 @@ export class ProxyFailoverService {
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.errors({ stack: true }),
-          winston.format.json(),
+          winston.format.json()
         ),
         defaultMeta: { service: 'proxy-failover' },
         transports: [
           new winston.transports.Console({
             format: winston.format.combine(
               winston.format.timestamp(),
-              winston.format.simple(),
+              winston.format.simple()
             ),
           }),
         ],
@@ -103,7 +103,7 @@ export class ProxyFailoverService {
           mergedConfig.enableAutoRecovery,
           mergedConfig.enableLoadBalancing,
           mergedConfig.loadBalancingAlgorithm,
-        ],
+        ]
       );
 
       this.logger.info('Failover configuration created/updated', {
@@ -136,7 +136,7 @@ export class ProxyFailoverService {
     try {
       const result = await this.db.query(
         'SELECT * FROM proxy_failover_configurations WHERE proxy_id = $1',
-        [proxyId],
+        [proxyId]
       );
 
       if (result.rows.length === 0) {
@@ -190,7 +190,7 @@ export class ProxyFailoverService {
           priority,
           weight,
           'unknown',
-        ],
+        ]
       );
 
       const instance = result.rows[0];
@@ -228,7 +228,7 @@ export class ProxyFailoverService {
         `SELECT * FROM proxy_instances 
          WHERE proxy_id = $1 AND is_active = true
          ORDER BY priority ASC, weight DESC`,
-        [proxyId],
+        [proxyId]
       );
 
       return result.rows.map((row) => this.formatInstanceResponse(row));
@@ -261,7 +261,7 @@ export class ProxyFailoverService {
       // Get current instance
       const currentResult = await this.db.query(
         'SELECT * FROM proxy_instances WHERE id = $1',
-        [instanceId],
+        [instanceId]
       );
 
       if (currentResult.rows.length === 0) {
@@ -286,7 +286,7 @@ export class ProxyFailoverService {
              consecutive_failures = $2, updated_at = CURRENT_TIMESTAMP
          WHERE id = $3
          RETURNING *`,
-        [healthStatus, consecutiveFailures, instanceId],
+        [healthStatus, consecutiveFailures, instanceId]
       );
 
       const updatedInstance = result.rows[0];
@@ -297,7 +297,7 @@ export class ProxyFailoverService {
           instanceId,
           currentInstance.proxy_id,
           currentInstance.user_id,
-          metrics,
+          metrics
         );
       }
 
@@ -356,7 +356,7 @@ export class ProxyFailoverService {
           metrics.errorRate || 0,
           metrics.connectionCount || 0,
           metrics.throughputMbps || 0,
-        ],
+        ]
       );
 
       return result.rows[0];
@@ -411,7 +411,7 @@ export class ProxyFailoverService {
         if (activeInstance.consecutiveFailures >= config.unhealthyThreshold) {
           // Find healthy backup instance
           const backupInstance = instances.find(
-            (i) => i.id !== activeInstanceId && i.healthStatus === 'healthy',
+            (i) => i.id !== activeInstanceId && i.healthStatus === 'healthy'
           );
 
           if (backupInstance) {
@@ -457,11 +457,11 @@ export class ProxyFailoverService {
     userId,
     sourceInstanceId,
     targetInstanceId,
-    reason,
+    reason
   ) {
     if (!proxyId || !userId || !sourceInstanceId || !targetInstanceId) {
       throw new Error(
-        'proxyId, userId, sourceInstanceId, and targetInstanceId are required',
+        'proxyId, userId, sourceInstanceId, and targetInstanceId are required'
       );
     }
 
@@ -485,7 +485,7 @@ export class ProxyFailoverService {
           targetInstanceId,
           reason,
           'in_progress',
-        ],
+        ]
       );
 
       const failoverEvent = result.rows[0];
@@ -510,7 +510,7 @@ export class ProxyFailoverService {
             userId,
             sourceInstanceId,
             targetInstanceId,
-            failoverEvent,
+            failoverEvent
           );
         } catch (error) {
           this.logger.error('Error in failover callback', {
@@ -546,7 +546,7 @@ export class ProxyFailoverService {
     eventId,
     status,
     errorMessage = null,
-    durationMs = null,
+    durationMs = null
   ) {
     if (!eventId) {
       throw new Error('eventId is required');
@@ -562,7 +562,7 @@ export class ProxyFailoverService {
          SET status = $1, error_message = $2, duration_ms = $3, completed_at = CURRENT_TIMESTAMP
          WHERE id = $4
          RETURNING *`,
-        [status, errorMessage, durationMs, eventId],
+        [status, errorMessage, durationMs, eventId]
       );
 
       if (result.rows.length === 0) {
@@ -601,7 +601,7 @@ export class ProxyFailoverService {
     try {
       const result = await this.db.query(
         'SELECT * FROM proxy_redundancy_status WHERE proxy_id = $1',
-        [proxyId],
+        [proxyId]
       );
 
       if (result.rows.length === 0) {
@@ -661,7 +661,7 @@ export class ProxyFailoverService {
           backupInstanceIds,
           redundancyLevel,
           isDegraded,
-        ],
+        ]
       );
 
       this.logger.info('Redundancy status updated', {
@@ -699,7 +699,7 @@ export class ProxyFailoverService {
          WHERE proxy_id = $1 
          ORDER BY created_at DESC 
          LIMIT $2`,
-        [proxyId, limit],
+        [proxyId, limit]
       );
 
       return result.rows.map((row) => this.formatFailoverEventResponse(row));
@@ -721,7 +721,7 @@ export class ProxyFailoverService {
     const validStrategies = ['priority', 'round_robin', 'least_connections'];
     if (!validStrategies.includes(config.failoverStrategy)) {
       throw new Error(
-        `failoverStrategy must be one of: ${validStrategies.join(', ')}`,
+        `failoverStrategy must be one of: ${validStrategies.join(', ')}`
       );
     }
 

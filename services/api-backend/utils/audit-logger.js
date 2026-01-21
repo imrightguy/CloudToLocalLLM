@@ -68,7 +68,7 @@ export async function logAdminAction({
         JSON.stringify(details),
         ipAddress,
         userAgent,
-      ],
+      ]
     );
 
     const auditLog = result.rows[0];
@@ -118,16 +118,16 @@ export function auditMiddleware({
   getAffectedUserId = (req) => req.params.userId || null,
   getDetails = (_req) => ({}),
 }) {
-  return async(req, res, next) => {
+  return async (req, res, next) => {
     // Store original send function
     const originalSend = res.send;
 
     // Override send function to log after successful response
-    res.send = function(data) {
+    res.send = function (data) {
       // Only log on successful responses (2xx status codes)
       if (res.statusCode >= 200 && res.statusCode < 300) {
         // Log asynchronously without blocking response
-        setImmediate(async() => {
+        setImmediate(async () => {
           try {
             const resourceId = getResourceId(req);
             const affectedUserId = getAffectedUserId(req);
@@ -297,7 +297,7 @@ export async function getAuditLogById(logId) {
 
     const result = await pool.query(
       'SELECT * FROM admin_audit_logs WHERE id = $1',
-      [logId],
+      [logId]
     );
 
     if (result.rows.length === 0) {

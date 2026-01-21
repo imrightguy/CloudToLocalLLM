@@ -52,7 +52,7 @@ const poolConfig = {
   // Timeout settings (Requirement 17)
   connectionTimeoutMillis: parseInt(
     process.env.DB_POOL_CONNECT_TIMEOUT || '30000',
-    10,
+    10
   ), // 30 seconds
   idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE || '600000', 10), // 10 minutes
 
@@ -78,7 +78,7 @@ export function initializePool() {
   if (process.env.NODE_ENV === 'test' && !process.env.DB_HOST) {
     logger.info('🟡 [DB Pool] Using mock pool for test environment');
     pool = {
-      query: async() => ({
+      query: async () => ({
         rows: [
           {
             id: 'mock-id-' + Math.random().toString(36).substr(2, 5),
@@ -92,8 +92,8 @@ export function initializePool() {
         ],
         rowCount: 1,
       }),
-      connect: async() => ({
-        query: async() => ({
+      connect: async () => ({
+        query: async () => ({
           rows: [
             {
               id: 'mock-id-' + Math.random().toString(36).substr(2, 5),
@@ -111,7 +111,7 @@ export function initializePool() {
         on: () => {},
       }),
       on: () => {},
-      end: async() => {},
+      end: async () => {},
       totalCount: 0,
       idleCount: 0,
       waitingCount: 0,
@@ -185,7 +185,7 @@ export function initializePool() {
   });
 
   logger.info(
-    '✅ [DB Pool] PostgreSQL connection pool initialized successfully',
+    '✅ [DB Pool] PostgreSQL connection pool initialized successfully'
   );
 
   return pool;

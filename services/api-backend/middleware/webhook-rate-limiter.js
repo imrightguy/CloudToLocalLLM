@@ -35,7 +35,7 @@ export async function webhookRateLimiterMiddleware(req, res, next) {
     // Check rate limit
     const rateLimitResult = await webhookRateLimiterService.checkRateLimit(
       webhookId,
-      userId,
+      userId
     );
 
     // Attach rate limit info to request
@@ -48,8 +48,8 @@ export async function webhookRateLimiterMiddleware(req, res, next) {
       Math.max(
         0,
         rateLimitResult.limits.per_minute.max -
-          rateLimitResult.limits.per_minute.current,
-      ),
+          rateLimitResult.limits.per_minute.current
+      )
     );
     res.set('X-RateLimit-Limit-Hour', rateLimitResult.limits.per_hour.max);
     res.set(
@@ -57,8 +57,8 @@ export async function webhookRateLimiterMiddleware(req, res, next) {
       Math.max(
         0,
         rateLimitResult.limits.per_hour.max -
-          rateLimitResult.limits.per_hour.current,
-      ),
+          rateLimitResult.limits.per_hour.current
+      )
     );
     res.set('X-RateLimit-Limit-Day', rateLimitResult.limits.per_day.max);
     res.set(
@@ -66,8 +66,8 @@ export async function webhookRateLimiterMiddleware(req, res, next) {
       Math.max(
         0,
         rateLimitResult.limits.per_day.max -
-          rateLimitResult.limits.per_day.current,
-      ),
+          rateLimitResult.limits.per_day.current
+      )
     );
 
     // If rate limit exceeded, return 429

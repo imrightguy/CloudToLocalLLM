@@ -121,7 +121,7 @@ export class FailoverManager {
         '✅ [Failover] Database failover manager initialized successfully',
         {
           state: this.failoverState,
-        },
+        }
       );
     } catch (error) {
       logger.error('🔴 [Failover] Failed to initialize failover manager', {
@@ -404,7 +404,7 @@ export class FailoverManager {
   updateFailoverState() {
     const primaryHealthy = this.primaryHealthStatus.healthy;
     const healthyStandbyCount = Array.from(
-      this.standbyHealthStatus.values(),
+      this.standbyHealthStatus.values()
     ).filter((s) => s.healthy).length;
 
     if (primaryHealthy && healthyStandbyCount > 0) {
@@ -428,10 +428,10 @@ export class FailoverManager {
   startHealthChecks() {
     const interval = parseInt(
       process.env.FAILOVER_HEALTH_CHECK_INTERVAL || '10000',
-      10,
+      10
     );
 
-    this.healthCheckInterval = setInterval(async() => {
+    this.healthCheckInterval = setInterval(async () => {
       try {
         await this.checkPrimaryHealth();
 
@@ -562,7 +562,7 @@ let failoverManager = null;
  */
 export async function initializeFailoverManager(
   primaryConfig,
-  standbyConfigs = [],
+  standbyConfigs = []
 ) {
   if (failoverManager) {
     return failoverManager;

@@ -57,7 +57,7 @@ router.post(
   '/records',
   adminRateLimiter,
   adminAuth(['manage_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -164,7 +164,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -182,7 +182,7 @@ router.get(
   '/records',
   adminReadOnlyLimiter,
   adminAuth(['view_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -235,7 +235,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -257,7 +257,7 @@ router.put(
   '/records/:id',
   adminRateLimiter,
   adminAuth(['manage_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -342,7 +342,7 @@ router.put(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -359,7 +359,7 @@ router.delete(
   '/records/:id',
   adminRateLimiter,
   adminAuth(['manage_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -408,7 +408,7 @@ router.delete(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -425,7 +425,7 @@ router.post(
   '/validate',
   adminReadOnlyLimiter,
   adminAuth(['view_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -468,7 +468,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -485,7 +485,7 @@ router.get(
   '/google-records',
   adminReadOnlyLimiter,
   adminAuth(['view_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -502,7 +502,7 @@ router.get(
         {
           adminUserId: req.adminUser.id,
           domain,
-        },
+        }
       );
 
       res.json({
@@ -530,7 +530,7 @@ router.get(
           domain: req.query?.domain,
           error: error.message,
           stack: error.stack,
-        },
+        }
       );
 
       res.status(500).json({
@@ -539,7 +539,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -557,7 +557,7 @@ router.post(
   '/setup-google',
   adminRateLimiter,
   adminAuth(['manage_dns_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeService(pool);
@@ -691,7 +691,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;

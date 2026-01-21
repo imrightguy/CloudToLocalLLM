@@ -89,7 +89,7 @@ const pool = new Pool({
 router.post(
   '/stripe',
   express.raw({ type: 'application/json' }),
-  async(req, res) => {
+  async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -125,7 +125,7 @@ router.post(
       // Check if event already processed
       const existingEvent = await client.query(
         'SELECT id FROM webhook_events WHERE stripe_event_id = $1',
-        [event.id],
+        [event.id]
       );
 
       if (existingEvent.rows.length > 0) {
@@ -137,7 +137,7 @@ router.post(
       await client.query(
         `INSERT INTO webhook_events (stripe_event_id, event_type, processed_at, event_data)
        VALUES ($1, $2, NOW(), $3)`,
-        [event.id, event.type, JSON.stringify(event.data.object)],
+        [event.id, event.type, JSON.stringify(event.data.object)]
       );
 
       // Handle the event
@@ -160,7 +160,7 @@ router.post(
     } finally {
       client.release();
     }
-  },
+  }
 );
 
 /**
@@ -168,28 +168,28 @@ router.post(
  */
 async function handleWebhookEvent(event, client) {
   switch (event.type) {
-  case 'payment_intent.succeeded':
-    await handlePaymentIntentSucceeded(event.data.object, client);
-    break;
+    case 'payment_intent.succeeded':
+      await handlePaymentIntentSucceeded(event.data.object, client);
+      break;
 
-  case 'payment_intent.failed':
-    await handlePaymentIntentFailed(event.data.object, client);
-    break;
+    case 'payment_intent.failed':
+      await handlePaymentIntentFailed(event.data.object, client);
+      break;
 
-  case 'customer.subscription.created':
-    await handleSubscriptionCreated(event.data.object, client);
-    break;
+    case 'customer.subscription.created':
+      await handleSubscriptionCreated(event.data.object, client);
+      break;
 
-  case 'customer.subscription.updated':
-    await handleSubscriptionUpdated(event.data.object, client);
-    break;
+    case 'customer.subscription.updated':
+      await handleSubscriptionUpdated(event.data.object, client);
+      break;
 
-  case 'customer.subscription.deleted':
-    await handleSubscriptionDeleted(event.data.object, client);
-    break;
+    case 'customer.subscription.deleted':
+      await handleSubscriptionDeleted(event.data.object, client);
+      break;
 
-  default:
-    logger.info('Unhandled webhook event type', { type: event.type });
+    default:
+      logger.info('Unhandled webhook event type', { type: event.type });
   }
 }
 
@@ -216,7 +216,7 @@ async function handlePaymentIntentSucceeded(paymentIntent, client) {
       paymentIntent.latest_charge,
       paymentIntent.charges?.data[0]?.receipt_url,
       paymentIntent.id,
-    ],
+    ]
   );
 
   if (result.rows.length === 0) {
@@ -258,7 +258,7 @@ async function handlePaymentIntentFailed(paymentIntent, client) {
       paymentIntent.last_payment_error?.code,
       paymentIntent.last_payment_error?.message,
       paymentIntent.id,
-    ],
+    ]
   );
 
   if (result.rows.length === 0) {
@@ -293,7 +293,7 @@ async function handleSubscriptionCreated(subscription, client) {
     `SELECT s.id as subscription_id, s.user_id
      FROM subscriptions s
      WHERE s.stripe_subscription_id = $1`,
-    [subscription.id],
+    [subscription.id]
   );
 
   if (userResult.rows.length === 0) {
@@ -324,7 +324,7 @@ async function handleSubscriptionCreated(subscription, client) {
         : null,
       subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
       dbSubscription.subscription_id,
-    ],
+    ]
   );
 
   logger.info('Subscription created and updated', {
@@ -370,7 +370,7 @@ async function handleSubscriptionUpdated(subscription, client) {
         : null,
       subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
       subscription.id,
-    ],
+    ]
   );
 
   if (result.rows.length === 0) {
@@ -407,7 +407,7 @@ async function handleSubscriptionDeleted(subscription, client) {
          updated_at = NOW()
      WHERE stripe_subscription_id = $1
      RETURNING id, user_id`,
-    [subscription.id],
+    [subscription.id]
   );
 
   if (result.rows.length === 0) {

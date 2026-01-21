@@ -39,7 +39,7 @@ router.get(
   '/subscriptions',
   adminReadOnlyLimiter,
   adminAuth(['view_subscriptions']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const {
         page = 1,
@@ -216,7 +216,7 @@ router.get(
         },
       });
     }
-  },
+  }
 );
 
 /**
@@ -236,7 +236,7 @@ router.get(
   '/subscriptions/:subscriptionId',
   adminReadOnlyLimiter,
   adminAuth(['view_subscriptions']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { subscriptionId } = req.params;
 
@@ -316,10 +316,10 @@ router.get(
         currentPeriodEnd: subscription.current_period_end,
         daysRemaining: Math.max(
           0,
-          Math.ceil((currentPeriodEnd - now) / (1000 * 60 * 60 * 24)),
+          Math.ceil((currentPeriodEnd - now) / (1000 * 60 * 60 * 24))
         ),
         daysInCycle: Math.ceil(
-          (currentPeriodEnd - currentPeriodStart) / (1000 * 60 * 60 * 24),
+          (currentPeriodEnd - currentPeriodStart) / (1000 * 60 * 60 * 24)
         ),
         nextBillingDate: subscription.cancel_at_period_end
           ? null
@@ -331,18 +331,18 @@ router.get(
 
       // Calculate payment statistics
       const successfulPayments = paymentHistoryResult.rows.filter(
-        (p) => p.status === 'succeeded',
+        (p) => p.status === 'succeeded'
       );
       const totalPaid = successfulPayments.reduce(
         (sum, p) => sum + parseFloat(p.amount),
-        0,
+        0
       );
 
       const paymentStats = {
         totalTransactions: paymentHistoryResult.rows.length,
         successfulTransactions: successfulPayments.length,
         failedTransactions: paymentHistoryResult.rows.filter(
-          (p) => p.status === 'failed',
+          (p) => p.status === 'failed'
         ).length,
         totalAmountPaid: totalPaid,
         currency: paymentHistoryResult.rows[0]?.currency || 'USD',
@@ -410,7 +410,7 @@ router.get(
         },
       });
     }
-  },
+  }
 );
 
 /**
@@ -429,7 +429,7 @@ router.patch(
   '/subscriptions/:subscriptionId',
   adminRateLimiter,
   adminAuth(['edit_subscriptions']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { subscriptionId } = req.params;
       const {
@@ -517,7 +517,7 @@ router.patch(
           tier,
           priceId,
           prorationBehavior,
-        },
+        }
       );
 
       if (!updateResult.success) {
@@ -604,7 +604,7 @@ router.patch(
         },
       });
     }
-  },
+  }
 );
 
 /**
@@ -622,7 +622,7 @@ router.post(
   '/subscriptions/:subscriptionId/cancel',
   adminRateLimiter,
   adminAuth(['edit_subscriptions']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { subscriptionId } = req.params;
       const { immediate = false, reason } = req.body;
@@ -697,7 +697,7 @@ router.post(
       // Cancel subscription through service
       const cancelResult = await subscriptionService.cancelSubscription(
         subscriptionId,
-        immediate,
+        immediate
       );
 
       if (!cancelResult.success) {
@@ -711,19 +711,19 @@ router.post(
       let refundInfo = null;
       if (immediate) {
         const currentPeriodStart = new Date(
-          existingSubscription.current_period_start,
+          existingSubscription.current_period_start
         );
         const currentPeriodEnd = new Date(
-          existingSubscription.current_period_end,
+          existingSubscription.current_period_end
         );
         const now = new Date();
 
         const totalDays = Math.ceil(
-          (currentPeriodEnd - currentPeriodStart) / (1000 * 60 * 60 * 24),
+          (currentPeriodEnd - currentPeriodStart) / (1000 * 60 * 60 * 24)
         );
         const daysRemaining = Math.max(
           0,
-          Math.ceil((currentPeriodEnd - now) / (1000 * 60 * 60 * 24)),
+          Math.ceil((currentPeriodEnd - now) / (1000 * 60 * 60 * 24))
         );
 
         // Get last payment for this subscription
@@ -822,7 +822,7 @@ router.post(
         },
       });
     }
-  },
+  }
 );
 
 export default router;

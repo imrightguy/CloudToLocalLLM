@@ -48,7 +48,7 @@ const logger = new TunnelLogger('prometheus-metrics-routes');
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/metrics', async(req, res) => {
+router.get('/metrics', async (req, res) => {
   try {
     const metrics = await metricsService.getMetrics();
     const contentType = metricsService.getContentType();
@@ -113,7 +113,7 @@ router.get('/metrics', async(req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/health/metrics', async(req, res) => {
+router.get('/health/metrics', async (req, res) => {
   try {
     // Try to get metrics to verify collection is working
     const metrics = await metricsService.getMetrics();

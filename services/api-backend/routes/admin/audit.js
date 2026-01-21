@@ -44,7 +44,7 @@ router.get(
   '/logs',
   adminReadOnlyLimiter,
   adminAuth(['view_audit_logs']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
 
@@ -52,7 +52,7 @@ router.get(
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.min(
         200,
-        Math.max(1, parseInt(req.query.limit) || 100),
+        Math.max(1, parseInt(req.query.limit) || 100)
       );
       const offset = (page - 1) * limit;
       const adminUserId = req.query.adminUserId?.trim();
@@ -219,7 +219,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;
@@ -239,7 +239,7 @@ router.get(
   '/logs/:logId',
   adminReadOnlyLimiter,
   adminAuth(['view_audit_logs']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       const { logId } = req.params;
@@ -328,11 +328,11 @@ router.get(
             },
             affectedUser: log.affected_user_id
               ? {
-                id: log.affected_user_id,
-                email: log.affected_user_email,
-                username: log.affected_user_username,
-                jwtId: log.affected_user_jwt_id,
-              }
+                  id: log.affected_user_id,
+                  email: log.affected_user_email,
+                  username: log.affected_user_username,
+                  jwtId: log.affected_user_jwt_id,
+                }
               : null,
           },
         },
@@ -352,7 +352,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -375,7 +375,7 @@ router.get(
   '/export',
   adminExpensiveLimiter,
   adminAuth(['export_audit_logs']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
 
@@ -538,7 +538,7 @@ router.get(
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="${filename}"`,
+        `attachment; filename="${filename}"`
       );
       res.setHeader('Content-Length', Buffer.byteLength(csvContent));
 
@@ -571,7 +571,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**

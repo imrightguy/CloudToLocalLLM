@@ -50,7 +50,7 @@ export function createGracefulShutdownManager(server, options = {}) {
 
     // Track response completion
     const originalEnd = res.end;
-    res.end = function(...args) {
+    res.end = function (...args) {
       logger.debug('Request completed', {
         requestId,
         method: req.method,
@@ -162,14 +162,14 @@ export function setupGracefulShutdown(server, options = {}) {
   const shutdownManager = createGracefulShutdownManager(server, options);
 
   // Handle SIGTERM signal
-  process.on('SIGTERM', async() => {
+  process.on('SIGTERM', async () => {
     logger.info('Received SIGTERM signal');
     await shutdownManager.shutdown();
     process.exit(0);
   });
 
   // Handle SIGINT signal (Ctrl+C)
-  process.on('SIGINT', async() => {
+  process.on('SIGINT', async () => {
     logger.info('Received SIGINT signal');
     await shutdownManager.shutdown();
     process.exit(0);

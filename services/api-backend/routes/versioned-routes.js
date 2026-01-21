@@ -153,7 +153,7 @@ export function createVersionAwareMiddleware() {
     const originalJson = res.json;
 
     // Override json to add version info
-    res.json = function(data) {
+    res.json = function (data) {
       // Add version metadata to response
       if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
         data._meta = {

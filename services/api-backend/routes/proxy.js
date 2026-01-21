@@ -3,7 +3,7 @@ import { StreamingProxyManager } from '../streaming-proxy-manager.js';
 
 const proxyManager = new StreamingProxyManager();
 
-export const proxyStartHandler = async(req, res) => {
+export const proxyStartHandler = async (req, res) => {
   try {
     const userId = req.user.sub;
     const userToken = req.headers.authorization;
@@ -14,7 +14,7 @@ export const proxyStartHandler = async(req, res) => {
     const proxyMetadata = await proxyManager.provisionProxy(
       userId,
       userToken,
-      req.user,
+      req.user
     );
 
     res.json({
@@ -38,7 +38,7 @@ export const proxyStartHandler = async(req, res) => {
   }
 };
 
-export const proxyStopHandler = async(req, res) => {
+export const proxyStopHandler = async (req, res) => {
   try {
     const userId = req.user.sub;
 
@@ -66,20 +66,20 @@ export const proxyStopHandler = async(req, res) => {
   }
 };
 
-export const proxyProvisionHandler = async(req, res) => {
+export const proxyProvisionHandler = async (req, res) => {
   try {
     const userId = req.user.sub;
     const userToken = req.headers.authorization;
     const { testMode = false } = req.body;
 
     logger.info(
-      `Provisioning streaming proxy for user: ${userId}, testMode: ${testMode}`,
+      `Provisioning streaming proxy for user: ${userId}, testMode: ${testMode}`
     );
 
     if (testMode) {
       // In test mode, simulate successful provisioning without creating actual containers
       logger.info(
-        `Test mode: Simulating proxy provisioning for user ${userId}`,
+        `Test mode: Simulating proxy provisioning for user ${userId}`
       );
 
       res.json({
@@ -100,7 +100,7 @@ export const proxyProvisionHandler = async(req, res) => {
     const proxyMetadata = await proxyManager.provisionProxy(
       userId,
       userToken,
-      req.user,
+      req.user
     );
 
     res.json({
@@ -127,7 +127,7 @@ export const proxyProvisionHandler = async(req, res) => {
   }
 };
 
-export const proxyStatusHandler = async(req, res) => {
+export const proxyStatusHandler = async (req, res) => {
   try {
     const userId = req.user.sub;
     const status = await proxyManager.getProxyStatus(userId);

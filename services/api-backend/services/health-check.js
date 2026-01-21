@@ -131,7 +131,7 @@ export class HealthCheckService {
       } catch (error) {
         this.logger.error(
           `Service health check failed for ${service.name}:`,
-          error,
+          error
         );
         results[service.name] = {
           status: 'unhealthy',

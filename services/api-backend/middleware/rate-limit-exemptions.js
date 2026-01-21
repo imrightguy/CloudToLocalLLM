@@ -143,7 +143,7 @@ export class RateLimitExemptionManager {
       {
         description: 'Health check endpoints',
         enabled: true,
-      },
+      }
     );
 
     // Authentication endpoints are exempt (login, token refresh)
@@ -165,7 +165,7 @@ export class RateLimitExemptionManager {
       {
         description: 'Authentication endpoints',
         enabled: true,
-      },
+      }
     );
 
     // Admin operations are exempt (with RBAC validation)
@@ -183,7 +183,7 @@ export class RateLimitExemptionManager {
       {
         description: 'Admin operations (requires admin role)',
         enabled: true,
-      },
+      }
     );
   }
 

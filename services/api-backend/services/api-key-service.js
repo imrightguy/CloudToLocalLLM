@@ -62,7 +62,7 @@ export async function generateApiKey(userId, name, options = {}) {
         scopes,
         rateLimit,
         expiresAt,
-      ],
+      ]
     );
 
     const keyRecord = result.rows[0];
@@ -123,7 +123,7 @@ export async function validateApiKey(apiKey) {
       `SELECT id, user_id, name, scopes, rate_limit, is_active, expires_at, last_used_at
        FROM api_keys
        WHERE key_hash = $1`,
-      [keyHash],
+      [keyHash]
     );
 
     if (result.rows.length === 0) {
@@ -197,7 +197,7 @@ export async function listApiKeys(userId) {
        FROM api_keys
        WHERE user_id = $1
        ORDER BY created_at DESC`,
-      [userId],
+      [userId]
     );
 
     return result.rows;
@@ -223,7 +223,7 @@ export async function getApiKey(keyId, userId) {
               created_at, updated_at, expires_at, last_used_at
        FROM api_keys
        WHERE id = $1 AND user_id = $2`,
-      [keyId, userId],
+      [keyId, userId]
     );
 
     if (result.rows.length === 0) {
@@ -275,7 +275,7 @@ export async function updateApiKey(keyId, userId, updates) {
        SET ${updateFields.join(', ')}, updated_at = NOW()
        WHERE id = $${paramIndex} AND user_id = $${paramIndex + 1}
        RETURNING id, name, key_prefix, description, scopes, rate_limit, is_active, created_at, updated_at, expires_at`,
-      updateValues,
+      updateValues
     );
 
     if (result.rows.length === 0) {
@@ -316,7 +316,7 @@ export async function rotateApiKey(keyId, userId) {
       `SELECT id, name, description, scopes, rate_limit, expires_at
        FROM api_keys
        WHERE id = $1 AND user_id = $2`,
-      [keyId, userId],
+      [keyId, userId]
     );
 
     if (oldKeyResult.rows.length === 0) {
@@ -349,7 +349,7 @@ export async function rotateApiKey(keyId, userId) {
         oldKey.rate_limit,
         oldKey.expires_at,
         keyId,
-      ],
+      ]
     );
 
     // Revoke old key
@@ -366,7 +366,7 @@ export async function rotateApiKey(keyId, userId) {
         userId,
         'rotated',
         JSON.stringify({ rotatedToId: newKeyResult.rows[0].id }),
-      ],
+      ]
     );
 
     await client.query(
@@ -377,7 +377,7 @@ export async function rotateApiKey(keyId, userId) {
         userId,
         'created',
         JSON.stringify({ rotatedFromId: keyId }),
-      ],
+      ]
     );
 
     await client.query('COMMIT');
@@ -428,7 +428,7 @@ export async function revokeApiKey(keyId, userId) {
        SET is_active = false, updated_at = NOW()
        WHERE id = $1 AND user_id = $2
        RETURNING id`,
-      [keyId, userId],
+      [keyId, userId]
     );
 
     if (result.rows.length === 0) {
@@ -467,7 +467,7 @@ async function logApiKeyAudit(apiKeyId, userId, action, details = {}) {
     await query(
       `INSERT INTO api_key_audit_logs (api_key_id, user_id, action, details)
        VALUES ($1, $2, $3, $4)`,
-      [apiKeyId, userId, action, JSON.stringify(details)],
+      [apiKeyId, userId, action, JSON.stringify(details)]
     );
   } catch (error) {
     logger.error('[APIKey] Failed to log audit event', {
@@ -494,7 +494,7 @@ export async function getApiKeyAuditLogs(keyId, userId) {
        WHERE api_key_id = $1 AND user_id = $2
        ORDER BY created_at DESC
        LIMIT 100`,
-      [keyId, userId],
+      [keyId, userId]
     );
 
     return result.rows;

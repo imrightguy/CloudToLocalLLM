@@ -32,7 +32,10 @@ export function initHttpPool(baseUrl, options = {}) {
   }
 
   const poolSize = parseInt(process.env.UNDICI_POOL_SIZE || '100', 10);
-  const keepAliveTimeout = parseInt(process.env.UNDICI_KEEP_ALIVE_TIMEOUT || '60000', 10);
+  const keepAliveTimeout = parseInt(
+    process.env.UNDICI_KEEP_ALIVE_TIMEOUT || '60000',
+    10
+  );
 
   httpPool = new Pool(baseUrl, {
     connections: options.connections || poolSize,
@@ -86,11 +89,13 @@ export const resourceMetricsSchema = z.object({
     free: z.number(),
     usagePercent: z.number(),
   }),
-  network: z.array(z.object({
-    iface: z.string(),
-    rx: z.number(),
-    tx: z.number(),
-  })),
+  network: z.array(
+    z.object({
+      iface: z.string(),
+      rx: z.number(),
+      tx: z.number(),
+    })
+  ),
 });
 
 /**
@@ -128,13 +133,15 @@ export async function collectResourceMetrics() {
       free: diskInfo?.available || 0,
       usagePercent: diskInfo?.use || 0,
     },
-    network: networkInfo ? [
-      {
-        iface: networkInfo.iface,
-        rx: networkInfo.rx,
-        tx: networkInfo.tx,
-      },
-    ] : [],
+    network: networkInfo
+      ? [
+          {
+            iface: networkInfo.iface,
+            rx: networkInfo.rx,
+            tx: networkInfo.tx,
+          },
+        ]
+      : [],
   };
 }
 
@@ -232,11 +239,13 @@ export const configValidation = {
     name: z.string(),
     user: z.string(),
     password: z.string(),
-    pool: z.object({
-      min: z.number().min(0).default(5),
-      max: z.number().min(1).default(50),
-      idleTimeout: z.number().positive().default(600000),
-    }).optional(),
+    pool: z
+      .object({
+        min: z.number().min(0).default(5),
+        max: z.number().min(1).default(50),
+        idleTimeout: z.number().positive().default(600000),
+      })
+      .optional(),
   }),
 
   /**
@@ -288,7 +297,7 @@ export class ResourceMonitor {
     }
 
     this.isRunning = true;
-    this.timer = setInterval(async() => {
+    this.timer = setInterval(async () => {
       try {
         const metrics = await collectResourceMetrics();
         this.metrics.push(metrics);
@@ -319,7 +328,9 @@ export class ResourceMonitor {
    * @returns {Object|null} Latest metrics
    */
   getCurrentMetrics() {
-    return this.metrics.length > 0 ? this.metrics[this.metrics.length - 1] : null;
+    return this.metrics.length > 0
+      ? this.metrics[this.metrics.length - 1]
+      : null;
   }
 
   /**

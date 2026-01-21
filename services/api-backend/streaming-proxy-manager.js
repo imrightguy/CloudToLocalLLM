@@ -15,14 +15,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'proxy-manager' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -72,7 +72,7 @@ export class StreamingProxyManager {
             userTier,
             userId,
             proxyId,
-          },
+          }
         );
 
         // Return direct tunnel configuration instead of pod
@@ -99,7 +99,7 @@ export class StreamingProxyManager {
           userId,
           userTier: getUserTier(user),
           proxyId,
-        },
+        }
       );
 
       // Check if proxy already exists
@@ -126,13 +126,17 @@ export class StreamingProxyManager {
           containers: [
             {
               name: 'proxy',
-              image: 'ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest',
+              image:
+                'ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest',
               env: [
                 { name: 'USER_ID', value: userId },
                 { name: 'PROXY_ID', value: proxyId },
                 { name: 'NODE_ENV', value: 'production' },
                 { name: 'LOG_LEVEL', value: 'info' },
-                { name: 'OLLAMA_BASE_URL', value: `http://api-backend:8080/api/tunnel/${userId}` },
+                {
+                  name: 'OLLAMA_BASE_URL',
+                  value: `http://api-backend:8080/api/tunnel/${userId}`,
+                },
                 { name: 'API_BASE_URL', value: 'http://api-backend:8080' },
               ],
               resources: {
@@ -229,7 +233,10 @@ export class StreamingProxyManager {
 
     try {
       // Check pod status
-      const response = await k8sApi.readNamespacedPod(proxyMetadata.podName, namespace);
+      const response = await k8sApi.readNamespacedPod(
+        proxyMetadata.podName,
+        namespace
+      );
       const pod = response.body;
 
       return {
@@ -263,7 +270,7 @@ export class StreamingProxyManager {
    * Start periodic cleanup process
    */
   startCleanupProcess() {
-    this.cleanupInterval = setInterval(async() => {
+    this.cleanupInterval = setInterval(async () => {
       await this.cleanupStaleProxies();
     }, 60000); // Check every minute
 
@@ -299,7 +306,7 @@ export class StreamingProxyManager {
       ([userId, metadata]) => ({
         userId,
         ...metadata,
-      }),
+      })
     );
   }
 
@@ -313,7 +320,7 @@ export class StreamingProxyManager {
 
     // Terminate all active proxies
     const terminationPromises = Array.from(this.activeProxies.keys()).map(
-      (userId) => this.terminateProxy(userId),
+      (userId) => this.terminateProxy(userId)
     );
 
     await Promise.allSettled(terminationPromises);

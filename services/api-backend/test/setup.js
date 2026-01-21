@@ -56,7 +56,7 @@ jest.mock('@sentry/node', () => ({
   setTag: jest.fn(),
   setContext: jest.fn(),
   close: jest.fn().mockResolvedValue(true),
-  createSentryWinstonTransport: jest.fn(() => class MockTransport { }),
+  createSentryWinstonTransport: jest.fn(() => class MockTransport {}),
   setupExpressErrorHandler: jest.fn(),
 }));
 
@@ -111,7 +111,7 @@ afterEach(() => {
 });
 
 // Cleanup after all tests complete in this worker
-afterAll(async() => {
+afterAll(async () => {
   // Close database pool if it was initialized (within worker process)
   try {
     const dbPool = await import('../database/db-pool.js');
@@ -124,7 +124,9 @@ afterAll(async() => {
 
   // Clear request queue service to stop all pending timeouts
   try {
-    const { getRequestQueueService } = await import('../services/request-queue-service.js');
+    const { getRequestQueueService } = await import(
+      '../services/request-queue-service.js'
+    );
     const queueService = getRequestQueueService();
     if (queueService && queueService.clearAllQueues) {
       queueService.clearAllQueues();
@@ -135,7 +137,9 @@ afterAll(async() => {
 
   // Close FailoverManager if initialized
   try {
-    const { closeFailoverManager } = await import('../database/failover-manager.js');
+    const { closeFailoverManager } = await import(
+      '../database/failover-manager.js'
+    );
     await closeFailoverManager();
   } catch {
     // Failover manager may not have been initialized

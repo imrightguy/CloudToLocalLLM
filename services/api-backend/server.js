@@ -60,9 +60,7 @@ import {
   getAuthMiddleware,
 } from './middleware/pipeline.js';
 import { setupGracefulShutdown } from './middleware/graceful-shutdown.js';
-import {
-  standardCorsOptions,
-} from './middleware/cors-config.js';
+import { standardCorsOptions } from './middleware/cors-config.js';
 
 import adminRoutes from './routes/admin.js';
 import adminUserRoutes from './routes/admin/users.js';
@@ -159,14 +157,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'cloudtolocalllm-api' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
     new SentryWinstonTransport({
@@ -204,7 +202,7 @@ const server = http.createServer(app);
 // Setup graceful shutdown with in-flight request completion
 const shutdownManager = setupGracefulShutdown(server, {
   shutdownTimeoutMs: 10000,
-  onShutdown: async() => {
+  onShutdown: async () => {
     logger.info('Running custom shutdown handlers');
     // Custom shutdown logic will be added here
   },
@@ -237,7 +235,7 @@ app.use(
     },
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'CloudToLocalLLM API Documentation',
-  }),
+  })
 );
 
 // Serve OpenAPI specification as JSON
@@ -260,7 +258,7 @@ app.use(
     },
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'CloudToLocalLLM API Documentation',
-  }),
+  })
 );
 
 app.get('/docs/swagger.json', (req, res) => {
@@ -283,7 +281,7 @@ const tunnelRouter = createTunnelRoutes(
   {}, // Config placeholder
   sshProxy,
   logger,
-  sshAuthService,
+  sshAuthService
 );
 
 // Create monitoring routes
@@ -382,7 +380,7 @@ registerRoutes('/user-deletion', userDeletionRoutes);
 registerRoutes('/webhook-event-filters', webhookEventFiltersRoutes);
 registerRoutes(
   '/webhook-payload-transformations',
-  webhookPayloadTransformationsRoutes,
+  webhookPayloadTransformationsRoutes
 );
 registerRoutes('/webhook-rate-limiting', webhookRateLimitingRoutes);
 registerRoutes('/webhook-testing', webhookTestingRoutes);
@@ -398,11 +396,16 @@ app.all(
   OLLAMA_ROUTE_REGEX,
   ...authenticateComposite,
   addTierInfo,
-  handleOllamaProxyRequest,
+  handleOllamaProxyRequest
 );
 
 // User tier endpoint
-registerRoutes('/user/tier', ...authenticateJWT, addTierInfo, ...userTierHandler);
+registerRoutes(
+  '/user/tier',
+  ...authenticateJWT,
+  addTierInfo,
+  ...userTierHandler
+);
 
 let isInitializing = true;
 
@@ -500,7 +503,7 @@ server.on('upgrade', (request, socket, head) => {
       }
     } else {
       logger.warn(
-        'SSH proxy not initialized or does not support WebSocket upgrade',
+        'SSH proxy not initialized or does not support WebSocket upgrade'
       );
       socket.destroy();
     }
@@ -548,7 +551,7 @@ app.use((error, req, res, _next) => {
 });
 
 // Conversation routes - implemented directly due to router mounting issues
-app.get('/conversations/', ...authenticateJWT, async(req, res) => {
+app.get('/conversations/', ...authenticateJWT, async (req, res) => {
   try {
     const userId = req.auth?.payload?.sub || req.user?.sub;
     if (!userId) {
@@ -571,7 +574,7 @@ app.get('/conversations/', ...authenticateJWT, async(req, res) => {
          FROM conversations
          WHERE user_id = $1
          ORDER BY updated_at DESC`,
-        [userId],
+        [userId]
       );
 
       res.json({ conversations: rows });
@@ -587,7 +590,7 @@ app.get('/conversations/', ...authenticateJWT, async(req, res) => {
   }
 });
 
-app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
+app.put('/conversations/:id', ...authenticateJWT, async (req, res) => {
   try {
     const userId = req.auth?.payload?.sub || req.user?.sub;
     const conversationId = req.params.id;
@@ -613,7 +616,7 @@ app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
       // Check if conversation exists
       const { rows: conversationRows } = await client.query(
         'SELECT id FROM conversations WHERE id = $1 AND user_id = $2',
-        [conversationId, userId],
+        [conversationId, userId]
       );
 
       if (conversationRows.length === 0) {
@@ -630,20 +633,20 @@ app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
             newTitle,
             newModel,
             JSON.stringify(metadata || {}),
-          ],
+          ]
         );
       } else {
         // Update existing conversation
         if (title) {
           await client.query(
             'UPDATE conversations SET title = $1 WHERE id = $2',
-            [title, conversationId],
+            [title, conversationId]
           );
         }
         if (metadata) {
           await client.query(
             'UPDATE conversations SET metadata = $1::jsonb WHERE id = $2',
-            [JSON.stringify(metadata), conversationId],
+            [JSON.stringify(metadata), conversationId]
           );
         }
       }
@@ -667,7 +670,7 @@ app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
               msg.error || null,
               msg.timestamp ? new Date(msg.timestamp) : new Date(),
               msg.metadata ? JSON.stringify(msg.metadata) : '{}',
-            ],
+            ]
           );
         }
       }
@@ -677,13 +680,13 @@ app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
       // Get updated conversation
       const { rows: updatedConversation } = await client.query(
         'SELECT id, title, model, created_at, updated_at, metadata FROM conversations WHERE id = $1',
-        [conversationId],
+        [conversationId]
       );
 
       const { rows: messageRows } = await client.query(
         `SELECT id, role, content, model, status, error, timestamp, metadata
          FROM messages WHERE conversation_id = $1 ORDER BY timestamp ASC`,
-        [conversationId],
+        [conversationId]
       );
 
       res.json({
@@ -712,13 +715,13 @@ app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
 });
 
 // Also mount at /api/conversations for backward compatibility
-app.get('/api/conversations/', async(req, res) => {
+app.get('/api/conversations/', async (req, res) => {
   // Redirect to the main route
   const url = req.originalUrl.replace('/api/conversations/', '/conversations/');
   res.redirect(307, url);
 });
 
-app.put('/api/conversations/:id', async(req, res) => {
+app.put('/api/conversations/:id', async (req, res) => {
   // Redirect to the main route
   const url = req.originalUrl.replace('/api/conversations/', '/conversations/');
   res.redirect(307, url);
@@ -775,8 +778,10 @@ async function initializeTunnelSystem(retries = 10) {
         if (attempt >= retries) {
           throw err;
         }
-        logger.warn(`Database initialization attempt ${attempt} failed: ${err.message}. Retrying in 5s...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        logger.warn(
+          `Database initialization attempt ${attempt} failed: ${err.message}. Retrying in 5s...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
     }
 
@@ -815,7 +820,7 @@ async function initializeTunnelSystem(retries = 10) {
       logger.info('Authentication service initialized successfully');
 
       // Register auth service with health check service
-      healthCheckService.registerService('auth-service', async() => {
+      healthCheckService.registerService('auth-service', async () => {
         return {
           status: authService ? 'healthy' : 'unhealthy',
           message: authService
@@ -834,13 +839,13 @@ async function initializeTunnelSystem(retries = 10) {
           {
             sshPort: parseInt(process.env.SSH_PORT) || 2222,
           },
-          sshAuthService,
+          sshAuthService
         );
         await sshProxy.start();
         logger.info('SSH tunnel server initialized successfully');
 
         // Register SSH proxy with health check service
-        healthCheckService.registerService('ssh-tunnel', async() => {
+        healthCheckService.registerService('ssh-tunnel', async () => {
           return {
             status: sshProxy && sshProxy.isRunning ? 'healthy' : 'unhealthy',
             message:
@@ -856,7 +861,7 @@ async function initializeTunnelSystem(retries = 10) {
         });
 
         // Register SSH proxy as unhealthy
-        healthCheckService.registerService('ssh-tunnel', async() => {
+        healthCheckService.registerService('ssh-tunnel', async () => {
           return {
             status: 'degraded',
             message: 'SSH tunnel service failed to initialize (non-critical)',
@@ -867,7 +872,7 @@ async function initializeTunnelSystem(retries = 10) {
     } catch (error) {
       logger.warn(
         'Authentication service initialization failed, continuing without auth features',
-        { error: error.message },
+        { error: error.message }
       );
       authService = null; // Set to null so routes can handle missing auth service
     }
@@ -943,7 +948,7 @@ async function initializeTunnelSystem(retries = 10) {
     logger.info('WebSocket tunnel system ready');
 
     // Register custom shutdown handler with graceful shutdown manager
-    shutdownManager.shutdown = async() => {
+    shutdownManager.shutdown = async () => {
       await gracefulShutdown();
     };
 
@@ -991,11 +996,13 @@ async function gracefulShutdown() {
 // Start server with enhanced tunnel system
 async function startServer() {
   logger.info('Starting server...');
-  
+
   // Listen early to pass healthchecks during initialization
   server.listen(PORT, '0.0.0.0', async () => {
-    logger.info(`CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT} (Initializing...)`);
-    
+    logger.info(
+      `CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT} (Initializing...)`
+    );
+
     try {
       await initializeTunnelSystem();
       isInitializing = false;

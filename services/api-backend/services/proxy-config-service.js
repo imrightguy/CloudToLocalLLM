@@ -15,14 +15,14 @@ export class ProxyConfigService {
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.errors({ stack: true }),
-          winston.format.json(),
+          winston.format.json()
         ),
         defaultMeta: { service: 'proxy-config' },
         transports: [
           new winston.transports.Console({
             format: winston.format.combine(
               winston.format.timestamp(),
-              winston.format.simple(),
+              winston.format.simple()
             ),
           }),
         ],
@@ -234,7 +234,7 @@ export class ProxyConfigService {
           mergedConfig.health_check_enabled,
           mergedConfig.health_check_interval_seconds,
           mergedConfig.health_check_timeout_seconds,
-        ],
+        ]
       );
 
       this.logger.info('Proxy configuration created', {
@@ -267,7 +267,7 @@ export class ProxyConfigService {
     try {
       const result = await this.db.query(
         'SELECT * FROM proxy_configurations WHERE proxy_id = $1',
-        [proxyId],
+        [proxyId]
       );
 
       if (result.rows.length === 0) {
@@ -296,7 +296,7 @@ export class ProxyConfigService {
     proxyId,
     userId,
     updates,
-    changeReason = 'Manual update',
+    changeReason = 'Manual update'
   ) {
     if (!proxyId || !userId) {
       throw new Error('proxyId and userId are required');
@@ -318,7 +318,7 @@ export class ProxyConfigService {
 
     // Determine changed fields
     const changedFields = Object.keys(updates).filter(
-      (key) => currentConfig[key] !== updates[key],
+      (key) => currentConfig[key] !== updates[key]
     );
 
     if (changedFields.length === 0) {
@@ -346,7 +346,7 @@ export class ProxyConfigService {
 
       const result = await this.db.query(
         `UPDATE proxy_configurations SET ${updateFields.join(', ')} WHERE proxy_id = $${paramIndex} RETURNING *`,
-        values,
+        values
       );
 
       const updatedConfig = result.rows[0];
@@ -364,7 +364,7 @@ export class ProxyConfigService {
           JSON.stringify(this.formatConfigResponse(updatedConfig)),
           changedFields,
           changeReason,
-        ],
+        ]
       );
 
       this.logger.info('Proxy configuration updated', {
@@ -398,7 +398,7 @@ export class ProxyConfigService {
     try {
       await this.db.query(
         'DELETE FROM proxy_configurations WHERE proxy_id = $1',
-        [proxyId],
+        [proxyId]
       );
 
       this.logger.info('Proxy configuration deleted', { proxyId });
@@ -428,7 +428,7 @@ export class ProxyConfigService {
          WHERE proxy_id = $1 
          ORDER BY created_at DESC 
          LIMIT $2`,
-        [proxyId, limit],
+        [proxyId, limit]
       );
 
       return result.rows;
@@ -455,7 +455,7 @@ export class ProxyConfigService {
     userId,
     config,
     description = '',
-    isDefault = false,
+    isDefault = false
   ) {
     if (!name || !userId) {
       throw new Error('name and userId are required');
@@ -474,7 +474,7 @@ export class ProxyConfigService {
         `INSERT INTO proxy_config_templates (name, description, template_config, is_default, created_by)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
-        [name, description, JSON.stringify(config), isDefault, userId],
+        [name, description, JSON.stringify(config), isDefault, userId]
       );
 
       this.logger.info('Configuration template created', {
@@ -507,7 +507,7 @@ export class ProxyConfigService {
     try {
       const result = await this.db.query(
         'SELECT * FROM proxy_config_templates WHERE id = $1',
-        [templateId],
+        [templateId]
       );
 
       if (result.rows.length === 0) {
@@ -531,7 +531,7 @@ export class ProxyConfigService {
   async getAllConfigTemplates() {
     try {
       const result = await this.db.query(
-        'SELECT * FROM proxy_config_templates ORDER BY is_default DESC, created_at DESC',
+        'SELECT * FROM proxy_config_templates ORDER BY is_default DESC, created_at DESC'
       );
 
       return result.rows;
@@ -550,7 +550,7 @@ export class ProxyConfigService {
   async getDefaultConfigTemplate() {
     try {
       const result = await this.db.query(
-        'SELECT * FROM proxy_config_templates WHERE is_default = true LIMIT 1',
+        'SELECT * FROM proxy_config_templates WHERE is_default = true LIMIT 1'
       );
 
       if (result.rows.length === 0) {
@@ -589,7 +589,7 @@ export class ProxyConfigService {
         proxyId,
         userId,
         templateConfig,
-        `Applied template: ${template.name}`,
+        `Applied template: ${template.name}`
       );
 
       this.logger.info('Configuration template applied', {

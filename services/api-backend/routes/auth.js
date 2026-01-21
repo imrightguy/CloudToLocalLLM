@@ -45,9 +45,10 @@ const TOKEN_REFRESH_WINDOW = parseInt(process.env.TOKEN_REFRESH_WINDOW) || 300; 
  *       400:
  *         description: Operation not supported on backend
  */
-router.post('/token/refresh', authCheckLimiter, async function(req, res) {
+router.post('/token/refresh', authCheckLimiter, async function (req, res) {
   return res.status(400).json({
-    error: 'Token refresh should be handled by the identity provider client SDK',
+    error:
+      'Token refresh should be handled by the identity provider client SDK',
     code: 'USE_AUTH_PROVIDER_SDK',
   });
 });
@@ -126,7 +127,7 @@ router.post('/token/refresh', authCheckLimiter, async function(req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/token/validate', authCheckLimiter, async function(req, res) {
+router.post('/token/validate', authCheckLimiter, async function (req, res) {
   try {
     const { token } = req.body;
     const authHeader = req.headers.authorization;
@@ -231,7 +232,7 @@ router.post('/token/validate', authCheckLimiter, async function(req, res) {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/logout', authenticateJWT, async function(req, res) {
+router.post('/logout', authenticateJWT, async function (req, res) {
   try {
     const userId = extractUserId(req);
 
@@ -332,7 +333,7 @@ router.post('/logout', authenticateJWT, async function(req, res) {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/session/revoke', authenticateJWT, async function(req, res) {
+router.post('/session/revoke', authenticateJWT, async function (req, res) {
   try {
     const userId = extractUserId(req);
     const { sessionId } = req.body;
@@ -431,7 +432,7 @@ router.post('/session/revoke', authenticateJWT, async function(req, res) {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get('/me', authenticateJWT, async function(req, res) {
+router.get('/me', authenticateJWT, async function (req, res) {
   try {
     const userId = extractUserId(req);
 
@@ -515,7 +516,7 @@ router.get('/me', authenticateJWT, async function(req, res) {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/token/check-expiry', authCheckLimiter, async function(req, res) {
+router.post('/token/check-expiry', authCheckLimiter, async function (req, res) {
   try {
     const { token } = req.body;
     const authHeader = req.headers.authorization;

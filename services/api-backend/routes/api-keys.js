@@ -65,7 +65,7 @@ const apiKeyOpsLimiter = rateLimit({
  *   "expiresAt": "ISO8601 or null"
  * }
  */
-router.post('/', apiKeyOpsLimiter, authenticateJWT, async(req, res) => {
+router.post('/', apiKeyOpsLimiter, authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { name, description, scopes, rateLimit, expiresIn } = req.body;
@@ -155,7 +155,7 @@ router.post('/', apiKeyOpsLimiter, authenticateJWT, async(req, res) => {
  *   }
  * ]
  */
-router.get('/', authenticateJWT, async(req, res) => {
+router.get('/', authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
 
@@ -198,7 +198,7 @@ router.get('/', authenticateJWT, async(req, res) => {
  *   "lastUsedAt": "ISO8601 or null"
  * }
  */
-router.get('/:keyId', authenticateJWT, async(req, res) => {
+router.get('/:keyId', authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;
@@ -244,7 +244,7 @@ router.get('/:keyId', authenticateJWT, async(req, res) => {
  *
  * Response: Updated API key object
  */
-router.patch('/:keyId', authenticateJWT, async(req, res) => {
+router.patch('/:keyId', authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;
@@ -253,7 +253,7 @@ router.patch('/:keyId', authenticateJWT, async(req, res) => {
     // Validate updates
     const allowedFields = ['name', 'description', 'scopes', 'rateLimit'];
     const invalidFields = Object.keys(updates).filter(
-      (field) => !allowedFields.includes(field),
+      (field) => !allowedFields.includes(field)
     );
 
     if (invalidFields.length > 0) {
@@ -348,7 +348,7 @@ router.post(
   '/:keyId/rotate',
   apiKeyOpsLimiter,
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const userId = extractUserId(req);
       const { keyId } = req.params;
@@ -379,7 +379,7 @@ router.post(
         code: 'ROTATION_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -391,7 +391,7 @@ router.post(
  *   "message": "API key revoked successfully"
  * }
  */
-router.post('/:keyId/revoke', authenticateJWT, async(req, res) => {
+router.post('/:keyId/revoke', authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;
@@ -439,7 +439,7 @@ router.post('/:keyId/revoke', authenticateJWT, async(req, res) => {
  *   }
  * ]
  */
-router.get('/:keyId/audit-logs', authenticateJWT, async(req, res) => {
+router.get('/:keyId/audit-logs', authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;

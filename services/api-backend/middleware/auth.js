@@ -20,8 +20,12 @@ const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
 if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
-  console.warn(' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).');
-  console.warn(' [WARNING] Authentication features will return 503 Service Unavailable.');
+  console.warn(
+    ' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).'
+  );
+  console.warn(
+    ' [WARNING] Authentication features will return 503 Service Unavailable.'
+  );
 }
 
 // Rigorous JWT verification middleware using industry-standard library
@@ -34,7 +38,8 @@ export const checkJwt = (req, res, next) => {
     return res.status(503).json({
       error: 'Authentication service not configured',
       code: 'AUTH_NOT_CONFIGURED',
-      message: 'The server is missing Auth0 configuration. Please check environment variables.',
+      message:
+        'The server is missing Auth0 configuration. Please check environment variables.',
     });
   }
 
@@ -46,9 +51,11 @@ export const checkJwt = (req, res, next) => {
 };
 
 // Use AuthService for session synchronization and revocation checks
-const authService = isAuthConfigured ? new AuthService({
-  AUTH0_AUDIENCE,
-}) : null;
+const authService = isAuthConfigured
+  ? new AuthService({
+      AUTH0_AUDIENCE,
+    })
+  : null;
 
 let authServiceInitialized = false;
 
@@ -102,7 +109,9 @@ export async function syncSession(req, res, next) {
       // For now, let's auto-sync if it's the first time we see this valid JWT.
       const session = await authService.syncSession(tokenPayload, token, req);
       if (!session || !session.is_active) {
-        logger.warn(` [Auth] Access denied: Session revoked or inactive for user ${userId}`);
+        logger.warn(
+          ` [Auth] Access denied: Session revoked or inactive for user ${userId}`
+        );
         return res.status(401).json({
           error: 'Unauthorized',
           code: 'SESSION_REVOKED',
@@ -147,7 +156,10 @@ export async function optionalAuth(req, res, next) {
     // If JWT is valid, also try to sync/check session but don't block
     syncSession(req, res, (syncErr) => {
       if (syncErr) {
-        logger.debug(' [Auth] Optional auth session sync failed:', syncErr.message);
+        logger.debug(
+          ' [Auth] Optional auth session sync failed:',
+          syncErr.message
+        );
       }
       next();
     });
@@ -161,7 +173,11 @@ export async function optionalAuth(req, res, next) {
 export const authenticateJWT = [
   // 1. Enforce HTTPS in production
   (req, res, next) => {
-    if (process.env.NODE_ENV === 'production' && req.get('x-forwarded-proto') !== 'https' && req.protocol !== 'https') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      req.get('x-forwarded-proto') !== 'https' &&
+      req.protocol !== 'https'
+    ) {
       return res.status(403).json({
         error: 'HTTPS required',
         code: 'HTTPS_REQUIRED',
@@ -214,7 +230,7 @@ export function requireScope(requiredScope) {
 
     if (!userScopes.includes(requiredScope)) {
       logger.warn(
-        ` [Auth] User ${req.user.sub} missing required scope: ${requiredScope}`,
+        ` [Auth] User ${req.user.sub} missing required scope: ${requiredScope}`
       );
       return res.status(403).json({
         error: 'Insufficient permissions',
@@ -226,7 +242,6 @@ export function requireScope(requiredScope) {
     next();
   };
 }
-
 
 /**
  * Container authentication middleware
@@ -267,7 +282,7 @@ export function authenticateContainer(req, res, next) {
   if (
     !crypto.timingSafeEqual(
       Buffer.from(signature),
-      Buffer.from(expectedSignature),
+      Buffer.from(expectedSignature)
     )
   ) {
     return res.status(403).json({

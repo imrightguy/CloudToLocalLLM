@@ -93,7 +93,7 @@ export async function logAuthEvent(options = {}) {
         ipAddress,
         userAgent,
         severity,
-      ],
+      ]
     );
 
     const auditLog = result.rows[0];

@@ -19,7 +19,7 @@ import { logger } from '../utils/logger.js';
 export async function executeWithRetryAndCircuitBreaker(
   serviceName,
   fn,
-  options = {},
+  options = {}
 ) {
   const {
     retryConfig = {},
@@ -48,7 +48,7 @@ export async function executeWithRetryAndCircuitBreaker(
 
   try {
     // Execute through circuit breaker, which will execute through retry
-    return await circuitBreaker.execute(async() => {
+    return await circuitBreaker.execute(async () => {
       return await retryService.execute(fn, context, args);
     });
   } catch (error) {
@@ -87,7 +87,7 @@ export function createRetryableClient(serviceName, client, options = {}) {
     if (typeof client[methodName] === 'function') {
       const originalMethod = client[methodName];
 
-      wrappedClient[methodName] = async function(...args) {
+      wrappedClient[methodName] = async function (...args) {
         return executeWithRetryAndCircuitBreaker(
           `${serviceName}.${methodName}`,
           originalMethod,
@@ -96,7 +96,7 @@ export function createRetryableClient(serviceName, client, options = {}) {
             circuitBreakerConfig,
             context: client,
             args,
-          },
+          }
         );
       };
     }
@@ -110,7 +110,7 @@ export function createRetryableClient(serviceName, client, options = {}) {
  */
 export function retryContextMiddleware(req, res, next) {
   // Add retry execution helper to request
-  req.executeWithRetry = async(serviceName, fn, options = {}) => {
+  req.executeWithRetry = async (serviceName, fn, options = {}) => {
     return executeWithRetryAndCircuitBreaker(serviceName, fn, {
       ...options,
       correlationId: req.correlationId,

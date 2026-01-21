@@ -20,7 +20,7 @@ const router = express.Router();
  * GET /failover/status
  * Get current failover status and health information
  */
-router.get('/status', async(req, res) => {
+router.get('/status', async (req, res) => {
   try {
     const failoverManager = getFailoverManager();
     const status = failoverManager.getFailoverStatus();
@@ -47,7 +47,7 @@ router.get('/status', async(req, res) => {
  * GET /failover/metrics
  * Get failover metrics and statistics
  */
-router.get('/metrics', async(req, res) => {
+router.get('/metrics', async (req, res) => {
   try {
     const failoverManager = getFailoverManager();
     const metrics = failoverManager.getMetrics();
@@ -74,7 +74,7 @@ router.get('/metrics', async(req, res) => {
  * GET /failover/health
  * Get detailed health information for all database instances
  */
-router.get('/health', async(req, res) => {
+router.get('/health', async (req, res) => {
   try {
     const failoverManager = getFailoverManager();
     const status = failoverManager.getFailoverStatus();
@@ -115,7 +115,7 @@ router.get('/health', async(req, res) => {
  * Manually trigger failover to a specific standby
  * Admin only
  */
-router.post('/trigger', async(req, res) => {
+router.post('/trigger', async (req, res) => {
   try {
     const { standbyIndex } = req.body;
 
@@ -176,7 +176,7 @@ router.post('/trigger', async(req, res) => {
  * Manually trigger health checks for all databases
  * Admin only
  */
-router.post('/check-health', async(req, res) => {
+router.post('/check-health', async (req, res) => {
   try {
     const failoverManager = getFailoverManager();
 
@@ -217,7 +217,7 @@ router.post('/check-health', async(req, res) => {
  * GET /failover/history
  * Get failover history and events
  */
-router.get('/history', async(req, res) => {
+router.get('/history', async (req, res) => {
   try {
     const failoverManager = getFailoverManager();
     const metrics = failoverManager.getMetrics();

@@ -6,7 +6,7 @@ export function setDbMigrator(migrator) {
   dbMigrator = migrator;
 }
 
-export const dbHealthHandler = async(req, res) => {
+export const dbHealthHandler = async (req, res) => {
   try {
     if (!dbMigrator) {
       return res.status(503).json({
@@ -21,7 +21,8 @@ export const dbHealthHandler = async(req, res) => {
     const dbType = process.env.DB_TYPE || 'postgresql';
 
     res.json({
-      status: validation.allValid ? 'healthy' : 'degraded',      database_type: dbType,
+      status: validation.allValid ? 'healthy' : 'degraded',
+      database_type: dbType,
       schema_validation: validation.results,
       all_tables_valid: validation.allValid,
       timestamp: new Date().toISOString(),

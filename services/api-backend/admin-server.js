@@ -38,7 +38,7 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'cloudtolocalllm-admin' },
   transports: [
@@ -47,7 +47,7 @@ const logger = winston.createLogger({
         winston.format.timestamp(),
         winston.format.printf(({ timestamp, level, message, ...meta }) => {
           return `${timestamp} [${level.toUpperCase()}]  [AdminPanel] ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
-        }),
+        })
       ),
     }),
   ],
@@ -72,13 +72,13 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ['\'self\''],
-        connectSrc: ['\'self\'', 'wss:', 'https:'],
-        scriptSrc: ['\'self\'', '\'unsafe-inline\''],
-        styleSrc: ['\'self\'', '\'unsafe-inline\''],
-        imgSrc: ['\'self\'', 'data:', 'https:'],
-        frameSrc: ['\'none\''],
-        objectSrc: ['\'none\''],
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", 'wss:', 'https:'],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
       },
     },
     hsts: {
@@ -86,7 +86,7 @@ app.use(
       includeSubDomains: true,
       preload: true,
     },
-  }),
+  })
 );
 
 // CORS configuration for admin interface
@@ -101,7 +101,7 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
+  })
 );
 
 // Strict rate limiting for admin operations
@@ -177,7 +177,7 @@ app.get(
   '/api/admin/system/stats',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] System statistics requested', {
         adminUserId: req.user.sub,
@@ -210,11 +210,11 @@ app.get(
       });
 
       const userContainers = containers.filter(
-        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy',
+        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy'
       );
 
       const activeUsers = new Set(
-        userContainers.map((c) => c.Labels['cloudtolocalllm.user']),
+        userContainers.map((c) => c.Labels['cloudtolocalllm.user'])
       ).size;
 
       const stats = {
@@ -230,8 +230,8 @@ app.get(
         lastFlushOperation:
           adminDataFlushService.flushHistory.length > 0
             ? adminDataFlushService.flushHistory[
-              adminDataFlushService.flushHistory.length - 1
-            ].startTime
+                adminDataFlushService.flushHistory.length - 1
+              ].startTime
             : null,
         timestamp: new Date().toISOString(),
       };
@@ -252,7 +252,7 @@ app.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 // Real-time system monitoring endpoint
@@ -260,7 +260,7 @@ app.get(
   '/api/admin/system/realtime',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.debug(' [AdminPanel] Real-time system data requested', {
         adminUserId: req.user.sub,
@@ -309,7 +309,7 @@ app.get(
         code: 'REALTIME_DATA_FAILED',
       });
     }
-  },
+  }
 );
 
 // Container management endpoints
@@ -317,7 +317,7 @@ app.get(
   '/api/admin/containers',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Container list requested', {
         adminUserId: req.user.sub,
@@ -331,7 +331,7 @@ app.get(
       });
 
       const containerDetails = await Promise.all(
-        containers.map(async(containerInfo) => {
+        containers.map(async (containerInfo) => {
           try {
             const container = docker.getContainer(containerInfo.Id);
             const stats = await container.stats({ stream: false });
@@ -371,7 +371,7 @@ app.get(
               stats: null,
             };
           }
-        }),
+        })
       );
 
       res.json({
@@ -389,7 +389,7 @@ app.get(
         code: 'CONTAINER_LIST_FAILED',
       });
     }
-  },
+  }
 );
 
 // Helper function to calculate CPU percentage
@@ -416,7 +416,7 @@ app.get(
   '/api/admin/networks',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Network list requested', {
         adminUserId: req.user.sub,
@@ -454,7 +454,7 @@ app.get(
         code: 'NETWORK_LIST_FAILED',
       });
     }
-  },
+  }
 );
 
 // Active sessions monitoring endpoint
@@ -462,7 +462,7 @@ app.get(
   '/api/admin/sessions',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Active sessions requested', {
         adminUserId: req.user.sub,
@@ -506,7 +506,7 @@ app.get(
         code: 'SESSIONS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 // System performance metrics endpoint
@@ -514,7 +514,7 @@ app.get(
   '/api/admin/system/performance',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.debug(' [AdminPanel] Performance metrics requested', {
         adminUserId: req.user.sub,
@@ -579,11 +579,11 @@ app.get(
         code: 'PERFORMANCE_METRICS_FAILED',
       });
     }
-  },
+  }
 );
 
 // User management endpoints
-app.get('/api/admin/users', authenticateJWT, requireAdmin, async(req, res) => {
+app.get('/api/admin/users', authenticateJWT, requireAdmin, async (req, res) => {
   try {
     logger.info(' [AdminPanel] User list requested', {
       adminUserId: req.user.sub,
@@ -670,7 +670,7 @@ app.get(
   '/api/admin/users/:userId/sessions',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { userId } = req.params;
 
@@ -688,7 +688,7 @@ app.get(
       });
 
       const sessions = await Promise.all(
-        containers.map(async(containerInfo) => {
+        containers.map(async (containerInfo) => {
           try {
             const container = docker.getContainer(containerInfo.Id);
             const inspect = await container.inspect();
@@ -722,7 +722,7 @@ app.get(
               error: 'Failed to get detailed information',
             };
           }
-        }),
+        })
       );
 
       res.json({
@@ -746,7 +746,7 @@ app.get(
         code: 'USER_SESSIONS_FAILED',
       });
     }
-  },
+  }
 );
 
 // Terminate user session endpoint
@@ -754,7 +754,7 @@ app.post(
   '/api/admin/users/:userId/sessions/:containerId/terminate',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { userId, containerId } = req.params;
 
@@ -809,7 +809,7 @@ app.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 // Configuration management endpoints
@@ -817,7 +817,7 @@ app.get(
   '/api/admin/config',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] System configuration requested', {
         adminUserId: req.user.sub,
@@ -866,7 +866,7 @@ app.get(
         code: 'CONFIG_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 // Environment variables endpoint (read-only, filtered)
@@ -874,7 +874,7 @@ app.get(
   '/api/admin/config/environment',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Environment variables requested', {
         adminUserId: req.user.sub,
@@ -894,7 +894,7 @@ app.get(
       const filteredEnv = Object.entries(process.env)
         .filter(([key]) => {
           return !sensitiveKeys.some((sensitive) =>
-            key.toUpperCase().includes(sensitive),
+            key.toUpperCase().includes(sensitive)
           );
         })
         .reduce((acc, [key, value]) => {
@@ -923,7 +923,7 @@ app.get(
         code: 'ENV_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 // Feature flags management endpoint
@@ -931,7 +931,7 @@ app.get(
   '/api/admin/config/features',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Feature flags requested', {
         adminUserId: req.user.sub,
@@ -976,7 +976,7 @@ app.get(
         code: 'FEATURES_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 // Service status endpoint
@@ -984,7 +984,7 @@ app.get(
   '/api/admin/config/services',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Service status requested', {
         adminUserId: req.user.sub,
@@ -1038,7 +1038,7 @@ app.get(
         code: 'SERVICES_STATUS_FAILED',
       });
     }
-  },
+  }
 );
 
 // Enhanced container management endpoints
@@ -1048,7 +1048,7 @@ app.get(
   '/api/admin/containers/:containerId/logs',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { containerId } = req.params;
       const { lines = 100, follow = false } = req.query;
@@ -1124,7 +1124,7 @@ app.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 // Container resource usage endpoint
@@ -1132,7 +1132,7 @@ app.get(
   '/api/admin/containers/:containerId/stats',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { containerId } = req.params;
 
@@ -1175,11 +1175,11 @@ app.get(
         blockIO: {
           readBytes:
             stats.blkio_stats.io_service_bytes_recursive?.find(
-              (item) => item.op === 'Read',
+              (item) => item.op === 'Read'
             )?.value || 0,
           writeBytes:
             stats.blkio_stats.io_service_bytes_recursive?.find(
-              (item) => item.op === 'Write',
+              (item) => item.op === 'Write'
             )?.value || 0,
         },
         timestamp: new Date().toISOString(),
@@ -1202,7 +1202,7 @@ app.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 // Network topology endpoint
@@ -1210,7 +1210,7 @@ app.get(
   '/api/admin/network/topology',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       logger.info(' [AdminPanel] Network topology requested', {
         adminUserId: req.user.sub,
@@ -1234,7 +1234,7 @@ app.get(
       // Build network topology
       const topology = {
         networks: await Promise.all(
-          networks.map(async(network) => {
+          networks.map(async (network) => {
             const networkDetail = await docker.getNetwork(network.Id).inspect();
 
             return {
@@ -1247,7 +1247,7 @@ app.get(
               ipam: networkDetail.IPAM,
               options: networkDetail.Options,
             };
-          }),
+          })
         ),
         containers: containers.map((container) => ({
           id: container.Id,
@@ -1264,7 +1264,7 @@ app.get(
       topology.networks.forEach((network) => {
         network.containers.forEach((containerId) => {
           const container = topology.containers.find((c) =>
-            c.id.startsWith(containerId),
+            c.id.startsWith(containerId)
           );
           if (container) {
             topology.connections.push({
@@ -1292,7 +1292,7 @@ app.get(
         code: 'NETWORK_TOPOLOGY_FAILED',
       });
     }
-  },
+  }
 );
 
 // Import and mount existing admin routes

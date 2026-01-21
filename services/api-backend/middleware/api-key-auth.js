@@ -211,7 +211,7 @@ export function apiKeyAuth(_options = {}) {
     res.set('X-RateLimit-Limit', rateLimit.toString());
     res.set(
       'X-RateLimit-Remaining',
-      Math.max(0, rateLimit - keyData.count).toString(),
+      Math.max(0, rateLimit - keyData.count).toString()
     );
     res.set('X-RateLimit-Reset', (keyData.windowStart + windowMs).toString());
 

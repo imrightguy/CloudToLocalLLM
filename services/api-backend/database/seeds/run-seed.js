@@ -99,7 +99,7 @@ async function cleanSeedData() {
   try {
     console.log('Cleaning seed data...');
     console.log(
-      '⚠️  WARNING: This will delete all test data from the database',
+      '⚠️  WARNING: This will delete all test data from the database'
     );
 
     // Begin transaction
@@ -141,7 +141,7 @@ async function cleanSeedData() {
 
       console.log('  Deleting test users...');
       await client.query(
-        'DELETE FROM users WHERE email LIKE \'test.%@example.com\'',
+        "DELETE FROM users WHERE email LIKE 'test.%@example.com'"
       );
 
       // Commit transaction
@@ -181,21 +181,21 @@ async function main() {
 
   try {
     switch (command) {
-    case 'apply':
-      if (!version) {
-        console.error('Error: Version required for "apply" command');
+      case 'apply':
+        if (!version) {
+          console.error('Error: Version required for "apply" command');
+          process.exit(1);
+        }
+        await applySeed(version);
+        break;
+
+      case 'clean':
+        await cleanSeedData();
+        break;
+
+      default:
+        console.error(`Unknown command: ${command}`);
         process.exit(1);
-      }
-      await applySeed(version);
-      break;
-
-    case 'clean':
-      await cleanSeedData();
-      break;
-
-    default:
-      console.error(`Unknown command: ${command}`);
-      process.exit(1);
     }
   } catch (error) {
     console.error('Seed operation failed:', error);

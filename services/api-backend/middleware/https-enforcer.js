@@ -56,7 +56,7 @@ export function setHstsHeader(req, res, next) {
     // preload: Allow inclusion in browser HSTS preload lists
     res.setHeader(
       'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload',
+      'max-age=31536000; includeSubDomains; preload'
     );
   }
 
@@ -71,7 +71,7 @@ export function setSecureCookieOptions(req, res, next) {
   // Override res.cookie to add secure flags
   const originalCookie = res.cookie.bind(res);
 
-  res.cookie = function(name, value, options = {}) {
+  res.cookie = function (name, value, options = {}) {
     // In production, always set secure flag
     if (process.env.NODE_ENV !== 'development') {
       options.secure = true;
@@ -109,7 +109,7 @@ export function setSecurityHeaders(req, res, next) {
   // Permissions-Policy: Control browser features
   res.setHeader(
     'Permissions-Policy',
-    'geolocation=(), microphone=(), camera=(), payment=()',
+    'geolocation=(), microphone=(), camera=(), payment=()'
   );
 
   next();
@@ -170,7 +170,7 @@ export function adminHttpsEnforcement(req, res, next) {
 
   if (!isSecure && process.env.NODE_ENV !== 'development') {
     console.error(
-      `Admin endpoint requires HTTPS: ${req.method} ${req.url} from ${req.ip}`,
+      `Admin endpoint requires HTTPS: ${req.method} ${req.url} from ${req.ip}`
     );
     return res.status(403).json({
       error: 'HTTPS required for admin access',
@@ -183,7 +183,7 @@ export function adminHttpsEnforcement(req, res, next) {
   if (process.env.NODE_ENV !== 'development') {
     res.setHeader(
       'Strict-Transport-Security',
-      'max-age=63072000; includeSubDomains; preload', // 2 years
+      'max-age=63072000; includeSubDomains; preload' // 2 years
     );
   }
 
@@ -194,7 +194,7 @@ export function adminHttpsEnforcement(req, res, next) {
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader(
     'Permissions-Policy',
-    'geolocation=(), microphone=(), camera=(), payment=()',
+    'geolocation=(), microphone=(), camera=(), payment=()'
   );
 
   // Set secure cookie options

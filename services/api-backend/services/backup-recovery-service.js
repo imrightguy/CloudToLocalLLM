@@ -82,7 +82,7 @@ export class BackupRecoveryService {
         '🔴 [BackupRecovery] Failed to initialize backup directory',
         {
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -121,7 +121,7 @@ export class BackupRecoveryService {
 
       const backupFile = path.join(
         this.backupDir,
-        `backup_${backupId}_full.sql${this.compressionEnabled ? '.gz' : ''}`,
+        `backup_${backupId}_full.sql${this.compressionEnabled ? '.gz' : ''}`
       );
 
       const startTime = Date.now();
@@ -330,7 +330,7 @@ export class BackupRecoveryService {
   async listBackups() {
     try {
       const backups = Array.from(this.backupMetadata.values()).sort(
-        (a, b) => new Date(b.startTime) - new Date(a.startTime),
+        (a, b) => new Date(b.startTime) - new Date(a.startTime)
       );
 
       logger.debug('📋 [BackupRecovery] Listing backups', {
@@ -509,7 +509,7 @@ export class BackupRecoveryService {
   async _cleanupOldBackups() {
     try {
       const backups = Array.from(this.backupMetadata.values()).sort(
-        (a, b) => new Date(b.startTime) - new Date(a.startTime),
+        (a, b) => new Date(b.startTime) - new Date(a.startTime)
       );
 
       const now = Date.now();
@@ -526,7 +526,7 @@ export class BackupRecoveryService {
 
       // Keep only max backups
       const remainingBackups = Array.from(this.backupMetadata.values()).sort(
-        (a, b) => new Date(b.startTime) - new Date(a.startTime),
+        (a, b) => new Date(b.startTime) - new Date(a.startTime)
       );
 
       for (let i = this.maxBackups; i < remainingBackups.length; i++) {

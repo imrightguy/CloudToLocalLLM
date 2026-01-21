@@ -36,7 +36,7 @@ export class WebhookRateLimiterService {
         throw new Error('Database pool not initialized');
       }
       logger.info(
-        '[WebhookRateLimiter] Webhook rate limiter service initialized',
+        '[WebhookRateLimiter] Webhook rate limiter service initialized'
       );
 
       // Start cleanup interval for cache
@@ -46,7 +46,7 @@ export class WebhookRateLimiterService {
         '[WebhookRateLimiter] Failed to initialize rate limiter service',
         {
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -61,7 +61,7 @@ export class WebhookRateLimiterService {
       () => {
         this.cleanupCache();
       },
-      5 * 60 * 1000,
+      5 * 60 * 1000
     );
   }
 
@@ -116,7 +116,7 @@ export class WebhookRateLimiterService {
              rate_limit_per_day, is_enabled, created_at, updated_at
            FROM webhook_rate_limits
            WHERE webhook_id = $1 AND user_id = $2`,
-          [webhookId, userId],
+          [webhookId, userId]
         );
 
         if (result.rows.length > 0) {
@@ -164,7 +164,7 @@ export class WebhookRateLimiterService {
         // Check if config exists
         const existing = await client.query(
           'SELECT id FROM webhook_rate_limits WHERE webhook_id = $1 AND user_id = $2',
-          [webhookId, userId],
+          [webhookId, userId]
         );
 
         let result;
@@ -186,7 +186,7 @@ export class WebhookRateLimiterService {
               config.is_enabled !== false,
               webhookId,
               userId,
-            ],
+            ]
           );
         } else {
           // Create new config
@@ -202,7 +202,7 @@ export class WebhookRateLimiterService {
               config.rate_limit_per_hour,
               config.rate_limit_per_day,
               config.is_enabled !== false,
-            ],
+            ]
           );
         }
 
@@ -274,15 +274,15 @@ export class WebhookRateLimiterService {
 
       // Clean up old entries from cache
       cacheEntry.deliveries = cacheEntry.deliveries.filter(
-        (timestamp) => timestamp > oneDayAgo,
+        (timestamp) => timestamp > oneDayAgo
       );
 
       // Count deliveries in each window
       const minuteCount = cacheEntry.deliveries.filter(
-        (timestamp) => timestamp > oneMinuteAgo,
+        (timestamp) => timestamp > oneMinuteAgo
       ).length;
       const hourCount = cacheEntry.deliveries.filter(
-        (timestamp) => timestamp > oneHourAgo,
+        (timestamp) => timestamp > oneHourAgo
       ).length;
       const dayCount = cacheEntry.deliveries.length;
 
@@ -342,7 +342,7 @@ export class WebhookRateLimiterService {
           `INSERT INTO webhook_rate_limit_tracking 
            (webhook_id, user_id, delivery_id, status, created_at)
            VALUES ($1, $2, $3, $4, NOW())`,
-          [webhookId, userId, deliveryData.delivery_id, deliveryData.status],
+          [webhookId, userId, deliveryData.delivery_id, deliveryData.status]
         );
       } finally {
         client.release();
@@ -377,7 +377,7 @@ export class WebhookRateLimiterService {
              COUNT(CASE WHEN created_at > NOW() - INTERVAL '1 day' THEN 1 END) as day_count
            FROM webhook_rate_limit_tracking
            WHERE webhook_id = $1 AND user_id = $2`,
-          [webhookId, userId],
+          [webhookId, userId]
         );
 
         return (

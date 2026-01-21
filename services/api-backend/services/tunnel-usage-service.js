@@ -39,7 +39,7 @@ export class TunnelUsageService {
         '[TunnelUsageService] Failed to initialize tunnel usage service',
         {
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -70,7 +70,7 @@ export class TunnelUsageService {
 
       if (!validEventTypes.includes(eventType)) {
         throw new Error(
-          `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`,
+          `Invalid event type. Must be one of: ${validEventTypes.join(', ')}`
         );
       }
 
@@ -88,7 +88,7 @@ export class TunnelUsageService {
           eventData.durationSeconds || null,
           eventData.errorMessage || null,
           eventData.ipAddress || null,
-        ],
+        ]
       );
 
       logger.debug('[TunnelUsageService] Usage event recorded', {
@@ -122,7 +122,7 @@ export class TunnelUsageService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -131,7 +131,7 @@ export class TunnelUsageService {
 
       const result = await this.pool.query(
         'SELECT * FROM tunnel_usage_metrics WHERE tunnel_id = $1 AND date = $2',
-        [tunnelId, date],
+        [tunnelId, date]
       );
 
       if (result.rows.length === 0) {
@@ -187,7 +187,7 @@ export class TunnelUsageService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -198,7 +198,7 @@ export class TunnelUsageService {
         `SELECT * FROM tunnel_usage_metrics 
          WHERE tunnel_id = $1 AND date >= $2 AND date <= $3
          ORDER BY date ASC`,
-        [tunnelId, startDate, endDate],
+        [tunnelId, startDate, endDate]
       );
 
       return result.rows.map((metrics) => ({
@@ -222,7 +222,7 @@ export class TunnelUsageService {
           startDate,
           endDate,
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -242,7 +242,7 @@ export class TunnelUsageService {
       const result = await this.pool.query(
         `SELECT * FROM tunnel_usage_aggregation 
          WHERE user_id = $1 AND period_start = $2 AND period_end = $3`,
-        [userId, periodStart, periodEnd],
+        [userId, periodStart, periodEnd]
       );
 
       if (result.rows.length === 0) {
@@ -288,7 +288,7 @@ export class TunnelUsageService {
           periodStart,
           periodEnd,
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -311,7 +311,7 @@ export class TunnelUsageService {
       // Get all tunnels for the user
       const tunnelsResult = await client.query(
         'SELECT id FROM tunnels WHERE user_id = $1',
-        [userId],
+        [userId]
       );
 
       const tunnelIds = tunnelsResult.rows.map((row) => row.id);
@@ -327,7 +327,7 @@ export class TunnelUsageService {
            ON CONFLICT (user_id, period_start, period_end) 
            DO UPDATE SET updated_at = NOW()
            RETURNING *`,
-          [userId, userTier, periodStart, periodEnd],
+          [userId, userTier, periodStart, periodEnd]
         );
 
         await client.query('COMMIT');
@@ -346,7 +346,7 @@ export class TunnelUsageService {
            SUM(success_count) as total_success_count
          FROM tunnel_usage_metrics 
          WHERE tunnel_id = ANY($1) AND date >= $2 AND date <= $3`,
-        [tunnelIds, periodStart, periodEnd],
+        [tunnelIds, periodStart, periodEnd]
       );
 
       const aggregateData = aggregateResult.rows[0];
@@ -383,7 +383,7 @@ export class TunnelUsageService {
           Math.round(aggregateData.average_connection_duration_seconds || 0),
           aggregateData.total_error_count || 0,
           aggregateData.total_success_count || 0,
-        ],
+        ]
       );
 
       await client.query('COMMIT');
@@ -445,7 +445,7 @@ export class TunnelUsageService {
            WHERE user_id = $1 AND date >= $2 AND date <= $3
            GROUP BY date
            ORDER BY date ASC`,
-          [userId, startDate, endDate],
+          [userId, startDate, endDate]
         );
 
         return {
@@ -481,7 +481,7 @@ export class TunnelUsageService {
            WHERE user_id = $1 AND date >= $2 AND date <= $3
            GROUP BY tunnel_id
            ORDER BY total_connections DESC`,
-          [userId, startDate, endDate],
+          [userId, startDate, endDate]
         );
 
         return {
@@ -530,7 +530,7 @@ export class TunnelUsageService {
         userId,
         userTier,
         periodStart,
-        periodEnd,
+        periodEnd
       );
 
       // Calculate billing based on tier

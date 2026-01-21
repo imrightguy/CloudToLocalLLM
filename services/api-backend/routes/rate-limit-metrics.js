@@ -50,7 +50,7 @@ const logger = new TunnelLogger('rate-limit-metrics-routes');
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get('/metrics', async(req, res) => {
+router.get('/metrics', async (req, res) => {
   try {
     res.set('Content-Type', register.contentType);
     res.end(await register.metrics());
@@ -128,7 +128,7 @@ router.get('/metrics', async(req, res) => {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.get('/rate-limit-metrics/summary', authenticateJWT, async(req, res) => {
+router.get('/rate-limit-metrics/summary', authenticateJWT, async (req, res) => {
   try {
     const summary = rateLimitMetricsService.getMetricsSummary();
 
@@ -217,7 +217,7 @@ router.get(
   '/rate-limit-metrics/top-violators',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const limit = Math.min(parseInt(req.query.limit) || 10, 100);
       const topViolators = rateLimitMetricsService.getTopViolators(limit);
@@ -241,7 +241,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -318,7 +318,7 @@ router.get(
   '/rate-limit-metrics/top-ips',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const limit = Math.min(parseInt(req.query.limit) || 10, 100);
       const topIps = rateLimitMetricsService.getTopViolatingIps(limit);
@@ -342,7 +342,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -430,7 +430,7 @@ router.get(
   '/rate-limit-metrics/dashboard-data',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const summary = rateLimitMetricsService.getMetricsSummary();
       const topViolators = rateLimitMetricsService.getTopViolators(10);
@@ -458,7 +458,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;

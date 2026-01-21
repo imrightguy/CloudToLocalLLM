@@ -46,7 +46,7 @@ router.get(
   '/revenue',
   adminReadOnlyLimiter,
   adminAuth(['view_reports']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
 
@@ -123,7 +123,7 @@ router.get(
         totalRevenue: parseFloat(overallMetrics.total_revenue),
         transactionCount: parseInt(overallMetrics.transaction_count),
         averageTransactionValue: parseFloat(
-          overallMetrics.average_transaction_value,
+          overallMetrics.average_transaction_value
         ),
       };
 
@@ -191,7 +191,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;
@@ -219,7 +219,7 @@ router.get(
   '/subscriptions',
   adminReadOnlyLimiter,
   adminAuth(['view_reports']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
 
@@ -411,7 +411,7 @@ router.get(
           activeSubscriptions,
           churnRate: response.churnRate,
           mrr: monthlyRecurringRevenue,
-        },
+        }
       );
 
       res.json(response);
@@ -422,7 +422,7 @@ router.get(
           error: error.message,
           stack: error.stack,
           adminUserId: req.adminUser?.id,
-        },
+        }
       );
 
       res.status(500).json({
@@ -430,7 +430,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -574,7 +574,7 @@ router.get(
   '/export',
   adminExpensiveLimiter,
   adminAuth(['export_reports']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
 
@@ -641,57 +641,57 @@ router.get(
       let filename;
 
       switch (type) {
-      case 'revenue':
-        reportData = await generateRevenueReportData(pool, start, end);
-        headers = [
-          'id',
-          'created_at',
-          'user_email',
-          'username',
-          'amount',
-          'currency',
-          'status',
-          'subscription_tier',
-          'payment_method_type',
-          'payment_method_last4',
-        ];
-        filename = `revenue_report_${startDate}_${endDate}`;
-        break;
+        case 'revenue':
+          reportData = await generateRevenueReportData(pool, start, end);
+          headers = [
+            'id',
+            'created_at',
+            'user_email',
+            'username',
+            'amount',
+            'currency',
+            'status',
+            'subscription_tier',
+            'payment_method_type',
+            'payment_method_last4',
+          ];
+          filename = `revenue_report_${startDate}_${endDate}`;
+          break;
 
-      case 'subscriptions':
-        reportData = await generateSubscriptionReportData(pool, start, end);
-        headers = [
-          'id',
-          'created_at',
-          'user_email',
-          'username',
-          'tier',
-          'status',
-          'current_period_start',
-          'current_period_end',
-          'canceled_at',
-          'cancel_at_period_end',
-        ];
-        filename = `subscription_report_${startDate}_${endDate}`;
-        break;
+        case 'subscriptions':
+          reportData = await generateSubscriptionReportData(pool, start, end);
+          headers = [
+            'id',
+            'created_at',
+            'user_email',
+            'username',
+            'tier',
+            'status',
+            'current_period_start',
+            'current_period_end',
+            'canceled_at',
+            'cancel_at_period_end',
+          ];
+          filename = `subscription_report_${startDate}_${endDate}`;
+          break;
 
-      case 'transactions':
-        reportData = await generateTransactionReportData(pool, start, end);
-        headers = [
-          'id',
-          'created_at',
-          'user_email',
-          'username',
-          'amount',
-          'currency',
-          'status',
-          'payment_method_type',
-          'payment_method_last4',
-          'stripe_payment_intent_id',
-          'subscription_tier',
-        ];
-        filename = `transaction_report_${startDate}_${endDate}`;
-        break;
+        case 'transactions':
+          reportData = await generateTransactionReportData(pool, start, end);
+          headers = [
+            'id',
+            'created_at',
+            'user_email',
+            'username',
+            'amount',
+            'currency',
+            'status',
+            'payment_method_type',
+            'payment_method_last4',
+            'stripe_payment_intent_id',
+            'subscription_tier',
+          ];
+          filename = `transaction_report_${startDate}_${endDate}`;
+          break;
       }
 
       // Export based on format
@@ -701,7 +701,7 @@ router.get(
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader(
           'Content-Disposition',
-          `attachment; filename="${filename}.csv"`,
+          `attachment; filename="${filename}.csv"`
         );
         res.send(csv);
       } else if (format === 'pdf') {
@@ -713,11 +713,11 @@ router.get(
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader(
           'Content-Disposition',
-          `attachment; filename="${filename}.csv"`,
+          `attachment; filename="${filename}.csv"`
         );
         res.setHeader(
           'X-PDF-Note',
-          'PDF export not yet implemented, returning CSV format',
+          'PDF export not yet implemented, returning CSV format'
         );
         res.send(csv);
       }
@@ -758,5 +758,5 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );

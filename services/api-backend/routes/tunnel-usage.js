@@ -46,7 +46,7 @@ export function initializeTunnelUsageRoutes(service) {
 router.get(
   '/tunnels/:tunnelId/usage/:date',
   authenticateJWT,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const { tunnelId, date } = req.params;
       const userId = req.user.sub;
@@ -64,7 +64,7 @@ router.get(
       const metrics = await usageService.getTunnelUsageMetrics(
         tunnelId,
         userId,
-        date,
+        date
       );
 
       res.json({
@@ -106,7 +106,7 @@ router.get(
         },
       });
     }
-  },
+  }
 );
 
 /**
@@ -123,7 +123,7 @@ router.get(
 router.get(
   '/tunnels/:tunnelId/usage',
   authenticateJWT,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const { tunnelId } = req.params;
       const { startDate, endDate } = req.query;
@@ -155,7 +155,7 @@ router.get(
         tunnelId,
         userId,
         startDate,
-        endDate,
+        endDate
       );
 
       res.json({
@@ -170,7 +170,7 @@ router.get(
           startDate: req.query.startDate,
           endDate: req.query.endDate,
           error: error.message,
-        },
+        }
       );
 
       if (error.message === 'Tunnel not found') {
@@ -201,7 +201,7 @@ router.get(
         },
       });
     }
-  },
+  }
 );
 
 /**
@@ -216,7 +216,7 @@ router.get(
  * Response: 200 OK with usage report
  * Error: 400 Bad Request, 401 Unauthorized, 500 Internal Server Error
  */
-router.get('/users/usage/report', authenticateJWT, async function(req, res) {
+router.get('/users/usage/report', authenticateJWT, async function (req, res) {
   try {
     const userId = req.user.sub;
     const { startDate, endDate, groupBy = 'day' } = req.query;
@@ -301,7 +301,7 @@ router.get('/users/usage/report', authenticateJWT, async function(req, res) {
  * Response: 200 OK with billing summary
  * Error: 400 Bad Request, 401 Unauthorized, 500 Internal Server Error
  */
-router.get('/users/usage/billing', authenticateJWT, async function(req, res) {
+router.get('/users/usage/billing', authenticateJWT, async function (req, res) {
   try {
     const userId = req.user.sub;
     const { periodStart, periodEnd } = req.query;
@@ -332,7 +332,7 @@ router.get('/users/usage/billing', authenticateJWT, async function(req, res) {
       userId,
       userTier,
       periodStart,
-      periodEnd,
+      periodEnd
     );
 
     res.json({
@@ -387,7 +387,7 @@ router.get('/users/usage/billing', authenticateJWT, async function(req, res) {
 router.post(
   '/tunnels/:tunnelId/usage/events',
   authenticateJWT,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const { tunnelId } = req.params;
       const userId = req.user.sub;
@@ -438,7 +438,7 @@ router.post(
           durationSeconds,
           errorMessage,
           ipAddress,
-        },
+        }
       );
 
       res.status(201).json({
@@ -470,7 +470,7 @@ router.post(
         },
       });
     }
-  },
+  }
 );
 
 export default router;

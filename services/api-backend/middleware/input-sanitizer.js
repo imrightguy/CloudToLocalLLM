@@ -28,7 +28,7 @@ export function sanitizeString(input) {
   // Remove any potential script tags
   sanitized = sanitized.replace(
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    '',
+    ''
   );
 
   // Remove any potential event handlers
@@ -198,7 +198,7 @@ export function sanitizeLikePattern(pattern) {
     .replace(/\\/g, '\\\\') // Escape backslash
     .replace(/%/g, '\\%') // Escape percent
     .replace(/_/g, '\\_') // Escape underscore
-    .replace(/'/g, '\'\''); // Escape single quote
+    .replace(/'/g, "''"); // Escape single quote
 
   // Remove any potential SQL injection attempts
   sanitized = sanitized.replace(/;/g, '');

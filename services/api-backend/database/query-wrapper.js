@@ -106,7 +106,7 @@ export function wrapPoolQuery(originalQuery) {
     return executeTrackedQuery(
       () => originalQuery.call(this, queryText, params),
       queryText,
-      params,
+      params
     );
   };
 }
@@ -123,7 +123,7 @@ export function wrapClientQuery(originalQuery) {
     return executeTrackedQuery(
       () => originalQuery.call(this, queryText, params),
       queryText,
-      params,
+      params
     );
   };
 }
@@ -138,16 +138,16 @@ export function wrapClientQuery(originalQuery) {
 export function wrapPool(pool) {
   const originalQuery = pool.query.bind(pool);
 
-  pool.query = async function(queryText, params) {
+  pool.query = async function (queryText, params) {
     return executeTrackedQuery(
       () => originalQuery(queryText, params),
       queryText,
-      params,
+      params
     );
   };
 
   logger.info(
-    '🔵 [Query Wrapper] Pool query method wrapped for performance tracking',
+    '🔵 [Query Wrapper] Pool query method wrapped for performance tracking'
   );
 
   return pool;
@@ -163,11 +163,11 @@ export function wrapPool(pool) {
 export function wrapClient(client) {
   const originalQuery = client.query.bind(client);
 
-  client.query = async function(queryText, params) {
+  client.query = async function (queryText, params) {
     return executeTrackedQuery(
       () => originalQuery(queryText, params),
       queryText,
-      params,
+      params
     );
   };
 

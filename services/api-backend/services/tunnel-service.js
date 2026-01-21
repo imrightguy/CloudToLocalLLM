@@ -68,7 +68,7 @@ export class TunnelService {
       // Validate tunnel name
       if (!name || typeof name !== 'string' || name.trim().length === 0) {
         throw new Error(
-          'Tunnel name is required and must be a non-empty string',
+          'Tunnel name is required and must be a non-empty string'
         );
       }
 
@@ -79,7 +79,7 @@ export class TunnelService {
       // Check for duplicate tunnel name for this user
       const existingTunnel = await client.query(
         'SELECT id FROM tunnels WHERE user_id = $1 AND name = $2',
-        [userId, name],
+        [userId, name]
       );
 
       if (existingTunnel.rows.length > 0) {
@@ -99,7 +99,7 @@ export class TunnelService {
           JSON.stringify(config),
           ipAddress,
           userAgent,
-        ],
+        ]
       );
 
       const tunnel = tunnelResult.rows[0];
@@ -119,7 +119,7 @@ export class TunnelService {
               endpoint.url,
               endpoint.priority || 0,
               endpoint.weight || 1,
-            ],
+            ]
           );
           endpointsList.push(endpointResult.rows[0]);
         }
@@ -129,7 +129,7 @@ export class TunnelService {
       await client.query(
         `INSERT INTO tunnel_activity_logs (tunnel_id, user_id, action, status, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, userId, 'create', 'success', ipAddress, userAgent],
+        [tunnelId, userId, 'create', 'success', ipAddress, userAgent]
       );
 
       await client.query('COMMIT');
@@ -169,7 +169,7 @@ export class TunnelService {
     try {
       const result = await this.pool.query(
         'SELECT * FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (result.rows.length === 0) {
@@ -181,7 +181,7 @@ export class TunnelService {
       // Get endpoints
       const endpointsResult = await this.pool.query(
         'SELECT * FROM tunnel_endpoints WHERE tunnel_id = $1 ORDER BY priority DESC, weight DESC',
-        [tunnelId],
+        [tunnelId]
       );
 
       return {
@@ -225,7 +225,7 @@ export class TunnelService {
       // Get total count
       const countResult = await this.pool.query(
         'SELECT COUNT(*) as count FROM tunnels WHERE user_id = $1',
-        [userId],
+        [userId]
       );
 
       const total = parseInt(countResult.rows[0].count, 10);
@@ -233,14 +233,14 @@ export class TunnelService {
       // Get tunnels
       const result = await this.pool.query(
         'SELECT * FROM tunnels WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
-        [userId, limit, offset],
+        [userId, limit, offset]
       );
 
       const tunnels = await Promise.all(
-        result.rows.map(async(tunnel) => {
+        result.rows.map(async (tunnel) => {
           const endpointsResult = await this.pool.query(
             'SELECT * FROM tunnel_endpoints WHERE tunnel_id = $1 ORDER BY priority DESC',
-            [tunnel.id],
+            [tunnel.id]
           );
 
           return {
@@ -249,7 +249,7 @@ export class TunnelService {
             metrics: JSON.parse(tunnel.metrics),
             endpoints: endpointsResult.rows,
           };
-        }),
+        })
       );
 
       return {
@@ -285,7 +285,7 @@ export class TunnelService {
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT * FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -311,7 +311,7 @@ export class TunnelService {
         // Check for duplicate name
         const duplicateResult = await client.query(
           'SELECT id FROM tunnels WHERE user_id = $1 AND name = $2 AND id != $3',
-          [userId, name, tunnelId],
+          [userId, name, tunnelId]
         );
 
         if (duplicateResult.rows.length > 0) {
@@ -339,7 +339,7 @@ export class TunnelService {
         // Delete existing endpoints
         await client.query(
           'DELETE FROM tunnel_endpoints WHERE tunnel_id = $1',
-          [tunnelId],
+          [tunnelId]
         );
 
         // Add new endpoints
@@ -354,7 +354,7 @@ export class TunnelService {
               endpoint.url,
               endpoint.priority || 0,
               endpoint.weight || 1,
-            ],
+            ]
           );
         }
       }
@@ -363,7 +363,7 @@ export class TunnelService {
       await client.query(
         `INSERT INTO tunnel_activity_logs (tunnel_id, user_id, action, status, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, userId, 'update', 'success', ipAddress, userAgent],
+        [tunnelId, userId, 'update', 'success', ipAddress, userAgent]
       );
 
       await client.query('COMMIT');
@@ -408,7 +408,7 @@ export class TunnelService {
 
     if (!validStatuses.includes(status)) {
       throw new Error(
-        `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
+        `Invalid status. Must be one of: ${validStatuses.join(', ')}`
       );
     }
 
@@ -420,7 +420,7 @@ export class TunnelService {
       await client.query(
         `INSERT INTO tunnel_activity_logs (tunnel_id, user_id, action, status, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, userId, 'status_change', status, ipAddress, userAgent],
+        [tunnelId, userId, 'status_change', status, ipAddress, userAgent]
       );
 
       await client.query('COMMIT');
@@ -462,7 +462,7 @@ export class TunnelService {
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT * FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -476,7 +476,7 @@ export class TunnelService {
       await client.query(
         `INSERT INTO tunnel_activity_logs (tunnel_id, user_id, action, status, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, userId, 'delete', 'success', ipAddress, userAgent],
+        [tunnelId, userId, 'delete', 'success', ipAddress, userAgent]
       );
 
       await client.query('COMMIT');
@@ -509,7 +509,7 @@ export class TunnelService {
     try {
       const result = await this.pool.query(
         'SELECT metrics FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (result.rows.length === 0) {
@@ -538,7 +538,7 @@ export class TunnelService {
     try {
       await this.pool.query(
         'UPDATE tunnels SET metrics = $1, updated_at = NOW() WHERE id = $2',
-        [JSON.stringify(metrics), tunnelId],
+        [JSON.stringify(metrics), tunnelId]
       );
 
       logger.debug('[TunnelService] Tunnel metrics updated', {
@@ -568,7 +568,7 @@ export class TunnelService {
       // Verify tunnel ownership
       const tunnelResult = await this.pool.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -577,7 +577,7 @@ export class TunnelService {
 
       const result = await this.pool.query(
         'SELECT * FROM tunnel_activity_logs WHERE tunnel_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
-        [tunnelId, limit, offset],
+        [tunnelId, limit, offset]
       );
 
       return result.rows.map((log) => ({
@@ -605,7 +605,7 @@ export class TunnelService {
     try {
       const result = await this.pool.query(
         'SELECT config FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (result.rows.length === 0) {
@@ -641,7 +641,7 @@ export class TunnelService {
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT config FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -658,7 +658,7 @@ export class TunnelService {
       // Update configuration
       await client.query(
         'UPDATE tunnels SET config = $1, updated_at = NOW() WHERE id = $2',
-        [JSON.stringify(mergedConfig), tunnelId],
+        [JSON.stringify(mergedConfig), tunnelId]
       );
 
       // Log activity
@@ -673,7 +673,7 @@ export class TunnelService {
           JSON.stringify({ changes: config }),
           ipAddress,
           userAgent,
-        ],
+        ]
       );
 
       await client.query('COMMIT');
@@ -714,7 +714,7 @@ export class TunnelService {
       // Verify tunnel ownership
       const tunnelResult = await client.query(
         'SELECT id FROM tunnels WHERE id = $1 AND user_id = $2',
-        [tunnelId, userId],
+        [tunnelId, userId]
       );
 
       if (tunnelResult.rows.length === 0) {
@@ -731,14 +731,14 @@ export class TunnelService {
       // Update configuration
       await client.query(
         'UPDATE tunnels SET config = $1, updated_at = NOW() WHERE id = $2',
-        [JSON.stringify(defaultConfig), tunnelId],
+        [JSON.stringify(defaultConfig), tunnelId]
       );
 
       // Log activity
       await client.query(
         `INSERT INTO tunnel_activity_logs (tunnel_id, user_id, action, status, ip_address, user_agent)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [tunnelId, userId, 'config_reset', 'success', ipAddress, userAgent],
+        [tunnelId, userId, 'config_reset', 'success', ipAddress, userAgent]
       );
 
       await client.query('COMMIT');

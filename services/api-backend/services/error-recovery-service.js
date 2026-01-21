@@ -14,14 +14,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'error-recovery' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -103,7 +103,7 @@ export class ErrorRecoveryService {
   async executeRecovery(serviceName, options = {}) {
     if (!this.recoveryProcedures.has(serviceName)) {
       throw new Error(
-        `No recovery procedure registered for service: ${serviceName}`,
+        `No recovery procedure registered for service: ${serviceName}`
       );
     }
 
@@ -113,7 +113,7 @@ export class ErrorRecoveryService {
     // Check if already recovering
     if (status.isRecovering) {
       throw new Error(
-        `Recovery already in progress for service: ${serviceName}`,
+        `Recovery already in progress for service: ${serviceName}`
       );
     }
 
@@ -135,7 +135,7 @@ export class ErrorRecoveryService {
       const result = await this._executeWithTimeout(
         procedure.procedure,
         procedure.timeoutMs,
-        recoveryId,
+        recoveryId
       );
 
       const duration = Date.now() - startTime;
@@ -160,7 +160,7 @@ export class ErrorRecoveryService {
           recoveryId,
           duration,
           result,
-        },
+        }
       );
 
       this._addToHistory({
@@ -270,7 +270,7 @@ export class ErrorRecoveryService {
       successRate:
         status.recoveryCount > 0
           ? ((status.successCount / status.recoveryCount) * 100).toFixed(2) +
-          '%'
+            '%'
           : 'N/A',
       description: procedure?.description || 'Unknown',
       prerequisites: procedure?.prerequisites || [],
@@ -345,7 +345,7 @@ export class ErrorRecoveryService {
 
     const sum = this.metrics.recoveryTimes.reduce((a, b) => a + b, 0);
     this.metrics.averageRecoveryTime = Math.round(
-      sum / this.metrics.recoveryTimes.length,
+      sum / this.metrics.recoveryTimes.length
     );
 
     // Keep only last 100 recovery times for memory efficiency
@@ -384,10 +384,10 @@ export class ErrorRecoveryService {
         successRate:
           this.metrics.totalRecoveryAttempts > 0
             ? (
-              (this.metrics.successfulRecoveries /
-                this.metrics.totalRecoveryAttempts) *
-              100
-            ).toFixed(2) + '%'
+                (this.metrics.successfulRecoveries /
+                  this.metrics.totalRecoveryAttempts) *
+                100
+              ).toFixed(2) + '%'
             : 'N/A',
         averageRecoveryTime: this.metrics.averageRecoveryTime + 'ms',
       },

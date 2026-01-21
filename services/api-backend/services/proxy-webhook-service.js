@@ -45,7 +45,7 @@ export class ProxyWebhookService {
         '[ProxyWebhookService] Failed to initialize webhook service',
         {
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -64,7 +64,7 @@ export class ProxyWebhookService {
     userId,
     proxyId,
     url,
-    events = ['proxy.status_changed'],
+    events = ['proxy.status_changed']
   ) {
     const client = await this.pool.connect();
     try {
@@ -102,7 +102,7 @@ export class ProxyWebhookService {
       if (proxyId) {
         const proxyResult = await client.query(
           'SELECT id FROM proxy_instances WHERE id = $1 AND user_id = $2',
-          [proxyId, userId],
+          [proxyId, userId]
         );
 
         if (proxyResult.rows.length === 0) {
@@ -119,7 +119,7 @@ export class ProxyWebhookService {
         `INSERT INTO proxy_webhooks (id, user_id, proxy_id, url, events, secret)
          VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [webhookId, userId, proxyId, url, events, secret],
+        [webhookId, userId, proxyId, url, events, secret]
       );
 
       await client.query('COMMIT');
@@ -156,7 +156,7 @@ export class ProxyWebhookService {
     try {
       const result = await this.pool.query(
         'SELECT * FROM proxy_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (result.rows.length === 0) {
@@ -228,7 +228,7 @@ export class ProxyWebhookService {
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT * FROM proxy_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (webhookResult.rows.length === 0) {
@@ -314,7 +314,7 @@ export class ProxyWebhookService {
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT * FROM proxy_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (webhookResult.rows.length === 0) {
@@ -365,7 +365,7 @@ export class ProxyWebhookService {
          WHERE user_id = $1 AND is_active = true 
          AND (proxy_id IS NULL OR proxy_id = $2)
          AND $3 = ANY(events)`,
-        [userId, proxyId, eventType],
+        [userId, proxyId, eventType]
       );
 
       const webhooks = webhooksResult.rows;
@@ -375,7 +375,7 @@ export class ProxyWebhookService {
         await client.query(
           `INSERT INTO proxy_webhook_events (webhook_id, proxy_id, user_id, event_type, event_data)
            VALUES ($1, $2, $3, $4, $5)`,
-          [webhook.id, proxyId, userId, eventType, JSON.stringify(eventData)],
+          [webhook.id, proxyId, userId, eventType, JSON.stringify(eventData)]
         );
       }
 
@@ -388,14 +388,14 @@ export class ProxyWebhookService {
           proxyId,
           userId,
           eventType,
-          eventData,
+          eventData
         ).catch((error) => {
           logger.error(
             '[ProxyWebhookService] Failed to queue webhook delivery',
             {
               webhookId: webhook.id,
               error: error.message,
-            },
+            }
           );
         });
       }
@@ -454,7 +454,7 @@ export class ProxyWebhookService {
           eventType,
           JSON.stringify(payload),
           'pending',
-        ],
+        ]
       );
 
       await client.query('COMMIT');
@@ -494,7 +494,7 @@ export class ProxyWebhookService {
         `SELECT d.*, w.url, w.secret FROM proxy_webhook_deliveries d
          JOIN proxy_webhooks w ON d.webhook_id = w.id
          WHERE d.id = $1`,
-        [deliveryId],
+        [deliveryId]
       );
 
       if (deliveryResult.rows.length === 0) {
@@ -516,7 +516,7 @@ export class ProxyWebhookService {
       if (delivery.attempt_count >= delivery.max_attempts) {
         await client.query(
           'UPDATE proxy_webhook_deliveries SET status = $1, updated_at = NOW() WHERE id = $2',
-          ['failed', deliveryId],
+          ['failed', deliveryId]
         );
 
         logger.warn('[ProxyWebhookService] Max retries exceeded', {
@@ -557,7 +557,7 @@ export class ProxyWebhookService {
             `UPDATE proxy_webhook_deliveries 
              SET status = $1, http_status_code = $2, delivered_at = NOW(), updated_at = NOW()
              WHERE id = $3`,
-            ['delivered', statusCode, deliveryId],
+            ['delivered', statusCode, deliveryId]
           );
 
           logger.info('[ProxyWebhookService] Webhook delivered successfully', {
@@ -571,7 +571,7 @@ export class ProxyWebhookService {
             deliveryId,
             delivery.attempt_count,
             statusCode,
-            'HTTP ' + statusCode,
+            'HTTP ' + statusCode
           );
         }
       } catch (error) {
@@ -580,7 +580,7 @@ export class ProxyWebhookService {
           deliveryId,
           delivery.attempt_count,
           null,
-          error.message,
+          error.message
         );
       }
     } catch (error) {
@@ -622,7 +622,7 @@ export class ProxyWebhookService {
           errorMessage,
           nextRetryAt,
           deliveryId,
-        ],
+        ]
       );
 
       logger.info('[ProxyWebhookService] Webhook retry scheduled', {
@@ -651,7 +651,7 @@ export class ProxyWebhookService {
     try {
       const result = await this.pool.query(
         'SELECT * FROM proxy_webhook_deliveries WHERE id = $1',
-        [deliveryId],
+        [deliveryId]
       );
 
       if (result.rows.length === 0) {
@@ -681,7 +681,7 @@ export class ProxyWebhookService {
       // Verify webhook ownership
       const webhookResult = await this.pool.query(
         'SELECT id FROM proxy_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (webhookResult.rows.length === 0) {
@@ -693,7 +693,7 @@ export class ProxyWebhookService {
       const result = await this.pool.query(
         `SELECT * FROM proxy_webhook_deliveries WHERE webhook_id = $1 
          ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-        [webhookId, limit, offset],
+        [webhookId, limit, offset]
       );
 
       return result.rows;
@@ -720,7 +720,7 @@ export class ProxyWebhookService {
          WHERE status IN ('pending', 'retrying') 
          AND (next_retry_at IS NULL OR next_retry_at <= NOW())
          AND attempt_count < max_attempts
-         LIMIT 100`,
+         LIMIT 100`
       );
 
       const deliveries = result.rows;

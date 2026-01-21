@@ -41,7 +41,7 @@ export async function initializeTunnelFailoverService() {
       '[TunnelFailoverRoutes] Failed to initialize tunnel failover service',
       {
         error: error.message,
-      },
+      }
     );
     throw error;
   }
@@ -67,7 +67,7 @@ export async function initializeTunnelFailoverService() {
 router.get(
   '/:tunnelId/failover/endpoint',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -119,7 +119,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -135,7 +135,7 @@ router.get(
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:tunnelId/failover/status', authenticateJWT, async(req, res) => {
+router.get('/:tunnelId/failover/status', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -197,7 +197,7 @@ router.get('/:tunnelId/failover/status', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:tunnelId/failover/manual', authenticateJWT, async(req, res) => {
+router.post('/:tunnelId/failover/manual', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -230,7 +230,7 @@ router.post('/:tunnelId/failover/manual', authenticateJWT, async(req, res) => {
     const endpoint = await failoverService.manualFailover(
       tunnelId,
       endpointId,
-      userId,
+      userId
     );
 
     res.json({
@@ -293,7 +293,7 @@ router.post('/:tunnelId/failover/manual', authenticateJWT, async(req, res) => {
 router.post(
   '/:tunnelId/failover/record-failure',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -325,7 +325,7 @@ router.post(
       const state = await failoverService.recordEndpointFailure(
         endpointId,
         tunnelId,
-        error || 'Unknown error',
+        error || 'Unknown error'
       );
 
       res.json({
@@ -349,7 +349,7 @@ router.post(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -371,7 +371,7 @@ router.post(
 router.post(
   '/:tunnelId/failover/record-success',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -417,7 +417,7 @@ router.post(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -439,7 +439,7 @@ router.post(
 router.post(
   '/:tunnelId/failover/reset-failures',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -485,7 +485,7 @@ router.post(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;

@@ -6,7 +6,7 @@ export function setSshProxy(proxy) {
   sshProxy = proxy;
 }
 
-export const handleOllamaProxyRequest = async(req, res) => {
+export const handleOllamaProxyRequest = async (req, res) => {
   const startTime = Date.now();
   const requestId = `llm-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   // Use req.userId which is normalized across JWT and API Key auth

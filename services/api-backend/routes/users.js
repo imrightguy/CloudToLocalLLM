@@ -118,7 +118,7 @@ router.get('/tier', authenticateJWT, (req, res) => {
         enabled,
         description: featureDescriptions[feature] || feature,
         value: tierFeatures[feature],
-      }),
+      })
     );
 
     // Determine upgrade path
@@ -150,10 +150,10 @@ router.get('/tier', authenticateJWT, (req, res) => {
       },
       upgrade: nextTier
         ? {
-          availableTier: nextTier,
-          message: getUpgradeMessage(userTier, 'advanced features'),
-          benefits: getTierFeatures(nextTier),
-        }
+            availableTier: nextTier,
+            message: getUpgradeMessage(userTier, 'advanced features'),
+            benefits: getTierFeatures(nextTier),
+          }
         : null,
       timestamp: new Date().toISOString(),
     };
@@ -235,7 +235,7 @@ router.get('/tier/features', authenticateJWT, (req, res) => {
 
     // Convert to array and sort
     const features = Object.values(featureMatrix).sort((a, b) =>
-      a.name.localeCompare(b.name),
+      a.name.localeCompare(b.name)
     );
 
     res.json({

@@ -15,14 +15,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'error-notification-middleware' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -71,7 +71,7 @@ export function createErrorNotificationMiddleware(_options = {}) {
  * @returns {Function} - Wrapped handler
  */
 export function withErrorNotification(handler) {
-  return async(req, res, next) => {
+  return async (req, res, next) => {
     try {
       await handler(req, res, next);
     } catch (error) {
@@ -241,7 +241,7 @@ export function createErrorResetHandler() {
  * @returns {Function} - Express route handler
  */
 export function createManualErrorNotificationHandler() {
-  return async(req, res) => {
+  return async (req, res) => {
     try {
       const { message, category, severity } = req.body;
 
@@ -271,7 +271,7 @@ export function createManualErrorNotificationHandler() {
 
       const result = await errorNotificationService.detectAndNotify(
         error,
-        context,
+        context
       );
 
       res.json({

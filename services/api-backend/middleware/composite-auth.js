@@ -32,7 +32,7 @@ export const authenticateComposite = [
       : 'none';
 
     console.warn(
-      `[CompositeAuth] Authentication failed for ${req.method} ${req.path}`,
+      `[CompositeAuth] Authentication failed for ${req.method} ${req.path}`
     );
     console.warn(`[CompositeAuth] - Has User: ${!!req.user}`);
     console.warn(`[CompositeAuth] - Has API Key: ${!!req.apiKey}`);

@@ -41,7 +41,7 @@ router.post(
   '/create',
   adminRateLimiter,
   adminAuth(['edit_users']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { operationType, userIds, operationData } = req.body;
 
@@ -58,7 +58,7 @@ router.post(
       const operation = await bulkOperationsService.createBulkOperation(
         operationType,
         userIds,
-        operationData,
+        operationData
       );
 
       logger.info('✅ [BulkOps] Bulk operation created', {
@@ -85,7 +85,7 @@ router.post(
         code: 'BULK_OPERATION_CREATE_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -98,7 +98,7 @@ router.post(
   '/:operationId/execute',
   adminRateLimiter,
   adminAuth(['edit_users']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { operationId } = req.params;
 
@@ -138,7 +138,7 @@ router.post(
         code: 'BULK_OPERATION_EXECUTE_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -155,7 +155,7 @@ router.get(
   '/:operationId/status',
   adminReadOnlyLimiter,
   adminAuth(['view_users']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { operationId } = req.params;
 
@@ -191,7 +191,7 @@ router.get(
         code: 'STATUS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -205,7 +205,7 @@ router.get(
   '/history',
   adminReadOnlyLimiter,
   adminAuth(['view_users']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
 
@@ -235,7 +235,7 @@ router.get(
         code: 'HISTORY_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 export default router;

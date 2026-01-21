@@ -259,7 +259,7 @@ router.get('/active', adminAuth(['view_alerts']), (req, res) => {
  * Requires: admin authentication
  * Body: { metric: string, value: number, severity: string }
  */
-router.post('/test', adminAuth(['manage_alerts']), async(req, res) => {
+router.post('/test', adminAuth(['manage_alerts']), async (req, res) => {
   try {
     const { metric, value, severity = 'warning' } = req.body;
 

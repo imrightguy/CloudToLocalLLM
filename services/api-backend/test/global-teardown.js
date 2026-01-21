@@ -18,7 +18,9 @@ export default async function globalTeardown() {
 
   // Clear request queue service to stop all pending timeouts
   try {
-    const { getRequestQueueService } = await import('../services/request-queue-service.js');
+    const { getRequestQueueService } = await import(
+      '../services/request-queue-service.js'
+    );
     const queueService = getRequestQueueService();
     if (queueService && queueService.clearAllQueues) {
       queueService.clearAllQueues();

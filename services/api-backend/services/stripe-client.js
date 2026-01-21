@@ -35,7 +35,7 @@ class StripeClient {
         ? 'STRIPE_SECRET_KEY_PROD'
         : 'STRIPE_SECRET_KEY_TEST';
       throw new Error(
-        `Stripe API key not configured. Please set ${envVar} environment variable.`,
+        `Stripe API key not configured. Please set ${envVar} environment variable.`
       );
     }
 
@@ -91,76 +91,76 @@ class StripeClient {
 
     // Map Stripe error types to standardized error codes
     switch (error.type) {
-    case 'StripeCardError':
-      // Card was declined
-      return {
-        code: 'CARD_DECLINED',
-        message: error.message || 'Card was declined',
-        details: {
-          decline_code: error.decline_code,
-          param: error.param,
-        },
-        statusCode: 402,
-      };
+      case 'StripeCardError':
+        // Card was declined
+        return {
+          code: 'CARD_DECLINED',
+          message: error.message || 'Card was declined',
+          details: {
+            decline_code: error.decline_code,
+            param: error.param,
+          },
+          statusCode: 402,
+        };
 
-    case 'StripeInvalidRequestError':
-      // Invalid parameters
-      return {
-        code: 'INVALID_REQUEST',
-        message: error.message || 'Invalid payment request',
-        details: {
-          param: error.param,
-        },
-        statusCode: 400,
-      };
+      case 'StripeInvalidRequestError':
+        // Invalid parameters
+        return {
+          code: 'INVALID_REQUEST',
+          message: error.message || 'Invalid payment request',
+          details: {
+            param: error.param,
+          },
+          statusCode: 400,
+        };
 
-    case 'StripeAPIError':
-      // Stripe API error
-      return {
-        code: 'PAYMENT_GATEWAY_ERROR',
-        message: 'Payment gateway error. Please try again.',
-        details: {
-          type: error.type,
-        },
-        statusCode: 502,
-      };
+      case 'StripeAPIError':
+        // Stripe API error
+        return {
+          code: 'PAYMENT_GATEWAY_ERROR',
+          message: 'Payment gateway error. Please try again.',
+          details: {
+            type: error.type,
+          },
+          statusCode: 502,
+        };
 
-    case 'StripeConnectionError':
-      // Network communication error
-      return {
-        code: 'GATEWAY_CONNECTION_ERROR',
-        message: 'Unable to connect to payment gateway',
-        details: {},
-        statusCode: 503,
-      };
+      case 'StripeConnectionError':
+        // Network communication error
+        return {
+          code: 'GATEWAY_CONNECTION_ERROR',
+          message: 'Unable to connect to payment gateway',
+          details: {},
+          statusCode: 503,
+        };
 
-    case 'StripeAuthenticationError':
-      // Authentication with Stripe failed
-      return {
-        code: 'GATEWAY_AUTH_ERROR',
-        message: 'Payment gateway authentication failed',
-        details: {},
-        statusCode: 500,
-      };
+      case 'StripeAuthenticationError':
+        // Authentication with Stripe failed
+        return {
+          code: 'GATEWAY_AUTH_ERROR',
+          message: 'Payment gateway authentication failed',
+          details: {},
+          statusCode: 500,
+        };
 
-    case 'StripeRateLimitError':
-      // Too many requests
-      return {
-        code: 'RATE_LIMIT_EXCEEDED',
-        message: 'Too many requests. Please try again later.',
-        details: {},
-        statusCode: 429,
-      };
+      case 'StripeRateLimitError':
+        // Too many requests
+        return {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: 'Too many requests. Please try again later.',
+          details: {},
+          statusCode: 429,
+        };
 
-    default:
-      return {
-        code: 'UNKNOWN_ERROR',
-        message: error.message || 'An unknown error occurred',
-        details: {
-          type: error.type,
-        },
-        statusCode: 500,
-      };
+      default:
+        return {
+          code: 'UNKNOWN_ERROR',
+          message: error.message || 'An unknown error occurred',
+          details: {
+            type: error.type,
+          },
+          statusCode: 500,
+        };
     }
   }
 }

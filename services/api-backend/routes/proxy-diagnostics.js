@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'proxy-diagnostics-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -88,7 +88,7 @@ router.get(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -154,7 +154,7 @@ router.get(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -219,7 +219,7 @@ router.get(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -285,7 +285,7 @@ router.get(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -340,7 +340,7 @@ router.get(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -384,7 +384,7 @@ router.get(
       res.setHeader('Content-Type', 'application/json');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="proxy-diagnostics-${proxyId}-${Date.now()}.json"`,
+        `attachment; filename="proxy-diagnostics-${proxyId}-${Date.now()}.json"`
       );
 
       res.json(exportData);
@@ -400,7 +400,7 @@ router.get(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -468,7 +468,7 @@ router.post(
         code: 'PROXY_DIAG_003',
       });
     }
-  },
+  }
 );
 
 export default router;

@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'proxy-usage-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -46,7 +46,7 @@ router.post(
   '/usage/:proxyId/record',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
@@ -80,7 +80,7 @@ router.post(
         proxyId,
         userId,
         eventType,
-        eventData,
+        eventData
       );
 
       logger.info('Proxy usage event recorded', {
@@ -107,7 +107,7 @@ router.post(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -119,7 +119,7 @@ router.get(
   '/usage/:proxyId/metrics/:date',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const { proxyId, date } = req.params;
       const userId = req.user?.sub;
@@ -151,7 +151,7 @@ router.get(
       const metrics = await proxyUsageService.getProxyUsageMetrics(
         proxyId,
         userId,
-        date,
+        date
       );
 
       logger.info('Proxy usage metrics retrieved', {
@@ -178,7 +178,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -191,7 +191,7 @@ router.get(
   '/usage/:proxyId/metrics',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const { proxyId } = req.params;
       const { startDate, endDate } = req.query;
@@ -225,7 +225,7 @@ router.get(
         proxyId,
         userId,
         startDate,
-        endDate,
+        endDate
       );
 
       logger.info('Proxy usage metrics range retrieved', {
@@ -256,7 +256,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -269,7 +269,7 @@ router.get(
   '/usage/report',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const userId = req.user?.sub;
       const { startDate, endDate, groupBy = 'day' } = req.query;
@@ -319,7 +319,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -332,7 +332,7 @@ router.get(
   '/usage/aggregation',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const userId = req.user?.sub;
       const userTier = req.tier || 'free';
@@ -358,7 +358,7 @@ router.get(
         userId,
         userTier,
         periodStart,
-        periodEnd,
+        periodEnd
       );
 
       logger.info('Proxy usage aggregation retrieved', {
@@ -384,7 +384,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -397,7 +397,7 @@ router.post(
   '/usage/aggregate',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const userId = req.user?.sub;
       const userTier = req.tier || 'free';
@@ -423,7 +423,7 @@ router.post(
         userId,
         userTier,
         periodStart,
-        periodEnd,
+        periodEnd
       );
 
       logger.info('Proxy usage aggregated', {
@@ -450,7 +450,7 @@ router.post(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -463,7 +463,7 @@ router.get(
   '/usage/billing',
   authenticateJWT,
   addTierInfo,
-  async function(req, res) {
+  async function (req, res) {
     try {
       const userId = req.user?.sub;
       const userTier = req.tier || 'free';
@@ -489,7 +489,7 @@ router.get(
         userId,
         userTier,
         periodStart,
-        periodEnd,
+        periodEnd
       );
 
       logger.info('Proxy billing summary retrieved', {
@@ -515,7 +515,7 @@ router.get(
         code: 'PROXY_USAGE_003',
       });
     }
-  },
+  }
 );
 
 export default router;

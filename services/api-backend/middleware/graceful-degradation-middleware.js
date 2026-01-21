@@ -15,14 +15,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'graceful-degradation-middleware' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -36,7 +36,7 @@ const logger = winston.createLogger({
  */
 export function createGracefulDegradationMiddleware(
   serviceName,
-  _options = {},
+  _options = {}
 ) {
   return (req, res, next) => {
     const status = gracefulDegradationService.getStatus(serviceName);
@@ -54,7 +54,7 @@ export function createGracefulDegradationMiddleware(
         {
           service: serviceName,
           degradationReason: status.reason,
-        },
+        }
       );
 
       return res.status(503).json({
@@ -147,7 +147,7 @@ export function markServiceDegraded(req, res) {
   gracefulDegradationService.markDegraded(
     serviceName,
     reason || 'Manual degradation',
-    severity || 'warning',
+    severity || 'warning'
   );
 
   const status = gracefulDegradationService.getStatus(serviceName);
@@ -224,13 +224,13 @@ export async function executeWithGracefulDegradation(
   serviceName,
   primaryFn,
   context = null,
-  args = [],
+  args = []
 ) {
   return gracefulDegradationService.executeWithFallback(
     serviceName,
     primaryFn,
     context,
-    args,
+    args
   );
 }
 
@@ -251,7 +251,7 @@ export function createReducedFunctionalityMiddleware(serviceName) {
       req.reducedFunctionality =
         gracefulDegradationService.getReducedFunctionalityResponse(
           serviceName,
-          req.path,
+          req.path
         );
     }
 

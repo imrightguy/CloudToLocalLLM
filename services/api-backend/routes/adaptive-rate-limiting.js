@@ -175,7 +175,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -236,7 +236,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -295,7 +295,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;

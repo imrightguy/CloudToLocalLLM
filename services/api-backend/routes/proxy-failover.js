@@ -17,7 +17,7 @@ export function createProxyFailoverRoutes(db, logger) {
    * POST /proxy/failover/config
    * Create or update failover configuration for a proxy
    */
-  router.post('/proxy/failover/config', authenticateJWT, async(req, res) => {
+  router.post('/proxy/failover/config', authenticateJWT, async (req, res) => {
     try {
       const { proxyId, config } = req.body;
       const userId = req.user.sub;
@@ -35,7 +35,7 @@ export function createProxyFailoverRoutes(db, logger) {
       const result = await failoverService.createFailoverConfiguration(
         proxyId,
         userId,
-        config,
+        config
       );
 
       res.status(201).json({
@@ -65,7 +65,7 @@ export function createProxyFailoverRoutes(db, logger) {
   router.get(
     '/proxy/failover/config/:proxyId',
     authenticateJWT,
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { proxyId } = req.params;
 
@@ -98,14 +98,14 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   /**
    * POST /proxy/instances
    * Register a proxy instance
    */
-  router.post('/proxy/instances', authenticateJWT, async(req, res) => {
+  router.post('/proxy/instances', authenticateJWT, async (req, res) => {
     try {
       const { proxyId, instanceData } = req.body;
       const userId = req.user.sub;
@@ -123,7 +123,7 @@ export function createProxyFailoverRoutes(db, logger) {
       const result = await failoverService.registerProxyInstance(
         proxyId,
         userId,
-        instanceData,
+        instanceData
       );
 
       res.status(201).json({
@@ -150,7 +150,7 @@ export function createProxyFailoverRoutes(db, logger) {
    * GET /proxy/:proxyId/instances
    * Get all instances for a proxy
    */
-  router.get('/proxy/:proxyId/instances', authenticateJWT, async(req, res) => {
+  router.get('/proxy/:proxyId/instances', authenticateJWT, async (req, res) => {
     try {
       const { proxyId } = req.params;
 
@@ -183,7 +183,7 @@ export function createProxyFailoverRoutes(db, logger) {
   router.put(
     '/proxy/instances/:instanceId/health',
     authenticateJWT,
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { instanceId } = req.params;
         const { healthStatus, metrics } = req.body;
@@ -201,7 +201,7 @@ export function createProxyFailoverRoutes(db, logger) {
         const result = await failoverService.updateInstanceHealth(
           instanceId,
           healthStatus,
-          metrics,
+          metrics
         );
 
         res.status(200).json({
@@ -222,14 +222,14 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   /**
    * POST /proxy/failover/evaluate
    * Evaluate if failover is needed
    */
-  router.post('/proxy/failover/evaluate', authenticateJWT, async(req, res) => {
+  router.post('/proxy/failover/evaluate', authenticateJWT, async (req, res) => {
     try {
       const { proxyId } = req.body;
       const userId = req.user.sub;
@@ -273,7 +273,7 @@ export function createProxyFailoverRoutes(db, logger) {
     '/proxy/failover/execute',
     authenticateJWT,
     authorizeRBAC('admin'),
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { proxyId, sourceInstanceId, targetInstanceId, reason } =
           req.body;
@@ -295,7 +295,7 @@ export function createProxyFailoverRoutes(db, logger) {
           userId,
           sourceInstanceId,
           targetInstanceId,
-          reason || 'Manual failover',
+          reason || 'Manual failover'
         );
 
         res.status(200).json({
@@ -316,7 +316,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   /**
@@ -327,7 +327,7 @@ export function createProxyFailoverRoutes(db, logger) {
     '/proxy/failover/events/:eventId/complete',
     authenticateJWT,
     authorizeRBAC('admin'),
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { eventId } = req.params;
         const { status, errorMessage, durationMs } = req.body;
@@ -346,7 +346,7 @@ export function createProxyFailoverRoutes(db, logger) {
           eventId,
           status,
           errorMessage,
-          durationMs,
+          durationMs
         );
 
         res.status(200).json({
@@ -367,7 +367,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   /**
@@ -377,7 +377,7 @@ export function createProxyFailoverRoutes(db, logger) {
   router.get(
     '/proxy/:proxyId/redundancy',
     authenticateJWT,
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { proxyId } = req.params;
 
@@ -410,7 +410,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   /**
@@ -421,7 +421,7 @@ export function createProxyFailoverRoutes(db, logger) {
     '/proxy/:proxyId/redundancy',
     authenticateJWT,
     authorizeRBAC('admin'),
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { proxyId } = req.params;
         const userId = req.user.sub;
@@ -430,7 +430,7 @@ export function createProxyFailoverRoutes(db, logger) {
         const result = await failoverService.updateRedundancyStatus(
           proxyId,
           userId,
-          statusData,
+          statusData
         );
 
         res.status(200).json({
@@ -451,7 +451,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   /**
@@ -461,7 +461,7 @@ export function createProxyFailoverRoutes(db, logger) {
   router.get(
     '/proxy/:proxyId/failover/events',
     authenticateJWT,
-    async(req, res) => {
+    async (req, res) => {
       try {
         const { proxyId } = req.params;
         const limit = parseInt(req.query.limit || '50', 10);
@@ -486,7 +486,7 @@ export function createProxyFailoverRoutes(db, logger) {
           },
         });
       }
-    },
+    }
   );
 
   return router;

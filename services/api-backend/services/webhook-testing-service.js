@@ -214,7 +214,7 @@ export class WebhookTestingService {
       let hostname = url.hostname.replace(/^www\./, '');
       if (!ALLOWED_WEBHOOK_HOSTS.includes(hostname)) {
         throw new Error(
-          'Destination host not permitted for webhook testing: ' + hostname,
+          'Destination host not permitted for webhook testing: ' + hostname
         );
       }
 
@@ -229,7 +229,7 @@ export class WebhookTestingService {
         const signature = this.generateWebhookSignature(
           payload,
           secret,
-          timestamp,
+          timestamp
         );
         headers['X-Webhook-Signature'] = signature;
       }
@@ -328,7 +328,7 @@ export class WebhookTestingService {
       const expectedSignature = this.generateWebhookSignature(
         payload,
         secret,
-        timestamp,
+        timestamp
       );
       const signatureBuf = Buffer.from(signature);
       const expectedBuf = Buffer.from(expectedSignature);
@@ -410,7 +410,7 @@ export class WebhookTestingService {
           `SELECT id, url, events, active, created_at, updated_at
            FROM webhooks
            WHERE id = $1 AND user_id = $2`,
-          [webhookId, userId],
+          [webhookId, userId]
         );
 
         if (webhookResult.rows.length === 0) {
@@ -426,7 +426,7 @@ export class WebhookTestingService {
            WHERE webhook_id = $1
            ORDER BY created_at DESC
            LIMIT 10`,
-          [webhookId],
+          [webhookId]
         );
 
         // Get delivery statistics
@@ -439,7 +439,7 @@ export class WebhookTestingService {
              AVG(EXTRACT(EPOCH FROM (updated_at - created_at))) as avg_delivery_time
            FROM webhook_deliveries
            WHERE webhook_id = $1`,
-          [webhookId],
+          [webhookId]
         );
 
         const stats = statsResult.rows[0];
@@ -456,10 +456,10 @@ export class WebhookTestingService {
             successRate:
               stats.total_deliveries > 0
                 ? (
-                  (parseInt(stats.successful) /
+                    (parseInt(stats.successful) /
                       parseInt(stats.total_deliveries)) *
                     100
-                ).toFixed(2)
+                  ).toFixed(2)
                 : 0,
           },
         };
@@ -492,7 +492,7 @@ export class WebhookTestingService {
            FROM webhook_deliveries d
            JOIN webhooks w ON d.webhook_id = w.id
            WHERE d.id = $1 AND w.user_id = $2`,
-          [deliveryId, userId],
+          [deliveryId, userId]
         );
 
         if (result.rows.length === 0) {

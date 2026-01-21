@@ -25,7 +25,7 @@ export function createMetricsCollectionMiddleware() {
     const originalSend = res.send;
     const originalJson = res.json;
 
-    res.send = function(data) {
+    res.send = function (data) {
       const duration = Date.now() - startTime;
       const status = res.statusCode || 500;
 
@@ -47,7 +47,7 @@ export function createMetricsCollectionMiddleware() {
       return originalSend.call(this, data);
     };
 
-    res.json = function(data) {
+    res.json = function (data) {
       const duration = Date.now() - startTime;
       const status = res.statusCode || 500;
 
@@ -71,7 +71,7 @@ export function createMetricsCollectionMiddleware() {
 
     // Handle errors
     const originalStatus = res.status;
-    res.status = function(code) {
+    res.status = function (code) {
       res.statusCode = code;
       return originalStatus.call(this, code);
     };

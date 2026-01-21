@@ -27,7 +27,7 @@ router.get(
   '/violations/user/:userId',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { userId } = req.params;
       const { limit = 100, offset = 0, startTime, endTime } = req.query;
@@ -66,7 +66,7 @@ router.get(
         code: 'VIOLATIONS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -78,7 +78,7 @@ router.get(
   '/violations/ip/:ipAddress',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { ipAddress } = req.params;
       const { limit = 100, offset = 0, startTime, endTime } = req.query;
@@ -117,7 +117,7 @@ router.get(
         code: 'VIOLATIONS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -129,7 +129,7 @@ router.get(
   '/violations/stats/user/:userId',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { userId } = req.params;
       const { startTime, endTime } = req.query;
@@ -161,7 +161,7 @@ router.get(
         code: 'STATS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -173,7 +173,7 @@ router.get(
   '/violations/stats/ip/:ipAddress',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { ipAddress } = req.params;
       const { startTime, endTime } = req.query;
@@ -205,7 +205,7 @@ router.get(
         code: 'STATS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -217,7 +217,7 @@ router.get(
   '/violations/top-violators',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { limit = 10, startTime, endTime } = req.query;
 
@@ -248,7 +248,7 @@ router.get(
         code: 'TOP_VIOLATORS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -260,7 +260,7 @@ router.get(
   '/violations/top-ips',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { limit = 10, startTime, endTime } = req.query;
 
@@ -291,7 +291,7 @@ router.get(
         code: 'TOP_IPS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 /**
@@ -303,7 +303,7 @@ router.get(
   '/violations/endpoint/:endpoint',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { endpoint } = req.params;
       const { startTime, endTime } = req.query;
@@ -335,7 +335,7 @@ router.get(
         code: 'ENDPOINT_VIOLATIONS_RETRIEVAL_FAILED',
       });
     }
-  },
+  }
 );
 
 export default router;

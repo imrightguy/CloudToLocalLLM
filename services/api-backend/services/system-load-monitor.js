@@ -218,7 +218,13 @@ export class SystemLoadMonitor {
         previousMultiplier: this.adaptiveMultiplier.toFixed(2),
         newMultiplier: newMultiplier.toFixed(2),
         averageSystemLoad: load.toFixed(2),
-        loadLevel: isCritical ? 'critical' : isHigh ? 'high' : isMedium ? 'medium' : 'low',
+        loadLevel: isCritical
+          ? 'critical'
+          : isHigh
+            ? 'high'
+            : isMedium
+              ? 'medium'
+              : 'low',
         cpuUsage: avgMetrics.cpuUsage,
         memoryUsage: avgMetrics.memoryUsage,
         sampleCount: avgMetrics.sampleCount,

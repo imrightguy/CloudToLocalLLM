@@ -83,15 +83,15 @@ export function setupMiddlewarePipeline(app, options = {}) {
     helmet({
       contentSecurityPolicy: {
         directives: {
-          defaultSrc: ['\'self\''],
-          connectSrc: ['\'self\'', 'https:'],
-          scriptSrc: ['\'self\'', '\'unsafe-inline\''],
-          styleSrc: ['\'self\'', '\'unsafe-inline\''],
-          imgSrc: ['\'self\'', 'data:', 'https:'],
+          defaultSrc: ["'self'"],
+          connectSrc: ["'self'", 'https:'],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
         },
       },
       crossOriginResourcePolicy: { policy: 'cross-origin' },
-    }),
+    })
   );
 
   // 5. Request Logging - Log all requests with correlation IDs

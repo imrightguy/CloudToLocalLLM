@@ -40,7 +40,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get performance metrics',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -48,8 +48,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve performance metrics',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -72,7 +72,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get health status',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -80,8 +80,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve health status',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -113,7 +113,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get performance alerts',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -121,8 +121,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve performance alerts',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -165,7 +165,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get connection statistics',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -173,8 +173,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve connection statistics',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -192,25 +192,25 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       // Calculate timeframe-specific metrics
       let timeframeMs;
       switch (timeframe) {
-      case '5m':
-        timeframeMs = 5 * 60 * 1000;
-        break;
-      case '15m':
-        timeframeMs = 15 * 60 * 1000;
-        break;
-      case '1h':
-        timeframeMs = 60 * 60 * 1000;
-        break;
-      case '24h':
-        timeframeMs = 24 * 60 * 60 * 1000;
-        break;
-      default:
-        timeframeMs = 60 * 60 * 1000; // Default to 1 hour
+        case '5m':
+          timeframeMs = 5 * 60 * 1000;
+          break;
+        case '15m':
+          timeframeMs = 15 * 60 * 1000;
+          break;
+        case '1h':
+          timeframeMs = 60 * 60 * 1000;
+          break;
+        case '24h':
+          timeframeMs = 24 * 60 * 60 * 1000;
+          break;
+        default:
+          timeframeMs = 60 * 60 * 1000; // Default to 1 hour
       }
 
       const cutoff = new Date(Date.now() - timeframeMs);
       const recentRequests = tunnelProxy.metrics.requestTimestamps.filter(
-        (timestamp) => timestamp > cutoff,
+        (timestamp) => timestamp > cutoff
       );
 
       res.json({
@@ -232,7 +232,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get request statistics',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -240,8 +240,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve request statistics',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -287,7 +287,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get resource usage',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -295,8 +295,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve resource usage',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -358,7 +358,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to get dashboard data',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -366,8 +366,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to retrieve dashboard data',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });
@@ -397,7 +397,7 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
       tunnelLogger.logTunnelError(
         ERROR_CODES.INTERNAL_SERVER_ERROR,
         'Failed to perform performance check',
-        { error: error.message },
+        { error: error.message }
       );
 
       res
@@ -405,8 +405,8 @@ export function createMonitoringRoutes(tunnelProxy, logger) {
         .json(
           ErrorResponseBuilder.internalServerError(
             'Failed to perform performance check',
-            ERROR_CODES.INTERNAL_SERVER_ERROR,
-          ),
+            ERROR_CODES.INTERNAL_SERVER_ERROR
+          )
         );
     }
   });

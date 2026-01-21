@@ -30,7 +30,7 @@ export class DatabaseMigratorPG {
       idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE || '30000', 10),
       connectionTimeoutMillis: parseInt(
         process.env.DB_POOL_CONNECT_TIMEOUT || '30000',
-        10,
+        10
       ),
       ...config,
     };
@@ -118,7 +118,7 @@ export class DatabaseMigratorPG {
       if (error.message.includes('pg_type_typname_nsp_index')) {
         this.logger.warn(
           'Detected type constraint conflict, attempting cleanup...',
-          { error: error.message },
+          { error: error.message }
         );
         try {
           // Drop any conflicting sequences that might exist
@@ -127,7 +127,7 @@ export class DatabaseMigratorPG {
           //   DROP SEQUENCE IF EXISTS schema_migrations_id_seq CASCADE;
           // `);
           this.logger.info(
-            'Cleaned up conflicting sequence, retrying table creation...',
+            'Cleaned up conflicting sequence, retrying table creation...'
           );
 
           // Retry table creation
@@ -153,7 +153,7 @@ export class DatabaseMigratorPG {
             {
               originalError: error.message,
               cleanupError: cleanupError.message,
-            },
+            }
           );
           throw cleanupError;
         }
@@ -168,7 +168,7 @@ export class DatabaseMigratorPG {
 
   async getAppliedMigrations() {
     const { rows } = await this.pool.query(
-      'SELECT version, name, applied_at FROM schema_migrations WHERE success = TRUE ORDER BY applied_at',
+      'SELECT version, name, applied_at FROM schema_migrations WHERE success = TRUE ORDER BY applied_at'
     );
     return rows;
   }
@@ -176,7 +176,7 @@ export class DatabaseMigratorPG {
   async isMigrationApplied(version) {
     const { rows } = await this.pool.query(
       'SELECT 1 FROM schema_migrations WHERE version = $1 AND success = TRUE',
-      [version],
+      [version]
     );
     return rows.length > 0;
   }
@@ -221,7 +221,7 @@ export class DatabaseMigratorPG {
         ) {
           this.logger.warn(
             'Ignored extension duplicate error during initial schema application',
-            { error: sqlError.message },
+            { error: sqlError.message }
           );
         } else if (
           sqlError.message &&
@@ -229,7 +229,7 @@ export class DatabaseMigratorPG {
         ) {
           this.logger.warn(
             'Ignored "already exists" error during initial schema application',
-            { error: sqlError.message },
+            { error: sqlError.message }
           );
         } else {
           throw sqlError;
@@ -241,13 +241,13 @@ export class DatabaseMigratorPG {
       // Check if this version is already applied
       const existing = await client.query(
         'SELECT id FROM schema_migrations WHERE version = $1',
-        [version],
+        [version]
       );
 
       if (existing.rows.length === 0) {
         await client.query(
           'INSERT INTO schema_migrations (version, name, checksum, execution_time_ms) VALUES ($1,$2,$3,$4)',
-          [version, 'Initial tunnel system schema', checksum, execMs],
+          [version, 'Initial tunnel system schema', checksum, execMs]
         );
         this.logger.info('Initial schema migration recorded (PG)', { version });
       } else {
@@ -278,17 +278,17 @@ export class DatabaseMigratorPG {
       {
         name: 'tunnel_connections_table',
         query:
-          'SELECT 1 FROM information_schema.tables WHERE table_name=\'tunnel_connections\'',
+          "SELECT 1 FROM information_schema.tables WHERE table_name='tunnel_connections'",
       },
       {
         name: 'audit_logs_table',
         query:
-          'SELECT 1 FROM information_schema.tables WHERE table_name=\'audit_logs\'',
+          "SELECT 1 FROM information_schema.tables WHERE table_name='audit_logs'",
       },
       {
         name: 'schema_migrations_table',
         query:
-          'SELECT 1 FROM information_schema.tables WHERE table_name=\'schema_migrations\'',
+          "SELECT 1 FROM information_schema.tables WHERE table_name='schema_migrations'",
       },
     ];
 
@@ -380,7 +380,7 @@ export class DatabaseMigratorPG {
       const execMs = Date.now() - start;
       await client.query(
         'INSERT INTO schema_migrations (version, name, checksum, execution_time_ms) VALUES ($1, $2, $3, $4)',
-        [version, name, checksum, execMs],
+        [version, name, checksum, execMs]
       );
 
       await client.query('COMMIT');
@@ -397,7 +397,7 @@ export class DatabaseMigratorPG {
       try {
         await client.query(
           'INSERT INTO schema_migrations (version, name, checksum, success) VALUES ($1, $2, $3, FALSE)',
-          [version, name, 'failed'],
+          [version, name, 'failed']
         );
       } catch (recError) {
         this.logger.warn('Failed to record migration failure', {

@@ -24,7 +24,7 @@ router.post(
   '/backup/create',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
 
     try {
@@ -59,7 +59,7 @@ router.post(
         correlationId,
       });
     }
-  },
+  }
 );
 
 /**
@@ -67,7 +67,7 @@ router.post(
  * List all available backups
  * Admin only
  */
-router.get('/backup/list', authenticateJWT, requireAdmin, async(req, res) => {
+router.get('/backup/list', authenticateJWT, requireAdmin, async (req, res) => {
   const correlationId = req.correlationId || 'unknown';
 
   try {
@@ -108,7 +108,7 @@ router.get(
   '/backup/:backupId',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
 
@@ -140,7 +140,7 @@ router.get(
         correlationId,
       });
     }
-  },
+  }
 );
 
 /**
@@ -152,7 +152,7 @@ router.post(
   '/backup/:backupId/verify',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
 
@@ -190,7 +190,7 @@ router.post(
         correlationId,
       });
     }
-  },
+  }
 );
 
 /**
@@ -202,7 +202,7 @@ router.post(
   '/backup/:backupId/restore',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
     const { confirmed } = req.body;
@@ -251,7 +251,7 @@ router.post(
         correlationId,
       });
     }
-  },
+  }
 );
 
 /**
@@ -263,7 +263,7 @@ router.delete(
   '/backup/:backupId',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
 
@@ -299,7 +299,7 @@ router.delete(
         correlationId,
       });
     }
-  },
+  }
 );
 
 export default router;

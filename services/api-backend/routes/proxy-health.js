@@ -11,14 +11,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'proxy-health-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -229,7 +229,7 @@ router.post(
         code: 'PROXY_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -308,7 +308,7 @@ router.get(
         code: 'PROXY_003',
       });
     }
-  },
+  }
 );
 
 /**
@@ -376,7 +376,7 @@ router.post(
         code: 'PROXY_003',
       });
     }
-  },
+  }
 );
 
 export default router;

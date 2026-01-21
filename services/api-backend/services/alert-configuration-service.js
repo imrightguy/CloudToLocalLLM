@@ -101,7 +101,7 @@ class AlertConfigurationService {
         if (levels.warning && levels.critical) {
           if (levels.warning >= levels.critical) {
             throw new Error(
-              `Warning threshold must be less than critical for ${metric}`,
+              `Warning threshold must be less than critical for ${metric}`
             );
           }
         }

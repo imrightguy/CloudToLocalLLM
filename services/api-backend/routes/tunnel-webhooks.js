@@ -64,7 +64,7 @@ export async function initializeTunnelWebhookService() {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:tunnelId/webhooks', authenticateJWT, async(req, res) => {
+router.post('/:tunnelId/webhooks', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -99,7 +99,7 @@ router.post('/:tunnelId/webhooks', authenticateJWT, async(req, res) => {
       userId,
       tunnelId,
       url,
-      events,
+      events
     );
 
     logger.info('[TunnelWebhookRoutes] Webhook registered', {
@@ -159,7 +159,7 @@ router.post('/:tunnelId/webhooks', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:tunnelId/webhooks', authenticateJWT, async(req, res) => {
+router.get('/:tunnelId/webhooks', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -232,7 +232,7 @@ router.get('/:tunnelId/webhooks', authenticateJWT, async(req, res) => {
 router.get(
   '/:tunnelId/webhooks/:webhookId',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -286,7 +286,7 @@ router.get(
         message: 'Failed to retrieve webhook',
       });
     }
-  },
+  }
 );
 
 /**
@@ -310,7 +310,7 @@ router.get(
 router.put(
   '/:tunnelId/webhooks/:webhookId',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -335,7 +335,7 @@ router.put(
       const webhook = await webhookService.updateWebhook(
         webhookId,
         userId,
-        updateData,
+        updateData
       );
 
       logger.info('[TunnelWebhookRoutes] Webhook updated', {
@@ -377,7 +377,7 @@ router.put(
         message: 'Failed to update webhook',
       });
     }
-  },
+  }
 );
 
 /**
@@ -394,7 +394,7 @@ router.put(
 router.delete(
   '/:tunnelId/webhooks/:webhookId',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -448,7 +448,7 @@ router.delete(
         message: 'Failed to delete webhook',
       });
     }
-  },
+  }
 );
 
 /**
@@ -469,7 +469,7 @@ router.delete(
 router.get(
   '/:tunnelId/webhooks/:webhookId/deliveries',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -495,7 +495,7 @@ router.get(
       const deliveries = await webhookService.getDeliveryHistory(
         webhookId,
         userId,
-        { limit, offset },
+        { limit, offset }
       );
 
       logger.debug('[TunnelWebhookRoutes] Delivery history retrieved', {
@@ -534,7 +534,7 @@ router.get(
         message: 'Failed to retrieve delivery history',
       });
     }
-  },
+  }
 );
 
 /**
@@ -552,7 +552,7 @@ router.get(
 router.get(
   '/:tunnelId/webhooks/:webhookId/deliveries/:deliveryId',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -604,7 +604,7 @@ router.get(
         message: 'Failed to retrieve delivery status',
       });
     }
-  },
+  }
 );
 
 export default router;

@@ -20,14 +20,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'error-recovery-routes' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -60,7 +60,7 @@ router.get(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -100,7 +100,7 @@ router.get(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -113,7 +113,7 @@ router.post(
   '/recover/:serviceName',
   authenticateJWT,
   createRequireAdminMiddleware(),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { serviceName } = req.params;
       const { reason } = req.body || {};
@@ -172,7 +172,7 @@ router.post(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -217,7 +217,7 @@ router.get(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -247,7 +247,7 @@ router.get(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -277,7 +277,7 @@ router.get(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -307,7 +307,7 @@ router.delete(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 /**
@@ -337,7 +337,7 @@ router.post(
         timestamp: new Date().toISOString(),
       });
     }
-  },
+  }
 );
 
 export default router;

@@ -14,14 +14,14 @@ export class ProxyHealthService {
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.errors({ stack: true }),
-          winston.format.json(),
+          winston.format.json()
         ),
         defaultMeta: { service: 'proxy-health' },
         transports: [
           new winston.transports.Console({
             format: winston.format.combine(
               winston.format.timestamp(),
-              winston.format.simple(),
+              winston.format.simple()
             ),
           }),
         ],
@@ -36,23 +36,23 @@ export class ProxyHealthService {
     // Configuration
     this.healthCheckIntervalMs = parseInt(
       process.env.PROXY_HEALTH_CHECK_INTERVAL || '30000',
-      10,
+      10
     );
     this.maxRecoveryAttempts = parseInt(
       process.env.PROXY_MAX_RECOVERY_ATTEMPTS || '3',
-      10,
+      10
     );
     this.recoveryBackoffMs = parseInt(
       process.env.PROXY_RECOVERY_BACKOFF || '5000',
-      10,
+      10
     );
     this.healthCheckTimeoutMs = parseInt(
       process.env.PROXY_HEALTH_CHECK_TIMEOUT || '5000',
-      10,
+      10
     );
     this.unhealthyThresholdMs = parseInt(
       process.env.PROXY_UNHEALTHY_THRESHOLD || '60000',
-      10,
+      10
     );
 
     // Health check interval
@@ -134,8 +134,8 @@ export class ProxyHealthService {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(
           () => reject(new Error('Health check timeout')),
-          this.healthCheckTimeoutMs,
-        ),
+          this.healthCheckTimeoutMs
+        )
       );
 
       const result = await Promise.race([healthCheckPromise, timeoutPromise]);
@@ -199,7 +199,11 @@ export class ProxyHealthService {
         }
 
         // Trigger recovery if unhealthy and recovery attempts not exceeded
-        if (newStatus === 'unhealthy' && this.onRecoveryNeeded && currentStatus.recoveryAttempts < this.maxRecoveryAttempts) {
+        if (
+          newStatus === 'unhealthy' &&
+          this.onRecoveryNeeded &&
+          currentStatus.recoveryAttempts < this.maxRecoveryAttempts
+        ) {
           this.onRecoveryNeeded(proxyId, error);
         }
       }
@@ -358,7 +362,7 @@ export class ProxyHealthService {
       intervalMs: this.healthCheckIntervalMs,
     });
 
-    this.healthCheckInterval = setInterval(async() => {
+    this.healthCheckInterval = setInterval(async () => {
       try {
         await healthCheckFn();
       } catch (error) {

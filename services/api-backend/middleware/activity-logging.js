@@ -165,7 +165,7 @@ export function activityLoggingMiddleware(req, res, next) {
   const { resourceType, resourceId } = extractResourceInfo(
     req.method,
     req.path,
-    req.body,
+    req.body
   );
 
   // Get client IP address

@@ -45,7 +45,7 @@ export async function initializeUserProfileService() {
       '[UserProfileRoutes] Failed to initialize user profile service',
       {
         error: error.message,
-      },
+      }
     );
     throw error;
   }
@@ -65,7 +65,7 @@ export async function initializeUserProfileService() {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/profile', authenticateJWT, async(req, res) => {
+router.get('/profile', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -143,7 +143,7 @@ router.get('/profile', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/profile', authenticateJWT, async(req, res) => {
+router.put('/profile', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -245,7 +245,7 @@ router.put('/profile', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/preferences', authenticateJWT, async(req, res) => {
+router.get('/preferences', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -315,7 +315,7 @@ router.get('/preferences', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/preferences', authenticateJWT, async(req, res) => {
+router.put('/preferences', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -362,7 +362,7 @@ router.put('/preferences', authenticateJWT, async(req, res) => {
 
     const updatedPreferences = await userProfileService.updateUserPreferences(
       userId,
-      validation.data,
+      validation.data
     );
 
     logger.info('[UserProfile] Preferences updated', {
@@ -421,7 +421,7 @@ router.put('/preferences', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/avatar', authenticateJWT, async(req, res) => {
+router.put('/avatar', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -453,7 +453,7 @@ router.put('/avatar', authenticateJWT, async(req, res) => {
 
     const updatedProfile = await userProfileService.updateUserAvatar(
       userId,
-      avatarUrl,
+      avatarUrl
     );
 
     logger.info('[UserProfile] Avatar updated', {

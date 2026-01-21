@@ -20,10 +20,13 @@ function getCredentials() {
   const domain = process.env.AUTH0_DOMAIN;
   const clientId = process.env.AUTH0_CLIENT_ID;
   const clientSecret = process.env.AUTH0_CLIENT_SECRET;
-  const connection = process.env.AUTH0_CONNECTION || 'Username-Password-Authentication';
+  const connection =
+    process.env.AUTH0_CONNECTION || 'Username-Password-Authentication';
 
   if (!domain || !clientId || !clientSecret) {
-    throw new Error('Missing Auth0 credentials (AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)');
+    throw new Error(
+      'Missing Auth0 credentials (AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)'
+    );
   }
 
   return { domain, clientId, clientSecret, connection };
@@ -45,7 +48,9 @@ function getManagementClient() {
  * Generate a random string
  */
 function randomString(length = 8) {
-  return Math.random().toString(36).substring(2, 2 + length);
+  return Math.random()
+    .toString(36)
+    .substring(2, 2 + length);
 }
 
 /**
@@ -85,7 +90,6 @@ export async function createTestUser(role = 'user') {
       password,
       role,
     };
-
   } catch (error) {
     console.error(`Failed to create user: ${error.message}`);
     throw error;
@@ -140,7 +144,6 @@ export async function cleanupStaleUsers(maxAgeMinutes = 60) {
     }
 
     console.log(`Cleaned up ${deletedCount} stale users.`);
-
   } catch (error) {
     console.error(`Cleanup failed: ${error.message}`);
   }
@@ -152,7 +155,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const command = args[0];
   const arg1 = args[1];
 
-  (async() => {
+  (async () => {
     try {
       if (command === 'create') {
         const result = await createTestUser(arg1 || 'user');

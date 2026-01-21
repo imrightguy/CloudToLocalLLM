@@ -46,7 +46,7 @@ router.get(
   '/transactions',
   adminReadOnlyLimiter,
   adminAuth(['view_payments']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
 
@@ -54,7 +54,7 @@ router.get(
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.min(
         200,
-        Math.max(1, parseInt(req.query.limit) || 100),
+        Math.max(1, parseInt(req.query.limit) || 100)
       );
       const offset = (page - 1) * limit;
       const userId = req.query.userId?.trim();
@@ -209,7 +209,7 @@ router.get(
 
       const statsResult = await pool.query(
         statsQuery,
-        params.slice(0, paramIndex - 2),
+        params.slice(0, paramIndex - 2)
       );
       const statistics = statsResult.rows[0];
 
@@ -266,7 +266,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;
@@ -294,7 +294,7 @@ router.get(
   '/transactions/:transactionId',
   adminReadOnlyLimiter,
   adminAuth(['view_payments']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       const { transactionId } = req.params;
@@ -428,7 +428,7 @@ router.get(
             adminUserIds,
           ]);
           const adminUsersMap = new Map(
-            adminUsersResult.rows.map((u) => [u.id, u]),
+            adminUsersResult.rows.map((u) => [u.id, u])
           );
 
           // Add admin user info to refunds
@@ -505,7 +505,7 @@ router.get(
           transactionId: req.params.transactionId,
           error: error.message,
           stack: error.stack,
-        },
+        }
       );
 
       res.status(500).json({
@@ -514,7 +514,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -537,7 +537,7 @@ router.post(
   '/refunds',
   adminRateLimiter,
   adminAuth(['process_refunds']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       const { transactionId, amount, reason, reasonDetails } = req.body;
@@ -721,7 +721,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -741,7 +741,7 @@ router.get(
   '/methods/:userId',
   adminReadOnlyLimiter,
   adminAuth(['view_payments']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       const { userId } = req.params;
@@ -815,7 +815,7 @@ router.get(
           const now = new Date();
           const expDate = new Date(
             method.card_exp_year,
-            method.card_exp_month - 1,
+            method.card_exp_month - 1
           );
           method.is_expired = expDate < now;
         }
@@ -884,5 +884,5 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );

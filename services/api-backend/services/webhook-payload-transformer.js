@@ -34,14 +34,14 @@ export class WebhookPayloadTransformer {
         throw new Error('Database pool not initialized');
       }
       logger.info(
-        '[WebhookPayloadTransformer] Payload transformer service initialized',
+        '[WebhookPayloadTransformer] Payload transformer service initialized'
       );
     } catch (error) {
       logger.error(
         '[WebhookPayloadTransformer] Failed to initialize transformer service',
         {
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -66,7 +66,7 @@ export class WebhookPayloadTransformer {
       !['map', 'filter', 'enrich', 'custom'].includes(transformConfig.type)
     ) {
       errors.push(
-        'Transformation type must be "map", "filter", "enrich", or "custom"',
+        'Transformation type must be "map", "filter", "enrich", or "custom"'
       );
     }
 
@@ -85,7 +85,7 @@ export class WebhookPayloadTransformer {
           for (const [key, value] of Object.entries(transformConfig.mappings)) {
             if (!this._isValidMapping(value)) {
               errors.push(
-                `Invalid mapping for "${key}": ${JSON.stringify(value)}`,
+                `Invalid mapping for "${key}": ${JSON.stringify(value)}`
               );
             }
           }
@@ -106,7 +106,7 @@ export class WebhookPayloadTransformer {
             const filter = transformConfig.filters[i];
             if (!this._isValidFilterRule(filter)) {
               errors.push(
-                `Invalid filter at index ${i}: ${JSON.stringify(filter)}`,
+                `Invalid filter at index ${i}: ${JSON.stringify(filter)}`
               );
             }
           }
@@ -127,11 +127,11 @@ export class WebhookPayloadTransformer {
           errors.push('Enrichments must be an object');
         } else {
           for (const [key, value] of Object.entries(
-            transformConfig.enrichments,
+            transformConfig.enrichments
           )) {
             if (!this._isValidEnrichment(value)) {
               errors.push(
-                `Invalid enrichment for "${key}": ${JSON.stringify(value)}`,
+                `Invalid enrichment for "${key}": ${JSON.stringify(value)}`
               );
             }
           }
@@ -285,14 +285,14 @@ export class WebhookPayloadTransformer {
       const validation = this.validateTransformConfig(transformConfig);
       if (!validation.isValid) {
         throw new Error(
-          `Invalid transformation configuration: ${validation.errors.join(', ')}`,
+          `Invalid transformation configuration: ${validation.errors.join(', ')}`
         );
       }
 
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT id FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (webhookResult.rows.length === 0) {
@@ -305,7 +305,7 @@ export class WebhookPayloadTransformer {
         `INSERT INTO webhook_payload_transformations (id, webhook_id, user_id, transform_config, is_active)
          VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
-        [transformId, webhookId, userId, JSON.stringify(transformConfig), true],
+        [transformId, webhookId, userId, JSON.stringify(transformConfig), true]
       );
 
       await client.query('COMMIT');
@@ -325,7 +325,7 @@ export class WebhookPayloadTransformer {
           webhookId,
           userId,
           error: error.message,
-        },
+        }
       );
       throw error;
     } finally {
@@ -344,7 +344,7 @@ export class WebhookPayloadTransformer {
     try {
       const result = await this.pool.query(
         'SELECT * FROM webhook_payload_transformations WHERE webhook_id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (result.rows.length === 0) {
@@ -379,14 +379,14 @@ export class WebhookPayloadTransformer {
       const validation = this.validateTransformConfig(transformConfig);
       if (!validation.isValid) {
         throw new Error(
-          `Invalid transformation configuration: ${validation.errors.join(', ')}`,
+          `Invalid transformation configuration: ${validation.errors.join(', ')}`
         );
       }
 
       // Verify webhook ownership
       const webhookResult = await client.query(
         'SELECT id FROM tunnel_webhooks WHERE id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (webhookResult.rows.length === 0) {
@@ -399,7 +399,7 @@ export class WebhookPayloadTransformer {
          SET transform_config = $1, updated_at = NOW()
          WHERE webhook_id = $2 AND user_id = $3
          RETURNING *`,
-        [JSON.stringify(transformConfig), webhookId, userId],
+        [JSON.stringify(transformConfig), webhookId, userId]
       );
 
       await client.query('COMMIT');
@@ -418,7 +418,7 @@ export class WebhookPayloadTransformer {
           webhookId,
           userId,
           error: error.message,
-        },
+        }
       );
       throw error;
     } finally {
@@ -437,7 +437,7 @@ export class WebhookPayloadTransformer {
     try {
       const result = await this.pool.query(
         'DELETE FROM webhook_payload_transformations WHERE webhook_id = $1 AND user_id = $2',
-        [webhookId, userId],
+        [webhookId, userId]
       );
 
       if (result.rowCount === 0) {
@@ -446,7 +446,7 @@ export class WebhookPayloadTransformer {
           {
             webhookId,
             userId,
-          },
+          }
         );
       } else {
         logger.info('[WebhookPayloadTransformer] Transformation deleted', {
@@ -461,7 +461,7 @@ export class WebhookPayloadTransformer {
           webhookId,
           userId,
           error: error.message,
-        },
+        }
       );
       throw error;
     }
@@ -484,26 +484,26 @@ export class WebhookPayloadTransformer {
     const transformType = transformConfig.type || 'map';
 
     switch (transformType) {
-    case 'map':
-      result = this._applyMappings(result, transformConfig.mappings);
-      break;
+      case 'map':
+        result = this._applyMappings(result, transformConfig.mappings);
+        break;
 
-    case 'filter':
-      result = this._applyFilters(result, transformConfig.filters);
-      break;
+      case 'filter':
+        result = this._applyFilters(result, transformConfig.filters);
+        break;
 
-    case 'enrich':
-      result = this._applyEnrichments(result, transformConfig.enrichments);
-      break;
+      case 'enrich':
+        result = this._applyEnrichments(result, transformConfig.enrichments);
+        break;
 
-    case 'custom':
-      result = this._applyCustomTransform(result, transformConfig.script);
-      break;
+      case 'custom':
+        result = this._applyCustomTransform(result, transformConfig.script);
+        break;
 
-    default:
-      logger.warn('[WebhookPayloadTransformer] Unknown transformation type', {
-        transformType,
-      });
+      default:
+        logger.warn('[WebhookPayloadTransformer] Unknown transformation type', {
+          transformType,
+        });
     }
 
     return result;
@@ -529,7 +529,7 @@ export class WebhookPayloadTransformer {
       if (mapping.transform) {
         result[targetKey] = this._applyTransform(
           sourceValue,
-          mapping.transform,
+          mapping.transform
         );
       } else {
         result[targetKey] = sourceValue;
@@ -594,7 +594,7 @@ export class WebhookPayloadTransformer {
 
       const transformFn = new Function(
         'payload',
-        `return (${script})(payload)`,
+        `return (${script})(payload)`
       );
       return transformFn(payload);
     } catch (error) {
@@ -629,41 +629,41 @@ export class WebhookPayloadTransformer {
     }
 
     switch (transform.type) {
-    case 'uppercase':
-      return String(value).toUpperCase();
+      case 'uppercase':
+        return String(value).toUpperCase();
 
-    case 'lowercase':
-      return String(value).toLowerCase();
+      case 'lowercase':
+        return String(value).toLowerCase();
 
-    case 'trim':
-      return String(value).trim();
+      case 'trim':
+        return String(value).trim();
 
-    case 'json':
-      try {
-        return JSON.parse(String(value));
-      } catch {
+      case 'json':
+        try {
+          return JSON.parse(String(value));
+        } catch {
+          return value;
+        }
+
+      case 'base64':
+        return Buffer.from(String(value)).toString('base64');
+
+      case 'custom':
+        try {
+          const transformFn = new Function(
+            'value',
+            `return (${transform.fn})(value)`
+          );
+          return transformFn(value);
+        } catch (error) {
+          logger.error('[WebhookPayloadTransformer] Custom transform failed', {
+            error: error.message,
+          });
+          return value;
+        }
+
+      default:
         return value;
-      }
-
-    case 'base64':
-      return Buffer.from(String(value)).toString('base64');
-
-    case 'custom':
-      try {
-        const transformFn = new Function(
-          'value',
-          `return (${transform.fn})(value)`,
-        );
-        return transformFn(value);
-      } catch (error) {
-        logger.error('[WebhookPayloadTransformer] Custom transform failed', {
-          error: error.message,
-        });
-        return value;
-      }
-
-    default:
-      return value;
     }
   }
 
@@ -679,37 +679,37 @@ export class WebhookPayloadTransformer {
     const payloadValue = this._getNestedProperty(payload, path);
 
     switch (operator) {
-    case 'equals':
-      return payloadValue === value;
+      case 'equals':
+        return payloadValue === value;
 
-    case 'notEquals':
-      return payloadValue !== value;
+      case 'notEquals':
+        return payloadValue !== value;
 
-    case 'contains':
-      return String(payloadValue).includes(String(value));
+      case 'contains':
+        return String(payloadValue).includes(String(value));
 
-    case 'startsWith':
-      return String(payloadValue).startsWith(String(value));
+      case 'startsWith':
+        return String(payloadValue).startsWith(String(value));
 
-    case 'endsWith':
-      return String(payloadValue).endsWith(String(value));
+      case 'endsWith':
+        return String(payloadValue).endsWith(String(value));
 
-    case 'in':
-      return Array.isArray(value) && value.includes(payloadValue);
+      case 'in':
+        return Array.isArray(value) && value.includes(payloadValue);
 
-    case 'regex':
-      try {
-        const regex = new RegExp(value);
-        return regex.test(String(payloadValue));
-      } catch {
+      case 'regex':
+        try {
+          const regex = new RegExp(value);
+          return regex.test(String(payloadValue));
+        } catch {
+          return false;
+        }
+
+      case 'exists':
+        return payloadValue !== undefined && payloadValue !== null;
+
+      default:
         return false;
-      }
-
-    case 'exists':
-      return payloadValue !== undefined && payloadValue !== null;
-
-    default:
-      return false;
     }
   }
 
@@ -721,28 +721,28 @@ export class WebhookPayloadTransformer {
    */
   _generateEnrichmentValue(enrichment) {
     switch (enrichment.type) {
-    case 'static':
-      return enrichment.value;
+      case 'static':
+        return enrichment.value;
 
-    case 'timestamp':
-      return new Date().toISOString();
+      case 'timestamp':
+        return new Date().toISOString();
 
-    case 'uuid':
-      return uuidv4();
+      case 'uuid':
+        return uuidv4();
 
-    case 'custom':
-      try {
-        const enrichFn = new Function(`return (${enrichment.value})()`);
-        return enrichFn();
-      } catch (error) {
-        logger.error('[WebhookPayloadTransformer] Custom enrichment failed', {
-          error: error.message,
-        });
+      case 'custom':
+        try {
+          const enrichFn = new Function(`return (${enrichment.value})()`);
+          return enrichFn();
+        } catch (error) {
+          logger.error('[WebhookPayloadTransformer] Custom enrichment failed', {
+            error: error.message,
+          });
+          return null;
+        }
+
+      default:
         return null;
-      }
-
-    default:
-      return null;
     }
   }
 }

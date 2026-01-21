@@ -89,12 +89,12 @@ async function sendToLoki(logs) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-      },
+      }
     );
 
     if (!response.ok) {
       throw new Error(
-        `Loki returned ${response.status}: ${response.statusText}`,
+        `Loki returned ${response.status}: ${response.statusText}`
       );
     }
   } catch (error) {
@@ -143,12 +143,12 @@ async function sendToELK(logs) {
           'Content-Type': 'application/x-ndjson',
         },
         body: bulkPayload,
-      },
+      }
     );
 
     if (!response.ok) {
       throw new Error(
-        `ELK returned ${response.status}: ${response.statusText}`,
+        `ELK returned ${response.status}: ${response.statusText}`
       );
     }
 
@@ -185,27 +185,27 @@ export function routeLog(logEntry, req = null) {
   // Send to each destination
   destinations.forEach((destination) => {
     switch (destination) {
-    case 'loki':
-      if (lokiBatcher) {
-        lokiBatcher.add(logEntry);
-      }
-      break;
-    case 'elk':
-      if (elkBatcher) {
-        elkBatcher.add(logEntry);
-      }
-      break;
-    case 'console':
-      // Already handled by Winston
-      break;
-    case 'file':
-      // Already handled by Winston
-      break;
-    case 'sentry':
-      // Handled by Sentry middleware
-      break;
-    default:
-      break;
+      case 'loki':
+        if (lokiBatcher) {
+          lokiBatcher.add(logEntry);
+        }
+        break;
+      case 'elk':
+        if (elkBatcher) {
+          elkBatcher.add(logEntry);
+        }
+        break;
+      case 'console':
+        // Already handled by Winston
+        break;
+      case 'file':
+        // Already handled by Winston
+        break;
+      case 'sentry':
+        // Handled by Sentry middleware
+        break;
+      default:
+        break;
     }
   });
 }
@@ -224,7 +224,7 @@ export function createLogRoutingMiddleware() {
     const originalDebug = logger.debug.bind(logger);
 
     // Override logger methods to route logs
-    logger.log = function(level, message, meta = {}) {
+    logger.log = function (level, message, meta = {}) {
       const logEntry = createStructuredLogEntry({
         level,
         message,
@@ -234,7 +234,7 @@ export function createLogRoutingMiddleware() {
       return originalLog(level, message, meta);
     };
 
-    logger.info = function(message, meta = {}) {
+    logger.info = function (message, meta = {}) {
       const logEntry = createStructuredLogEntry({
         level: 'info',
         message,
@@ -244,7 +244,7 @@ export function createLogRoutingMiddleware() {
       return originalInfo(message, meta);
     };
 
-    logger.warn = function(message, meta = {}) {
+    logger.warn = function (message, meta = {}) {
       const logEntry = createStructuredLogEntry({
         level: 'warn',
         message,
@@ -254,7 +254,7 @@ export function createLogRoutingMiddleware() {
       return originalWarn(message, meta);
     };
 
-    logger.error = function(message, meta = {}) {
+    logger.error = function (message, meta = {}) {
       const logEntry = createStructuredLogEntry({
         level: 'error',
         message,
@@ -264,7 +264,7 @@ export function createLogRoutingMiddleware() {
       return originalError(message, meta);
     };
 
-    logger.debug = function(message, meta = {}) {
+    logger.debug = function (message, meta = {}) {
       const logEntry = createStructuredLogEntry({
         level: 'debug',
         message,

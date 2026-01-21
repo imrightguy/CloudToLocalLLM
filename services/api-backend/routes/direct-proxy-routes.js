@@ -91,7 +91,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
    * Direct proxy endpoint for Ollama API calls with comprehensive security
    * Routes: /api/direct-proxy/:userId/ollama/*
    */
-  router.all('/ollama/*', authenticateJWT, addTierInfo, async(req, res) => {
+  router.all('/ollama/*', authenticateJWT, addTierInfo, async (req, res) => {
     const startTime = Date.now();
     const requestId = `dp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -112,7 +112,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
             ip: req.ip,
             userAgent: req.get('User-Agent'),
             requestId,
-          },
+          }
         );
 
         return res.status(403).json({
@@ -227,8 +227,8 @@ export function createDirectProxyRoutes(tunnelProxy) {
         new Promise((_, reject) =>
           setTimeout(
             () => reject(new Error('Request timeout')),
-            REQUEST_TIMEOUT,
-          ),
+            REQUEST_TIMEOUT
+          )
         ),
       ]);
 
@@ -378,7 +378,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
    * Direct proxy endpoint for general API calls
    * Routes: /api/direct-proxy/:userId/api/*
    */
-  router.all('/api/*', authenticateJWT, addTierInfo, async(req, res) => {
+  router.all('/api/*', authenticateJWT, addTierInfo, async (req, res) => {
     const userId = req.user.sub;
     const userTier = getUserTier(req.user);
 

@@ -58,7 +58,7 @@ function extractTableNames(queryText) {
 
   // Match INSERT/UPDATE/DELETE
   const mutationMatch = trimmed.match(
-    /(?:INSERT INTO|UPDATE|DELETE FROM)\s+(\w+)/i,
+    /(?:INSERT INTO|UPDATE|DELETE FROM)\s+(\w+)/i
   );
   if (mutationMatch) {
     const tableName = mutationMatch[1];
@@ -83,7 +83,7 @@ export async function executeCachedQuery(
   queryFn,
   queryText,
   params = [],
-  options = {},
+  options = {}
 ) {
   const cache = getQueryCache();
   const shouldCache = shouldCacheQuery(queryText);
@@ -137,7 +137,7 @@ export function wrapPoolQueryWithCache(originalQuery, options = {}) {
       () => originalQuery.call(this, queryText, params),
       queryText,
       params,
-      options,
+      options
     );
   };
 }
@@ -155,7 +155,7 @@ export function wrapClientQueryWithCache(originalQuery, options = {}) {
       () => originalQuery.call(this, queryText, params),
       queryText,
       params,
-      options,
+      options
     );
   };
 }
@@ -170,17 +170,17 @@ export function wrapClientQueryWithCache(originalQuery, options = {}) {
 export function wrapPoolWithCache(pool, options = {}) {
   const originalQuery = pool.query.bind(pool);
 
-  pool.query = async function(queryText, params) {
+  pool.query = async function (queryText, params) {
     return executeCachedQuery(
       () => originalQuery(queryText, params),
       queryText,
       params,
-      options,
+      options
     );
   };
 
   logger.info(
-    '🔵 [Cached Query Wrapper] Pool query method wrapped with caching',
+    '🔵 [Cached Query Wrapper] Pool query method wrapped with caching'
   );
 
   return pool;
@@ -196,12 +196,12 @@ export function wrapPoolWithCache(pool, options = {}) {
 export function wrapClientWithCache(client, options = {}) {
   const originalQuery = client.query.bind(client);
 
-  client.query = async function(queryText, params) {
+  client.query = async function (queryText, params) {
     return executeCachedQuery(
       () => originalQuery(queryText, params),
       queryText,
       params,
-      options,
+      options
     );
   };
 
@@ -217,7 +217,7 @@ export function invalidateCacheForTable(tableName) {
   const cache = getQueryCache();
   const count = cache.invalidateByTable(tableName);
   logger.debug(
-    `[Cached Query] Invalidated ${count} cache entries for table: ${tableName}`,
+    `[Cached Query] Invalidated ${count} cache entries for table: ${tableName}`
   );
   return count;
 }

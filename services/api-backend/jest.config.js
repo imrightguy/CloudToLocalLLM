@@ -23,13 +23,13 @@ export default {
     // Skip integration-heavy tests in CI that require a real database
     ...(process.env.CI
       ? [
-        'proxy-usage\\.test\\.js$',
-        'tunnel-usage\\.test\\.js$',
-        'tunnel-sharing\\.test\\.js$',
-        'tunnel-webhooks\\.test\\.js$',
-        'api-keys\\.test\\.js$',
-        'tunnel-sharing-integration\\.test\\.js$',
-      ]
+          'proxy-usage\\.test\\.js$',
+          'tunnel-usage\\.test\\.js$',
+          'tunnel-sharing\\.test\\.js$',
+          'tunnel-webhooks\\.test\\.js$',
+          'api-keys\\.test\\.js$',
+          'tunnel-sharing-integration\\.test\\.js$',
+        ]
       : []),
   ],
 
@@ -70,7 +70,6 @@ export default {
   coverageReporters: ['text', 'lcov', 'html', 'json', 'cobertura'],
 
   // Coverage thresholds
-
 
   // Files to collect coverage from
   collectCoverageFrom: [

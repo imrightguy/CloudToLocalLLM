@@ -91,7 +91,7 @@ export class Transaction {
   async query(text, params = []) {
     if (this.state !== TransactionState.ACTIVE) {
       throw new Error(
-        `Cannot execute query in ${this.state} transaction (ID: ${this.transactionId})`,
+        `Cannot execute query in ${this.state} transaction (ID: ${this.transactionId})`
       );
     }
 
@@ -132,7 +132,7 @@ export class Transaction {
   async savepoint(name) {
     if (this.state !== TransactionState.ACTIVE) {
       throw new Error(
-        `Cannot create savepoint in ${this.state} transaction (ID: ${this.transactionId})`,
+        `Cannot create savepoint in ${this.state} transaction (ID: ${this.transactionId})`
       );
     }
 
@@ -165,7 +165,7 @@ export class Transaction {
   async rollbackToSavepoint(name) {
     if (this.state !== TransactionState.ACTIVE) {
       throw new Error(
-        `Cannot rollback to savepoint in ${this.state} transaction (ID: ${this.transactionId})`,
+        `Cannot rollback to savepoint in ${this.state} transaction (ID: ${this.transactionId})`
       );
     }
 
@@ -193,7 +193,7 @@ export class Transaction {
   async commit() {
     if (this.state !== TransactionState.ACTIVE) {
       throw new Error(
-        `Cannot commit ${this.state} transaction (ID: ${this.transactionId})`,
+        `Cannot commit ${this.state} transaction (ID: ${this.transactionId})`
       );
     }
 
@@ -315,7 +315,7 @@ export class TransactionManager {
           {
             transactionId: transaction.transactionId,
             attempt: attempt + 1,
-          },
+          }
         );
 
         return result;
@@ -341,11 +341,11 @@ export class TransactionManager {
               attempt: attempt + 1,
               maxRetries,
               delay: `${retryDelay * attempt}ms`,
-            },
+            }
           );
 
           await new Promise((resolve) =>
-            setTimeout(resolve, retryDelay * attempt),
+            setTimeout(resolve, retryDelay * attempt)
           );
         } else {
           break;
@@ -381,7 +381,7 @@ export class TransactionManager {
    * @returns {Promise<Array>} Array of query results
    */
   static async executeQueries(queries, options = {}) {
-    return this.withTransaction(async(transaction) => {
+    return this.withTransaction(async (transaction) => {
       const results = [];
 
       for (const { text, params } of queries) {
@@ -433,7 +433,7 @@ export class TransactionManager {
               attempt: attempt + 1,
               maxRetries,
               delay: `${delay}ms`,
-            },
+            }
           );
 
           await new Promise((resolve) => setTimeout(resolve, delay));

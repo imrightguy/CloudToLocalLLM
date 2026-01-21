@@ -8,10 +8,11 @@ import { authenticateJWT } from '../middleware/auth.js';
  * Legacy endpoint - now deprecated.
  * Sessions are now automatically synchronized via authenticateJWT middleware.
  */
-router.post('/', async(req, res) => {
+router.post('/', async (req, res) => {
   res.status(410).json({
     error: 'Gone',
-    message: 'This manual session registration endpoint is deprecated. Sessions are now handled automatically via JWT middleware.',
+    message:
+      'This manual session registration endpoint is deprecated. Sessions are now handled automatically via JWT middleware.',
   });
 });
 
@@ -19,7 +20,7 @@ router.post('/', async(req, res) => {
  * GET /auth/sessions/current
  * Get current session for the authenticated user
  */
-router.get('/current', authenticateJWT, async(req, res) => {
+router.get('/current', authenticateJWT, async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -38,7 +39,7 @@ router.get('/current', authenticateJWT, async(req, res) => {
        JOIN users u ON s.user_id = u.id
        WHERE u.jwt_id = $1 AND s.is_active = true AND s.expires_at > NOW()
        ORDER BY s.last_activity DESC LIMIT 1`,
-      [req.user.sub],
+      [req.user.sub]
     );
 
     if (result.rows.length === 0) {
@@ -77,7 +78,7 @@ router.get('/current', authenticateJWT, async(req, res) => {
  * GET /auth/sessions/validate/:token
  * Validate a session token and return session data
  */
-router.get('/validate/:token', async(req, res) => {
+router.get('/validate/:token', async (req, res) => {
   try {
     const { token } = req.params;
 
@@ -89,7 +90,7 @@ router.get('/validate/:token', async(req, res) => {
        FROM user_sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.session_token = $1 AND s.is_active = true AND s.expires_at > NOW()`,
-      [token],
+      [token]
     );
 
     if (result.rows.length === 0) {
@@ -101,7 +102,7 @@ router.get('/validate/:token', async(req, res) => {
     // Update last activity
     await db.query(
       'UPDATE user_sessions SET last_activity = NOW() WHERE id = $1',
-      [session.id],
+      [session.id]
     );
 
     res.json({
@@ -134,7 +135,7 @@ router.get('/validate/:token', async(req, res) => {
  * PUT /auth/sessions/tokens
  * Update tokens for the current session
  */
-router.put('/tokens', async(req, res) => {
+router.put('/tokens', async (req, res) => {
   try {
     const { sessionToken, accessToken, idToken, refreshToken } = req.body;
 
@@ -150,7 +151,7 @@ router.put('/tokens', async(req, res) => {
            last_activity = NOW()
        WHERE session_token = $4 AND is_active = true
        RETURNING id`,
-      [accessToken, idToken, refreshToken, sessionToken],
+      [accessToken, idToken, refreshToken, sessionToken]
     );
 
     if (result.rows.length === 0) {
@@ -168,13 +169,13 @@ router.put('/tokens', async(req, res) => {
  * DELETE /auth/sessions/:token
  * Invalidate a session
  */
-router.delete('/:token', async(req, res) => {
+router.delete('/:token', async (req, res) => {
   try {
     const { token } = req.params;
 
     const result = await db.query(
       'UPDATE user_sessions SET is_active = false WHERE session_token = $1',
-      [token],
+      [token]
     );
 
     if (result.rowCount === 0) {
@@ -192,10 +193,10 @@ router.delete('/:token', async(req, res) => {
  * POST /auth/sessions/cleanup
  * Clean up expired sessions
  */
-router.post('/cleanup', async(req, res) => {
+router.post('/cleanup', async (req, res) => {
   try {
     const result = await db.query(
-      'DELETE FROM user_sessions WHERE expires_at < NOW() OR is_active = false',
+      'DELETE FROM user_sessions WHERE expires_at < NOW() OR is_active = false'
     );
 
     res.json({ deleted: result.rowCount });

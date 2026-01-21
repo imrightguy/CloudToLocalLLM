@@ -237,18 +237,18 @@ export class LogRouter {
    */
   isDestinationEnabled(destination) {
     switch (destination) {
-    case 'loki':
-      return logAggregationConfig.loki.enabled;
-    case 'elk':
-      return logAggregationConfig.elk.enabled;
-    case 'sentry':
-      return this.config.errorToSentry;
-    case 'file':
-      return this.config.errorToFile || this.config.warningToFile;
-    case 'console':
-      return this.config.infoToConsole;
-    default:
-      return false;
+      case 'loki':
+        return logAggregationConfig.loki.enabled;
+      case 'elk':
+        return logAggregationConfig.elk.enabled;
+      case 'sentry':
+        return this.config.errorToSentry;
+      case 'file':
+        return this.config.errorToFile || this.config.warningToFile;
+      case 'console':
+        return this.config.infoToConsole;
+      default:
+        return false;
     }
   }
 }

@@ -192,7 +192,7 @@ export class RetryManager {
     if (!this.retryServices.has(serviceName)) {
       this.retryServices.set(
         serviceName,
-        new RetryService({ name: serviceName, ...options }),
+        new RetryService({ name: serviceName, ...options })
       );
     }
     return this.retryServices.get(serviceName);

@@ -39,7 +39,7 @@ const router = express.Router();
  *
  * Requirements: 2, 11
  */
-router.get('/metrics', adminReadOnlyLimiter, adminAuth(), async(req, res) => {
+router.get('/metrics', adminReadOnlyLimiter, adminAuth(), async (req, res) => {
   try {
     const pool = getPool();
 
@@ -59,7 +59,7 @@ router.get('/metrics', adminReadOnlyLimiter, adminAuth(), async(req, res) => {
       23,
       59,
       59,
-      999,
+      999
     );
 
     // 1. Get total registered users
@@ -183,10 +183,10 @@ router.get('/metrics', adminReadOnlyLimiter, adminAuth(), async(req, res) => {
         conversionRate:
           totalUsers > 0
             ? (
-              ((tierDistribution.premium + tierDistribution.enterprise) /
+                ((tierDistribution.premium + tierDistribution.enterprise) /
                   totalUsers) *
                 100
-            ).toFixed(2)
+              ).toFixed(2)
             : 0,
       },
       revenue: {
@@ -230,7 +230,7 @@ router.get('/metrics', adminReadOnlyLimiter, adminAuth(), async(req, res) => {
         activeUsers,
         mrr: mrr.toFixed(2),
         currentMonthRevenue: totalRevenue.toFixed(2),
-      },
+      }
     );
 
     res.json({

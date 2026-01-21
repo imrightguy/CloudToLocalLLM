@@ -39,7 +39,7 @@ export async function initializeTunnelSharingService() {
       '[TunnelSharingRoutes] Failed to initialize tunnel sharing service',
       {
         error: error.message,
-      },
+      }
     );
     throw error;
   }
@@ -64,7 +64,7 @@ export async function initializeTunnelSharingService() {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/shares', authenticateJWT, async(req, res) => {
+router.post('/:id/shares', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -104,7 +104,7 @@ router.post('/:id/shares', authenticateJWT, async(req, res) => {
       sharedWithUserId,
       permission,
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelSharingRoutes] Tunnel shared', {
@@ -164,7 +164,7 @@ router.post('/:id/shares', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/shares', authenticateJWT, async(req, res) => {
+router.get('/:id/shares', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -238,7 +238,7 @@ router.get('/:id/shares', authenticateJWT, async(req, res) => {
 router.delete(
   '/:id/shares/:sharedWithUserId',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -267,7 +267,7 @@ router.delete(
         userId,
         sharedWithUserId,
         ipAddress,
-        userAgent,
+        userAgent
       );
 
       logger.info('[TunnelSharingRoutes] Tunnel access revoked', {
@@ -305,7 +305,7 @@ router.delete(
         message: 'Failed to revoke tunnel access',
       });
     }
-  },
+  }
 );
 
 /**
@@ -323,7 +323,7 @@ router.delete(
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/shared-with-me', authenticateJWT, async(req, res) => {
+router.get('/shared-with-me', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -398,7 +398,7 @@ router.get('/shared-with-me', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/share-tokens', authenticateJWT, async(req, res) => {
+router.post('/:id/share-tokens', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -434,7 +434,7 @@ router.post('/:id/share-tokens', authenticateJWT, async(req, res) => {
       expiresInHours,
       maxUses,
       ipAddress,
-      userAgent,
+      userAgent
     );
 
     logger.info('[TunnelSharingRoutes] Share token created', {
@@ -493,7 +493,7 @@ router.post('/:id/share-tokens', authenticateJWT, async(req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/share-tokens', authenticateJWT, async(req, res) => {
+router.get('/:id/share-tokens', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -567,7 +567,7 @@ router.get('/:id/share-tokens', authenticateJWT, async(req, res) => {
 router.delete(
   '/:id/share-tokens/:tokenId',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -595,7 +595,7 @@ router.delete(
         tokenId,
         userId,
         ipAddress,
-        userAgent,
+        userAgent
       );
 
       logger.info('[TunnelSharingRoutes] Share token revoked', {
@@ -632,7 +632,7 @@ router.delete(
         message: 'Failed to revoke share token',
       });
     }
-  },
+  }
 );
 
 /**
@@ -650,7 +650,7 @@ router.delete(
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/access-logs', authenticateJWT, async(req, res) => {
+router.get('/:id/access-logs', authenticateJWT, async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -679,7 +679,7 @@ router.get('/:id/access-logs', authenticateJWT, async(req, res) => {
       {
         limit,
         offset,
-      },
+      }
     );
 
     logger.debug('[TunnelSharingRoutes] Access logs retrieved', {
@@ -742,7 +742,7 @@ router.get('/:id/access-logs', authenticateJWT, async(req, res) => {
 router.put(
   '/:id/shares/:shareId/permission',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -780,7 +780,7 @@ router.put(
         userId,
         permission,
         ipAddress,
-        userAgent,
+        userAgent
       );
 
       logger.info('[TunnelSharingRoutes] Share permission updated', {
@@ -826,7 +826,7 @@ router.put(
         message: 'Failed to update share permission',
       });
     }
-  },
+  }
 );
 
 export default router;

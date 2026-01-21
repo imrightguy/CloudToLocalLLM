@@ -96,7 +96,7 @@ export function deprecationResponseMiddleware() {
       const originalJson = res.json;
 
       // Override json to include deprecation info
-      res.json = function(data) {
+      res.json = function (data) {
         // Add deprecation info to response
         if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
           data._deprecation = {

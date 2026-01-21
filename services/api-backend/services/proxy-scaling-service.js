@@ -16,14 +16,14 @@ export class ProxyScalingService {
         format: winston.format.combine(
           winston.format.timestamp(),
           winston.format.errors({ stack: true }),
-          winston.format.json(),
+          winston.format.json()
         ),
         defaultMeta: { service: 'proxy-scaling' },
         transports: [
           new winston.transports.Console({
             format: winston.format.combine(
               winston.format.timestamp(),
-              winston.format.simple(),
+              winston.format.simple()
             ),
           }),
         ],
@@ -96,7 +96,7 @@ export class ProxyScalingService {
           mergedPolicy.scaleUpCooldownSeconds,
           mergedPolicy.scaleDownCooldownSeconds,
           true,
-        ],
+        ]
       );
 
       this.logger.info('Scaling policy created/updated', {
@@ -129,7 +129,7 @@ export class ProxyScalingService {
     try {
       const result = await this.db.query(
         'SELECT * FROM proxy_scaling_policies WHERE proxy_id = $1',
-        [proxyId],
+        [proxyId]
       );
 
       if (result.rows.length === 0) {
@@ -200,7 +200,7 @@ export class ProxyScalingService {
           metrics.errorRate,
           metrics.connectionCount,
           loadScore,
-        ],
+        ]
       );
 
       // Cache metrics
@@ -243,7 +243,7 @@ export class ProxyScalingService {
          WHERE proxy_id = $1 
          ORDER BY created_at DESC 
          LIMIT 1`,
-        [proxyId],
+        [proxyId]
       );
 
       if (result.rows.length === 0) {
@@ -375,7 +375,7 @@ export class ProxyScalingService {
     userId,
     newReplicaCount,
     reason,
-    triggeredBy = 'manual',
+    triggeredBy = 'manual'
   ) {
     if (!proxyId || !userId) {
       throw new Error('proxyId and userId are required');
@@ -418,7 +418,7 @@ export class ProxyScalingService {
             loadScore: metrics.loadScore,
           }),
           'in_progress',
-        ],
+        ]
       );
 
       const scalingEvent = result.rows[0];
@@ -443,7 +443,7 @@ export class ProxyScalingService {
             proxyId,
             userId,
             newReplicaCount,
-            scalingEvent,
+            scalingEvent
           );
         } catch (error) {
           this.logger.error('Error in scaling callback', {
@@ -476,7 +476,7 @@ export class ProxyScalingService {
     eventId,
     status,
     errorMessage = null,
-    durationMs = null,
+    durationMs = null
   ) {
     if (!eventId) {
       throw new Error('eventId is required');
@@ -492,7 +492,7 @@ export class ProxyScalingService {
          SET status = $1, error_message = $2, duration_ms = $3, completed_at = CURRENT_TIMESTAMP
          WHERE id = $4
          RETURNING *`,
-        [status, errorMessage, durationMs, eventId],
+        [status, errorMessage, durationMs, eventId]
       );
 
       if (result.rows.length === 0) {
@@ -535,7 +535,7 @@ export class ProxyScalingService {
          WHERE proxy_id = $1 
          ORDER BY created_at DESC 
          LIMIT $2`,
-        [proxyId, limit],
+        [proxyId, limit]
       );
 
       return result.rows.map((row) => this.formatScalingEventResponse(row));
@@ -565,7 +565,7 @@ export class ProxyScalingService {
          WHERE proxy_id = $1 
          ORDER BY timestamp DESC 
          LIMIT $2`,
-        [proxyId, limit],
+        [proxyId, limit]
       );
 
       return result.rows;
@@ -597,7 +597,7 @@ export class ProxyScalingService {
         `SELECT * FROM proxy_scaling_events 
          WHERE proxy_id = $1 AND created_at >= $2
          ORDER BY created_at DESC`,
-        [proxyId, cutoffTime],
+        [proxyId, cutoffTime]
       );
 
       const events = eventsResult.rows;
@@ -607,20 +607,20 @@ export class ProxyScalingService {
         `SELECT * FROM proxy_load_metrics 
          WHERE proxy_id = $1 AND created_at >= $2
          ORDER BY created_at DESC`,
-        [proxyId, cutoffTime],
+        [proxyId, cutoffTime]
       );
 
       const metrics = metricsResult.rows;
 
       // Calculate statistics
       const scaleUpCount = events.filter(
-        (e) => e.event_type === 'scale_up',
+        (e) => e.event_type === 'scale_up'
       ).length;
       const scaleDownCount = events.filter(
-        (e) => e.event_type === 'scale_down',
+        (e) => e.event_type === 'scale_down'
       ).length;
       const successfulCount = events.filter(
-        (e) => e.status === 'completed',
+        (e) => e.status === 'completed'
       ).length;
       const failedCount = events.filter((e) => e.status === 'failed').length;
 
@@ -729,7 +729,7 @@ export class ProxyScalingService {
       policy.scaleDownCooldownSeconds < 0
     ) {
       throw new Error(
-        'scaleDownCooldownSeconds must be a non-negative integer',
+        'scaleDownCooldownSeconds must be a non-negative integer'
       );
     }
   }

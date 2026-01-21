@@ -39,7 +39,7 @@ const router = express.Router();
  * - Logs all authentication attempts (success and failure)
  * - Provides audit log retrieval for users
  */
-router.get('/audit-logs/me', authenticateJWT, async(req, res) => {
+router.get('/audit-logs/me', authenticateJWT, async (req, res) => {
   try {
     const userId = req.user?.sub || req.userId;
 
@@ -131,7 +131,7 @@ router.get('/audit-logs/me', authenticateJWT, async(req, res) => {
  * - Logs all authentication attempts (success and failure)
  * - Provides failed login attempt retrieval
  */
-router.get('/audit-logs/failed-attempts', authenticateJWT, async(req, res) => {
+router.get('/audit-logs/failed-attempts', authenticateJWT, async (req, res) => {
   try {
     const userId = req.user?.sub || req.userId;
 
@@ -226,7 +226,7 @@ router.get(
   '/admin/auth/audit-logs',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       // Parse query parameters
       let limit = parseInt(req.query.limit) || 100;
@@ -297,7 +297,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -318,7 +318,7 @@ router.get(
   '/admin/auth/audit-logs/failed-attempts',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       // Parse query parameters
       let limit = parseInt(req.query.limit) || 100;
@@ -376,7 +376,7 @@ router.get(
         {
           error: error.message,
           adminUserId: req.user?.sub,
-        },
+        }
       );
 
       res.status(500).json({
@@ -385,7 +385,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -404,7 +404,7 @@ router.get(
   '/admin/auth/audit-logs/summary',
   authenticateJWT,
   requireAdmin,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const startDate = req.query.startDate || null;
       const endDate = req.query.endDate || null;
@@ -478,7 +478,7 @@ router.get(
         message: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;

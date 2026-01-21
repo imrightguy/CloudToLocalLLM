@@ -50,7 +50,7 @@ const router = express.Router();
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/activity', authenticateJWT, async function(req, res) {
+router.get('/activity', authenticateJWT, async function (req, res) {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -150,7 +150,7 @@ router.get('/activity', authenticateJWT, async function(req, res) {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/metrics', authenticateJWT, async function(req, res) {
+router.get('/metrics', authenticateJWT, async function (req, res) {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -233,7 +233,7 @@ router.get('/metrics', authenticateJWT, async function(req, res) {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/activity/summary', authenticateJWT, async function(req, res) {
+router.get('/activity/summary', authenticateJWT, async function (req, res) {
   try {
     if (!req.user) {
       return res.status(401).json({

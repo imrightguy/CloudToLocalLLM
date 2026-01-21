@@ -56,7 +56,7 @@ export function checkPermissions(userRoles, requiredPermissions) {
 
   // Get all permissions for user's roles
   const userPermissions = userRoles.flatMap(
-    (role) => ROLE_PERMISSIONS[role] || [],
+    (role) => ROLE_PERMISSIONS[role] || []
   );
 
   // Check if user has all required permissions
@@ -71,7 +71,7 @@ export function checkPermissions(userRoles, requiredPermissions) {
  * @returns {Function} Express middleware function
  */
 export function adminAuth(requiredPermissions = []) {
-  return async(req, res, next) => {
+  return async (req, res, next) => {
     try {
       // Verify JWT token
       const token = req.headers.authorization?.split(' ')[1];
@@ -114,7 +114,7 @@ export function adminAuth(requiredPermissions = []) {
          LEFT JOIN admin_roles ar ON u.id = ar.user_id AND ar.is_active = true
          WHERE u.jwt_id = $1
          GROUP BY u.id, u.email, u.jwt_id`,
-        [decoded.sub],
+        [decoded.sub]
       );
 
       if (!userResult.rows[0]) {

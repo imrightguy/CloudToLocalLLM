@@ -40,7 +40,7 @@ export function createRequestLoggingMiddleware() {
 
     // Intercept response to log completion
     const originalSend = res.send;
-    res.send = function(data) {
+    res.send = function (data) {
       const duration = Date.now() - startTime;
 
       // Log response

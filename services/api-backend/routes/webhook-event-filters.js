@@ -34,14 +34,14 @@ export async function initializeWebhookEventFilterService() {
     filterService = new WebhookEventFilter();
     await filterService.initialize();
     logger.info(
-      '[WebhookEventFilterRoutes] Webhook event filter service initialized',
+      '[WebhookEventFilterRoutes] Webhook event filter service initialized'
     );
   } catch (error) {
     logger.error(
       '[WebhookEventFilterRoutes] Failed to initialize filter service',
       {
         error: error.message,
-      },
+      }
     );
     throw error;
   }
@@ -73,7 +73,7 @@ export async function initializeWebhookEventFilterService() {
 router.post(
   '/:tunnelId/webhooks/:webhookId/filters',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -109,7 +109,7 @@ router.post(
       const filter = await filterService.createFilter(
         webhookId,
         userId,
-        filterConfig,
+        filterConfig
       );
 
       logger.info('[WebhookEventFilterRoutes] Filter created', {
@@ -152,7 +152,7 @@ router.post(
         message: 'Failed to create filter',
       });
     }
-  },
+  }
 );
 
 /**
@@ -170,7 +170,7 @@ router.post(
 router.get(
   '/:tunnelId/webhooks/:webhookId/filters',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -224,7 +224,7 @@ router.get(
         message: 'Failed to retrieve filter',
       });
     }
-  },
+  }
 );
 
 /**
@@ -248,7 +248,7 @@ router.get(
 router.put(
   '/:tunnelId/webhooks/:webhookId/filters',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -284,7 +284,7 @@ router.put(
       const filter = await filterService.updateFilter(
         webhookId,
         userId,
-        filterConfig,
+        filterConfig
       );
 
       logger.info('[WebhookEventFilterRoutes] Filter updated', {
@@ -326,7 +326,7 @@ router.put(
         message: 'Failed to update filter',
       });
     }
-  },
+  }
 );
 
 /**
@@ -343,7 +343,7 @@ router.put(
 router.delete(
   '/:tunnelId/webhooks/:webhookId/filters',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -389,7 +389,7 @@ router.delete(
         message: 'Failed to delete filter',
       });
     }
-  },
+  }
 );
 
 /**
@@ -414,7 +414,7 @@ router.delete(
 router.post(
   '/:tunnelId/webhooks/:webhookId/filters/validate',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!filterService) {
         return res.status(503).json({
@@ -447,7 +447,7 @@ router.post(
         message: 'Failed to validate filter',
       });
     }
-  },
+  }
 );
 
 /**
@@ -470,7 +470,7 @@ router.post(
 router.post(
   '/:tunnelId/webhooks/:webhookId/filters/test',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       if (!filterService) {
         return res.status(503).json({
@@ -536,7 +536,7 @@ router.post(
         message: 'Failed to test filter',
       });
     }
-  },
+  }
 );
 
 export default router;

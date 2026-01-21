@@ -67,7 +67,7 @@ router.post('/test/payload', authenticateJWT, (req, res) => {
 
     const payload = webhookTestingService.generateTestPayload(
       eventType,
-      customData || {},
+      customData || {}
     );
 
     logger.info('[WebhookTesting] Test payload generated', {
@@ -107,7 +107,7 @@ router.post('/test/payload', authenticateJWT, (req, res) => {
  *   ...
  * }
  */
-router.post('/test/send', authenticateJWT, async(req, res) => {
+router.post('/test/send', authenticateJWT, async (req, res) => {
   try {
     const { webhookUrl, eventType, customData, secret } = req.body;
 
@@ -126,14 +126,14 @@ router.post('/test/send', authenticateJWT, async(req, res) => {
     // Generate test payload
     const payload = webhookTestingService.generateTestPayload(
       eventType,
-      customData || {},
+      customData || {}
     );
 
     // Simulate delivery
     const result = await webhookTestingService.simulateWebhookDelivery(
       webhookUrl,
       payload,
-      secret,
+      secret
     );
 
     logger.info('[WebhookTesting] Test webhook sent', {
@@ -236,14 +236,14 @@ router.get('/test/events/:testId', authenticateJWT, (req, res) => {
  *   "statistics": { ... }
  * }
  */
-router.get('/:webhookId/debug', authenticateJWT, async(req, res) => {
+router.get('/:webhookId/debug', authenticateJWT, async (req, res) => {
   try {
     const { webhookId } = req.params;
     const userId = req.user.sub;
 
     const debugInfo = await webhookTestingService.getWebhookDebugInfo(
       webhookId,
-      userId,
+      userId
     );
 
     if (debugInfo.error) {
@@ -279,14 +279,14 @@ router.get('/:webhookId/debug', authenticateJWT, async(req, res) => {
 router.get(
   '/deliveries/:deliveryId/details',
   authenticateJWT,
-  async(req, res) => {
+  async (req, res) => {
     try {
       const { deliveryId } = req.params;
       const userId = req.user.sub;
 
       const details = await webhookTestingService.getDeliveryDetails(
         deliveryId,
-        userId,
+        userId
       );
 
       if (details.error) {
@@ -307,7 +307,7 @@ router.get(
       });
       res.status(500).json({ error: 'Failed to get delivery details' });
     }
-  },
+  }
 );
 
 /**

@@ -513,7 +513,6 @@ export class RateLimitViolationsService {
         WHERE endpoint = $1
       `;
 
-
       const params = [endpoint];
       let paramIndex = 2;
 

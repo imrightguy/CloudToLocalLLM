@@ -41,7 +41,7 @@ const DEFAULT_CONFIG = {
     'X-XSS-Protection': '1; mode=block',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Content-Security-Policy':
-      'default-src \'self\'; connect-src \'self\' wss: https:; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'',
+      "default-src 'self'; connect-src 'self' wss: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'",
   },
 
   // WebSocket security
@@ -141,7 +141,7 @@ class ConnectionTracker {
     const recentEvents = events.filter(
       (event) =>
         Date.now() - event.timestamp.getTime() <
-        DEFAULT_CONFIG.securityEventRateLimit.windowMs,
+        DEFAULT_CONFIG.securityEventRateLimit.windowMs
     );
 
     if (
@@ -156,7 +156,7 @@ class ConnectionTracker {
         'certificate_validation_failed',
         'tls_handshake_failed',
         'malicious_request',
-      ].includes(event.type),
+      ].includes(event.type)
     );
 
     if (criticalEvents.length >= 5) {
@@ -251,7 +251,7 @@ export class ConnectionSecurityManager {
       () => {
         this.connectionTracker.cleanup();
       },
-      60 * 60 * 1000,
+      60 * 60 * 1000
     ); // Every hour
 
     this.logger.info('Connection security manager initialized', {
@@ -329,7 +329,7 @@ export class ConnectionSecurityManager {
         const certValidation = this.validateClientCertificate(
           cert,
           ip,
-          correlationId,
+          correlationId
         );
         if (!certValidation.valid) {
           return certValidation;
@@ -383,7 +383,7 @@ export class ConnectionSecurityManager {
         'missing_client_certificate',
         {
           correlationId,
-        },
+        }
       );
 
       return {
@@ -407,7 +407,7 @@ export class ConnectionSecurityManager {
           validFrom: cert.valid_from,
           validTo: cert.valid_to,
           currentTime: now.toISOString(),
-        },
+        }
       );
 
       return {
@@ -431,7 +431,7 @@ export class ConnectionSecurityManager {
             correlationId,
             subject: cert.subject,
             issuer: cert.issuer,
-          },
+          }
         );
 
         return {
@@ -499,7 +499,7 @@ export class ConnectionSecurityManager {
     }
 
     return this.config.allowedCiphers.some(
-      (allowed) => cipherName.includes(allowed) || allowed.includes(cipherName),
+      (allowed) => cipherName.includes(allowed) || allowed.includes(cipherName)
     );
   }
 
@@ -660,8 +660,8 @@ export function createConnectionSecurityMiddleware(config = {}) {
           ErrorResponseBuilder.createErrorResponse(
             'IP_BLOCKED',
             'Access denied due to security violations',
-            403,
-          ),
+            403
+          )
         );
     }
 
@@ -669,7 +669,7 @@ export function createConnectionSecurityMiddleware(config = {}) {
     Object.entries(securityManager.config.securityHeaders).forEach(
       ([header, value]) => {
         res.setHeader(header, value);
-      },
+      }
     );
 
     // Track connection
@@ -684,7 +684,7 @@ export function createConnectionSecurityMiddleware(config = {}) {
     if (req.socket && req.socket.encrypted) {
       const tlsValidation = securityManager.validateTLSConnection(
         req.socket,
-        ip,
+        ip
       );
       if (!tlsValidation.valid) {
         securityManager.logger.logSecurity('tls_validation_failed', null, {
@@ -700,8 +700,8 @@ export function createConnectionSecurityMiddleware(config = {}) {
             ErrorResponseBuilder.createErrorResponse(
               tlsValidation.errorCode,
               tlsValidation.reason,
-              400,
-            ),
+              400
+            )
           );
       }
     }
@@ -753,7 +753,7 @@ export function createWebSocketSecurityValidator(config = {}) {
     if (info.req.socket.encrypted) {
       const tlsValidation = securityManager.validateTLSConnection(
         info.req.socket,
-        ip,
+        ip
       );
       if (!tlsValidation.valid) {
         return false;

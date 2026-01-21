@@ -15,14 +15,14 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json(),
+    winston.format.json()
   ),
   defaultMeta: { service: 'error-notification' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple(),
+        winston.format.simple()
       ),
     }),
   ],
@@ -116,7 +116,7 @@ export class ErrorNotificationService extends EventEmitter {
     // Log handler (always available)
     this.registerNotificationHandler(
       NotificationChannel.LOG,
-      async(notification) => {
+      async (notification) => {
         logger.error('Critical error notification', {
           errorId: notification.errorId,
           category: notification.category,
@@ -124,14 +124,14 @@ export class ErrorNotificationService extends EventEmitter {
           message: notification.message,
           timestamp: notification.timestamp,
         });
-      },
+      }
     );
 
     // Webhook handler (if configured)
     if (this.config.webhookUrl) {
       this.registerNotificationHandler(
         NotificationChannel.WEBHOOK,
-        async(notification) => {
+        async (notification) => {
           try {
             const response = await fetch(this.config.webhookUrl, {
               method: 'POST',
@@ -153,7 +153,7 @@ export class ErrorNotificationService extends EventEmitter {
             });
             throw error;
           }
-        },
+        }
       );
     }
 
@@ -161,10 +161,10 @@ export class ErrorNotificationService extends EventEmitter {
     if (this.config.emailService) {
       this.registerNotificationHandler(
         NotificationChannel.EMAIL,
-        async(notification) => {
+        async (notification) => {
           try {
             await this.config.emailService.sendCriticalErrorNotification(
-              notification,
+              notification
             );
           } catch (error) {
             logger.error('Failed to send email notification', {
@@ -172,7 +172,7 @@ export class ErrorNotificationService extends EventEmitter {
             });
             throw error;
           }
-        },
+        }
       );
     }
 
@@ -180,7 +180,7 @@ export class ErrorNotificationService extends EventEmitter {
     if (this.config.slackWebhook) {
       this.registerNotificationHandler(
         NotificationChannel.SLACK,
-        async(notification) => {
+        async (notification) => {
           try {
             const message = {
               text: `🚨 Critical Error: ${notification.message}`,
@@ -227,7 +227,7 @@ export class ErrorNotificationService extends EventEmitter {
 
             if (!response.ok) {
               throw new Error(
-                `Slack webhook returned status ${response.status}`,
+                `Slack webhook returned status ${response.status}`
               );
             }
           } catch (error) {
@@ -236,7 +236,7 @@ export class ErrorNotificationService extends EventEmitter {
             });
             throw error;
           }
-        },
+        }
       );
     }
   }
@@ -315,7 +315,7 @@ export class ErrorNotificationService extends EventEmitter {
             errorId,
             category,
             severity,
-          },
+          }
         );
         return {
           errorId,
@@ -581,7 +581,7 @@ export class ErrorNotificationService extends EventEmitter {
 
     const sum = this.metrics.notificationTimes.reduce((a, b) => a + b, 0);
     this.metrics.averageNotificationTime = Math.round(
-      sum / this.metrics.notificationTimes.length,
+      sum / this.metrics.notificationTimes.length
     );
 
     // Keep only last 100 notification times for memory efficiency

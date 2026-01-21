@@ -52,7 +52,7 @@ function initializeServices(pool) {
     emailQueueService = new EmailQueueService(
       pool,
       googleWorkspaceService,
-      emailConfigService,
+      emailConfigService
     );
   }
 }
@@ -65,7 +65,7 @@ router.post(
   '/oauth/start',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -109,7 +109,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -120,7 +120,7 @@ router.post(
   '/oauth/callback',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -230,7 +230,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -241,13 +241,13 @@ router.get(
   '/config',
   adminReadOnlyLimiter,
   adminAuth(['view_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
 
       const configs = await emailConfigService.getAllConfigurations(
-        req.adminUser.id,
+        req.adminUser.id
       );
 
       const sanitizedConfigs = configs.map((config) => ({
@@ -286,7 +286,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -297,7 +297,7 @@ router.delete(
   '/config',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -350,7 +350,7 @@ router.delete(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -361,7 +361,7 @@ router.post(
   '/test',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -385,7 +385,7 @@ router.post(
       }
 
       const config = await googleWorkspaceService.getOAuthConfiguration(
-        req.adminUser.id,
+        req.adminUser.id
       );
 
       if (!config) {
@@ -480,7 +480,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -491,13 +491,13 @@ router.get(
   '/status',
   adminReadOnlyLimiter,
   adminAuth(['view_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
 
       const config = await googleWorkspaceService.getOAuthConfiguration(
-        req.adminUser.id,
+        req.adminUser.id
       );
 
       const status = {
@@ -534,7 +534,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -545,13 +545,13 @@ router.get(
   '/quota',
   adminReadOnlyLimiter,
   adminAuth(['view_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
 
       const config = await googleWorkspaceService.getOAuthConfiguration(
-        req.adminUser.id,
+        req.adminUser.id
       );
 
       if (!config) {
@@ -562,7 +562,7 @@ router.get(
       }
 
       const quotaData = await googleWorkspaceService.getQuotaUsage(
-        req.adminUser.id,
+        req.adminUser.id
       );
 
       logger.info('✅ [AdminEmail] Gmail quota retrieved', {
@@ -596,7 +596,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -607,7 +607,7 @@ router.get(
   '/templates',
   adminReadOnlyLimiter,
   adminAuth(['view_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -620,7 +620,7 @@ router.get(
         {
           limit,
           offset,
-        },
+        }
       );
 
       const countQuery = `
@@ -671,7 +671,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -682,7 +682,7 @@ router.post(
   '/templates',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -787,7 +787,7 @@ router.post(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -798,7 +798,7 @@ router.put(
   '/templates/:id',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -909,7 +909,7 @@ router.put(
         details: {
           templateName: updateName,
           fieldsUpdated: Object.keys(req.body).filter(
-            (k) => req.body[k] !== undefined,
+            (k) => req.body[k] !== undefined
           ),
         },
         ipAddress: req.ip,
@@ -953,7 +953,7 @@ router.put(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -964,7 +964,7 @@ router.delete(
   '/templates/:id',
   adminRateLimiter,
   adminAuth(['manage_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -1034,7 +1034,7 @@ router.delete(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -1055,7 +1055,7 @@ router.get(
   '/metrics',
   adminReadOnlyLimiter,
   adminAuth(['view_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -1177,8 +1177,8 @@ router.get(
               successRate:
                 metrics.total_count > 0
                   ? ((metrics.sent_count / metrics.total_count) * 100).toFixed(
-                    2,
-                  )
+                      2
+                    )
                   : 0,
             },
             deliveryTime: {
@@ -1233,7 +1233,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 /**
@@ -1260,7 +1260,7 @@ router.get(
   '/delivery-logs',
   adminReadOnlyLimiter,
   adminAuth(['view_email_config']),
-  async(req, res) => {
+  async (req, res) => {
     try {
       const pool = getPool();
       initializeServices(pool);
@@ -1310,7 +1310,7 @@ router.get(
 
       // Validate sort parameters
       const sortBy = ['created_at', 'sent_at', 'status'].includes(
-        req.query.sortBy,
+        req.query.sortBy
       )
         ? req.query.sortBy
         : 'created_at';
@@ -1432,7 +1432,7 @@ router.get(
         details: error.message,
       });
     }
-  },
+  }
 );
 
 export default router;
