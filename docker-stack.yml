@@ -162,7 +162,7 @@ services:
   # Cloudflare Tunnel (Ingress)
   cloudflared:
     image: cloudflare/cloudflared:2024.12.2
-    command: tunnel run
+    command: tunnel --metrics 0.0.0.0:2000 run
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
@@ -170,7 +170,7 @@ services:
         aliases:
           - cloudflared
     healthcheck:
-      test: ["CMD-SHELL", "cloudflared tunnel info || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:2000/ready || exit 1"]
       interval: 1m
       timeout: 10s
       retries: 3
