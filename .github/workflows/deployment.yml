@@ -499,8 +499,25 @@ jobs:
             --tenant $(jq -r .tenantId azure_creds.json)
           rm azure_creds.json
 
+          # Discovery
+          echo "🔍 Discovering VMs..."
+          az vm list -o table
+          
+          # Get actual RG and VM name
+          VM_INFO=$(az vm list --query "[?contains(name, 'swarm')].{name:name, rg:resourceGroup}" -o json | jq -r '.[0]')
+          RG_NAME=$(echo $VM_INFO | jq -r .rg)
+          VM_NAME=$(echo $VM_INFO | jq -r .name)
+          
+          if [ "$RG_NAME" == "null" ] || [ "$VM_NAME" == "null" ]; then
+            echo "❌ Could not find swarm VM. Falling back to defaults."
+            RG_NAME="cloudtolocalllm-rg"
+            VM_NAME="cloudtolocalllm-swarm"
+          fi
+          
+          echo "✅ Target: $VM_NAME in $RG_NAME"
+
           # Ensure VM is started
-          az vm start -g cloudtolocalllm-rg -n cloudtolocalllm-swarm
+          az vm start -g $RG_NAME -n $VM_NAME
 
           # Deploy via Azure Run-Command
           echo "🚀 Deploying via Azure Run-Command..."
@@ -541,8 +558,8 @@ jobs:
           EOF
 
           az vm run-command invoke \
-            -g cloudtolocalllm-rg \
-            -n cloudtolocalllm-swarm \
+            -g $RG_NAME \
+            -n $VM_NAME \
             --command-id RunBashScript \
             --scripts @remote_deploy.sh
           
