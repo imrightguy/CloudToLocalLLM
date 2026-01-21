@@ -510,19 +510,8 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-          echo "⏳ Waiting for SSH to be ready on $IP..."
-          for i in {1..30}; do
-            if ssh-keyscan -H $IP >> ~/.ssh/known_hosts 2>/dev/null; then
-              echo "✅ SSH is ready!"
-              break
-            fi
-            echo "  Attempt $i: VM not reachable yet, waiting 10s..."
-            sleep 10
-            if [ $i -eq 30 ]; then
-              echo "❌ Timeout waiting for SSH"
-              exit 1
-            fi
-          done
+          # Use SSH options to avoid interaction
+          export SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=60"
 
           # Generate safe env file for remote execution
           {
@@ -540,10 +529,10 @@ jobs:
           } > .env.remote
 
           # Copy Stack, Config, and Env Files
-          scp -r docker-stack.yml config/ .env.remote azureuser@$IP:~/
+          scp $SSH_OPTS -r docker-stack.yml config/ .env.remote azureuser@$IP:~/
 
           # Deploy via SSH
-          ssh azureuser@$IP <<'EOF'
+          ssh $SSH_OPTS azureuser@$IP <<'EOF'
             # Load environment
             source .env.remote
             rm .env.remote
@@ -621,17 +610,18 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $IP >> ~/.ssh/known_hosts 2>/dev/null
+          
+          SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=60"
 
           echo "🏥 Waiting for all containers to become healthy..."
           echo "   Max wait time: 3 minutes (18 attempts @ 10s intervals)"
           echo ""
           
           # Copy and run health check script on remote VM
-          scp scripts/ci/wait-for-swarm-health.sh azureuser@$IP:~/wait-for-swarm-health.sh
+          scp $SSH_OPTS scripts/ci/wait-for-swarm-health.sh azureuser@$IP:~/wait-for-swarm-health.sh
           
           # Run health check with sudo (Docker requires it)
-          if ssh azureuser@$IP 'chmod +x ~/wait-for-swarm-health.sh && sudo MAX_ATTEMPTS=18 POLL_INTERVAL=10 ~/wait-for-swarm-health.sh'; then
+          if ssh $SSH_OPTS azureuser@$IP 'chmod +x ~/wait-for-swarm-health.sh && sudo MAX_ATTEMPTS=18 POLL_INTERVAL=10 ~/wait-for-swarm-health.sh'; then
             echo "all_healthy=true" >> $GITHUB_OUTPUT
             echo "✅ All containers are healthy!"
           else
@@ -708,10 +698,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $IP >> ~/.ssh/known_hosts 2>/dev/null
+          
+          SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=60"
 
           # Get Swarm info
-          ssh azureuser@$IP <<'EOF'
+          ssh $SSH_OPTS azureuser@$IP <<'EOF'
             echo "=== DOCKER INFO ==="
             sudo docker info | grep -E "(Swarm|Nodes|Managers)"
             
@@ -764,10 +755,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $IP >> ~/.ssh/known_hosts 2>/dev/null
+          
+          SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=60"
 
           # Rollback services via SSH
-          ssh azureuser@$IP <<'EOF'
+          ssh $SSH_OPTS azureuser@$IP <<'EOF'
             echo "Rolling back Docker Swarm services..."
             
             # Docker Swarm has built-in rollback for services
