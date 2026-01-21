@@ -91,6 +91,8 @@ jobs:
           COMPONENTS_CLEAN=$(echo "$COMPONENTS" | sed 's/^,//')
           BUMP="false"
           NEW_VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
+          
+          # Only bump if components changed AND this isn't a skip-ci push
           if [ -n "$COMPONENTS_CLEAN" ]; then
             BUMP="true"
             IFS='.' read -r -a v <<< "$NEW_VERSION"
@@ -109,10 +111,26 @@ jobs:
           echo "web_needs_build=$WEB_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "postgres_needs_build=$POSTGRES_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
+ 
+      - name: "Orchestrator: Commit Version Bump"
+        if: steps.analyze.outputs.bump_needed == 'true' && !contains(github.event.head_commit.message, '[skip ci]')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.analyze.outputs.new_version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          chmod +x scripts/update-all-versions.sh
+          ./scripts/update-all-versions.sh "$NEW_VERSION" "${{ github.sha }}"
+          if ! git diff --quiet; then
+            git add .
+            git commit -m "chore: automated version bump to $NEW_VERSION [skip ci]"
+            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" main
+          fi
 
   run_tests:
     needs: ai_change_analysis
-    if: needs.ai_change_analysis.outputs.bump_needed == 'true'
+    if: needs.ai_change_analysis.outputs.bump_needed == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -127,9 +145,9 @@ jobs:
           npm run lint || echo "Lint warnings"
           npm run test:unit || echo "Tests failed"
 
-  build_api:
+  build_images:
     needs: [ai_change_analysis, run_tests]
-    if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
+    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && (needs.run_tests.result == 'success' || contains(github.event.head_commit.message, '[skip tests]'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -139,88 +157,46 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push API
-        run: |
-          REPO_LOWER=${GITHUB_REPOSITORY,,}
-          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} services/api-backend
-          docker push ghcr.io/${REPO_LOWER}/api:latest
-          docker push ghcr.io/${REPO_LOWER}/api:${VERSION}
-
-  build_web:
-    needs: [ai_change_analysis, run_tests]
-    if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      
       - uses: subosito/flutter-action@v2
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         with:
           channel: 'stable'
-      - name: Build Flutter Web
-        run: |
-          flutter pub get
-          flutter build web --release --no-tree-shake-icons
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push Web
-        run: |
-          REPO_LOWER=${GITHUB_REPOSITORY,,}
-          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/docker/Dockerfile.web .
-          docker push ghcr.io/${REPO_LOWER}/web:latest
-          docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
 
-  build_postgres:
-    needs: [ai_change_analysis, run_tests]
-    if: needs.ai_change_analysis.outputs.postgres_needs_build == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push Postgres
+      - name: Build and Push
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -f config/docker/Dockerfile.postgres .
-          docker push ghcr.io/${REPO_LOWER}/postgres:latest
-          docker push ghcr.io/${REPO_LOWER}/postgres:${VERSION}
+          
+          if [ "${{ needs.ai_change_analysis.outputs.api_needs_build }}" == "true" ]; then
+            docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} services/api-backend
+            docker push ghcr.io/${REPO_LOWER}/api:latest
+            docker push ghcr.io/${REPO_LOWER}/api:${VERSION}
+          fi
+          
+          if [ "${{ needs.ai_change_analysis.outputs.web_needs_build }}" == "true" ]; then
+            flutter pub get
+            flutter build web --release --no-tree-shake-icons
+            docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/docker/Dockerfile.web .
+            docker push ghcr.io/${REPO_LOWER}/web:latest
+            docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
+          fi
 
-  build_streaming:
-    needs: [ai_change_analysis, run_tests]
-    if: needs.ai_change_analysis.outputs.streaming_needs_build == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and Push Streaming
-        run: |
-          REPO_LOWER=${GITHUB_REPOSITORY,,}
-          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -f config/docker/Dockerfile.streaming-proxy .
-          docker push ghcr.io/${REPO_LOWER}/streaming:latest
-          docker push ghcr.io/${REPO_LOWER}/streaming:${VERSION}
+          if [ "${{ needs.ai_change_analysis.outputs.postgres_needs_build }}" == "true" ]; then
+            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -f config/docker/Dockerfile.postgres .
+            docker push ghcr.io/${REPO_LOWER}/postgres:latest
+            docker push ghcr.io/${REPO_LOWER}/postgres:${VERSION}
+          fi
+
+          if [ "${{ needs.ai_change_analysis.outputs.streaming_needs_build }}" == "true" ]; then
+            docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -f config/docker/Dockerfile.streaming-proxy .
+            docker push ghcr.io/${REPO_LOWER}/streaming:latest
+            docker push ghcr.io/${REPO_LOWER}/streaming:${VERSION}
+          fi
 
   deploy:
-    needs: [ai_change_analysis, build_api, build_web, build_postgres, build_streaming]
-    if: always() && needs.ai_change_analysis.outputs.components != '' && 
-        (needs.build_api.result == 'success' || needs.build_api.result == 'skipped') &&
-        (needs.build_web.result == 'success' || needs.build_web.result == 'skipped') &&
-        (needs.build_postgres.result == 'success' || needs.build_postgres.result == 'skipped') &&
-        (needs.build_streaming.result == 'success' || needs.build_streaming.result == 'skipped')
+    needs: [ai_change_analysis, build_images]
+    if: always() && needs.ai_change_analysis.outputs.components != '' && needs.build_images.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -240,7 +216,6 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
-          # Robust VM lookup
           VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
           if [ -z "$VM_ID" ]; then
             echo "❌ No Swarm VM found"
@@ -249,11 +224,8 @@ jobs:
           
           RG_NAME=$(az vm show --ids $VM_ID --query resourceGroup -o tsv)
           VM_NAME=$(az vm show --ids $VM_ID --query name -o tsv)
-          
-          echo "✅ Target: $VM_NAME in $RG_NAME"
           az vm start --ids $VM_ID
           
-          # Create deployment script
-          printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/${{ github.repository }}.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
+          printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/\$7.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
           
-          az vm run-command invoke --resource-group "$RG_NAME" --name "$VM_NAME" --command-id RunBashScript --scripts @ds.sh --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}"
+          az vm run-command invoke --resource-group "$RG_NAME" --name "$VM_NAME" --command-id RunBashScript --scripts @ds.sh --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}" "${{ github.repository }}"
