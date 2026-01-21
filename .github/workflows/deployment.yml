@@ -193,8 +193,21 @@ jobs:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         run: |
           echo "$AZURE_CREDENTIALS" > azure_creds.json
+          # Extract subscription ID and set it explicitly
+          SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_creds.json)
           az login --service-principal -u $(jq -r .clientId azure_creds.json) -p $(jq -r .clientSecret azure_creds.json) --tenant $(jq -r .tenantId azure_creds.json)
           rm azure_creds.json
+          
+          # Set subscription context explicitly
+          if [ -n "$SUBSCRIPTION_ID" ] && [ "$SUBSCRIPTION_ID" != "null" ]; then
+            echo "✅ Setting subscription: $SUBSCRIPTION_ID"
+            az account set --subscription "$SUBSCRIPTION_ID"
+          else
+            echo "⚠️ No subscriptionId in credentials, using default"
+          fi
+          
+          # Show current context for debugging
+          az account show --query "{subscription:id,name:name}" -o table
       
       - name: VM Deploy
         env:
@@ -204,15 +217,41 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
-          # Robust VM lookup
-          VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
-          if [ -z "$VM_ID" ]; then
-            echo "❌ No Swarm VM found"
-            exit 1
+          # Find VM using resource group and name directly (more reliable)
+          RESOURCE_GROUP="cloudtolocalllm-rg"
+          VM_NAME="cloudtolocalllm-swarm"
+          
+          echo "🔍 Looking for VM: $VM_NAME in $RESOURCE_GROUP"
+          
+          # Check if VM exists
+          if ! az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv > /dev/null 2>&1; then
+            echo "❌ VM $VM_NAME not found in $RESOURCE_GROUP"
+            echo "Attempting fallback lookup..."
+            VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
+            if [ -z "$VM_ID" ]; then
+              echo "❌ No Swarm VM found anywhere"
+              exit 1
+            fi
+          else
+            VM_ID=$(az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv)
           fi
           
           echo "✅ Target VM ID: $VM_ID"
-          az vm start --ids "$VM_ID"
+          
+          # Check VM power state before starting
+          POWER_STATE=$(az vm get-instance-view --ids "$VM_ID" --query "instanceView.statuses[?starts_with(code, 'PowerState/')].displayStatus" -o tsv 2>/dev/null || echo "Unknown")
+          echo "📊 Current power state: $POWER_STATE"
+          
+          if [[ "$POWER_STATE" != *"running"* ]]; then
+            echo "🚀 Starting VM..."
+            az vm start --ids "$VM_ID" --no-wait || {
+              echo "⚠️ Start command failed, VM may already be running or starting"
+            }
+            echo "⏳ Waiting for VM to be ready..."
+            sleep 30
+          else
+            echo "✅ VM already running"
+          fi
           
           # Create deployment script using printf
           printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/\$7.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
