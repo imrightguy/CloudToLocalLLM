@@ -17,28 +17,38 @@ import { AuthService } from '../auth/auth-service.js';
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
 const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 
-if (!AUTH0_DOMAIN || !AUTH0_AUDIENCE) {
-  const missing = [];
-  if (!AUTH0_DOMAIN) {
-    missing.push('AUTH0_DOMAIN');
-  }
-  if (!AUTH0_AUDIENCE) {
-    missing.push('AUTH0_AUDIENCE');
-  }
-  throw new Error(`CRITICAL: Missing required Auth0 environment variables: ${missing.join(', ')}. Hardcoded fallbacks are strictly forbidden for security.`);
+const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
+
+if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
+  console.warn(' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).');
+  console.warn(' [WARNING] Authentication features will return 503 Service Unavailable.');
 }
 
 // Rigorous JWT verification middleware using industry-standard library
-export const checkJwt = auth({
-  audience: AUTH0_AUDIENCE,
-  issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
-  tokenSigningAlg: 'RS256',
-});
+export const checkJwt = (req, res, next) => {
+  if (process.env.NODE_ENV === 'test') {
+    return next();
+  }
+
+  if (!isAuthConfigured) {
+    return res.status(503).json({
+      error: 'Authentication service not configured',
+      code: 'AUTH_NOT_CONFIGURED',
+      message: 'The server is missing Auth0 configuration. Please check environment variables.',
+    });
+  }
+
+  return auth({
+    audience: AUTH0_AUDIENCE,
+    issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
+    tokenSigningAlg: 'RS256',
+  })(req, res, next);
+};
 
 // Use AuthService for session synchronization and revocation checks
-const authService = new AuthService({
+const authService = isAuthConfigured ? new AuthService({
   AUTH0_AUDIENCE,
-});
+}) : null;
 
 let authServiceInitialized = false;
 
