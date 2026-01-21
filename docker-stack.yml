@@ -117,11 +117,11 @@ services:
           - streaming-proxy
           - streaming-proxy.cloudtolocalllm.svc.cluster.local
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3001/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3001/health | grep healthy || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     deploy:
       replicas: 1
       resources:
@@ -147,7 +147,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     deploy:
       replicas: 2
       resources:
@@ -169,6 +169,12 @@ services:
       cloudtolocalllm_net:
         aliases:
           - cloudflared
+    healthcheck:
+      test: ["CMD-SHELL", "cloudflared tunnel info || exit 1"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     deploy:
       replicas: 2
       resources:
