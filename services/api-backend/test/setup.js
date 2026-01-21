@@ -1,7 +1,7 @@
 // Jest setup file for CloudToLocalLLM API Backend tests
 // Configures test environment and global mocks
 
-import { jest, afterEach } from '@jest/globals';
+import { jest, afterEach, afterAll } from '@jest/globals';
 
 // Set test environment variables
 process.env.NODE_ENV = 'test';
@@ -60,104 +60,6 @@ jest.mock('@sentry/node', () => ({
   setupExpressErrorHandler: jest.fn(),
 }));
 
-// Mock pg to prevent real database connections
-jest.mock('pg', () => {
-  const mockPoolInstance = {
-    query: jest.fn().mockResolvedValue({
-      rows: [
-        {
-          id: 'mock-id-static',
-          user_id: 'mock-user-id',
-          tunnel_id: 'mock-tunnel-id',
-          email: 'test@example.com',
-          tier: 'premium',
-          is_active: true,
-          status: 'active',
-        },
-      ],
-      rowCount: 1,
-    }),
-    connect: jest.fn().mockResolvedValue({
-      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
-      release: jest.fn(),
-      on: jest.fn(),
-    }),
-    on: jest.fn(),
-    end: jest.fn().mockResolvedValue(),
-    totalCount: 0,
-    idleCount: 0,
-    waitingCount: 0,
-  };
-  return {
-    Pool: jest.fn(() => mockPoolInstance),
-    default: {
-      Pool: jest.fn(() => mockPoolInstance),
-    },
-  };
-});
-
-// Mock Database Pool to prevent real connections in tests
-jest.mock('../database/db-pool.js');
-
-// Mock Docker operations
-jest.mock('dockerode', () => {
-  return jest.fn().mockImplementation(() => ({
-    listContainers: jest.fn().mockResolvedValue([]),
-    listNetworks: jest.fn().mockResolvedValue([]),
-    createContainer: jest.fn().mockResolvedValue({
-      start: jest.fn().mockResolvedValue(),
-      stop: jest.fn().mockResolvedValue(),
-      remove: jest.fn().mockResolvedValue(),
-    }),
-  }));
-});
-
-// Mock ws WebSocket to avoid dependency on internal options
-jest.mock('ws', () => {
-  class MockWebSocket {
-    constructor(..._args) {
-      this.readyState = 1; // OPEN
-      this.OPEN = 1;
-      this.CLOSED = 3;
-      this.listeners = {};
-    }
-    on(event, handler) {
-      this.listeners[event] = this.listeners[event] || [];
-      this.listeners[event].push(handler);
-    }
-    addEventListener(event, handler) {
-      this.on(event, handler);
-    }
-    removeEventListener(event, handler) {
-      if (!this.listeners[event]) {
-        return;
-      }
-      this.listeners[event] = this.listeners[event].filter(
-        (h) => h !== handler,
-      );
-    }
-    send(_data) { }
-    close() {
-      this.readyState = this.CLOSED;
-    }
-  }
-  MockWebSocket.Server = class { };
-  return MockWebSocket;
-});
-
-// Mock WebSocket for tunnel tests
-global.WebSocket = jest.fn().mockImplementation(() => ({
-  send: jest.fn(),
-  close: jest.fn(),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  readyState: 1, // OPEN
-  CONNECTING: 0,
-  OPEN: 1,
-  CLOSING: 2,
-  CLOSED: 3,
-}));
-
 // Global test utilities
 global.testUtils = {
   // Create mock request object
@@ -208,7 +110,6 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-/* global afterAll */
 // Cleanup after all tests complete in this worker
 afterAll(async() => {
   // Close database pool if it was initialized (within worker process)

@@ -116,8 +116,8 @@ router.post(
   async(req, res) => {
     try {
       const { serviceName } = req.params;
-      const { reason } = req.body;
-      const userId = req.auth?.payload.sub;
+      const { reason } = req.body || {};
+      const userId = req.auth?.payload?.sub;
 
       if (!serviceName) {
         return res.status(400).json({
