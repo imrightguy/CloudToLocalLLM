@@ -52,7 +52,7 @@ spec:
               done
       containers:
         - name: web
-          image: ghcr.io/cloudtolocalllm-online/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
+          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

@@ -27,7 +27,7 @@ jobs:
         env:
           ENVIRONMENT: managed
           NAMESPACE: cloudtolocalllm
-          WEB_IMAGE: ghcr.io/cloudtolocalllm-online/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
+          WEB_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
           API_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
           STREAMING_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:latest
           POSTGRES_IMAGE: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:latest
