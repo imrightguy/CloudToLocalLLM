@@ -525,8 +525,8 @@ jobs:
             done
           } > .env.remote
 
-          # Copy Stack and Env Files
-          scp docker-stack.yml .env.remote azureuser@$IP:~/
+          # Copy Stack, Config, and Env Files
+          scp -r docker-stack.yml config/ .env.remote azureuser@$IP:~/
 
           # Deploy via SSH
           ssh azureuser@$IP <<'EOF'
@@ -563,6 +563,13 @@ jobs:
             sleep 45
             sudo docker stack services cloudtolocalllm
             sudo docker stack ps cloudtolocalllm
+            
+            echo "=== LOGS: api-backend ==="
+            sudo docker service logs cloudtolocalllm_api-backend --tail 50
+            echo "=== LOGS: web ==="
+            sudo docker service logs cloudtolocalllm_web --tail 50
+            echo "=== LOGS: cloudflared ==="
+            sudo docker service logs cloudtolocalllm_cloudflared --tail 50
             
             # Cleanup old images (Safe)
             sudo docker image prune -f

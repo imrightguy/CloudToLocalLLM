@@ -87,7 +87,7 @@ services:
           - api-backend
           - api-backend.cloudtolocalllm.svc.cluster.local
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/healthz || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -162,13 +162,16 @@ services:
   # Cloudflare Tunnel (Ingress)
   cloudflared:
     image: cloudflare/cloudflared:2024.12.2
-    command: tunnel --metrics 0.0.0.0:2000 run
+    command: tunnel --config /etc/cloudflared/config.yml run
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       cloudtolocalllm_net:
         aliases:
           - cloudflared
+    configs:
+      - source: cloudflared_config
+        target: /etc/cloudflared/config.yml
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:2000/ready || wget -q -O - http://localhost:2000/ready || exit 1"]
       interval: 1m
@@ -187,6 +190,10 @@ services:
         failure_action: rollback
       restart_policy:
         condition: on-failure
+
+configs:
+  cloudflared_config:
+    file: ./config/cloudflared/config.yml
 
 networks:
   cloudtolocalllm_net:

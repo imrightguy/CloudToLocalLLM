@@ -405,6 +405,10 @@ app.all(
 registerRoutes('/user/tier', ...authenticateJWT, addTierInfo, ...userTierHandler);
 
 // Health check endpoints
+app.get('/healthz', (req, res) => {
+  res.status(200).send('OK');
+});
+
 registerRoutes('/health', (req, res) => {
   healthCheckService
     .getHealthStatus()
@@ -982,8 +986,8 @@ async function startServer() {
   try {
     await initializeTunnelSystem();
 
-    server.listen(PORT, () => {
-      logger.info(`CloudToLocalLLM API Backend listening on port ${PORT}`);
+    server.listen(PORT, '0.0.0.0', () => {
+      logger.info(`CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info('WebSocket tunnel system is ready');
     });

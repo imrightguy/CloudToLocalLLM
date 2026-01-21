@@ -3,12 +3,22 @@ ingress:
   - hostname: app.cloudtolocalllm.online
     path: /ws
     service: http://streaming-proxy:3001
+    originRequest:
+      noTLSVerify: true
   - hostname: app.cloudtolocalllm.online
     service: http://web:8080
+    originRequest:
+      noTLSVerify: true
   - hostname: api.cloudtolocalllm.online
     service: http://api-backend:8080
+    originRequest:
+      noTLSVerify: true
   - hostname: streaming.cloudtolocalllm.online
     service: http://streaming-proxy:3001
+    originRequest:
+      noTLSVerify: true
   - hostname: cloudtolocalllm.online
     service: http://web:8080
+    originRequest:
+      noTLSVerify: true
   - service: http_status:404
