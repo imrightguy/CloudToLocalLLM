@@ -170,7 +170,7 @@ services:
         aliases:
           - cloudflared
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:2000/ready || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:2000/ready || wget -q -O - http://localhost:2000/ready || exit 1"]
       interval: 1m
       timeout: 10s
       retries: 3
