@@ -92,6 +92,7 @@ jobs:
             WEB_CHANGED="true"
             POSTGRES_CHANGED="true"
             STREAMING_CHANGED="true"
+            BUMP_NEEDED="true"
           fi
  
           # Granular Change Detection
