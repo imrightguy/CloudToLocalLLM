@@ -253,8 +253,30 @@ jobs:
             echo "✅ VM already running"
           fi
           
-          # Create deployment script using printf
-          printf "set -e\nmkdir -p ~/deploy\ncd ~/deploy\nexport DOCKER_TAG=\"\$1\"\nexport POSTGRES_USER=\"\$2\"\nexport POSTGRES_PASSWORD=\"\$3\"\nexport JWT_SECRET=\"\$4\"\nexport CLOUDFLARE_TUNNEL_TOKEN=\"\$5\"\nif [ ! -d \".git\" ]; then git clone https://github.com/\$7.git .; else git fetch origin main && git reset --hard origin/main; fi\necho \"\$6\" | docker login ghcr.io -u github-actions --password-stdin\ndocker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n" > ds.sh
+          # Create deployment script with embedded values (parameters don't work reliably with run-command)
+          cat > ds.sh << 'DEPLOY_SCRIPT'
+          set -e
+          mkdir -p ~/deploy
+          cd ~/deploy
+          DEPLOY_SCRIPT
+          
+          # Append with variable substitution
+          cat >> ds.sh << DEPLOY_SCRIPT
+          export DOCKER_TAG="${DOCKER_TAG}"
+          export POSTGRES_USER="${POSTGRES_USER}"
+          export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+          export JWT_SECRET="${JWT_SECRET}"
+          export CLOUDFLARE_TUNNEL_TOKEN="${CLOUDFLARE_TUNNEL_TOKEN}"
+          
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/${{ github.repository }}.git .
+          else
+            git fetch origin main && git reset --hard origin/main
+          fi
+          
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u github-actions --password-stdin
+          docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
+          DEPLOY_SCRIPT
           
           echo "📜 Deploying to VM..."
           # Use resource-group and name directly (more reliable than --ids for run-command)
@@ -262,5 +284,4 @@ jobs:
             --resource-group "$RESOURCE_GROUP" \
             --name "$VM_NAME" \
             --command-id RunShellScript \
-            --scripts @ds.sh \
-            --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}" "${{ github.repository }}"
+            --scripts @ds.sh
