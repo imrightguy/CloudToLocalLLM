@@ -204,7 +204,23 @@ jobs:
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
+          # Robust VM lookup
           VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
+          if [ -z "$VM_ID" ]; then
+            echo "❌ No Swarm VM found"
+            exit 1
+          fi
+          
+          # Get VM details to avoid "NotFound" errors
+          RG_NAME=$(az vm show --ids $VM_ID --query resourceGroup -o tsv)
+          VM_NAME=$(az vm show --ids $VM_ID --query name -o tsv)
+          LOCATION=$(az vm show --ids $VM_ID --query location -o tsv)
+          
+          echo "✅ Target: $VM_NAME in $RG_NAME ($LOCATION)"
+          
+          # Ensure VM is started
+          az vm start --ids $VM_ID
+          
           cat <<'EOF' > deploy.sh
           #!/bin/bash
           set -e
@@ -215,12 +231,23 @@ jobs:
           export POSTGRES_PASSWORD="$3"
           export JWT_SECRET="$4"
           export CLOUDFLARE_TUNNEL_TOKEN="$5"
+          
+          # Clone or update
           if [ ! -d ".git" ]; then
-            git clone https://github.com/${{ github.repository }}.git .
+            git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git .
           else
             git fetch origin main && git reset --hard origin/main
           fi
+          
+          # Login and Deploy
           echo "$6" | docker login ghcr.io -u github-actions --password-stdin
           docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
           EOF
-          az vm run-command invoke --ids $VM_ID --command-id RunBashScript --scripts @deploy.sh --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}"
+          
+          # Run command with explicit location and resource group
+          az vm run-command invoke \
+            --resource-group "$RG_NAME" \
+            --name "$VM_NAME" \
+            --command-id RunBashScript \
+            --scripts @deploy.sh \
+            --parameters "$DOCKER_TAG" "$POSTGRES_USER" "$POSTGRES_PASSWORD" "$JWT_SECRET" "$CLOUDFLARE_TUNNEL_TOKEN" "${{ secrets.GITHUB_TOKEN }}"
