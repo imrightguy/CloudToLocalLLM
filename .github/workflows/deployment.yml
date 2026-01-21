@@ -477,11 +477,10 @@ jobs:
           chmod +x infra/azure/create-swarm-vm.sh
           ./infra/azure/create-swarm-vm.sh
 
-      - name: Deploy to Swarm
+      - name: Deploy to Swarm via Azure Run-Command
         if: needs.ai_change_analysis.outputs.components != ''
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-          SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'postgres' }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
@@ -489,94 +488,65 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'default-jwt-secret' }}
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN || '' }}
           AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE || '' }}
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID || '' }}
-          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET || '' }}
-          STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY || '' }}
-          STRIPE_TEST_PUBLISHABLE_KEY: ${{ secrets.STRIPE_TEST_PUBLISHABLE_KEY || '' }}
-          STRIPE_TEST_WEBHOOK_SECRET: ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET || '' }}
-          STRIPE_LIVE_SECRET_KEY: ${{ secrets.STRIPE_LIVE_SECRET_KEY || '' }}
-          STRIPE_LIVE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_LIVE_PUBLISHABLE_KEY || '' }}
-          STRIPE_LIVE_WEBHOOK_SECRET: ${{ secrets.STRIPE_LIVE_WEBHOOK_SECRET || '' }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN || '' }}
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
         run: |
-          # Get VM IP
-          IP=$(az vm show -d -g cloudtolocalllm-rg -n cloudtolocalllm-swarm --query publicIps -o tsv)
-          echo "Deploying to $IP..."
+          # Login to Azure
+          echo "$AZURE_CREDENTIALS" > azure_creds.json
+          az login --service-principal \
+            -u $(jq -r .clientId azure_creds.json) \
+            -p $(jq -r .clientSecret azure_creds.json) \
+            --tenant $(jq -r .tenantId azure_creds.json)
+          rm azure_creds.json
 
-          # Setup SSH
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          # Ensure VM is started
+          az vm start -g cloudtolocalllm-rg -n cloudtolocalllm-swarm
+
+          # Deploy via Azure Run-Command
+          echo "🚀 Deploying via Azure Run-Command..."
           
-          # Use SSH options to avoid interaction
-          export SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=60"
-
-          # Generate safe env file for remote execution
-          {
-            vars=(
-              POSTGRES_USER POSTGRES_PASSWORD POSTGRES_AUTH_PASSWORD 
-              JWT_SECRET AUTH0_DOMAIN AUTH0_AUDIENCE AUTH0_CLIENT_ID 
-              AUTH0_CLIENT_SECRET STRIPE_TEST_SECRET_KEY STRIPE_TEST_PUBLISHABLE_KEY 
-              STRIPE_TEST_WEBHOOK_SECRET STRIPE_LIVE_SECRET_KEY STRIPE_LIVE_PUBLISHABLE_KEY 
-              STRIPE_LIVE_WEBHOOK_SECRET SENTRY_DSN CLOUDFLARE_TUNNEL_TOKEN DOCKER_TAG
-              GH_TOKEN GITHUB_ACTOR
-            )
-            for var in "${vars[@]}"; do
-              printf "export %s=%q\n" "$var" "${!var}"
-            done
-          } > .env.remote
-
-          # Copy Stack, Config, and Env Files
-          scp $SSH_OPTS -r docker-stack.yml config/ .env.remote azureuser@$IP:~/
-
-          # Deploy via SSH
-          ssh $SSH_OPTS azureuser@$IP <<'EOF'
-            # Load environment
-            source .env.remote
-            rm .env.remote
-
-            # DEEP RESET (Manual Only): Stop stack and clear everything
-            if [ "${{ inputs.deep_reset }}" == "true" ]; then
-              echo "☢️ Performing Deep Reset..."
-              sudo docker stack rm cloudtolocalllm || true
-              echo "⏳ Waiting for cleanup..."
-              sleep 20
-              sudo docker system prune -af --volumes || true
-            fi
-
-            # Login to GHCR
-            echo "${GH_TOKEN}" | sudo docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
-            
-            # Pull latest images sequentially
-            # This ensures they are local before Swarm tries to update
-            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:$DOCKER_TAG
-            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:$DOCKER_TAG
-            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:$DOCKER_TAG
-            sudo docker pull ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:$DOCKER_TAG
-            sudo docker pull cloudflare/cloudflared:2024.12.2
-            sudo docker pull redis:7-alpine
-            
-            # Standard Rolling Deploy (Zero Downtime)
-            sudo -E docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
-            
-            # Wait for services to stabilize
-            echo "Waiting for services to stabilize..."
-            sleep 45
-            sudo docker stack services cloudtolocalllm
-            sudo docker stack ps cloudtolocalllm
-            
-            echo "=== LOGS: api-backend ==="
-            sudo docker service logs cloudtolocalllm_api-backend --tail 50
-            echo "=== LOGS: web ==="
-            sudo docker service logs cloudtolocalllm_web --tail 50
-            echo "=== LOGS: cloudflared ==="
-            sudo docker service logs cloudtolocalllm_cloudflared --tail 50
-            
-            # Cleanup old images (Safe)
-            sudo docker image prune -f
+          # Encode environment variables for the remote script
+          cat <<EOF > remote_deploy.sh
+          #!/bin/bash
+          set -e
+          export DOCKER_TAG="${DOCKER_TAG}"
+          export POSTGRES_USER="${POSTGRES_USER}"
+          export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+          export POSTGRES_AUTH_PASSWORD="${POSTGRES_AUTH_PASSWORD}"
+          export JWT_SECRET="${JWT_SECRET}"
+          export AUTH0_DOMAIN="${AUTH0_DOMAIN}"
+          export AUTH0_AUDIENCE="${AUTH0_AUDIENCE}"
+          export CLOUDFLARE_TUNNEL_TOKEN="${CLOUDFLARE_TUNNEL_TOKEN}"
+          
+          mkdir -p ~/deploy
+          cd ~/deploy
+          
+          # Clone latest code if not present
+          if [ ! -d ".git" ]; then
+            git clone https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git .
+          else
+            git fetch origin main
+            git reset --hard origin/main
+          fi
+          
+          # Login to GHCR
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Deploy stack
+          docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
+          
+          # Monitor
+          sleep 10
+          docker stack services cloudtolocalllm
           EOF
+
+          az vm run-command invoke \
+            -g cloudtolocalllm-rg \
+            -n cloudtolocalllm-swarm \
+            --command-id RunBashScript \
+            --scripts @remote_deploy.sh
+          
+          rm remote_deploy.sh
 
 
   # Verify container health BEFORE running validation tests
