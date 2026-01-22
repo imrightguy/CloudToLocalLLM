@@ -276,16 +276,9 @@ jobs:
           printf '\nif [ ! -d ".git" ]; then\n  git clone https://github.com/%s.git .\nelse\n  git fetch origin main && git reset --hard origin/main\nfi\n\n' "$REPO" >> ds.sh
           
           # Append docker login and deploy
-          printf 'printf '"'"'%s'"'"' | base64 -d | docker login ghcr.io -u github-actions --password-stdin\n' "$GH_B64" >> ds.sh
+          printf 'printf '\"'\"'%s'\"'\"' | base64 -d | docker login ghcr.io -u github-actions --password-stdin\\n' "$GH_B64" >> ds.sh
           
-          # Handle config updates - configs are immutable in Swarm
-          # We need to remove cloudflared service first, then the config, then redeploy
-          printf '\n# Remove cloudflared service and config to allow config updates (Swarm configs are immutable)\n' >> ds.sh
-          printf 'docker service rm cloudtolocalllm_cloudflared 2>/dev/null || true\n' >> ds.sh
-          printf 'sleep 5\n' >> ds.sh
-          printf 'docker config rm cloudtolocalllm_cloudflared_config 2>/dev/null || true\n' >> ds.sh
-          
-          printf 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n' >> ds.sh
+          printf 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\\n' >> ds.sh
           
           echo "📜 Deploying to VM..."
           

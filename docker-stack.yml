@@ -146,24 +146,21 @@ services:
           memory: 128M
 
   # Cloudflare Tunnel (Ingress)
+  # Note: Using TUNNEL_TOKEN means ingress rules are managed in Cloudflare dashboard
+  # To update routing, log into Cloudflare Zero Trust > Access > Tunnels
   cloudflared:
     image: cloudflare/cloudflared:2024.12.2
-    command: tunnel --metrics 0.0.0.0:2000 --config /etc/cloudflared/config.yml run
-    environment:
-      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate --metrics 0.0.0.0:2000 run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       cloudtolocalllm_net:
         aliases:
           - cloudflared
-    configs:
-      - source: cloudflared_config
-        target: /etc/cloudflared/config.yml
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:2000/ready || exit 1"]
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:2000/ready"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 60s
     deploy:
       replicas: 1
       resources:
@@ -172,11 +169,9 @@ services:
         limits:
           memory: 256M
       restart_policy:
-        condition: on-failure
-
-configs:
-  cloudflared_config:
-    file: ./config/cloudflared/config.yml
+        condition: any
+        delay: 5s
+        max_attempts: 0
 
 networks:
   cloudtolocalllm_net:
