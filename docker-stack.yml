@@ -77,6 +77,7 @@ services:
       cloudtolocalllm_net:
         aliases:
           - api-backend
+          - api-backend.cloudtolocalllm.svc.cluster.local
     ports:
       - "8081:8080"
     healthcheck:
@@ -105,6 +106,7 @@ services:
       cloudtolocalllm_net:
         aliases:
           - streaming-proxy
+          - streaming-proxy.cloudtolocalllm.svc.cluster.local
     ports:
       - "3001:3001"
     healthcheck:
@@ -129,6 +131,7 @@ services:
       cloudtolocalllm_net:
         aliases:
           - web
+          - web.cloudtolocalllm.svc.cluster.local
     ports:
       - "8080:8080"
     healthcheck:
