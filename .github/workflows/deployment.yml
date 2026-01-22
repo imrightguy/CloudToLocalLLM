@@ -193,12 +193,10 @@ jobs:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         run: |
           echo "$AZURE_CREDENTIALS" > azure_creds.json
-          # Extract subscription ID and set it explicitly
           SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_creds.json)
           az login --service-principal -u $(jq -r .clientId azure_creds.json) -p $(jq -r .clientSecret azure_creds.json) --tenant $(jq -r .tenantId azure_creds.json)
           rm azure_creds.json
           
-          # Set subscription context explicitly
           if [ -n "$SUBSCRIPTION_ID" ] && [ "$SUBSCRIPTION_ID" != "null" ]; then
             echo "✅ Setting subscription: $SUBSCRIPTION_ID"
             az account set --subscription "$SUBSCRIPTION_ID"
@@ -206,7 +204,6 @@ jobs:
             echo "⚠️ No subscriptionId in credentials, using default"
           fi
           
-          # Show current context for debugging
           az account show --query "{subscription:id,name:name}" -o table
       
       - name: VM Deploy
@@ -216,14 +213,14 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'secret' }}
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
-          # Find VM using resource group and name directly (more reliable)
           RESOURCE_GROUP="cloudtolocalllm-rg"
           VM_NAME="cloudtolocalllm-swarm"
           
           echo "🔍 Looking for VM: $VM_NAME in $RESOURCE_GROUP"
           
-          # Check if VM exists
           if ! az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv > /dev/null 2>&1; then
             echo "❌ VM $VM_NAME not found in $RESOURCE_GROUP"
             echo "Attempting fallback lookup..."
@@ -238,7 +235,6 @@ jobs:
           
           echo "✅ Target VM ID: $VM_ID"
           
-          # Check VM power state before starting
           POWER_STATE=$(az vm get-instance-view --ids "$VM_ID" --query "instanceView.statuses[?starts_with(code, 'PowerState/')].displayStatus" -o tsv 2>/dev/null || echo "Unknown")
           echo "📊 Current power state: $POWER_STATE"
           
@@ -253,34 +249,38 @@ jobs:
             echo "✅ VM already running"
           fi
           
-          # Base64 encode the GitHub token to avoid shell escaping issues
-          GH_TOKEN_B64=$(echo -n "${{ secrets.GITHUB_TOKEN }}" | base64 -w0)
+          # Base64 encode ALL sensitive values to avoid any shell escaping issues
+          PG_PW_B64=$(printf '%s' "$POSTGRES_PASSWORD" | base64 -w0)
+          JWT_B64=$(printf '%s' "$JWT_SECRET" | base64 -w0)
+          CF_B64=$(printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" | base64 -w0)
+          GH_B64=$(printf '%s' "$GH_TOKEN" | base64 -w0)
           
-          # Create deployment script using simple echo commands
-          {
-            echo '#!/bin/bash'
-            echo 'set -e'
-            echo 'mkdir -p ~/deploy'
-            echo 'cd ~/deploy'
-            echo "export DOCKER_TAG=\"${DOCKER_TAG}\""
-            echo "export POSTGRES_USER=\"${POSTGRES_USER}\""
-            echo "export POSTGRES_PASSWORD=\"${POSTGRES_PASSWORD}\""
-            echo "export JWT_SECRET=\"${JWT_SECRET}\""
-            echo "export CLOUDFLARE_TUNNEL_TOKEN=\"${CLOUDFLARE_TUNNEL_TOKEN}\""
-            echo ''
-            echo 'if [ ! -d ".git" ]; then'
-            echo "  git clone https://github.com/${{ github.repository }}.git ."
-            echo 'else'
-            echo '  git fetch origin main && git reset --hard origin/main'
-            echo 'fi'
-            echo ''
-            # Decode the base64 token on the VM and use it for docker login
-            echo "echo '${GH_TOKEN_B64}' | base64 -d | docker login ghcr.io -u github-actions --password-stdin"
-            echo 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth'
-          } > ds.sh
+          # Write deployment script to file
+          cat > ds.sh << 'EOF'
+          #!/bin/bash
+          set -e
+          mkdir -p ~/deploy
+          cd ~/deploy
+          EOF
+          
+          # Append variable exports (non-sensitive)
+          printf 'export DOCKER_TAG="%s"\n' "$DOCKER_TAG" >> ds.sh
+          printf 'export POSTGRES_USER="%s"\n' "$POSTGRES_USER" >> ds.sh
+          
+          # Append base64-decoded sensitive vars
+          printf 'export POSTGRES_PASSWORD="$(printf '"'"'%s'"'"' | base64 -d)"\n' "$PG_PW_B64" >> ds.sh
+          printf 'export JWT_SECRET="$(printf '"'"'%s'"'"' | base64 -d)"\n' "$JWT_B64" >> ds.sh
+          printf 'export CLOUDFLARE_TUNNEL_TOKEN="$(printf '"'"'%s'"'"' | base64 -d)"\n' "$CF_B64" >> ds.sh
+          
+          # Append git clone/update
+          printf '\nif [ ! -d ".git" ]; then\n  git clone https://github.com/%s.git .\nelse\n  git fetch origin main && git reset --hard origin/main\nfi\n\n' "$REPO" >> ds.sh
+          
+          # Append docker login and deploy
+          printf 'printf '"'"'%s'"'"' | base64 -d | docker login ghcr.io -u github-actions --password-stdin\n' "$GH_B64" >> ds.sh
+          printf 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\n' >> ds.sh
           
           echo "📜 Deploying to VM..."
-          # Use resource-group and name directly (more reliable than --ids for run-command)
+          
           az vm run-command invoke \
             --resource-group "$RESOURCE_GROUP" \
             --name "$VM_NAME" \
