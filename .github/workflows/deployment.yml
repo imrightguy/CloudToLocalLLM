@@ -255,30 +255,32 @@ jobs:
           CF_B64=$(printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" | base64 -w0)
           GH_B64=$(printf '%s' "$GH_TOKEN" | base64 -w0)
           
-          # Write deployment script to file
-          cat > ds.sh << 'EOF'
+          # Write deployment script to file using heredoc
+          # Variables prefixed with $ will be expanded, escape with \$ if literal needed
+          cat > ds.sh << DEPLOY_EOF
           #!/bin/bash
           set -e
           mkdir -p ~/deploy
           cd ~/deploy
-          EOF
           
-          # Append variable exports (non-sensitive)
-          printf 'export DOCKER_TAG="%s"\n' "$DOCKER_TAG" >> ds.sh
-          printf 'export POSTGRES_USER="%s"\n' "$POSTGRES_USER" >> ds.sh
+          # Export environment variables
+          export DOCKER_TAG="$DOCKER_TAG"
+          export POSTGRES_USER="$POSTGRES_USER"
+          export POSTGRES_PASSWORD="\$(printf '$PG_PW_B64' | base64 -d)"
+          export JWT_SECRET="\$(printf '$JWT_B64' | base64 -d)"
+          export CLOUDFLARE_TUNNEL_TOKEN="\$(printf '$CF_B64' | base64 -d)"
           
-          # Append base64-decoded sensitive vars
-          printf 'export POSTGRES_PASSWORD="$(printf '"'"'%s'"'"' | base64 -d)"\n' "$PG_PW_B64" >> ds.sh
-          printf 'export JWT_SECRET="$(printf '"'"'%s'"'"' | base64 -d)"\n' "$JWT_B64" >> ds.sh
-          printf 'export CLOUDFLARE_TUNNEL_TOKEN="$(printf '"'"'%s'"'"' | base64 -d)"\n' "$CF_B64" >> ds.sh
+          # Clone or update repository
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/$REPO.git .
+          else
+            git fetch origin main && git reset --hard origin/main
+          fi
           
-          # Append git clone/update
-          printf '\nif [ ! -d ".git" ]; then\n  git clone https://github.com/%s.git .\nelse\n  git fetch origin main && git reset --hard origin/main\nfi\n\n' "$REPO" >> ds.sh
-          
-          # Append docker login and deploy
-          printf 'printf '\"'\"'%s'\"'\"' | base64 -d | docker login ghcr.io -u github-actions --password-stdin\\n' "$GH_B64" >> ds.sh
-          
-          printf 'docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth\\n' >> ds.sh
+          # Docker login and deploy
+          printf '$GH_B64' | base64 -d | docker login ghcr.io -u github-actions --password-stdin
+          docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
+          DEPLOY_EOF
           
           echo "📜 Deploying to VM..."
           
