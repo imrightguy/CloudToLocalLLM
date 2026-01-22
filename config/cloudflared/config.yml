@@ -1,14 +1,20 @@
 tunnel: 62da6c19-947b-4bf6-acad-100a73de4e0d
 ingress:
+  # WebSocket connections for streaming
   - hostname: app.cloudtolocalllm.online
     path: /ws
-    service: http://127.0.0.1:3001
+    service: http://streaming-proxy:3001
+  # Main web app
   - hostname: app.cloudtolocalllm.online
-    service: http://127.0.0.1:8080
+    service: http://web:8080
+  # API backend
   - hostname: api.cloudtolocalllm.online
-    service: http://127.0.0.1:8081
+    service: http://api-backend:8080
+  # Streaming proxy direct access
   - hostname: streaming.cloudtolocalllm.online
-    service: http://127.0.0.1:3001
+    service: http://streaming-proxy:3001
+  # Root domain redirects to web app
   - hostname: cloudtolocalllm.online
-    service: http://127.0.0.1:8080
+    service: http://web:8080
+  # Catch-all 404
   - service: http_status:404
