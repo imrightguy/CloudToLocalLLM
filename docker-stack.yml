@@ -150,7 +150,10 @@ services:
   # To update routing, log into Cloudflare Zero Trust > Access > Tunnels
   cloudflared:
     image: cloudflare/cloudflared:2024.12.2
-    command: tunnel --no-autoupdate --metrics 0.0.0.0:2000 run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    # TUNNEL_TOKEN env var is auto-read by cloudflared
+    command: tunnel --no-autoupdate --metrics 0.0.0.0:2000 run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       cloudtolocalllm_net:
         aliases:
