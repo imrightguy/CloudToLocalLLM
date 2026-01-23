@@ -33,4 +33,4 @@ ENV LOG_DIR=/app/logs
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "--max-old-space-size=2048", "server.js"]

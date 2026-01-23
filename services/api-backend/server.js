@@ -38,7 +38,7 @@ Sentry.init({
   },
 });
 
-console.log('Starting api-backend server process...');
+// console.log('Starting api-backend server process...'); // Moved to logger below
 import express from 'express';
 import http from 'http';
 import winston from 'winston';
