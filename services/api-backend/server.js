@@ -7,9 +7,7 @@ dotenv.config();
 
 // Initialize Sentry IMMEDIATELY - before any other code runs
 Sentry.init({
-  dsn:
-    process.env.SENTRY_DSN ||
-    'https://b2fd3263e0ad7b490b0583f7df2e165a@o4509853774315520.ingest.us.sentry.io/4509853780541440',
+  dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV || 'development',
   release: process.env.VERSION || process.env.npm_package_version,
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
@@ -62,9 +60,7 @@ import {
   getAuthMiddleware,
 } from './middleware/pipeline.js';
 import { setupGracefulShutdown } from './middleware/graceful-shutdown.js';
-import {
-  standardCorsOptions,
-} from './middleware/cors-config.js';
+import { standardCorsOptions } from './middleware/cors-config.js';
 
 import adminRoutes from './routes/admin.js';
 import adminUserRoutes from './routes/admin/users.js';
@@ -203,10 +199,14 @@ setupMiddlewarePipeline(app, {
 
 const server = http.createServer(app);
 
+// Prevent 502s by ensuring Node keep-alive is longer than Nginx (60s)
+server.keepAliveTimeout = 65000; // 65 seconds
+server.headersTimeout = 66000;   // 66 seconds (must be > keepAliveTimeout)
+
 // Setup graceful shutdown with in-flight request completion
 const shutdownManager = setupGracefulShutdown(server, {
   shutdownTimeoutMs: 10000,
-  onShutdown: async() => {
+  onShutdown: async () => {
     logger.info('Running custom shutdown handlers');
     // Custom shutdown logic will be added here
   },
@@ -404,10 +404,27 @@ app.all(
 );
 
 // User tier endpoint
-registerRoutes('/user/tier', ...authenticateJWT, addTierInfo, ...userTierHandler);
+registerRoutes(
+  '/user/tier',
+  ...authenticateJWT,
+  addTierInfo,
+  ...userTierHandler,
+);
+
+let isInitializing = true;
 
 // Health check endpoints
+app.get('/healthz', (req, res) => {
+  if (isInitializing) {
+    return res.status(503).send('Initializing');
+  }
+  res.status(200).send('OK');
+});
+
 registerRoutes('/health', (req, res) => {
+  if (isInitializing) {
+    return res.status(503).json({ status: 'initializing' });
+  }
   healthCheckService
     .getHealthStatus()
     .then((healthStatus) => {
@@ -429,89 +446,6 @@ registerRoutes('/health', (req, res) => {
         message: error.message,
       });
     });
-});
-
-// TEMPORARY DEBUG ENDPOINT
-app.get('/debug-dump', async(req, res) => {
-  try {
-    const debugInfo = {
-      timestamp: new Date().toISOString(),
-      env: {
-        DB_TYPE: process.env.DB_TYPE,
-        NODE_ENV: process.env.NODE_ENV,
-      },
-      migrator: dbMigrator ? dbMigrator.constructor.name : 'null',
-    };
-
-    if (dbMigrator && dbMigrator.pool) {
-      const client = await dbMigrator.pool.connect();
-      try {
-        // 1. Schema Check
-        const columns = await client.query(`
-          SELECT column_name, data_type 
-          FROM information_schema.columns 
-          WHERE table_name = 'users'
-        `);
-        debugInfo.usersColumns = columns.rows;
-
-        // 2. Migration Check
-        const migrations = await client.query(
-          'SELECT * FROM schema_migrations ORDER BY applied_at DESC LIMIT 5',
-        );
-        debugInfo.migrations = migrations.rows;
-
-        // 3. UUID Generaton Test
-        try {
-          const uuidResult = await client.query(
-            'SELECT gen_random_uuid() as val',
-          );
-          debugInfo.uuidGenTest = {
-            success: true,
-            value: uuidResult.rows[0].val,
-          };
-        } catch (uuidError) {
-          debugInfo.uuidGenTest = { success: false, error: uuidError.message };
-        }
-
-        // 4. WRITE TEST (Relying on Default ID)
-        try {
-          const testJwtId = 'debug-test-default-' + Date.now();
-
-          await client.query('BEGIN');
-          const insertResult = await client.query(
-            `INSERT INTO users (jwt_id, email, name, created_at, updated_at)
-             VALUES ($1, $2, $3, NOW(), NOW())
-             RETURNING id`,
-            [testJwtId, 'debug-default@test.local', 'Debug User Default'],
-          );
-
-          await client.query('ROLLBACK');
-          debugInfo.writeTestDefaultId = {
-            success: true,
-            insertedId: insertResult.rows[0].id,
-          };
-        } catch (writeError) {
-          await client.query('ROLLBACK');
-          debugInfo.writeTestDefaultId = {
-            success: false,
-            error: writeError.message,
-            code: writeError.code,
-            detail: writeError.detail,
-          };
-        }
-      } catch (e) {
-        debugInfo.dbError = e.message;
-      } finally {
-        client.release();
-      }
-    } else {
-      debugInfo.dbStatus = 'Not connected or initialized';
-    }
-
-    res.json(debugInfo);
-  } catch (error) {
-    res.status(500).json({ error: error.message, stack: error.stack });
-  }
 });
 
 // API Version Information Endpoint
@@ -621,7 +555,7 @@ app.use((error, req, res, _next) => {
 });
 
 // Conversation routes - implemented directly due to router mounting issues
-app.get('/conversations/', ...authenticateJWT, async(req, res) => {
+app.get('/conversations/', ...authenticateJWT, async (req, res) => {
   try {
     const userId = req.auth?.payload?.sub || req.user?.sub;
     if (!userId) {
@@ -660,7 +594,7 @@ app.get('/conversations/', ...authenticateJWT, async(req, res) => {
   }
 });
 
-app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
+app.put('/conversations/:id', ...authenticateJWT, async (req, res) => {
   try {
     const userId = req.auth?.payload?.sub || req.user?.sub;
     const conversationId = req.params.id;
@@ -785,13 +719,13 @@ app.put('/conversations/:id', ...authenticateJWT, async(req, res) => {
 });
 
 // Also mount at /api/conversations for backward compatibility
-app.get('/api/conversations/', async(req, res) => {
+app.get('/api/conversations/', async (req, res) => {
   // Redirect to the main route
   const url = req.originalUrl.replace('/api/conversations/', '/conversations/');
   res.redirect(307, url);
 });
 
-app.put('/api/conversations/:id', async(req, res) => {
+app.put('/api/conversations/:id', async (req, res) => {
   // Redirect to the main route
   const url = req.originalUrl.replace('/api/conversations/', '/conversations/');
   res.redirect(307, url);
@@ -802,15 +736,12 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-// LLM Security and Monitoring Helper Functions - Removed unused functions
-// (getRateLimitsForTier, checkRateLimit, recordRequest, logLLMAuditEvent)
-
 // Initialize Tunnel System
 let authService = null;
 let dbMigrator = null;
 let authDbMigrator = null;
 
-async function initializeTunnelSystem() {
+async function initializeTunnelSystem(retries = 10) {
   console.log('DEBUG: Starting initializeTunnelSystem function');
   logger.info('Starting initialization of tunnel system...');
   try {
@@ -824,24 +755,39 @@ async function initializeTunnelSystem() {
     // Initialize application database
     dbMigrator = new DatabaseMigratorPG();
 
-    await dbMigrator.initialize();
-    await dbMigrator.createMigrationsTable();
-    await dbMigrator.applyInitialSchema();
+    // Add retry logic for THE ENTIRE database startup sequence
+    let connected = false;
+    let attempt = 0;
+    while (!connected && attempt < retries) {
+      try {
+        attempt++;
+        logger.info(`Database initialization attempt ${attempt}/${retries}...`);
 
-    console.log('DEBUG: About to run migrations');
-    // Run PostgreSQL migrations
-    console.log('DEBUG: Running PostgreSQL migrations');
-    await dbMigrator.migrate();
-    console.log('DEBUG: PostgreSQL migrations completed');
+        await dbMigrator.initialize();
+        await dbMigrator.createMigrationsTable();
+        await dbMigrator.applyInitialSchema();
 
-    console.log('DEBUG: Validating database schema');
-    const validation = await dbMigrator.validateSchema();
-    console.log('DEBUG: Schema validation result:', validation);
-    if (!validation.allValid) {
-      console.log('DEBUG: Schema validation failed:', validation.errors);
-      throw new Error('Database schema validation failed');
+        console.log('DEBUG: About to run migrations');
+        await dbMigrator.migrate();
+
+        console.log('DEBUG: Validating database schema');
+        const validation = await dbMigrator.validateSchema();
+        if (!validation.allValid) {
+          throw new Error('Database schema validation failed');
+        }
+
+        connected = true;
+        logger.info('Database system fully initialized and migrated');
+      } catch (err) {
+        if (attempt >= retries) {
+          throw err;
+        }
+        logger.warn(
+          `Database initialization attempt ${attempt} failed: ${err.message}. Retrying in 5s...`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
     }
-    console.log('DEBUG: Schema validation passed');
 
     // Set dbMigrator for health endpoint now that it's initialized
     setDbMigrator(dbMigrator);
@@ -878,7 +824,7 @@ async function initializeTunnelSystem() {
       logger.info('Authentication service initialized successfully');
 
       // Register auth service with health check service
-      healthCheckService.registerService('auth-service', async() => {
+      healthCheckService.registerService('auth-service', async () => {
         return {
           status: authService ? 'healthy' : 'unhealthy',
           message: authService
@@ -903,7 +849,7 @@ async function initializeTunnelSystem() {
         logger.info('SSH tunnel server initialized successfully');
 
         // Register SSH proxy with health check service
-        healthCheckService.registerService('ssh-tunnel', async() => {
+        healthCheckService.registerService('ssh-tunnel', async () => {
           return {
             status: sshProxy && sshProxy.isRunning ? 'healthy' : 'unhealthy',
             message:
@@ -919,7 +865,7 @@ async function initializeTunnelSystem() {
         });
 
         // Register SSH proxy as unhealthy
-        healthCheckService.registerService('ssh-tunnel', async() => {
+        healthCheckService.registerService('ssh-tunnel', async () => {
           return {
             status: 'degraded',
             message: 'SSH tunnel service failed to initialize (non-critical)',
@@ -1000,12 +946,13 @@ async function initializeTunnelSystem() {
       app.use((req, res) => {
         res.status(404).json({ error: 'Not found' });
       });
+      logger.info('404 handler registered');
     }
 
     logger.info('WebSocket tunnel system ready');
 
     // Register custom shutdown handler with graceful shutdown manager
-    shutdownManager.shutdown = async() => {
+    shutdownManager.shutdown = async () => {
       await gracefulShutdown();
     };
 
@@ -1017,7 +964,8 @@ async function initializeTunnelSystem() {
       error: error.message,
       stack: error.stack,
     });
-    process.exit(1);
+    // Don't exit - continue with degraded functionality
+    logger.warn('Server starting with degraded functionality due to initialization failure');
   }
 }
 
@@ -1053,19 +1001,28 @@ async function gracefulShutdown() {
 // Start server with enhanced tunnel system
 async function startServer() {
   logger.info('Starting server...');
-  try {
-    await initializeTunnelSystem();
 
-    server.listen(PORT, () => {
-      logger.info(`CloudToLocalLLM API Backend listening on port ${PORT}`);
-      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info('WebSocket tunnel system is ready');
-    });
-  } catch (error) {
-    logger.error('Failed to start server', { error: error.message });
-    process.exit(1);
-  }
+  // Listen early to pass healthchecks during initialization
+  server.listen(PORT, '0.0.0.0', async () => {
+    logger.info(
+      `CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT} (Initializing...)`,
+    );
+
+    try {
+      await initializeTunnelSystem();
+      isInitializing = false;
+      logger.info('Initialization complete, server ready.');
+    } catch (error) {
+      logger.error('Failed to initialize server', { error: error.message });
+      isInitializing = false; // Allow health checks to proceed with degraded status
+      // Keep listening so we can report errors via health endpoint, but don't exit
+    }
+  });
 }
 
-// Start the server
-startServer();
+// Start the server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+export { app, server, startServer };
