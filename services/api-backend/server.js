@@ -960,7 +960,8 @@ async function initializeTunnelSystem(retries = 10) {
       error: error.message,
       stack: error.stack,
     });
-    process.exit(1);
+    // Don't exit - continue with degraded functionality
+    logger.warn('Server starting with degraded functionality due to initialization failure');
   }
 }
 
@@ -1009,6 +1010,7 @@ async function startServer() {
       logger.info('Initialization complete, server ready.');
     } catch (error) {
       logger.error('Failed to initialize server', { error: error.message });
+      isInitializing = false; // Allow health checks to proceed with degraded status
       // Keep listening so we can report errors via health endpoint, but don't exit
     }
   });
