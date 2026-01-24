@@ -176,7 +176,7 @@ export class AdaptiveRateLimiter {
   /**
    * Check if request should be rate limited
    */
-  /* eslint-disable space-before-function-paren */
+
   checkRateLimit(userId, correlationId, _requestContext = {}) {
     const tracker = this.getUserTracker(userId);
     const adaptiveLimits = this.getAdaptiveLimits();

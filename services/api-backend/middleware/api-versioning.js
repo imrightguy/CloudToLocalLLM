@@ -204,7 +204,7 @@ export function backwardCompatibilityMiddleware() {
       const originalSend = res.send;
 
       // Override send to transform response for v1
-      /* eslint-disable space-before-function-paren */
+
       res.send = function (data) {
         // Transform v2 response format to v1 if needed
         if (typeof data === 'object' && data !== null) {

@@ -14,8 +14,10 @@ import logger from '../logger.js';
 import { AuthService } from '../auth/auth-service.js';
 
 // JWT configuration
-const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
-const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
+const AUTH0_DOMAIN =
+  process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
+const AUTH0_AUDIENCE =
+  process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
 
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 

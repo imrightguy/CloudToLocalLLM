@@ -94,7 +94,7 @@ function getActivityAction(method, path) {
  * @param {Object} body - Request body
  * @returns {Object} Resource information {type, id}
  */
-/* eslint-disable space-before-function-paren */
+
 function extractResourceInfo(method, path, _body = {}) {
   const pathParts = path.split('/');
 
