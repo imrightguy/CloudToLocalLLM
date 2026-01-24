@@ -58,12 +58,23 @@ function corsOriginValidator(origin, callback) {
     return callback(null, true);
   }
 
+  // Explicitly allow main domains to ensure they work regardless of array config
+  if (
+    origin === 'https://app.cloudtolocalllm.online' ||
+    origin === 'https://api.cloudtolocalllm.online' ||
+    origin === 'https://cloudtolocalllm.online'
+  ) {
+    return callback(null, true);
+  }
+
   // Check if origin is in allowed list
   if (ALLOWED_ORIGINS.includes(origin)) {
     callback(null, true);
   } else {
-    // Log unauthorized CORS attempt
-    console.warn(`CORS: Blocked request from unauthorized origin: ${origin}`);
+    // Log unauthorized CORS attempt with more detail
+    console.warn(
+      `CORS: Blocked request from unauthorized origin: '${origin}'. Allowed: ${JSON.stringify(ALLOWED_ORIGINS)}`,
+    );
     callback(new Error('Not allowed by CORS'));
   }
 }
