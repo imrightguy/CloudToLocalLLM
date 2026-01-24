@@ -279,6 +279,8 @@ jobs:
           export CLOUDFLARE_TUNNEL_TOKEN="\$(printf '$CF_B64' | base64 -d)"
           export CLOUDFLARE_API_KEY="\$(printf '$CF_API_B64' | base64 -d)"
           export INFRASTRUCTURE_API_KEY="\$(printf '$INFRA_API_B64' | base64 -d)"
+          export AUTH0_DOMAIN="dev-vivn1fcgzi0c2czy.us.auth0.com"
+          export AUTH0_AUDIENCE="https://api.cloudtolocalllm.online"
           
           # Clone or update repository
           if [ ! -d ".git" ]; then
