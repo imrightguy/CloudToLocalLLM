@@ -36,6 +36,22 @@ class Auth0AuthProvider implements AuthProvider {
 
   @override
   Future<void> initialize() async {
+    if (kIsWeb) {
+      try {
+        // Ensure Auth0 SPA SDK is loaded before use
+        final auth0Web = Auth0Web(_domain, _clientId);
+        // On Web, we check for a callback immediately on init
+        final credentials = await auth0Web.onLoad();
+        if (credentials != null) {
+          debugPrint(' [Auth0] Session restored during initialization');
+          await _storeCredentials(credentials);
+          _currentUser = await _getUserFromIdToken(credentials.idToken);
+          _authSubject.add(true);
+        }
+      } catch (e) {
+        debugPrint('Auth0 Web init error: $e');
+      }
+    }
     await _loadFromStorage();
   }
 

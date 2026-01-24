@@ -92,6 +92,8 @@ export const standardCorsOptions = {
     'X-Requested-With',
     'Accept',
     'Origin',
+    'Sentry-Trace',
+    'Baggage',
   ],
   exposedHeaders: [
     'Content-Length',
@@ -146,6 +148,8 @@ export const adminCorsOptions = {
     'X-Requested-With',
     'Accept',
     'Origin',
+    'Sentry-Trace',
+    'Baggage',
   ],
   exposedHeaders: [
     'Content-Length',
