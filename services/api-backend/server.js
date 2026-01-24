@@ -186,6 +186,29 @@ const app = express();
 // Use specific proxy configuration to avoid ERR_ERL_PERMISSIVE_TRUST_PROXY
 app.set('trust proxy', 1); // Trust first proxy (nginx)
 
+// Manual CORS override to ensure app connectivity (before any other middleware)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://app.cloudtolocalllm.online',
+    'https://api.cloudtolocalllm.online',
+    'https://cloudtolocalllm.online',
+    'https://admin.cloudtolocalllm.online',
+  ];
+
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Sentry-Trace, Baggage');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    if (req.method === 'OPTIONS') {
+      return res.status(200).end();
+    }
+  }
+  next();
+});
+
 // Setup middleware pipeline with proper ordering
 setupMiddlewarePipeline(app, {
   corsOptions: standardCorsOptions,
