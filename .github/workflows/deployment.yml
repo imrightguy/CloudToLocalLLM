@@ -295,3 +295,13 @@ jobs:
             --name "$VM_NAME" \
             --command-id RunShellScript \
             --scripts @ds.sh
+
+      - name: Purge Cloudflare Cache
+        if: success()
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          echo "🧹 Purging Cloudflare cache to ensure users see the latest version..."
+          chmod +x scripts/cloudflare-cache-purge.sh
+          ./scripts/cloudflare-cache-purge.sh
