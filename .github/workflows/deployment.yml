@@ -212,6 +212,8 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'secret' }}
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          INFRASTRUCTURE_API_KEY: ${{ secrets.INFRASTRUCTURE_API_KEY }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -253,6 +255,8 @@ jobs:
           PG_PW_B64=$(printf '%s' "$POSTGRES_PASSWORD" | base64 -w0)
           JWT_B64=$(printf '%s' "$JWT_SECRET" | base64 -w0)
           CF_B64=$(printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" | base64 -w0)
+          CF_API_B64=$(printf '%s' "$CLOUDFLARE_API_KEY" | base64 -w0)
+          INFRA_API_B64=$(printf '%s' "$INFRASTRUCTURE_API_KEY" | base64 -w0)
           GH_B64=$(printf '%s' "$GH_TOKEN" | base64 -w0)
           
           # Write deployment script to file using heredoc
@@ -269,6 +273,8 @@ jobs:
           export POSTGRES_PASSWORD="\$(printf '$PG_PW_B64' | base64 -d)"
           export JWT_SECRET="\$(printf '$JWT_B64' | base64 -d)"
           export CLOUDFLARE_TUNNEL_TOKEN="\$(printf '$CF_B64' | base64 -d)"
+          export CLOUDFLARE_API_KEY="\$(printf '$CF_API_B64' | base64 -d)"
+          export INFRASTRUCTURE_API_KEY="\$(printf '$INFRA_API_B64' | base64 -d)"
           
           # Clone or update repository
           if [ ! -d ".git" ]; then

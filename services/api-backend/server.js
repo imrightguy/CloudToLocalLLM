@@ -109,6 +109,7 @@ import webhookEventFiltersRoutes from './routes/webhook-event-filters.js';
 import webhookPayloadTransformationsRoutes from './routes/webhook-payload-transformations.js';
 import webhookRateLimitingRoutes from './routes/webhook-rate-limiting.js';
 import webhookTestingRoutes from './routes/webhook-testing.js';
+import infrastructureTunnelRoutes from './routes/infrastructure-tunnel.js';
 // SSH tunnel integration
 import { SSHProxy } from './tunnel/ssh-proxy.js';
 import { AuthService } from './auth/auth-service.js';
@@ -388,6 +389,9 @@ registerRoutes(
 );
 registerRoutes('/webhook-rate-limiting', webhookRateLimitingRoutes);
 registerRoutes('/webhook-testing', webhookTestingRoutes);
+
+// Infrastructure tunnel management routes (API key authenticated)
+registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
 
 // LLM Tunnel Cloud Proxy Endpoints (support both /api/ollama and /ollama)
 setSshProxy(sshProxy);
