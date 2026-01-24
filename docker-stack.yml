@@ -171,8 +171,7 @@ services:
       cloudtolocalllm_net:
         aliases:
           - cloudflared
-        dns:
-          - 127.0.0.11
+    # DNS is handled by Docker's embedded DNS at 127.0.0.11 automatically
     deploy:
       replicas: 1
       resources:
