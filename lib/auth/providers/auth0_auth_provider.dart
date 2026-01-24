@@ -9,6 +9,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mutex/mutex.dart';
 import '../auth_provider.dart';
 import '../../models/user_model.dart';
+import 'auth0_flutter_stub.dart';
 
 class Auth0AuthProvider implements AuthProvider {
   static const String _domain = 'dev-vivn1fcgzi0c2czy.us.auth0.com';
@@ -80,6 +81,19 @@ class Auth0AuthProvider implements AuthProvider {
   Future<void> login() async {
     await _mutex.protect(() async {
       try {
+        if (kIsWeb) {
+          // Use Auth0Web for redirect flow on Web
+          final auth0Web = Auth0Web(_domain, _clientId);
+          debugPrint(' [Auth0] Initiating loginWithRedirect...');
+          await auth0Web.loginWithRedirect(
+            audience: _audience,
+            scopes: {'openid', 'profile', 'email', 'offline_access'},
+            redirectUri: '${Uri.base.origin}/callback',
+          );
+          // The page will redirect, so code execution stops here for Web
+          return;
+        }
+
         final credentials =
             await _auth0.webAuthentication(scheme: _scheme).login(
           audience: _audience,
@@ -99,6 +113,18 @@ class Auth0AuthProvider implements AuthProvider {
   Future<void> _storeCredentials(Credentials credentials) async {
     await _storage.write(key: 'access_token', value: credentials.accessToken);
     await _storage.write(key: 'id_token', value: credentials.idToken);
+
+    // Use the ID token to get user data for storage
+    final user = await _getUserFromIdToken(credentials.idToken);
+    final userData = {
+      'sub': user.id,
+      'email': user.email,
+      'name': user.name,
+      'picture': user.picture,
+      'nickname': user.nickname,
+    };
+    await _storage.write(key: 'user_data', value: json.encode(userData));
+
     if (credentials.refreshToken != null) {
       await _storage.write(
           key: 'refresh_token', value: credentials.refreshToken);
@@ -168,6 +194,26 @@ class Auth0AuthProvider implements AuthProvider {
 
   @override
   Future<bool> handleCallback({String? url}) async {
+    if (kIsWeb) {
+      try {
+        debugPrint(' [Auth0] Processing Web callback via onLoad()...');
+        // Use Auth0Web to handle the redirect callback
+        final auth0Web = Auth0Web(_domain, _clientId);
+        final credentials = await auth0Web.onLoad();
+        if (credentials != null) {
+          debugPrint(' [Auth0] Callback success: tokens received');
+          await _storeCredentials(credentials);
+          _currentUser = await _getUserFromIdToken(credentials.idToken);
+          _authSubject.add(true);
+          return true;
+        }
+        debugPrint(' [Auth0] Callback finished: no credentials found');
+        return false;
+      } catch (e) {
+        debugPrint(' [Auth0] Callback error: $e');
+        return false;
+      }
+    }
     // PKCE webview handles callback internally; desktop via main args
     return true;
   }
