@@ -604,9 +604,9 @@ app.get('/conversations/', ...authenticateJWT, async (req, res) => {
 app.use('/api/conversations', conversationRouter);
 
 // 404 handler
-app.use((req, res) => {
+app.use((req, res, next) => {
   if (req.path === '/health' || req.path === '/healthz') {
-      return next(); // Pass to health handlers if they are after this
+    return next(); // Pass to health handlers if they are after this
   }
   res.status(404).json({ error: 'Not found' });
 });

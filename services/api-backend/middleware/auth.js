@@ -84,10 +84,10 @@ export async function syncSession(req, res, next) {
     }
     
     if (!authService) {
-        logger.debug(' [Auth] Skipping syncSession: authService not configured');
-        req.user = req.auth?.payload;
-        req.userId = req.auth?.payload?.sub;
-        return next();
+      logger.debug(' [Auth] Skipping syncSession: authService not configured');
+      req.user = req.auth?.payload;
+      req.userId = req.auth?.payload?.sub;
+      return next();
     }
 
     await ensureAuthServiceInitialized();
