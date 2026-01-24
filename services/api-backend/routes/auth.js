@@ -127,52 +127,28 @@ router.post('/token/refresh', authCheckLimiter, async function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/token/validate', authCheckLimiter, async function (req, res) {
+router.post('/token/validate', authCheckLimiter, authenticateJWT, async function (req, res) {
   try {
-    const { token } = req.body;
-    const authHeader = req.headers.authorization;
-    const bearerToken = authHeader && authHeader.split(' ')[1];
-    const validateToken = token || bearerToken;
-
-    if (!validateToken) {
-      return res.status(400).json({
-        error: 'Token required',
-        code: 'MISSING_TOKEN',
-      });
-    }
-
-    logger.info('[Auth] Validating token');
-
-    // Decode token to check expiry
-    const decoded = jwt.decode(validateToken, { complete: true });
-
-    if (!decoded) {
-      logger.warn('[Auth] Invalid token format');
-      return res.status(401).json({
-        error: 'Invalid token format',
-        code: 'INVALID_TOKEN_FORMAT',
-      });
-    }
-
+    // If authenticateJWT middleware passed, the token is DEFINITELY valid and verified
+    const tokenPayload = req.user;
     const now = Math.floor(Date.now() / 1000);
-    const expiresIn = decoded.payload.exp - now;
-    const isExpired = expiresIn <= 0;
+    const expiresIn = tokenPayload.exp - now;
     const isExpiring = expiresIn <= TOKEN_REFRESH_WINDOW;
 
-    logger.info('[Auth] Token validation result', {
-      isExpired,
+    logger.info('[Auth] Token validation result (Verified)', {
       isExpiring,
       expiresIn,
+      userId: req.userId,
     });
 
     res.json({
-      valid: !isExpired,
-      expired: isExpired,
+      valid: true,
+      expired: false,
       expiring: isExpiring,
       expiresIn: Math.max(0, expiresIn),
-      expiresAt: new Date(decoded.payload.exp * 1000).toISOString(),
-      userId: decoded.payload.sub,
-      email: decoded.payload.email,
+      expiresAt: new Date(tokenPayload.exp * 1000).toISOString(),
+      userId: req.userId,
+      email: tokenPayload.email,
     });
   } catch (error) {
     logger.error('[Auth] Token validation error', {

@@ -307,31 +307,10 @@ class _CallbackScreenState extends State<CallbackScreen> {
 
       _updateStatus('Verifying authentication...');
 
-      // Extract code from route params
-      final code = routeParams['code'];
-      debugPrint('[CallbackScreen] Auth code present: ${code != null}');
-
-      if (code != null) {
-        _updateStatus('Exchanging authentication code...');
-        debugPrint(
-            '[CallbackScreen] Calling authService.handleCallback(code: ...)');
-        final success = await authService.handleCallback(code: code);
-        debugPrint('[CallbackScreen] handleCallback returned: $success');
-
-        if (success) {
-          // ... success logic handled below
-        }
-      } else {
-        // Fallback for implicit flow or if code is missing but we want to check session
-        debugPrint('[CallbackScreen] No code found, checking session state...');
-        await authService.handleCallback();
-      }
-
-      // Re-check auth state
-      final success = authService.isAuthenticated.value;
-      debugPrint(
-        '[CallbackScreen] Auth state after callback processing: $success',
-      );
+      // Trigger the auth provider to handle the redirect callback
+      // The provider internally uses onLoad() to parse the URL and exchange tokens
+      final success = await authService.handleCallback();
+      debugPrint('[CallbackScreen] handleCallback returned: $success');
 
       if (mounted) {
         if (success) {

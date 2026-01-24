@@ -13,21 +13,18 @@ import rateLimit from 'express-rate-limit';
 import logger from '../logger.js';
 import { AuthService } from '../auth/auth-service.js';
 
-// JWT configuration
-const AUTH0_DOMAIN =
-  process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
-const AUTH0_AUDIENCE =
-  process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
+// JWT configuration - Requirements 2.1
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
+const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
 if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
-  console.warn(
-    ' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).',
-  );
-  console.warn(
-    ' [WARNING] Authentication features will return 503 Service Unavailable.',
-  );
+  const errorMsg = 'CRITICAL: Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).';
+  console.error(` [ERROR] ${errorMsg}`);
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(errorMsg);
+  }
 }
 
 // Rigorous JWT verification middleware using industry-standard library

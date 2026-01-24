@@ -102,24 +102,14 @@ class _LoginScreenState extends State<LoginScreen> {
       await authService.login();
 
       debugPrint(
-        ' [Login] Login call completed, checking authentication state',
-      );
-      debugPrint(
-        ' [Login] Authentication state: ${authService.isAuthenticated.value}',
+        ' [Login] Login call completed',
       );
 
+      // On Web with redirect, the code execution stops as the page reloads
+      // For Native or Popup, we check the state
       if (mounted && authService.isAuthenticated.value) {
         debugPrint(' [Login] User authenticated, redirecting to home');
         context.go('/');
-      } else {
-        debugPrint(' [Login] User not authenticated after login call');
-        // For desktop, the login might complete asynchronously
-        // Don't redirect immediately, let the auth state change handle it
-        if (!authService.isWeb) {
-          debugPrint(
-            ' [Login] Desktop platform - waiting for auth state change',
-          );
-        }
       }
     } catch (e, s) {
       debugPrint(' [Login] Login failed with error: $e\n$s');
@@ -294,9 +284,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ? 48.0
                                 : 52.0, // Touch target size (Requirement 13.6)
                             child: platformAdapter.buildButton(
-                              onPressed: _isLoading ? null : _handleLogin,
+                              onPressed:
+                                  context.watch<AuthService>().isLoading.value
+                                      ? null
+                                      : _handleLogin,
                               isPrimary: true,
-                              child: _isLoading
+                              child: context
+                                      .watch<AuthService>()
+                                      .isLoading
+                                      .value
                                   ? SizedBox(
                                       width: 20,
                                       height: 20,
