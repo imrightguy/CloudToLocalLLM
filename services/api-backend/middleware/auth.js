@@ -14,8 +14,8 @@ import logger from '../logger.js';
 import { AuthService } from '../auth/auth-service.js';
 
 // JWT configuration - Requirements 2.1
-const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
-const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
+const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
 
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
@@ -60,7 +60,7 @@ const authService = isAuthConfigured
 let authServiceInitialized = false;
 
 async function ensureAuthServiceInitialized() {
-  if (authServiceInitialized || process.env.NODE_ENV === 'test') {
+  if (authServiceInitialized || process.env.NODE_ENV === 'test' || !authService) {
     return;
   }
   try {
@@ -70,7 +70,6 @@ async function ensureAuthServiceInitialized() {
     logger.error(' [Auth] Failed to initialize AuthService', {
       error: error.message,
     });
-    throw error;
   }
 }
 
@@ -83,6 +82,14 @@ export async function syncSession(req, res, next) {
     if (process.env.NODE_ENV === 'test') {
       return next();
     }
+    
+    if (!authService) {
+        logger.debug(' [Auth] Skipping syncSession: authService not configured');
+        req.user = req.auth?.payload;
+        req.userId = req.auth?.payload?.sub;
+        return next();
+    }
+
     await ensureAuthServiceInitialized();
 
     // auth() middleware from express-oauth2-jwt-bearer populates req.auth
