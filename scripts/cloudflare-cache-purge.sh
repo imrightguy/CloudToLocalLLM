@@ -5,7 +5,8 @@ set -e
 # This script purges Cloudflare cache for all domains after deployment
 # Usage:
 #   export CLOUDFLARE_API_TOKEN="your_api_token"
-#   export CLOUDFLARE_ZONE_ID="your_zone_id" (optional, will be fetched if not provided)
+#   export CLOUDFLARE_ZONE_ID="your_zone_id" (optional)
+#   export CLOUDFLARE_EMAIL="your_email" (optional, for Global API Key)
 #   ./scripts/cloudflare-cache-purge.sh
 
 # Configuration
@@ -38,28 +39,54 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Global headers array
+AUTH_HEADERS=()
+
 # Validate environment
 validate_env() {
     if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
         log_error "CLOUDFLARE_API_TOKEN not set"
-        echo "Please set the CLOUDFLARE_API_TOKEN environment variable"
-        echo "You can get this from: https://dash.cloudflare.com/profile/api-tokens"
+        echo "Please set the CLOUDFLARE_API_TOKEN environment variable."
+        echo "If using Global API Key, also set CLOUDFLARE_EMAIL."
         exit 1
     fi
 
-    log_info "Environment validation passed"
+    # Trim whitespace and remove 'Bearer ' prefix if present
+    CLOUDFLARE_API_TOKEN="$(echo "${CLOUDFLARE_API_TOKEN}" | sed 's/^Bearer //i' | tr -d '[:space:]')"
     
-    # Test API token validity
-    log_info "Testing API token validity..."
+    if [ -n "$CLOUDFLARE_EMAIL" ]; then
+        CLOUDFLARE_EMAIL="$(echo "${CLOUDFLARE_EMAIL}" | tr -d '[:space:]')"
+    fi
+
+    log_info "Environment validation passed"
+    log_info "Token length: ${#CLOUDFLARE_API_TOKEN}"
+
+    # Setup Auth Headers
+    AUTH_HEADERS=("-H" "Content-Type: application/json")
+    if [ -n "$CLOUDFLARE_EMAIL" ]; then
+        log_info "Using Global API Key authentication (Email: $CLOUDFLARE_EMAIL)"
+        AUTH_HEADERS+=("-H" "X-Auth-Email: ${CLOUDFLARE_EMAIL}")
+        AUTH_HEADERS+=("-H" "X-Auth-Key: ${CLOUDFLARE_API_TOKEN}")
+        
+        # Verify Global Key (using /user endpoint)
+        log_info "Verifying Global API Key..."
+        TEST_URL="https://api.cloudflare.com/client/v4/user"
+    else
+        log_info "Using API Token authentication"
+        AUTH_HEADERS+=("-H" "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+        
+        # Verify Token
+        log_info "Verifying API Token..."
+        TEST_URL="https://api.cloudflare.com/client/v4/user/tokens/verify"
+    fi
+    
     local test_response
-    test_response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/user/tokens/verify" \
-        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-        -H "Content-Type: application/json")
+    test_response=$(curl -s -X GET "$TEST_URL" "${AUTH_HEADERS[@]}")
     
     if echo "$test_response" | grep -q '"success":true'; then
-        log_success "API token is valid"
+        log_success "Authentication valid"
     else
-        log_error "API token validation failed"
+        log_error "Authentication failed"
         echo "Response: $test_response"
         exit 1
     fi
@@ -79,8 +106,7 @@ get_zone_id() {
 
     local response
     response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone_name" \
-        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-        -H "Content-Type: application/json")
+        "${AUTH_HEADERS[@]}")
 
     if echo "$response" | grep -q '"success":true'; then
         local zone_id
@@ -113,15 +139,13 @@ purge_cache() {
         local temp_file=$(mktemp)
         local temp_headers=$(mktemp)
         
-        # Add debugging: show the exact curl command (without token)
-        log_info "Executing: curl -s -w '%{http_code}' -X POST 'https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache' -H 'Authorization: Bearer [REDACTED]' -H 'Content-Type: application/json' --data '{\"purge_everything\": true}'"
+        log_info "Executing purge request..."
         
         # Execute curl with better error handling
         set +e  # Don't exit on curl failure
         http_code=$(curl -s -w "%{http_code}" -X POST \
             "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            -H "Content-Type: application/json" \
+            "${AUTH_HEADERS[@]}" \
             --data '{"purge_everything": true}' \
             --dump-header "$temp_headers" \
             -o "$temp_file" 2>&1)
@@ -164,8 +188,7 @@ purge_cache() {
             
             # Check for specific error patterns
             if [ "$http_code" = "401" ] || [ "$http_code" = "403" ]; then
-                log_error "Authentication failed (HTTP $http_code) - check CLOUDFLARE_API_TOKEN permissions"
-                log_error "Token needs 'Zone:Cache Purge' permission for zone: $DOMAIN"
+                log_error "Authentication failed (HTTP $http_code) - check permissions"
                 break
             elif [ "$http_code" = "400" ]; then
                 log_error "Bad request (HTTP $http_code) - check API parameters"
@@ -173,7 +196,7 @@ purge_cache() {
             elif [ "$http_code" = "429" ]; then
                 log_warning "Rate limited (HTTP $http_code) - will retry"
             elif echo "$response" | grep -q '"code":10000'; then
-                log_error "Authentication failed - check CLOUDFLARE_API_TOKEN"
+                log_error "Authentication failed"
                 break
             elif echo "$response" | grep -q '"code":6003'; then
                 log_error "Invalid zone ID or insufficient permissions"
@@ -236,8 +259,7 @@ purge_selective_urls() {
     
     http_code=$(curl -s -w "%{http_code}" -X POST \
         "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" \
-        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-        -H "Content-Type: application/json" \
+        "${AUTH_HEADERS[@]}" \
         --data "$payload" \
         -o "$temp_file")
     
@@ -287,9 +309,9 @@ verify_cache_purge() {
 
 # Main execution
 main() {
-    echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
+    echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
     echo "Cloudflare Cache Purge for CloudToLocalLLM"
-    echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
+    echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
     echo ""
 
     # Validate environment
