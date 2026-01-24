@@ -108,7 +108,7 @@ get_zone_id() {
     response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone_name" \
         "${AUTH_HEADERS[@]}")
 
-    if echo "$response" | grep -q '"success":true'; then
+    if echo "$response" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
         local zone_id
         zone_id=$(echo "$response" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
         if [ -n "$zone_id" ]; then
@@ -179,7 +179,7 @@ purge_cache() {
             continue
         fi
 
-        if echo "$response" | grep -q '"success":true'; then
+        if echo "$response" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
             log_success "Cache purge successful for zone $zone_id"
             return 0
         else
@@ -268,7 +268,7 @@ purge_selective_urls() {
     
     log_info "Selective purge HTTP Status: $http_code"
     
-    if echo "$response" | grep -q '"success":true'; then
+    if echo "$response" | grep -qE '"success"[[:space:]]*:[[:space:]]*true'; then
         log_success "Selective URL purge successful"
         return 0
     else
