@@ -252,6 +252,9 @@ jobs:
             echo "✅ VM already running"
           fi
           
+          echo "🛡️ Ensuring Auto-Shutdown is disabled..."
+          az vm auto-shutdown disable --ids "$VM_ID" --resource-group "$RESOURCE_GROUP" 2>/dev/null || echo "⚠️ Could not disable auto-shutdown (feature might not be enabled or extension missing)"
+          
           # Base64 encode ALL sensitive values to avoid any shell escaping issues
           PG_PW_B64=$(printf '%s' "$POSTGRES_PASSWORD" | base64 -w0)
           JWT_B64=$(printf '%s' "$JWT_SECRET" | base64 -w0)
