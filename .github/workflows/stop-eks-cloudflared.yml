@@ -1,0 +1,85 @@
+name: "🛑 Stop EKS Cloudflared"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'scale-down'
+        type: choice
+        options:
+          - scale-down
+          - scale-up
+          - delete
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER: cloudtolocalllm-eks
+  NAMESPACE: cloudtolocalllm
+
+jobs:
+  manage-cloudflared:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+          kubectl config current-context
+          echo "✅ Connected to EKS cluster"
+
+      - name: Check current state
+        run: |
+          echo "📊 Current cloudflared deployment status:"
+          kubectl get deployment cloudflared -n ${{ env.NAMESPACE }} -o wide || echo "Deployment not found"
+          echo ""
+          echo "📊 Current cloudflared pods:"
+          kubectl get pods -n ${{ env.NAMESPACE }} -l app=cloudflared || echo "No pods found"
+
+      - name: Perform action - Scale Down
+        if: inputs.action == 'scale-down'
+        run: |
+          echo "🔻 Scaling down cloudflared to 0 replicas..."
+          kubectl scale deployment cloudflared -n ${{ env.NAMESPACE }} --replicas=0 || {
+            echo "⚠️ Scale command failed, deployment may not exist"
+            exit 0
+          }
+          echo "✅ Cloudflared scaled to 0 replicas"
+          echo ""
+          echo "📊 Waiting for pods to terminate..."
+          kubectl wait --for=delete pod -l app=cloudflared -n ${{ env.NAMESPACE }} --timeout=60s || echo "Pods terminated or not found"
+
+      - name: Perform action - Scale Up
+        if: inputs.action == 'scale-up'
+        run: |
+          echo "🔺 Scaling up cloudflared to 1 replica..."
+          kubectl scale deployment cloudflared -n ${{ env.NAMESPACE }} --replicas=1
+          echo "✅ Cloudflared scaled to 1 replica"
+          echo ""
+          echo "📊 Waiting for pod to be ready..."
+          kubectl wait --for=condition=ready pod -l app=cloudflared -n ${{ env.NAMESPACE }} --timeout=120s
+
+      - name: Perform action - Delete
+        if: inputs.action == 'delete'
+        run: |
+          echo "🗑️ Deleting cloudflared deployment and related resources..."
+          kubectl delete deployment cloudflared -n ${{ env.NAMESPACE }} --ignore-not-found
+          kubectl delete configmap cloudflared-config -n ${{ env.NAMESPACE }} --ignore-not-found
+          kubectl delete serviceaccount cloudflared -n ${{ env.NAMESPACE }} --ignore-not-found
+          kubectl delete secret tunnel-credentials -n ${{ env.NAMESPACE }} --ignore-not-found
+          echo "✅ Cloudflared resources deleted"
+
+      - name: Verify final state
+        run: |
+          echo "📊 Final cloudflared deployment status:"
+          kubectl get deployment cloudflared -n ${{ env.NAMESPACE }} -o wide 2>/dev/null || echo "Deployment not found (expected after delete)"
+          echo ""
+          echo "📊 Final cloudflared pods:"
+          kubectl get pods -n ${{ env.NAMESPACE }} -l app=cloudflared 2>/dev/null || echo "No pods found"
