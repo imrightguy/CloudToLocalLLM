@@ -2,14 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:auth0_flutter/auth0_flutter_web.dart'
+    if (dart.library.io) 'auth0_flutter_stub.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mutex/mutex.dart';
 import '../auth_provider.dart';
 import '../../models/user_model.dart';
-import 'auth0_flutter_stub.dart';
 
 class Auth0AuthProvider implements AuthProvider {
   static const String _domain = 'dev-vivn1fcgzi0c2czy.us.auth0.com';
@@ -88,7 +93,7 @@ class Auth0AuthProvider implements AuthProvider {
           await auth0Web.loginWithRedirect(
             audience: _audience,
             scopes: {'openid', 'profile', 'email', 'offline_access'},
-            redirectUri: '${Uri.base.origin}/callback',
+            redirectUrl: '${Uri.base.origin}/callback',
           );
           // The page will redirect, so code execution stops here for Web
           return;

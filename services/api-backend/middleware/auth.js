@@ -20,11 +20,12 @@ const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
 if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
-  const errorMsg = 'CRITICAL: Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).';
-  console.error(` [ERROR] ${errorMsg}`);
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(errorMsg);
-  }
+  console.warn(
+    ' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).',
+  );
+  console.warn(
+    ' [WARNING] Authentication features will return 503 Service Unavailable.',
+  );
 }
 
 // Rigorous JWT verification middleware using industry-standard library
