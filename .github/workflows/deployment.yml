@@ -186,6 +186,7 @@ jobs:
     needs: [ai_change_analysis, build_images]
     if: always() && needs.ai_change_analysis.outputs.components != '' && needs.build_images.result == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Azure Login
