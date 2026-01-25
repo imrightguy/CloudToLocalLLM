@@ -12,9 +12,9 @@ CloudToLocalLLM v3.6.2+ provides comprehensive APIs for bridge communication, st
 
 ## 🔐 **Authentication**
 
-### **Supabase Auth JWT Authentication**
+### **Auth0 JWT Authentication**
 
-All API endpoints require valid JWT tokens obtained through Supabase Auth authentication.
+All API endpoints require valid JWT tokens obtained through Auth0 authentication.
 
 #### **Token Format**
 ```http
@@ -23,7 +23,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 
 #### **Token Validation**
 - **Algorithm**: RS256
-- **Issuer**: `https://cloudtolocalllm.supabase-auth.com/`
+- **Issuer**: `https://cloudtolocalllm.auth0.com/`
 - **Audience**: `cloudtolocalllm-api`
 - **Expiry**: 24 hours
 
@@ -387,7 +387,7 @@ Check specific user's tunnel status (requires auth)
 **Response:**
 ```json
 {
-  "userId": "supabase-auth|user123",
+  "userId": "auth0|user123",
   "connected": true,
   "lastPing": "2025-01-15T10:29:30Z",
   "pendingRequests": 2
@@ -406,7 +406,7 @@ Proxy HTTP requests to user's desktop client (requires auth)
 **Example:**
 ```bash
 # Proxy request to local Ollama
-curl -X POST https://api.cloudtolocalllm.online/api/tunnel/supabase-auth|user123/api/chat \
+curl -X POST https://api.cloudtolocalllm.online/api/tunnel/auth0|user123/api/chat \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \
   -d '{"model":"llama2","prompt":"Hello"}'

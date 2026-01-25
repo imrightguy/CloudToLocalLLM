@@ -11,7 +11,7 @@ This document summarizes the implementation of server-side authentication and au
 **File:** `jwt-validation-middleware.ts`
 
 **Features Implemented:**
-- ✅ Integration with Supabase Auth JWKS endpoint
+- ✅ Integration with Auth0 JWKS endpoint
 - ✅ Token validation logic with signature verification
 - ✅ Token expiration handling
 - ✅ Distinction between expired and invalid tokens
@@ -157,7 +157,7 @@ app.use('/api/tunnel', createUserContextMiddleware(jwtMiddleware, contextManager
 ## Security Features
 
 ### Token Validation
-- ✅ Signature verification using Supabase Auth public keys
+- ✅ Signature verification using Auth0 public keys
 - ✅ Expiration checking
 - ✅ Issuer and audience validation
 - ✅ Result caching (5 minutes)
@@ -180,11 +180,11 @@ app.use('/api/tunnel', createUserContextMiddleware(jwtMiddleware, contextManager
 
 ```bash
 # Required
-SUPABASE_AUTH_DOMAIN=your-tenant.supabase-auth.com
+SUPABASE_AUTH_DOMAIN=your-tenant.auth0.com
 SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.com
 
 # Optional
-SUPABASE_AUTH_ISSUER=https://your-tenant.supabase-auth.com/
+SUPABASE_AUTH_ISSUER=https://your-tenant.auth0.com/
 AUTH_CACHE_DURATION=300000
 JWKS_CACHE_DURATION=3600000
 BRUTE_FORCE_THRESHOLD=5
@@ -216,7 +216,7 @@ npm test
 - Token validation results cached for 5 minutes
 - JWKS keys cached for 1 hour
 - User context cached per user ID
-- Reduces Supabase Auth API calls significantly
+- Reduces Auth0 API calls significantly
 
 ### Memory Management
 - Audit history limited to 10,000 entries
@@ -249,7 +249,7 @@ To complete the authentication and authorization implementation:
    - Create Grafana dashboards
 
 4. **Production Deployment**
-   - Configure Supabase Auth production tenant
+   - Configure Auth0 production tenant
    - Set up environment variables
    - Deploy with Kubernetes
    - Configure monitoring
@@ -258,7 +258,7 @@ To complete the authentication and authorization implementation:
 
 ```
 services/streaming-proxy/src/middleware/
-├── jwt-validation-middleware.ts      # JWT validation with Supabase Auth
+├── jwt-validation-middleware.ts      # JWT validation with Auth0
 ├── user-context-manager.ts           # User context management
 ├── auth-audit-logger.ts              # Audit logging and security
 ├── auth-config.ts                    # Configuration management
@@ -282,7 +282,7 @@ services/streaming-proxy/src/middleware/
 
 Task 7 (Server-Side Authentication and Authorization) has been successfully completed with all three subtasks implemented:
 
-1. ✅ JWT Validation Middleware with Supabase Auth integration
+1. ✅ JWT Validation Middleware with Auth0 integration
 2. ✅ User Context Management with tier-based permissions
 3. ✅ Authentication Audit Logging with brute force detection
 

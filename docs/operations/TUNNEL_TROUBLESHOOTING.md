@@ -161,8 +161,8 @@ START
    # Check user ID: sub field should match your user ID
    ```
 
-2. **Check Supabase Auth configuration:**
-   - Verify Supabase Auth domain is correct
+2. **Check Auth0 configuration:**
+   - Verify Auth0 domain is correct
    - Verify client ID is correct
    - Verify redirect URI is configured
 
@@ -185,9 +185,9 @@ START
 |-------|----------|
 | Token expired | Refresh token or re-authenticate |
 | Invalid token | Check token format, re-authenticate |
-| Supabase Auth misconfigured | Verify Supabase Auth settings in config |
+| Auth0 misconfigured | Verify Auth0 settings in config |
 | Token not sent | Check Authorization header format |
-| User not authorized | Check user permissions in Supabase Auth |
+| User not authorized | Check user permissions in Auth0 |
 
 **Example Log Output:**
 ```
@@ -278,7 +278,7 @@ START
 
 2. **Check user tier:**
    ```bash
-   # Verify user tier in Supabase Auth
+   # Verify user tier in Auth0
    # Free: 100 req/min
    # Premium: 1000 req/min
    # Enterprise: 10000 req/min

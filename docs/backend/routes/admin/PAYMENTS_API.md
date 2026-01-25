@@ -164,7 +164,7 @@ curl -X GET "https://api.cloudtolocalllm.online/api/admin/payments/transactions/
       "id": "660e8400-e29b-41d4-a716-446655440001",
       "email": "user@example.com",
       "username": "johndoe",
-      "supabase-auth_id": "supabase-auth|123456789",
+      "auth0_id": "auth0|123456789",
       "created_at": "2025-01-01T00:00:00Z",
       "is_suspended": false
     },

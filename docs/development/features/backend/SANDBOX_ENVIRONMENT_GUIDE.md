@@ -59,7 +59,7 @@ The sandbox environment includes three pre-configured test users:
 {
   "id": "test-user-1",
   "email": "test@sandbox.local",
-  "supabase-authId": "supabase-auth|sandbox-test-1",
+  "auth0Id": "auth0|sandbox-test-1",
   "tier": "free",
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMSIsImVtYWlsIjoidGVzdEBzYW5kYm94LmxvY2FsIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-1"
 }
@@ -70,7 +70,7 @@ The sandbox environment includes three pre-configured test users:
 {
   "id": "test-user-2",
   "email": "premium@sandbox.local",
-  "supabase-authId": "supabase-auth|sandbox-test-2",
+  "auth0Id": "auth0|sandbox-test-2",
   "tier": "premium",
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMiIsImVtYWlsIjoicHJlbWl1bUBzYW5kYm94LmxvY2FsIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-2"
 }
@@ -81,7 +81,7 @@ The sandbox environment includes three pre-configured test users:
 {
   "id": "test-admin",
   "email": "admin@sandbox.local",
-  "supabase-authId": "supabase-auth|sandbox-admin",
+  "auth0Id": "auth0|sandbox-admin",
   "tier": "enterprise",
   "role": "admin",
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LWFkbWluIiwiZW1haWwiOiJhZG1pbkBzYW5kYm94LmxvY2FsIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-admin"
@@ -620,7 +620,7 @@ Check that the endpoint is returning data.
 ### Test Credentials
 
 - Test credentials are public and should never be used in production
-- Test tokens are not validated against Supabase Auth
+- Test tokens are not validated against Auth0
 - Use real credentials for production testing
 
 ### Data Isolation

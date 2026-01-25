@@ -211,7 +211,7 @@ import { JWTValidationMiddleware } from './middleware';
 import { TokenBucketRateLimiter } from './rate-limiter';
 
 // Create components
-const authMiddleware = new JWTValidationMiddleware(supabase-authConfig);
+const authMiddleware = new JWTValidationMiddleware(auth0Config);
 const rateLimiter = new TokenBucketRateLimiter();
 const compressionManager = CompressionManager.createDefault();
 

@@ -63,7 +63,7 @@ To run the full validation suite, you'll need a valid JWT token:
    # 3. Go to Application/Storage > Local Storage
    # 4. Find the JWT token
    
-   # Method 2: Use Supabase Auth test token (if available)
+   # Method 2: Use Auth0 test token (if available)
    # Contact development team for test credentials
    ```
 

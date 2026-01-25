@@ -37,7 +37,7 @@ CloudToLocalLLM provides a comprehensive suite of features for local and cloud L
 - **Load Balancing**: Intelligent routing for optimal performance
 
 ### **Advanced Authentication**
-- **Supabase Auth Integration**: Enterprise-grade authentication with SSO support
+- **Auth0 Integration**: Enterprise-grade authentication with SSO support
 - **JWT Token Management**: Secure token handling with automatic refresh
 - **Multi-Factor Authentication**: Enhanced security with MFA support
 - **Session Management**: Persistent authentication across application restarts
@@ -124,18 +124,18 @@ context7-mcp --test-connection
 
 ### **Authentication Architecture**
 
-#### **Supabase Auth Direct Login Implementation**
+#### **Auth0 Direct Login Implementation**
 
 **Configuration Setup:**
 ```javascript
-// Supabase Auth Configuration
-const supabase-authConfig = {
-  domain: 'dev-v2f2p008x3dr74ww.us.supabase-auth.com',
-  clientId: 'FuXPnevXpp311CdYHGsbNZe9t3D8Ts7A',
+// Auth0 Configuration
+const authConfig = {
+  domain: 'dev-vivn1fcgzi0c2czy.us.auth0.com',
+  clientId: 'mm7lIRm33LGyoQ0FKCy04x88fsgnbvr1',
   audience: 'https://api.cloudtolocalllm.online',
   redirectUri: {
     web: 'https://app.cloudtolocalllm.online/callback',
-    desktop: 'http://localhost:8080/callback'
+    desktop: 'cloudtolocalllm://callback'
   }
 };
 ```
@@ -143,13 +143,13 @@ const supabase-authConfig = {
 **PKCE Flow Implementation:**
 ```dart
 // Flutter PKCE implementation
-class Supabase AuthService {
-  static const String domain = 'dev-xafu7oedkd5wlrbo.us.supabase-auth.com';
-  static const String clientId = 'H10eY1pG9e2g6MvFKPDFbJ3ASIhxDgNu';
+class AuthService {
+  static const String domain = 'dev-vivn1fcgzi0c2czy.us.auth0.com';
+  static const String clientId = 'mm7lIRm33LGyoQ0FKCy04x88fsgnbvr1';
   
   Future<AuthResult> login() async {
-    final supabase-auth = Supabase Auth(domain, clientId);
-    return await supabase-auth.webAuthentication().login(
+    final auth0 = Auth0(domain, clientId);
+    return await auth0.webAuthentication().login(
       audience: 'https://api.cloudtolocalllm.online',
       scopes: {'openid', 'profile', 'email', 'offline_access'},
     );
@@ -273,7 +273,7 @@ const webhookConfig = {
 # Clear authentication cache
 rm -rf ~/.cloudtolocalllm/auth_cache
 
-# Reset Supabase Auth configuration
+# Reset Auth0 configuration
 cloudtolocalllm-settings --reset-auth
 
 # Test authentication
@@ -293,6 +293,7 @@ cloudtolocalllm-tray --debug
 ```
 
 #### **Performance Issues**
+
 ```bash
 # Check resource usage
 cloudtolocalllm --performance-report

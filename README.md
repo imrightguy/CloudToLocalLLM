@@ -28,7 +28,7 @@
 *   **💻 Cross-Platform:** Native support for **Windows** and **Linux**, with a responsive **Web** interface.
 *   **⚡ Hybrid Architecture:** Seamlessly switch between local models when needed.
 *   **🔌 Extensible:** Integrated with LangChain for advanced AI workflows.
-*   **☁️ Cloud Infrastructure:** Deployed on **AWS EKS** for scalable management.
+*   **☁️ Cloud Infrastructure:** Deployed on **Azure** for scalable management.
 *   **🏠 Self-Hosted:** Easily deploy your own instance on any Linux VPS using Docker Compose.
  
 ## 📋 Prerequisites
@@ -49,11 +49,13 @@ To use CloudToLocalLLM locally:
 Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online)**
  
 ## 📖 Documentation
- 
-*   **[User Guide](docs/user-guide/USER_GUIDE.md):** Configuration and usage.
+
+*   **[User Guide](docs/user-guide/USER_GUIDE.md):** Features and detailed usage.
+*   **[Setup Guide](docs/user-guide/SETUP_GUIDE.md):** Step-by-step installation.
+*   **[Troubleshooting](docs/user-guide/TROUBLESHOOTING.md):** Common issues and fixes.
 *   **[Self-Hosting Guide](docs/operations/SELF_HOSTING.md):** Run your own relay server.
 *   **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
-*   **[AWS Operations](docs/operations/aws/README.md):** EKS deployment details.
+
  
 ## 🛠️ Development
  
@@ -61,7 +63,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 *   **Frontend:** Flutter (Linux, Windows, Web)
 *   **Backend:** Node.js (Express.js)
 *   **Authentication:** Auth0
-*   **Deployment:** AWS EKS (Cloud) or Docker Compose (Self-Hosted)
+*   **Deployment:** Azure (Cloud) or Docker Compose (Self-Hosted)
  
 ### Build from Source
  

@@ -177,6 +177,6 @@ kubectl get ingress -n cloudtolocalllm
 - **Image Pull Errors:** Verify image registry credentials and image tags
 - **Database Connection Issues:** Check PostgreSQL pod logs and verify secrets
 - **Ingress Issues:** Check ingress controller and DNS configuration
-- **Authentication Errors:** Verify Supabase Auth environment variables in ConfigMap and Secrets
+- **Authentication Errors:** Verify Auth0 environment variables in ConfigMap and Secrets
 
 For more detailed troubleshooting, see [Kubernetes README](../../k8s/README.md).

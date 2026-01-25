@@ -104,7 +104,7 @@ Required environment variables:
 - `DB_USER=appuser`
 - `DB_PASSWORD=<your-password>`
 - `DB_HOST=/cloudsql/cloudtolocalllm-468303:us-central1:cloudtolocalllm-db`
-- `SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.supabase-auth.com`
+- `SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.auth0.com`
 - `SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.online`
 
 ### Step 3: Build and Deploy
@@ -120,7 +120,7 @@ gcloud run deploy cloudtolocalllm-api \
     --region us-central1 \
     --allow-unauthenticated \
     --memory 1Gi \
-    --set-env-vars "NODE_ENV=production,DB_TYPE=postgresql,SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.supabase-auth.com,SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.online" \
+    --set-env-vars "NODE_ENV=production,DB_TYPE=postgresql,SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.auth0.com,SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.online" \
     --add-cloudsql-instances cloudtolocalllm-468303:us-central1:cloudtolocalllm-db
 ```
 
@@ -140,7 +140,7 @@ npm run db:test
 SERVICE_URL="https://your-service-url" npm run test:auth-flow
 
 # With authentication token
-TEST_TOKEN="your-supabase-auth-jwt-token" SERVICE_URL="https://your-service-url" npm run test:auth-flow
+TEST_TOKEN="your-auth0-jwt-token" SERVICE_URL="https://your-service-url" npm run test:auth-flow
 ```
 
 ### Health Checks
@@ -218,14 +218,14 @@ gcloud logging read "resource.type=cloudsql_database"
    ```
 
    - Verify `SUPABASE_AUTH_DOMAIN` and `SUPABASE_AUTH_AUDIENCE` environment variables
-   - Check Supabase Auth JWT validation configuration
+   - Check Auth0 JWT validation configuration
 
 ### Service Account Permissions
 
 Ensure your Cloud Run service account has:
 
 - `roles/cloudsql.client` - For Cloud SQL access
-- Supabase Auth JWT validation (configured via environment variables)
+- Auth0 JWT validation (configured via environment variables)
 
 ### Performance Tuning
 

@@ -182,14 +182,14 @@ curl -X GET "https://api.cloudtolocalllm.online/api/admin/audit/logs/550e8400-e2
         "id": "660e8400-e29b-41d4-a716-446655440001",
         "email": "admin@cloudtolocalllm.online",
         "username": "admin",
-        "supabase-authId": "supabase-auth|1234567890",
+        "auth0Id": "auth0|1234567890",
         "role": "super_admin"
       },
       "affectedUser": {
         "id": "770e8400-e29b-41d4-a716-446655440002",
         "email": "user@example.com",
         "username": "johndoe",
-        "supabase-authId": "supabase-auth|0987654321"
+        "auth0Id": "auth0|0987654321"
       }
     }
   },

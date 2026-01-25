@@ -15,7 +15,7 @@ This guide will help you get the most out of CloudToLocalLLM, covering all major
 
 ## Getting Started
 
-After [installing the application](SETUP.md), launch CloudToLocalLLM. The first time you run it, you'll be taken to the home screen, which displays a welcome message and prompts you to start a new conversation.
+After [installing the application](SETUP_GUIDE.md), launch CloudToLocalLLM. The first time you run it, you'll be taken to the home screen, which displays a welcome message and prompts you to start a new conversation.
 
 ## Interface Overview
 
@@ -126,25 +126,7 @@ Remote access allows you to access your local LLM from other devices or share ac
 
 ## Troubleshooting
 
-### Common Issues
-
-#### Application Not Connecting to LLM
-
-1. Verify the LLM service is running
-2. Check Settings > LLM Provider for correct IP and port
-3. Restart the application and/or the LLM service
-
-#### Cloud Sync Not Working
-
-1. Check your internet connection
-2. Verify you're logged in
-3. Check Cloud Sync is enabled in Settings
-
-#### Models Not Loading
-
-1. Ensure Ollama/LM Studio is running
-2. Check your internet connection if downloading new models
-3. Verify disk space is available
+For common issues and solutions, please refer to the [Troubleshooting Guide](TROUBLESHOOTING.md).
 
 ### Getting Help
 

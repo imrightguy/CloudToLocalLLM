@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive documentation for authenticating with the CloudToLocalLLM API. The API uses OAuth2 with Supabase Auth for user authentication and JWT tokens for API access.
+This guide provides comprehensive documentation for authenticating with the CloudToLocalLLM API. The API uses OAuth2 with Auth0 for user authentication and JWT tokens for API access.
 
 **Validates: Requirements 12.8**
 - Create authentication documentation with OAuth2 flow
@@ -24,7 +24,7 @@ The CloudToLocalLLM API supports two authentication methods:
 
 ### 1. JWT Bearer Token (User Authentication)
 
-Used for user-initiated requests. Tokens are obtained through OAuth2 flow with Supabase Auth.
+Used for user-initiated requests. Tokens are obtained through OAuth2 flow with Auth0.
 
 ```
 Authorization: Bearer <JWT_TOKEN>
@@ -42,12 +42,12 @@ X-API-Key: <API_KEY>
 
 ### Overview
 
-CloudToLocalLLM uses Supabase Auth for OAuth2 authentication. The flow follows the standard OAuth2 Authorization Code flow with PKCE (Proof Key for Code Exchange) for enhanced security.
+CloudToLocalLLM uses Auth0 for OAuth2 authentication. The flow follows the standard OAuth2 Authorization Code flow with PKCE (Proof Key for Code Exchange) for enhanced security.
 
 ### OAuth2 Configuration
 
 ```
-Supabase Auth Domain: dev-v2f2p008x3dr74ww.us.supabase-auth.com
+Auth0 Domain: dev-v2f2p008x3dr74ww.us.auth0.com
 Client ID: <YOUR_CLIENT_ID>
 Audience: https://api.cloudtolocalllm.online
 Redirect URI: https://app.cloudtolocalllm.online/callback
@@ -57,12 +57,12 @@ Redirect URI: https://app.cloudtolocalllm.online/callback
 
 The Authorization Code flow is the most secure method for user authentication.
 
-#### Step 1: Redirect User to Supabase Auth
+#### Step 1: Redirect User to Auth0
 
-Redirect the user to Supabase Auth's authorization endpoint:
+Redirect the user to Auth0's authorization endpoint:
 
 ```
-https://dev-v2f2p008x3dr74ww.us.supabase-auth.com/authorize?
+https://dev-v2f2p008x3dr74ww.us.auth0.com/authorize?
   client_id=YOUR_CLIENT_ID&
   response_type=code&
   redirect_uri=https://app.cloudtolocalllm.online/callback&
@@ -74,9 +74,9 @@ https://dev-v2f2p008x3dr74ww.us.supabase-auth.com/authorize?
 ```
 
 **Parameters:**
-- `client_id` - Your Supabase Auth application ID
+- `client_id` - Your Auth0 application ID
 - `response_type` - Must be `code` for Authorization Code flow
-- `redirect_uri` - Where Supabase Auth redirects after authentication
+- `redirect_uri` - Where Auth0 redirects after authentication
 - `scope` - Requested permissions (openid, profile, email)
 - `audience` - API identifier
 - `state` - Random string to prevent CSRF attacks
@@ -85,7 +85,7 @@ https://dev-v2f2p008x3dr74ww.us.supabase-auth.com/authorize?
 
 #### Step 2: User Authenticates
 
-The user logs in with their Supabase Auth credentials. Supabase Auth redirects back to your redirect_uri with an authorization code:
+The user logs in with their Auth0 credentials. Auth0 redirects back to your redirect_uri with an authorization code:
 
 ```
 https://app.cloudtolocalllm.online/callback?
@@ -98,7 +98,7 @@ https://app.cloudtolocalllm.online/callback?
 Exchange the authorization code for access and refresh tokens:
 
 ```bash
-curl -X POST https://dev-v2f2p008x3dr74ww.us.supabase-auth.com/oauth/token \
+curl -X POST https://dev-v2f2p008x3dr74ww.us.auth0.com/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "client_id": "YOUR_CLIENT_ID",
@@ -173,11 +173,11 @@ SIGNATURE_HERE
 
 ```json
 {
-  "iss": "https://dev-v2f2p008x3dr74ww.us.supabase-auth.com/",
-  "sub": "supabase-auth|6345a2ff123456789abcdef",
+  "iss": "https://dev-v2f2p008x3dr74ww.us.auth0.com/",
+  "sub": "auth0|6345a2ff123456789abcdef",
   "aud": [
     "https://api.cloudtolocalllm.online",
-    "https://dev-v2f2p008x3dr74ww.us.supabase-auth.com/userinfo"
+    "https://dev-v2f2p008x3dr74ww.us.auth0.com/userinfo"
   ],
   "iat": 1673804000,
   "exp": 1673890400,
@@ -252,7 +252,7 @@ curl -X POST https://api.cloudtolocalllm.online/auth/token/validate \
   "expiring": false,
   "expiresIn": 82400,
   "expiresAt": "2024-01-15T12:00:00Z",
-  "userId": "supabase-auth|6345a2ff123456789abcdef",
+  "userId": "auth0|6345a2ff123456789abcdef",
   "email": "user@example.com"
 }
 ```
@@ -268,7 +268,7 @@ curl -X GET https://api.cloudtolocalllm.online/auth/me \
 
 ```json
 {
-  "userId": "supabase-auth|6345a2ff123456789abcdef",
+  "userId": "auth0|6345a2ff123456789abcdef",
   "email": "user@example.com",
   "name": "John Doe",
   "picture": "https://s.gravatar.com/avatar/...",
@@ -290,7 +290,7 @@ curl -X POST https://api.cloudtolocalllm.online/auth/logout \
 {
   "success": true,
   "message": "Logged out successfully",
-  "userId": "supabase-auth|6345a2ff123456789abcdef"
+  "userId": "auth0|6345a2ff123456789abcdef"
 }
 ```
 
@@ -301,16 +301,16 @@ curl -X POST https://api.cloudtolocalllm.online/auth/logout \
 #### Installation
 
 ```bash
-npm install @supabase-auth/supabase-auth-spa-js
+npm install @auth0/auth0-spa-js
 ```
 
 #### Configuration
 
 ```javascript
-import { Supabase AuthClient } from '@supabase-auth/supabase-auth-spa-js';
+import { Auth0Client } from '@auth0/auth0-spa-js';
 
-const supabase-auth = new Supabase AuthClient({
-  domain: 'dev-v2f2p008x3dr74ww.us.supabase-auth.com',
+const auth0 = new Auth0Client({
+  domain: 'dev-v2f2p008x3dr74ww.us.auth0.com',
   clientId: 'YOUR_CLIENT_ID',
   authorizationParams: {
     redirect_uri: window.location.origin + '/callback',
@@ -325,14 +325,14 @@ const supabase-auth = new Supabase AuthClient({
 ```javascript
 // Initiate login
 async function login() {
-  await supabase-auth.loginWithPopup();
-  const user = await supabase-auth.getUser();
+  await auth0.loginWithPopup();
+  const user = await auth0.getUser();
   console.log('Logged in as:', user);
 }
 
 // Get access token
 async function getAccessToken() {
-  const token = await supabase-auth.getTokenSilently();
+  const token = await auth0.getTokenSilently();
   return token;
 }
 ```
@@ -341,7 +341,7 @@ async function getAccessToken() {
 
 ```javascript
 async function makeAuthenticatedRequest(endpoint) {
-  const token = await supabase-auth.getTokenSilently();
+  const token = await auth0.getTokenSilently();
   
   const response = await fetch(`https://api.cloudtolocalllm.online${endpoint}`, {
     headers: {
@@ -361,7 +361,7 @@ const tunnels = await makeAuthenticatedRequest('/tunnels');
 
 ```javascript
 async function logout() {
-  await supabase-auth.logout({
+  await auth0.logout({
     logoutParams: {
       returnTo: window.location.origin
     }
@@ -389,7 +389,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const FlutterAppAuth _appAuth = FlutterAppAuth();
 const _secureStorage = FlutterSecureStorage();
 
-const _supabase-authDomain = 'dev-v2f2p008x3dr74ww.us.supabase-auth.com';
+const _auth0Domain = 'dev-v2f2p008x3dr74ww.us.auth0.com';
 const _clientId = 'YOUR_CLIENT_ID';
 const _redirectUrl = 'com.cloudtolocalllm://callback';
 const _audience = 'https://api.cloudtolocalllm.online';
@@ -404,7 +404,7 @@ Future<void> login() async {
       AuthorizationTokenRequest(
         _clientId,
         _redirectUrl,
-        discoveryUrl: 'https://$_supabase-authDomain/.well-known/openid-configuration',
+        discoveryUrl: 'https://$_auth0Domain/.well-known/openid-configuration',
         scopes: ['openid', 'profile', 'email'],
         promptValues: ['login'],
         additionalParameters: {
@@ -530,7 +530,7 @@ import * as SecureStore from 'expo-secure-store';
 import * as AppAuth from 'expo-app-auth';
 
 const config = {
-  issuer: 'https://dev-v2f2p008x3dr74ww.us.supabase-auth.com',
+  issuer: 'https://dev-v2f2p008x3dr74ww.us.auth0.com',
   clientId: 'YOUR_CLIENT_ID',
   redirectUrl: 'com.cloudtolocalllm://callback',
   scopes: ['openid', 'profile', 'email'],
@@ -595,7 +595,7 @@ npm install jsonwebtoken axios
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 
-const SUPABASE_AUTH_DOMAIN = 'dev-v2f2p008x3dr74ww.us.supabase-auth.com';
+const SUPABASE_AUTH_DOMAIN = 'dev-v2f2p008x3dr74ww.us.auth0.com';
 const SUPABASE_AUTH_CLIENT_ID = process.env.SUPABASE_AUTH_CLIENT_ID;
 const SUPABASE_AUTH_CLIENT_SECRET = process.env.SUPABASE_AUTH_CLIENT_SECRET;
 const API_AUDIENCE = 'https://api.cloudtolocalllm.online';
@@ -782,10 +782,10 @@ Enable debug logging to troubleshoot authentication issues:
 
 ```javascript
 // JavaScript
-localStorage.setItem('debug', 'supabase-auth:*');
+localStorage.setItem('debug', 'auth0:*');
 
 // Node.js
-process.env.DEBUG = 'supabase-auth:*';
+process.env.DEBUG = 'auth0:*';
 ```
 
 ### Support

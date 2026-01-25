@@ -8,7 +8,7 @@ CloudToLocalLLM implements a comprehensive multi-component architecture designed
 - **Unified Flutter-Native Application**: A single Flutter application for the desktop client, including system tray functionality.
 - **Simplified Tunnel System**: A streamlined, single WebSocket connection for communication between the web UI and the desktop client.
 - **Tier-Based Functionality**: A flexible architecture that supports both free and premium user tiers with different features.
-- **Zero-Storage Design**: No persistent user data in the cloud infrastructure.
+- **Cloud Storage**: Secure persistence of conversations in PostgreSQL for cloud sync.
 
 ---
 
@@ -88,8 +88,8 @@ For complete technical details, see .
 - **Rate Limiting**: Protection against abuse.
 
 ### **Data Protection**
-- **Zero Persistence**: No user data is stored in the cloud.
-- **Local Encryption**: Sensitive data is encrypted at rest on the user's machine.
+- **Encrypted Storage**: Conversations are stored in an encrypted PostgreSQL database.
+- **Zero Local Persistence**: (Web mode only) Local state is cleared after session termination.
 - **Audit Logging**: Comprehensive security event logging.
 
 ---

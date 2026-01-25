@@ -56,7 +56,7 @@ Future<void> connect({
 
 **Parameters:**
 - `serverUrl` (String, required): WebSocket URL of the streaming proxy (e.g., `wss://proxy.example.com`)
-- `authToken` (String, required): JWT authentication token from Supabase Auth
+- `authToken` (String, required): JWT authentication token from Auth0
 - `config` (TunnelConfig, optional): Custom configuration; uses default if not provided
 
 **Returns:** Future that completes when connection is established
@@ -465,7 +465,7 @@ enum TunnelErrorCategory {
 | Code | Category | Description | Recovery |
 |------|----------|-------------|----------|
 | TUNNEL_001 | network | Connection refused | Check network, firewall, server availability |
-| TUNNEL_002 | authentication | Authentication failed | Verify JWT token, check Supabase Auth configuration |
+| TUNNEL_002 | authentication | Authentication failed | Verify JWT token, check Auth0 configuration |
 | TUNNEL_003 | authentication | Token expired | Re-authenticate or refresh token |
 | TUNNEL_004 | server | Server unavailable | Wait and retry, check server status |
 | TUNNEL_005 | server | Rate limit exceeded | Reduce request rate, wait for reset |

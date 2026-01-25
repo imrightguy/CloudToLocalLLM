@@ -131,7 +131,7 @@ try {
 
 ## Free Tier Policy
 All cloud resources must stay within free tier limits:
-- **Azure**: B-series VMs (B1s/B2s), AKS Free Tier
+- **Azure**: B-series VMs (B1s/B2s) for Docker Swarm
 - **Never create**: Standard SKU Load Balancers, Application Gateway, Premium SSDs
 - **Use**: ghcr.io instead of ACR, Cloudflare Tunnel for ingress
 

@@ -67,7 +67,7 @@ Delete user account (soft or hard delete)
 {
   "success": true,
   "data": {
-    "userId": "supabase-auth|123456",
+    "userId": "auth0|123456",
     "deletionType": "soft",
     "cleanupStats": {
       "sessionsDeleted": 2,
@@ -91,7 +91,7 @@ Restore a soft-deleted account
 {
   "success": true,
   "data": {
-    "userId": "supabase-auth|123456",
+    "userId": "auth0|123456",
     "message": "User account restored successfully"
   }
 }
@@ -106,7 +106,7 @@ Check if user is deleted
   "success": true,
   "data": {
     "isDeleted": true,
-    "userId": "supabase-auth|123456",
+    "userId": "auth0|123456",
     "deletedAt": "2024-01-15T10:30:00Z",
     "deletionReason": "User requested deletion",
     "restorationDeadline": "2024-02-14T10:30:00Z"
@@ -122,7 +122,7 @@ Permanently delete a soft-deleted account (admin only)
 {
   "success": true,
   "data": {
-    "userId": "supabase-auth|123456",
+    "userId": "auth0|123456",
     "deletionType": "permanent",
     "cleanupStats": { ... }
   }
@@ -136,15 +136,15 @@ Delete user account with optional soft/hard delete
 
 ```javascript
 // Soft delete (default)
-await userDeletionService.deleteUserAccount('supabase-auth|123456');
+await userDeletionService.deleteUserAccount('auth0|123456');
 
 // Hard delete
-await userDeletionService.deleteUserAccount('supabase-auth|123456', {
+await userDeletionService.deleteUserAccount('auth0|123456', {
   softDelete: false
 });
 
 // With reason
-await userDeletionService.deleteUserAccount('supabase-auth|123456', {
+await userDeletionService.deleteUserAccount('auth0|123456', {
   softDelete: true,
   reason: 'Account no longer needed'
 });
@@ -154,21 +154,21 @@ await userDeletionService.deleteUserAccount('supabase-auth|123456', {
 Restore a soft-deleted account
 
 ```javascript
-await userDeletionService.restoreUserAccount('supabase-auth|123456');
+await userDeletionService.restoreUserAccount('auth0|123456');
 ```
 
 ### isUserDeleted(userId)
 Check if user is soft-deleted
 
 ```javascript
-const isDeleted = await userDeletionService.isUserDeleted('supabase-auth|123456');
+const isDeleted = await userDeletionService.isUserDeleted('auth0|123456');
 ```
 
 ### getDeletionInfo(userId)
 Get deletion information for a soft-deleted user
 
 ```javascript
-const info = await userDeletionService.getDeletionInfo('supabase-auth|123456');
+const info = await userDeletionService.getDeletionInfo('auth0|123456');
 // Returns: { userId, deletedAt, deletionReason, isDeleted }
 ```
 
@@ -176,7 +176,7 @@ const info = await userDeletionService.getDeletionInfo('supabase-auth|123456');
 Permanently delete a soft-deleted user (admin operation)
 
 ```javascript
-await userDeletionService.permanentlyDeleteUser('supabase-auth|123456');
+await userDeletionService.permanentlyDeleteUser('auth0|123456');
 ```
 
 ## Database Schema

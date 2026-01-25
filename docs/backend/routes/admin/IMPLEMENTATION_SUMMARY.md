@@ -21,7 +21,7 @@ This document summarizes the implementation status of all Admin Center API route
 **Features:**
 
 - Pagination support (50 users per page, max 100)
-- Search by email, username, user ID, or Supabase Auth ID
+- Search by email, username, user ID, or Auth0 ID
 - Filter by subscription tier, account status, and date range
 - Sort by created_at, last_login, email, or username
 - Automatic prorated charge calculation for upgrades

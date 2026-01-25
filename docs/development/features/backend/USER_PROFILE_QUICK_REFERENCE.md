@@ -16,7 +16,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
   "success": true,
   "data": {
     "id": "user-uuid-1",
-    "supabase-authId": "supabase-auth|123456",
+    "auth0Id": "auth0|123456",
     "email": "user@example.com",
     "profile": {
       "firstName": "John",

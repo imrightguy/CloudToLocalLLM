@@ -6,8 +6,8 @@ This directory contains the server-side authentication and authorization middlew
 
 ### 1. JWT Validation Middleware (`jwt-validation-middleware.ts`)
 
-Validates JWT tokens from Supabase Auth with the following features:
-- Integration with Supabase Auth JWKS endpoint
+Validates JWT tokens from Auth0 with the following features:
+- Integration with Auth0 JWKS endpoint
 - Token signature verification using Web Crypto API
 - Expiration checking with distinction between expired and invalid tokens
 - 5-minute validation result caching
@@ -293,25 +293,25 @@ app.listen(PORT, () => {
 ### Environment Variables
 
 ```bash
-# Supabase Auth Configuration
-SUPABASE_AUTH_DOMAIN=your-tenant.supabase-auth.com
+# Auth0 Configuration
+SUPABASE_AUTH_DOMAIN=your-tenant.auth0.com
 SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.com
-SUPABASE_AUTH_ISSUER=https://your-tenant.supabase-auth.com/
+SUPABASE_AUTH_ISSUER=https://your-tenant.auth0.com/
 
 # Server Configuration
 PORT=3000
 LOG_LEVEL=info
 ```
 
-### Supabase Auth Setup
+### Auth0 Setup
 
-1. Create an API in Supabase Auth dashboard
+1. Create an API in Auth0 dashboard
 2. Configure the audience (e.g., `https://api.cloudtolocalllm.com`)
 3. Add custom claims to tokens:
    - `https://cloudtolocalllm.com/tier` - User tier (free/premium/enterprise)
    - `https://cloudtolocalllm.com/permissions` - Array of permissions
 
-Example Supabase Auth Rule:
+Example Auth0 Rule:
 
 ```javascript
 function addCustomClaims(user, context, callback) {
@@ -343,7 +343,7 @@ function addCustomClaims(user, context, callback) {
 
 ### Token Validation
 
-- Verifies JWT signature using Supabase Auth public keys
+- Verifies JWT signature using Auth0 public keys
 - Checks token expiration
 - Validates issuer and audience
 - Caches validation results for 5 minutes
@@ -407,12 +407,12 @@ const premiumUserContext = { tier: UserTier.PREMIUM, /* ... */ };
 ### Common Issues
 
 1. **"Unable to retrieve public key"**
-   - Check Supabase Auth domain configuration
-   - Verify network connectivity to Supabase Auth
+   - Check Auth0 domain configuration
+   - Verify network connectivity to Auth0
    - Check JWKS endpoint is accessible
 
 2. **"Invalid signature"**
-   - Token may be from wrong Supabase Auth tenant
+   - Token may be from wrong Auth0 tenant
    - Token may be tampered with
    - Check audience and issuer configuration
 
@@ -434,5 +434,5 @@ const premiumUserContext = { tier: UserTier.PREMIUM, /* ... */ };
 4. **Monitor security alerts** - Set up real-time monitoring for brute force attacks
 5. **Regular audit reviews** - Review audit logs weekly for suspicious patterns
 6. **Rate limit by tier** - Enforce different limits based on user tier
-7. **Cache validation results** - Reduce Supabase Auth API calls with caching
+7. **Cache validation results** - Reduce Auth0 API calls with caching
 8. **Log everything** - Comprehensive logging helps with debugging and security

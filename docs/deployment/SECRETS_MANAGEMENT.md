@@ -21,7 +21,7 @@ Secrets are sensitive pieces of information, such as API keys, passwords, and ce
 | `GCP_PROJECT_ID` | Google Cloud Project ID | CI/CD |
 | `GCP_SA_KEY` | Service account JSON key for Google Cloud authentication | CI/CD |
 | `JWT_SECRET` | JWT secret for token signing | CI/CD |
-| `JWT_AUDIENCE` | Supabase Auth API Audience | CI/CD |
+| `JWT_AUDIENCE` | Auth0 API Audience | CI/CD |
 
 ## Obtaining Secrets
 
@@ -37,7 +37,7 @@ Secrets are sensitive pieces of information, such as API keys, passwords, and ce
 ### Authentication
 
 *   **`JWT_SECRET`**: A secure, randomly generated string for signing JWTs.
-*   **`JWT_AUDIENCE`**: Your Supabase Auth API audience.
+*   **`JWT_AUDIENCE`**: Your Auth0 API audience.
 
 ## Setting Up Secrets
 

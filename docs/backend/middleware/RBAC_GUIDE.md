@@ -225,15 +225,15 @@ if (
 
 When a request is authenticated, the `authorizeRBAC` middleware automatically assigns roles to the user based on:
 
-1. **Admin metadata** from Supabase Auth (if present)
-2. **Supabase Auth roles array** (if present)
+1. **Admin metadata** from Auth0 (if present)
+2. **Auth0 roles array** (if present)
 3. **User tier** (free, premium, enterprise)
 
 ```javascript
-// Example: User with Supabase Auth metadata
+// Example: User with Auth0 metadata
 {
   user: {
-    sub: 'supabase-auth|123',
+    sub: 'auth0|123',
     'https://cloudtolocalllm.com/user_metadata': {
       role: 'super_admin'
     }
@@ -244,7 +244,7 @@ When a request is authenticated, the `authorizeRBAC` middleware automatically as
 // Example: User with tier
 {
   user: {
-    sub: 'supabase-auth|456',
+    sub: 'auth0|456',
     'https://cloudtolocalllm.com/tier': 'premium'
   }
 }
@@ -465,7 +465,7 @@ Tests cover:
 ### User roles not assigned
 
 - Check if user is authenticated
-- Verify Supabase Auth metadata is present
+- Verify Auth0 metadata is present
 - Check user tier is set correctly
 
 ### Permission denied unexpectedly

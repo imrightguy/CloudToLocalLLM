@@ -137,12 +137,12 @@ Example:
 const query = `
   UPDATE users
   SET name = $1, nickname = $2
-  WHERE supabase-auth_id = $3
+  WHERE auth0_id = $3
 `;
 await pool.query(query, [name, nickname, userId]);
 
 // Unsafe - never do this
-const unsafeQuery = `UPDATE users SET name = '${name}' WHERE supabase-auth_id = '${userId}'`;
+const unsafeQuery = `UPDATE users SET name = '${name}' WHERE auth0_id = '${userId}'`;
 ```
 
 ## Security Features

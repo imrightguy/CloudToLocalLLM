@@ -24,7 +24,7 @@ High-level map of the major subsystems and their responsibilities.
 ## Trace 1: Client Bootstrap & Service Initialization
 
 **Title:** Application Bootstrap & Core Service Registration  
-**Description:** Flutter app startup sequence – initializes Sentry, Supabase, and core services, then builds the provider tree before rendering the UI.
+**Description:** Flutter app startup sequence – initializes Sentry, Auth0, and core services, then builds the provider tree before rendering the UI.
 
 ### Flow
 
@@ -34,8 +34,8 @@ Application Bootstrap Flow
 │   ├── WidgetsFlutterBinding.ensureInitialized()
 │   ├── SentryFlutter.init()                            <-- 1a
 │   │   └── options.dsn = AppConfig.sentryDsn
-│   ├── Supabase.initialize()                           <-- 1b
-│   │   └── url, anonKey from SupabaseConfig
+│   ├── Auth0.initialize()                           <-- 1b
+│   │   └── url, anonKey from Auth0Config
 │   └── _runAppWithSentry()
 │       └── runApp(CloudToLocalLLMApp)
 │           └── FutureProvider<AppBootstrapData>
@@ -45,7 +45,7 @@ Application Bootstrap Flow
 │                       └── setupServiceLocator()       <-- 1c
 │                           └── setupCoreServices()
 │                               ├── SessionStorageService
-│                               ├── SupabaseAuthService
+│                               ├── Auth0AuthService
 │                               ├── AuthService         <-- 1d, 1e
 │                               ├── LocalOllamaConnectionService
 │                               ├── ProviderDiscoveryService
@@ -61,7 +61,7 @@ Application Bootstrap Flow
 
 - **1a – Sentry Initialization**  
   `lib/main.dart:67`
-- **1b – Supabase Setup**  
+- **1b – Auth0 Setup**  
   `lib/main.dart:84`
 - **1c – Service Locator Setup**  
   `lib/bootstrap/bootstrapper.dart:24`
@@ -77,14 +77,14 @@ Application Bootstrap Flow
 ## Trace 2: User Authentication & Authenticated Services
 
 **Title:** User Authentication & Authenticated Services Loading  
-**Description:** Login flow from Supabase auth through to lazy registration of services that require an authenticated user.
+**Description:** Login flow from Auth0 auth through to lazy registration of services that require an authenticated user.
 
 ### Flow
 
 ```text
 User Authentication & Service Loading Flow
-├── Supabase Auth Client Initialization
-│   └── SupabaseAuthService.initialize()                <-- 2a
+├── Auth0 Client Initialization
+│   └── Auth0AuthService.initialize()                <-- 2a
 │
 ├── AuthService Setup
 │   ├── Listens to authStateChanges stream              <-- 2b
@@ -110,7 +110,7 @@ User Authentication & Service Loading Flow
 
 ### Key Locations
 
-- **2a – Supabase Auth Init**  
+- **2a – Auth0 Init**  
   `lib/services/supabase_auth_service.dart:43`
 - **2b – Auth State Listener**  
   `lib/services/auth_service.dart:47`

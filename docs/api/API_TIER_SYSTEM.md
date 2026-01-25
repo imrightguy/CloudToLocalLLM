@@ -27,7 +27,7 @@ The CloudToLocalLLM API now supports a tier-based architecture that provides dif
 
 ## Authentication & Tier Detection
 
-All API endpoints require authentication via Supabase Auth JWT tokens. User tier information is extracted from the token's metadata:
+All API endpoints require authentication via Auth0 JWT tokens. User tier information is extracted from the token's metadata:
 
 ```javascript
 // Tier information locations (in priority order)
@@ -92,10 +92,10 @@ Direct proxy to local Ollama instance for free tier users.
 **Example:**
 ```bash
 # Get available models
-GET /api/direct-proxy/supabase-auth|user123/ollama/api/tags
+GET /api/direct-proxy/auth0|user123/ollama/api/tags
 
 # Generate completion
-POST /api/direct-proxy/supabase-auth|user123/ollama/api/generate
+POST /api/direct-proxy/auth0|user123/ollama/api/generate
 Content-Type: application/json
 
 {
@@ -153,11 +153,11 @@ Start container-based proxy for premium/enterprise users.
   "success": true,
   "message": "Streaming proxy started successfully",
   "proxy": {
-    "proxyId": "proxy-supabase-auth|user123-1642234567890",
+    "proxyId": "proxy-auth0|user123-1642234567890",
     "status": "running",
     "createdAt": "2024-01-15T10:30:00.000Z",
     "directTunnel": false,
-    "endpoint": "https://api.cloudtolocalllm.online/proxy/supabase-auth|user123",
+    "endpoint": "https://api.cloudtolocalllm.online/proxy/auth0|user123",
     "userTier": "premium"
   }
 }
@@ -315,7 +315,7 @@ const response = await fetch(`/api/tunnel/${userId}/ollama/api/generate`, {
 
 1. **"Direct proxy access denied"**
    - Verify user is on free tier
-   - Check Supabase Auth metadata configuration
+   - Check Auth0 metadata configuration
    - Ensure proper authentication
 
 2. **"Desktop client not connected"**

@@ -41,7 +41,7 @@ This document describes the implementation of the admin user search and listing 
         "id": "user-uuid",
         "email": "user@example.com",
         "username": "username",
-        "supabase-auth_id": "supabase-auth|123",
+        "auth0_id": "auth0|123",
         "created_at": "2024-01-01T00:00:00Z",
         "last_login": "2024-01-15T00:00:00Z",
         "is_suspended": false,
@@ -93,7 +93,7 @@ This document describes the implementation of the admin user search and listing 
       "id": "user-uuid",
       "email": "user@example.com",
       "username": "username",
-      "supabase-auth_id": "supabase-auth|123",
+      "auth0_id": "auth0|123",
       "created_at": "2024-01-01T00:00:00Z",
       "last_login": "2024-01-15T00:00:00Z",
       "is_suspended": false,
@@ -220,7 +220,7 @@ This document describes the implementation of the admin user search and listing 
 ### User List Query
 ```sql
 SELECT 
-  u.id, u.email, u.username, u.supabase-auth_id,
+  u.id, u.email, u.username, u.auth0_id,
   u.created_at, u.last_login, u.is_suspended,
   u.suspended_at, u.suspension_reason, u.deleted_at,
   s.tier as subscription_tier, s.status as subscription_status,

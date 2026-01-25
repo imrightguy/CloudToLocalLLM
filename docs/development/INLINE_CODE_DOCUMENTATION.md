@@ -428,7 +428,7 @@ class TunnelService extends ChangeNotifier {
 ///
 /// Parameters:
 /// - [serverUrl]: WebSocket URL of the streaming proxy
-/// - [authToken]: JWT authentication token from Supabase Auth
+/// - [authToken]: JWT authentication token from Auth0
 /// - [config]: Optional custom configuration; uses default if not provided
 ///
 /// Returns: Future that completes when connection is established

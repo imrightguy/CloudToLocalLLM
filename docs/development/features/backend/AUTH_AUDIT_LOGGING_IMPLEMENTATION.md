@@ -138,7 +138,7 @@ await logLoginSuccess({
   userId: 'user-123',
   ipAddress: '192.168.1.100',
   userAgent: 'Mozilla/5.0...',
-  details: { provider: 'supabase-auth' }
+  details: { provider: 'auth0' }
 });
 
 // Log failed login

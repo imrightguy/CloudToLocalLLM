@@ -188,7 +188,7 @@ Error responses include:
 SELECT u.*, COALESCE(up.preferences, '{}'::jsonb) as preferences
 FROM users u
 LEFT JOIN user_preferences up ON u.id = up.user_id
-WHERE u.supabase-auth_id = $1
+WHERE u.auth0_id = $1
 ```
 
 ### Profile Update
@@ -201,14 +201,14 @@ WHERE u.supabase-auth_id = $1
 INSERT INTO user_preferences (user_id, preferences, created_at, updated_at)
 SELECT u.id, $1::jsonb, NOW(), NOW()
 FROM users u
-WHERE u.supabase-auth_id = $2
+WHERE u.auth0_id = $2
 ON CONFLICT (user_id) DO UPDATE
 SET preferences = $1::jsonb, updated_at = NOW()
 ```
 
 ## Performance Considerations
 
-1. **Efficient Queries** - Uses indexed lookups on supabase-auth_id
+1. **Efficient Queries** - Uses indexed lookups on auth0_id
 2. **Connection Pooling** - Leverages centralized database pool
 3. **Transaction Support** - Ensures data consistency
 4. **Error Handling** - Proper cleanup on failures

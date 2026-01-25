@@ -256,10 +256,10 @@ GET /api/admin/payments/methods/:userId
 
 ## Testing with cURL
 
-### Get JWT Token (Supabase Auth)
+### Get JWT Token (Auth0)
 
 ```bash
-# Login via Supabase Auth and extract token from callback
+# Login via Auth0 and extract token from callback
 # Token format: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 

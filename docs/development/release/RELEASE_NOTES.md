@@ -202,7 +202,7 @@ Complete production-ready multi-tenant streaming architecture with user isolatio
 - **Audit Process**: Periodic security audits and assessments
 
 ### **Recent Security Updates**
-- **v3.1.2**: Updated Supabase Auth integration with enhanced PKCE support
+- **v3.1.2**: Updated Auth0 integration with enhanced PKCE support
 - **v3.1.1**: Fixed JWT token validation vulnerability
 - **v3.0.1**: Enhanced container security with non-root execution
 - **v2.5.2**: Updated SSL/TLS configuration for better security

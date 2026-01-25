@@ -97,7 +97,7 @@ app.use('/api/admin', adminAuth(['view_users']));
 
 **File**: `jwt-validator.js`
 
-JWT token validation for Supabase Auth.
+JWT token validation for Auth0.
 
 ### Standard Authentication
 

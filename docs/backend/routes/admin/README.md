@@ -23,7 +23,7 @@ Provides comprehensive user management capabilities including:
 **Features:**
 
 - Pagination support (50 users per page, max 100)
-- Search by email, username, user ID, or Supabase Auth ID
+- Search by email, username, user ID, or Auth0 ID
 - Filter by subscription tier, account status, and date range
 - Sort by multiple fields (created_at, last_login, email, username)
 - Automatic prorated charge calculation for upgrades

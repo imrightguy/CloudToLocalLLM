@@ -4,12 +4,12 @@ This document outlines the complete user flows that need to be tested for the SS
 
 ## Test Scenario 1: User Login and Tunnel Connection Establishment
 
-**Objective:** Verify that users can log in via Supabase Auth and establish a tunnel connection.
+**Objective:** Verify that users can log in via Auth0 and establish a tunnel connection.
 
 **Steps:**
 1. User launches the application
 2. User clicks "Login" button
-3. Supabase Auth OAuth flow is initiated
+3. Auth0 OAuth flow is initiated
 4. User enters credentials and authenticates
 5. Application receives JWT token
 6. TunnelService is initialized with auth token

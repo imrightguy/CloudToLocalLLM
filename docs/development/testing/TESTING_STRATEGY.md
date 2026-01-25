@@ -17,7 +17,7 @@ This document outlines the strategy to improve test coverage and reliability for
     *   Load application URL.
     *   Verify title and initial landing page render.
 2.  **Authentication:**
-    *   Perform Mock Login (bypass Supabase Auth UI if possible, or use test credentials).
+    *   Perform Mock Login (bypass Auth0 UI if possible, or use test credentials).
     *   Verify redirection to Dashboard/Chat.
 3.  **Settings:**
     *   Navigate to Settings page.

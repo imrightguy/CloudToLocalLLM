@@ -18,7 +18,7 @@ Services in this directory follow these patterns:
 #### AuthService
 - **Purpose**: Authentication and authorization management
 - **Features**:
-  - Supabase Auth OAuth2 integration
+  - Auth0 OAuth2 integration
   - JWT token management with automatic refresh
   - Secure token storage via flutter_secure_storage
   - User session management
@@ -150,7 +150,7 @@ void _setupDio() {
 
 ## Authentication Flow
 
-1. User initiates login → Supabase Auth OAuth flow
+1. User initiates login → Auth0 OAuth flow
 2. Callback handled by `/callback` route
 3. JWT tokens stored in flutter_secure_storage
 4. AuthService notifies listeners of auth state change

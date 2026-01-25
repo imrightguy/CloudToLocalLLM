@@ -163,13 +163,13 @@ In addition to MCP servers, I will leverage powerful command-line interface (CLI
     *   Always specify `--release` flag for production builds.
 
 *   **Authentication**:
-    *   Use Supabase Auth for web applications (no GCIP/Google Sign-In).
+    *   Use Auth0 for web applications (no GCIP/Google Sign-In).
     *   Use `dart:js_interop` for JavaScript interop (replaces deprecated `js` package).
-    *   Implement platform-specific auth services (Supabase AuthWebService for web, others for mobile/desktop).
+    *   Implement platform-specific auth services (Auth0WebService for web, others for mobile/desktop).
 
 *   **Web-Specific**:
     *   Use `package:web/web.dart` for web platform detection and DOM manipulation.
-    *   Bridge JavaScript SDKs (like Supabase Auth) through custom bridge files (`supabase-auth-bridge.js`).
+    *   Bridge JavaScript SDKs (like Auth0) through custom bridge files (`auth0-bridge.js`).
     *   Handle redirect callbacks properly for OAuth flows.
 
 ### E. Version Management
@@ -229,7 +229,7 @@ In addition to MCP servers, I will leverage powerful command-line interface (CLI
       ```
 
 *   **API Development**:
-    *   Use Express.js middleware for authentication (e.g., `express-oauth2-jwt-bearer` for Supabase Auth).
+    *   Use Express.js middleware for authentication (e.g., `express-oauth2-jwt-bearer` for Auth0).
     *   Implement proper CORS configuration for web clients.
     *   Use environment variables for configuration (domain, audience, client IDs).
     *   Validate JWT tokens before processing requests.

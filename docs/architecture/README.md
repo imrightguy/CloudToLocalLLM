@@ -14,16 +14,10 @@ This directory contains comprehensive system architecture documentation for Clou
 - **[Unified Flutter Native System Tray](UNIFIED_FLUTTER_NATIVE_SYSTEM_TRAY.md)** - Desktop integration architecture
 - **[Unified Flutter Web](UNIFIED_FLUTTER_WEB.md)** - Web platform architecture
 
-### System Analysis & Planning
-- **[Architecture and Optimization Plan](architecture-and-optimization-plan.md)** - System optimization strategies
+### System Analysis & Codemap
 - **[Architecture Codemap](architecture-codemap.md)** - Code organization and structure
 - **[User Flow](user-flow.json)** - User interaction flows and patterns
-
-### Integration Plans
-- **[Chisel Integration Plan](CHISEL_INTEGRATION_PLAN.md)** - Chisel tunnel integration strategy
-- **[LangChain Integration Plan](LANGCHAIN_INTEGRATION_PLAN.md)** - AI framework integration
 - **[Tunnel Feature Analysis](TUNNEL_FEATURE_ANALYSIS.md)** - Tunnel system capabilities analysis
-- **[Third Party Tunnel Evaluation](THIRD_PARTY_TUNNEL_EVALUATION.md)** - Alternative tunnel solutions evaluation
 
 ## 🔗 Related Documentation
 

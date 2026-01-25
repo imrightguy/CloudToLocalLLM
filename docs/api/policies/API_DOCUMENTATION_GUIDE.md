@@ -194,7 +194,7 @@ curl -X POST https://api.cloudtolocalllm.online/tunnels \
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "supabase-auth|123456",
+  "userId": "auth0|123456",
   "name": "My Tunnel",
   "status": "created",
   "endpoints": [
@@ -325,7 +325,7 @@ GET /admin/users?page=1&limit=20&sort=createdAt&order=desc
 List endpoints support filtering with query parameters:
 
 ```
-GET /tunnels?status=connected&userId=supabase-auth|123456
+GET /tunnels?status=connected&userId=auth0|123456
 ```
 
 ## Sorting

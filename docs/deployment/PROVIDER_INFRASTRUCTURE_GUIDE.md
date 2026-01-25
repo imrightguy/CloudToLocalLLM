@@ -32,7 +32,7 @@ CloudToLocalLLM is built with provider independence in mind:
 ### Authentication Flexibility
 - **Current**: Auth0 (cloud-agnostic)
 - **Supported**: Any OIDC-compatible provider
-- **Future Options**: Supabase Auth, Firebase Auth, custom solutions
+- **Future Options**: Auth0, Firebase Auth, custom solutions
 
 ### Container Strategy
 - Docker Hub registry (provider-neutral)

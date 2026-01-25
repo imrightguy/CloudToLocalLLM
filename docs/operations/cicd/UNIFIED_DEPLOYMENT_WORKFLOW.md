@@ -34,9 +34,9 @@ graph LR
    - `build_streaming`: WebSocket proxy service
  
 3. **Deployment Jobs**
-   - `deploy_application`: AWS EKS deployment with health verification
-   - `validate_tunnel_connectivity`: End-to-end tunnel health checks
-   - `cloudflared_health_check`: Cloudflare API status validation
+    - `deploy`: Azure VM deployment with health verification
+    - `purge_cloudflare`: Cache clearing for latest web deployment
+
  
 4. **Summary Job** (`pipeline_metrics`)
    - Comprehensive status reporting
@@ -90,32 +90,33 @@ git push origin main
 ```
  
 ## Multi-Platform Builds
- 
-### Cloud Services (AWS EKS)
- 
+
+### Cloud Services (Azure)
+
 **Conditional Building**: Only builds when GHCR check fails or files changed.
- 
+
 **Services Built**:
 - **Web Service**: Flutter web app with Nginx
 - **API Backend**: Express.js API server
 - **Streaming Proxy**: WebSocket proxy service
 - **Postgres**: Customized database container
- 
+
 **Docker Registry**: GitHub Container Registry (GHCR) - `ghcr.io/cloudtolocalllm-online/cloudtolocalllm`
- 
+
 ## Deployment Process
- 
+
 ### Cloud Deployment
- 
-**Target**: AWS EKS (current production infrastructure)
- 
+
+**Target**: Azure Virtual Machine (Docker Swarm)
+
 **Process**:
-1. AWS authentication via OIDC and IAM roles
-2. Configure kubectl for EKS cluster
-3. Apply secret updates (e.g., Cloudflare Tunnel Token)
-4. Execute `scripts/deploy-in-cluster.sh`
-5. Wait for rollout completion
-6. Health check verification across all endpoints
+1. Azure authentication via Service Principal
+2. VM power state verification (starts VM if stopped)
+3. Secure environment variable injection via Base64 encoding
+4. Execute deployment script via `az vm run-command invoke`
+5. Pull latest images from GHCR and update Docker Stack
+6. Purge Cloudflare cache
+
  
 ## Deployment Summary
  
@@ -144,14 +145,14 @@ gh run view <run-id>
  
 1. **Analysis Failures**: Check git diff logs in the Analysis job.
 2. **Build Failures**: Verify Docker context in `services/` and `config/docker/`.
-3. **Deployment Failures**: Check EKS connectivity and `scripts/deploy-in-cluster.sh` output.
+3. **Deployment Failures**: Check Azure connectivity and `scripts/vm-deploy.sh` output.
  
 ## Conclusion
  
 The Unified Deployment Workflow provides:
 - **Simplified Architecture**: Single workflow for all cloud services
 - **Intelligent Skipping**: SHA-based GHCR tag checking saves time and compute
-- **AWS Centeric**: Native integration with AWS EKS via OIDC
+- **Azure Centric**: Native integration with Azure CLI via Service Principal
 - **Better Visibility**: Complete status reporting in one view
  
 This system ensures that CloudToLocalLLM is deployed reliably and efficiently with every change to the main branch.

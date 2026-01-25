@@ -10635,8 +10635,8 @@ All notable changes to this project will be documented in this file.
 ## v10.1.147
 
 ### Features
-*   Migrate from Supabase to Auth0 PKCE auth pipeline (bc51953)
-*   Migrate to Auth0 PKCE stateless JWT pipeline (remove Supabase, 50% LOC reduction, mutex races fixed, backend stubs) (43f1cb9)
+*   Migrate from Auth0 to Auth0 PKCE auth pipeline (bc51953)
+*   Migrate to Auth0 PKCE stateless JWT pipeline (remove Auth0, 50% LOC reduction, mutex races fixed, backend stubs) (43f1cb9)
 
 ### Bug Fixes
 *   Resolve grep option error in build pipeline (485f36c)
@@ -10680,8 +10680,8 @@ All notable changes to this project will be documented in this file.
 ## 10.0.0
 
 ### Features
-* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Supabase, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
-* Migrated from Supabase to Auth0 PKCE auth pipeline.
+* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Auth0, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
+* Migrated from Auth0 to Auth0 PKCE auth pipeline.
 * Updated cloudflared error 1033 SOP v1.5.0 and secure diagnostic script.
 * Enhanced Cloudflare API integration for tunnel diagnostics, DNS automation, and implementation plan.
 
@@ -10721,7 +10721,7 @@ All notable changes to this project will be documented in this file.
 ## 9.0.0 (Unreleased)
 
 ### Features
-* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Supabase, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
+* **auth**: Migrated to Auth0 PKCE stateless JWT pipeline, removing Auth0, resulting in a 50% LOC reduction, fixing mutex races, and adding backend stubs.
 * Updated cloudflared error 1033 SOP v1.5.0 and secure diagnostic script.
 
 ### Bug Fixes
