@@ -558,58 +558,41 @@ app.use((error, req, res, _next) => {
   });
 });
 
-// Conversation routes - implemented directly due to router mounting issues
-const conversationRouter = createConversationRoutes(null, logger); // Initialized with null pool, updated below
+// Conversation routes - defined as a placeholder, will be initialized in initializeTunnelSystem
+let conversationRouter = null;
 
-app.get('/conversations/', ...authenticateJWT, async (req, res) => {
-  try {
-    const userId = req.auth?.payload?.sub || req.user?.sub;
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ error: 'Unauthorized', message: 'User ID not found in token' });
+// Register versioned conversations route after initialization
+async function registerConversationRoutes(migrator) {
+  conversationRouter = createConversationRoutes(migrator, logger);
+  app.use('/api/conversations', ...authenticateJWT, conversationRouter);
+  app.use('/conversations', ...authenticateJWT, conversationRouter);
+  logger.info('Conversation routes registered with authentication');
+}
+
+// 404 handler (moved below route registrations)
+function setupFinalHandlers() {
+  app.use((req, res, next) => {
+    if (req.path === '/health' || req.path === '/healthz') {
+      return next();
     }
+    res.status(404).json({ error: 'Not found' });
+  });
 
-    if (!dbMigrator || !dbMigrator.pool) {
-      return res.status(503).json({
-        error: 'Service Unavailable',
-        message: 'Database not initialized',
-      });
-    }
+  // Sentry Error Handler
+  Sentry.setupExpressErrorHandler(app);
 
-    const client = await dbMigrator.pool.connect();
-    try {
-      const { rows } = await client.query(
-        `SELECT id, title, model, created_at, updated_at, metadata
-         FROM conversations
-         WHERE user_id = $1
-         ORDER BY updated_at DESC`,
-        [userId],
-      );
-
-      res.json({ conversations: rows });
-    } finally {
-      client.release();
-    }
-  } catch (error) {
-    logger.error('Failed to get conversations', { error: error.message });
+  // Error handling middleware
+  app.use((error, req, res, _next) => {
+    logger.error('Unhandled error:', error);
     res.status(500).json({
-      error: 'Internal Server Error',
-      message: 'Failed to get conversations',
+      error: 'Internal server error',
+      message:
+        process.env.NODE_ENV === 'development'
+          ? error.message
+          : 'Something went wrong',
     });
-  }
-});
-
-// Register versioned conversations route
-app.use('/api/conversations', conversationRouter);
-
-// 404 handler
-app.use((req, res, next) => {
-  if (req.path === '/health' || req.path === '/healthz') {
-    return next(); // Pass to health handlers if they are after this
-  }
-  res.status(404).json({ error: 'Not found' });
-});
+  });
+}
 
 // Initialize Tunnel System
 let authService = null;
@@ -629,11 +612,6 @@ async function initializeTunnelSystem(retries = 10) {
 
     // Initialize application database
     dbMigrator = new DatabaseMigratorPG();
-    
-    // Update conversation router with the migrator
-    if (conversationRouter && conversationRouter.setDbMigrator) {
-        conversationRouter.setDbMigrator(dbMigrator);
-    }
 
     // Add retry logic for THE ENTIRE database startup sequence
     let connected = false;
@@ -671,6 +649,12 @@ async function initializeTunnelSystem(retries = 10) {
 
     // Set dbMigrator for health endpoint now that it's initialized
     setDbMigrator(dbMigrator);
+
+    // Register conversation routes now that database is ready
+    await registerConversationRoutes(dbMigrator);
+
+    // Setup final handlers (404, Sentry, Error)
+    setupFinalHandlers();
 
     // Register database with health check service
     healthCheckService.registerDatabase(dbMigrator);
@@ -786,6 +770,7 @@ async function initializeTunnelSystem(retries = 10) {
     logger.info('WebSocket tunnel system ready');
 
     // Register custom shutdown handler with graceful shutdown manager
+    isInitializing = false;
     shutdownManager.shutdown = async () => {
       await gracefulShutdown();
     };
