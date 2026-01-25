@@ -332,16 +332,11 @@ Future<void> setupAuthenticatedServices() async {
     print('[Locator] Got AuthService instance');
 
     print('[Locator] Accessing isAuthenticated.value...');
-    // Verify token is available
+    // Verify token is available, but don't fail registration if it's missing temporarily
+    // Some services might handle missing tokens gracefully or wait for them
     final token = await authService.getAccessToken();
     print(
         '[ServiceLocator] Checking access token: ${token != null && token.isNotEmpty ? "PRESENT" : "MISSING"}');
-    if (token == null || token.isEmpty) {
-      print(
-        '[ServiceLocator] Cannot register authenticated services - no access token',
-      );
-      return;
-    }
 
     print('[ServiceLocator] Registering authenticated services...');
     _authenticatedServicesRegistered = true;

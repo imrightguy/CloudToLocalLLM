@@ -268,6 +268,24 @@ class Auth0AuthProvider implements AuthProvider {
 
   @override
   Future<String?> getAccessToken() async {
+    try {
+      if (kIsWeb) {
+        // Prefer the Auth0 SDK for token retrieval on Web as it handles rotation/caching
+        final auth0Web = Auth0Web(_domain, _clientId);
+        final credentials = await auth0Web.credentials().timeout(
+              const Duration(seconds: 3),
+              onTimeout: () =>
+                  throw TimeoutException('SDK credentials timeout'),
+            );
+        if (credentials.accessToken.isNotEmpty) {
+          return credentials.accessToken;
+        }
+      }
+    } catch (e) {
+      debugPrint(' [Auth0] SDK getAccessToken error/timeout: $e');
+    }
+
+    // Fallback to manual storage check
     String? token;
     if (kIsWeb) {
       token = web.window.localStorage.getItem('auth_access_token');
@@ -277,6 +295,7 @@ class Auth0AuthProvider implements AuthProvider {
 
     if (token != null && await _isTokenValid(token)) return token;
 
+    // Auto refresh stub - implement full refresh logic
     String? refreshToken;
     if (kIsWeb) {
       refreshToken = web.window.localStorage.getItem('auth_refresh_token');
