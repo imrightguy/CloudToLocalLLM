@@ -19,12 +19,7 @@ class Auth0AuthProvider implements AuthProvider {
   static const String _scheme = 'cloudtolocalllm';
 
   final Auth0 _auth0 = Auth0(_domain, _clientId);
-  final FlutterSecureStorage _storage = const FlutterSecureStorage(
-    webOptions: WebOptions(
-      dbName: 'auth_storage',
-      publicKey: 'auth_key',
-    ),
-  );
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   final BehaviorSubject<bool> _authSubject = BehaviorSubject.seeded(false);
   final Mutex _mutex = Mutex();
 
@@ -63,12 +58,22 @@ class Auth0AuthProvider implements AuthProvider {
 
   Future<void> _loadFromStorage() async {
     try {
+      debugPrint(' [Auth0] Loading session from storage...');
       final accessToken = await _storage.read(key: 'access_token');
-      if (accessToken != null && await _isTokenValid(accessToken)) {
-        final userJson = await _storage.read(key: 'user_data');
-        if (userJson != null) {
-          _currentUser = UserModel.fromJson(json.decode(userJson));
-          _authSubject.add(true);
+      debugPrint(' [Auth0] Access token found: ${accessToken != null}');
+
+      if (accessToken != null) {
+        bool isValid = await _isTokenValid(accessToken);
+        debugPrint(' [Auth0] Token valid: $isValid');
+
+        if (isValid) {
+          final userJson = await _storage.read(key: 'user_data');
+          if (userJson != null) {
+            _currentUser = UserModel.fromJson(json.decode(userJson));
+            _authSubject.add(true);
+            debugPrint(
+                ' [Auth0] Session successfully restored for user: ${_currentUser?.email}');
+          }
         }
       }
     } catch (e) {
@@ -144,6 +149,7 @@ class Auth0AuthProvider implements AuthProvider {
   }
 
   Future<void> _storeCredentials(Credentials credentials) async {
+    debugPrint(' [Auth0] Persisting credentials to storage...');
     await _storage.write(key: 'access_token', value: credentials.accessToken);
     await _storage.write(key: 'id_token', value: credentials.idToken);
 
@@ -162,6 +168,7 @@ class Auth0AuthProvider implements AuthProvider {
       await _storage.write(
           key: 'refresh_token', value: credentials.refreshToken);
     }
+    debugPrint(' [Auth0] Storage persistence complete');
   }
 
   Future<UserModel> _getUserFromIdToken(String idToken) async {
