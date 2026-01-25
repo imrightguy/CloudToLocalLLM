@@ -38,14 +38,11 @@ class Auth0AuthProvider implements AuthProvider {
         final auth0Web = Auth0Web(_domain, _clientId);
 
         // onLoad() is REQUIRED on Web to initialize the internal Auth0Client.
-        // If this is not called, subsequent calls to loginWithRedirect will fail
-        // with "Auth0Client has not been initialized".
         // We use a timeout to prevent iframe-based silent auth from hanging the app.
         await auth0Web.onLoad().timeout(
           const Duration(seconds: 5),
           onTimeout: () {
-            debugPrint(
-                ' [Auth0] onLoad() timed out (normal if no active session or 3rd party cookies blocked)');
+            debugPrint(' [Auth0] onLoad() timed out during init');
             return null;
           },
         );
@@ -100,10 +97,10 @@ class Auth0AuthProvider implements AuthProvider {
     final expectedIssuerNoSlash = 'https://$domain';
     final expectedAudience = params['audience'] as String?;
 
-    // Check issuer (handle both with and without trailing slash)
+    // Check issuer
     if (iss != expectedIssuer && iss != expectedIssuerNoSlash) return false;
 
-    // Check audience (can be string or list for API tokens)
+    // Check audience
     if (expectedAudience != null) {
       final aud = payload['aud'];
       if (aud is String) {
@@ -128,7 +125,6 @@ class Auth0AuthProvider implements AuthProvider {
             scopes: {'openid', 'profile', 'email', 'offline_access'},
             redirectUrl: '${Uri.base.origin}/callback',
           );
-          // The page will redirect, so code execution stops here for Web
           return;
         }
 
@@ -153,7 +149,6 @@ class Auth0AuthProvider implements AuthProvider {
     await _storage.write(key: 'access_token', value: credentials.accessToken);
     await _storage.write(key: 'id_token', value: credentials.idToken);
 
-    // Use the ID token to get user data for storage
     final user = await _getUserFromIdToken(credentials.idToken);
     final userData = {
       'sub': user.id,
@@ -202,7 +197,6 @@ class Auth0AuthProvider implements AuthProvider {
   Future<String?> getAccessToken() async {
     String? token = await _storage.read(key: 'access_token');
     if (token != null && await _isTokenValid(token)) return token;
-    // Auto refresh stub - implement full refresh logic
     final refreshToken = await _storage.read(key: 'refresh_token');
     if (refreshToken != null) {
       token = await _refreshToken(refreshToken);
@@ -236,7 +230,9 @@ class Auth0AuthProvider implements AuthProvider {
   Future<bool> handleCallback({String? url}) async {
     if (kIsWeb) {
       try {
-        // If initialize() already processed the callback, just return true
+        debugPrint(
+            ' [Auth0] handleCallback() called. URL: ${Uri.base.toString()}');
+
         if (_currentUser != null) {
           debugPrint(
               ' [Auth0] Callback already processed via existing session');
@@ -244,8 +240,9 @@ class Auth0AuthProvider implements AuthProvider {
         }
 
         debugPrint(' [Auth0] Processing Web callback via onLoad()...');
-        // Use Auth0Web to handle the redirect callback
-        final auth0Web = Auth0Web(_domain, _clientId);
+        final auth0Web = Auth0Web(_domain, _clientId,
+            redirectUrl: '${Uri.base.origin}/callback');
+
         final credentials = await auth0Web.onLoad();
         if (credentials != null) {
           debugPrint(' [Auth0] Callback success: tokens received');
@@ -254,14 +251,13 @@ class Auth0AuthProvider implements AuthProvider {
           _authSubject.add(true);
           return true;
         }
-        debugPrint(' [Auth0] Callback finished: no credentials found');
+        debugPrint(' [Auth0] Callback finished: onLoad() returned null');
         return false;
       } catch (e) {
         debugPrint(' [Auth0] Callback error: $e');
         return false;
       }
     }
-    // PKCE webview handles callback internally; desktop via main args
     return true;
   }
 
