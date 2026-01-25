@@ -396,7 +396,12 @@ Future<void> setupAuthenticatedServices() async {
     // Ollama service - requires authentication token
     print('[ServiceLocator] Initializing OllamaService...');
     final ollamaService = OllamaService(authService: authService);
-    await ollamaService.initialize();
+    try {
+      await ollamaService.initialize().timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: OllamaService initialization failed: $e');
+    }
     serviceLocator.registerSingleton<OllamaService>(ollamaService);
 
     // User container service - requires authentication token
@@ -409,7 +414,14 @@ Future<void> setupAuthenticatedServices() async {
     final langchainIntegrationService = LangChainIntegrationService(
       discoveryService: providerDiscoveryService,
     );
-    await langchainIntegrationService.initializeProviders();
+    try {
+      await langchainIntegrationService
+          .initializeProviders()
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: LangChainIntegrationService initialization failed: $e');
+    }
     serviceLocator.registerSingleton<LangChainIntegrationService>(
       langchainIntegrationService,
     );
@@ -420,7 +432,14 @@ Future<void> setupAuthenticatedServices() async {
       discoveryService: providerDiscoveryService,
       langchainService: langchainIntegrationService,
     );
-    await llmProviderManager.initialize();
+    try {
+      await llmProviderManager
+          .initialize()
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: LLMProviderManager initialization failed: $e');
+    }
     serviceLocator.registerSingleton<LLMProviderManager>(llmProviderManager);
 
     // Connection Manager - requires authentication for tunnel/cloud connections
@@ -430,7 +449,12 @@ Future<void> setupAuthenticatedServices() async {
       authService: authService,
       ollamaService: ollamaService,
     );
-    await connectionManager.initialize();
+    try {
+      await connectionManager.initialize().timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: ConnectionManagerService initialization failed: $e');
+    }
     serviceLocator
         .registerSingleton<ConnectionManagerService>(connectionManager);
 
@@ -438,7 +462,14 @@ Future<void> setupAuthenticatedServices() async {
     final langchainOllamaService = LangChainOllamaService(
       connectionManager: connectionManager,
     );
-    await langchainOllamaService.initialize();
+    try {
+      await langchainOllamaService
+          .initialize()
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: LangChainOllamaService initialization failed: $e');
+    }
     serviceLocator.registerSingleton<LangChainOllamaService>(
       langchainOllamaService,
     );
@@ -447,12 +478,24 @@ Future<void> setupAuthenticatedServices() async {
     final langchainRagService = LangChainRAGService(
       ollamaService: langchainOllamaService,
     );
-    await langchainRagService.initialize();
+    try {
+      await langchainRagService
+          .initialize()
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: LangChainRAGService initialization failed: $e');
+    }
     serviceLocator.registerSingleton<LangChainRAGService>(langchainRagService);
 
     // LLM Audit service - requires authentication
     final llmAuditService = LLMAuditService(authService: authService);
-    await llmAuditService.initialize();
+    try {
+      await llmAuditService.initialize().timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: LLMAuditService initialization failed: $e');
+    }
     serviceLocator.registerSingleton<LLMAuditService>(llmAuditService);
 
     // Streaming chat service - requires connection manager
@@ -467,7 +510,14 @@ Future<void> setupAuthenticatedServices() async {
     print('[ServiceLocator] Initializing UnifiedConnectionService...');
     final unifiedConnectionService = UnifiedConnectionService();
     unifiedConnectionService.setConnectionManager(connectionManager);
-    await unifiedConnectionService.initialize();
+    try {
+      await unifiedConnectionService
+          .initialize()
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: UnifiedConnectionService initialization failed: $e');
+    }
     serviceLocator.registerSingleton<UnifiedConnectionService>(
       unifiedConnectionService,
     );
