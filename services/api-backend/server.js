@@ -295,9 +295,9 @@ const monitoringRouter = createMonitoringRoutes(sshProxy, logger);
 // API Routes
 // Register routes both with /api prefix (for other subdomains) and without (for api subdomain)
 
-function registerRoutes(path, router) {
-  app.use(`/api${path}`, router);
-  app.use(path, router);
+function registerRoutes(path, ...middlewares) {
+  app.use(`/api${path}`, ...middlewares);
+  app.use(path, ...middlewares);
 }
 
 // Service version endpoint (no auth required)

@@ -43,11 +43,23 @@ export const checkJwt = (req, res, next) => {
     });
   }
 
-  return auth({
+  const authHandler = auth({
     audience: AUTH0_AUDIENCE,
     issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
     tokenSigningAlg: 'RS256',
-  })(req, res, next);
+  });
+
+  return authHandler(req, res, (err) => {
+    if (err) {
+      logger.warn(' [Auth] JWT verification failed', {
+        error: err.message,
+        path: req.path,
+        token: req.headers.authorization ? 'present' : 'missing',
+      });
+      return next(err);
+    }
+    next();
+  });
 };
 
 // Use AuthService for session synchronization and revocation checks
@@ -83,25 +95,24 @@ export async function syncSession(req, res, next) {
       return next();
     }
     
+    // Attach token payload to req.user for backward compatibility
+    if (req.auth && req.auth.payload) {
+      req.user = req.auth.payload;
+      req.userId = req.auth.payload.sub;
+    }
+
     // Fallback if authService is not available
     if (!authService) {
-      req.user = req.auth?.payload;
-      req.userId = req.auth?.payload?.sub;
       return next();
     }
 
     await ensureAuthServiceInitialized();
 
-    // Verify user info is in token
-    const userId = req.auth?.payload?.sub;
+    const userId = req.userId || req.auth?.payload?.sub;
     if (!userId) {
       logger.warn(' [Auth] No sub claim in token');
       return res.status(401).json({ error: 'Invalid token: missing sub' });
     }
-
-    // Attach to request
-    req.userId = userId;
-    req.user = req.auth.payload;
 
     // Optional: Synchronize session with database
     // We don't want to block every single request if the database is slow
@@ -114,8 +125,6 @@ export async function syncSession(req, res, next) {
       
       if (!result.success) {
         logger.warn(' [Auth] Session sync failed', { userId, reason: result.error });
-        // Don't 401 if it's just a sync failure and we have a valid JWT
-        // unless we want strict session tracking
       }
     } catch (syncError) {
       logger.error(' [Auth] Session sync error or timeout (continuing)', { 
@@ -130,67 +139,6 @@ export async function syncSession(req, res, next) {
     res.status(401).json({ error: 'Authentication failed' });
   }
 }
-    
-    if (!authService) {
-      logger.debug(' [Auth] Skipping syncSession: authService not configured');
-      req.user = req.auth?.payload;
-      req.userId = req.auth?.payload?.sub;
-      return next();
-    }
-
-    await ensureAuthServiceInitialized();
-
-    // auth() middleware from express-oauth2-jwt-bearer populates req.auth
-    const tokenPayload = req.auth.payload;
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!tokenPayload || !token) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'No validated token payload found',
-      });
-    }
-
-    const userId = tokenPayload.sub;
-
-    // 1. Rigorous session integrity check against database
-    // This allows for immediate token revocation via the is_active flag
-    const isActive = await authService.isTokenActive(userId, token);
-
-    if (!isActive) {
-      // If no active session found, we might want to auto-sync it if it's a fresh valid login
-      // But per requirements, we want synchronized validation.
-      // For now, let's auto-sync if it's the first time we see this valid JWT.
-      const session = await authService.syncSession(tokenPayload, token, req);
-      if (!session || !session.is_active) {
-        logger.warn(
-          ` [Auth] Access denied: Session revoked or inactive for user ${userId}`,
-        );
-        return res.status(401).json({
-          error: 'Unauthorized',
-          code: 'SESSION_REVOKED',
-          message: 'Your session has been revoked or is no longer active.',
-        });
-      }
-    } else {
-      // Update last activity for existing session
-      await authService.syncSession(tokenPayload, token, req);
-    }
-
-    // Attach user info for convenience
-    req.user = tokenPayload;
-    req.userId = userId;
-
-    next();
-  } catch (error) {
-    logger.error(' [Auth] Session synchronization failed', {
-      error: error.message,
-      userId: req.auth?.payload?.sub,
-    });
-    next(error);
-  }
-}
 
 /**
  * Optional authentication middleware
@@ -202,20 +150,23 @@ export async function optionalAuth(req, res, next) {
     return next();
   }
 
-  // Use checkJwt but handle failure gracefully
-  checkJwt(req, res, (err) => {
+  // Use checkJwt but handle failure gracefully without sending response
+  // We manually call the checkJwt internal handler
+  const authHandler = auth({
+    audience: AUTH0_AUDIENCE,
+    issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
+    tokenSigningAlg: 'RS256',
+  });
+
+  authHandler(req, res, (err) => {
     if (err) {
-      logger.debug(' [Auth] Optional auth failed verification:', err.message);
+      logger.debug(' [Auth] Optional auth failed verification (skipping):', err.message);
       return next();
     }
-    // If JWT is valid, also try to sync/check session but don't block
+    
+    // If JWT is valid, also try to sync/check session but don't block on error
     syncSession(req, res, (syncErr) => {
-      if (syncErr) {
-        logger.debug(
-          ' [Auth] Optional auth session sync failed:',
-          syncErr.message,
-        );
-      }
+      // Ignore sync errors in optional auth
       next();
     });
   });
@@ -252,10 +203,11 @@ export const authenticateJWT = [
  * @returns {string} User ID from JWT token
  */
 export function extractUserId(req) {
-  if (!req.user || !req.user.sub) {
+  const userId = req.userId || req.user?.sub || req.auth?.payload?.sub;
+  if (!userId) {
     throw new Error('User not authenticated or user ID not available');
   }
-  return req.user.sub;
+  return userId;
 }
 
 /**
@@ -264,7 +216,7 @@ export function extractUserId(req) {
  * @returns {string|null} User email from JWT token
  */
 export function extractUserEmail(req) {
-  return req.user?.email || null;
+  return req.user?.email || req.auth?.payload?.email || null;
 }
 
 /**
@@ -274,18 +226,19 @@ export function extractUserEmail(req) {
  */
 export function requireScope(requiredScope) {
   return (req, res, next) => {
-    if (!req.user) {
+    const user = req.user || req.auth?.payload;
+    if (!user) {
       return res.status(401).json({
         error: 'Authentication required',
         code: 'AUTHENTICATION_REQUIRED',
       });
     }
 
-    const userScopes = req.user.scope ? req.user.scope.split(' ') : [];
+    const userScopes = user.scope ? user.scope.split(' ') : [];
 
     if (!userScopes.includes(requiredScope)) {
       logger.warn(
-        ` [Auth] User ${req.user.sub} missing required scope: ${requiredScope}`,
+        ` [Auth] User ${user.sub} missing required scope: ${requiredScope}`,
       );
       return res.status(403).json({
         error: 'Insufficient permissions',
@@ -300,13 +253,12 @@ export function requireScope(requiredScope) {
 
 /**
  * Container authentication middleware
- * Validates container tokens for internal API calls
  */
 export function authenticateContainer(req, res, next) {
   const timestamp = req.headers['x-timestamp'];
   const signature = req.headers['x-signature'];
   const containerId = req.headers['x-container-id'];
-  const sharedSecret = process.env.CONTAINER_SHARED_SECRET; // Load from secure env var
+  const sharedSecret = process.env.CONTAINER_SHARED_SECRET;
 
   if (!timestamp || !signature || !containerId) {
     return res.status(401).json({
@@ -315,31 +267,22 @@ export function authenticateContainer(req, res, next) {
     });
   }
 
-  // 1. Check timestamp validity (e.g., within 5 minutes)
   const now = Date.now();
   const requestTime = new Date(timestamp).getTime();
   if (isNaN(requestTime) || Math.abs(now - requestTime) > 300000) {
-    // 5 minutes
     return res.status(403).json({
       error: 'Invalid or expired timestamp',
       code: 'INVALID_TIMESTAMP',
     });
   }
 
-  // 2. Reconstruct the message and generate the expected signature
   const message = `${timestamp}.${req.method}.${req.path}`;
   const expectedSignature = crypto
     .createHmac('sha256', sharedSecret)
     .update(message)
     .digest('hex');
 
-  // 3. Compare signatures
-  if (
-    !crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature),
-    )
-  ) {
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
     return res.status(403).json({
       error: 'Invalid signature',
       code: 'INVALID_SIGNATURE',
@@ -347,60 +290,36 @@ export function authenticateContainer(req, res, next) {
   }
 
   req.containerId = containerId;
-  logger.debug(` [Auth] Container authenticated: ${containerId}`);
   next();
 }
 
 /**
- * Validate container token (enhanced placeholder implementation)
- * FUTURE ENHANCEMENT: Implement proper container authentication with secure token store
- *
- * Current implementation provides basic validation for premium/enterprise tier containers.
- * This is sufficient for tier-based architecture deployment as free tier users don't use containers.
- */
-
-/**
  * Admin authentication middleware
- * Requires admin role/scope for access with comprehensive role checking
  */
 export function requireAdmin(req, res, next) {
   try {
-    if (!req.user) {
+    const user = req.user || req.auth?.payload;
+    if (!user) {
       return res.status(401).json({
         error: 'Authentication required',
         code: 'AUTH_REQUIRED',
       });
     }
 
-    // Check for admin role in multiple possible locations
-    const userMetadata =
-      req.user['https://cloudtolocalllm.com/user_metadata'] || {};
-    const appMetadata =
-      req.user['https://cloudtolocalllm.com/app_metadata'] || {};
-    const userRoles = req.user['https://cloudtolocalllm.online/roles'] || [];
-    const userScopes = req.user.scope ? req.user.scope.split(' ') : [];
+    const userMetadata = user['https://cloudtolocalllm.com/user_metadata'] || {};
+    const appMetadata = user['https://cloudtolocalllm.com/app_metadata'] || {};
+    const userRoles = user['https://cloudtolocalllm.online/roles'] || [];
+    const userScopes = user.scope ? user.scope.split(' ') : [];
 
-    // Check various places where admin role might be stored
     const hasAdminRole =
       userMetadata.role === 'admin' ||
       appMetadata.role === 'admin' ||
       userRoles.includes('admin') ||
       userScopes.includes('admin') ||
-      (req.user.permissions && req.user.permissions.includes('admin')) ||
-      req.user.role === 'admin';
+      (user.permissions && user.permissions.includes('admin')) ||
+      user.role === 'admin';
 
     if (!hasAdminRole) {
-      logger.warn(' [AdminAuth] Admin access denied', {
-        userId: req.user.sub,
-        userMetadata,
-        appMetadata,
-        userRoles,
-        userScopes,
-        permissions: req.user.permissions,
-        userAgent: req.get('User-Agent'),
-        ipAddress: req.ip,
-      });
-
       return res.status(403).json({
         error: 'Admin access required',
         code: 'ADMIN_ACCESS_REQUIRED',
@@ -408,19 +327,9 @@ export function requireAdmin(req, res, next) {
       });
     }
 
-    logger.info(' [AdminAuth] Admin access granted', {
-      userId: req.user.sub,
-      role: userMetadata.role || appMetadata.role || 'admin',
-      userAgent: req.get('User-Agent'),
-    });
-
     next();
   } catch (error) {
-    logger.error(' [AdminAuth] Admin role check failed', {
-      error: error.message,
-      userId: req.user?.sub,
-    });
-
+    logger.error(' [AdminAuth] Admin role check failed', { error: error.message });
     res.status(500).json({
       error: 'Admin role verification failed',
       code: 'ADMIN_CHECK_FAILED',
@@ -430,30 +339,25 @@ export function requireAdmin(req, res, next) {
 
 /**
  * Rate limiting by user ID
- * @param {Object} options - Rate limiting options
- * @returns {Function} Express middleware function
  */
 export function rateLimitByUser(options = {}) {
   const { windowMs = 15 * 60 * 1000, max = 100 } = options;
 
-  // Create a Redis client.
   const redisClient = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
     password: process.env.REDIS_PASSWORD,
   });
 
-  // Create a new store for the rate limiter.
   const store = new RedisStore({
     sendCommand: (...args) => redisClient.call(...args),
   });
 
-  // Create a rate limiter that uses the Redis store.
   return rateLimit({
     store,
     windowMs,
     max,
-    keyGenerator: (req) => req.userId || req.ip, // Use user ID or fallback to IP
+    keyGenerator: (req) => req.userId || req.ip,
     handler: (req, res) => {
       res.status(429).json({
         error: 'Too many requests',
