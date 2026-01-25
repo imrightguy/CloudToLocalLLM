@@ -44,19 +44,32 @@ class Auth0AuthProvider implements AuthProvider {
     if (kIsWeb) {
       try {
         final currentUrl = Uri.base.toString();
+        debugPrint(' [Auth0] Web initialization starting... URL: $currentUrl');
+
         // Only call onLoad if we see Auth0 parameters in the URL
-        // This prevents the iframe-based silent auth timeout on every load
-        if (currentUrl.contains('code=') && currentUrl.contains('state=')) {
+        bool isCallback =
+            currentUrl.contains('code=') && currentUrl.contains('state=');
+        debugPrint(' [Auth0] Is callback: $isCallback');
+
+        if (isCallback) {
           debugPrint(
               ' [Auth0] Callback URL detected in init, calling onLoad()...');
           final auth0Web = Auth0Web(_domain, _clientId);
-          final credentials = await auth0Web.onLoad();
+          // Set a shorter timeout for onLoad to prevent app hang
+          final credentials = await auth0Web.onLoad().timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              debugPrint(' [Auth0] onLoad() timed out');
+              return null;
+            },
+          );
+
           if (credentials != null) {
             debugPrint(' [Auth0] Session restored from URL during init');
             await _storeCredentials(credentials);
             _currentUser = await _getUserFromIdToken(credentials.idToken);
             _authSubject.add(true);
-            return; // Exit early as we're authenticated
+            return;
           }
         }
       } catch (e) {
