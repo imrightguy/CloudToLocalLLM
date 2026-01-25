@@ -83,6 +83,54 @@ export async function syncSession(req, res, next) {
       return next();
     }
     
+    // Fallback if authService is not available
+    if (!authService) {
+      req.user = req.auth?.payload;
+      req.userId = req.auth?.payload?.sub;
+      return next();
+    }
+
+    await ensureAuthServiceInitialized();
+
+    // Verify user info is in token
+    const userId = req.auth?.payload?.sub;
+    if (!userId) {
+      logger.warn(' [Auth] No sub claim in token');
+      return res.status(401).json({ error: 'Invalid token: missing sub' });
+    }
+
+    // Attach to request
+    req.userId = userId;
+    req.user = req.auth.payload;
+
+    // Optional: Synchronize session with database
+    // We don't want to block every single request if the database is slow
+    // so we use a shorter timeout for this specific operation
+    try {
+      const result = await Promise.race([
+        authService.syncSession(userId, req.auth.payload),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+      ]);
+      
+      if (!result.success) {
+        logger.warn(' [Auth] Session sync failed', { userId, reason: result.error });
+        // Don't 401 if it's just a sync failure and we have a valid JWT
+        // unless we want strict session tracking
+      }
+    } catch (syncError) {
+      logger.error(' [Auth] Session sync error or timeout (continuing)', { 
+        userId, 
+        error: syncError.message 
+      });
+    }
+
+    next();
+  } catch (error) {
+    logger.error(' [Auth] syncSession error', { error: error.message });
+    res.status(401).json({ error: 'Authentication failed' });
+  }
+}
+    
     if (!authService) {
       logger.debug(' [Auth] Skipping syncSession: authService not configured');
       req.user = req.auth?.payload;
