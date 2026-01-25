@@ -80,7 +80,11 @@ class Auth0AuthProvider implements AuthProvider {
       // onLoad() initializes the client.
       // It handles code exchange automatically if isCallback is true.
       // It handles silent auth (via iframe) if isCallback is false.
-      final credentials = await auth0Web.onLoad().timeout(
+      // We MUST pass audience and scopes to get a JWT access token instead of opaque.
+      final credentials = await auth0Web.onLoad(
+        audience: _audience,
+        scopes: {'openid', 'profile', 'email', 'offline_access'},
+      ).timeout(
         Duration(seconds: isCallback ? 20 : 5),
         onTimeout: () {
           debugPrint(' [Auth0] onLoad() timed out');
