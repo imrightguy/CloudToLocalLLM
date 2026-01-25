@@ -36,14 +36,32 @@ class Auth0AuthProvider implements AuthProvider {
   @override
   Future<void> initialize() async {
     if (kIsWeb) {
-      await handleCallback();
+      // Start processing web auth in background, but don't block initial load
+      // This handles redirects and silent auth without hanging the app
+      final currentUrl = web.window.location.href;
+      final isCallback =
+          currentUrl.contains('code=') && currentUrl.contains('state=');
+
+      if (isCallback) {
+        debugPrint(
+            ' [Auth0] Callback URL detected, blocking init for exchange...');
+        await handleCallback();
+      } else {
+        debugPrint(
+            ' [Auth0] Normal load, starting silent init in background...');
+        unawaited(handleCallback());
+      }
     }
+
+    // Always attempt to load from local storage immediately for fast startup
     await _loadFromStorage();
   }
 
   @override
   Future<bool> handleCallback({String? url}) async {
     if (!kIsWeb) return true;
+
+    // Use a singleton future to ensure we only init once
     _webInitFuture ??= _processWebAuth();
     return _webInitFuture!;
   }
@@ -54,15 +72,16 @@ class Auth0AuthProvider implements AuthProvider {
       final isCallback =
           currentUrl.contains('code=') && currentUrl.contains('state=');
 
-      debugPrint(
-          ' [Auth0] Web auth processing... URL: $currentUrl, isCallback: $isCallback');
+      debugPrint(' [Auth0] Web auth processing... isCallback: $isCallback');
 
       final auth0Web = Auth0Web(_domain, _clientId,
           redirectUrl: '${web.window.location.origin}/callback');
 
-      // onLoad() initializes the client and handles code exchange if present
+      // onLoad() initializes the client.
+      // It handles code exchange automatically if isCallback is true.
+      // It handles silent auth (via iframe) if isCallback is false.
       final credentials = await auth0Web.onLoad().timeout(
-        const Duration(seconds: 15),
+        Duration(seconds: isCallback ? 20 : 5),
         onTimeout: () {
           debugPrint(' [Auth0] onLoad() timed out');
           return null;
@@ -70,26 +89,29 @@ class Auth0AuthProvider implements AuthProvider {
       );
 
       if (credentials != null) {
-        debugPrint(' [Auth0] Session authenticated. Storing credentials...');
+        debugPrint(' [Auth0] Session authenticated via onLoad');
         await _storeCredentials(credentials);
         _currentUser = await _getUserFromIdToken(credentials.idToken);
         _authSubject.add(true);
         return true;
       }
 
-      debugPrint(' [Auth0] No active session found via onLoad()');
+      debugPrint(' [Auth0] No active session found via onLoad');
       return false;
     } catch (e) {
-      debugPrint(' [Auth0] Web auth error: $e');
+      debugPrint(' [Auth0] Web auth processing error: $e');
       return false;
     }
   }
 
   Future<void> _loadFromStorage() async {
     try {
-      if (_currentUser != null) return; // Already loaded via callback
+      if (_currentUser != null) {
+        debugPrint(' [Auth0] Session already active, skipping storage load');
+        return;
+      }
 
-      debugPrint(' [Auth0] Loading session from storage...');
+      debugPrint(' [Auth0] Checking storage for existing session...');
       String? accessToken;
       String? idToken;
       String? userJson;
@@ -112,12 +134,15 @@ class Auth0AuthProvider implements AuthProvider {
         }
 
         if (_currentUser != null) {
+          debugPrint(
+              ' [Auth0] Session restored from storage for: ${_currentUser?.email}');
           _authSubject.add(true);
-          debugPrint(' [Auth0] Session restored for: ${_currentUser?.email}');
         }
+      } else {
+        debugPrint(' [Auth0] No valid session found in storage');
       }
     } catch (e) {
-      debugPrint(' [Auth0] Load error: $e');
+      debugPrint(' [Auth0] Storage load error: $e');
     }
   }
 
@@ -137,7 +162,12 @@ class Auth0AuthProvider implements AuthProvider {
     await _mutex.protect(() async {
       try {
         if (kIsWeb) {
+          debugPrint(' [Auth0] Login requested. Ensuring initialization...');
+          // Ensure Auth0Client is initialized before calling loginWithRedirect
+          await handleCallback();
+
           final auth0Web = Auth0Web(_domain, _clientId);
+          debugPrint(' [Auth0] Initiating loginWithRedirect...');
           await auth0Web.loginWithRedirect(
             audience: _audience,
             scopes: {'openid', 'profile', 'email', 'offline_access'},
@@ -241,7 +271,7 @@ class Auth0AuthProvider implements AuthProvider {
       token = await _storage.read(key: 'access_token');
     }
 
-    if (token != null && _validateTokenSync(token)) return token;
+    if (token != null && await _isTokenValid(token)) return token;
 
     String? refreshToken;
     if (kIsWeb) {
@@ -280,6 +310,28 @@ class Auth0AuthProvider implements AuthProvider {
       debugPrint('Refresh error: $e');
     }
     return null;
+  }
+
+  Future<bool> _isTokenValid(String token) async {
+    if (kIsWeb) {
+      return _validateToken(
+          {'token': token, 'domain': _domain, 'audience': _audience});
+    }
+    return await compute(_validateToken,
+        {'token': token, 'domain': _domain, 'audience': _audience});
+  }
+
+  static bool _validateToken(Map<String, dynamic> params) {
+    final token = params['token'] as String;
+    try {
+      if (JwtDecoder.isExpired(token)) return false;
+      final payload = JwtDecoder.decode(token);
+      final String iss = payload['iss']?.toString() ?? '';
+      final domain = params['domain'] as String;
+      return iss.contains(domain);
+    } catch (_) {
+      return false;
+    }
   }
 
   void dispose() {
