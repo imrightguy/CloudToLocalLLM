@@ -94,7 +94,7 @@ export async function syncSession(req, res, next) {
     if (process.env.NODE_ENV === 'test') {
       return next();
     }
-    
+
     // Attach token payload to req.user for backward compatibility
     if (req.auth && req.auth.payload) {
       req.user = req.auth.payload;
@@ -115,21 +115,19 @@ export async function syncSession(req, res, next) {
     }
 
     // Optional: Synchronize session with database
-    // We don't want to block every single request if the database is slow
-    // so we use a shorter timeout for this specific operation
     try {
       const result = await Promise.race([
         authService.syncSession(userId, req.auth.payload),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000)),
       ]);
-      
+
       if (!result.success) {
         logger.warn(' [Auth] Session sync failed', { userId, reason: result.error });
       }
     } catch (syncError) {
-      logger.error(' [Auth] Session sync error or timeout (continuing)', { 
-        userId, 
-        error: syncError.message 
+      logger.error(' [Auth] Session sync error or timeout (continuing)', {
+        userId,
+        error: syncError.message,
       });
     }
 
@@ -151,7 +149,6 @@ export async function optionalAuth(req, res, next) {
   }
 
   // Use checkJwt but handle failure gracefully without sending response
-  // We manually call the checkJwt internal handler
   const authHandler = auth({
     audience: AUTH0_AUDIENCE,
     issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
@@ -163,9 +160,9 @@ export async function optionalAuth(req, res, next) {
       logger.debug(' [Auth] Optional auth failed verification (skipping):', err.message);
       return next();
     }
-    
+
     // If JWT is valid, also try to sync/check session but don't block on error
-    syncSession(req, res, (syncErr) => {
+    syncSession(req, res, (_syncErr) => {
       // Ignore sync errors in optional auth
       next();
     });
