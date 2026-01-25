@@ -2,10 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter_web.dart'
     if (dart.library.io) 'auth0_flutter_stub.dart';
@@ -43,35 +39,21 @@ class Auth0AuthProvider implements AuthProvider {
   Future<void> initialize() async {
     if (kIsWeb) {
       try {
-        final currentUrl = Uri.base.toString();
-        debugPrint(' [Auth0] Web initialization starting... URL: $currentUrl');
+        debugPrint(' [Auth0] Web initialization starting...');
+        final auth0Web = Auth0Web(_domain, _clientId);
 
-        // Only call onLoad if we see Auth0 parameters in the URL
-        bool isCallback =
-            currentUrl.contains('code=') && currentUrl.contains('state=');
-        debugPrint(' [Auth0] Is callback: $isCallback');
-
-        if (isCallback) {
-          debugPrint(
-              ' [Auth0] Callback URL detected in init, calling onLoad()...');
-          final auth0Web = Auth0Web(_domain, _clientId);
-          // Set a shorter timeout for onLoad to prevent app hang
-          final credentials = await auth0Web.onLoad().timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              debugPrint(' [Auth0] onLoad() timed out');
-              return null;
-            },
-          );
-
-          if (credentials != null) {
-            debugPrint(' [Auth0] Session restored from URL during init');
-            await _storeCredentials(credentials);
-            _currentUser = await _getUserFromIdToken(credentials.idToken);
-            _authSubject.add(true);
-            return;
-          }
-        }
+        // onLoad() is REQUIRED on Web to initialize the internal Auth0Client.
+        // If this is not called, subsequent calls to loginWithRedirect will fail
+        // with "Auth0Client has not been initialized".
+        // We use a timeout to prevent iframe-based silent auth from hanging the app.
+        await auth0Web.onLoad().timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            debugPrint(
+                ' [Auth0] onLoad() timed out (normal if no active session or 3rd party cookies blocked)');
+            return null;
+          },
+        );
       } catch (e) {
         debugPrint(' [Auth0] Web init error: $e');
       }
@@ -108,7 +90,6 @@ class Auth0AuthProvider implements AuthProvider {
     if (JwtDecoder.isExpired(token)) return false;
     final payload = JwtDecoder.decode(token);
     final String iss = payload['iss']?.toString() ?? '';
-    final aud = payload['aud'];
     final domain = params['domain'] as String;
     final expectedIssuer = 'https://$domain/';
     final expectedIssuerNoSlash = 'https://$domain';
@@ -119,6 +100,7 @@ class Auth0AuthProvider implements AuthProvider {
 
     // Check audience (can be string or list for API tokens)
     if (expectedAudience != null) {
+      final aud = payload['aud'];
       if (aud is String) {
         return aud == expectedAudience;
       } else if (aud is List) {
