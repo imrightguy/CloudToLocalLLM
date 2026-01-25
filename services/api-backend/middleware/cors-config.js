@@ -103,7 +103,7 @@ export const standardCorsOptions = {
     'X-RateLimit-Reset',
   ],
   maxAge: 86400, // 24 hours
-  optionsSuccessStatus: 204,
+  optionsSuccessStatus: 200, // Some legacy browsers prefer 200 over 204
 };
 
 /**

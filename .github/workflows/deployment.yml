@@ -217,6 +217,7 @@ jobs:
           INFRASTRUCTURE_API_KEY: ${{ secrets.INFRASTRUCTURE_API_KEY }}
           DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_ACTOR: ${{ github.actor }}
           REPO: ${{ github.repository }}
         run: |
           RESOURCE_GROUP="cloudtolocalllm-rg"
@@ -290,7 +291,7 @@ jobs:
           fi
           
           # Docker login and deploy
-          printf '$GH_B64' | base64 -d | docker login ghcr.io -u github-actions --password-stdin
+          printf '$GH_B64' | base64 -d | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
           docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
           DEPLOY_EOF
           
