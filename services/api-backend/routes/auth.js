@@ -127,40 +127,45 @@ router.post('/token/refresh', authCheckLimiter, async function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/token/validate', authCheckLimiter, authenticateJWT, async function (req, res) {
-  try {
-    // If authenticateJWT middleware passed, the token is DEFINITELY valid and verified
-    const tokenPayload = req.user;
-    const now = Math.floor(Date.now() / 1000);
-    const expiresIn = tokenPayload.exp - now;
-    const isExpiring = expiresIn <= TOKEN_REFRESH_WINDOW;
+router.post(
+  '/token/validate',
+  authCheckLimiter,
+  authenticateJWT,
+  async function (req, res) {
+    try {
+      // If authenticateJWT middleware passed, the token is DEFINITELY valid and verified
+      const tokenPayload = req.user;
+      const now = Math.floor(Date.now() / 1000);
+      const expiresIn = tokenPayload.exp - now;
+      const isExpiring = expiresIn <= TOKEN_REFRESH_WINDOW;
 
-    logger.info('[Auth] Token validation result (Verified)', {
-      isExpiring,
-      expiresIn,
-      userId: req.userId,
-    });
+      logger.info('[Auth] Token validation result (Verified)', {
+        isExpiring,
+        expiresIn,
+        userId: req.userId,
+      });
 
-    res.json({
-      valid: true,
-      expired: false,
-      expiring: isExpiring,
-      expiresIn: Math.max(0, expiresIn),
-      expiresAt: new Date(tokenPayload.exp * 1000).toISOString(),
-      userId: req.userId,
-      email: tokenPayload.email,
-    });
-  } catch (error) {
-    logger.error('[Auth] Token validation error', {
-      error: error.message,
-    });
+      res.json({
+        valid: true,
+        expired: false,
+        expiring: isExpiring,
+        expiresIn: Math.max(0, expiresIn),
+        expiresAt: new Date(tokenPayload.exp * 1000).toISOString(),
+        userId: req.userId,
+        email: tokenPayload.email,
+      });
+    } catch (error) {
+      logger.error('[Auth] Token validation error', {
+        error: error.message,
+      });
 
-    res.status(500).json({
-      error: 'Token validation failed',
-      code: 'TOKEN_VALIDATION_ERROR',
-    });
-  }
-});
+      res.status(500).json({
+        error: 'Token validation failed',
+        code: 'TOKEN_VALIDATION_ERROR',
+      });
+    }
+  },
+);
 
 /**
  * @swagger

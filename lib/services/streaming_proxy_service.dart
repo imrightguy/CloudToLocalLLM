@@ -51,7 +51,6 @@ class StreamingProxyService extends ChangeNotifier {
 
   // Performance metrics
   int _totalRequests = 0;
-  int _successfulRequests = 0;
   Duration _averageResponseTime = Duration.zero;
 
   StreamingProxyService({
@@ -85,14 +84,16 @@ class StreamingProxyService extends ChangeNotifier {
 
   void _processQueue() {
     // Process queued requests up to the concurrency limit
-    while (_activeRequests.length < _maxConcurrentRequests && _requestQueue.isNotEmpty) {
+    while (_activeRequests.length < _maxConcurrentRequests &&
+        _requestQueue.isNotEmpty) {
       final request = _requestQueue.removeFirst();
       _executeRequest(request);
     }
   }
 
   Future<void> _executeRequest(_QueuedRequest request) async {
-    final requestId = '${request.method}_${request.path}_${DateTime.now().millisecondsSinceEpoch}';
+    final requestId =
+        '${request.method}_${request.path}_${DateTime.now().millisecondsSinceEpoch}';
     final activeRequest = _ActiveRequest(requestId, request.completer);
     _activeRequests.add(activeRequest);
 
@@ -146,12 +147,10 @@ class StreamingProxyService extends ChangeNotifier {
 
   void _updateMetrics(bool success, Duration responseTime) {
     _totalRequests++;
-    if (success) {
-      _successfulRequests++;
-    }
 
     // Update rolling average response time
-    final totalResponseTime = _averageResponseTime * (_totalRequests - 1) + responseTime;
+    final totalResponseTime =
+        _averageResponseTime * (_totalRequests - 1) + responseTime;
     _averageResponseTime = totalResponseTime ~/ _totalRequests;
   }
 

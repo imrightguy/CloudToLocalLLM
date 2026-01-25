@@ -202,7 +202,7 @@ const server = http.createServer(app);
 
 // Prevent 502s by ensuring Node keep-alive is longer than Nginx (60s)
 server.keepAliveTimeout = 65000; // 65 seconds
-server.headersTimeout = 66000;   // 66 seconds (must be > keepAliveTimeout)
+server.headersTimeout = 66000; // 66 seconds (must be > keepAliveTimeout)
 
 // Setup graceful shutdown with in-flight request completion
 const shutdownManager = setupGracefulShutdown(server, {
@@ -784,7 +784,9 @@ async function initializeTunnelSystem(retries = 10) {
       stack: error.stack,
     });
     // Don't exit - continue with degraded functionality
-    logger.warn('Server starting with degraded functionality due to initialization failure');
+    logger.warn(
+      'Server starting with degraded functionality due to initialization failure',
+    );
   }
 }
 

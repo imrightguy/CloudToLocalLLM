@@ -22,24 +22,28 @@ Future<void> initializeMockPlugins() async {
   // Set up SharedPreferences mock
   // Set up SharedPreferences mock
   SharedPreferences.setMockInitialValues({});
-  
+
   // Reset and setup GetIt
   final locator = GetIt.instance;
   await locator.reset();
-  
+
   // Register basic mocks needed by most screens
-  locator.registerSingleton<SettingsPreferenceService>(SettingsPreferenceService());
-  
+  locator.registerSingleton<SettingsPreferenceService>(
+      SettingsPreferenceService());
+
   // Register MockAuthService
   final authService = MockAuthService();
-  locator.registerSingleton<AuthService>(authService as AuthService); // Cast using shim if needed, or implementer
-  
+  locator.registerSingleton<AuthService>(
+      authService as AuthService); // Cast using shim if needed, or implementer
+
   // Register MockAdminCenterService
   final adminService = MockAdminCenterService();
-  locator.registerSingleton<AdminCenterService>(adminService as AdminCenterService);
-  
+  locator.registerSingleton<AdminCenterService>(
+      adminService as AdminCenterService);
+
   // Register PlatformAdapter
-  locator.registerSingleton<PlatformAdapter>(PlatformAdapter(PlatformDetectionService()));
+  locator.registerSingleton<PlatformAdapter>(
+      PlatformAdapter(PlatformDetectionService()));
 }
 
 /// Mock JWT Service for testing
@@ -93,30 +97,32 @@ class MockSessionStorage {
 class MockAuthService extends ChangeNotifier implements AuthService {
   final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _areAuthenticatedServicesLoaded = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _areAuthenticatedServicesLoaded =
+      ValueNotifier<bool>(false);
   final Completer<void> _sessionBootstrapCompleter = Completer<void>();
 
   String? _accessToken;
   UserModel? _currentUser;
-  
+
   @override
   ValueNotifier<bool> get isAuthenticated => _isAuthenticated;
-  
+
   @override
   ValueNotifier<bool> get isLoading => _isLoading;
-  
+
   @override
-  ValueNotifier<bool> get areAuthenticatedServicesLoaded => _areAuthenticatedServicesLoaded;
-  
+  ValueNotifier<bool> get areAuthenticatedServicesLoaded =>
+      _areAuthenticatedServicesLoaded;
+
   @override
   bool get isSessionBootstrapComplete => true;
-  
+
   @override
   Future<void> get sessionBootstrapFuture => Future.value();
 
   @override
   UserModel? get currentUser => _currentUser;
-  
+
   // Platform getters - default to false/mock
   @override
   bool get isWeb => false;
@@ -149,16 +155,15 @@ class MockAuthService extends ChangeNotifier implements AuthService {
     notifyListeners();
   }
 
-  @override
   Future<bool> checkSession() async {
     return _isAuthenticated.value;
   }
-  
+
   @override
   Future<String?> getAccessToken() async {
     return _accessToken;
   }
-  
+
   @override
   Future<String?> getValidatedAccessToken() async {
     return _accessToken;
@@ -169,7 +174,8 @@ class MockAuthService extends ChangeNotifier implements AuthService {
 }
 
 /// Mock AdminCenterService for testing
-class MockAdminCenterService extends ChangeNotifier implements AdminCenterService {
+class MockAdminCenterService extends ChangeNotifier
+    implements AdminCenterService {
   bool _isLoading = false;
   String? _error;
   List<AdminRoleModel> _adminRoles = [];
@@ -177,16 +183,16 @@ class MockAdminCenterService extends ChangeNotifier implements AdminCenterServic
 
   @override
   bool get isLoading => _isLoading;
-  
+
   @override
   String? get error => _error;
-  
+
   @override
   bool get isInitialized => true;
-  
+
   @override
   List<AdminRoleModel> get adminRoles => _adminRoles;
-  
+
   @override
   Map<String, dynamic>? get dashboardMetrics => _dashboardMetrics;
 
@@ -194,7 +200,7 @@ class MockAdminCenterService extends ChangeNotifier implements AdminCenterServic
   Future<void> initialize() async {
     // No-op
   }
-  
+
   @override
   bool hasPermission(AdminPermission permission) {
     return true; // Grant all permissions for testing by default

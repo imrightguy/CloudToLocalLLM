@@ -1,6 +1,6 @@
 /**
  * CloudToLocalLLM SDK Type Definitions
- * 
+ *
  * Comprehensive type definitions for all API endpoints and data models
  * Generated from OpenAPI specification
  */
@@ -196,7 +196,14 @@ export interface APIError {
   error: {
     code: string;
     message: string;
-    category: 'validation' | 'authentication' | 'authorization' | 'not_found' | 'rate_limit' | 'server' | 'service_unavailable';
+    category:
+      | 'validation'
+      | 'authentication'
+      | 'authorization'
+      | 'not_found'
+      | 'rate_limit'
+      | 'server'
+      | 'service_unavailable';
     statusCode: number;
     correlationId: string;
     suggestion?: string;

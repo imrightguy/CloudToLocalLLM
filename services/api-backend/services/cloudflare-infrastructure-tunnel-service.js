@@ -51,20 +51,20 @@ class CloudflareInfrastructureTunnelService {
     const missing = [];
 
     if (!this.apiKey) {
-missing.push('CLOUDFLARE_API_KEY');
-}
+      missing.push('CLOUDFLARE_API_KEY');
+    }
     if (!this.email) {
-missing.push('CLOUDFLARE_EMAIL');
-}
+      missing.push('CLOUDFLARE_EMAIL');
+    }
     if (!this.accountId) {
-missing.push('CLOUDFLARE_ACCOUNT_ID');
-}
+      missing.push('CLOUDFLARE_ACCOUNT_ID');
+    }
     if (!this.zoneId) {
-missing.push('CLOUDFLARE_ZONE_ID');
-}
+      missing.push('CLOUDFLARE_ZONE_ID');
+    }
     if (!this.tunnelId) {
-missing.push('CLOUDFLARE_TUNNEL_ID');
-}
+      missing.push('CLOUDFLARE_TUNNEL_ID');
+    }
 
     if (missing.length > 0) {
       throw new Error(
@@ -306,11 +306,11 @@ missing.push('CLOUDFLARE_TUNNEL_ID');
       const params = new URLSearchParams();
 
       if (filters.type) {
-params.append('type', filters.type);
-}
+        params.append('type', filters.type);
+      }
       if (filters.name) {
-params.append('name', filters.name);
-}
+        params.append('name', filters.name);
+      }
 
       if (params.toString()) {
         endpoint += `?${params.toString()}`;
@@ -368,9 +368,7 @@ params.append('name', filters.name);
   async syncTunnelDnsRecord(subdomain, options = {}) {
     this.validateConfiguration();
 
-    const name = subdomain
-      ? `${subdomain}.${this.domain}`
-      : this.domain;
+    const name = subdomain ? `${subdomain}.${this.domain}` : this.domain;
     const content = `${this.tunnelId}.cfargotunnel.com`;
     const proxied = options.proxied !== false; // Default to true
 
@@ -528,10 +526,9 @@ params.append('name', filters.name);
         };
       } catch (swarmError) {
         // Fall back to Docker Compose
-        logger.warn(
-          '[InfraTunnel] Swarm restart failed, trying compose',
-          { error: swarmError.message },
-        );
+        logger.warn('[InfraTunnel] Swarm restart failed, trying compose', {
+          error: swarmError.message,
+        });
 
         const { stdout } = await execAsync(
           'docker restart cloudflared 2>&1 || docker compose restart cloudflared 2>&1',

@@ -29,9 +29,9 @@ export default [
       'key-spacing': ['error', { beforeColon: false, afterColon: true }],
       'space-before-blocks': 'error',
       // Disable style rules that conflict with Prettier or cause CI failures
-      'quotes': 'off',
+      quotes: 'off',
       'comma-dangle': 'off',
-      'indent': 'off',
+      indent: 'off',
       'space-before-function-paren': 'off',
       'no-trailing-spaces': 'error',
       'eol-last': 'error',

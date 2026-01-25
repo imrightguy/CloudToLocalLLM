@@ -1,9 +1,9 @@
 /**
  * CloudToLocalLLM SDK Client
- * 
+ *
  * Main client for interacting with the CloudToLocalLLM API
  * Provides methods for authentication, user management, tunnels, and more
- * 
+ *
  * Requirements: 12.6
  */
 
@@ -27,7 +27,6 @@ import {
   APIKey,
   APIKeyCreateRequest,
   ProxyInstance,
-  ProxyConfig,
   WebhookDelivery,
   UserUpdateRequest,
 } from './types';
@@ -335,8 +334,12 @@ export class CloudToLocalLLMClient {
   /**
    * List all users (admin only)
    */
-  public async listUsers(params?: PaginationParams & { search?: string }): Promise<PaginatedResponse<AdminUser>> {
-    const response = await this.client.get<PaginatedResponse<AdminUser>>('/admin/users', { params });
+  public async listUsers(
+    params?: PaginationParams & { search?: string }
+  ): Promise<PaginatedResponse<AdminUser>> {
+    const response = await this.client.get<PaginatedResponse<AdminUser>>('/admin/users', {
+      params,
+    });
     return response.data;
   }
 
@@ -367,7 +370,9 @@ export class CloudToLocalLLMClient {
    * Get audit logs (admin only)
    */
   public async getAuditLogs(params?: PaginationParams): Promise<PaginatedResponse<AuditLog>> {
-    const response = await this.client.get<PaginatedResponse<AuditLog>>('/admin/audit-logs', { params });
+    const response = await this.client.get<PaginatedResponse<AuditLog>>('/admin/audit-logs', {
+      params,
+    });
     return response.data;
   }
 

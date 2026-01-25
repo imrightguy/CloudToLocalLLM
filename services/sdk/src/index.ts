@@ -1,8 +1,8 @@
 /**
  * CloudToLocalLLM SDK
- * 
+ *
  * Official JavaScript/TypeScript SDK for CloudToLocalLLM API
- * 
+ *
  * Requirements: 12.6
  */
 

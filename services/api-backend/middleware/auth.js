@@ -14,8 +14,10 @@ import logger from '../logger.js';
 import { AuthService } from '../auth/auth-service.js';
 
 // JWT configuration - Requirements 2.1
-const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
-const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
+const AUTH0_DOMAIN =
+  process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
+const AUTH0_AUDIENCE =
+  process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
 
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
@@ -72,7 +74,11 @@ const authService = isAuthConfigured
 let authServiceInitialized = false;
 
 async function ensureAuthServiceInitialized() {
-  if (authServiceInitialized || process.env.NODE_ENV === 'test' || !authService) {
+  if (
+    authServiceInitialized ||
+    process.env.NODE_ENV === 'test' ||
+    !authService
+  ) {
     return;
   }
   try {
@@ -118,11 +124,16 @@ export async function syncSession(req, res, next) {
     try {
       const result = await Promise.race([
         authService.syncSession(userId, req.auth.payload),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000)),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 2000),
+        ),
       ]);
 
       if (!result.success) {
-        logger.warn(' [Auth] Session sync failed', { userId, reason: result.error });
+        logger.warn(' [Auth] Session sync failed', {
+          userId,
+          reason: result.error,
+        });
       }
     } catch (syncError) {
       logger.error(' [Auth] Session sync error or timeout (continuing)', {
@@ -157,7 +168,10 @@ export async function optionalAuth(req, res, next) {
 
   authHandler(req, res, (err) => {
     if (err) {
-      logger.debug(' [Auth] Optional auth failed verification (skipping):', err.message);
+      logger.debug(
+        ' [Auth] Optional auth failed verification (skipping):',
+        err.message,
+      );
       return next();
     }
 
@@ -279,7 +293,12 @@ export function authenticateContainer(req, res, next) {
     .update(message)
     .digest('hex');
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+  if (
+    !crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature),
+    )
+  ) {
     return res.status(403).json({
       error: 'Invalid signature',
       code: 'INVALID_SIGNATURE',
@@ -303,7 +322,8 @@ export function requireAdmin(req, res, next) {
       });
     }
 
-    const userMetadata = user['https://cloudtolocalllm.com/user_metadata'] || {};
+    const userMetadata =
+      user['https://cloudtolocalllm.com/user_metadata'] || {};
     const appMetadata = user['https://cloudtolocalllm.com/app_metadata'] || {};
     const userRoles = user['https://cloudtolocalllm.online/roles'] || [];
     const userScopes = user.scope ? user.scope.split(' ') : [];
@@ -326,7 +346,9 @@ export function requireAdmin(req, res, next) {
 
     next();
   } catch (error) {
-    logger.error(' [AdminAuth] Admin role check failed', { error: error.message });
+    logger.error(' [AdminAuth] Admin role check failed', {
+      error: error.message,
+    });
     res.status(500).json({
       error: 'Admin role verification failed',
       code: 'ADMIN_CHECK_FAILED',
