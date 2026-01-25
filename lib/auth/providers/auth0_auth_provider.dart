@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mutex/mutex.dart';
-import 'package:web/web.dart' as web;
+import 'auth_web_utils.dart';
 import '../auth_provider.dart';
 import '../../models/user_model.dart';
 
@@ -38,7 +38,7 @@ class Auth0AuthProvider implements AuthProvider {
     if (kIsWeb) {
       // Start processing web auth in background, but don't block initial load
       // This handles redirects and silent auth without hanging the app
-      final currentUrl = web.window.location.href;
+      final currentUrl = authWebUtils.currentUrl ?? '';
       final isCallback =
           currentUrl.contains('code=') && currentUrl.contains('state=');
 
@@ -68,14 +68,14 @@ class Auth0AuthProvider implements AuthProvider {
 
   Future<bool> _processWebAuth() async {
     try {
-      final currentUrl = web.window.location.href;
+      final currentUrl = authWebUtils.currentUrl ?? '';
       final isCallback =
           currentUrl.contains('code=') && currentUrl.contains('state=');
 
       debugPrint(' [Auth0] Web auth processing... isCallback: $isCallback');
 
       final auth0Web = Auth0Web(_domain, _clientId,
-          redirectUrl: '${web.window.location.origin}/callback');
+          redirectUrl: '${authWebUtils.origin}/callback');
 
       // onLoad() initializes the client.
       // We enable refresh tokens and local storage to prevent silent auth timeouts.
@@ -123,9 +123,9 @@ class Auth0AuthProvider implements AuthProvider {
       String? userJson;
 
       if (kIsWeb) {
-        accessToken = web.window.localStorage.getItem('auth_access_token');
-        idToken = web.window.localStorage.getItem('auth_id_token');
-        userJson = web.window.localStorage.getItem('auth_user_data');
+        accessToken = authWebUtils.getLocalStorageItem('auth_access_token');
+        idToken = authWebUtils.getLocalStorageItem('auth_id_token');
+        userJson = authWebUtils.getLocalStorageItem('auth_user_data');
       } else {
         accessToken = await _storage.read(key: 'access_token');
         idToken = await _storage.read(key: 'id_token');
@@ -177,7 +177,7 @@ class Auth0AuthProvider implements AuthProvider {
           await auth0Web.loginWithRedirect(
             audience: _audience,
             scopes: {'openid', 'profile', 'email', 'offline_access'},
-            redirectUrl: '${web.window.location.origin}/callback',
+            redirectUrl: '${authWebUtils.origin}/callback',
           );
           return;
         }
@@ -200,12 +200,12 @@ class Auth0AuthProvider implements AuthProvider {
 
   Future<void> _storeCredentials(Credentials credentials) async {
     if (kIsWeb) {
-      web.window.localStorage
-          .setItem('auth_access_token', credentials.accessToken);
-      web.window.localStorage.setItem('auth_id_token', credentials.idToken);
+      authWebUtils.setLocalStorageItem(
+          'auth_access_token', credentials.accessToken);
+      authWebUtils.setLocalStorageItem('auth_id_token', credentials.idToken);
       if (credentials.refreshToken != null) {
-        web.window.localStorage
-            .setItem('auth_refresh_token', credentials.refreshToken!);
+        authWebUtils.setLocalStorageItem(
+            'auth_refresh_token', credentials.refreshToken!);
       }
     } else {
       await _storage.write(key: 'access_token', value: credentials.accessToken);
@@ -226,7 +226,7 @@ class Auth0AuthProvider implements AuthProvider {
     };
 
     if (kIsWeb) {
-      web.window.localStorage.setItem('auth_user_data', json.encode(userData));
+      authWebUtils.setLocalStorageItem('auth_user_data', json.encode(userData));
     } else {
       await _storage.write(key: 'user_data', value: json.encode(userData));
     }
@@ -250,12 +250,12 @@ class Auth0AuthProvider implements AuthProvider {
     await _mutex.protect(() async {
       try {
         if (kIsWeb) {
-          web.window.localStorage.removeItem('auth_access_token');
-          web.window.localStorage.removeItem('auth_id_token');
-          web.window.localStorage.removeItem('auth_user_data');
-          web.window.localStorage.removeItem('auth_refresh_token');
+          authWebUtils.removeLocalStorageItem('auth_access_token');
+          authWebUtils.removeLocalStorageItem('auth_id_token');
+          authWebUtils.removeLocalStorageItem('auth_user_data');
+          authWebUtils.removeLocalStorageItem('auth_refresh_token');
           await Auth0Web(_domain, _clientId)
-              .logout(returnToUrl: web.window.location.origin);
+              .logout(returnToUrl: authWebUtils.origin ?? '');
         } else {
           await _auth0.webAuthentication().logout();
           await _storage.deleteAll();
@@ -290,7 +290,7 @@ class Auth0AuthProvider implements AuthProvider {
     // Fallback to manual storage check
     String? token;
     if (kIsWeb) {
-      token = web.window.localStorage.getItem('auth_access_token');
+      token = authWebUtils.getLocalStorageItem('auth_access_token');
     } else {
       token = await _storage.read(key: 'access_token');
     }
@@ -300,7 +300,7 @@ class Auth0AuthProvider implements AuthProvider {
     // Auto refresh stub - implement full refresh logic
     String? refreshToken;
     if (kIsWeb) {
-      refreshToken = web.window.localStorage.getItem('auth_refresh_token');
+      refreshToken = authWebUtils.getLocalStorageItem('auth_refresh_token');
     } else {
       refreshToken = await _storage.read(key: 'refresh_token');
     }
@@ -309,7 +309,7 @@ class Auth0AuthProvider implements AuthProvider {
       token = await _refreshToken(refreshToken);
       if (token != null) {
         if (kIsWeb) {
-          web.window.localStorage.setItem('auth_access_token', token);
+          authWebUtils.setLocalStorageItem('auth_access_token', token);
         } else {
           await _storage.write(key: 'access_token', value: token);
         }
