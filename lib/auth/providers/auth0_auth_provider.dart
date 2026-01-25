@@ -23,7 +23,12 @@ class Auth0AuthProvider implements AuthProvider {
   static const String _scheme = 'cloudtolocalllm';
 
   final Auth0 _auth0 = Auth0(_domain, _clientId);
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage(
+    webOptions: WebOptions(
+      dbName: 'auth_storage',
+      publicKey: 'auth_key',
+    ),
+  );
   final BehaviorSubject<bool> _authSubject = BehaviorSubject.seeded(false);
   final Mutex _mutex = Mutex();
 
@@ -38,18 +43,24 @@ class Auth0AuthProvider implements AuthProvider {
   Future<void> initialize() async {
     if (kIsWeb) {
       try {
-        // Ensure Auth0 SPA SDK is loaded before use
-        final auth0Web = Auth0Web(_domain, _clientId);
-        // On Web, we check for a callback immediately on init
-        final credentials = await auth0Web.onLoad();
-        if (credentials != null) {
-          debugPrint(' [Auth0] Session restored during initialization');
-          await _storeCredentials(credentials);
-          _currentUser = await _getUserFromIdToken(credentials.idToken);
-          _authSubject.add(true);
+        final currentUrl = Uri.base.toString();
+        // Only call onLoad if we see Auth0 parameters in the URL
+        // This prevents the iframe-based silent auth timeout on every load
+        if (currentUrl.contains('code=') && currentUrl.contains('state=')) {
+          debugPrint(
+              ' [Auth0] Callback URL detected in init, calling onLoad()...');
+          final auth0Web = Auth0Web(_domain, _clientId);
+          final credentials = await auth0Web.onLoad();
+          if (credentials != null) {
+            debugPrint(' [Auth0] Session restored from URL during init');
+            await _storeCredentials(credentials);
+            _currentUser = await _getUserFromIdToken(credentials.idToken);
+            _authSubject.add(true);
+            return; // Exit early as we're authenticated
+          }
         }
       } catch (e) {
-        debugPrint('Auth0 Web init error: $e');
+        debugPrint(' [Auth0] Web init error: $e');
       }
     }
     await _loadFromStorage();
@@ -71,6 +82,10 @@ class Auth0AuthProvider implements AuthProvider {
   }
 
   Future<bool> _isTokenValid(String token) async {
+    if (kIsWeb) {
+      return _validateToken(
+          {'token': token, 'domain': _domain, 'audience': _audience});
+    }
     return await compute(_validateToken,
         {'token': token, 'domain': _domain, 'audience': _audience});
   }
@@ -79,13 +94,15 @@ class Auth0AuthProvider implements AuthProvider {
     final token = params['token'] as String;
     if (JwtDecoder.isExpired(token)) return false;
     final payload = JwtDecoder.decode(token);
-    final iss = payload['iss'];
+    final String iss = payload['iss']?.toString() ?? '';
     final aud = payload['aud'];
-    final expectedIssuer = 'https://${params['domain']}/';
+    final domain = params['domain'] as String;
+    final expectedIssuer = 'https://$domain/';
+    final expectedIssuerNoSlash = 'https://$domain';
     final expectedAudience = params['audience'] as String?;
 
-    // Check issuer
-    if (iss != expectedIssuer) return false;
+    // Check issuer (handle both with and without trailing slash)
+    if (iss != expectedIssuer && iss != expectedIssuerNoSlash) return false;
 
     // Check audience (can be string or list for API tokens)
     if (expectedAudience != null) {
@@ -217,6 +234,13 @@ class Auth0AuthProvider implements AuthProvider {
   Future<bool> handleCallback({String? url}) async {
     if (kIsWeb) {
       try {
+        // If initialize() already processed the callback, just return true
+        if (_currentUser != null) {
+          debugPrint(
+              ' [Auth0] Callback already processed via existing session');
+          return true;
+        }
+
         debugPrint(' [Auth0] Processing Web callback via onLoad()...');
         // Use Auth0Web to handle the redirect callback
         final auth0Web = Auth0Web(_domain, _clientId);
