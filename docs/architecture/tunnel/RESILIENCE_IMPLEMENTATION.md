@@ -11,6 +11,7 @@ This document describes the implementation of Task 3: Connection Resilience (Cli
 **Purpose:** Handles automatic reconnection with exponential backoff and jitter.
 
 **Key Features:**
+
 - Exponential backoff algorithm: `min(maxDelay, baseDelay * 2^(attempt-1) * (1 + jitter))`
 - Jitter: ±30% randomness to prevent thundering herd problem
 - Configurable max attempts, base delay, and max delay
@@ -19,6 +20,7 @@ This document describes the implementation of Task 3: Connection Resilience (Cli
 - Attempt tracking and statistics
 
 **Usage Example:**
+
 ```dart
 final reconnectionManager = ReconnectionManager(
   maxAttempts: 10,
@@ -40,6 +42,7 @@ if (success) {
 ```
 
 **Backoff Calculation:**
+
 - Attempt 1: ~2s (base delay)
 - Attempt 2: ~4s (2 * base delay)
 - Attempt 3: ~8s (4 * base delay)
@@ -54,6 +57,7 @@ Each delay has ±30% jitter applied.
 **Purpose:** Tracks connection lifecycle events and manages state transitions.
 
 **Key Features:**
+
 - Complete connection lifecycle tracking
 - Event history with configurable size limit (default: 100 events)
 - State transition management with automatic event recording
@@ -64,6 +68,7 @@ Each delay has ±30% jitter applied.
 - JSON serialization for persistence
 
 **Usage Example:**
+
 ```dart
 final stateTracker = ConnectionStateTracker(maxEventHistory: 100);
 
@@ -91,6 +96,7 @@ print('Reconnect attempts: ${stateTracker.reconnectAttempts}');
 ```
 
 **Event Types:**
+
 - `connected` - Connection established
 - `disconnected` - Connection closed
 - `reconnecting` - Attempting to reconnect
@@ -104,6 +110,7 @@ print('Reconnect attempts: ${stateTracker.reconnectAttempts}');
 **Purpose:** Implements ping/pong protocol for connection health monitoring.
 
 **Key Features:**
+
 - Configurable ping interval (default: 30s)
 - Configurable pong timeout (default: 45s = 1.5x ping interval)
 - Automatic connection loss detection
@@ -112,6 +119,7 @@ print('Reconnect attempts: ${stateTracker.reconnectAttempts}');
 - Message filtering (pong messages handled internally)
 
 **Usage Example:**
+
 ```dart
 // Using HeartbeatWebSocket wrapper
 final ws = HeartbeatWebSocket(
@@ -147,6 +155,7 @@ await ws.close();
 ```
 
 **Heartbeat Flow:**
+
 1. Send ping every 30 seconds
 2. Wait for pong response
 3. If pong received within 45 seconds, continue
@@ -158,6 +167,7 @@ await ws.close();
 **Purpose:** Orchestrates the complete connection recovery flow.
 
 **Key Features:**
+
 - Disconnection detection and handling
 - Automatic reconnection with backoff
 - Connection state restoration
@@ -167,6 +177,7 @@ await ws.close();
 - Recovery statistics and monitoring
 
 **Usage Example:**
+
 ```dart
 final recovery = ConnectionRecovery(
   reconnectionManager: reconnectionManager,
@@ -205,6 +216,7 @@ print('Queued requests: ${stats['queuedRequests']}');
 ```
 
 **Recovery Flow:**
+
 1. Detect disconnection (WebSocket error, heartbeat timeout, etc.)
 2. Update state to `disconnected`
 3. Record error and event
@@ -354,6 +366,7 @@ class TunnelServiceImpl {
 This implementation addresses the following requirements from the design document:
 
 ### Requirement 1: Connection Resilience and Auto-Recovery
+
 - ✅ 1.1: Exponential backoff with jitter for reconnection attempts
 - ✅ 1.2: Connection state maintained across reconnection attempts
 - ✅ 1.3: Request queuing during reconnection (coordinated with RequestQueue)
@@ -364,17 +377,20 @@ This implementation addresses the following requirements from the design documen
 - ✅ 1.10: Logging of all reconnection attempts with timestamps and reasons
 
 ### Requirement 6: WebSocket Connection Management
+
 - ✅ 6.1: WebSocket ping/pong heartbeat every 30 seconds
 - ✅ 6.2: Connection loss detection within 45 seconds (1.5x heartbeat interval)
 - ✅ 6.3: Server response to ping frames within 5 seconds (server-side)
 - ✅ 6.10: Logging of all WebSocket lifecycle events
 
 ### Requirement 11: Monitoring and Observability
+
 - ✅ 11.5: Connection lifecycle event logging
 
 ## Testing
 
 Unit tests should cover:
+
 - Exponential backoff calculation with jitter
 - State transition logic
 - Event history management
@@ -384,6 +400,7 @@ Unit tests should cover:
 - Error categorization
 
 Integration tests should cover:
+
 - End-to-end reconnection flow
 - Heartbeat-triggered recovery
 - Network change handling
@@ -413,6 +430,7 @@ final config = TunnelConfig(
 ```
 
 Predefined profiles:
+
 - `TunnelConfig.stableNetwork()` - 5 attempts, 1s base delay
 - `TunnelConfig.unstableNetwork()` - 20 attempts, 5s base delay
 - `TunnelConfig.lowBandwidth()` - 10 attempts, 3s base delay
@@ -448,6 +466,7 @@ Predefined profiles:
 The connection resilience implementation provides a robust foundation for handling network interruptions and connection failures. The modular design allows each component to be used independently or composed together for complete recovery functionality.
 
 All components follow Flutter best practices:
+
 - Use of `ChangeNotifier` for state management
 - Stream-based event notifications
 - Proper resource disposal

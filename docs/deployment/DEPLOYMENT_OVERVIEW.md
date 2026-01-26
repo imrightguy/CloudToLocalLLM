@@ -18,6 +18,7 @@ This document provides a comprehensive overview of deployment options and strate
 ### 🚀 Kubernetes Deployment (Recommended)
 
 Deploy the full CloudToLocalLLM stack to **Kubernetes** using Dockerfiles and Kubernetes manifests. Works with:
+
 - **Managed Kubernetes**: DigitalOcean Kubernetes (DOKS), Google GKE, AWS EKS, Azure AKS
 - **Self-Hosted Kubernetes**: On-premises or your own infrastructure
 
@@ -36,6 +37,7 @@ kubectl apply -f k8s/
 ```
 
 **Benefits:**
+
 - Scalable and secure environment for multiple users
 - Automated SSL certificate management via cert-manager
 - Auto-scaling and high availability
@@ -43,6 +45,7 @@ kubectl apply -f k8s/
 - Self-hosting option for businesses with security/compliance requirements
 
 **Requirements:**
+
 - Kubernetes cluster (managed or self-hosted)
 - Container registry (Docker Hub, DigitalOcean Container Registry, self-hosted, etc.)
 - Domain name with DNS configuration
@@ -51,6 +54,7 @@ kubectl apply -f k8s/
 ### 🏠 Self-Hosting Options
 
 For self-hosted Kubernetes deployments (on-premises or private cloud):
+
 - [Self-Hosted Kubernetes Guide](../../KUBERNETES_SELF_HOSTED_GUIDE.md) - Complete guide for businesses
 - [Self-Hosting Guide](../OPERATIONS/SELF_HOSTING.md) - General self-hosting information
 - [Infrastructure Guide](../OPERATIONS/INFRASTRUCTURE_GUIDE.md) - Server requirements
@@ -66,12 +70,14 @@ The legacy single-container deployment is deprecated and no longer supported. Pl
 CloudToLocalLLM features a modern multi-container architecture that provides:
 
 ### 🏗️ **Architecture Benefits**
+
 - **Scalability**: Easily handle multiple users and connections
 - **Resilience**: Isolated services prevent cascading failures
 - **Maintainability**: Clear separation of concerns simplifies development and updates
 - **Security**: Enhanced network policies and container isolation
 
 ### 🔧 **Key Containers**
+
 - `nginx-proxy`: SSL termination and request routing
 - `flutter-app`: The unified Flutter web application (UI, chat, marketing pages)
 - `api-backend`: Core API, authentication, and streaming proxy management
@@ -89,6 +95,7 @@ CloudToLocalLLM uses **Dockerfiles** for building container images, which are th
 ### 🐳 **Dockerfiles**
 
 #### `config/docker/Dockerfile.web`
+
 Builds the Flutter web application as a static site served by Nginx.
 
 ```bash
@@ -96,6 +103,7 @@ docker build -f config/docker/Dockerfile.web -t cloudtolocalllm-web:latest .
 ```
 
 #### `services/api-backend/Dockerfile.prod`
+
 Builds the Node.js API backend service.
 
 ```bash
@@ -121,10 +129,12 @@ kubectl apply -f k8s/ingress-nginx.yaml
 ```
 
 **Platform Options:**
+
 - **Managed Kubernetes**: DigitalOcean (DOKS), Google GKE, AWS EKS, Azure AKS
 - **Self-Hosted Kubernetes**: On-premises clusters, bare metal, or private cloud
 
 For detailed deployment instructions, see:
+
 - [Kubernetes Quick Start](../../k8s/README.md) - DigitalOcean example
 - [Kubernetes README](../../k8s/README.md) - Complete Kubernetes deployment guide (platform-agnostic)
 - [Self-Hosted Kubernetes Guide](../../KUBERNETES_SELF_HOSTED_GUIDE.md) - For businesses deploying on-premises
@@ -143,6 +153,7 @@ CloudToLocalLLM enforces a **zero-tolerance deployment policy** for production:
 - 🏆 **Quality**: Only perfect deployments reach production
 
 ### 📊 **Success Criteria**
+
 - Perfect HTTP 200 responses (no redirects)
 - Valid SSL certificates mandatory
 - Clean container logs (no errors)
@@ -170,26 +181,31 @@ For detailed information, see [Versioning Strategy](VERSIONING_STRATEGY.md).
 ## Related Documentation
 
 ### 📚 **Deployment Guides**
+
 - [Complete Deployment Workflow](COMPLETE_DEPLOYMENT_WORKFLOW.md)
 - [Strict Deployment Policy](STRICT_DEPLOYMENT_POLICY.md)
 - [VPS Quality Gates Specification](VPS_QUALITY_GATES_SPECIFICATION.md)
 - [Deployment Testing Guide](DEPLOYMENT_TESTING_GUIDE.md)
 
 ### 🔧 **Operations**
+
 - [Self-Hosting Guide](../OPERATIONS/SELF_HOSTING.md)
 - [Infrastructure Guide](../OPERATIONS/INFRASTRUCTURE_GUIDE.md)
-- 
+-
 
 ### ☸️ **Kubernetes Deployment**
+
 - [Kubernetes Quick Start](../../k8s/README.md) - DigitalOcean Kubernetes example
 - [Kubernetes README](../../k8s/README.md) - Complete Kubernetes deployment guide (works with any cluster)
 
 ### 🏗️ **Architecture**
+
 - [System Architecture](../ARCHITECTURE/SYSTEM_ARCHITECTURE.md)
 - [Multi-Container Architecture](../ARCHITECTURE/MULTI_CONTAINER_ARCHITECTURE.md)
 - [Streaming Proxy Architecture](../ARCHITECTURE/STREAMING_PROXY_ARCHITECTURE.md)
 
 ### 👨‍💻 **Development**
+
 - [Developer Onboarding](../DEVELOPMENT/DEVELOPER_ONBOARDING.md)
 - [API Documentation](../DEVELOPMENT/API_DOCUMENTATION.md)
 

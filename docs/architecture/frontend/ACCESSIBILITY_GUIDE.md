@@ -306,28 +306,33 @@ accessibilityService.announceToScreenReader(
 ## Platform-Specific Considerations
 
 ### Web
+
 - Use semantic HTML elements
 - Provide ARIA labels
 - Support keyboard navigation
 - Test with NVDA, JAWS, or VoiceOver
 
 ### Windows
+
 - Test with Narrator
 - Ensure keyboard shortcuts don't conflict with system shortcuts
 - Provide visible focus indicators
 
 ### Linux
+
 - Test with Orca screen reader
 - Ensure GTK accessibility is enabled
 - Support standard keyboard shortcuts
 
 ### iOS (Future)
+
 - Test with VoiceOver
 - Use proper accessibility traits
 - Support dynamic type
 - Ensure 44x44 minimum touch targets
 
 ### Android (Future)
+
 - Test with TalkBack
 - Use proper content descriptions
 - Support high contrast mode
@@ -376,7 +381,9 @@ flutter test test/integration/accessibility_*.dart
 ## Common Issues and Solutions
 
 ### Issue: Focus not visible
+
 **Solution:** Add focus indicator to custom widgets:
+
 ```dart
 Focus(
   child: Builder(
@@ -396,7 +403,9 @@ Focus(
 ```
 
 ### Issue: Screen reader not announcing
+
 **Solution:** Add Semantics widget:
+
 ```dart
 Semantics(
   label: 'Descriptive label',
@@ -407,7 +416,9 @@ Semantics(
 ```
 
 ### Issue: Poor contrast
+
 **Solution:** Use theme colors or validate:
+
 ```dart
 final textColor = Theme.of(context).textTheme.bodyLarge?.color;
 final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
@@ -429,6 +440,7 @@ if (!accessibilityService.validateContrastRatio(textColor!, backgroundColor)) {
 ## Support
 
 For questions or issues with accessibility implementation, please refer to:
+
 - `lib/services/accessibility_service.dart` - Accessibility service implementation
 - `lib/widgets/accessible_screen_wrapper.dart` - Screen wrapper implementation
 - `lib/utils/accessibility_helpers.dart` - Helper utilities

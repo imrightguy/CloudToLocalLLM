@@ -7,17 +7,20 @@ CloudToLocalLLM now provides native Windows system tray icon support using ICO f
 ## 🎯 Features
 
 ### **Multi-Size ICO Files**
+
 - **16x16**: Standard system tray size
 - **24x24**: High DPI displays
 - **32x32**: Large icon mode
 - **48x48**: Extra large displays
 
 ### **Platform-Specific Icon Selection**
+
 - **Windows**: Uses `.ico` files for optimal system tray compatibility
 - **Linux/macOS**: Uses `.png` files for cross-platform consistency
 - **Automatic Detection**: Platform detection via `Platform.isWindows`
 
 ### **Connection Status Icons**
+
 - **Connected**: `tray_icon_connected.ico` - Green indicator for active connections
 - **Disconnected**: `tray_icon_disconnected.ico` - Red indicator for no connections
 - **Connecting**: `tray_icon_connecting.ico` - Yellow indicator for connection in progress
@@ -26,6 +29,7 @@ CloudToLocalLLM now provides native Windows system tray icon support using ICO f
 ## 🏗️ Implementation Details
 
 ### **Icon Path Logic**
+
 ```dart
 String _getIconPath(TrayConnectionStatus status) {
   // Use .ico files on Windows for better system tray compatibility
@@ -41,6 +45,7 @@ String _getIconPath(TrayConnectionStatus status) {
 ```
 
 ### **Fallback Icon Support**
+
 ```dart
 // Try with a fallback icon using platform-specific format
 final fallbackExtension = Platform.isWindows ? '.ico' : '.png';
@@ -66,6 +71,7 @@ assets/images/
 ## 🔧 Icon Generation
 
 ### **Conversion Script**
+
 The project includes `scripts/convert_icons_to_ico.py` for converting PNG icons to ICO format:
 
 ```bash
@@ -73,6 +79,7 @@ python scripts/convert_icons_to_ico.py
 ```
 
 ### **ICO File Specifications**
+
 - **Format**: Windows ICO with embedded multiple sizes
 - **Sizes**: 16x16, 24x24, 32x32, 48x48 pixels
 - **Color Depth**: 32-bit RGBA for transparency support
@@ -81,12 +88,14 @@ python scripts/convert_icons_to_ico.py
 ## 🎨 Design Guidelines
 
 ### **Icon Design Principles**
+
 - **Clarity**: Icons remain clear at 16x16 pixels
 - **Contrast**: High contrast for visibility in both light and dark themes
 - **Consistency**: Unified design language across all connection states
 - **Branding**: Uses CloudToLocalLLM visual identity
 
 ### **Theme Compatibility**
+
 - **Light Theme**: Icons designed for light system tray backgrounds
 - **Dark Theme**: Sufficient contrast for dark system tray backgrounds
 - **High Contrast**: Accessible design for high contrast Windows themes
@@ -94,11 +103,13 @@ python scripts/convert_icons_to_ico.py
 ## 🧪 Testing
 
 ### **Automated Tests**
+
 ```bash
 flutter test test/services/native_tray_service_test.dart
 ```
 
 ### **Manual Testing Checklist**
+
 - [ ] Icons display correctly in Windows system tray
 - [ ] All connection states show appropriate icons
 - [ ] Icons scale properly on high DPI displays
@@ -108,6 +119,7 @@ flutter test test/services/native_tray_service_test.dart
 ## 🔄 Platform Abstraction
 
 ### **Cross-Platform Compatibility**
+
 The implementation maintains the existing platform abstraction pattern:
 
 ```dart
@@ -118,11 +130,13 @@ static bool get isMacOS => Platform.isMacOS;
 ```
 
 ### **Consistent API**
+
 The same `NativeTrayService` API works across all platforms while using platform-optimized icon formats internally.
 
 ## 📦 Asset Management
 
 ### **pubspec.yaml Configuration**
+
 ```yaml
 flutter:
   assets:
@@ -130,6 +144,7 @@ flutter:
 ```
 
 ### **Build Integration**
+
 ICO files are automatically included in Windows builds and available at runtime through the Flutter asset system.
 
 ## 🚀 Benefits

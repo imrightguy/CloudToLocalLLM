@@ -131,16 +131,19 @@ Warning: 299 - "API version v1 is deprecated. Migrate to v2 before 2025-01-01"
 ### Step 1: Update Base URL
 
 Change your API base URL from:
+
 ```
 https://api.cloudtolocalllm.online/v1
 ```
 
 To:
+
 ```
 https://api.cloudtolocalllm.online/v2
 ```
 
 Or simply use:
+
 ```
 https://api.cloudtolocalllm.online
 ```
@@ -150,6 +153,7 @@ https://api.cloudtolocalllm.online
 Update your code to handle the new v2 response format:
 
 **Before (v1):**
+
 ```javascript
 const response = await fetch('/v1/users/me');
 const data = await response.json();
@@ -157,6 +161,7 @@ const email = data.data.userEmail;
 ```
 
 **After (v2):**
+
 ```javascript
 const response = await fetch('/v2/users/me');
 const data = await response.json();
@@ -168,6 +173,7 @@ const email = data.user.email;
 Update error handling to use the new v2 error format:
 
 **Before (v1):**
+
 ```javascript
 if (!response.ok) {
   const error = await response.json();
@@ -176,6 +182,7 @@ if (!response.ok) {
 ```
 
 **After (v2):**
+
 ```javascript
 if (!response.ok) {
   const error = await response.json();
@@ -216,6 +223,7 @@ curl https://api.cloudtolocalllm.online/api/versions
 ```
 
 Response:
+
 ```json
 {
   "currentVersion": "v2",
@@ -254,6 +262,7 @@ Response:
 ## Support
 
 For questions about API versioning or migration help, contact:
+
 - Email: support@cloudtolocalllm.online
 - Documentation: https://docs.cloudtolocalllm.online
 - GitHub Issues: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
@@ -263,6 +272,7 @@ For questions about API versioning or migration help, contact:
 ### Versioning Middleware
 
 The API uses middleware to:
+
 1. Extract version from URL path
 2. Validate version is supported
 3. Add version info to request object
@@ -272,6 +282,7 @@ The API uses middleware to:
 ### Version Routing
 
 Routes are registered under version-specific paths:
+
 - `/v1/endpoint` - v1 handler
 - `/v2/endpoint` - v2 handler
 - `/endpoint` - defaults to v2 handler
@@ -279,12 +290,14 @@ Routes are registered under version-specific paths:
 ### Response Transformation
 
 Response format is automatically transformed based on the requested version:
+
 - v1 requests get v1 response format
 - v2 requests get v2 response format
 
 ## Future Versions
 
 When v3 is released:
+
 1. v2 will remain current for 12 months
 2. v2 will be marked as deprecated
 3. v3 will become the default version

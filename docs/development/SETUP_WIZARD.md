@@ -49,6 +49,7 @@ lib/
 ### Service Layer Architecture
 
 #### SetupStatusService
+
 Manages user setup completion status and progress tracking.
 
 ```dart
@@ -63,6 +64,7 @@ class SetupStatusService {
 ```
 
 #### UserContainerService
+
 Handles creation and management of user-specific streaming proxy containers.
 
 ```dart
@@ -76,6 +78,7 @@ class UserContainerService {
 ```
 
 #### PlatformDetectionService
+
 Detects user's operating system and provides appropriate download options.
 
 ```dart
@@ -182,6 +185,7 @@ class _ExampleStepState extends State<ExampleStep> {
 ### Error Handling Strategy
 
 #### Error Categories
+
 1. **Network Errors**: Connection failures, timeouts
 2. **Platform Errors**: Unsupported OS, detection failures
 3. **Download Errors**: File corruption, server unavailability
@@ -347,6 +351,7 @@ void main() {
 ### Performance Considerations
 
 #### Lazy Loading
+
 ```dart
 class SetupWizard extends StatefulWidget {
   @override
@@ -371,6 +376,7 @@ class _SetupWizardState extends State<SetupWizard> {
 ```
 
 #### Memory Management
+
 ```dart
 class SetupWizardState extends State<SetupWizard> {
   @override
@@ -729,40 +735,50 @@ class SetupAuthGuard {
 ### Common Development Issues
 
 #### Issue: Setup wizard doesn't appear for new users
+
 **Cause**: Setup status detection not working correctly
 **Solution**:
+
 1. Check `SetupStatusService.isFirstTimeUser()` implementation
 2. Verify database connection and user_setup_status table
 3. Check authentication state before setup check
 4. Review routing logic in main app
 
 #### Issue: Container creation fails
+
 **Cause**: Docker API connection or permissions
 **Solution**:
+
 1. Verify Docker daemon is running
 2. Check API backend container management permissions
 3. Review container creation logs
 4. Test Docker API endpoints manually
 
 #### Issue: Platform detection returns 'unknown'
+
 **Cause**: User agent parsing or unsupported browser
 **Solution**:
+
 1. Check user agent string parsing logic
 2. Add support for new browser/OS combinations
 3. Implement fallback to manual selection
 4. Test on different browsers and devices
 
 #### Issue: Download links are broken
+
 **Cause**: GitHub releases API or URL generation
 **Solution**:
+
 1. Verify GitHub releases exist and are public
 2. Check download URL generation logic
 3. Test alternative download mirrors
 4. Review GitHub API rate limits
 
 #### Issue: Validation tests fail
+
 **Cause**: Network connectivity or service availability
 **Solution**:
+
 1. Check desktop client is running and accessible
 2. Verify tunnel configuration is correct
 3. Test local LLM connectivity manually
@@ -832,6 +848,7 @@ class SetupApiLogger extends Interceptor {
 ### Code Style
 
 Follow the established Flutter/Dart conventions:
+
 - Use `snake_case` for file names and variables
 - Use `PascalCase` for class names
 - Use `camelCase` for method names

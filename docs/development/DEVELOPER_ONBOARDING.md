@@ -1,10 +1,11 @@
 # CloudToLocalLLM Developer Onboarding Guide
 
-## 🚀 Welcome to CloudToLocalLLM Development!
+## 🚀 Welcome to CloudToLocalLLM Development
 
 This guide will help you get started contributing to CloudToLocalLLM v3.4.0+. The project uses a unified Flutter-native architecture with integrated system tray functionality.
 
 **What You'll Learn:**
+
 - 🏗️ Project architecture and structure
 - 🛠️ Development environment setup
 - 🔧 Build and testing procedures
@@ -16,6 +17,7 @@ This guide will help you get started contributing to CloudToLocalLLM v3.4.0+. Th
 ## 📋 **Prerequisites**
 
 ### **Required Tools**
+
 - **Flutter SDK**: 3.8.0 or later
 - **Dart SDK**: Included with Flutter
 - **Git**: Version control
@@ -26,6 +28,7 @@ This guide will help you get started contributing to CloudToLocalLLM v3.4.0+. Th
 ### **Platform-Specific Requirements**
 
 #### **Linux Development**
+
 ```bash
 # Ubuntu/Debian
 sudo apt update
@@ -39,6 +42,7 @@ flutter config --enable-linux-desktop
 ```
 
 #### **Windows Development**
+
 ```powershell
 # Install Flutter via chocolatey
 choco install flutter
@@ -49,6 +53,7 @@ flutter config --enable-windows-desktop
 ```
 
 #### **macOS Development**
+
 ```bash
 # Install Flutter via homebrew
 brew install flutter
@@ -62,6 +67,7 @@ flutter config --enable-macos-desktop
 ## 🏗️ **Project Architecture Overview**
 
 ### **Unified Flutter-Native Architecture**
+
 CloudToLocalLLM v3.4.0+ uses a single Flutter application with:
 
 - **Integrated System Tray**: Native tray functionality using `tray_manager`
@@ -70,6 +76,7 @@ CloudToLocalLLM v3.4.0+ uses a single Flutter application with:
 - **Zero External Dependencies**: No separate daemon processes
 
 ### **Key Directories**
+
 ```
 CloudToLocalLLM/
 ├── lib/                    # Main Flutter application
@@ -98,6 +105,7 @@ CloudToLocalLLM/
 ```
 
 ### **Core Services**
+
 - **NativeTrayService**: System tray integration
 - **TunnelManagerService**: Connection management
 - **UnifiedConnectionService**: Platform-specific connections
@@ -105,6 +113,7 @@ CloudToLocalLLM/
 - **StreamingChatService**: Chat functionality with real-time streaming
 
 ### **Web Platform Integration**
+
 - **Auth0 Bridge** (`web/auth0-bridge.js`): JavaScript bridge for seamless Auth0 authentication in Flutter web
 - **Unified Web Architecture**: Single Flutter codebase handles both marketing and application routes
 - **Platform Detection**: Automatic routing based on web vs desktop platform
@@ -114,12 +123,14 @@ CloudToLocalLLM/
 ## 🛠️ **Development Environment Setup**
 
 ### **1. Clone the Repository**
+
 ```bash
 git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
 cd CloudToLocalLLM
 ```
 
 ### **2. Flutter Setup**
+
 ```bash
 # Verify Flutter installation
 flutter doctor
@@ -136,14 +147,18 @@ flutter config --enable-macos-desktop
 ### **3. IDE Configuration**
 
 #### **VS Code (Recommended)**
+
 Install these extensions:
+
 - **Flutter**: Official Flutter extension
 - **Dart**: Dart language support
 - **Flutter Widget Snippets**: Helpful code snippets
 - **Bracket Pair Colorizer**: Better bracket visualization
 
 #### **Kiro IDE (Enhanced Development)**
+
 CloudToLocalLLM includes specialized Kiro IDE configuration with:
+
 - **Custom AI Assistant Modes**: Task-specific AI assistance for documentation, code review, testing, and refactoring
 - **MCP Tool Integration**: Browser automation, documentation lookup, and workflow automation
 - **Development Hooks**: Automated linting, commit management, and documentation sync
@@ -151,12 +166,15 @@ CloudToLocalLLM includes specialized Kiro IDE configuration with:
 See the [Kiro IDE Configuration Guide](KIRO_IDE_CONFIGURATION.md) for setup instructions.
 
 #### **Launch Configuration**
+
 The project includes `.vscode/launch.json` with pre-configured debug settings:
+
 - **Debug (Desktop)**: Run on desktop platform
 - **Debug (Web)**: Run in web browser
 - **Debug (Verbose)**: Run with detailed logging
 
 ### **4. API Backend Setup** (Optional)
+
 ```bash
 cd api-backend
 npm install
@@ -164,6 +182,7 @@ npm run dev
 ```
 
 **Testing the API Backend:**
+
 ```bash
 # Run backend tests with ES module support
 npm test
@@ -182,6 +201,7 @@ npm test -- tests/tunnel-message-protocol.test.js
 ## 🔧 **Building and Testing**
 
 ### **Development Builds**
+
 ```bash
 # Run in debug mode (hot reload enabled)
 flutter run -d linux
@@ -198,6 +218,7 @@ flutter run -d <device-id>
 ```
 
 ### **Release Builds**
+
 ```bash
 # Build for Linux
 flutter build linux --release
@@ -213,6 +234,7 @@ flutter build linux --target-platform linux-x64
 ```
 
 ### **Testing**
+
 ```bash
 # Run all tests
 flutter test
@@ -228,6 +250,7 @@ flutter test integration_test/
 ```
 
 ### **Code Quality**
+
 ```bash
 # Analyze code
 flutter analyze
@@ -244,6 +267,7 @@ flutter pub deps
 ## 📝 **Development Workflow**
 
 ### **1. Feature Development**
+
 1. **Create Feature Branch**: `git checkout -b feature/your-feature-name`
 2. **Implement Changes**: Follow coding standards and architecture patterns
 3. **Write Tests**: Add unit and integration tests
@@ -253,6 +277,7 @@ flutter pub deps
 ### **2. Code Standards**
 
 #### **Flutter/Dart Standards**
+
 - Follow [Effective Dart](https://dart.dev/guides/language/effective-dart) guidelines
 - Use `flutter_lints` package rules (already configured)
 - Prefer composition over inheritance
@@ -260,6 +285,7 @@ flutter pub deps
 - Add documentation comments for public APIs
 
 #### **File Organization**
+
 ```dart
 // File header with description
 /// Service for managing native system tray functionality
@@ -284,6 +310,7 @@ class NativeTrayService with TrayListener {
 ### **3. Testing Guidelines**
 
 #### **Unit Tests**
+
 ```dart
 // test/services/native_tray_service_test.dart
 import 'package:flutter_test/flutter_test.dart';
@@ -302,6 +329,7 @@ void main() {
 ```
 
 #### **Widget Tests**
+
 ```dart
 // test/widgets/chat_message_test.dart
 import 'package:flutter/material.dart';
@@ -331,6 +359,7 @@ void main() {
 ### **Common Development Issues**
 
 #### **System Tray Not Working**
+
 ```bash
 # Check platform support
 flutter run -d linux --verbose
@@ -343,6 +372,7 @@ flutter pub deps | grep tray_manager
 ```
 
 #### **Build Failures**
+
 ```bash
 # Clean build cache
 flutter clean
@@ -356,6 +386,7 @@ flutter config
 ```
 
 #### **Hot Reload Issues**
+
 ```bash
 # Restart with clean state
 flutter run --hot
@@ -367,11 +398,13 @@ flutter run --hot
 ### **Debugging Tools**
 
 #### **Flutter Inspector**
+
 - **VS Code**: View → Command Palette → "Flutter: Open Widget Inspector"
 - **Chrome DevTools**: Available when running web version
 - **Widget Tree**: Inspect widget hierarchy and properties
 
 #### **Logging**
+
 ```dart
 // Use debugPrint for development logging
 debugPrint('🖥️ [NativeTray] Initializing native tray service...');
@@ -383,6 +416,7 @@ if (kDebugMode) {
 ```
 
 #### **Performance Profiling**
+
 ```bash
 # Profile app performance
 flutter run --profile
@@ -396,11 +430,13 @@ flutter run --profile --trace-startup
 ## 🔄 **Contribution Process**
 
 ### **1. Before Starting**
+
 - Check existing issues and PRs
 - Discuss major changes in GitHub Discussions
 - Follow the project roadmap and priorities
 
 ### **2. Development Process**
+
 1. **Fork Repository**: Create your own fork
 2. **Create Branch**: Use descriptive branch names
 3. **Implement Changes**: Follow coding standards
@@ -408,6 +444,7 @@ flutter run --profile --trace-startup
 5. **Update Documentation**: Keep docs current
 
 ### **3. Pull Request Process**
+
 1. **Create PR**: Use the provided PR template
 2. **Describe Changes**: Explain what and why
 3. **Link Issues**: Reference related issues
@@ -415,6 +452,7 @@ flutter run --profile --trace-startup
 5. **Address Feedback**: Respond to review comments
 
 ### **4. Review Criteria**
+
 - ✅ Code follows project standards
 - ✅ Tests pass and coverage is maintained
 - ✅ Documentation is updated
@@ -426,17 +464,20 @@ flutter run --profile --trace-startup
 ## 📚 **Additional Resources**
 
 ### **Documentation**
+
 - [Flutter Documentation](https://flutter.dev/docs)
 - [Dart Language Tour](https://dart.dev/guides/language/language-tour)
 - [tray_manager Package](https://pub.dev/packages/tray_manager)
 - [Project Architecture Docs](../ARCHITECTURE/)
 
 ### **Community**
+
 - **GitHub Discussions**: Ask questions and share ideas
 - **GitHub Issues**: Report bugs and request features
 - **Code Reviews**: Learn from existing PRs
 
 ### **Development Tools**
+
 - **Flutter DevTools**: Performance and debugging
 - **Dart Analyzer**: Code quality analysis
 - **Flutter Inspector**: Widget debugging

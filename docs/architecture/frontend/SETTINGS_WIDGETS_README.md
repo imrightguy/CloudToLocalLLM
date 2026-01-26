@@ -101,6 +101,7 @@ SettingsForm(
 ## Accessibility
 
 All widgets include:
+
 - Proper semantic labels
 - Keyboard navigation support
 - Screen reader compatibility
@@ -110,6 +111,7 @@ All widgets include:
 ## Responsive Design
 
 Widgets adapt to different screen sizes:
+
 - Mobile (< 600px): Full-width inputs, stacked layout
 - Tablet (600-1024px): Optimized spacing, two-column layout
 - Desktop (> 1024px): Three-column layout with sidebar
@@ -117,6 +119,7 @@ Widgets adapt to different screen sizes:
 ## Theming
 
 All widgets respect the current theme:
+
 - Material Design colors
 - Custom theme extensions
 - Dark mode support

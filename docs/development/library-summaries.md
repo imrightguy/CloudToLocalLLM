@@ -25,5 +25,6 @@ This file contains concise, project-relevant summaries for commonly used librari
 ---
 
 If you'd like, I can:
+
 - Add short usage snippets for each library (2–3 lines each).
 - Commit the file (I will commit & push it now). If you prefer a different file path or format, tell me and I'll adapt.

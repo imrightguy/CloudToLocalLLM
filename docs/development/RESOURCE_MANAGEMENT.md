@@ -9,12 +9,14 @@ This document defines the resource management strategy for the CloudToLocalLLM A
 **Managed by**: `undici` (high-performance HTTP client)
 
 **Capabilities**:
+
 - Connection pooling with configurable pool size
 - HTTP/1.1 keep-alive connections
 - Request pipelining
 - Fine-grained control over HTTP requests
 
 **Usage Example**:
+
 ```javascript
 import { Pool, request } from 'undici';
 
@@ -33,6 +35,7 @@ const { body } = await pool.request({
 ```
 
 **Environment Variables**:
+
 - `UNDICI_POOL_SIZE`: Maximum connections in pool (default: 100)
 - `UNDICI_KEEP_ALIVE_TIMEOUT`: Keep-alive timeout in ms (default: 60000)
 
@@ -41,6 +44,7 @@ const { body } = await pool.request({
 **Managed by**: `systeminformation` (comprehensive system monitoring)
 
 **Capabilities**:
+
 - CPU usage and load averages
 - Memory usage (heap, RSS, free memory)
 - Disk usage and I/O statistics
@@ -48,6 +52,7 @@ const { body } = await pool.request({
 - Process information
 
 **Usage Example**:
+
 ```javascript
 import si from 'systeminformation';
 
@@ -68,6 +73,7 @@ const processInfo = await si.processLoad();
 ```
 
 **Available Metrics**:
+
 - `si.cpu()` - CPU cores, speed, model
 - `si.cpuLoad()` - Current CPU load
 - `si.mem()` - Memory usage
@@ -84,6 +90,7 @@ const processInfo = await si.processLoad();
 **Managed by**: `fs-extra` (enhanced file system utilities)
 
 **Capabilities**:
+
 - Promise-based file operations
 - Directory creation with `recursive: true`
 - File copying and moving with metadata
@@ -91,6 +98,7 @@ const processInfo = await si.processLoad();
 - Error handling for common file issues
 
 **Usage Example**:
+
 ```javascript
 import fs from 'fs-extra';
 
@@ -117,6 +125,7 @@ await fs.remove('/path/to/file');
 **Managed by**: `zod` (schema validation)
 
 **Capabilities**:
+
 - Type-safe schema definition
 - Runtime validation
 - Type inference
@@ -124,6 +133,7 @@ await fs.remove('/path/to/file');
 - Error messages
 
 **Usage Example**:
+
 ```javascript
 import { z } from 'zod';
 

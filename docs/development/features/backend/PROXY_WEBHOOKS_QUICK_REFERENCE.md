@@ -3,6 +3,7 @@
 ## API Endpoints
 
 ### Register Webhook
+
 ```bash
 POST /api/proxy/:proxyId/webhooks
 Content-Type: application/json
@@ -27,6 +28,7 @@ Response: 201 Created
 ```
 
 ### List Webhooks
+
 ```bash
 GET /api/proxy/:proxyId/webhooks?limit=50&offset=0
 
@@ -50,6 +52,7 @@ Response: 200 OK
 ```
 
 ### Get Webhook Details
+
 ```bash
 GET /api/proxy/:proxyId/webhooks/:webhookId
 
@@ -67,6 +70,7 @@ Response: 200 OK
 ```
 
 ### Update Webhook
+
 ```bash
 PUT /api/proxy/:proxyId/webhooks/:webhookId
 Content-Type: application/json
@@ -81,6 +85,7 @@ Response: 200 OK
 ```
 
 ### Delete Webhook
+
 ```bash
 DELETE /api/proxy/:proxyId/webhooks/:webhookId
 
@@ -92,6 +97,7 @@ Response: 200 OK
 ```
 
 ### Get Delivery History
+
 ```bash
 GET /api/proxy/:proxyId/webhooks/:webhookId/deliveries?limit=50&offset=0
 
@@ -118,6 +124,7 @@ Response: 200 OK
 ```
 
 ### Get Delivery Status
+
 ```bash
 GET /api/proxy/:proxyId/webhooks/:webhookId/deliveries/:deliveryId
 
@@ -199,6 +206,7 @@ function verifySignature(payload, signature, secret) {
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "error": "Bad request",
@@ -208,6 +216,7 @@ function verifySignature(payload, signature, secret) {
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "error": "Authentication required",
@@ -217,6 +226,7 @@ function verifySignature(payload, signature, secret) {
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "error": "Not found",
@@ -226,6 +236,7 @@ function verifySignature(payload, signature, secret) {
 ```
 
 ### 503 Service Unavailable
+
 ```json
 {
   "error": "Service unavailable",
@@ -237,6 +248,7 @@ function verifySignature(payload, signature, secret) {
 ## Service Integration
 
 ### Trigger Webhook Event
+
 ```javascript
 const webhookService = new ProxyWebhookService();
 await webhookService.initialize();
@@ -251,6 +263,7 @@ await webhookService.triggerWebhookEvent(
 ```
 
 ### Retry Failed Deliveries
+
 ```javascript
 // Call periodically (e.g., every minute)
 await webhookService.retryFailedDeliveries();
@@ -259,14 +272,17 @@ await webhookService.retryFailedDeliveries();
 ## Database Tables
 
 ### proxy_webhooks
+
 - Webhook registrations
 - Indexed by: user_id, proxy_id, is_active
 
 ### proxy_webhook_deliveries
+
 - Delivery attempts and status
 - Indexed by: webhook_id, status, next_retry_at
 
 ### proxy_webhook_events
+
 - Event audit log
 - Indexed by: webhook_id, event_type, created_at
 
@@ -281,6 +297,7 @@ await webhookService.retryFailedDeliveries();
 ## Property Validation
 
 ✅ **Property 13: Webhook delivery consistency**
+
 - For any webhook, delivery should be attempted with retry logic
 - For any webhook, signature should be verified on receipt
 - For any webhook, delivery status should be tracked

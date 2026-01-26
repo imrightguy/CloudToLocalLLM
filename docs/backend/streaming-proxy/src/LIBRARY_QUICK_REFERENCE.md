@@ -5,6 +5,7 @@ Quick lookup guide for implementing features using ws, ssh2, and prom-client lib
 ## WebSocket (ws) - Quick Lookup
 
 ### Connection Heartbeat
+
 ```typescript
 // Server-side heartbeat
 function heartbeat() {
@@ -27,6 +28,7 @@ const interval = setInterval(() => {
 ```
 
 ### Frame Size Validation
+
 ```typescript
 // Enforce 1MB max frame size
 const ws = new WebSocket(url, {
@@ -35,6 +37,7 @@ const ws = new WebSocket(url, {
 ```
 
 ### Compression Configuration
+
 ```typescript
 // Enable permessage-deflate
 const wss = new WebSocketServer({
@@ -54,6 +57,7 @@ const wss = new WebSocketServer({
 ```
 
 ### Authentication During Upgrade
+
 ```typescript
 server.on('upgrade', (request, socket, head) => {
   const token = new URL(request.url, 'ws://base').searchParams.get('token');
@@ -71,6 +75,7 @@ server.on('upgrade', (request, socket, head) => {
 ```
 
 ### Graceful Close
+
 ```typescript
 // Close with proper handshake
 ws.close(1000, 'Normal closure');
@@ -86,6 +91,7 @@ wss.clients.forEach((client) => {
 ## SSH2 - Quick Lookup
 
 ### Security Configuration
+
 ```typescript
 const conn = new Client();
 conn.connect({
@@ -102,6 +108,7 @@ conn.connect({
 ```
 
 ### Keep-Alive Implementation
+
 ```typescript
 // Send keep-alive every 60 seconds
 const keepAliveInterval = setInterval(() => {
@@ -120,6 +127,7 @@ const keepAliveInterval = setInterval(() => {
 ```
 
 ### Channel Multiplexing
+
 ```typescript
 // Track channels per connection
 let channelCount = 0;
@@ -138,6 +146,7 @@ function closeChannel() {
 ```
 
 ### SSH Compression
+
 ```typescript
 const conn = new Client();
 conn.connect({
@@ -151,6 +160,7 @@ conn.connect({
 ```
 
 ### Port Forwarding (Local)
+
 ```typescript
 // Forward local port to remote service
 conn.forwardOut('127.0.0.1', 8000, '10.1.1.40', 22, (err, stream) => {
@@ -167,6 +177,7 @@ conn.forwardOut('127.0.0.1', 8000, '10.1.1.40', 22, (err, stream) => {
 ```
 
 ### Port Forwarding (Remote)
+
 ```typescript
 // Request server to listen and forward to client
 conn.forwardIn('127.0.0.1', 8000, (err) => {
@@ -182,6 +193,7 @@ conn.on('tcp connection', (info, accept, reject) => {
 ```
 
 ### Error Handling
+
 ```typescript
 // Categorize SSH errors
 function categorizeSSHError(error) {
@@ -207,6 +219,7 @@ conn.on('error', (err) => {
 ## Prometheus Client (prom-client) - Quick Lookup
 
 ### Counter Metric
+
 ```typescript
 const requestCounter = new Counter({
   name: 'http_requests_total',
@@ -220,6 +233,7 @@ requestCounter.inc({ method: 'POST', status: '201' }, 5); // Increment by 5
 ```
 
 ### Gauge Metric
+
 ```typescript
 const activeConnections = new Gauge({
   name: 'active_connections',
@@ -234,6 +248,7 @@ activeConnections.dec({ service: 'api' }, 3);
 ```
 
 ### Histogram Metric
+
 ```typescript
 const requestDuration = new Histogram({
   name: 'http_request_duration_seconds',
@@ -252,6 +267,7 @@ end(); // Records duration automatically
 ```
 
 ### Summary Metric
+
 ```typescript
 const latency = new Summary({
   name: 'request_latency_seconds',
@@ -270,6 +286,7 @@ end();
 ```
 
 ### Bucket Generation
+
 ```typescript
 // Linear buckets: [0, 100, 200, 300, 400, 500]
 buckets: linearBuckets(0, 100, 6)
@@ -279,6 +296,7 @@ buckets: exponentialBuckets(1, 2, 6)
 ```
 
 ### Metrics Endpoint
+
 ```typescript
 const express = require('express');
 const app = express();
@@ -294,6 +312,7 @@ app.get('/metrics', async (req, res) => {
 ```
 
 ### Default Metrics
+
 ```typescript
 const { collectDefaultMetrics, register } = require('prom-client');
 
@@ -309,6 +328,7 @@ collectDefaultMetrics({
 ```
 
 ### Custom Registry
+
 ```typescript
 const customRegistry = new Registry();
 
@@ -323,6 +343,7 @@ const metrics = await customRegistry.metrics();
 ```
 
 ### Metric Initialization
+
 ```typescript
 // Initialize all expected label combinations to zero
 const histogram = new Histogram({
@@ -340,6 +361,7 @@ histogram.zero({ method: 'POST', endpoint: '/api/users' });
 ## Common Patterns
 
 ### WebSocket + Metrics
+
 ```typescript
 const requestCounter = new Counter({
   name: 'ws_messages_total',
@@ -356,6 +378,7 @@ wss.on('connection', (ws) => {
 ```
 
 ### SSH + Metrics
+
 ```typescript
 const sshErrors = new Counter({
   name: 'ssh_errors_total',
@@ -370,6 +393,7 @@ conn.on('error', (err) => {
 ```
 
 ### Connection Pool + Metrics
+
 ```typescript
 const poolSize = new Gauge({
   name: 'connection_pool_size',
@@ -387,18 +411,21 @@ poolSize.set({ status: 'idle' }, idleCount);
 ## Troubleshooting
 
 ### WebSocket Connection Issues
+
 - Check heartbeat interval (30s recommended)
 - Verify frame size limits (1MB default)
 - Check authentication token validation
 - Verify close codes (1000=normal, 1001=going away)
 
 ### SSH Connection Issues
+
 - Verify security algorithms are supported
 - Check keep-alive interval (60s recommended)
 - Verify channel limits (10 per connection)
 - Check error categorization for proper recovery
 
 ### Metrics Issues
+
 - Verify label cardinality (avoid high-cardinality labels)
 - Check bucket configuration for histograms
 - Verify metric initialization with zero()

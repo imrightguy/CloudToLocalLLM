@@ -8,6 +8,7 @@
 ## Quick Start
 
 **New to authentication issues?** Start here:
+
 1. **Problem**: Auth0 login succeeded but API calls failed with 401 errors
 2. **Root Cause**: Token audience mismatch between frontend and backend
 3. **Solution**: Updated frontend to request tokens with correct audience
@@ -18,6 +19,7 @@
 ## What Was Wrong
 
 After successful Auth0 login, all API calls failed with 401 errors because:
+
 - **Frontend** requested tokens with audience: `https://dev-vivn1fcgzi0c2czy.us.auth0.com/api/v2/` (Auth0 Management API)
 - **Backend** expected tokens with audience: `https://api.cloudtolocalllm.online` (Application API)
 - **Result**: Audience mismatch → Backend rejected tokens → 401 Unauthorized
@@ -48,6 +50,7 @@ const AUTH0_AUDIENCE = 'https://api.cloudtolocalllm.online';
 ## Current Architecture
 
 ### Token Flow
+
 ```
 User Login
     ↓
@@ -70,12 +73,14 @@ Backend Validates Token
 ### Components
 
 #### Frontend (web/auth0-bridge.js)
+
 - **Auth0 Domain**: `dev-vivn1fcgzi0c2czy.us.auth0.com`
 - **Client ID**: `FuXPnevXpp311CdYHGsbNZe9t3D8Ts7A`
 - **Audience**: `https://api.cloudtolocalllm.online` ✅
 - **Scope**: `openid profile email offline_access`
 
 #### Backend (services/api-backend/middleware/auth.js)
+
 - **Expected Audience**: `https://api.cloudtolocalllm.online`
 - **JWKS URI**: `https://dev-vivn1fcgzi0c2czy.us.auth0.com/.well-known/jwks.json`
 - **Validation**: RS256 signature + audience verification
@@ -85,6 +90,7 @@ Backend Validates Token
 ## Environment Configuration
 
 ### Backend Environment Variables
+
 ```bash
 # Required (or uses default)
 AUTH0_AUDIENCE=https://api.cloudtolocalllm.online
@@ -95,6 +101,7 @@ SUPABASE_JWT_SECRET=(configured)
 ```
 
 ### Frontend Configuration
+
 - Configured in `web/auth0-bridge.js`
 - No environment variables needed
 - Uses Auth0 SPA SDK from CDN
@@ -104,6 +111,7 @@ SUPABASE_JWT_SECRET=(configured)
 ## Testing & Verification
 
 ### Manual Testing Checklist
+
 ```
 1. ✅ Clear browser cache
 2. ✅ Navigate to app
@@ -115,6 +123,7 @@ SUPABASE_JWT_SECRET=(configured)
 ```
 
 ### API Endpoints Verified
+
 - ✅ `POST /auth/sessions` - Create authenticated session
 - ✅ `GET /user/tier` - Get user tier information
 - ✅ `GET /ollama/bridge/status` - Get Ollama bridge status
@@ -122,6 +131,7 @@ SUPABASE_JWT_SECRET=(configured)
 - ✅ All other protected endpoints
 
 ### Backend Log Verification
+
 Look for: `Token verification successful (Audience verified)`
 
 ---
@@ -145,6 +155,7 @@ Look for: `Token verification successful (Audience verified)`
 ### Token Validation Fails?
 
 1. **Test JWKS endpoint**
+
    ```bash
    curl https://dev-vivn1fcgzi0c2czy.us.auth0.com/.well-known/jwks.json
    ```
@@ -162,6 +173,7 @@ Look for: `Token verification successful (Audience verified)`
 ## Deployment
 
 ### Build and Deploy
+
 ```bash
 # Build web app
 flutter build web --release
@@ -174,7 +186,9 @@ flutter build web --release
 ```
 
 ### Rollback Plan
+
 If issues occur:
+
 1. Revert `web/auth0-bridge.js` to previous version
 2. Clear CDN cache
 3. Notify users to clear browser cache
@@ -195,11 +209,13 @@ If issues occur:
 ## Related Documentation
 
 ### Technical Details
+
 - `docs/DEVELOPMENT/AUTH0_AUDIENCE_FIX.md` - Technical deep dive
 - `docs/DEVELOPMENT/WEB_AUTH0_BRIDGE.md` - Bridge implementation
 - `services/api-backend/middleware/auth.js` - Backend authentication code
 
 ### External Resources
+
 - [Auth0 Documentation](https://auth0.com/docs)
 - [JWT.io](https://jwt.io) - JWT debugging
 - [JWKS Specification](https://tools.ietf.org/html/rfc7517)
@@ -209,12 +225,14 @@ If issues occur:
 ## Support & Escalation
 
 ### For Developers
+
 1. Check browser console for error messages
 2. Review backend logs for token validation details
 3. Verify environment variables are set correctly
 4. Test JWKS endpoint accessibility
 
 ### For Production Issues
+
 1. Check monitoring dashboards
 2. Review error logs and authentication success rates
 3. Verify Auth0 service status

@@ -77,6 +77,7 @@ Core service implementing scaling logic:
 #### Load Score Calculation
 
 Composite load score (0-100) based on:
+
 - CPU utilization: 40% weight
 - Memory utilization: 30% weight
 - Request rate: 20% weight (normalized to 1000 req/s = 100%)
@@ -143,16 +144,19 @@ REST API endpoints for scaling management:
 ## Scaling Logic
 
 ### Scale Up Decision
+
 - Triggered when load score > scaleUpThreshold (80%)
 - Only if current replicas < maxReplicas
 - Respects scaleUpCooldown (60 seconds)
 
 ### Scale Down Decision
+
 - Triggered when load score < scaleDownThreshold (30%)
 - Only if current replicas > minReplicas
 - Respects scaleDownCooldown (300 seconds)
 
 ### Cooldown Periods
+
 - Prevents rapid scaling oscillations
 - Scale up cooldown: 60 seconds (default)
 - Scale down cooldown: 300 seconds (default)
@@ -163,6 +167,7 @@ REST API endpoints for scaling management:
 Comprehensive test suite with 23 tests covering:
 
 ### Scaling Policy Management (5 tests)
+
 - ✅ Create policy with valid configuration
 - ✅ Reject invalid minReplicas
 - ✅ Reject maxReplicas < minReplicas
@@ -170,12 +175,14 @@ Comprehensive test suite with 23 tests covering:
 - ✅ Reject invalid threshold configuration
 
 ### Load Metrics Recording (4 tests)
+
 - ✅ Record metrics with valid data
 - ✅ Reject metrics with missing fields
 - ✅ Calculate load score correctly
 - ✅ Cap load score at 100
 
 ### Scaling Evaluation (5 tests)
+
 - ✅ No scaling when load within thresholds
 - ✅ Recommend scale up when load exceeds threshold
 - ✅ Recommend scale down when load below threshold
@@ -183,18 +190,22 @@ Comprehensive test suite with 23 tests covering:
 - ✅ Respect maximum replicas when scaling up
 
 ### Scaling Execution (2 tests)
+
 - ✅ Execute scaling with valid parameters
 - ✅ Reject scaling with invalid replica count
 
 ### Scaling Event Completion (2 tests)
+
 - ✅ Reject invalid status
 - ✅ Reject missing eventId
 
 ### Scaling History and Summary (2 tests)
+
 - ✅ Retrieve scaling events
 - ✅ Retrieve scaling summary
 
 ### Error Handling (3 tests)
+
 - ✅ Throw error when proxyId missing
 - ✅ Throw error when userId missing
 - ✅ Throw error when metrics invalid
@@ -204,15 +215,18 @@ Comprehensive test suite with 23 tests covering:
 ## Integration Points
 
 ### With ProxyHealthService
+
 - Scaling decisions can be triggered by health status
 - Unhealthy proxies can trigger scale up
 - Healthy proxies can trigger scale down
 
 ### With ProxyConfigService
+
 - Scaling policies stored alongside proxy configuration
 - Configuration changes can affect scaling behavior
 
 ### With Monitoring/Metrics
+
 - Load metrics feed into scaling decisions
 - Scaling events recorded for monitoring
 - Metrics available via Prometheus endpoint
@@ -261,6 +275,7 @@ Comprehensive test suite with 23 tests covering:
 ## Validation
 
 ✅ All requirements from 5.5 implemented:
+
 - Create proxy scaling endpoints
 - Implement load-based scaling logic
 - Add scaling metrics collection
@@ -268,6 +283,7 @@ Comprehensive test suite with 23 tests covering:
 ✅ All tests passing (23/23)
 
 ✅ Code follows project standards:
+
 - Proper error handling
 - Comprehensive logging
 - Input validation

@@ -5,6 +5,7 @@
 This document describes the implementation of comprehensive authentication audit logging for the CloudToLocalLLM API Backend. The implementation provides complete logging of all authentication attempts, successes, and failures with full context including IP address, user agent, and timestamp.
 
 **Validates: Requirements 2.6, 11.10**
+
 - Logs all authentication attempts (success and failure)
 - Creates audit log entries for auth events
 - Includes IP address, user agent, and timestamp
@@ -32,6 +33,7 @@ Core service for logging and retrieving authentication events.
 - `getAuthAuditLogsCountForAdmin(options)` - Count system-wide audit logs
 
 **Event Types:**
+
 - `LOGIN` - Successful login
 - `LOGOUT` - Logout
 - `TOKEN_REFRESH` - Token refresh
@@ -41,6 +43,7 @@ Core service for logging and retrieving authentication events.
 - `SESSION_TIMEOUT` - Session timeout
 
 **Severity Levels:**
+
 - `DEBUG` - Debug information
 - `INFO` - Informational
 - `WARN` - Warning
@@ -94,10 +97,12 @@ API endpoints for retrieving audit logs.
 The audit logging has been integrated into the existing authentication flow:
 
 **In `middleware/auth.js`:**
+
 - Added audit logging for failed JWT validation
 - Logs authentication failures with error details
 
 **In `routes/auth.js`:**
+
 - Added audit logging to token refresh endpoint
 - Added audit logging to logout endpoint
 - Added audit logging to session revocation endpoint
@@ -122,6 +127,7 @@ CREATE TABLE IF NOT EXISTS auth_audit_logs (
 ```
 
 **Indexes:**
+
 - `idx_auth_audit_logs_user_id` - For user-specific queries
 - `idx_auth_audit_logs_event_type` - For event type filtering
 - `idx_auth_audit_logs_created_at` - For time-based queries

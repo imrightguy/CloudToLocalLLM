@@ -43,11 +43,13 @@ gh secret list | grep PAT
 ## How It Works
 
 With PAT configured:
+
 1. Push to main → Version-bump workflow runs
 2. Gemini analyzes → Creates version tags
 3. Tags pushed with PAT → **Triggers deploy-aks workflow automatically** ✅
 4. Cloud deployment runs for new version
 
 Without PAT:
+
 - Tags pushed with GITHUB_TOKEN → No deployment trigger ❌
 - Must manually run: `gh workflow run deploy-aks.yml -f version_tag=X.Y.Z-cloud-abc123`

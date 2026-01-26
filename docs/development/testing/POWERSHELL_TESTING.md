@@ -5,6 +5,7 @@ This directory contains comprehensive unit and integration tests for the CloudTo
 ## Overview
 
 The testing framework provides:
+
 - **Unit Tests**: Test individual PowerShell functions with mock objects
 - **Integration Tests**: Test complete workflows and external dependencies
 - **Mock Objects**: Realistic mock responses for WSL, SSH, Git, and other external dependencies
@@ -32,11 +33,13 @@ tests/powershell/
 ## Prerequisites
 
 ### Required Software
+
 - **PowerShell 5.1+** or **PowerShell Core 7.0+**
 - **Pester 5.0+** (PowerShell testing framework)
 - **Git** (for repository operations)
 
 ### Optional Software (for integration tests)
+
 - **WSL2 with Ubuntu 24.04** (for WSL integration tests)
 - **SSH client** (for VPS connectivity tests)
 - **GitHub CLI (gh)** (for GitHub release tests)
@@ -44,11 +47,13 @@ tests/powershell/
 ### Installation
 
 1. **Install Pester Module** (if not already installed):
+
    ```powershell
    Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
    ```
 
 2. **Verify Installation**:
+
    ```powershell
    Get-Module -Name Pester -ListAvailable
    ```
@@ -58,6 +63,7 @@ tests/powershell/
 ### Quick Start
 
 Run all tests with default settings:
+
 ```powershell
 .\tests\powershell\Run-Tests.ps1
 ```
@@ -65,26 +71,31 @@ Run all tests with default settings:
 ### Test Execution Options
 
 #### Run Specific Test File
+
 ```powershell
 .\Run-Tests.ps1 -TestFile "Deploy-CloudToLocalLLM.Tests.ps1"
 ```
 
 #### Run Tests with Code Coverage
+
 ```powershell
 .\Run-Tests.ps1 -CodeCoverage
 ```
 
 #### Run Tests with Detailed Output
+
 ```powershell
 .\Run-Tests.ps1 -OutputFormat Detailed -Verbose
 ```
 
 #### Export Test Results
+
 ```powershell
 .\Run-Tests.ps1 -ExportResults -CodeCoverage
 ```
 
 #### Run Tests by Tag
+
 ```powershell
 .\Run-Tests.ps1 -Tag "Unit" -OutputFormat Minimal
 ```
@@ -92,11 +103,13 @@ Run all tests with default settings:
 ### Advanced Options
 
 #### Complete Test Suite with All Options
+
 ```powershell
 .\Run-Tests.ps1 -CodeCoverage -ExportResults -OutputFormat Detailed -Verbose
 ```
 
 #### Run Only Failed Tests (after initial run)
+
 ```powershell
 .\Run-Tests.ps1 -FailedOnly
 ```
@@ -106,7 +119,9 @@ Run all tests with default settings:
 ### Unit Tests
 
 #### Deploy-CloudToLocalLLM.Tests.ps1
+
 Tests for the main deployment orchestration script:
+
 - **Logging Functions**: Write-DeploymentLog, Update-DeploymentStatus
 - **Prerequisites Validation**: Test-DeploymentPrerequisites
 - **Version Management**: Update-ProjectVersion
@@ -116,7 +131,9 @@ Tests for the main deployment orchestration script:
 - **Error Handling**: Exception handling and rollback triggers
 
 #### BuildEnvironmentUtilities.Tests.ps1
+
 Tests for utility functions:
+
 - **Logging Functions**: Write-LogInfo, Write-LogSuccess, Write-LogWarning, Write-LogError
 - **WSL Integration**: Test-WSLAvailable, Get-WSLDistributions, Invoke-WSLCommand
 - **Path Conversion**: Convert-WindowsPathToWSL, Convert-WSLPathToWindows
@@ -126,7 +143,9 @@ Tests for utility functions:
 ### Integration Tests
 
 #### EndToEnd.Tests.ps1
+
 Complete deployment workflow integration tests:
+
 - **Happy Path Workflow**: Complete successful deployment
 - **Error Scenarios**: Failure handling at each phase
 - **Rollback Integration**: Automatic rollback triggers
@@ -134,7 +153,9 @@ Complete deployment workflow integration tests:
 - **Cross-Platform Integration**: WSL and SSH integration
 
 #### VPSConnection.Tests.ps1
+
 VPS connectivity and authentication tests:
+
 - **SSH Connectivity**: Connection testing and timeout handling
 - **Authentication**: SSH key management and synchronization
 - **Remote Command Execution**: Deployment and verification scripts
@@ -142,7 +163,9 @@ VPS connectivity and authentication tests:
 - **Multi-Environment Testing**: Staging vs production configurations
 
 #### GitHubRelease.Tests.ps1
+
 GitHub release creation and validation tests:
+
 - **GitHub CLI Integration**: Authentication and repository access
 - **Release Creation**: Creating releases with various options
 - **Release Management**: Listing, viewing, and deleting releases
@@ -150,7 +173,9 @@ GitHub release creation and validation tests:
 - **Release Notes Generation**: Automated release notes from commits
 
 #### RollbackScenarios.Tests.ps1
+
 Rollback scenario testing and validation:
+
 - **Automatic Rollback Triggers**: Deployment and verification failures
 - **Rollback Execution**: Git-based rollback and service restart
 - **Rollback Verification**: Post-rollback health checks
@@ -160,7 +185,9 @@ Rollback scenario testing and validation:
 ## Mock Objects and Test Data
 
 ### WSLMocks.ps1
+
 Provides realistic mock responses for:
+
 - **WSL Distribution Lists**: Various distribution scenarios
 - **WSL Command Responses**: Flutter, Git, and system commands
 - **File System Responses**: Project files and SSH keys
@@ -168,7 +195,9 @@ Provides realistic mock responses for:
 - **Version Manager Responses**: Version increment and file updates
 
 ### TestConfig.ps1
+
 Centralized configuration for:
+
 - **Test Environment Settings**: Paths and temporary directories
 - **Mock Behavior Configuration**: WSL, SSH, Git, Flutter, and network mocks
 - **Test Data**: Sample project files, SSH keys, and command outputs
@@ -178,17 +207,20 @@ Centralized configuration for:
 ## Test Results and Reporting
 
 ### Test Output Formats
+
 - **Minimal**: Basic pass/fail summary
 - **Normal**: Standard Pester output with test names
 - **Detailed**: Comprehensive output with timing and context
 - **Diagnostic**: Full diagnostic information for troubleshooting
 
 ### Generated Reports
+
 - **Test Results**: NUnit XML format for CI/CD integration
 - **Code Coverage**: JaCoCo XML format for coverage analysis
 - **Execution Logs**: Detailed test execution logs
 
 ### Report Locations
+
 ```
 test-results/powershell/
 ├── TestResults_YYYYMMDD_HHMMSS.xml     # NUnit test results
@@ -201,6 +233,7 @@ coverage/powershell/
 ## Continuous Integration
 
 ### GitHub Actions Integration
+
 ```yaml
 - name: Run PowerShell Tests
   run: |
@@ -215,6 +248,7 @@ coverage/powershell/
 ```
 
 ### Azure DevOps Integration
+
 ```yaml
 - task: PowerShell@2
   displayName: 'Run PowerShell Tests'
@@ -233,6 +267,7 @@ coverage/powershell/
 ## Best Practices
 
 ### Writing Tests
+
 1. **Use Descriptive Test Names**: Clearly describe what is being tested
 2. **Follow AAA Pattern**: Arrange, Act, Assert
 3. **Mock External Dependencies**: Use mock objects for WSL, SSH, Git, etc.
@@ -240,12 +275,14 @@ coverage/powershell/
 5. **Use BeforeEach/AfterEach**: Reset state between tests
 
 ### Mock Usage
+
 1. **Realistic Responses**: Mock objects should return realistic data
 2. **Error Simulation**: Include failure scenarios in mocks
 3. **State Management**: Reset mock state between tests
 4. **Parameter Validation**: Verify correct parameters are passed to mocks
 
 ### Test Organization
+
 1. **Group Related Tests**: Use Describe and Context blocks effectively
 2. **Shared Setup**: Use BeforeAll/BeforeEach for common setup
 3. **Test Independence**: Each test should be independent
@@ -256,34 +293,42 @@ coverage/powershell/
 ### Common Issues
 
 #### Pester Module Not Found
+
 ```powershell
 Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
 Import-Module Pester -Force
 ```
 
 #### Test Execution Policy Issues
+
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 #### Mock Objects Not Working
+
 - Ensure mocks are defined in BeforeAll or BeforeEach blocks
 - Verify mock parameter filters match actual function calls
 - Check that mocks are imported correctly
 
 #### WSL Integration Test Failures
+
 - Verify WSL2 is installed and Ubuntu 24.04 is available
 - Check that WSL distribution is running
 - Ensure test environment has proper permissions
 
 ### Debug Mode
+
 Run tests with verbose output for troubleshooting:
+
 ```powershell
 .\Run-Tests.ps1 -OutputFormat Diagnostic -Verbose
 ```
 
 ### Test Environment Validation
+
 Verify test environment setup:
+
 ```powershell
 # Check Pester version
 Get-Module -Name Pester -ListAvailable
@@ -300,6 +345,7 @@ Get-TestConfig
 ## Contributing
 
 ### Adding New Tests
+
 1. **Create Test File**: Follow naming convention `*.Tests.ps1`
 2. **Import Dependencies**: Include required modules and configurations
 3. **Use Mock Objects**: Leverage existing mock infrastructure
@@ -307,12 +353,14 @@ Get-TestConfig
 5. **Update Documentation**: Update this README if needed
 
 ### Extending Mock Objects
+
 1. **Add to WSLMocks.ps1**: Include new mock responses
 2. **Update TestConfig.ps1**: Add configuration for new mocks
 3. **Test Mock Behavior**: Verify mocks work as expected
 4. **Document Changes**: Update mock documentation
 
 ### Test Coverage Goals
+
 - **Unit Tests**: 90%+ code coverage for PowerShell functions
 - **Integration Tests**: Cover all major workflow scenarios
 - **Error Handling**: Test all error paths and recovery procedures
@@ -321,6 +369,7 @@ Get-TestConfig
 ## Support
 
 For questions or issues with the testing framework:
+
 1. Check this documentation first
 2. Review existing test files for examples
 3. Check the troubleshooting section

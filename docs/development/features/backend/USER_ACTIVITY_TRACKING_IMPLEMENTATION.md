@@ -5,6 +5,7 @@
 This document describes the implementation of user activity tracking for the CloudToLocalLLM API Backend. The system provides comprehensive logging of user operations, usage metrics tracking, and activity audit logs for analytics and compliance purposes.
 
 **Validates: Requirements 3.4, 3.10**
+
 - Tracks user activity and usage metrics
 - Implements activity audit logs
 - Provides user activity audit logs
@@ -14,6 +15,7 @@ This document describes the implementation of user activity tracking for the Clo
 ### 1. Database Schema
 
 #### user_activity_logs Table
+
 Stores individual user activity events with full context.
 
 ```sql
@@ -32,11 +34,13 @@ CREATE TABLE user_activity_logs (
 ```
 
 **Indexes:**
+
 - `idx_user_activity_logs_user_id` - For querying by user
 - `idx_user_activity_logs_action` - For filtering by action type
 - `idx_user_activity_logs_created_at` - For time-based queries
 
 #### user_usage_metrics Table
+
 Aggregates usage metrics per user for analytics.
 
 ```sql
@@ -56,6 +60,7 @@ CREATE TABLE user_usage_metrics (
 ```
 
 #### user_activity_summary Table
+
 Stores aggregated activity summaries by period (daily, weekly, monthly).
 
 ```sql
@@ -176,6 +181,7 @@ SEVERITY_LEVELS = {
 Automatically logs user activities for all API requests.
 
 **Features:**
+
 - Automatic action detection based on route and HTTP method
 - Resource type and ID extraction from request path
 - IP address and user agent capture
@@ -348,6 +354,7 @@ router.put('/profile', authenticateJWT, async (req, res) => {
 ## Testing
 
 Unit tests are provided in `test/api-backend/user-activity-unit.test.js` covering:
+
 - Activity action constants
 - Severity level constants
 - Service function signatures

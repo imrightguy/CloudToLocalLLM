@@ -59,5 +59,3 @@ Legend:
 ## Logging
 
 All services use `appLogger` (`lib/utils/logger.dart`) instead of `debugPrint` so log output can be redirected or persisted. The logger defaults to a concise, non-colored printer that works well inside GitHub Actions logs.
-
-

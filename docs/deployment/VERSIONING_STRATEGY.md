@@ -20,12 +20,14 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 **Purpose:** Urgent fixes requiring immediate deployment
 
 **Use Cases:**
+
 - **Hotfixes**: Critical bugs affecting user functionality
 - **Security Updates**: Vulnerabilities requiring immediate patching
 - **Emergency Patches**: System failures, data corruption, or service outages
 - **Critical Stability Fixes**: Crashes, memory leaks, or performance degradation
 
 **Examples:**
+
 - Database connection timeout causing login failures
 - Authentication bypass vulnerability
 - Application crash on startup
@@ -33,6 +35,7 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 - API endpoint returning 500 errors
 
 **Deployment Characteristics:**
+
 - **Urgency**: High - Deploy immediately
 - **Testing**: Minimal testing, focus on fix verification
 - **Approval**: Fast-track approval process
@@ -43,6 +46,7 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 **Purpose:** Planned feature additions and improvements
 
 **Use Cases:**
+
 - **Feature Additions**: New functionality and capabilities
 - **Quality of Life Improvements**: User experience enhancements
 - **UI Enhancements**: Interface improvements and visual updates
@@ -50,6 +54,7 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 - **Performance Optimizations**: Non-critical performance improvements
 
 **Examples:**
+
 - New tunnel connection management features
 - Enhanced system tray functionality
 - Improved settings interface
@@ -57,6 +62,7 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 - Better error messaging and user guidance
 
 **Deployment Characteristics:**
+
 - **Urgency**: Medium - Deploy during planned release windows
 - **Testing**: Full testing suite including integration tests
 - **Approval**: Standard approval process
@@ -67,12 +73,14 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 **Purpose:** Breaking changes and architectural overhauls
 
 **Use Cases:**
+
 - **Breaking Changes**: API changes requiring user adaptation
 - **Architectural Overhauls**: Fundamental system redesigns
 - **Platform Migrations**: Framework or technology stack changes
 - **Significant API Changes**: Non-backward-compatible modifications
 
 **Examples:**
+
 - Flutter framework major version upgrade
 - API v2 with breaking endpoint changes
 - Database schema migration requiring data transformation
@@ -80,6 +88,7 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 - Complete UI framework replacement
 
 **Deployment Characteristics:**
+
 - **Urgency**: Low - Planned major releases with advance notice
 - **Testing**: Comprehensive testing including migration testing
 - **Approval**: Extended approval process with stakeholder review
@@ -123,12 +132,14 @@ CloudToLocalLLM follows a strict semantic versioning scheme that aligns release 
 **Version incrementing is now performed AFTER deployment verification** to give developers control over when versions are committed.
 
 #### **New Workflow:**
+
 1. **Deploy Current Version**: Use existing version for deployment
 2. **Verify Deployment**: Ensure all components are working correctly
 3. **Manual Version Increment**: Choose appropriate increment type
 4. **Commit Version Changes**: Prepare repository for next development cycle
 
 #### **Version Increment Commands (Post-Deployment):**
+
 ```powershell
 # After successful deployment verification
 ./scripts/powershell/version_manager.ps1 increment patch    # For bug fixes
@@ -143,6 +154,7 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 ### 6-Phase Deployment Considerations
 
 **PATCH Releases:**
+
 - **Phase 1-3**: Expedited execution
 - **Phase 4**: Minimal distribution testing
 - **Phase 5**: Immediate VPS deployment
@@ -150,6 +162,7 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 - **Post-Deployment**: Verify fixes, then manually increment patch version
 
 **MINOR Releases:**
+
 - **Phase 1-3**: Standard execution
 - **Phase 4**: Full distribution testing
 - **Phase 5**: Scheduled VPS deployment
@@ -157,6 +170,7 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 - **Post-Deployment**: Verify features, then manually increment minor version
 
 **MAJOR Releases:**
+
 - **Phase 1-3**: Extended testing and validation
 - **Phase 4**: Comprehensive distribution testing
 - **Phase 5**: Coordinated VPS deployment with rollback plan
@@ -197,15 +211,19 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 ### Common Mistakes to Avoid
 
 ❌ **Using PATCH for planned features**
+
 - Patch releases should be reserved for urgent fixes only
 
 ❌ **Using MINOR for breaking changes**
+
 - Breaking changes always require MAJOR version increment
 
 ❌ **Creating GitHub releases for every version**
+
 - Only MAJOR versions warrant GitHub releases
 
 ❌ **Inconsistent versioning across team**
+
 - Use the version manager script to ensure consistency
 
 ### Emergency Hotfix Process
@@ -236,6 +254,7 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 ### Version-Specific Deployment Adjustments
 
 **PATCH Releases (Urgent):**
+
 - **Phase 1**: Expedited pre-flight validation
 - **Phase 2**: Fast-track version synchronization
 - **Phase 3**: Minimal build testing (focus on fix verification)
@@ -244,6 +263,7 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 - **Phase 6**: Fast-track operational readiness with critical path verification
 
 **MINOR Releases (Planned):**
+
 - **Phase 1**: Standard pre-flight validation
 - **Phase 2**: Complete version synchronization
 - **Phase 3**: Full multi-platform build testing
@@ -252,6 +272,7 @@ bash -c "git push origin master"  # Use Git Bash for Windows SSH compatibility
 - **Phase 6**: Complete operational readiness including mandatory AUR verification
 
 **MAJOR Releases (Breaking):**
+
 - **Phase 1**: Extended pre-flight validation with migration testing
 - **Phase 2**: Comprehensive version synchronization with documentation updates
 - **Phase 3**: Extensive multi-platform build testing with compatibility verification

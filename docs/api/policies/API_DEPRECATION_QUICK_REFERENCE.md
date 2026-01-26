@@ -175,21 +175,25 @@ grep "DEPRECATION" /var/log/api-backend.log
 ## Best Practices
 
 1. **Check deprecation status regularly**
+
    ```bash
    curl https://api.cloudtolocalllm.online/api/deprecation/status
    ```
 
 2. **Monitor deprecation headers**
+
    ```bash
    curl -i https://api.cloudtolocalllm.online/v1/users | grep Deprecation
    ```
 
 3. **Use migration guides**
+
    ```bash
    curl https://api.cloudtolocalllm.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
    ```
 
 4. **Test with v2 before sunset**
+
    ```bash
    curl https://api.cloudtolocalllm.online/v2/users/me
    ```

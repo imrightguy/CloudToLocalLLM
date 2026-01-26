@@ -23,6 +23,7 @@ Different administrative operations have distinct risk and resource profiles, ne
 ## 🛠️ Usage for Developers
 
 ### Basic Implementation
+
 ```javascript
 import { adminRateLimiter, adminReadOnlyLimiter } from '../middleware/admin-rate-limiter.js';
 
@@ -34,7 +35,9 @@ router.post('/users/:id', adminRateLimiter, handler);
 ```
 
 ### Combined Limiters
+
 For highly sensitive endpoints, you can combine burst and standard limiters.
+
 ```javascript
 import { combineRateLimiters, adminBurstLimiter, adminRateLimiter } from '../middleware/admin-rate-limiter.js';
 
@@ -46,12 +49,15 @@ router.post('/sensitive', combineRateLimiters(adminBurstLimiter, adminRateLimite
 ## 📊 Headers and Responses
 
 ### Success Headers
+
 - `RateLimit-Limit`: Maximum requests allowed.
 - `RateLimit-Remaining`: Requests left in window.
 - `RateLimit-Reset`: ISO timestamp when limit resets.
 
 ### Error Response (429)
+
 When a limit is exceeded, the server returns a `429 Too Many Requests` status code.
+
 ```json
 {
   "error": "Too many requests from this admin user",
@@ -71,5 +77,6 @@ When a limit is exceeded, the server returns a `429 Too Many Requests` status co
 ---
 
 ## Related Documentation
+
 - [Backend Security Guide](./BACKEND_SECURITY.md)
 - [RBAC Guide](./RBAC_GUIDE.md)

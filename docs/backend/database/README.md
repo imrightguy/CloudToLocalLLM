@@ -41,6 +41,7 @@ Creates the core admin center tables:
    ```
 
 3. Install dependencies (if not already installed):
+
    ```bash
    cd services/api-backend
    npm install

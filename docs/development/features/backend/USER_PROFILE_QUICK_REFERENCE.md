@@ -11,6 +11,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Authentication:** Required (JWT)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -48,6 +49,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Authentication:** Required (JWT)
 
 **Request Body:**
+
 ```json
 {
   "profile": {
@@ -67,6 +69,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Response:** Same as Get User Profile
 
 **Validation Rules:**
+
 - firstName: max 100 characters
 - lastName: max 100 characters
 - nickname: max 100 characters
@@ -82,6 +85,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Authentication:** Required (JWT)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -95,6 +99,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 ```
 
 **Default Preferences:**
+
 ```json
 {
   "theme": "light",
@@ -110,6 +115,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Authentication:** Required (JWT)
 
 **Request Body:**
+
 ```json
 {
   "theme": "dark",
@@ -121,11 +127,13 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Response:** Same as Get User Preferences
 
 **Validation Rules:**
+
 - theme: "light" or "dark"
 - language: max 10 characters
 - notifications: boolean
 
 **Partial Updates:** You can update individual preferences:
+
 ```json
 {
   "theme": "dark"
@@ -139,6 +147,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Authentication:** Required (JWT)
 
 **Request Body:**
+
 ```json
 {
   "avatarUrl": "https://example.com/new-avatar.jpg"
@@ -148,11 +157,13 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 **Response:** Same as Get User Profile
 
 **Validation Rules:**
+
 - avatarUrl: required, must be valid URL format
 
 ## Error Responses
 
 ### 400 Bad Request
+
 ```json
 {
   "error": "Validation error",
@@ -162,6 +173,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 ```
 
 ### 401 Unauthorized
+
 ```json
 {
   "error": "Authentication required",
@@ -171,6 +183,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 ```
 
 ### 404 Not Found
+
 ```json
 {
   "error": "User not found",
@@ -180,6 +193,7 @@ All endpoints require JWT authentication via `Authorization: Bearer <token>` hea
 ```
 
 ### 503 Service Unavailable
+
 ```json
 {
   "error": "Service unavailable",
@@ -255,10 +269,12 @@ curl -X PUT \
 ## Rate Limiting
 
 All endpoints are subject to standard rate limiting:
+
 - **Default:** 100 requests/minute per user
 - **Tier-based:** Premium and Enterprise tiers may have higher limits
 
 Rate limit information is included in response headers:
+
 - `X-RateLimit-Limit`: Maximum requests allowed
 - `X-RateLimit-Remaining`: Requests remaining
 - `X-RateLimit-Reset`: Unix timestamp when limit resets

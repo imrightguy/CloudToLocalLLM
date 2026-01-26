@@ -7,6 +7,7 @@
 Implemented comprehensive real-time alerting system for critical metrics with alert configuration management, alert triggering logic, and multiple notification channels.
 
 **Requirements Addressed:**
+
 - Requirement 8.10: Real-time alerting for critical metrics
 - Requirement 8.1: Prometheus metrics endpoint
 - Requirement 8.2: Request latency, throughput, and error rates tracking
@@ -18,6 +19,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 **Purpose:** Manages alert configuration and thresholds
 
 **Key Features:**
+
 - Default alert thresholds for critical metrics:
   - Response time (warning: 500ms, critical: 1000ms)
   - Error rate (warning: 5%, critical: 10%)
@@ -34,6 +36,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 - Active alert tracking
 
 **Methods:**
+
 - `getThresholds()` - Get current thresholds
 - `updateThresholds(newThresholds)` - Update thresholds with validation
 - `getEnabledChannels()` - Get enabled notification channels
@@ -52,6 +55,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 **Purpose:** Evaluates metrics and triggers alerts
 
 **Key Features:**
+
 - Metric recording and buffering (max 100 values per metric)
 - Periodic metric evaluation (10 seconds default)
 - Threshold checking and alert triggering
@@ -59,6 +63,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 - Service lifecycle management (start/stop)
 
 **Methods:**
+
 - `start()` - Start alert triggering service
 - `stop()` - Stop alert triggering service
 - `recordMetric(metric, value, metadata)` - Record metric value
@@ -93,6 +98,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 #### 1. Alert Configuration Tests (`test/api-backend/alert-configuration.test.js`)
 
 **Coverage:** 22 tests
+
 - Threshold management (get, update, validate, reset)
 - Channel configuration (get, update, ignore unknown)
 - Threshold checking (critical, warning, below threshold, unknown metrics)
@@ -104,6 +110,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 #### 2. Alert Triggering Tests (`test/api-backend/alert-triggering.test.js`)
 
 **Coverage:** 16 tests
+
 - Service lifecycle (start, stop, prevent double start)
 - Metric recording (single, multiple, buffer size limit, metadata)
 - Metric statistics (calculation, non-existent metrics, single value)
@@ -117,6 +124,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 **Validates:** Requirements 8.1, 8.2
 
 **Coverage:** 9 property tests
+
 - Average consistency: For any sequence of values, average = sum / count
 - Max consistency: Max >= all values and equals maximum
 - Min consistency: Min <= all values and equals minimum
@@ -134,6 +142,7 @@ Implemented comprehensive real-time alerting system for critical metrics with al
 #### 1. Alerting Service Integration
 
 The alert triggering service integrates with the existing alerting service (`services/alerting-service.js`) to send alerts through:
+
 - Email (via nodemailer)
 - Slack (via webhooks)
 - PagerDuty (via events API)
@@ -141,12 +150,14 @@ The alert triggering service integrates with the existing alerting service (`ser
 #### 2. Database Pool Monitoring Integration
 
 The pool monitor (`database/pool-monitor.js`) already uses the alerting service to send alerts for:
+
 - Database health check failures
 - Connection pool exhaustion
 
 #### 3. Metrics Collection Integration
 
 The alert triggering service can be integrated with:
+
 - Prometheus metrics collection
 - Request latency tracking
 - Error rate monitoring
@@ -155,6 +166,7 @@ The alert triggering service can be integrated with:
 ### Configuration
 
 **Environment Variables:**
+
 - `ALERT_EMAIL_ENABLED` - Enable email alerts (default: false)
 - `ALERT_EMAIL_TO` - Email recipient
 - `ALERT_EMAIL_FROM` - Email sender (default: alerts@cloudtolocalllm.online)

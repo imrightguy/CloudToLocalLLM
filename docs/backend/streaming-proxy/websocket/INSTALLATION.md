@@ -92,6 +92,7 @@ Expected output: No errors
 ### Error: Cannot find module 'ws'
 
 **Solution**: Install the ws package:
+
 ```bash
 npm install ws @types/ws
 ```
@@ -99,6 +100,7 @@ npm install ws @types/ws
 ### TypeScript Compilation Errors
 
 **Solution**: Ensure TypeScript is configured correctly:
+
 ```bash
 npm install -D typescript @types/node
 npx tsc --init
@@ -107,6 +109,7 @@ npx tsc --init
 ### Module Resolution Issues
 
 **Solution**: Update tsconfig.json:
+
 ```json
 {
   "compilerOptions": {
@@ -118,6 +121,7 @@ npx tsc --init
 ## Support
 
 For installation issues, check:
+
 1. Node.js version (18+)
 2. npm version (8+)
 3. Package lock file integrity

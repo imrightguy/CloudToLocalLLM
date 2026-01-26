@@ -140,42 +140,49 @@ All error responses follow this standard format:
 ## Error Categories
 
 ### Validation Errors
+
 - Invalid input format
 - Missing required parameters
 - Invalid parameter values
 - Constraint violations
 
 ### Authentication Errors
+
 - Missing or invalid tokens
 - Expired tokens
 - Invalid credentials
 - Token refresh failures
 
 ### Authorization Errors
+
 - Insufficient permissions
 - Role-based access denied
 - Tier-based feature restrictions
 - Admin-only operations
 
 ### Not Found Errors
+
 - Resource does not exist
 - User not found
 - Tunnel not found
 - Session not found
 
 ### Rate Limit Errors
+
 - User rate limit exceeded
 - IP rate limit exceeded
 - Quota exceeded
 - Request queued
 
 ### Server Errors
+
 - Unexpected exceptions
 - Database errors
 - External service errors
 - Configuration errors
 
 ### Service Unavailable Errors
+
 - Service temporarily down
 - Database unavailable
 - Cache unavailable

@@ -31,11 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features
 
 #### Authentication
+
 - JWT token management
 - Automatic token refresh
 - Logout with token revocation
 
 #### User Management
+
 - Get current user profile
 - Get user by ID
 - Update user profile
@@ -44,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade user tier
 
 #### Tunnel Management
+
 - Create tunnels
 - Get tunnel details
 - List tunnels with pagination
@@ -54,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get tunnel metrics
 
 #### Webhook Management
+
 - Create webhooks
 - Get webhook details
 - List webhooks
@@ -63,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get webhook delivery history
 
 #### Admin Operations
+
 - List all users
 - Get user details (admin)
 - Update user (admin)
@@ -71,15 +76,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Get system health status
 
 #### API Key Management
+
 - Create API keys
 - List API keys
 - Revoke API keys
 
 #### Health & Status
+
 - Get API health status
 - Get API version information
 
 #### Proxy Management
+
 - Get proxy status
 - Start/stop proxy
 - Get proxy metrics
@@ -119,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version History
 
 ### 2.0.0 (Initial Release)
+
 - Complete SDK implementation
 - Full API coverage
 - TypeScript support

@@ -9,6 +9,7 @@ This document provides comprehensive rollback procedures for the Simplified Tunn
 ### When to Rollback
 
 **Immediate Rollback Required:**
+
 - [ ] Critical security vulnerabilities discovered
 - [ ] Complete system failure (>90% error rate)
 - [ ] Data corruption or loss detected
@@ -16,6 +17,7 @@ This document provides comprehensive rollback procedures for the Simplified Tunn
 - [ ] Performance degradation >500% from baseline
 
 **Rollback Recommended:**
+
 - [ ] Error rate >10% for >15 minutes
 - [ ] User complaints about functionality loss
 - [ ] Desktop client connection failures >50%
@@ -23,6 +25,7 @@ This document provides comprehensive rollback procedures for the Simplified Tunn
 - [ ] Memory leaks or resource exhaustion
 
 **Monitor and Evaluate:**
+
 - [ ] Error rate 5-10% for <15 minutes
 - [ ] Minor performance degradation <100%
 - [ ] Non-critical feature issues
@@ -65,6 +68,7 @@ Before initiating rollback procedures:
 #### 1.1 Immediate System Stabilization
 
 **Stop New Deployments:**
+
 ```bash
 # Disable CI/CD pipelines
 # Stop any ongoing deployments
@@ -75,6 +79,7 @@ sudo systemctl stop docker  # If necessary for complete isolation
 ```
 
 **Isolate Affected Services:**
+
 ```bash
 # Stop problematic services immediately
 docker-compose stop api-backend
@@ -87,6 +92,7 @@ docker-compose stop streaming-proxy
 #### 1.2 Revert API Backend
 
 **Docker Compose Rollback:**
+
 ```bash
 # Navigate to deployment directory
 cd /opt/cloudtolocalllm
@@ -108,6 +114,7 @@ docker-compose logs api-backend
 ```
 
 **Direct Deployment Rollback:**
+
 ```bash
 # Stop current service
 sudo systemctl stop cloudtolocalllm-api
@@ -167,6 +174,7 @@ docker-compose logs -f api-backend
 #### 2.1 Database Rollback (if applicable)
 
 **Backup Current State:**
+
 ```bash
 # Create snapshot of current database state
 pg_dump cloudtolocalllm > /backup/rollback-$(date +%Y%m%d-%H%M%S).sql
@@ -176,6 +184,7 @@ mysqldump cloudtolocalllm > /backup/rollback-$(date +%Y%m%d-%H%M%S).sql
 ```
 
 **Restore Previous State:**
+
 ```bash
 # Restore from pre-deployment backup
 psql cloudtolocalllm < /backup/pre-deployment-$(date +%Y%m%d).sql
@@ -187,6 +196,7 @@ psql -c "SELECT version();" cloudtolocalllm
 #### 2.2 Configuration Rollback
 
 **Environment Variables:**
+
 ```bash
 # Restore previous environment configuration
 sudo cp /opt/cloudtolocalllm/.env.backup /opt/cloudtolocalllm/.env
@@ -196,6 +206,7 @@ docker-compose restart api-backend
 ```
 
 **SSL Certificates:**
+
 ```bash
 # Restore previous certificates if updated
 sudo cp /etc/letsencrypt/live/api.cloudtolocalllm.online/fullchain.pem.backup \
@@ -211,6 +222,7 @@ sudo systemctl reload nginx
 #### 2.3 Container Image Rollback
 
 **Identify Previous Images:**
+
 ```bash
 # List available images
 docker images | grep cloudtolocalllm
@@ -220,6 +232,7 @@ docker tag cloudtolocalllm-api:previous cloudtolocalllm-api:latest
 ```
 
 **Update Docker Compose:**
+
 ```yaml
 # Update docker-compose.yml to use previous image
 services:
@@ -229,6 +242,7 @@ services:
 ```
 
 **Deploy Previous Images:**
+
 ```bash
 # Pull previous images if from registry
 docker-compose pull
@@ -244,6 +258,7 @@ docker-compose up -d --force-recreate api-backend
 #### 3.1 Prepare Previous Client Version
 
 **Download Previous Version:**
+
 ```bash
 # Download from GitHub releases
 wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v3.10.2/cloudtolocalllm-linux.AppImage
@@ -256,6 +271,7 @@ sha256sum cloudtolocalllm-linux.AppImage
 #### 3.2 Update Distribution Channels
 
 **Auto-Update System:**
+
 ```bash
 # Update auto-update server to serve previous version
 # Update version manifest
@@ -270,6 +286,7 @@ EOF
 ```
 
 **Package Repositories:**
+
 ```bash
 # Update DEB repository
 reprepro -b /var/www/apt remove stable cloudtolocalllm
@@ -282,6 +299,7 @@ cp cloudtolocalllm-3.10.2.AppImage /var/www/releases/latest/cloudtolocalllm.AppI
 #### 3.3 User Communication
 
 **Immediate Notification:**
+
 ```bash
 # Send push notification to connected clients
 curl -X POST https://api.cloudtolocalllm.online/api/admin/broadcast \
@@ -294,6 +312,7 @@ curl -X POST https://api.cloudtolocalllm.online/api/admin/broadcast \
 ```
 
 **Email/Web Notification:**
+
 - Update status page with rollback information
 - Send email to affected users
 - Post on social media/community channels
@@ -305,6 +324,7 @@ curl -X POST https://api.cloudtolocalllm.online/api/admin/broadcast \
 #### 4.1 System Health Validation
 
 **Automated Health Checks:**
+
 ```bash
 #!/bin/bash
 # health-check-rollback.sh
@@ -338,6 +358,7 @@ echo "=== Health Check Complete ==="
 #### 4.2 Performance Validation
 
 **Load Testing:**
+
 ```bash
 # Run basic load test
 ab -n 100 -c 10 https://api.cloudtolocalllm.online/api/health
@@ -350,6 +371,7 @@ curl -w "@curl-format.txt" -s -o /dev/null https://api.cloudtolocalllm.online/ap
 ```
 
 **Metrics Validation:**
+
 ```bash
 # Check error rates
 curl https://api.cloudtolocalllm.online/api/metrics | jq '.errorRate'
@@ -364,6 +386,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 #### 4.3 User Experience Validation
 
 **Desktop Client Testing:**
+
 1. Test connection establishment
 2. Verify authentication flow
 3. Test basic chat functionality
@@ -371,6 +394,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 5. Test reconnection after network interruption
 
 **Web Interface Testing:**
+
 1. Test login flow
 2. Verify chat interface loads
 3. Test message sending/receiving
@@ -384,6 +408,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 #### 1. Incident Documentation
 
 **Create Incident Report:**
+
 ```markdown
 # Incident Report: Simplified Tunnel System Rollback
 
@@ -423,6 +448,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 #### 2. Stakeholder Communication
 
 **Internal Communication:**
+
 ```bash
 # Send incident report to team
 # Update project management tools
@@ -430,6 +456,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 ```
 
 **External Communication:**
+
 ```bash
 # Update status page
 # Send user notification about resolution
@@ -439,6 +466,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 #### 3. System Monitoring
 
 **Enhanced Monitoring:**
+
 ```bash
 # Increase monitoring frequency
 # Set up additional alerts
@@ -450,6 +478,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 #### 1. Root Cause Analysis
 
 **Log Analysis:**
+
 ```bash
 # Analyze logs from failed deployment
 grep -i error /var/log/cloudtolocalllm/*.log
@@ -460,6 +489,7 @@ grep -i error /var/log/cloudtolocalllm/*.log
 ```
 
 **Code Review:**
+
 ```bash
 # Review changes that caused issues
 git diff <previous_stable_commit> <failed_commit>
@@ -471,6 +501,7 @@ git diff <previous_stable_commit> <failed_commit>
 #### 2. Fix Development
 
 **Issue Resolution:**
+
 ```bash
 # Create hotfix branch
 git checkout -b hotfix/tunnel-deployment-fix
@@ -481,6 +512,7 @@ git checkout -b hotfix/tunnel-deployment-fix
 ```
 
 **Testing:**
+
 ```bash
 # Run comprehensive test suite
 # Perform integration testing
@@ -491,6 +523,7 @@ git checkout -b hotfix/tunnel-deployment-fix
 #### 3. Deployment Planning
 
 **Improved Deployment Strategy:**
+
 ```bash
 # Plan gradual rollout
 # Implement feature flags
@@ -503,12 +536,14 @@ git checkout -b hotfix/tunnel-deployment-fix
 #### 1. Process Improvements
 
 **Deployment Process:**
+
 - [ ] Implement blue-green deployment
 - [ ] Add automated rollback triggers
 - [ ] Enhance pre-deployment testing
 - [ ] Improve deployment validation
 
 **Monitoring and Alerting:**
+
 - [ ] Add more comprehensive health checks
 - [ ] Implement predictive alerting
 - [ ] Enhance error tracking
@@ -517,6 +552,7 @@ git checkout -b hotfix/tunnel-deployment-fix
 #### 2. Documentation Updates
 
 **Update Procedures:**
+
 - [ ] Update deployment guide
 - [ ] Enhance rollback procedures
 - [ ] Improve troubleshooting guide
@@ -525,6 +561,7 @@ git checkout -b hotfix/tunnel-deployment-fix
 #### 3. Team Training
 
 **Knowledge Sharing:**
+
 - [ ] Conduct post-mortem session
 - [ ] Share lessons learned
 - [ ] Update team procedures
@@ -535,6 +572,7 @@ git checkout -b hotfix/tunnel-deployment-fix
 ### Regular Rollback Drills
 
 **Monthly Rollback Testing:**
+
 ```bash
 #!/bin/bash
 # rollback-drill.sh
@@ -571,6 +609,7 @@ echo "=== Rollback Drill Complete ==="
 ### Rollback Automation
 
 **Automated Rollback Triggers:**
+
 ```bash
 #!/bin/bash
 # auto-rollback-monitor.sh
@@ -602,16 +641,19 @@ done
 ### Contact Information
 
 **Primary On-Call:**
+
 - Name: [Primary Engineer]
 - Phone: [Phone Number]
 - Email: [Email Address]
 
 **Secondary On-Call:**
+
 - Name: [Secondary Engineer]
 - Phone: [Phone Number]
 - Email: [Email Address]
 
 **Management Escalation:**
+
 - Name: [Engineering Manager]
 - Phone: [Phone Number]
 - Email: [Email Address]
@@ -619,16 +661,19 @@ done
 ### Escalation Procedures
 
 **Level 1 (0-15 minutes):**
+
 - Automated monitoring alerts
 - On-call engineer response
 - Initial assessment and triage
 
 **Level 2 (15-30 minutes):**
+
 - Escalate to secondary on-call
 - Involve additional team members
 - Consider rollback decision
 
 **Level 3 (30+ minutes):**
+
 - Management notification
 - External communication
 - Post-incident review planning
@@ -638,6 +683,7 @@ done
 These rollback procedures provide a comprehensive framework for handling deployment issues with the Simplified Tunnel System. Regular testing and updates of these procedures ensure rapid recovery and minimal user impact during incidents.
 
 Key success factors:
+
 - **Preparation**: Regular backups and tested procedures
 - **Speed**: Quick decision-making and execution
 - **Communication**: Clear stakeholder notification

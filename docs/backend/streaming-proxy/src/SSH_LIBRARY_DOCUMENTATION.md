@@ -257,12 +257,14 @@ connection.connect(config);
 ```
 
 **Benefits:**
+
 - Reduced connection overhead
 - Better resource utilization
 - Faster channel establishment
 - Lower latency for multiple operations
 
 **Limits:**
+
 - Enforce maximum channels per connection (default: 10)
 - Prevent resource exhaustion from single user
 
@@ -403,6 +405,7 @@ connection.sftp((err, sftp) => {
 The SSH connection manager in `services/streaming-proxy/src/connection-pool/ssh-connection-impl.ts` should:
 
 1. **Initialize Connections Securely**
+
    ```typescript
    // Use ED25519 keys for modern security
    // Verify host keys on first connection
@@ -411,6 +414,7 @@ The SSH connection manager in `services/streaming-proxy/src/connection-pool/ssh-
    ```
 
 2. **Manage Connection Lifecycle**
+
    ```typescript
    // Implement keep-alive every 60 seconds
    // Detect dead connections within 45 seconds
@@ -419,6 +423,7 @@ The SSH connection manager in `services/streaming-proxy/src/connection-pool/ssh-
    ```
 
 3. **Handle Errors Gracefully**
+
    ```typescript
    // Categorize SSH errors
    // Implement automatic recovery strategies
@@ -427,6 +432,7 @@ The SSH connection manager in `services/streaming-proxy/src/connection-pool/ssh-
    ```
 
 4. **Enforce Security Policies**
+
    ```typescript
    // Limit channels per connection (max 10)
    // Enforce rate limiting per user
@@ -466,17 +472,20 @@ Add these comments to SSH-related code:
 ## References
 
 ### SSH2 Library Documentation
+
 - **Repository:** https://github.com/mscdex/ssh2
 - **NPM Package:** https://www.npmjs.com/package/ssh2
 - **Documentation:** https://github.com/mscdex/ssh2/blob/master/README.md
 
 ### SSH Protocol Standards
+
 - **RFC 4251:** The Secure Shell (SSH) Protocol Architecture
 - **RFC 4252:** The Secure Shell (SSH) Authentication Protocol
 - **RFC 4253:** The Secure Shell (SSH) Transport Layer Protocol
 - **RFC 4254:** The Secure Shell (SSH) Connection Protocol
 
 ### Security Best Practices
+
 - **OWASP:** SSH Security Best Practices
 - **NIST:** Guidelines for SSH Key Management
 - **CIS:** SSH Security Benchmark

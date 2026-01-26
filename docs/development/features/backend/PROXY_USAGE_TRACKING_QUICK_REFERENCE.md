@@ -9,20 +9,25 @@ Proxy usage tracking implementation for billing and analytics. Tracks proxy usag
 ## Files Created
 
 ### Service
+
 - `services/proxy-usage-service.js` - Core service for usage tracking
 
 ### Routes
+
 - `routes/proxy-usage.js` - API endpoints for usage tracking
 
 ### Database
+
 - `database/migrations/016_proxy_usage_tracking.sql` - Database schema
 
 ### Tests
+
 - `test/api-backend/proxy-usage.test.js` - Comprehensive test suite
 
 ## API Endpoints
 
 ### Record Usage Event
+
 ```
 POST /proxy/usage/:proxyId/record
 Authorization: Bearer <JWT>
@@ -50,6 +55,7 @@ Response:
 ```
 
 ### Get Usage Metrics for Specific Date
+
 ```
 GET /proxy/usage/:proxyId/metrics/:date
 Authorization: Bearer <JWT>
@@ -72,6 +78,7 @@ Response:
 ```
 
 ### Get Usage Metrics for Date Range
+
 ```
 GET /proxy/usage/:proxyId/metrics?startDate=2024-01-01&endDate=2024-01-31
 Authorization: Bearer <JWT>
@@ -96,6 +103,7 @@ Response:
 ```
 
 ### Get Usage Report
+
 ```
 GET /proxy/usage/report?startDate=2024-01-01&endDate=2024-01-31&groupBy=day|proxy
 Authorization: Bearer <JWT>
@@ -124,6 +132,7 @@ Response:
 ```
 
 ### Get Usage Aggregation
+
 ```
 GET /proxy/usage/aggregation?periodStart=2024-01-01&periodEnd=2024-01-31
 Authorization: Bearer <JWT>
@@ -147,6 +156,7 @@ Response:
 ```
 
 ### Aggregate Usage Metrics
+
 ```
 POST /proxy/usage/aggregate
 Authorization: Bearer <JWT>
@@ -174,6 +184,7 @@ Response:
 ```
 
 ### Get Billing Summary
+
 ```
 GET /proxy/usage/billing?periodStart=2024-01-01&periodEnd=2024-01-31
 Authorization: Bearer <JWT>
@@ -214,6 +225,7 @@ Response:
 ## Database Schema
 
 ### proxy_usage_events
+
 Raw usage events collected from proxy instances.
 
 ```sql
@@ -233,6 +245,7 @@ CREATE TABLE proxy_usage_events (
 ```
 
 ### proxy_usage_metrics
+
 Aggregated daily usage metrics for proxy instances.
 
 ```sql
@@ -255,6 +268,7 @@ CREATE TABLE proxy_usage_metrics (
 ```
 
 ### proxy_usage_aggregation
+
 Period-based aggregated usage metrics for billing.
 
 ```sql
@@ -279,6 +293,7 @@ CREATE TABLE proxy_usage_aggregation (
 ```
 
 ### proxy_usage_summary
+
 Current summary usage metrics for quick access.
 
 ```sql
@@ -303,9 +318,11 @@ CREATE TABLE proxy_usage_summary (
 ## Service Methods
 
 ### recordUsageEvent(proxyId, userId, eventType, eventData)
+
 Record a usage event for a proxy.
 
 **Parameters:**
+
 - `proxyId` (string) - Proxy ID
 - `userId` (string) - User ID
 - `eventType` (string) - Event type: connection_start, connection_end, data_transfer, error
@@ -314,9 +331,11 @@ Record a usage event for a proxy.
 **Returns:** Promise<Object> - Created event
 
 ### getProxyUsageMetrics(proxyId, userId, date)
+
 Get usage metrics for a proxy on a specific date.
 
 **Parameters:**
+
 - `proxyId` (string) - Proxy ID
 - `userId` (string) - User ID
 - `date` (string) - Date in YYYY-MM-DD format
@@ -324,9 +343,11 @@ Get usage metrics for a proxy on a specific date.
 **Returns:** Promise<Object> - Usage metrics
 
 ### getProxyUsageMetricsRange(proxyId, userId, startDate, endDate)
+
 Get usage metrics for a proxy over a date range.
 
 **Parameters:**
+
 - `proxyId` (string) - Proxy ID
 - `userId` (string) - User ID
 - `startDate` (string) - Start date in YYYY-MM-DD format
@@ -335,9 +356,11 @@ Get usage metrics for a proxy over a date range.
 **Returns:** Promise<Array> - Usage metrics for each day
 
 ### getUserUsageAggregation(userId, userTier, periodStart, periodEnd)
+
 Get aggregated usage for a user.
 
 **Parameters:**
+
 - `userId` (string) - User ID
 - `userTier` (string) - User tier (free, premium, enterprise)
 - `periodStart` (string) - Period start date in YYYY-MM-DD format
@@ -346,9 +369,11 @@ Get aggregated usage for a user.
 **Returns:** Promise<Object> - Aggregated usage
 
 ### aggregateUserUsage(userId, userTier, periodStart, periodEnd)
+
 Aggregate usage metrics for a user and period.
 
 **Parameters:**
+
 - `userId` (string) - User ID
 - `userTier` (string) - User tier
 - `periodStart` (string) - Period start date in YYYY-MM-DD format
@@ -357,9 +382,11 @@ Aggregate usage metrics for a user and period.
 **Returns:** Promise<Object> - Aggregated usage
 
 ### getUserUsageReport(userId, options)
+
 Get usage report for a user.
 
 **Parameters:**
+
 - `userId` (string) - User ID
 - `options` (object) - Report options
   - `startDate` (string) - Start date in YYYY-MM-DD format
@@ -369,9 +396,11 @@ Get usage report for a user.
 **Returns:** Promise<Object> - Usage report
 
 ### getBillingSummary(userId, userTier, periodStart, periodEnd)
+
 Get billing summary for a user.
 
 **Parameters:**
+
 - `userId` (string) - User ID
 - `userTier` (string) - User tier
 - `periodStart` (string) - Period start date in YYYY-MM-DD format
@@ -382,16 +411,19 @@ Get billing summary for a user.
 ## Billing Calculation
 
 ### Free Tier
+
 - Base charge: $0
 - Data transfer charge: $0
 - Total: $0
 
 ### Premium Tier
+
 - Base charge: $10/month
 - Data transfer charge: $0.01 per GB
 - Total: $10 + (total_data_gb * $0.01)
 
 ### Enterprise Tier
+
 - Custom pricing (contact sales)
 
 ## Integration
@@ -399,23 +431,27 @@ Get billing summary for a user.
 To integrate proxy usage tracking into the API backend:
 
 1. Import the service:
+
 ```javascript
 import ProxyUsageService from './services/proxy-usage-service.js';
 ```
 
-2. Initialize the service:
+1. Initialize the service:
+
 ```javascript
 const proxyUsageService = new ProxyUsageService();
 await proxyUsageService.initialize();
 ```
 
-3. Register routes:
+1. Register routes:
+
 ```javascript
 import { createProxyUsageRoutes } from './routes/proxy-usage.js';
 app.use('/proxy', createProxyUsageRoutes(proxyUsageService));
 ```
 
-4. Record usage events:
+1. Record usage events:
+
 ```javascript
 await proxyUsageService.recordUsageEvent(
   proxyId,
@@ -434,6 +470,7 @@ await proxyUsageService.recordUsageEvent(
 ## Testing
 
 Run tests with:
+
 ```bash
 npm test -- test/api-backend/proxy-usage.test.js
 ```

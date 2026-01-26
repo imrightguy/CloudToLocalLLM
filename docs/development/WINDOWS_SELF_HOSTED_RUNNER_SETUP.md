@@ -5,6 +5,7 @@ This guide walks you through setting up a Windows machine as a self-hosted GitHu
 ## 📋 Overview
 
 A self-hosted runner allows you to run GitHub Actions workflows on your own Windows machine, which is useful for:
+
 - Building Windows applications locally
 - Faster build times
 - More control over the build environment
@@ -30,6 +31,7 @@ Run the automated setup script:
 ```
 
 The script will:
+
 1. Install Chocolatey package manager
 2. Install Git for Windows
 3. Install Visual Studio Build Tools 2022 (C++ workload)
@@ -63,6 +65,7 @@ cd D:\dev\CloudToLocalLLM
 ```
 
 The script will prompt you for:
+
 - GitHub runner registration token
 - Runner name (defaults to computer name)
 
@@ -108,6 +111,7 @@ refreshenv
 Download and install from: https://visualstudio.microsoft.com/downloads/
 
 Select:
+
 - **C++ build tools** workload
 - **Windows 10/11 SDK** (latest)
 - **CMake tools for Windows**
@@ -161,16 +165,19 @@ Remove-Item "actions-runner.zip" -Force
 ### Test the Runner
 
 1. **Check runner status:**
+
    ```powershell
    Get-Service actions.runner.*
    ```
 
 2. **View runner logs:**
+
    ```powershell
    Get-Content C:\actions-runner\_diag\Runner_*.log -Tail 50
    ```
 
 3. **Test a build manually:**
+
    ```powershell
    cd D:\dev\CloudToLocalLLM
    flutter pub get
@@ -241,22 +248,26 @@ Remove-Item -Recurse -Force C:\actions-runner
 ### Runner Not Appearing in GitHub
 
 1. **Check service status:**
+
    ```powershell
    Get-Service actions.runner.*
    ```
 
 2. **Check logs:**
+
    ```powershell
    Get-Content C:\actions-runner\_diag\Runner_*.log -Tail 100
    ```
 
 3. **Verify configuration:**
+
    ```powershell
    cd C:\actions-runner
    Get-Content .runner
    ```
 
 4. **Reconfigure if needed:**
+
    ```powershell
    cd C:\actions-runner
    .\config.cmd remove --token YOUR_TOKEN
@@ -266,11 +277,13 @@ Remove-Item -Recurse -Force C:\actions-runner
 ### Flutter Build Fails
 
 1. **Check Flutter setup:**
+
    ```powershell
    flutter doctor -v
    ```
 
 2. **Verify Visual Studio installation:**
+
    ```powershell
    # Check if Visual Studio is installed
    Test-Path "C:\Program Files\Microsoft Visual Studio\2022\BuildTools"
@@ -284,11 +297,13 @@ Remove-Item -Recurse -Force C:\actions-runner
 ### Runner Service Won't Start
 
 1. **Check Windows Event Viewer:**
+
    ```powershell
    Get-EventLog -LogName Application -Source "actions.runner.*" -Newest 10
    ```
 
 2. **Try manual start:**
+
    ```powershell
    cd C:\actions-runner
    .\run.cmd
@@ -356,4 +371,3 @@ If you encounter issues:
 ---
 
 **Note:** The runner will automatically start on Windows boot if installed as a service. Ensure your machine is powered on and connected to the internet for builds to run.
-

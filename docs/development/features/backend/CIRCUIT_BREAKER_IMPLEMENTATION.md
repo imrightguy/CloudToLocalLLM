@@ -17,6 +17,7 @@ The main circuit breaker implementation with three states:
 - **HALF_OPEN**: Testing if service has recovered, limited requests allowed
 
 **Key Features:**
+
 - Configurable failure and success thresholds
 - Automatic state transitions based on request outcomes
 - Metrics collection for monitoring
@@ -24,6 +25,7 @@ The main circuit breaker implementation with three states:
 - Manual control methods (open, close, reset)
 
 **Configuration Options:**
+
 ```javascript
 {
   name: 'ServiceName',           // Circuit breaker name
@@ -37,6 +39,7 @@ The main circuit breaker implementation with three states:
 #### 2. CircuitBreakerManager Class (`services/circuit-breaker.js`)
 
 Manages multiple circuit breakers:
+
 - Create or retrieve circuit breakers by name
 - Get metrics for all circuit breakers
 - Reset all circuit breakers
@@ -47,6 +50,7 @@ Manages multiple circuit breakers:
 Express middleware for integrating circuit breakers:
 
 **Functions:**
+
 - `createCircuitBreakerMiddleware(serviceName, options)` - Creates middleware for a service
 - `circuitBreakerErrorHandler(err, req, res, next)` - Handles circuit breaker errors
 - `executeWithCircuitBreaker(serviceName, fn, options)` - Utility to execute functions through circuit breaker
@@ -76,6 +80,7 @@ HALF_OPEN
 ### Metrics Collected
 
 Each circuit breaker tracks:
+
 - `totalRequests` - Total requests processed
 - `successfulRequests` - Successful requests
 - `failedRequests` - Failed requests
@@ -165,6 +170,7 @@ circuitBreakerManager.resetAll();
 ### Unit Tests (`test/api-backend/circuit-breaker.test.js`)
 
 Comprehensive unit tests covering:
+
 - State transitions (CLOSED → OPEN → HALF_OPEN → CLOSED)
 - Request handling in each state
 - Metrics collection
@@ -178,6 +184,7 @@ Comprehensive unit tests covering:
 ### Integration Tests (`test/api-backend/circuit-breaker-integration.test.js`)
 
 Integration tests covering:
+
 - Middleware integration
 - Error handling in Express
 - Metrics endpoint
@@ -193,30 +200,35 @@ Integration tests covering:
 When integrated into the API, the following endpoints are available:
 
 ### Get Metrics
+
 ```
 GET /metrics
 Response: { circuitBreakers: {...}, timestamp: "..." }
 ```
 
 ### Get Specific Status
+
 ```
 GET /status/:serviceName
 Response: { service: "...", metrics: {...}, timestamp: "..." }
 ```
 
 ### Reset All
+
 ```
 POST /reset
 Response: { message: "...", timestamp: "..." }
 ```
 
 ### Manually Open
+
 ```
 POST /open/:serviceName
 Response: { service: "...", state: "OPEN", message: "...", timestamp: "..." }
 ```
 
 ### Manually Close
+
 ```
 POST /close/:serviceName
 Response: { service: "...", state: "CLOSED", message: "...", timestamp: "..." }
@@ -242,6 +254,7 @@ When a circuit breaker is open, requests receive:
 ## Configuration Recommendations
 
 ### For External APIs
+
 ```javascript
 {
   failureThreshold: 5,      // Open after 5 failures
@@ -251,6 +264,7 @@ When a circuit breaker is open, requests receive:
 ```
 
 ### For Internal Services
+
 ```javascript
 {
   failureThreshold: 3,      // Open after 3 failures
@@ -260,6 +274,7 @@ When a circuit breaker is open, requests receive:
 ```
 
 ### For Critical Services
+
 ```javascript
 {
   failureThreshold: 10,     // More tolerant
@@ -295,6 +310,7 @@ const breaker = new CircuitBreaker({
 ## Integration with Requirement 7.3
 
 This implementation satisfies requirement 7.3:
+
 - ✅ Creates circuit breaker for service failures
 - ✅ Implements state management (CLOSED, OPEN, HALF_OPEN)
 - ✅ Adds circuit breaker metrics

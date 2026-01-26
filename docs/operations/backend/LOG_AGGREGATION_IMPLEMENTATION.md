@@ -207,17 +207,20 @@ const userId = getUserIdFromRequest(req);
 ### Setup
 
 1. Deploy Loki:
+
 ```bash
 docker run -d -p 3100:3100 grafana/loki:latest
 ```
 
-2. Enable in environment:
+1. Enable in environment:
+
 ```bash
 LOKI_ENABLED=true
 LOKI_URL=http://localhost:3100
 ```
 
-3. Query logs in Grafana:
+1. Query logs in Grafana:
+
 ```
 {service="cloudtolocalllm-api", level="error"}
 ```
@@ -227,17 +230,20 @@ LOKI_URL=http://localhost:3100
 ### Setup
 
 1. Deploy ELK Stack:
+
 ```bash
 docker-compose up -d elasticsearch logstash kibana
 ```
 
-2. Enable in environment:
+1. Enable in environment:
+
 ```bash
 ELK_ENABLED=true
 ELK_HOSTS=localhost:9200
 ```
 
-3. Query logs in Kibana:
+1. Query logs in Kibana:
+
 ```
 service: "cloudtolocalllm-api" AND level: "error"
 ```
@@ -251,6 +257,7 @@ npm test -- ../test/api-backend/log-aggregation.test.js
 ```
 
 Tests cover:
+
 - Log aggregation configuration
 - Loki log formatting
 - ELK log formatting
@@ -267,6 +274,7 @@ npm test -- ../test/api-backend/log-routing-integration.test.js
 ```
 
 Tests cover:
+
 - Log routing middleware
 - Log routing with request context
 - Log router destination selection
@@ -323,6 +331,7 @@ Tests cover:
 ### Debugging
 
 Enable debug logging:
+
 ```bash
 LOG_LEVEL=debug
 ```
@@ -330,6 +339,7 @@ LOG_LEVEL=debug
 ## Best Practices
 
 1. **Always flush logs on shutdown**
+
    ```javascript
    process.on('SIGTERM', async () => {
      await flushLogs();
@@ -338,11 +348,13 @@ LOG_LEVEL=debug
    ```
 
 2. **Include correlation IDs in requests**
+
    ```javascript
    req.headers['x-correlation-id'] = generateCorrelationId();
    ```
 
 3. **Use structured logging**
+
    ```javascript
    logger.info('User login', {
      userId: user.id,
@@ -352,6 +364,7 @@ LOG_LEVEL=debug
    ```
 
 4. **Monitor log aggregation system health**
+
    ```javascript
    const router = new LogRouter();
    if (router.isDestinationEnabled('loki')) {

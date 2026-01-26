@@ -5,6 +5,7 @@ This directory contains the business logic and state management services for Clo
 ## Overview
 
 Services in this directory follow these patterns:
+
 - Extend `ChangeNotifier` for reactive state management
 - Registered in `di/locator.dart` using get_it dependency injection
 - Provided to widget tree via Provider in `main.dart`
@@ -16,6 +17,7 @@ Services in this directory follow these patterns:
 ### Core Services (Always Available)
 
 #### AuthService
+
 - **Purpose**: Authentication and authorization management
 - **Features**:
   - Auth0 OAuth2 integration
@@ -29,6 +31,7 @@ Services in this directory follow these patterns:
 ### Admin Center Services (Authenticated Only)
 
 #### PaymentGatewayService
+
 - **Purpose**: Payment processing and transaction management for Admin Center
 - **Features**:
   - Payment transaction management
@@ -119,6 +122,7 @@ try {
 ## HTTP Client Configuration
 
 Services use Dio for HTTP requests with:
+
 - Base URL from `AppConfig`
 - Automatic JWT token injection
 - Request/response interceptors
@@ -160,6 +164,7 @@ void _setupDio() {
 ## Service Lifecycle
 
 ### Initialization
+
 ```dart
 // In main.dart
 void main() async {
@@ -177,6 +182,7 @@ void main() async {
 ```
 
 ### Cleanup
+
 ```dart
 @override
 void dispose() {
@@ -222,6 +228,7 @@ void main() {
 ## Future Services
 
 Planned services for Admin Center:
+
 - `UserManagementService` - User CRUD operations
 - `SubscriptionManagementService` - Subscription lifecycle
 - `AuditLogService` - Audit trail viewing
@@ -238,11 +245,11 @@ Planned services for Admin Center:
 ## Support
 
 For issues or questions about services:
+
 - Check service-specific documentation
 - Review Admin Center design documents
 - Consult API documentation
 - Contact development team
-
 
 ## AdminCenterService (`admin_center_service.dart`)
 
@@ -278,6 +285,7 @@ Comprehensive administrative service for the Admin Center providing role-based a
 ### Admin Roles
 
 Supports three admin role types:
+
 - **Super Admin**: Full system access (all permissions)
 - **Support Admin**: User management and support operations
 - **Finance Admin**: Payment and subscription management
@@ -285,6 +293,7 @@ Supports three admin role types:
 ### Permissions
 
 Granular permission system:
+
 - `view_users` - View user list and details
 - `edit_users` - Update user information
 - `suspend_users` - Suspend and reactivate accounts
@@ -366,4 +375,3 @@ final metrics = adminService.dashboardMetrics;
 - Permission-based access control
 - Comprehensive audit logging (backend)
 - Automatic session cleanup on logout
-

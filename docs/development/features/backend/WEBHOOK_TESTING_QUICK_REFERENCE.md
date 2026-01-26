@@ -263,31 +263,37 @@ const validation = webhookTestingService.validatePayloadStructure(payload);
 ## Testing Workflow
 
 1. **Get Supported Types**
+
    ```bash
    GET /api/webhooks/test/supported-types
    ```
 
 2. **Generate Test Payload**
+
    ```bash
    POST /api/webhooks/test/payload
    ```
 
 3. **Validate Payload**
+
    ```bash
    POST /api/webhooks/test/validate
    ```
 
 4. **Send Test Webhook**
+
    ```bash
    POST /api/webhooks/test/send
    ```
 
 5. **Check Test Event**
+
    ```bash
    GET /api/webhooks/test/events/<TEST_ID>
    ```
 
 6. **Get Webhook Debug Info**
+
    ```bash
    GET /api/webhooks/<WEBHOOK_ID>/debug
    ```

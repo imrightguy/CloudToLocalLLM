@@ -31,9 +31,11 @@ Content-Type: application/json
 The Admin Center implements role-based access control (RBAC) with three distinct roles:
 
 #### Super Admin
+
 **Full access to all admin operations**
 
 Permissions:
+
 - All user management operations (view, edit, suspend, delete)
 - All payment operations (view, process refunds)
 - All subscription operations (view, edit, cancel)
@@ -43,9 +45,11 @@ Permissions:
 - Audit log access (view, export)
 
 #### Support Admin
+
 **User support and account management**
 
 Permissions:
+
 - View users
 - Edit users (subscription changes)
 - Suspend/reactivate users
@@ -55,9 +59,11 @@ Permissions:
 - View audit logs (read-only)
 
 #### Finance Admin
+
 **Financial operations and reporting**
 
 Permissions:
+
 - View users (read-only)
 - View payments
 - Process refunds

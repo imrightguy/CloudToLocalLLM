@@ -9,9 +9,11 @@ This document summarizes the implementation of proxy failover and redundancy man
 ## Files Created
 
 ### 1. Database Migration
+
 **File**: `database/migrations/015_proxy_failover_and_redundancy.sql`
 
 Creates four main tables:
+
 - `proxy_failover_configurations` - Stores failover settings per proxy
 - `proxy_instances` - Tracks individual proxy instances
 - `proxy_failover_events` - Records failover operations
@@ -21,9 +23,11 @@ Creates four main tables:
 All tables include proper indexes for performance and foreign key constraints for data integrity.
 
 ### 2. Service Implementation
+
 **File**: `services/proxy-failover-service.js`
 
 Core service class with methods for:
+
 - **Configuration Management**
   - `createFailoverConfiguration()` - Create/update failover config
   - `getFailoverConfiguration()` - Retrieve config
@@ -45,6 +49,7 @@ Core service class with methods for:
   - `getFailoverEvents()` - Retrieve failover history
 
 ### 3. API Routes
+
 **File**: `routes/proxy-failover.js`
 
 Implements 10 REST endpoints:
@@ -62,9 +67,11 @@ Implements 10 REST endpoints:
 11. **GET /proxy/:proxyId/failover/events** - Get failover events
 
 ### 4. Test Suite
+
 **File**: `test/api-backend/proxy-failover.test.js`
 
 Comprehensive test coverage including:
+
 - Configuration creation and validation
 - Instance registration and management
 - Health status updates
@@ -95,6 +102,7 @@ The service supports three failover strategies:
 ### Health Monitoring
 
 Health status transitions:
+
 ```
 unknown → healthy (health check passes)
 healthy → unhealthy (consecutive failures exceed threshold)
@@ -102,6 +110,7 @@ unhealthy → healthy (consecutive successes exceed threshold)
 ```
 
 Configurable thresholds:
+
 - `unhealthyThreshold`: Consecutive failures before marking unhealthy (default: 3)
 - `healthyThreshold`: Consecutive successes before marking healthy (default: 2)
 - `healthCheckIntervalSeconds`: How often to check (default: 30)
@@ -113,6 +122,7 @@ Configurable thresholds:
 - **multi**: Three or more instances (full redundancy)
 
 Degraded mode is triggered when:
+
 - Healthy instances < total instances / 2
 - Active instance is unhealthy
 - No backup instances available
@@ -120,6 +130,7 @@ Degraded mode is triggered when:
 ## Data Flow
 
 ### Failover Evaluation Flow
+
 ```
 1. Get failover configuration
 2. Check if auto-failover is enabled
@@ -133,6 +144,7 @@ Degraded mode is triggered when:
 ```
 
 ### Failover Execution Flow
+
 ```
 1. Validate source and target instances
 2. Create failover event (status: in_progress)
@@ -143,6 +155,7 @@ Degraded mode is triggered when:
 ```
 
 ### Health Update Flow
+
 ```
 1. Get current instance
 2. Update health status
@@ -175,6 +188,7 @@ Degraded mode is triggered when:
 ### Callbacks
 
 Service supports three callback types:
+
 - `setFailoverCallback()` - Called when failover is executed
 - `setRecoveryCallback()` - Called when recovery is needed
 - `setRedundancyStatusCallback()` - Called when redundancy status changes
@@ -200,6 +214,7 @@ const config = {
 ## Error Handling
 
 All methods include:
+
 - Input validation
 - Database error handling
 - Logging of errors with context
@@ -273,16 +288,19 @@ npm test -- proxy-failover.test.js
 ### Prerequisites
 
 1. Database migration must be run:
+
    ```bash
    npm run migrate -- 015_proxy_failover_and_redundancy.sql
    ```
 
 2. Service must be initialized with database connection:
+
    ```javascript
    const failoverService = new ProxyFailoverService(db, logger);
    ```
 
 3. Routes must be registered in main server:
+
    ```javascript
    import { createProxyFailoverRoutes } from './routes/proxy-failover.js';
    app.use(createProxyFailoverRoutes(db, logger));
@@ -291,6 +309,7 @@ npm test -- proxy-failover.test.js
 ### Environment Variables
 
 Optional configuration via environment:
+
 - `PROXY_HEALTH_CHECK_INTERVAL` - Health check interval in ms (default: 30000)
 - `PROXY_MAX_RECOVERY_ATTEMPTS` - Max recovery attempts (default: 3)
 - `PROXY_RECOVERY_BACKOFF` - Recovery backoff in ms (default: 5000)

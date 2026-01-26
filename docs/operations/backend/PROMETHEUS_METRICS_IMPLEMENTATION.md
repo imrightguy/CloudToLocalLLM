@@ -129,6 +129,7 @@ This document describes the implementation of the Prometheus metrics endpoint fo
 ## Endpoints
 
 ### GET /metrics
+
 - **Path**: `/api/metrics` or `/metrics`
 - **Description**: Prometheus metrics endpoint
 - **Response Format**: Prometheus text format (text/plain)
@@ -136,6 +137,7 @@ This document describes the implementation of the Prometheus metrics endpoint fo
 - **Usage**: Prometheus scraper configuration
 
 Example Prometheus scrape config:
+
 ```yaml
 scrape_configs:
   - job_name: 'cloudtolocalllm-api'
@@ -146,6 +148,7 @@ scrape_configs:
 ```
 
 ### GET /health/metrics
+
 - **Path**: `/api/prometheus/health/metrics` or `/prometheus/health/metrics`
 - **Description**: Health check for metrics collection
 - **Response Format**: JSON
@@ -154,6 +157,7 @@ scrape_configs:
   - 503: Metrics collection is unhealthy
 
 Example response:
+
 ```json
 {
   "status": "healthy",
@@ -249,6 +253,7 @@ npm test -- ../test/api-backend/prometheus-metrics.test.js
 ```
 
 Test Results:
+
 - ✅ 21 tests passed
 - ✅ Metrics collection middleware working
 - ✅ Prometheus endpoint returning correct format
@@ -260,6 +265,7 @@ Test Results:
 ### Prometheus Configuration
 
 Add to Prometheus scrape_configs:
+
 ```yaml
 scrape_configs:
   - job_name: 'cloudtolocalllm-api'
@@ -315,6 +321,7 @@ Create Grafana dashboards using these metrics:
 Property: *For any* HTTP request, the metrics endpoint should return consistent metrics that accurately reflect the request characteristics (method, route, status, duration).
 
 This property is validated by the comprehensive test suite that verifies:
+
 - Metrics are collected for all requests
 - Status codes are properly tracked
 - Request duration is measured accurately
@@ -342,16 +349,19 @@ This property is validated by the comprehensive test suite that verifies:
 ## Troubleshooting
 
 ### Metrics endpoint returns 500 error
+
 - Check that prom-client library is installed
 - Verify metrics service is initialized
 - Check application logs for errors
 
 ### Prometheus scraper fails to connect
+
 - Verify API is running on correct port
 - Check firewall rules
 - Verify metrics endpoint is accessible
 
 ### Metrics show zero values
+
 - Ensure requests are being made to the API
 - Check that metrics collection middleware is enabled
 - Verify metrics service is recording data

@@ -244,14 +244,17 @@ try {
 ### Tune Based on Behavior
 
 **If circuit opens too often:**
+
 - Increase `failureThreshold`
 - Increase `timeout`
 
 **If circuit stays open too long:**
+
 - Decrease `resetTimeout`
 - Decrease `successThreshold`
 
 **If recovery fails repeatedly:**
+
 - Increase `resetTimeout`
 - Increase `successThreshold`
 

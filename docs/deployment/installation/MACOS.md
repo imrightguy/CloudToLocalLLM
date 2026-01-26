@@ -5,6 +5,7 @@ CloudToLocalLLM support for macOS is currently in development. This guide will b
 ## 📋 Current Status
 
 ### 🚧 **Development in Progress**
+
 macOS support is planned for future releases. We're working on:
 
 - **Native macOS app bundle** with proper code signing
@@ -13,6 +14,7 @@ macOS support is planned for future releases. We're working on:
 - **System integration** with macOS menu bar and notifications
 
 ### 📅 **Timeline**
+
 - **Development Preview**: Available for testing (see below)
 - **Beta Release**: Planned for Q2 2025
 - **Stable Release**: Planned for Q3 2025
@@ -26,6 +28,7 @@ macOS support is planned for future releases. We're working on:
 If you're a developer or want to help test macOS support, you can build from source:
 
 #### **Prerequisites**
+
 - **macOS**: 10.15 (Catalina) or later
 - **Xcode**: Latest version from App Store
 - **Xcode Command Line Tools**: `xcode-select --install`
@@ -33,6 +36,7 @@ If you're a developer or want to help test macOS support, you can build from sou
 - **CocoaPods**: `sudo gem install cocoapods`
 
 #### **Build from Source**
+
 ```bash
 # Install Flutter and enable macOS support
 flutter config --enable-macos-desktop
@@ -51,6 +55,7 @@ flutter build macos --release
 ```
 
 #### **Known Limitations**
+
 - ⚠️ **Experimental**: May be unstable or have missing features
 - ⚠️ **No Installer**: Manual installation required
 - ⚠️ **Limited Integration**: Basic macOS integration only
@@ -61,6 +66,7 @@ flutter build macos --release
 ## 📋 Prerequisites (When Available)
 
 ### 🧠 **Ollama Installation**
+
 CloudToLocalLLM will require Ollama to be installed:
 
 ```bash
@@ -78,6 +84,7 @@ ollama list
 ```
 
 ### 💻 **System Requirements**
+
 - **macOS**: 10.15 (Catalina) or later
 - **RAM**: 4GB minimum, 8GB+ recommended
 - **Storage**: 2GB for application + space for AI models
@@ -90,12 +97,14 @@ ollama list
 ### 🍎 **Native macOS Integration**
 
 #### **Menu Bar Integration**
+
 - Native macOS menu bar app
 - Quick access to settings and status
 - Connection indicators
 - Context-aware menu options
 
 #### **System Integration**
+
 - **Dock integration** with badge notifications
 - **macOS notification system** for status updates
 - **Keychain integration** for secure credential storage
@@ -103,6 +112,7 @@ ollama list
 - **Quick Actions** in Finder
 
 #### **App Bundle Features**
+
 - **Code signing** for security and trust
 - **Sandboxing** for enhanced security
 - **Auto-updates** through built-in updater
@@ -113,6 +123,7 @@ ollama list
 ## 📦 Planned Installation Methods
 
 ### 🏠 **Homebrew (Planned)**
+
 ```bash
 # Add CloudToLocalLLM tap
 brew tap CloudToLocalLLM-online/CloudToLocalLLM
@@ -125,12 +136,14 @@ brew services start cloudtolocalllm
 ```
 
 ### 📱 **App Bundle (Planned)**
+
 1. Download `.dmg` file from releases
 2. Open the disk image
 3. Drag CloudToLocalLLM to Applications folder
 4. Launch from Applications or Spotlight
 
 ### 🏪 **Mac App Store (Under Consideration)**
+
 - Simplified installation and updates
 - Automatic sandboxing and security
 - Family sharing support
@@ -141,6 +154,7 @@ brew services start cloudtolocalllm
 ## 🤝 Help Us Build macOS Support
 
 ### 👨‍💻 **For Developers**
+
 We welcome contributions to macOS support:
 
 - **Testing**: Try the development build and report issues
@@ -149,12 +163,14 @@ We welcome contributions to macOS support:
 - **Feedback**: Share your experience and suggestions
 
 ### 📝 **How to Contribute**
+
 1. **Join the Discussion**: [GitHub Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)
 2. **Report Issues**: [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues) with "macOS" label
 3. **Submit PRs**: Follow our [Contributing Guide](../../CONTRIBUTING.md)
 4. **Test Builds**: Help test development builds
 
 ### 🎯 **Priority Areas**
+
 - **Menu bar integration** using native macOS APIs
 - **Keychain integration** for secure storage
 - **Notification system** integration
@@ -166,12 +182,15 @@ We welcome contributions to macOS support:
 ## 📢 Stay Updated
 
 ### 🔔 **Get Notified**
+
 - **Watch** the [GitHub repository](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM) for updates
 - **Follow** releases for macOS availability announcements
 - **Join** our [discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions) for development updates
 
 ### 📅 **Milestones**
+
 Track macOS development progress:
+
 - [macOS Support Milestone](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/milestone/1)
 - [macOS Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/labels/macOS)
 
@@ -182,17 +201,21 @@ Track macOS development progress:
 ### 💻 **Current Options**
 
 #### **Web Interface**
+
 While waiting for native macOS support, you can:
+
 1. Install Ollama on your Mac
 2. Use CloudToLocalLLM on another device (Windows/Linux)
 3. Access via [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
 
 #### **Virtual Machine**
+
 - Run Linux in a VM (VirtualBox, Parallels, VMware)
 - Install CloudToLocalLLM Linux version in the VM
 - Access from macOS through the VM
 
 #### **Docker (Advanced)**
+
 ```bash
 # Run CloudToLocalLLM in Docker (when available)
 docker run -d --name cloudtolocalllm \
@@ -216,6 +239,7 @@ docker run -d --name cloudtolocalllm \
 ## 📞 Contact
 
 For questions about macOS support:
+
 - **GitHub Issues**: [Report macOS-related issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues/new?labels=macOS)
 - **Discussions**: [Join macOS development discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)
 - **Email**: Contact us through GitHub for specific macOS development questions

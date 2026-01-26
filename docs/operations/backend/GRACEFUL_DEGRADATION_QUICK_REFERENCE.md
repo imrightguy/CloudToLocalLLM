@@ -43,39 +43,46 @@ const result = await gracefulDegradationService.executeWithFallback(
 ## Common Operations
 
 ### Mark Service as Degraded
+
 ```javascript
 gracefulDegradationService.markDegraded('my-service', 'Connection failed', 'warning');
 ```
 
 ### Mark Service as Recovered
+
 ```javascript
 gracefulDegradationService.markRecovered('my-service');
 ```
 
 ### Get Service Status
+
 ```javascript
 const status = gracefulDegradationService.getStatus('my-service');
 console.log(status.isDegraded); // true/false
 ```
 
 ### Get All Statuses
+
 ```javascript
 const statuses = gracefulDegradationService.getAllStatuses();
 ```
 
 ### Get Metrics
+
 ```javascript
 const metrics = gracefulDegradationService.getMetrics();
 console.log(metrics.activeDegradations);
 ```
 
 ### Get Full Report
+
 ```javascript
 const report = gracefulDegradationService.getReport();
 console.log(report.summary.overallStatus); // 'healthy' or 'degraded'
 ```
 
 ### Reset All
+
 ```javascript
 gracefulDegradationService.resetAll();
 ```
@@ -125,6 +132,7 @@ gracefulDegradationService.resetAll();
 ## Response Headers
 
 When services are degraded:
+
 ```
 X-Service-Status: degraded
 X-Degraded-Services: 2
@@ -149,11 +157,13 @@ X-Degraded-Services: 2
 ## Testing
 
 ### Unit Tests
+
 ```bash
 npm test -- test/api-backend/graceful-degradation.test.js
 ```
 
 ### Integration Tests
+
 ```bash
 npm test -- test/api-backend/graceful-degradation-integration.test.js
 ```
@@ -180,11 +190,13 @@ npm test -- test/api-backend/graceful-degradation-integration.test.js
 ## Common Patterns
 
 ### Pattern 1: Cache Fallback
+
 ```javascript
 fallback: async (query) => cache.get(query) || { data: [] }
 ```
 
 ### Pattern 2: Queue Fallback
+
 ```javascript
 fallback: async (data) => {
   await queue.add(data);
@@ -193,11 +205,13 @@ fallback: async (data) => {
 ```
 
 ### Pattern 3: Default Response
+
 ```javascript
 fallback: async () => ({ data: [], source: 'default' })
 ```
 
 ### Pattern 4: Partial Data
+
 ```javascript
 fallback: async () => ({
   data: partialData,
@@ -208,16 +222,19 @@ fallback: async () => ({
 ## Troubleshooting
 
 ### Service not degrading?
+
 - Check if service is registered
 - Verify middleware is applied
 - Check error handling in primary function
 
 ### Fallback not executing?
+
 - Verify fallback function is defined
 - Check if primary function is throwing error
 - Review error logs
 
 ### Metrics not updating?
+
 - Verify service is registered
 - Check if operations are being executed
 - Review metrics endpoint response

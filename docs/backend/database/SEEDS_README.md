@@ -56,6 +56,7 @@ Creates comprehensive test data for the admin center:
    ```
 
 3. Ensure you're NOT in production:
+
    ```bash
    export NODE_ENV=development
    ```
@@ -203,6 +204,7 @@ node services/api-backend/database/seeds/run-seed.js apply 001
 3. Update the seed runner if needed to handle the new seed file
 
 4. Test the seed script:
+
    ```bash
    node run-seed.js apply 002
    node run-seed.js clean

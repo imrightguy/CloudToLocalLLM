@@ -13,22 +13,27 @@ Located in: `services/proxy-diagnostics-service.js`
 ### Key Methods
 
 #### Registration
+
 - `registerProxy(proxyId, proxyMetadata)` - Register a proxy for diagnostics
 - `unregisterProxy(proxyId)` - Unregister a proxy
 
 #### Log Collection
+
 - `addDiagnosticLog(proxyId, logEntry)` - Add a diagnostic log entry
 - `getDiagnosticLogs(proxyId, options)` - Retrieve diagnostic logs with filtering
 
 #### Error Tracking
+
 - `recordError(proxyId, error, context)` - Record an error
 - `getErrorHistory(proxyId, options)` - Retrieve error history
 
 #### Event Tracking
+
 - `recordEvent(proxyId, eventType, eventData)` - Record an event
 - `getEventHistory(proxyId, options)` - Retrieve event history
 
 #### Diagnostics & Troubleshooting
+
 - `getDiagnostics(proxyId)` - Get comprehensive diagnostics
 - `getTroubleshootingInfo(proxyId)` - Get troubleshooting suggestions
 - `exportDiagnostics(proxyId)` - Export complete diagnostics data
@@ -37,9 +42,11 @@ Located in: `services/proxy-diagnostics-service.js`
 ## API Endpoints
 
 ### GET /proxy/diagnostics/:proxyId
+
 Get comprehensive diagnostics for a proxy.
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -60,14 +67,17 @@ Get comprehensive diagnostics for a proxy.
 ```
 
 ### GET /proxy/diagnostics/:proxyId/logs
+
 Get diagnostic logs for a proxy.
 
 **Query Parameters:**
+
 - `level` - Filter by log level (info, warn, error)
 - `since` - Filter logs since timestamp
 - `limit` - Maximum number of logs (default: 100)
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -85,13 +95,16 @@ Get diagnostic logs for a proxy.
 ```
 
 ### GET /proxy/diagnostics/:proxyId/errors
+
 Get error history for a proxy.
 
 **Query Parameters:**
+
 - `since` - Filter errors since timestamp
 - `limit` - Maximum number of errors (default: 50)
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -110,14 +123,17 @@ Get error history for a proxy.
 ```
 
 ### GET /proxy/diagnostics/:proxyId/events
+
 Get event history for a proxy.
 
 **Query Parameters:**
+
 - `type` - Filter by event type
 - `since` - Filter events since timestamp
 - `limit` - Maximum number of events (default: 100)
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -134,9 +150,11 @@ Get event history for a proxy.
 ```
 
 ### GET /proxy/diagnostics/:proxyId/troubleshooting
+
 Get troubleshooting information for a proxy.
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -168,9 +186,11 @@ Get troubleshooting information for a proxy.
 ```
 
 ### GET /proxy/diagnostics/:proxyId/export
+
 Export complete diagnostics data for a proxy.
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -184,9 +204,11 @@ Export complete diagnostics data for a proxy.
 ```
 
 ### POST /proxy/diagnostics/:proxyId/clear
+
 Clear diagnostics data for a proxy (admin only).
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-001",
@@ -198,6 +220,7 @@ Clear diagnostics data for a proxy (admin only).
 ## Configuration
 
 Environment variables:
+
 - `PROXY_MAX_LOGS` - Maximum logs per proxy (default: 1000)
 - `PROXY_MAX_ERRORS` - Maximum errors per proxy (default: 100)
 - `PROXY_MAX_EVENTS` - Maximum events per proxy (default: 500)
@@ -213,6 +236,7 @@ Environment variables:
 ## Common Issues Identified
 
 The service automatically identifies:
+
 - **Connection errors** - Network connectivity issues
 - **Timeout errors** - Request timeout issues
 - **Resource errors** - Memory or resource constraint issues
@@ -220,6 +244,7 @@ The service automatically identifies:
 ## Troubleshooting Suggestions
 
 The service generates suggestions based on error patterns:
+
 - Timeout errors → Check network connectivity
 - Connection errors → Verify endpoint reachability
 - Memory errors → Increase resource allocation
@@ -261,11 +286,13 @@ try {
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- test/api-backend/proxy-diagnostics.test.js
 ```
 
 Test coverage includes:
+
 - Diagnostics retrieval
 - Log collection and filtering
 - Error tracking

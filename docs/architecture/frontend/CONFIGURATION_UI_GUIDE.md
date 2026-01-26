@@ -13,6 +13,7 @@ The provider configuration system provides type-safe, validated configuration ma
 #### 1. Provider Configuration Models (`lib/models/provider_configuration.dart`)
 
 **Base Interface**
+
 ```dart
 abstract class ProviderConfiguration {
   String get providerId;
@@ -34,6 +35,7 @@ abstract class ProviderConfiguration {
 - **OpenAICompatibleProviderConfiguration**: OpenAI-compatible API settings with authentication and API versioning
 
 **Validation System**
+
 ```dart
 class ConfigurationValidationResult {
   final bool isValid;
@@ -45,6 +47,7 @@ class ConfigurationValidationResult {
 #### 2. Configuration Manager (`lib/services/provider_configuration_manager.dart`)
 
 **Key Features**
+
 - Persistent configuration storage using SharedPreferences
 - Configuration validation with detailed feedback
 - Import/export functionality for backup and migration
@@ -52,6 +55,7 @@ class ConfigurationValidationResult {
 - Configuration versioning and migration support
 
 **Usage Example**
+
 ```dart
 final configManager = ProviderConfigurationManager();
 await configManager.initialize();
@@ -83,6 +87,7 @@ await configManager.setPreferredProvider('ollama_11434');
 **Purpose**: Comprehensive provider status display with health monitoring and performance metrics.
 
 **Features**
+
 - Real-time health status indicators
 - Performance metrics (success rate, response time, request counts)
 - Provider-specific configuration details
@@ -90,6 +95,7 @@ await configManager.setPreferredProvider('ollama_11434');
 - Interactive provider management
 
 **Usage**
+
 ```dart
 EnhancedProviderStatusWidget(
   providerId: 'ollama_11434',
@@ -100,6 +106,7 @@ EnhancedProviderStatusWidget(
 ```
 
 **Health Status Indicators**
+
 - **Healthy**: Green circle with check mark (>95% success, <5s response)
 - **Degraded**: Yellow warning triangle (>80% success, <10s response)
 - **Unhealthy**: Red error circle (<80% success or >10s response)
@@ -110,6 +117,7 @@ EnhancedProviderStatusWidget(
 **Purpose**: Interactive provider selection interface with health indicators and metrics.
 
 **Features**
+
 - Single or multiple provider selection
 - Health status visualization
 - Performance metrics display
@@ -117,6 +125,7 @@ EnhancedProviderStatusWidget(
 - Selection summary for multiple providers
 
 **Usage**
+
 ```dart
 EnhancedProviderSelectorWidget(
   selectedProviderId: currentProvider,
@@ -132,6 +141,7 @@ EnhancedProviderSelectorWidget(
 **Purpose**: Comprehensive error display with troubleshooting guidance and diagnostic tools.
 
 **Features**
+
 - User-friendly error messages with context
 - Provider-specific troubleshooting suggestions
 - Quick action buttons for common fixes
@@ -139,6 +149,7 @@ EnhancedProviderSelectorWidget(
 - System diagnostics integration
 
 **Error Types and Handling**
+
 - **Connection Failed**: Network troubleshooting, provider status checks
 - **Timeout**: Performance optimization suggestions, timeout adjustments
 - **Authentication Failed**: Credential verification, permission checks
@@ -146,6 +157,7 @@ EnhancedProviderSelectorWidget(
 - **Rate Limited**: Usage optimization, retry strategies
 
 **Usage**
+
 ```dart
 EnhancedErrorWidget(
   error: communicationError,
@@ -161,12 +173,14 @@ EnhancedErrorWidget(
 ### Color Scheme and Status Indicators
 
 **Health Status Colors**
+
 - Success/Healthy: `AppTheme.successColor` (#4caf50)
 - Warning/Degraded: `AppTheme.warningColor` (#ffa726)
 - Error/Unhealthy: `AppTheme.dangerColor` (#ff5252)
 - Info/Unknown: `AppTheme.infoColor` (#2196f3)
 
 **Provider Type Icons**
+
 - Ollama: `Icons.computer`
 - LM Studio: `Icons.desktop_windows`
 - OpenAI Compatible: `Icons.cloud`
@@ -175,11 +189,13 @@ EnhancedErrorWidget(
 ### Responsive Design
 
 **Breakpoints**
+
 - Mobile: < 768px
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
 
 **Adaptive Layouts**
+
 - Cards stack vertically on mobile
 - Side-by-side layout on tablet/desktop
 - Collapsible sections for space efficiency
@@ -188,18 +204,21 @@ EnhancedErrorWidget(
 ### Accessibility Features
 
 **Screen Reader Support**
+
 - Semantic labels for all interactive elements
 - Status announcements for dynamic content
 - Proper heading hierarchy
 - Alternative text for icons
 
 **Keyboard Navigation**
+
 - Tab order follows logical flow
 - Enter/Space activation for custom controls
 - Escape key for dismissing dialogs
 - Arrow keys for list navigation
 
 **Visual Accessibility**
+
 - High contrast color combinations
 - Scalable text (respects system font size)
 - Focus indicators for keyboard users
@@ -274,18 +293,21 @@ try {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Configuration validation logic
 - Provider status calculation
 - Error message generation
 - UI component state management
 
 ### Integration Tests
+
 - Provider manager interaction
 - Configuration persistence
 - Error handling workflows
 - UI component integration
 
 ### Widget Tests
+
 - Component rendering
 - User interaction handling
 - State changes and updates

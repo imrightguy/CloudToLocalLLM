@@ -11,18 +11,21 @@ Task 37 implements rate limit metrics collection and dashboard endpoints for mon
 ## Key Components
 
 ### 1. Metrics Service
+
 - **File**: `services/rate-limit-metrics-service.js`
 - **Singleton**: `rateLimitMetricsService`
 - **Metrics**: 10 Prometheus metrics
 - **Tracking**: Top violators, top IPs, usage percentages
 
 ### 2. Metrics Routes
+
 - **File**: `routes/rate-limit-metrics.js`
 - **Endpoints**: 4 endpoints (1 public, 3 admin)
 - **Authentication**: JWT required for dashboard endpoints
 - **Authorization**: Admin role required for detailed endpoints
 
 ### 3. Middleware Integration
+
 - **Rate Limiter**: Records violations and allowed requests
 - **Exemptions**: Records exemptions granted
 - **Updates**: Window/burst/concurrent usage tracking
@@ -30,6 +33,7 @@ Task 37 implements rate limit metrics collection and dashboard endpoints for mon
 ## API Endpoints
 
 ### Public Endpoint
+
 ```
 GET /metrics
   - Prometheus metrics format
@@ -38,6 +42,7 @@ GET /metrics
 ```
 
 ### Authenticated Endpoints
+
 ```
 GET /rate-limit-metrics/summary
   - Requires: JWT token
@@ -102,23 +107,27 @@ rate_limit_check_duration_seconds
 ## Usage Examples
 
 ### Get Metrics
+
 ```bash
 curl http://localhost:8080/metrics
 ```
 
 ### Get Summary
+
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   http://localhost:8080/rate-limit-metrics/summary
 ```
 
 ### Get Top Violators
+
 ```bash
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
   "http://localhost:8080/rate-limit-metrics/top-violators?limit=20"
 ```
 
 ### Get Dashboard Data
+
 ```bash
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
   http://localhost:8080/rate-limit-metrics/dashboard-data
@@ -127,6 +136,7 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 ## Integration
 
 ### In Rate Limiter
+
 ```javascript
 // Record violation
 rateLimitMetricsService.recordViolation({
@@ -145,6 +155,7 @@ rateLimitMetricsService.updateWindowUsage(userId, current, max);
 ```
 
 ### In Exemptions
+
 ```javascript
 // Record exemption
 rateLimitMetricsService.recordExemption({
@@ -156,6 +167,7 @@ rateLimitMetricsService.recordExemption({
 ## Prometheus Configuration
 
 Add to `prometheus.yml`:
+
 ```yaml
 scrape_configs:
   - job_name: 'cloudtolocalllm-api'
@@ -168,21 +180,25 @@ scrape_configs:
 ## Grafana Queries
 
 ### Violation Rate
+
 ```
 rate(rate_limit_violations_total[5m])
 ```
 
 ### Top Violators
+
 ```
 topk(10, rate_limit_violations_total)
 ```
 
 ### Allowed vs Blocked
+
 ```
 rate_limit_requests_allowed_total vs rate_limit_requests_blocked_total
 ```
 
 ### Active Rate Limited Users
+
 ```
 rate_limited_users_active
 ```
@@ -190,6 +206,7 @@ rate_limited_users_active
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- ../test/api-backend/rate-limit-metrics.test.js
 ```

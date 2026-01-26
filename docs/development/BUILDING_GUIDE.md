@@ -19,17 +19,20 @@ This document provides comprehensive instructions for building CloudToLocalLLM c
 ### 🛠️ **Required Tools**
 
 #### **Core Requirements**
+
 - **Flutter SDK**: Version 3.8 or higher
 - **Dart SDK**: Included with Flutter
 - **Git**: For version control and dependency management
 - **Platform-specific tools**: See platform sections below
 
 #### **Development Tools**
+
 - **VS Code** with Flutter extension (recommended)
 - **Android Studio** with Flutter plugin (alternative)
 - **IntelliJ IDEA** with Flutter plugin (alternative)
 
 #### **System Requirements**
+
 - **RAM**: Minimum 8GB, recommended 16GB
 - **Storage**: At least 10GB free space for development
 - **Network**: Stable internet connection for dependencies
@@ -72,6 +75,7 @@ sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
 ```
 
 **What it does**:
+
 1. Builds the Flutter application in release mode
 2. Copies necessary assets and libraries
 3. Creates a distributable archive (`.tar.gz`)
@@ -85,12 +89,14 @@ sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
 ```
 
 **Benefits**:
+
 - Portable, no-installation-needed package
 - Universal Linux compatibility
 - Self-contained application bundle
 - Runs on most Linux distributions
 
 **Usage**:
+
 ```bash
 # Make executable and run
 chmod +x CloudToLocalLLM-*.AppImage
@@ -114,7 +120,9 @@ flutter build linux --release
 ### 🔧 **Linux Build Configuration**
 
 #### **Desktop Integration**
+
 The Linux builds include:
+
 - Desktop entry files (`.desktop`)
 - Application icons
 - System tray integration
@@ -122,6 +130,7 @@ The Linux builds include:
 - Automatic startup options
 
 #### **Dependencies**
+
 - GTK 3.0+
 - System tray support
 - Network access permissions
@@ -134,12 +143,14 @@ The Linux builds include:
 ### 🪟 **Windows Prerequisites**
 
 #### **Required Software**
+
 - **Visual Studio 2022** with C++ development tools
 - **Windows 10 SDK** (latest version)
 - **Git for Windows**
 - **Flutter SDK** properly configured
 
 #### **Environment Setup**
+
 ```powershell
 # Verify Windows development setup
 flutter doctor
@@ -181,12 +192,14 @@ flutter build windows --debug
 ### 📦 **Windows Packaging**
 
 #### **Installer Creation**
+
 ```powershell
 # Create Windows installer (if script available)
 .\scripts\packaging\build_windows_installer.ps1
 ```
 
 #### **Portable Package**
+
 ```powershell
 # Create portable ZIP package
 .\scripts\packaging\build_windows_portable.ps1
@@ -195,6 +208,7 @@ flutter build windows --debug
 ### 🔧 **Windows Features**
 
 #### **System Integration**
+
 - System tray integration with native Windows APIs
 - Windows service support
 - Registry integration for settings
@@ -202,6 +216,7 @@ flutter build windows --debug
 - Auto-start with Windows
 
 #### **Dependencies**
+
 - Visual C++ Redistributable (included in installer)
 - Windows 10/11 compatibility
 - .NET Framework (if required by dependencies)
@@ -213,11 +228,13 @@ flutter build windows --debug
 ### 🍎 **macOS Prerequisites**
 
 #### **Required Software**
+
 - **Xcode** (latest version from App Store)
 - **Xcode Command Line Tools**
 - **CocoaPods** for dependency management
 
 #### **Setup**
+
 ```bash
 # Install Xcode Command Line Tools
 xcode-select --install
@@ -232,6 +249,7 @@ flutter config --enable-macos-desktop
 ### 🏗️ **Building Process**
 
 #### **1. Release Build**
+
 ```bash
 # Build macOS release
 flutter build macos --release
@@ -240,6 +258,7 @@ flutter build macos --release
 ```
 
 #### **2. Development Build**
+
 ```bash
 # Build for development
 flutter build macos --debug
@@ -248,12 +267,14 @@ flutter build macos --debug
 ### 📦 **macOS Packaging**
 
 #### **App Bundle**
+
 ```bash
 # Create macOS app bundle
 ./scripts/packaging/build_macos_app.sh
 ```
 
 #### **DMG Creation**
+
 ```bash
 # Create DMG installer
 ./scripts/packaging/build_macos_dmg.sh
@@ -262,6 +283,7 @@ flutter build macos --debug
 ### 🔧 **macOS Features**
 
 #### **System Integration**
+
 - Native macOS menu bar integration
 - Dock integration
 - macOS notification system
@@ -277,6 +299,7 @@ flutter build macos --debug
 ### 🌐 **Web Build Process**
 
 #### **Development Build**
+
 ```bash
 # Build for web development
 flutter build web --debug
@@ -286,6 +309,7 @@ flutter run -d chrome
 ```
 
 #### **Production Build**
+
 ```bash
 # Build optimized web version
 flutter build web --release
@@ -294,6 +318,7 @@ flutter build web --release
 ```
 
 #### **Custom Web Build**
+
 ```bash
 # Build with custom base href
 flutter build web --base-href /app/
@@ -305,6 +330,7 @@ flutter build web --web-renderer canvaskit
 ### 🚀 **Web Deployment**
 
 #### **Static Hosting**
+
 ```bash
 # Copy build output to web server
 cp -r build/web/* /var/www/html/
@@ -314,6 +340,7 @@ cp -r build/web/* /var/www/html/
 ```
 
 #### **Container Deployment**
+
 ```bash
 # Build web container
 docker build -f docker/Dockerfile.web -t cloudtolocalllm-web .
@@ -329,6 +356,7 @@ docker run -p 80:80 cloudtolocalllm-web
 ### 🔧 **Development Configuration**
 
 #### **Debug Builds**
+
 ```bash
 # Build debug version for any platform
 flutter build [platform] --debug
@@ -340,6 +368,7 @@ flutter build web --debug
 ```
 
 #### **Profile Builds**
+
 ```bash
 # Build profile version for performance testing
 flutter build [platform] --profile
@@ -348,6 +377,7 @@ flutter build [platform] --profile
 ### 🧪 **Testing Builds**
 
 #### **Integration Testing**
+
 ```bash
 # Run integration tests
 flutter test integration_test/
@@ -357,6 +387,7 @@ flutter test integration_test/app_test.dart
 ```
 
 #### **Platform Testing**
+
 ```bash
 # Test on specific platform
 flutter test --platform [platform]
@@ -372,6 +403,7 @@ flutter test --coverage
 ### 🐛 **Common Issues**
 
 #### **Flutter Doctor Issues**
+
 ```bash
 # Fix common Flutter issues
 flutter doctor --android-licenses
@@ -382,6 +414,7 @@ flutter pub get
 #### **Platform-Specific Issues**
 
 **Linux**:
+
 ```bash
 # Missing dependencies
 sudo apt-get install -y libgtk-3-dev
@@ -391,6 +424,7 @@ chmod +x scripts/build_unified_package.sh
 ```
 
 **Windows**:
+
 ```powershell
 # Visual Studio issues
 # Ensure C++ development tools are installed
@@ -398,6 +432,7 @@ chmod +x scripts/build_unified_package.sh
 ```
 
 **Web**:
+
 ```bash
 # CORS issues in development
 flutter run -d chrome --web-browser-flag "--disable-web-security"
@@ -406,6 +441,7 @@ flutter run -d chrome --web-browser-flag "--disable-web-security"
 ### 📝 **Build Logs**
 
 #### **Verbose Output**
+
 ```bash
 # Get detailed build information
 flutter build [platform] --verbose
@@ -416,6 +452,7 @@ flutter doctor -v
 ```
 
 #### **Log Files**
+
 - Build logs: `build/logs/`
 - Flutter logs: `~/.flutter/logs/`
 - Platform-specific logs in respective build directories

@@ -17,6 +17,7 @@ This document describes the implementation of graceful degradation for the Cloud
 The main service for managing graceful degradation across all services.
 
 **Key Features:**
+
 - Service registration with fallback mechanisms
 - Degradation state tracking (healthy, degraded, critical)
 - Fallback function execution when primary services fail
@@ -26,6 +27,7 @@ The main service for managing graceful degradation across all services.
 - Automatic recovery detection
 
 **Key Methods:**
+
 ```javascript
 // Register a service for degradation management
 registerService(serviceName, config)
@@ -63,6 +65,7 @@ getReport()
 Express middleware for integrating graceful degradation into the API.
 
 **Key Functions:**
+
 - `createGracefulDegradationMiddleware(serviceName, options)` - Middleware for service degradation
 - `degradationStatusMiddleware` - Adds degradation status to response headers
 - `getDegradationStatus(req, res)` - Endpoint to get degradation status
@@ -122,12 +125,14 @@ app.get(
 When integrated into the API, the following endpoints are available:
 
 #### Get Degradation Status
+
 ```
 GET /api/degradation/status
 GET /api/degradation/status/:serviceName
 ```
 
 Response:
+
 ```json
 {
   "service": "database",
@@ -142,11 +147,13 @@ Response:
 ```
 
 #### Mark Service Degraded
+
 ```
 POST /api/degradation/mark-degraded
 ```
 
 Request:
+
 ```json
 {
   "serviceName": "database",
@@ -156,11 +163,13 @@ Request:
 ```
 
 #### Mark Service Recovered
+
 ```
 POST /api/degradation/mark-recovered
 ```
 
 Request:
+
 ```json
 {
   "serviceName": "database"
@@ -168,11 +177,13 @@ Request:
 ```
 
 #### Get Degradation Metrics
+
 ```
 GET /api/degradation/metrics
 ```
 
 Response:
+
 ```json
 {
   "metrics": {
@@ -187,6 +198,7 @@ Response:
 ```
 
 #### Reset All Degradation
+
 ```
 POST /api/degradation/reset
 ```
@@ -290,6 +302,7 @@ When a critical endpoint is accessed during degradation:
 ### Unit Tests (`test/api-backend/graceful-degradation.test.js`)
 
 Comprehensive unit tests covering:
+
 - Service registration
 - Degradation state management
 - Fallback mechanisms
@@ -306,6 +319,7 @@ Comprehensive unit tests covering:
 ### Integration Tests (`test/api-backend/graceful-degradation-integration.test.js`)
 
 Integration tests covering:
+
 - Middleware integration
 - Endpoint responses
 - Status reporting

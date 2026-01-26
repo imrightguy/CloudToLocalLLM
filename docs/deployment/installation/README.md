@@ -5,11 +5,13 @@ This directory contains platform-specific installation guides for CloudToLocalLL
 ## 📋 Quick Navigation
 
 ### 🖥️ **Platform-Specific Guides**
+
 - **[Linux Installation](LINUX.md)** - Ubuntu, Debian, Arch, and other distributions
 - **[Windows Installation](WINDOWS.md)** - Windows 10/11 desktop application
 - **[macOS Installation](MACOS.md)** - Coming soon
 
 ### 🚀 **Quick Start**
+
 - **** - What you need before installing
 - **** - Getting started after installation
 - **** - Common installation issues
@@ -19,6 +21,7 @@ This directory contains platform-specific installation guides for CloudToLocalLL
 ## 🎯 Choose Your Platform
 
 ### 🐧 **Linux Users**
+
 CloudToLocalLLM supports multiple Linux installation methods:
 
 - **DEB Package** (Ubuntu/Debian) - Recommended for most users
@@ -28,6 +31,7 @@ CloudToLocalLLM supports multiple Linux installation methods:
 **[→ Linux Installation Guide](LINUX.md)**
 
 ### 🪟 **Windows Users**
+
 Simple installer for Windows 10/11:
 
 - **Windows Installer** - Easy setup with system tray integration
@@ -37,7 +41,8 @@ Simple installer for Windows 10/11:
 **[→ Windows Installation Guide](WINDOWS.md)**
 
 ### 🍎 **macOS Users**
-macOS support is coming soon! 
+
+macOS support is coming soon!
 
 - **Native App Bundle** - Planned
 - **Homebrew Package** - Planned
@@ -52,6 +57,7 @@ macOS support is coming soon!
 Before installing CloudToLocalLLM, you'll need:
 
 ### 🧠 **Ollama (Required)**
+
 CloudToLocalLLM requires Ollama to run local AI models:
 
 1. **Install Ollama**: Visit [ollama.ai](https://ollama.ai/) and follow installation instructions
@@ -59,6 +65,7 @@ CloudToLocalLLM requires Ollama to run local AI models:
 3. **Verify installation**: `ollama list` should show your downloaded models
 
 ### 💻 **System Requirements**
+
 - **RAM**: Minimum 4GB, recommended 8GB+ (depends on AI model size)
 - **Storage**: 2GB for application + space for AI models
 - **Network**: Internet connection for initial setup and web access
@@ -69,19 +76,23 @@ CloudToLocalLLM requires Ollama to run local AI models:
 ## 🚀 Installation Overview
 
 ### 1. **Install Prerequisites**
+
 - Install Ollama and download AI models
 - Ensure system meets requirements
 
 ### 2. **Install CloudToLocalLLM**
+
 - Choose your platform-specific installation method
 - Follow the detailed guide for your operating system
 
 ### 3. **First Time Setup**
+
 - Launch CloudToLocalLLM (appears in system tray)
 - Complete the setup wizard
 - Connect to your local Ollama instance
 
 ### 4. **Access Web Interface**
+
 - Visit [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
 - Sign in with your account
 - Start chatting with your local AI models!
@@ -102,11 +113,13 @@ CloudToLocalLLM requires Ollama to run local AI models:
 ## 🆘 Need Help?
 
 ### 📚 **Documentation**
+
 - **** - Common installation issues
 - **[User Guide](../USER_DOCUMENTATION/USER_GUIDE.md)** - How to use CloudToLocalLLM
 - **[FAQ](../USER_DOCUMENTATION/SETUP_TROUBLESHOOTING_FAQ.md)** - Frequently asked questions
 
 ### 💬 **Support**
+
 - **[GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)** - Report bugs or ask questions
 - **[Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)** - Community support
 - **[User Troubleshooting](../USER_DOCUMENTATION/USER_TROUBLESHOOTING_GUIDE.md)** - Self-help guide
@@ -116,10 +129,12 @@ CloudToLocalLLM requires Ollama to run local AI models:
 ## 🔄 Updating CloudToLocalLLM
 
 ### **Automatic Updates**
+
 - Package manager installations receive automatic updates
 - Check for updates in the application settings
 
 ### **Manual Updates**
+
 - Download latest version from [releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
 - Follow the same installation process
 - Your settings and data will be preserved
@@ -129,6 +144,7 @@ CloudToLocalLLM requires Ollama to run local AI models:
 ## 🗑️ Uninstalling
 
 ### **Package Manager**
+
 ```bash
 # Ubuntu/Debian
 sudo apt remove cloudtolocalllm
@@ -138,10 +154,12 @@ sudo pacman -R cloudtolocalllm
 ```
 
 ### **Windows**
+
 - Use "Add or Remove Programs" in Windows Settings
 - Or run the uninstaller from the Start Menu
 
 ### **Portable Versions**
+
 - Simply delete the application folder
 - Optionally remove configuration files from user directory
 

@@ -5,6 +5,7 @@
 This document describes the implementation of tunnel failover and multiple endpoint support for the CloudToLocalLLM API backend. The system provides automatic failover with priority-based and weighted load balancing across multiple tunnel endpoints.
 
 **Validates: Requirements 4.4**
+
 - Supports multiple tunnel endpoints for failover
 - Implements endpoint health checking
 - Adds automatic failover logic
@@ -32,6 +33,7 @@ This document describes the implementation of tunnel failover and multiple endpo
 ### 1. Weighted Endpoint Selection
 
 The system selects endpoints based on:
+
 - **Health Status**: Only healthy endpoints are selected (fallback to highest priority if none healthy)
 - **Priority**: Higher priority endpoints are preferred
 - **Weight**: Within the same priority, weighted round-robin selection is used
@@ -53,6 +55,7 @@ const endpoints = [
 ### 2. Automatic Failure Detection
 
 The system tracks endpoint failures:
+
 - Failure count increments on each failure
 - After 3 consecutive failures (configurable threshold), endpoint is marked unhealthy
 - Recovery checks start automatically for unhealthy endpoints
@@ -71,6 +74,7 @@ failoverService.recordEndpointSuccess(endpointId);
 ### 3. Automatic Recovery
 
 Unhealthy endpoints are periodically checked for recovery:
+
 - Recovery checks run every 60 seconds (configurable)
 - If endpoint becomes healthy, it's restored to service
 - Failure count is reset
@@ -141,6 +145,7 @@ GET /api/tunnels/:tunnelId/failover/endpoint
 Returns the best available endpoint based on health, priority, and weight.
 
 **Response:**
+
 ```json
 {
   "endpoint": {
@@ -171,6 +176,7 @@ POST /api/tunnels/:tunnelId/failover/manual
 Manually trigger failover to a specific endpoint.
 
 **Request:**
+
 ```json
 {
   "endpointId": "endpoint-uuid"
@@ -186,6 +192,7 @@ POST /api/tunnels/:tunnelId/failover/record-failure
 Record a failure for an endpoint (internal use).
 
 **Request:**
+
 ```json
 {
   "endpointId": "endpoint-uuid",
@@ -202,6 +209,7 @@ POST /api/tunnels/:tunnelId/failover/record-success
 Record a successful request for an endpoint (internal use).
 
 **Request:**
+
 ```json
 {
   "endpointId": "endpoint-uuid"
@@ -217,6 +225,7 @@ POST /api/tunnels/:tunnelId/failover/reset-failures
 Reset failure count for an endpoint.
 
 **Request:**
+
 ```json
 {
   "endpointId": "endpoint-uuid"
@@ -360,6 +369,7 @@ npm test -- test/api-backend/tunnel-failover.test.js
 ### Test Coverage
 
 The test suite covers:
+
 - Failure tracking and threshold detection
 - Weighted endpoint selection
 - Recovery check management
@@ -395,6 +405,7 @@ All 13 tests pass successfully.
 ### All Endpoints Unhealthy
 
 If all endpoints are marked unhealthy:
+
 1. Check endpoint URLs are correct
 2. Verify endpoints are accessible
 3. Check network connectivity
@@ -404,6 +415,7 @@ If all endpoints are marked unhealthy:
 ### Endpoint Not Recovering
 
 If an unhealthy endpoint doesn't recover:
+
 1. Verify endpoint is actually healthy
 2. Check recovery check interval (default 60 seconds)
 3. Review health check timeout (default 5 seconds)
@@ -413,6 +425,7 @@ If an unhealthy endpoint doesn't recover:
 ### High Failure Rate
 
 If experiencing high failure rates:
+
 1. Check endpoint performance and load
 2. Review network connectivity
 3. Increase failure threshold if transient issues

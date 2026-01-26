@@ -3,12 +3,14 @@
 ## Endpoints
 
 ### Get Configuration
+
 ```bash
 GET /api/tunnels/:id/config
 Authorization: Bearer <JWT>
 ```
 
 ### Update Configuration
+
 ```bash
 PUT /api/tunnels/:id/config
 Authorization: Bearer <JWT>
@@ -22,6 +24,7 @@ Content-Type: application/json
 ```
 
 ### Reset Configuration
+
 ```bash
 POST /api/tunnels/:id/config/reset
 Authorization: Bearer <JWT>
@@ -82,6 +85,7 @@ const sanitized = sanitizeTunnelConfig({ maxConnections: 20000 });
 ## Error Responses
 
 ### Invalid Configuration (400)
+
 ```json
 {
   "error": "Bad request",
@@ -92,6 +96,7 @@ const sanitized = sanitizeTunnelConfig({ maxConnections: 20000 });
 ```
 
 ### Tunnel Not Found (404)
+
 ```json
 {
   "error": "Not found",
@@ -101,6 +106,7 @@ const sanitized = sanitizeTunnelConfig({ maxConnections: 20000 });
 ```
 
 ### Service Unavailable (503)
+
 ```json
 {
   "error": "Service unavailable",
@@ -112,6 +118,7 @@ const sanitized = sanitizeTunnelConfig({ maxConnections: 20000 });
 ## Activity Logging
 
 Configuration changes are logged with:
+
 - Action: `config_update` or `config_reset`
 - Status: `success` or `failure`
 - IP Address: Client IP
@@ -125,6 +132,7 @@ npm test -- test/api-backend/tunnel-config-management.test.js
 ```
 
 **Test Coverage:**
+
 - 19 unit tests
 - 100% validation utility coverage
 - All validation scenarios covered
@@ -140,24 +148,28 @@ npm test -- test/api-backend/tunnel-config-management.test.js
 ## Validation Rules
 
 ### maxConnections
+
 - Must be integer
 - Minimum: 1
 - Maximum: 10000
 - Default: 100
 
 ### timeout
+
 - Must be integer (milliseconds)
 - Minimum: 1000 (1 second)
 - Maximum: 300000 (5 minutes)
 - Default: 30000 (30 seconds)
 
 ### compression
+
 - Must be boolean
 - Default: true
 
 ## Examples
 
 ### Create tunnel with custom config
+
 ```javascript
 const tunnel = await tunnelService.createTunnel(userId, {
   name: 'My Tunnel',
@@ -170,6 +182,7 @@ const tunnel = await tunnelService.createTunnel(userId, {
 ```
 
 ### Update single parameter
+
 ```javascript
 const updated = await tunnelService.updateTunnelConfig(
   tunnelId, userId,
@@ -180,6 +193,7 @@ const updated = await tunnelService.updateTunnelConfig(
 ```
 
 ### Reset to defaults
+
 ```javascript
 const reset = await tunnelService.resetTunnelConfig(
   tunnelId, userId, ipAddress, userAgent
@@ -190,6 +204,7 @@ const reset = await tunnelService.resetTunnelConfig(
 ## Requirement Coverage
 
 ✅ **Requirement 4.3: Tunnel Configuration Management**
+
 - ✅ Create tunnel config endpoints (GET, PUT, POST)
 - ✅ Support max connections, timeout, compression settings
 - ✅ Implement config validation with comprehensive error messages

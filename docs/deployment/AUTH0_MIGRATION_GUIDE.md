@@ -9,18 +9,21 @@ The application has been migrated from Entra ID to Auth0 for improved authentica
 ## Auth0 Setup Commands
 
 ### 1. Create Auth0 Tenant
+
 ```bash
 auth0 tenants create --name "cloudtolocalllm"
 auth0 tenants list
 ```
 
 ### 2. Create Single Page Application
+
 ```bash
 auth0 apps create --type spa --name "CloudToLocalLLM Frontend"
 auth0 apps list
 ```
 
 ### 3. Configure SPA Settings
+
 ```bash
 auth0 apps update <app-id> --callbacks "http://localhost:3000,https://yourapp.com"
 auth0 apps update <app-id> --logout-urls "http://localhost:3000,https://yourapp.com"
@@ -28,12 +31,14 @@ auth0 apps update <app-id> --origins "http://localhost:3000,https://yourapp.com"
 ```
 
 ### 4. Create API Resource
+
 ```bash
 auth0 apis create --name "CloudToLocalLLM API" --identifier "https://api.cloudtolocalllm.com"
 auth0 apis list
 ```
 
 ### 5. Configure Social Logins (Optional)
+
 ```bash
 # Google OAuth
 auth0 connections create --strategy google-oauth2 --name "google"
@@ -43,6 +48,7 @@ auth0 connections create --strategy github --name "github"
 ```
 
 ### 6. Create Test Users
+
 ```bash
 auth0 users create --email "test@example.com" --password "TempPass123!"
 auth0 users list
@@ -108,6 +114,7 @@ class AuthConfig {
 ## Migration Steps
 
 ### 1. Auth0 Infrastructure Setup
+
 - [ ] Create Auth0 tenant
 - [ ] Create SPA application
 - [ ] Configure callback/logout URLs
@@ -115,17 +122,20 @@ class AuthConfig {
 - [ ] Set up social connections (optional)
 
 ### 2. Backend Migration
+
 - [ ] Update environment variables
 - [ ] Deploy updated backend code
 - [ ] Verify JWT validation works
 
 ### 3. Frontend Migration
+
 - [ ] Update pubspec.yaml dependencies
 - [ ] Replace AadOAuth provider with Auth0AuthProvider
 - [ ] Update authentication configuration
 - [ ] Test login/logout flows
 
 ### 4. Testing
+
 - [ ] Test JWT token exchange
 - [ ] Verify user authentication
 - [ ] Test social logins (if enabled)
@@ -264,6 +274,7 @@ auth0 apis list
 ## Support
 
 For Auth0-specific issues:
+
 - Auth0 Documentation: https://auth0.com/docs
 - Auth0 Community: https://community.auth0.com
 - Auth0 CLI Documentation: https://github.com/auth0/auth0-cli

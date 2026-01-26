@@ -7,6 +7,7 @@ See [Deployment Overview](DEPLOYMENT/DEPLOYMENT_OVERVIEW.md) for all deployment 
 ## Overview
 
 This guide will help you deploy CloudToLocalLLM using Docker Compose with a complete stack including:
+
 - **Web Application** (Flutter + Nginx)
 - **API Backend** (Node.js with WebSocket tunnel support)
 - **PostgreSQL Database** (Self-contained)
@@ -16,18 +17,22 @@ This guide will help you deploy CloudToLocalLLM using Docker Compose with a comp
 ## Prerequisites
 
 ### Server Requirements
+
 - **Operating System**: Linux (Ubuntu 22.04+ or Debian 11+ recommended)
 - **RAM**: Minimum 2GB, recommended 4GB+
 - **Storage**: Minimum 20GB free space
 - **Network**: Public IP address with open ports 80 and 443
 
 ### Software Requirements
+
 - Docker (version 20.10+)
 - Docker Compose (version 2.0+)
 - Domain name with DNS pointing to your server
 
 ### Domain Configuration
+
 Before deployment, configure your DNS with A records for:
+
 - `yourdomain.com` → Your server IP
 - `app.yourdomain.com` → Your server IP
 - `api.yourdomain.com` → Your server IP
@@ -35,25 +40,30 @@ Before deployment, configure your DNS with A records for:
 ## Quick Start
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/yourusername/CloudToLocalLLM.git
 cd CloudToLocalLLM
 ```
 
 ### 2. Run the Deployment Script
+
 ```bash
 chmod +x deploy.sh
 ./deploy.sh
 ```
 
 The script will:
+
 1. Check prerequisites
 2. Create `.env` configuration
 3. Request SSL certificates from Let's Encrypt
 4. Build and deploy all services
 
 ### 3. Access Your Application
+
 After deployment:
+
 - **Web App**: https://yourdomain.com
 - **App Interface**: https://app.yourdomain.com
 - **API**: https://api.yourdomain.com
@@ -63,11 +73,13 @@ After deployment:
 If you prefer manual deployment or need to customize:
 
 ### 1. Create Environment File
+
 ```bash
 cp env.template .env
 ```
 
 Edit `.env` and configure:
+
 ```env
 # Domain Configuration
 DOMAIN=yourdomain.com
@@ -87,6 +99,7 @@ JWT_SECRET=your_jwt_secret_here
 ```
 
 ### 2. Generate Secure Passwords
+
 ```bash
 # Database password
 openssl rand -base64 32 | tr -d "=+/" | cut -c1-32
@@ -96,11 +109,13 @@ openssl rand -base64 32
 ```
 
 ### 3. Create Required Directories
+
 ```bash
 mkdir -p certbot/conf certbot/www certbot/logs
 ```
 
 ### 4. Start Services Without SSL (First Time)
+
 ```bash
 # First, start nginx and certbot to obtain certificates
 docker compose -f docker-compose.production.yml up -d nginx
@@ -117,11 +132,13 @@ docker compose -f docker-compose.production.yml run --rm certbot certonly \
 ```
 
 ### 5. Start All Services
+
 ```bash
 docker compose -f docker-compose.production.yml up -d
 ```
 
 ### 6. Verify Deployment
+
 ```bash
 # Check service status
 docker compose -f docker-compose.production.yml ps
@@ -157,12 +174,14 @@ Nginx (Port 80/443)
 ## Service Details
 
 ### Web Application
+
 - **Container**: `cloudtolocalllm-web`
 - **Technology**: Flutter (built to static files) + Nginx
 - **Port**: 8080 (internal)
 - **Health Check**: HTTP GET /health
 
 ### API Backend
+
 - **Container**: `cloudtolocalllm-api-backend`
 - **Technology**: Node.js Express
 - **Port**: 3000 (internal)
@@ -175,6 +194,7 @@ Nginx (Port 80/443)
 - **Health Check**: HTTP GET /health
 
 ### PostgreSQL Database
+
 - **Container**: `cloudtolocalllm-postgres`
 - **Version**: PostgreSQL 16 Alpine
 - **Port**: 5432 (internal only)
@@ -182,6 +202,7 @@ Nginx (Port 80/443)
 - **Schema**: Auto-initialized from `services/api-backend/database/schema.pg.sql`
 
 ### Nginx Reverse Proxy
+
 - **Container**: `cloudtolocalllm-nginx`
 - **Ports**: 80 (HTTP), 443 (HTTPS)
 - **Features**:
@@ -193,6 +214,7 @@ Nginx (Port 80/443)
   - Gzip compression
 
 ### Certbot
+
 - **Container**: `cloudtolocalllm-certbot`
 - **Function**: Automatic SSL certificate renewal
 - **Schedule**: Checks for renewal every 12 hours
@@ -200,10 +222,12 @@ Nginx (Port 80/443)
 ## Windows Desktop App Connection
 
 ### Prerequisites
+
 1. Windows desktop app installed
 2. Local Ollama running on `localhost:11434`
 
 ### Connection Steps
+
 1. Start your local Ollama instance
 2. Launch the CloudToLocalLLM desktop app
 3. Sign in with your Auth0 credentials
@@ -211,6 +235,7 @@ Nginx (Port 80/443)
 5. WebSocket tunnel established
 
 ### Troubleshooting Desktop Connection
+
 - Check desktop app logs in system tray
 - Verify Auth0 authentication is successful
 - Ensure firewall allows outbound WebSocket connections
@@ -219,6 +244,7 @@ Nginx (Port 80/443)
 ## Management Commands
 
 ### View Logs
+
 ```bash
 # All services
 docker compose -f docker-compose.production.yml logs -f
@@ -230,6 +256,7 @@ docker compose -f docker-compose.production.yml logs -f nginx
 ```
 
 ### Restart Services
+
 ```bash
 # All services
 docker compose -f docker-compose.production.yml restart
@@ -239,11 +266,13 @@ docker compose -f docker-compose.production.yml restart api-backend
 ```
 
 ### Stop Services
+
 ```bash
 docker compose -f docker-compose.production.yml down
 ```
 
 ### Update Application
+
 ```bash
 # Pull latest code
 git pull
@@ -254,6 +283,7 @@ docker compose -f docker-compose.production.yml up -d
 ```
 
 ### Database Backup
+
 ```bash
 # Backup PostgreSQL database
 docker compose -f docker-compose.production.yml exec postgres \
@@ -265,7 +295,9 @@ docker compose -f docker-compose.production.yml exec -T postgres \
 ```
 
 ### SSL Certificate Renewal
+
 Certificates auto-renew, but to force renewal:
+
 ```bash
 docker compose -f docker-compose.production.yml run --rm certbot renew
 docker compose -f docker-compose.production.yml restart nginx
@@ -274,6 +306,7 @@ docker compose -f docker-compose.production.yml restart nginx
 ## Monitoring
 
 ### Health Checks
+
 ```bash
 # Web application
 curl https://yourdomain.com/health
@@ -291,11 +324,13 @@ curl -i -N \
 ```
 
 ### Service Status
+
 ```bash
 docker compose -f docker-compose.production.yml ps
 ```
 
 ### Resource Usage
+
 ```bash
 docker stats
 ```
@@ -303,6 +338,7 @@ docker stats
 ## Troubleshooting
 
 ### SSL Certificate Issues
+
 ```bash
 # Check certificate status
 docker compose -f docker-compose.production.yml exec certbot certbot certificates
@@ -312,6 +348,7 @@ docker compose -f docker-compose.production.yml run --rm certbot renew --dry-run
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Access PostgreSQL shell
 docker compose -f docker-compose.production.yml exec postgres \
@@ -325,6 +362,7 @@ docker compose -f docker-compose.production.yml exec postgres \
 ```
 
 ### API Backend Issues
+
 ```bash
 # Check API logs
 docker compose -f docker-compose.production.yml logs api-backend
@@ -337,6 +375,7 @@ docker compose -f docker-compose.production.yml exec api-backend sh
 ```
 
 ### Nginx Issues
+
 ```bash
 # Test nginx configuration
 docker compose -f docker-compose.production.yml exec nginx nginx -t
@@ -360,7 +399,9 @@ docker compose -f docker-compose.production.yml logs nginx
 ## Performance Optimization
 
 ### Resource Limits
+
 Edit `docker-compose.production.yml` to adjust resource limits:
+
 ```yaml
 services:
   api-backend:
@@ -375,7 +416,9 @@ services:
 ```
 
 ### Database Tuning
+
 For high-load scenarios, customize PostgreSQL configuration:
+
 ```bash
 # Create custom postgresql.conf
 # Mount it in docker-compose.production.yml
@@ -384,6 +427,7 @@ For high-load scenarios, customize PostgreSQL configuration:
 ## Alternative: Kubernetes Deployment
 
 For production deployments, **Kubernetes is recommended** over Docker Compose:
+
 - ✅ Better scalability and high availability
 - ✅ Auto-scaling capabilities
 - ✅ More robust networking and service discovery
@@ -391,6 +435,7 @@ For production deployments, **Kubernetes is recommended** over Docker Compose:
 - ✅ Supports both managed and self-hosted clusters
 
 **See:**
+
 - [Kubernetes Quick Start](../k8s/README.md) - DigitalOcean example
 - [Kubernetes README](../k8s/README.md) - Complete Kubernetes guide
 - [Self-Hosted Kubernetes Guide](../KUBERNETES_SELF_HOSTED_GUIDE.md) - For businesses
@@ -398,7 +443,7 @@ For production deployments, **Kubernetes is recommended** over Docker Compose:
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: https://github.com/yourusername/CloudToLocalLLM/issues
 - Documentation: https://docs.cloudtolocalllm.online
 - Email: support@cloudtolocalllm.online
-

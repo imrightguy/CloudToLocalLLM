@@ -41,6 +41,7 @@ matchesFilter(event, filterConfig) -> boolean
 ## API Endpoints
 
 ### Create/Update Filter
+
 ```
 POST /api/tunnels/:tunnelId/webhooks/:webhookId/filters
 Content-Type: application/json
@@ -53,11 +54,13 @@ Content-Type: application/json
 ```
 
 ### Get Filter
+
 ```
 GET /api/tunnels/:tunnelId/webhooks/:webhookId/filters
 ```
 
 ### Update Filter
+
 ```
 PUT /api/tunnels/:tunnelId/webhooks/:webhookId/filters
 Content-Type: application/json
@@ -66,11 +69,13 @@ Content-Type: application/json
 ```
 
 ### Delete Filter
+
 ```
 DELETE /api/tunnels/:tunnelId/webhooks/:webhookId/filters
 ```
 
 ### Validate Filter
+
 ```
 POST /api/tunnels/:tunnelId/webhooks/:webhookId/filters/validate
 Content-Type: application/json
@@ -79,6 +84,7 @@ Content-Type: application/json
 ```
 
 ### Test Filter
+
 ```
 POST /api/tunnels/:tunnelId/webhooks/:webhookId/filters/test
 Content-Type: application/json
@@ -92,6 +98,7 @@ Content-Type: application/json
 ## Filter Configuration Examples
 
 ### Include Only Connected Events
+
 ```json
 {
   "type": "include",
@@ -103,6 +110,7 @@ Content-Type: application/json
 ```
 
 ### Exclude Error Events
+
 ```json
 {
   "type": "exclude",
@@ -114,6 +122,7 @@ Content-Type: application/json
 ```
 
 ### Match Multiple Statuses
+
 ```json
 {
   "type": "include",
@@ -125,6 +134,7 @@ Content-Type: application/json
 ```
 
 ### Regex Pattern Matching
+
 ```json
 {
   "type": "include",
@@ -167,6 +177,7 @@ Content-Type: application/json
 ## Integration
 
 ### With Tunnel Webhooks
+
 Filters are applied when delivering webhook events:
 
 ```javascript
@@ -180,6 +191,7 @@ if (filter && !filterService.matchesFilter(event, filter.filter_config)) {
 ```
 
 ### With API Routes
+
 Mount filter routes in main server:
 
 ```javascript
@@ -210,6 +222,7 @@ CREATE TABLE webhook_event_filters (
 ## Error Handling
 
 ### Validation Errors
+
 ```json
 {
   "error": "Bad request",
@@ -220,6 +233,7 @@ CREATE TABLE webhook_event_filters (
 ```
 
 ### Not Found Errors
+
 ```json
 {
   "error": "Not found",
@@ -229,6 +243,7 @@ CREATE TABLE webhook_event_filters (
 ```
 
 ### Service Errors
+
 ```json
 {
   "error": "Internal server error",

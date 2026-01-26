@@ -27,6 +27,7 @@ The Audit Log API provides secure administrative endpoints for viewing and expor
 **Endpoint:** `GET /api/admin/audit/logs`
 
 **Query Parameters:**
+
 - `page` (integer, default: 1): Page number.
 - `limit` (integer, default: 100, max: 200): Items per page.
 - `action` (string): Filter by action (e.g., `user_suspended`, `refund_processed`).
@@ -34,6 +35,7 @@ The Audit Log API provides secure administrative endpoints for viewing and expor
 - `startDate` / `endDate` (ISO 8601): Filter by date range.
 
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -64,6 +66,7 @@ The Audit Log API provides secure administrative endpoints for viewing and expor
 **Description:** Export audit logs to CSV format with optional filtering.
 
 **Example Request:**
+
 ```bash
 curl -X GET "https://api.cloudtolocalllm.online/api/admin/audit/export?startDate=2025-01-01&endDate=2025-01-31" \
   -H "Authorization: Bearer <jwt_token>" \
@@ -75,12 +78,14 @@ curl -X GET "https://api.cloudtolocalllm.online/api/admin/audit/export?startDate
 ## Action and Resource Types
 
 ### Action Types
+
 - `user_suspended` / `user_reactivated`
 - `subscription_tier_changed`
 - `refund_processed`
 - `admin_role_granted` / `admin_role_revoked`
 
 ### Resource Types
+
 - `user`
 - `subscription`
 - `transaction`
@@ -97,11 +102,13 @@ curl -X GET "https://api.cloudtolocalllm.online/api/admin/audit/export?startDate
 ---
 
 ## Rate Limits
+
 - **Standard**: 100 requests per 15 minutes per admin.
 - **Export**: 10 exports per hour per admin.
 
 ---
 
 ## Related Documentation
+
 - [Admin Management API](./ADMIN_MANAGEMENT.md)
 - [Admin Authentication Middleware](../../middleware/admin-auth.js)

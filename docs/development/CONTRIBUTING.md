@@ -1,6 +1,6 @@
 # Contributing to CloudToLocalLLM
 
-## 🎉 Welcome Contributors!
+## 🎉 Welcome Contributors
 
 Thank you for your interest in contributing to CloudToLocalLLM! This project aims to bridge cloud-based LLM interfaces with local execution, and we welcome contributions from developers of all skill levels.
 
@@ -11,6 +11,7 @@ Thank you for your interest in contributing to CloudToLocalLLM! This project aim
 ## 🚀 **Quick Start**
 
 ### **1. Get Started**
+
 ```bash
 # Fork the repository on GitHub
 # Clone your fork
@@ -26,6 +27,7 @@ flutter run -d linux
 ```
 
 ### **2. Make Your First Contribution**
+
 - 🐛 **Fix a Bug**: Check [good first issues](https://github.com/imrightguy/CloudToLocalLLM/labels/good%20first%20issue)
 - 📝 **Improve Documentation**: Help us keep docs current and clear
 - ✨ **Add a Feature**: Implement something from our roadmap
@@ -38,24 +40,28 @@ flutter run -d linux
 ### **Types of Contributions**
 
 #### **🐛 Bug Reports**
+
 - Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md)
 - Include steps to reproduce
 - Provide system information (OS, Flutter version, etc.)
 - Add screenshots or logs if helpful
 
 #### **✨ Feature Requests**
+
 - Use the [feature request template](.github/ISSUE_TEMPLATE/bug_report.md) or create a GitHub Discussion
 - Explain the use case and benefits
 - Consider implementation complexity
 - Discuss in GitHub Discussions first for major features
 
 #### **📝 Documentation**
+
 - Fix typos and improve clarity
 - Add missing documentation
 - Update outdated information
 - Create tutorials and examples
 
 #### **💻 Code Contributions**
+
 - Bug fixes and improvements
 - New features and enhancements
 - Performance optimizations
@@ -66,12 +72,14 @@ flutter run -d linux
 ## 🛠️ **Development Setup**
 
 ### **Prerequisites**
+
 - **Flutter SDK**: 3.8.0 or later
 - **Git**: For version control
 - **IDE**: VS Code (recommended) or Android Studio
 - **Platform Tools**: Linux/Windows/macOS development tools
 
 ### **Environment Setup**
+
 ```bash
 # Verify Flutter installation
 flutter doctor
@@ -89,6 +97,7 @@ flutter test
 ```
 
 ### **Project Structure**
+
 ```
 lib/
 ├── components/     # Reusable UI components
@@ -114,15 +123,18 @@ docs/
 ## 📝 **Contribution Workflow**
 
 ### **1. Before You Start**
+
 - 📖 **Universal Documentation-First Methodology**: **ALL** contributions MUST begin with a review of relevant project documentation and `.kiro/steering/` files. Understand the specific git workflows, CI/CD guidelines, and architectural structures defined for the project.
 - 🔍 **Check Existing Issues**: Avoid duplicate work.
 - 💬 **Discuss Major Changes**: Use GitHub Discussions.
 - 🎯 **Follow Roadmap**: Align with project priorities.
 
 ### **2. Development Process**
+
 - 🧠 **Structured Reasoning**: For complex changes, contributors are encouraged (and Kilocode is mandated) to use a systematic reasoning framework (like Sequential Thinking) to break down problems and verify solutions.
 
 #### **Create a Branch**
+
 ```bash
 # Create feature branch
 git checkout -b feature/your-feature-name
@@ -132,12 +144,14 @@ git checkout -b fix/issue-description
 ```
 
 #### **Make Changes**
+
 - Follow [coding standards](#coding-standards)
 - Write tests for new functionality
 - Update documentation as needed
 - Test on target platforms
 
 #### **Commit Guidelines**
+
 ```bash
 # Use conventional commit format
 git commit -m "feat: add system tray connection status indicator"
@@ -157,12 +171,14 @@ git commit -m "docs: update installation guide for v3.4.0"
 ### **3. Pull Request Process**
 
 #### **Before Submitting**
+
 - ✅ All tests pass (`flutter test`)
 - ✅ Code follows style guidelines (`flutter analyze`)
 - ✅ Documentation is updated
 - ✅ No merge conflicts with main branch
 
 #### **Create Pull Request**
+
 1. **Push Branch**: `git push origin feature/your-feature-name`
 2. **Open PR**: Use the provided PR template
 3. **Describe Changes**: Explain what and why
@@ -170,6 +186,7 @@ git commit -m "docs: update installation guide for v3.4.0"
 5. **Request Review**: Tag relevant maintainers
 
 #### **PR Requirements**
+
 - **Clear Title**: Descriptive and concise
 - **Detailed Description**: What changes and why
 - **Testing**: How you tested the changes
@@ -181,12 +198,14 @@ git commit -m "docs: update installation guide for v3.4.0"
 ## 🎨 **Coding Standards**
 
 ### **Flutter/Dart Guidelines**
+
 - Follow [Effective Dart](https://dart.dev/guides/language/effective-dart)
 - Use `flutter_lints` package rules (already configured)
 - Prefer composition over inheritance
 - Use meaningful names for variables and functions
 
 ### **Code Organization**
+
 ```dart
 // File structure
 /// Brief description of the file's purpose
@@ -208,6 +227,7 @@ class ChatMessageWidget extends StatelessWidget {
 ```
 
 ### **Documentation Standards**
+
 ```dart
 /// Service for managing native system tray functionality.
 /// 
@@ -240,11 +260,13 @@ class NativeTrayService {
 ## 🧪 **Testing Guidelines**
 
 ### **Test Types**
+
 - **Unit Tests**: Test individual functions and classes
 - **Widget Tests**: Test UI components
 - **Integration Tests**: Test complete user flows
 
 ### **Writing Tests**
+
 ```dart
 // Unit test example
 import 'package:flutter_test/flutter_test.dart';
@@ -271,6 +293,7 @@ void main() {
 ```
 
 ### **Running Tests**
+
 ```bash
 # Run all tests
 flutter test
@@ -287,6 +310,7 @@ flutter test --coverage
 ## 🔍 **Review Process**
 
 ### **What We Look For**
+
 - ✅ **Functionality**: Does it work as intended?
 - ✅ **Code Quality**: Is it readable and maintainable?
 - ✅ **Tests**: Are there adequate tests?
@@ -295,11 +319,13 @@ flutter test --coverage
 - ✅ **Compatibility**: Works across target platforms?
 
 ### **Review Timeline**
+
 - **Initial Response**: Within 48 hours
 - **Full Review**: Within 1 week
 - **Follow-up**: Within 24 hours of updates
 
 ### **Addressing Feedback**
+
 - Respond to all review comments
 - Make requested changes promptly
 - Ask questions if feedback is unclear
@@ -324,12 +350,14 @@ flutter test --coverage
 ## 📞 **Getting Help**
 
 ### **Where to Ask**
+
 - **GitHub Discussions**: General questions and ideas
 - **GitHub Issues**: Bug reports and feature requests
 - **PR Comments**: Code-specific questions
 - **Developer Onboarding**: See [docs/development/DEVELOPER_ONBOARDING.md](docs/development/DEVELOPER_ONBOARDING.md)
 
 ### **Response Times**
+
 - **Discussions**: 1-2 days
 - **Issues**: 2-3 days
 - **PRs**: 1 week for review
@@ -339,12 +367,14 @@ flutter test --coverage
 ## 🎯 **Project Priorities**
 
 ### **Current Focus (v3.4.0+)**
+
 1. **Unified Architecture**: Completing Flutter-native integration
 2. **Cross-Platform Support**: Windows and macOS compatibility
 3. **Performance**: Optimizing system tray and connection handling
 4. **Documentation**: Keeping docs current with architecture changes
 
 ### **Future Roadmap**
+
 - Enhanced web interface features
 - Mobile platform support
 - Advanced LLM integration options
@@ -357,6 +387,7 @@ flutter test --coverage
 We are committed to providing a welcoming and inclusive environment. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ### **Our Standards**
+
 - Be respectful and inclusive
 - Focus on constructive feedback
 - Help others learn and grow
@@ -367,6 +398,7 @@ We are committed to providing a welcoming and inclusive environment. Please read
 ## 🙏 **Recognition**
 
 Contributors are recognized in:
+
 - **README.md**: Major contributors listed
 - **Release Notes**: Contributions acknowledged
 - **GitHub**: Contributor graphs and statistics

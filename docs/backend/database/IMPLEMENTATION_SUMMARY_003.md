@@ -331,6 +331,7 @@ If issues occur after applying the migration:
    ```
 
 3. **Check Database State:**
+
    ```sql
    SELECT * FROM schema_migrations WHERE version = '003';
    ```

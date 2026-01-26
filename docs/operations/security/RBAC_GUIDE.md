@@ -9,11 +9,13 @@ The API backend implements a comprehensive RBAC system that correlates user role
 ## 👥 Roles and Tiers
 
 ### Administrative Roles
+
 - **`super_admin`**: Full system access; manage administrators.
 - **`support_admin`**: User management, sessions, and audit log access.
 - **`finance_admin`**: Payments, refunds, subscriptions, and financial reports.
 
 ### User Tiers
+
 - **`user` (Free)**: Basic tunnel operations.
 - **`premium_user`**: Advanced features, proxy management, and metrics.
 - **`enterprise_user`**: All features including export reports and webhook management.
@@ -36,6 +38,7 @@ The API backend implements a comprehensive RBAC system that correlates user role
 ### Protecting Routes
 
 #### By Permission
+
 ```javascript
 import { requirePermission, PERMISSIONS } from './middleware/rbac.js';
 
@@ -43,6 +46,7 @@ router.get('/users', authenticateJWT, requirePermission(PERMISSIONS.VIEW_USERS),
 ```
 
 #### By Role
+
 ```javascript
 import { requireAdmin, requireSuperAdmin } from './middleware/rbac.js';
 
@@ -51,6 +55,7 @@ router.post('/admin/config', authenticateJWT, requireSuperAdmin(), handler);
 ```
 
 ### Checking Permissions Programmatically
+
 ```javascript
 import { hasPermission } from './middleware/rbac.js';
 
@@ -69,5 +74,6 @@ if (hasPermission(req.userRoles, PERMISSIONS.EDIT_USERS)) {
 ---
 
 ## Related Documentation
+
 - [Backend Security Guide](./BACKEND_SECURITY.md)
 - [Admin Management API](../../api/admin/ADMIN_MANAGEMENT.md)

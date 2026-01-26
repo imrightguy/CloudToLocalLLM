@@ -35,6 +35,7 @@ npm test
 ### Making Changes
 
 1. Create a new branch for your feature or fix:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -44,12 +45,14 @@ npm test
 3. Add or update tests as needed
 
 4. Run tests and linting:
+
    ```bash
    npm test
    npm run lint
    ```
 
 5. Format your code:
+
    ```bash
    npm run format
    ```
@@ -94,6 +97,7 @@ chore: Update dependencies
 ### Pull Request Description
 
 Include:
+
 - What changes were made
 - Why the changes were made
 - Any related issues or PRs
@@ -104,6 +108,7 @@ Include:
 ### Bug Reports
 
 Include:
+
 - SDK version
 - Node.js version
 - Steps to reproduce
@@ -114,6 +119,7 @@ Include:
 ### Feature Requests
 
 Include:
+
 - Use case description
 - Proposed API design
 - Examples of usage

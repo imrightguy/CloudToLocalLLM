@@ -17,16 +17,19 @@ Both version manager scripts (`scripts/powershell/version_manager.ps1` and `scri
 ### Platform-Specific Scripts
 
 **Windows Development Environment:**
+
 - Primary script: `scripts/powershell/version_manager.ps1`
 - Used by: `scripts/powershell/Deploy-CloudToLocalLLM.ps1`
 - Context: Local development and version management on Windows systems
 
 **Linux Development Environment:**
+
 - Primary script: `scripts/version_manager.sh`
 - Used by: Linux-based development workflows
 - Context: Local development and version management on Linux systems
 
 **Deployment:**
+
 - Version managers are development tools used during the build process
 - Kubernetes deployments use Dockerfiles which include version information
 - Version is baked into Docker images during build
@@ -106,6 +109,7 @@ The version incrementing is performed **AFTER** deployment verification to give 
 ### Example Development Workflow
 
 **Windows Developer:**
+
 ```powershell
 # 1. Deploy current version
 ./scripts/powershell/Deploy-CloudToLocalLLM.ps1 -SkipVersionUpdate
@@ -123,6 +127,7 @@ git push origin master
 ```
 
 **Linux Developer:**
+
 ```bash
 # 1. Deploy current version using appropriate deployment script
 # (deployment method varies based on target environment)
@@ -142,21 +147,25 @@ git push origin master
 ## Benefits
 
 ### 1. Consistency
+
 - All documentation files are updated simultaneously
 - No risk of version mismatches between files
 - Standardized changelog entries
 
 ### 2. Automation
+
 - Eliminates manual documentation updates
 - Reduces human error in version management
 - Ensures documentation is never forgotten
 
 ### 3. Traceability
+
 - Automatic changelog entries with timestamps
 - Clear version history with appropriate categorization
 - Backup files created for all updates
 
 ### 4. Developer Experience
+
 - Single command updates everything
 - Clear feedback on what was updated
 - Help text explains automatic updates
@@ -164,6 +173,7 @@ git push origin master
 ## Backup and Recovery
 
 All documentation update functions create backup files:
+
 - `README.md.backup`
 - `package.json.backup`
 - `docs/CHANGELOG.md.backup`
@@ -173,6 +183,7 @@ These backups can be used to restore previous states if needed.
 ## Error Handling
 
 The documentation update functions include robust error handling:
+
 - Missing files are skipped with warnings
 - Backup creation before any modifications
 - Graceful degradation if individual updates fail
@@ -181,6 +192,7 @@ The documentation update functions include robust error handling:
 ## Future Enhancements
 
 Potential future improvements:
+
 - API documentation version updates
 - Docker compose file version updates
 - Automated release notes generation

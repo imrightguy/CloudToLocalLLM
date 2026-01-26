@@ -175,6 +175,7 @@ Implemented comprehensive email template management API routes in `services/api-
    - Unexpected exceptions
 
 4. **Error Response Format:**
+
    ```json
    {
      "error": "Error message",
@@ -262,7 +263,7 @@ All template operations create audit log entries with:
 
 ## Testing Considerations
 
-### Unit Tests Should Cover:
+### Unit Tests Should Cover
 
 1. Template creation with valid/invalid data
 2. Template listing with pagination
@@ -272,7 +273,7 @@ All template operations create audit log entries with:
 6. Audit logging
 7. Error handling for all error cases
 
-### Integration Tests Should Cover:
+### Integration Tests Should Cover
 
 1. End-to-end template CRUD operations
 2. Permission enforcement

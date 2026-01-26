@@ -29,12 +29,14 @@ The JWT token is validated on every request. Expired tokens will result in a 401
 Returns the health status of the tunnel service.
 
 **Request:**
+
 ```http
 GET /api/tunnel/health HTTP/1.1
 Host: proxy.cloudtolocalllm.online
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "status": "healthy",
@@ -49,6 +51,7 @@ Host: proxy.cloudtolocalllm.online
 ```
 
 **Response (503 Service Unavailable):**
+
 ```json
 {
   "status": "unhealthy",
@@ -71,6 +74,7 @@ Host: proxy.cloudtolocalllm.online
 Returns detailed diagnostic information about the tunnel service.
 
 **Request:**
+
 ```http
 GET /api/tunnel/diagnostics HTTP/1.1
 Host: proxy.cloudtolocalllm.online
@@ -78,6 +82,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "timestamp": "2024-01-15T10:30:00Z",
@@ -134,12 +139,14 @@ Authorization: Bearer <JWT_TOKEN>
 Returns Prometheus-format metrics for scraping.
 
 **Request:**
+
 ```http
 GET /api/tunnel/metrics HTTP/1.1
 Host: proxy.cloudtolocalllm.online
 ```
 
 **Response (200 OK):**
+
 ```
 # HELP tunnel_requests_total Total number of tunnel requests
 # TYPE tunnel_requests_total counter
@@ -193,6 +200,7 @@ tunnel_circuit_breaker_state{service="ssh"} 0
 Returns current tunnel configuration (admin only).
 
 **Request:**
+
 ```http
 GET /api/tunnel/config HTTP/1.1
 Host: proxy.cloudtolocalllm.online
@@ -200,6 +208,7 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "websocket": {
@@ -261,6 +270,7 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
 **Response (403 Forbidden):**
+
 ```json
 {
   "error": "Insufficient permissions",
@@ -277,6 +287,7 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 Updates tunnel configuration (admin only).
 
 **Request:**
+
 ```http
 PUT /api/tunnel/config HTTP/1.1
 Host: proxy.cloudtolocalllm.online
@@ -299,6 +310,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "message": "Configuration updated successfully",
@@ -311,6 +323,7 @@ Content-Type: application/json
 ```
 
 **Response (400 Bad Request):**
+
 ```json
 {
   "error": "Invalid configuration",
@@ -330,6 +343,7 @@ Content-Type: application/json
 ### Connection Establishment
 
 **Client initiates WebSocket upgrade:**
+
 ```http
 GET /ws HTTP/1.1
 Host: proxy.cloudtolocalllm.online
@@ -341,6 +355,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Server responds:**
+
 ```http
 HTTP/1.1 101 Switching Protocols
 Upgrade: websocket
@@ -455,20 +470,24 @@ Server sends error to client:
 ### Connection Lifecycle
 
 **Heartbeat:**
+
 - Server sends ping every 30 seconds
 - Client must respond with pong within 5 seconds
 - If no pong received, server closes connection
 
 **Idle Timeout:**
+
 - Connection closed after 5 minutes of inactivity
 - Activity includes any message (request, response, ping, pong)
 
 **Graceful Close:**
+
 - Client sends close frame with code 1000 (normal closure)
 - Server responds with close frame
 - Connection terminated cleanly
 
 **Abnormal Close:**
+
 - Connection lost without close frame
 - Client automatically reconnects with exponential backoff
 - Server cleans up connection after 60 seconds

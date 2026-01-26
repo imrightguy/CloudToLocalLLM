@@ -213,6 +213,7 @@ gcloud logging read "resource.type=cloudsql_database"
    - Check migration logs in Cloud Run
 
 3. **Authentication Errors**
+
    ```
    Error: Authentication service not available
    ```

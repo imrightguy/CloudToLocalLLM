@@ -5,6 +5,7 @@
 This document describes the implementation of tunnel configuration management for the API backend. The implementation provides endpoints and services for managing tunnel configurations including max connections, timeout, and compression settings.
 
 **Validates: Requirements 4.3**
+
 - Create tunnel config endpoints
 - Support max connections, timeout, compression settings
 - Implement config validation
@@ -59,12 +60,14 @@ interface TunnelConfig {
 Retrieve tunnel configuration.
 
 **Request:**
+
 ```bash
 GET /api/tunnels/tunnel-123/config
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -78,6 +81,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing or invalid JWT token
 - `404 Not Found` - Tunnel not found or unauthorized access
 - `503 Service Unavailable` - Tunnel service not initialized
@@ -87,6 +91,7 @@ Authorization: Bearer <JWT_TOKEN>
 Update tunnel configuration (partial update).
 
 **Request:**
+
 ```bash
 PUT /api/tunnels/tunnel-123/config
 Authorization: Bearer <JWT_TOKEN>
@@ -99,6 +104,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -112,12 +118,14 @@ Content-Type: application/json
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Invalid configuration values
 - `401 Unauthorized` - Missing or invalid JWT token
 - `404 Not Found` - Tunnel not found or unauthorized access
 - `503 Service Unavailable` - Tunnel service not initialized
 
 **Validation Errors:**
+
 ```json
 {
   "error": "Bad request",
@@ -135,12 +143,14 @@ Content-Type: application/json
 Reset tunnel configuration to defaults.
 
 **Request:**
+
 ```bash
 POST /api/tunnels/tunnel-123/config/reset
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -155,6 +165,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing or invalid JWT token
 - `404 Not Found` - Tunnel not found or unauthorized access
 - `503 Service Unavailable` - Tunnel service not initialized
@@ -171,6 +182,7 @@ const config = await tunnelService.getTunnelConfig(tunnelId, userId);
 ```
 
 **Throws:**
+
 - `Error: Tunnel not found` - If tunnel doesn't exist or user doesn't own it
 
 ### updateTunnelConfig(tunnelId, userId, config, ipAddress, userAgent)
@@ -189,12 +201,14 @@ const config = await tunnelService.updateTunnelConfig(
 ```
 
 **Features:**
+
 - Merges with existing configuration
 - Preserves unmodified fields
 - Logs activity to tunnel_activity_logs
 - Validates configuration before update
 
 **Throws:**
+
 - `Error: Tunnel not found` - If tunnel doesn't exist or user doesn't own it
 
 ### resetTunnelConfig(tunnelId, userId, ipAddress, userAgent)
@@ -212,11 +226,13 @@ const config = await tunnelService.resetTunnelConfig(
 ```
 
 **Features:**
+
 - Resets all configuration to defaults
 - Logs activity to tunnel_activity_logs
 - Atomic operation with transaction
 
 **Throws:**
+
 - `Error: Tunnel not found` - If tunnel doesn't exist or user doesn't own it
 
 ## Validation Utilities
@@ -281,10 +297,12 @@ INSERT INTO tunnel_activity_logs (
 ```
 
 **Log Actions:**
+
 - `config_update` - Configuration updated
 - `config_reset` - Configuration reset to defaults
 
 **Example Log Entry:**
+
 ```json
 {
   "id": "uuid",
@@ -322,6 +340,7 @@ CREATE TABLE tunnels (
 ```
 
 **Configuration Storage:**
+
 - Stored as JSONB in `config` column
 - Supports partial updates
 - Indexed for performance
@@ -333,6 +352,7 @@ CREATE TABLE tunnels (
 **File:** `test/api-backend/tunnel-config-management.test.js`
 
 **Test Suites:**
+
 1. Configuration Validation (11 tests)
    - Valid configuration
    - Invalid maxConnections (type, min, max)
@@ -355,6 +375,7 @@ CREATE TABLE tunnels (
    - Maximum timeout (300000ms)
 
 **Test Results:**
+
 - Total Tests: 19
 - Passed: 19
 - Failed: 0

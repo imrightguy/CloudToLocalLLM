@@ -249,6 +249,7 @@ async getTunnelStatusSummary(tunnelId, userId) {
 Get complete tunnel status summary.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -289,6 +290,7 @@ Get complete tunnel status summary.
 Get endpoint health status.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -310,6 +312,7 @@ Get endpoint health status.
 Trigger manual health check.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -333,6 +336,7 @@ Trigger manual health check.
 Get tunnel metrics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -353,6 +357,7 @@ Get tunnel metrics.
 Record request metrics.
 
 **Request:**
+
 ```json
 {
   "latency": 150,
@@ -362,6 +367,7 @@ Record request metrics.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -374,6 +380,7 @@ Record request metrics.
 Flush metrics to database.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -443,10 +450,12 @@ setInterval(async () => {
 ### Property-Based Tests
 
 **Property 6: Tunnel state transitions consistency**
+
 - For any tunnel, state transitions should follow valid paths
 - Invalid transitions should be rejected
 
 **Property 7: Metrics aggregation consistency**
+
 - For any set of recorded metrics, aggregation should be consistent
 - Flushing and retrieving should produce same values
 

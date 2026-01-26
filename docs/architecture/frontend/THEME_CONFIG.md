@@ -7,6 +7,7 @@ The `ThemeConfig` class provides a centralized, unified theme configuration syst
 ## Features
 
 ### 1. Theme Modes
+
 - **Light Mode**: Bright colors optimized for daylight viewing
 - **Dark Mode**: Dark colors optimized for low-light environments
 - **System Mode**: Automatically follows device theme settings
@@ -14,23 +15,27 @@ The `ThemeConfig` class provides a centralized, unified theme configuration syst
 ### 2. Color Definitions
 
 #### Brand Colors
+
 - Primary: `#a777e3` (Purple)
 - Secondary: `#6e8efb` (Blue)
 - Accent: `#00c58e` (Green)
 
 #### Dark Mode Colors
+
 - Background Main: `#181a20`
 - Background Card: `#23243a`
 - Text Color: `#f1f1f1`
 - Text Color Light: `#b0b0b0`
 
 #### Light Mode Colors
+
 - Background Main: White
 - Background Card: `#F1F2F4`
 - Text Color: `#2c3e50`
 - Text Color Light: `#6F7B8A`
 
 #### Status Colors
+
 - Success: `#4caf50` (Dark) / `#2E7D32` (Light)
 - Warning: `#ffa726` (Dark) / `#F57C00` (Light)
 - Danger: `#ff5252` (Dark) / `#D32F2F` (Light)
@@ -39,6 +44,7 @@ The `ThemeConfig` class provides a centralized, unified theme configuration syst
 ### 3. Typography
 
 All text styles follow a consistent hierarchy:
+
 - Display Large: 32px, Bold
 - Display Medium: 28px, Bold
 - Headline Large: 24px, Semi-bold
@@ -53,6 +59,7 @@ Font fallback chain: Segoe UI → Roboto → Helvetica Neue → Arial → sans-s
 ### 4. Spacing System
 
 Consistent spacing values:
+
 - XS: 4px
 - S: 8px
 - M: 16px
@@ -76,16 +83,19 @@ Consistent spacing values:
 ## Platform-Specific Variations
 
 ### Spacing Adjustments
+
 - **Desktop (Windows/Linux)**: 1.1x base spacing
 - **Mobile (iOS/Android)**: 1.0x base spacing
 - **Web**: 1.0x base spacing
 
 ### Font Size Adjustments
+
 - **Desktop (Windows/Linux)**: 1.05x base font size
 - **Mobile (iOS/Android)**: 1.0x base font size
 - **Web**: 1.0x base font size
 
 ### Elevation Adjustments
+
 - **Desktop (Windows/Linux)**: 0.8x base elevation
 - **iOS**: 0.5x base elevation (minimal)
 - **Android**: 1.0x base elevation
@@ -96,11 +106,13 @@ Consistent spacing values:
 The `ThemeConfig` class includes comprehensive validation:
 
 ### Contrast Ratio Validation
+
 - Validates WCAG AA compliance (4.5:1 for normal text, 3:1 for large text)
 - Checks primary, secondary, and surface color contrasts
 - Returns validation results with errors and warnings
 
 ### Theme Validation
+
 - Validates color scheme brightness matches expected mode
 - Checks for proper theme structure
 - Returns detailed validation results
@@ -199,6 +211,7 @@ This ensures backward compatibility while providing the new unified theme system
 ## Testing
 
 Comprehensive tests are available in `test/config/theme_config_test.dart`:
+
 - Theme loading for all modes
 - System theme mode handling
 - Contrast ratio validation
@@ -206,6 +219,7 @@ Comprehensive tests are available in `test/config/theme_config_test.dart`:
 - Platform-specific adjustments
 
 Run tests with:
+
 ```bash
 flutter test test/config/theme_config_test.dart
 ```

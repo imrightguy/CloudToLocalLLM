@@ -65,12 +65,15 @@ Future<void> _showContextMenu() async {
 ## Testing
 
 ### Automated Tests
+
 ```bash
 flutter test test/services/native_tray_service_test.dart
 ```
 
 ### Manual Testing
+
 1. **Build and run the application**:
+
    ```bash
    flutter build windows
    flutter run -d windows
@@ -103,6 +106,7 @@ flutter test test/services/native_tray_service_test.dart
 ## Platform Compatibility
 
 This fix specifically addresses the Windows issue with `tray_manager` 0.5.0. The solution:
+
 - ✅ **Windows**: Explicitly triggers context menu on right-click
 - ✅ **Linux**: Should work with existing behavior (context menu may show automatically)
 - ✅ **macOS**: Should work with existing behavior (context menu may show automatically)

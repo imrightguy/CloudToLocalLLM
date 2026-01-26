@@ -5,6 +5,7 @@ This module implements server-side connection pooling and SSH connection managem
 ## Overview
 
 The connection pool manages SSH connections efficiently by:
+
 - Reusing existing connections when possible
 - Enforcing per-user connection limits
 - Implementing health checks and keep-alive mechanisms
@@ -18,12 +19,14 @@ The connection pool manages SSH connections efficiently by:
 Main connection pool implementation that manages SSH connections per user.
 
 **Features:**
+
 - Connection reuse and multiplexing
 - Per-user connection limits (max 3 concurrent)
 - Automatic stale connection cleanup
 - User isolation (Requirement 4.1)
 
 **Usage:**
+
 ```typescript
 import { ConnectionPoolImpl } from './connection-pool/index.js';
 import { ConsoleLogger } from './utils/logger.js';
@@ -62,12 +65,14 @@ await pool.closeConnection('user123');
 SSH connection wrapper with health checks and keep-alive.
 
 **Features:**
+
 - SSH keep-alive messages every 60 seconds (Requirement 7.4)
 - Channel multiplexing support (Requirement 7.6)
 - Channel limit enforcement (max 10 per connection) (Requirement 7.7)
 - Connection health monitoring
 
 **Usage:**
+
 ```typescript
 import { SSHConnectionImpl } from './connection-pool/index.js';
 
@@ -97,12 +102,14 @@ await connection.close();
 Periodic cleanup service for stale connections.
 
 **Features:**
+
 - Automatic cleanup of idle connections
 - Configurable cleanup interval and idle timeout
 - Manual cleanup trigger
 - Cleanup statistics tracking
 
 **Usage:**
+
 ```typescript
 import { ConnectionCleanupService } from './connection-pool/index.js';
 
@@ -132,12 +139,14 @@ cleanupService.stop();
 Handles graceful shutdown of connections and resources.
 
 **Features:**
+
 - Waits for in-flight requests (30 second timeout) (Requirement 8.4)
 - Sends SSH disconnect messages (Requirement 8.2)
 - Closes WebSocket with code 1000 (Requirement 8.3)
 - Signal handler registration (SIGTERM, SIGINT)
 
 **Usage:**
+
 ```typescript
 import { GracefulShutdownManager } from './connection-pool/index.js';
 
@@ -168,47 +177,58 @@ await shutdownManager.sendSSHDisconnect('user123', 'Server shutting down');
 ## Requirements Mapping
 
 ### Requirement 4.1: Multi-Tenant Isolation
+
 - ✅ Connections stored per user in separate Map entries
 - ✅ No cross-user data access possible
 - ✅ User ID validated on every operation
 
 ### Requirement 4.6: Separate SSH Sessions
+
 - ✅ Each user gets their own SSH connection instances
 - ✅ Connections are never shared between users
 
 ### Requirement 4.8: Connection Limits
+
 - ✅ Maximum 3 concurrent connections per user enforced
 - ✅ Error thrown when limit exceeded
 
 ### Requirement 1.6: Stale Connection Cleanup
+
 - ✅ Automatic cleanup within 60 seconds (configurable)
 - ✅ Periodic cleanup task runs every 30 seconds
 
 ### Requirement 6.9: Connection Timeout
+
 - ✅ 5-minute idle timeout (configurable)
 - ✅ Connections closed after timeout
 
 ### Requirement 7.4: SSH Keep-Alive
+
 - ✅ Keep-alive messages sent every 60 seconds
 - ✅ Connection marked unhealthy if no response
 
 ### Requirement 7.6: SSH Multiplexing
+
 - ✅ Multiple channels supported per connection
 - ✅ Channel tracking and management
 
 ### Requirement 7.7: Channel Limits
+
 - ✅ Maximum 10 channels per connection
 - ✅ Error thrown when limit exceeded
 
 ### Requirement 8.2: SSH Disconnect
+
 - ✅ Proper SSH disconnect message sent
 - ✅ Graceful closure implemented
 
 ### Requirement 8.3: WebSocket Closure
+
 - ✅ Close code 1000 (normal closure) used
 - ✅ Proper close handshake
 
 ### Requirement 8.4: Wait for In-Flight Requests
+
 - ✅ 30-second grace period implemented
 - ✅ Waits for active channels to complete
 
@@ -423,6 +443,7 @@ describe('ConnectionPoolImpl', () => {
 **Error:** `Connection limit exceeded. Maximum 3 concurrent connections allowed.`
 
 **Solution:**
+
 - Check if connections are being properly released
 - Verify that old connections are being cleaned up
 - Consider increasing `maxConnectionsPerUser` if needed
@@ -432,6 +453,7 @@ describe('ConnectionPoolImpl', () => {
 **Issue:** Connections remain in pool after idle timeout
 
 **Solution:**
+
 - Verify cleanup service is running: `cleanupService.getStats().isRunning`
 - Check cleanup interval configuration
 - Manually trigger cleanup: `cleanupService.triggerCleanup()`
@@ -441,6 +463,7 @@ describe('ConnectionPoolImpl', () => {
 **Issue:** Connections marked as unhealthy
 
 **Solution:**
+
 - Check network connectivity
 - Verify SSH server is responding to keep-alive
 - Review keep-alive interval configuration
@@ -451,6 +474,7 @@ describe('ConnectionPoolImpl', () => {
 **Issue:** Shutdown takes longer than grace period
 
 **Solution:**
+
 - Increase `gracePeriod` configuration
 - Check for stuck in-flight requests
 - Review connection closure logs

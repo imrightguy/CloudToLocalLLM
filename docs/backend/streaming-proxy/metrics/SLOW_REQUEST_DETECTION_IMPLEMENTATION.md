@@ -13,6 +13,7 @@ This document describes the implementation of slow request detection for the str
 **File**: `services/streaming-proxy/src/metrics/server-metrics-collector.ts`
 
 The `ServerMetricsCollector` class has been enhanced with:
+
 - `recordRequest()` method that accepts request duration (latency) as a parameter
 - Integration with `SlowRequestDetector` to track slow requests
 - Request history tracking with timestamps
@@ -35,6 +36,7 @@ recordRequest(
 **File**: `services/streaming-proxy/src/metrics/slow-request-detector.ts`
 
 The `SlowRequestDetector` class logs slow requests using `ConsoleLogger`:
+
 - Threshold: 5000ms (configurable)
 - Log level: WARN
 - Logged when `duration >= slowThresholdMs`
@@ -54,6 +56,7 @@ this.logger.warn('Slow request detected', {
 **File**: `services/streaming-proxy/src/metrics/slow-request-detector.ts`
 
 All required fields are included in the log metadata:
+
 - `userId`: User identifier
 - `requestId`: Unique request identifier
 - `duration`: Request duration in milliseconds
@@ -61,6 +64,7 @@ All required fields are included in the log metadata:
 - `threshold`: Slow request threshold for context
 
 Example log output:
+
 ```
 [SlowRequestDetector] WARN: Slow request detected {
   userId: 'user123',
@@ -104,6 +108,7 @@ Method: `checkAndAlert(): void`
 - Includes detailed statistics in alert
 
 Alert log output:
+
 ```
 [SlowRequestDetector] WARN: High slow request rate detected! {
   slowRequestRate: 0.15,
@@ -122,6 +127,7 @@ Alert log output:
 Method: `exportPrometheusMetrics(): string`
 
 Exports the following Prometheus metrics:
+
 - `tunnel_slow_requests_total`: Total number of slow requests (counter)
 - `tunnel_slow_request_rate`: Rate of slow requests (gauge)
 - `tunnel_slow_request_duration_avg_ms`: Average duration of slow requests (gauge)
@@ -129,6 +135,7 @@ Exports the following Prometheus metrics:
 - `tunnel_slow_requests_by_user_total`: Slow requests by user (counter with labels)
 
 Example Prometheus output:
+
 ```
 # HELP tunnel_slow_requests_total Total number of slow requests
 # TYPE tunnel_slow_requests_total counter
@@ -306,10 +313,12 @@ const prometheusMetrics = metricsCollector.exportPrometheusFormat();
 ### Monitoring
 
 The slow request metrics are available at:
+
 - **Prometheus endpoint**: `GET /api/tunnel/metrics`
 - **JSON endpoint**: `GET /api/tunnel/metrics/json`
 
 Example Prometheus query:
+
 ```promql
 # Get slow request rate
 tunnel_slow_request_rate
@@ -330,6 +339,7 @@ ALERT HighSlowRequestRate
 **File**: `services/streaming-proxy/src/metrics/slow-request-detector.test.ts`
 
 Comprehensive test suite covering:
+
 - Slow request detection and logging
 - Rate calculation
 - Statistics generation
@@ -342,6 +352,7 @@ Comprehensive test suite covering:
 **File**: `services/streaming-proxy/src/metrics/verify-slow-request-detection.ts`
 
 Verification script that confirms:
+
 - All required methods are implemented
 - Integration with ServerMetricsCollector
 - Logging includes all required fields

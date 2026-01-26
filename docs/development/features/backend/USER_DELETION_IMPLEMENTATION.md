@@ -50,12 +50,14 @@ Deletion data is stored in the `users` table metadata:
 **Decision**: Soft delete is the default behavior
 
 **Rationale**:
+
 - Compliance with GDPR right to be forgotten (30-day recovery period)
 - Allows account recovery if user changes mind
 - Preserves audit trail for compliance
 - Reduces accidental data loss
 
 **Implementation**:
+
 ```javascript
 const { softDelete = true, reason = 'User requested deletion' } = options;
 ```
@@ -65,12 +67,14 @@ const { softDelete = true, reason = 'User requested deletion' } = options;
 **Decision**: Hard delete performs cascading cleanup of all related data
 
 **Rationale**:
+
 - Ensures complete data removal
 - Maintains referential integrity
 - Prevents orphaned records
 - Supports compliance requirements
 
 **Cleanup Order**:
+
 1. Sessions (user authentication)
 2. Tunnel connections (active tunnels)
 3. Audit logs (security records)
@@ -85,12 +89,14 @@ const { softDelete = true, reason = 'User requested deletion' } = options;
 **Decision**: All deletions use database transactions
 
 **Rationale**:
+
 - Ensures atomicity (all-or-nothing)
 - Prevents partial deletions
 - Allows rollback on errors
 - Maintains data consistency
 
 **Implementation**:
+
 ```javascript
 await client.query('BEGIN');
 try {
@@ -107,12 +113,14 @@ try {
 **Decision**: Soft deletion uses metadata instead of separate table
 
 **Rationale**:
+
 - Simpler schema (no additional tables)
 - Easier to query deleted users
 - Preserves all user data
 - Supports restoration without data recovery
 
 **Metadata Fields**:
+
 - `deleted_at`: Timestamp of deletion
 - `deletion_reason`: Reason for deletion
 - `is_deleted`: Boolean flag
@@ -122,12 +130,14 @@ try {
 **Decision**: Users can only delete their own accounts; admins can permanently delete
 
 **Rationale**:
+
 - Prevents unauthorized deletions
 - Allows admin cleanup after retention period
 - Maintains security boundaries
 - Supports compliance workflows
 
 **Implementation**:
+
 ```javascript
 // User can only delete their own account
 if (id !== userId) {
@@ -254,6 +264,7 @@ try {
 ### Unit Tests (27 tests)
 
 **Soft Delete Tests**:
+
 - Successful soft deletion
 - Deletion reason included in metadata
 - Rollback on error
@@ -261,34 +272,40 @@ try {
 - Invalid user ID error
 
 **Hard Delete Tests**:
+
 - Cascading cleanup
 - Zero records deleted gracefully
 - Rollback on error
 
 **Restoration Tests**:
+
 - Successful restoration
 - User not found or not deleted error
 - Invalid user ID error
 
 **Status Checking Tests**:
+
 - Check deleted user status
 - Check active user status
 - User not found error
 - Invalid user ID error
 
 **Deletion Info Tests**:
+
 - Retrieve deletion information
 - Non-deleted user error
 - User not found error
 - Invalid user ID error
 
 **Permanent Deletion Tests**:
+
 - Permanent deletion with cleanup
 - Rollback on error
 - User not found error
 - Invalid user ID error
 
 **Cascading Cleanup Tests**:
+
 - Correct deletion order
 - Accurate cleanup statistics
 - Default options
@@ -297,6 +314,7 @@ try {
 ### Property-Based Tests
 
 While not explicitly implemented as PBT, the tests verify:
+
 - **Idempotence**: Restoring a restored account is safe
 - **Consistency**: Cleanup statistics match actual deletions
 - **Atomicity**: All-or-nothing transactions
@@ -330,16 +348,19 @@ app.use('/api/users', userDeletionRoutes);
 ## Performance Considerations
 
 ### Soft Delete
+
 - **Time Complexity**: O(1)
 - **Space Complexity**: O(1)
 - **Database Operations**: 1 UPDATE query
 
 ### Hard Delete
+
 - **Time Complexity**: O(n) where n = related records
 - **Space Complexity**: O(1)
 - **Database Operations**: 8 DELETE queries
 
 ### Optimization Opportunities
+
 1. Batch deletion for multiple users
 2. Asynchronous permanent deletion
 3. Caching of deletion status
@@ -348,20 +369,24 @@ app.use('/api/users', userDeletionRoutes);
 ## Security Considerations
 
 ### Authentication
+
 - All endpoints require JWT authentication
 - User ID extracted from JWT token
 
 ### Authorization
+
 - Users can only delete their own accounts
 - Admins can permanently delete any account
 - Role-based access control
 
 ### Audit Logging
+
 - All deletions logged with reason
 - Deletion timestamp recorded
 - User IP and user agent captured
 
 ### Data Protection
+
 - Soft-deleted data encrypted at rest
 - Hard-deleted data permanently removed
 - No backup recovery possible after hard delete
@@ -369,11 +394,13 @@ app.use('/api/users', userDeletionRoutes);
 ## Compliance
 
 ### GDPR
+
 - Right to be forgotten: Hard delete removes all data
 - Data retention: Soft delete allows 30-day recovery
 - Audit trail: Deletion reason and timestamp recorded
 
 ### Data Protection
+
 - Cascading cleanup ensures no orphaned data
 - Metadata-based deletion preserves audit trail
 - Transaction-based operations ensure consistency
@@ -381,17 +408,20 @@ app.use('/api/users', userDeletionRoutes);
 ## Monitoring and Observability
 
 ### Logging
+
 - Deletion operations logged at INFO level
 - Errors logged at ERROR level
 - Cleanup statistics included in logs
 
 ### Metrics
+
 - Deletion count per day
 - Hard vs soft deletion ratio
 - Restoration rate
 - Error rate
 
 ### Alerts
+
 - High deletion rate (potential abuse)
 - Permanent deletion operations (admin actions)
 - Restoration requests (user recovery)
@@ -399,6 +429,7 @@ app.use('/api/users', userDeletionRoutes);
 ## Future Enhancements
 
 ### 1. Scheduled Permanent Deletion
+
 ```javascript
 // Automatically permanently delete soft-deleted users after 30 days
 const deletionDeadline = new Date(deletedAt);
@@ -406,24 +437,28 @@ deletionDeadline.setDate(deletionDeadline.getDate() + 30);
 ```
 
 ### 2. Bulk Operations
+
 ```javascript
 // Delete multiple users at once
 await userDeletionService.bulkDeleteUsers(userIds, options);
 ```
 
 ### 3. Deletion Analytics
+
 ```javascript
 // Track deletion patterns and trends
 await userDeletionService.getDeletionAnalytics(startDate, endDate);
 ```
 
 ### 4. Configurable Retention
+
 ```javascript
 // Allow different retention periods per user tier
 const retentionDays = getTierRetentionDays(userTier);
 ```
 
 ### 5. Deletion Notifications
+
 ```javascript
 // Notify user of pending permanent deletion
 await notificationService.sendDeletionNotification(userId);
@@ -432,18 +467,22 @@ await notificationService.sendDeletionNotification(userId);
 ## Troubleshooting
 
 ### Issue: User not found error
+
 **Cause**: User ID doesn't exist in database
 **Solution**: Verify user ID is correct and user exists
 
 ### Issue: Unauthorized deletion error
+
 **Cause**: User trying to delete another user's account
 **Solution**: Only users can delete their own accounts
 
 ### Issue: Transaction rollback
+
 **Cause**: Database error during deletion
 **Solution**: Check database logs and retry operation
 
 ### Issue: Restoration fails
+
 **Cause**: User is not soft-deleted
 **Solution**: Only soft-deleted users can be restored
 

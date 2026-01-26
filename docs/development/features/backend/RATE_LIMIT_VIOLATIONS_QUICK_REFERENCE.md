@@ -13,10 +13,12 @@ Task 35 implements comprehensive rate limit violation logging for the API backen
 ### 1. Database Migration (019_rate_limit_violations.sql)
 
 Creates two tables:
+
 - `rate_limit_violations` - Stores individual violation records
 - `rate_limit_violation_stats` - Stores aggregated statistics
 
 **Key Fields:**
+
 - `user_id` - User who triggered the violation
 - `violation_type` - Type of violation (window, burst, concurrent, IP)
 - `endpoint` - API endpoint that was rate limited
@@ -31,14 +33,17 @@ Creates two tables:
 **RateLimitViolationsService** provides:
 
 #### Logging Methods
+
 - `logViolation()` - Log a single violation
 
 #### Retrieval Methods
+
 - `getUserViolations()` - Get violations for a specific user
 - `getIpViolations()` - Get violations for a specific IP
 - `getEndpointViolations()` - Get violations for a specific endpoint
 
 #### Analysis Methods
+
 - `getUserViolationStats()` - Statistics for a user
 - `getIpViolationStats()` - Statistics for an IP
 - `getTopViolators()` - Top violating users
@@ -176,6 +181,7 @@ VIOLATION_TYPES = {
 ## Database Indexes
 
 Optimized for common queries:
+
 - `idx_rate_limit_violations_user_id` - User lookups
 - `idx_rate_limit_violations_timestamp` - Time-based queries
 - `idx_rate_limit_violations_ip_address` - IP lookups

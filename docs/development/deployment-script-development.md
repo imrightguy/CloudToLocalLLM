@@ -95,7 +95,7 @@ function Invoke-NewDeploymentPhase {
 }
 ```
 
-2. Add the phase to the main execution flow:
+1. Add the phase to the main execution flow:
 
 ```powershell
 # In the main execution section
@@ -110,7 +110,7 @@ if (Invoke-NewDeploymentPhase) {
 }
 ```
 
-3. Add a parameter to control the phase (optional):
+1. Add a parameter to control the phase (optional):
 
 ```powershell
 [Parameter(HelpMessage = "Skip new phase")]
@@ -128,7 +128,7 @@ To add new command-line parameters:
 [string]$NewParameter = "DefaultValue"
 ```
 
-2. Update the configuration to include the new parameter:
+1. Update the configuration to include the new parameter:
 
 ```powershell
 $Script:DeploymentConfig = @{
@@ -137,7 +137,7 @@ $Script:DeploymentConfig = @{
 }
 ```
 
-3. Update the help information to document the new parameter:
+1. Update the help information to document the new parameter:
 
 ```powershell
 function Show-DeploymentHelp {
@@ -261,9 +261,11 @@ After modifying the deployment script:
 ## Linux Build Integration (WSL)
 
 **Important**: WSL integration is only required for:
+
 1. **Building Linux application packages** (Debian, AppImage, etc.)
 
 WSL should **NOT** be used for:
+
 - Windows development workflows
 - Version management on Windows
 - Local file operations on Windows
@@ -306,6 +308,7 @@ For deployment operations, use native PowerShell capabilities:
    - PowerShell version manager for version operations
 
 2. **Example PowerShell deployment**:
+
 ```powershell
 # Use PowerShell for deployment, not WSL
 $sshCommand = "ssh cloudllm@cloudtolocalllm.online 'cd /opt/cloudtolocalllm && bash scripts/deploy/complete_deployment.sh'"

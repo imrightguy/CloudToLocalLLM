@@ -5,6 +5,7 @@
 **Status:** ✅ COMPLETED
 
 **Validates:** Requirements 5.9
+
 - Track proxy usage metrics
 - Implement usage aggregation
 - Create usage reporting
@@ -16,9 +17,11 @@ Implemented comprehensive proxy usage tracking system for billing and analytics.
 ## Files Created
 
 ### 1. Service Layer
+
 **File:** `services/api-backend/services/proxy-usage-service.js`
 
 Core service implementing:
+
 - Usage event recording (connection_start, connection_end, data_transfer, error)
 - Daily usage metrics retrieval
 - Date range metrics retrieval
@@ -27,6 +30,7 @@ Core service implementing:
 - Billing summary calculation
 
 **Key Methods:**
+
 - `recordUsageEvent()` - Record usage events
 - `getProxyUsageMetrics()` - Get metrics for specific date
 - `getProxyUsageMetricsRange()` - Get metrics for date range
@@ -36,9 +40,11 @@ Core service implementing:
 - `getBillingSummary()` - Calculate billing
 
 ### 2. API Routes
+
 **File:** `services/api-backend/routes/proxy-usage.js`
 
 Endpoints implemented:
+
 - `POST /proxy/usage/:proxyId/record` - Record usage event
 - `GET /proxy/usage/:proxyId/metrics/:date` - Get metrics for date
 - `GET /proxy/usage/:proxyId/metrics` - Get metrics for date range
@@ -48,23 +54,28 @@ Endpoints implemented:
 - `GET /proxy/usage/billing` - Get billing summary
 
 ### 3. Database Schema
+
 **File:** `services/api-backend/database/migrations/016_proxy_usage_tracking.sql`
 
 Tables created:
+
 - `proxy_usage_events` - Raw usage events
 - `proxy_usage_metrics` - Daily aggregated metrics
 - `proxy_usage_aggregation` - Period-based aggregation
 - `proxy_usage_summary` - Quick access summary
 
 Indexes created for performance optimization on:
+
 - proxy_id, user_id, created_at, event_type
 - date, proxy_date combinations
 - period ranges
 
 ### 4. Tests
+
 **File:** `test/api-backend/proxy-usage.test.js`
 
 Comprehensive test suite covering:
+
 - Recording usage events (all event types)
 - Getting usage metrics (single date, date range)
 - Usage aggregation
@@ -75,13 +86,16 @@ Comprehensive test suite covering:
 ## Features Implemented
 
 ### 1. Usage Event Recording
+
 Records four types of usage events:
+
 - `connection_start` - Connection initiated
 - `connection_end` - Connection terminated
 - `data_transfer` - Data transferred
 - `error` - Error occurred
 
 Each event captures:
+
 - Connection ID
 - Data bytes transferred
 - Duration in seconds
@@ -89,7 +103,9 @@ Each event captures:
 - Client IP address
 
 ### 2. Daily Metrics Aggregation
+
 Automatically aggregates daily metrics including:
+
 - Connection count
 - Data transferred/received (bytes)
 - Peak concurrent connections
@@ -97,22 +113,28 @@ Automatically aggregates daily metrics including:
 - Error and success counts
 
 ### 3. Period-Based Aggregation
+
 Aggregates metrics across multiple days for:
+
 - Billing periods
 - Usage reports
 - Analytics
 
 Supports aggregation by:
+
 - User tier
 - Time period
 - Multiple proxies
 
 ### 4. Usage Reporting
+
 Generates reports grouped by:
+
 - **Day** - Daily breakdown of usage
 - **Proxy** - Per-proxy usage breakdown
 
 Reports include:
+
 - Connection counts
 - Data transfer metrics
 - Latency information
@@ -120,22 +142,27 @@ Reports include:
 - Success rates
 
 ### 5. Billing Calculation
+
 Calculates billing based on user tier:
 
 **Free Tier:**
+
 - Base charge: $0
 - Data transfer: $0
 - Total: $0
 
 **Premium Tier:**
+
 - Base charge: $10/month
 - Data transfer: $0.01 per GB
 - Total: $10 + (data_gb * $0.01)
 
 **Enterprise Tier:**
+
 - Custom pricing (contact sales)
 
 ### 6. Authorization & Security
+
 - JWT authentication on all endpoints
 - User ownership verification
 - Proxy ownership verification
@@ -144,60 +171,76 @@ Calculates billing based on user tier:
 ## API Endpoints
 
 ### Record Usage Event
+
 ```
 POST /proxy/usage/:proxyId/record
 ```
+
 Records a usage event for a proxy.
 
 ### Get Usage Metrics
+
 ```
 GET /proxy/usage/:proxyId/metrics/:date
 GET /proxy/usage/:proxyId/metrics?startDate=...&endDate=...
 ```
+
 Retrieves usage metrics for a proxy.
 
 ### Get Usage Report
+
 ```
 GET /proxy/usage/report?startDate=...&endDate=...&groupBy=day|proxy
 ```
+
 Generates usage report for authenticated user.
 
 ### Get Usage Aggregation
+
 ```
 GET /proxy/usage/aggregation?periodStart=...&periodEnd=...
 ```
+
 Retrieves aggregated usage for user.
 
 ### Aggregate Usage
+
 ```
 POST /proxy/usage/aggregate
 ```
+
 Triggers aggregation of usage metrics.
 
 ### Get Billing Summary
+
 ```
 GET /proxy/usage/billing?periodStart=...&periodEnd=...
 ```
+
 Retrieves billing summary for user.
 
 ## Database Schema
 
 ### proxy_usage_events
+
 - Stores raw usage events
 - Indexed by proxy_id, user_id, created_at, event_type
 - Foreign key to users table
 
 ### proxy_usage_metrics
+
 - Stores daily aggregated metrics
 - Unique constraint on (proxy_id, date)
 - Indexed for fast retrieval
 
 ### proxy_usage_aggregation
+
 - Stores period-based aggregation
 - Unique constraint on (user_id, period_start, period_end)
 - Supports upsert operations
 
 ### proxy_usage_summary
+
 - Stores current summary metrics
 - Unique constraint on proxy_id
 - Optimized for quick access
@@ -205,11 +248,13 @@ Retrieves billing summary for user.
 ## Error Handling
 
 Error codes implemented:
+
 - `PROXY_USAGE_001` - Invalid request (missing parameters)
 - `PROXY_USAGE_002` - Service unavailable
 - `PROXY_USAGE_003` - Internal server error
 
 All errors include:
+
 - Error code
 - Descriptive message
 - HTTP status code
@@ -218,6 +263,7 @@ All errors include:
 ## Testing
 
 Test suite includes:
+
 - ✅ Recording usage events (all types)
 - ✅ Getting usage metrics
 - ✅ Usage aggregation
@@ -229,14 +275,17 @@ Test suite includes:
 ## Integration Points
 
 ### With Proxy Health Service
+
 - Verifies proxy ownership via proxy_health_status table
 - Ensures only authorized users can access metrics
 
 ### With User Service
+
 - Validates user tier for billing calculations
 - Enforces user authorization
 
 ### With Database
+
 - Uses connection pool for efficient queries
 - Implements transactions for aggregation
 - Optimized indexes for performance
@@ -261,6 +310,7 @@ Test suite includes:
 ## Compliance
 
 ✅ Validates Requirement 5.9:
+
 - Implements proxy usage tracking
 - Tracks connections and data transfer metrics
 - Aggregates usage per user/tier

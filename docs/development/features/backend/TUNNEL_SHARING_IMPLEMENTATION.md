@@ -13,9 +13,11 @@ This implementation provides comprehensive tunnel sharing capabilities with gran
 ## Files Created
 
 ### 1. Database Migration
+
 **File**: `services/api-backend/database/migrations/005_tunnel_sharing_and_access_control.sql`
 
 Creates three new tables:
+
 - `tunnel_shares`: Direct user-to-user sharing with permissions
 - `tunnel_share_tokens`: Temporary tokens for link-based sharing
 - `tunnel_access_logs`: Audit trail for all access operations
@@ -23,9 +25,11 @@ Creates three new tables:
 Includes proper indexes for performance optimization.
 
 ### 2. Service Layer
+
 **File**: `services/api-backend/services/tunnel-sharing-service.js`
 
 Implements `TunnelSharingService` class with methods:
+
 - `shareTunnel()`: Share tunnel with another user
 - `revokeTunnelAccess()`: Revoke access from a user
 - `getTunnelShares()`: Get all shares for a tunnel
@@ -38,9 +42,11 @@ Implements `TunnelSharingService` class with methods:
 - `updateSharePermission()`: Update share permission level
 
 ### 3. API Routes
+
 **File**: `services/api-backend/routes/tunnel-sharing.js`
 
 Implements 9 endpoints:
+
 - `POST /api/tunnels/:id/shares` - Share tunnel
 - `GET /api/tunnels/:id/shares` - Get tunnel shares
 - `DELETE /api/tunnels/:id/shares/:sharedWithUserId` - Revoke access
@@ -52,9 +58,11 @@ Implements 9 endpoints:
 - `PUT /api/tunnels/:id/shares/:shareId/permission` - Update permission
 
 ### 4. Tests
+
 **File**: `test/api-backend/tunnel-sharing.test.js`
 
 Comprehensive test suite covering:
+
 - Sharing tunnels with valid/invalid users
 - Permission validation
 - Token creation and revocation
@@ -64,20 +72,26 @@ Comprehensive test suite covering:
 - Error cases
 
 ### 5. Documentation
+
 **Files**:
+
 - `services/api-backend/TUNNEL_SHARING_QUICK_REFERENCE.md` - Quick reference guide
 - `services/api-backend/TUNNEL_SHARING_IMPLEMENTATION.md` - This file
 
 ## Key Features
 
 ### 1. Permission Levels
+
 Three permission levels with hierarchical access:
+
 - **read**: View tunnel details, status, metrics, configuration
 - **write**: All read permissions + update config, start/stop tunnel
 - **admin**: All write permissions + delete tunnel, manage shares
 
 ### 2. User-to-User Sharing
+
 Direct sharing with specific users:
+
 - Share tunnel with another user
 - Set permission level
 - Update permission level
@@ -85,7 +99,9 @@ Direct sharing with specific users:
 - View who has access
 
 ### 3. Temporary Share Tokens
+
 Time-limited tokens for link-based sharing:
+
 - Generate random 256-bit tokens
 - Set expiration time (hours)
 - Optional maximum uses limit
@@ -93,7 +109,9 @@ Time-limited tokens for link-based sharing:
 - Track token usage
 
 ### 4. Access Control
+
 Comprehensive access verification:
+
 - Owner has admin access
 - Shared users have specified permission
 - Permission hierarchy enforcement
@@ -101,7 +119,9 @@ Comprehensive access verification:
 - Active status checking
 
 ### 5. Audit Trail
+
 Complete access logging:
+
 - Log all sharing operations
 - Log permission changes
 - Log token creation/revocation
@@ -111,6 +131,7 @@ Complete access logging:
 ## Database Schema
 
 ### tunnel_shares
+
 ```sql
 CREATE TABLE tunnel_shares (
   id UUID PRIMARY KEY,
@@ -127,6 +148,7 @@ CREATE TABLE tunnel_shares (
 ```
 
 ### tunnel_share_tokens
+
 ```sql
 CREATE TABLE tunnel_share_tokens (
   id UUID PRIMARY KEY,
@@ -143,6 +165,7 @@ CREATE TABLE tunnel_share_tokens (
 ```
 
 ### tunnel_access_logs
+
 ```sql
 CREATE TABLE tunnel_access_logs (
   id UUID PRIMARY KEY,
@@ -159,6 +182,7 @@ CREATE TABLE tunnel_access_logs (
 ## API Endpoints
 
 ### Share Tunnel
+
 ```
 POST /api/tunnels/:id/shares
 Authorization: Bearer <token>
@@ -184,6 +208,7 @@ Response: 201 Created
 ```
 
 ### Get Tunnel Shares
+
 ```
 GET /api/tunnels/:id/shares
 Authorization: Bearer <token>
@@ -206,6 +231,7 @@ Response: 200 OK
 ```
 
 ### Revoke Access
+
 ```
 DELETE /api/tunnels/:id/shares/:sharedWithUserId
 Authorization: Bearer <token>
@@ -218,6 +244,7 @@ Response: 200 OK
 ```
 
 ### Get Shared Tunnels
+
 ```
 GET /api/tunnels/shared-with-me?limit=50&offset=0
 Authorization: Bearer <token>
@@ -243,6 +270,7 @@ Response: 200 OK
 ```
 
 ### Create Share Token
+
 ```
 POST /api/tunnels/:id/share-tokens
 Authorization: Bearer <token>
@@ -269,6 +297,7 @@ Response: 201 Created
 ```
 
 ### Get Share Tokens
+
 ```
 GET /api/tunnels/:id/share-tokens
 Authorization: Bearer <token>
@@ -292,6 +321,7 @@ Response: 200 OK
 ```
 
 ### Revoke Token
+
 ```
 DELETE /api/tunnels/:id/share-tokens/:tokenId
 Authorization: Bearer <token>
@@ -304,6 +334,7 @@ Response: 200 OK
 ```
 
 ### Get Access Logs
+
 ```
 GET /api/tunnels/:id/access-logs?limit=50&offset=0
 Authorization: Bearer <token>
@@ -331,6 +362,7 @@ Response: 200 OK
 ```
 
 ### Update Permission
+
 ```
 PUT /api/tunnels/:id/shares/:shareId/permission
 Authorization: Bearer <token>
@@ -354,6 +386,7 @@ Response: 200 OK
 ## Error Handling
 
 All endpoints return appropriate HTTP status codes:
+
 - `201 Created`: Successful creation
 - `200 OK`: Successful operation
 - `400 Bad Request`: Invalid input
@@ -364,6 +397,7 @@ All endpoints return appropriate HTTP status codes:
 - `500 Internal Server Error`: Server error
 
 Error responses include:
+
 ```json
 {
   "error": "Error type",
@@ -386,11 +420,13 @@ Error responses include:
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- tunnel-sharing.test.js
 ```
 
 Test coverage includes:
+
 - ✅ Sharing tunnels with valid users
 - ✅ Rejecting invalid users
 - ✅ Preventing self-sharing
@@ -405,16 +441,19 @@ Test coverage includes:
 ## Integration Points
 
 ### With Tunnel Service
+
 - Verify tunnel ownership before sharing
 - Cascade delete shares when tunnel is deleted
 - Include sharing info in tunnel responses
 
 ### With Auth Service
+
 - Verify user authentication on all endpoints
 - Extract user ID from JWT token
 - Log user actions with IP and user agent
 
 ### With Activity Logging
+
 - Log all sharing operations
 - Track permission changes
 - Maintain audit trail
@@ -426,7 +465,7 @@ Test coverage includes:
    - `tunnel_share_tokens(tunnel_id, token)`
    - `tunnel_access_logs(tunnel_id, created_at)`
 
-2. **Query Optimization**: 
+2. **Query Optimization**:
    - Efficient permission checking
    - Pagination support for large result sets
    - Proper use of database constraints
@@ -450,6 +489,7 @@ Test coverage includes:
 ## Compliance
 
 ✅ Requirement 4.8: THE API SHALL support tunnel sharing and access control
+
 - Provides endpoints for tunnel sharing
 - Implements access control with permissions
 - Adds permission management for tunnel access
@@ -457,6 +497,7 @@ Test coverage includes:
 ## Validation
 
 All acceptance criteria met:
+
 - ✅ Create tunnel sharing endpoints
 - ✅ Implement access control for shared tunnels
 - ✅ Add permission management for tunnel access

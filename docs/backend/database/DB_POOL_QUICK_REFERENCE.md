@@ -187,7 +187,7 @@ try {
 }
 ```
 
-2. **Use query() for simple queries:**
+1. **Use query() for simple queries:**
 
 ```javascript
 // Good - automatic connection management
@@ -200,7 +200,7 @@ const result = await client.query('SELECT * FROM users');
 client.release();
 ```
 
-3. **Use transactions properly:**
+1. **Use transactions properly:**
 
 ```javascript
 const client = await getClient();
@@ -224,7 +224,7 @@ try {
 const result = await query('SELECT * FROM users WHERE email = $1', [email]);
 ```
 
-2. **Batch operations when possible:**
+1. **Batch operations when possible:**
 
 ```javascript
 // Good - single query
@@ -240,7 +240,7 @@ await query('INSERT INTO users (email, name) VALUES ($1, $2)', [email1, name1]);
 await query('INSERT INTO users (email, name) VALUES ($1, $2)', [email2, name2]);
 ```
 
-3. **Use indexes for frequently queried columns:**
+1. **Use indexes for frequently queried columns:**
 
 ```sql
 CREATE INDEX idx_users_email ON users(email);

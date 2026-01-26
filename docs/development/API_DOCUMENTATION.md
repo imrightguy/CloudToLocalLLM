@@ -5,6 +5,7 @@
 CloudToLocalLLM v3.6.2+ provides comprehensive APIs for bridge communication, streaming proxy management, and service integration. This document covers all available APIs for developers and integrators.
 
 **API Base URLs:**
+
 - **Production**: `https://app.cloudtolocalllm.online/api`
 - **Local Development**: `http://localhost:3000/api`
 
@@ -17,17 +18,20 @@ CloudToLocalLLM v3.6.2+ provides comprehensive APIs for bridge communication, st
 All API endpoints require valid JWT tokens obtained through Auth0 authentication.
 
 #### **Token Format**
+
 ```http
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 #### **Token Validation**
+
 - **Algorithm**: RS256
 - **Issuer**: `https://cloudtolocalllm.auth0.com/`
 - **Audience**: `cloudtolocalllm-api`
 - **Expiry**: 24 hours
 
 #### **Error Responses**
+
 ```json
 {
   "error": "unauthorized",
@@ -43,9 +47,11 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ### **Desktop Bridge Communication**
 
 #### **POST /api/bridge/register**
+
 Register a desktop client with the bridge service.
 
 **Request:**
+
 ```json
 {
   "clientId": "desktop-client-uuid",
@@ -56,6 +62,7 @@ Register a desktop client with the bridge service.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -69,9 +76,11 @@ Register a desktop client with the bridge service.
 ```
 
 #### **GET /api/bridge/{bridgeId}/status**
+
 Get current bridge connection status.
 
 **Response:**
+
 ```json
 {
   "bridgeId": "bridge-uuid",
@@ -87,9 +96,11 @@ Get current bridge connection status.
 ```
 
 #### **POST /api/bridge/{bridgeId}/message**
+
 Send message to desktop client through bridge.
 
 **Request:**
+
 ```json
 {
   "type": "chat",
@@ -107,6 +118,7 @@ Send message to desktop client through bridge.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -122,9 +134,11 @@ Send message to desktop client through bridge.
 ### **Proxy Lifecycle Management**
 
 #### **POST /api/streaming/proxy/create**
+
 Create ephemeral streaming proxy for user session.
 
 **Request:**
+
 ```json
 {
   "userId": "user-uuid",
@@ -138,6 +152,7 @@ Create ephemeral streaming proxy for user session.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -151,9 +166,11 @@ Create ephemeral streaming proxy for user session.
 ```
 
 #### **GET /api/streaming/proxy/{proxyId}/status**
+
 Get streaming proxy status and metrics.
 
 **Response:**
+
 ```json
 {
   "proxyId": "proxy-uuid",
@@ -173,9 +190,11 @@ Get streaming proxy status and metrics.
 ```
 
 #### **DELETE /api/streaming/proxy/{proxyId}**
+
 Terminate streaming proxy and cleanup resources.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -190,14 +209,17 @@ Terminate streaming proxy and cleanup resources.
 ### **Conversation Management**
 
 #### **GET /api/chat/conversations**
+
 List user's chat conversations.
 
 **Query Parameters:**
+
 - `limit`: Number of conversations (default: 50)
 - `offset`: Pagination offset (default: 0)
 - `sort`: Sort order (`created_desc`, `updated_desc`)
 
 **Response:**
+
 ```json
 {
   "conversations": [
@@ -216,9 +238,11 @@ List user's chat conversations.
 ```
 
 #### **POST /api/chat/conversations**
+
 Create new chat conversation.
 
 **Request:**
+
 ```json
 {
   "title": "New Chat",
@@ -228,6 +252,7 @@ Create new chat conversation.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -241,9 +266,11 @@ Create new chat conversation.
 ```
 
 #### **POST /api/chat/conversations/{conversationId}/messages**
+
 Send message in conversation.
 
 **Request:**
+
 ```json
 {
   "content": "What is machine learning?",
@@ -252,6 +279,7 @@ Send message in conversation.
 ```
 
 **Response (Streaming):**
+
 ```json
 {"type": "start", "messageId": "msg-uuid"}
 {"type": "chunk", "content": "Machine learning is"}
@@ -267,9 +295,11 @@ Send message in conversation.
 ### **System Health**
 
 #### **GET /api/health**
+
 Get overall system health status.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -289,9 +319,11 @@ Get overall system health status.
 ```
 
 #### **GET /api/health/detailed**
+
 Get detailed health information for debugging.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -321,9 +353,11 @@ Get detailed health information for debugging.
 ## 🚇 **Simplified Tunnel System API**
 
 ### **Overview**
+
 The Simplified Tunnel System replaces the complex multi-layered bridge architecture with a streamlined design using a single WebSocket connection and standard HTTP proxy patterns. This system provides secure, efficient communication between cloud interfaces and local Ollama instances.
 
 **Architecture:**
+
 ```
 [Web User] → [Cloud Proxy] → [WebSocket] → [Desktop Client] → [Local Ollama]
      ↑              ↑             ↑              ↑              ↑
@@ -331,6 +365,7 @@ The Simplified Tunnel System replaces the complex multi-layered bridge architect
 ```
 
 ### **Key Features**
+
 - **Single WebSocket Connection**: One persistent connection per desktop client
 - **Standard HTTP Proxy**: Containers use standard HTTP requests
 - **JWT Authentication**: Simple token-based authentication
@@ -342,12 +377,14 @@ The Simplified Tunnel System replaces the complex multi-layered bridge architect
 ### **Tunnel Endpoints**
 
 #### **WebSocket Connection**
+
 ```
 wss://api.cloudtolocalllm.online/ws/tunnel?token=<jwt_token>
 ```
 
 **Authentication**: JWT token required as query parameter
 **Connection Flow**:
+
 1. Desktop client connects with JWT token
 2. Server validates token and extracts user ID
 3. Connection established with health monitoring
@@ -356,9 +393,11 @@ wss://api.cloudtolocalllm.online/ws/tunnel?token=<jwt_token>
 #### **HTTP Proxy Endpoints**
 
 ##### **GET /api/tunnel/health**
+
 Check overall tunnel system health (no auth required)
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -382,9 +421,11 @@ Check overall tunnel system health (no auth required)
 ```
 
 ##### **GET /api/tunnel/health/:userId**
+
 Check specific user's tunnel status (requires auth)
 
 **Response:**
+
 ```json
 {
   "userId": "auth0|user123",
@@ -395,15 +436,19 @@ Check specific user's tunnel status (requires auth)
 ```
 
 ##### **GET /api/tunnel/status**
+
 Get user's tunnel status and system metrics (requires auth)
 
 ##### **GET /api/tunnel/metrics**
+
 Get detailed performance metrics (requires auth)
 
 ##### **ALL /api/tunnel/:userId/***
+
 Proxy HTTP requests to user's desktop client (requires auth)
 
 **Example:**
+
 ```bash
 # Proxy request to local Ollama
 curl -X POST https://api.cloudtolocalllm.online/api/tunnel/auth0|user123/api/chat \
@@ -413,6 +458,7 @@ curl -X POST https://api.cloudtolocalllm.online/api/tunnel/auth0|user123/api/cha
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - Missing/invalid JWT token
 - `403 Forbidden` - Cross-user access attempt
 - `503 Service Unavailable` - Desktop client not connected
@@ -424,6 +470,7 @@ curl -X POST https://api.cloudtolocalllm.online/api/tunnel/auth0|user123/api/cha
 The tunnel uses a standardized JSON message protocol implemented in `api-backend/tunnel/message-protocol.js`.
 
 #### **Message Types**
+
 ```javascript
 const MESSAGE_TYPES = {
   HTTP_REQUEST: 'http_request',
@@ -435,6 +482,7 @@ const MESSAGE_TYPES = {
 ```
 
 #### **HTTP Request Message (Cloud → Desktop)**
+
 ```json
 {
   "type": "http_request",
@@ -449,6 +497,7 @@ const MESSAGE_TYPES = {
 ```
 
 #### **HTTP Response Message (Desktop → Cloud)**
+
 ```json
 {
   "type": "http_response",
@@ -462,6 +511,7 @@ const MESSAGE_TYPES = {
 ```
 
 #### **Health Monitoring Messages**
+
 ```json
 // Ping (Cloud → Desktop)
 {
@@ -479,6 +529,7 @@ const MESSAGE_TYPES = {
 ```
 
 #### **Error Messages**
+
 ```json
 {
   "type": "error",
@@ -491,6 +542,7 @@ const MESSAGE_TYPES = {
 ### **Integration Examples**
 
 #### **Container Integration**
+
 ```bash
 # Set environment variable
 export OLLAMA_BASE_URL="https://api.cloudtolocalllm.online/api/tunnel/${USER_ID}"
@@ -501,6 +553,7 @@ curl -H "Authorization: Bearer ${JWT_TOKEN}" \
 ```
 
 #### **Desktop Client Integration**
+
 ```dart
 // Connect to tunnel WebSocket
 final client = SimpleTunnelClient(authService: authService);
@@ -513,17 +566,20 @@ await client.connect();
 ### **Migration from Legacy Bridge System**
 
 **Key Changes:**
+
 - **Single Connection**: Replaces multiple encrypted WebSocket connections
 - **Standard HTTP**: Containers use standard HTTP instead of custom protocols
 - **Simplified Auth**: JWT tokens replace complex authentication layers
 - **Direct Proxy**: Eliminates intermediate bridge registration steps
 
 **Backward Compatibility:**
+
 - Container APIs remain unchanged (only environment variable update needed)
 - Web interface APIs unchanged
 - Desktop client requires update to SimpleTunnelClient
 
 **Performance Improvements:**
+
 - ~70% reduction in codebase complexity
 - Faster connection establishment
 - Lower memory usage
@@ -536,16 +592,19 @@ await client.connect();
 ### **Real-time Communication**
 
 #### **Connection Endpoint**
+
 ```
 wss://app.cloudtolocalllm.online/ws/{type}/{id}
 ```
 
 **Types:**
+
 - `bridge/{bridgeId}`: Desktop bridge communication
 - `chat/{conversationId}`: Real-time chat updates
 - `status/{userId}`: System status updates
 
 #### **Message Format**
+
 ```json
 {
   "type": "message_type",
@@ -558,6 +617,7 @@ wss://app.cloudtolocalllm.online/ws/{type}/{id}
 ```
 
 #### **Bridge Messages**
+
 ```json
 // Desktop → Cloud
 {
@@ -587,13 +647,16 @@ wss://app.cloudtolocalllm.online/ws/{type}/{id}
 ### **API Testing**
 
 #### **Postman Collection**
+
 Download the complete API collection:
+
 ```bash
 curl -o cloudtolocalllm-api.json \
   https://raw.githubusercontent.com/CloudToLocalLLM-online/CloudToLocalLLM/main/docs/api/postman-collection.json
 ```
 
 #### **OpenAPI Specification**
+
 ```bash
 curl https://app.cloudtolocalllm.online/api/docs/openapi.json
 ```
@@ -601,11 +664,13 @@ curl https://app.cloudtolocalllm.online/api/docs/openapi.json
 ### **Rate Limiting**
 
 All APIs are rate-limited:
+
 - **Authenticated Users**: 1000 requests/hour
 - **Bridge Connections**: 10000 requests/hour
 - **Streaming**: 100 concurrent connections
 
 **Rate Limit Headers:**
+
 ```http
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -617,6 +682,7 @@ X-RateLimit-Reset: 1640995200
 ## 🔧 **Error Handling**
 
 ### **Standard Error Format**
+
 ```json
 {
   "error": "error_code",
@@ -630,6 +696,7 @@ X-RateLimit-Reset: 1640995200
 ```
 
 ### **Common Error Codes**
+
 - `400`: Bad Request - Invalid input
 - `401`: Unauthorized - Invalid/missing token
 - `403`: Forbidden - Insufficient permissions

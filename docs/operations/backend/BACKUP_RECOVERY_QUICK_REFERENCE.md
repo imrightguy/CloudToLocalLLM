@@ -55,30 +55,35 @@ backups.forEach(backup => {
 ## API Endpoints
 
 ### Create Backup
+
 ```
 POST /backup/create
 Authorization: Bearer <admin-token>
 ```
 
 ### List Backups
+
 ```
 GET /backup/list
 Authorization: Bearer <admin-token>
 ```
 
 ### Get Backup Info
+
 ```
 GET /backup/:backupId
 Authorization: Bearer <admin-token>
 ```
 
 ### Verify Backup
+
 ```
 POST /backup/:backupId/verify
 Authorization: Bearer <admin-token>
 ```
 
 ### Restore Backup
+
 ```
 POST /backup/:backupId/restore
 Authorization: Bearer <admin-token>
@@ -90,6 +95,7 @@ Content-Type: application/json
 ```
 
 ### Delete Backup
+
 ```
 DELETE /backup/:backupId
 Authorization: Bearer <admin-token>
@@ -165,11 +171,13 @@ Error: Backup must be verified before restoration
 ## Testing
 
 ### Run Unit Tests
+
 ```bash
 npm test -- backup-recovery.test.js
 ```
 
 ### Run Integration Tests
+
 ```bash
 npm test -- backup-recovery-integration.test.js
 ```
@@ -231,6 +239,7 @@ npm test -- backup-recovery-integration.test.js
 ### Logging
 
 All backup operations are logged with:
+
 - Correlation IDs for request tracing
 - Timestamps for audit trails
 - Error details for troubleshooting
@@ -239,6 +248,7 @@ All backup operations are logged with:
 ## Support
 
 For issues or questions:
+
 1. Check the implementation documentation
 2. Review test cases for usage examples
 3. Check logs for error details

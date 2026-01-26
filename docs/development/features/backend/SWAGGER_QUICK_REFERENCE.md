@@ -289,6 +289,7 @@ router.delete('/path/:id', authenticateJWT, handler);
 ## Support
 
 For questions or issues:
+
 - Check `API_DOCUMENTATION_GUIDE.md`
 - Review `API_ERROR_CODES.md`
 - See `SWAGGER_IMPLEMENTATION_SUMMARY.md`

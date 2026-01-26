@@ -52,6 +52,7 @@ sequenceDiagram
 ### Kilocode CLI Integration
 
 **Installation**:
+
 ```bash
 # The CLI is automatically set up in GitHub Actions
 chmod +x scripts/kilocode-cli.cjs
@@ -59,6 +60,7 @@ sudo ln -sf "$(pwd)/scripts/kilocode-cli.cjs" /usr/local/bin/kilocode
 ```
 
 **Configuration**:
+
 - **Model**: xAI Grok-Code-Fast-1
 - **API Key**: Stored in `KILOCODE_TOKEN` environment variable
 - **Timeout**: Configured for reliable analysis
@@ -89,6 +91,7 @@ The AI system analyzes multiple data points to make deployment decisions:
 #### Cloud Deployment (`needs_cloud=true`)
 
 **Always Triggers Cloud Deployment**:
+
 - Changes to `web/`, `lib/`, `services/` directories
 - Modifications to `k8s/`, `config/` directories
 - Updates to `.github/workflows/deploy-aks.yml`
@@ -97,6 +100,7 @@ The AI system analyzes multiple data points to make deployment decisions:
 - **Critical**: Auth0, authentication, login, web interface changes
 
 **File Pattern Matching**:
+
 ```bash
 # Examples of cloud-triggering changes
 web/auth0-bridge.js                    # Auth0 integration
@@ -109,6 +113,7 @@ config/nginx/nginx.conf               # Web server configuration
 #### Desktop Deployment (`needs_desktop=true`)
 
 **Triggers Desktop Builds**:
+
 - Changes to `windows/`, `linux/` directories
 - Desktop-specific Flutter code
 - Platform-specific dependencies in `pubspec.yaml`
@@ -117,6 +122,7 @@ config/nginx/nginx.conf               # Web server configuration
 #### Mobile Deployment (`needs_mobile=true`)
 
 **Triggers Mobile Builds**:
+
 - Changes to `android/`, `ios/` directories
 - Mobile-specific Flutter code
 - Mobile platform dependencies
@@ -138,16 +144,19 @@ The AI system follows a **conservative approach** to ensure reliability:
 The AI automatically determines appropriate version bumps:
 
 **Major Version** (`x.0.0`):
+
 - Breaking changes detected in commits
 - API changes that break compatibility
 - Major architectural modifications
 
 **Minor Version** (`x.y.0`):
+
 - New features added
 - Non-breaking enhancements
 - New functionality introduction
 
 **Patch Version** (`x.y.z`):
+
 - Bug fixes and patches
 - Chores and maintenance
 - Documentation updates
@@ -156,6 +165,7 @@ The AI automatically determines appropriate version bumps:
 ### Version Validation
 
 **Strict Validation Rules**:
+
 ```bash
 # Version must be higher than current version
 if [ "$NEW_VERSION" <= "$CURRENT_VERSION" ]; then
@@ -171,6 +181,7 @@ fi
 ```
 
 **Version Synchronization**:
+
 - Updates `assets/version.json` (primary source)
 - Synchronizes `pubspec.yaml` for Flutter
 - Updates `package.json` for Node.js services
@@ -183,16 +194,19 @@ fi
 The orchestrator creates and manages platform-specific branches:
 
 **Cloud Branch** (`cloud`):
+
 - Contains web-ready code
 - Triggers Azure AKS deployment
 - Tagged with `{version}-cloud-{sha}`
 
 **Desktop Branch** (`desktop`):
+
 - Contains desktop-optimized code
 - Triggers desktop application builds
 - Tagged with `{version}-desktop-{sha}`
 
 **Mobile Branch** (`mobile`):
+
 - Contains mobile-ready code
 - Future: Will trigger mobile app builds
 - Tagged with `{version}-mobile-{sha}`
@@ -214,12 +228,14 @@ curl -X POST \
 ### For Developers
 
 **Normal Development**:
+
 1. Make changes and commit to feature branch
 2. Create pull request to `main`
 3. Merge PR - **AI automatically handles the rest in unified workflow**
 4. Monitor single workflow execution in GitHub Actions
 
 **Manual Deployments**:
+
 ```bash
 # Manual unified workflow trigger
 gh workflow run deploy.yml
@@ -234,6 +250,7 @@ gh workflow run deploy.yml -f deployment_type=all
 ```
 
 **Skip Deployment**:
+
 ```bash
 # Skip CI/CD entirely
 git commit -m "docs: update README [skip ci]"
@@ -269,6 +286,7 @@ git commit -m "docs: improve API documentation"
 ### Workflow Monitoring
 
 **Check Unified Workflow Status**:
+
 ```bash
 # List recent deployment runs
 gh run list --workflow="deploy.yml" --limit 5
@@ -284,6 +302,7 @@ gh run view <run-id> --log | grep "Deployment Decision Summary" -A 10
 ```
 
 **Monitor Deployment Status**:
+
 ```bash
 # Check all deployment jobs in single workflow
 gh run view <run-id> --log | grep -E "(ai_analysis|build_cloud_services|deploy_cloud|build_desktop)"
@@ -298,6 +317,7 @@ gh run view <run-id> --log | grep "Unified Deployment Summary" -A 20
 ### Debugging AI Decisions
 
 **Local Testing**:
+
 ```bash
 # Run analysis locally
 ./scripts/analyze-platforms.sh
@@ -375,6 +395,7 @@ The project currently runs on Azure AKS with plans for future AWS migration:
 CloudToLocalLLM has successfully migrated from a complex orchestrator-based system to a streamlined unified workflow:
 
 **Previous System** (`version-and-distribute.yml` + `deploy-aks.yml`) - **DISABLED**:
+
 - Multiple workflows with repository dispatch coordination
 - Platform-specific branches (cloud, desktop, mobile)
 - Distributed status across multiple workflow runs
@@ -382,6 +403,7 @@ CloudToLocalLLM has successfully migrated from a complex orchestrator-based syst
 - **Status**: Main branch triggers disabled to prevent duplicate deployments
 
 **New Unified System** (`deploy.yml`) - **ACTIVE**:
+
 - Single workflow handling all deployment logic
 - Direct deployment from main branch to Azure AKS
 - Consolidated status in single workflow run
@@ -391,6 +413,7 @@ CloudToLocalLLM has successfully migrated from a complex orchestrator-based syst
 - **Status**: Only workflow triggering on main branch pushes
 
 **Migration Status**: ✅ **COMPLETED**
+
 - Legacy orchestrator workflow disabled
 - Unified workflow handles all deployment scenarios
 - No duplicate CI/CD systems running

@@ -134,4 +134,4 @@ If you encounter persistent issues:
 
 1. Check [GitHub Issues](https://github.com/your-username/CloudToLocalLLM/issues) for similar problems
 2. Join our community discussion (link in README)
-3. Open a new issue with detailed information about your problem 
+3. Open a new issue with detailed information about your problem

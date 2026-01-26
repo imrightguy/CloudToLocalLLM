@@ -80,11 +80,13 @@ ADMIN_USER_VIEW, ADMIN_USER_UPDATE, ADMIN_USER_DELETE, ADMIN_TIER_CHANGE
 ## Integration Steps
 
 1. **Apply Database Migration**
+
    ```bash
    npm run migrate
    ```
 
 2. **Add Middleware to Server**
+
    ```javascript
    import { activityLoggingMiddleware } from './middleware/activity-logging.js';
    app.use(authenticateJWT);
@@ -92,12 +94,14 @@ ADMIN_USER_VIEW, ADMIN_USER_UPDATE, ADMIN_USER_DELETE, ADMIN_TIER_CHANGE
    ```
 
 3. **Add Routes to Server**
+
    ```javascript
    import userActivityRoutes from './routes/user-activity.js';
    app.use('/api/users', userActivityRoutes);
    ```
 
 4. **Use in Route Handlers** (Optional)
+
    ```javascript
    await res.logActivity({
      action: ACTIVITY_ACTIONS.PROFILE_UPDATE,
@@ -108,14 +112,17 @@ ADMIN_USER_VIEW, ADMIN_USER_UPDATE, ADMIN_USER_DELETE, ADMIN_TIER_CHANGE
 ## Database Tables
 
 ### user_activity_logs
+
 - Stores individual activity events
 - Indexed by: user_id, action, created_at
 
 ### user_usage_metrics
+
 - Aggregates usage per user
 - Unique constraint on user_id
 
 ### user_activity_summary
+
 - Stores period-based summaries
 - Unique constraint on (user_id, period, period_start)
 
@@ -132,11 +139,13 @@ npm test -- test/api-backend/user-activity.test.js
 ## Requirements Validation
 
 ✅ **Requirement 3.4**: Track user activity and usage metrics
+
 - Implemented via `logUserActivity()` and `updateUserUsageMetrics()`
 - Automatic middleware logging for all requests
 - Usage metrics aggregation
 
 ✅ **Requirement 3.10**: Provide user activity audit logs
+
 - Implemented via `getUserActivityLogs()` and `getAllUserActivityLogs()`
 - API endpoints for retrieving activity logs
 - Admin access to system-wide logs

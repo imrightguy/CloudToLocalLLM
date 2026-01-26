@@ -7,18 +7,21 @@ Adaptive rate limiting automatically adjusts rate limits based on system load (C
 ## Key Components
 
 ### 1. SystemLoadMonitor (`services/system-load-monitor.js`)
+
 - Monitors CPU usage, memory usage, and request queue depth
 - Calculates overall system load percentage (0-100)
 - Determines load level: low, medium, high, critical
 - Adjusts adaptive multiplier based on load
 
 ### 2. AdaptiveRateLimiter (`middleware/adaptive-rate-limiter.js`)
+
 - Integrates SystemLoadMonitor with rate limiting
 - Applies adaptive multiplier to rate limits
 - Tracks per-user request counts
 - Enforces adaptive limits
 
 ### 3. Routes (`routes/adaptive-rate-limiting.js`)
+
 - `/adaptive-rate-limiting/metrics` - Get current system metrics
 - `/adaptive-rate-limiting/status` - Get detailed system status
 - `/adaptive-rate-limiting/user-stats` - Get user rate limit stats
@@ -29,18 +32,22 @@ Adaptive rate limiting automatically adjusts rate limits based on system load (C
 ## How It Works
 
 ### Load Calculation
+
 ```
 Load = (CPU Usage × 0.4) + (Memory Usage × 0.4) + (Queued Requests × 0.2)
 ```
 
 ### Adaptive Multiplier
+
 - **Load < 30%**: Multiplier = 1.0 (normal limits)
 - **Load 30-60%**: Multiplier = 0.75 (75% of normal)
 - **Load 60-80%**: Multiplier = 0.5 (50% of normal)
 - **Load > 80%**: Multiplier = 0.25 (25% of normal)
 
 ### Example
+
 If base limit is 1000 requests/minute:
+
 - Normal load: 1000 requests/minute
 - High load (70%): 500 requests/minute
 - Critical load (85%): 250 requests/minute
@@ -68,6 +75,7 @@ const limiter = new AdaptiveRateLimiter({
 ## Response Headers
 
 When adaptive rate limiting is active, responses include:
+
 - `X-RateLimit-Limit` - Current rate limit
 - `X-RateLimit-Remaining` - Requests remaining
 - `X-RateLimit-Reset` - When limit resets
@@ -77,6 +85,7 @@ When adaptive rate limiting is active, responses include:
 ## API Endpoints
 
 ### Get Current Metrics
+
 ```bash
 GET /adaptive-rate-limiting/metrics
 Authorization: Bearer <token>
@@ -100,6 +109,7 @@ Response:
 ```
 
 ### Get System Status
+
 ```bash
 GET /adaptive-rate-limiting/status
 Authorization: Bearer <token>
@@ -121,6 +131,7 @@ Response:
 ```
 
 ### Get User Stats
+
 ```bash
 GET /adaptive-rate-limiting/user-stats
 Authorization: Bearer <token>
@@ -143,6 +154,7 @@ Response:
 ```
 
 ### Admin: Get System Status
+
 ```bash
 GET /adaptive-rate-limiting/admin/system-status
 Authorization: Bearer <admin-token>
@@ -151,6 +163,7 @@ Response: Detailed system status with all metrics
 ```
 
 ### Admin: Get Load History
+
 ```bash
 GET /adaptive-rate-limiting/admin/load-history
 Authorization: Bearer <admin-token>
@@ -159,6 +172,7 @@ Response: Historical load data for the past 5 minutes
 ```
 
 ### Admin: Get Adaptive Limits
+
 ```bash
 GET /adaptive-rate-limiting/admin/adaptive-limits
 Authorization: Bearer <admin-token>
@@ -183,6 +197,7 @@ Response:
 ## Monitoring
 
 ### Key Metrics to Monitor
+
 1. **Adaptive Multiplier** - Should be 1.0 under normal load
 2. **System Load** - Should stay below 60%
 3. **Active Requests** - Should not exceed concurrent limit
@@ -191,6 +206,7 @@ Response:
 6. **Memory Usage** - Should stay below 75%
 
 ### Alerts to Set Up
+
 - Alert when load > 80% (critical)
 - Alert when multiplier < 0.5 (high load)
 - Alert when queued requests > 100
@@ -200,11 +216,13 @@ Response:
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- adaptive-rate-limiting.test.js
 ```
 
 Test scenarios covered:
+
 - System metrics collection
 - Load calculation
 - Adaptive multiplier adjustment
@@ -216,6 +234,7 @@ Test scenarios covered:
 ## Integration
 
 ### In Middleware Pipeline
+
 ```javascript
 import { createAdaptiveRateLimitMiddleware } from './middleware/adaptive-rate-limiter.js';
 
@@ -227,6 +246,7 @@ app.use(createAdaptiveRateLimitMiddleware({
 ```
 
 ### In Routes
+
 ```javascript
 import adaptiveRateLimitingRoutes from './routes/adaptive-rate-limiting.js';
 
@@ -243,16 +263,19 @@ app.use('/api/adaptive-rate-limiting', adaptiveRateLimitingRoutes);
 ## Troubleshooting
 
 ### Multiplier Not Changing
+
 - Check if `enableAdaptiveAdjustment` is true
 - Verify system load is actually high
 - Check cooldown period (10 seconds between adjustments)
 
 ### Limits Too Restrictive
+
 - Increase `baseMaxRequests` or `baseBurstRequests`
 - Adjust load thresholds in SystemLoadMonitor
 - Check if system is actually under load
 
 ### Limits Too Permissive
+
 - Decrease `baseMaxRequests` or `baseBurstRequests`
 - Lower load thresholds
 - Increase sampling frequency

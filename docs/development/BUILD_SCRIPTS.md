@@ -11,6 +11,7 @@ This guide explains the different build scripts available in CloudToLocalLLM and
 **Purpose**: Creates portable ZIP packages for GitHub releases
 
 **Features**:
+
 - ✅ Creates portable ZIP package with all dependencies
 - ✅ Generates SHA256 checksums
 - ✅ Includes GitHub asset upload functionality
@@ -18,6 +19,7 @@ This guide explains the different build scripts available in CloudToLocalLLM and
 - ✅ Suitable for most users and deployment scenarios
 
 **Usage**:
+
 ```powershell
 # Basic build
 .\Build-GitHubReleaseAssets-Simple.ps1
@@ -36,16 +38,19 @@ This guide explains the different build scripts available in CloudToLocalLLM and
 **Purpose**: Intended to create multiple package formats (ZIP, MSI, NSIS)
 
 **Current Status**:
+
 - ✅ PortableZip: Fully implemented
 - ❌ MSI: Not implemented (requires WiX Toolset)
 - ❌ NSIS: Not implemented (requires NSIS compiler)
 
 **Limitations**:
+
 - MSI and NSIS package types will fail with "not implemented" errors
 - Only creates the same portable ZIP as the simple script
 - More complex but no additional functionality currently
 
 **Usage** (not recommended until MSI/NSIS implemented):
+
 ```powershell
 .\Create-UnifiedPackages.ps1 -PackageTypes @('PortableZip')
 ```
@@ -53,6 +58,7 @@ This guide explains the different build scripts available in CloudToLocalLLM and
 ## Package Format Status
 
 ### ✅ Portable ZIP Package
+
 - **Status**: Fully implemented and tested
 - **Size**: ~13MB (includes Flutter web build and all dependencies)
 - **Installation**: Extract and run `cloudtolocalllm.exe`
@@ -60,15 +66,17 @@ This guide explains the different build scripts available in CloudToLocalLLM and
 - **Recommended for**: All users, especially those who prefer portable applications
 
 ### ❌ MSI Installer Package
+
 - **Status**: Not implemented
 - **Requirements**: WiX Toolset, MSI build configuration
 - **Previous Files**: Existing MSI files in `dist/windows/msi/` are 69KB placeholder files
-- **Implementation Needed**: 
+- **Implementation Needed**:
   - WiX configuration files (.wxs)
   - MSI build integration in PowerShell scripts
   - Installer UI and upgrade logic
 
 ### ❌ NSIS Setup Executable
+
 - **Status**: Not implemented  
 - **Requirements**: NSIS compiler, installer script configuration
 - **Previous Files**: Existing NSIS files in `dist/windows/nsis/` are ~77KB placeholder files
@@ -103,6 +111,7 @@ Use `Build-GitHubReleaseAssets-Simple.ps1` for all releases:
 To implement MSI and NSIS packages in the future:
 
 ### MSI Implementation Requirements
+
 1. Install WiX Toolset v3 or v4
 2. Create WiX configuration files:
    - `installer/windows/CloudToLocalLLM.wxs` (main installer definition)
@@ -111,6 +120,7 @@ To implement MSI and NSIS packages in the future:
 4. Add MSI-specific features (registry entries, start menu shortcuts, etc.)
 
 ### NSIS Implementation Requirements
+
 1. Install NSIS compiler
 2. Create NSIS installer script:
    - `installer/windows/CloudToLocalLLM.nsi`
@@ -120,14 +130,17 @@ To implement MSI and NSIS packages in the future:
 ## Troubleshooting
 
 ### "Unknown package type" Error
+
 - **Cause**: Using `Create-UnifiedPackages.ps1` with MSI or NSIS package types
 - **Solution**: Use `Build-GitHubReleaseAssets-Simple.ps1` or only specify 'PortableZip' type
 
 ### GitHub Upload Fails
+
 - **Cause**: GitHub CLI not installed or not authenticated
 - **Solution**: Install GitHub CLI and run `gh auth login`
 
 ### Build Fails
+
 - **Cause**: Flutter not in PATH or dependencies missing
 - **Solution**: Run `flutter doctor` and resolve any issues
 

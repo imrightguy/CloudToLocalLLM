@@ -13,6 +13,7 @@ This document describes the implementation of database performance metrics track
 Core service for tracking and analyzing database query performance.
 
 **Key Features:**
+
 - Query execution time tracking
 - Slow query detection and logging
 - Performance metrics aggregation
@@ -21,6 +22,7 @@ Core service for tracking and analyzing database query performance.
 - Configurable slow query threshold
 
 **Main Functions:**
+
 - `initializeQueryTracking()` - Initialize tracking with configurable threshold
 - `trackQuery(queryText, duration, options)` - Track individual query execution
 - `getPerformanceMetrics()` - Get current aggregated metrics
@@ -31,6 +33,7 @@ Core service for tracking and analyzing database query performance.
 - `resetPerformanceMetrics()` - Clear all collected metrics
 
 **Metrics Collected:**
+
 - Total queries executed
 - Total slow queries detected
 - Average query time
@@ -44,12 +47,14 @@ Core service for tracking and analyzing database query performance.
 Transparent wrapper for database queries to automatically track performance.
 
 **Key Features:**
+
 - Automatic query type detection
 - Transparent performance tracking
 - Error handling and tracking
 - Pool and client wrapping
 
 **Main Functions:**
+
 - `executeTrackedQuery(queryFn, queryText, params)` - Execute query with tracking
 - `wrapPoolQuery(originalQuery)` - Wrap pool query method
 - `wrapClientQuery(originalQuery)` - Wrap client query method
@@ -57,6 +62,7 @@ Transparent wrapper for database queries to automatically track performance.
 - `wrapClient(client)` - Wrap client for automatic tracking
 
 **Query Type Detection:**
+
 - SELECT - Data retrieval queries
 - INSERT - Data insertion queries
 - UPDATE - Data modification queries
@@ -68,6 +74,7 @@ Transparent wrapper for database queries to automatically track performance.
 ### 3. Database Pool Integration
 
 Updated `database/db-pool.js` to integrate query performance tracking:
+
 - Initializes query tracking on pool creation
 - Wraps pool queries for automatic performance monitoring
 - Maintains backward compatibility
@@ -79,7 +86,9 @@ RESTful API for accessing performance metrics and managing tracking.
 **Endpoints:**
 
 #### GET `/database/performance/metrics`
+
 Returns current performance metrics including:
+
 - Total queries executed
 - Total slow queries detected
 - Average query time
@@ -88,6 +97,7 @@ Returns current performance metrics including:
 - Recent queries and slow queries
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -115,12 +125,15 @@ Returns current performance metrics including:
 ```
 
 #### GET `/database/performance/slow-queries`
+
 Returns list of detected slow queries.
 
 **Query Parameters:**
+
 - `limit` - Maximum number of slow queries to return (default: 50, max: 100)
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -142,9 +155,11 @@ Returns list of detected slow queries.
 ```
 
 #### GET `/database/performance/stats`
+
 Returns aggregated query statistics by type.
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -171,9 +186,11 @@ Returns aggregated query statistics by type.
 ```
 
 #### GET `/database/performance/analysis`
+
 Returns detailed performance analysis with recommendations.
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -205,9 +222,11 @@ Returns detailed performance analysis with recommendations.
 ```
 
 #### POST `/database/performance/threshold`
+
 Update the slow query detection threshold.
 
 **Request Body:**
+
 ```json
 {
   "thresholdMs": 200
@@ -215,6 +234,7 @@ Update the slow query detection threshold.
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -227,9 +247,11 @@ Update the slow query detection threshold.
 ```
 
 #### POST `/database/performance/reset`
+
 Reset all performance metrics (admin only).
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -246,6 +268,7 @@ Reset all performance metrics (admin only).
 ### Unit Tests (`test/api-backend/database-performance-tracking.test.js`)
 
 Comprehensive unit tests covering:
+
 - Query tracking functionality
 - Slow query detection
 - Performance metrics calculation
@@ -256,6 +279,7 @@ Comprehensive unit tests covering:
 - Metrics accuracy
 
 **Test Coverage:**
+
 - 30 test cases
 - All core functionality tested
 - Edge cases covered (zero duration, large values, etc.)
@@ -264,6 +288,7 @@ Comprehensive unit tests covering:
 ### Integration Tests (`test/api-backend/database-performance-integration.test.js`)
 
 API endpoint integration tests covering:
+
 - All performance metrics endpoints
 - Request/response validation
 - Error handling
@@ -273,6 +298,7 @@ API endpoint integration tests covering:
 - Response format consistency
 
 **Test Coverage:**
+
 - 21 test cases
 - All endpoints tested
 - Error scenarios covered

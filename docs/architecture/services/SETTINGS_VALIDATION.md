@@ -38,6 +38,7 @@ ValidationResult validateAllSettings({...});
 ```
 
 **ValidationResult** contains:
+
 - `isValid` - Whether validation passed
 - `errors` - Map of field names to error messages
 - `overallError` - Overall error message (if any)
@@ -69,6 +70,7 @@ class SettingsError {
 ```
 
 Factory constructors for common error types:
+
 ```dart
 SettingsError.validation(message, fieldErrors);
 SettingsError.saveFailed(message, originalException);
@@ -155,6 +157,7 @@ class SettingsState extends ChangeNotifier {
 Located in `lib/widgets/settings/settings_error_widgets.dart`
 
 **FieldErrorMessage** - Inline error for form fields
+
 ```dart
 FieldErrorMessage(
   errorMessage: 'Invalid value',
@@ -163,6 +166,7 @@ FieldErrorMessage(
 ```
 
 **ErrorNotificationBanner** - General error notification
+
 ```dart
 ErrorNotificationBanner(
   error: settingsError,
@@ -172,6 +176,7 @@ ErrorNotificationBanner(
 ```
 
 **SuccessNotificationBanner** - Success notification with auto-dismiss
+
 ```dart
 SuccessNotificationBanner(
   message: 'Settings saved successfully',
@@ -181,6 +186,7 @@ SuccessNotificationBanner(
 ```
 
 **ValidationErrorList** - List of validation errors
+
 ```dart
 ValidationErrorList(
   errors: {'field1': 'error1', 'field2': 'error2'},
@@ -189,11 +195,13 @@ ValidationErrorList(
 ```
 
 **SettingsLoadingIndicator** - Loading state indicator
+
 ```dart
 SettingsLoadingIndicator(message: 'Loading settings...')
 ```
 
 **RetryButton** - Retry button with loading state
+
 ```dart
 RetryButton(
   onRetry: () { /* retry */ },
@@ -207,6 +215,7 @@ RetryButton(
 Located in `lib/widgets/settings/settings_form_helper.dart`
 
 **ValidatedSettingsTextField** - Text input with validation
+
 ```dart
 ValidatedSettingsTextField(
   label: 'Host',
@@ -220,6 +229,7 @@ ValidatedSettingsTextField(
 ```
 
 **ValidatedSettingsDropdown** - Dropdown with validation
+
 ```dart
 ValidatedSettingsDropdown<String>(
   label: 'Theme',
@@ -233,6 +243,7 @@ ValidatedSettingsDropdown<String>(
 ```
 
 **ValidatedSettingsSwitch** - Toggle switch
+
 ```dart
 ValidatedSettingsSwitch(
   label: 'Enable Analytics',
@@ -244,6 +255,7 @@ ValidatedSettingsSwitch(
 ```
 
 **SettingsFormValidator** - Form validation helper
+
 ```dart
 // Validate entire form
 ValidationResult result = SettingsFormValidator.validateForm(
@@ -400,34 +412,42 @@ void _handleSettingsError(SettingsError error) {
 ## Validation Rules
 
 ### Theme
+
 - Required
 - Must be one of: 'light', 'dark', 'system'
 
 ### Language
+
 - Required
 - Must be one of: 'en', 'es', 'fr', 'de', 'ja', 'zh'
 
 ### Provider Host
+
 - Required
 - Must be valid URL format
 
 ### Provider Port
+
 - Required
 - Must be integer between 1 and 65535
 
 ### Provider API Key
+
 - Optional
 - If provided, cannot be empty
 
 ### Window Position
+
 - Both X and Y must be non-negative
 - Cannot be null if validating position
 
 ### Window Size
+
 - Width and height must be at least 400x300 pixels
 - Width and height cannot exceed 7680x4320 pixels
 
 ### Settings JSON
+
 - Cannot be empty
 - All values must be serializable (string, number, boolean, null, list, map)
 
@@ -460,6 +480,7 @@ flutter test test/services/settings_validator_test.dart
 ```
 
 Tests cover:
+
 - All validation methods
 - Valid and invalid inputs
 - Edge cases (null, empty, boundary values)

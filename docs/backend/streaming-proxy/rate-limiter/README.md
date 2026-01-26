@@ -5,6 +5,7 @@ Comprehensive rate limiting implementation for the SSH WebSocket Tunnel system.
 ## Overview
 
 This module provides production-ready rate limiting with:
+
 - **Token Bucket Algorithm**: Smooth rate limiting with burst support
 - **Per-User Limits**: Tier-based limits (Free, Premium, Enterprise)
 - **Per-IP Limits**: DDoS protection and abuse prevention
@@ -47,6 +48,7 @@ This module provides production-ready rate limiting with:
 Core rate limiting implementation using the token bucket algorithm.
 
 **Features:**
+
 - Smooth rate limiting with burst support
 - Automatic token refill
 - Per-user and per-IP buckets
@@ -54,6 +56,7 @@ Core rate limiting implementation using the token bucket algorithm.
 - Configurable limits
 
 **Usage:**
+
 ```typescript
 import { TokenBucketRateLimiter } from './rate-limiter';
 
@@ -79,11 +82,13 @@ if (result.allowed) {
 Manages rate limiting on a per-user basis with tier-based limits.
 
 **Tier Limits:**
+
 - **Free**: 60 requests/minute, 1 connection
 - **Premium**: 300 requests/minute, 3 connections
 - **Enterprise**: 1000 requests/minute, 10 connections
 
 **Usage:**
+
 ```typescript
 import { PerUserRateLimiter, DEFAULT_TIER_LIMITS } from './rate-limiter';
 import { UserTier } from '../interfaces/auth-middleware';
@@ -109,6 +114,7 @@ const headers = limiter.getRateLimitHeaders(result, DEFAULT_TIER_LIMITS[UserTier
 Implements DDoS protection by rate limiting requests per IP address.
 
 **Features:**
+
 - IP-based rate limiting
 - Automatic suspicious IP detection
 - Auto-blocking after threshold
@@ -116,6 +122,7 @@ Implements DDoS protection by rate limiting requests per IP address.
 - IP whitelist/blacklist
 
 **Usage:**
+
 ```typescript
 import { PerIpRateLimiter } from './rate-limiter';
 
@@ -144,6 +151,7 @@ console.log(`Blocked IPs: ${stats.blockedIps}`);
 Express middleware for easy integration with HTTP routes.
 
 **Usage:**
+
 ```typescript
 import express from 'express';
 import { rateLimitMiddleware } from './rate-limiter';

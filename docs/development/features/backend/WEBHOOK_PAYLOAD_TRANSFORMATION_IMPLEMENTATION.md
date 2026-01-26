@@ -5,6 +5,7 @@
 This document describes the implementation of webhook payload transformation for the API backend, which allows users to transform webhook payloads before delivery using various transformation types.
 
 **Validates: Requirements 10.6**
+
 - Implements webhook payload transformation
 - Supports transformation configuration
 - Validates transformation rules
@@ -12,11 +13,13 @@ This document describes the implementation of webhook payload transformation for
 ## Components Implemented
 
 ### 1. WebhookPayloadTransformer Service
+
 **File:** `services/api-backend/services/webhook-payload-transformer.js`
 
 Core service for managing webhook payload transformations with the following capabilities:
 
 #### Transformation Configuration Validation
+
 - Validates transformation type (map, filter, enrich, custom)
 - Validates mappings with source properties and optional transforms
 - Validates filters with operators: equals, notEquals, contains, startsWith, endsWith, in, regex, exists
@@ -24,6 +27,7 @@ Core service for managing webhook payload transformations with the following cap
 - Validates custom scripts
 
 #### Payload Transformation
+
 - Applies map transformations to payloads
 - Applies filter transformations to payloads
 - Applies enrichment transformations to payloads
@@ -32,17 +36,20 @@ Core service for managing webhook payload transformations with the following cap
 - Handles missing properties gracefully
 
 #### Transformation Persistence
+
 - Create transformation configurations for webhooks
 - Retrieve transformation configurations
 - Update transformation configurations
 - Delete transformation configurations
 
 ### 2. Webhook Payload Transformation Routes
+
 **File:** `services/api-backend/routes/webhook-payload-transformations.js`
 
 REST API endpoints for managing webhook payload transformations:
 
 #### Endpoints
+
 - `POST /api/tunnels/:tunnelId/webhooks/:webhookId/transformations` - Create/update transformation
 - `GET /api/tunnels/:tunnelId/webhooks/:webhookId/transformations` - Get transformation
 - `PUT /api/tunnels/:tunnelId/webhooks/:webhookId/transformations` - Update transformation
@@ -51,9 +58,11 @@ REST API endpoints for managing webhook payload transformations:
 - `POST /api/tunnels/:tunnelId/webhooks/:webhookId/transformations/test` - Test transformation
 
 ### 3. Database Schema
+
 **File:** `services/api-backend/database/migrations/webhook-payload-transformations.sql`
 
 Creates `webhook_payload_transformations` table with:
+
 - `id` (UUID) - Primary key
 - `webhook_id` (UUID) - Reference to webhook
 - `user_id` (UUID) - Reference to user
@@ -63,17 +72,20 @@ Creates `webhook_payload_transformations` table with:
 - `updated_at` (Timestamp) - Last update time
 
 Indexes for efficient querying:
+
 - `idx_webhook_payload_transformations_webhook_id`
 - `idx_webhook_payload_transformations_user_id`
 - `idx_webhook_payload_transformations_is_active`
 - `idx_webhook_payload_transformations_webhook_user`
 
 ### 4. Unit Tests
+
 **File:** `test/api-backend/webhook-payload-transformer.test.js`
 
 Comprehensive test suite with 49 tests covering:
 
 #### Transformation Configuration Validation (10 tests)
+
 - Valid map transformation configuration
 - Valid filter transformation configuration
 - Valid enrich transformation configuration
@@ -86,6 +98,7 @@ Comprehensive test suite with 49 tests covering:
 - Empty custom script
 
 #### Payload Mapping Transformations (8 tests)
+
 - Simple property mapping
 - Uppercase transformation
 - Lowercase transformation
@@ -96,6 +109,7 @@ Comprehensive test suite with 49 tests covering:
 - Nested property mapping
 
 #### Payload Filtering Transformations (11 tests)
+
 - Filter with equals operator
 - Filter with non-matching equals operator
 - Filter with contains operator
@@ -109,6 +123,7 @@ Comprehensive test suite with 49 tests covering:
 - Filter out when any filter fails
 
 #### Payload Enrichment Transformations (5 tests)
+
 - Enrich with static value
 - Enrich with timestamp
 - Enrich with UUID
@@ -116,11 +131,13 @@ Comprehensive test suite with 49 tests covering:
 - Preserve original payload properties
 
 #### Custom Transformation Scripts (3 tests)
+
 - Apply custom transformation script
 - Custom script that modifies payload
 - Handle custom script errors gracefully
 
 #### Edge Cases and Error Handling (7 tests)
+
 - Handle null payload
 - Handle undefined transformation config
 - Handle nested property paths
@@ -130,10 +147,12 @@ Comprehensive test suite with 49 tests covering:
 - Handle boolean property values
 
 #### Transformation Type Detection (2 tests)
+
 - Default to map type when not specified
 - Handle unknown transformation type gracefully
 
 #### Complex Transformation Scenarios (3 tests)
+
 - Map transformation with multiple transforms
 - JSON parsing transformation
 - Invalid JSON handling
@@ -141,6 +160,7 @@ Comprehensive test suite with 49 tests covering:
 ## Transformation Configuration Format
 
 ### Basic Structure
+
 ```json
 {
   "type": "map|filter|enrich|custom",
@@ -152,6 +172,7 @@ Comprehensive test suite with 49 tests covering:
 ```
 
 ### Map Transformation
+
 ```json
 {
   "type": "map",
@@ -168,6 +189,7 @@ Comprehensive test suite with 49 tests covering:
 ```
 
 ### Filter Transformation
+
 ```json
 {
   "type": "filter",
@@ -182,6 +204,7 @@ Comprehensive test suite with 49 tests covering:
 ```
 
 ### Enrich Transformation
+
 ```json
 {
   "type": "enrich",
@@ -195,6 +218,7 @@ Comprehensive test suite with 49 tests covering:
 ```
 
 ### Custom Transformation
+
 ```json
 {
   "type": "custom",
@@ -205,6 +229,7 @@ Comprehensive test suite with 49 tests covering:
 ## Usage Examples
 
 ### Create a Map Transformation
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations
 {
@@ -217,6 +242,7 @@ POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations
 ```
 
 ### Create a Filter Transformation
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations
 {
@@ -228,6 +254,7 @@ POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations
 ```
 
 ### Create an Enrich Transformation
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations
 {
@@ -240,6 +267,7 @@ POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations
 ```
 
 ### Test a Transformation
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations/test
 {
@@ -257,6 +285,7 @@ POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations/test
 ```
 
 ### Validate a Transformation
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/transformations/validate
 {
@@ -340,13 +369,17 @@ Tests: 49 passed, 49 total
 ## Integration Points
 
 ### With Tunnel Webhook Service
+
 The webhook payload transformer integrates with the existing tunnel webhook service to:
+
 1. Transform payloads before delivery
 2. Validate transformation configurations
 3. Store transformation configurations per webhook
 
 ### With API Routes
+
 The transformation routes are mounted at:
+
 ```
 /api/tunnels/:tunnelId/webhooks/:webhookId/transformations
 ```

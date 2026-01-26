@@ -18,6 +18,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 **Purpose**: Core rate limiting algorithm implementation
 
 **Features**:
+
 - Token bucket algorithm with automatic refill
 - Separate buckets for users and IPs
 - Configurable capacity and refill rates
@@ -26,6 +27,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 - Bucket cleanup for memory management
 
 **Key Methods**:
+
 - `checkLimit(userId, ip)`: Check if request is allowed
 - `recordRequest(userId, ip)`: Consume tokens
 - `setUserLimit(userId, limit)`: Set custom user limits
@@ -39,6 +41,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 **Purpose**: Manage per-user rate limiting with tier-based limits
 
 **Features**:
+
 - Tier-based limits (Free, Premium, Enterprise)
 - Custom user limits support
 - Rate limit headers generation
@@ -47,11 +50,13 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 - Statistics collection
 
 **Default Tier Limits**:
+
 - **Free**: 60 req/min, 1 connection
 - **Premium**: 300 req/min, 3 connections
 - **Enterprise**: 1000 req/min, 10 connections
 
 **Key Methods**:
+
 - `checkUserLimit(userId, ip, tier)`: Check user limit
 - `setUserTier(userId, tier)`: Set user tier
 - `setCustomUserLimit(userId, limit)`: Custom limits
@@ -65,6 +70,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 **Purpose**: DDoS protection and IP-based rate limiting
 
 **Features**:
+
 - IP-based rate limiting
 - Automatic suspicious IP detection
 - Auto-blocking after violation threshold
@@ -73,11 +79,13 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 - Security event logging
 
 **Detection Thresholds**:
+
 - Suspicious: 5 violations
 - Auto-block: 10 violations
 - DDoS: 50+ IPs with 5000+ requests
 
 **Key Methods**:
+
 - `checkIpLimit(ip, userId)`: Check IP limit
 - `blockIp(ip, reason)`: Block IP address
 - `detectDDoS()`: Detect DDoS attacks
@@ -91,6 +99,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 **Purpose**: Express middleware for HTTP request rate limiting
 
 **Features**:
+
 - Express middleware integration
 - Automatic limit checking
 - 429 response generation
@@ -100,6 +109,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 - Statistics endpoint support
 
 **Configuration Options**:
+
 - `enableUserLimits`: Enable per-user limiting
 - `enableIpLimits`: Enable per-IP limiting
 - `skipSuccessfulRequests`: Skip recording successful requests
@@ -108,6 +118,7 @@ Completed implementation of server-side rate limiting for the SSH WebSocket Tunn
 - `handler`: Custom error handler
 
 **Key Methods**:
+
 - `middleware()`: Express middleware function
 - `getStats()`: Get statistics
 - `blockIp(ip)`: Block IP

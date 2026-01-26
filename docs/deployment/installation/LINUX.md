@@ -17,6 +17,7 @@ This guide covers all methods for installing CloudToLocalLLM on Linux systems.
 ## Prerequisites
 
 ### 🧠 **Ollama Installation**
+
 CloudToLocalLLM requires Ollama to be installed and running:
 
 ```bash
@@ -31,12 +32,14 @@ ollama list
 ```
 
 ### 💻 **System Requirements**
+
 - **OS**: Ubuntu 18.04+, Debian 10+, or equivalent
 - **RAM**: 4GB minimum, 8GB+ recommended
 - **Storage**: 2GB for application + space for AI models
 - **Network**: Internet connection for setup
 
 ### 📦 **System Dependencies**
+
 ```bash
 # Ubuntu/Debian
 sudo apt-get update
@@ -65,6 +68,7 @@ sudo apt-get install -y libgtk-3-0 libglib2.0-0 libnss3 libatk-bridge2.0-0
 ### 📦 **For Ubuntu/Debian Systems**
 
 #### **Download and Install**
+
 ```bash
 # Download latest DEB package
 wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm_amd64.deb
@@ -77,6 +81,7 @@ sudo apt-get install -f
 ```
 
 #### **Alternative: Direct Installation**
+
 ```bash
 # Add repository (if available)
 curl -fsSL https://cloudtolocalllm.online/install.sh | sudo bash
@@ -87,6 +92,7 @@ sudo apt-get install cloudtolocalllm
 ```
 
 ### ✅ **DEB Package Benefits**
+
 - **Native package management integration**
 - **Automatic dependency handling**
 - **System service integration**
@@ -94,6 +100,7 @@ sudo apt-get install cloudtolocalllm
 - **Easy updates via package manager**
 
 ### 🔄 **Updates**
+
 ```bash
 # Update via package manager
 sudo apt-get update
@@ -101,6 +108,7 @@ sudo apt-get upgrade cloudtolocalllm
 ```
 
 ### 🗑️ **Uninstallation**
+
 ```bash
 # Remove package
 sudo apt-get remove cloudtolocalllm
@@ -116,6 +124,7 @@ sudo apt-get purge cloudtolocalllm
 ### 🌐 **For Any Linux Distribution**
 
 #### **Download and Setup**
+
 ```bash
 # Download latest AppImage
 wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-x86_64.AppImage
@@ -128,6 +137,7 @@ chmod +x CloudToLocalLLM-x86_64.AppImage
 ```
 
 #### **Optional: Desktop Integration**
+
 ```bash
 # Move to applications directory
 sudo mv CloudToLocalLLM-x86_64.AppImage /opt/cloudtolocalllm/
@@ -149,6 +159,7 @@ update-desktop-database ~/.local/share/applications/
 ```
 
 ### ✅ **AppImage Benefits**
+
 - **Universal Linux compatibility**
 - **Portable, no-installation-needed package**
 - **Self-contained application bundle**
@@ -156,6 +167,7 @@ update-desktop-database ~/.local/share/applications/
 - **No root privileges required**
 
 ### 🔄 **Updates**
+
 ```bash
 # Download new version and replace old file
 wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-x86_64.AppImage
@@ -169,6 +181,7 @@ chmod +x CloudToLocalLLM-x86_64.AppImage
 ### 👨‍💻 **For Developers and Advanced Users**
 
 #### **Prerequisites**
+
 ```bash
 # Install Flutter SDK
 sudo snap install flutter --classic
@@ -180,6 +193,7 @@ sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
 ```
 
 #### **Build Process**
+
 ```bash
 # Clone repository
 git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
@@ -199,6 +213,7 @@ flutter build linux --release
 ```
 
 #### **Installation**
+
 ```bash
 # Copy built application
 sudo cp -r build/linux/x64/release/bundle /opt/cloudtolocalllm
@@ -211,6 +226,7 @@ sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
 ```
 
 ### ✅ **Source Build Benefits**
+
 - **Latest features and bug fixes**
 - **Customizable build options**
 - **Development environment ready**
@@ -223,6 +239,7 @@ sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
 ### 🚀 **First Launch**
 
 1. **Launch CloudToLocalLLM**:
+
    ```bash
    # If installed via package manager
    cloudtolocalllm
@@ -241,10 +258,12 @@ sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
 ### 🔧 **Configuration**
 
 #### **Ollama Connection**
+
 - CloudToLocalLLM automatically detects Ollama on `localhost:11434`
 - Configure custom Ollama settings in the application preferences
 
 #### **System Integration**
+
 ```bash
 # Enable autostart (optional)
 mkdir -p ~/.config/autostart
@@ -255,6 +274,7 @@ cp /usr/share/applications/cloudtolocalllm.desktop ~/.config/autostart/
 ```
 
 ### 🌐 **Web Access**
+
 1. Visit [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
 2. Sign in with your account
 3. Configure tunnel connection to your local instance
@@ -266,6 +286,7 @@ cp /usr/share/applications/cloudtolocalllm.desktop ~/.config/autostart/
 ### 🐛 **Common Issues**
 
 #### **Application Won't Start**
+
 ```bash
 # Check dependencies
 ldd /opt/cloudtolocalllm/cloudtolocalllm
@@ -278,6 +299,7 @@ chmod +x /opt/cloudtolocalllm/cloudtolocalllm
 ```
 
 #### **System Tray Not Visible**
+
 ```bash
 # Install system tray support
 sudo apt-get install -y gnome-shell-extension-appindicator
@@ -289,6 +311,7 @@ sudo apt-get install -y plasma-workspace
 ```
 
 #### **Ollama Connection Issues**
+
 ```bash
 # Check Ollama status
 systemctl status ollama
@@ -301,6 +324,7 @@ netstat -tlnp | grep 11434
 ```
 
 #### **Permission Issues**
+
 ```bash
 # Fix file permissions
 sudo chown -R $USER:$USER ~/.config/cloudtolocalllm
@@ -311,6 +335,7 @@ chmod +x /opt/cloudtolocalllm/cloudtolocalllm
 ```
 
 ### 📝 **Log Files**
+
 ```bash
 # Application logs
 tail -f ~/.config/cloudtolocalllm/logs/app.log
@@ -325,6 +350,7 @@ journalctl -u ollama -f
 ### 🔧 **Advanced Troubleshooting**
 
 #### **Debug Mode**
+
 ```bash
 # Run in debug mode
 cloudtolocalllm --debug
@@ -334,6 +360,7 @@ cloudtolocalllm --verbose
 ```
 
 #### **Reset Configuration**
+
 ```bash
 # Backup current config
 cp -r ~/.config/cloudtolocalllm ~/.config/cloudtolocalllm.backup
@@ -347,23 +374,28 @@ rm -rf ~/.config/cloudtolocalllm
 ## Distribution-Specific Notes
 
 ### 🟠 **Ubuntu**
+
 - Tested on Ubuntu 20.04, 22.04, and 24.04
 - Use DEB package for best integration
 
 ### 🔵 **Debian**
+
 - Tested on Debian 11 and 12
 - May need to enable non-free repositories for some dependencies
 
 ### 🟣 **Arch Linux**
+
 - AUR package temporarily unavailable (reintegration planned)
 - Use AppImage or source build
 - See [AUR Status](../DEPLOYMENT/AUR_STATUS.md) for updates
 
 ### 🟢 **Fedora/CentOS/RHEL**
+
 - Use AppImage for best compatibility
 - RPM package planned for future releases
 
 ### 🟡 **Other Distributions**
+
 - AppImage should work on most modern Linux distributions
 - Source build available for maximum compatibility
 
@@ -373,9 +405,9 @@ rm -rf ~/.config/cloudtolocalllm
 
 - [Installation Overview](README.md)
 - [Windows Installation](WINDOWS.md)
-- 
-- 
-- 
+-
+-
+-
 - [User Guide](../USER_DOCUMENTATION/USER_GUIDE.md)
 
 ---

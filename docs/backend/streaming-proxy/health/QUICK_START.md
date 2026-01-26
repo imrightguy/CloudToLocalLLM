@@ -7,6 +7,7 @@ The health check and diagnostics endpoints provide real-time monitoring and trou
 ## Endpoints
 
 ### Health Check Endpoint
+
 ```
 GET /api/tunnel/health
 ```
@@ -14,15 +15,18 @@ GET /api/tunnel/health
 **Purpose:** Quick health status check for monitoring and Kubernetes probes
 
 **Response Codes:**
+
 - `200` - Server is healthy
 - `503` - Server is unhealthy or degraded
 
 **Example:**
+
 ```bash
 curl http://localhost:3001/api/tunnel/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -62,6 +66,7 @@ curl http://localhost:3001/api/tunnel/health
 ```
 
 ### Diagnostics Endpoint
+
 ```
 GET /api/tunnel/diagnostics
 ```
@@ -69,15 +74,18 @@ GET /api/tunnel/diagnostics
 **Purpose:** Detailed system diagnostics for troubleshooting
 
 **Response Code:**
+
 - `200` - Diagnostics retrieved successfully
 - `500` - Diagnostics failed
 
 **Example:**
+
 ```bash
 curl http://localhost:3001/api/tunnel/diagnostics
 ```
 
 **Response includes:**
+
 - Server information (version, Node.js, platform)
 - Memory usage (heap, external, RSS)
 - Connection statistics by user
@@ -89,6 +97,7 @@ curl http://localhost:3001/api/tunnel/diagnostics
 ## Kubernetes Integration
 
 ### Liveness Probe
+
 ```yaml
 livenessProbe:
   httpGet:
@@ -101,6 +110,7 @@ livenessProbe:
 ```
 
 ### Readiness Probe
+
 ```yaml
 readinessProbe:
   httpGet:
@@ -115,6 +125,7 @@ readinessProbe:
 ## Monitoring
 
 ### Prometheus Integration
+
 The health check endpoint can be scraped by Prometheus:
 
 ```yaml
@@ -126,7 +137,9 @@ scrape_configs:
 ```
 
 ### Grafana Dashboard
+
 Create a dashboard with:
+
 - Health status gauge
 - Component status table
 - Active connections graph
@@ -148,21 +161,25 @@ If the health check returns status `unhealthy` or `degraded`:
 ### Common Issues
 
 #### WebSocket Service Unhealthy
+
 - Check if metrics collector is working
 - Verify no memory leaks
 - Check active connection count
 
 #### Connection Pool Degraded
+
 - Too many connections (>100)
 - Check for connection leaks
 - Verify cleanup task is running
 
 #### Circuit Breaker Open
+
 - Backend service may be failing
 - Check SSH connection health
 - Verify network connectivity
 
 #### Rate Limiter Issues
+
 - High violation count
 - Check for DDoS attacks
 - Verify rate limit configuration
@@ -177,10 +194,12 @@ If the health check returns status `unhealthy` or `degraded`:
 ## Security
 
 ### Current Implementation
+
 - Health check: Public (no authentication)
 - Diagnostics: Requires admin authentication (JWT token with `view_system_metrics`, `admin`, or `*` permission)
 
 ### Recommended
+
 - Health check should remain public for monitoring systems
 - Diagnostics is secured with admin authentication
 - Use authentication middleware
@@ -189,6 +208,7 @@ If the health check returns status `unhealthy` or `degraded`:
 ## Examples
 
 ### Monitor Health Every 30 Seconds
+
 ```bash
 while true; do
   curl -s http://localhost:3001/api/tunnel/health | jq '.status'
@@ -197,21 +217,25 @@ done
 ```
 
 ### Get Detailed Diagnostics
+
 ```bash
 curl -s http://localhost:3001/api/tunnel/diagnostics | jq '.'
 ```
 
 ### Check Specific Component
+
 ```bash
 curl -s http://localhost:3001/api/tunnel/diagnostics | jq '.components[] | select(.name=="Circuit Breaker")'
 ```
 
 ### Monitor Memory Usage
+
 ```bash
 curl -s http://localhost:3001/api/tunnel/diagnostics | jq '.memoryUsage'
 ```
 
 ### Check Connection Statistics
+
 ```bash
 curl -s http://localhost:3001/api/tunnel/diagnostics | jq '.connectionStats'
 ```
@@ -219,6 +243,7 @@ curl -s http://localhost:3001/api/tunnel/diagnostics | jq '.connectionStats'
 ## Integration with Monitoring Systems
 
 ### Datadog
+
 ```python
 from datadog import initialize, api
 
@@ -238,6 +263,7 @@ api.Metric.send(
 ```
 
 ### New Relic
+
 ```bash
 curl -X POST https://api.newrelic.com/v2/custom_metrics.json \
   -H "X-Api-Key: YOUR_API_KEY" \

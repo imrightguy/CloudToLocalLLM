@@ -109,11 +109,13 @@ The Docker environment fully supports CloudToLocalLLM v3.5.0+ with updated packa
 ## Testing Profiles
 
 ### Basic Development
+
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
 ### With Testing Services
+
 ```bash
 # Includes Ollama and web server
 docker compose -f docker-compose.dev.yml --profile testing up -d
@@ -122,6 +124,7 @@ docker compose -f docker-compose.dev.yml --profile testing up -d
 ## GUI Testing (System Tray)
 
 ### Linux
+
 ```bash
 # Enable X11 forwarding
 xhost +local:docker
@@ -135,6 +138,7 @@ docker run -it --rm \
 ```
 
 ### macOS
+
 ```bash
 # Install XQuartz first
 brew install --cask xquartz
@@ -144,6 +148,7 @@ brew install --cask xquartz
 ```
 
 ### Windows (WSL2)
+
 ```bash
 # Install VcXsrv or similar X11 server
 # Configure DISPLAY variable
@@ -157,23 +162,27 @@ export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0.0
 ### Common Issues
 
 1. **Permission Errors**
+
    ```bash
    sudo chown -R $(id -u):$(id -g) .
    ```
 
 2. **X11 Display Issues**
+
    ```bash
    xhost +local:docker
    echo $DISPLAY
    ```
 
 3. **Build Failures**
+
    ```bash
    flutter clean
    flutter pub get
    ```
 
 4. **Container Health Check Fails**
+
    ```bash
    docker compose -f docker-compose.dev.yml exec flutter flutter-health
    ```
@@ -181,11 +190,13 @@ export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0.0
 ### Validation
 
 Run the comprehensive validation script:
+
 ```bash
 ./scripts/docker/validate_dev_environment.sh
 ```
 
 This will:
+
 - ✅ Build the Docker image
 - ✅ Test Flutter configuration
 - ✅ Verify system dependencies

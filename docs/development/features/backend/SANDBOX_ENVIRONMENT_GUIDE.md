@@ -55,6 +55,7 @@ services:
 The sandbox environment includes three pre-configured test users:
 
 #### Free Tier User
+
 ```json
 {
   "id": "test-user-1",
@@ -66,6 +67,7 @@ The sandbox environment includes three pre-configured test users:
 ```
 
 #### Premium Tier User
+
 ```json
 {
   "id": "test-user-2",
@@ -77,6 +79,7 @@ The sandbox environment includes three pre-configured test users:
 ```
 
 #### Admin User
+
 ```json
 {
   "id": "test-admin",
@@ -115,9 +118,11 @@ Pre-configured API keys for service-to-service communication:
 ### Configuration
 
 #### GET /sandbox/config
+
 Get sandbox environment configuration.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -147,9 +152,11 @@ Get sandbox environment configuration.
 ### Credentials
 
 #### GET /sandbox/credentials
+
 Get test credentials for sandbox environment.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -176,9 +183,11 @@ Get test credentials for sandbox environment.
 ### Mock Users
 
 #### POST /sandbox/users
+
 Create a mock user for testing.
 
 **Request:**
+
 ```json
 {
   "email": "testuser@example.com",
@@ -189,6 +198,7 @@ Create a mock user for testing.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -212,9 +222,11 @@ Create a mock user for testing.
 ```
 
 #### GET /sandbox/users/:userId
+
 Get a mock user by ID.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -232,9 +244,11 @@ Get a mock user by ID.
 ### Mock Tunnels
 
 #### POST /sandbox/tunnels
+
 Create a mock tunnel for testing.
 
 **Request:**
+
 ```json
 {
   "userId": "test-user-1",
@@ -243,6 +257,7 @@ Create a mock tunnel for testing.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -279,9 +294,11 @@ Create a mock tunnel for testing.
 ```
 
 #### GET /sandbox/tunnels/:tunnelId
+
 Get a mock tunnel by ID.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -290,9 +307,11 @@ Get a mock tunnel by ID.
 ```
 
 #### PATCH /sandbox/tunnels/:tunnelId/status
+
 Update mock tunnel status.
 
 **Request:**
+
 ```json
 {
   "status": "disconnected"
@@ -300,6 +319,7 @@ Update mock tunnel status.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -308,9 +328,11 @@ Update mock tunnel status.
 ```
 
 #### POST /sandbox/tunnels/:tunnelId/metrics
+
 Record mock tunnel metrics.
 
 **Request:**
+
 ```json
 {
   "requestCount": 10,
@@ -321,6 +343,7 @@ Record mock tunnel metrics.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -331,9 +354,11 @@ Record mock tunnel metrics.
 ### Mock Webhooks
 
 #### POST /sandbox/webhooks
+
 Create a mock webhook for testing.
 
 **Request:**
+
 ```json
 {
   "userId": "test-user-1",
@@ -343,6 +368,7 @@ Create a mock webhook for testing.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -367,15 +393,18 @@ Create a mock webhook for testing.
 ### Request Logging
 
 #### GET /sandbox/requests
+
 Get request log from sandbox.
 
 **Query Parameters:**
+
 - `userId` (optional): Filter by user ID
 - `method` (optional): Filter by HTTP method
 - `path` (optional): Filter by request path
 - `limit` (optional): Maximum number of entries (default: 100)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -397,9 +426,11 @@ Get request log from sandbox.
 ### Statistics
 
 #### GET /sandbox/stats
+
 Get sandbox statistics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -416,9 +447,11 @@ Get sandbox statistics.
 ### Data Management
 
 #### DELETE /sandbox/clear
+
 Clear all sandbox data.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -510,28 +543,33 @@ curl http://localhost:8080/sandbox/stats
 ## Features
 
 ### No Side Effects
+
 - Mock data is isolated from production
 - No actual tunnels are created
 - No real webhooks are triggered
 - Database writes are prevented
 
 ### Request Logging
+
 - All requests are logged for debugging
 - Includes method, path, user, status code, and response time
 - Queryable by user, method, or path
 - Useful for integration testing
 
 ### Data Isolation
+
 - Sandbox data is completely separate from production
 - Can be cleared at any time
 - No impact on production systems
 
 ### Relaxed Rate Limiting
+
 - 10,000 requests/minute (vs. 100 for production)
 - Burst size of 5,000 requests
 - Allows thorough testing without throttling
 
 ### Mock Data Management
+
 - Create mock users, tunnels, and webhooks
 - Update mock tunnel status and metrics
 - Retrieve mock data by ID
@@ -540,25 +578,33 @@ curl http://localhost:8080/sandbox/stats
 ## Best Practices
 
 ### 1. Use Test Credentials
+
 Always use the provided test credentials when testing in sandbox mode:
+
 ```bash
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMSIsImVtYWlsIjoidGVzdEBzYW5kYm94LmxvY2FsIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-1
 ```
 
 ### 2. Monitor Request Logs
+
 Regularly check request logs to verify your integration:
+
 ```bash
 curl http://localhost:8080/sandbox/requests?limit=20
 ```
 
 ### 3. Clear Data Between Tests
+
 Clear sandbox data between test runs to ensure clean state:
+
 ```bash
 curl -X DELETE http://localhost:8080/sandbox/clear
 ```
 
 ### 4. Test Different Scenarios
+
 Create mock data for different scenarios:
+
 - Free tier users
 - Premium tier users
 - Admin users
@@ -566,7 +612,9 @@ Create mock data for different scenarios:
 - Various tunnel statuses
 
 ### 5. Verify Response Format
+
 Check that responses match expected format:
+
 ```bash
 curl http://localhost:8080/sandbox/config | jq .
 ```
@@ -578,12 +626,14 @@ curl http://localhost:8080/sandbox/config | jq .
 **Problem:** Getting "Sandbox mode is not enabled" error
 
 **Solution:** Verify environment variables:
+
 ```bash
 echo $SANDBOX_MODE
 echo $NODE_ENV
 ```
 
 Set them if not already set:
+
 ```bash
 export SANDBOX_MODE=true
 export NODE_ENV=sandbox
@@ -594,6 +644,7 @@ export NODE_ENV=sandbox
 **Problem:** Authentication fails with test credentials
 
 **Solution:** Ensure you're using the correct token format:
+
 ```bash
 curl -H "Authorization: Bearer <token>" http://localhost:8080/sandbox/config
 ```
@@ -603,6 +654,7 @@ curl -H "Authorization: Bearer <token>" http://localhost:8080/sandbox/config
 **Problem:** Request log is empty
 
 **Solution:** Verify requests are being made to sandbox endpoints:
+
 ```bash
 curl http://localhost:8080/sandbox/stats
 ```

@@ -127,6 +127,7 @@ Client                WebSocket              Server              SSH Server
 ### Client-Side Components
 
 #### TunnelService
+
 - **Purpose**: Manages the complete tunnel lifecycle from the client perspective
 - **Responsibilities**:
   - Establish and maintain WebSocket connections
@@ -141,6 +142,7 @@ Client                WebSocket              Server              SSH Server
   - `runDiagnostics()`: Execute diagnostic tests
 
 #### RequestQueue
+
 - **Purpose**: Buffer and manage requests during network issues or high load
 - **Responsibilities**:
   - Queue requests with priority levels (high, normal, low)
@@ -155,6 +157,7 @@ Client                WebSocket              Server              SSH Server
   - Configurable queue size
 
 #### MetricsCollector
+
 - **Purpose**: Track and expose client-side performance metrics
 - **Responsibilities**:
   - Record request latency and success/failure
@@ -170,6 +173,7 @@ Client                WebSocket              Server              SSH Server
   - Error counts by category
 
 #### WebSocketClient
+
 - **Purpose**: Handle WebSocket protocol details and transport
 - **Responsibilities**:
   - Manage WebSocket connection lifecycle
@@ -186,6 +190,7 @@ Client                WebSocket              Server              SSH Server
 ### Server-Side Components
 
 #### WebSocketHandler
+
 - **Purpose**: Accept and manage WebSocket connections from clients
 - **Responsibilities**:
   - Handle WebSocket upgrade requests
@@ -200,6 +205,7 @@ Client                WebSocket              Server              SSH Server
   - Lifecycle management
 
 #### AuthMiddleware
+
 - **Purpose**: Validate and manage user authentication
 - **Responsibilities**:
   - Validate JWT tokens on every request
@@ -214,6 +220,7 @@ Client                WebSocket              Server              SSH Server
   - User context management
 
 #### RateLimiter
+
 - **Purpose**: Prevent abuse and ensure fair resource allocation
 - **Responsibilities**:
   - Enforce per-user rate limits (100 req/min)
@@ -228,6 +235,7 @@ Client                WebSocket              Server              SSH Server
   - Violation tracking
 
 #### ConnectionPool
+
 - **Purpose**: Manage SSH connections efficiently
 - **Responsibilities**:
   - Maintain SSH connections per user
@@ -242,6 +250,7 @@ Client                WebSocket              Server              SSH Server
   - Health tracking
 
 #### SSHTunnelManager
+
 - **Purpose**: Handle SSH protocol operations
 - **Responsibilities**:
   - Manage SSH connections and channels
@@ -256,6 +265,7 @@ Client                WebSocket              Server              SSH Server
   - Error recovery
 
 #### CircuitBreaker
+
 - **Purpose**: Prevent cascading failures
 - **Responsibilities**:
   - Monitor request failures
@@ -270,6 +280,7 @@ Client                WebSocket              Server              SSH Server
   - Metrics tracking
 
 #### MetricsCollector
+
 - **Purpose**: Collect and expose server-side metrics
 - **Responsibilities**:
   - Track connection metrics
@@ -293,6 +304,7 @@ Client                WebSocket              Server              SSH Server
 **Solution**: Implement a circuit breaker that monitors failure rates and stops forwarding requests when a threshold is exceeded. This prevents the system from wasting resources on requests that will fail.
 
 **Benefits**:
+
 - Prevents cascading failures
 - Reduces resource consumption
 - Allows backend to recover
@@ -300,6 +312,7 @@ Client                WebSocket              Server              SSH Server
 - Enables automatic recovery
 
 **Implementation**:
+
 - Failure threshold: 5 consecutive failures
 - Recovery timeout: 60 seconds
 - Half-open state: Test recovery with limited requests
@@ -311,6 +324,7 @@ Client                WebSocket              Server              SSH Server
 **Solution**: Implement a request queue that buffers requests during network issues and automatically flushes them after reconnection.
 
 **Benefits**:
+
 - Zero data loss during network issues
 - Transparent to application
 - Priority-based processing
@@ -318,6 +332,7 @@ Client                WebSocket              Server              SSH Server
 - Backpressure signaling
 
 **Implementation**:
+
 - Priority levels: high (interactive), normal (batch), low (background)
 - Disk persistence for high-priority requests
 - Backpressure at 80% queue capacity
@@ -330,6 +345,7 @@ Client                WebSocket              Server              SSH Server
 **Solution**: Implement a connection pool that reuses SSH connections across multiple requests.
 
 **Benefits**:
+
 - Reduced connection overhead
 - Lower latency
 - Better resource utilization
@@ -337,6 +353,7 @@ Client                WebSocket              Server              SSH Server
 - Per-user isolation
 
 **Implementation**:
+
 - Per-user connection management
 - Max 3 connections per user
 - Automatic cleanup of idle connections
@@ -349,12 +366,14 @@ Client                WebSocket              Server              SSH Server
 **Solution**: Implement exponential backoff with jitter to gradually increase retry delays.
 
 **Benefits**:
+
 - Reduces server load during recovery
 - Faster recovery than fixed delays
 - Prevents thundering herd
 - Configurable limits
 
 **Implementation**:
+
 - Base delay: 2 seconds
 - Exponential multiplier: 2x per attempt
 - Jitter: 30% random variation
@@ -366,12 +385,14 @@ Client                WebSocket              Server              SSH Server
 ### Authentication
 
 **JWT Token Validation**:
+
 - Every request validates JWT token
 - Token expiration checked on every request
 - Expired tokens trigger refresh or re-authentication
 - Invalid tokens result in immediate disconnection
 
 **Token Refresh**:
+
 - Automatic refresh before expiration
 - Graceful handling of refresh failures
 - User re-authentication on refresh failure
@@ -379,12 +400,14 @@ Client                WebSocket              Server              SSH Server
 ### Authorization
 
 **User Isolation**:
+
 - Each user has separate SSH connections
 - No cross-user data access
 - Per-user rate limiting
 - Per-user connection limits
 
 **Role-Based Access Control**:
+
 - User tier system (free, premium, enterprise)
 - Different rate limits per tier
 - Different feature access per tier
@@ -392,11 +415,13 @@ Client                WebSocket              Server              SSH Server
 ### Encryption
 
 **Transport Security**:
+
 - TLS 1.3 for all WebSocket connections
 - Modern cipher suites
 - Certificate validation
 
 **SSH Protocol**:
+
 - SSH protocol version 2 only
 - Modern key exchange algorithms (curve25519-sha256)
 - AES-256-GCM encryption
@@ -405,6 +430,7 @@ Client                WebSocket              Server              SSH Server
 ### Audit Logging
 
 **Events Logged**:
+
 - Authentication attempts (success/failure)
 - Connection establishment/closure
 - Rate limit violations
@@ -412,6 +438,7 @@ Client                WebSocket              Server              SSH Server
 - Configuration changes
 
 **Log Format**:
+
 - Structured JSON format
 - Correlation IDs for request tracing
 - Timestamps in UTC
@@ -475,16 +502,19 @@ Client                WebSocket              Server              SSH Server
 ### Scaling Strategy
 
 **Horizontal Scaling**:
+
 - Multiple streaming-proxy replicas behind load balancer
 - Stateless design enables easy scaling
 - Redis for shared state across instances
 
 **Vertical Scaling**:
+
 - Resource requests/limits per pod
 - HPA for automatic scaling based on metrics
 - Custom metrics for connection-based scaling
 
 **Resource Limits**:
+
 - CPU request: 100m, limit: 500m
 - Memory request: 256Mi, limit: 512Mi
 - Per pod: ~100 concurrent connections
@@ -514,6 +544,7 @@ Client                WebSocket              Server              SSH Server
 ### Metrics Collection
 
 **Prometheus Metrics**:
+
 - Counter: tunnel_requests_total
 - Histogram: tunnel_request_latency_ms
 - Gauge: tunnel_active_connections
@@ -522,6 +553,7 @@ Client                WebSocket              Server              SSH Server
 - Gauge: tunnel_circuit_breaker_state
 
 **OpenTelemetry Tracing**:
+
 - Distributed tracing for request flows
 - Span attributes: userId, requestId, latency, connectionId
 - Jaeger exporter for trace visualization
@@ -529,6 +561,7 @@ Client                WebSocket              Server              SSH Server
 ### Structured Logging
 
 **Log Format**: JSON with structured fields
+
 - timestamp: ISO 8601 UTC
 - level: ERROR, WARN, INFO, DEBUG, TRACE
 - message: Human-readable message
@@ -540,12 +573,14 @@ Client                WebSocket              Server              SSH Server
 ### Health Checks
 
 **Liveness Probe**:
+
 - Endpoint: GET /api/tunnel/health
 - Interval: 10 seconds
 - Timeout: 5 seconds
 - Failure threshold: 3
 
 **Readiness Probe**:
+
 - Endpoint: GET /api/tunnel/health
 - Interval: 5 seconds
 - Timeout: 3 seconds
@@ -564,12 +599,14 @@ Client                WebSocket              Server              SSH Server
 ### Recovery Strategies
 
 **Automatic Recovery**:
+
 - Network errors: Exponential backoff reconnection
 - Authentication errors: Token refresh or re-authentication
 - Server errors: Circuit breaker with automatic reset
 - Protocol errors: Fallback to alternative methods
 
 **Manual Recovery**:
+
 - Run diagnostics to identify issues
 - Check logs for detailed error context
 - Adjust configuration if needed

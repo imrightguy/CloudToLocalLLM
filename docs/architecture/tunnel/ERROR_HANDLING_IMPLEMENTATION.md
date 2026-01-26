@@ -13,6 +13,7 @@ The error handling and diagnostics system provides comprehensive error detection
 **Purpose:** Intelligently categorize exceptions into tunnel errors with user-friendly messages and actionable suggestions.
 
 **Key Features:**
+
 - Type-based exception categorization (SocketException, WebSocketChannelException, TimeoutException, FormatException)
 - String-based fallback categorization for unknown exception types
 - HTTP status code to error code mapping
@@ -20,12 +21,14 @@ The error handling and diagnostics system provides comprehensive error detection
 - Detailed error context preservation for debugging
 
 **Exception Handlers:**
+
 - `SocketException`: Detects connection refused, network unreachable, DNS failures
 - `WebSocketChannelException`: Handles WebSocket-specific errors and inner exceptions
 - `TimeoutException`: Categorizes timeout errors with duration context
 - `FormatException`: Identifies configuration format errors
 
 **Error Categories:**
+
 - Network: Connection issues, DNS failures, timeouts
 - Authentication: Invalid credentials, expired tokens
 - Configuration: Invalid settings, format errors
@@ -34,6 +37,7 @@ The error handling and diagnostics system provides comprehensive error detection
 - Unknown: Unrecognized errors
 
 **Usage Example:**
+
 ```dart
 try {
   // Some operation
@@ -93,12 +97,14 @@ try {
    - Calculates total throughput
 
 **Test Execution:**
+
 - Sequential execution with early termination on critical failures
 - Configurable timeout per test
 - Detailed error messages and context
 - Graceful failure handling
 
 **Usage Example:**
+
 ```dart
 final testSuite = DiagnosticTestSuite(
   serverHost: 'api.cloudtolocalllm.online',
@@ -120,6 +126,7 @@ for (final test in tests) {
 **Key Features:**
 
 #### Health Score Calculation (0-100 points)
+
 - **Base Score (0-60 points):** Pass rate percentage
 - **DNS Resolution (5 points):** Critical for connectivity
 - **WebSocket Connectivity (10 points):** Essential for tunnel
@@ -131,6 +138,7 @@ for (final test in tests) {
   - Bonus: > 500 KB/s throughput
 
 #### Health Status Levels
+
 - **Excellent (90-100):** All systems optimal
 - **Good (75-89):** Minor issues, fully functional
 - **Fair (50-74):** Some degradation, usable
@@ -138,7 +146,9 @@ for (final test in tests) {
 - **Critical (0-24):** Severe problems
 
 #### Intelligent Recommendations
+
 Context-aware suggestions based on failed tests:
+
 - DNS failures: Check internet and DNS settings
 - WebSocket failures: Check firewall and server status
 - Authentication failures: Re-authenticate or refresh token
@@ -147,11 +157,13 @@ Context-aware suggestions based on failed tests:
 - Multiple failures: Broader connectivity issue
 
 #### Output Formats
+
 1. **Text Format:** Human-readable console output
 2. **JSON Format:** Machine-readable for APIs
 3. **Markdown Format:** Documentation and reports
 
 **Usage Example:**
+
 ```dart
 final report = DiagnosticReportGenerator.generateReport(tests);
 final score = DiagnosticReportGenerator.calculateHealthScore(report);
@@ -168,6 +180,7 @@ print(DiagnosticReportGenerator.formatReportAsText(report));
 **Recovery Strategies:**
 
 #### Network Error Recovery
+
 - Uses exponential backoff with jitter
 - Tests connection before reconnecting
 - Flushes queued requests after successful recovery
@@ -175,35 +188,41 @@ print(DiagnosticReportGenerator.formatReportAsText(report));
 - Detailed logging of recovery attempts
 
 #### Authentication Error Recovery
+
 - Detects expired vs. invalid tokens
 - Attempts automatic token refresh for expired tokens
 - Requires user intervention for invalid credentials
 - Reconnects with refreshed token
 
 #### Server Error Recovery
+
 - **Rate Limit Exceeded:** Waits 60 seconds before retry
 - **Server Unavailable:** Retries with backoff (max 5 attempts)
 - **Queue Full:** Waits 5 seconds for queue to drain
 - Tests server availability before reconnecting
 
 #### Protocol Error Recovery
+
 - **WebSocket Errors:** Simple reconnection
 - **SSH Errors:** Reconnection with clean state
 - **Compression Errors:** Reconnection (may disable compression)
 - **Other Protocol Errors:** Attempt reconnection
 
 #### Configuration Error Handling
+
 - No automatic recovery (requires manual fix)
 - Provides clear error messages
 - Suggests configuration reset or validation
 
 **Recovery Result Tracking:**
+
 - Success/failure status
 - Recovery duration
 - Number of attempts
 - Descriptive message
 
 **Usage Example:**
+
 ```dart
 final strategy = ErrorRecoveryStrategy(
   reconnectionManager: reconnectionManager,
@@ -333,6 +352,7 @@ This implementation addresses the following requirements:
 ## Testing
 
 Unit tests should cover:
+
 - Error categorization for all exception types
 - Diagnostic test execution and result handling
 - Report generation and formatting
@@ -340,6 +360,7 @@ Unit tests should cover:
 - Health score calculation accuracy
 
 Integration tests should verify:
+
 - End-to-end diagnostic flow
 - Error recovery in real scenarios
 - Report generation from actual test results
@@ -347,6 +368,7 @@ Integration tests should verify:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Add more diagnostic tests (bandwidth, jitter, packet loss)
 2. Implement diagnostic test scheduling and history
 3. Add machine learning for error prediction

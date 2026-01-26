@@ -25,6 +25,7 @@ Each service gets tagged with both the app version and a service identifier:
 ### Additional Tags
 
 Every image also gets tagged with:
+
 - **Git SHA**: `abc123def456...` (for traceability)
 - **Latest**: `latest` (for convenience)
 
@@ -75,6 +76,7 @@ To manually bump the version:
 ```
 
 The script will:
+
 1. Read current version from `assets/version.json`
 2. Increment the appropriate component
 3. Update version.json with new version, build number, and git commit
@@ -87,6 +89,7 @@ The script will:
 ### When Services are Built
 
 If a service's source files changed:
+
 - ✅ **Uses semantic version tag** (e.g., `5.0.1-api`)
 - ✅ Image is freshly built and tagged
 - ✅ Version is tracked and traceable
@@ -94,6 +97,7 @@ If a service's source files changed:
 ### When Services are NOT Built
 
 If a service's source files didn't change:
+
 - ✅ **Uses `:latest` tag**
 - ✅ Reuses existing image (faster deployment)
 - ✅ No unnecessary rebuilds
@@ -209,4 +213,3 @@ The versioning system is fully integrated into `.github/workflows/deploy-aks.yml
 - ✅ No Global API Key in CI/CD
 - ✅ Semantic versions for all services
 - ✅ Immutable tags for rollback safety
-

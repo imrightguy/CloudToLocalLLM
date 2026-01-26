@@ -97,6 +97,7 @@ GET /api/admin/rate-limit-exemptions
 ```
 
 Response:
+
 ```json
 {
   "success": true,

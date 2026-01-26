@@ -5,6 +5,7 @@
 This guide provides comprehensive documentation for authenticating with the CloudToLocalLLM API. The API uses OAuth2 with Auth0 for user authentication and JWT tokens for API access.
 
 **Validates: Requirements 12.8**
+
 - Create authentication documentation with OAuth2 flow
 - Add JWT token examples and refresh token flow
 - Implement authentication guides for different client types
@@ -74,6 +75,7 @@ https://dev-v2f2p008x3dr74ww.us.auth0.com/authorize?
 ```
 
 **Parameters:**
+
 - `client_id` - Your Auth0 application ID
 - `response_type` - Must be `code` for Authorization Code flow
 - `redirect_uri` - Where Auth0 redirects after authentication
@@ -670,11 +672,13 @@ function verifyToken(token) {
 ### 1. Token Storage
 
 **Web Applications:**
+
 - Store tokens in memory or session storage (not localStorage)
 - Use httpOnly cookies for refresh tokens
 - Never expose tokens in URLs
 
 **Desktop/Mobile Applications:**
+
 - Use secure storage (flutter_secure_storage, Keychain, Keystore)
 - Never store tokens in plain text
 - Encrypt tokens at rest
@@ -732,6 +736,7 @@ function verifyToken(token) {
 **Error:** `Invalid token format` or `INVALID_TOKEN`
 
 **Solution:**
+
 - Ensure token is included in Authorization header
 - Use format: `Authorization: Bearer <token>`
 - Check token hasn't expired
@@ -742,6 +747,7 @@ function verifyToken(token) {
 **Error:** `Token expired` or `exp claim is in the past`
 
 **Solution:**
+
 - Refresh token using `/auth/token/refresh` endpoint
 - Implement automatic token refresh
 - Check system clock is synchronized
@@ -751,6 +757,7 @@ function verifyToken(token) {
 **Error:** `Access to XMLHttpRequest blocked by CORS policy`
 
 **Solution:**
+
 - Verify redirect_uri matches configured value
 - Check CORS headers in API response
 - Ensure request includes proper headers
@@ -761,6 +768,7 @@ function verifyToken(token) {
 **Error:** `Invalid refresh token` or `INVALID_REFRESH_TOKEN`
 
 **Solution:**
+
 - Ensure refresh token is stored correctly
 - Check refresh token hasn't expired (7 days)
 - Verify refresh token format
@@ -771,6 +779,7 @@ function verifyToken(token) {
 **Error:** `401 Unauthorized` or `INVALID_TOKEN`
 
 **Solution:**
+
 - Verify token is valid and not expired
 - Check user has required permissions
 - Verify token includes correct audience
@@ -791,8 +800,8 @@ process.env.DEBUG = 'auth0:*';
 ### Support
 
 For authentication issues:
+
 - Check [API Documentation](./API_DOCUMENTATION_GUIDE.md)
 - Review [Error Codes](./API_ERROR_CODES.md)
 - Contact support@cloudtolocalllm.online
 - Visit https://docs.cloudtolocalllm.online
-

@@ -17,6 +17,7 @@ The circuit breaker prevents cascading failures by monitoring operation failures
 Core implementation of the circuit breaker pattern.
 
 **Features:**
+
 - State machine with three states (CLOSED, OPEN, HALF_OPEN)
 - Configurable failure and success thresholds
 - Automatic timeout for operations
@@ -24,6 +25,7 @@ Core implementation of the circuit breaker pattern.
 - Automatic reset after timeout
 
 **Usage:**
+
 ```typescript
 import { CircuitBreakerImpl } from './circuit-breaker';
 
@@ -49,6 +51,7 @@ try {
 Utility functions for wrapping operations with circuit breaker protection.
 
 **Features:**
+
 - Simple wrapper function
 - Function decorator
 - Batch execution
@@ -56,6 +59,7 @@ Utility functions for wrapping operations with circuit breaker protection.
 - Health checking utilities
 
 **Usage:**
+
 ```typescript
 import { withCircuitBreaker, executeWithRetry } from './circuit-breaker';
 
@@ -88,12 +92,14 @@ class MyService {
 Manages automatic reset and recovery testing for circuit breakers.
 
 **Features:**
+
 - Automatic transition to half-open state
 - Recovery testing coordination
 - Reset attempt tracking
 - Statistics and history
 
 **Usage:**
+
 ```typescript
 import { createResetManager } from './circuit-breaker';
 
@@ -124,6 +130,7 @@ console.log('Success rate:', stats.successRate);
 Tracks and exposes metrics for monitoring.
 
 **Features:**
+
 - Prometheus-compatible metrics
 - JSON export
 - State change history
@@ -131,6 +138,7 @@ Tracks and exposes metrics for monitoring.
 - Summary statistics
 
 **Usage:**
+
 ```typescript
 import { globalMetricsCollector } from './circuit-breaker';
 
@@ -167,6 +175,7 @@ interface CircuitBreakerConfig {
 **Recommended Settings:**
 
 **For SSH Tunnel Operations:**
+
 ```typescript
 {
   failureThreshold: 5,
@@ -177,6 +186,7 @@ interface CircuitBreakerConfig {
 ```
 
 **For High-Frequency Operations:**
+
 ```typescript
 {
   failureThreshold: 10,
@@ -187,6 +197,7 @@ interface CircuitBreakerConfig {
 ```
 
 **For Critical Operations:**
+
 ```typescript
 {
   failureThreshold: 3,
@@ -411,11 +422,13 @@ describe('CircuitBreaker', () => {
 **Symptoms:** Circuit breaker remains in OPEN state indefinitely
 
 **Causes:**
+
 - Reset timeout too long
 - Underlying service still failing
 - Reset manager not started
 
 **Solutions:**
+
 - Reduce reset timeout
 - Fix underlying service
 - Ensure reset manager is started
@@ -425,11 +438,13 @@ describe('CircuitBreaker', () => {
 **Symptoms:** Circuit breaker rapidly transitions between states
 
 **Causes:**
+
 - Failure threshold too low
 - Success threshold too low
 - Intermittent failures
 
 **Solutions:**
+
 - Increase failure threshold
 - Increase success threshold
 - Add retry logic before circuit breaker
@@ -439,10 +454,12 @@ describe('CircuitBreaker', () => {
 **Symptoms:** Operations fail with timeout errors
 
 **Causes:**
+
 - Timeout value too low
 - Slow operations
 
 **Solutions:**
+
 - Increase timeout value
 - Optimize operations
 - Use separate circuit breakers for different operation types

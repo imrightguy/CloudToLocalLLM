@@ -62,6 +62,7 @@ Get a list of all administrators with their roles and activity summary.
 ```
 
 **Status Codes:**
+
 - `200 OK` - Success
 - `401 Unauthorized` - Token missing or invalid
 - `403 Forbidden` - Not a Super Admin
@@ -82,10 +83,12 @@ Assign an admin role to a user by email.
 ```
 
 **Request Fields:**
+
 - `email` (string, required) - Email address of the user to make admin
 - `role` (string, required) - Role to assign: `support_admin` or `finance_admin`
 
 **Status Codes:**
+
 - `201 Created` - Admin role assigned successfully
 - `400 Bad Request` - Missing required fields or invalid role
 - `404 Not Found` - User with specified email not found
@@ -98,10 +101,12 @@ Revoke an admin role from a user.
 **Endpoint:** `DELETE /api/admin/admins/:userId/roles/:role`
 
 **URL Parameters:**
+
 - `userId` (string, required) - ID of the user to revoke role from
 - `role` (string, required) - Role to revoke: `super_admin`, `support_admin`, or `finance_admin`
 
 **Status Codes:**
+
 - `200 OK` - Admin role revoked successfully
 - `403 Forbidden` - Attempting to revoke own Super Admin role
 - `404 Not Found` - User/role not found
@@ -121,6 +126,7 @@ Revoke an admin role from a user.
 ## Audit Logging
 
 All admin management operations are logged with the following metadata:
+
 - Admin user ID and email
 - Action performed (e.g., `admin_role_assigned`)
 - Affected user ID and email
@@ -139,6 +145,7 @@ All admin management operations are logged with the following metadata:
 ## Examples
 
 ### Assign support admin role
+
 ```bash
 curl -X POST https://api.cloudtolocalllm.online/api/admin/admins \
   -H "Authorization: Bearer TOKEN" \
@@ -149,5 +156,6 @@ curl -X POST https://api.cloudtolocalllm.online/api/admin/admins \
 ---
 
 ## Related Documentation
-- [Audit Log API](./AUDIT_API.md)
-- [Admin Authentication Middleware](../../middleware/admin-auth.js)
+
+- [Audit Log API](./AUDIT_LOGS.md)
+- [Backend Security Guide](../../operations/security/BACKEND_SECURITY.md)

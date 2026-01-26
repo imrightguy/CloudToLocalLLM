@@ -9,6 +9,7 @@ This module provides comprehensive WebSocket connection management for the strea
 Main WebSocket handler that manages connection lifecycle and integrates all components.
 
 **Features:**
+
 - WebSocket upgrade handling with JWT authentication
 - Connection lifecycle management (connect, disconnect, message routing)
 - Integration with AuthMiddleware for authentication
@@ -18,6 +19,7 @@ Main WebSocket handler that manages connection lifecycle and integrates all comp
 - Message routing and handling
 
 **Usage:**
+
 ```typescript
 import { WebSocketHandlerImpl } from './websocket';
 import { WebSocketServer } from 'ws';
@@ -40,6 +42,7 @@ console.log(`Active connections: ${health.activeConnections}`);
 Manages WebSocket heartbeat monitoring using ping/pong protocol.
 
 **Features:**
+
 - Automatic ping/pong heartbeat every 30 seconds
 - Detects dead connections within 5 seconds of missed pong
 - Tracks latency and connection health
@@ -47,6 +50,7 @@ Manages WebSocket heartbeat monitoring using ping/pong protocol.
 - Automatic connection closure for unresponsive connections
 
 **Usage:**
+
 ```typescript
 import { HeartbeatManager } from './websocket';
 
@@ -75,6 +79,7 @@ console.log(`Latency: ${stats.latency}ms`);
 Manages WebSocket compression using permessage-deflate extension.
 
 **Features:**
+
 - Configurable compression level (0-9)
 - Compression threshold (only compress messages above threshold)
 - Compression statistics tracking
@@ -82,6 +87,7 @@ Manages WebSocket compression using permessage-deflate extension.
 - Multiple compression profiles (default, high, fast, disabled)
 
 **Usage:**
+
 ```typescript
 import { CompressionManager } from './websocket';
 
@@ -102,6 +108,7 @@ console.log(`Average bytes saved: ${compressionManager.getAverageBytesSaved()}`)
 ```
 
 **Compression Profiles:**
+
 - **Default**: Balanced compression (level 6, 1KB threshold)
 - **High**: Maximum compression (level 9, 512B threshold)
 - **Fast**: Minimal compression (level 1, 2KB threshold)
@@ -112,6 +119,7 @@ console.log(`Average bytes saved: ${compressionManager.getAverageBytesSaved()}`)
 Validates WebSocket frame sizes and enforces limits to prevent memory exhaustion.
 
 **Features:**
+
 - Configurable maximum frame size (default: 1MB)
 - Warning threshold for large frames
 - Violation tracking and logging
@@ -119,6 +127,7 @@ Validates WebSocket frame sizes and enforces limits to prevent memory exhaustion
 - Automatic connection closure for oversized frames
 
 **Usage:**
+
 ```typescript
 import { FrameSizeValidator } from './websocket';
 
@@ -141,6 +150,7 @@ console.log(validator.getSummary());
 ```
 
 **Validator Profiles:**
+
 - **Default**: 1MB max, 512KB warning
 - **Strict**: 256KB max, 128KB warning
 - **Lenient**: 10MB max, 5MB warning
@@ -150,6 +160,7 @@ console.log(validator.getSummary());
 Manages graceful WebSocket connection closure with proper handshake.
 
 **Features:**
+
 - Proper close handshake with acknowledgment
 - Appropriate close codes (RFC 6455)
 - Configurable timeout for close acknowledgment
@@ -158,6 +169,7 @@ Manages graceful WebSocket connection closure with proper handshake.
 - Close metadata tracking
 
 **Usage:**
+
 ```typescript
 import { GracefulCloseManager, CloseCode } from './websocket';
 
@@ -186,6 +198,7 @@ if (closeManager.isClosing(ws)) {
 ```
 
 **Close Codes:**
+
 - `1000`: Normal closure
 - `1001`: Going away (server shutdown)
 - `1002`: Protocol error

@@ -36,9 +36,9 @@ cd C:\path\to\CloudToLocalLLM
 
 ### Optional but Recommended
 
-7. **Docker Desktop** - For containerized development
-8. **WSL2** - Windows Subsystem for Linux (for cross-platform builds)
-9. **Ollama** - Local AI model runtime
+1. **Docker Desktop** - For containerized development
+2. **WSL2** - Windows Subsystem for Linux (for cross-platform builds)
+3. **Ollama** - Local AI model runtime
 
 ## 🔧 Manual Installation Steps
 
@@ -162,12 +162,14 @@ flutter build web
 ### Common Issues
 
 #### PowerShell Execution Policy Restricted
+
 ```powershell
 # Solution: Set execution policy
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 #### Flutter Doctor Issues
+
 ```powershell
 # Check Flutter doctor output
 flutter doctor -v
@@ -179,6 +181,7 @@ flutter config --enable-windows-desktop
 ```
 
 #### Chocolatey Installation Fails
+
 ```powershell
 # Run PowerShell as Administrator and try:
 Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -187,6 +190,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocola
 ```
 
 #### npm/Node.js Issues
+
 ```powershell
 # Clear npm cache
 npm cache clean --force
@@ -198,6 +202,7 @@ refreshenv
 ```
 
 #### Playwright Browser Installation Fails
+
 ```powershell
 # Install browsers manually
 npx playwright install chromium
@@ -208,6 +213,7 @@ npx playwright install webkit
 ### Environment Variables
 
 After installation, ensure these are in your PATH:
+
 - `C:\tools\flutter\bin`
 - `C:\Program Files\nodejs`
 - `C:\Program Files\Git\bin`

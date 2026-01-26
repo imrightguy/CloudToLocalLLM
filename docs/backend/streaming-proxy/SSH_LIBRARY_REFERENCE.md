@@ -12,6 +12,7 @@
 ## Key Implementation Files
 
 ### SSH Connection Management
+
 - **File:** `src/connection-pool/ssh-connection-impl.ts`
 - **Purpose:** Implements SSH connection wrapper with security best practices
 - **Key Features:**
@@ -23,6 +24,7 @@
   - Comprehensive error logging (Requirement 7.10)
 
 ### SSH Error Handling
+
 - **File:** `src/connection-pool/ssh-error-handler.ts`
 - **Purpose:** Categorizes and handles SSH protocol errors
 - **Key Features:**
@@ -32,6 +34,7 @@
   - Automatic recovery strategies
 
 ### Connection Pool
+
 - **File:** `src/connection-pool/connection-pool-impl.ts`
 - **Purpose:** Manages SSH connections per user with pooling
 - **Key Features:**
@@ -45,18 +48,21 @@
 ## SSH Security Best Practices
 
 ### 1. Authentication
+
 - Use **timing-safe comparisons** for password/key validation
 - Support multiple auth methods: public key (recommended), password, keyboard-interactive
 - Implement rate limiting to prevent brute force
 - Log all authentication attempts
 
 ### 2. Key Management
+
 - Generate keys with **ED25519** (recommended) or ECDSA-256
 - Use **AES-256-GCM** for encryption
 - Verify and cache host keys to prevent MITM attacks
 - Never expose private keys to application
 
 ### 3. Connection Security
+
 - Enforce SSH protocol version 2 only
 - Use modern algorithms: ECDH, SHA-256+
 - Disable compression by default (information leak risk)
@@ -64,12 +70,14 @@
 - Detect dead connections within 180 seconds
 
 ### 4. Channel Management
+
 - Support multiplexing (multiple channels per connection)
 - Limit channels to 10 per connection
 - Implement graceful channel closure
 - Track active channels and enforce limits
 
 ### 5. Error Handling
+
 - Log all SSH errors with detailed context
 - Categorize errors for appropriate recovery
 - Provide user-friendly error messages
@@ -231,17 +239,20 @@ const response3 = await connection.forward(request3);
 ## Testing SSH Implementation
 
 ### Unit Tests
+
 ```bash
 npm test -- ssh-connection-impl.test.ts
 npm test -- ssh-error-handler.test.ts
 ```
 
 ### Integration Tests
+
 ```bash
 npm run test:integration -- ssh-tunnel.test.ts
 ```
 
 ### Manual Testing
+
 ```bash
 # Test SSH connection with local server
 npm run dev
@@ -261,21 +272,25 @@ curl http://localhost:3001/api/tunnel/diagnostics
 ## Troubleshooting
 
 ### Connection Refused
+
 - **Cause:** SSH server not listening
 - **Solution:** Check server is running, verify host/port
 - **Reference:** SSH_LIBRARY_DOCUMENTATION.md - Error Handling section
 
 ### Authentication Failed
+
 - **Cause:** Invalid credentials or key
 - **Solution:** Verify username, password, or private key
 - **Reference:** SSH_LIBRARY_DOCUMENTATION.md - Authentication Security section
 
 ### Timeout
+
 - **Cause:** Network latency or server overload
 - **Solution:** Increase timeout, check network conditions
 - **Reference:** SSH_LIBRARY_DOCUMENTATION.md - Connection Management section
 
 ### Channel Limit Exceeded
+
 - **Cause:** Too many concurrent channels
 - **Solution:** Reduce concurrent requests, increase channel limit (max 10)
 - **Reference:** SSH_LIBRARY_DOCUMENTATION.md - Channel Multiplexing section

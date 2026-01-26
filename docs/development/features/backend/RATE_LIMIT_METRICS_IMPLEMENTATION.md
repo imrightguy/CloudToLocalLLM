@@ -15,6 +15,7 @@ Task 37 implements comprehensive rate limit metrics collection and dashboard dat
 **RateLimitMetricsService** provides:
 
 #### Prometheus Metrics
+
 - `rate_limit_violations_total` - Total rate limit violations by type and tier
 - `rate_limit_violations_by_type_total` - Violations grouped by type
 - `rate_limited_users_active` - Number of currently rate limited users
@@ -27,12 +28,14 @@ Task 37 implements comprehensive rate limit metrics collection and dashboard dat
 - `rate_limit_check_duration_seconds` - Duration of rate limit checks
 
 #### Recording Methods
+
 - `recordViolation()` - Record a rate limit violation
 - `recordExemption()` - Record a rate limit exemption
 - `recordRequestAllowed()` - Record an allowed request
 - `recordRequestBlocked()` - Record a blocked request
 
 #### Tracking Methods
+
 - `updateWindowUsage()` - Update window usage percentage
 - `updateBurstUsage()` - Update burst usage percentage
 - `updateConcurrentRequests()` - Update concurrent request count
@@ -40,6 +43,7 @@ Task 37 implements comprehensive rate limit metrics collection and dashboard dat
 - `updateActiveRateLimitedUsers()` - Update active rate limited users count
 
 #### Analysis Methods
+
 - `getTopViolators()` - Get top violating users
 - `getTopViolatingIps()` - Get top violating IPs
 - `getMetricsSummary()` - Get overall metrics summary
@@ -80,7 +84,9 @@ GET /rate-limit-metrics/dashboard-data
 ### 3. Middleware Integration
 
 #### Rate Limiter (`middleware/rate-limiter.js`)
+
 Updated to record metrics for:
+
 - Allowed requests
 - Blocked requests (window, burst, concurrent)
 - Window usage updates
@@ -88,12 +94,15 @@ Updated to record metrics for:
 - Concurrent request updates
 
 #### Exemptions (`middleware/rate-limit-exemptions.js`)
+
 Updated to record metrics for:
+
 - Granted exemptions by type
 
 ### 4. Server Integration (`server.js`)
 
 Routes registered at:
+
 - `/metrics` - Prometheus metrics endpoint
 - `/api/metrics` - Metrics with /api prefix
 - `/rate-limit-metrics/*` - Dashboard endpoints
@@ -107,6 +116,7 @@ curl http://localhost:8080/metrics
 ```
 
 Response format (Prometheus text format):
+
 ```
 # HELP rate_limit_violations_total Total number of rate limit violations
 # TYPE rate_limit_violations_total counter
@@ -122,6 +132,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -157,6 +168,7 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -190,6 +202,7 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -226,26 +239,31 @@ scrape_configs:
 Create dashboard panels using these metrics:
 
 1. **Rate Limit Violations Over Time**
+
    ```
    rate(rate_limit_violations_total[5m])
    ```
 
 2. **Top Violators**
+
    ```
    topk(10, rate_limit_violations_total)
    ```
 
 3. **Requests Allowed vs Blocked**
+
    ```
    rate_limit_requests_allowed_total vs rate_limit_requests_blocked_total
    ```
 
 4. **Active Rate Limited Users**
+
    ```
    rate_limited_users_active
    ```
 
 5. **Average Rate Limit Check Duration**
+
    ```
    rate_limit_check_duration_seconds_bucket
    ```
@@ -271,6 +289,7 @@ Comprehensive test suite in `test/api-backend/rate-limit-metrics.test.js`:
 **Test Coverage:** 87.67% statements, 57.89% branches, 100% functions
 
 Run tests:
+
 ```bash
 npm test -- ../test/api-backend/rate-limit-metrics.test.js
 ```

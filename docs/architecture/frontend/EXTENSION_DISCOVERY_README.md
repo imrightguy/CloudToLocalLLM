@@ -7,8 +7,8 @@ packages that contains extensions for other packages.
 DO NOT USE THIS FOLDER
 ----------------------
 
- * Do not read (or rely) the contents of this folder.
- * Do write to this folder.
+* Do not read (or rely) the contents of this folder.
+* Do write to this folder.
 
 If you're interested in the lists of extensions stored in this folder use the
 API offered by package `extension_discovery` to get this information.

@@ -65,6 +65,7 @@ CREATE TABLE tunnel_webhooks (
 ```
 
 **Fields:**
+
 - `id`: Unique webhook identifier
 - `user_id`: User who registered the webhook
 - `tunnel_id`: Tunnel ID (NULL for all user's tunnels)
@@ -100,6 +101,7 @@ CREATE TABLE tunnel_webhook_deliveries (
 ```
 
 **Fields:**
+
 - `id`: Unique delivery identifier
 - `webhook_id`: Reference to webhook
 - `tunnel_id`: Tunnel that triggered event
@@ -131,6 +133,7 @@ CREATE TABLE tunnel_webhook_events (
 ```
 
 **Fields:**
+
 - `id`: Unique event identifier
 - `webhook_id`: Reference to webhook
 - `tunnel_id`: Tunnel that triggered event
@@ -148,21 +151,25 @@ Core service for webhook management.
 #### Key Methods
 
 **registerWebhook(userId, tunnelId, url, events)**
+
 - Validates webhook URL and events
 - Generates HMAC secret
 - Creates webhook record
 - Returns webhook with secret
 
 **triggerWebhookEvent(tunnelId, userId, eventType, eventData)**
+
 - Finds all matching webhooks
 - Logs event to audit table
 - Queues deliveries asynchronously
 
 **queueWebhookDelivery(webhookId, tunnelId, userId, eventType, eventData)**
+
 - Creates delivery record with status 'pending'
 - Schedules immediate delivery attempt
 
 **deliverWebhook(deliveryId)**
+
 - Retrieves delivery and webhook details
 - Generates HMAC-SHA256 signature
 - POSTs to webhook URL with signature header
@@ -170,11 +177,13 @@ Core service for webhook management.
 - Schedules retry on failure
 
 **scheduleRetry(deliveryId, attemptCount, httpStatusCode, errorMessage)**
+
 - Updates delivery status to 'retrying'
 - Calculates next retry time using exponential backoff
 - Stores error details
 
 **retryFailedDeliveries()**
+
 - Finds pending/retrying deliveries past retry time
 - Attempts delivery for each
 - Called periodically (e.g., every 30 seconds)
@@ -182,6 +191,7 @@ Core service for webhook management.
 #### Retry Logic
 
 Exponential backoff delays:
+
 - Attempt 1: Immediate
 - Attempt 2: 1 second
 - Attempt 3: 5 seconds
@@ -198,6 +208,7 @@ After 5 failed attempts, delivery is marked as failed.
 Register a webhook for tunnel events.
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com/webhook",
@@ -206,6 +217,7 @@ Register a webhook for tunnel events.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -227,6 +239,7 @@ Register a webhook for tunnel events.
 List webhooks for a tunnel.
 
 **Query Parameters:**
+
 - `limit`: Number of results (default: 50, max: 1000)
 - `offset`: Result offset (default: 0)
 
@@ -239,6 +252,7 @@ Get webhook details.
 Update webhook.
 
 **Request:**
+
 ```json
 {
   "url": "https://example.com/webhook-updated",
@@ -256,6 +270,7 @@ Delete webhook.
 Get delivery history.
 
 **Query Parameters:**
+
 - `limit`: Number of results (default: 50)
 - `offset`: Result offset (default: 0)
 
@@ -377,6 +392,7 @@ npm test -- tunnel-webhooks.test.js
 ### Manual Testing
 
 1. Register webhook:
+
 ```bash
 curl -X POST http://localhost:8080/api/tunnels/tunnel-id/webhooks \
   -H "Authorization: Bearer <token>" \
@@ -387,9 +403,10 @@ curl -X POST http://localhost:8080/api/tunnels/tunnel-id/webhooks \
   }'
 ```
 
-2. Trigger tunnel status change to test webhook delivery
+1. Trigger tunnel status change to test webhook delivery
 
-3. Check delivery status:
+2. Check delivery status:
+
 ```bash
 curl http://localhost:8080/api/tunnels/tunnel-id/webhooks/webhook-id/deliveries \
   -H "Authorization: Bearer <token>"

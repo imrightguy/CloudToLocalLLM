@@ -7,6 +7,7 @@ This directory contains the server-side authentication and authorization middlew
 ### 1. JWT Validation Middleware (`jwt-validation-middleware.ts`)
 
 Validates JWT tokens from Auth0 with the following features:
+
 - Integration with Auth0 JWKS endpoint
 - Token signature verification using Web Crypto API
 - Expiration checking with distinction between expired and invalid tokens
@@ -42,6 +43,7 @@ console.log('Rate limit:', userContext.rateLimit);
 ### 2. User Context Manager (`user-context-manager.ts`)
 
 Manages user context extraction and attachment to requests:
+
 - Extracts user ID and tier from JWT payload
 - Loads user-specific rate limits based on tier
 - Attaches user context to requests
@@ -102,6 +104,7 @@ app.get(
 ### 3. Authentication Audit Logger (`auth-audit-logger.ts`)
 
 Comprehensive logging and monitoring of authentication events:
+
 - Logs all authentication attempts and failures
 - Detects brute force attack patterns
 - Blocks suspicious IPs and users

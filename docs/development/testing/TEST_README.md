@@ -7,6 +7,7 @@ This test suite uses Playwright to perform comprehensive end-to-end analysis of 
 ## 🔧 What the Tests Do
 
 ### Primary Objectives
+
 1. **Detect Login Loops**: Identify infinite redirect cycles between `/login` and `/callback`
 2. **Verify Race Condition Fix**: Confirm the 100ms delay implementation is working
 3. **Monitor Authentication Flow**: Track complete auth process from login to success
@@ -14,6 +15,7 @@ This test suite uses Playwright to perform comprehensive end-to-end analysis of 
 5. **Generate Comprehensive Reports**: Provide detailed analysis of authentication behavior
 
 ### Specific Checks
+
 - ✅ No infinite redirects (max 10 redirects before flagging as loop)
 - ✅ Callback processing takes >100ms (verifying our delay fix)
 - ✅ Authentication state properly synchronized before navigation
@@ -24,11 +26,13 @@ This test suite uses Playwright to perform comprehensive end-to-end analysis of 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 16+ installed
 - Access to deployed CloudToLocalLLM v10.1.147 application
 - Optional: JWT test credentials for full flow testing
 
 ### Installation
+
 ```bash
 # Install dependencies
 npm install
@@ -43,6 +47,7 @@ npx playwright install-deps
 ### Running Tests
 
 #### Using PowerShell Script (Recommended)
+
 ```powershell
 # Basic test (without JWT credentials)
 .\run-auth-loop-test.ps1 -DeploymentUrl "https://your-app.vercel.app"
@@ -58,6 +63,7 @@ npx playwright install-deps
 ```
 
 #### Using npm Scripts
+
 ```bash
 # Set environment variables
 export DEPLOYMENT_URL="https://your-app.vercel.app"
@@ -71,6 +77,7 @@ npm run test:auth-loop:debug    # Debug mode with step-by-step execution
 ```
 
 #### Direct Playwright Commands
+
 ```bash
 # Run specific test
 npx playwright test auth-loop-analysis.spec.js
@@ -86,6 +93,7 @@ npx playwright show-report
 ## 📊 Test Reports
 
 ### Generated Artifacts
+
 - **HTML Report**: `test-results/html-report/index.html` - Interactive test results
 - **JSON Report**: `test-results/test-results.json` - Machine-readable results
 - **Custom Analysis**: `test-results/auth-loop-analysis-*.json` - Detailed authentication flow data
@@ -96,6 +104,7 @@ npx playwright show-report
 ### Understanding Results
 
 #### Success Indicators
+
 ```
 ✅ Result: SUCCESS
 ✅ Total redirects: 2-4 (normal flow)
@@ -105,6 +114,7 @@ npx playwright show-report
 ```
 
 #### Failure Indicators
+
 ```
 ❌ Result: INFINITE_LOOP_DETECTED
 ❌ Total redirects: >10
@@ -115,7 +125,9 @@ npx playwright show-report
 ## 🔍 Debugging Authentication Issues
 
 ### Console Log Analysis
+
 Look for these debug messages in the test output:
+
 ```
 🔐 [Callback] Authentication successful, redirecting to home
 🔄 [Router] Auth state: true, App subdomain: true
@@ -123,13 +135,16 @@ Look for these debug messages in the test output:
 ```
 
 ### Network Request Analysis
+
 Monitor these key requests:
+
 - JWT authorization endpoint calls
 - Token exchange requests (`/oauth/token`)
 - User profile requests (`/userinfo`)
 - Application callback handling
 
 ### Timing Analysis
+
 - **Auth Start to Callback**: Should be <15 seconds
 - **Callback Processing**: Should be >100ms (our fix delay)
 - **Total Authentication**: Should be <30 seconds
@@ -137,6 +152,7 @@ Monitor these key requests:
 ## 🛠️ Configuration
 
 ### Environment Variables
+
 ```bash
 # Required
 DEPLOYMENT_URL=https://your-app.vercel.app
@@ -151,7 +167,9 @@ CI=false                      # Set to true in CI environments
 ```
 
 ### Browser Configuration
+
 Tests run on multiple browsers by default:
+
 - **chromium-auth-analysis**: Chrome/Chromium
 - **firefox-auth-analysis**: Firefox
 - **webkit-auth-analysis**: Safari/WebKit
@@ -183,12 +201,15 @@ Tests run on multiple browsers by default:
    - Check if the correct version is deployed
 
 ### Debug Mode
+
 Run tests in debug mode for step-by-step analysis:
+
 ```bash
 npx playwright test auth-loop-analysis.spec.js --debug
 ```
 
 This will:
+
 - Open browser with developer tools
 - Pause at each step for manual inspection
 - Allow interaction with the page
@@ -197,6 +218,7 @@ This will:
 ## 📋 Test Scenarios Covered
 
 ### Scenario 1: Normal Authentication Flow
+
 1. Navigate to deployment
 2. Click "Sign In with JWT"
 3. Complete JWT authentication
@@ -204,18 +226,21 @@ This will:
 5. Successfully navigate to home page
 
 ### Scenario 2: Race Condition Detection
+
 1. Monitor authentication state changes
 2. Track router redirect decisions
 3. Verify timing of state propagation
 4. Confirm no premature redirects
 
 ### Scenario 3: Error Handling
+
 1. Test with invalid credentials
 2. Monitor error recovery
 3. Verify proper cleanup
 4. Check fallback behavior
 
 ### Scenario 4: Network Analysis
+
 1. Capture all JWT API calls
 2. Monitor token exchange process
 3. Track user profile loading

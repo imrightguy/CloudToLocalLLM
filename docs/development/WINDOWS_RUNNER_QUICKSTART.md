@@ -30,6 +30,7 @@ Get-Content C:\actions-runner\_diag\Runner_*.log -Tail 20
 Visit: `https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/settings/actions/runners`
 
 Your runner should appear with:
+
 - ✅ Green status
 - Labels: `windows`, `self-hosted`
 - Name: Your computer name
@@ -50,4 +51,3 @@ Start-Service actions.runner.*
 ## 📚 Full Documentation
 
 See [WINDOWS_SELF_HOSTED_RUNNER_SETUP.md](WINDOWS_SELF_HOSTED_RUNNER_SETUP.md) for complete details.
-

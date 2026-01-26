@@ -12,7 +12,8 @@ This document describes the implementation of error recovery endpoints for manua
 
 The `ErrorRecoveryService` class manages error recovery procedures and provides recovery status reporting.
 
-#### Key Features:
+#### Key Features
+
 - **Recovery Procedure Registration**: Register recovery procedures for services
 - **Recovery Execution**: Execute recovery procedures with timeout support
 - **Concurrent Prevention**: Prevent concurrent recovery attempts for the same service
@@ -21,7 +22,8 @@ The `ErrorRecoveryService` class manages error recovery procedures and provides 
 - **Status Reporting**: Get recovery status for individual services or all services
 - **Comprehensive Reporting**: Generate detailed recovery reports
 
-#### Key Methods:
+#### Key Methods
+
 - `registerRecoveryProcedure(serviceName, config)` - Register a recovery procedure
 - `executeRecovery(serviceName, options)` - Execute a recovery procedure
 - `getRecoveryStatus(serviceName)` - Get status for a specific service
@@ -36,24 +38,28 @@ The `ErrorRecoveryService` class manages error recovery procedures and provides 
 
 Express routes for error recovery endpoints. All endpoints require admin authentication.
 
-#### Endpoints:
+#### Endpoints
 
 **GET /error-recovery/status**
+
 - Get recovery status for all services
 - Returns: Array of recovery statuses
 
 **GET /error-recovery/status/:serviceName**
+
 - Get recovery status for a specific service
 - Parameters: serviceName (string)
 - Returns: Recovery status for the service
 
 **POST /error-recovery/recover/:serviceName**
+
 - Trigger recovery procedure for a service
 - Parameters: serviceName (string)
 - Body: { reason?: string }
 - Returns: Recovery result with status and duration
 
 **GET /error-recovery/history**
+
 - Get recovery history with optional filtering
 - Query Parameters:
   - serviceName?: string - Filter by service name
@@ -62,18 +68,22 @@ Express routes for error recovery endpoints. All endpoints require admin authent
 - Returns: Array of recovery history entries
 
 **GET /error-recovery/metrics**
+
 - Get recovery metrics
 - Returns: Metrics object with recovery statistics
 
 **GET /error-recovery/report**
+
 - Get comprehensive recovery report
 - Returns: Report with summary, services, and recent history
 
 **DELETE /error-recovery/history**
+
 - Clear recovery history
 - Returns: Success message
 
 **POST /error-recovery/reset-metrics**
+
 - Reset recovery metrics
 - Returns: Success message
 
@@ -81,7 +91,8 @@ Express routes for error recovery endpoints. All endpoints require admin authent
 
 Comprehensive unit tests for the ErrorRecoveryService class.
 
-#### Test Coverage:
+#### Test Coverage
+
 - Recovery procedure registration
 - Recovery execution (success and failure cases)
 - Concurrent recovery prevention
@@ -98,7 +109,8 @@ Comprehensive unit tests for the ErrorRecoveryService class.
 
 Integration tests for error recovery endpoints with authentication and authorization.
 
-#### Test Coverage:
+#### Test Coverage
+
 - GET /error-recovery/status endpoint
 - GET /error-recovery/status/:serviceName endpoint
 - POST /error-recovery/recover/:serviceName endpoint
@@ -112,6 +124,7 @@ Integration tests for error recovery endpoints with authentication and authoriza
 ## Data Models
 
 ### Recovery Status
+
 ```typescript
 {
   service: string;
@@ -135,6 +148,7 @@ Integration tests for error recovery endpoints with authentication and authoriza
 ```
 
 ### Recovery History Entry
+
 ```typescript
 {
   serviceName: string;
@@ -150,6 +164,7 @@ Integration tests for error recovery endpoints with authentication and authoriza
 ```
 
 ### Recovery Metrics
+
 ```typescript
 {
   totalRecoveryAttempts: number;
@@ -256,11 +271,13 @@ app.use('/error-recovery', errorRecoveryRoutes);
 ## Testing
 
 ### Running Unit Tests
+
 ```bash
 npm test -- test/api-backend/error-recovery.test.js
 ```
 
 ### Running Integration Tests
+
 ```bash
 npm test -- test/api-backend/error-recovery-integration.test.js
 ```
@@ -268,6 +285,7 @@ npm test -- test/api-backend/error-recovery-integration.test.js
 ## Compliance
 
 This implementation satisfies Requirement 7.7:
+
 - ✅ Provides error recovery endpoints for manual intervention
 - ✅ Implements recovery procedures
 - ✅ Adds recovery status reporting

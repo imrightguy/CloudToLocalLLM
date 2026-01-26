@@ -17,6 +17,7 @@ The First-Time Setup Wizard is a comprehensive onboarding experience that guides
 ## Features
 
 ### Core Functionality
+
 - **Guided Multi-Step Process**: 8-step wizard that walks users through the entire setup
 - **Automatic Platform Detection**: Detects user's operating system and recommends appropriate downloads
 - **Container Creation**: Automatically creates isolated streaming proxy containers for each user
@@ -25,6 +26,7 @@ The First-Time Setup Wizard is a comprehensive onboarding experience that guides
 - **Progress Persistence**: Saves progress across browser sessions for interrupted setups
 
 ### User Experience Enhancements
+
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Accessibility Compliant**: Screen reader support and keyboard navigation
 - **Visual Feedback**: Progress indicators, animations, and clear status updates
@@ -32,6 +34,7 @@ The First-Time Setup Wizard is a comprehensive onboarding experience that guides
 - **Troubleshooting Integration**: Context-sensitive help and error resolution guidance
 
 ### Technical Features
+
 - **Feature Flag Control**: Gradual rollout capability with remote configuration
 - **Analytics Integration**: Comprehensive tracking of user behavior and success metrics
 - **Security First**: Secure container isolation and encrypted data transmission
@@ -180,6 +183,7 @@ sequenceDiagram
 ### Key Services
 
 #### SetupStatusService
+
 ```dart
 class SetupStatusService {
   Future<bool> isFirstTimeUser(String userId);
@@ -190,6 +194,7 @@ class SetupStatusService {
 ```
 
 #### UserContainerService
+
 ```dart
 class UserContainerService {
   Future<ContainerCreationResult> createUserContainer(String userId);
@@ -199,6 +204,7 @@ class UserContainerService {
 ```
 
 #### PlatformDetectionService
+
 ```dart
 class PlatformDetectionService {
   PlatformType detectPlatform();
@@ -226,6 +232,7 @@ class SetupWizardState {
 ### Data Models
 
 #### SetupProgress
+
 ```dart
 class SetupProgress {
   final String userId;
@@ -239,6 +246,7 @@ class SetupProgress {
 ```
 
 #### ContainerCreationResult
+
 ```dart
 class ContainerCreationResult {
   final bool success;
@@ -303,18 +311,21 @@ class SetupWizardFeatureFlags {
 ### Key Metrics
 
 #### Success Metrics
+
 - **Completion Rate**: Percentage of users who complete the entire wizard
 - **Step Completion Rates**: Success rate for each individual step
 - **Time to Complete**: Average time for full setup completion
 - **Error Recovery Rate**: Percentage of users who recover from errors
 
 #### Performance Metrics
+
 - **Container Creation Time**: Average time to create user containers
 - **Download Success Rate**: Percentage of successful downloads
 - **Connection Validation Time**: Time to validate tunnel connections
 - **Page Load Times**: Performance of wizard step loading
 
 #### User Experience Metrics
+
 - **Abandonment Rate**: Percentage of users who abandon setup
 - **Skip Rate**: How often users skip optional steps
 - **Error Frequency**: Most common errors encountered
@@ -342,36 +353,43 @@ class SetupAnalyticsService {
 ## Documentation Links
 
 ### User Documentation
+
 - [First-Time Setup Guide](../USER_DOCUMENTATION/FIRST_TIME_SETUP_GUIDE.md) - Complete user walkthrough
 - [Setup Troubleshooting & FAQ](../USER_DOCUMENTATION/SETUP_TROUBLESHOOTING_FAQ.md) - Common issues and solutions
 
 ### Developer Documentation
+
 - [Developer Guide](../DEVELOPMENT/FIRST_TIME_SETUP_WIZARD_DEVELOPMENT.md) - Technical implementation details
 - [API Documentation](../API/SETUP_WIZARD_API.md) - Backend service endpoints
 
 ### Deployment Documentation
+
 - [Deployment Checklist](../DEPLOYMENT/SETUP_WIZARD_DEPLOYMENT_CHECKLIST.md) - Complete deployment process
 - [Feature Flag Configuration](../../config/setup_wizard_remote_config.json) - Remote configuration options
 
 ### Testing Documentation
+
 - [Test Strategy](../TESTING/SETUP_WIZARD_TESTING.md) - Comprehensive testing approach
 - [Test Cases](../TESTING/SETUP_WIZARD_TEST_CASES.md) - Detailed test scenarios
 
 ## Success Criteria
 
 ### Minimum Viable Success
+
 - Setup completion rate > 75%
 - Error rate < 10%
 - Average setup time < 12 minutes
 - No critical system outages
 
 ### Target Success
+
 - Setup completion rate > 85%
 - Error rate < 5%
 - Average setup time < 8 minutes
 - User satisfaction score > 4.0/5.0
 
 ### Exceptional Success
+
 - Setup completion rate > 90%
 - Error rate < 2%
 - Average setup time < 6 minutes
@@ -381,12 +399,14 @@ class SetupAnalyticsService {
 ## Future Enhancements
 
 ### Planned Improvements
+
 - **Video Tutorials**: Embedded video guides for complex steps
 - **Advanced Troubleshooting**: AI-powered issue diagnosis
 - **Personalization**: Customized setup flow based on user preferences
 - **Offline Support**: Partial setup capability without internet connection
 
 ### Potential Features
+
 - **Setup Wizard API**: Public API for third-party integrations
 - **Custom Branding**: White-label setup experience for enterprise customers
 - **Multi-Language Support**: Localized setup wizard for international users

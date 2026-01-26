@@ -16,16 +16,19 @@
 ## Root Causes
 
 ### 1. CORS Preflight Issues
+
 - **Problem**: CORS middleware order might be incorrect
 - **Issue**: `app.options('*', ...)` handler might be redundant or conflicting
 - **Issue**: Helmet CSP might be interfering with CORS headers
 - **Issue**: Rate limiting middleware might be blocking OPTIONS requests
 
 ### 2. Provider Not Found
+
 - **Problem**: `context.read<ProviderConfigurationManager>()` called in `initState()` before provider is available
 - **Location**: `lib/widgets/settings/local_llm_providers_category.dart:67`
 
 ### 3. AdminCenterService
+
 - **Problem**: Service is registered in `setupAuthenticatedServices()` which is called after authentication
 - **Issue**: `UnifiedSettingsScreen` tries to access it before authentication completes
 
@@ -183,4 +186,3 @@ The current code already has try-catch, but we should ensure it's registered ear
 3. No provider not found errors
 4. AdminCenterService accessible when needed
 5. Clean browser console with no CORS errors
-

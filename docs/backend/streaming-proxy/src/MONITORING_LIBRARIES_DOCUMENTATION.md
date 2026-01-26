@@ -3,6 +3,7 @@
 ## Library Resolution
 
 ### Prometheus Client (prom-client)
+
 **Library Name:** Prom Client  
 **Context7 Library ID:** `/siimon/prom-client`  
 **NPM Package:** `prom-client`  
@@ -11,6 +12,7 @@
 **Repository:** https://github.com/siimon/prom-client
 
 ### OpenTelemetry JavaScript
+
 **Library Name:** OpenTelemetry JavaScript Client  
 **Context7 Library ID:** `/open-telemetry/opentelemetry-js`  
 **NPM Package:** `@opentelemetry/sdk-node`  
@@ -25,6 +27,7 @@
 ### 1. Metric Types
 
 #### Counter
+
 - **Purpose:** Track cumulative values that only increase
 - **Use Cases:** Request count, errors, total bytes sent
 - **Reset:** Only resets on process restart
@@ -42,6 +45,7 @@ httpRequestsTotal.inc({ method: 'POST', status_code: '201' }, 5); // Increment b
 ```
 
 #### Gauge
+
 - **Purpose:** Track values that can increase or decrease
 - **Use Cases:** Active connections, queue size, memory usage
 - **Reset:** Can be set to any value
@@ -60,6 +64,7 @@ activeConnections.dec({ service: 'api' }, 3);   // Decrement by 3
 ```
 
 #### Histogram
+
 - **Purpose:** Track distribution of values (latency, size)
 - **Use Cases:** Request duration, response size, processing time
 - **Buckets:** Define ranges for distribution analysis
@@ -83,6 +88,7 @@ end({ method: 'GET', route: '/api/users', status: '200' });
 ```
 
 #### Summary
+
 - **Purpose:** Calculate percentiles (P50, P95, P99)
 - **Use Cases:** Request latency percentiles, response time analysis
 - **Percentiles:** Define which percentiles to calculate
@@ -103,6 +109,7 @@ requestLatency.observe({ service: 'api' }, 0.23);
 ### 2. Bucket Configuration
 
 #### Linear Buckets
+
 - **Use:** Equal spacing between values
 - **Example:** Response sizes (0, 100, 200, 300, ...)
 
@@ -115,6 +122,7 @@ const responseSize = new Histogram({
 ```
 
 #### Exponential Buckets
+
 - **Use:** Exponential growth for wide ranges
 - **Example:** Latencies (1ms, 2ms, 4ms, 8ms, ...)
 
@@ -129,6 +137,7 @@ const requestDuration = new Histogram({
 ### 3. Label Management
 
 #### Best Practices
+
 - **Minimize cardinality:** Avoid high-cardinality labels (user IDs, request IDs)
 - **Initialize combinations:** Pre-initialize all expected label combinations with zero()
 - **Consistent naming:** Use consistent label names across metrics
@@ -150,6 +159,7 @@ httpRequests.zero({ method: 'POST', status_code: '201' });
 ### 4. Metrics Endpoint
 
 #### Prometheus Format
+
 - **Content-Type:** `text/plain; version=0.0.4; charset=utf-8`
 - **Endpoint:** `/metrics`
 - **Format:** Prometheus exposition format
@@ -168,6 +178,7 @@ app.get('/metrics', async (req, res) => {
 ### 5. Default Metrics
 
 #### Collect Default Metrics
+
 - **Node.js runtime metrics:** Memory, CPU, event loop
 - **GC metrics:** Garbage collection duration and frequency
 - **Process metrics:** Uptime, file descriptors
@@ -192,6 +203,7 @@ collectDefaultMetrics({
 ### 6. Custom Registry
 
 #### Multiple Registries
+
 - **Use:** Separate metrics for different components
 - **Merge:** Combine multiple registries
 
@@ -211,6 +223,7 @@ const merged = Registry.merge([customRegistry, register]);
 ### 7. Cluster Aggregation
 
 #### Aggregate Worker Metrics
+
 - **Master process:** Aggregates metrics from workers
 - **Workers:** Collect metrics normally
 - **Aggregation methods:** sum, first, min, max, average, omit
@@ -232,6 +245,7 @@ if (cluster.isPrimary) {
 ### 8. Pushgateway Integration
 
 #### Push Metrics
+
 - **Use:** Batch jobs, short-lived processes
 - **Methods:** pushAdd (append), push (replace), delete
 
@@ -257,6 +271,7 @@ await gateway.delete({
 ### 1. Tracing Setup
 
 #### Node.js SDK Initialization
+
 - **Auto-instrumentation:** Automatically instrument common modules
 - **Exporters:** Send traces to Jaeger, Zipkin, or OTLP Collector
 - **Span processors:** SimpleSpanProcessor (immediate), BatchSpanProcessor (batched)
@@ -283,6 +298,7 @@ process.on('SIGTERM', () => {
 ### 2. Metrics Collection
 
 #### Meter Provider Setup
+
 - **Instruments:** Counter, UpDownCounter, Histogram, Gauge
 - **Exporters:** Prometheus, OTLP, Jaeger
 - **Views:** Customize metric behavior
@@ -303,6 +319,7 @@ const meter = meterProvider.getMeter('my-service', '1.0.0');
 ### 3. Instrumentation
 
 #### HTTP Instrumentation
+
 - **Automatic:** Captures HTTP requests/responses
 - **Attributes:** Method, status code, URL, latency
 - **Custom hooks:** Add custom attributes to spans
@@ -325,6 +342,7 @@ registerInstrumentations({
 ### 4. Context Propagation
 
 #### W3C Trace Context
+
 - **Standard:** W3C Trace Context for distributed tracing
 - **Headers:** traceparent, tracestate
 - **Baggage:** Additional context data
@@ -339,6 +357,7 @@ api.propagation.setGlobalPropagator(new W3CTraceContextPropagator());
 ### 5. Span Attributes
 
 #### Best Practices
+
 - **Semantic conventions:** Use standard attribute names
 - **Cardinality:** Avoid high-cardinality attributes
 - **Consistency:** Use consistent naming across spans
@@ -447,18 +466,21 @@ Add these comments to monitoring code:
 ## References
 
 ### Prometheus Client
+
 - **Repository:** https://github.com/siimon/prom-client
 - **NPM:** https://www.npmjs.com/package/prom-client
 - **Documentation:** https://github.com/siimon/prom-client/blob/master/README.md
 - **Context7 ID:** `/siimon/prom-client`
 
 ### OpenTelemetry
+
 - **Repository:** https://github.com/open-telemetry/opentelemetry-js
 - **NPM:** https://www.npmjs.com/package/@opentelemetry/sdk-node
 - **Documentation:** https://opentelemetry.io/docs/instrumentation/js/
 - **Context7 ID:** `/open-telemetry/opentelemetry-js`
 
 ### Standards
+
 - **Prometheus:** https://prometheus.io/docs/instrumenting/exposition_formats/
 - **OpenTelemetry:** https://opentelemetry.io/docs/
 - **Semantic Conventions:** https://opentelemetry.io/docs/reference/specification/protocol/exporter/

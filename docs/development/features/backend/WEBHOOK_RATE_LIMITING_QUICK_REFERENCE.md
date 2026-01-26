@@ -20,6 +20,7 @@ Authorization: Bearer <token>
 ```
 
 Response:
+
 ```json
 {
   "webhook_id": "webhook-123",
@@ -52,6 +53,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "webhook_id": "webhook-123",
@@ -75,6 +77,7 @@ Authorization: Bearer <token>
 ```
 
 Response:
+
 ```json
 {
   "webhook_id": "webhook-123",
@@ -153,6 +156,7 @@ When a rate limit is exceeded, the API returns a 429 (Too Many Requests) respons
 Located in `services/webhook-rate-limiter.js`
 
 Key methods:
+
 - `getWebhookRateLimitConfig(webhookId, userId)` - Get configuration
 - `setWebhookRateLimitConfig(webhookId, userId, config)` - Set configuration
 - `checkRateLimit(webhookId, userId)` - Check if delivery is allowed
@@ -173,6 +177,7 @@ Automatically checks rate limits for webhook deliveries and returns 429 if excee
 ## Cache Management
 
 The service uses an in-memory cache for performance:
+
 - Cache entries are automatically cleaned up every 5 minutes
 - Entries older than 1 hour are removed
 - Cache is invalidated when configuration is updated

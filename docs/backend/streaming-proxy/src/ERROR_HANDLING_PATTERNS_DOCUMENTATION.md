@@ -11,11 +11,13 @@ This document consolidates error handling patterns from the SSH WebSocket Tunnel
 ### 1. Network Errors
 
 **Characteristics:**
+
 - Connection-level failures
 - Network infrastructure issues
 - Temporary connectivity problems
 
 **Examples:**
+
 - `ECONNREFUSED` - Connection refused
 - `ENOTFOUND` - DNS resolution failed
 - `ETIMEDOUT` - Connection timeout
@@ -23,12 +25,14 @@ This document consolidates error handling patterns from the SSH WebSocket Tunnel
 - `ENETUNREACH` - Network unreachable
 
 **Recovery Strategy:**
+
 - Retry with exponential backoff
 - Check network connectivity
 - Verify server availability
 - Fallback to alternative endpoints
 
 **Code Example:**
+
 ```typescript
 async function connectWithRetry(config, maxRetries = 3) {
   let lastError;
@@ -60,24 +64,28 @@ function isNetworkError(error) {
 ### 2. Authentication Errors
 
 **Characteristics:**
+
 - Invalid credentials
 - Expired tokens
 - Insufficient permissions
 - Authentication method not supported
 
 **Examples:**
+
 - `EACCES` - Permission denied
 - `All_AUTH_METHODS_FAILED` - All authentication methods failed
 - `INVALID_TOKEN` - JWT token invalid
 - `TOKEN_EXPIRED` - JWT token expired
 
 **Recovery Strategy:**
+
 - Refresh credentials
 - Re-authenticate with valid credentials
 - Check token expiration
 - Verify authentication method support
 
 **Code Example:**
+
 ```typescript
 async function handleAuthError(error, credentials) {
   if (error.code === 'TOKEN_EXPIRED') {
@@ -104,24 +112,28 @@ async function handleAuthError(error, credentials) {
 ### 3. Protocol Errors
 
 **Characteristics:**
+
 - Invalid message format
 - Unsupported protocol version
 - Handshake failures
 - Invalid frame format
 
 **Examples:**
+
 - `INVALID_FRAME` - Invalid WebSocket frame
 - `UNSUPPORTED_VERSION` - Unsupported SSH version
 - `HANDSHAKE_FAILED` - Protocol handshake failed
 - `INVALID_MESSAGE` - Invalid message format
 
 **Recovery Strategy:**
+
 - Log detailed error information
 - Close connection gracefully
 - Attempt reconnection with different parameters
 - Check protocol version compatibility
 
 **Code Example:**
+
 ```typescript
 function handleProtocolError(error, connection) {
   logger.error('Protocol error', {
@@ -150,24 +162,28 @@ function handleProtocolError(error, connection) {
 ### 4. Server Errors
 
 **Characteristics:**
+
 - Server-side failures
 - Resource exhaustion
 - Internal server errors
 - Service unavailable
 
 **Examples:**
+
 - `500` - Internal server error
 - `503` - Service unavailable
 - `CHANNEL_OPEN_FAILURE` - Channel creation failed
 - `RESOURCE_EXHAUSTED` - Server resources exhausted
 
 **Recovery Strategy:**
+
 - Implement circuit breaker pattern
 - Retry with backoff
 - Check server health
 - Fallback to alternative server
 
 **Code Example:**
+
 ```typescript
 class CircuitBreakerErrorHandler {
   constructor(threshold = 5, timeout = 60000) {
@@ -222,24 +238,28 @@ function isServerError(error) {
 ### 5. Configuration Errors
 
 **Characteristics:**
+
 - Invalid configuration parameters
 - Missing required settings
 - Incompatible settings
 - Out-of-range values
 
 **Examples:**
+
 - `INVALID_CONFIG` - Configuration validation failed
 - `MISSING_REQUIRED_FIELD` - Required field missing
 - `INVALID_VALUE` - Configuration value out of range
 - `INCOMPATIBLE_SETTINGS` - Settings conflict
 
 **Recovery Strategy:**
+
 - Validate configuration before use
 - Use default values for optional settings
 - Log configuration errors with details
 - Fail fast with clear error messages
 
 **Code Example:**
+
 ```typescript
 function validateConfig(config) {
   const errors = [];
@@ -274,24 +294,28 @@ function validateConfig(config) {
 ### 6. Resource Errors
 
 **Characteristics:**
+
 - Memory exhaustion
 - File descriptor limits
 - Queue overflow
 - Connection limits exceeded
 
 **Examples:**
+
 - `ENOMEM` - Out of memory
 - `EMFILE` - Too many open files
 - `QUEUE_FULL` - Request queue full
 - `MAX_CONNECTIONS_EXCEEDED` - Connection limit exceeded
 
 **Recovery Strategy:**
+
 - Implement backpressure
 - Drop low-priority requests
 - Increase resource limits
 - Implement graceful degradation
 
 **Code Example:**
+
 ```typescript
 class BackpressureManager {
   constructor(maxQueueSize = 1000, maxMemory = 100 * 1024 * 1024) {
@@ -453,16 +477,19 @@ async function executeWithFallback(primaryOperation, fallbackOperation) {
 ## WebSocket Error Handling
 
 ### Connection Errors
+
 - **Cause:** Network issues, server unavailable
 - **Recovery:** Automatic reconnection with exponential backoff
 - **Logging:** Log connection attempts and failures
 
 ### Protocol Errors
+
 - **Cause:** Invalid frames, handshake failures
 - **Recovery:** Close connection, attempt reconnection
 - **Logging:** Log protocol violations with frame details
 
 ### Authentication Errors
+
 - **Cause:** Invalid tokens, expired credentials
 - **Recovery:** Refresh credentials, re-authenticate
 - **Logging:** Log authentication attempts and failures
@@ -472,21 +499,25 @@ async function executeWithFallback(primaryOperation, fallbackOperation) {
 ## SSH Error Handling
 
 ### Authentication Errors
+
 - **Cause:** Invalid credentials, unsupported auth method
 - **Recovery:** Try alternative auth methods, refresh credentials
 - **Logging:** Log auth attempts (without passwords)
 
 ### Protocol Errors
+
 - **Cause:** Unsupported algorithms, handshake failures
 - **Recovery:** Negotiate compatible algorithms, reconnect
 - **Logging:** Log protocol negotiation details
 
 ### Channel Errors
+
 - **Cause:** Channel limit exceeded, stream errors
 - **Recovery:** Close unused channels, retry with backoff
 - **Logging:** Log channel operations and limits
 
 ### Keep-Alive Failures
+
 - **Cause:** Connection stalled, server unresponsive
 - **Recovery:** Close connection, attempt reconnection
 - **Logging:** Log keep-alive failures and response times
@@ -496,16 +527,19 @@ async function executeWithFallback(primaryOperation, fallbackOperation) {
 ## Metrics Collection Error Handling
 
 ### Collection Errors
+
 - **Cause:** Metric not found, invalid labels
 - **Recovery:** Log error, continue with partial metrics
 - **Logging:** Log collection failures with metric details
 
 ### Export Errors
+
 - **Cause:** Serialization failures, format issues
 - **Recovery:** Retry export, drop oldest metrics if needed
 - **Logging:** Log export failures with error details
 
 ### Storage Errors
+
 - **Cause:** Memory exhaustion, disk full
 - **Recovery:** Implement retention policies, drop old data
 - **Logging:** Log storage issues with resource usage
@@ -515,26 +549,31 @@ async function executeWithFallback(primaryOperation, fallbackOperation) {
 ## Best Practices
 
 ### 1. Error Context
+
 - Always include relevant context (user ID, connection ID, request ID)
 - Log timestamps in ISO 8601 format
 - Include stack traces for debugging
 
 ### 2. Error Recovery
+
 - Implement exponential backoff for retries
 - Set maximum retry limits
 - Use circuit breaker pattern for cascading failures
 
 ### 3. Error Monitoring
+
 - Track error rates and categories
 - Alert on error spikes
 - Monitor recovery success rates
 
 ### 4. Error Messages
+
 - Use clear, actionable error messages
 - Avoid exposing sensitive information
 - Provide suggestions for resolution
 
 ### 5. Error Propagation
+
 - Preserve error context through call chain
 - Add context at each level
 - Don't swallow errors silently
@@ -590,11 +629,13 @@ Add these comments to error handling code:
 ## References
 
 ### Error Handling Standards
+
 - **RFC 3986:** URI Generic Syntax (error codes)
 - **HTTP Status Codes:** https://httpwg.org/specs/rfc7231.html#status.codes
 - **SSH Error Codes:** https://tools.ietf.org/html/rfc4253#section-11.1
 
 ### Related Documentation
+
 - [SSH_LIBRARY_DOCUMENTATION.md](./SSH_LIBRARY_DOCUMENTATION.md) - SSH error handling
 - [CONTEXT7_BEST_PRACTICES.md](./CONTEXT7_BEST_PRACTICES.md) - WebSocket error handling
 - [error_categorization.dart](../../lib/services/tunnel/error_categorization.dart) - Client-side error categorization

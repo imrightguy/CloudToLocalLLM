@@ -48,6 +48,7 @@ async function freeUserWorkflow() {
 ### Upgrade Triggers
 
 Consider upgrading to Premium if you:
+
 - Consistently hit rate limits
 - Need more concurrent connections
 - Have production applications
@@ -140,6 +141,7 @@ curl https://api.cloudtolocalllm.online/v2/health
 ### Upgrade Triggers
 
 Consider upgrading to Enterprise if you:
+
 - Consistently hit Premium limits
 - Need guaranteed high throughput
 - Have mission-critical applications
@@ -299,6 +301,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ### Free Tier
 
 **Choose if:**
+
 - You're learning or experimenting
 - Your application has low traffic
 - You're building a personal project
@@ -309,6 +312,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ### Premium Tier
 
 **Choose if:**
+
 - You have a production application
 - You need reliable service
 - Your traffic is moderate
@@ -319,6 +323,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ### Enterprise Tier
 
 **Choose if:**
+
 - You have high-traffic applications
 - You need guaranteed performance
 - You require admin features
@@ -390,12 +395,14 @@ async function enterpriseUserStrategy() {
 ### Upgrade Process
 
 1. Check your current tier:
+
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
      https://api.cloudtolocalllm.online/v2/users/me
    ```
 
 2. Upgrade to desired tier:
+
    ```bash
    curl -X POST \
      -H "Authorization: Bearer $TOKEN" \
@@ -405,6 +412,7 @@ async function enterpriseUserStrategy() {
    ```
 
 3. Verify upgrade:
+
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
      https://api.cloudtolocalllm.online/v2/users/me

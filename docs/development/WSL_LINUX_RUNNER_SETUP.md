@@ -5,6 +5,7 @@ This guide explains how to set up a GitHub Actions Linux runner in WSL (Windows 
 ## 📋 Overview
 
 Using WSL for the Linux runner allows you to:
+
 - Build Linux apps on your Windows machine
 - Use native Linux build tools
 - Test Linux builds locally
@@ -22,6 +23,7 @@ Using WSL for the Linux runner allows you to:
 ### Option 1: Automated Setup (Recommended)
 
 From PowerShell:
+
 ```powershell
 .\scripts\powershell\Setup-WSLLinuxRunner.ps1
 ```
@@ -31,17 +33,20 @@ This will guide you through the setup process.
 ### Option 2: Manual Setup
 
 1. **Open your WSL distribution:**
+
    ```powershell
    wsl -d FedoraLinux-43
    # Or your distribution name
    ```
 
 2. **Navigate to the project:**
+
    ```bash
    cd /mnt/d/dev/CloudToLocalLLM
    ```
 
 3. **Run the setup script:**
+
    ```bash
    bash scripts/setup-wsl-linux-runner.sh
    ```
@@ -63,6 +68,7 @@ This will guide you through the setup process.
 ### Step 2: Install Dependencies
 
 The setup script automatically installs:
+
 - Build tools (clang, cmake, ninja-build, pkg-config)
 - GTK development libraries (libgtk-3-dev)
 - Flutter SDK
@@ -71,6 +77,7 @@ The setup script automatically installs:
 ### Step 3: Configure Runner
 
 The script will:
+
 - Download the GitHub Actions runner
 - Configure it with your token
 - Set up labels: `linux`, `self-hosted`, `wsl`
@@ -79,6 +86,7 @@ The script will:
 ### Step 4: Start Runner
 
 **If systemd is available:**
+
 ```bash
 cd ~/actions-runner
 sudo ./svc.sh install
@@ -86,12 +94,14 @@ sudo ./svc.sh start
 ```
 
 **If systemd is not available (most WSL setups):**
+
 ```bash
 cd ~/actions-runner
 ./run.sh
 ```
 
 Or add to `~/.bashrc`:
+
 ```bash
 (cd ~/actions-runner && ./run.sh) &
 ```
@@ -103,6 +113,7 @@ If you prefer to set up manually:
 ### 1. Install Build Dependencies
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt-get update
 sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa \
@@ -111,6 +122,7 @@ sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa \
 ```
 
 **Fedora:**
+
 ```bash
 sudo dnf install -y curl git unzip xz zip mesa-libGLU \
     clang cmake ninja-build pkgconfig gtk3-devel \
@@ -173,6 +185,7 @@ tar xzf actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
    - Labels: `linux`, `self-hosted`, `wsl`
 
 2. **In WSL:**
+
    ```bash
    cd ~/actions-runner
    cat .runner
@@ -181,6 +194,7 @@ tar xzf actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
 ### Test Build
 
 Push a version tag to trigger a build:
+
 ```bash
 git tag v4.1.2
 git push origin v4.1.2
@@ -200,6 +214,7 @@ cd ~/actions-runner
 ### Stop Runner
 
 Press `Ctrl+C` or:
+
 ```bash
 pkill -f Runner.Listener
 ```
@@ -263,17 +278,20 @@ flutter doctor
 ### Runner Not Connecting
 
 1. **Check network:**
+
    ```bash
    curl -I https://github.com
    ```
 
 2. **Check runner logs:**
+
    ```bash
    cd ~/actions-runner/_diag
    tail -50 Runner_*.log
    ```
 
 3. **Reconfigure runner:**
+
    ```bash
    cd ~/actions-runner
    ./config.sh remove --token YOUR_TOKEN
@@ -296,6 +314,7 @@ Check the workflow logs in GitHub Actions for specific error messages. Common is
 If systemd is not available in WSL:
 
 1. **Use manual start:**
+
    ```bash
    cd ~/actions-runner
    ./run.sh
@@ -303,6 +322,7 @@ If systemd is not available in WSL:
 
 2. **Auto-start on WSL launch:**
    Add to `~/.bashrc`:
+
    ```bash
    if ! pgrep -f "Runner.Listener" > /dev/null; then
        (cd ~/actions-runner && ./run.sh) &
@@ -340,4 +360,3 @@ After setup, verify:
 ---
 
 **Note:** The runner needs to stay running (via `run.sh` or service) to accept jobs. Consider setting up auto-start on WSL launch.
-

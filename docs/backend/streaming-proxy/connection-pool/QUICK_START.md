@@ -262,6 +262,7 @@ const shutdownManager = new GracefulShutdownManager(pool, logger, {
 ## Support
 
 For issues or questions:
+
 1. Check the [troubleshooting section](./README.md#troubleshooting)
 2. Review the [requirements document](../../../.kiro/specs/ssh-websocket-tunnel-enhancement/requirements.md)
 3. Check the [design document](../../../.kiro/specs/ssh-websocket-tunnel-enhancement/design.md)

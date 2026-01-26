@@ -21,6 +21,7 @@ This document describes the implementation of the admin user search and listing 
 **Purpose:** Retrieve a paginated list of users with advanced filtering and sorting capabilities.
 
 **Query Parameters:**
+
 - `page` (integer, default: 1) - Page number for pagination
 - `limit` (integer, default: 50, max: 100) - Items per page
 - `search` (string) - Search by email, username, or user ID
@@ -32,6 +33,7 @@ This document describes the implementation of the admin user search and listing 
 - `sortOrder` (string, default: DESC) - Sort order (asc, desc)
 
 **Response Structure:**
+
 ```json
 {
   "success": true,
@@ -71,6 +73,7 @@ This document describes the implementation of the admin user search and listing 
 ```
 
 **Features:**
+
 - Case-insensitive search across email, username, and user ID
 - Multiple filter combinations
 - Configurable pagination (max 100 items per page)
@@ -82,9 +85,11 @@ This document describes the implementation of the admin user search and listing 
 **Purpose:** Retrieve comprehensive information about a specific user.
 
 **Parameters:**
+
 - `userId` (string, UUID format) - The user's unique identifier
 
 **Response Structure:**
+
 ```json
 {
   "success": true,
@@ -129,6 +134,7 @@ This document describes the implementation of the admin user search and listing 
 ```
 
 **Features:**
+
 - Complete user profile information
 - Subscription details
 - Payment history
@@ -141,6 +147,7 @@ This document describes the implementation of the admin user search and listing 
 **Purpose:** Change a user's subscription tier with automatic prorated charge calculation.
 
 **Request Body:**
+
 ```json
 {
   "subscriptionTier": "premium",
@@ -149,6 +156,7 @@ This document describes the implementation of the admin user search and listing 
 ```
 
 **Features:**
+
 - Validates tier values (free, premium, enterprise)
 - Calculates prorated charges for upgrades
 - Prevents changing to same tier
@@ -160,6 +168,7 @@ This document describes the implementation of the admin user search and listing 
 **Purpose:** Suspend a user account and invalidate all active sessions.
 
 **Request Body:**
+
 ```json
 {
   "reason": "Violation of terms of service"
@@ -167,6 +176,7 @@ This document describes the implementation of the admin user search and listing 
 ```
 
 **Features:**
+
 - Requires suspension reason
 - Prevents suspending already suspended users
 - Invalidates all active sessions
@@ -178,6 +188,7 @@ This document describes the implementation of the admin user search and listing 
 **Purpose:** Reactivate a suspended user account.
 
 **Request Body:**
+
 ```json
 {
   "note": "Appeal approved"
@@ -185,6 +196,7 @@ This document describes the implementation of the admin user search and listing 
 ```
 
 **Features:**
+
 - Prevents reactivating non-suspended users
 - Clears suspension reason
 - Logs reactivation in audit log
@@ -193,16 +205,19 @@ This document describes the implementation of the admin user search and listing 
 ## Security Features
 
 ### Authentication & Authorization
+
 - All endpoints require admin authentication via JWT
 - Admin role validation using `adminAuth` middleware
 - Permission checking for specific operations (view_users, edit_users, suspend_users)
 
 ### Rate Limiting
+
 - Read-only operations: 200 requests/minute
 - Write operations: 100 requests/minute
 - Critical operations (suspension): 5 requests/hour
 
 ### Input Validation
+
 - UUID format validation for user IDs
 - Tier value validation
 - Status value validation
@@ -210,6 +225,7 @@ This document describes the implementation of the admin user search and listing 
 - Date range validation
 
 ### Data Protection
+
 - Parameterized queries to prevent SQL injection
 - Transaction management for data consistency
 - Audit logging for all admin operations
@@ -218,6 +234,7 @@ This document describes the implementation of the admin user search and listing 
 ## Database Queries
 
 ### User List Query
+
 ```sql
 SELECT 
   u.id, u.email, u.username, u.auth0_id,
@@ -234,6 +251,7 @@ LIMIT [limit] OFFSET [offset]
 ```
 
 ### Count Query
+
 ```sql
 SELECT COUNT(DISTINCT u.id) as total
 FROM users u
@@ -244,15 +262,18 @@ WHERE [conditions]
 ## Testing
 
 ### Test Coverage
+
 - 37 comprehensive tests covering all functionality
 - Property-based tests for filtering, pagination, and sorting
 - Validation tests for input constraints
 - Edge case handling
 
 ### Test File
+
 Location: `test/api-backend/admin-users-search.test.js`
 
 **Test Categories:**
+
 1. Pagination and limiting
 2. Search functionality
 3. Filtering by tier and status
@@ -264,6 +285,7 @@ Location: `test/api-backend/admin-users-search.test.js`
 9. Property-based tests for consistency
 
 ### Running Tests
+
 ```bash
 npm test -- test/api-backend/admin-users-search.test.js
 ```
@@ -271,13 +293,15 @@ npm test -- test/api-backend/admin-users-search.test.js
 ## Implementation Details
 
 ### File Locations
+
 - **Routes:** `services/api-backend/routes/admin/users.js`
 - **Tests:** `test/api-backend/admin-users-search.test.js`
-- **Middleware:** 
+- **Middleware:**
   - `services/api-backend/middleware/admin-auth.js` (authentication)
   - `services/api-backend/middleware/admin-rate-limiter.js` (rate limiting)
 
 ### Middleware Pipeline
+
 1. Rate limiter (read-only or write-based)
 2. Admin authentication
 3. Permission validation
@@ -285,6 +309,7 @@ npm test -- test/api-backend/admin-users-search.test.js
 5. Response formatting
 
 ### Error Handling
+
 - 400: Invalid input (bad UUID format, invalid tier, etc.)
 - 404: User not found
 - 500: Server error with detailed logging
@@ -292,17 +317,20 @@ npm test -- test/api-backend/admin-users-search.test.js
 ## Performance Considerations
 
 ### Query Optimization
+
 - Indexed queries on frequently searched fields (email, created_at)
 - LEFT JOIN for optional subscription data
 - Efficient pagination with LIMIT/OFFSET
 - Aggregation for active session count
 
 ### Caching Opportunities
+
 - User list results can be cached for short periods
 - Subscription tier information is relatively static
 - Session counts can be cached with TTL
 
 ### Scalability
+
 - Stateless design allows horizontal scaling
 - Connection pooling for database efficiency
 - Pagination prevents large result sets
@@ -311,6 +339,7 @@ npm test -- test/api-backend/admin-users-search.test.js
 ## Audit Logging
 
 All admin operations are logged with:
+
 - Admin user ID
 - Admin role
 - Action performed

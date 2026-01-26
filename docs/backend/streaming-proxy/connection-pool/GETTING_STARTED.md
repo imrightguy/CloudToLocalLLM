@@ -430,6 +430,7 @@ if (!connection.isHealthy()) {
 ## Support
 
 For issues or questions:
+
 - Check the [troubleshooting section](./README.md#troubleshooting)
 - Review the [requirements document](../../../.kiro/specs/ssh-websocket-tunnel-enhancement/requirements.md)
 - Check the [design document](../../../.kiro/specs/ssh-websocket-tunnel-enhancement/design.md)

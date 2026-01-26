@@ -32,12 +32,14 @@ The streaming-proxy service is a Node.js application that provides WebSocket con
 Deploy streaming-proxy as a separate service alongside api-backend.
 
 **Pros**:
+
 - Independent scaling
 - Isolated WebSocket connections
 - Better resource management
 - Easier debugging and monitoring
 
 **Cons**:
+
 - Additional deployment complexity
 - More resources required
 
@@ -46,11 +48,13 @@ Deploy streaming-proxy as a separate service alongside api-backend.
 Integrate streaming-proxy code into the api-backend service.
 
 **Pros**:
+
 - Simpler deployment
 - Fewer resources required
 - Single service to manage
 
 **Cons**:
+
 - Coupled scaling
 - Mixed concerns (REST + WebSocket)
 - Harder to debug
@@ -58,6 +62,7 @@ Integrate streaming-proxy code into the api-backend service.
 ## Current Status
 
 **Current Architecture**: The streaming-proxy is currently a **separate service** with its own:
+
 - Package.json
 - Dockerfile (Dockerfile.prod)
 - Source code (src/)
@@ -70,6 +75,7 @@ Integrate streaming-proxy code into the api-backend service.
 ### Current CI/CD Workflow
 
 The `.github/workflows/deploy-aks.yml` currently deploys:
+
 1. **Web Image**: Flutter web app
 2. **API Backend**: REST API service
 
@@ -269,7 +275,7 @@ RUN npm ci  # ← This installs ws and all dependencies
 
 1. **Code Push**: Developer pushes code to `main` branch
 2. **CI Trigger**: GitHub Actions workflow triggers
-3. **Docker Build**: 
+3. **Docker Build**:
    - Copies `package.json` and `package-lock.json`
    - Runs `npm ci` (installs `ws` and all dependencies)
    - Copies source code
@@ -488,7 +494,8 @@ kubectl exec -it streaming-proxy-xxxxx -n cloudtolocalllm -- env | grep SUPABASE
 
 **Deployment Architecture**: Streaming proxy runs as a **separate service** in the Kubernetes cluster.
 
-**CI/CD Integration**: 
+**CI/CD Integration**:
+
 - ✅ Package dependencies (`ws`) automatically installed during Docker build
 - ✅ Docker image built and pushed to Docker Hub
 - ✅ Kubernetes deployment updated automatically
@@ -496,6 +503,7 @@ kubectl exec -it streaming-proxy-xxxxx -n cloudtolocalllm -- env | grep SUPABASE
 - ⏳ Need to create Kubernetes deployment manifest
 
 **Next Steps**:
+
 1. Create `k8s/streaming-proxy-deployment.yaml`
 2. Update `.github/workflows/deploy-aks.yml` to build and deploy streaming-proxy
 3. Update `k8s/ingress-nginx.yaml` to route WebSocket traffic

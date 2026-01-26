@@ -21,19 +21,24 @@ Before starting tunnel system development, ensure you have the following install
 
 - **SSH Server**: For local testing
   - **Windows**: Install OpenSSH Server
+
     ```powershell
     # Enable OpenSSH Server
     Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
     Start-Service sshd
     Set-Service -Name sshd -StartupType Automatic
     ```
+
   - **Linux**: Install OpenSSH
+
     ```bash
     sudo apt-get install openssh-server
     sudo systemctl start ssh
     sudo systemctl enable ssh
     ```
+
   - **macOS**: SSH is built-in
+
     ```bash
     sudo systemsetup -setremotelogin on
     ```
@@ -340,6 +345,7 @@ npm run test:chaos
 #### VS Code Debugging
 
 1. Create `.vscode/launch.json`:
+
 ```json
 {
   "version": "0.2.0",
@@ -358,9 +364,9 @@ npm run test:chaos
 }
 ```
 
-2. Set breakpoints in VS Code
-3. Press F5 to start debugging
-4. Use Debug Console to inspect variables
+1. Set breakpoints in VS Code
+2. Press F5 to start debugging
+3. Use Debug Console to inspect variables
 
 #### Enable Debug Logging
 
@@ -427,6 +433,7 @@ tunnelService.addListener(() {
 #### Server-Side
 
 1. Define metric in `src/monitoring/prometheus-metrics.ts`:
+
 ```typescript
 export const myNewMetric = new Counter({
   name: 'tunnel_my_new_metric_total',
@@ -435,23 +442,26 @@ export const myNewMetric = new Counter({
 });
 ```
 
-2. Record metric in relevant component:
+1. Record metric in relevant component:
+
 ```typescript
 myNewMetric.inc({ category: 'example' });
 ```
 
-3. Verify metric appears in `/api/tunnel/metrics`
+1. Verify metric appears in `/api/tunnel/metrics`
 
 #### Client-Side
 
 1. Add metric to `MetricsCollector`:
+
 ```dart
 void recordMyMetric(String category) {
   _metrics['my_new_metric'] = category;
 }
 ```
 
-2. Export metric in `exportPrometheusFormat()`:
+1. Export metric in `exportPrometheusFormat()`:
+
 ```dart
 metrics['tunnel_my_new_metric'] = _metrics['my_new_metric'];
 ```
@@ -461,11 +471,13 @@ metrics['tunnel_my_new_metric'] = _metrics['my_new_metric'];
 #### Server-Side
 
 1. Add error code to `src/errors/error-codes.ts`:
+
 ```typescript
 export const TUNNEL_011 = 'TUNNEL_011';
 ```
 
-2. Create error in component:
+1. Create error in component:
+
 ```typescript
 throw new TunnelError(
   TUNNEL_011,
@@ -479,11 +491,13 @@ throw new TunnelError(
 #### Client-Side
 
 1. Add error code to `lib/services/tunnel/error_codes.dart`:
+
 ```dart
 static const String myNewError = 'TUNNEL_011';
 ```
 
-2. Handle error in error handler:
+1. Handle error in error handler:
+
 ```dart
 case 'TUNNEL_011':
   return TunnelError(
@@ -655,6 +669,7 @@ lib/services/tunnel/
 ### Issue: "Cannot find module"
 
 **Solution:**
+
 ```bash
 # Reinstall dependencies
 rm -rf node_modules package-lock.json
@@ -667,6 +682,7 @@ flutter pub get
 ### Issue: "Port already in use"
 
 **Solution:**
+
 ```bash
 # Find process using port 3001
 lsof -i :3001
@@ -681,6 +697,7 @@ PORT=3002 npm run dev
 ### Issue: "SSH connection refused"
 
 **Solution:**
+
 ```bash
 # Verify SSH server is running
 sudo systemctl status ssh
@@ -695,6 +712,7 @@ ssh localhost
 ### Issue: "Tests failing"
 
 **Solution:**
+
 ```bash
 # Run tests with verbose output
 npm test -- --verbose

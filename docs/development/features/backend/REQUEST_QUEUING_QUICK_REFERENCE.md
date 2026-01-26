@@ -27,6 +27,7 @@ const requestQueuingMiddleware = createRequestQueuingMiddleware({
 ## API Endpoints
 
 ### Get Queue Status
+
 ```
 GET /api/queue/status
 GET /queue/status
@@ -56,6 +57,7 @@ Response:
 ```
 
 ### Drain Queue (Authenticated)
+
 ```
 POST /api/queue/drain
 POST /queue/drain
@@ -75,12 +77,14 @@ Response:
 ## Response Headers
 
 When request is processed from queue:
+
 - `X-Queue-Position`: Position in queue (e.g., "1")
 - `X-Queue-Wait-Time`: Wait time in milliseconds (e.g., "250")
 
 ## Error Responses
 
 ### Queue Full (429)
+
 ```json
 {
   "error": "Too many requests",
@@ -92,6 +96,7 @@ When request is processed from queue:
 ```
 
 ### Queue Timeout (504)
+
 ```json
 {
   "error": "Request timeout",
@@ -102,6 +107,7 @@ When request is processed from queue:
 ```
 
 ### Queue Error (503)
+
 ```json
 {
   "error": "Service unavailable",
@@ -114,11 +120,13 @@ When request is processed from queue:
 ## Usage Examples
 
 ### Check Queue Status
+
 ```bash
 curl -X GET http://localhost:8080/api/queue/status
 ```
 
 ### Drain Queue (Authenticated)
+
 ```bash
 curl -X POST http://localhost:8080/api/queue/drain \
   -H "Authorization: Bearer <token>"
@@ -156,16 +164,19 @@ curl -X POST http://localhost:8080/api/queue/drain \
 ## Monitoring
 
 ### Check Queue Health
+
 ```bash
 curl http://localhost:8080/api/queue/status | jq '.health'
 ```
 
 ### Monitor Queue Size
+
 ```bash
 curl http://localhost:8080/api/queue/status | jq '.queue.currentQueued'
 ```
 
 ### Track Statistics
+
 ```bash
 curl http://localhost:8080/api/queue/status | jq '.statistics'
 ```
@@ -173,16 +184,19 @@ curl http://localhost:8080/api/queue/status | jq '.statistics'
 ## Troubleshooting
 
 ### Queue Growing Too Large
+
 - Check if rate limit is too restrictive
 - Increase `maxQueueSize` if needed
 - Monitor backend performance
 
 ### Requests Timing Out
+
 - Increase `queueTimeoutMs` if needed
 - Check backend performance
 - Monitor queue processing rate
 
 ### High Rejection Rate
+
 - Increase `maxQueueSize`
 - Lower `queueThresholdPercent` to queue earlier
 - Check rate limit configuration
@@ -210,11 +224,13 @@ The request queuing middleware is integrated into the middleware pipeline at ste
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- test/api-backend/request-queuing.test.js
 ```
 
 Test coverage:
+
 - 31 tests total
 - 30 passing
 - 4 property-based tests
@@ -222,4 +238,3 @@ Test coverage:
 - Queue size limits
 - Statistics accuracy
 - Timeout handling
-

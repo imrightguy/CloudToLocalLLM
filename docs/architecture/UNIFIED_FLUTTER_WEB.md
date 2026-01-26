@@ -7,6 +7,7 @@ CloudToLocalLLM v3.10.3+ implements a unified Flutter-based web architecture tha
 ## Architecture Changes
 
 ### Before (Multi-Container)
+
 ```
 cloudtolocalllm.online → static-site container (HTML/CSS)
 app.cloudtolocalllm.online → flutter-app container (Flutter web)
@@ -14,6 +15,7 @@ docs.cloudtolocalllm.online → static-site container (VitePress docs)
 ```
 
 ### After (Unified Flutter)
+
 ```
 cloudtolocalllm.online → flutter-app container (Flutter marketing pages)
 app.cloudtolocalllm.online → flutter-app container (Flutter chat interface)
@@ -23,12 +25,14 @@ docs.cloudtolocalllm.online → static-site container (VitePress docs - unchange
 ## Domain Routing Strategy
 
 ### Main Domain (cloudtolocalllm.online)
+
 - **Purpose**: Marketing homepage and download information
 - **Routes**: `/` (homepage), `/download` (installation guide)
 - **Platform**: Web-only (`kIsWeb` detection)
 - **Authentication**: Not required for marketing content
 
 ### App Subdomain (app.cloudtolocalllm.online)
+
 - **Purpose**: Main application interface
 - **Routes**: `/chat`, `/settings`, `/login`, `/callback`
 - **Platform**: Web and desktop
@@ -36,6 +40,7 @@ docs.cloudtolocalllm.online → static-site container (VitePress docs - unchange
 - **Redirect**: Root `/` redirects to `/chat`
 
 ### Docs Subdomain (docs.cloudtolocalllm.online)
+
 - **Purpose**: Technical documentation
 - **Technology**: VitePress (unchanged)
 - **Container**: static-site (docs path only)
@@ -43,6 +48,7 @@ docs.cloudtolocalllm.online → static-site container (VitePress docs - unchange
 ## Flutter Route Configuration
 
 ### Platform-Specific Routing with Lazy Loading
+
 ```dart
 // Lazy load marketing screens
 import '../screens/marketing/marketing_lazy.dart' deferred as marketing_lazy;
@@ -87,6 +93,7 @@ ShellRoute(
 ```
 
 ### Authentication Logic
+
 ```dart
 redirect: (context, state) {
   final isHomepage = state.matchedLocation == '/' && kIsWeb;
@@ -123,6 +130,7 @@ window.Auth0Bridge = {
 ```
 
 **Key Features:**
+
 - Function wrapper pattern for improved Flutter web interop
 - Auth0 SPA SDK v2 compatibility
 - Automatic session detection and token refresh
@@ -131,6 +139,7 @@ window.Auth0Bridge = {
 ## Implementation Details
 
 ### Marketing Screens
+
 - **Location**: `lib/screens/marketing/`
 - **Files**: `homepage_screen.dart`, `download_screen.dart`
 - **Lazy Loading**: `marketing_lazy.dart` bundles screens for deferred loading
@@ -139,6 +148,7 @@ window.Auth0Bridge = {
 - **Content**: Replicates existing static site functionality
 
 ### Nginx Configuration
+
 ```nginx
 # Main domain - Flutter marketing
 server {
@@ -164,12 +174,14 @@ server {
 ## Benefits
 
 ### Unified Codebase
+
 - Single Flutter application handles all web functionality
 - Consistent theming and component library
 - Shared authentication and state management
 - Simplified deployment and maintenance
 
 ### Performance
+
 - Single container for web functionality
 - Shared Flutter assets and dependencies
 - Reduced infrastructure complexity
@@ -177,6 +189,7 @@ server {
 - **Optimized Loading**: Route-based code splitting reduces initial bundle size
 
 ### Developer Experience
+
 - Single codebase for all web features
 - Consistent development environment
 - Shared tooling and testing infrastructure
@@ -185,6 +198,7 @@ server {
 ## Migration Path
 
 ### Phase 1: Implementation ✅
+
 - [x] Create Flutter marketing screens
 - [x] Update router with platform detection
 - [x] Configure nginx domain routing
@@ -192,18 +206,21 @@ server {
 - [x] Implement route-based code splitting
 
 ### Phase 2: Testing
+
 - [ ] Verify homepage functionality on main domain
 - [ ] Test download page responsiveness
 - [ ] Validate app subdomain chat access
 - [ ] Confirm authentication flows
 
 ### Phase 3: Deployment
+
 - [ ] Deploy updated nginx configuration
 - [ ] Update DNS routing if needed
 - [ ] Monitor traffic and performance
 - [ ] Validate all domain endpoints
 
 ### Phase 4: Cleanup
+
 - [ ] Remove static homepage files
 - [ ] Deprecate static-site container (docs only)
 - [ ] Update deployment scripts
@@ -212,6 +229,7 @@ server {
 ## Verification Checklist
 
 ### Domain Access
+
 - [ ] `cloudtolocalllm.online` → Flutter homepage
 - [ ] `cloudtolocalllm.online/download` → Flutter download page
 - [ ] `app.cloudtolocalllm.online` → Redirects to `/chat`
@@ -219,12 +237,14 @@ server {
 - [ ] `docs.cloudtolocalllm.online` → VitePress documentation
 
 ### Platform Behavior
+
 - [ ] Web: Marketing routes accessible without auth
 - [ ] Web: App routes require authentication
 - [ ] Desktop: Marketing routes excluded from build
 - [ ] Desktop: Direct access to chat interface
 
 ### Responsive Design
+
 - [ ] Homepage mobile responsiveness
 - [ ] Download page code block formatting
 - [ ] Navigation consistency
@@ -233,18 +253,22 @@ server {
 ## Future Considerations
 
 ### Static Site Container
+
 The static-site container will be retained for documentation hosting but can be further optimized:
+
 - Remove homepage-related configurations
 - Focus solely on docs.cloudtolocalllm.online
 - Consider migrating docs to Flutter in future versions
 
 ### Performance Optimization
+
 - Optimize Flutter web bundle size
 - Add progressive web app features
 - Consider service worker caching
 - **Completed**: Route-based code splitting
 
 ### SEO and Analytics
+
 - Add meta tags for marketing pages
 - Implement structured data
 - Configure analytics tracking

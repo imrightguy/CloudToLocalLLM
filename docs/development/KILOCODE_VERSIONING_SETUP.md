@@ -13,16 +13,19 @@
 
 3. **Configure Kilocode**:
    Run the setup script to configure your environment:
+
    ```bash
    ./scripts/setup-kilocode.sh 'your_api_key_here'
    ```
 
    Or manually add to GitHub Secrets:
+
    ```bash
    gh secret set KILOCODE_TOKEN --body 'your_api_key_here'
    ```
 
 4. **Verify**:
+
    ```bash
    gh secret list | grep KILOCODE
    # Should show: KILOCODE_TOKEN
@@ -44,6 +47,7 @@ export KILOCODE_TOKEN='your_key_here'
 ## Fallback Behavior
 
 If `KILOCODE_TOKEN` is not set:
+
 - ✅ Workflow still works
 - ⚠️  Defaults to PATCH bump
 - ⚠️  No intelligent analysis
@@ -59,6 +63,7 @@ If `KILOCODE_TOKEN` is not set:
 ## Privacy
 
 Kilocode receives:
+
 - ✅ Commit messages (public repo info)
 - ✅ Current version number
 - ❌ No source code
@@ -85,6 +90,7 @@ git push origin --tags
 ## Quota Limits
 
 Kilocode Free Tier:
+
 - **Sufficient for**: 100+ deployments/day
 - If you hit limits:
   - Workflow falls back to PATCH bump

@@ -14,6 +14,7 @@ Task 29 implements proxy status webhooks for the API backend, enabling real-time
 Created three new tables for proxy webhook management:
 
 #### `proxy_webhooks` Table
+
 - Stores webhook registrations for proxy events
 - Fields:
   - `id` (UUID): Unique webhook identifier
@@ -26,6 +27,7 @@ Created three new tables for proxy webhook management:
   - `created_at`, `updated_at` (TIMESTAMPTZ): Timestamps
 
 #### `proxy_webhook_deliveries` Table
+
 - Tracks webhook delivery attempts and status
 - Fields:
   - `id` (UUID): Unique delivery identifier
@@ -43,6 +45,7 @@ Created three new tables for proxy webhook management:
   - `delivered_at` (TIMESTAMPTZ): Successful delivery time
 
 #### `proxy_webhook_events` Table
+
 - Audit log for webhook events
 - Fields:
   - `id` (UUID): Unique event identifier
@@ -58,6 +61,7 @@ Created three new tables for proxy webhook management:
 Implements `ProxyWebhookService` class with the following methods:
 
 #### Webhook Management
+
 - `registerWebhook(userId, proxyId, url, events)`: Register a new webhook
 - `getWebhookById(webhookId, userId)`: Retrieve webhook details
 - `listWebhooks(userId, proxyId, options)`: List webhooks with pagination
@@ -65,10 +69,12 @@ Implements `ProxyWebhookService` class with the following methods:
 - `deleteWebhook(webhookId, userId)`: Delete a webhook
 
 #### Event Handling
+
 - `triggerWebhookEvent(proxyId, userId, eventType, eventData)`: Trigger webhook event
 - `queueWebhookDelivery(webhookId, proxyId, userId, eventType, eventData)`: Queue delivery
 
 #### Delivery Management
+
 - `deliverWebhook(deliveryId)`: Attempt webhook delivery
 - `scheduleRetry(deliveryId, attemptCount, httpStatusCode, errorMessage)`: Schedule retry
 - `getDeliveryStatus(deliveryId)`: Get delivery status
@@ -80,6 +86,7 @@ Implements `ProxyWebhookService` class with the following methods:
 Implements REST endpoints for webhook management:
 
 #### Webhook Registration
+
 - `POST /api/proxy/:proxyId/webhooks` - Register webhook
 - `GET /api/proxy/:proxyId/webhooks` - List webhooks
 - `GET /api/proxy/:proxyId/webhooks/:webhookId` - Get webhook details
@@ -87,12 +94,14 @@ Implements REST endpoints for webhook management:
 - `DELETE /api/proxy/:proxyId/webhooks/:webhookId` - Delete webhook
 
 #### Delivery Tracking
+
 - `GET /api/proxy/:proxyId/webhooks/:webhookId/deliveries` - Get delivery history
 - `GET /api/proxy/:proxyId/webhooks/:webhookId/deliveries/:deliveryId` - Get delivery status
 
 ### 4. Supported Events
 
 The following proxy events are supported:
+
 - `proxy.status_changed` - Proxy status changed
 - `proxy.created` - Proxy instance created
 - `proxy.deleted` - Proxy instance deleted
@@ -101,6 +110,7 @@ The following proxy events are supported:
 ### 5. Webhook Delivery
 
 #### Payload Structure
+
 ```json
 {
   "id": "delivery-uuid",
@@ -114,13 +124,16 @@ The following proxy events are supported:
 ```
 
 #### Headers
+
 - `Content-Type: application/json`
 - `X-Webhook-Signature: <HMAC-SHA256 signature>`
 - `X-Webhook-ID: <webhook-id>`
 - `X-Delivery-ID: <delivery-id>`
 
 #### Signature Verification
+
 Webhooks are signed using HMAC-SHA256 with the webhook secret:
+
 ```javascript
 signature = HMAC-SHA256(secret, payload)
 ```
@@ -128,6 +141,7 @@ signature = HMAC-SHA256(secret, payload)
 ### 6. Retry Logic
 
 Implements exponential backoff with the following delays:
+
 - Attempt 1: 1 second
 - Attempt 2: 5 seconds
 - Attempt 3: 30 seconds
@@ -139,16 +153,19 @@ Maximum 5 retry attempts before marking as failed.
 ### 7. Validation
 
 #### URL Validation
+
 - Must be valid HTTPS or HTTP URL
 - Must not be empty
 - Validated using Node.js URL constructor
 
 #### Event Validation
+
 - Must be one of supported event types
 - At least one event must be specified
 - Events array must not be empty
 
 #### Proxy Validation
+
 - If proxyId specified, must exist and belong to user
 - If proxyId is null, webhook applies to all user's proxies
 
@@ -157,23 +174,27 @@ Maximum 5 retry attempts before marking as failed.
 Created comprehensive test suite (`proxy-webhooks.test.js`) with 22 tests covering:
 
 ### Signature Verification (4 tests)
+
 - Valid HMAC signature generation
 - Invalid signature rejection
 - Different signatures for different payloads
 - Consistent signatures for same payload
 
 ### Retry Logic (3 tests)
+
 - Exponential backoff calculation
 - Max retry attempts
 - Next retry time calculation
 
 ### Event Validation (4 tests)
+
 - Supported event type validation
 - Invalid event type rejection
 - Non-empty event array validation
 - Empty event array rejection
 
 ### URL Validation (5 tests)
+
 - HTTPS URL validation
 - HTTP URL validation
 - Invalid URL rejection
@@ -181,11 +202,13 @@ Created comprehensive test suite (`proxy-webhooks.test.js`) with 22 tests coveri
 - URLs with paths and query parameters
 
 ### Payload Structure (3 tests)
+
 - Valid payload structure creation
 - JSON serialization
 - Required headers in delivery
 
 ### Delivery Status (3 tests)
+
 - Delivery status transitions
 - HTTP status code validation
 - Attempt count tracking
@@ -195,17 +218,21 @@ Created comprehensive test suite (`proxy-webhooks.test.js`) with 22 tests coveri
 ## Integration Points
 
 ### With Proxy Services
+
 The webhook service integrates with proxy management services:
+
 - Proxy health service triggers `proxy.status_changed` events
 - Proxy metrics service triggers `proxy.metrics_updated` events
 - Proxy lifecycle endpoints trigger `proxy.created` and `proxy.deleted` events
 
 ### With Database
+
 - Uses PostgreSQL connection pool for all database operations
 - Supports transactions for data consistency
 - Implements cascading deletes for cleanup
 
 ### With Authentication
+
 - All endpoints require JWT authentication
 - User ownership verified for all operations
 - RBAC middleware ensures proper authorization

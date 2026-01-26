@@ -7,17 +7,20 @@ This guide ensures consistent formatting and style across all CloudToLocalLLM do
 ## File Naming Conventions
 
 ### Markdown Files
+
 - Use `UPPERCASE_WITH_UNDERSCORES.md` for major documents (e.g., `README.md`, `SECURITY.md`)
 - Use `lowercase-with-hyphens.md` for specific guides (e.g., `setup-guide.md`)
 - Use descriptive names that indicate content purpose
 
 ### Directory Structure
+
 - `UPPERCASE` for major categories (e.g., `DEPLOYMENT/`, `DEVELOPMENT/`)
 - `lowercase` for specific subdirectories (e.g., `ops/`, `backend/`)
 
 ## Markdown Formatting Standards
 
 ### Headers
+
 ```markdown
 # Main Title (H1) - One per document
 ## Section Title (H2)
@@ -26,6 +29,7 @@ This guide ensures consistent formatting and style across all CloudToLocalLLM do
 ```
 
 ### Code Blocks
+
 - Always specify language for syntax highlighting
 - Use descriptive comments in code examples
 - Prefer complete, runnable examples
@@ -37,6 +41,7 @@ flutter run -d windows  # Run on Windows
 ```
 
 ### Links
+
 - Use descriptive link text (not "click here")
 - Prefer relative paths for internal links
 - Include file extensions for clarity
@@ -50,11 +55,13 @@ Click [here](../INSTALLATION/README.md) for more info.
 ```
 
 ### Lists
+
 - Use `-` for unordered lists (consistent with project style)
 - Use `1.` for ordered lists
 - Maintain consistent indentation (2 spaces)
 
 ### Emphasis
+
 - Use `**bold**` for important terms and UI elements
 - Use `*italic*` for emphasis and first-time term introduction
 - Use `code` for file names, commands, and technical terms
@@ -62,6 +69,7 @@ Click [here](../INSTALLATION/README.md) for more info.
 ## Content Organization
 
 ### Document Structure
+
 1. **Title and Overview** - Clear purpose statement
 2. **Prerequisites** - What users need before starting
 3. **Main Content** - Step-by-step instructions or information
@@ -70,6 +78,7 @@ Click [here](../INSTALLATION/README.md) for more info.
 6. **Related Links** - Cross-references to other documentation
 
 ### Cross-References
+
 - Link to related documentation
 - Use consistent terminology across documents
 - Maintain bidirectional links where appropriate
@@ -77,6 +86,7 @@ Click [here](../INSTALLATION/README.md) for more info.
 ## Provider-Agnostic Language
 
 ### Infrastructure References
+
 - Clearly indicate current deployment (Azure AKS)
 - Mark alternative options (AWS EKS) as such
 - Use generic Kubernetes terms when possible
@@ -90,6 +100,7 @@ Deployed on AWS EKS (when actually using Azure AKS)
 ```
 
 ### Authentication References
+
 - Specify current provider (Auth0)
 - Indicate provider-agnostic design
 - Document alternative authentication options
@@ -97,6 +108,7 @@ Deployed on AWS EKS (when actually using Azure AKS)
 ## Version References
 
 ### Software Versions
+
 - Use specific version numbers when critical
 - Use `X.Y+` notation for minimum versions
 - Update version references during releases
@@ -127,12 +139,14 @@ Before publishing documentation:
 ## Maintenance
 
 ### Regular Updates
+
 - Review documentation quarterly
 - Update version references with releases
 - Verify links after file moves
 - Consolidate redundant content
 
 ### Style Consistency
+
 - Use automated formatting tools when available
 - Follow established patterns in existing docs
 - Maintain consistent terminology across documents

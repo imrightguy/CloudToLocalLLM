@@ -56,6 +56,7 @@ This guide explains how adaptive rate limiting has been implemented in the API b
 **File**: `services/system-load-monitor.js`
 
 The SystemLoadMonitor class:
+
 - Samples system metrics every 5 seconds (configurable)
 - Tracks CPU usage using `process.cpuUsage()`
 - Tracks memory usage using `process.memoryUsage()`
@@ -64,11 +65,13 @@ The SystemLoadMonitor class:
 - Adjusts adaptive multiplier based on load level
 
 **Load Calculation**:
+
 ```javascript
 Load = (CPU × 0.4) + (Memory × 0.4) + (Queued Requests × 0.2)
 ```
 
 **Multiplier Adjustment**:
+
 - Load < 30%: multiplier = 1.0
 - Load 30-60%: multiplier = 0.75
 - Load 60-80%: multiplier = 0.5
@@ -79,6 +82,7 @@ Load = (CPU × 0.4) + (Memory × 0.4) + (Queued Requests × 0.2)
 **File**: `middleware/adaptive-rate-limiter.js`
 
 The AdaptiveRateLimiter class:
+
 - Integrates SystemLoadMonitor with rate limiting logic
 - Tracks per-user request counts
 - Applies adaptive multiplier to base limits
@@ -86,12 +90,14 @@ The AdaptiveRateLimiter class:
 - Provides detailed rate limit information
 
 **Rate Limit Enforcement**:
+
 1. Check if request count exceeds adaptive burst limit
 2. Check if request count exceeds adaptive window limit
 3. If allowed, increment request counter
 4. Set rate limit headers in response
 
 **Adaptive Limits**:
+
 ```javascript
 adaptiveMaxRequests = baseMaxRequests × multiplier
 adaptiveBurstRequests = baseBurstRequests × multiplier
@@ -104,11 +110,13 @@ adaptiveBurstRequests = baseBurstRequests × multiplier
 Provides endpoints for monitoring and managing adaptive rate limiting:
 
 **Public Endpoints** (authenticated users):
+
 - `GET /metrics` - Current system metrics
 - `GET /status` - Detailed system status
 - `GET /user-stats` - User's rate limit statistics
 
 **Admin Endpoints** (admin role required):
+
 - `GET /admin/system-status` - Full system status
 - `GET /admin/load-history` - Historical load data
 - `GET /admin/adaptive-limits` - Current adaptive limits
@@ -118,6 +126,7 @@ Provides endpoints for monitoring and managing adaptive rate limiting:
 ### 1. Middleware Pipeline
 
 Add to `middleware/pipeline.js`:
+
 ```javascript
 import { createAdaptiveRateLimitMiddleware } from './adaptive-rate-limiter.js';
 
@@ -134,6 +143,7 @@ app.use(adaptiveRateLimitMiddleware);
 ### 2. Route Registration
 
 Add to `server.js`:
+
 ```javascript
 import adaptiveRateLimitingRoutes from './routes/adaptive-rate-limiting.js';
 
@@ -144,6 +154,7 @@ app.use('/api/adaptive-rate-limiting', adaptiveRateLimitingRoutes);
 ### 3. Request Context
 
 The middleware stores the rate limiter in the request:
+
 ```javascript
 req.adaptiveRateLimiter // Access in routes
 ```
@@ -225,6 +236,7 @@ const limiter = new AdaptiveRateLimiter({
 File: `test/api-backend/adaptive-rate-limiting.test.js`
 
 Test coverage:
+
 - SystemLoadMonitor initialization
 - Metrics collection
 - Load calculation
@@ -255,6 +267,7 @@ npm test -- adaptive-rate-limiting.test.js
 ### Metrics Exposed
 
 **Current Metrics**:
+
 - CPU usage (%)
 - Memory usage (%)
 - Active requests
@@ -264,6 +277,7 @@ npm test -- adaptive-rate-limiting.test.js
 - Adaptive multiplier
 
 **Historical Metrics**:
+
 - Metrics history (configurable size)
 - Average metrics over history
 - Trend analysis
@@ -271,6 +285,7 @@ npm test -- adaptive-rate-limiting.test.js
 ### Logging
 
 The system logs:
+
 - Initialization with configuration
 - Metrics collection (debug level)
 - Adaptive multiplier adjustments (info level)
@@ -280,6 +295,7 @@ The system logs:
 ### Response Headers
 
 Responses include adaptive rate limiting information:
+
 ```
 X-RateLimit-Limit: 500
 X-RateLimit-Remaining: 450
@@ -291,16 +307,19 @@ X-RateLimit-Adaptive-Multiplier: 0.50
 ## Performance Considerations
 
 ### CPU Overhead
+
 - Metrics collection: ~1-2% CPU
 - Rate limit checking: <1% CPU
 - Total overhead: ~1-2% CPU
 
 ### Memory Overhead
+
 - Per-user tracker: ~1 KB
 - Metrics history: ~5-10 MB (for 60 samples)
 - Total overhead: ~5-10 MB
 
 ### Sampling Interval
+
 - Default: 5 seconds
 - Adjustable: 1-60 seconds
 - Trade-off: Accuracy vs. CPU usage
@@ -311,7 +330,8 @@ X-RateLimit-Adaptive-Multiplier: 0.50
 
 **Cause**: Cooldown period between adjustments
 
-**Solution**: 
+**Solution**:
+
 - Wait 10 seconds between adjustments
 - Check if system load is actually high
 - Verify `enableAdaptiveAdjustment` is true
@@ -321,6 +341,7 @@ X-RateLimit-Adaptive-Multiplier: 0.50
 **Cause**: Base limits too low or thresholds too aggressive
 
 **Solution**:
+
 - Increase `baseMaxRequests`
 - Adjust load thresholds
 - Increase sampling interval
@@ -330,6 +351,7 @@ X-RateLimit-Adaptive-Multiplier: 0.50
 **Cause**: Base limits too high or thresholds too lenient
 
 **Solution**:
+
 - Decrease `baseMaxRequests`
 - Lower load thresholds
 - Decrease sampling interval

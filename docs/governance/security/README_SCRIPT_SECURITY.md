@@ -7,26 +7,31 @@ This document details the comprehensive security improvements implemented in the
 ## Security Vulnerabilities Addressed
 
 ### 1. **Regex Injection Vulnerabilities** 🚨 **CRITICAL**
+
 - **Issue**: Unsafe sed operations allowed malicious version strings to inject arbitrary content
 - **Solution**: Implemented strict input validation and regex escaping
 - **Impact**: Prevents code injection and file corruption
 
 ### 2. **Unsafe File Operations** 🚨 **CRITICAL**
+
 - **Issue**: Direct file modifications without error handling or rollback
 - **Solution**: Atomic file operations with verification and rollback mechanisms
 - **Impact**: Ensures file integrity during updates
 
 ### 3. **Character Encoding Issues** ⚠️ **HIGH**
+
 - **Issue**: UTF-8 encoding corruption and line ending inconsistencies
 - **Solution**: Encoding preservation and validation functions
 - **Impact**: Maintains file integrity across different systems
 
 ### 4. **Race Conditions** ⚠️ **HIGH**
+
 - **Issue**: Concurrent script execution could corrupt files
 - **Solution**: File locking mechanisms with stale lock detection
 - **Impact**: Prevents corruption from simultaneous updates
 
 ### 5. **Inadequate Backup Strategies** ⚠️ **MEDIUM**
+
 - **Issue**: Simple backups without verification or rotation
 - **Solution**: Timestamped backups with integrity verification and rotation
 - **Impact**: Reliable recovery options
@@ -36,6 +41,7 @@ This document details the comprehensive security improvements implemented in the
 ### Input Validation and Sanitization
 
 #### Bash Implementation
+
 ```bash
 validate_version_string() {
     local version="$1"
@@ -67,6 +73,7 @@ validate_version_string() {
 ```
 
 #### PowerShell Implementation
+
 ```powershell
 function Test-VersionString {
     param([string]$Version)
@@ -91,12 +98,14 @@ function Test-VersionString {
 ### Atomic File Operations
 
 #### Key Features
+
 - **Temporary file creation** with secure permissions
 - **Verification** before final replacement
 - **Automatic rollback** on failure
 - **Filesystem sync** to ensure data persistence
 
 #### Implementation Example
+
 ```bash
 atomic_file_replace() {
     local source="$1"
@@ -129,6 +138,7 @@ atomic_file_replace() {
 ### Character Encoding Preservation
 
 #### Features
+
 - **UTF-8 validation** before and after operations
 - **Line ending preservation** (LF vs CRLF)
 - **Final newline handling** preservation
@@ -137,6 +147,7 @@ atomic_file_replace() {
 ### File Locking Mechanisms
 
 #### Bash Implementation
+
 ```bash
 acquire_file_lock() {
     local file="$1"
@@ -169,6 +180,7 @@ acquire_file_lock() {
 ### Enhanced Backup Strategy
 
 #### Features
+
 - **Timestamped backups** with rotation
 - **Integrity verification** using checksums
 - **Automatic cleanup** of old backups
@@ -194,6 +206,7 @@ acquire_file_lock() {
 ### Running Security Tests
 
 #### Bash
+
 ```bash
 # Run security tests
 ./scripts/tests/security_tests.sh
@@ -203,6 +216,7 @@ acquire_file_lock() {
 ```
 
 #### PowerShell
+
 ```powershell
 # Run security tests
 .\scripts\tests\SecurityTests.ps1
@@ -214,30 +228,35 @@ acquire_file_lock() {
 ## Best Practices for Script Maintenance
 
 ### 1. **Input Validation**
+
 - Always validate version strings before processing
 - Use strict regex patterns for validation
 - Implement length and range checks
 - Sanitize all user inputs
 
 ### 2. **File Operations**
+
 - Use atomic operations for file modifications
 - Create verified backups before changes
 - Implement proper error handling and rollback
 - Validate file integrity after operations
 
 ### 3. **Encoding Handling**
+
 - Preserve original file characteristics
 - Validate UTF-8 encoding before and after operations
 - Handle line endings consistently
 - Test with Unicode content
 
 ### 4. **Concurrency Control**
+
 - Use file locking for critical operations
 - Implement stale lock detection and cleanup
 - Provide meaningful timeout values
 - Handle lock acquisition failures gracefully
 
 ### 5. **Error Handling**
+
 - Implement comprehensive error checking
 - Provide detailed error messages
 - Use proper cleanup mechanisms
@@ -276,6 +295,7 @@ acquire_file_lock() {
 ## Incident Response
 
 ### File Corruption Detection
+
 1. **Immediate Actions**
    - Stop all script execution
    - Identify affected files
@@ -292,6 +312,7 @@ acquire_file_lock() {
    - Resume normal operations
 
 ### Security Breach Response
+
 1. **Containment**
    - Disable affected scripts
    - Isolate compromised systems
@@ -322,6 +343,7 @@ acquire_file_lock() {
 ## Contact Information
 
 For security-related questions or to report vulnerabilities:
+
 - Create an issue in the GitHub repository
 - Tag with `security` label
 - Provide detailed reproduction steps

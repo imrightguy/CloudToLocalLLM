@@ -11,10 +11,12 @@ Chisel is now automatically installed as part of the deployment process. No manu
 Chisel binary is automatically copied from the official `jpillora/chisel:latest` Docker image during the Docker build process.
 
 **Files Updated:**
+
 - `services/api-backend/Dockerfile.prod` - Uses multi-stage build to copy Chisel binary
 - `config/docker/Dockerfile.api-backend` - Uses official Chisel image
 
 **How it works:**
+
 ```dockerfile
 # Copy Chisel binary from official Docker image
 COPY --from=jpillora/chisel:latest /app/chisel /usr/local/bin/chisel
@@ -22,12 +24,14 @@ RUN chmod +x /usr/local/bin/chisel
 ```
 
 **Environment Variables:**
+
 - `CHISEL_BINARY` - Path to Chisel binary (default: `/usr/local/bin/chisel`)
 - `CHISEL_PORT` - Chisel server port (default: `8080`)
 
 ### Docker Compose
 
 The `docker-compose.production.yml` automatically:
+
 - Builds the API backend with Chisel included
 - Exposes Chisel port (8080)
 - Sets environment variables
@@ -41,21 +45,25 @@ The `docker-compose.production.yml` automatically:
 Chisel binaries are bundled with the Flutter app as assets. Use the provided scripts to download them before building:
 
 **For Linux/macOS:**
+
 ```bash
 bash scripts/download-chisel-binaries.sh
 ```
 
 **For Windows (PowerShell):**
+
 ```powershell
 .\scripts\setup-chisel-flutter-assets.ps1
 ```
 
 **What it does:**
+
 - Downloads Chisel binaries for Windows, macOS, and Linux (amd64 and arm64)
 - Places them in `assets/chisel/` directory
 - Flutter automatically bundles them with the app
 
 **pubspec.yaml:**
+
 ```yaml
 assets:
   - assets/chisel/  # Automatically includes all Chisel binaries
@@ -84,11 +92,13 @@ The Dockerfiles now use the official `jpillora/chisel` image - **no manual insta
 If you need to install Chisel manually on a server:
 
 **Linux/macOS:**
+
 ```bash
 bash scripts/install-chisel.sh
 ```
 
 **Or use official Chisel Docker image:**
+
 ```bash
 docker pull jpillora/chisel:latest
 docker run --rm jpillora/chisel:latest --version
@@ -97,6 +107,7 @@ docker run --rm jpillora/chisel:latest --version
 ## Verification
 
 ### Server
+
 ```bash
 # Inside Docker container or on server
 chisel --version
@@ -104,6 +115,7 @@ chisel --version
 ```
 
 ### Client
+
 ```bash
 # Check Flutter assets include Chisel binaries
 ls -la assets/chisel/
@@ -152,14 +164,15 @@ docker build -f services/api-backend/Dockerfile.prod -t api-backend .
 ### Version Issues
 
 Update version in:
+
 - Dockerfile build args: `ARG CHISEL_VERSION=1.9.1`
 - Download scripts: `CHISEL_VERSION="${CHISEL_VERSION:-1.9.1}"`
 
 ## Official Docker Image
 
 The official Chisel Docker image is available at:
+
 - **Docker Hub**: `jpillora/chisel:latest`
 - **GitHub**: https://github.com/jpillora/chisel
 
 We use multi-stage builds to copy the binary from the official image, ensuring compatibility and easy updates.
-

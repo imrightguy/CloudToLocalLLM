@@ -10,20 +10,24 @@ export NODE_ENV=sandbox
 ## Test Credentials
 
 ### Free User
+
 - Email: `test@sandbox.local`
 - Token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMSIsImVtYWlsIjoidGVzdEBzYW5kYm94LmxvY2FsIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-1`
 
 ### Premium User
+
 - Email: `premium@sandbox.local`
 - Token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXItMiIsImVtYWlsIjoicHJlbWl1bUBzYW5kYm94LmxvY2FsIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-2`
 
 ### Admin User
+
 - Email: `admin@sandbox.local`
 - Token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LWFkbWluIiwiZW1haWwiOiJhZG1pbkBzYW5kYm94LmxvY2FsIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjcwMDAwMDAwfQ.sandbox-token-admin`
 
 ## Common Endpoints
 
 ### Configuration
+
 ```bash
 GET /sandbox/config
 GET /sandbox/credentials
@@ -31,12 +35,14 @@ GET /sandbox/stats
 ```
 
 ### Users
+
 ```bash
 POST /sandbox/users
 GET /sandbox/users/:userId
 ```
 
 ### Tunnels
+
 ```bash
 POST /sandbox/tunnels
 GET /sandbox/tunnels/:tunnelId
@@ -45,11 +51,13 @@ POST /sandbox/tunnels/:tunnelId/metrics
 ```
 
 ### Webhooks
+
 ```bash
 POST /sandbox/webhooks
 ```
 
 ### Monitoring
+
 ```bash
 GET /sandbox/requests
 DELETE /sandbox/clear
@@ -58,16 +66,19 @@ DELETE /sandbox/clear
 ## Quick Examples
 
 ### Get Sandbox Config
+
 ```bash
 curl http://localhost:8080/sandbox/config
 ```
 
 ### Get Test Credentials
+
 ```bash
 curl http://localhost:8080/sandbox/credentials
 ```
 
 ### Create Mock User
+
 ```bash
 curl -X POST http://localhost:8080/sandbox/users \
   -H "Content-Type: application/json" \
@@ -80,6 +91,7 @@ curl -X POST http://localhost:8080/sandbox/users \
 ```
 
 ### Create Mock Tunnel
+
 ```bash
 curl -X POST http://localhost:8080/sandbox/tunnels \
   -H "Content-Type: application/json" \
@@ -90,6 +102,7 @@ curl -X POST http://localhost:8080/sandbox/tunnels \
 ```
 
 ### Update Tunnel Status
+
 ```bash
 curl -X PATCH http://localhost:8080/sandbox/tunnels/sandbox-tunnel-1670000000000/status \
   -H "Content-Type: application/json" \
@@ -97,6 +110,7 @@ curl -X PATCH http://localhost:8080/sandbox/tunnels/sandbox-tunnel-1670000000000
 ```
 
 ### Record Tunnel Metrics
+
 ```bash
 curl -X POST http://localhost:8080/sandbox/tunnels/sandbox-tunnel-1670000000000/metrics \
   -H "Content-Type: application/json" \
@@ -109,11 +123,13 @@ curl -X POST http://localhost:8080/sandbox/tunnels/sandbox-tunnel-1670000000000/
 ```
 
 ### View Request Log
+
 ```bash
 curl http://localhost:8080/sandbox/requests
 ```
 
 ### Filter Requests
+
 ```bash
 # By user
 curl "http://localhost:8080/sandbox/requests?userId=test-user-1"
@@ -129,11 +145,13 @@ curl "http://localhost:8080/sandbox/requests?limit=50"
 ```
 
 ### Get Sandbox Stats
+
 ```bash
 curl http://localhost:8080/sandbox/stats
 ```
 
 ### Clear Sandbox Data
+
 ```bash
 curl -X DELETE http://localhost:8080/sandbox/clear
 ```

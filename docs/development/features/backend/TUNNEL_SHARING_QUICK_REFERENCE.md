@@ -12,7 +12,9 @@ Tunnel sharing allows users to grant other users access to their tunnels with gr
 ## Database Schema
 
 ### tunnel_shares
+
 Manages direct user-to-user tunnel sharing:
+
 - `id`: Share ID (UUID)
 - `tunnel_id`: Tunnel being shared
 - `owner_id`: User who owns the tunnel
@@ -22,7 +24,9 @@ Manages direct user-to-user tunnel sharing:
 - `expires_at`: Optional expiration time
 
 ### tunnel_share_tokens
+
 Manages temporary share tokens for link-based sharing:
+
 - `id`: Token ID (UUID)
 - `tunnel_id`: Tunnel being shared
 - `owner_id`: User who created the token
@@ -33,7 +37,9 @@ Manages temporary share tokens for link-based sharing:
 - `use_count`: Current use count
 
 ### tunnel_access_logs
+
 Audit trail for all tunnel access operations:
+
 - `id`: Log ID (UUID)
 - `tunnel_id`: Tunnel being accessed
 - `user_id`: User performing action
@@ -45,6 +51,7 @@ Audit trail for all tunnel access operations:
 ## API Endpoints
 
 ### Share Tunnel with User
+
 ```
 POST /api/tunnels/:id/shares
 Authorization: Bearer <token>
@@ -70,6 +77,7 @@ Response:
 ```
 
 ### Get Tunnel Shares
+
 ```
 GET /api/tunnels/:id/shares
 Authorization: Bearer <token>
@@ -92,6 +100,7 @@ Response:
 ```
 
 ### Revoke Tunnel Access
+
 ```
 DELETE /api/tunnels/:id/shares/:sharedWithUserId
 Authorization: Bearer <token>
@@ -104,6 +113,7 @@ Response:
 ```
 
 ### Get Shared Tunnels
+
 ```
 GET /api/tunnels/shared-with-me?limit=50&offset=0
 Authorization: Bearer <token>
@@ -129,6 +139,7 @@ Response:
 ```
 
 ### Create Share Token
+
 ```
 POST /api/tunnels/:id/share-tokens
 Authorization: Bearer <token>
@@ -155,6 +166,7 @@ Response:
 ```
 
 ### Get Share Tokens
+
 ```
 GET /api/tunnels/:id/share-tokens
 Authorization: Bearer <token>
@@ -178,6 +190,7 @@ Response:
 ```
 
 ### Revoke Share Token
+
 ```
 DELETE /api/tunnels/:id/share-tokens/:tokenId
 Authorization: Bearer <token>
@@ -190,6 +203,7 @@ Response:
 ```
 
 ### Get Access Logs
+
 ```
 GET /api/tunnels/:id/access-logs?limit=50&offset=0
 Authorization: Bearer <token>
@@ -217,6 +231,7 @@ Response:
 ```
 
 ### Update Share Permission
+
 ```
 PUT /api/tunnels/:id/shares/:shareId/permission
 Authorization: Bearer <token>
@@ -240,12 +255,14 @@ Response:
 ## Permission Levels
 
 ### read
+
 - View tunnel details
 - View tunnel status and metrics
 - View tunnel configuration
 - Cannot modify tunnel
 
 ### write
+
 - All read permissions
 - Update tunnel configuration
 - Start/stop tunnel
@@ -253,6 +270,7 @@ Response:
 - Cannot manage shares
 
 ### admin
+
 - All write permissions
 - Delete tunnel
 - Manage shares (share/revoke)
@@ -298,6 +316,7 @@ updateSharePermission(shareId, ownerId, newPermission, ipAddress, userAgent)
 ## Usage Examples
 
 ### Share a tunnel
+
 ```javascript
 const share = await tunnelSharingService.shareTunnel(
   'tunnel-123',
@@ -310,6 +329,7 @@ const share = await tunnelSharingService.shareTunnel(
 ```
 
 ### Create a temporary share link
+
 ```javascript
 const token = await tunnelSharingService.createShareToken(
   'tunnel-123',
@@ -325,6 +345,7 @@ const token = await tunnelSharingService.createShareToken(
 ```
 
 ### Verify access before operation
+
 ```javascript
 const access = await tunnelSharingService.verifyTunnelAccess(
   'tunnel-123',
@@ -349,11 +370,13 @@ if (!access.hasAccess) {
 ## Testing
 
 Run tests with:
+
 ```bash
 npm test -- tunnel-sharing.test.js
 ```
 
 Tests cover:
+
 - Sharing tunnels with valid/invalid users
 - Permission validation
 - Token creation and revocation

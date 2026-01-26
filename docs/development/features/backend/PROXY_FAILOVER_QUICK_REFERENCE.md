@@ -18,7 +18,9 @@ The Proxy Failover Service implements automatic failover and redundancy manageme
 ## Database Tables
 
 ### proxy_failover_configurations
+
 Stores failover configuration for each proxy:
+
 - `failover_strategy`: Strategy for failover (priority, round_robin, least_connections)
 - `health_check_interval_seconds`: How often to check health
 - `unhealthy_threshold`: Consecutive failures before marking unhealthy
@@ -26,7 +28,9 @@ Stores failover configuration for each proxy:
 - `enable_auto_recovery`: Enable automatic recovery
 
 ### proxy_instances
+
 Tracks individual proxy instances:
+
 - `instance_name`: Name of the instance
 - `priority`: Priority for failover (lower = higher priority)
 - `weight`: Weight for load balancing
@@ -34,14 +38,18 @@ Tracks individual proxy instances:
 - `consecutive_failures`: Number of consecutive health check failures
 
 ### proxy_failover_events
+
 Records failover events:
+
 - `event_type`: Type of event (failover, recovery)
 - `source_instance_id`: Instance being failed over from
 - `target_instance_id`: Instance being failed over to
 - `status`: Event status (pending, in_progress, completed, failed)
 
 ### proxy_redundancy_status
+
 Current redundancy status:
+
 - `total_instances`: Total number of instances
 - `healthy_instances`: Number of healthy instances
 - `active_instance_id`: Currently active instance
@@ -54,6 +62,7 @@ Current redundancy status:
 
 **POST /proxy/failover/config**
 Create or update failover configuration
+
 ```json
 {
   "proxyId": "proxy-123",
@@ -73,6 +82,7 @@ Get failover configuration
 
 **POST /proxy/instances**
 Register a proxy instance
+
 ```json
 {
   "proxyId": "proxy-123",
@@ -89,6 +99,7 @@ Get all instances for a proxy
 
 **PUT /proxy/instances/:instanceId/health**
 Update instance health status
+
 ```json
 {
   "healthStatus": "unhealthy",
@@ -103,6 +114,7 @@ Update instance health status
 
 **POST /proxy/failover/evaluate**
 Evaluate if failover is needed
+
 ```json
 {
   "proxyId": "proxy-123"
@@ -111,6 +123,7 @@ Evaluate if failover is needed
 
 **POST /proxy/failover/execute** (Admin only)
 Execute failover operation
+
 ```json
 {
   "proxyId": "proxy-123",
@@ -122,6 +135,7 @@ Execute failover operation
 
 **PUT /proxy/failover/events/:eventId/complete** (Admin only)
 Complete a failover event
+
 ```json
 {
   "status": "completed",
@@ -136,6 +150,7 @@ Get redundancy status
 
 **PUT /proxy/:proxyId/redundancy** (Admin only)
 Update redundancy status
+
 ```json
 {
   "totalInstances": 2,
@@ -154,36 +169,44 @@ Get failover events for a proxy
 ## Service Methods
 
 ### Configuration
+
 - `createFailoverConfiguration(proxyId, userId, config)` - Create/update config
 - `getFailoverConfiguration(proxyId)` - Get config
 
 ### Instance Management
+
 - `registerProxyInstance(proxyId, userId, instanceData)` - Register instance
 - `getProxyInstances(proxyId)` - Get all instances
 - `updateInstanceHealth(instanceId, healthStatus, metrics)` - Update health
 - `recordInstanceMetrics(instanceId, proxyId, userId, metrics)` - Record metrics
 
 ### Failover Operations
+
 - `evaluateFailover(proxyId, userId)` - Evaluate if failover needed
 - `executeFailover(proxyId, userId, sourceId, targetId, reason)` - Execute failover
 - `completeFailoverEvent(eventId, status, errorMessage, durationMs)` - Complete event
 
 ### Redundancy
+
 - `getRedundancyStatus(proxyId)` - Get status
 - `updateRedundancyStatus(proxyId, userId, statusData)` - Update status
 
 ### Events
+
 - `getFailoverEvents(proxyId, limit)` - Get failover events
 
 ## Failover Strategies
 
 ### Priority-Based (Default)
+
 Instances are ordered by priority. When active instance fails, switches to next highest priority healthy instance.
 
 ### Round-Robin
+
 Cycles through healthy instances in order.
 
 ### Least-Connections
+
 Routes to instance with fewest active connections.
 
 ## Health Check Configuration
@@ -296,6 +319,7 @@ await service.updateRedundancyStatus('proxy-123', 'user-456', {
 ## Testing
 
 Run tests with:
+
 ```bash
 npm test -- proxy-failover.test.js
 ```

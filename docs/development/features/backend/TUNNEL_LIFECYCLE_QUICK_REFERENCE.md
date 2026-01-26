@@ -9,6 +9,7 @@ Implements comprehensive tunnel lifecycle management endpoints for creating, ret
 ## Files Created
 
 ### 1. Database Migration
+
 - **File**: `database/migrations/004_tunnel_lifecycle_management.sql`
 - **Tables**:
   - `tunnels` - Main tunnel records
@@ -16,6 +17,7 @@ Implements comprehensive tunnel lifecycle management endpoints for creating, ret
   - `tunnel_activity_logs` - Activity tracking
 
 ### 2. Service Layer
+
 - **File**: `services/tunnel-service.js`
 - **Class**: `TunnelService`
 - **Methods**:
@@ -30,6 +32,7 @@ Implements comprehensive tunnel lifecycle management endpoints for creating, ret
   - `getTunnelActivityLogs()` - Retrieve activity logs
 
 ### 3. API Routes
+
 - **File**: `routes/tunnels.js`
 - **Endpoints**:
   - `POST /api/tunnels` - Create tunnel
@@ -43,6 +46,7 @@ Implements comprehensive tunnel lifecycle management endpoints for creating, ret
   - `GET /api/tunnels/:id/activity` - Get activity logs
 
 ### 4. Tests
+
 - **File**: `test/api-backend/tunnel-lifecycle.test.js`
 - **Test Suites**:
   - Tunnel Creation
@@ -57,6 +61,7 @@ Implements comprehensive tunnel lifecycle management endpoints for creating, ret
 ## API Endpoints
 
 ### Create Tunnel
+
 ```
 POST /api/tunnels
 Content-Type: application/json
@@ -94,6 +99,7 @@ Response: 201 Created
 ```
 
 ### List Tunnels
+
 ```
 GET /api/tunnels?limit=50&offset=0
 
@@ -110,6 +116,7 @@ Response: 200 OK
 ```
 
 ### Get Tunnel
+
 ```
 GET /api/tunnels/:id
 
@@ -121,6 +128,7 @@ Response: 200 OK
 ```
 
 ### Update Tunnel
+
 ```
 PUT /api/tunnels/:id
 Content-Type: application/json
@@ -139,6 +147,7 @@ Response: 200 OK
 ```
 
 ### Delete Tunnel
+
 ```
 DELETE /api/tunnels/:id
 
@@ -150,6 +159,7 @@ Response: 200 OK
 ```
 
 ### Start Tunnel
+
 ```
 POST /api/tunnels/:id/start
 
@@ -162,6 +172,7 @@ Response: 200 OK
 ```
 
 ### Stop Tunnel
+
 ```
 POST /api/tunnels/:id/stop
 
@@ -174,6 +185,7 @@ Response: 200 OK
 ```
 
 ### Get Metrics
+
 ```
 GET /api/tunnels/:id/metrics
 
@@ -190,6 +202,7 @@ Response: 200 OK
 ```
 
 ### Get Activity Logs
+
 ```
 GET /api/tunnels/:id/activity?limit=50&offset=0
 
@@ -207,6 +220,7 @@ Response: 200 OK
 ## Data Models
 
 ### Tunnel
+
 ```typescript
 interface Tunnel {
   id: UUID;
@@ -231,6 +245,7 @@ interface Tunnel {
 ```
 
 ### TunnelEndpoint
+
 ```typescript
 interface TunnelEndpoint {
   id: UUID;
@@ -244,6 +259,7 @@ interface TunnelEndpoint {
 ```
 
 ### TunnelActivityLog
+
 ```typescript
 interface TunnelActivityLog {
   id: UUID;
@@ -261,29 +277,36 @@ interface TunnelActivityLog {
 ## Error Handling
 
 ### 400 Bad Request
+
 - Missing required fields
 - Invalid tunnel name (empty or > 255 chars)
 - Invalid pagination parameters
 
 ### 401 Unauthorized
+
 - Missing or invalid JWT token
 
 ### 403 Forbidden
+
 - User attempting to access tunnel owned by another user
 
 ### 404 Not Found
+
 - Tunnel not found
 
 ### 409 Conflict
+
 - Tunnel name already exists for user
 
 ### 500 Internal Server Error
+
 - Database errors
 - Service initialization errors
 
 ## Features
 
 ### Tunnel Lifecycle Management
+
 - Create tunnels with configuration
 - Support multiple endpoints per tunnel for failover
 - Track tunnel status (created, connecting, connected, disconnected, error)
@@ -291,29 +314,34 @@ interface TunnelActivityLog {
 - Delete tunnels with cascading cleanup
 
 ### Configuration Management
+
 - Store tunnel configuration (max connections, timeout, compression)
 - Update configuration without recreating tunnel
 - Validate configuration parameters
 
 ### Endpoint Management
+
 - Support multiple endpoints per tunnel
 - Priority-based endpoint selection
 - Weight-based load distribution
 - Health status tracking
 
 ### Metrics Collection
+
 - Track request counts
 - Monitor success/error rates
 - Calculate average latency
 - Update metrics in real-time
 
 ### Activity Logging
+
 - Log all tunnel operations
 - Track user actions and IP addresses
 - Maintain audit trail
 - Support activity log retrieval
 
 ### Authorization
+
 - User-based tunnel ownership
 - Prevent cross-user access
 - Audit logging for security
@@ -321,7 +349,9 @@ interface TunnelActivityLog {
 ## Integration
 
 ### Server Registration
+
 Routes are registered in `server.js`:
+
 ```javascript
 import tunnelRoutes, { initializeTunnelService } from './routes/tunnels.js';
 
@@ -334,7 +364,9 @@ await initializeTunnelService();
 ```
 
 ### Database Setup
+
 Migration is applied during server startup:
+
 ```bash
 npm run migrate
 ```
@@ -342,11 +374,13 @@ npm run migrate
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- tunnel-lifecycle
 ```
 
 Test coverage includes:
+
 - Tunnel creation with valid/invalid data
 - Tunnel retrieval and listing
 - Tunnel updates (name, config, endpoints)

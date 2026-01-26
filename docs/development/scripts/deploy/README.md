@@ -7,11 +7,13 @@ CloudToLocalLLM now uses **Kubernetes** for production deployment. VPS deploymen
 ## Current Deployment Methods
 
 ### 🚀 Production Deployment (Recommended)
+
 - **[Kubernetes Deployment](../../docs/DEPLOYMENT/DEPLOYMENT_OVERVIEW.md)**
 - Works with any Kubernetes cluster (managed or self-hosted)
 - Use: `kubectl apply -f k8s/`
 
 ### 🧪 Development/Testing Deployment
+
 - **[Docker Compose](../../DOCKER_DEPLOYMENT.md)**
 - Suitable for local development and testing
 - Use: `docker-compose up`

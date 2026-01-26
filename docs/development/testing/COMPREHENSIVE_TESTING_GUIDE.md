@@ -36,6 +36,7 @@ test/
 ## 🧪 Test Categories
 
 ### 1. Flutter/Dart Tests
+
 **Location**: Root directory and `test/` (Flutter convention)
 **Purpose**: Application logic, widget testing, and static analysis
 
@@ -51,12 +52,14 @@ flutter analyze --fatal-infos --fatal-warnings
 ```
 
 **Key Features**:
+
 - Widget testing for UI components
 - Unit testing for business logic
 - Integration testing for app flows
 - Static analysis for code quality
 
 ### 2. Node.js/Jest Tests
+
 **Location**: `test/api-backend/`
 **Purpose**: API backend validation, security testing, and service integration
 
@@ -74,6 +77,7 @@ npm run test:user-isolation
 ```
 
 **Key Features**:
+
 - API endpoint testing
 - Security validation (JWT, authentication, authorization)
 - User isolation and multi-tenancy testing
@@ -81,6 +85,7 @@ npm run test:user-isolation
 - Admin service testing
 
 ### 3. PowerShell Tests
+
 **Location**: `test/powershell/`
 **Purpose**: Deployment script validation and infrastructure testing
 
@@ -93,12 +98,14 @@ pwsh test/powershell/CI-TestRunner.ps1 -CodeCoverage -ExportResults
 ```
 
 **Key Features**:
+
 - Deployment script validation
 - Infrastructure testing with mocks
 - Cross-platform compatibility testing
 - Error handling and rollback testing
 
 ### 4. Playwright E2E Tests
+
 **Location**: `test/e2e/`
 **Purpose**: End-to-end user workflow validation
 
@@ -114,6 +121,7 @@ npx playwright test test/e2e/ci-health-check.spec.js
 ```
 
 **Key Features**:
+
 - Authentication flow validation
 - Cross-browser compatibility testing
 - Performance baseline validation
@@ -123,6 +131,7 @@ npx playwright test test/e2e/ci-health-check.spec.js
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 ```bash
 # Check Flutter
 flutter --version  # Should be 3.24.0+
@@ -138,6 +147,7 @@ npx playwright --version
 ```
 
 ### Run All Tests Locally
+
 ```bash
 # Using integrated deployment script (recommended)
 .\scripts\deploy\Deploy-WithTests.ps1 -DryRun
@@ -152,6 +162,7 @@ npx playwright test                             # E2E tests
 ## 🔄 CI/CD Integration
 
 ### GitHub Actions Pipeline
+
 The tests are automatically executed in the CI/CD pipeline defined in `.github/workflows/ci-cd.yml`:
 
 1. **Parallel Test Execution**: All test suites run in parallel for faster feedback
@@ -160,12 +171,14 @@ The tests are automatically executed in the CI/CD pipeline defined in `.github/w
 4. **Artifact Collection**: Test results and coverage reports are preserved
 
 ### Test Execution Order
+
 1. **Flutter Tests** - Application core validation
 2. **Node.js Tests** - API backend validation
 3. **PowerShell Tests** - Deployment script validation
 4. **Playwright Tests** - E2E validation (depends on Flutter build)
 
 ### Quality Gates
+
 - **Critical Failures**: Block deployment completely
 - **Warning Failures**: Generate warnings but may allow deployment
 - **Coverage Thresholds**: Enforce minimum code coverage requirements
@@ -173,25 +186,33 @@ The tests are automatically executed in the CI/CD pipeline defined in `.github/w
 ## 📊 Test Configuration
 
 ### Flutter Test Configuration
+
 **File**: `test/flutter_test_config.dart`
+
 - Configures test environment for CI/CD
 - Sets up mock services for headless testing
 - Manages test timeouts and cleanup
 
 ### Node.js Test Configuration
+
 **File**: `services/api-backend/jest.config.js`
+
 - Jest configuration optimized for CI
 - Coverage reporting and thresholds
 - Test result formatting for CI integration
 
 ### PowerShell Test Configuration
+
 **File**: `test/powershell/TestConfig.ps1`
+
 - Mock behavior configuration
 - Test data management
 - Cross-platform compatibility settings
 
 ### Playwright Test Configuration
+
 **File**: `playwright.config.js`
+
 - Browser configuration for different environments
 - CI-specific settings and timeouts
 - Test result reporting and artifact collection
@@ -233,6 +254,7 @@ npx playwright test --headed --debug  # Debug E2E tests visually
 ### Common Issues
 
 #### Test Environment Setup
+
 ```bash
 # Flutter issues
 flutter clean && flutter pub get
@@ -248,6 +270,7 @@ npx playwright install --with-deps
 ```
 
 #### CI/CD Pipeline Issues
+
 1. Check GitHub Actions logs for specific errors
 2. Verify environment variables are set correctly
 3. Ensure all dependencies are properly installed
@@ -270,6 +293,7 @@ npx playwright install --with-deps
 ---
 
 **Note**: This testing infrastructure ensures CloudToLocalLLM maintains high quality and reliability through comprehensive automated validation at every level of the application stack.
+
 # LLM Testing Guide for CloudToLocalLLM
 
 This guide provides comprehensive documentation for testing patterns, utilities, and best practices for the LLM integration components in CloudToLocalLLM.
@@ -432,17 +456,21 @@ test('should failover to secondary provider', () async {
 ## Test Naming Conventions
 
 ### Test File Naming
+
 - Unit tests: `{service_name}_test.dart`
 - Integration tests: `{feature_name}_integration_test.dart`
 - End-to-end tests: `{workflow_name}_e2e_test.dart`
 
 ### Test Group Naming
+
 - Feature groups: `group('Feature Name', () { ... })`
 - Scenario groups: `group('Error Scenarios', () { ... })`
 - Method groups: `group('methodName()', () { ... })`
 
 ### Test Case Naming
+
 Use descriptive names that explain the scenario:
+
 - `'should detect healthy Ollama instance'`
 - `'should handle connection failure gracefully'`
 - `'should failover to secondary provider when primary fails'`
@@ -451,16 +479,19 @@ Use descriptive names that explain the scenario:
 ## Mock Data Standards
 
 ### Standard Provider IDs
+
 - Ollama: `'ollama_11434'`
 - LM Studio: `'lmstudio_1234'`
 - OpenAI Compatible: `'openai_8080'`
 
 ### Standard Model Names
+
 - Ollama: `['llama2:latest', 'codellama:latest', 'mistral:latest']`
 - LM Studio: `['Meta-Llama-3-8B-Instruct', 'CodeLlama-7B-Instruct']`
 - OpenAI Compatible: `['gpt-3.5-turbo', 'gpt-4']`
 
 ### Standard Response Times
+
 - Fast response: `100ms`
 - Normal response: `500ms`
 - Slow response: `2000ms`
@@ -526,16 +557,19 @@ void verifyErrorResponse(TunnelLLMResponse response, {
 ## Performance Testing Guidelines
 
 ### Load Testing
+
 - Test with 10-50 concurrent requests
 - Measure response times under load
 - Verify no memory leaks during extended testing
 
 ### Timeout Testing
+
 - Test various timeout scenarios (1s, 5s, 30s)
 - Verify proper cleanup on timeout
 - Test timeout handling in streaming scenarios
 
 ### Resource Management Testing
+
 - Verify proper disposal of resources
 - Test connection pool management
 - Monitor memory usage during tests
@@ -543,17 +577,20 @@ void verifyErrorResponse(TunnelLLMResponse response, {
 ## Continuous Integration
 
 ### Test Execution Order
+
 1. Unit tests (fastest)
 2. Integration tests
 3. End-to-end tests (slowest)
 
 ### Test Categories for CI
+
 - **Smoke Tests**: Basic functionality verification
 - **Regression Tests**: Prevent breaking changes
 - **Performance Tests**: Ensure acceptable performance
 - **Security Tests**: Validate security measures
 
 ### Test Environment Setup
+
 ```yaml
 # Example CI configuration
 test:
@@ -569,12 +606,14 @@ test:
 ## Debugging Test Failures
 
 ### Common Issues
+
 1. **Async timing issues**: Use `await` properly, consider `pumpAndSettle()`
 2. **Mock setup**: Verify mocks are configured before test execution
 3. **Resource cleanup**: Ensure proper disposal in `tearDown()`
 4. **State isolation**: Reset state between tests
 
 ### Debugging Tools
+
 - Use `debugPrint()` for test debugging
 - Enable verbose logging: `flutter test --verbose`
 - Use `flutter test --coverage` for coverage analysis

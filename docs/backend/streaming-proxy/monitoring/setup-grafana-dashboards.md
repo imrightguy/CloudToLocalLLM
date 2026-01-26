@@ -7,6 +7,7 @@ This document provides step-by-step instructions for implementing production mon
 ## Prerequisites
 
 Before starting, ensure:
+
 1. Grafana instance is running at `https://grafana.cloudtolocalllm.online`
 2. Prometheus datasource is configured in Grafana
 3. Loki datasource is configured in Grafana (for log analysis)
@@ -17,11 +18,13 @@ Before starting, ensure:
 ## Task 18.1: Create Tunnel Health Dashboard
 
 ### Objective
+
 Create a real-time dashboard showing tunnel connection health, request success rates, latency, and error rates.
 
 ### Implementation Steps
 
 #### Step 1: Verify Prometheus Datasource
+
 ```typescript
 // Use mcp_grafana_list_datasources to verify Prometheus is available
 const datasources = await mcp_grafana_list_datasources({ type: 'prometheus' });
@@ -33,6 +36,7 @@ if (!prometheusUid) {
 ```
 
 #### Step 2: Create Dashboard Structure
+
 ```typescript
 const dashboardConfig = {
   title: 'Tunnel Health',
@@ -184,6 +188,7 @@ const dashboardConfig = {
 ```
 
 #### Step 3: Create Dashboard via MCP
+
 ```typescript
 const dashboard = await mcp_grafana_create_dashboard({
   dashboard: dashboardConfig,
@@ -194,6 +199,7 @@ console.log(`Dashboard created: ${dashboard.url}`);
 ```
 
 ### Metrics Used
+
 - `tunnel_active_connections`: Current number of active tunnel connections
 - `tunnel_requests_total`: Total number of requests processed
 - `tunnel_errors_total`: Total number of errors
@@ -203,6 +209,7 @@ console.log(`Dashboard created: ${dashboard.url}`);
 - `tunnel_connection_pool_total_connections`: Total connections in pool
 
 ### Expected Output
+
 - Dashboard URL: `https://grafana.cloudtolocalllm.online/d/tunnel-health`
 - Refresh interval: 30 seconds
 - Time range: Last 6 hours (configurable)
@@ -212,11 +219,13 @@ console.log(`Dashboard created: ${dashboard.url}`);
 ## Task 18.2: Create Performance Metrics Dashboard
 
 ### Objective
+
 Create a dashboard focused on performance analysis including latency percentiles, throughput, and resource usage.
 
 ### Implementation Steps
 
 #### Step 1: Create Dashboard with Variables
+
 ```typescript
 const performanceDashboard = {
   title: 'Tunnel Performance',
@@ -392,6 +401,7 @@ const performanceDashboard = {
 ```
 
 #### Step 2: Create Dashboard
+
 ```typescript
 const perfDashboard = await mcp_grafana_create_dashboard({
   dashboard: performanceDashboard,
@@ -402,6 +412,7 @@ console.log(`Performance dashboard created: ${perfDashboard.url}`);
 ```
 
 ### Metrics Used
+
 - `histogram_quantile(0.95, tunnel_request_latency_ms)`: 95th percentile latency
 - `histogram_quantile(0.99, tunnel_request_latency_ms)`: 99th percentile latency
 - `tunnel_throughput_bytes_total`: Total bytes transferred
@@ -414,11 +425,13 @@ console.log(`Performance dashboard created: ${perfDashboard.url}`);
 ## Task 18.3: Create Error Tracking Dashboard
 
 ### Objective
+
 Create a dashboard for error analysis and pattern detection using both Prometheus and Loki.
 
 ### Implementation Steps
 
 #### Step 1: Create Error Dashboard
+
 ```typescript
 const errorDashboard = {
   title: 'Tunnel Errors',
@@ -495,6 +508,7 @@ const errorDashboard = {
 ```
 
 #### Step 2: Query Error Logs from Loki
+
 ```typescript
 // Query error logs using mcp_grafana_query_loki_logs
 const errorLogs = await mcp_grafana_query_loki_logs({
@@ -509,6 +523,7 @@ console.log(`Found ${errorLogs.length} error logs`);
 ```
 
 #### Step 3: Find Error Patterns
+
 ```typescript
 // Use mcp_grafana_find_error_pattern_logs to identify patterns
 const errorPatterns = await mcp_grafana_find_error_pattern_logs({
@@ -526,17 +541,20 @@ console.log('Error patterns found:', errorPatterns);
 ## Task 18.4: Set up Critical Alerts
 
 ### Objective
+
 Create alert rules for critical tunnel issues with appropriate notification channels.
 
 ### Implementation Steps
 
 #### Step 1: List Available Contact Points
+
 ```typescript
 const contactPoints = await mcp_grafana_list_contact_points();
 console.log('Available notification channels:', contactPoints);
 ```
 
 #### Step 2: Create High Error Rate Alert
+
 ```typescript
 const highErrorRateAlert = await mcp_grafana_create_alert_rule({
   title: 'High Error Rate',
@@ -571,6 +589,7 @@ console.log('Alert created:', highErrorRateAlert);
 ```
 
 #### Step 3: Create Connection Pool Exhaustion Alert
+
 ```typescript
 const poolExhaustionAlert = await mcp_grafana_create_alert_rule({
   title: 'Connection Pool Exhaustion',
@@ -598,6 +617,7 @@ const poolExhaustionAlert = await mcp_grafana_create_alert_rule({
 ```
 
 #### Step 4: Create Circuit Breaker Open Alert
+
 ```typescript
 const circuitBreakerAlert = await mcp_grafana_create_alert_rule({
   title: 'Circuit Breaker Open',
@@ -624,6 +644,7 @@ const circuitBreakerAlert = await mcp_grafana_create_alert_rule({
 ```
 
 #### Step 5: Create Rate Limit Violations Alert
+
 ```typescript
 const rateLimitAlert = await mcp_grafana_create_alert_rule({
   title: 'Rate Limit Violations Spike',
@@ -655,11 +676,13 @@ const rateLimitAlert = await mcp_grafana_create_alert_rule({
 ## Task 18.5: Generate Monitoring Documentation
 
 ### Objective
+
 Create shareable dashboard links and comprehensive monitoring documentation.
 
 ### Implementation Steps
 
 #### Step 1: Generate Dashboard Deeplinks
+
 ```typescript
 // Generate link for Tunnel Health Dashboard
 const healthDashboardLink = await mcp_grafana_generate_deeplink({
@@ -698,14 +721,18 @@ console.log('- Errors:', errorDashboardLink);
 ```
 
 #### Step 2: Create Monitoring Guide
+
 Create `docs/OPERATIONS/TUNNEL_MONITORING_GUIDE.md` with:
+
 - Dashboard descriptions
 - Metric meanings
 - Alert thresholds
 - Troubleshooting procedures
 
 #### Step 3: Create Alert Runbooks
+
 Create `docs/OPERATIONS/TUNNEL_ALERT_RUNBOOKS.md` with:
+
 - Alert descriptions
 - Investigation steps
 - Resolution procedures
@@ -733,17 +760,20 @@ Create `docs/OPERATIONS/TUNNEL_ALERT_RUNBOOKS.md` with:
 ## Troubleshooting
 
 ### Datasource Not Found
+
 - Verify Prometheus is running
 - Check Grafana datasource configuration
 - Verify API key has appropriate permissions
 
 ### Metrics Not Appearing
+
 - Verify streaming-proxy is running
 - Check `/api/tunnel/metrics` endpoint
 - Verify Prometheus is scraping metrics
 - Check Prometheus targets page
 
 ### Alerts Not Firing
+
 - Check alert rule configuration
 - Verify notification channels are configured
 - Test with manual alert trigger

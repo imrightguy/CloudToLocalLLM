@@ -7,6 +7,7 @@ The Docker-based AUR building system has been temporarily removed as part of the
 ## 📋 Current Status
 
 **TEMPORARILY REMOVED**: All AUR-related Docker infrastructure
+
 - Docker-based AUR building scripts
 - Arch Linux container configurations
 - AUR package automation tools
@@ -18,11 +19,13 @@ The Docker-based AUR building system has been temporarily removed as part of the
 ## 📖 Documentation
 
 For complete details about the AUR removal and planned reintegration:
+
 - **[AUR Status Documentation](../../docs/DEPLOYMENT/AUR_STATUS.md)**
 
 ## 🔄 Current Docker Usage
 
 This directory currently contains:
+
 - **validate_dev_environment.sh** - Development environment validation script
 
 ## 📁 Directory Structure
@@ -53,6 +56,7 @@ scripts/docker/
 ## 🏗️ Future Docker Usage
 
 When AUR support is reintegrated, this directory will contain:
+
 - Docker-based AUR building infrastructure
 - Arch Linux container configurations
 - Universal build wrapper scripts
@@ -64,4 +68,3 @@ When AUR support is reintegrated, this directory will contain:
 - [Deployment Workflow](../deploy/README.md) - Current deployment processes
 - [Package Building](../packaging/README.md) - Available package formats
 - [Version Management](../version_manager.sh) - Version management tools
-

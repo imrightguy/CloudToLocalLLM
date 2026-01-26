@@ -41,6 +41,7 @@ final columns = ResponsiveLayout.getResponsiveColumnCount(context);
 ### Layout Adaptations
 
 #### Mobile Layout (< 600px)
+
 - Single column layout
 - Full-width inputs
 - Stacked navigation
@@ -48,12 +49,14 @@ final columns = ResponsiveLayout.getResponsiveColumnCount(context);
 - 1 column grid
 
 #### Tablet Layout (600px - 1024px)
+
 - Two column layout (sidebar + content)
 - Optimized spacing
 - 16px padding
 - 2 column grid
 
 #### Desktop Layout (> 1024px)
+
 - Three column layout (sidebar + content + optional panel)
 - Generous spacing
 - 24px padding
@@ -367,29 +370,34 @@ final isAccessible = AccessibilityHelpers.meetsContrastRequirement(
 ## Platform-Specific Considerations
 
 ### Web
+
 - Use semantic HTML structure
 - Provide ARIA labels
 - Support keyboard navigation
 - Test with browser accessibility tools
 
 ### Windows Desktop
+
 - Support Narrator screen reader
 - Provide keyboard shortcuts
 - Ensure proper focus indicators
 - Test with Windows accessibility settings
 
 ### Linux Desktop
+
 - Support screen readers (Orca)
 - Provide keyboard navigation
 - Ensure proper focus indicators
 
 ### iOS
+
 - Support VoiceOver
 - Provide proper touch targets (44x44 minimum)
 - Use dynamic type for text sizing
 - Test with VoiceOver enabled
 
 ### Android
+
 - Support TalkBack
 - Provide proper touch targets (44x44 minimum)
 - Use dynamic type for text sizing

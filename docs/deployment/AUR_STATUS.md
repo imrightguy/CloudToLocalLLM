@@ -11,17 +11,20 @@ AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily remo
 ## 🚫 Temporarily Removed Components
 
 ### Bash Scripts (Removed)
+
 - `scripts/create_aur_binary_package.sh` - AUR binary package creator
 - `scripts/packaging/build_aur.sh` - Native AUR package builder
 - `scripts/packaging/build_aur_universal.sh` - Universal AUR builder with Docker fallback
 - `scripts/docker/build-aur-docker.sh` - Docker-based AUR building system
 
 ### Docker Infrastructure (Removed)
+
 - AUR Docker container configurations
 - Arch Linux build environment containers
 - AUR-specific build dependencies and toolchains
 
 ### Documentation (Updated)
+
 - Removed AUR references from main README.md
 - Updated scripts/README.md to reflect current script availability
 - Cleaned up scripts/docker/README.md AUR sections
@@ -29,12 +32,14 @@ AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily remo
 ## 🔍 Removal Rationale
 
 ### Technical Reasons
+
 1. **Architecture Transition**: Migration to Unified Flutter-Native Architecture required streamlining build processes
 2. **Dependency Complexity**: AUR builds required complex Docker containerization for non-Arch development environments
 3. **Maintenance Overhead**: AUR-specific scripts required significant maintenance for limited user base
 4. **Build System Conflicts**: AUR packaging conflicted with new unified package structure
 
 ### Strategic Reasons
+
 1. **Focus on Core Platforms**: Prioritizing Windows, Debian, and AppImage distributions
 2. **Development Velocity**: Removing AUR complexity allows faster iteration on core features
 3. **Quality Assurance**: Simplified build matrix improves testing coverage and reliability
@@ -42,6 +47,7 @@ AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily remo
 ## ✅ Current Package Support
 
 ### Active Package Formats
+
 - **Windows**: MSI installers, portable ZIP packages
 - **AppImage**: Universal Linux packages via `scripts/packaging/build_appimage.sh` (Primary Linux format)
 - **Source**: Direct compilation from GitHub repository
@@ -49,6 +55,7 @@ AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily remo
 **Note**: Debian (.deb) packages have been discontinued in favor of AppImage for better cross-distribution compatibility.
 
 ### PowerShell Equivalents (Maintained)
+
 - `scripts/powershell/create_unified_aur_package.ps1` - Windows-based AUR package creation
 - `scripts/powershell/Create-UnifiedPackages.ps1` - Multi-format package creator
 - These scripts remain available for Windows users with WSL Arch Linux environments
@@ -56,17 +63,20 @@ AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily remo
 ## 🔄 Planned Reintegration
 
 ### Timeline
+
 - **Q2 2025**: AUR reintegration assessment
 - **Q3 2025**: AUR script reconstruction and testing (target)
 - **Q4 2025**: Full AUR support restoration (target)
 
 ### Prerequisites for Reintegration
+
 1. **Unified Architecture Stabilization**: Complete migration to v3.10.3+ architecture
 2. **Build System Optimization**: Streamlined packaging workflow implementation
 3. **Docker Infrastructure**: Rebuilt AUR containerization with improved efficiency
 4. **Community Demand**: Sufficient user requests to justify maintenance overhead
 
 ### Planned Improvements
+
 1. **Simplified Build Process**: Reduced complexity compared to previous implementation
 2. **Better Integration**: Native integration with unified package structure
 3. **Enhanced Testing**: Automated AUR package validation and testing
@@ -75,6 +85,7 @@ AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily remo
 ## 🛠️ Workarounds for Arch Linux Users
 
 ### Option 1: AppImage (Recommended)
+
 ```bash
 # Download latest AppImage
 wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-4.0.78-x86_64.AppImage
@@ -88,6 +99,7 @@ chmod +x cloudtolocalllm-4.0.78-x86_64.AppImage
 ```
 
 ### Option 2: Source Compilation
+
 ```bash
 # Clone repository
 git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
@@ -102,6 +114,7 @@ sudo ln -sf /usr/share/cloudtolocalllm/bin/* /usr/bin/
 ```
 
 ### Option 3: PowerShell Build (Advanced)
+
 ```powershell
 # Use PowerShell to build Linux packages (requires WSL for Linux builds only)
 .\scripts\powershell\build_unified_package.ps1 linux -AutoInstall
@@ -112,6 +125,7 @@ sudo ln -sf /usr/share/cloudtolocalllm/bin/* /usr/bin/
 ## 📞 Community Feedback
 
 ### Request AUR Reintegration
+
 If you're an Arch Linux user who needs AUR support, please:
 
 1. **Open GitHub Issue**: Create an issue with "AUR Support Request" label
@@ -119,6 +133,7 @@ If you're an Arch Linux user who needs AUR support, please:
 3. **Community Support**: Upvote existing AUR support requests
 
 ### Contribute to Reintegration
+
 Developers interested in helping restore AUR support:
 
 1. **Review Previous Implementation**: Check git history for removed AUR scripts
@@ -136,12 +151,14 @@ Developers interested in helping restore AUR support:
 ## 📝 Change Log
 
 ### v3.10.3 (2025-01-13)
+
 - **REMOVED**: All AUR-related bash scripts
 - **REMOVED**: Docker AUR build infrastructure
 - **MAINTAINED**: PowerShell AUR equivalents for Windows users
 - **UPDATED**: Documentation to reflect temporary removal status
 
 ### Previous Versions
+
 - **v3.9.x**: Full AUR support with Docker containerization
 - **v3.8.x**: Native AUR builds with makepkg integration
 - **v3.7.x**: Initial AUR package support implementation

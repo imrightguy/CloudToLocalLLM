@@ -11,28 +11,34 @@
 ## Key Metrics
 
 ### HTTP Requests
+
 - `http_request_duration_seconds` - Request latency (histogram)
 - `http_requests_total` - Total requests (counter)
 - `http_request_errors_total` - Total errors (counter)
 
 ### Services
+
 - `tunnel_connections_active` - Active tunnels (gauge)
 - `proxy_instances_active` - Active proxies (gauge)
 
 ### Database
+
 - `db_connection_pool_size` - Pool size (gauge)
 - `db_query_duration_seconds` - Query latency (histogram)
 - `db_queries_total` - Total queries (counter)
 
 ### Authentication
+
 - `auth_attempts_total` - Auth attempts (counter)
 - `active_sessions` - Active sessions (gauge)
 
 ### Rate Limiting
+
 - `rate_limit_violations_total` - Violations (counter)
 - `rate_limited_users_active` - Limited users (gauge)
 
 ### System
+
 - `api_uptime_seconds` - Uptime (gauge)
 - `active_users` - Active users (gauge)
 - `system_load` - System load (gauge)
@@ -40,16 +46,19 @@
 ## Usage
 
 ### Get Metrics
+
 ```bash
 curl http://localhost:8080/metrics
 ```
 
 ### Check Health
+
 ```bash
 curl http://localhost:8080/prometheus/health/metrics
 ```
 
 ### Prometheus Config
+
 ```yaml
 scrape_configs:
   - job_name: 'api'

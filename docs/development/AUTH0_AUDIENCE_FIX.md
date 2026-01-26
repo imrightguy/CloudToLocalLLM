@@ -3,6 +3,7 @@
 ## Problem Summary
 
 After successful Auth0 login, the Flutter web app was making API calls that all failed with 401 (Unauthorized) errors:
+
 - `POST /auth/sessions` → 400 (Bad Request)
 - `GET /user/tier` → 401 (Unauthorized)
 - `GET /ollama/bridge/status` → 401 (Unauthorized)
@@ -13,16 +14,20 @@ After successful Auth0 login, the Flutter web app was making API calls that all 
 **Audience Mismatch**: The frontend and backend were configured with different Auth0 audiences.
 
 ### Frontend Configuration (web/auth0-bridge.js)
+
 ```javascript
 const AUTH0_AUDIENCE = 'https://dev-vivn1fcgzi0c2czy.us.auth0.com/api/v2/';
 ```
+
 This is the Auth0 Management API audience, used for managing Auth0 resources.
 
 ### Backend Configuration (services/api-backend/middleware/auth.js)
+
 ```javascript
 const DEFAULT_JWT_AUDIENCE = 'https://api.cloudtolocalllm.online';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || DEFAULT_JWT_AUDIENCE;
 ```
+
 The backend expects the application's own API audience.
 
 ### What Happens
@@ -59,6 +64,7 @@ AUTH0_AUDIENCE=https://api.cloudtolocalllm.online
 ```
 
 Or use the default which is already set in the code:
+
 ```javascript
 const DEFAULT_JWT_AUDIENCE = 'https://api.cloudtolocalllm.online';
 ```
@@ -66,17 +72,20 @@ const DEFAULT_JWT_AUDIENCE = 'https://api.cloudtolocalllm.online';
 ### 3. Verify Auth0 Application Configuration
 
 In Auth0 dashboard, ensure the application is configured with:
+
 - **Identifier (Audience)**: `https://api.cloudtolocalllm.online`
 - This tells Auth0 to include this audience in the token
 
 ## Implementation Details
 
 ### Frontend Changes
+
 - **File**: `web/auth0-bridge.js`
 - **Change**: Update `AUTH0_AUDIENCE` constant
 - **Impact**: New tokens will have the correct audience claim
 
 ### Backend Changes
+
 - **No code changes needed** - backend already expects the correct audience
 - **Environment**: Ensure `AUTH0_AUDIENCE` environment variable is set (or use default)
 
@@ -93,19 +102,23 @@ In Auth0 dashboard, ensure the application is configured with:
 ## Testing the Fix
 
 ### 1. Clear Browser Cache
+
 - Clear all cookies and local storage for the app domain
 - This ensures old tokens are not reused
 
 ### 2. Login Again
+
 - The app will request a new token with the correct audience
 - Auth0 will issue a token with the correct audience claim
 
 ### 3. Verify API Calls
+
 - Check browser DevTools Network tab
 - Verify Authorization header is present: `Authorization: Bearer <token>`
 - Verify API calls return 200/201 instead of 401
 
 ### 4. Check Backend Logs
+
 - Look for successful token validation messages
 - Should see: `Token verification successful (Audience verified)`
 
@@ -121,6 +134,7 @@ In Auth0 dashboard, ensure the application is configured with:
 ### Why This Matters
 
 The audience claim in a JWT token is a security feature that ensures:
+
 1. The token is intended for a specific API/application
 2. Tokens cannot be reused for different applications
 3. Prevents token misuse across different services

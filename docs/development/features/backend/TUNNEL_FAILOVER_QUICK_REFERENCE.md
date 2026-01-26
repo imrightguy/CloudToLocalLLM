@@ -23,43 +23,55 @@ Automatic failover system for tunnel endpoints with priority-based and weighted 
 ## API Quick Reference
 
 ### Get Best Endpoint
+
 ```bash
 GET /api/tunnels/{tunnelId}/failover/endpoint
 ```
+
 Returns the best available endpoint for routing requests.
 
 ### Get Failover Status
+
 ```bash
 GET /api/tunnels/{tunnelId}/failover/status
 ```
+
 Returns detailed status of all endpoints and failover state.
 
 ### Manual Failover
+
 ```bash
 POST /api/tunnels/{tunnelId}/failover/manual
 Body: { "endpointId": "uuid" }
 ```
+
 Manually trigger failover to specific endpoint.
 
 ### Record Failure
+
 ```bash
 POST /api/tunnels/{tunnelId}/failover/record-failure
 Body: { "endpointId": "uuid", "error": "message" }
 ```
+
 Record endpoint failure (internal use).
 
 ### Record Success
+
 ```bash
 POST /api/tunnels/{tunnelId}/failover/record-success
 Body: { "endpointId": "uuid" }
 ```
+
 Record successful request (internal use).
 
 ### Reset Failures
+
 ```bash
 POST /api/tunnels/{tunnelId}/failover/reset-failures
 Body: { "endpointId": "uuid" }
 ```
+
 Reset failure count for endpoint.
 
 ## Configuration
@@ -133,6 +145,7 @@ try {
 ## Weighted Selection Example
 
 With 3 endpoints at same priority:
+
 - Weight 1: ~25% selection rate
 - Weight 2: ~50% selection rate
 - Weight 1: ~25% selection rate
@@ -158,6 +171,7 @@ Total weight = 4, so each unit = 25%
 ## Test Results
 
 ✓ 13 tests passing
+
 - Failure tracking
 - Weighted selection
 - Recovery checks

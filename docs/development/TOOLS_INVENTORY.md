@@ -9,7 +9,9 @@ This document provides a comprehensive audit of all available tools within both 
 The following MCP servers are currently configured and connected to this session:
 
 #### 1.1.1 Context7 Server (`@upstash/context7-mcp`)
+
 **Configuration:**
+
 ```json
 {
   "command": "npx",
@@ -30,11 +32,14 @@ The following MCP servers are currently configured and connected to this session
 **Dependencies:** Requires API key configuration in environment variables. Currently non-functional due to missing API key.
 
 **Setup Requirements:**
+
 - Configure `CONTEXT7_API_KEY` environment variable
 - Can be set in `.kilocode/mcp.json` env section
 
 #### 1.1.2 Memory Server (`@modelcontextprotocol/server-memory`)
+
 **Configuration:**
+
 ```json
 {
   "command": "npx",
@@ -61,7 +66,9 @@ The following MCP servers are currently configured and connected to this session
 **Resource Requirements:** Low - stores data in memory, limited to current session unless persisted externally.
 
 #### 1.1.3 Sequential Thinking Server (`@modelcontextprotocol/server-sequential-thinking`)
+
 **Configuration:**
+
 ```json
 {
   "command": "npx",
@@ -78,11 +85,13 @@ The following MCP servers are currently configured and connected to this session
 **Trust Settings:** Tool is in the `alwaysAllow` list.
 
 **Best Practices:**
+
 - Use for complex tasks, architecture planning, debugging
 - Structure: Analyze, Plan, Execute, Reflect
 - Mandatory sequentialThinking in all commits/PRs
 
 #### 1.1.4 Playwright Server (`@playwright/mcp@0.0.38`)
+
 **Configuration:** Mentioned in documentation but not currently in `.kilocode/mcp.json`
 
 **Available Tools:**
@@ -94,6 +103,7 @@ The following MCP servers are currently configured and connected to this session
 | `playwright_assert` | Make assertions | `assertion`: string, `value`: any | Assertion result |
 
 **Setup Requirements:**
+
 - Run `npx playwright install` to set up browsers
 - Run `npx playwright test` to execute tests
 - Reference: `docs/development/MCP_TOOLS_SETUP.md`, `test/e2e/*.spec.js`
@@ -101,6 +111,7 @@ The following MCP servers are currently configured and connected to this session
 ## 2. Native MCP Tools (Kilo Code Core)
 
 ### 2.1 Core File Operations
+
 | Tool Name | Description | Parameters | Return Values |
 |-----------|-------------|------------|---------------|
 | `delete_file` | Delete file/dir (irreversible, validated) | `path`: string (relative) | Success/failure |
@@ -112,6 +123,7 @@ The following MCP servers are currently configured and connected to this session
 | `codebase_search` | Semantic search across workspace | `query`: string, `path`: string (optional) | Relevant code files |
 
 ### 2.2 Execution & Interaction
+
 | Tool Name | Description | Parameters | Return Values |
 |-----------|-------------|------------|---------------|
 | `execute_command` | Run CLI command | `command`: string, `cwd`: string (optional) | Command output, exit code |
@@ -119,6 +131,7 @@ The following MCP servers are currently configured and connected to this session
 | `ask_followup_question` | Clarify with suggestions | `question`: string, `follow_up`: array of {text, mode} | User response |
 
 ### 2.3 Task Management
+
 | Tool Name | Description | Parameters | Return Values |
 |-----------|-------------|------------|---------------|
 | `update_todo_list` | Markdown checklist | `todos`: string | Updated todo list |
@@ -130,6 +143,7 @@ The following MCP servers are currently configured and connected to this session
 ## 3. CLI Tools Available
 
 ### 3.1 System Tools
+
 | Command | Version | Primary Function | Dependencies | Common Usage |
 |---------|---------|------------------|--------------|--------------|
 | `node` | v24.12.0 | JavaScript runtime | None | `node script.js` |
@@ -143,6 +157,7 @@ The following MCP servers are currently configured and connected to this session
 | `jq` | - | JSON processor | None | `jq '.key' file.json` |
 
 ### 3.2 Global NPM Packages
+
 | Package | Version | Primary Function | Dependencies |
 |---------|---------|------------------|--------------|
 | `@google/gemini-cli` | 0.23.0 | Gemini CLI integration | Node.js |
@@ -152,13 +167,16 @@ The following MCP servers are currently configured and connected to this session
 | `semver` | 7.7.3 | Semantic version parsing | Node.js |
 
 ### 3.3 Development Tools in PATH
+
 | Tool | Location | Version | Primary Function |
 |------|----------|---------|------------------|
 | `flutter` | `/home/rightguy/dev/flutter/bin` | - | Flutter SDK |
 | `zsh` | `/usr/bin/zsh` | - | Shell |
 
 ### 3.4 Shell Built-ins
+
 Available through `compgen -b`:
+
 - `:` - Null command
 - `.` - Source file
 - `bg` - Background job
@@ -276,11 +294,13 @@ Available through `compgen -b`:
 ### 5.3 Environment-Specific Considerations
 
 **Shell Configuration:**
+
 - Current shell: `/usr/bin/zsh`
 - Configuration files: `~/.zshrc`, `~/.zshenv`
 - Key environment variables: `PATH` includes flutter, npm packages
 
 **Project-Specific Tools:**
+
 - Flutter SDK: `/home/rightguy/dev/flutter/bin`
 - Node.js packages: Global packages in `/usr/lib/node_modules`
 - Project dependencies: Listed in `package.json`
@@ -290,12 +310,14 @@ Available through `compgen -b`:
 ### 6.1 MCP Tool Trust Settings
 
 **Always Allowed (No Confirmation Required):**
+
 - File operations: `read_file`, `list_files`, `search_files`
 - Documentation tools: `mcp--context7--resolve-library-id`, `mcp--context7--query-docs`
 - Knowledge graph: All `mcp--memory--*` tools
 - Reasoning: `mcp--sequentialthinking--sequentialthinking`
 
 **Requiring Confirmation (if any):**
+
 - `delete_file` - File deletion is validated
 - `execute_command` - Command execution may require approval
 
@@ -315,6 +337,7 @@ Available through `compgen -b`:
 **Location:** `.kilocode/mcp.json`
 
 **Current Configuration:**
+
 ```json
 {
   "mcpServers": {

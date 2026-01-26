@@ -5,6 +5,7 @@
 This document describes the implementation of webhook event filtering for the API backend, which allows users to filter webhook events based on event patterns and property values.
 
 **Validates: Requirements 10.5**
+
 - Implements webhook event filtering
 - Supports filter configuration
 - Validates filter rules
@@ -12,17 +13,20 @@ This document describes the implementation of webhook event filtering for the AP
 ## Components Implemented
 
 ### 1. WebhookEventFilter Service
+
 **File:** `services/api-backend/services/webhook-event-filter.js`
 
 Core service for managing webhook event filters with the following capabilities:
 
 #### Filter Configuration Validation
+
 - Validates filter type (include/exclude)
 - Validates event patterns (glob patterns like `tunnel.*`, `*`)
 - Validates property filters with operators: equals, contains, startsWith, endsWith, in, regex
 - Validates rate limit configuration
 
 #### Event Matching
+
 - Matches events against filter configurations
 - Supports glob pattern matching for event types
 - Supports property-based filtering with multiple operators
@@ -30,17 +34,20 @@ Core service for managing webhook event filters with the following capabilities:
 - Case-insensitive event type matching
 
 #### Filter Persistence
+
 - Create filter configurations for webhooks
 - Retrieve filter configurations
 - Update filter configurations
 - Delete filter configurations
 
 ### 2. Webhook Event Filter Routes
+
 **File:** `services/api-backend/routes/webhook-event-filters.js`
 
 REST API endpoints for managing webhook event filters:
 
 #### Endpoints
+
 - `POST /api/tunnels/:tunnelId/webhooks/:webhookId/filters` - Create/update filter
 - `GET /api/tunnels/:tunnelId/webhooks/:webhookId/filters` - Get filter
 - `PUT /api/tunnels/:tunnelId/webhooks/:webhookId/filters` - Update filter
@@ -49,9 +56,11 @@ REST API endpoints for managing webhook event filters:
 - `POST /api/tunnels/:tunnelId/webhooks/:webhookId/filters/test` - Test filter against event
 
 ### 3. Database Schema
+
 **File:** `services/api-backend/database/migrations/webhook-event-filters.sql`
 
 Creates `webhook_event_filters` table with:
+
 - `id` (UUID) - Primary key
 - `webhook_id` (UUID) - Reference to webhook
 - `user_id` (UUID) - Reference to user
@@ -61,16 +70,19 @@ Creates `webhook_event_filters` table with:
 - `updated_at` (Timestamp) - Last update time
 
 Indexes for efficient querying:
+
 - `idx_webhook_event_filters_webhook_id`
 - `idx_webhook_event_filters_user_id`
 - `idx_webhook_event_filters_is_active`
 
 ### 4. Unit Tests
+
 **File:** `test/api-backend/webhook-event-filters.test.js`
 
 Comprehensive test suite with 37 tests covering:
 
 #### Filter Configuration Validation (11 tests)
+
 - Valid filter configurations
 - Empty and null configurations
 - Invalid filter types
@@ -79,6 +91,7 @@ Comprehensive test suite with 37 tests covering:
 - Invalid rate limit configurations
 
 #### Event Pattern Matching (8 tests)
+
 - Exact pattern matching
 - Wildcard pattern matching (`tunnel.*`)
 - Global wildcard matching (`*`)
@@ -87,6 +100,7 @@ Comprehensive test suite with 37 tests covering:
 - Multiple pattern matching
 
 #### Property Filter Matching (11 tests)
+
 - Equals operator
 - Contains operator
 - StartsWith operator
@@ -96,11 +110,13 @@ Comprehensive test suite with 37 tests covering:
 - Multiple property filters
 
 #### Combined Filter Matching (3 tests)
+
 - Event pattern and property filters together
 - Event pattern failures
 - Property filter failures
 
 #### Edge Cases (4 tests)
+
 - Nested property paths
 - Missing nested properties
 - Numeric property values
@@ -110,6 +126,7 @@ Comprehensive test suite with 37 tests covering:
 ## Filter Configuration Format
 
 ### Basic Structure
+
 ```json
 {
   "type": "include",
@@ -126,17 +143,22 @@ Comprehensive test suite with 37 tests covering:
 ```
 
 ### Filter Type
+
 - `include` - Only deliver events matching the patterns
 - `exclude` - Deliver events NOT matching the patterns
 
 ### Event Patterns
+
 Glob patterns for matching event types:
+
 - `tunnel.status_changed` - Exact match
 - `tunnel.*` - All tunnel events
 - `*` - All events
 
 ### Property Filters
+
 Operators for filtering event properties:
+
 - `equals` - Exact value match
 - `contains` - String contains
 - `startsWith` - String starts with
@@ -145,13 +167,16 @@ Operators for filtering event properties:
 - `regex` - Regular expression match
 
 ### Rate Limit
+
 Optional rate limiting for webhook deliveries:
+
 - `maxEvents` - Maximum events in window
 - `windowSeconds` - Time window in seconds
 
 ## Usage Examples
 
 ### Create a Filter
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/filters
 {
@@ -164,6 +189,7 @@ POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/filters
 ```
 
 ### Test a Filter
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/filters/test
 {
@@ -179,6 +205,7 @@ POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/filters/test
 ```
 
 ### Validate a Filter
+
 ```bash
 POST /api/tunnels/{tunnelId}/webhooks/{webhookId}/filters/validate
 {
@@ -243,13 +270,17 @@ Tests: 37 passed, 37 total
 ## Integration Points
 
 ### With Tunnel Webhook Service
+
 The webhook event filter integrates with the existing tunnel webhook service to:
+
 1. Filter events before delivery
 2. Validate filter configurations
 3. Store filter configurations per webhook
 
 ### With API Routes
+
 The filter routes are mounted at:
+
 ```
 /api/tunnels/:tunnelId/webhooks/:webhookId/filters
 ```

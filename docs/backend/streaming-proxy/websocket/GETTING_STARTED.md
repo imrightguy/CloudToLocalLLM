@@ -305,6 +305,7 @@ npm run dev | jq 'select(.type | endswith("error"))'
 **Symptoms**: Client cannot connect to server
 
 **Solutions**:
+
 1. Check server is running: `curl http://localhost:3001`
 2. Check port is not in use: `netstat -an | grep 3001`
 3. Check firewall settings
@@ -314,6 +315,7 @@ npm run dev | jq 'select(.type | endswith("error"))'
 **Symptoms**: `401 Unauthorized` error
 
 **Solutions**:
+
 1. Verify JWT token is valid: Use jwt.io to decode
 2. Check token expiration
 3. Verify Auth0 configuration (domain, audience, issuer)
@@ -324,6 +326,7 @@ npm run dev | jq 'select(.type | endswith("error"))'
 **Symptoms**: `429 Too Many Requests` error
 
 **Solutions**:
+
 1. Reduce request rate
 2. Check user tier limits
 3. Implement exponential backoff
@@ -334,6 +337,7 @@ npm run dev | jq 'select(.type | endswith("error"))'
 **Symptoms**: Connection closes with code 1001
 
 **Solutions**:
+
 1. Check network connectivity
 2. Ensure client responds to pings
 3. Increase ping interval if needed
@@ -344,6 +348,7 @@ npm run dev | jq 'select(.type | endswith("error"))'
 **Symptoms**: Connection closes with code 1009
 
 **Solutions**:
+
 1. Reduce message size
 2. Split message into multiple smaller messages
 3. Increase frame size limit (if appropriate)
@@ -460,6 +465,7 @@ ws.onclose = (event) => {
 ## Support
 
 For issues or questions:
+
 1. Check the documentation in this directory
 2. Review the implementation code
 3. Check the requirements document

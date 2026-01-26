@@ -78,16 +78,19 @@ await client.logout();
 ### User Management
 
 #### Get Current User
+
 ```typescript
 const user = await client.getCurrentUser();
 ```
 
 #### Get User by ID
+
 ```typescript
 const user = await client.getUser(userId);
 ```
 
 #### Update User
+
 ```typescript
 const updated = await client.updateUser(userId, {
   profile: {
@@ -101,16 +104,19 @@ const updated = await client.updateUser(userId, {
 ```
 
 #### Delete User
+
 ```typescript
 await client.deleteUser(userId);
 ```
 
 #### Get User Tier
+
 ```typescript
 const tier = await client.getUserTier(userId);
 ```
 
 #### Upgrade User Tier
+
 ```typescript
 const updated = await client.upgradeUserTier(userId, 'premium');
 ```
@@ -118,6 +124,7 @@ const updated = await client.upgradeUserTier(userId, 'premium');
 ### Tunnel Management
 
 #### Create Tunnel
+
 ```typescript
 const tunnel = await client.createTunnel({
   name: 'My Tunnel',
@@ -137,11 +144,13 @@ const tunnel = await client.createTunnel({
 ```
 
 #### Get Tunnel
+
 ```typescript
 const tunnel = await client.getTunnel(tunnelId);
 ```
 
 #### List Tunnels
+
 ```typescript
 const response = await client.listTunnels({
   page: 1,
@@ -152,6 +161,7 @@ const response = await client.listTunnels({
 ```
 
 #### Update Tunnel
+
 ```typescript
 const updated = await client.updateTunnel(tunnelId, {
   name: 'Updated Name',
@@ -162,26 +172,31 @@ const updated = await client.updateTunnel(tunnelId, {
 ```
 
 #### Delete Tunnel
+
 ```typescript
 await client.deleteTunnel(tunnelId);
 ```
 
 #### Start Tunnel
+
 ```typescript
 const tunnel = await client.startTunnel(tunnelId);
 ```
 
 #### Stop Tunnel
+
 ```typescript
 const tunnel = await client.stopTunnel(tunnelId);
 ```
 
 #### Get Tunnel Status
+
 ```typescript
 const status = await client.getTunnelStatus(tunnelId);
 ```
 
 #### Get Tunnel Metrics
+
 ```typescript
 const metrics = await client.getTunnelMetrics(tunnelId);
 ```
@@ -189,6 +204,7 @@ const metrics = await client.getTunnelMetrics(tunnelId);
 ### Webhook Management
 
 #### Create Webhook
+
 ```typescript
 const webhook = await client.createWebhook({
   url: 'https://example.com/webhooks',
@@ -198,11 +214,13 @@ const webhook = await client.createWebhook({
 ```
 
 #### Get Webhook
+
 ```typescript
 const webhook = await client.getWebhook(webhookId);
 ```
 
 #### List Webhooks
+
 ```typescript
 const response = await client.listWebhooks({
   page: 1,
@@ -211,6 +229,7 @@ const response = await client.listWebhooks({
 ```
 
 #### Update Webhook
+
 ```typescript
 const updated = await client.updateWebhook(webhookId, {
   url: 'https://example.com/webhooks/v2',
@@ -219,16 +238,19 @@ const updated = await client.updateWebhook(webhookId, {
 ```
 
 #### Delete Webhook
+
 ```typescript
 await client.deleteWebhook(webhookId);
 ```
 
 #### Test Webhook
+
 ```typescript
 const delivery = await client.testWebhook(webhookId);
 ```
 
 #### Get Webhook Deliveries
+
 ```typescript
 const response = await client.getWebhookDeliveries(webhookId, {
   page: 1,
@@ -239,6 +261,7 @@ const response = await client.getWebhookDeliveries(webhookId, {
 ### Admin Operations
 
 #### List Users
+
 ```typescript
 const response = await client.listUsers({
   page: 1,
@@ -248,11 +271,13 @@ const response = await client.listUsers({
 ```
 
 #### Get User (Admin)
+
 ```typescript
 const user = await client.getAdminUser(userId);
 ```
 
 #### Update User (Admin)
+
 ```typescript
 const updated = await client.updateAdminUser(userId, {
   tier: 'premium',
@@ -261,11 +286,13 @@ const updated = await client.updateAdminUser(userId, {
 ```
 
 #### Delete User (Admin)
+
 ```typescript
 await client.deleteAdminUser(userId);
 ```
 
 #### Get Audit Logs
+
 ```typescript
 const response = await client.getAuditLogs({
   page: 1,
@@ -274,6 +301,7 @@ const response = await client.getAuditLogs({
 ```
 
 #### Get System Health
+
 ```typescript
 const health = await client.getSystemHealth();
 ```
@@ -281,6 +309,7 @@ const health = await client.getSystemHealth();
 ### API Key Management
 
 #### Create API Key
+
 ```typescript
 const apiKey = await client.createAPIKey({
   name: 'My API Key',
@@ -289,11 +318,13 @@ const apiKey = await client.createAPIKey({
 ```
 
 #### List API Keys
+
 ```typescript
 const keys = await client.listAPIKeys();
 ```
 
 #### Revoke API Key
+
 ```typescript
 await client.revokeAPIKey(keyId);
 ```
@@ -301,11 +332,13 @@ await client.revokeAPIKey(keyId);
 ### Health & Status
 
 #### Get API Health
+
 ```typescript
 const health = await client.getHealth();
 ```
 
 #### Get Version Info
+
 ```typescript
 const version = await client.getVersionInfo();
 ```
@@ -313,26 +346,31 @@ const version = await client.getVersionInfo();
 ### Proxy Management
 
 #### Get Proxy Status
+
 ```typescript
 const proxy = await client.getProxyStatus();
 ```
 
 #### Start Proxy
+
 ```typescript
 const proxy = await client.startProxy();
 ```
 
 #### Stop Proxy
+
 ```typescript
 await client.stopProxy();
 ```
 
 #### Get Proxy Metrics
+
 ```typescript
 const metrics = await client.getProxyMetrics();
 ```
 
 #### Scale Proxy
+
 ```typescript
 const proxy = await client.scaleProxy(5);
 ```
@@ -528,6 +566,7 @@ console.log(`Total deliveries: ${deliveries.pagination.total}`);
 ## Support
 
 For issues, questions, or contributions:
+
 - GitHub: https://github.com/CloudToLocalLLM/cloudtolocalllm
 - Documentation: https://cloudtolocalllm.online/docs
 - API Docs: https://api.cloudtolocalllm.online/api/docs

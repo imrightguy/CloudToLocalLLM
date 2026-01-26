@@ -1,0 +1,29 @@
+{
+  "MD013": {
+    "line_length": 120
+  },
+  "MD007": {
+    "indent": 2
+  },
+  "MD030": {
+    "ul_single": 1,
+    "ol_single": 1,
+    "ul_multi": 1,
+    "ol_multi": 1
+  },
+  "MD032": true,
+  "MD022": true,
+  "MD031": true,
+  "MD040": true,
+  "MD047": true,
+  "MD009": {
+    "br_spaces": 2,
+    "strict": false
+  },
+  "MD034": false,
+  "MD036": false,
+  "MD058": false,
+  "MD060": {
+    "style": "compact"
+  }
+}

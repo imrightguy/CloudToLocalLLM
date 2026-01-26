@@ -5,6 +5,7 @@ This document describes the implementation of the request queue with priority an
 ## Overview
 
 The request queue system provides reliable request handling with the following features:
+
 - **Priority-based queuing**: High, normal, and low priority requests
 - **Persistence**: High-priority requests are persisted to disk
 - **Backpressure management**: Automatic throttling signals when queue fills up
@@ -20,6 +21,7 @@ The request queue system provides reliable request handling with the following f
 The core queue implementation using a priority queue (SplayTreeSet) for automatic sorting.
 
 **Key Features**:
+
 - Configurable maximum size (default: 100 requests)
 - Automatic priority-based ordering
 - High-priority request persistence
@@ -28,6 +30,7 @@ The core queue implementation using a priority queue (SplayTreeSet) for automati
 - Queue statistics and monitoring
 
 **Usage**:
+
 ```dart
 final queue = PersistentRequestQueue(maxSize: 100);
 
@@ -52,6 +55,7 @@ queue.backpressureStream.listen((signal) {
 ```
 
 **Requirements Addressed**:
+
 - 5.1: Priority queue with configurable size
 - 5.2: Priority-based request handling
 - 5.3: Backpressure signaling at 80% capacity
@@ -66,6 +70,7 @@ queue.backpressureStream.listen((signal) {
 Dedicated manager for handling request persistence to SharedPreferences.
 
 **Key Features**:
+
 - Persist individual or multiple requests
 - Remove persisted requests by ID
 - Restore persisted requests with validation
@@ -74,6 +79,7 @@ Dedicated manager for handling request persistence to SharedPreferences.
 - Configurable maximum persisted requests (default: 50)
 
 **Usage**:
+
 ```dart
 final persistenceManager = RequestPersistenceManager(
   persistenceKey: 'tunnel_queued_requests',
@@ -96,6 +102,7 @@ final stats = await persistenceManager.getStatistics();
 ```
 
 **Requirements Addressed**:
+
 - 5.9: Persist high-priority requests to disk
 - 5.10: Restore persisted requests on startup
 - Handle corrupted persistence data gracefully
@@ -107,6 +114,7 @@ final stats = await persistenceManager.getStatistics();
 Monitors queue capacity and emits throttling signals with recommendations.
 
 **Key Features**:
+
 - Five backpressure levels: none, low, medium, high, critical
 - Automatic recommendations: normal, slow down, throttle, pause, drop
 - Configurable thresholds (60%, 80%, 90%, 95%)
@@ -114,6 +122,7 @@ Monitors queue capacity and emits throttling signals with recommendations.
 - Recommended delays for each level
 
 **Backpressure Levels**:
+
 - **None** (< 60%): Normal operation
 - **Low** (60-79%): Slow down by 25%
 - **Medium** (80-89%): Throttle by 50%
@@ -121,6 +130,7 @@ Monitors queue capacity and emits throttling signals with recommendations.
 - **Critical** (≥ 95%): Drop low-priority requests
 
 **Usage**:
+
 ```dart
 final backpressureManager = BackpressureManager(
   queue: queue,
@@ -155,6 +165,7 @@ backpressureManager.checkBackpressure();
 ```
 
 **Requirements Addressed**:
+
 - 5.3: Backpressure signal emission
 - 5.4: Queue fill percentage tracking
 - Throttling recommendations
@@ -166,6 +177,7 @@ backpressureManager.checkBackpressure();
 Monitors and handles request timeouts with automatic cleanup.
 
 **Key Features**:
+
 - Periodic timeout checking (default: every 5 seconds)
 - Automatic removal of timed-out requests
 - Timeout event stream
@@ -174,6 +186,7 @@ Monitors and handles request timeouts with automatic cleanup.
 - Statistics and monitoring
 
 **Usage**:
+
 ```dart
 final timeoutHandler = RequestTimeoutHandler(
   queue: queue,
@@ -197,6 +210,7 @@ final stats = timeoutHandler.getStatistics();
 ```
 
 **Requirements Addressed**:
+
 - 5.6: Request timeout tracking
 - 8.4: Timeout handling
 - Remove timed-out requests from queue
@@ -410,7 +424,7 @@ test('should remove timed out requests', () async {
 
 4. **Backpressure Cooldown**: 5-second cooldown prevents signal spam while maintaining responsiveness.
 
-5. **Memory Usage**: 
+5. **Memory Usage**:
    - Queue: ~1KB per request × 100 = ~100KB
    - Timeout history: ~1KB per event × 100 = ~100KB
    - Total: ~200KB for queue system

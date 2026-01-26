@@ -7,12 +7,14 @@ The CloudToLocalLLM API now supports a tier-based architecture that provides dif
 ## User Tiers
 
 ### Free Tier
+
 - **Direct tunnel access** without container orchestration
 - **No Docker required** on user's machine
 - **Single connection** to local Ollama instance
 - **Basic features** with upgrade prompts for advanced functionality
 
 ### Premium Tier
+
 - **Container orchestration** with isolated environments
 - **Team features** and collaboration tools
 - **API access** for custom integrations
@@ -20,6 +22,7 @@ The CloudToLocalLLM API now supports a tier-based architecture that provides dif
 - **Priority support**
 
 ### Enterprise Tier
+
 - **Unlimited resources** and connections
 - **Custom configurations** and on-premise deployment
 - **Advanced security** and compliance features
@@ -41,9 +44,11 @@ user['https://cloudtolocalllm.com/user_metadata'].subscription
 ### Tier Information
 
 #### GET `/api/user/tier`
+
 Get current user's tier information and available features.
 
 **Response:**
+
 ```json
 {
   "tier": "free",
@@ -62,12 +67,15 @@ Get current user's tier information and available features.
 ### Direct Proxy (Free Tier Only)
 
 #### GET `/api/direct-proxy/:userId/health`
+
 Health check for direct proxy service.
 
 **Headers:**
+
 - `Authorization: Bearer <jwt_token>`
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -80,9 +88,11 @@ Health check for direct proxy service.
 ```
 
 #### ALL `/api/direct-proxy/:userId/ollama/*`
+
 Direct proxy to local Ollama instance for free tier users.
 
 **Security:**
+
 - Only accessible by free tier users
 - User can only access their own proxy (`:userId` must match authenticated user)
 - Request/response headers are sanitized
@@ -90,6 +100,7 @@ Direct proxy to local Ollama instance for free tier users.
 - Request size limits enforced
 
 **Example:**
+
 ```bash
 # Get available models
 GET /api/direct-proxy/auth0|user123/ollama/api/tags
@@ -138,9 +149,11 @@ Content-Type: application/json
 ### Container Proxy (Premium/Enterprise Only)
 
 #### POST `/api/proxy/start`
+
 Start container-based proxy for premium/enterprise users.
 
 **Request:**
+
 ```json
 {
   "testMode": false
@@ -148,6 +161,7 @@ Start container-based proxy for premium/enterprise users.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -164,9 +178,11 @@ Start container-based proxy for premium/enterprise users.
 ```
 
 #### ALL `/api/tunnel/:userId/*`
+
 Container-based proxy with advanced features (premium/enterprise only).
 
 **Features:**
+
 - Isolated container environments
 - Advanced networking and security
 - Team collaboration capabilities
@@ -204,34 +220,40 @@ Container-based proxy with advanced features (premium/enterprise only).
 ## Rate Limiting
 
 ### Free Tier
+
 - **Direct proxy**: 100 requests per minute
 - **API calls**: 50 requests per minute
 - **Concurrent connections**: 1
 
 ### Premium Tier
+
 - **Container proxy**: 500 requests per minute
 - **API calls**: 200 requests per minute
 - **Concurrent connections**: 10
 
 ### Enterprise Tier
+
 - **No rate limits** (within reasonable usage)
 - **Custom limits** available upon request
 
 ## Security Considerations
 
 ### Request Sanitization
+
 - Hop-by-hop headers removed from forwarded requests
 - Security-sensitive headers (Authorization, Cookie) stripped
 - Response headers sanitized before returning to client
 - Path traversal protection on all proxy endpoints
 
 ### User Isolation
+
 - Users can only access their own proxy endpoints
 - Tier validation performed on every request
 - Audit logging for all tier-related access attempts
 - Request tracing with unique request IDs
 
 ### Data Protection
+
 - No sensitive user data logged in error messages
 - Request/response bodies not logged by default
 - Secure token handling and validation
@@ -300,11 +322,13 @@ const response = await fetch(`/api/tunnel/${userId}/ollama/api/generate`, {
 ## Migration Guide
 
 ### Existing Users
+
 - **Premium/Enterprise users**: No changes required, existing functionality preserved
 - **Free tier users**: Automatically migrated to direct tunnel mode
 - **Setup process**: Updated to be tier-aware with appropriate guidance
 
 ### API Clients
+
 - **Existing endpoints**: Continue to work with tier validation
 - **New endpoints**: Use direct proxy for free tier, container proxy for premium
 - **Error handling**: Update to handle new tier-related error codes
@@ -329,6 +353,7 @@ const response = await fetch(`/api/tunnel/${userId}/ollama/api/generate`, {
    - Review timeout configuration
 
 ### Debug Information
+
 - All responses include `requestId` for tracing
 - Health check endpoints provide connection status
 - Tier information available in user profile

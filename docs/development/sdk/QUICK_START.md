@@ -23,12 +23,14 @@ client.setTokens(accessToken, refreshToken);
 ## Common Operations
 
 ### Get Current User
+
 ```typescript
 const user = await client.getCurrentUser();
 console.log(user.email);
 ```
 
 ### Create a Tunnel
+
 ```typescript
 const tunnel = await client.createTunnel({
   name: 'My Tunnel',
@@ -44,11 +46,13 @@ const tunnel = await client.createTunnel({
 ```
 
 ### Start a Tunnel
+
 ```typescript
 await client.startTunnel(tunnel.id);
 ```
 
 ### Get Tunnel Metrics
+
 ```typescript
 const metrics = await client.getTunnelMetrics(tunnel.id);
 console.log(`Requests: ${metrics.requestCount}`);
@@ -56,6 +60,7 @@ console.log(`Avg Latency: ${metrics.averageLatency}ms`);
 ```
 
 ### Create a Webhook
+
 ```typescript
 const webhook = await client.createWebhook({
   url: 'https://example.com/webhooks',
@@ -65,6 +70,7 @@ const webhook = await client.createWebhook({
 ```
 
 ### List Tunnels
+
 ```typescript
 const response = await client.listTunnels({
   page: 1,
@@ -79,6 +85,7 @@ response.data.forEach(tunnel => {
 ```
 
 ### Admin: List Users
+
 ```typescript
 const response = await client.listUsers({
   page: 1,
@@ -88,6 +95,7 @@ const response = await client.listUsers({
 ```
 
 ### Admin: Get Audit Logs
+
 ```typescript
 const response = await client.getAuditLogs({
   page: 1,
@@ -96,6 +104,7 @@ const response = await client.getAuditLogs({
 ```
 
 ### Check API Health
+
 ```typescript
 const health = await client.getHealth();
 console.log(health.status); // 'healthy', 'degraded', or 'error'

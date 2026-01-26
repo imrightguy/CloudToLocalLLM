@@ -7,21 +7,27 @@ Proxy scaling automatically adjusts the number of proxy instances based on syste
 ## Key Concepts
 
 ### Load Score
+
 Composite metric (0-100) combining:
+
 - CPU: 40%
 - Memory: 30%
 - Request Rate: 20%
 - Error Rate: 10%
 
 ### Scaling Policy
+
 Configuration that defines:
+
 - Min/max replicas
 - Scale up/down thresholds
 - Cooldown periods
 - Target metrics
 
 ### Scaling Events
+
 Records of scaling operations with:
+
 - Event type (scale_up, scale_down)
 - Previous/new replica counts
 - Trigger source (auto, manual, admin)
@@ -30,6 +36,7 @@ Records of scaling operations with:
 ## API Endpoints
 
 ### Create/Update Policy
+
 ```bash
 POST /proxy/scaling/policies/:proxyId
 Content-Type: application/json
@@ -47,11 +54,13 @@ Content-Type: application/json
 ```
 
 ### Get Policy
+
 ```bash
 GET /proxy/scaling/policies/:proxyId
 ```
 
 ### Record Metrics
+
 ```bash
 POST /proxy/scaling/metrics/:proxyId
 Content-Type: application/json
@@ -68,16 +77,19 @@ Content-Type: application/json
 ```
 
 ### Get Current Metrics
+
 ```bash
 GET /proxy/scaling/metrics/:proxyId
 ```
 
 ### Evaluate Scaling
+
 ```bash
 POST /proxy/scaling/evaluate/:proxyId
 ```
 
 Response:
+
 ```json
 {
   "shouldScale": true,
@@ -95,6 +107,7 @@ Response:
 ```
 
 ### Execute Scaling
+
 ```bash
 POST /proxy/scaling/execute/:proxyId
 Content-Type: application/json
@@ -107,16 +120,19 @@ Content-Type: application/json
 ```
 
 ### Get Scaling Events
+
 ```bash
 GET /proxy/scaling/events/:proxyId?limit=50
 ```
 
 ### Get Scaling Summary
+
 ```bash
 GET /proxy/scaling/summary/:proxyId?hoursBack=24
 ```
 
 Response:
+
 ```json
 {
   "summary": {
@@ -162,18 +178,21 @@ Response:
 ## Scaling Behavior
 
 ### Scale Up
+
 - Triggered when: Load Score > 80%
 - Condition: Current Replicas < Max Replicas
 - Cooldown: 60 seconds
 - Action: Increase replicas
 
 ### Scale Down
+
 - Triggered when: Load Score < 30%
 - Condition: Current Replicas > Min Replicas
 - Cooldown: 300 seconds
 - Action: Decrease replicas
 
 ### No Scaling
+
 - Load Score between 30% and 80%
 - Already at min/max replicas
 - Cooldown period active
@@ -306,18 +325,21 @@ proxy_scaling_events_failed{proxy_id="..."} 0
 ## Troubleshooting
 
 ### Scaling Not Happening
+
 1. Check if policy is enabled
 2. Verify load score calculation
 3. Check cooldown periods
 4. Verify min/max replica limits
 
 ### Excessive Scaling
+
 1. Increase cooldown periods
 2. Adjust thresholds (wider gap)
 3. Review load metrics for spikes
 4. Consider conservative policy
 
 ### Metrics Not Recording
+
 1. Verify metrics endpoint is called
 2. Check required fields are present
 3. Verify authentication

@@ -9,6 +9,7 @@ This guide documents the security enhancements and best practices for the CloudT
 ## 🛡️ Security Components
 
 ### 1. Input Sanitization
+
 **Middleware:** `input-sanitizer.js`
 
 Comprehensive sanitization prevents injection attacks (SQLi, XSS) by validating types and escaping malicious characters.
@@ -21,26 +22,31 @@ Comprehensive sanitization prevents injection attacks (SQLi, XSS) by validating 
 | `sanitizeLikePattern` | Escape SQL LIKE chars | `sanitizeLikePattern('user%')` |
 
 **Usage:**
+
 ```javascript
 import { sanitizeAll } from './middleware/input-sanitizer.js';
 app.use(sanitizeAll); // Applied after body-parser
 ```
 
 ### 2. CORS Configuration
+
 **Middleware:** `cors-config.js`
 
 Strict whitelist-based CORS with no wildcards. Supports standard, admin, and webhook-specific profiles.
 
 **Allowed Origins (Production):**
+
 - `https://app.cloudtolocalllm.online`
 - `https://admin.cloudtolocalllm.online`
 
 ### 3. HTTPS Enforcement
+
 **Middleware:** `https-enforcer.js`
 
 Automatic HTTP to HTTPS redirection in production, combined with HSTS and secure security headers.
 
 **Security Headers Set:**
+
 - `Strict-Transport-Security` (Force HTTPS)
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY` (Anti-clickjacking)
@@ -75,5 +81,6 @@ app.use('/api/admin', adminCors, adminHttpsEnforcement, sanitizeAdminInput);
 ---
 
 ## Related Documentation
+
 - [Admin Management API](../api/admin/ADMIN_MANAGEMENT.md)
 - [Audit Log API](../api/admin/AUDIT_LOGS.md)

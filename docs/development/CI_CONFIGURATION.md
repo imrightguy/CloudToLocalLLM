@@ -6,9 +6,9 @@ This guide explains how to configure the Kilocode CLI (`scripts/kilocode-cli.cjs
 
 The CLI loads configuration in the following order of precedence:
 
-1.  **CWD Config**: `kilocode.config.json` in the current working directory.
-2.  **Home Config**: `~/.kilocode/config.json` (useful for shared runner config).
-3.  **Environment Variables**: `KILOCODE_TOKEN`, `KILOCODE_MODEL`, etc.
+1. **CWD Config**: `kilocode.config.json` in the current working directory.
+2. **Home Config**: `~/.kilocode/config.json` (useful for shared runner config).
+3. **Environment Variables**: `KILOCODE_TOKEN`, `KILOCODE_MODEL`, etc.
 
 ## GitHub Actions Snippet
 
@@ -75,6 +75,7 @@ If you prefer to manually generate a config file (e.g., for complex setups), you
 ## Troubleshooting
 
 If the CLI fails to find configuration:
-1.  Check if `KILOCODE_TOKEN` is set in the step's `env`.
-2.  In CI, the script logs `Loading configuration from: ...` if a config file is found. Check the logs.
-3.  Ensure `scripts/kilocode-cli.cjs` is executable or run with `node`.
+
+1. Check if `KILOCODE_TOKEN` is set in the step's `env`.
+2. In CI, the script logs `Loading configuration from: ...` if a config file is found. Check the logs.
+3. Ensure `scripts/kilocode-cli.cjs` is executable or run with `node`.

@@ -5,18 +5,22 @@ This document outlines the remediation measures implemented to stabilize the Git
 ## 🛠️ Implemented Stabilization Measures
 
 ### 1. Mandatory Pre-flight Validation
+
 - **Integrated `validate_prerequisites` job**: Every build pipeline now starts with a mandatory environmental audit using `scripts/validate-aks-prerequisites.sh`.
 - **Early Failure**: The workflow terminates immediately if secrets are missing, Azure service principals are misconfigured, or resource providers are not registered.
 
 ### 2. Transient Error Mitigation (Robust Retries)
+
 - **`nick-fields/retry-action@v2`**: Implemented for all network-sensitive steps (Azure Auth, ACR Login, Flutter pub get).
 
 ### 3. High Availability (HA) Scaling
+
 - **Cloudflared Tunnel**: Scaled to **2 replicas** to prevent downtime during tunnel updates.
 - **API Backend**: Scaled to **2 replicas** for redundancy.
 - **Web Frontend**: Scaled to **2 replicas** for redundancy.
 
 ### 4. Infrastructure Cleanup
+
 - **ArgoCD Removal**: Successfully purged ArgoCD configuration, RBAC, and scripts. The infrastructure now follows a leaner deployment model.
 - **Tunnel Routing**: Cleaned up `config.yaml` to remove dead ArgoCD endpoints and focus on core services.
 

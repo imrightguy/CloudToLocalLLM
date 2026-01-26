@@ -7,17 +7,20 @@ This document summarizes the implementation of the Circuit Breaker pattern for t
 ## Requirements Addressed
 
 ### Requirement 5.7: Circuit Breaker Pattern
+
 - ✅ System implements circuit breaker pattern
 - ✅ Stops forwarding after 5 consecutive failures
 - ✅ Tracks failure metrics
 - ✅ Provides state management (closed/open/half-open)
 
 ### Requirement 5.8: Automatic Recovery
+
 - ✅ Circuit breaker automatically resets after 60 seconds
 - ✅ Tests recovery with limited requests in half-open state
 - ✅ Closes circuit after successful recovery
 
 ### Requirement 11.1: Monitoring Integration
+
 - ✅ Exposes metrics endpoint
 - ✅ Provides Prometheus-compatible metrics
 - ✅ Tracks state changes and request counts
@@ -29,6 +32,7 @@ This document summarizes the implementation of the Circuit Breaker pattern for t
 **Purpose:** Core implementation of the circuit breaker pattern
 
 **Key Features:**
+
 - Three-state state machine (CLOSED, OPEN, HALF_OPEN)
 - Configurable failure and success thresholds
 - Operation timeout handling
@@ -36,6 +40,7 @@ This document summarizes the implementation of the Circuit Breaker pattern for t
 - Event emission for monitoring
 
 **State Transitions:**
+
 ```
 CLOSED → OPEN: When failure count reaches threshold
 OPEN → HALF_OPEN: After reset timeout expires
@@ -44,6 +49,7 @@ HALF_OPEN → OPEN: On any failure
 ```
 
 **Configuration:**
+
 ```typescript
 interface CircuitBreakerConfig {
   failureThreshold: number;   // Default: 5
@@ -58,6 +64,7 @@ interface CircuitBreakerConfig {
 **Purpose:** Utility functions for wrapping operations
 
 **Key Features:**
+
 - `withCircuitBreaker()`: Simple wrapper with optional fallback
 - `wrapWithCircuitBreaker()`: Function wrapper factory
 - `CircuitBreakerProtected`: Method decorator
@@ -67,6 +74,7 @@ interface CircuitBreakerConfig {
 - `getCircuitStatus()`: Human-readable status
 
 **Usage Patterns:**
+
 ```typescript
 // Simple wrapper
 await withCircuitBreaker(breaker, operation, fallback);
@@ -84,6 +92,7 @@ await executeWithRetry(breaker, operation, 3, 1000);
 **Purpose:** Manages automatic reset and recovery testing
 
 **Key Features:**
+
 - Monitors circuit breaker state changes
 - Schedules automatic reset to half-open
 - Tracks reset attempts and success rate
@@ -91,6 +100,7 @@ await executeWithRetry(breaker, operation, 3, 1000);
 - Event-driven architecture
 
 **Events Emitted:**
+
 - `started`: Monitoring started
 - `stopped`: Monitoring stopped
 - `resetScheduled`: Reset scheduled
@@ -99,6 +109,7 @@ await executeWithRetry(breaker, operation, 3, 1000);
 - `resetAttemptRecorded`: Reset attempt recorded
 
 **Statistics Tracked:**
+
 - Total reset attempts
 - Successful attempts
 - Failed attempts
@@ -110,6 +121,7 @@ await executeWithRetry(breaker, operation, 3, 1000);
 **Purpose:** Tracks and exposes metrics for monitoring
 
 **Key Features:**
+
 - Registers multiple circuit breakers
 - Tracks state changes and request counts
 - Exports Prometheus-compatible metrics
@@ -117,6 +129,7 @@ await executeWithRetry(breaker, operation, 3, 1000);
 - Calculates summary statistics
 
 **Prometheus Metrics:**
+
 - `circuit_breaker_state`: Current state (gauge)
 - `circuit_breaker_failures_total`: Total failures (counter)
 - `circuit_breaker_successes_total`: Total successes (counter)
@@ -125,6 +138,7 @@ await executeWithRetry(breaker, operation, 3, 1000);
 - `circuit_breaker_last_state_change_seconds`: Time since last change (gauge)
 
 **JSON Metrics:**
+
 ```json
 {
   "timestamp": "ISO-8601",
@@ -336,6 +350,7 @@ class ProtectedWebSocketHandler implements WebSocketHandler {
 ### Unit Tests
 
 **Test Coverage:**
+
 - State transitions
 - Failure threshold detection
 - Success threshold detection
@@ -344,6 +359,7 @@ class ProtectedWebSocketHandler implements WebSocketHandler {
 - Metrics collection
 
 **Example Test:**
+
 ```typescript
 describe('CircuitBreaker', () => {
   it('should open after failure threshold', async () => {
@@ -368,6 +384,7 @@ describe('CircuitBreaker', () => {
 ### Integration Tests
 
 **Test Scenarios:**
+
 - Circuit breaker with connection pool
 - Circuit breaker with rate limiter
 - Circuit breaker with WebSocket handler
@@ -376,6 +393,7 @@ describe('CircuitBreaker', () => {
 ### Load Tests
 
 **Test Scenarios:**
+
 - High request rate with circuit breaker
 - Concurrent operations
 - State transition under load
@@ -420,21 +438,25 @@ describe('CircuitBreaker', () => {
 ### Tuning Guidelines
 
 **Increase `failureThreshold` if:**
+
 - Too many false positives
 - Operations have intermittent failures
 - Need more tolerance
 
 **Decrease `failureThreshold` if:**
+
 - Need faster failure detection
 - Cascading failures are critical
 - Operations are expensive
 
 **Increase `resetTimeout` if:**
+
 - Service needs more time to recover
 - Want to reduce reset attempts
 - Failures are persistent
 
 **Decrease `resetTimeout` if:**
+
 - Service recovers quickly
 - Want faster recovery
 - Downtime is critical
@@ -494,6 +516,7 @@ groups:
 ### 1. Use Separate Circuit Breakers
 
 Create separate circuit breakers for different operation types:
+
 - SSH connections
 - WebSocket messages
 - Rate limit checks
@@ -502,6 +525,7 @@ Create separate circuit breakers for different operation types:
 ### 2. Configure Appropriately
 
 Tune configuration based on operation characteristics:
+
 - Fast operations: Lower thresholds, shorter timeouts
 - Slow operations: Higher thresholds, longer timeouts
 - Critical operations: Lower failure threshold
@@ -509,6 +533,7 @@ Tune configuration based on operation characteristics:
 ### 3. Implement Fallbacks
 
 Always provide fallback behavior when circuit is open:
+
 ```typescript
 await withCircuitBreaker(
   breaker,

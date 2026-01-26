@@ -25,18 +25,21 @@ This document describes the implementation of metrics retention and aggregation 
 ## Data Retention
 
 ### Raw Metrics
+
 - **Retention**: 1 hour (3,600,000 ms)
 - **Recording**: Every minute via metric snapshots
 - **Max Size**: 3,600 snapshots (1 per minute for 1 hour)
 - **Use Case**: Real-time monitoring and detailed analysis
 
 ### Hourly Aggregates
+
 - **Retention**: 7 days (604,800,000 ms)
 - **Aggregation**: Hourly from raw metrics
 - **Aggregation Interval**: Every hour
 - **Use Case**: Daily trend analysis
 
 ### Daily Aggregates
+
 - **Retention**: 7 days (604,800,000 ms)
 - **Aggregation**: Daily from hourly aggregates
 - **Aggregation Interval**: Every hour (calculates daily buckets)
@@ -88,6 +91,7 @@ Aggregated Values:
 **GET** `/api/tunnel/metrics/history`
 
 Query Parameters:
+
 - `window` (optional): Time window for data retrieval
   - `1h` (default): Last 1 hour
   - `24h`: Last 24 hours
@@ -100,6 +104,7 @@ Query Parameters:
   - `daily`: Daily aggregates
 
 Response:
+
 ```json
 {
   "window": "1h",
@@ -140,16 +145,19 @@ Response:
 ### Example Requests
 
 **Get raw metrics for last hour:**
+
 ```bash
 curl http://localhost:3001/api/tunnel/metrics/history?window=1h&aggregation=raw
 ```
 
 **Get hourly aggregates for last 24 hours:**
+
 ```bash
 curl http://localhost:3001/api/tunnel/metrics/history?window=24h&aggregation=hourly
 ```
 
 **Get daily aggregates for last 7 days:**
+
 ```bash
 curl http://localhost:3001/api/tunnel/metrics/history?window=7d&aggregation=daily
 ```
@@ -193,12 +201,15 @@ private cleanup(): void {
 ### Estimated Memory Consumption
 
 **Raw Metrics (1 hour):**
+
 - 60 snapshots × ~500 bytes = ~30 KB
 
 **Hourly Aggregates (7 days):**
+
 - 168 aggregates × ~600 bytes = ~100 KB
 
 **Daily Aggregates (7 days):**
+
 - 7 aggregates × ~600 bytes = ~4 KB
 
 **Total**: ~134 KB (minimal impact)
@@ -206,16 +217,19 @@ private cleanup(): void {
 ## Performance Characteristics
 
 ### Recording Performance
+
 - **Metric Recording**: O(1) - constant time
 - **Snapshot Recording**: O(1) - constant time
 - **Cleanup**: O(n) - linear in number of metrics
 
 ### Query Performance
+
 - **Raw Metrics Query**: O(n) - linear scan with time filter
 - **Aggregated Query**: O(n) - linear scan with time filter
 - **Statistics Calculation**: O(n) - single pass through data
 
 ### Aggregation Performance
+
 - **Hourly Aggregation**: O(n) - processes all raw metrics
 - **Daily Aggregation**: O(n) - processes all hourly aggregates
 - **Runs**: Every hour (background task)
@@ -225,6 +239,7 @@ private cleanup(): void {
 ### Prometheus Integration
 
 Historical metrics can be used to:
+
 1. Backfill Prometheus with historical data
 2. Analyze trends over time
 3. Detect anomalies in metrics
@@ -232,6 +247,7 @@ Historical metrics can be used to:
 ### Grafana Dashboards
 
 Create Grafana dashboards using the historical metrics endpoint:
+
 1. Query `/api/tunnel/metrics/history?window=24h&aggregation=hourly`
 2. Plot trends over time
 3. Compare daily patterns

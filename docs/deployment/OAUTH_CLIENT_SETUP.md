@@ -5,6 +5,7 @@ This guide helps you set up Google OAuth Client IDs to fix the "401: invalid_cli
 ## Problem
 
 You're seeing this error:
+
 ```
 Error 401: invalid_client
 Request details: flowName=GeneralOAuthFlow
@@ -109,12 +110,15 @@ Also verify your Google Cloud Identity Platform settings:
 ## Common Issues and Solutions
 
 ### Issue: "redirect_uri_mismatch"
+
 **Solution**: Ensure the redirect URI in your OAuth request exactly matches one of the authorized redirect URIs in your Google Cloud Console.
 
 ### Issue: "unauthorized_client"
+
 **Solution**: Verify that the client ID is correct and that the OAuth client is configured for the correct application type (web, desktop, mobile).
 
 ### Issue: "access_denied"
+
 **Solution**: Check that the user has permission to access the application and that the OAuth consent screen is properly configured.
 
 ## Security Best Practices
@@ -168,6 +172,7 @@ After fixing the OAuth configuration:
 5. Update your CI/CD pipeline to use the correct client IDs
 
 For additional help, refer to:
+
 - [Google OAuth 2.0 Documentation](https://developers.google.com/identity/protocols/oauth2)
 - [Google Cloud Identity Platform Documentation](https://cloud.google.com/identity-platform/docs)
 - [Flutter Google Sign-In Documentation](https://pub.dev/packages/google_sign_in)

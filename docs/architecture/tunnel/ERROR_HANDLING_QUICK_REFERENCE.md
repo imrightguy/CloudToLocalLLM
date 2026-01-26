@@ -84,22 +84,26 @@ if (result.success) {
 ## Error Codes
 
 ### Network Errors
+
 - `TUNNEL_001` - Connection refused
 - `TUNNEL_007` - Request timeout
 - `TUNNEL_011` - DNS resolution failed
 - `TUNNEL_012` - Network unreachable
 
 ### Authentication Errors
+
 - `TUNNEL_002` - Authentication failed
 - `TUNNEL_003` - Token expired
 - `TUNNEL_013` - Invalid credentials
 
 ### Server Errors
+
 - `TUNNEL_004` - Server unavailable
 - `TUNNEL_005` - Rate limit exceeded
 - `TUNNEL_006` - Queue full
 
 ### Protocol Errors
+
 - `TUNNEL_008` - SSH error
 - `TUNNEL_009` - WebSocket error
 - `TUNNEL_015` - Compression error
@@ -108,9 +112,11 @@ if (result.success) {
 - `TUNNEL_018` - Channel limit exceeded
 
 ### Configuration Errors
+
 - `TUNNEL_010` - Configuration error
 
 ### Unknown Errors
+
 - `TUNNEL_999` - Unknown error
 
 ## Diagnostic Tests
@@ -212,18 +218,21 @@ if (response.statusCode != 200) {
 ## Output Formats
 
 ### Text Format
+
 ```dart
 final text = DiagnosticReportGenerator.formatReportAsText(report);
 print(text);
 ```
 
 ### JSON Format
+
 ```dart
 final json = DiagnosticReportGenerator.formatReportAsJson(report);
 // Use for APIs or storage
 ```
 
 ### Markdown Format
+
 ```dart
 final markdown = DiagnosticReportGenerator.formatReportAsMarkdown(report);
 // Use for documentation or reports
@@ -232,6 +241,7 @@ final markdown = DiagnosticReportGenerator.formatReportAsMarkdown(report);
 ## Best Practices
 
 ### ✅ DO
+
 - Always provide context when categorizing errors
 - Run diagnostics when connection issues persist
 - Use recovery strategies for retryable errors
@@ -240,6 +250,7 @@ final markdown = DiagnosticReportGenerator.formatReportAsMarkdown(report);
 - Include suggestions with error messages
 
 ### ❌ DON'T
+
 - Don't log authentication tokens in error context
 - Don't expose internal system details in error messages
 - Don't retry non-retryable errors
@@ -250,6 +261,7 @@ final markdown = DiagnosticReportGenerator.formatReportAsMarkdown(report);
 ## Integration with UI
 
 ### Error Display Widget
+
 ```dart
 class ErrorWidget extends StatelessWidget {
   final TunnelError error;
@@ -276,6 +288,7 @@ class ErrorWidget extends StatelessWidget {
 ```
 
 ### Diagnostic Report Widget
+
 ```dart
 class DiagnosticWidget extends StatelessWidget {
   final DiagnosticReport report;
@@ -307,15 +320,19 @@ class DiagnosticWidget extends StatelessWidget {
 ## Troubleshooting
 
 ### Issue: Diagnostics timeout
+
 **Solution:** Increase `testTimeout` parameter
 
 ### Issue: Recovery fails repeatedly
+
 **Solution:** Check if error is actually recoverable
 
 ### Issue: Health score always low
+
 **Solution:** Review failed tests and fix underlying issues
 
 ### Issue: No recommendations generated
+
 **Solution:** Ensure tests are actually running and failing
 
 ## Additional Resources

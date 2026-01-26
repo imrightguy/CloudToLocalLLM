@@ -15,6 +15,7 @@ All components implemented and tested successfully.
 **Purpose**: Core caching mechanism with TTL and invalidation support
 
 **Key Features**:
+
 - In-memory Map-based cache
 - TTL (Time-To-Live) support with automatic expiration
 - Table-based invalidation tracking
@@ -23,6 +24,7 @@ All components implemented and tested successfully.
 - Singleton pattern for global access
 
 **Key Methods**:
+
 - `generateKey(query, params)` - Generate consistent cache keys
 - `get(key)` - Retrieve cached value
 - `set(key, value, ttl, dependencies, tables)` - Store value with TTL
@@ -33,6 +35,7 @@ All components implemented and tested successfully.
 - `resetMetrics()` - Reset metrics counters
 
 **Configuration**:
+
 - `defaultTTL`: 5 minutes (configurable)
 - `maxCacheSize`: 1000 entries (configurable)
 - `enableMetrics`: true (configurable)
@@ -42,6 +45,7 @@ All components implemented and tested successfully.
 **Purpose**: Transparent caching layer for database queries
 
 **Key Features**:
+
 - Automatic caching of SELECT queries only
 - Table name extraction for invalidation
 - Integration with query performance tracking
@@ -49,6 +53,7 @@ All components implemented and tested successfully.
 - Proper error handling and propagation
 
 **Key Functions**:
+
 - `executeCachedQuery(queryFn, queryText, params, options)` - Execute with caching
 - `wrapPoolWithCache(pool, options)` - Wrap connection pool
 - `wrapClientWithCache(client, options)` - Wrap pool client
@@ -57,6 +62,7 @@ All components implemented and tested successfully.
 - `clearCache()` - Clear entire cache
 
 **Query Type Handling**:
+
 - **Cached**: SELECT queries
 - **Not Cached**: INSERT, UPDATE, DELETE, CREATE, ALTER, DROP
 
@@ -65,12 +71,14 @@ All components implemented and tested successfully.
 **Purpose**: API endpoints for cache management and monitoring
 
 **Endpoints**:
+
 - `GET /cache/stats` - Get cache statistics
 - `POST /cache/clear` - Clear all cache
 - `POST /cache/invalidate` - Invalidate by pattern or table
 - `GET /cache/reset-metrics` - Reset metrics
 
 **Response Format**:
+
 ```json
 {
   "success": true,
@@ -82,6 +90,7 @@ All components implemented and tested successfully.
 ### 4. Test Suite
 
 **Test Files**:
+
 1. `test/api-backend/query-cache.test.js` (23 tests)
    - Cache key generation
    - Get/set operations
@@ -111,11 +120,13 @@ All components implemented and tested successfully.
 ## Architecture
 
 ### Cache Key Generation
+
 ```
 Cache Key = base64(normalized_query + JSON(params))
 ```
 
 ### Table Tracking
+
 ```
 tableMap: {
   "USERS": ["cache_key_1", "cache_key_2", ...],
@@ -125,6 +136,7 @@ tableMap: {
 ```
 
 ### TTL Management
+
 ```
 ttlMap: {
   "cache_key": {
@@ -137,16 +149,19 @@ ttlMap: {
 ## Performance Characteristics
 
 ### Cache Hit Rate
+
 - Typical: 70-90% for well-configured TTL
 - Depends on query patterns and TTL settings
 - Monitored via metrics endpoint
 
 ### Memory Usage
+
 - Per entry: ~200-500 bytes (varies by data size)
 - Max cache size: 1000 entries (configurable)
 - Typical memory: 200KB - 500KB
 
 ### Query Performance
+
 - Cache hit: < 1ms
 - Cache miss: Original query time
 - Invalidation: O(n) where n = entries for table
@@ -154,21 +169,25 @@ ttlMap: {
 ## Integration Points
 
 ### 1. Database Layer
+
 - Wraps existing pool/client query methods
 - Transparent to application code
 - Maintains compatibility with existing queries
 
 ### 2. Query Performance Tracking
+
 - Integrates with `query-performance-tracker.js`
 - Tracks both cached and uncached queries
 - Provides comprehensive performance metrics
 
 ### 3. Health Checks
+
 - Cache health monitored via health check service
 - Included in system health status
 - Alerts on cache failures
 
 ### 4. Admin Routes
+
 - Cache management endpoints
 - Statistics and monitoring
 - Manual invalidation and clearing
@@ -176,12 +195,14 @@ ttlMap: {
 ## Configuration Examples
 
 ### Default Configuration
+
 ```javascript
 const cache = new QueryCacheService();
 // Uses: defaultTTL=5min, maxCacheSize=1000, enableMetrics=true
 ```
 
 ### Custom Configuration
+
 ```javascript
 const cache = new QueryCacheService({
   defaultTTL: 10 * 60 * 1000,  // 10 minutes
@@ -191,6 +212,7 @@ const cache = new QueryCacheService({
 ```
 
 ### Per-Query Configuration
+
 ```javascript
 await executeCachedQuery(queryFn, query, params, {
   ttl: 30 * 60 * 1000  // 30 minutes for this query
@@ -200,6 +222,7 @@ await executeCachedQuery(queryFn, query, params, {
 ## Monitoring and Observability
 
 ### Metrics Exposed
+
 - Cache size (current/max)
 - Hit/miss counts
 - Hit rate percentage
@@ -207,10 +230,12 @@ await executeCachedQuery(queryFn, query, params, {
 - Eviction count
 
 ### API Endpoints
+
 - `/cache/stats` - Real-time statistics
 - `/cache/reset-metrics` - Reset counters
 
 ### Logging
+
 - Cache operations logged at DEBUG level
 - Errors logged at ERROR level
 - Performance metrics tracked
@@ -240,6 +265,7 @@ await executeCachedQuery(queryFn, query, params, {
 ## Testing Coverage
 
 ### Unit Tests
+
 - ✅ Cache key generation
 - ✅ Get/set operations
 - ✅ TTL expiration
@@ -250,6 +276,7 @@ await executeCachedQuery(queryFn, query, params, {
 - ✅ Table tracking
 
 ### Integration Tests
+
 - ✅ Pool wrapping
 - ✅ Client wrapping
 - ✅ Query caching
@@ -257,6 +284,7 @@ await executeCachedQuery(queryFn, query, params, {
 - ✅ Statistics
 
 ### Edge Cases
+
 - ✅ Cache full (eviction)
 - ✅ TTL expiration
 - ✅ Invalid patterns
@@ -277,6 +305,7 @@ await executeCachedQuery(queryFn, query, params, {
 ## Verification
 
 ### Test Results
+
 ```
 Query Cache Tests: 23 passed ✅
 Cached Query Wrapper Tests: 17 passed ✅
@@ -285,6 +314,7 @@ Total: 48 tests passed ✅
 ```
 
 ### Code Quality
+
 - ✅ Comprehensive error handling
 - ✅ Proper logging
 - ✅ Memory management
@@ -317,6 +347,7 @@ Total: 48 tests passed ✅
 ## Conclusion
 
 Query caching implementation is complete and fully tested. The system provides:
+
 - ✅ Transparent query caching
 - ✅ Automatic invalidation
 - ✅ Comprehensive metrics

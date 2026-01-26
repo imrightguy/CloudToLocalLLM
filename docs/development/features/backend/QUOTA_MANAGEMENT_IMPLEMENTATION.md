@@ -13,17 +13,20 @@
 Created three main tables:
 
 **quota_definitions**
+
 - Stores quota limits per tier and resource type
 - Pre-populated with default limits for free, premium, and enterprise tiers
 - Supports multiple resource types: api_requests, data_transfer, concurrent_connections, tunnels
 
 **user_quotas**
+
 - Tracks current usage per user per resource type
 - Stores period start/end dates for monthly reset
 - Tracks if quota is exceeded and when
 - Unique constraint on (user_id, resource_type, period_start, period_end)
 
 **quota_events**
+
 - Audit log for all quota-related events
 - Records usage deltas, total usage, and percentage used
 - Supports filtering by resource type and event type
@@ -44,6 +47,7 @@ Created three main tables:
 - `getQuotaSummary(userId)` - Get summary with statistics
 
 **Key Features**:
+
 - Transaction support for atomic quota updates
 - Automatic detection of quota exceeded state
 - Percentage calculation for quota usage
@@ -72,6 +76,7 @@ Created three main tables:
    - Returns reset quota
 
 **Error Handling**:
+
 - 400 Bad Request for invalid input
 - 401 Unauthorized for unauthenticated requests
 - 403 Forbidden for non-admin reset operations
@@ -120,18 +125,21 @@ Created three main tables:
 ## Default Quota Configuration
 
 ### Free Tier
+
 - API Requests: 10,000/month
 - Data Transfer: 1 GB/month
 - Concurrent Connections: 5
 - Tunnels: 3
 
 ### Premium Tier
+
 - API Requests: 1,000,000/month
 - Data Transfer: 100 GB/month
 - Concurrent Connections: 100
 - Tunnels: 50
 
 ### Enterprise Tier
+
 - API Requests: Unlimited
 - Data Transfer: Unlimited
 - Concurrent Connections: Unlimited
@@ -246,6 +254,7 @@ Created three main tables:
 ## Conclusion
 
 The quota management system is fully implemented and tested. It provides:
+
 - ✅ Quota tracking mechanism
 - ✅ Quota enforcement
 - ✅ Quota reporting endpoints

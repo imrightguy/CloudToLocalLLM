@@ -66,6 +66,7 @@ curl https://api.cloudtolocalllm.online/api/deprecation/status
 ```
 
 Response:
+
 ```json
 {
   "timestamp": "2024-11-20T10:00:00Z",
@@ -93,6 +94,7 @@ curl https://api.cloudtolocalllm.online/api/deprecation/deprecated
 ```
 
 Response:
+
 ```json
 {
   "endpoints": [
@@ -126,6 +128,7 @@ curl "https://api.cloudtolocalllm.online/api/deprecation/endpoint-info?path=/v1/
 ```
 
 Response:
+
 ```json
 {
   "path": "/v1/users",
@@ -148,6 +151,7 @@ curl https://api.cloudtolocalllm.online/api/deprecation/migration-guide/MIGRATIO
 ```
 
 Response:
+
 ```json
 {
   "title": "Migrating from API v1 to v2",
@@ -204,11 +208,13 @@ Response:
 Change your API base URL from v1 to v2:
 
 **Before (v1):**
+
 ```javascript
 const baseURL = 'https://api.cloudtolocalllm.online/v1';
 ```
 
 **After (v2):**
+
 ```javascript
 const baseURL = 'https://api.cloudtolocalllm.online/v2';
 ```
@@ -218,6 +224,7 @@ const baseURL = 'https://api.cloudtolocalllm.online/v2';
 Update your code to handle the new v2 response format:
 
 **Before (v1):**
+
 ```javascript
 const response = await fetch('/v1/users/me');
 const data = await response.json();
@@ -226,6 +233,7 @@ const tier = data.data.userTier;
 ```
 
 **After (v2):**
+
 ```javascript
 const response = await fetch('/v2/users/me');
 const data = await response.json();
@@ -238,6 +246,7 @@ const tier = data.user.tier;
 Update error handling to use the new v2 error format:
 
 **Before (v1):**
+
 ```javascript
 if (!response.ok) {
   const error = await response.json();
@@ -247,6 +256,7 @@ if (!response.ok) {
 ```
 
 **After (v2):**
+
 ```javascript
 if (!response.ok) {
   const error = await response.json();
@@ -259,6 +269,7 @@ if (!response.ok) {
 ### Step 4: Update Tunnel Endpoints
 
 **Before (v1):**
+
 ```javascript
 const tunnels = await fetch('/v1/tunnels');
 const data = await tunnels.json();
@@ -266,6 +277,7 @@ const tunnelId = data.data[0].tunnelId;
 ```
 
 **After (v2):**
+
 ```javascript
 const tunnels = await fetch('/v2/tunnels');
 const data = await tunnels.json();
@@ -325,6 +337,7 @@ When an endpoint reaches its sunset date, it returns a 410 Gone response:
 ### Future Deprecations
 
 When v3 is released:
+
 1. v2 will remain current for 12 months
 2. v2 will be marked as deprecated
 3. v3 will become the default version
@@ -344,6 +357,7 @@ For questions about API deprecation or migration help:
 ### Deprecation Service
 
 The deprecation service manages:
+
 - Deprecated endpoint registry
 - Migration guides
 - Deprecation status tracking
@@ -352,6 +366,7 @@ The deprecation service manages:
 ### Deprecation Middleware
 
 The deprecation middleware:
+
 - Adds deprecation headers to responses
 - Logs deprecation warnings
 - Includes deprecation info in response body
@@ -360,6 +375,7 @@ The deprecation middleware:
 ### Deprecation Routes
 
 Deprecation routes provide:
+
 - `/api/deprecation/status` - Overall deprecation status
 - `/api/deprecation/deprecated` - List of deprecated endpoints
 - `/api/deprecation/sunset` - List of sunset endpoints
@@ -371,6 +387,7 @@ Deprecation routes provide:
 ### Logging
 
 All deprecation warnings are logged with:
+
 - Endpoint path
 - Request method
 - User ID
@@ -379,6 +396,7 @@ All deprecation warnings are logged with:
 ### Metrics
 
 Track deprecation usage:
+
 - Number of requests to deprecated endpoints
 - Percentage of traffic using deprecated endpoints
 - Time until sunset for each endpoint
@@ -386,6 +404,7 @@ Track deprecation usage:
 ### Alerts
 
 Set up alerts for:
+
 - Endpoints approaching sunset date
 - High traffic to deprecated endpoints
 - Sunset endpoint access attempts

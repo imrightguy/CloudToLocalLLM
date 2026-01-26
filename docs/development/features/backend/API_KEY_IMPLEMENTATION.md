@@ -5,6 +5,7 @@
 This document describes the API key authentication system for CloudToLocalLLM API Backend. API keys enable service-to-service communication with secure, scoped access control.
 
 **Requirements: 2.8**
+
 - Support API key authentication for service-to-service communication
 - Implement API key rotation and revocation
 - Add API key middleware for service endpoints
@@ -38,11 +39,13 @@ This document describes the API key authentication system for CloudToLocalLLM AP
 ## API Key Format
 
 API keys follow this format:
+
 ```
 ctll_<64-character-hex-string>
 ```
 
 Example:
+
 ```
 ctll_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2
 ```
@@ -106,6 +109,7 @@ CREATE TABLE api_key_audit_logs (
 **POST** `/api/api-keys`
 
 Request:
+
 ```json
 {
   "name": "Production API Key",
@@ -117,6 +121,7 @@ Request:
 ```
 
 Response (201):
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -137,6 +142,7 @@ Response (201):
 **GET** `/api/api-keys`
 
 Response (200):
+
 ```json
 [
   {
@@ -166,6 +172,7 @@ Response (200): Same as list item above
 **PATCH** `/api/api-keys/:keyId`
 
 Request:
+
 ```json
 {
   "name": "Updated Key Name",
@@ -182,6 +189,7 @@ Response (200): Updated API key object
 **POST** `/api/api-keys/:keyId/rotate`
 
 Response (200):
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440001",
@@ -202,6 +210,7 @@ Response (200):
 **POST** `/api/api-keys/:keyId/revoke`
 
 Response (200):
+
 ```json
 {
   "message": "API key revoked successfully"
@@ -213,6 +222,7 @@ Response (200):
 **GET** `/api/api-keys/:keyId/audit-logs`
 
 Response (200):
+
 ```json
 [
   {
@@ -299,6 +309,7 @@ Scopes define what operations an API key can perform. Common scopes:
 Each API key has a configurable rate limit (default: 1000 requests/minute).
 
 Rate limit headers are included in responses:
+
 ```
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -306,6 +317,7 @@ X-RateLimit-Reset: 1705329600
 ```
 
 When rate limit is exceeded:
+
 ```
 HTTP/1.1 429 Too Many Requests
 
@@ -355,6 +367,7 @@ All API key operations are logged for compliance and security:
 - **expired**: Key automatically expired
 
 Audit logs include:
+
 - Action performed
 - Timestamp
 - User ID
@@ -440,6 +453,7 @@ npm test -- test/api-backend/api-keys.test.js
 ```
 
 Tests cover:
+
 - API key generation and validation
 - Key rotation and revocation
 - Scope enforcement
@@ -462,6 +476,7 @@ Tests cover:
 ### Example Migration
 
 Before:
+
 ```javascript
 const response = await fetch('https://api.cloudtolocalllm.online/api/tunnels', {
   headers: {
@@ -471,6 +486,7 @@ const response = await fetch('https://api.cloudtolocalllm.online/api/tunnels', {
 ```
 
 After:
+
 ```javascript
 const response = await fetch('https://api.cloudtolocalllm.online/api/tunnels', {
   headers: {

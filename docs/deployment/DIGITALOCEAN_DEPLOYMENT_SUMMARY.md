@@ -1,10 +1,11 @@
-# 🚀 DigitalOcean Kubernetes Deployment - Ready to Deploy!
+# 🚀 DigitalOcean Kubernetes Deployment - Ready to Deploy
 
 ## ✅ What's Been Configured
 
 Your CloudToLocalLLM project is now fully configured for DigitalOcean Kubernetes deployment with:
 
 ### Infrastructure
+
 - ✅ Kubernetes manifests updated for `cloudtolocalllm.online`
 - ✅ Ingress configured for all subdomains
 - ✅ SSL/TLS auto-provisioning with cert-manager
@@ -13,12 +14,14 @@ Your CloudToLocalLLM project is now fully configured for DigitalOcean Kubernetes
 - ✅ SuperTokens integration ready
 
 ### Automation
+
 - ✅ Automated DNS setup script (`k8s/setup-dns.sh`)
 - ✅ PowerShell deployment script (`scripts/deploy-digitalocean.ps1`)
 - ✅ GitHub Actions CI/CD pipeline
 - ✅ Complete pre-deployment checklist
 
 ### Documentation
+
 - ✅ Comprehensive DNS setup guide
 - ✅ Quick reference cards
 - ✅ Deployment checklist
@@ -73,6 +76,7 @@ chmod +x setup-dns.sh
 ```
 
 The script will:
+
 1. Get your Load Balancer IP automatically
 2. Create DNS zone for `cloudtolocalllm.online`
 3. Create all 4 A records
@@ -102,6 +106,7 @@ doctl compute domain records create cloudtolocalllm.online \
 #### Final Step: Update Nameservers at Your Domain Registrar
 
 Set your domain's nameservers to:
+
 ```
 ns1.digitalocean.com
 ns2.digitalocean.com
@@ -109,6 +114,7 @@ ns3.digitalocean.com
 ```
 
 **How to update nameservers:**
+
 - **Namecheap**: Domain List → Manage → Nameservers → Custom DNS
 - **GoDaddy**: My Products → Domains → DNS → Nameservers → Change
 - **Google Domains**: My Domains → DNS → Name servers → Custom
@@ -138,6 +144,7 @@ k8s/DEPLOYMENT_CHECKLIST.md
 ```
 
 This checklist ensures you have:
+
 - ✅ DigitalOcean account setup
 - ✅ Tools installed (doctl, kubectl, docker)
 - ✅ Kubernetes cluster created
@@ -166,6 +173,7 @@ chmod +x deploy.sh
 #### Option C: GitHub Actions (Automated CI/CD)
 
 Just push to main branch:
+
 ```bash
 git push origin main
 ```
@@ -184,10 +192,12 @@ Then update nameservers at your domain registrar.
 ### Step 4: Wait for SSL Certificates
 
 Wait 5-15 minutes for:
+
 1. DNS propagation
 2. cert-manager to provision SSL certificates
 
 Check status:
+
 ```bash
 kubectl get certificate -n cloudtolocalllm
 ```
@@ -214,15 +224,18 @@ curl https://api.cloudtolocalllm.online/health
 All documentation is organized and ready:
 
 ### Quick Reference
+
 - `k8s/DNS_QUICK_REFERENCE.md` - Quick DNS lookup
 - `KUBERNETES_QUICKSTART.md` - Fast deployment guide
 
 ### Comprehensive Guides
+
 - `k8s/DEPLOYMENT_CHECKLIST.md` - Pre-deployment checklist
 - `k8s/DNS_SETUP.md` - Complete DNS setup guide
 - `k8s/README.md` - Full Kubernetes documentation
 
 ### Scripts
+
 - `k8s/setup-dns.sh` - Automated DNS setup (Linux/macOS)
 - `scripts/deploy-digitalocean.ps1` - Full deployment automation (Windows)
 - `k8s/deploy.sh` - Kubernetes deployment (Linux/macOS)
@@ -234,6 +247,7 @@ All documentation is organized and ready:
 ### Your Setup
 
 **DigitalOcean Kubernetes:**
+
 - Cluster Control Plane: **$0** (free)
 - 3 Worker Nodes (s-2vcpu-4gb): **~$72/month**
 - Load Balancer: **~$12/month**
@@ -245,14 +259,17 @@ All documentation is organized and ready:
 ### Cost Optimization Options
 
 **Budget Setup** (~$36/month):
+
 - 2 smaller nodes (s-1vcpu-2gb)
 - Perfect for development/testing
 
 **Standard Setup** (~$60/month):
+
 - 2 standard nodes (s-2vcpu-4gb)
 - Good for small production deployments
 
 **Recommended Setup** (~$87/month):
+
 - 3 standard nodes (s-2vcpu-4gb)
 - High availability, auto-scaling ready
 
@@ -261,12 +278,14 @@ All documentation is organized and ready:
 ## 🔒 Security Notes
 
 ✅ **All secrets are secure:**
+
 - Secrets not committed to Git (in `.gitignore`)
 - GitHub Secrets encrypted at rest
 - Kubernetes Secrets base64 encoded
 - SSL/TLS encryption for all traffic
 
 ✅ **Best practices implemented:**
+
 - HTTPS enforced
 - Security headers configured
 - Rate limiting enabled
@@ -280,24 +299,28 @@ All documentation is organized and ready:
 ### Quick Troubleshooting
 
 **Pods not starting?**
+
 ```bash
 kubectl describe pod <pod-name> -n cloudtolocalllm
 kubectl logs <pod-name> -n cloudtolocalllm
 ```
 
 **SSL certificate issues?**
+
 ```bash
 kubectl describe certificate -n cloudtolocalllm cloudtolocalllm-tls
 kubectl logs -n cert-manager -l app=cert-manager -f
 ```
 
 **DNS not resolving?**
+
 ```bash
 dig cloudtolocalllm.online +short
 # Check: https://dnschecker.org
 ```
 
 ### Documentation
+
 - `k8s/DNS_SETUP.md` - DNS troubleshooting section
 - `k8s/README.md` - Kubernetes troubleshooting
 - `DEPLOYMENT_CHECKLIST.md` - Troubleshooting checklist
@@ -309,12 +332,14 @@ dig cloudtolocalllm.online +short
 ### Immediate (Today)
 
 1. **Review the deployment checklist**
+
    ```bash
    # Open and read:
    k8s/DEPLOYMENT_CHECKLIST.md
    ```
 
 2. **Deploy to Kubernetes**
+
    ```powershell
    # Windows:
    .\scripts\deploy-digitalocean.ps1
@@ -324,6 +349,7 @@ dig cloudtolocalllm.online +short
    ```
 
 3. **Setup DNS**
+
    ```bash
    cd k8s && ./setup-dns.sh
    ```
@@ -333,6 +359,7 @@ dig cloudtolocalllm.online +short
 5. **Wait 15 minutes** for DNS + SSL
 
 6. **Test your deployment**
+
    ```bash
    curl https://cloudtolocalllm.online
    curl https://api.cloudtolocalllm.online/health
@@ -354,11 +381,12 @@ dig cloudtolocalllm.online +short
 
 ---
 
-## 🎉 You're Ready to Deploy!
+## 🎉 You're Ready to Deploy
 
 Everything is configured and ready. Your CloudToLocalLLM deployment to DigitalOcean Kubernetes is just a few commands away!
 
 **Start here:**
+
 ```bash
 # 1. Review checklist
 cat k8s/DEPLOYMENT_CHECKLIST.md
@@ -379,4 +407,3 @@ cd k8s && ./setup-dns.sh
 **Questions?** Check the documentation or ask me for help!
 
 **Ready to deploy?** Just say "deploy" and I'll guide you through it! 🚀
-

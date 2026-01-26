@@ -132,6 +132,7 @@ SQL injection prevention is handled at the database layer:
 - Connection pooling with configurable pool size and timeouts
 
 Example:
+
 ```javascript
 // Safe - parameterized query
 const query = `
@@ -187,12 +188,14 @@ const unsafeQuery = `UPDATE users SET name = '${name}' WHERE auth0_id = '${userI
 Comprehensive test suite with 83 passing tests covering:
 
 ### Sanitization Tests
+
 - Null byte removal
 - HTML special character escaping
 - Event handler prevention
 - XSS attack prevention
 
 ### Validation Tests
+
 - Email format validation
 - URL format validation
 - String length validation
@@ -200,6 +203,7 @@ Comprehensive test suite with 83 passing tests covering:
 - Enum validation
 
 ### Domain-Specific Tests
+
 - Name validation (length, special characters)
 - Email validation (format, length)
 - URL validation (format, empty handling)
@@ -210,11 +214,13 @@ Comprehensive test suite with 83 passing tests covering:
 - Profile validation (all fields)
 
 ### Security Tests
+
 - SQL injection prevention
 - XSS prevention
 - Edge cases (unicode, long strings, empty objects)
 
 ### Integration Tests
+
 - Profile validation and sanitization
 - Preferences validation and sanitization
 - Composite object validation
@@ -272,18 +278,21 @@ if (!urlValidation.valid) {
 ### Requirement 3.7: Input Validation and Injection Prevention
 
 ✅ **Add comprehensive input validation for all user endpoints**
+
 - Validation utilities for all common input types
 - Domain-specific validators for user data
 - Composite validators for complex objects
 - Applied to all user profile endpoints
 
 ✅ **Implement SQL injection prevention via parameterized queries**
+
 - All database queries use parameterized queries
 - User input passed as separate parameters
 - PostgreSQL driver handles escaping
 - Connection security with SSL/TLS support
 
 ✅ **Add XSS prevention for user inputs**
+
 - HTML special character escaping
 - Null byte removal
 - Input validation rejecting malicious patterns

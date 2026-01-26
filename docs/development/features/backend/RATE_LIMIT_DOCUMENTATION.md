@@ -39,11 +39,13 @@ The CloudToLocalLLM API implements comprehensive rate limiting to protect the se
 Applied to authenticated requests based on user tier.
 
 **Headers:**
+
 - `X-RateLimit-Limit`: Maximum requests in current window
 - `X-RateLimit-Remaining`: Remaining requests in current window
 - `X-RateLimit-Reset`: Unix timestamp when limit resets
 
 **Example Response Headers:**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 87
@@ -55,10 +57,12 @@ X-RateLimit-Reset: 1699564800
 Applied to all requests (authenticated or not) to prevent DDoS attacks.
 
 **Default limits:**
+
 - 1,000 requests per minute per IP
 - 50,000 requests per hour per IP
 
 **Bypass:**
+
 - Requests from authenticated users use per-user limits instead
 - Whitelisted IPs (admin only)
 
@@ -67,11 +71,13 @@ Applied to all requests (authenticated or not) to prevent DDoS attacks.
 Prevents sudden spikes in traffic from a single user or IP.
 
 **Mechanism:**
+
 - Tracks concurrent requests
 - Blocks requests exceeding burst size
 - Queues requests when approaching limit
 
 **Response:**
+
 ```json
 {
   "error": {
@@ -88,6 +94,7 @@ Prevents sudden spikes in traffic from a single user or IP.
 Limits the number of simultaneous connections per user.
 
 **Enforcement:**
+
 - Tracked per user ID
 - Includes WebSocket connections
 - Applies to all connection types
@@ -99,6 +106,7 @@ Limits the number of simultaneous connections per user.
 Returned when rate limit is exceeded.
 
 **Response Body:**
+
 ```json
 {
   "error": {
@@ -113,6 +121,7 @@ Returned when rate limit is exceeded.
 ```
 
 **Response Headers:**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 0
@@ -262,6 +271,7 @@ If you're consistently hitting rate limits, consider upgrading:
 - 4x increase in concurrent connections (25 → 100)
 
 **Upgrade endpoint:**
+
 ```
 POST /v2/users/me/tier/upgrade
 Content-Type: application/json
@@ -283,6 +293,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -312,6 +323,7 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 **Cause:** Your tier has very low limits or you're using a shared IP.
 
 **Solution:**
+
 1. Check your user tier: `GET /v2/users/me`
 2. Consider upgrading to a higher tier
 3. If using shared IP, authenticate with your API key
@@ -321,6 +333,7 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 **Cause:** You're sending too many concurrent requests.
 
 **Solution:**
+
 1. Reduce concurrent request count
 2. Implement request queuing on your client
 3. Upgrade to a higher tier for more burst capacity
@@ -330,6 +343,7 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 **Cause:** Rate limits use sliding windows, not fixed times.
 
 **Solution:**
+
 - Rate limits reset based on when your first request in the window was made
 - Check `X-RateLimit-Reset` header for exact reset time
 - Plan requests accordingly
@@ -344,6 +358,7 @@ Authorization: Bearer {token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,

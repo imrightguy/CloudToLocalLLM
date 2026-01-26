@@ -3,6 +3,7 @@
 ## Overview
 
 The Database Failover Manager provides automatic failover and high availability for PostgreSQL databases with:
+
 - Automatic detection of primary database failures
 - Failover to healthy standby databases
 - Continuous health monitoring
@@ -12,17 +13,20 @@ The Database Failover Manager provides automatic failover and high availability 
 ## Key Features
 
 ### 1. Automatic Failover Detection
+
 - Monitors primary database health every 10 seconds (configurable)
 - Marks primary as unhealthy after 3 consecutive failures
 - Automatically promotes healthy standby when primary fails
 
 ### 2. Health Monitoring
+
 - Periodic health checks for primary and all standbys
 - Response time tracking
 - Failure count tracking
 - Promotion eligibility determination
 
 ### 3. State Management
+
 - **HEALTHY**: Primary and at least one standby are healthy
 - **DEGRADED**: Only primary or only standby is healthy
 - **FAILOVER_IN_PROGRESS**: Failover operation in progress
@@ -31,6 +35,7 @@ The Database Failover Manager provides automatic failover and high availability 
 - **UNKNOWN**: No healthy databases available
 
 ### 4. Metrics Collection
+
 - Total failovers count
 - Total recoveries count
 - Health check failures count
@@ -168,9 +173,11 @@ await failoverManager.checkStandbyHealth(0);
 ## API Endpoints
 
 ### GET /failover/status
+
 Returns current failover status and health information.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -207,9 +214,11 @@ Returns current failover status and health information.
 ```
 
 ### GET /failover/metrics
+
 Returns failover metrics and statistics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -227,9 +236,11 @@ Returns failover metrics and statistics.
 ```
 
 ### GET /failover/health
+
 Returns detailed health information for all database instances.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -266,9 +277,11 @@ Returns detailed health information for all database instances.
 ```
 
 ### POST /failover/trigger
+
 Manually trigger failover to a specific standby (Admin only).
 
 **Request:**
+
 ```json
 {
   "standbyIndex": 0
@@ -276,6 +289,7 @@ Manually trigger failover to a specific standby (Admin only).
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -286,9 +300,11 @@ Manually trigger failover to a specific standby (Admin only).
 ```
 
 ### POST /failover/check-health
+
 Manually trigger health checks for all databases (Admin only).
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -299,9 +315,11 @@ Manually trigger health checks for all databases (Admin only).
 ```
 
 ### GET /failover/history
+
 Returns failover history and events.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -473,24 +491,28 @@ groups:
 ## Troubleshooting
 
 ### Primary Database Down
+
 1. Check primary database connectivity
 2. Verify primary database is running
 3. Check network connectivity between API and primary
 4. Review primary database logs
 
 ### Standby Not Promoted
+
 1. Verify standby database is healthy
 2. Check standby promotion eligibility
 3. Verify standby has replication enabled
 4. Check standby database logs
 
 ### Failover Not Triggering
+
 1. Verify at least one standby is healthy
 2. Check failover manager logs
 3. Verify health check interval is appropriate
 4. Check failure count threshold (default: 3)
 
 ### High Failover Count
+
 1. Check network stability
 2. Verify database performance
 3. Review database logs for errors

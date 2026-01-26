@@ -5,6 +5,7 @@ This directory contains comprehensive guides and implementations for setting up 
 ## Overview
 
 The monitoring setup provides:
+
 - **Real-time dashboards** for tunnel health, performance, and errors
 - **Critical alerts** for system issues
 - **Comprehensive metrics** for analysis and troubleshooting
@@ -14,9 +15,11 @@ The monitoring setup provides:
 ## Files in This Directory
 
 ### 1. `grafana-dashboard-setup.ts`
+
 **Purpose**: Comprehensive guide for using Grafana MCP tools
 
 **Contents**:
+
 - Dashboard configuration interfaces
 - Alert rule configurations
 - Prometheus metrics reference (30+ metrics)
@@ -27,9 +30,11 @@ The monitoring setup provides:
 **Use Case**: Reference guide for understanding dashboard setup and MCP tool usage
 
 ### 2. `setup-grafana-dashboards.md`
+
 **Purpose**: Step-by-step implementation guide
 
 **Contents**:
+
 - Detailed instructions for each task
 - Code examples for MCP tool usage
 - Metrics reference
@@ -39,9 +44,11 @@ The monitoring setup provides:
 **Use Case**: Follow this guide to implement dashboards in your Grafana instance
 
 ### 3. `grafana-setup-script.ts`
+
 **Purpose**: Practical implementation script
 
 **Contents**:
+
 - Dashboard configurations (JSON)
 - Alert rule configurations
 - Prometheus metrics reference
@@ -51,9 +58,11 @@ The monitoring setup provides:
 **Use Case**: Use this script as a starting point for your implementation
 
 ### 4. `TASK_18_COMPLETION_SUMMARY.md`
+
 **Purpose**: Task completion documentation
 
 **Contents**:
+
 - Task overview and status
 - Completed sub-tasks
 - Deliverables
@@ -68,38 +77,47 @@ The monitoring setup provides:
 ## Quick Start
 
 ### Prerequisites
+
 1. Grafana instance running at https://grafana.cloudtolocalllm.online
 2. Prometheus datasource configured in Grafana
 3. Grafana API key with admin permissions
 4. MCP Grafana server configured with GRAFANA_URL and GRAFANA_API_KEY
 
 ### Step 1: Verify Prometheus Datasource
+
 ```bash
 mcp_grafana_list_datasources({ type: 'prometheus' })
 ```
 
 ### Step 2: Create Dashboards
+
 Follow the instructions in `setup-grafana-dashboards.md` to create:
+
 - Tunnel Health Dashboard
 - Performance Metrics Dashboard
 - Error Tracking Dashboard
 
 ### Step 3: Set up Alerts
+
 Create alert rules for:
+
 - High error rate (>5% over 5 minutes)
 - Connection pool exhaustion (>90% capacity)
 - Circuit breaker open
 - Rate limit violations spike (>100 in 5 minutes)
 
 ### Step 4: Generate Documentation
+
 Generate shareable dashboard links and create monitoring documentation
 
 ## Dashboard Overview
 
 ### Tunnel Health Dashboard
+
 **Purpose**: Real-time visibility into tunnel connection health
 
 **Panels**:
+
 - Active Connections (gauge)
 - Request Success Rate (percentage)
 - Average Latency (graph)
@@ -110,9 +128,11 @@ Generate shareable dashboard links and create monitoring documentation
 **Tags**: tunnel, monitoring, production
 
 ### Performance Metrics Dashboard
+
 **Purpose**: Performance analysis and optimization
 
 **Panels**:
+
 - P95 Latency (graph)
 - P99 Latency (graph)
 - Throughput (bytes/sec)
@@ -124,9 +144,11 @@ Generate shareable dashboard links and create monitoring documentation
 **Refresh**: 30 seconds
 
 ### Error Tracking Dashboard
+
 **Purpose**: Error analysis and pattern detection
 
 **Panels**:
+
 - Error Rate by Category (pie chart)
 - Error Count Over Time (graph)
 - Top Errors (table)
@@ -138,21 +160,25 @@ Generate shareable dashboard links and create monitoring documentation
 ## Alert Rules
 
 ### 1. High Error Rate
+
 - **Condition**: Error rate > 5% over 5 minutes
 - **Severity**: Warning
 - **Action**: Notify team
 
 ### 2. Connection Pool Exhaustion
+
 - **Condition**: Connection pool > 90% capacity
 - **Severity**: Warning
 - **Action**: Scale up or investigate
 
 ### 3. Circuit Breaker Open
+
 - **Condition**: Circuit breaker state = 1 (open)
 - **Severity**: Critical
 - **Action**: Immediate investigation
 
 ### 4. Rate Limit Violations Spike
+
 - **Condition**: Rate limit violations > 100 in 5 minutes
 - **Severity**: Warning
 - **Action**: Investigate traffic patterns
@@ -160,41 +186,49 @@ Generate shareable dashboard links and create monitoring documentation
 ## Metrics Reference
 
 ### Connection Metrics
+
 - `tunnel_active_connections` - Current active connections
 - `tunnel_connections_total` - Total connections established
 - `tunnel_connection_duration_seconds` - Connection duration
 
 ### Request Metrics
+
 - `tunnel_requests_total` - Total requests processed
 - `tunnel_request_latency_ms` - Request latency
 - `tunnel_request_latency_ms{quantile="0.95"}` - P95 latency
 - `tunnel_request_latency_ms{quantile="0.99"}` - P99 latency
 
 ### Error Metrics
+
 - `tunnel_errors_total` - Total errors
 - `tunnel_errors_total{category="network"}` - Network errors
 - `tunnel_errors_total{category="auth"}` - Auth errors
 - `tunnel_errors_total{category="server"}` - Server errors
 
 ### Performance Metrics
+
 - `tunnel_throughput_bytes_total` - Total bytes transferred
 - `tunnel_request_rate` - Requests per second
 - `tunnel_error_rate` - Error rate
 
 ### Resource Metrics
+
 - `process_resident_memory_bytes` - Memory usage
 - `process_cpu_seconds_total` - CPU usage
 - `process_open_fds` - Open file descriptors
 
 ### Circuit Breaker Metrics
+
 - `tunnel_circuit_breaker_state` - State (0=closed, 1=open, 0.5=half-open)
 - `tunnel_circuit_breaker_failures_total` - Total failures
 - `tunnel_circuit_breaker_successes_total` - Total successes
 
 ### Rate Limiter Metrics
+
 - `tunnel_rate_limit_violations_total` - Total violations
 
 ### Queue Metrics
+
 - `tunnel_queue_size` - Current queue size
 - `tunnel_queue_fill_percentage` - Queue fill percentage
 - `tunnel_queue_dropped_total` - Total dropped requests
@@ -242,23 +276,27 @@ Generate shareable dashboard links and create monitoring documentation
 ## Troubleshooting
 
 ### Datasource Not Found
+
 - Verify Prometheus is running
 - Check Grafana datasource configuration
 - Verify API key has appropriate permissions
 
 ### Metrics Not Appearing
+
 - Verify streaming-proxy is running
 - Check `/api/tunnel/metrics` endpoint
 - Verify Prometheus is scraping metrics
 - Check Prometheus targets page
 
 ### Alerts Not Firing
+
 - Check alert rule configuration
 - Verify notification channels are configured
 - Test with manual alert trigger
 - Check Grafana logs for errors
 
 ### Dashboard Slow
+
 - Reduce time range
 - Simplify queries
 - Increase Prometheus retention
@@ -319,6 +357,7 @@ Generate shareable dashboard links and create monitoring documentation
 ## Task 18 Status
 
 ✅ **COMPLETED** - All sub-tasks completed:
+
 - ✅ 18.1: Tunnel Health Dashboard
 - ✅ 18.2: Performance Metrics Dashboard
 - ✅ 18.3: Error Tracking Dashboard

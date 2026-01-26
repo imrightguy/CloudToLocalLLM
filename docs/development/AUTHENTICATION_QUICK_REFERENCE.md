@@ -7,11 +7,13 @@
 ## Key Configuration
 
 ### Frontend (web/auth0-bridge.js)
+
 ```javascript
 const AUTH0_AUDIENCE = 'https://api.cloudtolocalllm.online';
 ```
 
 ### Backend (services/api-backend/middleware/auth.js)
+
 ```javascript
 const DEFAULT_JWT_AUDIENCE = 'https://api.cloudtolocalllm.online';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || DEFAULT_JWT_AUDIENCE;
@@ -47,6 +49,7 @@ Backend Verifies Audience Matches
 **Cause**: Token has wrong audience or is expired
 
 **Solution**:
+
 1. Clear browser cache: `DevTools → Application → Clear Storage`
 2. Re-login to get new token with correct audience
 3. Verify backend is running latest code
@@ -56,6 +59,7 @@ Backend Verifies Audience Matches
 **Cause**: JWKS endpoint not accessible or Auth0 misconfigured
 
 **Solution**:
+
 1. Test JWKS endpoint: `curl https://dev-vivn1fcgzi0c2czy.us.auth0.com/.well-known/jwks.json`
 2. Verify Auth0 application identifier is set correctly
 3. Check backend logs for detailed error messages
@@ -93,11 +97,13 @@ Backend Verifies Audience Matches
 ### Enable Debug Logging
 
 **Frontend** (browser console):
+
 ```javascript
 // Already enabled - look for [Auth0 Bridge] messages
 ```
 
 **Backend** (check logs):
+
 ```
 [Auth] Token verification successful (Audience verified)
 [Auth] User authenticated via RS256: <user-id>
@@ -106,6 +112,7 @@ Backend Verifies Audience Matches
 ### Inspect Token
 
 **In Browser Console**:
+
 ```javascript
 // Get token from storage
 const token = localStorage.getItem('auth0.access_token');
@@ -122,6 +129,7 @@ console.log('Expected:', 'https://api.cloudtolocalllm.online');
 ### Test Backend Token Validation
 
 **Using curl**:
+
 ```bash
 # Get token from browser first, then:
 curl -H "Authorization: Bearer <token>" \
@@ -131,12 +139,14 @@ curl -H "Authorization: Bearer <token>" \
 ## Deployment
 
 ### Development
+
 1. Update `web/auth0-bridge.js` with correct audience
 2. Deploy web app
 3. Test login flow
 4. Verify API calls work
 
 ### Production
+
 1. Ensure backend has correct `AUTH0_AUDIENCE` environment variable
 2. Deploy web app with updated `auth0-bridge.js`
 3. Deploy backend with token validation middleware
@@ -153,6 +163,7 @@ curl -H "Authorization: Bearer <token>" \
 ## Support
 
 For authentication issues:
+
 1. Check this quick reference
 2. Review related documentation
 3. Check browser console and backend logs

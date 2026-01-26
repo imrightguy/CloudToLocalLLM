@@ -1,11 +1,13 @@
 # Proxy Metrics Collection - Quick Reference
 
 ## Overview
+
 Proxy metrics collection system for tracking and aggregating proxy performance data.
 
 ## Service: ProxyMetricsService
 
 ### Initialization
+
 ```javascript
 import ProxyMetricsService from './services/proxy-metrics-service.js';
 
@@ -14,6 +16,7 @@ await metricsService.initialize();
 ```
 
 ### Recording Metrics
+
 ```javascript
 // Record a metrics event
 await metricsService.recordMetricsEvent(
@@ -38,6 +41,7 @@ await metricsService.recordMetricsEvent(
 ### Retrieving Metrics
 
 #### Daily Metrics for Specific Date
+
 ```javascript
 const metrics = await metricsService.getProxyMetricsDaily(
   'proxy-123',
@@ -47,6 +51,7 @@ const metrics = await metricsService.getProxyMetricsDaily(
 ```
 
 #### Daily Metrics for Date Range
+
 ```javascript
 const metrics = await metricsService.getProxyMetricsDailyRange(
   'proxy-123',
@@ -57,6 +62,7 @@ const metrics = await metricsService.getProxyMetricsDailyRange(
 ```
 
 #### Aggregated Metrics for Period
+
 ```javascript
 const metrics = await metricsService.getProxyMetricsAggregation(
   'proxy-123',
@@ -67,6 +73,7 @@ const metrics = await metricsService.getProxyMetricsAggregation(
 ```
 
 ### Aggregating Metrics
+
 ```javascript
 // Aggregate metrics from daily data
 const aggregation = await metricsService.aggregateProxyMetrics(
@@ -80,6 +87,7 @@ const aggregation = await metricsService.aggregateProxyMetrics(
 ## REST API Endpoints
 
 ### Record Metrics Event
+
 ```
 POST /proxy/metrics/:proxyId/record
 Authorization: Bearer <JWT_TOKEN>
@@ -107,6 +115,7 @@ Response: 201 Created
 ```
 
 ### Get Daily Metrics
+
 ```
 GET /proxy/metrics/:proxyId/daily/:date
 Authorization: Bearer <JWT_TOKEN>
@@ -135,6 +144,7 @@ Response: 200 OK
 ```
 
 ### Get Daily Metrics Range
+
 ```
 GET /proxy/metrics/:proxyId/daily?startDate=2024-01-01&endDate=2024-01-31
 Authorization: Bearer <JWT_TOKEN>
@@ -155,6 +165,7 @@ Response: 200 OK
 ```
 
 ### Get Aggregated Metrics
+
 ```
 GET /proxy/metrics/:proxyId/aggregation?periodStart=2024-01-01&periodEnd=2024-01-31
 Authorization: Bearer <JWT_TOKEN>
@@ -186,7 +197,9 @@ Response: 200 OK
 ## Database Tables
 
 ### proxy_metrics_events
+
 Raw metric events from proxy instances
+
 - `id` - UUID primary key
 - `proxy_id` - Proxy identifier
 - `user_id` - User identifier (FK to users)
@@ -205,7 +218,9 @@ Raw metric events from proxy instances
 - `created_at` - Event timestamp
 
 ### proxy_metrics_daily
+
 Aggregated daily metrics
+
 - `id` - UUID primary key
 - `proxy_id` - Proxy identifier
 - `user_id` - User identifier (FK to users)
@@ -227,14 +242,18 @@ Aggregated daily metrics
 - `updated_at` - Last update time
 
 ### proxy_metrics_aggregation
+
 Period-based aggregated metrics
+
 - Similar structure to daily metrics
 - `period_start` - Period start date
 - `period_end` - Period end date
 - Aggregates data across multiple days
 
 ### proxy_metrics_summary
+
 Current summary metrics for quick access
+
 - `proxy_id` - Proxy identifier (unique)
 - `user_id` - User identifier (FK to users)
 - `request_count_1h` - Requests in last hour
@@ -253,11 +272,13 @@ Current summary metrics for quick access
 ## Error Handling
 
 ### Common Errors
+
 - `PROXY_METRICS_001` - Invalid request (missing required fields)
 - `PROXY_METRICS_002` - Service unavailable (service not initialized)
 - `PROXY_METRICS_003` - Internal server error
 
 ### Error Response Format
+
 ```json
 {
   "error": "ERROR_CODE",
@@ -269,7 +290,9 @@ Current summary metrics for quick access
 ## Integration Notes
 
 ### With Proxy Health Service
+
 Metrics can be collected automatically when health checks are performed:
+
 ```javascript
 proxyHealthService.updateProxyMetrics(proxyId, {
   requestCount: 100,
@@ -280,7 +303,9 @@ proxyHealthService.updateProxyMetrics(proxyId, {
 ```
 
 ### With Monitoring/Dashboards
+
 Metrics can be queried for visualization:
+
 ```javascript
 const dailyMetrics = await metricsService.getProxyMetricsDailyRange(
   proxyId,
@@ -291,7 +316,9 @@ const dailyMetrics = await metricsService.getProxyMetricsDailyRange(
 ```
 
 ### With Billing System
+
 Aggregated metrics can be used for usage-based billing:
+
 ```javascript
 const aggregation = await metricsService.getProxyMetricsAggregation(
   proxyId,
@@ -311,6 +338,7 @@ const aggregation = await metricsService.getProxyMetricsAggregation(
 ## Testing
 
 Run tests:
+
 ```bash
 npm test -- test/api-backend/proxy-metrics.test.js
 ```

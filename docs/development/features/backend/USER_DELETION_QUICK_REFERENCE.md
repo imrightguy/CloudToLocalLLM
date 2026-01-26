@@ -5,6 +5,7 @@
 The User Deletion feature provides comprehensive account deletion with cascading data cleanup and soft delete support for compliance.
 
 **Validates: Requirements 3.5**
+
 - Supports user account deletion with data cleanup
 - Implements cascading data cleanup (sessions, tunnels, audit logs)
 - Adds soft delete option for compliance
@@ -18,19 +19,23 @@ The User Deletion feature provides comprehensive account deletion with cascading
 ## Key Features
 
 ### 1. Soft Delete (Default)
+
 - Marks user as deleted in metadata
 - Preserves data for compliance/recovery
 - Can be restored within 30 days
 - Default behavior for user-initiated deletions
 
 ### 2. Hard Delete
+
 - Permanently removes all user data
 - Cascading cleanup of related records
 - Cannot be undone
 - Requires explicit `softDelete: false` option
 
 ### 3. Cascading Cleanup
+
 When hard deleting, the following data is removed in order:
+
 1. User sessions
 2. Tunnel connections
 3. Audit logs
@@ -41,6 +46,7 @@ When hard deleting, the following data is removed in order:
 8. User record
 
 ### 4. Restoration
+
 - Soft-deleted users can be restored
 - Removes deletion metadata
 - Restores full account access
@@ -48,13 +54,16 @@ When hard deleting, the following data is removed in order:
 ## API Endpoints
 
 ### DELETE /api/users/:id
+
 Delete user account (soft or hard delete)
 
 **Query Parameters:**
+
 - `softDelete`: boolean (default: true)
 - `reason`: string (optional)
 
 **Request Body (optional):**
+
 ```json
 {
   "softDelete": true,
@@ -63,6 +72,7 @@ Delete user account (soft or hard delete)
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -84,9 +94,11 @@ Delete user account (soft or hard delete)
 ```
 
 ### POST /api/users/:id/restore
+
 Restore a soft-deleted account
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -98,9 +110,11 @@ Restore a soft-deleted account
 ```
 
 ### GET /api/users/:id/deletion-status
+
 Check if user is deleted
 
 **Response (if deleted):**
+
 ```json
 {
   "success": true,
@@ -115,9 +129,11 @@ Check if user is deleted
 ```
 
 ### POST /api/users/:id/permanent-delete
+
 Permanently delete a soft-deleted account (admin only)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -132,6 +148,7 @@ Permanently delete a soft-deleted account (admin only)
 ## Service Methods
 
 ### deleteUserAccount(userId, options)
+
 Delete user account with optional soft/hard delete
 
 ```javascript
@@ -151,6 +168,7 @@ await userDeletionService.deleteUserAccount('auth0|123456', {
 ```
 
 ### restoreUserAccount(userId)
+
 Restore a soft-deleted account
 
 ```javascript
@@ -158,6 +176,7 @@ await userDeletionService.restoreUserAccount('auth0|123456');
 ```
 
 ### isUserDeleted(userId)
+
 Check if user is soft-deleted
 
 ```javascript
@@ -165,6 +184,7 @@ const isDeleted = await userDeletionService.isUserDeleted('auth0|123456');
 ```
 
 ### getDeletionInfo(userId)
+
 Get deletion information for a soft-deleted user
 
 ```javascript
@@ -173,6 +193,7 @@ const info = await userDeletionService.getDeletionInfo('auth0|123456');
 ```
 
 ### permanentlyDeleteUser(userId)
+
 Permanently delete a soft-deleted user (admin operation)
 
 ```javascript
@@ -182,7 +203,9 @@ await userDeletionService.permanentlyDeleteUser('auth0|123456');
 ## Database Schema
 
 ### Users Table Metadata
+
 Soft-deleted users have metadata with:
+
 - `deleted_at`: ISO timestamp of deletion
 - `deletion_reason`: Reason for deletion
 - `is_deleted`: 'true' if soft-deleted
@@ -196,6 +219,7 @@ npm test -- test/api-backend/user-deletion.test.js
 ```
 
 **Test Coverage:**
+
 - Soft delete operations
 - Hard delete with cascading cleanup
 - Account restoration

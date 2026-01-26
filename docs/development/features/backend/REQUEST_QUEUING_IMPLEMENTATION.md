@@ -18,12 +18,13 @@ Core service that manages request queuing with the following features:
 
 - **Per-User and Per-IP Queuing**: Maintains separate queues for each user and IP address
 - **FIFO Processing**: Requests are processed in First-In-First-Out order
-- **Configurable Thresholds**: 
+- **Configurable Thresholds**:
   - `maxQueueSize`: Maximum requests in queue (default: 1000)
   - `queueTimeoutMs`: Timeout for queued requests (default: 30 seconds)
   - `queueThresholdPercent`: Percentage of rate limit to trigger queuing (default: 80%)
 
 **Key Methods**:
+
 - `shouldQueue(remainingRequests, maxRequests)`: Determines if request should be queued
 - `queueRequest(identifier, queueType, requestData)`: Adds request to queue
 - `processNextRequest(identifier, queueType)`: Processes next request from queue
@@ -40,6 +41,7 @@ Middleware that integrates queuing into the request pipeline:
 - **Management Endpoints**: Provides endpoints for queue status and management
 
 **Middleware Functions**:
+
 - `createRequestQueuingMiddleware()`: Main queuing middleware
 - `createQueueStatusMiddleware()`: Adds queue status to request
 - `createQueueStatusHandler()`: Returns queue statistics
@@ -78,6 +80,7 @@ Request Flow with Queuing:
 ### Queue Statistics
 
 The service tracks:
+
 - `totalQueued`: Total requests queued
 - `totalProcessed`: Total requests processed from queue
 - `totalExpired`: Total requests that timed out
@@ -89,6 +92,7 @@ The service tracks:
 ### Response Headers
 
 When a request is processed from the queue, the following headers are added:
+
 - `X-Queue-Position`: Position in queue
 - `X-Queue-Wait-Time`: Time spent waiting in queue (ms)
 
@@ -105,6 +109,7 @@ Comprehensive test suite (`test/api-backend/request-queuing.test.js`) with:
   - Queue isolation
 
 **Test Coverage**:
+
 - Queue operations (add, process, remove)
 - Queue status reporting
 - Statistics tracking
@@ -146,6 +151,7 @@ Default configuration in middleware pipeline:
 ### Future Enhancements
 
 Potential improvements:
+
 - Persistent queue storage for recovery
 - Queue priority levels
 - Dynamic threshold adjustment based on system load
@@ -155,11 +161,13 @@ Potential improvements:
 ### Files Modified/Created
 
 **Created**:
+
 - `services/api-backend/services/request-queue-service.js` - Core queue service
 - `services/api-backend/middleware/request-queuing.js` - Queuing middleware
 - `test/api-backend/request-queuing.test.js` - Comprehensive tests
 
 **Modified**:
+
 - `services/api-backend/middleware/pipeline.js` - Added queuing middleware
 - `services/api-backend/server.js` - Added queue status endpoints
 
@@ -179,4 +187,3 @@ Potential improvements:
 - ✅ Requirement 6.4: Request queuing when rate limit approached
 - ✅ Property 9: Rate limit enforcement consistency
 - ✅ Validates Requirements 6.1, 6.2, 6.3
-

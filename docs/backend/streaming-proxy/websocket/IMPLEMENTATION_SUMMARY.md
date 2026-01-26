@@ -23,6 +23,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 **Purpose**: Main WebSocket handler managing connection lifecycle
 
 **Key Features**:
+
 - WebSocket upgrade handling with JWT authentication
 - Connection lifecycle management (connect, disconnect, message routing)
 - Integration with AuthMiddleware for authentication
@@ -34,6 +35,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - Graceful connection closure
 
 **Key Methods**:
+
 - `handleUpgrade()`: Validates token and upgrades HTTP connection to WebSocket
 - `handleConnection()`: Sets up new WebSocket connection with event handlers
 - `handleDisconnect()`: Cleans up connection resources
@@ -44,6 +46,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - `closeAllConnections()`: Gracefully closes all connections
 
 **Integration Points**:
+
 - AuthMiddleware: Token validation and user context
 - RateLimiter: Per-user and per-IP rate limiting
 - ConnectionPool: SSH connection management (to be integrated)
@@ -53,6 +56,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 **Purpose**: Manages WebSocket heartbeat monitoring using ping/pong protocol
 
 **Key Features**:
+
 - Configurable ping interval (default: 30 seconds)
 - Configurable pong timeout (default: 5 seconds)
 - Tracks missed pongs (max: 3 before closing)
@@ -61,6 +65,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - Health status tracking per connection
 
 **Key Methods**:
+
 - `startHeartbeat()`: Begins monitoring with automatic ping sending
 - `stopHeartbeat()`: Stops monitoring and cleans up timers
 - `sendPing()`: Sends ping and checks for missed pongs
@@ -69,6 +74,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - `isConnectionHealthy()`: Checks if connection is responding
 
 **Configuration**:
+
 ```typescript
 {
   pingInterval: 30000,    // 30 seconds
@@ -82,6 +88,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 **Purpose**: Manages WebSocket compression using permessage-deflate extension
 
 **Key Features**:
+
 - Configurable compression level (0-9)
 - Compression threshold (only compress messages above size)
 - Compression statistics tracking (ratio, bytes saved)
@@ -89,6 +96,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - Multiple compression profiles (default, high, fast, disabled)
 
 **Key Methods**:
+
 - `getCompressionOptions()`: Returns WebSocket compression configuration
 - `configureServer()`: Applies compression to WebSocket server
 - `recordCompression()`: Tracks compression statistics
@@ -96,12 +104,14 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - `getSummary()`: Returns human-readable summary
 
 **Compression Profiles**:
+
 - **Default**: Level 6, 1KB threshold (balanced)
 - **High**: Level 9, 512B threshold (maximum compression)
 - **Fast**: Level 1, 2KB threshold (minimal compression)
 - **Disabled**: No compression
 
 **Statistics Tracked**:
+
 - Messages compressed vs uncompressed
 - Bytes before and after compression
 - Compression ratio
@@ -113,6 +123,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 **Purpose**: Validates WebSocket frame sizes and enforces limits
 
 **Key Features**:
+
 - Configurable maximum frame size (default: 1MB)
 - Warning threshold for large frames (default: 512KB)
 - Violation tracking and logging
@@ -120,6 +131,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - Automatic connection closure for oversized frames
 
 **Key Methods**:
+
 - `validateFrameSize()`: Validates frame size and returns result
 - `validateAndHandle()`: Validates and closes connection if needed
 - `getStats()`: Returns frame size statistics
@@ -127,11 +139,13 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - `getSummary()`: Returns human-readable summary
 
 **Validator Profiles**:
+
 - **Default**: 1MB max, 512KB warning
 - **Strict**: 256KB max, 128KB warning
 - **Lenient**: 10MB max, 5MB warning
 
 **Statistics Tracked**:
+
 - Total frames processed
 - Total bytes processed
 - Violations (frames exceeding max size)
@@ -144,6 +158,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 **Purpose**: Manages graceful WebSocket connection closure
 
 **Key Features**:
+
 - Proper close handshake with acknowledgment
 - Appropriate close codes (RFC 6455 compliant)
 - Configurable timeout for close acknowledgment (default: 5 seconds)
@@ -152,6 +167,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - Close metadata tracking (duration, acknowledgment status)
 
 **Key Methods**:
+
 - `closeGracefully()`: Closes connection with proper handshake
 - `closeNormal()`: Normal closure (code 1000)
 - `closeGoingAway()`: Server shutdown (code 1001)
@@ -163,6 +179,7 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 - `closeAll()`: Batch close multiple connections
 
 **Close Codes Supported**:
+
 - 1000: Normal closure
 - 1001: Going away (server shutdown)
 - 1002: Protocol error
@@ -177,36 +194,47 @@ This document summarizes the implementation of Task 11: WebSocket Connection Man
 ## Requirements Satisfied
 
 ### Requirement 6.1: WebSocket Heartbeat
+
 ✅ **Implemented**: HeartbeatManager sends ping every 30 seconds
 
 ### Requirement 6.2: Connection Loss Detection
+
 ✅ **Implemented**: Detects connection loss within 45 seconds (30s + 5s + 3 missed pongs)
 
 ### Requirement 6.3: Ping Response Time
+
 ✅ **Implemented**: Server responds to ping frames immediately (< 5 seconds)
 
 ### Requirement 6.4: WebSocket Compression
+
 ✅ **Implemented**: CompressionManager with permessage-deflate extension
 
 ### Requirement 6.6: Frame Size Limits
+
 ✅ **Implemented**: FrameSizeValidator enforces 1MB max frame size
 
 ### Requirement 6.7: Graceful WebSocket Close
+
 ✅ **Implemented**: GracefulCloseManager with proper close codes
 
 ### Requirement 6.8: WebSocket Upgrade Handling
+
 ✅ **Implemented**: WebSocketHandlerImpl.handleUpgrade()
 
 ### Requirement 6.9: Connection Timeout
+
 ✅ **Implemented**: Idle connections closed after timeout (configurable)
 
 ### Requirement 6.10: Lifecycle Event Logging
+
 ✅ **Implemented**: All lifecycle events logged with structured JSON
 
 ### Requirement 4.2: JWT Validation
+
 ✅ **Implemented**: Integration with AuthMiddleware for token validation
 
 ### Requirement 4.3: Rate Limiting
+
 ✅ **Implemented**: Integration with RateLimiter for per-user limits
 
 ## Architecture
@@ -297,16 +325,19 @@ CLOSE_TIMEOUT=5000            # 5 seconds
 ## Performance Characteristics
 
 ### Memory Usage
+
 - ~1KB per connection for metadata
 - ~10KB per connection for heartbeat tracking
 - Compression: Variable based on message size and compression level
 
 ### CPU Usage
+
 - Minimal overhead for heartbeat monitoring
 - Compression: 5-10% CPU increase depending on level
 - Frame validation: Negligible overhead
 
 ### Latency
+
 - Heartbeat: <1ms overhead
 - Compression: 1-5ms depending on message size and level
 - Frame validation: <1ms overhead

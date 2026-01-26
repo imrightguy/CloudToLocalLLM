@@ -27,12 +27,12 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
 - 🟡 **Yellow circle** - Build in progress
 - ⚪ **Gray circle** - Build queued or waiting
 
-
 ## Common Build Issues
 
 ### Issue 1: Flutter SDK Installation Failed
 
 **Symptoms:**
+
 - Build fails during "Setup Flutter SDK" step
 - Error message: "Failed to download Flutter SDK"
 
@@ -47,6 +47,7 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Update if needed to latest stable version
 
 3. **Clear GitHub Actions cache**:
+
    ```bash
    # Use GitHub CLI to clear caches
    gh cache list
@@ -54,19 +55,21 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    ```
 
 **Prevention:**
+
 - Pin to stable Flutter versions
 - Monitor Flutter release notes for breaking changes
-
 
 ### Issue 2: Dependency Download Failed
 
 **Symptoms:**
+
 - Build fails during "Get Flutter dependencies" step
 - Error: "pub get failed" or "Could not resolve dependencies"
 
 **Solutions:**
 
 1. **Check pubspec.yaml syntax**:
+
    ```bash
    # Validate locally
    flutter pub get
@@ -81,20 +84,22 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Re-run workflow to rebuild cache
 
 **Prevention:**
+
 - Test `flutter pub get` locally before pushing
 - Use version ranges instead of exact versions
 - Keep dependencies up to date
 
-
 ### Issue 3: Flutter Build Compilation Errors
 
 **Symptoms:**
+
 - Build fails during "Build Windows desktop application" step
 - Compilation errors in Dart/Flutter code
 
 **Solutions:**
 
 1. **Test build locally first**:
+
    ```bash
    flutter build windows --release
    ```
@@ -109,14 +114,15 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Fix code and push changes
 
 **Prevention:**
+
 - Always test builds locally before pushing
 - Run `flutter analyze` to catch issues early
 - Use `flutter doctor` to verify environment
 
-
 ### Issue 4: Inno Setup Installation or Compilation Failed
 
 **Symptoms:**
+
 - Build fails during "Install Inno Setup" or "Create Windows installer" step
 - Error: "Inno Setup not found" or "ISCC.exe failed"
 
@@ -135,25 +141,28 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Check file paths in .iss script are valid
 
 **Prevention:**
+
 - Test Inno Setup script locally before pushing
 - Keep .iss script in version control
 - Document any custom Inno Setup requirements
 
-
 ### Issue 5: Version Extraction Failed
 
 **Symptoms:**
+
 - Build fails during "Extract version and generate build number" step
 - Error: "Version not found" or "Invalid version format"
 
 **Solutions:**
 
 1. **Check pubspec.yaml format**:
+
    ```yaml
    version: 4.5.0+20241115
    ```
 
 2. **Verify tag format** (for tag-triggered builds):
+
    ```bash
    # Correct format
    git tag v4.5.0
@@ -168,20 +177,22 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Verify tags are pushed to remote
 
 **Prevention:**
+
 - Use semantic versioning (MAJOR.MINOR.PATCH)
 - Always prefix tags with 'v'
 - Test version extraction locally
 
-
 ### Issue 6: Release Creation Failed
 
 **Symptoms:**
+
 - Build succeeds but release creation fails
 - Error: "Tag already exists" or "Permission denied"
 
 **Solutions:**
 
 1. **Check if tag already exists**:
+
    ```bash
    # List existing tags
    git tag -l
@@ -201,16 +212,17 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Check artifact retention hasn't expired (30 days default)
 
 **Prevention:**
+
 - Don't reuse version tags
 - Increment version for each release
 - Verify permissions before running workflow
-
 
 ## GitHub Actions Specific Issues
 
 ### Workflow Not Triggering
 
 **Symptoms:**
+
 - Push tag but workflow doesn't start
 - Manual trigger button not visible
 
@@ -221,12 +233,14 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - File must have `.yml` or `.yaml` extension
 
 2. **Check workflow syntax**:
+
    ```bash
    # Validate workflow locally (requires act or similar)
    # Or push and check Actions tab for syntax errors
    ```
 
 3. **Verify trigger conditions**:
+
    ```yaml
    on:
      push:
@@ -239,14 +253,15 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Ensure "Allow all actions" is selected
 
 **Prevention:**
+
 - Test workflow syntax before committing
 - Review GitHub Actions documentation
 - Check workflow permissions
 
-
 ### Cache Issues
 
 **Symptoms:**
+
 - Builds are slow despite caching
 - Cache restore fails
 - Stale dependencies causing issues
@@ -254,6 +269,7 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
 **Solutions:**
 
 1. **Clear specific cache**:
+
    ```bash
    # List all caches
    gh cache list
@@ -272,19 +288,21 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Change `hashFiles()` pattern to force new cache
 
 **Cache Locations:**
+
 - Flutter pub cache: `~/.pub-cache`, `.dart_tool`
 - Chocolatey packages: `C:\ProgramData\chocolatey`
 - Flutter SDK: `${{ runner.tool_cache }}/flutter`
 
 **Prevention:**
+
 - Monitor cache hit rates in logs
 - Periodically clear old caches
 - Use appropriate cache keys
 
-
 ### Runner Out of Disk Space
 
 **Symptoms:**
+
 - Build fails with "No space left on device"
 - Artifact upload fails
 
@@ -299,16 +317,17 @@ This guide helps you diagnose and fix common issues with CloudToLocalLLM builds 
    - Compress large files before upload
 
 3. **Use larger runner** (if needed):
+
    ```yaml
    runs-on: windows-latest  # Standard runner (14GB disk)
    # For larger builds, consider self-hosted runners
    ```
 
 **Prevention:**
+
 - Monitor disk usage in workflow logs
 - Clean up intermediate build files
 - Optimize artifact sizes
-
 
 ## Manual Build Triggers
 
@@ -354,7 +373,6 @@ git tag -a v4.5.0 -m "Release version 4.5.0"
 git push origin v4.5.0
 ```
 
-
 ### Canceling a Running Build
 
 **Via GitHub Web Interface:**
@@ -377,7 +395,6 @@ gh run list --workflow=build-release.yml --status in_progress \
   --json databaseId --jq '.[].databaseId' | xargs -I {} gh run cancel {}
 ```
 
-
 ## Expected Build Times
 
 Understanding typical build times helps identify performance issues:
@@ -393,6 +410,7 @@ Understanding typical build times helps identify performance issues:
 ### Total Workflow Time
 
 Since all platforms build in parallel:
+
 - **First build**: ~20-25 minutes (slowest platform + overhead)
 - **Cached build**: ~12-15 minutes (with >80% cache hit rate)
 - **Release creation**: +2-3 minutes (artifact collection and upload)
@@ -400,6 +418,7 @@ Since all platforms build in parallel:
 ### Build Time Breakdown
 
 **Windows Build**:
+
 - Flutter SDK setup: 2-3 min (cached: <30 sec)
 - Inno Setup installation: 1-2 min (cached: <10 sec)
 - Flutter pub get: 1-2 min (cached: <30 sec)
@@ -408,6 +427,7 @@ Since all platforms build in parallel:
 - Artifact upload: 1-2 min
 
 **Linux Build**:
+
 - Flutter SDK setup: 2-3 min (cached: <30 sec)
 - Linux dependencies: 2-3 min (cached: <30 sec)
 - Flutter pub get: 1-2 min (cached: <30 sec)
@@ -417,6 +437,7 @@ Since all platforms build in parallel:
 - Artifact upload: 1-2 min
 
 **Android Build**:
+
 - Flutter SDK setup: 2-3 min (cached: <30 sec)
 - Java/Android SDK: 2-3 min (cached: <30 sec)
 - Gradle dependencies: 2-3 min (cached: <30 sec)
@@ -449,6 +470,7 @@ Since all platforms build in parallel:
 ### When to Worry
 
 Build times significantly longer than expected may indicate:
+
 - **Cache miss**: Check cache keys and restore logs
 - **Network issues**: Slow dependency downloads
 - **Resource contention**: GitHub Actions capacity issues
@@ -459,11 +481,13 @@ Build times significantly longer than expected may indicate:
 ### GitHub-Hosted Runners (Current Setup)
 
 **Public Repositories:**
+
 - ✅ **Completely FREE** - Unlimited minutes
 - ✅ No credit card required
 - ✅ No usage limits for public repos
 
 **Private Repositories:**
+
 - Free tier: 2,000 minutes/month
 - Windows runners: 2x multiplier (1 minute = 2 minutes)
 - Estimated cost per build: ~30-40 minutes = 60-80 billable minutes
@@ -478,6 +502,7 @@ Build times significantly longer than expected may indicate:
 | Cloud VM (Azure/AWS) | $50-200/month | 4-8 hours | Ongoing |
 
 **Savings with GitHub-Hosted Runners:**
+
 - No infrastructure costs
 - No maintenance overhead
 - No setup time required
@@ -487,16 +512,17 @@ Build times significantly longer than expected may indicate:
 **For Private Repositories:**
 
 If you exceed free tier, consider:
+
 1. Optimize build time (caching, parallel jobs)
 2. Use self-hosted runner for frequent builds
 3. Upgrade to GitHub Team/Enterprise plan
-
 
 ## Android Build Issues
 
 ### Issue: Android Build Not Running
 
 **Symptoms:**
+
 - Android build job doesn't appear in workflow
 - Only Windows/Linux builds are running
 
@@ -514,12 +540,14 @@ If you exceed free tier, consider:
 ### Issue: Android Signing Failed
 
 **Symptoms:**
+
 - Build fails during "Setup Android signing configuration" step
 - Error: "Keystore not found" or "Invalid keystore format"
 
 **Solutions:**
 
 1. **Verify keystore secret**:
+
    ```bash
    # Re-encode keystore to base64
    base64 release-keystore.jks > release-keystore.base64.txt
@@ -532,6 +560,7 @@ If you exceed free tier, consider:
    - Verify no extra spaces in secret values
 
 3. **Test keystore locally**:
+
    ```bash
    # Verify keystore is valid
    keytool -list -v -keystore release-keystore.jks
@@ -540,6 +569,7 @@ If you exceed free tier, consider:
 ### Issue: APK Build Failed
 
 **Symptoms:**
+
 - Build fails during "Build Android APK" step
 - Gradle compilation errors
 
@@ -554,6 +584,7 @@ If you exceed free tier, consider:
    - Or manually clear cache in Actions settings
 
 3. **Test build locally**:
+
    ```bash
    flutter clean
    flutter pub get
@@ -563,6 +594,7 @@ If you exceed free tier, consider:
 ### Issue: APK Signature Verification Failed
 
 **Symptoms:**
+
 - APK builds but signature verification fails
 - Error: "APK signature verification failed"
 
@@ -583,6 +615,7 @@ If you exceed free tier, consider:
 ### Issue: APK Won't Install on Device
 
 **Symptoms:**
+
 - APK downloads but won't install
 - Error: "App not installed" or "Parse error"
 
@@ -604,6 +637,7 @@ If you exceed free tier, consider:
    - Check device architecture: `adb shell getprop ro.product.cpu.abi`
 
 4. **Verify APK integrity**:
+
    ```bash
    # Check SHA256 checksum
    sha256sum -c cloudtolocalllm-*-arm64-v8a.apk.sha256
@@ -614,6 +648,7 @@ If you exceed free tier, consider:
    - Clear cache if needed
 
 6. **Uninstall previous version**:
+
    ```bash
    # If upgrading, uninstall old version first
    adb uninstall com.cloudtolocalllm.CloudToLocalLLM
@@ -622,6 +657,7 @@ If you exceed free tier, consider:
 ### Issue: APK Installs but Crashes on Launch
 
 **Symptoms:**
+
 - APK installs successfully
 - App crashes immediately when opened
 - Error in logcat
@@ -629,6 +665,7 @@ If you exceed free tier, consider:
 **Solutions:**
 
 1. **Check logcat for errors**:
+
    ```bash
    # View crash logs
    adb logcat | grep -E "AndroidRuntime|CloudToLocalLLM"
@@ -644,6 +681,7 @@ If you exceed free tier, consider:
    - Some features may not work on older versions
 
 4. **Clear app data**:
+
    ```bash
    # Clear app data and cache
    adb shell pm clear com.cloudtolocalllm.CloudToLocalLLM
@@ -652,6 +690,7 @@ If you exceed free tier, consider:
 ### Issue: Gradle Build Timeout
 
 **Symptoms:**
+
 - Android build times out during Gradle build
 - Error: "Gradle build exceeded timeout"
 
@@ -663,6 +702,7 @@ If you exceed free tier, consider:
    - Re-run workflow
 
 2. **Increase timeout** (if needed):
+
    ```yaml
    # In workflow file
    - name: Build Android APK
@@ -676,12 +716,14 @@ If you exceed free tier, consider:
 ### Issue: Multiple APKs Not Created
 
 **Symptoms:**
+
 - Only one APK created instead of three
 - Missing architecture-specific APKs
 
 **Solutions:**
 
 1. **Verify build command**:
+
    ```bash
    # Correct command with --split-per-abi
    flutter build apk --release --split-per-abi
@@ -698,11 +740,11 @@ If you exceed free tier, consider:
 ### Android Build Resources
 
 For detailed Android build setup and configuration:
--  - Complete setup guide with secret configuration
+
+- Complete setup guide with secret configuration
 - [android/README.md](../android/README.md) - Local build instructions
 - [Flutter Android Deployment](https://docs.flutter.dev/deployment/android)
 - [Android App Signing](https://developer.android.com/studio/publish/app-signing)
-
 
 ## Getting Help
 
@@ -749,9 +791,9 @@ When reporting build issues, include:
 5. **Expected vs actual**: What should happen vs what happened
 
 **Where to report:**
+
 - GitHub Issues: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues
 - Include label: `ci/cd` or `build`
-
 
 ### Additional Resources
 

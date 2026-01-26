@@ -19,6 +19,7 @@ Whether you're working with API responses, configuration files, or log data, jq 
 ### Installation
 
 #### Via Package Managers
+
 ```bash
 # macOS (Homebrew)
 brew install jq
@@ -39,16 +40,19 @@ scoop install jq
 ```
 
 #### Manual Installation
+
 1. Download the appropriate binary from [jq releases](https://github.com/stedolan/jq/releases)
 2. Place the binary in your PATH
 3. Make it executable (Linux/macOS): `chmod +x jq`
 
 ### Prerequisites
+
 - No special requirements - jq is a standalone binary
 - Works on Linux, macOS, and Windows
 - Compatible with any JSON data source
 
 ### Verification
+
 ```bash
 # Verify installation
 jq --version
@@ -71,6 +75,7 @@ echo '{"name": "test"}' | jq '.'
 **Goal:** Extract specific values from JSON objects
 
 **Commands:**
+
 ```bash
 # Extract a single field
 echo '{"name": "John", "age": 30}' | jq '.name'
@@ -83,6 +88,7 @@ echo '{"user": {"name": "John", "profile": {"age": 30}}}' | jq '.user.profile.ag
 ```
 
 **Complete Example:**
+
 ```bash
 # Sample API response
 curl -s https://api.github.com/users/octocat | jq '.name, .public_repos, .followers'
@@ -98,6 +104,7 @@ curl -s https://api.github.com/users/octocat | jq '.name, .public_repos, .follow
 **Goal:** Filter and process JSON arrays
 
 **Commands:**
+
 ```bash
 # Filter array elements
 echo '[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]' | jq '.[] | select(.age > 27)'
@@ -110,6 +117,7 @@ echo '[1, 2, 3, 4]' | jq 'length'
 ```
 
 **Complete Example:**
+
 ```bash
 # Filter GitHub repositories by language
 curl -s https://api.github.com/users/octocat/repos | jq '.[] | select(.language == "JavaScript") | .name'
@@ -120,6 +128,7 @@ curl -s https://api.github.com/users/octocat/repos | jq '.[] | select(.language 
 **Goal:** Reshape JSON data into new formats
 
 **Commands:**
+
 ```bash
 # Create new object structure
 echo '{"first": "John", "last": "Doe"}' | jq '{fullName: (.first + " " + .last)}'
@@ -138,6 +147,7 @@ echo '[{"key": "name", "value": "John"}, {"key": "age", "value": 30}]' | jq 'fro
 **Purpose:** Core jq operations for data access and manipulation
 
 **Syntax:**
+
 ```bash
 jq 'filter' [file.json]
 ```
@@ -152,6 +162,7 @@ jq 'filter' [file.json]
 | `.field?` | Optional field access | `jq '.missing?'` |
 
 **Examples:**
+
 ```bash
 # Pretty-print JSON
 echo '{"name":"John","age":30}' | jq '.'
@@ -174,6 +185,7 @@ echo '{"user": {"name": "John"}}' | jq '.user.name?'
 | `unique` | Remove duplicates | `jq 'unique'` |
 
 **Examples:**
+
 ```bash
 # Sort users by age
 echo '[{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]' | jq 'sort_by(.age)'
@@ -198,36 +210,46 @@ echo '[1, 2, 2, 3, 3, 3]' | jq 'unique'
 ## Troubleshooting
 
 ### Error: "parse error: Invalid numeric literal"
+
 **Cause:** Malformed JSON input
 **Solution:**
+
 1. Validate JSON syntax: `echo 'your-json' | jq '.'`
 2. Check for trailing commas, missing quotes, or unescaped characters
 3. Use `jq -R` for raw string input if not JSON
 
 ### Error: "jq: command not found"
+
 **Cause:** jq not installed or not in PATH
 **Solution:**
+
 1. Install jq using package manager
 2. Verify installation: `which jq`
 3. Add jq binary location to PATH if needed
 
 ### Error: "Cannot index string with string"
+
 **Cause:** Trying to access object field on a string value
 **Solution:**
+
 1. Check data structure: `jq 'type'`
 2. Use optional access: `.field?`
 3. Add type checking: `if type == "object" then .field else empty end`
 
 ### Empty Output When Expected Results
+
 **Cause:** Filter doesn't match data structure
 **Solution:**
+
 1. Inspect data structure: `jq '.'`
 2. Check field names and types: `jq 'keys'`
 3. Use debug output: `jq --arg debug true '.'`
 
 ### Performance Issues with Large Files
+
 **Cause:** Loading entire file into memory
 **Solution:**
+
 1. Use streaming parser: `jq --stream`
 2. Process line by line: `jq -c '.[]'`
 3. Filter early: `jq '.[] | select(.important)'`

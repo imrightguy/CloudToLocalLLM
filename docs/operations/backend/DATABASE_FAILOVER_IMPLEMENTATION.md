@@ -257,6 +257,7 @@ const standbyConfigs = [
 **Location:** `test/api-backend/failover-manager.test.js`
 
 Tests cover:
+
 - Initialization
 - Health status management
 - Failover state management
@@ -271,6 +272,7 @@ Tests cover:
 **Location:** `test/api-backend/failover-integration.test.js`
 
 Tests cover:
+
 - GET /failover/status endpoint
 - GET /failover/metrics endpoint
 - GET /failover/health endpoint
@@ -397,6 +399,7 @@ failover_standby_healthy{instance="api-backend",standby="0"} 1
 ### Grafana Dashboards
 
 Create dashboards to visualize:
+
 - Failover state over time
 - Primary database health
 - Standby database health
@@ -433,10 +436,12 @@ groups:
 ### Primary Database Down
 
 **Symptoms:**
+
 - GET /failover/status shows primary.healthy = false
 - Failover state is DEGRADED or UNKNOWN
 
 **Resolution:**
+
 1. Check primary database is running: `psql -h primary.example.com -U postgres -d cloudtolocalllm -c "SELECT 1"`
 2. Check network connectivity: `ping primary.example.com`
 3. Check database logs for errors
@@ -446,10 +451,12 @@ groups:
 ### Standby Not Promoted
 
 **Symptoms:**
+
 - Primary is down but failover doesn't occur
 - GET /failover/status shows no healthy standbys
 
 **Resolution:**
+
 1. Check standby database is running
 2. Verify standby has replication enabled
 3. Check standby health: `psql -h standby.example.com -U postgres -d cloudtolocalllm -c "SELECT 1"`
@@ -459,10 +466,12 @@ groups:
 ### High Failover Count
 
 **Symptoms:**
+
 - Frequent failovers occurring
 - GET /failover/history shows high failoverCount
 
 **Resolution:**
+
 1. Check network stability between API and databases
 2. Check database performance and load
 3. Review database logs for errors

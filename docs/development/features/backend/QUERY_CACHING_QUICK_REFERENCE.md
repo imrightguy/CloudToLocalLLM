@@ -9,18 +9,21 @@ Query caching mechanism for optimizing database performance by caching SELECT qu
 ## Key Components
 
 ### 1. QueryCacheService (`database/query-cache.js`)
+
 - In-memory cache with TTL support
 - Automatic eviction when cache is full
 - Table-based invalidation tracking
 - Metrics collection (hits, misses, invalidations, evictions)
 
 ### 2. Cached Query Wrapper (`database/cached-query-wrapper.js`)
+
 - Wraps database queries with caching
 - Automatically caches SELECT queries
 - Extracts table names for invalidation
 - Integrates with query performance tracking
 
 ### 3. Cache Metrics Routes (`routes/cache-metrics.js`)
+
 - GET `/cache/stats` - Get cache statistics
 - POST `/cache/clear` - Clear all cache
 - POST `/cache/invalidate` - Invalidate by pattern or table
@@ -107,16 +110,19 @@ await executeCachedQuery(queryFn, query, params, {
 ## Cache Behavior
 
 ### What Gets Cached
+
 - SELECT queries only
 - Results are cached with TTL
 - Cache keys are generated from query + parameters
 
 ### What Doesn't Get Cached
+
 - INSERT, UPDATE, DELETE queries
 - Queries that fail
 - Queries with null results
 
 ### Automatic Invalidation
+
 - Cache entries expire after TTL
 - Entries are invalidated when table is modified
 - Oldest entries are evicted when cache is full
@@ -124,11 +130,13 @@ await executeCachedQuery(queryFn, query, params, {
 ## Performance Metrics
 
 ### Cache Hit Rate
+
 - Calculated as: `hits / (hits + misses) * 100`
 - Higher hit rate = better performance
 - Target: > 80% for optimal performance
 
 ### Metrics Tracked
+
 - **hits**: Number of cache hits
 - **misses**: Number of cache misses
 - **invalidations**: Number of entries invalidated
@@ -137,9 +145,11 @@ await executeCachedQuery(queryFn, query, params, {
 ## API Endpoints
 
 ### GET /cache/stats
+
 Returns current cache statistics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -157,9 +167,11 @@ Returns current cache statistics.
 ```
 
 ### POST /cache/clear
+
 Clears all cache entries.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -169,9 +181,11 @@ Clears all cache entries.
 ```
 
 ### POST /cache/invalidate
+
 Invalidates cache entries by pattern or table.
 
 **Request:**
+
 ```json
 {
   "table": "users"
@@ -181,6 +195,7 @@ Invalidates cache entries by pattern or table.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -190,9 +205,11 @@ Invalidates cache entries by pattern or table.
 ```
 
 ### GET /cache/reset-metrics
+
 Resets cache metrics.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -204,11 +221,13 @@ Resets cache metrics.
 ## Testing
 
 ### Unit Tests
+
 - `test/api-backend/query-cache.test.js` - QueryCacheService tests
 - `test/api-backend/cached-query-wrapper.test.js` - Wrapper tests
 - `test/api-backend/cache-metrics-routes.test.js` - Metrics tests
 
 ### Running Tests
+
 ```bash
 npm test -- ../test/api-backend/query-cache.test.js
 npm test -- ../test/api-backend/cached-query-wrapper.test.js
@@ -226,16 +245,19 @@ npm test -- ../test/api-backend/cache-metrics-routes.test.js
 ## Troubleshooting
 
 ### Low Hit Rate
+
 - Increase TTL for frequently accessed queries
 - Check if queries are being invalidated too frequently
 - Verify cache is not being cleared unexpectedly
 
 ### High Memory Usage
+
 - Reduce maxCacheSize
 - Decrease TTL for entries
 - Monitor eviction count
 
 ### Stale Data
+
 - Reduce TTL
 - Ensure invalidation is triggered on data changes
 - Check if cache is being properly cleared

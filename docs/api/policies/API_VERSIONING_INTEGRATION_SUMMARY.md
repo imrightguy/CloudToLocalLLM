@@ -13,6 +13,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 ## Components Implemented
 
 ### 1. API Versioning Middleware (`middleware/api-versioning.js`)
+
 - **Version Extraction**: Extracts API version from URL paths (`/v1/`, `/v2/`)
 - **Version Validation**: Validates requested version is supported
 - **Deprecation Headers**: Adds deprecation headers for deprecated versions
@@ -20,6 +21,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 - **Backward Compatibility**: Applies version-specific transformations
 
 **Key Functions:**
+
 - `extractVersionFromPath(path)` - Extracts version from URL
 - `apiVersioningMiddleware()` - Main middleware for version handling
 - `versionRouter(handlers)` - Routes to version-specific handlers
@@ -27,12 +29,14 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 - `backwardCompatibilityMiddleware()` - Applies version-specific transformations
 
 ### 2. Middleware Pipeline Integration (`middleware/pipeline.js`)
+
 - Added API versioning middleware at position 6 in the pipeline
 - Added backward compatibility middleware at position 6.5
 - Updated middleware order documentation
 - Versioning happens early in the pipeline (after logging, before validation)
 
 **Pipeline Order:**
+
 1. Sentry Request Handler
 2. Sentry Tracing Handler
 3. CORS Middleware
@@ -51,6 +55,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 16. Compression
 
 ### 3. Version Information Endpoint (`server.js`)
+
 - **Endpoint:** `GET /api/versions` and `GET /versions`
 - **Response:** Returns information about all supported API versions
 - **Includes:**
@@ -61,6 +66,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
   - Timestamp
 
 **Response Example:**
+
 ```json
 {
   "currentVersion": "v2",
@@ -84,6 +90,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 ```
 
 ### 4. OpenAPI/Swagger Documentation (`swagger-config.js`)
+
 - **Servers Section:** Includes all versioned endpoints
   - `/v1/` - Production v1 (deprecated)
   - `/v2/` - Production v2 (current)
@@ -93,6 +100,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 - **Endpoint Documentation:** `/api/versions` endpoint documented with JSDoc
 
 **Supported Servers:**
+
 - `https://api.cloudtolocalllm.online/v2` - Production v2
 - `https://api.cloudtolocalllm.online/v1` - Production v1 (deprecated)
 - `https://api.cloudtolocalllm.online` - Production default
@@ -101,6 +109,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 - `http://localhost:8080` - Development default
 
 ### 5. API Versioning Guide (`API_VERSIONING_GUIDE.md`)
+
 - Comprehensive documentation for API versioning
 - Usage examples for v1 and v2
 - Migration guide from v1 to v2
@@ -109,6 +118,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 - Best practices
 
 ### 6. Tests (`test/api-backend/api-versioning.test.js`)
+
 - Tests for version extraction
 - Tests for middleware behavior
 - Tests for version routing
@@ -119,6 +129,7 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 ## Versioning Strategy
 
 ### URL-Based Versioning
+
 ```
 /v1/endpoint  - API version 1 (deprecated)
 /v2/endpoint  - API version 2 (current)
@@ -133,13 +144,16 @@ API versioning has been successfully integrated into the CloudToLocalLLM API bac
 | v2 | Current | Current stable version | N/A |
 
 ### Response Headers
+
 All API responses include version information:
+
 ```
 API-Version: v2
 API-Version-Status: current
 ```
 
 Deprecated versions include additional headers:
+
 ```
 Deprecation: true
 Sunset: Wed, 01 Jan 2025 00:00:00 GMT
@@ -169,23 +183,27 @@ Warning: 299 - "API version v1 is deprecated. Migrate to v2 before 2025-01-01"
 ## Usage Examples
 
 ### Get Version Information
+
 ```bash
 curl https://api.cloudtolocalllm.online/api/versions
 ```
 
 ### Use v2 Explicitly
+
 ```bash
 curl https://api.cloudtolocalllm.online/v2/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Use v1 (Deprecated)
+
 ```bash
 curl https://api.cloudtolocalllm.online/v1/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Use Default (v2)
+
 ```bash
 curl https://api.cloudtolocalllm.online/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
@@ -194,6 +212,7 @@ curl https://api.cloudtolocalllm.online/users/me \
 ## Migration Path
 
 For users on v1:
+
 1. Check deprecation headers in responses
 2. Review migration guide in API documentation
 3. Update API client to use v2 endpoints
@@ -202,13 +221,15 @@ For users on v1:
 
 ## Files Modified/Created
 
-### Created:
+### Created
+
 - `middleware/api-versioning.js` - API versioning middleware
 - `routes/versioned-routes.js` - Versioned route examples
 - `API_VERSIONING_GUIDE.md` - User documentation
 - `test/api-backend/api-versioning.test.js` - Test suite
 
-### Modified:
+### Modified
+
 - `middleware/pipeline.js` - Added versioning middleware
 - `server.js` - Added version info endpoint
 - `swagger-config.js` - Added versioning documentation
@@ -233,9 +254,9 @@ For users on v1:
 ## Compliance
 
 ✅ **Requirement 12.4:** THE API SHALL provide API versioning strategy
+
 - URL-based versioning implemented
 - Version routing with backward compatibility
 - Version documentation in OpenAPI spec
 - Version information endpoint
 - Deprecation strategy with sunset dates
-

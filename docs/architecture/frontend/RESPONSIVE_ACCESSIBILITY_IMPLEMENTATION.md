@@ -9,6 +9,7 @@ This document describes the implementation of responsive layout and accessibilit
 The settings screen adapts to three main breakpoints:
 
 ### Mobile (< 600px)
+
 - Single-column layout
 - Full-width inputs and buttons
 - Compact spacing (12px padding)
@@ -17,6 +18,7 @@ The settings screen adapts to three main breakpoints:
 - Search bar at top
 
 ### Tablet (600px - 1024px)
+
 - Two-column layout
 - Left sidebar (280px) for category navigation
 - Right panel for content
@@ -25,6 +27,7 @@ The settings screen adapts to three main breakpoints:
 - Horizontal divider between columns
 
 ### Desktop (> 1024px)
+
 - Three-column layout (optional)
 - Left sidebar (280px) for category navigation
 - Right panel for content
@@ -37,6 +40,7 @@ The settings screen adapts to three main breakpoints:
 ### WCAG 2.1 AA Compliance
 
 #### 1. Semantic HTML and Structure (Web Platform)
+
 - All interactive elements use semantic HTML
 - Proper heading hierarchy (h1, h2, h3)
 - Form labels associated with inputs
@@ -44,6 +48,7 @@ The settings screen adapts to three main breakpoints:
 - Navigation landmarks
 
 #### 2. ARIA Labels and Attributes
+
 - All buttons have descriptive labels
 - Form inputs have associated labels
 - Icons have aria-labels
@@ -51,6 +56,7 @@ The settings screen adapts to three main breakpoints:
 - Error messages linked to inputs
 
 #### 3. Keyboard Navigation
+
 - Tab order follows visual flow
 - Enter key activates buttons
 - Escape key closes dialogs/clears search
@@ -59,6 +65,7 @@ The settings screen adapts to three main breakpoints:
 - Keyboard shortcuts documented
 
 #### 4. Screen Reader Support
+
 - All text content readable by screen readers
 - Form labels announced
 - Error messages announced
@@ -66,18 +73,21 @@ The settings screen adapts to three main breakpoints:
 - Skip links for navigation
 
 #### 5. Color Contrast
+
 - Minimum 4.5:1 contrast ratio for text (WCAG AA)
 - 3:1 contrast ratio for UI components
 - Color not the only means of conveying information
 - Tested with contrast checking tools
 
 #### 6. Touch Targets
+
 - Minimum 44x44 pixels on mobile
 - Minimum 32x32 pixels on desktop
 - Adequate spacing between targets
 - Larger targets for frequently used actions
 
 #### 7. Text and Font
+
 - Readable font sizes (minimum 12px)
 - Sufficient line height (1.5x)
 - Adequate letter spacing
@@ -85,18 +95,21 @@ The settings screen adapts to three main breakpoints:
 - No fixed font sizes that prevent scaling
 
 #### 8. Motion and Animation
+
 - Animations respect prefers-reduced-motion
 - No auto-playing animations
 - Animations can be paused
 - Animations don't distract from content
 
 #### 9. Focus Management
+
 - Focus visible on all interactive elements
 - Focus order logical and intuitive
 - Focus trap in modals
 - Focus restored after closing modals
 
 #### 10. Error Prevention and Recovery
+
 - Clear error messages
 - Suggestions for correction
 - Confirmation for destructive actions
@@ -107,6 +120,7 @@ The settings screen adapts to three main breakpoints:
 ### Responsive Layout Components
 
 #### ResponsiveLayout Utility
+
 ```dart
 // Get current screen size
 final screenSize = ResponsiveLayout.getScreenSize(context);
@@ -131,6 +145,7 @@ final fontSize = ResponsiveLayout.getResponsiveFontSize(
 ```
 
 #### ResponsiveContainer Widget
+
 ```dart
 ResponsiveContainer(
   maxWidth: 1200,
@@ -140,6 +155,7 @@ ResponsiveContainer(
 ```
 
 #### ResponsiveWidget
+
 ```dart
 ResponsiveWidget(
   builder: (context, screenSize) {
@@ -158,6 +174,7 @@ ResponsiveWidget(
 ### Accessibility Components
 
 #### AccessibleTextInput
+
 ```dart
 AccessibleTextInput(
   label: 'Email Address',
@@ -170,6 +187,7 @@ AccessibleTextInput(
 ```
 
 #### AccessibleToggle
+
 ```dart
 AccessibleToggle(
   label: 'Enable Notifications',
@@ -180,6 +198,7 @@ AccessibleToggle(
 ```
 
 #### AccessibleButton
+
 ```dart
 AccessibleButton(
   label: 'Save Settings',
@@ -190,6 +209,7 @@ AccessibleButton(
 ```
 
 #### AccessibleDropdown
+
 ```dart
 AccessibleDropdown<String>(
   label: 'Theme',
@@ -264,6 +284,7 @@ final meetsRequirement = AccessibilityHelpers.meetsContrastRequirement(
 ## Testing Accessibility
 
 ### Manual Testing
+
 1. Navigate using keyboard only
 2. Test with screen reader (NVDA, JAWS, VoiceOver)
 3. Check color contrast with tools
@@ -272,6 +293,7 @@ final meetsRequirement = AccessibilityHelpers.meetsContrastRequirement(
 6. Test with high contrast mode
 
 ### Automated Testing
+
 1. Use accessibility testing libraries
 2. Run contrast checking tools
 3. Validate semantic HTML
@@ -279,6 +301,7 @@ final meetsRequirement = AccessibilityHelpers.meetsContrastRequirement(
 5. Verify keyboard navigation
 
 ### Browser DevTools
+
 1. Chrome DevTools Accessibility Audit
 2. Firefox Accessibility Inspector
 3. Safari Accessibility Inspector
@@ -287,6 +310,7 @@ final meetsRequirement = AccessibilityHelpers.meetsContrastRequirement(
 ## Platform-Specific Considerations
 
 ### Web Platform
+
 - Use semantic HTML
 - Implement ARIA labels
 - Support keyboard navigation
@@ -295,6 +319,7 @@ final meetsRequirement = AccessibilityHelpers.meetsContrastRequirement(
 - Use skip links
 
 ### Windows Desktop
+
 - Support Narrator
 - Implement keyboard shortcuts
 - Use native-feeling widgets
@@ -302,12 +327,14 @@ final meetsRequirement = AccessibilityHelpers.meetsContrastRequirement(
 - Implement window management
 
 ### Linux Desktop
+
 - Support screen readers
 - Implement keyboard shortcuts
 - Use native-feeling widgets
 - Support high contrast mode
 
 ### Mobile Platforms
+
 - Support VoiceOver (iOS)
 - Support TalkBack (Android)
 - Ensure 44x44 touch targets

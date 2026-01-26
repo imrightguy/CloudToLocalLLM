@@ -1,6 +1,7 @@
 # Running GitHub Actions Runner as User Account
 
 When a GitHub Actions self-hosted runner is installed as a Windows service, it may run under the SYSTEM account or a service account by default. This can cause issues with:
+
 - Network downloads (permissions, firewall)
 - Accessing user-specific directories (`$env:USERPROFILE`)
 - Installing software to user locations
@@ -30,6 +31,7 @@ cd C:\actions-runner  # or wherever your runner is installed
 ```
 
 **Note:** Replace:
+
 - `YOUR_USERNAME` with your Windows username (e.g., `rightguy` or `DOMAIN\username`)
 - `YOUR_PASSWORD` with your Windows password
 
@@ -90,6 +92,7 @@ sudo systemctl restart actions.runner.*
 ## Verification
 
 After reconfiguring, test a workflow run and check:
+
 1. The runner appears online in GitHub Actions
 2. Downloads work properly (Flutter download completes)
 3. Files are created in user directories without permission errors
@@ -100,6 +103,7 @@ After reconfiguring, test a workflow run and check:
 
 - Verify the username and password are correct
 - Check that the user account has "Log on as a service" right:
+
   ```powershell
   # Add user to "Log on as a service" policy
   secedit /export /cfg c:\secpol.cfg
@@ -112,4 +116,3 @@ After reconfiguring, test a workflow run and check:
 - Ensure your user account has admin privileges (recommended)
 - Check Windows Firewall settings for your user account
 - Verify network connectivity from your user context
-

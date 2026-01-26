@@ -305,20 +305,25 @@ setInterval(() => {
 ## Troubleshooting
 
 **Circuit opens too quickly?**
+
 - Increase `failureThreshold`
 
 **Circuit stays open too long?**
+
 - Decrease `resetTimeout`
 
 **Operations timing out?**
+
 - Increase `timeout` value
 
 **Too many state changes?**
+
 - Increase both `failureThreshold` and `successThreshold`
 
 ## Support
 
 For issues or questions:
+
 1. Check the [README](./README.md)
 2. Review the [design document](../../.kiro/specs/ssh-websocket-tunnel-enhancement/design.md)
 3. Check existing implementations in connection-pool and rate-limiter modules

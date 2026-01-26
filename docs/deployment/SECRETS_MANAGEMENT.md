@@ -27,35 +27,35 @@ Secrets are sensitive pieces of information, such as API keys, passwords, and ce
 
 ### Google Cloud Platform
 
-*   **`GCP_PROJECT_ID`**: Your Google Cloud Project ID.
-*   **`GCP_SA_KEY`**:
-    1.  Go to the [Google Cloud Console](https://console.cloud.google.com/).
-    2.  Navigate to **IAM & Admin > Service Accounts**.
-    3.  Create or select a service account.
-    4.  Create a new JSON key and download it. The content of this file is the value for this secret.
+* **`GCP_PROJECT_ID`**: Your Google Cloud Project ID.
+* **`GCP_SA_KEY`**:
+    1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+    2. Navigate to **IAM & Admin > Service Accounts**.
+    3. Create or select a service account.
+    4. Create a new JSON key and download it. The content of this file is the value for this secret.
 
 ### Authentication
 
-*   **`JWT_SECRET`**: A secure, randomly generated string for signing JWTs.
-*   **`JWT_AUDIENCE`**: Your Auth0 API audience.
+* **`JWT_SECRET`**: A secure, randomly generated string for signing JWTs.
+* **`JWT_AUDIENCE`**: Your Auth0 API audience.
 
 ## Setting Up Secrets
 
 ### GitHub Actions
 
-1.  Navigate to your repository on GitHub.
-2.  Go to **Settings > Secrets and variables > Actions**.
-3.  Click **New repository secret**.
-4.  Add each secret with the name and value as specified above.
+1. Navigate to your repository on GitHub.
+2. Go to **Settings > Secrets and variables > Actions**.
+3. Click **New repository secret**.
+4. Add each secret with the name and value as specified above.
 
 ### Local Development
 
-1.  Copy the `env.template` file to `.env`.
-2.  Update the `.env` file with the values for your local environment.
+1. Copy the `env.template` file to `.env`.
+2. Update the `.env` file with the values for your local environment.
 
 ## Security Best Practices
 
-*   **Never commit secrets to version control.**
-*   **Use the principle of least privilege when creating service accounts.**
-*   **Rotate secrets periodically.**
-*   **Use a secrets management tool for local development.**
+* **Never commit secrets to version control.**
+* **Use the principle of least privilege when creating service accounts.**
+* **Rotate secrets periodically.**
+* **Use a secrets management tool for local development.**

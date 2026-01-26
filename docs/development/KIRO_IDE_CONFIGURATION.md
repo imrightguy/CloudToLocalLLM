@@ -11,15 +11,18 @@ The project includes pre-configured custom modes in `temp_custom_modes.yaml` tha
 ### Available Custom Modes
 
 #### 1. Documentation Specialist (`docs-specialist`)
+
 **Purpose**: Technical writing expert for clear, comprehensive documentation
 
 **Capabilities**:
+
 - Explaining complex concepts simply
 - Creating well-structured documentation
 - Checking for broken links
 - Ensuring consistency in tone and style
 
 **File Access**: Restricted to documentation files only
+
 - Markdown files (`.md`, `.mdx`)
 - Text files (`.txt`, `.rst`, `.adoc`)
 - README and CHANGELOG files
@@ -27,9 +30,11 @@ The project includes pre-configured custom modes in `temp_custom_modes.yaml` tha
 **Usage**: Ideal for writing and improving project documentation, API docs, and user guides.
 
 #### 2. Code Reviewer (`code-reviewer`)
+
 **Purpose**: Senior software engineer conducting thorough code reviews
 
 **Capabilities**:
+
 - Code quality analysis
 - Security issue identification
 - Performance optimization suggestions
@@ -40,24 +45,29 @@ The project includes pre-configured custom modes in `temp_custom_modes.yaml` tha
 **Usage**: Perfect for reviewing pull requests, identifying code smells, and suggesting improvements.
 
 #### 3. Test Engineer (`test-engineer`)
+
 **Purpose**: QA engineer and testing specialist
 
 **Capabilities**:
+
 - Writing comprehensive tests
 - Debugging test failures
 - Improving code coverage
 - Edge case identification
 
 **File Access**: Restricted to test files only
+
 - JavaScript/TypeScript test files (`.test.js`, `.spec.ts`, etc.)
 - Test configuration files
 
 **Usage**: Specialized for creating and maintaining test suites, debugging test failures.
 
 #### 4. Code Simplifier (`code-simplifier`)
+
 **Purpose**: Expert refactoring specialist (Gemini integration)
 
 **Capabilities**:
+
 - Code complexity reduction
 - Redundancy elimination
 - Naming improvements
@@ -68,6 +78,7 @@ The project includes pre-configured custom modes in `temp_custom_modes.yaml` tha
 **File Access**: Full read/edit access with all tools available
 
 **Refactoring Methodology**:
+
 1. **Analyze Before Acting**: Understand code behavior and public interfaces
 2. **Preserve Behavior**: Maintain all external contracts and side effects
 3. **Simplification Techniques**: Apply systematic improvement patterns
@@ -83,7 +94,9 @@ The project includes pre-configured custom modes in `temp_custom_modes.yaml` tha
 The project includes MCP server configurations in `temp_mcp_settings.json`:
 
 #### 1. Playwright Server
+
 **Purpose**: Browser automation and end-to-end testing
+
 - Navigate to URLs
 - Take screenshots
 - Interact with web elements
@@ -91,25 +104,33 @@ The project includes MCP server configurations in `temp_mcp_settings.json`:
 - Monitor console logs
 
 #### 2. Context7 Server  
+
 **Purpose**: Up-to-date library documentation
+
 - Resolve library IDs
 - Fetch current documentation
 - Access API references
 
 #### 3. N8N MCP Server
+
 **Purpose**: Workflow automation
+
 - API integrations
 - Process automation
 - Data transformations
 
 #### 4. Sequential Thinking Server
+
 **Purpose**: Structured problem-solving
+
 - Step-by-step analysis
 - Logical reasoning chains
 - Complex problem breakdown
 
 #### 5. Chrome DevTools Server
+
 **Purpose**: Advanced browser debugging
+
 - Network request monitoring
 - Performance analysis
 - DOM inspection
@@ -128,21 +149,25 @@ The project includes MCP server configurations in `temp_mcp_settings.json`:
 The project includes several automation hooks in `.kiro/hooks/`:
 
 #### Auto-Commit Push Hook (`auto-commit-push.kiro.hook`)
+
 - Automatically commits and pushes changes
 - Integrates with CI/CD workflows
 - Maintains clean git history
 
 #### Flutter Lint Fix Hook (`flutter-lint-fix.kiro.hook`)  
+
 - Automatically fixes Flutter linting issues
 - Runs `dart fix --apply` on save
 - Maintains code quality standards
 
 #### Code Quality Analyzer Hook (`code-quality-analyzer.kiro.hook`)
+
 - Analyzes code quality metrics
 - Identifies potential improvements
 - Integrates with custom modes
 
 #### Source Documentation Sync Hook (`source-docs-sync.kiro.hook`)
+
 - Synchronizes code documentation
 - Updates API documentation
 - Maintains documentation consistency
@@ -152,6 +177,7 @@ The project includes several automation hooks in `.kiro/hooks/`:
 The project integrates with Gemini CLI for AI-powered development assistance:
 
 **Features**:
+
 - Semantic version analysis
 - Platform detection for deployments
 - Automated commit message generation
@@ -180,6 +206,7 @@ The project integrates with Gemini CLI for AI-powered development assistance:
 ### MCP Tool Usage
 
 1. **Browser Testing**: Use Playwright tools to test deployed applications
+
    ```javascript
    // Navigate to deployed app
    playwright_navigate({ url: "https://app.cloudtolocalllm.online" })
@@ -189,6 +216,7 @@ The project integrates with Gemini CLI for AI-powered development assistance:
    ```
 
 2. **Documentation Research**: Use Context7 for up-to-date library docs
+
    ```javascript
    // Get Flutter documentation
    resolve_library_id({ libraryName: "flutter" })
@@ -208,6 +236,7 @@ The project integrates with Gemini CLI for AI-powered development assistance:
 ## Configuration Files
 
 ### Custom Modes Configuration (`temp_custom_modes.yaml`)
+
 ```yaml
 customModes:
   - slug: mode-name
@@ -226,6 +255,7 @@ customModes:
 ```
 
 ### MCP Settings Configuration (`temp_mcp_settings.json`)
+
 ```json
 {
   "mcpServers": {
@@ -291,7 +321,7 @@ The Kiro IDE configuration enhances CloudToLocalLLM development through:
 
 ### Planned Improvements
 
-1. **Additional Custom Modes**: 
+1. **Additional Custom Modes**:
    - Database specialist for SQL and schema work
    - DevOps engineer for infrastructure tasks
    - Security auditor for security reviews

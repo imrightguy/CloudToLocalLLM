@@ -165,21 +165,25 @@ console.log('Blocked IPs:', stats.blockedIPs);
 ## Troubleshooting
 
 ### "Unable to retrieve public key"
+
 - Check SUPABASE_AUTH_DOMAIN is correct
 - Verify network connectivity to Auth0
 - Check firewall rules
 
 ### "Invalid signature"
+
 - Verify SUPABASE_AUTH_AUDIENCE matches your Auth0 API
 - Check token is from correct Auth0 tenant
 - Ensure token hasn't been tampered with
 
 ### "Token expired"
+
 - Token has expired - client needs to refresh
 - Check token expiration time (exp claim)
 - Implement token refresh flow in client
 
 ### "IP blocked"
+
 - Too many failed authentication attempts
 - Unblock with: `auditLogger.unblockIP(ip)`
 - Review audit logs for suspicious activity
@@ -208,6 +212,7 @@ console.log('Blocked IPs:', stats.blockedIPs);
 ## Support
 
 For issues or questions:
+
 - Review the full README.md
 - Check IMPLEMENTATION_SUMMARY.md
 - Review test files for examples

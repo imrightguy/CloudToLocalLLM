@@ -13,6 +13,7 @@ This document provides comprehensive design specifications for implementing the 
 ## 🎯 **Design Objectives**
 
 ### **Primary Goals**
+
 - **Secure Remote Access**: Enable users to access local AI models from anywhere through encrypted tunnels
 - **Seamless Web Interface**: Provide intuitive browser-based access to local LLM capabilities
 - **Cross-Platform Compatibility**: Support Windows, Linux, and macOS desktop clients
@@ -20,6 +21,7 @@ This document provides comprehensive design specifications for implementing the 
 - **CI/CD Integration**: Align with existing autonomous deployment and quality gates
 
 ### **Key Requirements**
+
 - **Zero-Configuration Setup**: Automatic tunnel establishment and management
 - **High Availability**: 99.9% uptime with automatic failover mechanisms
 - **Scalable Architecture**: Support for thousands of concurrent users
@@ -60,18 +62,21 @@ graph TB
 ### **Core Components**
 
 #### **1. Secure Tunnel System**
+
 - **WebSocket-based Communication**: Persistent, bidirectional connections
 - **JWT Authentication**: Auth0 integration with role-based access control
 - **Connection Multiplexing**: Multiple requests over single tunnel connection
 - **Automatic Reconnection**: Resilient connection management with exponential backoff
 
 #### **2. Web Interface**
+
 - **Flutter Web Application**: Unified codebase with desktop clients
 - **Responsive Design**: Optimized for desktop and mobile browsers
 - **Real-Time Streaming**: Live response streaming from local models
 - **Session Management**: Persistent user sessions with secure token handling
 
 #### **3. API Backend**
+
 - **Express.js Server**: High-performance Node.js backend
 - **Rate Limiting**: Per-user and global rate limiting with Redis
 - **Request Correlation**: Unique IDs for request/response matching
@@ -106,18 +111,21 @@ sequenceDiagram
 ### **Security Protocols**
 
 #### **Transport Security**
+
 - **TLS 1.3**: All communications encrypted with latest TLS standards
 - **Certificate Pinning**: Prevent man-in-the-middle attacks
 - **HSTS Headers**: Force HTTPS connections
 - **WebSocket Secure (WSS)**: Encrypted WebSocket connections
 
 #### **Authentication & Authorization**
+
 - **Auth0 Integration**: Enterprise-grade identity management
 - **JWT Tokens**: Stateless authentication with configurable expiration
 - **Role-Based Access Control (RBAC)**: Fine-grained permission system
 - **Multi-Factor Authentication (MFA)**: Optional 2FA for enhanced security
 
 #### **Data Protection**
+
 - **End-to-End Encryption**: Data encrypted from browser to local client
 - **Zero-Knowledge Architecture**: Cloud infrastructure cannot access user data
 - **Secure Key Exchange**: Ephemeral keys for session encryption
@@ -130,6 +138,7 @@ sequenceDiagram
 ### **Secure Tunnel Implementation**
 
 #### **WebSocket Protocol**
+
 ```javascript
 // Message Protocol Definition
 const MESSAGE_TYPES = {
@@ -157,6 +166,7 @@ const TUNNEL_CONFIG = {
 ```
 
 #### **Connection Management**
+
 - **Connection Pooling**: Efficient resource utilization
 - **Load Balancing**: Distribute connections across multiple servers
 - **Circuit Breaker**: Automatic failure detection and recovery
@@ -165,6 +175,7 @@ const TUNNEL_CONFIG = {
 ### **Web Interface Specifications**
 
 #### **Flutter Web Architecture**
+
 ```dart
 // Core Web Interface Components
 class SecureTunnelWebApp extends StatelessWidget {
@@ -190,6 +201,7 @@ class TunnelConnectionProvider extends StatefulWidget {
 ```
 
 #### **User Interface Components**
+
 - **Chat Interface**: Real-time conversation with local models
 - **Model Selection**: Dynamic model discovery and selection
 - **Settings Panel**: Connection and preference management
@@ -199,6 +211,7 @@ class TunnelConnectionProvider extends StatefulWidget {
 ### **API Backend Architecture**
 
 #### **Express.js Server Structure**
+
 ```javascript
 // Main Server Configuration
 const app = express();
@@ -220,6 +233,7 @@ app.use('/health', healthCheckRoutes);
 ```
 
 #### **Database Schema**
+
 ```sql
 -- User Sessions
 CREATE TABLE user_sessions (
@@ -260,6 +274,7 @@ CREATE TABLE audit_logs (
 ### **Phase 1: Core Infrastructure (Weeks 1-4)**
 
 #### **Task 1.1: Secure Tunnel Backend**
+
 - **Description**: Implement WebSocket-based tunnel server with JWT authentication
 - **Acceptance Criteria**:
   - WebSocket server handles 1000+ concurrent connections
@@ -271,6 +286,7 @@ CREATE TABLE audit_logs (
 - **Files**: `services/api-backend/tunnel/`
 
 #### **Task 1.2: Database Schema Setup**
+
 - **Description**: Create database tables for user sessions, connections, and audit logs
 - **Acceptance Criteria**:
   - PostgreSQL schema with proper indexing
@@ -282,6 +298,7 @@ CREATE TABLE audit_logs (
 - **Files**: `config/database/`
 
 #### **Task 1.3: Authentication Service**
+
 - **Description**: Integrate Auth0 JWT validation with role-based access control
 - **Acceptance Criteria**:
   - Auth0 configuration and integration
@@ -295,6 +312,7 @@ CREATE TABLE audit_logs (
 ### **Phase 2: Web Interface Development (Weeks 5-8)**
 
 #### **Task 2.1: Flutter Web Application**
+
 - **Description**: Develop responsive web interface using Flutter
 - **Acceptance Criteria**:
   - Responsive design for desktop and mobile
@@ -306,6 +324,7 @@ CREATE TABLE audit_logs (
 - **Files**: `lib/web/`, `web/`
 
 #### **Task 2.2: WebSocket Client Integration**
+
 - **Description**: Implement client-side WebSocket handling for tunnel communication
 - **Acceptance Criteria**:
   - Automatic connection establishment
@@ -317,6 +336,7 @@ CREATE TABLE audit_logs (
 - **Files**: `lib/services/tunnel/`
 
 #### **Task 2.3: Security Implementation**
+
 - **Description**: Implement client-side security measures and data protection
 - **Acceptance Criteria**:
   - Secure token storage and management
@@ -330,6 +350,7 @@ CREATE TABLE audit_logs (
 ### **Phase 3: Desktop Client Integration (Weeks 9-12)**
 
 #### **Task 3.1: Desktop Tunnel Client**
+
 - **Description**: Implement desktop client for tunnel connections to local Ollama
 - **Acceptance Criteria**:
   - Cross-platform compatibility (Windows, Linux, macOS)
@@ -341,6 +362,7 @@ CREATE TABLE audit_logs (
 - **Files**: `lib/desktop/tunnel/`
 
 #### **Task 3.2: Local Model Management**
+
 - **Description**: Implement model discovery, selection, and management
 - **Acceptance Criteria**:
   - Automatic model detection from Ollama
@@ -352,6 +374,7 @@ CREATE TABLE audit_logs (
 - **Files**: `lib/services/models/`
 
 #### **Task 3.3: Cross-Platform Packaging**
+
 - **Description**: Create installation packages for all supported platforms
 - **Acceptance Criteria**:
   - Windows MSI installer with auto-update
@@ -369,6 +392,7 @@ CREATE TABLE audit_logs (
 ### **Autonomous Deployment Integration**
 
 #### **VPS Deployment Scripts**
+
 ```bash
 # Enhanced deployment script for tunnel components
 #!/bin/bash
@@ -405,6 +429,7 @@ verify_tunnel_endpoints() {
 ```
 
 #### **PowerShell Integration**
+
 ```powershell
 # Enhanced PowerShell deployment for tunnel components
 # scripts/powershell/Deploy-TunnelSystem.ps1
@@ -431,6 +456,7 @@ function Deploy-TunnelSystem {
 ```
 
 ### **GitHub Actions Workflow**
+
 ```yaml
 # .github/workflows/tunnel-deployment.yml
 name: Tunnel System Deployment
@@ -475,18 +501,21 @@ jobs:
 ### **Security Testing Requirements**
 
 #### **Penetration Testing**
+
 - **Authentication Bypass**: Attempt to bypass Auth0 JWT validation
 - **Session Hijacking**: Test for session token vulnerabilities
 - **WebSocket Security**: Validate WSS connection security
 - **Input Validation**: Test for injection attacks and XSS
 
 #### **Performance Testing**
+
 - **Load Testing**: 1000+ concurrent WebSocket connections
 - **Stress Testing**: Peak load scenarios with graceful degradation
 - **Latency Testing**: Sub-100ms response times for tunnel communication
 - **Scalability Testing**: Horizontal scaling validation
 
 #### **Integration Testing**
+
 - **Cross-Platform**: Test on Windows, Linux, and macOS
 - **Browser Compatibility**: Chrome, Firefox, Safari, Edge
 - **Network Conditions**: Various network speeds and reliability
@@ -495,6 +524,7 @@ jobs:
 ### **Quality Gates Integration**
 
 #### **Zero-Tolerance Security Gates**
+
 ```bash
 # Security validation script
 #!/bin/bash
@@ -519,6 +549,7 @@ validate_tunnel_security() {
 ```
 
 #### **Performance Quality Gates**
+
 ```javascript
 // Performance validation
 const PERFORMANCE_THRESHOLDS = {
@@ -535,12 +566,14 @@ const PERFORMANCE_THRESHOLDS = {
 ## 📚 **Documentation Integration**
 
 ### **Cross-References**
+
 - **** - Current tunnel implementation
 - **[System Architecture](SYSTEM_ARCHITECTURE.md)** - Overall system design
 - **** - Deployment procedures
 - **** - Security guidelines
 
 ### **API Documentation**
+
 - **** - WebSocket API specification
 - **** - Auth0 integration details
 - **** - Frontend API documentation
@@ -550,6 +583,7 @@ const PERFORMANCE_THRESHOLDS = {
 ## 🎯 **Success Criteria**
 
 ### **Functional Requirements**
+
 - ✅ Users can access local models through web browser
 - ✅ Secure tunnel establishment within 5 seconds
 - ✅ Real-time streaming with <100ms latency
@@ -557,6 +591,7 @@ const PERFORMANCE_THRESHOLDS = {
 - ✅ 99.9% uptime with automatic failover
 
 ### **Security Requirements**
+
 - ✅ Zero-trust security architecture
 - ✅ End-to-end encryption for all communications
 - ✅ Comprehensive audit logging
@@ -564,6 +599,7 @@ const PERFORMANCE_THRESHOLDS = {
 - ✅ Compliance with security best practices
 
 ### **Performance Requirements**
+
 - ✅ Support 1000+ concurrent users
 - ✅ Sub-100ms response times
 - ✅ Automatic scaling based on demand
@@ -636,6 +672,7 @@ CloudToLocalLLM/
 ### **Configuration Management**
 
 #### **Environment Configuration**
+
 ```yaml
 # config/tunnel/production.yml
 tunnel:
@@ -671,6 +708,7 @@ tunnel:
 ```
 
 #### **Docker Configuration**
+
 ```dockerfile
 # config/docker/Dockerfile.tunnel-backend
 FROM node:18-alpine
@@ -702,6 +740,7 @@ CMD ["node", "tunnel/tunnel-server.js"]
 ### **Monitoring and Observability**
 
 #### **Metrics Collection**
+
 ```javascript
 // services/api-backend/monitoring/metrics.js
 const prometheus = require('prom-client');
@@ -734,6 +773,7 @@ const tunnelMetrics = {
 ```
 
 #### **Health Check Implementation**
+
 ```javascript
 // services/api-backend/health/tunnel-health.js
 class TunnelHealthChecker {
@@ -760,6 +800,7 @@ class TunnelHealthChecker {
 ### **Security Implementation Details**
 
 #### **JWT Validation Middleware**
+
 ```javascript
 // services/api-backend/auth/jwt-middleware.js
 const jwt = require('jsonwebtoken');
@@ -797,6 +838,7 @@ class JWTValidator {
 ```
 
 #### **Rate Limiting Implementation**
+
 ```javascript
 // services/api-backend/security/rate-limiter.js
 const Redis = require('redis');
@@ -836,7 +878,9 @@ class TunnelRateLimiter {
 ### **Phase 1: Core Infrastructure (Weeks 1-4)**
 
 #### **Task 1.1: Secure Tunnel Backend**
+
 **Subtasks:**
+
 1. **WebSocket Server Setup** (3 days)
    - Configure Express.js with WebSocket support
    - Implement connection handling and lifecycle management
@@ -863,6 +907,7 @@ class TunnelRateLimiter {
    - Security headers and CORS configuration
 
 **Acceptance Criteria:**
+
 - [ ] WebSocket server handles 1000+ concurrent connections
 - [ ] JWT validation with Auth0 integration working
 - [ ] Message protocol with correlation IDs implemented
@@ -871,7 +916,9 @@ class TunnelRateLimiter {
 - [ ] Comprehensive logging and metrics collection
 
 #### **Task 1.2: Database Schema Setup**
+
 **Subtasks:**
+
 1. **Schema Design** (2 days)
    - Design tables for sessions, connections, audit logs
    - Create indexes for performance optimization
@@ -893,6 +940,7 @@ class TunnelRateLimiter {
    - Disaster recovery documentation
 
 **Acceptance Criteria:**
+
 - [ ] PostgreSQL schema with proper indexing
 - [ ] Migration scripts with rollback capability
 - [ ] Connection pooling with health monitoring
@@ -900,7 +948,9 @@ class TunnelRateLimiter {
 - [ ] Performance benchmarks meeting requirements
 
 #### **Task 1.3: Authentication Service**
+
 **Subtasks:**
+
 1. **Auth0 Configuration** (2 days)
    - Set up Auth0 application and APIs
    - Configure JWT token settings
@@ -922,6 +972,7 @@ class TunnelRateLimiter {
    - Admin interface for role management
 
 **Acceptance Criteria:**
+
 - [ ] Auth0 integration with custom configuration
 - [ ] JWT validation with proper error handling
 - [ ] Secure session management with timeout
@@ -931,7 +982,9 @@ class TunnelRateLimiter {
 ### **Phase 2: Web Interface Development (Weeks 5-8)**
 
 #### **Task 2.1: Flutter Web Application**
+
 **Subtasks:**
+
 1. **Project Structure Setup** (2 days)
    - Configure Flutter web project
    - Set up routing and navigation
@@ -959,6 +1012,7 @@ class TunnelRateLimiter {
    - Security status indicators
 
 **Acceptance Criteria:**
+
 - [ ] Responsive design working on all screen sizes
 - [ ] Real-time chat with streaming responses
 - [ ] Model selection with capability display
@@ -966,7 +1020,9 @@ class TunnelRateLimiter {
 - [ ] Dashboard with real-time status updates
 
 #### **Task 2.2: WebSocket Client Integration**
+
 **Subtasks:**
+
 1. **Connection Management** (3 days)
    - WebSocket connection establishment
    - Automatic reconnection with exponential backoff
@@ -988,6 +1044,7 @@ class TunnelRateLimiter {
    - Latency optimization
 
 **Acceptance Criteria:**
+
 - [ ] Automatic connection with retry logic
 - [ ] Message correlation working correctly
 - [ ] Authentication flow integrated
@@ -995,7 +1052,9 @@ class TunnelRateLimiter {
 - [ ] Error handling with user feedback
 
 #### **Task 2.3: Security Implementation**
+
 **Subtasks:**
+
 1. **Token Management** (2 days)
    - Secure token storage
    - Token refresh handling
@@ -1017,6 +1076,7 @@ class TunnelRateLimiter {
    - User behavior monitoring
 
 **Acceptance Criteria:**
+
 - [ ] Secure token storage and management
 - [ ] Input validation preventing attacks
 - [ ] CSP implementation blocking malicious content
@@ -1028,7 +1088,9 @@ class TunnelRateLimiter {
 ### **Phase 3: Desktop Client Integration (Weeks 9-12)**
 
 #### **Task 3.1: Desktop Tunnel Client**
+
 **Subtasks:**
+
 1. **Cross-Platform Client** (4 days)
    - Flutter desktop implementation
    - Platform-specific optimizations
@@ -1050,6 +1112,7 @@ class TunnelRateLimiter {
    - Background operation mode
 
 **Acceptance Criteria:**
+
 - [ ] Cross-platform compatibility (Windows, Linux, macOS)
 - [ ] Automatic Ollama discovery and connection
 - [ ] System tray with status indicators
@@ -1057,7 +1120,9 @@ class TunnelRateLimiter {
 - [ ] Background operation with minimal resource usage
 
 #### **Task 3.2: Local Model Management**
+
 **Subtasks:**
+
 1. **Model Discovery** (2 days)
    - Automatic model detection
    - Model metadata extraction
@@ -1079,6 +1144,7 @@ class TunnelRateLimiter {
    - User notification system
 
 **Acceptance Criteria:**
+
 - [ ] Automatic model detection and metadata
 - [ ] Performance monitoring with metrics
 - [ ] Optimization for resource efficiency
@@ -1086,7 +1152,9 @@ class TunnelRateLimiter {
 - [ ] User-friendly status reporting
 
 #### **Task 3.3: Cross-Platform Packaging**
+
 **Subtasks:**
+
 1. **Windows Packaging** (3 days)
    - MSI installer creation
    - Auto-update mechanism
@@ -1108,6 +1176,7 @@ class TunnelRateLimiter {
    - Quality gate integration
 
 **Acceptance Criteria:**
+
 - [ ] Windows MSI with auto-update
 - [ ] Linux packages (AppImage, DEB)
 - [ ] macOS DMG with notarization
@@ -1121,6 +1190,7 @@ class TunnelRateLimiter {
 ### **Enhanced Deployment Pipeline**
 
 #### **Tunnel-Specific Quality Gates**
+
 ```bash
 #!/bin/bash
 # scripts/deploy/tunnel_quality_gates.sh
@@ -1163,6 +1233,7 @@ validate_tunnel_security() {
 ```
 
 #### **PowerShell Deployment Enhancement**
+
 ```powershell
 # scripts/powershell/Deploy-TunnelSystem.ps1
 
@@ -1231,6 +1302,7 @@ function Test-TunnelPrerequisites {
 ```
 
 ### **GitHub Actions Workflow Enhancement**
+
 ```yaml
 # .github/workflows/tunnel-system-ci-cd.yml
 name: Tunnel System CI/CD
@@ -1451,6 +1523,7 @@ jobs:
 ### **Comprehensive Monitoring Setup**
 
 #### **Prometheus Metrics Configuration**
+
 ```yaml
 # config/monitoring/prometheus.yml
 global:
@@ -1481,6 +1554,7 @@ alerting:
 ```
 
 #### **Alert Rules**
+
 ```yaml
 # config/monitoring/tunnel_alerts.yml
 groups:
@@ -1526,6 +1600,7 @@ groups:
 ### **Logging and Audit Trail**
 
 #### **Structured Logging Configuration**
+
 ```javascript
 // services/api-backend/logging/tunnel-logger.js
 const winston = require('winston');
@@ -1570,6 +1645,7 @@ tunnelLogger.logSecurity = (event, userId, metadata) => {
 ## 🎯 **Final Implementation Checklist**
 
 ### **Pre-Implementation Requirements**
+
 - [ ] Auth0 tenant configured with appropriate settings
 - [ ] PostgreSQL database provisioned with proper permissions
 - [ ] Redis instance configured for rate limiting and caching
@@ -1578,6 +1654,7 @@ tunnelLogger.logSecurity = (event, userId, metadata) => {
 - [ ] GitHub repository secrets configured for CI/CD
 
 ### **Phase 1 Completion Criteria**
+
 - [ ] WebSocket server handling 1000+ concurrent connections
 - [ ] JWT authentication with Auth0 integration
 - [ ] Database schema with proper indexing and constraints
@@ -1586,6 +1663,7 @@ tunnelLogger.logSecurity = (event, userId, metadata) => {
 - [ ] All security tests passing with zero vulnerabilities
 
 ### **Phase 2 Completion Criteria**
+
 - [ ] Flutter web interface with responsive design
 - [ ] Real-time chat with streaming responses
 - [ ] WebSocket client with automatic reconnection
@@ -1594,6 +1672,7 @@ tunnelLogger.logSecurity = (event, userId, metadata) => {
 - [ ] Cross-browser compatibility validated
 
 ### **Phase 3 Completion Criteria**
+
 - [ ] Cross-platform desktop client (Windows, Linux, macOS)
 - [ ] Automatic Ollama integration and model discovery
 - [ ] System tray integration with status indicators
@@ -1602,6 +1681,7 @@ tunnelLogger.logSecurity = (event, userId, metadata) => {
 - [ ] CI/CD pipeline fully integrated
 
 ### **Production Readiness Checklist**
+
 - [ ] Load testing with 1000+ concurrent users passed
 - [ ] Security penetration testing completed
 - [ ] Disaster recovery procedures tested

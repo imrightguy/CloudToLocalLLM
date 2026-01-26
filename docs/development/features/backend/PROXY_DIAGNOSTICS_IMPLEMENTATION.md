@@ -15,6 +15,7 @@ This implementation provides comprehensive diagnostics, log collection, and trou
 A comprehensive service for managing proxy diagnostics with the following capabilities:
 
 #### Core Features
+
 - **Proxy Registration**: Register and unregister proxies for diagnostics tracking
 - **Log Collection**: Collect and store diagnostic logs with filtering capabilities
 - **Error Tracking**: Record and retrieve error history with context
@@ -27,12 +28,14 @@ A comprehensive service for managing proxy diagnostics with the following capabi
 #### Key Methods
 
 **Registration:**
+
 ```javascript
 registerProxy(proxyId, proxyMetadata)
 unregisterProxy(proxyId)
 ```
 
 **Log Management:**
+
 ```javascript
 addDiagnosticLog(proxyId, logEntry)
 getDiagnosticLogs(proxyId, options)
@@ -40,18 +43,21 @@ cleanOldLogs(proxyId)
 ```
 
 **Error Management:**
+
 ```javascript
 recordError(proxyId, error, context)
 getErrorHistory(proxyId, options)
 ```
 
 **Event Management:**
+
 ```javascript
 recordEvent(proxyId, eventType, eventData)
 getEventHistory(proxyId, options)
 ```
 
 **Diagnostics & Troubleshooting:**
+
 ```javascript
 getDiagnostics(proxyId)
 getTroubleshootingInfo(proxyId)
@@ -64,6 +70,7 @@ clearDiagnostics(proxyId)
 ```
 
 #### Configuration
+
 - `PROXY_MAX_LOGS` - Maximum logs per proxy (default: 1000)
 - `PROXY_MAX_ERRORS` - Maximum errors per proxy (default: 100)
 - `PROXY_MAX_EVENTS` - Maximum events per proxy (default: 500)
@@ -76,37 +83,45 @@ Express router providing REST API endpoints for proxy diagnostics:
 #### Endpoints
 
 **GET /proxy/diagnostics/:proxyId**
+
 - Get comprehensive diagnostics for a proxy
 - Returns: diagnosticStatus, summary, recentLogs, recentErrors, recentEvents
 
 **GET /proxy/diagnostics/:proxyId/logs**
+
 - Get diagnostic logs with filtering
 - Query params: level, since, limit
 - Returns: array of log entries
 
 **GET /proxy/diagnostics/:proxyId/errors**
+
 - Get error history
 - Query params: since, limit
 - Returns: array of error entries
 
 **GET /proxy/diagnostics/:proxyId/events**
+
 - Get event history
 - Query params: type, since, limit
 - Returns: array of event entries
 
 **GET /proxy/diagnostics/:proxyId/troubleshooting**
+
 - Get troubleshooting information
 - Returns: suggestions, commonIssues, recommendedActions
 
 **GET /proxy/diagnostics/:proxyId/export**
+
 - Export complete diagnostics data
 - Returns: JSON file with all diagnostics data
 
 **POST /proxy/diagnostics/:proxyId/clear**
+
 - Clear diagnostics data (admin only)
 - Returns: confirmation message
 
 #### Authentication & Authorization
+
 - All endpoints require JWT authentication
 - Clear endpoint requires admin role
 - Tier information is added to all requests
@@ -118,6 +133,7 @@ Full test coverage with 22 passing tests:
 #### Test Categories
 
 **Route Tests:**
+
 - GET /proxy/diagnostics/:proxyId
 - GET /proxy/diagnostics/:proxyId/logs (with filtering)
 - GET /proxy/diagnostics/:proxyId/errors
@@ -127,6 +143,7 @@ Full test coverage with 22 passing tests:
 - POST /proxy/diagnostics/:proxyId/clear (with admin check)
 
 **Service Tests:**
+
 - Proxy registration/unregistration
 - Log collection and size management
 - Error tracking and history
@@ -150,6 +167,7 @@ The service determines proxy health based on error frequency:
 ### Automatic Issue Detection
 
 The service identifies common issues:
+
 - **Connection errors** - Network connectivity problems
 - **Timeout errors** - Request timeout issues
 - **Resource errors** - Memory or resource constraints
@@ -157,6 +175,7 @@ The service identifies common issues:
 ### Suggestion Generation
 
 Based on error patterns, the service generates:
+
 - Issue description
 - Suggested action
 - Severity level
@@ -165,6 +184,7 @@ Based on error patterns, the service generates:
 ### Recommended Actions
 
 For each identified issue, the service provides:
+
 - Action description
 - Step-by-step instructions
 - Relevant configuration options
@@ -172,16 +192,19 @@ For each identified issue, the service provides:
 ## Integration Points
 
 ### With ProxyHealthService
+
 - Complements health checks with detailed diagnostics
 - Provides context for health status changes
 - Tracks recovery attempts and outcomes
 
 ### With ProxyMetricsService
+
 - Correlates metrics with error events
 - Identifies performance degradation patterns
 - Tracks usage during error conditions
 
 ### With ProxyConfigService
+
 - Logs configuration changes
 - Tracks configuration-related errors
 - Suggests configuration adjustments

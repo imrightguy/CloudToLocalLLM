@@ -7,12 +7,14 @@ This document outlines the comprehensive implementation plan for integrating Clo
 ## Current State Analysis
 
 ### ✅ Successfully Implemented
+
 - Cloudflare tunnel diagnostic script with API integration
 - Tunnel health monitoring and connectivity testing
 - Identification of remote configuration management
 - Manual remediation procedures documented
 
 ### ❌ Identified Issues
+
 - ArgoCD tunnel configuration mismatch (HTTPS/443 vs HTTP/80)
 - DNS token creation failure (JSON formatting issue)
 - Remote tunnel configuration preventing API updates
@@ -23,6 +25,7 @@ This document outlines the comprehensive implementation plan for integrating Clo
 ### Phase 1: API Integration Setup
 
 #### 1.1 Secure API Key Management
+
 ```bash
 # Create Kubernetes secret for Cloudflare API credentials
 kubectl create secret generic cloudflare-api-credentials \
@@ -33,12 +36,14 @@ kubectl create secret generic cloudflare-api-credentials \
 ```
 
 #### 1.2 DNS Automation Token Creation
+
 - Fix JSON formatting in token creation script
 - Implement proper permission scoping (DNS Write only)
 - Add token rotation and expiration handling
 - Store token securely in Kubernetes secrets
 
 #### 1.3 Error Handling and Authentication
+
 ```bash
 # Implement robust error handling
 cf_api_call() {
@@ -62,12 +67,15 @@ cf_api_call() {
 ### Phase 2: Tunnel Configuration Management
 
 #### 2.1 Remote Configuration Detection
+
 - Automatically detect if tunnel uses remote vs local configuration
 - Provide appropriate remediation steps based on configuration source
 - Implement configuration drift detection
 
 #### 2.2 Manual Configuration Workflow
+
 **Required Manual Actions:**
+
 1. Access Cloudflare Dashboard: https://dash.cloudflare.com/
 2. Navigate: Zero Trust → Networks → Tunnels
 3. Locate tunnel: `cloudtolocalllm-aks` (ID: 62da6c19-947b-4bf6-acad-100a73de4e0d)
@@ -77,6 +85,7 @@ cf_api_call() {
 5. Save and apply configuration
 
 #### 2.3 Configuration Validation
+
 ```bash
 # Automated validation script
 validate_tunnel_config() {
@@ -101,6 +110,7 @@ validate_tunnel_config() {
 ### Phase 3: DNS Automation Implementation
 
 #### 3.1 Dynamic DNS Record Management
+
 ```bash
 # Create/update DNS records via API
 create_dns_record() {
@@ -122,6 +132,7 @@ create_dns_record() {
 ```
 
 #### 3.2 Subdomain Management for Services
+
 - **ArgoCD**: `argocd.cloudtolocalllm.online`
 - **Grafana**: `grafana.cloudtolocalllm.online`
 - **API Backend**: `api.cloudtolocalllm.online`
@@ -129,6 +140,7 @@ create_dns_record() {
 - **Root Domain**: `cloudtolocalllm.online`
 
 #### 3.3 DNS Health Monitoring
+
 ```bash
 # Monitor DNS propagation and health
 monitor_dns_health() {
@@ -151,6 +163,7 @@ monitor_dns_health() {
 ### Phase 4: Testing and Validation
 
 #### 4.1 External Access Verification
+
 ```bash
 # Comprehensive connectivity testing
 test_external_access() {
@@ -191,6 +204,7 @@ test_external_access() {
 ```
 
 #### 4.2 Internal Connectivity Validation
+
 ```bash
 # Test internal service connectivity
 test_internal_connectivity() {
@@ -206,6 +220,7 @@ test_internal_connectivity() {
 ### Phase 5: Monitoring and Alerting
 
 #### 5.1 Tunnel Health Monitoring
+
 ```yaml
 # Prometheus alerting rules for tunnel health
 groups:
@@ -231,6 +246,7 @@ groups:
 ```
 
 #### 5.2 DNS Propagation Monitoring
+
 ```bash
 # DNS health check script
 check_dns_propagation() {
@@ -252,6 +268,7 @@ check_dns_propagation() {
 ### Phase 6: Operational Integration
 
 #### 6.1 CI/CD Pipeline Integration
+
 ```yaml
 # GitHub Actions workflow integration
 - name: Validate Cloudflare Configuration
@@ -266,6 +283,7 @@ check_dns_propagation() {
 ```
 
 #### 6.2 Automated Remediation
+
 ```bash
 # Automated tunnel restart on failures
 remediate_tunnel_issues() {
@@ -290,6 +308,7 @@ remediate_tunnel_issues() {
 ## Success Metrics and KPIs
 
 ### Target Improvements
+
 - **Domain Accessibility**: 20% → 100% (all subdomains functional)
 - **ArgoCD Health**: 60% → 100% (fully operational)
 - **Build Success Rate**: ~75% → >98%
@@ -297,6 +316,7 @@ remediate_tunnel_issues() {
 - **DNS Propagation Time**: <5 minutes
 
 ### Monitoring Dashboards
+
 - Cloudflare tunnel status and connectivity
 - DNS resolution and propagation metrics
 - Service availability and response times
@@ -305,11 +325,13 @@ remediate_tunnel_issues() {
 ## Risk Assessment and Mitigation
 
 ### High-Risk Items
+
 1. **API Key Compromise**: Implement token rotation and least-privilege access
 2. **DNS Configuration Errors**: Add validation and rollback capabilities
 3. **Service Disruption**: Implement gradual rollout and health checks
 
 ### Mitigation Strategies
+
 - Regular security audits and credential rotation
 - Comprehensive testing in staging environment
 - Automated rollback procedures for failed deployments
@@ -318,21 +340,25 @@ remediate_tunnel_issues() {
 ## Implementation Timeline
 
 ### Week 1: Foundation
+
 - ✅ API integration setup
 - ✅ DNS token creation and management
 - ✅ Basic diagnostic scripts
 
 ### Week 2: Core Functionality
+
 - ✅ Tunnel configuration validation
 - ✅ DNS automation implementation
 - ✅ External access testing
 
 ### Week 3: Monitoring and Automation
+
 - ✅ Health monitoring and alerting
 - ✅ CI/CD pipeline integration
 - ✅ Automated remediation
 
 ### Week 4: Optimization and Documentation
+
 - ✅ Performance optimization
 - ✅ Comprehensive documentation
 - ✅ Training and handover

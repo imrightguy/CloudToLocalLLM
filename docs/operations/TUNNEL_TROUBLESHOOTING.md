@@ -26,6 +26,7 @@ START
 ### Problem: Cannot Connect to Tunnel
 
 **Symptoms:**
+
 - Connection fails immediately
 - Error: "Connection refused"
 - Error code: TUNNEL_001
@@ -33,6 +34,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check network connectivity:**
+
    ```bash
    # Test DNS resolution
    nslookup proxy.cloudtolocalllm.online
@@ -51,6 +53,7 @@ START
    - Check antivirus/security software
 
 3. **Verify server availability:**
+
    ```bash
    # Check server health
    curl https://proxy.cloudtolocalllm.online/api/tunnel/health
@@ -75,6 +78,7 @@ START
 | Network timeout | Check network speed, try from different network |
 
 **Example Log Output:**
+
 ```
 [ERROR] Connection failed: Connection refused
 [ERROR] Error code: TUNNEL_001
@@ -89,6 +93,7 @@ START
 ### Problem: Connection Drops Frequently
 
 **Symptoms:**
+
 - Connection established but drops after a few seconds
 - Frequent reconnection attempts
 - Error: "Connection lost"
@@ -96,6 +101,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check network stability:**
+
    ```bash
    # Monitor packet loss
    ping -c 100 proxy.cloudtolocalllm.online
@@ -109,6 +115,7 @@ START
    - Check packet loss: Should be < 5%
 
 3. **Check server logs:**
+
    ```bash
    # Get server logs
    kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm
@@ -132,6 +139,7 @@ START
 | Too many reconnections | Check server logs for errors |
 
 **Example Log Output:**
+
 ```
 [WARN] Connection lost after 15 seconds
 [WARN] Reconnection attempt 1/10
@@ -146,6 +154,7 @@ START
 ### Problem: Authentication Fails
 
 **Symptoms:**
+
 - Error: "Authentication failed"
 - Error code: TUNNEL_002 or TUNNEL_003
 - Connection rejected immediately
@@ -153,6 +162,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check JWT token:**
+
    ```bash
    # Decode JWT token (online tool or jwt-cli)
    jwt decode <token>
@@ -167,6 +177,7 @@ START
    - Verify redirect URI is configured
 
 3. **Check token refresh:**
+
    ```bash
    # If token is expired, refresh it
    curl -X POST https://auth.cloudtolocalllm.online/oauth/token \
@@ -190,6 +201,7 @@ START
 | User not authorized | Check user permissions in Auth0 |
 
 **Example Log Output:**
+
 ```
 [ERROR] Authentication failed
 [ERROR] Error code: TUNNEL_003
@@ -207,6 +219,7 @@ START
 ### Problem: Requests Timeout
 
 **Symptoms:**
+
 - Requests take > 30 seconds
 - Error: "Request timeout"
 - Error code: TUNNEL_007
@@ -214,6 +227,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check server load:**
+
    ```bash
    # Get server diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
@@ -233,6 +247,7 @@ START
    - Verify SSH credentials are correct
 
 4. **Check network latency:**
+
    ```bash
    # Measure latency
    ping proxy.cloudtolocalllm.online
@@ -251,6 +266,7 @@ START
 | Timeout too short | Increase timeout in configuration |
 
 **Example Log Output:**
+
 ```
 [WARN] Request timeout after 30 seconds
 [WARN] Request ID: req-123
@@ -265,6 +281,7 @@ START
 ### Problem: Requests Fail with Rate Limit Error
 
 **Symptoms:**
+
 - Error: "Rate limit exceeded"
 - Error code: TUNNEL_005
 - HTTP status: 429 Too Many Requests
@@ -277,6 +294,7 @@ START
    - Check if burst of requests
 
 2. **Check user tier:**
+
    ```bash
    # Verify user tier in Auth0
    # Free: 100 req/min
@@ -285,6 +303,7 @@ START
    ```
 
 3. **Check rate limit headers:**
+
    ```bash
    # Response headers show rate limit status
    X-RateLimit-Limit: 100
@@ -303,6 +322,7 @@ START
 | Concurrent requests | Reduce concurrent connections |
 
 **Example Log Output:**
+
 ```
 [ERROR] Rate limit exceeded
 [ERROR] Error code: TUNNEL_005
@@ -318,6 +338,7 @@ START
 ### Problem: Requests Fail with Queue Full Error
 
 **Symptoms:**
+
 - Error: "Queue full"
 - Error code: TUNNEL_006
 - Requests are being dropped
@@ -325,6 +346,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check queue size:**
+
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
@@ -354,6 +376,7 @@ START
 | Queue size too small | Increase queue size in configuration |
 
 **Example Log Output:**
+
 ```
 [ERROR] Queue full
 [ERROR] Error code: TUNNEL_006
@@ -370,6 +393,7 @@ START
 ### Problem: High Latency
 
 **Symptoms:**
+
 - Requests take 200ms+ to complete
 - Performance degraded
 - Slow response times
@@ -377,6 +401,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check latency metrics:**
+
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
@@ -392,6 +417,7 @@ START
    - Processing latency: Check request complexity
 
 3. **Check network conditions:**
+
    ```bash
    # Measure network latency
    ping -c 10 proxy.cloudtolocalllm.online
@@ -400,6 +426,7 @@ START
    ```
 
 4. **Check server load:**
+
    ```bash
    # Get server metrics
    curl https://proxy.cloudtolocalllm.online/api/tunnel/metrics
@@ -418,6 +445,7 @@ START
 | Inefficient queries | Optimize database queries |
 
 **Example Log Output:**
+
 ```
 [WARN] High latency detected
 [WARN] Average latency: 250ms (target: < 100ms)
@@ -432,6 +460,7 @@ START
 ### Problem: High Error Rate
 
 **Symptoms:**
+
 - Many requests failing
 - Error rate > 5%
 - Errors in logs
@@ -439,6 +468,7 @@ START
 **Diagnosis Steps:**
 
 1. **Check error rate:**
+
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
@@ -454,6 +484,7 @@ START
    - Protocol errors: Protocol issues
 
 3. **Check server logs:**
+
    ```bash
    # Get server logs
    kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm
@@ -462,6 +493,7 @@ START
    ```
 
 4. **Check circuit breaker:**
+
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
@@ -481,6 +513,7 @@ START
 | Circuit breaker open | Wait for recovery (60 seconds) |
 
 **Example Log Output:**
+
 ```
 [ERROR] High error rate detected
 [ERROR] Error rate: 8% (threshold: 5%)
@@ -629,6 +662,7 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 **Cause:** Server is not running or port is blocked
 
 **Solution:**
+
 1. Check server status: `curl https://proxy.cloudtolocalllm.online/api/tunnel/health`
 2. Check firewall: Ensure port 443 is open
 3. Check DNS: Verify proxy.cloudtolocalllm.online resolves correctly
@@ -641,6 +675,7 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 **Cause:** JWT token has expired
 
 **Solution:**
+
 1. Refresh token: Use refresh token to get new access token
 2. Re-authenticate: Log in again to get new token
 3. Check token expiration: Decode token to see expiration time
@@ -652,6 +687,7 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 **Cause:** Too many requests sent too quickly
 
 **Solution:**
+
 1. Reduce request rate: Implement throttling
 2. Upgrade tier: Upgrade to premium for higher limits
 3. Wait for reset: Check X-RateLimit-Reset header
@@ -664,6 +700,7 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 **Cause:** Too many failures detected
 
 **Solution:**
+
 1. Wait for recovery: Circuit breaker resets after 60 seconds
 2. Check server: Verify SSH server is running
 3. Check logs: Look for error patterns
@@ -676,6 +713,7 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 **Cause:** Too many requests queued
 
 **Solution:**
+
 1. Reduce request rate: Send fewer requests
 2. Increase queue size: Update configuration
 3. Check SSH server: Verify it's processing requests
@@ -690,18 +728,21 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 Before contacting support, collect:
 
 1. **Diagnostic report:**
+
    ```dart
    final report = await tunnelService.runDiagnostics();
    // Save report to file
    ```
 
 2. **Server diagnostics:**
+
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
      https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics > diagnostics.json
    ```
 
 3. **Logs:**
+
    ```bash
    # Client logs (from app)
    # Server logs
@@ -724,6 +765,7 @@ Before contacting support, collect:
 ### Providing Feedback
 
 Include in support request:
+
 1. Description of issue
 2. Steps to reproduce
 3. Expected behavior

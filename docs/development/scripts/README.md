@@ -8,12 +8,14 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 ## 📁 Directory Structure
 
 ### Core Scripts
+
 - **build_time_version_injector.sh** - Injects build timestamps into application
 - **build_unified_package.sh** - Creates unified packages for distribution
 - **flutter_build_with_timestamp.sh** - Builds Flutter apps with timestamp injection
 - **version_manager.sh** - Manages version numbers and build metadata
 
 ### Deployment Scripts (`deploy/`)
+
 - **complete_deployment.sh** - Enhanced deployment workflow with rollback and advanced options (--verbose, --dry-run, --force)
 - **deployment_utils.sh** - Deployment utility functions
 - **fix_container_permissions.sh** - Fixes Docker container permissions
@@ -22,18 +24,22 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 - **verify_deployment.sh** - Comprehensive deployment verification
 
 ### Archived Scripts (`archive/`)
+
 - **complete_automated_deployment.sh** - Archived (functionality merged into complete_deployment.sh)
 - **deploy_to_vps.sh** - Archived (functionality available in consolidated scripts)
 
 ### Packaging Scripts (`packaging/`)
+
 - **build_all_packages.sh** - Builds all Linux packages
 - **build_deb.sh** - Builds Debian packages
 - **build_appimage.sh** - Builds AppImage packages
 
 ### Temporarily Removed Scripts
+
 - **AUR-related scripts** - Temporarily removed (reintegration planned). See [AUR Status](../docs/DEPLOYMENT/AUR_STATUS.md) for details.
 
 ### PowerShell Scripts (`powershell/`)
+
 - **BuildEnvironmentUtilities.ps1** - Build environment utilities
 - **Create-UnifiedPackages.ps1** - Unified package creation
 - **Fix-CloudToLocalLLMEnvironment.ps1** - Environment fixes
@@ -43,6 +49,7 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 - **version_manager.ps1** - PowerShell version management
 
 ### Release Scripts (`release/`)
+
 - **clean_releases.ps1** - Release cleanup
 - **check_for_updates.ps1** - Update checking
 - **create_github_release.sh** - GitHub release creation
@@ -50,26 +57,32 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 - **upload_release_assets.ps1** - GitHub release asset upload
 
 ### SSL Scripts (`ssl/`)
+
 - **check_certificates.sh** - Certificate checking
 - **manage_ssl.sh** - SSL management
 - **setup_letsencrypt.sh** - Let's Encrypt setup
 
 ### Setup Scripts (`setup/`)
+
 - **setup_almalinux9_server.sh** - AlmaLinux 9 server setup
 
 ### Docker Scripts (`docker/`)
+
 - **docker_startup_vps.sh** - Docker startup for VPS
 - **validate_dev_environment.sh** - Docker development environment validation
 
 ### Maintenance Scripts (`maintenance/`)
+
 - **daily_maintenance.sh** - Daily maintenance tasks
 - **weekly_maintenance.sh** - Weekly maintenance tasks
 - **monthly_maintenance.sh** - Monthly maintenance tasks
 
 ### Backup Scripts (`backup/`)
+
 - **full_backup.sh** - Comprehensive backup creation
 
 ### Documentation & Validation Scripts
+
 - **validate-internal-links.js** - Validates internal markdown links across all documentation
 - **validate-organization.js** - Validates project organization and structure
 - **review-content-accuracy.js** - Reviews documentation content for accuracy
@@ -77,6 +90,7 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 - **fix-common-link-issues.js** - Addresses frequent link formatting issues
 
 ### Utility Scripts
+
 - **check_ssl_expiry.sh** - SSL certificate expiry monitoring
 - **health_check.sh** - System health monitoring
 - **optimize_performance.sh** - Performance optimization
@@ -88,6 +102,7 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 ## 🚀 Quick Start (WSL Ubuntu 24.04 Native)
 
 ### Development Setup
+
 ```bash
 # Set up Flutter development environment (Native Linux)
 # Note: Ensure you are running in WSL Ubuntu terminal
@@ -101,6 +116,7 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 ```
 
 ### Deployment
+
 ```bash
 # Complete deployment workflow
 ./scripts/deploy/complete_deployment.sh
@@ -113,6 +129,7 @@ This directory contains all automation scripts for CloudToLocalLLM development, 
 ```
 
 ### Documentation Validation
+
 ```bash
 # Validate all internal documentation links
 node scripts/validate-internal-links.js
@@ -128,6 +145,7 @@ node scripts/validate-organization.js
 ```
 
 ### Maintenance
+
 ```bash
 # Daily maintenance
 ./scripts/maintenance/daily_maintenance.sh
@@ -143,6 +161,7 @@ node scripts/validate-organization.js
 ```
 
 ### Package Building
+
 ```bash
 # Build all Linux packages
 ./scripts/packaging/build_all_packages.sh
@@ -162,6 +181,7 @@ node scripts/validate-organization.js
 ## 🔧 Platform Separation
 
 ### Bash Scripts (Primary: WSL/Linux/VPS)
+
 - **Primary Development**: Flutter run/build, Node.js development
 - **Deployment**: All CI/CD and VPS deployment workflows
 - **Packaging**: Linux package building (AppImage, Deb)
@@ -169,6 +189,7 @@ node scripts/validate-organization.js
 - **Docker**: All containerized operations
 
 ### PowerShell Scripts (Secondary: Windows Native)
+
 - **Windows Packaging**: Creating native Windows installers (.exe)
 - **Release Management**: Asset upload to GitHub releases
 - **Environment Migration**: Legacy Windows dev setup utilities
@@ -176,16 +197,19 @@ node scripts/validate-organization.js
 ## 📋 Script Conventions
 
 ### Naming
+
 - **Bash scripts**: kebab-case (e.g., `build-package.sh`)
 - **PowerShell scripts**: PascalCase (e.g., `Build-Package.ps1`)
 
 ### Structure
+
 - All scripts include help documentation (`--help` flag)
 - Proper error handling with `set -euo pipefail`
 - Colored output for better readability
 - Logging functions for consistent output
 
 ### Documentation
+
 - Each script includes a header comment describing its purpose
 - Usage examples in help text
 - Clear parameter documentation
@@ -217,5 +241,5 @@ grep -r "SSL" scripts/ --include="*.sh"
 
 ---
 
-**Note**: This documentation is automatically updated by `scripts/update_documentation.sh`. 
+**Note**: This documentation is automatically updated by `scripts/update_documentation.sh`.
 Last update: 2025-06-24

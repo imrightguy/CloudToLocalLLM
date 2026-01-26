@@ -73,12 +73,13 @@ Create a GitHub App with permissions, but this is overkill for our use case.
 It's clean, works reliably, and doesn't require external PATs. The branch-based architecture is still valuable for organization, and deployments trigger automatically via the dispatch event.
 
 **Pros:**
+
 - ✅ No PAT management/expiration
 - ✅ Works with built-in GITHUB_TOKEN
 - ✅ Fully automatic end-to-end
 - ✅ Gemini AI integration perfect
 
 **Cons:**
+
 - Uses dispatch event instead of pure branch trigger
 - (Functionally identical, just different trigger mechanism)
-

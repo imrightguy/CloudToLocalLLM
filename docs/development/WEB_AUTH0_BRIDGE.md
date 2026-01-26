@@ -76,29 +76,36 @@ auth0 = new window.auth0.Auth0Client({
 ### Authentication Methods
 
 #### `login()`
+
 Initiates the Auth0 login flow using redirect-based authentication.
 
 **Behavior:**
+
 1. Checks for existing valid session first
 2. If valid session exists, notifies Flutter immediately
 3. Otherwise, redirects to Auth0 login page
 
 **Error Handling:**
+
 - Catches and reports authentication errors to Flutter
 - Provides error codes and messages for debugging
 
 #### `logout()`
+
 Logs out the current user and clears all session data.
 
 **Behavior:**
+
 1. Calls Auth0 logout with return URL
 2. Clears local storage and session data
 3. Redirects back to application origin
 
 #### `handleRedirect()`
+
 Processes the OAuth callback after successful authentication.
 
 **Behavior:**
+
 1. Handles Auth0 redirect callback
 2. Extracts user information and access token
 3. Cleans up URL parameters
@@ -108,20 +115,24 @@ Processes the OAuth callback after successful authentication.
 ### User Information Methods
 
 #### `getUser()`
+
 Retrieves the current authenticated user's profile information.
 
 **Returns:** User object with profile data or `null` if not authenticated
 
 #### `getToken()`
+
 Obtains a valid access token for API calls.
 
 **Returns:** JWT access token string or `null` if not authenticated
 
 **Features:**
+
 - Automatically handles token refresh if needed
 - Uses Auth0's silent authentication for seamless token renewal
 
 #### `isAuthenticated()`
+
 Checks if the user is currently authenticated.
 
 **Returns:** Boolean indicating authentication status

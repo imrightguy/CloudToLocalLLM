@@ -188,6 +188,7 @@ curl -X POST http://localhost:8080/backup/create \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -213,6 +214,7 @@ curl -X POST http://localhost:8080/backup/backup_1234567890_abc123/verify \
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -234,6 +236,7 @@ curl -X POST http://localhost:8080/backup/backup_1234567890_abc123/restore \
 ```
 
 Response:
+
 ```json
 {
   "success": true,

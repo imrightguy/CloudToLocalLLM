@@ -1,9 +1,11 @@
 # Error Recovery Endpoints - Quick Reference
 
 ## Overview
+
 Error recovery endpoints provide manual intervention capabilities for service recovery procedures.
 
 ## Files Created
+
 - `services/error-recovery-service.js` - Core error recovery service
 - `routes/error-recovery.js` - Express routes for error recovery endpoints
 - `test/api-backend/error-recovery.test.js` - Unit tests (27 tests, all passing)
@@ -12,20 +14,25 @@ Error recovery endpoints provide manual intervention capabilities for service re
 ## API Endpoints
 
 ### Get All Recovery Statuses
+
 ```
 GET /error-recovery/status
 Authorization: Bearer <admin-token>
 ```
+
 Returns array of recovery statuses for all services.
 
 ### Get Specific Service Status
+
 ```
 GET /error-recovery/status/:serviceName
 Authorization: Bearer <admin-token>
 ```
+
 Returns recovery status for a specific service.
 
 ### Trigger Recovery
+
 ```
 POST /error-recovery/recover/:serviceName
 Authorization: Bearer <admin-token>
@@ -35,41 +42,52 @@ Content-Type: application/json
   "reason": "Manual intervention"
 }
 ```
+
 Executes recovery procedure for a service.
 
 ### Get Recovery History
+
 ```
 GET /error-recovery/history?serviceName=service-1&status=success&limit=10
 Authorization: Bearer <admin-token>
 ```
+
 Returns recovery history with optional filtering.
 
 ### Get Recovery Metrics
+
 ```
 GET /error-recovery/metrics
 Authorization: Bearer <admin-token>
 ```
+
 Returns recovery metrics and statistics.
 
 ### Get Recovery Report
+
 ```
 GET /error-recovery/report
 Authorization: Bearer <admin-token>
 ```
+
 Returns comprehensive recovery report.
 
 ### Clear History
+
 ```
 DELETE /error-recovery/history
 Authorization: Bearer <admin-token>
 ```
+
 Clears all recovery history.
 
 ### Reset Metrics
+
 ```
 POST /error-recovery/reset-metrics
 Authorization: Bearer <admin-token>
 ```
+
 Resets all recovery metrics.
 
 ## Service Registration
@@ -93,6 +111,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ## Response Examples
 
 ### Recovery Status Response
+
 ```json
 {
   "service": "database-service",
@@ -114,6 +133,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ```
 
 ### Recovery Execution Response
+
 ```json
 {
   "recoveryId": "recovery-database-service-1700387400000",
@@ -128,6 +148,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ```
 
 ### Recovery Metrics Response
+
 ```json
 {
   "totalRecoveryAttempts": 10,
@@ -141,6 +162,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ## Error Responses
 
 ### Recovery Already in Progress
+
 ```json
 {
   "status": "error",
@@ -151,6 +173,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ```
 
 ### No Recovery Procedure Registered
+
 ```json
 {
   "status": "error",
@@ -161,6 +184,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ```
 
 ### Unauthorized
+
 ```json
 {
   "status": "error",
@@ -170,6 +194,7 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ```
 
 ### Forbidden
+
 ```json
 {
   "status": "error",
@@ -181,11 +206,13 @@ errorRecoveryService.registerRecoveryProcedure('my-service', {
 ## Testing
 
 ### Run Unit Tests
+
 ```bash
 npm test -- test/api-backend/error-recovery.test.js
 ```
 
 ### Run Integration Tests
+
 ```bash
 npm test -- test/api-backend/error-recovery-integration.test.js
 ```

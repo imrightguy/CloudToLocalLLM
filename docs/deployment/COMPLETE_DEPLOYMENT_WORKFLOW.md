@@ -7,8 +7,9 @@ This is the **ONE AND ONLY** deployment document for CloudToLocalLLM. Follow thi
 **⚠️ IMPORTANT NOTICE**: AUR (Arch User Repository) support has been temporarily removed as of v3.10.3. See [AUR Status Documentation](./AUR_STATUS.md) for complete details and reintegration timeline.
 
 **Related Documentation:**
+
 - [System Architecture](../ARCHITECTURE/SYSTEM_ARCHITECTURE.md)
-- 
+-
 - [Versioning Strategy](./VERSIONING_STRATEGY.md)
 
 ---
@@ -18,6 +19,7 @@ This is the **ONE AND ONLY** deployment document for CloudToLocalLLM. Follow thi
 **MANDATORY: Complete ALL checks before starting deployment**
 
 ### **Environment Verification**
+
 ```bash
 # 1. Verify you're in the correct directory
 pwd
@@ -45,6 +47,7 @@ kubectl cluster-info
 ```
 
 ### **Required Tools Checklist**
+
 - [ ] Docker installed and running
 - [ ] kubectl installed and configured for your Kubernetes cluster
 - [ ] Container registry access (Docker Hub, DigitalOcean, self-hosted, etc.)
@@ -124,6 +127,7 @@ kubectl apply -f k8s/ingress-nginx.yaml
 ```
 
 ### **Step 3.4: Verify Deployment**
+
 ```bash
 # Check pod status
 kubectl get pods -n cloudtolocalllm
@@ -144,6 +148,7 @@ curl -s https://app.cloudtolocalllm.online/version.json
 ## ✅ **Phase 4: Comprehensive Verification** (10 minutes)
 
 ### **Kubernetes Health Checks**
+
 ```bash
 # Check all pods are running
 kubectl get pods -n cloudtolocalllm
@@ -157,6 +162,7 @@ kubectl get ingress -n cloudtolocalllm
 ```
 
 ### **Manual Verification**
+
 - **Web Application:** Loads correctly at https://app.cloudtolocalllm.online, authentication works, no console errors
 - **API Backend:** Health check endpoint returns 200 OK
 - **Database:** PostgreSQL pods are running and accepting connections

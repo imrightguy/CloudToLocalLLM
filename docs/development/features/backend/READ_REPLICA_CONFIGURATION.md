@@ -156,11 +156,13 @@ try {
 ## Query Routing Rules
 
 ### Read Queries (Routed to Replicas)
+
 - `SELECT ...`
 - `WITH ... SELECT ...`
 - `EXPLAIN ...`
 
 ### Write Queries (Routed to Primary)
+
 - `INSERT ...`
 - `UPDATE ...`
 - `DELETE ...`
@@ -180,12 +182,14 @@ Health checks run periodically (default: every 30 seconds):
 ## Failover Behavior
 
 ### Read Query Failover
+
 1. Query routed to replica
 2. If replica fails, query automatically retried on primary
 3. Replica marked as unhealthy after 3 failures
 4. Subsequent queries skip unhealthy replica
 
 ### Write Query Behavior
+
 - Always routed to primary
 - No failover to replicas (replicas are read-only)
 
@@ -312,12 +316,14 @@ data:
 ## Performance Considerations
 
 ### Benefits
+
 - **Read Scaling**: Distribute read load across multiple replicas
 - **Reduced Primary Load**: Primary handles only writes
 - **High Availability**: Automatic failover if replica fails
 - **Transparent**: Application code doesn't need to change
 
 ### Limitations
+
 - **Replication Lag**: Replicas may be slightly behind primary
 - **Consistency**: Read-after-write consistency not guaranteed
 - **Setup Complexity**: Requires PostgreSQL replication setup
@@ -325,6 +331,7 @@ data:
 ## Monitoring
 
 ### Metrics to Track
+
 - `readQueries`: Total read queries routed to replicas
 - `writeQueries`: Total write queries routed to primary
 - `replicaFailovers`: Number of times read query failed on replica and retried on primary
@@ -349,18 +356,21 @@ app.get('/health/replicas', (req, res) => {
 ## Troubleshooting
 
 ### All Replicas Unhealthy
+
 - Check network connectivity to replicas
 - Verify replica PostgreSQL services are running
 - Check replica replication status
 - Review health check logs
 
 ### High Failover Rate
+
 - Check replica performance and load
 - Verify replication lag
 - Consider adding more replicas
 - Review query patterns
 
 ### Uneven Load Distribution
+
 - Verify all replicas are healthy
 - Check round-robin counter
 - Review replica response times
@@ -369,6 +379,7 @@ app.get('/health/replicas', (req, res) => {
 ## Requirements Met
 
 ✅ **Requirement 9.5**: Read replica support for scaling read operations
+
 - Create read replica configuration
 - Implement read/write routing
 - Add replica health checking

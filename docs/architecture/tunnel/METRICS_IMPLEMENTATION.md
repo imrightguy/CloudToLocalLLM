@@ -11,6 +11,7 @@ This document describes the implementation of client-side metrics collection for
 **Purpose**: Core metrics collection and aggregation engine
 
 **Key Features**:
+
 - Records request metrics (latency, success/failure, error types)
 - Tracks connection state changes
 - Records reconnection attempts
@@ -20,6 +21,7 @@ This document describes the implementation of client-side metrics collection for
 - Automatic connection quality updates
 
 **Main Methods**:
+
 ```dart
 // Record metrics
 void recordRequest({required Duration latency, required bool success, String? errorType})
@@ -36,6 +38,7 @@ Map<String, dynamic> exportJson()
 ```
 
 **Data Structures**:
+
 - `MetricDataPoint`: Individual request measurement
 - `ConnectionStateChange`: Connection lifecycle event
 - `ReconnectionAttempt`: Reconnection tracking
@@ -45,6 +48,7 @@ Map<String, dynamic> exportJson()
 **Purpose**: Real-time connection quality calculation and monitoring
 
 **Key Features**:
+
 - Calculates quality based on latency and packet loss
 - Real-time quality updates every 5 seconds
 - Stream-based quality change notifications
@@ -56,6 +60,7 @@ Map<String, dynamic> exportJson()
   - Poor: > 200ms latency or > 5% packet loss
 
 **Main Methods**:
+
 ```dart
 // Add measurements
 void addMeasurement({required double latency, required bool success})
@@ -73,6 +78,7 @@ Map<String, dynamic> getQualityMetrics()
 ```
 
 **Quality Scoring**:
+
 - Latency component: 0-50 points
 - Packet loss component: 0-50 points
 - Total score: 0-100 points
@@ -82,11 +88,13 @@ Map<String, dynamic> getQualityMetrics()
 **Purpose**: Export metrics in multiple formats for monitoring and analysis
 
 **Supported Formats**:
+
 1. **Prometheus**: Standard Prometheus text format with HELP and TYPE annotations
 2. **JSON**: Structured JSON with nested metrics and metadata
 3. **CSV**: Simple CSV format for spreadsheet analysis
 
 **Key Features**:
+
 - Prometheus-compatible metric names and labels
 - Percentile metrics (P95, P99)
 - Error aggregation by type
@@ -94,6 +102,7 @@ Map<String, dynamic> getQualityMetrics()
 - Health status calculation
 
 **Main Methods**:
+
 ```dart
 // Export in different formats
 String export({MetricsExportFormat format, Duration? window})
@@ -108,6 +117,7 @@ Map<String, dynamic> exportSummary({Duration? window})
 ```
 
 **Prometheus Metrics**:
+
 - `tunnel_requests_total`: Total request count
 - `tunnel_requests_success_total`: Successful requests
 - `tunnel_requests_failed_total`: Failed requests
@@ -125,6 +135,7 @@ Map<String, dynamic> exportSummary({Duration? window})
 **Purpose**: Full-screen performance dashboard UI
 
 **Features**:
+
 - Connection quality indicator with visual feedback
 - Request metrics (total, success, failed, success rate)
 - Latency metrics (average, P95, P99)
@@ -134,6 +145,7 @@ Map<String, dynamic> exportSummary({Duration? window})
 - Manual refresh button
 
 **UI Components**:
+
 - Quality indicator card with progress bar
 - Request metrics card with success rate bar
 - Latency metrics card with percentiles
@@ -145,6 +157,7 @@ Map<String, dynamic> exportSummary({Duration? window})
 **Purpose**: Compact inline metrics widget
 
 **Features**:
+
 - Compact view: Single-line badge with key metrics
 - Detailed view: Card with expanded metrics
 - Real-time updates
@@ -152,6 +165,7 @@ Map<String, dynamic> exportSummary({Duration? window})
 - Configurable display mode
 
 **Usage Examples**:
+
 ```dart
 // Compact inline display
 TunnelMetricsWidget(
@@ -296,26 +310,34 @@ ConnectionQualityBadge(
 ## Requirements Coverage
 
 ### Requirement 3.3: Track client-side metrics
+
 ✅ Implemented via `MetricsCollector` class
+
 - Records connection uptime, reconnection count, request queue size
 - Maintains metric history with size limits
 - Calculates aggregate metrics
 
 ### Requirement 3.5: Connection quality indicator
+
 ✅ Implemented via `ConnectionQualityCalculator` class
+
 - Calculates quality based on latency and packet loss
 - Defines quality thresholds (excellent/good/fair/poor)
 - Updates quality in real-time
 - Exposes quality indicator to UI
 
 ### Requirement 3.8: Track and log slow requests
+
 ✅ Implemented via `MetricsCollector` class
+
 - Tracks request duration for all requests
 - Calculates percentile metrics (P95, P99)
 - Can identify slow requests via percentile analysis
 
 ### Requirement 3.9: Performance dashboard
+
 ✅ Implemented via `TunnelPerformanceDashboard` and `TunnelMetricsWidget`
+
 - Displays real-time connection metrics
 - Shows connection quality indicator
 - Displays request success rate
@@ -323,7 +345,9 @@ ConnectionQualityBadge(
 - Displays queue status
 
 ### Requirement 3.4: Prometheus format export
+
 ✅ Implemented via `MetricsExporter` class
+
 - Exports metrics in Prometheus text format
 - Includes HELP and TYPE annotations
 - Supports metric labels for dimensions
@@ -331,16 +355,19 @@ ConnectionQualityBadge(
 ## Performance Considerations
 
 ### Memory Management
+
 - Maximum history size: 10,000 data points per metric type
 - Automatic cleanup of old data points
 - Efficient queue-based storage (O(1) add/remove)
 
 ### CPU Usage
+
 - Periodic quality updates: Every 5 seconds
 - Percentile calculation: O(n log n) on demand
 - Metric aggregation: O(n) on demand
 
 ### UI Updates
+
 - Auto-refresh interval: 5 seconds
 - Stream-based quality updates (no polling)
 - Efficient state management with setState
@@ -348,6 +375,7 @@ ConnectionQualityBadge(
 ## Testing Recommendations
 
 ### Unit Tests
+
 ```dart
 test('MetricsCollector records requests correctly', () {
   final collector = MetricsCollector();
@@ -367,6 +395,7 @@ test('ConnectionQualityCalculator calculates quality correctly', () {
 ```
 
 ### Integration Tests
+
 - Test metrics collection during tunnel operations
 - Verify quality updates based on network conditions
 - Test export formats for correctness

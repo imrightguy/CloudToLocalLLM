@@ -383,9 +383,9 @@ curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/oauth/start" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
-2. User visits the returned `authorizationUrl` and grants permissions
+1. User visits the returned `authorizationUrl` and grants permissions
 
-3. Handle callback:
+2. Handle callback:
 
 ```bash
 curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/oauth/callback" \
@@ -397,14 +397,14 @@ curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/oauth/callback"
   }'
 ```
 
-4. Verify configuration:
+1. Verify configuration:
 
 ```bash
 curl -X GET "https://api.cloudtolocalllm.online/api/admin/email/status" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
-5. Send test email:
+1. Send test email:
 
 ```bash
 curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/test" \

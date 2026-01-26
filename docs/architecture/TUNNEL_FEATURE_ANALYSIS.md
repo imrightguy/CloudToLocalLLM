@@ -3,6 +3,7 @@
 ## Current Use Case Analysis
 
 ### What We're Doing Now
+
 - **HTTP Reverse Proxy**: Forwarding HTTP requests from cloud → desktop → local Ollama
 - **WebSocket Transport**: Using WebSocket as the transport layer for HTTP messages
 - **Streaming Responses**: Ollama returns streaming HTTP responses (handled at HTTP level)
@@ -11,6 +12,7 @@
 - **User Isolation**: One tunnel per user (needs custom logic either way)
 
 ### Traffic Patterns
+
 ```
 Web Request → Cloud API → WebSocket Tunnel → Desktop Client → localhost:11434
 Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost:11434
@@ -19,6 +21,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 ## Feature Comparison: frp vs Chisel
 
 ### ✅ What Both Support (Our Core Needs)
+
 | Feature | frp | Chisel | Our Need |
 |---------|-----|--------|----------|
 | HTTP Reverse Proxy | ✅ | ✅ | **REQUIRED** |
@@ -45,8 +48,10 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 ### 🔍 Feature Deep Dive
 
 #### 1. **TCP/UDP Tunneling** (frp only)
+
 **Question**: Will we ever need raw TCP/UDP?
 **Answer**: **No** - Our entire stack is HTTP-based:
+
 - Ollama uses HTTP REST API
 - All LLM providers use HTTP
 - Web interface uses HTTP
@@ -55,15 +60,18 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 **Verdict**: Not needed ✅
 
 #### 2. **Connection Pooling** (frp better)
+
 **Question**: Do we need multiple connections per user?
 **Current**: Single WebSocket connection per user works fine
 **Future**: Could help with:
+
 - Parallel request handling
 - Better throughput for heavy users
 
 **Verdict**: Nice-to-have, not essential. Can implement custom pooling later if needed ⚠️
 
 #### 3. **Load Balancing** (frp only)
+
 **Question**: Do we need to balance across multiple desktop clients?
 **Current**: One user = one desktop client
 **Future**: Unlikely - users don't have multiple desktop apps
@@ -71,6 +79,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 **Verdict**: Not needed ✅
 
 #### 4. **Plugin System** (frp only)
+
 **Question**: Need extensibility beyond code?
 **Current**: Custom code handles everything
 **Future**: Custom code is fine for our use case
@@ -78,6 +87,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 **Verdict**: Not needed ✅
 
 #### 5. **Admin Dashboard** (frp has built-in)
+
 **Question**: Need built-in monitoring UI?
 **Current**: We have custom monitoring
 **Future**: Can build custom dashboard if needed
@@ -85,6 +95,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 **Verdict**: Nice-to-have, but we can build our own ✅
 
 #### 6. **Complex Configuration** (frp)
+
 **Question**: Need advanced config options?
 **Current**: Simple setup works
 **Future**: Simple is better - less to go wrong
@@ -94,32 +105,38 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 ## Real-World Scenarios
 
 ### Scenario 1: Single User, Normal Usage
+
 - **frp**: Works great, but overkill
 - **Chisel**: Perfect fit, simpler setup
 - **Winner**: Chisel ✅
 
 ### Scenario 2: Single User, Heavy Streaming
+
 - **frp**: Handles well with connection pooling
 - **Chisel**: Handles well, HTTP streaming works fine
 - **Winner**: Tie (both work)
 
 ### Scenario 3: Multiple Users, Normal Usage
+
 - **frp**: Handles well
 - **Chisel**: Handles well (one connection per user)
 - **Winner**: Tie (both work)
 
 ### Scenario 4: Need to Tunnel Other Services (Future)
+
 - **frp**: Can tunnel TCP/UDP for databases, etc.
 - **Chisel**: HTTP/WebSocket only
 - **Risk**: **Very Low** - Everything is HTTP in our stack
 - **Winner**: frp (but unlikely scenario)
 
 ### Scenario 5: Debugging Connection Issues
+
 - **frp**: More complex, harder to debug
 - **Chisel**: Simpler, easier to understand
 - **Winner**: Chisel ✅
 
 ### Scenario 6: Need to Migrate Later
+
 - **frp → Chisel**: Hard (losing features)
 - **Chisel → frp**: Easy (gaining features, similar architecture)
 - **Winner**: Chisel ✅ (easier migration path)
@@ -127,6 +144,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 ## Complexity Analysis
 
 ### frp Integration Complexity
+
 ```
 1. Install frp server binary
 2. Configure frps.ini with ports, auth
@@ -142,6 +160,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 **Ongoing Maintenance**: Medium (need to understand frp config system)
 
 ### Chisel Integration Complexity
+
 ```
 1. Install Chisel server binary
 2. Start Chisel server with flags
@@ -189,6 +208,7 @@ Web Response ← Cloud API ← WebSocket Tunnel ← Desktop Client ← localhost
 ### When frp Would Be Better
 
 Choose frp if:
+
 - ✅ You need TCP/UDP tunneling (we don't)
 - ✅ You need load balancing across clients (we don't)
 - ✅ You need enterprise-grade admin dashboard (we can build our own)
@@ -198,17 +218,20 @@ Choose frp if:
 ## Future-Proofing Assessment
 
 ### Low Risk Items (Both Support)
+
 - HTTP/WebSocket tunneling ✅
 - Connection stability ✅
 - Authentication ✅
 - Monitoring ✅
 
 ### Medium Risk Items (Can Add Later)
+
 - Connection pooling → Can implement custom if needed
 - Load balancing → Can add custom load balancer if needed
 - Advanced metrics → Can build custom dashboard
 
 ### High Risk Items (Very Unlikely)
+
 - Need TCP/UDP → Everything is HTTP in our stack
 - Need multiple protocols → Single HTTP protocol is sufficient
 - Need enterprise features → We can build what we need
@@ -218,6 +241,7 @@ Choose frp if:
 **Recommendation: Chisel** 🥇
 
 **Reasoning**:
+
 1. Does everything we need right now
 2. Simpler to integrate and maintain
 3. Easier to debug when things go wrong
@@ -226,10 +250,10 @@ Choose frp if:
 6. Future features (TCP/UDP) are very unlikely for our use case
 
 **frp is Better If**:
+
 - You want maximum feature completeness
 - You might need TCP/UDP in the future
 - Enterprise features are important
 - Complexity is acceptable
 
 **For Your Use Case**: Simpler is better, and Chisel does exactly what you need. The extra frp features don't add value for HTTP reverse proxy tunneling to Ollama.
-

@@ -5,6 +5,7 @@ This guide explains the Android build system for CloudToLocalLLM, which creates 
 ## Overview
 
 Android builds are **ENABLED** and fully integrated into the CI/CD pipeline. The build system:
+
 - Creates separate APKs for ARM64, ARMv7, and x86_64 architectures
 - Uses GitHub-hosted runners (ubuntu-latest) - FREE for public repositories
 - Automatically signs APKs with release keystore
@@ -106,6 +107,7 @@ Generates keystore and configures GitHub Secrets automatically:
 ```
 
 **Requirements**:
+
 - GitHub CLI (`gh`) installed and authenticated
 - Java keytool (included with JDK)
 - PowerShell 5.1 or later
@@ -127,6 +129,7 @@ Verifies that all Android signing secrets are configured correctly:
 ```
 
 **Output**:
+
 - ✓ Green checkmarks for configured secrets
 - ✗ Red X for missing or invalid secrets
 - Detailed error messages for troubleshooting
@@ -136,6 +139,7 @@ Verifies that all Android signing secrets are configured correctly:
 If you prefer to configure secrets manually:
 
 1. **Generate keystore** (if not already created):
+
    ```bash
    keytool -genkey -v -keystore android/release-keystore.jks \
      -keyalg RSA -keysize 2048 -validity 10000 \
@@ -143,6 +147,7 @@ If you prefer to configure secrets manually:
    ```
 
 2. **Convert to base64**:
+
    ```powershell
    # Windows PowerShell
    [Convert]::ToBase64String([IO.File]::ReadAllBytes("android/release-keystore.jks")) | Out-File android/release-keystore.base64.txt
@@ -152,6 +157,7 @@ If you prefer to configure secrets manually:
    ```
 
 3. **Add secrets to GitHub**:
+
    ```bash
    # Using GitHub CLI
    gh secret set ANDROID_KEYSTORE_BASE64 < android/release-keystore.base64.txt
@@ -298,6 +304,7 @@ flutter install
 ### Troubleshooting Local Build
 
 **Issue: Gradle build fails**
+
 ```bash
 # Clear Gradle cache
 cd android
@@ -309,6 +316,7 @@ flutter build apk --release
 ```
 
 **Issue: Signing configuration not found**
+
 ```bash
 # Verify key.properties exists
 ls -la android/key.properties
@@ -318,6 +326,7 @@ cat android/app/build.gradle | grep -A 10 "signingConfigs"
 ```
 
 **Issue: SDK licenses not accepted**
+
 ```bash
 # Accept all SDK licenses
 flutter doctor --android-licenses
@@ -336,6 +345,7 @@ git push origin v4.5.0
 ```
 
 Or manually trigger via GitHub Actions:
+
 - Go to: `Actions` → `Build Desktop Apps & Create Release` → `Run workflow`
 - Select branch: `main`
 - Click `Run workflow`
@@ -353,12 +363,14 @@ After successful build:
 
 1. **Download APKs** from GitHub release or Actions artifacts
 2. **Verify APK signatures**:
+
    ```bash
    # Using apksigner (part of Android SDK build-tools)
    $ANDROID_HOME/build-tools/33.0.2/apksigner verify --verbose cloudtolocalllm-*-arm64-v8a.apk
    ```
 
 3. **Test on Android device**:
+
    ```bash
    # Install via ADB
    adb install cloudtolocalllm-*-arm64-v8a.apk
@@ -371,6 +383,7 @@ After successful build:
    ```
 
 4. **Verify checksums**:
+
    ```bash
    # Verify SHA256 checksum for each APK
    sha256sum -c cloudtolocalllm-*-arm64-v8a.apk.sha256
@@ -391,6 +404,7 @@ Test each APK on appropriate devices:
 ### Target Architectures
 
 The Android build targets three architectures:
+
 - `arm64-v8a` - 64-bit ARM (most modern devices)
 - `armeabi-v7a` - 32-bit ARM (older devices)
 - `x86_64` - 64-bit x86 (emulators, some tablets)
@@ -420,6 +434,7 @@ App Bundles are smaller and optimized per-device by Google Play.
 To update Android SDK version:
 
 1. Update in workflow file:
+
    ```yaml
    - name: 🤖 Setup Android SDK
      uses: android-actions/setup-android@v3
@@ -429,6 +444,7 @@ To update Android SDK version:
    ```
 
 2. Update in `android/app/build.gradle`:
+
    ```gradle
    android {
        compileSdkVersion 34  // Update this
@@ -464,6 +480,7 @@ If you need to rotate the keystore:
 **Cause**: GitHub Secret not configured or base64 decoding failed
 
 **Solution**:
+
 1. Verify `ANDROID_KEYSTORE_BASE64` secret exists
 2. Re-encode keystore to base64
 3. Update secret with new value
@@ -473,6 +490,7 @@ If you need to rotate the keystore:
 **Cause**: `key.properties` file not created or invalid
 
 **Solution**:
+
 1. Check the "Setup Android signing configuration" step logs
 2. Verify all signing secrets are set
 3. Ensure secret names match exactly
@@ -482,6 +500,7 @@ If you need to rotate the keystore:
 **Cause**: Android SDK licenses not accepted in CI
 
 **Solution**:
+
 - The workflow includes automatic license acceptance
 - Check the "Verify Android SDK and dependencies" step
 - Ensure `sdkmanager --licenses` command runs successfully
@@ -491,6 +510,7 @@ If you need to rotate the keystore:
 **Cause**: APK not properly signed or keystore mismatch
 
 **Solution**:
+
 1. Verify keystore password is correct
 2. Check key alias matches
 3. Ensure signing configuration in `build.gradle` is correct
@@ -500,6 +520,7 @@ If you need to rotate the keystore:
 **Cause**: Minimum SDK version too high or permissions issue
 
 **Solution**:
+
 1. Check device Android version (must be 5.0+)
 2. Verify `minSdkVersion` in `build.gradle`
 3. Check required permissions in `AndroidManifest.xml`

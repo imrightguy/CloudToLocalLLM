@@ -25,6 +25,7 @@ FirstTimeSetupWizard (StatefulWidget)
 ### Key Services
 
 #### SetupStatusService
+
 - **Location**: `lib/services/setup_status_service.dart`
 - **Purpose**: Tracks user setup completion status
 - **Key Methods**:
@@ -33,6 +34,7 @@ FirstTimeSetupWizard (StatefulWidget)
   - `resetSetupStatus(String userId)` - Reset for re-setup
 
 #### UserContainerService
+
 - **Location**: `lib/services/user_container_service.dart`
 - **Purpose**: Manages user-specific streaming proxy containers
 - **Key Methods**:
@@ -41,6 +43,7 @@ FirstTimeSetupWizard (StatefulWidget)
   - `cleanupFailedContainer(String containerId)` - Error cleanup
 
 #### PlatformDetectionService
+
 - **Location**: `lib/services/platform_detection_service.dart`
 - **Purpose**: Detects user's operating system and provides download options
 - **Key Methods**:
@@ -50,6 +53,7 @@ FirstTimeSetupWizard (StatefulWidget)
 ### Data Models
 
 #### UserSetupStatus
+
 ```dart
 class UserSetupStatus {
   final String userId;
@@ -61,6 +65,7 @@ class UserSetupStatus {
 ```
 
 #### SetupProgress
+
 ```dart
 class SetupProgress {
   final String userId;
@@ -478,6 +483,7 @@ class SetupDebugTools {
 ### Code Style
 
 Follow Flutter/Dart conventions:
+
 - Use `snake_case` for file names
 - Use `camelCase` for variables and methods
 - Use `PascalCase` for classes

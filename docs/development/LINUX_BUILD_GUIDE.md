@@ -5,6 +5,7 @@ This guide explains the Linux build system for CloudToLocalLLM, which creates bo
 ## Overview
 
 Linux builds are **ENABLED** and fully integrated into the CI/CD pipeline. The build system uses:
+
 - **GitHub-hosted runners** (ubuntu-latest) - FREE for public repositories
 - **Dual packaging**: Flatpak (universal) and .deb (Debian/Ubuntu)
 - **Automated dependency installation** for reproducible builds
@@ -122,12 +123,14 @@ flatpak run com.cloudtolocalllm.CloudToLocalLLM
 The Flatpak manifest (`com.cloudtolocalllm.CloudToLocalLLM.yml`) defines:
 
 ### Runtime and SDK
+
 - **Runtime**: `org.freedesktop.Platform` version 23.08
 - **SDK**: `org.freedesktop.Sdk` version 23.08
 
 These provide the base system libraries and development tools.
 
 ### Permissions (finish-args)
+
 - `--share=ipc` - Inter-process communication
 - `--socket=x11` - X11 display server access
 - `--socket=wayland` - Wayland display server access
@@ -138,7 +141,9 @@ These provide the base system libraries and development tools.
 - `--socket=pulseaudio` - Audio access (for notifications)
 
 ### Build Commands
+
 The manifest copies the Flutter build output and installs:
+
 1. Main executable
 2. Required libraries and data files
 3. Desktop file for application menu
@@ -148,17 +153,20 @@ The manifest copies the Flutter build output and installs:
 ## Distribution Options
 
 ### Option 1: GitHub Releases (Current)
+
 - Users download `.flatpak` file from GitHub releases
 - Manual installation: `flatpak install cloudtolocalllm-*.flatpak`
 - Simple but requires manual updates
 
 ### Option 2: Flathub (Recommended for Future)
+
 - Submit to Flathub for centralized distribution
 - Users can install via: `flatpak install flathub com.cloudtolocalllm.CloudToLocalLLM`
 - Automatic updates through Flatpak
 - Better discoverability in software centers
 
 To publish to Flathub:
+
 1. Fork https://github.com/flathub/flathub
 2. Add your manifest to the repository
 3. Submit a pull request
@@ -167,6 +175,7 @@ To publish to Flathub:
 ## Supported Linux Distributions
 
 Flatpak works on all major Linux distributions:
+
 - ✅ Ubuntu / Debian / Linux Mint
 - ✅ Fedora / RHEL / CentOS
 - ✅ Arch Linux / Manjaro
@@ -178,12 +187,14 @@ Flatpak works on all major Linux distributions:
 ## Troubleshooting
 
 ### Build Fails with GTK Errors
+
 ```bash
 # Install GTK development libraries
 sudo apt-get install libgtk-3-dev
 ```
 
 ### Flatpak Build Fails
+
 ```bash
 # Ensure Freedesktop runtime is installed
 flatpak install flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
@@ -194,6 +205,7 @@ flatpak-builder --force-clean --repo=repo build-dir com.cloudtolocalllm.CloudToL
 ```
 
 ### Application Won't Start
+
 ```bash
 # Check Flatpak logs
 flatpak run --command=sh com.cloudtolocalllm.CloudToLocalLLM
@@ -201,6 +213,7 @@ journalctl --user -xe | grep cloudtolocalllm
 ```
 
 ### Missing Dependencies
+
 ```bash
 # Verify all build dependencies
 flutter doctor -v
@@ -209,16 +222,20 @@ flutter doctor -v
 ## Performance Considerations
 
 ### Build Time
+
 - First build: ~10-15 minutes (includes SDK download)
 - Subsequent builds: ~5-8 minutes (with cache)
 - Flatpak packaging: ~2-3 minutes
 
 ### Artifact Size
+
 - Flutter Linux build: ~50-80 MB
 - Flatpak package: ~80-120 MB (includes runtime dependencies)
 
 ### Caching Strategy
+
 The workflow caches:
+
 - Flutter SDK and pub dependencies
 - Flatpak SDK and runtime
 - Build artifacts
@@ -228,6 +245,7 @@ Expected cache hit rate: >80% for subsequent builds
 ## Cost Analysis
 
 **GitHub-hosted runners (ubuntu-latest):**
+
 - Public repositories: **FREE unlimited minutes**
 - Private repositories: 2,000 free minutes/month
 

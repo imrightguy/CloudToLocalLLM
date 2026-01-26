@@ -34,20 +34,24 @@ This guide provides comprehensive instructions for validating the Simplified Tun
 ### System Requirements
 
 **All Platforms:**
+
 - Internet connectivity to reach API endpoints
 - Valid JWT token for authenticated tests (optional but recommended)
 
 **Linux/macOS:**
+
 - Bash 4.0+
 - curl
 - jq (for JSON processing)
 - wscat (for WebSocket testing): `npm install -g wscat`
 
 **Windows:**
+
 - PowerShell 5.1+ or PowerShell Core 6+
 - curl (included in Windows 10+)
 
 **Node.js Testing:**
+
 - Node.js 14+
 - npm packages: `ws` (auto-installed if missing)
 
@@ -56,6 +60,7 @@ This guide provides comprehensive instructions for validating the Simplified Tun
 To run the full validation suite, you'll need a valid JWT token:
 
 1. **Obtain JWT Token:**
+
    ```bash
    # Method 1: Extract from browser developer tools
    # 1. Login to https://app.cloudtolocalllm.online
@@ -68,6 +73,7 @@ To run the full validation suite, you'll need a valid JWT token:
    ```
 
 2. **Set Environment Variable:**
+
    ```bash
    # Linux/macOS
    export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
@@ -84,6 +90,7 @@ To run the full validation suite, you'll need a valid JWT token:
 ### Quick Start
 
 **Run All Validations (Recommended):**
+
 ```bash
 # Linux/macOS
 ./scripts/deploy/run_tunnel_validation.sh
@@ -93,6 +100,7 @@ bash ./scripts/deploy/run_tunnel_validation.sh
 ```
 
 **Individual Script Execution:**
+
 ```bash
 # Bash validation
 ./scripts/deploy/validate_tunnel_deployment.sh
@@ -107,6 +115,7 @@ powershell -File ./scripts/deploy/validate_tunnel_deployment.ps1
 ### Advanced Usage
 
 **Custom API URL:**
+
 ```bash
 # Test against staging environment
 ./scripts/deploy/run_tunnel_validation.sh -u https://staging-api.cloudtolocalllm.online
@@ -116,6 +125,7 @@ powershell -File ./scripts/deploy/validate_tunnel_deployment.ps1
 ```
 
 **With Authentication:**
+
 ```bash
 # Using command line argument
 ./scripts/deploy/run_tunnel_validation.sh -t "eyJ0eXAiOiJKV1Q..."
@@ -126,6 +136,7 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 ```
 
 **Skip Specific Validations:**
+
 ```bash
 # Skip Node.js validation
 ./scripts/deploy/run_tunnel_validation.sh --skip-node
@@ -138,6 +149,7 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 ```
 
 **Custom Results Directory:**
+
 ```bash
 ./scripts/deploy/run_tunnel_validation.sh -r /path/to/results
 ```
@@ -149,12 +161,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Verify basic system availability and health
 
 **Tests Include:**
+
 - API health endpoint accessibility
 - Tunnel system health status
 - Response time validation
 - Service availability checks
 
 **Expected Results:**
+
 - HTTP 200 responses from health endpoints
 - "healthy" status in response bodies
 - Response times < 2 seconds
@@ -164,12 +178,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Ensure security measures are properly implemented
 
 **Tests Include:**
+
 - Unauthenticated request rejection (401)
 - Invalid token rejection (403)
 - Valid token acceptance (200)
 - Cross-user access prevention (403)
 
 **Expected Results:**
+
 - Proper HTTP status codes for each scenario
 - JWT token validation working correctly
 - User isolation enforced
@@ -179,12 +195,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Validate real-time communication capabilities
 
 **Tests Include:**
+
 - WebSocket connection establishment
 - Authentication via query parameters
 - Ping/pong message exchange
 - Connection stability
 
 **Expected Results:**
+
 - Successful WebSocket connections with valid tokens
 - Proper message protocol handling
 - Connection timeouts handled gracefully
@@ -194,12 +212,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Verify tunnel routing and proxy functionality
 
 **Tests Include:**
+
 - User-specific health endpoints
 - Tunnel status reporting
 - Metrics collection
 - Request routing validation
 
 **Expected Results:**
+
 - Accurate user status reporting
 - Proper metrics collection
 - Correct request routing
@@ -209,12 +229,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Ensure abuse prevention mechanisms work
 
 **Tests Include:**
+
 - Rapid request submission
 - Rate limit threshold detection
 - Rate limit header validation
 - Recovery after rate limit reset
 
 **Expected Results:**
+
 - HTTP 429 responses when limits exceeded
 - Proper rate limit headers
 - System recovery after limit reset
@@ -224,12 +246,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Validate proper error responses and handling
 
 **Tests Include:**
+
 - 404 responses for non-existent endpoints
 - Malformed request handling
 - Timeout handling
 - Error message formatting
 
 **Expected Results:**
+
 - Appropriate HTTP status codes
 - Consistent error message format
 - Graceful handling of edge cases
@@ -239,12 +263,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Ensure acceptable system performance
 
 **Tests Include:**
+
 - Single request response time
 - Concurrent request handling
 - Load testing (basic)
 - Resource utilization
 
 **Expected Results:**
+
 - Response times < 2 seconds for single requests
 - Successful handling of concurrent requests
 - Stable performance under load
@@ -254,12 +280,14 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 **Purpose:** Verify security measures and headers
 
 **Tests Include:**
+
 - HTTPS enforcement
 - Security header validation
 - SSL certificate verification
 - Origin validation
 
 **Expected Results:**
+
 - HTTP requests redirected to HTTPS
 - Required security headers present
 - Valid SSL certificates
@@ -270,6 +298,7 @@ export TEST_JWT_TOKEN="eyJ0eXAiOiJKV1Q..."
 ### Success Indicators
 
 **All Tests Passed:**
+
 ```
 ✓ API Health Check
 ✓ Tunnel Health Check
@@ -281,6 +310,7 @@ DEPLOYMENT VALIDATION PASSED
 ```
 
 **Key Metrics:**
+
 - Success Rate: 100%
 - Response Times: < 2000ms
 - All security checks passed
@@ -289,6 +319,7 @@ DEPLOYMENT VALIDATION PASSED
 ### Failure Indicators
 
 **Common Failure Patterns:**
+
 ```
 ✗ API Health Check - API not healthy or unreachable
 ✗ WebSocket Connection - Cannot connect to WebSocket endpoint
@@ -296,6 +327,7 @@ DEPLOYMENT VALIDATION PASSED
 ```
 
 **Investigation Steps:**
+
 1. Check API server status and logs
 2. Verify network connectivity
 3. Validate configuration settings
@@ -304,12 +336,14 @@ DEPLOYMENT VALIDATION PASSED
 ### Partial Success
 
 **Some Tests Skipped:**
+
 ```
 ⚠ WebSocket Connection - No test token available
 ⚠ Valid Token Authentication - No test token available
 ```
 
 **Resolution:**
+
 - Provide TEST_JWT_TOKEN environment variable
 - Ensure token is valid and not expired
 - Check token permissions and scopes
@@ -319,11 +353,14 @@ DEPLOYMENT VALIDATION PASSED
 ### Common Issues
 
 #### 1. Connection Timeouts
+
 **Symptoms:**
+
 - Tests fail with timeout errors
 - Long response times
 
 **Solutions:**
+
 ```bash
 # Check network connectivity
 ping api.cloudtolocalllm.online
@@ -336,11 +373,14 @@ curl -I https://api.cloudtolocalllm.online/api/health
 ```
 
 #### 2. Authentication Failures
+
 **Symptoms:**
+
 - All authenticated tests fail
 - 401/403 errors consistently
 
 **Solutions:**
+
 ```bash
 # Verify token format
 echo $TEST_JWT_TOKEN | cut -d. -f2 | base64 -d
@@ -354,11 +394,14 @@ curl -H "Authorization: Bearer $TEST_JWT_TOKEN" \
 ```
 
 #### 3. WebSocket Connection Issues
+
 **Symptoms:**
+
 - WebSocket tests fail
 - Connection refused errors
 
 **Solutions:**
+
 ```bash
 # Install wscat if missing
 npm install -g wscat
@@ -370,11 +413,14 @@ wscat -c "wss://api.cloudtolocalllm.online/ws/tunnel?token=$TEST_JWT_TOKEN"
 ```
 
 #### 4. Missing Dependencies
+
 **Symptoms:**
+
 - Scripts fail to run
 - Command not found errors
 
 **Solutions:**
+
 ```bash
 # Install missing tools
 # Linux/macOS
@@ -390,6 +436,7 @@ npm install -g wscat
 ### Advanced Troubleshooting
 
 #### Enable Verbose Logging
+
 ```bash
 # Bash script
 ./scripts/deploy/validate_tunnel_deployment.sh -v
@@ -402,6 +449,7 @@ DEBUG=* node ./scripts/deploy/validate_tunnel_deployment.js
 ```
 
 #### Manual Testing
+
 ```bash
 # Test individual endpoints
 curl -v https://api.cloudtolocalllm.online/api/health
@@ -416,6 +464,7 @@ wscat -c "wss://api.cloudtolocalllm.online/ws/tunnel?token=$TEST_JWT_TOKEN"
 ```
 
 #### Log Analysis
+
 ```bash
 # Check validation logs
 tail -f /tmp/tunnel-deployment-validation-*.log
@@ -521,24 +570,28 @@ pipeline {
 ## Best Practices
 
 ### Pre-Deployment Validation
+
 1. **Always run validation before production deployment**
 2. **Test against staging environment first**
 3. **Ensure all tests pass with 100% success rate**
 4. **Review performance metrics and response times**
 
 ### Regular Health Checks
+
 1. **Schedule periodic validation runs**
 2. **Monitor for performance degradation**
 3. **Set up alerts for validation failures**
 4. **Track success rates over time**
 
 ### Security Validation
+
 1. **Regularly rotate test JWT tokens**
 2. **Validate authentication mechanisms**
 3. **Test cross-user access prevention**
 4. **Verify security headers and HTTPS enforcement**
 
 ### Documentation and Reporting
+
 1. **Save validation reports for audit purposes**
 2. **Document any test failures and resolutions**
 3. **Share results with relevant stakeholders**

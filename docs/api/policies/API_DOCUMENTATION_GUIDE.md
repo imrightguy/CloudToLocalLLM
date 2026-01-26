@@ -14,6 +14,7 @@ The interactive Swagger UI is available at:
 - **Development**: http://localhost:8080/api/docs
 
 The Swagger UI provides:
+
 - Interactive endpoint exploration
 - Request/response examples
 - Parameter documentation

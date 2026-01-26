@@ -3,18 +3,21 @@
 ## Files Created/Modified
 
 ### New Files
+
 - `services/auth-audit-service.js` - Core audit logging service
 - `middleware/auth-audit-middleware.js` - Audit logging middleware
 - `routes/auth-audit.js` - Audit log retrieval endpoints
 - `test/api-backend/auth-audit.test.js` - Comprehensive tests
 
 ### Modified Files
+
 - `middleware/auth.js` - Added audit logging for failed authentication
 - `routes/auth.js` - Added audit logging to auth endpoints
 
 ## Key Functions
 
 ### Logging Events
+
 ```javascript
 import { 
   logLoginSuccess, 
@@ -41,6 +44,7 @@ await logLoginFailure({
 ```
 
 ### Retrieving Logs
+
 ```javascript
 import { 
   getAuthAuditLogs,
@@ -68,15 +72,18 @@ const adminLogs = await getAuthAuditLogsForAdmin({
 ## API Endpoints
 
 ### User Endpoints
+
 - `GET /auth/audit-logs/me` - User's audit logs
 - `GET /auth/audit-logs/failed-attempts` - User's failed login attempts
 
 ### Admin Endpoints
+
 - `GET /admin/auth/audit-logs` - System-wide audit logs
 - `GET /admin/auth/audit-logs/failed-attempts` - All failed login attempts
 - `GET /admin/auth/audit-logs/summary` - Audit logs summary
 
 ## Event Types
+
 - `login` - Successful login
 - `logout` - Logout
 - `token_refresh` - Token refresh
@@ -86,6 +93,7 @@ const adminLogs = await getAuthAuditLogsForAdmin({
 - `session_timeout` - Session timeout
 
 ## Database Table
+
 ```sql
 CREATE TABLE auth_audit_logs (
   id UUID PRIMARY KEY,
@@ -101,6 +109,7 @@ CREATE TABLE auth_audit_logs (
 ```
 
 ## Testing
+
 ```bash
 npm test -- test/api-backend/auth-audit.test.js
 ```
@@ -108,10 +117,12 @@ npm test -- test/api-backend/auth-audit.test.js
 ## Integration Points
 
 ### In Authentication Middleware
+
 - Failed JWT validation is logged
 - Authentication errors include full context
 
 ### In Auth Routes
+
 - Token refresh is logged
 - Logout is logged
 - Session revocation is logged
@@ -119,10 +130,12 @@ npm test -- test/api-backend/auth-audit.test.js
 ## Requirements Met
 
 ✅ **Requirement 2.6:** Log all authentication attempts and failures
+
 - All login attempts (success and failure) are logged
 - Full context included (IP, user agent, timestamp)
 
 ✅ **Requirement 11.10:** Support admin activity logging and audit trails
+
 - Admin endpoints for viewing system-wide audit logs
 - Audit log summary statistics
 - Failed login attempt tracking

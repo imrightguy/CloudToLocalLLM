@@ -5,6 +5,7 @@
 Implements comprehensive tunnel status tracking, health checking, and metrics collection for tunnel endpoints.
 
 **Validates: Requirements 4.2, 4.6**
+
 - Tracks tunnel status and health metrics
 - Implements tunnel metrics collection and aggregation
 
@@ -212,6 +213,7 @@ npm test -- test/api-backend/tunnel-health-tracking.test.js
 ```
 
 Tests cover:
+
 - Tunnel status tracking and transitions
 - Endpoint health checking
 - Metrics collection and aggregation

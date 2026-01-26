@@ -26,10 +26,12 @@ The rate limit violations logging system captures and analyzes all instances whe
 **Migration File:** `database/migrations/019_rate_limit_violations.sql`
 
 Two main tables:
+
 - `rate_limit_violations` - Individual violation records
 - `rate_limit_violation_stats` - Aggregated statistics
 
 **Indexes:**
+
 - User ID, IP address, timestamp, violation type
 - Composite indexes for common query patterns
 
@@ -38,6 +40,7 @@ Two main tables:
 **File:** `services/rate-limit-violations-service.js`
 
 Provides methods for:
+
 - Logging violations
 - Retrieving violations by user or IP
 - Calculating statistics
@@ -49,6 +52,7 @@ Provides methods for:
 **File:** `routes/rate-limit-violations.js`
 
 Admin-only endpoints:
+
 - `/violations/user/:userId` - User violations
 - `/violations/ip/:ipAddress` - IP violations
 - `/violations/stats/user/:userId` - User statistics
@@ -62,6 +66,7 @@ Admin-only endpoints:
 **File:** `middleware/rate-limiter.js`
 
 Updated to:
+
 - Log violations asynchronously
 - Capture request context
 - Include violation details
@@ -167,6 +172,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ## Statistics Available
 
 ### User Statistics
+
 ```javascript
 {
   userId: string,
@@ -185,6 +191,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```
 
 ### IP Statistics
+
 ```javascript
 {
   ipAddress: string,
@@ -216,6 +223,7 @@ npm run migrate
 ```
 
 This creates:
+
 - `rate_limit_violations` table
 - `rate_limit_violation_stats` table
 - All necessary indexes
@@ -251,6 +259,7 @@ npm test -- test/api-backend/rate-limit-violations.test.js
 ```
 
 **Test Coverage:**
+
 - ✅ Logging violations (all types)
 - ✅ Retrieving violations
 - ✅ Pagination and filtering
@@ -303,14 +312,17 @@ LIMIT 10;
 ## Integration with Other Features
 
 ### Rate Limit Exemptions
+
 - Exempt requests are not logged as violations
 - Exemption details are included in rate limit headers
 
 ### Rate Limit Metrics
+
 - Violations feed into Prometheus metrics
 - Used for dashboards and alerting
 
 ### Security Audit Logging
+
 - Violations logged to security audit trail
 - Integrated with existing audit system
 

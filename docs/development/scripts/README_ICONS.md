@@ -16,6 +16,7 @@ To generate all app icons, run the following command from the project root:
 ```
 
 This will create icons for:
+
 - Windows (16x16, 32x32, 64x64, 256x256)
 - Android (48x48, 72x72, 96x96, 144x144, 192x192)
 - iOS (29x29, 40x40, 58x58, 60x60, 80x80, 87x87, 120x120, 180x180, 1024x1024)
@@ -29,6 +30,7 @@ This will create icons for:
 ## Troubleshooting
 
 If you encounter any issues:
+
 1. Make sure ImageMagick is installed and accessible from the command line
 2. Verify the logo file exists in the correct location
-3. Check that you have write permissions in the target directories 
+3. Check that you have write permissions in the target directories

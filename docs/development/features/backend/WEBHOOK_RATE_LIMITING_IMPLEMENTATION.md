@@ -35,6 +35,7 @@ This document describes the implementation of webhook-specific rate limiting for
 ### 1. Configurable Rate Limits
 
 Three time windows with independent limits:
+
 - **Per Minute**: Default 60 deliveries
 - **Per Hour**: Default 1,000 deliveries
 - **Per Day**: Default 10,000 deliveries
@@ -226,6 +227,7 @@ X-RateLimit-Remaining-Day: 9550
 Located in `test/api-backend/webhook-rate-limiting-unit.test.js`
 
 Tests cover:
+
 - Configuration validation
 - Rate limit enforcement
 - Cache management

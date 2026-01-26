@@ -7,6 +7,7 @@ CloudToLocalLLM is a revolutionary Flutter-based application that bridges the ga
 The project uses a hybrid architecture supporting both cloud-based (OpenAI, Anthropic) and local AI models (via Ollama). It's built with Flutter for cross-platform support (Windows, Linux, Web) and incorporates secure authentication, real-time communication via WebSockets, and end-to-end encryption.
 
 ### Key Technologies
+
 - **Flutter 3.8+** - Cross-platform UI framework
 - **Dart** - Primary programming language
 - **Node.js** - Development and testing environment
@@ -38,12 +39,14 @@ The project uses a hybrid architecture supporting both cloud-based (OpenAI, Anth
 ## Building and Running
 
 ### Prerequisites
+
 - Flutter SDK (3.8 or higher)
 - Node.js (for development and testing)
 - Git (for version control)
 - Ollama (optional, for local AI models)
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
@@ -55,6 +58,7 @@ npm install
 ```
 
 ### Running the Application
+
 ```bash
 # For desktop (Windows/Linux)
 flutter run -d windows
@@ -65,6 +69,7 @@ flutter run -d chrome
 ```
 
 ### Building
+
 ```bash
 # Build for Windows
 flutter build windows --release
@@ -77,6 +82,7 @@ flutter build web --release
 ```
 
 ### Testing
+
 ```bash
 # Run Flutter tests
 flutter test
@@ -88,6 +94,7 @@ npm test
 ## Development Conventions
 
 ### Version Management
+
 CloudToLocalLLM uses a sophisticated version management system with automated updates across all relevant files:
 
 - **Version Format**: `MAJOR.MINOR.PATCH+BUILD_NUMBER` (e.g., `4.1.1+202508071645`)
@@ -95,18 +102,22 @@ CloudToLocalLLM uses a sophisticated version management system with automated up
 - **Version Script**: `scripts/version_manager.sh` handles version increments and updates
 
 Semantic Versioning Strategy:
+
 - **PATCH** (`0.0.X`): Hotfixes, security updates, critical bug fixes
 - **MINOR** (`0.X.0`): Feature additions, UI enhancements, planned functionality
 - **MAJOR** (`X.0.0`): Breaking changes, architectural overhauls
 
 ### Code Style
+
 - Follow Flutter/Dart conventions
 - Use meaningful variable and function names
 - Add comments for complex logic
 - Ensure all tests pass
 
 ### Automated Deployment
+
 The project uses a comprehensive CI/CD pipeline:
+
 - Desktop applications built via PowerShell scripts
 - Cloud deployment to Google Cloud Run via GitHub Actions
 - Keyless authentication using GitHub OIDC and Google Cloud Workload Identity Federation
@@ -121,12 +132,12 @@ The project uses a comprehensive CI/CD pipeline:
 6. **Model Flexibility**: Support for OpenAI, Anthropic, and local Ollama models
 7. **User-Friendly Interface**: Intuitive Flutter-based UI with responsive design
 
-
-
 ## Configuration
 
 ### Environment Variables
+
 Create a `.env` file in the project root:
+
 ```env
 # API Configuration
 OPENAI_API_KEY=your_openai_key
@@ -145,7 +156,9 @@ OAUTH_CLIENT_SECRET=your_client_secret
 ```
 
 ### Local AI Models
+
 To use local AI models with Ollama:
+
 ```bash
 # Install Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
@@ -164,6 +177,7 @@ ollama pull mistral:7b
 - **Git Commit**: af642615e
 
 Version information is maintained in multiple files:
+
 - `pubspec.yaml` - Main Flutter project version
 - `lib/shared/lib/version.dart` - Shared version constants
 - `assets/version.json` - Runtime version information

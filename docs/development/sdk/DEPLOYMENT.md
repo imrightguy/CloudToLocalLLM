@@ -25,6 +25,7 @@ npm run build
 ```
 
 This will:
+
 - Install dependencies
 - Compile TypeScript to JavaScript
 - Generate type definitions
@@ -261,6 +262,7 @@ npm ls
 ## Support
 
 For issues with publishing:
+
 - Check npm documentation: https://docs.npmjs.com
 - Review package.json configuration
 - Verify authentication

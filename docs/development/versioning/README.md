@@ -5,10 +5,12 @@ This directory contains version management and build process documentation for C
 ## 📚 Contents
 
 ### Version Management
+
 - **[Versioning](VERSIONING.md)** - Version numbering scheme and release process
 - **[AI Versioning](AI-VERSIONING.md)** - AI-assisted version management
 
 ### Build Process
+
 - **[Build Time Timestamp Injection](BUILD_TIME_TIMESTAMP_INJECTION.md)** - Build-time version injection
 - **[Timestamp Build Numbers](TIMESTAMP_BUILD_NUMBERS.md)** - Timestamp-based build numbering
 
@@ -21,7 +23,9 @@ This directory contains version management and build process documentation for C
 ## 📖 Versioning Overview
 
 ### Version Scheme
+
 CloudToLocalLLM uses semantic versioning (SemVer) with the following format:
+
 ```
 MAJOR.MINOR.PATCH+BUILD_NUMBER
 ```
@@ -32,12 +36,15 @@ MAJOR.MINOR.PATCH+BUILD_NUMBER
 - **BUILD_NUMBER** - Timestamp-based build identifier (YYYYMMDDHHmm)
 
 ### Version Sources
+
 Version information is maintained in:
+
 - `pubspec.yaml` - Flutter application version (primary source)
 - `package.json` - Node.js services version (synchronized)
 - Git tags - Release version markers (`v{version}`)
 
 ### Build Process
+
 1. **Version Extraction** - Extract version from `pubspec.yaml`
 2. **Build Number Generation** - Generate timestamp-based build number
 3. **Version Injection** - Inject version into build artifacts
@@ -45,11 +52,13 @@ Version information is maintained in:
 5. **Release Creation** - Generate GitHub releases with artifacts
 
 ### Automated Version Management
+
 - **CI/CD Integration** - Automated version handling in build pipelines
 - **Cross-platform Sync** - Ensure version consistency across platforms
 - **Release Automation** - Automated release creation and artifact publishing
 
 ### Version Tracking
+
 - **Build Artifacts** - All builds include version information
 - **Runtime Display** - Version shown in application UI
 - **API Endpoints** - Version information available via API

@@ -14,12 +14,14 @@
 ## Quick Start (5 minutes)
 
 ### 1. Verify Prerequisites
+
 ```bash
 # Check Prometheus datasource exists
 mcp_grafana_list_datasources({ type: 'prometheus' })
 ```
 
 ### 2. Create Dashboards
+
 ```bash
 # Create Tunnel Health Dashboard
 mcp_grafana_create_dashboard({
@@ -33,6 +35,7 @@ mcp_grafana_create_dashboard({
 ```
 
 ### 3. Create Alerts
+
 ```bash
 # Create High Error Rate Alert
 mcp_grafana_create_alert_rule({
@@ -47,16 +50,19 @@ mcp_grafana_create_alert_rule({
 ## Dashboard Summary
 
 ### Tunnel Health Dashboard
+
 - **Panels**: 5 (Active Connections, Success Rate, Latency, Error Rate, Pool Status)
 - **Refresh**: 30 seconds
 - **Purpose**: Real-time tunnel health monitoring
 
 ### Performance Metrics Dashboard
+
 - **Panels**: 6 (P95/P99 Latency, Throughput, Request Rate, Memory, CPU)
 - **Variables**: User Tier, Time Range
 - **Purpose**: Performance analysis
 
 ### Error Tracking Dashboard
+
 - **Panels**: 4 (Error Rate by Category, Error Count, Top Errors, Error Rate by User)
 - **Data Sources**: Prometheus, Loki
 - **Purpose**: Error analysis and pattern detection
@@ -73,41 +79,49 @@ mcp_grafana_create_alert_rule({
 ## Key Metrics
 
 ### Connection Metrics
+
 - `tunnel_active_connections` - Current connections
 - `tunnel_connections_total` - Total established
 - `tunnel_connection_duration_seconds` - Duration
 
 ### Request Metrics
+
 - `tunnel_requests_total` - Total requests
 - `tunnel_request_latency_ms` - Latency
 - `tunnel_request_latency_ms{quantile="0.95"}` - P95
 - `tunnel_request_latency_ms{quantile="0.99"}` - P99
 
 ### Error Metrics
+
 - `tunnel_errors_total` - Total errors
 - `tunnel_errors_total{category="network"}` - Network errors
 - `tunnel_errors_total{category="auth"}` - Auth errors
 - `tunnel_errors_total{category="server"}` - Server errors
 
 ### Performance Metrics
+
 - `tunnel_throughput_bytes_total` - Bytes transferred
 - `tunnel_request_rate` - Requests/second
 - `tunnel_error_rate` - Error rate
 
 ### Resource Metrics
+
 - `process_resident_memory_bytes` - Memory usage
 - `process_cpu_seconds_total` - CPU usage
 - `process_open_fds` - Open file descriptors
 
 ### Circuit Breaker Metrics
+
 - `tunnel_circuit_breaker_state` - State (0=closed, 1=open, 0.5=half-open)
 - `tunnel_circuit_breaker_failures_total` - Total failures
 - `tunnel_circuit_breaker_successes_total` - Total successes
 
 ### Rate Limiter Metrics
+
 - `tunnel_rate_limit_violations_total` - Total violations
 
 ### Queue Metrics
+
 - `tunnel_queue_size` - Current size
 - `tunnel_queue_fill_percentage` - Fill percentage
 - `tunnel_queue_dropped_total` - Dropped requests
@@ -143,6 +157,7 @@ mcp_grafana_generate_deeplink({ resourceType: 'dashboard', dashboardUid: '...' }
 ## Common Queries
 
 ### Prometheus
+
 ```
 # Active connections
 tunnel_active_connections
@@ -164,6 +179,7 @@ rate(tunnel_throughput_bytes_total[1m])
 ```
 
 ### Loki
+
 ```
 # Error logs
 {service="streaming-proxy"} |= "error"
@@ -200,21 +216,25 @@ rate(tunnel_throughput_bytes_total[1m])
 ## Troubleshooting Quick Tips
 
 ### Datasource Not Found
+
 1. Verify Prometheus is running
 2. Check Grafana datasource configuration
 3. Verify API key permissions
 
 ### Metrics Not Appearing
+
 1. Verify streaming-proxy is running
 2. Check `/api/tunnel/metrics` endpoint
 3. Verify Prometheus is scraping
 
 ### Alerts Not Firing
+
 1. Check alert rule configuration
 2. Verify notification channels
 3. Test with manual trigger
 
 ### Dashboard Slow
+
 1. Reduce time range
 2. Simplify queries
 3. Check Prometheus performance
@@ -261,6 +281,7 @@ rate(tunnel_throughput_bytes_total[1m])
 ## Task 18 Status
 
 ✅ **COMPLETED**
+
 - ✅ 18.1: Tunnel Health Dashboard
 - ✅ 18.2: Performance Metrics Dashboard
 - ✅ 18.3: Error Tracking Dashboard

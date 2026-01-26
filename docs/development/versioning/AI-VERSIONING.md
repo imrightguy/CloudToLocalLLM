@@ -11,6 +11,7 @@ CloudToLocalLLM uses an intelligent, AI-powered versioning system powered by Gem
 **Trigger**: Push to `main` branch (excludes tags and `[skip ci]` commits)
 
 **Process**:
+
 1. **Gemini AI analyzes** recent commits
 2. **Determines bump type**: major, minor, or patch
 3. **Updates ALL version references** across project
@@ -26,6 +27,7 @@ CloudToLocalLLM uses an intelligent, AI-powered versioning system powered by Gem
 **Trigger**: Tag matching `*-cloud-*`
 
 **Process**:
+
 1. **Extracts** version and commit from tag
 2. **Detects** which services changed
 3. **Builds** only changed services with version tags
@@ -45,7 +47,7 @@ Builds for Android, iOS
 
 ## Version Determination Logic
 
-### Gemini AI Analyzes Commits:
+### Gemini AI Analyzes Commits
 
 ```
 feat: add new feature       → MINOR bump (4.4.0 → 4.5.0)
@@ -55,7 +57,7 @@ chore: update deps          → PATCH bump (4.4.0 → 4.4.1)
 docs: update README         → PATCH bump (4.4.0 → 4.4.1)
 ```
 
-### Priority Rules:
+### Priority Rules
 
 - **BREAKING CHANGE** > **feat:** > **fix:** > **chore:**
 - Multiple commit types → uses highest priority
@@ -76,12 +78,14 @@ The version-bump workflow updates **ALL** version references:
 
 ## Service Versioning Rules
 
-### When Service Changes:
+### When Service Changes
+
 - Service gets tagged with: `<version>-<service>`
 - Example: `4.5.0-api`, `4.5.0-proxy`
 - Image pushed with semantic version tag
 
-### When Service Doesn't Change:
+### When Service Doesn't Change
+
 - Uses `:latest` tag (existing image)
 - No rebuild needed
 - Faster deployments
@@ -97,14 +101,15 @@ Examples:
   4.5.0-mobile-a10fae98
 ```
 
-### Tag Components:
+### Tag Components
+
 - **Version**: Semantic version (4.5.0)
 - **Platform**: Target platform (cloud/desktop/mobile)
 - **Commit**: Short SHA for traceability
 
 ## Setup Requirements
 
-### Required GitHub Secrets:
+### Required GitHub Secrets
 
 ```bash
 # Gemini API Key (for AI-powered version analysis)
@@ -113,14 +118,15 @@ gh secret set GEMINI_API_KEY --body 'your_api_key_here'
 # Get your key at: https://makersuite.google.com/app/apikey
 ```
 
-### Existing Secrets (already configured):
+### Existing Secrets (already configured)
+
 - `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`
 - `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_EMAIL`
 - `POSTGRES_PASSWORD`, `JWT_SECRET`, etc.
 
 ## Usage
 
-### Automatic (Recommended):
+### Automatic (Recommended)
 
 ```bash
 # Just push to main - AI handles versioning!
@@ -131,7 +137,7 @@ git push origin main
 # Gemini analyzes → minor bump → creates tags → deploys
 ```
 
-### Manual Version Bump:
+### Manual Version Bump
 
 ```bash
 # Run locally to test
@@ -144,7 +150,7 @@ git commit -m "chore: bump to 4.6.0"
 git push
 ```
 
-### Manual Deployment:
+### Manual Deployment
 
 ```bash
 # Trigger cloud deployment for specific tag
@@ -153,7 +159,8 @@ gh workflow run deploy-aks.yml -f version_tag=4.5.0-cloud-abc123
 
 ## Version Display
 
-### In Web App:
+### In Web App
+
 - **Settings → About** shows all component versions:
   - Web: 4.5.0
   - API Backend: 4.5.0-api
@@ -161,13 +168,15 @@ gh workflow run deploy-aks.yml -f version_tag=4.5.0-cloud-abc123
   - Database: 4.5.0-postgres
   - Base Image: 4.5.0-base
 
-### In API:
+### In API
+
 ```bash
 curl https://api.cloudtolocalllm.online/service-version
 # Returns: { "service": "api-backend", "version": "4.5.0-api", ... }
 ```
 
-### In Git:
+### In Git
+
 ```bash
 git tag -l "*-cloud-*"
 # Shows all cloud deployment versions
@@ -175,7 +184,7 @@ git tag -l "*-cloud-*"
 
 ## Rollback
 
-### To Previous Version:
+### To Previous Version
 
 ```bash
 # 1. Find version tags
@@ -202,16 +211,19 @@ kubectl set image deployment/api-backend api-backend=registry/api-backend:4.4.0-
 
 ## Troubleshooting
 
-### Gemini API Key Missing:
+### Gemini API Key Missing
+
 - Workflow falls back to PATCH bump
 - Warning shown in logs
 - Add key: `gh secret set GEMINI_API_KEY`
 
-### Wrong Version Bump:
+### Wrong Version Bump
+
 - Override with manual commit: `git tag 4.5.1-cloud-$(git rev-parse --short HEAD)`
 - Push: `git push origin 4.5.1-cloud-abc123`
 
-### Service Not Rebuilding:
+### Service Not Rebuilding
+
 - Check if files actually changed since last cloud tag
 - Manually trigger: Change any file in that service
 

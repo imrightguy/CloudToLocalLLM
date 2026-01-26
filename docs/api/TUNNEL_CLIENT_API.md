@@ -46,6 +46,7 @@ class TunnelService extends ChangeNotifier {
 Establishes a tunnel connection to the streaming proxy server.
 
 **Signature:**
+
 ```dart
 Future<void> connect({
   required String serverUrl,
@@ -55,6 +56,7 @@ Future<void> connect({
 ```
 
 **Parameters:**
+
 - `serverUrl` (String, required): WebSocket URL of the streaming proxy (e.g., `wss://proxy.example.com`)
 - `authToken` (String, required): JWT authentication token from Auth0
 - `config` (TunnelConfig, optional): Custom configuration; uses default if not provided
@@ -62,11 +64,13 @@ Future<void> connect({
 **Returns:** Future that completes when connection is established
 
 **Throws:**
+
 - `TunnelError` with category `network` if connection fails
 - `TunnelError` with category `authentication` if token is invalid
 - `TunnelError` with category `configuration` if config is invalid
 
 **Example:**
+
 ```dart
 final tunnelService = TunnelService();
 
@@ -87,16 +91,19 @@ try {
 Closes the tunnel connection gracefully.
 
 **Signature:**
+
 ```dart
 Future<void> disconnect({bool graceful = true})
 ```
 
 **Parameters:**
+
 - `graceful` (bool, optional): If true, waits for pending requests to complete (timeout: 10 seconds)
 
 **Returns:** Future that completes when disconnection is complete
 
 **Example:**
+
 ```dart
 await tunnelService.disconnect(graceful: true);
 print('Disconnected from tunnel');
@@ -107,6 +114,7 @@ print('Disconnected from tunnel');
 Manually triggers a reconnection attempt.
 
 **Signature:**
+
 ```dart
 Future<void> reconnect()
 ```
@@ -114,6 +122,7 @@ Future<void> reconnect()
 **Returns:** Future that completes when reconnection is attempted
 
 **Example:**
+
 ```dart
 await tunnelService.reconnect();
 ```
@@ -123,21 +132,25 @@ await tunnelService.reconnect();
 Sends a request through the tunnel to the local SSH server.
 
 **Signature:**
+
 ```dart
 Future<TunnelResponse> forwardRequest(TunnelRequest request)
 ```
 
 **Parameters:**
+
 - `request` (TunnelRequest, required): The request to forward
 
 **Returns:** Future that completes with the response
 
 **Throws:**
+
 - `TunnelError` with category `network` if connection is lost
 - `TunnelError` with category `server` if server returns error
 - `TunnelError` with category `protocol` if protocol error occurs
 
 **Example:**
+
 ```dart
 final request = TunnelRequest(
   id: 'req-123',
@@ -161,14 +174,17 @@ try {
 Updates tunnel configuration dynamically.
 
 **Signature:**
+
 ```dart
 void updateConfig(TunnelConfig config)
 ```
 
 **Parameters:**
+
 - `config` (TunnelConfig, required): New configuration
 
 **Example:**
+
 ```dart
 tunnelService.updateConfig(TunnelConfig.unstableNetwork());
 ```
@@ -178,6 +194,7 @@ tunnelService.updateConfig(TunnelConfig.unstableNetwork());
 Executes a comprehensive diagnostic test suite.
 
 **Signature:**
+
 ```dart
 Future<DiagnosticReport> runDiagnostics()
 ```
@@ -185,6 +202,7 @@ Future<DiagnosticReport> runDiagnostics()
 **Returns:** Future that completes with diagnostic report
 
 **Example:**
+
 ```dart
 final report = await tunnelService.runDiagnostics();
 if (report.allTestsPassed) {
@@ -205,6 +223,7 @@ Current connection state.
 **Type:** `TunnelConnectionState` (enum)
 
 **Values:**
+
 - `disconnected`: Not connected
 - `connecting`: Connection in progress
 - `connected`: Connected and ready
@@ -212,6 +231,7 @@ Current connection state.
 - `error`: Connection error
 
 **Example:**
+
 ```dart
 if (tunnelService.connectionState == TunnelConnectionState.connected) {
   print('Tunnel is ready');
@@ -225,6 +245,7 @@ Current health metrics for the connection.
 **Type:** `TunnelHealthMetrics`
 
 **Properties:**
+
 - `uptime` (Duration): Time connected
 - `reconnectCount` (int): Number of reconnections
 - `averageLatency` (double): Average request latency in ms
@@ -235,6 +256,7 @@ Current health metrics for the connection.
 - `failedRequests` (int): Number of failed requests
 
 **Example:**
+
 ```dart
 final metrics = tunnelService.healthMetrics;
 print('Uptime: ${metrics.uptime}');
@@ -249,6 +271,7 @@ Current tunnel configuration.
 **Type:** `TunnelConfig`
 
 **Example:**
+
 ```dart
 final config = tunnelService.currentConfig;
 print('Max reconnect attempts: ${config.maxReconnectAttempts}');
@@ -292,6 +315,7 @@ enum LogLevel {
 Optimized for stable, high-speed networks.
 
 **Configuration:**
+
 - Max reconnect attempts: 5
 - Reconnect base delay: 2 seconds
 - Request timeout: 30 seconds
@@ -306,6 +330,7 @@ Optimized for stable, high-speed networks.
 Optimized for unstable, low-speed networks.
 
 **Configuration:**
+
 - Max reconnect attempts: 10
 - Reconnect base delay: 5 seconds
 - Request timeout: 60 seconds
@@ -320,6 +345,7 @@ Optimized for unstable, low-speed networks.
 Optimized for low-bandwidth connections.
 
 **Configuration:**
+
 - Max reconnect attempts: 10
 - Reconnect base delay: 5 seconds
 - Request timeout: 60 seconds
