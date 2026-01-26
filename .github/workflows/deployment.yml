@@ -190,8 +190,64 @@ jobs:
     needs: [ai_change_analysis, run_tests]
     if: always() && (needs.ai_change_analysis.outputs.linux_needed == 'true' || needs.ai_change_analysis.outputs.windows_needed == 'true' || github.event_name == 'workflow_dispatch') && (needs.run_tests.result == 'success' || contains(github.event.head_commit.message, '[skip tests]'))
     uses: ./.github/workflows/app-builds.yml
-    with:
-      version: ${{ needs.ai_change_analysis.outputs.new_version }}
+
+  publish_desktop_releases:
+    needs: [ai_change_analysis, build_desktop_apps]
+    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && needs.build_desktop_apps.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Linux Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-bundle
+          path: build/linux/x64/release/bundle
+
+      - name: Download Windows Bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-bundle
+          path: build/windows/x64/runner/Release
+
+      - name: Package Linux Distributions
+        run: |
+          mkdir -p dist/linux
+          # Create standard bundle tarball
+          cd build/linux/x64/release/bundle
+          tar -czf ../../../../../dist/linux/CloudToLocalLLM-Linux-x64.tar.gz .
+          cd ../../../../../
+          
+          # Build .deb package
+          chmod +x scripts/packaging/build_deb.sh
+          ./scripts/packaging/build_deb.sh
+          
+          # Build AppImage
+          chmod +x scripts/packaging/build_appimage.sh
+          ./scripts/packaging/build_appimage.sh || echo "AppImage build failed"
+          
+          # Prepare AUR package
+          chmod +x scripts/packaging/update_aur_pkgbuild.sh
+          ./scripts/packaging/update_aur_pkgbuild.sh
+
+      - name: Package Windows Distribution
+        run: |
+          mkdir -p dist/windows
+          cd build/windows/x64/runner/Release
+          zip -r ../../../../../dist/windows/CloudToLocalLLM-Windows-x64.zip .
+          cd ../../../../../
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/linux/*,dist/windows/*,dist/aur/*"
+          tag: "v${{ needs.ai_change_analysis.outputs.new_version }}"
+          name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
+          body: "Automated desktop builds for v${{ needs.ai_change_analysis.outputs.new_version }}\n\nIncludes:\n- Universal Linux AppImage\n- Debian/Ubuntu .deb package\n- Standard Linux bundle (.tar.gz)\n- Arch Linux AUR package files\n- Windows Portable ZIP"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     needs: [ai_change_analysis, build_images]

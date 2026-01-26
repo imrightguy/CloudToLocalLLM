@@ -2,19 +2,13 @@ name: "📦 App Builds"
 
 on:
   workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to build (e.g. 10.1.188)'
-        required: false
-        type: string
-
-permissions:
-  contents: write
+    outputs:
+      linux_artifact:
+        description: "Name of the uploaded Linux bundle"
+        value: linux-bundle
+      windows_artifact:
+        description: "Name of the uploaded Windows bundle"
+        value: windows-bundle
 
 jobs:
   build_linux:
@@ -38,31 +32,11 @@ jobs:
           flutter pub get
           flutter build linux --release
 
-      - name: Prepare Linux Distributions
-        run: |
-          mkdir -p dist/linux
-          # Create standard bundle tarball
-          cd build/linux/x64/release/bundle
-          tar -czf ../../../../../dist/linux/CloudToLocalLLM-Linux-x64.tar.gz .
-          cd ../../../../../
-          
-          # Build .deb package
-          chmod +x scripts/packaging/build_deb.sh
-          ./scripts/packaging/build_deb.sh
-          
-          # Build AppImage
-          chmod +x scripts/packaging/build_appimage.sh
-          ./scripts/packaging/build_appimage.sh || echo "AppImage build failed"
-          
-          # Prepare AUR package
-          chmod +x scripts/packaging/update_aur_pkgbuild.sh
-          ./scripts/packaging/update_aur_pkgbuild.sh
-
-      - name: Upload Linux Artifacts
+      - name: Upload Linux Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: linux-dist
-          path: dist/
+          name: linux-bundle
+          path: build/linux/x64/release/bundle/
 
   build_windows:
     name: Windows Build
@@ -80,45 +54,8 @@ jobs:
           flutter pub get
           flutter build windows --release
 
-      - name: Prepare Windows Distribution
-        run: |
-          mkdir dist/windows
-          compress-archive -Path build/windows/x64/runner/Release/* -DestinationPath dist/windows/CloudToLocalLLM-Windows-x64.zip
-        shell: pwsh
-
-      - name: Upload Windows Artifacts
+      - name: Upload Windows Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: windows-dist
-          path: dist/
-
-  release:
-    name: Create Release
-    needs: [build_linux, build_windows]
-    if: inputs.version != ''
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download Artifacts
-        uses: actions/download-artifact@v4
-        
-      - name: Prepare Release Assets
-        run: |
-          mkdir -p release-assets
-          # Collect all Linux files
-          cp -r linux-dist/linux/* release-assets/
-          # Collect all AUR files (tar them up)
-          cd linux-dist/aur && tar -czf ../../release-assets/CloudToLocalLLM-AUR.tar.gz . && cd ../..
-          # Collect Windows files
-          cp -r windows-dist/windows/* release-assets/
-
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "release-assets/*"
-          tag: "v${{ inputs.version }}"
-          name: "Release v${{ inputs.version }}"
-          body: "Automated desktop builds for v${{ inputs.version }}\n\nIncludes:\n- Universal Linux AppImage\n- Debian/Ubuntu .deb package\n- Standard Linux bundle (.tar.gz)\n- Arch Linux AUR package files\n- Windows Portable ZIP"
-          allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: windows-bundle
+          path: build/windows/x64/runner/Release/
