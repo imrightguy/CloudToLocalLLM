@@ -250,30 +250,16 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  publish_aur:
-    needs: [ai_change_analysis, publish_desktop_releases]
-    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && needs.publish_desktop_releases.result == 'success'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download AUR package files
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-dist
-          path: dist
-
-      - name: Setup SSH for AUR
+      - name: Publish to AUR
+        if: secrets.AUR_SSH_PRIVATE_KEY != ''
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
-
-      - name: Clone AUR Repo and Push
-        run: |
+          
           # Use ssh-agent to handle the key
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
@@ -283,8 +269,7 @@ jobs:
           
           cd /tmp/aur-repo
           
-          # Use a docker container with pacman/makepkg to generate .SRCINFO
-          # Note: we need to handle the case where makepkg needs to run as non-root
+          # Generate .SRCINFO using docker
           docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
           
           git config user.name "CloudToLocalLLM CI"
