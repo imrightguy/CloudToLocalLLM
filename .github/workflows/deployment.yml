@@ -215,9 +215,11 @@ jobs:
       - name: Package Linux Distributions
         run: |
           mkdir -p dist/linux
-          # Create standard bundle tarball
+          # Create standard bundle tarball with a top-level directory
           cd build/linux/x64/release/bundle
-          tar -czf ../../../../../dist/linux/CloudToLocalLLM-Linux-x64.tar.gz .
+          mkdir cloudtolocalllm
+          cp -r * cloudtolocalllm/ 2>/dev/null || true
+          tar -czf ../../../../../dist/linux/CloudToLocalLLM-Linux-x64.tar.gz cloudtolocalllm/
           cd ../../../../../
           
           # Build .deb package

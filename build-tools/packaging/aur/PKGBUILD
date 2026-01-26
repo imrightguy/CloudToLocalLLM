@@ -22,7 +22,7 @@ sha256sums=('SKIP')
 package() {
     # Install the application files
     install -dm755 "${pkgdir}/opt/cloudtolocalllm"
-    cp -r "${srcdir}/"* "${pkgdir}/opt/cloudtolocalllm/"
+    cp -r "${srcdir}/cloudtolocalllm/"* "${pkgdir}/opt/cloudtolocalllm/"
 
     # Create /usr/bin wrapper
     install -dm755 "${pkgdir}/usr/bin"
