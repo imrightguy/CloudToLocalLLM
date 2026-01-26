@@ -251,10 +251,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to AUR
-        if: secrets.AUR_SSH_PRIVATE_KEY != ''
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
+          if [ -z "$AUR_SSH_PRIVATE_KEY" ]; then
+            echo "AUR_SSH_PRIVATE_KEY not set, skipping AUR publication"
+            exit 0
+          fi
+          
           mkdir -p ~/.ssh
           echo "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
