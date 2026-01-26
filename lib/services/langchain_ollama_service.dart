@@ -166,12 +166,14 @@ class LangChainOllamaService extends ChangeNotifier {
   /// Get Ollama base URL based on connection type
   String _getOllamaBaseUrl() {
     // Use existing connection manager to determine the appropriate URL
+    // langchain_ollama package expects the base URL to include /api in many cases
+    // to correctly route to /api/generate or /api/chat.
     switch (_connectionManager.getBestConnectionType()) {
       case ConnectionType.local:
-        return 'http://localhost:11434';
+        return 'http://localhost:11434/api';
       case ConnectionType.cloud:
         // Route through tunnel system
-        return AppConfig.cloudOllamaUrl;
+        return '${AppConfig.cloudOllamaUrl}/api';
       case ConnectionType.none:
         throw StateError('No connection available');
     }

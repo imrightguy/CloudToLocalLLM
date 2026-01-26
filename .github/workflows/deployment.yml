@@ -44,6 +44,8 @@ jobs:
       web_needs_build: ${{ steps.analyze.outputs.web_needs_build }}
       postgres_needs_build: ${{ steps.analyze.outputs.postgres_needs_build }}
       streaming_needs_build: ${{ steps.analyze.outputs.streaming_needs_build }}
+      linux_needed: ${{ steps.analyze.outputs.linux_needed }}
+      windows_needed: ${{ steps.analyze.outputs.windows_needed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -102,6 +104,8 @@ jobs:
             NEW_VERSION="${v[0]}.${v[1]}.${v[2]}"
           fi
 
+          echo "linux_needed=$(echo $COMPONENTS_CLEAN | grep -q linux && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "windows_needed=$(echo $COMPONENTS_CLEAN | grep -q windows && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "components=$COMPONENTS_CLEAN" >> $GITHUB_OUTPUT
           echo "bump_needed=$BUMP" >> $GITHUB_OUTPUT
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
@@ -181,6 +185,13 @@ jobs:
             docker push ghcr.io/${REPO_LOWER}/streaming:latest
             docker push ghcr.io/${REPO_LOWER}/streaming:${VERSION}
           fi
+
+  build_desktop_apps:
+    needs: [ai_change_analysis, run_tests]
+    if: always() && (needs.ai_change_analysis.outputs.linux_needed == 'true' || needs.ai_change_analysis.outputs.windows_needed == 'true' || github.event_name == 'workflow_dispatch') && (needs.run_tests.result == 'success' || contains(github.event.head_commit.message, '[skip tests]'))
+    uses: ./.github/workflows/app-builds.yml
+    with:
+      version: ${{ needs.ai_change_analysis.outputs.new_version }}
 
   deploy:
     needs: [ai_change_analysis, build_images]

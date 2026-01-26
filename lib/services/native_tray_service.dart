@@ -137,8 +137,13 @@ class NativeTrayService with TrayListener {
       try {
         await trayManager.setToolTip('CloudToLocalLLM - Initializing');
       } catch (e) {
-        appLogger.warning('[NativeTray] Warning: Could not set tooltip: $e');
-        // Continue without tooltip - this is not critical
+        // Silently fail for MissingPluginException as it's common on some Linux distros
+        if (e.toString().contains('MissingPluginException')) {
+          appLogger
+              .debug('[NativeTray] Tooltips not supported on this platform');
+        } else {
+          appLogger.warning('[NativeTray] Warning: Could not set tooltip: $e');
+        }
       }
 
       _isInitialized = true;
@@ -224,8 +229,10 @@ class NativeTrayService with TrayListener {
       final tooltip = _getTooltipText(status);
       await trayManager.setToolTip(tooltip);
     } catch (e) {
-      appLogger.warning('[NativeTray] Could not update tooltip: $e');
-      // Tooltip updates are not critical for functionality
+      // Silently fail for MissingPluginException
+      if (!e.toString().contains('MissingPluginException')) {
+        appLogger.warning('[NativeTray] Could not update tooltip: $e');
+      }
     }
   }
 

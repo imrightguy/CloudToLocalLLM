@@ -67,7 +67,8 @@ void main(List<String> args) async {
   }
 
   // Flutter requires WidgetsFlutterBinding to be initialized first
-  WidgetsFlutterBinding.ensureInitialized();
+  // Moved inside runZonedGuarded in _runAppCommon to avoid Zone mismatch
+  // WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Sentry IMMEDIATELY after Flutter binding (before all other services)
   print('[Main] Initializing Sentry (FIRST after Flutter binding)...');
@@ -84,44 +85,15 @@ void main(List<String> args) async {
         options.debug = !kReleaseMode;
         // Enable Sentry Logs
         options.enableLogs = true;
-
-        /*
-        options.beforeSend = (SentryEvent event, {Hint? hint}) {
-          // Filter out Noise
-          final exception = event.throwable;
-          if (exception.toString().contains('ConnectionClosed') ||
-              exception.toString().contains('CanceledError') ||
-              exception.toString().contains('NetworkError')) {
-            return null; // Drop event
-          }
-
-          // Add Custom Tags
-          event.tags ??= {};
-          event.tags!['platform'] =
-              kIsWeb ? 'web' : (defaultTargetPlatform.name.toLowerCase());
-          event.tags!['build_mode'] =
-              kReleaseMode ? 'release' : (kProfileMode ? 'profile' : 'debug');
-          // Add device info if available (simplified for now)
-
-          return event;
-        };
-        */
       },
       appRunner: () async {
         print('[Main] Sentry initialized, running app with Sentry...');
-
         _runAppWithSentry();
       },
     ).timeout(const Duration(seconds: 5));
     print('[Main] Sentry init completed');
   } catch (e) {
     print('Sentry initialization failed or timed out: $e');
-    // If Sentry fails, run the app anyway without Sentry wrapping
-
-    // Initialize Supabase even if Sentry fails
-    // print('[Main] Initializing Supabase...');
-    // Supabase initialization removed for Entra ID migration
-
     _runAppWithoutSentry();
   }
 }
@@ -152,10 +124,6 @@ void _runAppWithoutSentry() {
 
 void _runAppCommon() {
   Future<AppBootstrapData> loadApp() async {
-    // Callback handling is now done by the router and CallbackScreen
-    // The router will detect callback parameters and route to /callback,
-    // where CallbackScreen will process the authentication
-
     // Run the main bootstrap process
     try {
       print('[Main] Bootstrapper loading...');
@@ -181,15 +149,18 @@ void _runAppCommon() {
 
   // Run the app inside a zone to catch async errors
   runZonedGuarded(
-    () => runApp(
-      SentryWidget(
-        child: FutureProvider<AppBootstrapData?>(
-          create: (_) => appLoadFuture,
-          initialData: null,
-          child: const CloudToLocalLLMApp(),
+    () {
+      WidgetsFlutterBinding.ensureInitialized();
+      runApp(
+        SentryWidget(
+          child: FutureProvider<AppBootstrapData?>(
+            create: (_) => appLoadFuture,
+            initialData: null,
+            child: const CloudToLocalLLMApp(),
+          ),
         ),
-      ),
-    ),
+      );
+    },
     (error, stack) {
       debugPrint('Uncaught error: $error');
       debugPrint('Stack trace: $stack');
@@ -259,7 +230,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
         home: Scaffold(
           backgroundColor:
               Colors.grey[900], // Dark background for loading screen
-          body: Center(
+          body: const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
@@ -336,7 +307,6 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     });
 
     // If authenticated services are already loaded, trigger a rebuild now
-    // to ensure they get added to the Provider tree
     if (authService.areAuthenticatedServicesLoaded.value) {
       print(
           '[App] Authenticated services already loaded, triggering rebuild...');
@@ -353,7 +323,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
   List<SingleChildWidget> _buildProviders() {
     final providers = <SingleChildWidget>[];
 
-    // Core services - always available, but check before adding
+    // Core services
     _addCoreProvider<AuthService>(providers);
     _addCoreProvider<LocalOllamaConnectionService>(providers);
     _addCoreProvider<DesktopClientDetectionService>(providers);
@@ -367,7 +337,6 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     _addCoreProvider<ProviderConfigurationManager>(providers);
     _addCoreProvider<PlatformDetectionService>(providers);
 
-    // PlatformAdapter - doesn't extend ChangeNotifier, so use Provider.value
     try {
       if (di.serviceLocator.isRegistered<PlatformAdapter>()) {
         final platformAdapter = di.serviceLocator.get<PlatformAdapter>();
@@ -377,11 +346,10 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       }
     } catch (e, stack) {
       print('[Providers] Error adding PlatformAdapter: $e');
-      print('[Providers] Stack: $stack');
       Sentry.captureException(e, stackTrace: stack);
     }
 
-    // Authenticated services - only provide if registered
+    // Authenticated services
     _addProviderIfRegistered<TunnelService>(providers);
     _addProviderIfRegistered<StreamingProxyService>(providers);
     _addProviderIfRegistered<OllamaService>(providers);
@@ -401,54 +369,38 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     return providers;
   }
 
-  /// Helper method to safely add a core provider
   void _addCoreProvider<T extends ChangeNotifier>(
-    List<SingleChildWidget> providers,
-  ) {
+      List<SingleChildWidget> providers) {
     try {
       if (di.serviceLocator.isRegistered<T>()) {
         final service = di.serviceLocator.get<T>();
-        providers.add(
-          ChangeNotifierProvider<T>.value(value: service),
-        );
-      } else {
-        print('[Providers] Core service $T not registered yet');
+        providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
     } catch (e, stack) {
       print('[Providers] Error adding core provider $T: $e');
-      print('[Providers] Stack: $stack');
       Sentry.captureException(e, stackTrace: stack);
     }
   }
 
-  /// Helper method to safely add a provider only if the service is registered
   void _addProviderIfRegistered<T extends ChangeNotifier>(
-    List<SingleChildWidget> providers,
-  ) {
+      List<SingleChildWidget> providers) {
     try {
       if (di.serviceLocator.isRegistered<T>()) {
         final service = di.serviceLocator.get<T>();
-        providers.add(
-          ChangeNotifierProvider<T>.value(value: service),
-        );
+        providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
-    } catch (e, stack) {
+    } catch (e) {
       print('[Providers] Error adding provider $T: $e');
-      print('[Providers] Stack: $stack');
     }
   }
 }
 
-/// Handles command-line arguments for OAuth callbacks
-/// When Windows launches a new instance with a callback URL, this function
-/// will send the URL to the existing instance and exit
 Future<void> _handleCommandLineArgs(List<String> args) async {
   print('[Main] Handling command-line arguments: $args');
-
-  // Look for OAuth callback URL in arguments
   String? callbackUrl;
   for (final arg in args) {
-    if (arg.startsWith('com.cloudtolocalllm.app://')) {
+    if (arg.startsWith('com.cloudtolocalllm.app://') ||
+        arg.startsWith('cloudtolocalllm://')) {
       callbackUrl = arg;
       break;
     }
@@ -456,9 +408,6 @@ Future<void> _handleCommandLineArgs(List<String> args) async {
 
   if (callbackUrl != null) {
     print('[Main] Found OAuth callback URL: $callbackUrl');
-
-    // Try to send the callback URL to the existing instance
-    // For now, we'll use a simple file-based approach (desktop only)
     if (!kIsWeb) {
       try {
         await PlatformFileUtils.writeCallbackFile(callbackUrl);
@@ -468,7 +417,6 @@ Future<void> _handleCommandLineArgs(List<String> args) async {
       }
     }
   }
-
   print('[Main] Command-line handler exiting');
 }
 
@@ -486,8 +434,6 @@ class _AppRouterHostState extends State<_AppRouterHost> {
   @override
   void initState() {
     super.initState();
-    print('[AppRouterHost] initState called');
-    // Initialize router after first frame to ensure context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _initialized) return;
       _initialized = true;
@@ -496,18 +442,11 @@ class _AppRouterHostState extends State<_AppRouterHost> {
   }
 
   void _initializeRouterWhenReady() async {
-    print('[AppRouterHost] _initializeRouterWhenReady called');
     final authService = context.read<AuthService>();
-    print(
-        '[AppRouterHost] isSessionBootstrapComplete: ${authService.isSessionBootstrapComplete}');
-
     if (authService.isSessionBootstrapComplete) {
-      print('[AppRouterHost] Bootstrap already complete, initializing router');
       _initializeRouter(authService);
     } else {
-      print('[AppRouterHost] Bootstrap not complete, waiting...');
       await authService.sessionBootstrapFuture;
-      print('[AppRouterHost] Bootstrap completed, initializing router');
       if (!mounted) return;
       _initializeRouter(authService);
     }
@@ -523,9 +462,8 @@ class _AppRouterHostState extends State<_AppRouterHost> {
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
         home: Scaffold(
-          backgroundColor:
-              Colors.grey[900], // Dark background for loading screen
-          body: Center(
+          backgroundColor: Colors.grey[900],
+          body: const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
@@ -534,69 +472,40 @@ class _AppRouterHostState extends State<_AppRouterHost> {
       );
     }
 
+    ThemeProvider? themeProvider;
     try {
-      // Get theme provider from context - use a safe accessor
-      ThemeProvider? themeProvider;
-      try {
-        themeProvider = context.watch<ThemeProvider>();
-      } catch (e) {
-        print('[AppRouterHost] Warning: ThemeProvider not available: $e');
-        // Continue without theme provider - will use defaults
-      }
+      themeProvider = context.watch<ThemeProvider>();
+    } catch (_) {}
 
-      return WindowListenerWidget(
-        child: MaterialApp.router(
-          title: AppConfig.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider?.themeMode ?? ThemeMode.system,
-          routerConfig: router,
-          builder: (context, child) {
-            final mediaQuery = MediaQuery.of(context);
-            return MediaQuery(
-              data: mediaQuery.copyWith(
-                textScaler: TextScaler.linear(
-                  mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2),
-                ),
-              ),
-              child: child ?? const SizedBox.shrink(),
-            );
-          },
-        ),
-      );
-    } catch (e, stack) {
-      print('[AppRouterHost] Error building router: $e');
-      print('[AppRouterHost] Stack: $stack');
-      Sentry.captureException(e, stackTrace: stack);
-      return MaterialApp(
+    return WindowListenerWidget(
+      child: MaterialApp.router(
+        title: AppConfig.appName,
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                const Text('Router Error'),
-                const SizedBox(height: 8),
-                Text(e.toString()),
-              ],
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeProvider?.themeMode ?? ThemeMode.system,
+        routerConfig: router,
+        builder: (context, child) {
+          final mediaQuery = MediaQuery.of(context);
+          return MediaQuery(
+            data: mediaQuery.copyWith(
+              textScaler: TextScaler.linear(
+                mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2),
+              ),
             ),
-          ),
-        ),
-      );
-    }
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
+      ),
+    );
   }
 
   void _initializeRouter(AuthService authService) {
-    print('[AppRouterHost] _initializeRouter called');
     setState(() {
       _router = AppRouter.createRouter(
         navigatorKey: navigatorKey,
         authService: authService,
       );
-      print('[AppRouterHost] Router created and set');
     });
   }
 }
