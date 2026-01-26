@@ -26,7 +26,7 @@ jobs:
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++6 libayatana-appindicator3-dev zip
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++6 libayatana-appindicator3-dev libsecret-1-dev zip
 
       - uses: subosito/flutter-action@v2
         with:
