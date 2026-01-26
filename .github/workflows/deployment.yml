@@ -118,6 +118,20 @@ jobs:
           echo "postgres_needs_build=$POSTGRES_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
 
+  docs_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+      - name: Check Markdown formatting
+        run: markdownlint docs/ --config .markdownlint.json
+      - name: Validate internal links
+        run: node scripts/validate-internal-links.js
+
   run_tests:
     needs: ai_change_analysis
     if: needs.ai_change_analysis.outputs.bump_needed == 'true' || github.event_name == 'workflow_dispatch'
@@ -275,6 +289,9 @@ jobs:
           
           # Generate .SRCINFO using docker
           docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
+          
+          # Fix permissions as the docker container changed ownership of the files
+          sudo chown -R $(id -u):$(id -g) .
           
           git config user.name "CloudToLocalLLM CI"
           git config user.email "ci@cloudtolocalllm.online"
