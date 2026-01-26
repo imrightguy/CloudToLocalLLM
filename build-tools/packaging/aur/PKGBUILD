@@ -11,6 +11,7 @@ depends=(
     'gtk3'
     'glib2'
     'libsecret'
+    'curl'
     'wmctrl'
     'xdg-utils'
 )

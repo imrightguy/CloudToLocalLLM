@@ -68,7 +68,7 @@ Package: $PACKAGE_NAME
 Version: $VERSION
 Architecture: amd64
 Maintainer: $MAINTAINER
-Depends: libgtk-3-0, libglib2.0-0, libayatana-appindicator3-1, liblzma5, libsecret-1-0
+Depends: libgtk-3-0, libglib2.0-0, libayatana-appindicator3-1, liblzma5, libsecret-1-0, libcurl4
 Section: utils
 Priority: optional
 Description: $DESCRIPTION
