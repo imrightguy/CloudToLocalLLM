@@ -253,8 +253,10 @@ jobs:
 
   publish_aur:
     needs: [ai_change_analysis, publish_desktop_releases]
-    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && needs.publish_desktop_releases.result == 'success' && vars.AUR_SSH_PRIVATE_KEY != ''
+    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && needs.publish_desktop_releases.result == 'success'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       
@@ -273,19 +275,29 @@ jobs:
 
       - name: Clone AUR Repo and Push
         run: |
+          # Use ssh-agent to handle the key
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/id_rsa
+          
           git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
           cp dist/aur/PKGBUILD /tmp/aur-repo/
           
           cd /tmp/aur-repo
           
           # Use a docker container with pacman/makepkg to generate .SRCINFO
-          docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && sudo -u nobody makepkg --printsrcinfo > .SRCINFO"
+          # Note: we need to handle the case where makepkg needs to run as non-root
+          docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
           
           git config user.name "CloudToLocalLLM CI"
           git config user.email "ci@cloudtolocalllm.online"
           git add PKGBUILD .SRCINFO
-          git commit -m "Update to v${{ needs.ai_change_analysis.outputs.new_version }}"
-          git push origin master
+          
+          if git diff --cached --quiet; then
+            echo "No changes to AUR package"
+          else
+            git commit -m "Update to v${{ needs.ai_change_analysis.outputs.new_version }}"
+            git push origin master
+          fi
 
   deploy:
     needs: [ai_change_analysis, build_images]
