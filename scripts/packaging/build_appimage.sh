@@ -55,12 +55,6 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Check if AppImage structure exists
-    if [[ ! -d "$PROJECT_ROOT/build-tools/packaging/appimage/CloudToLocalLLM.AppDir" ]]; then
-        log_error "AppImage structure not found at $PROJECT_ROOT/build-tools/packaging/appimage/CloudToLocalLLM.AppDir"
-        exit 1
-    fi
-    
     # Check for appimagetool
     if ! command -v appimagetool &> /dev/null; then
         log_warning "appimagetool not found. Attempting to download..."
@@ -115,8 +109,26 @@ create_build_environment() {
 copy_appimage_files() {
     log_info "Copying AppImage structure..."
     
-    # Copy AppImage directory structure
-    cp -r "$PROJECT_ROOT/build-tools/packaging/appimage/CloudToLocalLLM.AppDir" "$BUILD_DIR/"
+    # Create AppDir if missing
+    if [[ ! -d "$PROJECT_ROOT/build-tools/packaging/appimage/CloudToLocalLLM.AppDir" ]]; then
+        log_warning "AppDir template missing, creating basic structure..."
+        mkdir -p "$BUILD_DIR/CloudToLocalLLM.AppDir/usr/bin"
+        mkdir -p "$BUILD_DIR/CloudToLocalLLM.AppDir/usr/share/applications"
+        mkdir -p "$BUILD_DIR/CloudToLocalLLM.AppDir/usr/share/icons/hicolor/128x128/apps"
+        
+        # Create a basic desktop file if template missing
+        cat > "$BUILD_DIR/CloudToLocalLLM.AppDir/cloudtolocalllm.desktop" << EOF
+[Desktop Entry]
+Name=CloudToLocalLLM
+Exec=cloudtolocalllm
+Icon=cloudtolocalllm
+Type=Application
+Categories=Utility;
+EOF
+    else
+        # Copy AppImage directory structure
+        cp -r "$PROJECT_ROOT/build-tools/packaging/appimage/CloudToLocalLLM.AppDir" "$BUILD_DIR/"
+    fi
     log_success "Copied AppImage structure"
     
     log_info "Copying Flutter Linux build artifacts..."

@@ -1,0 +1,30 @@
+# Maintainer: CloudToLocalLLM Team <team@cloudtolocalllm.online>
+pkgname=cloudtolocalllm-bin
+_pkgname=cloudtolocalllm
+pkgver=VERSION
+pkgrel=1
+pkgdesc="Manage and run powerful Large Language Models locally, orchestrated via a cloud interface"
+arch=('x86_64')
+url="https://cloudtolocalllm.online"
+license=('custom')
+depends=('gtk3' 'libayatana-appindicator' 'xz')
+provides=('cloudtolocalllm')
+conflicts=('cloudtolocalllm')
+source=("https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${pkgver}/CloudToLocalLLM-Linux-x64.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+    mkdir -p "${pkgdir}/opt/${_pkgname}"
+    mkdir -p "${pkgdir}/usr/bin"
+    mkdir -p "${pkgdir}/usr/share/applications"
+    mkdir -p "${pkgdir}/usr/share/icons/hicolor/128x128/apps"
+
+    cp -r "${srcdir}/"* "${pkgdir}/opt/${_pkgname}/"
+    
+    # Create wrapper
+    echo -e "#!/bin/bash\n/opt/${_pkgname}/${_pkgname} \"\$@\"" > "${pkgdir}/usr/bin/${_pkgname}"
+    chmod +x "${pkgdir}/usr/bin/${_pkgname}"
+
+    # Desktop entry and icon from the bundle (assuming they are there or we create them)
+    # Since we build the bundle, we can include these in the tarball or the PKGBUILD can create them
+}
