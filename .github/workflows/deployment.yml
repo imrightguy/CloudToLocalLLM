@@ -249,6 +249,42 @@ jobs:
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+  publish_aur:
+    needs: [ai_change_analysis, publish_desktop_releases]
+    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && needs.publish_desktop_releases.result == 'success' && vars.AUR_SSH_PRIVATE_KEY != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download AUR package files
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-dist
+          path: dist
+
+      - name: Setup SSH for AUR
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+      - name: Clone AUR Repo and Push
+        run: |
+          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
+          cp dist/aur/PKGBUILD /tmp/aur-repo/
+          
+          cd /tmp/aur-repo
+          
+          # Use a docker container with pacman/makepkg to generate .SRCINFO
+          docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && sudo -u nobody makepkg --printsrcinfo > .SRCINFO"
+          
+          git config user.name "CloudToLocalLLM CI"
+          git config user.email "ci@cloudtolocalllm.online"
+          git add PKGBUILD .SRCINFO
+          git commit -m "Update to v${{ needs.ai_change_analysis.outputs.new_version }}"
+          git push origin master
+
   deploy:
     needs: [ai_change_analysis, build_images]
     if: always() && needs.ai_change_analysis.outputs.components != '' && needs.build_images.result == 'success'
