@@ -216,11 +216,10 @@ jobs:
         run: |
           mkdir -p dist/linux
           # Create standard bundle tarball with a top-level directory
-          cd build/linux/x64/release/bundle
-          mkdir cloudtolocalllm
-          cp -r * cloudtolocalllm/ 2>/dev/null || true
-          tar -czf ../../../../../dist/linux/CloudToLocalLLM-Linux-x64.tar.gz cloudtolocalllm/
-          cd ../../../../../
+          STAGING_DIR=$(mktemp -d)
+          mkdir -p $STAGING_DIR/cloudtolocalllm
+          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/cloudtolocalllm/
+          tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
           
           # Build .deb package
           chmod +x scripts/packaging/build_deb.sh
