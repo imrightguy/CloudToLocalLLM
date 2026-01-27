@@ -5,8 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 import '../auth/auth_provider.dart';
 
-import 'connection_manager_service.dart';
-import '../di/locator.dart' as di;
+import 'session_bootstrap_service.dart';
 
 /// Provider-Agnostic Authentication Service
 class AuthService extends ChangeNotifier {
@@ -25,6 +24,7 @@ class AuthService extends ChangeNotifier {
   AuthService(this._authProvider) {
     debugPrint(
         '[AuthService] Constructor called with provider: ${_authProvider.runtimeType}');
+    _sessionBootstrapService = SessionBootstrapService();
   }
 
   Future<void> init() async {
@@ -97,7 +97,7 @@ class AuthService extends ChangeNotifier {
     _isAuthenticated.value = true;
     notifyListeners();
 
-    await _loadAuthenticatedServices();
+    await _sessionBootstrapService.initialize();
     print('[AuthService] Authenticated services loaded');
   }
 
