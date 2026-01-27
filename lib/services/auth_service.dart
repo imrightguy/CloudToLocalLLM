@@ -20,6 +20,7 @@ class AuthService extends ChangeNotifier {
   bool _isInitializing = false;
   Completer<void>? _initCompleter;
   bool _isRestoringSession = false;
+  late final SessionBootstrapService _sessionBootstrapService;
 
   AuthService(this._authProvider) {
     debugPrint(
@@ -105,42 +106,6 @@ class AuthService extends ChangeNotifier {
     _isAuthenticated.value = false;
     _areAuthenticatedServicesLoaded.value = false;
     notifyListeners();
-  }
-
-  /// Load authenticated services after authentication is confirmed
-  Future<void> _loadAuthenticatedServices() async {
-    try {
-      debugPrint('[AuthService] Loading authenticated services...');
-
-      final hasConnectionManager =
-          di.serviceLocator.isRegistered<ConnectionManagerService>();
-
-      if (hasConnectionManager) {
-        _areAuthenticatedServicesLoaded.value = true;
-        notifyListeners();
-        return;
-      }
-
-      print('[AuthService] Calling setupAuthenticatedServices...');
-      await di.setupAuthenticatedServices();
-      print('[AuthService] setupAuthenticatedServices returned');
-
-      // Verify they were actually registered before setting the flag
-      final registered =
-          di.serviceLocator.isRegistered<ConnectionManagerService>();
-      if (registered) {
-        _areAuthenticatedServicesLoaded.value = true;
-        notifyListeners();
-      } else {
-        debugPrint(
-            '[AuthService] setupAuthenticatedServices returned but ConnectionManagerService is not registered');
-      }
-    } catch (e) {
-      debugPrint(
-          '[AuthService] ERROR: Failed to load authenticated services: $e');
-      _areAuthenticatedServicesLoaded.value = false;
-      notifyListeners();
-    }
   }
 
   // Getters
