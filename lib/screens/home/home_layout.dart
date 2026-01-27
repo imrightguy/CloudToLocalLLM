@@ -70,19 +70,19 @@ class _HomeLayoutState extends State<HomeLayout> {
   void _handleNewConversation() {
     final chatService = context.read<StreamingChatService>();
     chatService.createConversation();
-    return null;
+    return;
   }
 
   void _handleFocusSearch() {
     // Focus search/input - implementation depends on MessageInput widget
-    return null;
+    return;
   }
 
   void _handleCloseSidebar() {
     if (widget.isCompact && !widget.isSidebarCollapsed) {
       widget.onSidebarToggle();
     }
-    return null;
+    return;
   }
 
   @override

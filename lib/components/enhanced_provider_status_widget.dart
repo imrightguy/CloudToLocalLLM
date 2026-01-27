@@ -624,7 +624,7 @@ class _EnhancedProviderSelectorWidgetState
             ),
             SizedBox(height: AppTheme.spacingM),
             ...providers
-                .map((provider) => _buildProviderSelectionCard(provider)),
+                .map(_buildProviderSelectionCard),
             if (widget.allowMultipleSelection &&
                 _selectedProviderIds.isNotEmpty) ...[
               SizedBox(height: AppTheme.spacingM),

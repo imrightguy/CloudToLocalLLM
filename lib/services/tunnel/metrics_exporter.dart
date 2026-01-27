@@ -241,7 +241,7 @@ class MetricsExporter {
         'average_latency_ms': metrics.averageLatency.inMilliseconds,
         'p95_latency_ms': metrics.p95Latency.inMilliseconds,
         'connection_quality': _collector.currentQuality.name,
-        'uptime_hours': (metrics.totalUptime.inHours).toStringAsFixed(2),
+        'uptime_hours': metrics.totalUptime.inHours.toStringAsFixed(2),
         'reconnections': metrics.reconnectionCount,
       },
       'health_status': _getHealthStatus(metrics),

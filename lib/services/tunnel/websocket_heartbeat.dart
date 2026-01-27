@@ -150,7 +150,7 @@ class WebSocketHeartbeat {
 
       // Start pong timeout timer
       _pongTimer?.cancel();
-      _pongTimer = Timer(pongTimeout, () => _onPongTimeout());
+      _pongTimer = Timer(pongTimeout, _onPongTimeout);
     } catch (e) {
       _log('Failed to send ping: $e');
       _onError(e);
@@ -278,9 +278,7 @@ class HeartbeatWebSocket {
       onError: (error) {
         _messageController.addError(error);
       },
-      onDone: () {
-        _messageController.close();
-      },
+      onDone: _messageController.close,
     );
   }
 

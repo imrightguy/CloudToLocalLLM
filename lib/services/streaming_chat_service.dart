@@ -280,9 +280,9 @@ class StreamingChatService extends ChangeNotifier {
 
       // Listen to streaming messages
       _currentStreamSubscription = messageStream.listen(
-        (streamingMessage) => _handleStreamingMessage(streamingMessage),
-        onError: (error) => _handleStreamingError(error),
-        onDone: () => _handleStreamingComplete(),
+        _handleStreamingMessage,
+        onError: _handleStreamingError,
+        onDone: _handleStreamingComplete,
       );
     } catch (e) {
       appLogger.error('[StreamingChat] Error in sendMessage', error: e);

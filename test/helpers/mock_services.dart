@@ -176,9 +176,9 @@ class MockAuthService extends ChangeNotifier implements AuthService {
 /// Mock AdminCenterService for testing
 class MockAdminCenterService extends ChangeNotifier
     implements AdminCenterService {
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String? _error;
-  List<AdminRoleModel> _adminRoles = [];
+  final List<AdminRoleModel> _adminRoles = [];
   Map<String, dynamic>? _dashboardMetrics;
 
   @override

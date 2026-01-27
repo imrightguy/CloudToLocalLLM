@@ -36,7 +36,7 @@ final settingsRoutes = [
     path: '/settings/daemon',
     name: 'daemon-settings',
     builder: (context, state) {
-      debugPrint("[Router] Building DaemonSettingsScreen");
+      debugPrint('[Router] Building DaemonSettingsScreen');
       return const DaemonSettingsScreen();
     },
   ),
@@ -44,7 +44,7 @@ final settingsRoutes = [
     path: '/settings/connection-status',
     name: 'connection-status',
     builder: (context, state) {
-      debugPrint("[Router] Building ConnectionStatusScreen");
+      debugPrint('[Router] Building ConnectionStatusScreen');
       return const ConnectionStatusScreen();
     },
   ),

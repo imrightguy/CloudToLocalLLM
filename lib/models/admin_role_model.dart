@@ -80,12 +80,12 @@ class AdminRoleModel {
 
   /// Check if user has any of the specified permissions
   bool hasAnyPermission(List<AdminPermission> permissions) {
-    return permissions.any((permission) => hasPermission(permission));
+    return permissions.any(hasPermission);
   }
 
   /// Check if user has all of the specified permissions
   bool hasAllPermissions(List<AdminPermission> permissions) {
-    return permissions.every((permission) => hasPermission(permission));
+    return permissions.every(hasPermission);
   }
 
   /// Check if role is Super Admin

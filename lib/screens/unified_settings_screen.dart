@@ -412,9 +412,7 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
             child: SettingsCategoryList(
               categories: _getFilteredCategories(),
               activeCategory: _activeCategory,
-              onCategorySelected: (categoryId) {
-                _navigateToCategoryMobile(categoryId);
-              },
+              onCategorySelected: _navigateToCategoryMobile,
             ),
           ),
         ],

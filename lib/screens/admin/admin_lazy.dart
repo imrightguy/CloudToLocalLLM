@@ -12,7 +12,7 @@ final adminRoutes = [
     path: '/admin/data-flush',
     name: 'admin-data-flush',
     builder: (context, state) {
-      debugPrint("[Router] Building AdminDataFlushScreen");
+      debugPrint('[Router] Building AdminDataFlushScreen');
       return const AdminDataFlushScreen();
     },
   ),
@@ -20,7 +20,7 @@ final adminRoutes = [
     path: '/admin-center',
     name: 'admin-center',
     builder: (context, state) {
-      debugPrint("[Router] Building AdminCenterScreen");
+      debugPrint('[Router] Building AdminCenterScreen');
       return const AdminCenterScreen();
     },
   ),

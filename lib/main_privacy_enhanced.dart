@@ -81,7 +81,7 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
         _initializeDesktopServices();
       }
     } catch (e) {
-      debugPrint(" [App] Error during app initialization: $e");
+      debugPrint(' [App] Error during app initialization: $e');
       // Still show the UI even if initialization fails
       if (mounted) {
         setState(() {
@@ -94,7 +94,7 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
 
   Future<void> _initializeDesktopServices() async {
     try {
-      debugPrint("[SystemTray] Initializing desktop services...");
+      debugPrint('[SystemTray] Initializing desktop services...');
 
       // Only initialize if platform supports it
       await widget.platformManager.initializeServiceSafely(
@@ -105,23 +105,23 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
         },
       );
 
-      debugPrint("[SystemTray] Desktop services initialized");
+      debugPrint('[SystemTray] Desktop services initialized');
     } catch (e, stackTrace) {
-      debugPrint("[SystemTray] Failed to initialize desktop services: $e");
-      debugPrint("[SystemTray] Stack trace: $stackTrace");
+      debugPrint('[SystemTray] Failed to initialize desktop services: $e');
+      debugPrint('[SystemTray] Stack trace: $stackTrace');
     }
   }
 
   void _navigateToRoute(String route) {
     try {
-      debugPrint("[Navigation] Attempting to navigate to route: $route");
+      debugPrint('[Navigation] Attempting to navigate to route: $route');
 
       BuildContext? context = navigatorKey.currentContext;
       context ??= navigatorKey.currentState?.context;
 
       if (context != null && context.mounted) {
         debugPrint(
-          "[Navigation] Context available, executing navigation to: $route",
+          '[Navigation] Context available, executing navigation to: $route',
         );
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -129,45 +129,45 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
             if (context!.mounted) {
               context.go(route);
               debugPrint(
-                "[Navigation] Navigation command sent for route: $route",
+                '[Navigation] Navigation command sent for route: $route',
               );
             }
           } catch (e) {
             debugPrint(
-              " [Navigation] Post-frame navigation error for $route: $e",
+              ' [Navigation] Post-frame navigation error for $route: $e',
             );
           }
         });
       } else {
         debugPrint(
-          "[Navigation] Cannot navigate to $route: no valid context available",
+          '[Navigation] Cannot navigate to $route: no valid context available',
         );
         Future.delayed(const Duration(milliseconds: 500), () {
           _retryNavigation(route, 1);
         });
       }
     } catch (e, stackTrace) {
-      debugPrint(" [Navigation] Error navigating to $route: $e");
-      debugPrint(" [Navigation] Stack trace: $stackTrace");
+      debugPrint(' [Navigation] Error navigating to $route: $e');
+      debugPrint(' [Navigation] Stack trace: $stackTrace');
     }
   }
 
   void _retryNavigation(String route, int attempt) {
     if (attempt > 3) {
-      debugPrint("[Navigation] Max retry attempts reached for route: $route");
+      debugPrint('[Navigation] Max retry attempts reached for route: $route');
       return;
     }
 
-    debugPrint("[Navigation] Retry attempt $attempt for route: $route");
+    debugPrint('[Navigation] Retry attempt $attempt for route: $route');
 
     final context =
         navigatorKey.currentContext ?? navigatorKey.currentState?.context;
     if (context != null && context.mounted) {
       try {
         context.go(route);
-        debugPrint("[Navigation] Retry successful for route: $route");
+        debugPrint('[Navigation] Retry successful for route: $route');
       } catch (e) {
-        debugPrint(" [Navigation] Retry failed for $route: $e");
+        debugPrint(' [Navigation] Retry failed for $route: $e');
         Future.delayed(const Duration(milliseconds: 1000), () {
           _retryNavigation(route, attempt + 1);
         });
@@ -436,7 +436,7 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
     _trayInitialized = true;
 
     try {
-      debugPrint("[SystemTray] Initializing tray service...");
+      debugPrint('[SystemTray] Initializing tray service...');
 
       final connectionManager = context.read<ConnectionManagerService>();
       final localOllama = context.read<LocalOllamaConnectionService>();
@@ -448,31 +448,31 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
         connectionManager: connectionManager,
         localOllama: localOllama,
         onShowWindow: () {
-          debugPrint("[SystemTray] Native tray requested to show window");
+          debugPrint('[SystemTray] Native tray requested to show window');
           windowManager.showWindow();
         },
         onHideWindow: () {
-          debugPrint(" [SystemTray] Native tray requested to hide window");
+          debugPrint(' [SystemTray] Native tray requested to hide window');
           windowManager.hideToTray();
         },
         onSettings: () {
-          debugPrint("[SystemTray] Native tray requested to open settings");
+          debugPrint('[SystemTray] Native tray requested to open settings');
           _navigateToRoute('/settings');
         },
         onQuit: () {
-          debugPrint("[SystemTray] Native tray requested to quit application");
+          debugPrint('[SystemTray] Native tray requested to quit application');
           windowManager.forceClose();
         },
       );
 
       if (success) {
-        debugPrint("[SystemTray] Native tray service initialized successfully");
+        debugPrint('[SystemTray] Native tray service initialized successfully');
       } else {
-        debugPrint(" [SystemTray] Failed to initialize native tray service");
+        debugPrint(' [SystemTray] Failed to initialize native tray service');
       }
     } catch (e, stackTrace) {
-      debugPrint("[SystemTray] Failed to initialize desktop services: $e");
-      debugPrint("[SystemTray] Stack trace: $stackTrace");
+      debugPrint('[SystemTray] Failed to initialize desktop services: $e');
+      debugPrint('[SystemTray] Stack trace: $stackTrace');
     }
   }
 }

@@ -361,7 +361,7 @@ Guidelines:
     final requiredVars = metadata.variables;
     final providedVars = variables.keys.toSet();
 
-    return requiredVars.every((variable) => providedVars.contains(variable));
+    return requiredVars.every(providedVars.contains);
   }
 
   /// Get missing variables for a template

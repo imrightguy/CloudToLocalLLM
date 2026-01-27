@@ -73,7 +73,7 @@ Future<void> testTunnelConfiguration() async {
     }
   } catch (e) {
     print('[PureTunnelTest] ❌ Configuration test failed: $e');
-    throw e;
+    rethrow;
   }
 }
 
@@ -128,7 +128,7 @@ Future<void> testWebSocketUrlConstruction() async {
     }
   } catch (e) {
     print('[PureTunnelTest] ❌ WebSocket URL test failed: $e');
-    throw e;
+    rethrow;
   }
 }
 
@@ -168,7 +168,7 @@ Future<void> testConnectionFlow() async {
     }
   } catch (e) {
     print('[PureTunnelTest] ❌ Connection flow test failed: $e');
-    throw e;
+    rethrow;
   }
 }
 
@@ -197,7 +197,7 @@ Future<void> testTunnelRegistration() async {
     print('[PureTunnelTest] ✅ SUCCESS: Registration simulation completed');
   } catch (e) {
     print('[PureTunnelTest] ❌ Registration test failed: $e');
-    throw e;
+    rethrow;
   }
 }
 
@@ -213,7 +213,7 @@ Future<void> testHealthMonitoring() async {
     print('[PureTunnelTest] Starting health check simulation...');
 
     for (var i = 0; i < maxChecks; i++) {
-      print('[PureTunnelTest] Health check ${i + 1}/${maxChecks}...');
+      print('[PureTunnelTest] Health check ${i + 1}/$maxChecks...');
       await Future.delayed(healthCheckInterval);
 
       // Simulate health check result
@@ -229,7 +229,7 @@ Future<void> testHealthMonitoring() async {
     print('[PureTunnelTest] ✅ SUCCESS: Health monitoring simulation completed');
   } catch (e) {
     print('[PureTunnelTest] ❌ Health monitoring test failed: $e');
-    throw e;
+    rethrow;
   }
 }
 

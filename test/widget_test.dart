@@ -10,15 +10,9 @@ import 'package:cloudtolocalllm/main.dart';
 import 'test_config.dart';
 
 void main() {
-  setUpAll(() {
-    // Initialize test configuration with mocks
-    TestConfig.initialize();
-  });
+  setUpAll(TestConfig.initialize);
 
-  tearDownAll(() {
-    // Clean up test configuration
-    TestConfig.cleanup();
-  });
+  tearDownAll(TestConfig.cleanup);
 
   testWidgets('CloudToLocalLLM app initialization test', (
     WidgetTester tester,

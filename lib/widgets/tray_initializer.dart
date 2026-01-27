@@ -66,8 +66,8 @@ class _TrayInitializerState extends State<TrayInitializer> {
       final initialized = await nativeTray.initialize(
         connectionManager: connectionManager,
         localOllama: localOllama,
-        onShowWindow: () => windowManager.showWindow(),
-        onHideWindow: () => windowManager.hideToTray(),
+        onShowWindow: windowManager.showWindow,
+        onHideWindow: windowManager.hideToTray,
         onSettings: () {
           final context = widget.navigatorKey.currentContext;
           if (context != null) {
@@ -78,7 +78,7 @@ class _TrayInitializerState extends State<TrayInitializer> {
             );
           }
         },
-        onQuit: () => windowManager.forceClose(),
+        onQuit: windowManager.forceClose,
       );
 
       if (!initialized) {

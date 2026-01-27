@@ -145,7 +145,9 @@ class _LLMProviderSettingsScreenState extends State<LLMProviderSettingsScreen> {
   Future<void> _sendTestMessage() async {
     if (_messageController.text.isEmpty ||
         _selectedModel == null ||
-        _ollamaService == null) return;
+        _ollamaService == null) {
+      return;
+    }
 
     final response = await _ollamaService!.chat(
       model: _selectedModel!,

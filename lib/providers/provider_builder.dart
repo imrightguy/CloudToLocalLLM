@@ -29,9 +29,7 @@ import 'package:cloudtolocalllm/services/unified_connection_service.dart';
 import 'package:cloudtolocalllm/services/user_container_service.dart';
 import 'package:cloudtolocalllm/services/web_download_prompt_service.dart'
     if (dart.library.io) 'package:cloudtolocalllm/services/web_download_prompt_service_stub.dart';
-import 'package:cloudtolocalllm/services/log_buffer_service.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
 
 class ProviderBuilder {

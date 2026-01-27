@@ -165,7 +165,7 @@ class _LLMSecurityDashboardState extends State<LLMSecurityDashboard>
                 else
                   ...recentEvents
                       .take(5)
-                      .map((event) => _buildEventTile(event)),
+                      .map(_buildEventTile),
               ],
             ),
           ),

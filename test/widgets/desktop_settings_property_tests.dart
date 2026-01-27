@@ -539,7 +539,7 @@ void main() {
             final switches = find.byType(Switch);
 
             // Verify switches exist for system tray options
-            if (switches.evaluate().length >= 1) {
+            if (switches.evaluate().isNotEmpty) {
               passCount++;
             }
           }

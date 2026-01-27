@@ -372,7 +372,7 @@ class _SubscriptionManagementTabState extends State<SubscriptionManagementTab> {
             DataColumn(label: Text('Actions')),
           ],
           rows: _subscriptions
-              .map((subscription) => _buildSubscriptionRow(subscription))
+              .map(_buildSubscriptionRow)
               .toList(),
         ),
       ),

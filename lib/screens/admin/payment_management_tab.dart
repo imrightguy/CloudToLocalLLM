@@ -272,7 +272,7 @@ class _PaymentManagementTabState extends State<PaymentManagementTab> {
                             ? '${_formatDate(_startDate!)} - ${_formatDate(_endDate!)}'
                             : 'Select Date Range',
                       ),
-                      onPressed: () => _showDateRangePicker(),
+                      onPressed: _showDateRangePicker,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -395,7 +395,7 @@ class _PaymentManagementTabState extends State<PaymentManagementTab> {
             DataColumn(label: Text('Actions')),
           ],
           rows: _transactions
-              .map((transaction) => _buildTransactionRow(transaction))
+              .map(_buildTransactionRow)
               .toList(),
         ),
       ),

@@ -362,9 +362,7 @@ class _ModelDownloadManagerState extends State<ModelDownloadManager> {
             border: OutlineInputBorder(),
             isDense: true,
           ),
-          onChanged: (value) {
-            _saveOllamaHostAddress(value);
-          },
+          onChanged: _saveOllamaHostAddress,
         ),
         const SizedBox(height: 12),
 
@@ -378,9 +376,7 @@ class _ModelDownloadManagerState extends State<ModelDownloadManager> {
             isDense: true,
           ),
           keyboardType: TextInputType.number,
-          onChanged: (value) {
-            _saveOllamaPort(value);
-          },
+          onChanged: _saveOllamaPort,
         ),
         const SizedBox(height: 12),
 
@@ -461,7 +457,7 @@ class _ModelDownloadManagerState extends State<ModelDownloadManager> {
             )
           else
             ...ollamaService.models.map(
-              (model) => _buildInstalledModelTile(model),
+              _buildInstalledModelTile,
             ),
         ],
       ),

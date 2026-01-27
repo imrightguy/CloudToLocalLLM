@@ -33,7 +33,7 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint(" [DaemonSettingsScreen] Initializing screen");
+    debugPrint(' [DaemonSettingsScreen] Initializing screen');
     _loadSettings();
     _loadConnectionStatus();
   }
@@ -73,7 +73,7 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
         _lastStatusUpdate = DateTime.now();
       });
     } catch (e) {
-      debugPrint("Failed to load connection status: $e");
+      debugPrint('Failed to load connection status: $e');
       setState(() {
         _connectionStatus = {'connected': false, 'error': e.toString()};
         _lastStatusUpdate = DateTime.now();
@@ -143,7 +143,7 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(" [DaemonSettingsScreen] Building widget");
+    debugPrint(' [DaemonSettingsScreen] Building widget');
     final platformAdapter = Provider.of<PlatformAdapter>(context);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;

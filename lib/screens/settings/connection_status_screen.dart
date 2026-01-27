@@ -25,7 +25,7 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint(" [ConnectionStatusScreen] Initializing screen");
+    debugPrint(' [ConnectionStatusScreen] Initializing screen');
     _refreshStatus();
   }
 
@@ -62,7 +62,7 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(" [ConnectionStatusScreen] Building widget");
+    debugPrint(' [ConnectionStatusScreen] Building widget');
     final platformAdapter = Provider.of<PlatformAdapter>(context);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;

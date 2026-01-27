@@ -169,7 +169,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ...suggestions
-                  .map((suggestion) => _buildSuggestionItem(suggestion)),
+                  .map(_buildSuggestionItem),
               SizedBox(height: AppTheme.spacingM),
               _buildQuickActions(),
             ],
@@ -224,7 +224,7 @@ class _EnhancedErrorWidgetState extends State<EnhancedErrorWidget> {
         Wrap(
           spacing: AppTheme.spacingS,
           runSpacing: AppTheme.spacingS,
-          children: actions.map((action) => _buildActionChip(action)).toList(),
+          children: actions.map(_buildActionChip).toList(),
         ),
       ],
     );

@@ -62,7 +62,7 @@ class TunnelStatusDialog extends StatelessWidget {
                 child: const Text('Disconnect'),
               ),
             TextButton(
-              onPressed: () => _downloadDesktopClient(),
+              onPressed: _downloadDesktopClient,
               child: const Text('Download Client'),
             ),
           ],

@@ -196,11 +196,11 @@ class TestConfig {
 
     // Register core services
     di.serviceLocator.registerLazySingleton<ThemeProvider>(
-      () => ThemeProvider(),
+      ThemeProvider.new,
     );
 
     di.serviceLocator.registerLazySingleton<PlatformDetectionService>(
-      () => PlatformDetectionService(),
+      PlatformDetectionService.new,
     );
 
     di.serviceLocator.registerLazySingleton<PlatformAdapter>(

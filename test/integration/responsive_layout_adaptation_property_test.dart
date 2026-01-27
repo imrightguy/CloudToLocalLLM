@@ -198,8 +198,8 @@ void main() {
                 columnOnMobile: true,
                 columnOnTablet: false,
                 children: [
-                  Container(key: const Key('child1'), width: 100, height: 50),
-                  Container(key: const Key('child2'), width: 100, height: 50),
+                  SizedBox(key: const Key('child1'), width: 100, height: 50),
+                  SizedBox(key: const Key('child2'), width: 100, height: 50),
                 ],
               ),
             ),

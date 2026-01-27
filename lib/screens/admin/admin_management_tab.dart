@@ -437,8 +437,9 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
 
   /// Add admin
   Future<void> _addAdmin() async {
-    if (_formKey.currentState == null || !_formKey.currentState!.validate())
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
       return;
+    }
 
     setState(() {
       _isLoading = true;

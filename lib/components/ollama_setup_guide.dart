@@ -83,7 +83,7 @@ class OllamaSetupGuide extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton.icon(
-                  onPressed: () => _launchOllamaWebsite(),
+                  onPressed: _launchOllamaWebsite,
                   icon: const Icon(Icons.open_in_new),
                   label: const Text('Visit Ollama.ai'),
                 ),

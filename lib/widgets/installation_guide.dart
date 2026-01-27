@@ -434,7 +434,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
       children: [
         if (stepIndex > 0)
           TextButton(
-            onPressed: () => _goToPreviousStep(),
+            onPressed: _goToPreviousStep,
             child: const Text('Previous'),
           )
         else
@@ -549,7 +549,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton.icon(
-                  onPressed: () => _openDocumentation(),
+                  onPressed: _openDocumentation,
                   icon: const Icon(Icons.help),
                   label: const Text('Documentation'),
                 ),
@@ -582,7 +582,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
             if (widget.enableValidation && !_installationValidated) ...[
               const SizedBox(height: 8),
               TextButton(
-                onPressed: () => _markInstallationComplete(),
+                onPressed: _markInstallationComplete,
                 child: const Text('Skip validation and continue'),
               ),
             ],

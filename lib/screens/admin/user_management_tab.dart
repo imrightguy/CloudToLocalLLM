@@ -362,7 +362,7 @@ class _UserManagementTabState extends State<UserManagementTab> {
             DataColumn(label: Text('Last Login')),
             DataColumn(label: Text('Actions')),
           ],
-          rows: _users.map((user) => _buildUserRow(user)).toList(),
+          rows: _users.map(_buildUserRow).toList(),
         ),
       ),
     );
