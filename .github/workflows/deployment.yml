@@ -405,11 +405,28 @@ jobs:
 
           echo "📜 Deploying to VM..."
 
-          az vm run-command invoke \
+          # Try to invoke the command, if it fails due to agent issues, restart the VM and retry
+          if ! az vm run-command invoke \
             --resource-group "$RESOURCE_GROUP" \
             --name "$VM_NAME" \
             --command-id RunShellScript \
-            --scripts @ds.sh
+            --scripts @ds.sh; then
+              echo "⚠️ Deployment failed (likely agent issue). Attempting VM restart and retry..."
+              
+              # Force restart the VM
+              echo "🔄 Restarting VM $VM_NAME..."
+              az vm restart --ids "$VM_ID"
+              
+              echo "⏳ Waiting for VM to boot and agent to initialize (60s)..."
+              sleep 60
+              
+              echo "🔄 Retrying deployment..."
+              az vm run-command invoke \
+                --resource-group "$RESOURCE_GROUP" \
+                --name "$VM_NAME" \
+                --command-id RunShellScript \
+                --scripts @ds.sh
+          fi
 
       - name: Purge Cloudflare Cache
         if: success()
