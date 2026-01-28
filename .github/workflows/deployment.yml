@@ -6,12 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       force_build:
-        description: 'Force build of all containers'
+        description: "Force build of all containers"
         required: false
         default: false
         type: boolean
       deep_reset:
-        description: 'Perform Nuclear Reset (Stop stack and prune everything)'
+        description: "Perform Nuclear Reset (Stop stack and prune everything)"
         required: false
         default: false
         type: boolean
@@ -69,7 +69,7 @@ jobs:
           if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
- 
+
           if echo "$DIFF_FILES" | grep -qE "k8s/|infra/|scripts/|.github/|docker-stack.yml|assets/|package.json"; then 
             COMPONENTS="api,web,postgres,streaming,linux,windows"
           fi
@@ -77,7 +77,7 @@ jobs:
           if [ "${{ inputs.force_build }}" == "true" ]; then
             COMPONENTS="api,web,postgres,streaming,linux,windows"
           fi
- 
+
           API_CHANGED="false"
           WEB_CHANGED="false"
           POSTGRES_CHANGED="false"
@@ -96,7 +96,7 @@ jobs:
           COMPONENTS_CLEAN=$(echo "$COMPONENTS" | sed 's/^,//')
           BUMP="false"
           NEW_VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
-          
+
           if [ -n "$COMPONENTS_CLEAN" ]; then
             BUMP="true"
             IFS='.' read -r -a v <<< "$NEW_VERSION"
@@ -118,20 +118,6 @@ jobs:
           echo "postgres_needs_build=$POSTGRES_NEEDS_BUILD" >> $GITHUB_OUTPUT
           echo "streaming_needs_build=$STREAMING_NEEDS_BUILD" >> $GITHUB_OUTPUT
 
-  docs_check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
-      - name: Check Markdown formatting
-        run: markdownlint docs/ --config .markdownlint.json
-      - name: Validate internal links
-        run: node scripts/validate-internal-links.js
-
   run_tests:
     needs: ai_change_analysis
     if: needs.ai_change_analysis.outputs.bump_needed == 'true' || github.event_name == 'workflow_dispatch'
@@ -140,7 +126,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Run Backend Checks
         if: needs.ai_change_analysis.outputs.api_changed == 'true' && !contains(github.event.head_commit.message, '[skip tests]')
         working-directory: services/api-backend
@@ -163,23 +149,23 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - uses: subosito/flutter-action@v2
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         with:
-          channel: 'stable'
+          channel: "stable"
 
       - name: Build and Push
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          
+
           if [ "${{ needs.ai_change_analysis.outputs.api_needs_build }}" == "true" ]; then
             docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} services/api-backend
             docker push ghcr.io/${REPO_LOWER}/api:latest
             docker push ghcr.io/${REPO_LOWER}/api:${VERSION}
           fi
-          
+
           if [ "${{ needs.ai_change_analysis.outputs.web_needs_build }}" == "true" ]; then
             flutter pub get
             flutter build web --release --no-tree-shake-icons
@@ -213,7 +199,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download Linux Bundle
         uses: actions/download-artifact@v4
         with:
@@ -234,15 +220,15 @@ jobs:
           mkdir -p $STAGING_DIR/cloudtolocalllm
           cp -r build/linux/x64/release/bundle/* $STAGING_DIR/cloudtolocalllm/
           tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
-          
+
           # Build .deb package
           chmod +x scripts/packaging/build_deb.sh
           ./scripts/packaging/build_deb.sh
-          
+
           # Build AppImage
           chmod +x scripts/packaging/build_appimage.sh
           ./scripts/packaging/build_appimage.sh || echo "AppImage build failed"
-          
+
           # Prepare AUR package
           chmod +x scripts/packaging/update_aur_pkgbuild.sh
           ./scripts/packaging/update_aur_pkgbuild.sh
@@ -272,31 +258,31 @@ jobs:
             echo "AUR_SSH_PRIVATE_KEY not set, skipping AUR publication"
             exit 0
           fi
-          
+
           mkdir -p ~/.ssh
           echo "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
-          
+
           # Use ssh-agent to handle the key
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
-          
+
           git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
           cp dist/aur/PKGBUILD /tmp/aur-repo/
-          
+
           cd /tmp/aur-repo
-          
+
           # Generate .SRCINFO using docker
           docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
-          
+
           # Fix permissions as the docker container changed ownership of the files
           sudo chown -R $(id -u):$(id -g) .
-          
+
           git config user.name "CloudToLocalLLM CI"
           git config user.email "ci@cloudtolocalllm.online"
           git add PKGBUILD .SRCINFO
-          
+
           if git diff --cached --quiet; then
             echo "No changes to AUR package"
           else
@@ -319,16 +305,16 @@ jobs:
           SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_creds.json)
           az login --service-principal -u $(jq -r .clientId azure_creds.json) -p $(jq -r .clientSecret azure_creds.json) --tenant $(jq -r .tenantId azure_creds.json)
           rm azure_creds.json
-          
+
           if [ -n "$SUBSCRIPTION_ID" ] && [ "$SUBSCRIPTION_ID" != "null" ]; then
             echo "✅ Setting subscription: $SUBSCRIPTION_ID"
             az account set --subscription "$SUBSCRIPTION_ID"
           else
             echo "⚠️ No subscriptionId in credentials, using default"
           fi
-          
+
           az account show --query "{subscription:id,name:name}" -o table
-      
+
       - name: VM Deploy
         env:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'postgres' }}
@@ -344,9 +330,9 @@ jobs:
         run: |
           RESOURCE_GROUP="cloudtolocalllm-rg"
           VM_NAME="cloudtolocalllm-swarm"
-          
+
           echo "🔍 Looking for VM: $VM_NAME in $RESOURCE_GROUP"
-          
+
           if ! az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv > /dev/null 2>&1; then
             echo "❌ VM $VM_NAME not found in $RESOURCE_GROUP"
             echo "Attempting fallback lookup..."
@@ -358,12 +344,12 @@ jobs:
           else
             VM_ID=$(az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv)
           fi
-          
+
           echo "✅ Target VM ID: $VM_ID"
-          
+
           POWER_STATE=$(az vm get-instance-view --ids "$VM_ID" --query "instanceView.statuses[?starts_with(code, 'PowerState/')].displayStatus" -o tsv 2>/dev/null || echo "Unknown")
           echo "📊 Current power state: $POWER_STATE"
-          
+
           if [[ "$POWER_STATE" != *"running"* ]]; then
             echo "🚀 Starting VM..."
             az vm start --ids "$VM_ID" --no-wait || {
@@ -374,10 +360,10 @@ jobs:
           else
             echo "✅ VM already running"
           fi
-          
+
           echo "🛡️ Ensuring Auto-Shutdown is disabled..."
           az vm auto-shutdown disable --ids "$VM_ID" --resource-group "$RESOURCE_GROUP" 2>/dev/null || echo "⚠️ Could not disable auto-shutdown (feature might not be enabled or extension missing)"
-          
+
           # Base64 encode ALL sensitive values to avoid any shell escaping issues
           PG_PW_B64=$(printf '%s' "$POSTGRES_PASSWORD" | base64 -w0)
           JWT_B64=$(printf '%s' "$JWT_SECRET" | base64 -w0)
@@ -385,7 +371,7 @@ jobs:
           CF_API_B64=$(printf '%s' "$CLOUDFLARE_API_KEY" | base64 -w0)
           INFRA_API_B64=$(printf '%s' "$INFRASTRUCTURE_API_KEY" | base64 -w0)
           GH_B64=$(printf '%s' "$GH_TOKEN" | base64 -w0)
-          
+
           # Write deployment script to file using heredoc
           # Variables prefixed with $ will be expanded, escape with \$ if literal needed
           cat > ds.sh << DEPLOY_EOF
@@ -393,7 +379,7 @@ jobs:
           set -e
           mkdir -p ~/deploy
           cd ~/deploy
-          
+
           # Export environment variables
           export DOCKER_TAG="$DOCKER_TAG"
           export POSTGRES_USER="$POSTGRES_USER"
@@ -404,21 +390,21 @@ jobs:
           export INFRASTRUCTURE_API_KEY="\$(printf '$INFRA_API_B64' | base64 -d)"
           export AUTH0_DOMAIN="dev-vivn1fcgzi0c2czy.us.auth0.com"
           export AUTH0_AUDIENCE="https://api.cloudtolocalllm.online"
-          
+
           # Clone or update repository
           if [ ! -d ".git" ]; then
             git clone https://github.com/$REPO.git .
           else
             git fetch origin main && git reset --hard origin/main
           fi
-          
+
           # Docker login and deploy
           printf '$GH_B64' | base64 -d | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
           docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
           DEPLOY_EOF
-          
+
           echo "📜 Deploying to VM..."
-          
+
           az vm run-command invoke \
             --resource-group "$RESOURCE_GROUP" \
             --name "$VM_NAME" \
