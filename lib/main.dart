@@ -57,11 +57,11 @@ import 'package:cloudtolocalllm/utils/platform_file_utils.dart'
 void main(List<String> args) async {
   // Immediate logging to verify Dart entry point is reached
   // Build trigger: force new release tag
-  print('----- DART MAIN START ----- v10.1.187');
+  debugPrint('----- DART MAIN START ----- v10.1.187');
 
   // Handle command-line arguments (OAuth callback URLs)
   if (args.isNotEmpty) {
-    print('[Main] Command-line arguments received: $args');
+    debugPrint('[Main] Command-line arguments received: $args');
     await _handleCommandLineArgs(args);
     return; // Exit after handling callback
   }
@@ -71,7 +71,7 @@ void main(List<String> args) async {
   // WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Sentry IMMEDIATELY after Flutter binding (before all other services)
-  print('[Main] Initializing Sentry (FIRST after Flutter binding)...');
+  debugPrint('[Main] Initializing Sentry (FIRST after Flutter binding)...');
 
   try {
     await SentryFlutter.init(
@@ -87,13 +87,13 @@ void main(List<String> args) async {
         options.enableLogs = true;
       },
       appRunner: () async {
-        print('[Main] Sentry initialized, running app with Sentry...');
+        debugPrint('[Main] Sentry initialized, running app with Sentry...');
         _runAppWithSentry();
       },
     ).timeout(const Duration(seconds: 5));
-    print('[Main] Sentry init completed');
+    debugPrint('[Main] Sentry init completed');
   } catch (e) {
-    print('Sentry initialization failed or timed out: $e');
+    debugPrint('Sentry initialization failed or timed out: $e');
     _runAppWithoutSentry();
   }
 }
@@ -117,7 +117,7 @@ void _runAppWithSentry() {
 }
 
 void _runAppWithoutSentry() {
-  print('Running app without Sentry');
+  debugPrint('Running app without Sentry');
   _initializeClientLogBuffer();
   _runAppCommon();
 }
@@ -126,15 +126,15 @@ void _runAppCommon() {
   Future<AppBootstrapData> loadApp() async {
     // Run the main bootstrap process
     try {
-      print('[Main] Bootstrapper loading...');
+      debugPrint('[Main] Bootstrapper loading...');
       final bootstrapper = AppBootstrapper();
       final result = await bootstrapper.load();
-      print('[Main] Bootstrapper loaded');
+      debugPrint('[Main] Bootstrapper loaded');
       return result;
     } catch (e, stack) {
       debugPrint('Bootstrap failed: $e');
       try {
-        Sentry.captureException(e, stackTrace: stack);
+        await Sentry.captureException(e, stackTrace: stack);
       } catch (_) {} // Ignore Sentry errors here
       // Return minimal bootstrap data to allow app to load error screen or retry
       return AppBootstrapData(isWeb: kIsWeb, supportsNativeShell: !kIsWeb);
@@ -217,11 +217,11 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
 
   @override
   Widget build(BuildContext context) {
-    print('[App] build() called');
+    debugPrint('[App] build() called');
     final bootstrap = context.watch<AppBootstrapData?>();
-    print('[App] bootstrap: $bootstrap');
+    debugPrint('[App] bootstrap: $bootstrap');
     if (bootstrap == null) {
-      print('[App] Bootstrap is null, showing loading screen');
+      debugPrint('[App] Bootstrap is null, showing loading screen');
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
@@ -239,7 +239,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       );
     }
 
-    print('[App] Bootstrap loaded, building app');
+    debugPrint('[App] Bootstrap loaded, building app');
     _ensureAuthListener();
 
     // Build providers list - authenticated services will be added when registered
@@ -253,8 +253,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
         ),
       );
     } catch (e, stack) {
-      print('[App] Error building providers: $e');
-      print('[App] Stack: $stack');
+      debugPrint('[App] Error building providers: $e');
+      debugPrint('[App] Stack: $stack');
       Sentry.captureException(e, stackTrace: stack);
       // Return error screen instead of crashing
       return MaterialApp(
@@ -282,7 +282,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       return;
     }
     if (!di.serviceLocator.isRegistered<AuthService>()) {
-      print(
+      debugPrint(
           '[App] AuthService not registered yet - deferring listener attachment');
       return;
     }
@@ -294,12 +294,13 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     // Listen for authenticated services to load and trigger rebuild
     authService.areAuthenticatedServicesLoaded.addListener(() {
       if (authService.areAuthenticatedServicesLoaded.value && mounted) {
-        print(
+        debugPrint(
             '[App] Authenticated services became loaded, triggering rebuild...');
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             setState(() {
-              print('[App] Provider tree rebuilt with authenticated services');
+              debugPrint(
+                  '[App] Provider tree rebuilt with authenticated services');
             });
           }
         });
@@ -308,12 +309,13 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
 
     // If authenticated services are already loaded, trigger a rebuild now
     if (authService.areAuthenticatedServicesLoaded.value) {
-      print(
+      debugPrint(
           '[App] Authenticated services already loaded, triggering rebuild...');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
-            print('[App] Provider tree rebuilt with authenticated services');
+            debugPrint(
+                '[App] Provider tree rebuilt with authenticated services');
           });
         }
       });
@@ -345,7 +347,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
         );
       }
     } catch (e, stack) {
-      print('[Providers] Error adding PlatformAdapter: $e');
+      debugPrint('[Providers] Error adding PlatformAdapter: $e');
       Sentry.captureException(e, stackTrace: stack);
     }
 
@@ -377,7 +379,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
         providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
     } catch (e, stack) {
-      print('[Providers] Error adding core provider $T: $e');
+      debugPrint('[Providers] Error adding core provider $T: $e');
       Sentry.captureException(e, stackTrace: stack);
     }
   }
@@ -390,13 +392,13 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
         providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
     } catch (e) {
-      print('[Providers] Error adding provider $T: $e');
+      debugPrint('[Providers] Error adding provider $T: $e');
     }
   }
 }
 
 Future<void> _handleCommandLineArgs(List<String> args) async {
-  print('[Main] Handling command-line arguments: $args');
+  debugPrint('[Main] Handling command-line arguments: $args');
   String? callbackUrl;
   for (final arg in args) {
     if (arg.startsWith('com.cloudtolocalllm.app://') ||
@@ -407,17 +409,17 @@ Future<void> _handleCommandLineArgs(List<String> args) async {
   }
 
   if (callbackUrl != null) {
-    print('[Main] Found OAuth callback URL: $callbackUrl');
+    debugPrint('[Main] Found OAuth callback URL: $callbackUrl');
     if (!kIsWeb) {
       try {
         await PlatformFileUtils.writeCallbackFile(callbackUrl);
-        print('[Main] Wrote callback URL to temp file');
+        debugPrint('[Main] Wrote callback URL to temp file');
       } catch (e) {
-        print('[Main] Error writing callback file: $e');
+        debugPrint('[Main] Error writing callback file: $e');
       }
     }
   }
-  print('[Main] Command-line handler exiting');
+  debugPrint('[Main] Command-line handler exiting');
 }
 
 class _AppRouterHost extends StatefulWidget {

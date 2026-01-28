@@ -19,17 +19,17 @@ class AppBootstrapper {
 
   Future<AppBootstrapData> load() async {
     try {
-      print('[Bootstrapper] Starting bootstrap process...');
+      debugPrint('[Bootstrapper] Starting bootstrap process...');
 
-      print('[Bootstrapper] Setting up service locator...');
+      debugPrint('[Bootstrapper] Setting up service locator...');
       await setupServiceLocator();
-      print('[Bootstrapper] Service locator setup completed');
+      debugPrint('[Bootstrapper] Service locator setup completed');
 
-      print('[Bootstrapper] Bootstrap completed successfully');
+      debugPrint('[Bootstrapper] Bootstrap completed successfully');
       return AppBootstrapData(isWeb: kIsWeb, supportsNativeShell: !kIsWeb);
     } catch (e, stack) {
-      print('[Bootstrapper] ERROR during bootstrap: $e');
-      print('[Bootstrapper] Stack trace: $stack');
+      debugPrint('[Bootstrapper] ERROR during bootstrap: $e');
+      debugPrint('[Bootstrapper] Stack trace: $stack');
 
       // Re-throw to let the caller handle it
       rethrow;

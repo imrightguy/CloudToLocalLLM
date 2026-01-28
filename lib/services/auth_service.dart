@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    print('[AuthService] init() called');
+    debugPrint('[AuthService] init() called');
     if (_initialized) return;
     if (_isInitializing) {
       return _initCompleter?.future ?? Future.value();
@@ -42,7 +42,7 @@ class AuthService extends ChangeNotifier {
       await _initProvider();
       _initialized = true;
       _initCompleter?.complete();
-      print('[AuthService] init() completed');
+      debugPrint('[AuthService] init() completed');
     } catch (e) {
       _initCompleter?.completeError(e);
       rethrow;
@@ -59,11 +59,12 @@ class AuthService extends ChangeNotifier {
       notifyListeners();
 
       await _authProvider.initialize();
-      print('[AuthService] Provider initialized');
+      debugPrint('[AuthService] Provider initialized');
 
       // Listen to auth state changes from provider
       _authProvider.authStateChanges.listen((isAuthenticated) async {
-        print('[AuthService] Provider auth state changed: $isAuthenticated');
+        debugPrint(
+            '[AuthService] Provider auth state changed: $isAuthenticated');
         if (isAuthenticated) {
           final user = _authProvider.currentUser;
           if (user != null) {
@@ -77,10 +78,10 @@ class AuthService extends ChangeNotifier {
       // Check initial state
       final currentUser = _authProvider.currentUser;
       if (currentUser != null) {
-        print('[AuthService] Found current user, handling...');
+        debugPrint('[AuthService] Found current user, handling...');
         await _handleAuthenticatedUser(currentUser);
       } else {
-        print('[AuthService] No current user found');
+        debugPrint('[AuthService] No current user found');
       }
     } catch (e) {
       debugPrint(' Failed to initialize Auth Provider: $e');
@@ -99,7 +100,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
 
     await _sessionBootstrapService.initialize();
-    print('[AuthService] Authenticated services loaded');
+    debugPrint('[AuthService] Authenticated services loaded');
   }
 
   Future<void> _handleLogout() async {

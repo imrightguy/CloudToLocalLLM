@@ -15,6 +15,8 @@ import {
 import jwt from 'jsonwebtoken';
 import { JWTValidator } from './jwt-validator.interface';
 
+import { ConsoleLogger } from '../utils/logger';
+
 interface JWTPayload {
   sub: string;
   iss: string;
@@ -36,6 +38,7 @@ export class JWTValidationMiddleware implements AuthMiddleware {
   private readonly validator: JWTValidator;
   private readonly validationCache: Map<string, CachedValidation> = new Map();
   private readonly cacheDuration = 5 * 60 * 1000; // 5 minutes
+  private readonly logger = new ConsoleLogger('JWTValidationMiddleware');
 
   constructor(validator: JWTValidator) {
     this.validator = validator;
@@ -55,9 +58,9 @@ export class JWTValidationMiddleware implements AuthMiddleware {
 
     // Cache the result
     if (result.valid || result.error === 'Token expired') {
-       // Optional: decide if you want to cache expired tokens
+      // Optional: decide if you want to cache expired tokens
     }
-    
+
     this.cacheValidation(token, result);
     return result;
   }
@@ -107,30 +110,28 @@ export class JWTValidationMiddleware implements AuthMiddleware {
    * Log authentication attempt
    */
   logAuthAttempt(userId: string, success: boolean, reason?: string): void {
-    const logEntry = {
-      timestamp: new Date().toISOString(),
+    const logDetails = {
       userId,
       success,
       reason,
       type: 'auth_attempt',
     };
 
-    console.log(JSON.stringify(logEntry));
+    this.logger.info('Auth attempt', logDetails);
   }
 
   /**
    * Log authentication event
    */
   logAuthEvent(event: AuthEvent): void {
-    const logEntry = {
-      timestamp: event.timestamp.toISOString(),
+    const logDetails = {
       userId: event.userId,
       eventType: event.eventType,
       metadata: event.metadata,
       type: 'auth_event',
     };
 
-    console.log(JSON.stringify(logEntry));
+    this.logger.info('Auth event', logDetails);
   }
 
   /**
@@ -165,7 +166,8 @@ export class JWTValidationMiddleware implements AuthMiddleware {
    */
   private extractUserTier(payload: JWTPayload): UserTier {
     // Check for tier in custom claims
-    const tier = payload['https://cloudtolocalllm.com/tier'] ||
+    const tier =
+      payload['https://cloudtolocalllm.com/tier'] ||
       payload.tier ||
       payload['app_metadata']?.tier;
 
@@ -183,7 +185,8 @@ export class JWTValidationMiddleware implements AuthMiddleware {
    * Extract permissions from token payload
    */
   private extractPermissions(payload: JWTPayload): string[] {
-    const permissions = payload.permissions ||
+    const permissions =
+      payload.permissions ||
       payload['https://cloudtolocalllm.com/permissions'] ||
       [];
 

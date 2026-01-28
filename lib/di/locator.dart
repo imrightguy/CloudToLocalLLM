@@ -116,7 +116,7 @@ Future<void> setupCoreServices() async {
 
   late final AuthService authService;
   try {
-    print('[Locator] Registering AuthService...');
+    debugPrint('[Locator] Registering AuthService...');
     authService = AuthService(authProvider);
     serviceLocator.registerSingleton<AuthService>(authService);
     debugPrint('[Locator] ✓ AuthService registered successfully');
@@ -222,10 +222,10 @@ Future<void> setupCoreServices() async {
 
   // Initialize AuthService last, after all dependencies are registered
   try {
-    print('[Locator] Initializing AuthService...');
+    debugPrint('[Locator] Initializing AuthService...');
     final authService = serviceLocator.get<AuthService>();
     await authService.init();
-    print('[Locator] ✓ AuthService initialized successfully');
+    debugPrint('[Locator] ✓ AuthService initialized successfully');
   } catch (e, stack) {
     debugPrint('[Locator] ❌ CRITICAL ERROR initializing AuthService: $e');
     debugPrint('[Locator] Stack trace: $stack');
@@ -307,14 +307,14 @@ void _verifyCoreServicesRegistered() {
 /// This prevents unnecessary initialization and improves security.
 Future<void> setupAuthenticatedServices() async {
   if (_authenticatedServicesRegistered) {
-    print(
+    debugPrint(
         '[ServiceLocator] Authenticated services already registered (Early Exit)');
     // Services are already registered, so we're done
     return;
   }
 
   if (_isRegisteringAuthenticatedServices) {
-    print(
+    debugPrint(
         '[ServiceLocator] Authenticated services registration already in progress (Race Condition Avoided)');
     return;
   }
@@ -324,14 +324,14 @@ Future<void> setupAuthenticatedServices() async {
   try {
     debugPrint(
         '[ServiceLocator] ===== REGISTERING AUTHENTICATED SERVICES START =====');
-    print('[Locator] setupAuthenticatedServices called (Entry Point)');
+    debugPrint('[Locator] setupAuthenticatedServices called (Entry Point)');
 
     // Verify authentication before proceeding
-    print('[Locator] Getting AuthService from serviceLocator...');
+    debugPrint('[Locator] Getting AuthService from serviceLocator...');
     final authService = serviceLocator.get<AuthService>();
-    print('[Locator] Got AuthService instance');
+    debugPrint('[Locator] Got AuthService instance');
 
-    print('[ServiceLocator] Registering authenticated services...');
+    debugPrint('[ServiceLocator] Registering authenticated services...');
     _authenticatedServicesRegistered = true;
 
     final localOllamaService =
@@ -344,28 +344,28 @@ Future<void> setupAuthenticatedServices() async {
         serviceLocator.get<WebDownloadPromptService>();
 
     // Initialize enhanced user tier service now that we have auth
-    print('[ServiceLocator] Initializing EnhancedUserTierService...');
+    debugPrint('[ServiceLocator] Initializing EnhancedUserTierService...');
     unawaited(enhancedUserTierService.initialize());
 
     // Initialize web download prompt service
-    print('[ServiceLocator] Initializing WebDownloadPromptService...');
+    debugPrint('[ServiceLocator] Initializing WebDownloadPromptService...');
     await webDownloadPromptService.initialize();
 
     // Initialize LocalOllama service now that we have auth
-    print('[ServiceLocator] Initializing LocalOllamaConnectionService...');
+    debugPrint('[ServiceLocator] Initializing LocalOllamaConnectionService...');
     await localOllamaService.initialize();
 
     // LangChain Prompt Service is already initialized in constructor
 
     // Initialize Provider Discovery Service and auto-configure discovered providers
-    print('[ServiceLocator] Initializing ProviderDiscoveryService...');
+    debugPrint('[ServiceLocator] Initializing ProviderDiscoveryService...');
     await _initializeProviderDiscoveryAndAutoConfig(
       providerDiscoveryService,
       serviceLocator.get<ProviderConfigurationManager>(),
     );
 
     // Tunnel configuration manager - requires SharedPreferences
-    print('[ServiceLocator] Initializing TunnelConfigManager...');
+    debugPrint('[ServiceLocator] Initializing TunnelConfigManager...');
     final tunnelConfigManager = TunnelConfigManager();
     await tunnelConfigManager.initialize();
     serviceLocator.registerSingleton<TunnelConfigManager>(tunnelConfigManager);
@@ -382,7 +382,7 @@ Future<void> setupAuthenticatedServices() async {
     );
 
     // Ollama service - requires authentication token
-    print('[ServiceLocator] Initializing OllamaService...');
+    debugPrint('[ServiceLocator] Initializing OllamaService...');
     final ollamaService = OllamaService(authService: authService);
     try {
       await ollamaService.initialize().timeout(const Duration(seconds: 10));
@@ -398,7 +398,7 @@ Future<void> setupAuthenticatedServices() async {
         .registerSingleton<UserContainerService>(userContainerService);
 
     // LangChain integration service - requires authentication for provider access
-    print('[ServiceLocator] Initializing LangChainIntegrationService...');
+    debugPrint('[ServiceLocator] Initializing LangChainIntegrationService...');
     final langchainIntegrationService = LangChainIntegrationService(
       discoveryService: providerDiscoveryService,
     );
@@ -415,7 +415,7 @@ Future<void> setupAuthenticatedServices() async {
     );
 
     // LLM Provider Manager - requires authentication
-    print('[ServiceLocator] Initializing LLMProviderManager...');
+    debugPrint('[ServiceLocator] Initializing LLMProviderManager...');
     final llmProviderManager = LLMProviderManager(
       discoveryService: providerDiscoveryService,
       langchainService: langchainIntegrationService,
@@ -495,7 +495,7 @@ Future<void> setupAuthenticatedServices() async {
         .registerSingleton<StreamingChatService>(streamingChatService);
 
     // Unified connection service - requires connection manager
-    print('[ServiceLocator] Initializing UnifiedConnectionService...');
+    debugPrint('[ServiceLocator] Initializing UnifiedConnectionService...');
     final unifiedConnectionService = UnifiedConnectionService();
     unifiedConnectionService.setConnectionManager(connectionManager);
     try {

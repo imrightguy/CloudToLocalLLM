@@ -4,6 +4,8 @@
  * Detects brute force patterns and generates security alerts
  */
 
+import { ConsoleLogger } from '../utils/logger';
+
 interface AuthAttempt {
   userId: string;
   ip: string;
@@ -23,7 +25,11 @@ interface BruteForcePattern {
 }
 
 interface SecurityAlert {
-  type: 'brute_force' | 'suspicious_activity' | 'token_theft' | 'rate_limit_abuse';
+  type:
+    | 'brute_force'
+    | 'suspicious_activity'
+    | 'token_theft'
+    | 'rate_limit_abuse';
   severity: 'low' | 'medium' | 'high' | 'critical';
   userId?: string;
   ip: string;
@@ -36,6 +42,7 @@ interface SecurityAlert {
  * Comprehensive logging and monitoring of authentication events
  */
 export class AuthAuditLogger {
+  private readonly logger = new ConsoleLogger('AuthAuditLogger');
   private readonly attemptHistory: AuthAttempt[] = [];
   private readonly maxHistorySize = 10000;
   private readonly bruteForceThreshold = 5; // Failed attempts
@@ -72,9 +79,8 @@ export class AuthAuditLogger {
     }
 
     // Log to console (structured logging)
-    const logEntry = {
+    const logDetails = {
       logType: 'auth_attempt',
-      timestamp: attempt.timestamp.toISOString(),
       userId,
       ip,
       success,
@@ -83,9 +89,9 @@ export class AuthAuditLogger {
     };
 
     if (success) {
-      console.log(JSON.stringify(logEntry));
+      this.logger.info('Authentication attempt successful', logDetails);
     } else {
-      console.warn(JSON.stringify(logEntry));
+      this.logger.warn('Authentication attempt failed', logDetails);
     }
 
     // Check for brute force patterns
@@ -103,16 +109,15 @@ export class AuthAuditLogger {
     reason: string,
     details?: Record<string, any>
   ): void {
-    const logEntry = {
+    const logDetails = {
       logType: 'auth_failure',
-      timestamp: new Date().toISOString(),
       userId,
       ip,
       reason,
       details,
     };
 
-    console.error(JSON.stringify(logEntry));
+    this.logger.error('Authentication failure', logDetails);
 
     // Log the attempt
     this.logAuthAttempt(userId, ip, false, reason);
@@ -126,15 +131,14 @@ export class AuthAuditLogger {
     ip: string,
     details?: Record<string, any>
   ): void {
-    const logEntry = {
+    const logDetails = {
       logType: 'auth_success',
-      timestamp: new Date().toISOString(),
       userId,
       ip,
       details,
     };
 
-    console.log(JSON.stringify(logEntry));
+    this.logger.info('Authentication success', logDetails);
 
     // Log the attempt
     this.logAuthAttempt(userId, ip, true);
@@ -152,31 +156,29 @@ export class AuthAuditLogger {
     valid: boolean,
     reason?: string
   ): void {
-    const logEntry = {
+    const logDetails = {
       logType: 'token_validation',
-      timestamp: new Date().toISOString(),
       userId,
       ip,
       valid,
       reason,
     };
 
-    console.log(JSON.stringify(logEntry));
+    this.logger.info('Token validation', logDetails);
   }
 
   /**
    * Log token expiration event
    */
   logTokenExpiration(userId: string, ip: string, expiresAt: Date): void {
-    const logEntry = {
+    const logDetails = {
       logType: 'token_expiration',
-      timestamp: new Date().toISOString(),
       userId,
       ip,
       expiresAt: expiresAt.toISOString(),
     };
 
-    console.log(JSON.stringify(logEntry));
+    this.logger.info('Token expiration', logDetails);
   }
 
   /**
@@ -188,7 +190,7 @@ export class AuthAuditLogger {
 
     // Get recent failed attempts for this IP
     const recentFailures = this.attemptHistory.filter(
-      attempt =>
+      (attempt) =>
         attempt.ip === ip &&
         !attempt.success &&
         attempt.timestamp.getTime() > windowStart
@@ -201,7 +203,7 @@ export class AuthAuditLogger {
 
     // Also check for distributed attacks (same user, different IPs)
     const userFailures = this.attemptHistory.filter(
-      attempt =>
+      (attempt) =>
         attempt.userId === userId &&
         !attempt.success &&
         attempt.timestamp.getTime() > windowStart
@@ -241,25 +243,27 @@ export class AuthAuditLogger {
     this.emitSecurityAlert(alert);
 
     // Log the detection
-    console.error(JSON.stringify({
+    this.logger.error('Brute force attempt detected', {
       logType: 'brute_force_detected',
-      timestamp: new Date().toISOString(),
       userId,
       ip,
       attemptCount: attempts.length,
       action: 'ip_blocked',
-    }));
+    });
   }
 
   /**
    * Handle distributed attack detection
    */
-  private handleDistributedAttack(userId: string, attempts: AuthAttempt[]): void {
+  private handleDistributedAttack(
+    userId: string,
+    attempts: AuthAttempt[]
+  ): void {
     // Block the user
     this.blockedUsers.add(userId);
 
     // Get unique IPs
-    const uniqueIPs = new Set(attempts.map(a => a.ip));
+    const uniqueIPs = new Set(attempts.map((a) => a.ip));
 
     // Generate security alert
     const alert: SecurityAlert = {
@@ -281,14 +285,13 @@ export class AuthAuditLogger {
     this.emitSecurityAlert(alert);
 
     // Log the detection
-    console.error(JSON.stringify({
+    this.logger.error('Distributed attack detected', {
       logType: 'distributed_attack_detected',
-      timestamp: new Date().toISOString(),
       userId,
       uniqueIPs: uniqueIPs.size,
       attemptCount: attempts.length,
       action: 'user_blocked',
-    }));
+    });
   }
 
   /**
@@ -319,11 +322,10 @@ export class AuthAuditLogger {
    */
   unblockIP(ip: string): void {
     this.blockedIPs.delete(ip);
-    console.log(JSON.stringify({
+    this.logger.info('IP unblocked', {
       logType: 'ip_unblocked',
-      timestamp: new Date().toISOString(),
       ip,
-    }));
+    });
   }
 
   /**
@@ -331,11 +333,10 @@ export class AuthAuditLogger {
    */
   unblockUser(userId: string): void {
     this.blockedUsers.delete(userId);
-    console.log(JSON.stringify({
+    this.logger.info('User unblocked', {
       logType: 'user_unblocked',
-      timestamp: new Date().toISOString(),
       userId,
-    }));
+    });
   }
 
   /**
@@ -355,20 +356,21 @@ export class AuthAuditLogger {
     const windowStart = timeWindow ? now - timeWindow : 0;
 
     const relevantAttempts = this.attemptHistory.filter(
-      attempt => attempt.timestamp.getTime() > windowStart
+      (attempt) => attempt.timestamp.getTime() > windowStart
     );
 
-    const successful = relevantAttempts.filter(a => a.success).length;
+    const successful = relevantAttempts.filter((a) => a.success).length;
     const failed = relevantAttempts.length - successful;
 
-    const uniqueUsers = new Set(relevantAttempts.map(a => a.userId)).size;
-    const uniqueIPs = new Set(relevantAttempts.map(a => a.ip)).size;
+    const uniqueUsers = new Set(relevantAttempts.map((a) => a.userId)).size;
+    const uniqueIPs = new Set(relevantAttempts.map((a) => a.ip)).size;
 
     return {
       totalAttempts: relevantAttempts.length,
       successfulAttempts: successful,
       failedAttempts: failed,
-      successRate: relevantAttempts.length > 0 ? successful / relevantAttempts.length : 0,
+      successRate:
+        relevantAttempts.length > 0 ? successful / relevantAttempts.length : 0,
       uniqueUsers,
       uniqueIPs,
       blockedIPs: this.blockedIPs.size,
@@ -379,12 +381,15 @@ export class AuthAuditLogger {
   /**
    * Get recent failed attempts for user
    */
-  getRecentFailures(userId: string, timeWindow: number = 5 * 60 * 1000): AuthAttempt[] {
+  getRecentFailures(
+    userId: string,
+    timeWindow: number = 5 * 60 * 1000
+  ): AuthAttempt[] {
     const now = Date.now();
     const windowStart = now - timeWindow;
 
     return this.attemptHistory.filter(
-      attempt =>
+      (attempt) =>
         attempt.userId === userId &&
         !attempt.success &&
         attempt.timestamp.getTime() > windowStart
@@ -394,12 +399,15 @@ export class AuthAuditLogger {
   /**
    * Get recent failed attempts for IP
    */
-  getRecentFailuresForIP(ip: string, timeWindow: number = 5 * 60 * 1000): AuthAttempt[] {
+  getRecentFailuresForIP(
+    ip: string,
+    timeWindow: number = 5 * 60 * 1000
+  ): AuthAttempt[] {
     const now = Date.now();
     const windowStart = now - timeWindow;
 
     return this.attemptHistory.filter(
-      attempt =>
+      (attempt) =>
         attempt.ip === ip &&
         !attempt.success &&
         attempt.timestamp.getTime() > windowStart
@@ -418,22 +426,23 @@ export class AuthAuditLogger {
    */
   private emitSecurityAlert(alert: SecurityAlert): void {
     // Log the alert
-    console.error(JSON.stringify({
+    this.logger.error('Security alert', {
       logType: 'security_alert',
       alertType: alert.type,
       severity: alert.severity,
       userId: alert.userId,
       ip: alert.ip,
       details: alert.details,
-      timestamp: alert.timestamp.toISOString(),
-    }));
+    });
 
     // Notify callbacks
     for (const callback of this.alertCallbacks) {
       try {
         callback(alert);
       } catch (error) {
-        console.error('Error in security alert callback:', error);
+        this.logger.error('Error in security alert callback', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
   }
@@ -441,7 +450,10 @@ export class AuthAuditLogger {
   /**
    * Generate audit report
    */
-  generateAuditReport(startDate: Date, endDate: Date): {
+  generateAuditReport(
+    startDate: Date,
+    endDate: Date
+  ): {
     period: { start: string; end: string };
     stats: ReturnType<typeof this.getAuthStats>;
     topFailureReasons: Array<{ reason: string; count: number }>;
@@ -449,20 +461,22 @@ export class AuthAuditLogger {
     suspiciousUsers: Array<{ userId: string; failureCount: number }>;
   } {
     const attempts = this.attemptHistory.filter(
-      attempt =>
-        attempt.timestamp >= startDate &&
-        attempt.timestamp <= endDate
+      (attempt) =>
+        attempt.timestamp >= startDate && attempt.timestamp <= endDate
     );
 
     // Calculate stats
-    const successful = attempts.filter(a => a.success).length;
+    const successful = attempts.filter((a) => a.success).length;
     const failed = attempts.length - successful;
 
     // Top failure reasons
     const reasonCounts = new Map<string, number>();
     for (const attempt of attempts) {
       if (!attempt.success && attempt.reason) {
-        reasonCounts.set(attempt.reason, (reasonCounts.get(attempt.reason) || 0) + 1);
+        reasonCounts.set(
+          attempt.reason,
+          (reasonCounts.get(attempt.reason) || 0) + 1
+        );
       }
     }
 
@@ -481,7 +495,7 @@ export class AuthAuditLogger {
 
     const suspiciousIPs = Array.from(ipFailures.entries())
       .map(([ip, failureCount]) => ({ ip, failureCount }))
-      .filter(item => item.failureCount >= 3)
+      .filter((item) => item.failureCount >= 3)
       .sort((a, b) => b.failureCount - a.failureCount)
       .slice(0, 20);
 
@@ -489,13 +503,16 @@ export class AuthAuditLogger {
     const userFailures = new Map<string, number>();
     for (const attempt of attempts) {
       if (!attempt.success) {
-        userFailures.set(attempt.userId, (userFailures.get(attempt.userId) || 0) + 1);
+        userFailures.set(
+          attempt.userId,
+          (userFailures.get(attempt.userId) || 0) + 1
+        );
       }
     }
 
     const suspiciousUsers = Array.from(userFailures.entries())
       .map(([userId, failureCount]) => ({ userId, failureCount }))
-      .filter(item => item.failureCount >= 3)
+      .filter((item) => item.failureCount >= 3)
       .sort((a, b) => b.failureCount - a.failureCount)
       .slice(0, 20);
 
@@ -509,8 +526,8 @@ export class AuthAuditLogger {
         successfulAttempts: successful,
         failedAttempts: failed,
         successRate: attempts.length > 0 ? successful / attempts.length : 0,
-        uniqueUsers: new Set(attempts.map(a => a.userId)).size,
-        uniqueIPs: new Set(attempts.map(a => a.ip)).size,
+        uniqueUsers: new Set(attempts.map((a) => a.userId)).size,
+        uniqueIPs: new Set(attempts.map((a) => a.ip)).size,
         blockedIPs: this.blockedIPs.size,
         blockedUsers: this.blockedUsers.size,
       },
@@ -528,7 +545,7 @@ export function createAuthAuditMiddleware(auditLogger: AuthAuditLogger) {
   return (req: any, res: any, next: any) => {
     // Check if IP or user is blocked
     const ip = req.ip || req.connection.remoteAddress;
-    
+
     if (auditLogger.isIPBlocked(ip)) {
       res.status(403).json({
         error: 'Access denied',

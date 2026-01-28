@@ -57,6 +57,7 @@ import { createConversationRoutes } from './conversations.js';
 import { authenticateJWT } from '../middleware/auth.js';
 import serviceVersionHandler from './service-version.js';
 import { addTierInfo } from '../middleware/tier-check.js';
+import { authenticateComposite } from '../middleware/composite-auth.js';
 import {
   dbHealthHandler,
   setSshProxy,
@@ -70,7 +71,14 @@ import rateLimitMetricsRoutes from './rate-limit-metrics.js';
 import prometheusMetricsRoutes from './prometheus-metrics.js';
 import changelogRoutes from './changelog.js';
 
-export function setupRoutes(app, sshProxy, logger, sshAuthService, healthCheckService, isInitializing) {
+export function setupRoutes(
+  app,
+  sshProxy,
+  logger,
+  sshAuthService,
+  healthCheckService,
+  isInitializing,
+) {
   // Webhook routes MUST be mounted before body parsing middleware
   app.use('/api/webhooks', webhookRoutes);
   app.use('/webhooks', webhookRoutes);
@@ -156,7 +164,44 @@ export function setupRoutes(app, sshProxy, logger, sshAuthService, healthCheckSe
   registerRoutes('/users', userProfileRoutes);
   registerRoutes('/api-keys', apiKeysRouter);
   registerRoutes('/tunnels', tunnelRoutes);
-  // Add all other registerRoutes calls here...
+  registerRoutes('/adaptive-rate-limiting', adaptiveRateLimitingRoutes);
+  registerRoutes('/admin-metrics', adminMetricsRoutes);
+  registerRoutes('/alert-configuration', alertConfigurationRoutes);
+  registerRoutes('/auth-audit', authAuditRoutes);
+  registerRoutes('/backup-recovery', backupRecoveryRoutes);
+  registerRoutes('/bridge-polling', bridgePollingRoutes);
+  registerRoutes('/cache-metrics', cacheMetricsRoutes);
+  registerRoutes('/deprecation', deprecationRoutes);
+  registerRoutes('/direct-proxy', directProxyRoutes);
+  registerRoutes('/error-recovery', errorRecoveryRoutes);
+  registerRoutes('/failover', failoverRoutes);
+  registerRoutes('/proxy-config', proxyConfigRoutes);
+  registerRoutes('/proxy-diagnostics', proxyDiagnosticsRoutes);
+  registerRoutes('/proxy-failover', proxyFailoverRoutes);
+  registerRoutes('/proxy-health', proxyHealthRoutes);
+  registerRoutes('/proxy-metrics', proxyMetricsRoutes);
+  registerRoutes('/proxy-scaling', proxyScalingRoutes);
+  registerRoutes('/proxy-usage', proxyUsageRoutes);
+  registerRoutes('/proxy-webhooks', proxyWebhooksRoutes);
+  registerRoutes('/quotas', quotasRoutes);
+  registerRoutes('/rate-limit-exemptions', rateLimitExemptionsRoutes);
+  registerRoutes('/rate-limit-violations', rateLimitViolationsRoutes);
+  registerRoutes('/sandbox', sandboxRoutes);
+  registerRoutes('/tunnel-failover', tunnelFailoverRoutes);
+  registerRoutes('/tunnel-health', tunnelHealthRoutes);
+  registerRoutes('/tunnel-sharing', tunnelSharingRoutes);
+  registerRoutes('/tunnel-usage', tunnelUsageRoutes);
+  registerRoutes('/tunnel-webhooks', tunnelWebhooksRoutes);
+  registerRoutes('/user-activity', userActivityRoutes);
+  registerRoutes('/user-deletion', userDeletionRoutes);
+  registerRoutes('/webhook-event-filters', webhookEventFiltersRoutes);
+  registerRoutes(
+    '/webhook-payload-transformations',
+    webhookPayloadTransformationsRoutes,
+  );
+  registerRoutes('/webhook-rate-limiting', webhookRateLimitingRoutes);
+  registerRoutes('/webhook-testing', webhookTestingRoutes);
+  registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
 
   // Health check endpoints
   app.get('/healthz', (req, res) => {
@@ -202,7 +247,6 @@ export function setupRoutes(app, sshProxy, logger, sshAuthService, healthCheckSe
   registerRoutes('/queue/drain', ...authenticateJWT, queueDrainHandler);
 
   // Ollama proxy
-  import { authenticateComposite } from '../middleware/composite-auth.js';
   const OLLAMA_ROUTE_REGEX = /^\/(api\/)?ollama(\/.*)?$/;
   app.all(
     OLLAMA_ROUTE_REGEX,
