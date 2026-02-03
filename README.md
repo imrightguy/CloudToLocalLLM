@@ -1,4 +1,4 @@
-# CloudToLocalLLM
+# CloudToLocalLLM 🦞
  
 <div align="center">
  
@@ -9,7 +9,9 @@
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange.svg)]()
  
 **A privacy-first platform to manage and run powerful Large Language Models (LLMs) locally, with an optional cloud relay for seamless remote access.**
- 
+
+*Brought to you by Zoidbot — privacy-first local AI with claws.* 🦞
+
 [Key Features](#key-features) • [Download & Install](#-download--install) • [Documentation](#-documentation) • [Development](#-development)
  
 </div>

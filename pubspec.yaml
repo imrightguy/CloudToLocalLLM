@@ -103,6 +103,9 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/lobster_avatar.png
+    - assets/images/lobster_avatar_64.png
+    - assets/images/lobster_avatar_128.png
     - assets/version.json
     - assets/component-versions.json
 

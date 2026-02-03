@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 
-/// Custom app logo widget that matches the homepage design
+/// Custom app logo widget that matches the Zoidbot branding
 class AppLogo extends StatelessWidget {
   final double size;
   final bool showBorder;
@@ -61,12 +61,18 @@ class AppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBackgroundColor = backgroundColor ?? AppTheme.secondaryColor;
-    final effectiveTextColor = textColor ?? AppTheme.primaryColor;
     final effectiveBorderColor = borderColor ?? AppTheme.primaryColor;
+    final borderWidth = size * 0.04;
 
-    // Calculate font size based on container size
-    final fontSize = size * 0.35; // Approximately 35% of container size
-    final borderWidth = size * 0.04; // Approximately 4% of container size
+    // Zoidbot lobster avatar
+    String assetPath = 'assets/images/lobster_avatar_64.png';
+    if (size >= 128) {
+      assetPath = 'assets/images/lobster_avatar_128.png';
+    } else if (size >= 64) {
+      assetPath = 'assets/images/lobster_avatar_64.png';
+    } else {
+      assetPath = 'assets/images/lobster_avatar.png';
+    }
 
     return Container(
       width: size,
@@ -85,15 +91,21 @@ class AppLogo extends StatelessWidget {
           ),
         ],
       ),
-      child: Center(
-        child: Text(
-          'LLM',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: effectiveTextColor,
-            letterSpacing: fontSize * 0.02,
-          ),
+      child: ClipOval(
+        child: Image.asset(
+          assetPath,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback to lobster emoji if image fails
+            return Center(
+              child: Text(
+                '🦞',
+                style: TextStyle(fontSize: size * 0.6),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -182,7 +194,7 @@ class _AnimatedAppLogoState extends State<AnimatedAppLogo>
   }
 }
 
-/// Logo with gradient background matching the homepage
+/// Logo with gradient background matching the Zoidbot branding
 class GradientAppLogo extends StatelessWidget {
   final double size;
   final bool showBorder;
@@ -200,10 +212,17 @@ class GradientAppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBorderColor = borderColor ?? AppTheme.primaryColor;
-
-    // Calculate font size based on container size
-    final fontSize = size * 0.35;
     final borderWidth = size * 0.04;
+
+    // Zoidbot lobster avatar
+    String assetPath = 'assets/images/lobster_avatar_64.png';
+    if (size >= 128) {
+      assetPath = 'assets/images/lobster_avatar_128.png';
+    } else if (size >= 64) {
+      assetPath = 'assets/images/lobster_avatar_64.png';
+    } else {
+      assetPath = 'assets/images/lobster_avatar.png';
+    }
 
     return Container(
       width: size,
@@ -222,15 +241,21 @@ class GradientAppLogo extends StatelessWidget {
           ),
         ],
       ),
-      child: Center(
-        child: Text(
-          'LLM',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: fontSize * 0.02,
-          ),
+      child: ClipOval(
+        child: Image.asset(
+          assetPath,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback to lobster emoji if image fails
+            return Center(
+              child: Text(
+                '🦞',
+                style: TextStyle(fontSize: size * 0.6, color: Colors.white),
+              ),
+            );
+          },
         ),
       ),
     );
