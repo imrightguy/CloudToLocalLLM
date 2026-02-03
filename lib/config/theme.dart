@@ -7,14 +7,14 @@ import 'theme_extensions.dart';
 /// This class now delegates to ThemeConfig for unified theme management.
 /// Use ThemeConfig directly for new implementations.
 class AppTheme {
-  // Color scheme matching homepage design
+  // Color scheme matching Zoidbot lobster branding
   static const Color primaryColor = Color(
-    0xFFa777e3,
-  ); // --color-primary: #a777e3
+    0xFFD32F2F,
+  ); // Lobster red
   static const Color secondaryColor = Color(
-    0xFF6e8efb,
-  ); // --color-secondary: #6e8efb
-  static const Color accentColor = Color(0xFF00c58e); // --color-accent: #00c58e
+    0xFFFF6F00,
+  ); // Deep orange
+  static const Color accentColor = Color(0xFF4caf50); // Green for success
 
   // Background colors
   static const Color backgroundMain = Color(0xFF181a20); // --bg-main: #181a20

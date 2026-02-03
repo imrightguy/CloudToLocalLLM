@@ -88,9 +88,9 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#181a20"
-  image: assets/images/app_icon.png
+  image: assets/images/lobster_avatar.png
   color_dark: "#181a20"
-  image_dark: assets/images/app_icon.png
+  image_dark: assets/images/lobster_avatar.png
 
   web: true
   android: true

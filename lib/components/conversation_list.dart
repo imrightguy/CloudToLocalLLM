@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../config/theme.dart';
 import '../models/conversation.dart';
 
@@ -163,6 +164,19 @@ class _ConversationListState extends State<ConversationList> {
                     fontWeight: FontWeight.bold,
                   ),
             ),
+          ),
+          IconButton(
+            onPressed: () => context.go('/agent-status'),
+            icon: const Text('🦞', style: TextStyle(fontSize: 18)),
+            iconSize: 20,
+            color: AppTheme.primaryColor,
+            style: IconButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+              ),
+            ),
+            tooltip: 'Agent Status',
           ),
           IconButton(
             onPressed: widget.onNewConversation,

@@ -14,6 +14,9 @@ import '../screens/settings/settings_lazy.dart' as settings_lazy;
 import '../screens/admin/admin_lazy.dart' as admin_lazy;
 import '../screens/ollama_test_lazy.dart' as ollama_test_lazy;
 
+// Agent status screen is lazy-loaded
+import '../screens/agent_status_lazy.dart' as agent_status_lazy;
+
 // Marketing screens (web-only) are lazy-loaded
 import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
 
@@ -137,6 +140,7 @@ class AppRouter {
         ...ollama_test_lazy.ollamaTestRoutes,
         ...settings_lazy.settingsRoutes,
         ...admin_lazy.adminRoutes,
+        ...agent_status_lazy.agentStatusRoutes,
 
         GoRoute(
           path: '/login',
