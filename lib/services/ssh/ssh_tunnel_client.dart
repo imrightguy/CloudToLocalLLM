@@ -75,7 +75,7 @@ class SSHTunnelClient with ChangeNotifier {
       final socket = await WebSocketSSHSocket.connect(wsUri);
 
       if (_isDisposed) {
-        socket.close();
+        await socket.close();
         return;
       }
 

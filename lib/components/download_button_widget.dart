@@ -141,7 +141,7 @@ class _DownloadButtonWidgetState extends State<DownloadButtonWidget> {
       widget.onDownloadStarted?.call();
 
       // Initiate download
-      _releaseService.downloadFile(
+      await _releaseService.downloadFile(
         widget.downloadOption.downloadUrl,
         widget.downloadOption.name,
       );

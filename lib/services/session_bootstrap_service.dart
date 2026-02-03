@@ -35,9 +35,11 @@ class SessionBootstrapService {
         return;
       }
 
-      print('[SessionBootstrapService] Calling setupAuthenticatedServices...');
+      debugPrint(
+          '[SessionBootstrapService] Calling setupAuthenticatedServices...');
       await di.setupAuthenticatedServices();
-      print('[SessionBootstrapService] setupAuthenticatedServices returned');
+      debugPrint(
+          '[SessionBootstrapService] setupAuthenticatedServices returned');
 
       // Verify they were actually registered before setting the flag
       final registered =

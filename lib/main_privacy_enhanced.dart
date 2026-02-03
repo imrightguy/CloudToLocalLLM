@@ -78,7 +78,7 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
 
       // Initialize platform-specific services in background
       if (!kIsWeb) {
-        _initializeDesktopServices();
+        await _initializeDesktopServices();
       }
     } catch (e) {
       debugPrint(' [App] Error during app initialization: $e');

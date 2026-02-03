@@ -341,7 +341,7 @@ class NativeTrayService with TrayListener {
       trayManager.removeListener(this);
       _connectionManager?.removeListener(_onTunnelStatusChanged);
       _localOllama?.removeListener(_onTunnelStatusChanged);
-      _statusSubscription?.cancel();
+      await _statusSubscription?.cancel();
       _updateDebounceTimer?.cancel();
 
       // Destroy tray

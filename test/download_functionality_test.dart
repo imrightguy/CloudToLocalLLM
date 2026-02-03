@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 /// Test suite for download functionality
@@ -26,7 +27,7 @@ void main() {
             reason: 'Release should have assets');
       } catch (e) {
         // Network error in test environment - skip this test
-        print('Skipping network test: $e');
+        debugPrint('Skipping network test: $e');
       }
     }, skip: true);
 
@@ -57,7 +58,7 @@ void main() {
         }
       } catch (e) {
         // Network error in test environment - skip this test
-        print('Skipping network test: $e');
+        debugPrint('Skipping network test: $e');
       }
     }, skip: true);
 
@@ -86,7 +87,7 @@ void main() {
             reason: 'Should have Windows installer');
       } catch (e) {
         // Network error in test environment - skip this test
-        print('Skipping network test: $e');
+        debugPrint('Skipping network test: $e');
       }
     }, skip: true);
 
@@ -116,7 +117,7 @@ void main() {
         }
       } catch (e) {
         // Network error in test environment - skip this test
-        print('Skipping network test: $e');
+        debugPrint('Skipping network test: $e');
       }
     }, skip: true);
 
@@ -143,7 +144,7 @@ void main() {
             reason: 'Tag should follow version format');
       } catch (e) {
         // Network error in test environment - skip this test
-        print('Skipping network test: $e');
+        debugPrint('Skipping network test: $e');
       }
     }, skip: true);
   });

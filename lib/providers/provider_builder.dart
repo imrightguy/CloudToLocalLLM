@@ -57,7 +57,7 @@ class ProviderBuilder {
         );
       }
     } catch (e) {
-      print('[Providers] Error adding PlatformAdapter: $e');
+      debugPrint('[Providers] Error adding PlatformAdapter: $e');
     }
 
     // Authenticated services
@@ -88,7 +88,7 @@ class ProviderBuilder {
         providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
     } catch (e) {
-      print('[Providers] Error adding core provider $T: $e');
+      debugPrint('[Providers] Error adding core provider $T: $e');
     }
   }
 
@@ -100,7 +100,7 @@ class ProviderBuilder {
         providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
     } catch (e) {
-      print('[Providers] Error adding provider $T: $e');
+      debugPrint('[Providers] Error adding provider $T: $e');
     }
   }
 }

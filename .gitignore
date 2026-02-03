@@ -151,6 +151,9 @@ k8s/secrets.yaml
 # Cursor MCP configuration (contains tokens)
 .cursor/mcp-config.json
 
+# Claude Code MCP configuration (contains tokens)
+.claude/config.json
+
 # Generated secrets (DO NOT COMMIT)
 .secrets.json
 

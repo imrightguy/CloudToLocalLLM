@@ -131,7 +131,7 @@ class _DnsConfigTabState extends State<DnsConfigTab> {
         _ttlController.text = '3600';
       });
 
-      _loadDnsRecords();
+      await _loadDnsRecords();
     } catch (e) {
       setState(() {
         _error = 'Failed to save DNS record: $e';
@@ -158,7 +158,7 @@ class _DnsConfigTabState extends State<DnsConfigTab> {
         _successMessage = 'DNS records validated successfully';
       });
 
-      _loadDnsRecords();
+      await _loadDnsRecords();
     } catch (e) {
       setState(() {
         _error = 'Failed to validate DNS records: $e';
@@ -186,7 +186,7 @@ class _DnsConfigTabState extends State<DnsConfigTab> {
         _successMessage = 'DNS record deleted successfully';
       });
 
-      _loadDnsRecords();
+      await _loadDnsRecords();
     } catch (e) {
       setState(() {
         _error = 'Failed to delete DNS record: $e';

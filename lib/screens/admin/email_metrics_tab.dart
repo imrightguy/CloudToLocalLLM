@@ -148,7 +148,7 @@ class _EmailMetricsTabState extends State<EmailMetricsTab> {
         _startDate = picked.start;
         _endDate = picked.end;
       });
-      _loadMetrics();
+      await _loadMetrics();
     }
   }
 

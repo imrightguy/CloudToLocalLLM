@@ -1,7 +1,9 @@
 #!/usr/bin/env dart
+// ignore_for_file: avoid_print
 
 /// Pure Dart Tunnel Connection Test
 /// Basic test to verify tunnel connection functionality without Flutter dependencies
+library;
 
 import 'dart:async';
 import 'dart:io';

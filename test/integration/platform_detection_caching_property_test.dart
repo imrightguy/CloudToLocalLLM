@@ -279,12 +279,12 @@ void main() {
       // Perform multiple platform checks
       final startTime = DateTime.now();
       for (int i = 0; i < 100; i++) {
-        final _ = platformService.isWeb;
-        final __ = platformService.isWindows;
-        final ___ = platformService.isLinux;
-        final ____ = platformService.isMacOS;
-        final _____ = platformService.isDesktop;
-        final ______ = platformService.isMobile;
+        platformService.isWeb;
+        platformService.isWindows;
+        platformService.isLinux;
+        platformService.isMacOS;
+        platformService.isDesktop;
+        platformService.isMobile;
       }
       final elapsed = DateTime.now().difference(startTime).inMilliseconds;
 

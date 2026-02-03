@@ -91,6 +91,7 @@ class _TrayInitializerState extends State<TrayInitializer> {
 
         // Set up a listener to update the tray when ConnectionManagerService becomes available
         if (connectionManager == null) {
+          // ignore: use_build_context_synchronously
           _setupConnectionManagerListener(context, nativeTray);
         }
       }
@@ -109,6 +110,8 @@ class _TrayInitializerState extends State<TrayInitializer> {
     // Check periodically if ConnectionManagerService becomes available
     Timer.periodic(const Duration(seconds: 2), (timer) {
       try {
+        if (!mounted) return;
+        // ignore: use_build_context_synchronously
         final connectionManager =
             Provider.of<ConnectionManagerService>(context, listen: false);
         // ConnectionManagerService is available, update tray

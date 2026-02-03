@@ -608,7 +608,7 @@ class _PrivacyDashboardState extends State<PrivacyDashboard> {
 
                               // Show loading indicator
                               if (context.mounted) {
-                                showDialog(
+                                await showDialog(
                                   context: context,
                                   barrierDismissible: false,
                                   builder: (context) => const AlertDialog(

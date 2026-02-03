@@ -9,7 +9,8 @@ Future<void> loadAuth0Script() async {
   bool isLoaded = false;
   for (int i = 0; i < scripts.length; i++) {
     final item = scripts.item(i);
-    if (item is web.HTMLScriptElement && item.src.contains('auth0-spa-js')) {
+    final scriptElement = item as web.HTMLScriptElement?;
+    if (scriptElement != null && scriptElement.src.contains('auth0-spa-js')) {
       isLoaded = true;
       break;
     }

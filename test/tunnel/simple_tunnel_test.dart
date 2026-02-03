@@ -2,6 +2,7 @@
 
 /// Simple Tunnel Connection Test
 /// Basic test to verify tunnel connection functionality without complex dependencies
+library;
 
 import 'dart:async';
 import 'dart:io';

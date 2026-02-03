@@ -241,7 +241,7 @@ class _EmailTemplateEditorState extends State<EmailTemplateEditor> {
         _selectedTemplate = null;
       });
 
-      _loadTemplates();
+      await _loadTemplates();
     } catch (e) {
       setState(() {
         _error = 'Failed to delete template: $e';

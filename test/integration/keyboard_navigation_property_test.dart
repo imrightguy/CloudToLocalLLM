@@ -161,7 +161,7 @@ void main() {
           // Navigate to test screen
           final navigator =
               tester.state<NavigatorState>(find.byType(Navigator));
-          navigator.pushNamed('/test');
+          await navigator.pushNamed('/test');
           await tester.pumpAndSettle();
 
           // Simulate Escape key press

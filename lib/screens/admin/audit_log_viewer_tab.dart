@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../di/locator.dart' as di;
+import 'dart:async';
 import 'dart:convert';
 import '../../services/admin_center_service.dart';
 import '../../models/admin_audit_log_model.dart';
@@ -124,10 +125,10 @@ class _AuditLogViewerTabState extends State<AuditLogViewerTab> {
 
       if (!mounted) return;
 
-      showDialog(
+      unawaited(showDialog(
         context: context,
         builder: (context) => _LogDetailDialog(logData: logData),
-      );
+      ));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

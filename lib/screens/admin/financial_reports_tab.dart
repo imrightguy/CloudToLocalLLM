@@ -98,7 +98,7 @@ class _FinancialReportsTabState extends State<FinancialReportsTab> {
         _endDate = picked.end;
         _reportData = null;
       });
-      _loadReport();
+      await _loadReport();
     }
   }
 
