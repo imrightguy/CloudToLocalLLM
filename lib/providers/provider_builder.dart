@@ -31,12 +31,14 @@ import 'package:cloudtolocalllm/services/web_download_prompt_service.dart'
     if (dart.library.io) 'package:cloudtolocalllm/services/web_download_prompt_service_stub.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
+import 'package:cloudtolocalllm/providers/agent_provider.dart';
 
 class ProviderBuilder {
   List<SingleChildWidget> buildProviders() {
     final providers = <SingleChildWidget>[];
 
     // Core services
+    providers.add(ChangeNotifierProvider<AgentProvider>(create: (_) => AgentProvider()));
     _addCoreProvider<AuthService>(providers);
     _addCoreProvider<LocalOllamaConnectionService>(providers);
     _addCoreProvider<DesktopClientDetectionService>(providers);
