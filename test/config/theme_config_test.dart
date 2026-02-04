@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/config/theme_config.dart';
+import 'package:zoidbot/config/theme_config.dart';
 
 void main() {
   group('ThemeConfig', () {

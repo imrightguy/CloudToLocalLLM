@@ -1,17 +1,20 @@
 [Unit]
-Description=CloudToLocalLLM Service
-After=network.target postgresql.service
-Wants=network.target postgresql.service
+Description=Zoidbot Service
+After=network.target docker.service
+Requires=docker.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/cloudtolocalllm/portal
+WorkingDirectory=/opt/zoidbot/portal
 User=root
 Group=root
 
 # Setup environment
-ExecStartPre=/bin/bash -c 'mkdir -p /opt/cloudtolocalllm/logs'
+ExecStartPre=/bin/bash -c 'mkdir -p /opt/zoidbot/logs'
+
+# Check docker service
+ExecStartPre=/bin/bash -c 'systemctl is-active --quiet docker || systemctl start docker'
 
 # Start all services
 ExecStart=/usr/bin/docker-compose -f docker-compose.auth.yml -f docker-compose.web.yml up -d

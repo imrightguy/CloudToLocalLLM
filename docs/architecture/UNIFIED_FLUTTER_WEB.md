@@ -2,36 +2,36 @@
 
 ## Overview
 
-CloudToLocalLLM v3.10.3+ implements a unified Flutter-based web architecture that consolidates both marketing content and application functionality into a single codebase. This eliminates the need for separate static site containers while maintaining clear separation between marketing and application routes.
+Zoidbot v3.10.3+ implements a unified Flutter-based web architecture that consolidates both marketing content and application functionality into a single codebase. This eliminates the need for separate static site containers while maintaining clear separation between marketing and application routes.
 
 ## Architecture Changes
 
 ### Before (Multi-Container)
 
 ```
-cloudtolocalllm.online → static-site container (HTML/CSS)
-app.cloudtolocalllm.online → flutter-app container (Flutter web)
-docs.cloudtolocalllm.online → static-site container (VitePress docs)
+zoidbot.online → static-site container (HTML/CSS)
+app.zoidbot.online → flutter-app container (Flutter web)
+docs.zoidbot.online → static-site container (VitePress docs)
 ```
 
 ### After (Unified Flutter)
 
 ```
-cloudtolocalllm.online → flutter-app container (Flutter marketing pages)
-app.cloudtolocalllm.online → flutter-app container (Flutter chat interface)
-docs.cloudtolocalllm.online → static-site container (VitePress docs - unchanged)
+zoidbot.online → flutter-app container (Flutter marketing pages)
+app.zoidbot.online → flutter-app container (Flutter chat interface)
+docs.zoidbot.online → static-site container (VitePress docs - unchanged)
 ```
 
 ## Domain Routing Strategy
 
-### Main Domain (cloudtolocalllm.online)
+### Main Domain (zoidbot.online)
 
 - **Purpose**: Marketing homepage and download information
 - **Routes**: `/` (homepage), `/download` (installation guide)
 - **Platform**: Web-only (`kIsWeb` detection)
 - **Authentication**: Not required for marketing content
 
-### App Subdomain (app.cloudtolocalllm.online)
+### App Subdomain (app.zoidbot.online)
 
 - **Purpose**: Main application interface
 - **Routes**: `/chat`, `/settings`, `/login`, `/callback`
@@ -39,7 +39,7 @@ docs.cloudtolocalllm.online → static-site container (VitePress docs - unchange
 - **Authentication**: Required for application features
 - **Redirect**: Root `/` redirects to `/chat`
 
-### Docs Subdomain (docs.cloudtolocalllm.online)
+### Docs Subdomain (docs.zoidbot.online)
 
 - **Purpose**: Technical documentation
 - **Technology**: VitePress (unchanged)
@@ -152,7 +152,7 @@ window.Auth0Bridge = {
 ```nginx
 # Main domain - Flutter marketing
 server {
-    server_name cloudtolocalllm.online;
+    server_name zoidbot.online;
     location / {
         proxy_pass http://flutter-app;
         # Flutter-specific headers
@@ -161,7 +161,7 @@ server {
 
 # App subdomain - Flutter application
 server {
-    server_name app.cloudtolocalllm.online;
+    server_name app.zoidbot.online;
     location = / {
         return 302 /chat; # Redirect to chat interface
     }
@@ -230,11 +230,11 @@ server {
 
 ### Domain Access
 
-- [ ] `cloudtolocalllm.online` → Flutter homepage
-- [ ] `cloudtolocalllm.online/download` → Flutter download page
-- [ ] `app.cloudtolocalllm.online` → Redirects to `/chat`
-- [ ] `app.cloudtolocalllm.online/chat` → Flutter chat interface
-- [ ] `docs.cloudtolocalllm.online` → VitePress documentation
+- [ ] `zoidbot.online` → Flutter homepage
+- [ ] `zoidbot.online/download` → Flutter download page
+- [ ] `app.zoidbot.online` → Redirects to `/chat`
+- [ ] `app.zoidbot.online/chat` → Flutter chat interface
+- [ ] `docs.zoidbot.online` → VitePress documentation
 
 ### Platform Behavior
 
@@ -257,7 +257,7 @@ server {
 The static-site container will be retained for documentation hosting but can be further optimized:
 
 - Remove homepage-related configurations
-- Focus solely on docs.cloudtolocalllm.online
+- Focus solely on docs.zoidbot.online
 - Consider migrating docs to Flutter in future versions
 
 ### Performance Optimization

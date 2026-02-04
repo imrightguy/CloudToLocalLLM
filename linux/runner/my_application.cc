@@ -40,11 +40,11 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "cloudtolocalllm");
+    gtk_header_bar_set_title(header_bar, "zoidbot");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "cloudtolocalllm");
+    gtk_window_set_title(window, "zoidbot");
   }
 
   gtk_window_set_default_size(window, 1280, 720);
@@ -57,8 +57,8 @@ static void my_application_activate(GApplication* application) {
   const char* icon_paths[] = {
     "data/flutter_assets/assets/images/app_icon.png",
     "assets/images/app_icon.png",
-    "/usr/share/pixmaps/cloudtolocalllm.png",
-    "/usr/share/icons/hicolor/128x128/apps/cloudtolocalllm.png",
+    "/usr/share/pixmaps/zoidbot.png",
+    "/usr/share/icons/hicolor/128x128/apps/zoidbot.png",
     nullptr
   };
 

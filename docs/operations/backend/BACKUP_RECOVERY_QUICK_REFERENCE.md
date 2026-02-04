@@ -116,7 +116,7 @@ MAX_BACKUPS=10
 # Database connection
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=cloudtolocalllm
+DB_NAME=zoidbot
 DB_USER=postgres
 DB_PASSWORD=password
 DB_SSL=false

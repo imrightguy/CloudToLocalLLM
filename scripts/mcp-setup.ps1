@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 Write-Host @"
 
 ╔════════════════════════════════════════════════════════════════╗
-║           MCP Tools Setup for CloudToLocalLLM                  ║
+║           MCP Tools Setup for Zoidbot                  ║
 ╚════════════════════════════════════════════════════════════════╝
 
 "@ -ForegroundColor Cyan

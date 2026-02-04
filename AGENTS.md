@@ -1,4 +1,4 @@
-# CloudToLocalLLM - Agent Instructions
+# Zoidbot - Agent Instructions
 
 This file provides guidance for AI coding agents working in this repository.
 
@@ -48,7 +48,7 @@ npm test && npm run lint
 
 ## Project Structure
 ```
-CloudToLocalLLM/
+Zoidbot/
 ├── lib/                      # Flutter app (Dart)
 │   ├── services/             # LLM providers, auth, tunnel services
 │   ├── widgets/              # UI components

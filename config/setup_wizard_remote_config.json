@@ -1,6 +1,6 @@
 {
   "setup_wizard_feature_flags": {
-    "description": "Remote configuration for CloudToLocalLLM First-Time Setup Wizard",
+    "description": "Remote configuration for Zoidbot First-Time Setup Wizard",
     "version": "1.0.0",
     "last_updated": "2024-01-01T00:00:00Z",
     "flags": {

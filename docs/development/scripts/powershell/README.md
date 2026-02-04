@@ -1,4 +1,4 @@
-# CloudToLocalLLM PowerShell Build Scripts
+# Zoidbot PowerShell Build Scripts
 
 This directory contains PowerShell scripts designed to work natively on Windows with limited WSL integration only for Linux application builds.
 
@@ -127,7 +127,7 @@ WSL is **NOT used** for:
 
 ```powershell
 # From Windows PowerShell, deploy to VPS via SSH
-ssh cloudllm@cloudtolocalllm.online "cd /opt/cloudtolocalllm && ./scripts/deploy/update_and_deploy.sh --force --verbose"
+ssh cloudllm@zoidbot.online "cd /opt/zoidbot && ./scripts/deploy/update_and_deploy.sh --force --verbose"
 ```
 
 ### Environment Testing

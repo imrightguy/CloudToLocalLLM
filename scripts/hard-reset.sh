@@ -18,7 +18,7 @@ log_success() {
     echo -e "\033[0;32m✅  $1\033[0m"
 }
 
-NAMESPACE="${NAMESPACE:-cloudtolocalllm}"
+NAMESPACE="${NAMESPACE:-zoidbot}"
 
 log_info "Initiating HARD RESET of namespace: $NAMESPACE"
 

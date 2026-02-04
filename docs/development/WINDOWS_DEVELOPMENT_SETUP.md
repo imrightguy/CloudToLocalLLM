@@ -1,12 +1,12 @@
-# CloudToLocalLLM Windows Development Environment Setup
+# Zoidbot Windows Development Environment Setup
 
 ## 🚀 Quick Start
 
 For a fresh Windows installation, run this automated setup script:
 
 ```powershell
-# Navigate to the CloudToLocalLLM project directory
-cd C:\path\to\CloudToLocalLLM
+# Navigate to the Zoidbot project directory
+cd C:\path\to\Zoidbot
 
 # Run the automated setup script
 .\scripts\powershell\Setup-WindowsDevelopmentEnvironment.ps1

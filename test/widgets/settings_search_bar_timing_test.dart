@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/widgets/settings/settings_search_bar.dart';
+import 'package:zoidbot/widgets/settings/settings_search_bar.dart';
 
 void main() {
   group('SettingsSearchBar Timing - Property 33', () {

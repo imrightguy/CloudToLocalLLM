@@ -10,7 +10,7 @@ set -e
 #   ./scripts/cloudflare-cache-purge.sh
 
 # Configuration
-DOMAIN="cloudtolocalllm.online"
+DOMAIN="zoidbot.online"
 SUBDOMAINS=("app" "api" "docs" "mail")
 MAX_RETRIES=3
 RETRY_DELAY=5
@@ -310,7 +310,7 @@ verify_cache_purge() {
 # Main execution
 main() {
     echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
-    echo "Cloudflare Cache Purge for CloudToLocalLLM"
+    echo "Cloudflare Cache Purge for Zoidbot"
     echo "â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” â” "
     echo ""
 

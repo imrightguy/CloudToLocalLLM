@@ -2,7 +2,7 @@
 #
 # Azure AKS Infrastructure Setup Script
 # 
-# This script sets up all required Azure infrastructure for CloudToLocalLLM deployment
+# This script sets up all required Azure infrastructure for Zoidbot deployment
 # on a brand new Azure account. It creates:
 #   - Resource Group
 #   - Azure Container Registry (ACR)
@@ -16,10 +16,10 @@
 # Options:
 #   --subscription-id ID     Azure subscription ID (prompts if not provided)
 #   --location LOCATION      Azure region (default: eastus)
-#   --resource-group NAME    Resource group name (default: cloudtolocalllm-rg)
-#   --acr-name NAME          ACR name (default: cloudtolocalllm)
-#   --keyvault-name NAME     Key Vault name (default: cloudtolocalllm-kv)
-#   --aks-name NAME          AKS cluster name (default: cloudtolocalllm-aks)
+#   --resource-group NAME    Resource group name (default: zoidbot-rg)
+#   --acr-name NAME          ACR name (default: zoidbot)
+#   --keyvault-name NAME     Key Vault name (default: zoidbot-kv)
+#   --aks-name NAME          AKS cluster name (default: zoidbot-aks)
 #   --create-aks             Create AKS cluster now (default: no, workflow creates it)
 #   --github-repo OWNER/REPO GitHub repository (default: prompts)
 #   --non-interactive        Run without prompts (use defaults/env vars)
@@ -37,10 +37,10 @@ NC='\033[0m' # No Color
 
 # Default values
 DEFAULT_LOCATION="eastus"
-DEFAULT_RESOURCE_GROUP="cloudtolocalllm-rg"
-DEFAULT_ACR_NAME="cloudtolocalllm"
-DEFAULT_KEYVAULT_NAME="cloudtolocalllm-kv"
-DEFAULT_AKS_NAME="cloudtolocalllm-aks"
+DEFAULT_RESOURCE_GROUP="zoidbot-rg"
+DEFAULT_ACR_NAME="zoidbot"
+DEFAULT_KEYVAULT_NAME="zoidbot-kv"
+DEFAULT_AKS_NAME="zoidbot-aks"
 CREATE_AKS="false"
 NON_INTERACTIVE="false"
 
@@ -313,7 +313,7 @@ create_service_principal() {
         
         echo ""
         echo "Enter your GitHub repository (format: owner/repository)"
-        echo "Example: myusername/CloudToLocalLLM"
+        echo "Example: myusername/Zoidbot"
         read -p "GitHub repository: " GITHUB_REPO
         
         if [[ ! "$GITHUB_REPO" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
@@ -322,7 +322,7 @@ create_service_principal() {
         fi
     fi
     
-    SP_NAME="cloudtolocalllm-github-actions"
+    SP_NAME="zoidbot-github-actions"
     
     log_info "Creating service principal: $SP_NAME"
     
@@ -515,7 +515,7 @@ EOF
 # Main execution
 main() {
     log_section "Azure AKS Infrastructure Setup"
-    log_info "CloudToLocalLLM - Automated Infrastructure Provisioning"
+    log_info "Zoidbot - Automated Infrastructure Provisioning"
     
     validate_azure_cli
     setup_subscription

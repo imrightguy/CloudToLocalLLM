@@ -1,7 +1,7 @@
 ##############################################################################
 # AWS EKS Final Deployment Verification Script (PowerShell)
 #
-# This script performs comprehensive final verification of the CloudToLocalLLM
+# This script performs comprehensive final verification of the Zoidbot
 # deployment on AWS EKS, including:
 # - All services running on AWS EKS
 # - Smoke tests on all endpoints
@@ -14,29 +14,29 @@
 
 param(
     [string]$Environment = "development",
-    [string]$Namespace = "cloudtolocalllm",
-    [string]$ClusterName = "cloudtolocalllm-eks",
+    [string]$Namespace = "zoidbot",
+    [string]$ClusterName = "zoidbot-eks",
     [string]$Region = "us-east-1",
     [switch]$SkipSSLVerification = $false
 )
 
 # Configuration
 $Domains = @(
-    "cloudtolocalllm.online",
-    "app.cloudtolocalllm.online",
-    "api.cloudtolocalllm.online",
-    "auth.cloudtolocalllm.online"
+    "zoidbot.online",
+    "app.zoidbot.online",
+    "api.zoidbot.online",
+    "auth.zoidbot.online"
 )
 
 $HealthEndpoints = @(
-    "https://api.cloudtolocalllm.online/health",
-    "https://app.cloudtolocalllm.online/health"
+    "https://api.zoidbot.online/health",
+    "https://app.zoidbot.online/health"
 )
 
 $SmokeTestEndpoints = @(
-    @{ Url = "https://app.cloudtolocalllm.online"; Method = "GET"; ExpectedStatus = 200 },
-    @{ Url = "https://api.cloudtolocalllm.online/health"; Method = "GET"; ExpectedStatus = 200 },
-    @{ Url = "https://cloudtolocalllm.online"; Method = "GET"; ExpectedStatus = 200 }
+    @{ Url = "https://app.zoidbot.online"; Method = "GET"; ExpectedStatus = 200 },
+    @{ Url = "https://api.zoidbot.online/health"; Method = "GET"; ExpectedStatus = 200 },
+    @{ Url = "https://zoidbot.online"; Method = "GET"; ExpectedStatus = 200 }
 )
 
 # Counters
@@ -311,19 +311,19 @@ function Verify-EndToEndFlow {
     try {
         # Step 1: Access main domain
         Write-Info "Step 1: Accessing main domain..."
-        $mainResponse = Invoke-WebRequest -Uri "https://cloudtolocalllm.online" -SkipCertificateCheck:$SkipSSLVerification -TimeoutSec 10 -ErrorAction Stop
+        $mainResponse = Invoke-WebRequest -Uri "https://zoidbot.online" -SkipCertificateCheck:$SkipSSLVerification -TimeoutSec 10 -ErrorAction Stop
         Write-Success "Main domain is accessible"
         Add-VerificationResult "E2E Flow" "Main Domain Access" "PASSED" "Status: $($mainResponse.StatusCode)"
         
         # Step 2: Access app domain
         Write-Info "Step 2: Accessing app domain..."
-        $appResponse = Invoke-WebRequest -Uri "https://app.cloudtolocalllm.online" -SkipCertificateCheck:$SkipSSLVerification -TimeoutSec 10 -ErrorAction Stop
+        $appResponse = Invoke-WebRequest -Uri "https://app.zoidbot.online" -SkipCertificateCheck:$SkipSSLVerification -TimeoutSec 10 -ErrorAction Stop
         Write-Success "App domain is accessible"
         Add-VerificationResult "E2E Flow" "App Domain Access" "PASSED" "Status: $($appResponse.StatusCode)"
         
         # Step 3: Check API health
         Write-Info "Step 3: Checking API health..."
-        $apiResponse = Invoke-WebRequest -Uri "https://api.cloudtolocalllm.online/health" -SkipCertificateCheck:$SkipSSLVerification -TimeoutSec 10 -ErrorAction Stop
+        $apiResponse = Invoke-WebRequest -Uri "https://api.zoidbot.online/health" -SkipCertificateCheck:$SkipSSLVerification -TimeoutSec 10 -ErrorAction Stop
         Write-Success "API health check passed"
         Add-VerificationResult "E2E Flow" "API Health Check" "PASSED" "Status: $($apiResponse.StatusCode)"
         

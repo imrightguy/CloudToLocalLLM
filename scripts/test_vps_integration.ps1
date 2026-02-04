@@ -1,4 +1,4 @@
-# CloudToLocalLLM Windows-to-VPS Integration Test Script
+# Zoidbot Windows-to-VPS Integration Test Script
 # Tests SSH connectivity and VPS deployment script availability
 # Validates the restored Windows PowerShell orchestration
 
@@ -12,9 +12,9 @@ param(
 )
 
 # Configuration
-$VPSHost = "cloudtolocalllm.online"
+$VPSHost = "zoidbot.online"
 $VPSUser = "cloudllm"
-$VPSProjectPath = "/opt/cloudtolocalllm"
+$VPSProjectPath = "/opt/zoidbot"
 $VPSScriptsPath = "$VPSProjectPath/scripts/deploy"
 
 # Colors for output
@@ -52,7 +52,7 @@ function Write-LogStep {
 }
 
 function Show-Help {
-    Write-Host "CloudToLocalLLM Windows-to-VPS Integration Test" -ForegroundColor Blue
+    Write-Host "Zoidbot Windows-to-VPS Integration Test" -ForegroundColor Blue
     Write-Host "=============================================" -ForegroundColor Blue
     Write-Host ""
     Write-Host "Tests the integration between Windows PowerShell orchestration"
@@ -285,7 +285,7 @@ function Show-TestSummary {
         Write-LogSuccess "� All integration tests passed! Windows-to-VPS integration is working correctly."
         Write-Host ""
         Write-Host "Next steps:" -ForegroundColor Green
-        Write-Host "  1. Deploy using: .\scripts\powershell\Deploy-CloudToLocalLLM.ps1 -Force" -ForegroundColor Yellow
+        Write-Host "  1. Deploy using: .\scripts\powershell\Deploy-Zoidbot.ps1 -Force" -ForegroundColor Yellow
         Write-Host "  2. Install VPS automation: ssh $VPSUser@$VPSHost 'cd $VPSProjectPath && ./scripts/deploy/install_vps_automation.sh --install-service --enable-service'" -ForegroundColor Yellow
     } else {
         Write-LogError " Some integration tests failed. Please fix the issues before proceeding."
@@ -302,7 +302,7 @@ function Show-TestSummary {
 
 # Main execution
 Write-Host "================================================================" -ForegroundColor Blue
-Write-Host "CloudToLocalLLM Windows-to-VPS Integration Test" -ForegroundColor Blue
+Write-Host "Zoidbot Windows-to-VPS Integration Test" -ForegroundColor Blue
 Write-Host "Time: $(Get-Date)" -ForegroundColor Blue
 Write-Host "VPS: $VPSHost" -ForegroundColor Blue
 Write-Host "User: $VPSUser" -ForegroundColor Blue

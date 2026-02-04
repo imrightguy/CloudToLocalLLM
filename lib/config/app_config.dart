@@ -9,13 +9,13 @@ class AppConfig {
       'Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.';
 
   // URLs
-  static const String homepageUrl = 'https://cloudtolocalllm.online';
-  static const String appUrl = 'https://app.cloudtolocalllm.online';
-  static const String adminCenterUrl = 'https://admin.cloudtolocalllm.online';
+  static const String homepageUrl = 'https://zoidbot.online';
+  static const String appUrl = 'https://app.zoidbot.online';
+  static const String adminCenterUrl = 'https://admin.zoidbot.online';
   static const String githubUrl =
-      'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM';
+      'https://github.com/Zoidbot/Zoidbot';
   static const String githubReleasesUrl =
-      'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest';
+      'https://github.com/Zoidbot/Zoidbot/releases/latest';
 
 
   // Configured Authentication Provider
@@ -36,16 +36,16 @@ class AppConfig {
 
   // Development mode settings
   static const bool enableDevMode = true; // Set to false for production
-  static const String devModeUser = 'dev@cloudtolocalllm.online';
+  static const String devModeUser = 'dev@zoidbot.online';
 
   // API Configuration
-  static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';
+  static const String apiBaseUrl = 'http://localhost:3000';
   static const Duration apiTimeout = Duration(seconds: 30);
   // Tunnel Configuration (SSH over WebSocket)
   static const String tunnelSshUrl =
-      'wss://api.cloudtolocalllm.online:8080/ssh';
+      'ws://localhost:3000/ssh';
   static const String tunnelSshUrlDev =
-      'wss://api.cloudtolocalllm.online:8080/ssh';
+      'ws://localhost:3000/ssh';
   // UI Configuration
   static const double maxContentWidth = 1200.0;
   static const double mobileBreakpoint = 768.0;
@@ -65,22 +65,9 @@ class AppConfig {
   static const bool showTierInformation = true;
   static const bool enableDirectTunnelMode = true;
 
-  // Ollama Configuration (Direct Local Connection for Desktop)
-  static const String defaultOllamaHost = 'localhost';
-  static const int defaultOllamaPort = 11434;
-  static const String defaultOllamaUrl = 'http://localhost:11434';
-  static const Duration ollamaTimeout = Duration(seconds: 60);
-
-  // Cloud Relay Configuration (for web/mobile)
-  static const String cloudOllamaUrl = '$apiBaseUrl/ollama';
-
-  // Admin Interface Configuration
-  static const bool enableAdminInterface = true;
-  static const int adminServerPort = 3001;
-
   // Platform-specific admin server URLs
   static const String adminServerUrlWeb =
-      'https://api.cloudtolocalllm.online:3001';
+      'https://api.zoidbot.online:3001';
   static const String adminServerUrlDesktop = 'http://localhost:3001';
 
   // Get admin server URL based on platform
@@ -112,16 +99,9 @@ class AppConfig {
   // Debug logging for configuration
   static void logConfiguration() {
     debugPrint('[DEBUG] AppConfig loaded:');
-    debugPrint('[DEBUG] - Ollama URL: $defaultOllamaUrl');
-    debugPrint('[DEBUG] - Bridge Status URL: $bridgeStatusUrl');
-    debugPrint('[DEBUG] - Bridge Register URL: $bridgeRegisterUrl');
     debugPrint('[DEBUG] - Admin Server URL: $adminServerUrl');
     debugPrint('[DEBUG] - Admin API Base URL: $adminApiBaseUrl');
   }
-
-  // Bridge Configuration
-  static const String bridgeStatusUrl = '$apiBaseUrl/ollama/bridge/status';
-  static const String bridgeRegisterUrl = '$apiBaseUrl/ollama/bridge/register';
 }
 
 enum AuthProviderType {

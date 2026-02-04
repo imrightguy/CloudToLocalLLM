@@ -20,7 +20,7 @@ Write-Host ""
 
 # Option 1: Configure in WSL bashrc (no admin needed)
 Write-Host "Method 1: Adding to WSL ~/.bashrc (Recommended)" -ForegroundColor Green
-wsl -d $WslDistribution bash "/mnt/d/dev/CloudToLocalLLM/scripts/setup-wsl-runner-autostart.sh"
+wsl -d $WslDistribution bash "/mnt/d/dev/Zoidbot/scripts/setup-wsl-runner-autostart.sh"
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✓ WSL auto-start configured" -ForegroundColor Green

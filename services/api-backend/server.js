@@ -1,9 +1,5 @@
-// Import Sentry FIRST to catch all errors from the very beginning
+import 'dotenv/config';
 import * as Sentry from '@sentry/node';
-import dotenv from 'dotenv';
-
-// Load environment variables before anything else
-dotenv.config();
 
 // Initialize Sentry IMMEDIATELY - before any other code runs
 Sentry.init({
@@ -48,10 +44,10 @@ import swaggerUi from 'swagger-ui-express';
 const specs = {
   openapi: '3.0.0',
   info: {
-    title: 'CloudToLocalLLM API Backend',
+    title: 'Zoidbot API Backend',
     version: '2.0.0',
     description:
-      'Comprehensive API for CloudToLocalLLM - Bridge cloud AI services with local models',
+      'Comprehensive API for Zoidbot - Bridge cloud AI services with local models',
   },
   paths: {},
 };
@@ -163,7 +159,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json(),
   ),
-  defaultMeta: { service: 'cloudtolocalllm-api' },
+  defaultMeta: { service: 'zoidbot-api' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
@@ -242,7 +238,7 @@ app.use(
       deepLinking: true,
     },
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'CloudToLocalLLM API Documentation',
+    customSiteTitle: 'Zoidbot API Documentation',
   }),
 );
 
@@ -265,7 +261,7 @@ app.use(
       deepLinking: true,
     },
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'CloudToLocalLLM API Documentation',
+    customSiteTitle: 'Zoidbot API Documentation',
   }),
 );
 
@@ -450,7 +446,7 @@ registerRoutes('/health', (req, res) => {
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        service: 'cloudtolocalllm-api',
+        service: 'zoidbot-api',
         error: 'Health check failed',
         message: error.message,
       });
@@ -502,6 +498,7 @@ server.on('upgrade', (request, socket, head) => {
     .pathname;
 
   if (pathname === '/ssh') {
+    logger.info('Received WebSocket upgrade request for /ssh');
     if (sshProxy && sshProxy.handleUpgrade) {
       logger.info('Received WebSocket upgrade request for /ssh', {
         url: request.url,
@@ -521,6 +518,7 @@ server.on('upgrade', (request, socket, head) => {
       socket.destroy();
     }
   } else if (pathname === '/dashboard') {
+    logger.info('Received WebSocket upgrade request for /dashboard');
     dashboardWebSocketService.handleUpgrade(request, socket, head);
   } else {
     // Let other handlers handle it or destroy
@@ -836,7 +834,7 @@ async function startServer() {
   // Listen early to pass healthchecks during initialization
   server.listen(PORT, '0.0.0.0', async () => {
     logger.info(
-      `CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT} (Initializing...)`,
+      `Zoidbot API Backend listening on 0.0.0.0:${PORT} (Initializing...)`,
     );
 
     try {

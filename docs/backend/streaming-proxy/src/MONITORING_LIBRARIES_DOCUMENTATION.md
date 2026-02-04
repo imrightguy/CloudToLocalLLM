@@ -371,7 +371,7 @@ span.setAttribute(ATTR_HTTP_RESPONSE_STATUS_CODE, 200);
 
 ---
 
-## Implementation Guidelines for CloudToLocalLLM
+## Implementation Guidelines for Zoidbot
 
 ### Prometheus Metrics
 

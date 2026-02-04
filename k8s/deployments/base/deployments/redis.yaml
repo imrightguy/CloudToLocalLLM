@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis-tunnel-state
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     argocd.argoproj.io/sync-wave: "1"
   labels:

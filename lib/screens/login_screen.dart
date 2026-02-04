@@ -206,32 +206,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           // Logo/Icon with theme-aware colors (Requirement 7.1)
                           Container(
-                            width: isMobile ? 64.0 : 80.0,
-                            height: isMobile ? 64.0 : 80.0,
+                            width: isMobile ? 80.0 : 100.0,
+                            height: isMobile ? 80.0 : 100.0,
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  colorScheme.primary,
-                                  colorScheme.secondary,
-                                ],
+                              color: colorScheme.primary.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colorScheme.primary.withValues(alpha: 0.3),
+                                width: 3,
                               ),
-                              borderRadius: BorderRadius.circular(16.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colorScheme.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
                             ),
-                            child: Icon(
-                              Icons.cloud_download_outlined,
-                              color: Colors.white,
-                              size: isMobile ? 32.0 : 40.0,
+                            child: const Center(
+                              child: Text(
+                                '🦞',
+                                style: TextStyle(fontSize: 48),
+                              ),
                             ),
                           ),
 
@@ -239,11 +228,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // Welcome text with theme-aware colors (Requirement 7.1, 7.5)
                           Text(
-                            'Welcome to',
+                            'Hey Christopher!',
                             style: theme.textTheme.headlineMedium?.copyWith(
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.7),
-                              fontSize: welcomeFontSize,
+                              color: colorScheme.onSurface,
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -252,25 +241,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // App name with theme-aware colors (Requirement 7.1, 7.5)
                           Text(
-                            AppConfig.appName,
-                            style: theme.textTheme.displayMedium?.copyWith(
-                              color: colorScheme.onSurface,
-                              fontSize: titleFontSize,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-
-                          SizedBox(height: 16.0),
-
-                          // Description with theme-aware colors (Requirement 7.1, 7.5)
-                          Text(
-                            AppConfig.appDescription,
+                            'I\'m Zoidbot, your AI assistant.',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.8),
+                              color: colorScheme.onSurface.withValues(alpha: 0.8),
                               fontSize: descriptionFontSize,
-                              height: 1.5,
                             ),
                             textAlign: TextAlign.center,
                           ),

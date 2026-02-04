@@ -135,20 +135,20 @@ describe('AdminDataFlushService', () => {
       mockDocker.listContainers.mockResolvedValue([
         {
           Id: 'container1',
-          Names: ['/cloudtolocalllm-proxy-user123'],
+          Names: ['/zoidbot-proxy-user123'],
           State: 'running',
           Labels: {
-            'cloudtolocalllm.user': 'user123',
-            'cloudtolocalllm.type': 'streaming-proxy',
+            'zoidbot.user': 'user123',
+            'zoidbot.type': 'streaming-proxy',
           },
         },
         {
           Id: 'container2',
-          Names: ['/cloudtolocalllm-proxy-user456'],
+          Names: ['/zoidbot-proxy-user456'],
           State: 'exited',
           Labels: {
-            'cloudtolocalllm.user': 'user456',
-            'cloudtolocalllm.type': 'streaming-proxy',
+            'zoidbot.user': 'user456',
+            'zoidbot.type': 'streaming-proxy',
           },
         },
       ]);
@@ -157,10 +157,10 @@ describe('AdminDataFlushService', () => {
       mockDocker.listNetworks.mockResolvedValue([
         {
           Id: 'network1',
-          Name: 'cloudtolocalllm-user-user123',
+          Name: 'zoidbot-user-user123',
           Labels: {
-            'cloudtolocalllm.user': 'user123',
-            'cloudtolocalllm.type': 'user-network',
+            'zoidbot.user': 'user123',
+            'zoidbot.type': 'user-network',
           },
         },
       ]);
@@ -190,11 +190,11 @@ describe('AdminDataFlushService', () => {
 
       expect(mockDocker.listContainers).toHaveBeenCalledWith({
         all: true,
-        filters: { label: ['cloudtolocalllm.type'] },
+        filters: { label: ['zoidbot.type'] },
       });
 
       expect(mockDocker.listNetworks).toHaveBeenCalledWith({
-        filters: { label: ['cloudtolocalllm.type=user-network'] },
+        filters: { label: ['zoidbot.type=user-network'] },
       });
 
       // Should have processed one container for user123
@@ -348,22 +348,22 @@ describe('AdminDataFlushService', () => {
       // Mock Docker responses
       mockDocker.listContainers.mockResolvedValue([
         {
-          Labels: { 'cloudtolocalllm.type': 'streaming-proxy', 'cloudtolocalllm.user': 'user1' },
+          Labels: { 'zoidbot.type': 'streaming-proxy', 'zoidbot.user': 'user1' },
         },
         {
-          Labels: { 'cloudtolocalllm.type': 'streaming-proxy', 'cloudtolocalllm.user': 'user2' },
+          Labels: { 'zoidbot.type': 'streaming-proxy', 'zoidbot.user': 'user2' },
         },
         {
-          Labels: { 'cloudtolocalllm.type': 'api-backend' },
+          Labels: { 'zoidbot.type': 'api-backend' },
         },
       ]);
 
       mockDocker.listNetworks.mockResolvedValue([
         {
-          Labels: { 'cloudtolocalllm.type': 'user-network', 'cloudtolocalllm.user': 'user1' },
+          Labels: { 'zoidbot.type': 'user-network', 'zoidbot.user': 'user1' },
         },
         {
-          Labels: { 'cloudtolocalllm.type': 'user-network', 'cloudtolocalllm.user': 'user2' },
+          Labels: { 'zoidbot.type': 'user-network', 'zoidbot.user': 'user2' },
         },
       ]);
 

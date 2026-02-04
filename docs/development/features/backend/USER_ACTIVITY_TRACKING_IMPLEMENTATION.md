@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of user activity tracking for the CloudToLocalLLM API Backend. The system provides comprehensive logging of user operations, usage metrics tracking, and activity audit logs for analytics and compliance purposes.
+This document describes the implementation of user activity tracking for the Zoidbot API Backend. The system provides comprehensive logging of user operations, usage metrics tracking, and activity audit logs for analytics and compliance purposes.
 
 **Validates: Requirements 3.4, 3.10**
 

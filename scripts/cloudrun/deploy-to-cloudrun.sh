@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# CloudToLocalLLM - Google Cloud Run Deployment Script
-# This script builds and deploys CloudToLocalLLM services to Google Cloud Run
+# Zoidbot - Google Cloud Run Deployment Script
+# This script builds and deploys Zoidbot services to Google Cloud Run
 #
 # Prerequisites:
 # - Run setup-cloudrun.sh first
@@ -51,7 +51,7 @@ log_error() {
 # Help function
 show_help() {
     cat << EOF
-CloudToLocalLLM - Google Cloud Run Deployment Script
+Zoidbot - Google Cloud Run Deployment Script
 
 USAGE:
     $0 [OPTIONS]
@@ -294,7 +294,7 @@ deploy_streaming() {
 main() {
     parse_args "$@"
     
-    log_info "Starting CloudToLocalLLM deployment to Google Cloud Run..."
+    log_info "Starting Zoidbot deployment to Google Cloud Run..."
     log_info "Service: $SERVICE"
     log_info "Build only: $BUILD_ONLY"
     log_info "Deploy only: $DEPLOY_ONLY"

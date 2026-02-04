@@ -1,12 +1,12 @@
-// CloudToLocalLLM Widget Tests
+// Zoidbot Widget Tests
 //
-// Basic widget tests for the CloudToLocalLLM application.
+// Basic widget tests for the Zoidbot application.
 // Tests the main app initialization and basic functionality.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cloudtolocalllm/main.dart';
+import 'package:zoidbot/main.dart';
 import 'test_config.dart';
 
 void main() {
@@ -14,11 +14,11 @@ void main() {
 
   tearDownAll(TestConfig.cleanup);
 
-  testWidgets('CloudToLocalLLM app initialization test', (
+  testWidgets('Zoidbot app initialization test', (
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const CloudToLocalLLMApp());
+    await tester.pumpWidget(const ZoidbotApp());
 
     // Wait for a reasonable amount of time for initialization
     await tester.pump(const Duration(seconds: 1));
@@ -27,7 +27,7 @@ void main() {
     expect(find.byType(MaterialApp), findsWidgets);
 
     // Look for loading screen or main app content
-    final loadingFinder = find.text('Initializing CloudToLocalLLM...');
+    final loadingFinder = find.text('Initializing Zoidbot...');
     final appFinder = find.byType(MaterialApp);
 
     // Either loading screen or main app should be present
@@ -41,7 +41,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // This test verifies that the app doesn't crash when plugins are mocked
-    await tester.pumpWidget(const CloudToLocalLLMApp());
+    await tester.pumpWidget(const ZoidbotApp());
 
     // Pump a few frames to allow for async initialization
     for (int i = 0; i < 5; i++) {

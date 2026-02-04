@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-backend
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 2
   strategy:
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: api-backend
-          image: gcr.io/cloudtolocalllm-468303/api-backend:latest
+          image: gcr.io/zoidbot-468303/api-backend:latest
           ports:
             - containerPort: 3000
           env:
@@ -33,11 +33,11 @@ spec:
             - name: DB_TYPE
               value: 'postgresql'
             - name: DB_HOST
-              value: 'postgres.cloudtolocalllm.svc.cluster.local'
+              value: 'postgres.zoidbot.svc.cluster.local'
             - name: DB_PORT
               value: '5432'
             - name: DB_NAME
-              value: 'cloudtolocalllm'
+              value: 'zoidbot'
             - name: DB_USER
               value: 'appuser'
             - name: DB_PASSWORD

@@ -1,4 +1,4 @@
-# CloudToLocalLLM — Copilot / AI Agent Instructions (concise)
+# Zoidbot — Copilot / AI Agent Instructions (concise)
 
 This file gives AI coding agents the actionable, repo-specific knowledge needed to be productive quickly. It focuses on architecture, key files, developer workflows, and integration points discovered in the workspace.
 

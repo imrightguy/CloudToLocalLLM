@@ -1,4 +1,4 @@
-# PowerShell Test Runner for CloudToLocalLLM Deployment Scripts
+# PowerShell Test Runner for Zoidbot Deployment Scripts
 # Executes Pester tests with comprehensive reporting and coverage analysis
 
 [CmdletBinding()]
@@ -186,7 +186,7 @@ function Get-PesterConfiguration {
         # Include PowerShell scripts for coverage analysis
         $scriptsDir = Join-Path $PSScriptRoot "..\..\scripts\powershell"
         $config.CodeCoverage.Path = @(
-            (Join-Path $scriptsDir "Deploy-CloudToLocalLLM.ps1"),
+            (Join-Path $scriptsDir "Deploy-Zoidbot.ps1"),
             (Join-Path $scriptsDir "BuildEnvironmentUtilities.ps1")
         )
     }
@@ -283,7 +283,7 @@ function Show-CoverageSummary {
 
 # Main execution
 function Main {
-    Write-Host "CloudToLocalLLM PowerShell Test Runner" -ForegroundColor Magenta
+    Write-Host "Zoidbot PowerShell Test Runner" -ForegroundColor Magenta
     Write-Host "=====================================" -ForegroundColor Magenta
     Write-Host ""
     

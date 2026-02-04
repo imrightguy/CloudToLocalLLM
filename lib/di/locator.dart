@@ -3,45 +3,43 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 
-import 'package:cloudtolocalllm/services/admin_data_flush_service.dart';
-import 'package:cloudtolocalllm/services/admin_service.dart';
-import 'package:cloudtolocalllm/services/app_initialization_service.dart';
-import 'package:cloudtolocalllm/services/auth_service.dart';
-import 'package:cloudtolocalllm/services/session_storage_service.dart';
-import 'package:cloudtolocalllm/services/connection_manager_service.dart';
-import 'package:cloudtolocalllm/auth/auth_provider.dart';
-import 'package:cloudtolocalllm/auth/providers/auth0_auth_provider.dart';
-import 'package:cloudtolocalllm/services/desktop_client_detection_service.dart';
-import 'package:cloudtolocalllm/services/enhanced_user_tier_service.dart';
-import 'package:cloudtolocalllm/services/langchain_integration_service.dart';
-import 'package:cloudtolocalllm/services/langchain_ollama_service.dart';
-import 'package:cloudtolocalllm/services/langchain_prompt_service.dart';
-import 'package:cloudtolocalllm/services/langchain_rag_service.dart'
-    if (dart.library.html) 'package:cloudtolocalllm/services/langchain_rag_service_stub.dart';
-import 'package:cloudtolocalllm/services/llm_audit_service.dart';
-import 'package:cloudtolocalllm/services/llm_error_handler.dart';
-import 'package:cloudtolocalllm/services/llm_provider_manager.dart';
-import 'package:cloudtolocalllm/services/local_ollama_connection_service.dart';
-import 'package:cloudtolocalllm/services/ollama_service.dart';
-import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
-import 'package:cloudtolocalllm/services/streaming_chat_service.dart';
-import 'package:cloudtolocalllm/services/streaming_proxy_service.dart';
-import 'package:cloudtolocalllm/services/tunnel_service.dart';
-import 'package:cloudtolocalllm/services/tunnel/tunnel_config_manager.dart';
-import 'package:cloudtolocalllm/services/unified_connection_service.dart';
-import 'package:cloudtolocalllm/services/user_container_service.dart';
-import 'package:cloudtolocalllm/services/web_download_prompt_service.dart'
-    if (dart.library.io) 'package:cloudtolocalllm/services/web_download_prompt_service_stub.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
-import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
-import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
-import 'package:cloudtolocalllm/services/admin_center_service.dart';
-import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
-import 'package:cloudtolocalllm/services/platform_adapter.dart';
-import 'package:cloudtolocalllm/services/url_scheme_registration_service.dart';
-import 'package:cloudtolocalllm/services/token_storage_service.dart';
-import 'package:cloudtolocalllm/models/provider_configuration.dart';
+import 'package:zoidbot/services/admin_data_flush_service.dart';
+import 'package:zoidbot/services/admin_service.dart';
+import 'package:zoidbot/services/app_initialization_service.dart';
+import 'package:zoidbot/services/auth_service.dart';
+import 'package:zoidbot/services/session_storage_service.dart';
+import 'package:zoidbot/services/connection_manager_service.dart';
+import 'package:zoidbot/auth/auth_provider.dart';
+import 'package:zoidbot/auth/providers/auth0_auth_provider.dart';
+import 'package:zoidbot/services/desktop_client_detection_service.dart';
+import 'package:zoidbot/services/enhanced_user_tier_service.dart';
+import 'package:zoidbot/services/langchain_integration_service.dart';
+import 'package:zoidbot/services/langchain_prompt_service.dart';
+import 'package:zoidbot/services/langchain_rag_service.dart'
+    if (dart.library.html) 'package:zoidbot/services/langchain_rag_service_stub.dart';
+import 'package:zoidbot/services/llm_audit_service.dart';
+import 'package:zoidbot/services/llm_error_handler.dart';
+import 'package:zoidbot/services/llm_provider_manager.dart';
+import 'package:zoidbot/services/provider_discovery_service.dart';
+import 'package:zoidbot/services/streaming_chat_service.dart';
+import 'package:zoidbot/services/streaming_proxy_service.dart';
+import 'package:zoidbot/services/tunnel_service.dart';
+import 'package:zoidbot/services/tunnel/tunnel_config_manager.dart';
+import 'package:zoidbot/services/unified_connection_service.dart';
+import 'package:zoidbot/services/user_container_service.dart';
+import 'package:zoidbot/services/web_download_prompt_service.dart'
+    if (dart.library.io) 'package:zoidbot/services/web_download_prompt_service_stub.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:zoidbot/services/settings_import_export_service.dart';
+import 'package:zoidbot/services/provider_configuration_manager.dart';
+import 'package:zoidbot/services/admin_center_service.dart';
+import 'package:zoidbot/services/theme_provider.dart';
+import 'package:zoidbot/services/platform_detection_service.dart';
+import 'package:zoidbot/services/platform_adapter.dart';
+import 'package:zoidbot/services/url_scheme_registration_service.dart';
+import 'package:zoidbot/services/token_storage_service.dart';
+import 'package:zoidbot/models/provider_configuration.dart';
+import 'package:zoidbot/services/langchain_ollama_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -77,6 +75,12 @@ Future<void> setupCoreServices() async {
   final tokenStorageService = TokenStorageService();
   await tokenStorageService.init();
   serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
+
+  // Provider discovery - create but don't initialize until auth
+  final providerDiscoveryService = ProviderDiscoveryService();
+  serviceLocator.registerSingleton<ProviderDiscoveryService>(
+    providerDiscoveryService,
+  );
 
   // Authentication Provider - Using platform-specific provider
   late AuthProvider authProvider;
@@ -125,17 +129,6 @@ Future<void> setupCoreServices() async {
     debugPrint('[Locator] Stack trace: $stack');
     rethrow;
   }
-  // Local Ollama service - create but don't initialize until auth
-  final localOllamaService = LocalOllamaConnectionService();
-  serviceLocator.registerSingleton<LocalOllamaConnectionService>(
-    localOllamaService,
-  );
-
-  // Provider discovery - create but don't initialize until auth
-  final providerDiscoveryService = ProviderDiscoveryService();
-  serviceLocator.registerSingleton<ProviderDiscoveryService>(
-    providerDiscoveryService,
-  );
 
   // LLM Error Handler - lightweight, doesn't require auth
   final llmErrorHandler = LLMErrorHandler(
@@ -249,7 +242,6 @@ void _verifyCoreServicesRegistered() {
     'AuthService',
     'ThemeProvider',
     'ProviderConfigurationManager',
-    'LocalOllamaConnectionService',
     'DesktopClientDetectionService',
     'AppInitializationService',
   ];
@@ -270,10 +262,6 @@ void _verifyCoreServicesRegistered() {
         case 'ProviderConfigurationManager':
           isRegistered =
               serviceLocator.isRegistered<ProviderConfigurationManager>();
-          break;
-        case 'LocalOllamaConnectionService':
-          isRegistered =
-              serviceLocator.isRegistered<LocalOllamaConnectionService>();
           break;
         case 'DesktopClientDetectionService':
           isRegistered =
@@ -334,8 +322,6 @@ Future<void> setupAuthenticatedServices() async {
     debugPrint('[ServiceLocator] Registering authenticated services...');
     _authenticatedServicesRegistered = true;
 
-    final localOllamaService =
-        serviceLocator.get<LocalOllamaConnectionService>();
     final providerDiscoveryService =
         serviceLocator.get<ProviderDiscoveryService>();
     final enhancedUserTierService =
@@ -350,10 +336,6 @@ Future<void> setupAuthenticatedServices() async {
     // Initialize web download prompt service
     debugPrint('[ServiceLocator] Initializing WebDownloadPromptService...');
     await webDownloadPromptService.initialize();
-
-    // Initialize LocalOllama service now that we have auth
-    debugPrint('[ServiceLocator] Initializing LocalOllamaConnectionService...');
-    await localOllamaService.initialize();
 
     // LangChain Prompt Service is already initialized in constructor
 
@@ -380,17 +362,6 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<StreamingProxyService>(
       streamingProxyService,
     );
-
-    // Ollama service - requires authentication token
-    debugPrint('[ServiceLocator] Initializing OllamaService...');
-    final ollamaService = OllamaService(authService: authService);
-    try {
-      await ollamaService.initialize().timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: OllamaService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<OllamaService>(ollamaService);
 
     // User container service - requires authentication token
     final userContainerService = UserContainerService(authService: authService);
@@ -432,10 +403,8 @@ Future<void> setupAuthenticatedServices() async {
 
     // Connection Manager - requires authentication for tunnel/cloud connections
     final connectionManager = ConnectionManagerService(
-      localOllama: localOllamaService,
       tunnelService: tunnelService,
       authService: authService,
-      ollamaService: ollamaService,
     );
     try {
       await connectionManager.initialize().timeout(const Duration(seconds: 10));
@@ -446,25 +415,9 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator
         .registerSingleton<ConnectionManagerService>(connectionManager);
 
-    // LangChain Ollama service - requires connection manager (which requires auth)
-    final langchainOllamaService = LangChainOllamaService(
-      connectionManager: connectionManager,
-    );
-    try {
-      await langchainOllamaService
-          .initialize()
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: LangChainOllamaService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<LangChainOllamaService>(
-      langchainOllamaService,
-    );
-
-    // LangChain RAG service - requires LangChain Ollama service
+    // LangChain RAG service - requires connection manager
     final langchainRagService = LangChainRAGService(
-      ollamaService: langchainOllamaService,
+      connectionManager: connectionManager,
     );
     try {
       await langchainRagService

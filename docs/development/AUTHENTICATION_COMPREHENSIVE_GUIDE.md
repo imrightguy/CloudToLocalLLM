@@ -1,4 +1,4 @@
-# CloudToLocalLLM Authentication Comprehensive Guide
+# Zoidbot Authentication Comprehensive Guide
 
 **Last Updated**: December 15, 2025  
 **Status**: ✅ ALL AUTHENTICATION SYSTEMS OPERATIONAL
@@ -21,7 +21,7 @@
 After successful Auth0 login, all API calls failed with 401 errors because:
 
 - **Frontend** requested tokens with audience: `https://dev-vivn1fcgzi0c2czy.us.auth0.com/api/v2/` (Auth0 Management API)
-- **Backend** expected tokens with audience: `https://api.cloudtolocalllm.online` (Application API)
+- **Backend** expected tokens with audience: `https://api.zoidbot.online` (Application API)
 - **Result**: Audience mismatch → Backend rejected tokens → 401 Unauthorized
 
 ## What Was Fixed
@@ -35,7 +35,7 @@ After successful Auth0 login, all API calls failed with 401 errors because:
 const AUTH0_AUDIENCE = 'https://dev-vivn1fcgzi0c2czy.us.auth0.com/api/v2/';
 
 // AFTER (CORRECT)  
-const AUTH0_AUDIENCE = 'https://api.cloudtolocalllm.online';
+const AUTH0_AUDIENCE = 'https://api.zoidbot.online';
 ```
 
 **That's it.** This single change fixed all authentication issues.
@@ -56,7 +56,7 @@ User Login
     ↓
 Auth0 OAuth Flow  
     ↓
-Auth0 Issues Token (Audience: https://api.cloudtolocalllm.online)
+Auth0 Issues Token (Audience: https://api.zoidbot.online)
     ↓
 Frontend Stores Token
     ↓
@@ -76,12 +76,12 @@ Backend Validates Token
 
 - **Auth0 Domain**: `dev-vivn1fcgzi0c2czy.us.auth0.com`
 - **Client ID**: `FuXPnevXpp311CdYHGsbNZe9t3D8Ts7A`
-- **Audience**: `https://api.cloudtolocalllm.online` ✅
+- **Audience**: `https://api.zoidbot.online` ✅
 - **Scope**: `openid profile email offline_access`
 
 #### Backend (services/api-backend/middleware/auth.js)
 
-- **Expected Audience**: `https://api.cloudtolocalllm.online`
+- **Expected Audience**: `https://api.zoidbot.online`
 - **JWKS URI**: `https://dev-vivn1fcgzi0c2czy.us.auth0.com/.well-known/jwks.json`
 - **Validation**: RS256 signature + audience verification
 
@@ -93,7 +93,7 @@ Backend Validates Token
 
 ```bash
 # Required (or uses default)
-AUTH0_AUDIENCE=https://api.cloudtolocalllm.online
+AUTH0_AUDIENCE=https://api.zoidbot.online
 AUTH0_JWKS_URI=https://dev-vivn1fcgzi0c2czy.us.auth0.com/.well-known/jwks.json
 
 # For HS256 fallback (internal tokens)
@@ -149,7 +149,7 @@ Look for: `Token verification successful (Audience verified)`
    - Restart backend service if needed
 
 3. **Check Auth0 configuration**
-   - Verify application identifier is `https://api.cloudtolocalllm.online`
+   - Verify application identifier is `https://api.zoidbot.online`
    - Check Auth0 dashboard settings
 
 ### Token Validation Fails?
@@ -166,7 +166,7 @@ Look for: `Token verification successful (Audience verified)`
 
 3. **Verify audience claim**
    - Decode token and check `aud` field
-   - Should be: `https://api.cloudtolocalllm.online`
+   - Should be: `https://api.zoidbot.online`
 
 ---
 

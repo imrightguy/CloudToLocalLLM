@@ -14,7 +14,7 @@ enum TrayConnectionStatus {
   disconnected,
 }
 
-/// Native Flutter system tray service for CloudToLocalLLM v3.3.1+
+/// Native Flutter system tray service for Zoidbot v3.3.1+
 ///
 /// Replaces the Python-based tray daemon with a pure Flutter implementation
 /// using the tray_manager package for cross-platform system tray functionality.
@@ -135,7 +135,7 @@ class NativeTrayService with TrayListener {
 
       // Try to set tooltip after other initialization (this might fail)
       try {
-        await trayManager.setToolTip('CloudToLocalLLM - Initializing');
+        await trayManager.setToolTip('Zoidbot - Initializing');
       } catch (e) {
         // Silently fail for MissingPluginException as it's common on some Linux distros
         if (e.toString().contains('MissingPluginException')) {
@@ -257,7 +257,7 @@ class NativeTrayService with TrayListener {
   /// Get tooltip text for connection status
   String _getTooltipText(TrayConnectionStatus status) {
     if (_localOllama == null) {
-      return 'CloudToLocalLLM - Initializing';
+      return 'Zoidbot - Initializing';
     }
 
     final hasLocal = _localOllama!.isConnected;
@@ -267,18 +267,18 @@ class NativeTrayService with TrayListener {
 
     switch (status) {
       case TrayConnectionStatus.allConnected:
-        return 'CloudToLocalLLM - All Connected\nLocal Ollama: $localEndpoint\nCloud Proxy: $cloudEndpoint';
+        return 'Zoidbot - All Connected\nLocal Ollama: $localEndpoint\nCloud Proxy: $cloudEndpoint';
       case TrayConnectionStatus.partiallyConnected:
         if (hasLocal && !hasCloud) {
-          return 'CloudToLocalLLM - Local Connected\nLocal Ollama: $localEndpoint\nCloud Proxy: ${_connectionManager == null ? 'Not Available' : 'Disconnected'}';
+          return 'Zoidbot - Local Connected\nLocal Ollama: $localEndpoint\nCloud Proxy: ${_connectionManager == null ? 'Not Available' : 'Disconnected'}';
         } else if (!hasLocal && hasCloud) {
-          return 'CloudToLocalLLM - Cloud Connected\nLocal Ollama: Disconnected\nCloud Proxy: $cloudEndpoint';
+          return 'Zoidbot - Cloud Connected\nLocal Ollama: Disconnected\nCloud Proxy: $cloudEndpoint';
         }
-        return 'CloudToLocalLLM - Partially Connected';
+        return 'Zoidbot - Partially Connected';
       case TrayConnectionStatus.connecting:
-        return 'CloudToLocalLLM - Connecting...';
+        return 'Zoidbot - Connecting...';
       case TrayConnectionStatus.disconnected:
-        return 'CloudToLocalLLM - Disconnected\nLocal Ollama: Disconnected\nCloud Proxy: ${_connectionManager == null ? 'Not Available' : 'Disconnected'}';
+        return 'Zoidbot - Disconnected\nLocal Ollama: Disconnected\nCloud Proxy: ${_connectionManager == null ? 'Not Available' : 'Disconnected'}';
     }
   }
 
@@ -307,8 +307,8 @@ class NativeTrayService with TrayListener {
 
       final menu = Menu(
         items: [
-          MenuItem(key: 'show', label: 'Show CloudToLocalLLM'),
-          MenuItem(key: 'hide', label: 'Hide CloudToLocalLLM'),
+          MenuItem(key: 'show', label: 'Show Zoidbot'),
+          MenuItem(key: 'hide', label: 'Hide Zoidbot'),
           MenuItem.separator(),
           MenuItem(key: 'local_status', label: 'Local Ollama: $localStatus'),
           MenuItem(key: 'cloud_status', label: 'Cloud Proxy: $cloudStatus'),

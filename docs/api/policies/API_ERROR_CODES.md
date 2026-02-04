@@ -1,6 +1,6 @@
-# CloudToLocalLLM API Error Codes and HTTP Status Codes
+# Zoidbot API Error Codes and HTTP Status Codes
 
-This document provides a comprehensive reference for all error codes and HTTP status codes used in the CloudToLocalLLM API Backend.
+This document provides a comprehensive reference for all error codes and HTTP status codes used in the Zoidbot API Backend.
 
 ## HTTP Status Codes
 
@@ -307,4 +307,4 @@ The following errors should NOT be retried:
 
 ## Support
 
-For questions about error codes or to report issues, contact support at support@cloudtolocalllm.online.
+For questions about error codes or to report issues, contact support at support@zoidbot.online.

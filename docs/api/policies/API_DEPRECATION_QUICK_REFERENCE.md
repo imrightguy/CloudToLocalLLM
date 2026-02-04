@@ -2,7 +2,7 @@
 
 ## Overview
 
-CloudToLocalLLM API implements structured deprecation with migration guides. This quick reference shows how to use deprecation features.
+Zoidbot API implements structured deprecation with migration guides. This quick reference shows how to use deprecation features.
 
 **Requirements: 12.5**
 
@@ -12,19 +12,19 @@ CloudToLocalLLM API implements structured deprecation with migration guides. Thi
 
 ```bash
 # Get overall deprecation status
-curl https://api.cloudtolocalllm.online/api/deprecation/status
+curl https://api.zoidbot.online/api/deprecation/status
 
 # Get list of deprecated endpoints
-curl https://api.cloudtolocalllm.online/api/deprecation/deprecated
+curl https://api.zoidbot.online/api/deprecation/deprecated
 
 # Get list of sunset endpoints
-curl https://api.cloudtolocalllm.online/api/deprecation/sunset
+curl https://api.zoidbot.online/api/deprecation/sunset
 
 # Get info for specific endpoint
-curl "https://api.cloudtolocalllm.online/api/deprecation/endpoint-info?path=/v1/users"
+curl "https://api.zoidbot.online/api/deprecation/endpoint-info?path=/v1/users"
 
 # Get migration guide
-curl https://api.cloudtolocalllm.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
+curl https://api.zoidbot.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
 ```
 
 ## Deprecation Headers
@@ -61,10 +61,10 @@ Deprecated endpoints include deprecation info in response:
 
 ```javascript
 // Before
-const api = 'https://api.cloudtolocalllm.online/v1';
+const api = 'https://api.zoidbot.online/v1';
 
 // After
-const api = 'https://api.cloudtolocalllm.online/v2';
+const api = 'https://api.zoidbot.online/v2';
 ```
 
 ### 2. Update Response Parsing
@@ -92,7 +92,7 @@ console.error(error.error.suggestion);
 
 ```bash
 curl -H "Authorization: Bearer TOKEN" \
-  https://api.cloudtolocalllm.online/v2/users/me
+  https://api.zoidbot.online/v2/users/me
 ```
 
 ## Implementation
@@ -155,13 +155,13 @@ app.use('/api/deprecation', deprecationRoutes);
 ### Check Deprecation Status
 
 ```bash
-curl https://api.cloudtolocalllm.online/api/deprecation/status | jq '.totalDeprecated'
+curl https://api.zoidbot.online/api/deprecation/status | jq '.totalDeprecated'
 ```
 
 ### Get Days Until Sunset
 
 ```bash
-curl https://api.cloudtolocalllm.online/api/deprecation/deprecated | \
+curl https://api.zoidbot.online/api/deprecation/deprecated | \
   jq '.endpoints[0].daysUntilSunset'
 ```
 
@@ -177,25 +177,25 @@ grep "DEPRECATION" /var/log/api-backend.log
 1. **Check deprecation status regularly**
 
    ```bash
-   curl https://api.cloudtolocalllm.online/api/deprecation/status
+   curl https://api.zoidbot.online/api/deprecation/status
    ```
 
 2. **Monitor deprecation headers**
 
    ```bash
-   curl -i https://api.cloudtolocalllm.online/v1/users | grep Deprecation
+   curl -i https://api.zoidbot.online/v1/users | grep Deprecation
    ```
 
 3. **Use migration guides**
 
    ```bash
-   curl https://api.cloudtolocalllm.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
+   curl https://api.zoidbot.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
    ```
 
 4. **Test with v2 before sunset**
 
    ```bash
-   curl https://api.cloudtolocalllm.online/v2/users/me
+   curl https://api.zoidbot.online/v2/users/me
    ```
 
 5. **Set calendar reminders**
@@ -210,10 +210,10 @@ The endpoint has been sunset and is no longer available. Use the replacement end
 
 ```bash
 # Old (sunset)
-curl https://api.cloudtolocalllm.online/v1/users
+curl https://api.zoidbot.online/v1/users
 
 # New (use this)
-curl https://api.cloudtolocalllm.online/v2/users
+curl https://api.zoidbot.online/v2/users
 ```
 
 ### Missing Deprecation Headers
@@ -222,7 +222,7 @@ The endpoint is not deprecated. Check the endpoint path:
 
 ```bash
 # Check if endpoint is deprecated
-curl "https://api.cloudtolocalllm.online/api/deprecation/endpoint-info?path=/v1/users"
+curl "https://api.zoidbot.online/api/deprecation/endpoint-info?path=/v1/users"
 ```
 
 ### Migration Guide Not Found
@@ -231,15 +231,15 @@ The migration guide ID may be incorrect. Get the correct ID:
 
 ```bash
 # Get endpoint info with guide ID
-curl "https://api.cloudtolocalllm.online/api/deprecation/endpoint-info?path=/v1/users" | \
+curl "https://api.zoidbot.online/api/deprecation/endpoint-info?path=/v1/users" | \
   jq '.migrationGuide'
 ```
 
 ## Support
 
-- **Documentation**: https://docs.cloudtolocalllm.online/api/deprecation
-- **API Docs**: https://api.cloudtolocalllm.online/api/docs
-- **Support**: support@cloudtolocalllm.online
-- **Issues**: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
+- **Documentation**: https://docs.zoidbot.online/api/deprecation
+- **API Docs**: https://api.zoidbot.online/api/docs
+- **Support**: support@zoidbot.online
+- **Issues**: https://github.com/ghcr.io/zoidbot-online/zoidbot/api/issues
 
 </content>

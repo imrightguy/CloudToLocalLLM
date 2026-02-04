@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cloudtolocalllm-managed
+  name: zoidbot-managed
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+    repoURL: https://github.com/Zoidbot-online/Zoidbot
     targetRevision: main
     path: k8s/apps/managed
     directory:

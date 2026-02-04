@@ -1,6 +1,6 @@
 [Unit]
-Description=CloudToLocalLLM System Tray Daemon
-Documentation=https://cloudtolocalllm.online
+Description=Zoidbot System Tray Daemon
+Documentation=https://zoidbot.online
 After=graphical-session.target
 Wants=graphical-session.target
 
@@ -8,7 +8,7 @@ Wants=graphical-session.target
 Type=simple
 User=%i
 Group=%i
-ExecStart=/usr/bin/cloudtolocalllm-tray
+ExecStart=/usr/bin/zoidbot-tray
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=5
@@ -19,7 +19,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=false
-ReadWritePaths=/home/%i/.cloudtolocalllm
+ReadWritePaths=/home/%i/.zoidbot
 
 # Environment
 Environment=HOME=/home/%i
@@ -29,7 +29,7 @@ Environment=DISPLAY=:0
 # Logging
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=cloudtolocalllm-tray
+SyslogIdentifier=zoidbot-tray
 
 [Install]
 WantedBy=default.target

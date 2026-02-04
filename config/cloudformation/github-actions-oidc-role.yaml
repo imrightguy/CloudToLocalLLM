@@ -4,7 +4,7 @@ Description: 'GitHub Actions OIDC Role for EKS Deployment'
 Parameters:
   GitHubOrgRepo:
     Type: String
-    Default: cloudtolocalllm/cloudtolocalllm
+    Default: zoidbot/zoidbot
     Description: GitHub organization/repository
   
   GitHubBranch:

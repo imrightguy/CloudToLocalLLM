@@ -1,6 +1,6 @@
-# CloudToLocalLLM Development Workflow
+# Zoidbot Development Workflow
 
-This document describes the development workflow for the CloudToLocalLLM project. It is designed to ensure consistent code quality and streamline the development process.
+This document describes the development workflow for the Zoidbot project. It is designed to ensure consistent code quality and streamline the development process.
 
 ## Collaborative Workflow with Gemini
 

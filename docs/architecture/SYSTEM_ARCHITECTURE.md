@@ -1,8 +1,8 @@
-# CloudToLocalLLM System Architecture
+# Zoidbot System Architecture
 
 ## 📋 Overview
 
-CloudToLocalLLM implements a comprehensive multi-component architecture designed for reliability, scalability, and user experience. This document consolidates all architectural information into a single authoritative reference.
+Zoidbot implements a comprehensive multi-component architecture designed for reliability, scalability, and user experience. This document consolidates all architectural information into a single authoritative reference.
 
 **Key Architectural Principles:**
 
@@ -17,7 +17,7 @@ CloudToLocalLLM implements a comprehensive multi-component architecture designed
 
 ### **Overview**
 
-CloudToLocalLLM v3.10.3+ implements a Unified Flutter-Native Architecture that integrates system tray functionality directly into the main Flutter application using the `tray_manager` package. This modern approach eliminates external dependencies while providing robust cross-platform system tray support.
+Zoidbot v3.10.3+ implements a Unified Flutter-Native Architecture that integrates system tray functionality directly into the main Flutter application using the `tray_manager` package. This modern approach eliminates external dependencies while providing robust cross-platform system tray support.
 
 ### **Core Components**
 
@@ -106,4 +106,4 @@ For complete technical details, see .
 
 ---
 
-This consolidated architecture document provides the complete technical foundation for understanding CloudToLocalLLM's unified Flutter-native system design, accurately reflecting the current implementation that eliminates Python dependencies and multi-process complexity.
+This consolidated architecture document provides the complete technical foundation for understanding Zoidbot's unified Flutter-native system design, accurately reflecting the current implementation that eliminates Python dependencies and multi-process complexity.

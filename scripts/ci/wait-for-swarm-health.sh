@@ -1,5 +1,5 @@
 #!/bin/bash
-# CloudToLocalLLM - Docker Swarm Health Check Script for CI/CD
+# Zoidbot - Docker Swarm Health Check Script for CI/CD
 # Waits for all containers to report healthy before proceeding
 #
 # Usage: ./wait-for-swarm-health.sh [OPTIONS]
@@ -10,7 +10,7 @@ set -euo pipefail
 # Configuration
 MAX_ATTEMPTS=${MAX_ATTEMPTS:-18}  # 18 attempts * 10s = 3 minutes (user choice)
 POLL_INTERVAL=${POLL_INTERVAL:-10}
-STACK_NAME=${STACK_NAME:-cloudtolocalllm}
+STACK_NAME=${STACK_NAME:-zoidbot}
 
 # Services to check (order matters - dependencies first)
 SERVICES=(

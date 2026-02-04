@@ -37,7 +37,7 @@ def main():
     """Main function."""
     role_name = "github-actions-role"
     account_id = "422017356244"
-    github_repo = "cloudtolocalllm/cloudtolocalllm"
+    github_repo = "zoidbot/zoidbot"
     region = "us-east-1"
     
     print("GitHub Actions OIDC Trust Policy Setup")

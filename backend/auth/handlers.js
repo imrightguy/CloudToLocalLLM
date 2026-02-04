@@ -12,8 +12,8 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 app.use(express.json());
 const allowedOrigins = [
-  'https://app.cloudtolocalllm.online',
-  'https://cloudtolocalllm.online',
+  'https://app.zoidbot.online',
+  'https://zoidbot.online',
   'http://localhost:3000',
   'http://localhost:8080',
   'http://127.0.0.1:3000',

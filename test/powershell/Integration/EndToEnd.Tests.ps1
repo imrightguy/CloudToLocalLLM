@@ -1,4 +1,4 @@
-# End-to-End Integration Tests for CloudToLocalLLM Deployment Workflow
+# End-to-End Integration Tests for Zoidbot Deployment Workflow
 # Tests complete deployment scenarios in staging environment with real external dependencies
 
 BeforeAll {
@@ -13,14 +13,14 @@ BeforeAll {
     $Global:TestConfig = Initialize-TestConfig
     
     # Import the deployment script (without executing)
-    $DeploymentScriptPath = Join-Path $PSScriptRoot "..\..\..\scripts\powershell\Deploy-CloudToLocalLLM.ps1"
+    $DeploymentScriptPath = Join-Path $PSScriptRoot "..\..\..\scripts\powershell\Deploy-Zoidbot.ps1"
     
     # Set up staging environment configuration
     $Global:StagingConfig = @{
         Environment = "Staging"
-        VPSHost = "staging.cloudtolocalllm.online"
+        VPSHost = "staging.zoidbot.online"
         VPSUser = "staging-user"
-        VPSProjectPath = "/opt/cloudtolocalllm-staging"
+        VPSProjectPath = "/opt/zoidbot-staging"
         WSLDistribution = "Ubuntu-24.04"
         TimeoutSeconds = 300
         DryRun = $true  # Use dry run for integration tests to avoid actual deployment
@@ -394,7 +394,7 @@ Describe "Environment-Specific Integration Tests" {
         BeforeEach {
             $Script:DeploymentConfig = @{
                 Environment = "Staging"
-                VPSHost = "staging.cloudtolocalllm.online"
+                VPSHost = "staging.zoidbot.online"
                 VPSUser = "staging-user"
                 DryRun = $true
             }
@@ -402,12 +402,12 @@ Describe "Environment-Specific Integration Tests" {
         
         It "Should configure staging environment correctly" {
             $Script:DeploymentConfig.Environment | Should -Be "Staging"
-            $Script:DeploymentConfig.VPSHost | Should -Be "staging.cloudtolocalllm.online"
+            $Script:DeploymentConfig.VPSHost | Should -Be "staging.zoidbot.online"
             $Script:DeploymentConfig.DryRun | Should -Be $true
         }
         
         It "Should use staging-specific deployment paths" {
-            $Script:DeploymentConfig.VPSHost | Should -Not -Be "cloudtolocalllm.online"  # Not production
+            $Script:DeploymentConfig.VPSHost | Should -Not -Be "zoidbot.online"  # Not production
             $Script:DeploymentConfig.VPSUser | Should -Be "staging-user"
         }
     }
@@ -416,7 +416,7 @@ Describe "Environment-Specific Integration Tests" {
         BeforeEach {
             $Script:DeploymentConfig = @{
                 Environment = "Production"
-                VPSHost = "cloudtolocalllm.online"
+                VPSHost = "zoidbot.online"
                 VPSUser = "cloudllm"
                 DryRun = $true  # Keep dry run for tests
             }
@@ -424,12 +424,12 @@ Describe "Environment-Specific Integration Tests" {
         
         It "Should configure production environment correctly" {
             $Script:DeploymentConfig.Environment | Should -Be "Production"
-            $Script:DeploymentConfig.VPSHost | Should -Be "cloudtolocalllm.online"
+            $Script:DeploymentConfig.VPSHost | Should -Be "zoidbot.online"
             $Script:DeploymentConfig.VPSUser | Should -Be "cloudllm"
         }
         
         It "Should use production-specific deployment paths" {
-            $Script:DeploymentConfig.VPSHost | Should -Be "cloudtolocalllm.online"
+            $Script:DeploymentConfig.VPSHost | Should -Be "zoidbot.online"
             $Script:DeploymentConfig.VPSUser | Should -Be "cloudllm"
         }
     }

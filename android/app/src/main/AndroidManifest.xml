@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
-        android:label="CloudToLocalLLM"
+        android:label="Zoidbot"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="cloudtolocalllm"
+                    android:scheme="zoidbot"
                     android:host="callback" />
             </intent-filter>
         </activity>

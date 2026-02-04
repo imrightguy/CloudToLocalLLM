@@ -1,4 +1,4 @@
-# CloudToLocalLLM v10.1.147 Deployment Verification Script
+# Zoidbot v10.1.147 Deployment Verification Script
 # Verifies that the login loop race condition fix is working correctly
 
 [CmdletBinding()]
@@ -27,7 +27,7 @@ if (Test-Path $utilsPath) {
     function Write-LogError { param($Message) Write-Host "[ERROR] $Message" -ForegroundColor Red }
 }
 
-Write-Host "CloudToLocalLLM v10.1.147 Deployment Verification" -ForegroundColor Cyan
+Write-Host "Zoidbot v10.1.147 Deployment Verification" -ForegroundColor Cyan
 Write-Host "=================================================" -ForegroundColor Cyan
 Write-Host ""
 

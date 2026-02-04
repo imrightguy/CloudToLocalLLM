@@ -1,6 +1,6 @@
 # Windows Installation Guide
 
-This guide covers installing CloudToLocalLLM on Windows 10 and Windows 11 systems.
+This guide covers installing Zoidbot on Windows 10 and Windows 11 systems.
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@ This guide covers installing CloudToLocalLLM on Windows 10 and Windows 11 system
 
 ### 🧠 **Ollama Installation**
 
-CloudToLocalLLM requires Ollama to be installed and running:
+Zoidbot requires Ollama to be installed and running:
 
 1. **Download Ollama**: Visit [ollama.ai](https://ollama.ai/) and download the Windows installer
 2. **Install Ollama**: Run the installer and follow the setup wizard
@@ -45,7 +45,7 @@ CloudToLocalLLM requires Ollama to be installed and running:
 ### 🔧 **Optional Dependencies**
 
 - **Visual C++ Redistributable**: Usually included with installer
-- **Windows Defender**: Ensure CloudToLocalLLM is allowed through firewall
+- **Windows Defender**: Ensure Zoidbot is allowed through firewall
 
 ---
 
@@ -67,8 +67,8 @@ CloudToLocalLLM requires Ollama to be installed and running:
 
 #### **Download and Install**
 
-1. **Download**: Visit [GitHub Releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest)
-2. **Choose**: Download `CloudToLocalLLM-Windows-Setup.exe`
+1. **Download**: Visit [GitHub Releases](https://github.com/Zoidbot-online/Zoidbot/releases/latest)
+2. **Choose**: Download `Zoidbot-Windows-Setup.exe`
 3. **Run**: Double-click the installer
 4. **Follow**: Complete the installation wizard
 
@@ -76,14 +76,14 @@ CloudToLocalLLM requires Ollama to be installed and running:
 
 1. **Welcome Screen**: Click "Next" to begin
 2. **License Agreement**: Accept the MIT license terms
-3. **Installation Location**: Choose install directory (default: `C:\Program Files\CloudToLocalLLM`)
+3. **Installation Location**: Choose install directory (default: `C:\Program Files\Zoidbot`)
 4. **Start Menu**: Choose Start Menu folder name
 5. **Additional Tasks**:
    - ✅ Create desktop shortcut
    - ✅ Start with Windows (recommended)
    - ✅ Add to system PATH
 6. **Install**: Click "Install" and wait for completion
-7. **Finish**: Launch CloudToLocalLLM immediately
+7. **Finish**: Launch Zoidbot immediately
 
 ### ✅ **Installer Benefits**
 
@@ -96,14 +96,14 @@ CloudToLocalLLM requires Ollama to be installed and running:
 
 ### 🔄 **Updates**
 
-- **Automatic**: CloudToLocalLLM checks for updates automatically
+- **Automatic**: Zoidbot checks for updates automatically
 - **Manual**: Help → Check for Updates in the application menu
-- **Download**: Latest version from [releases page](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
+- **Download**: Latest version from [releases page](https://github.com/Zoidbot-online/Zoidbot/releases)
 
 ### 🗑️ **Uninstallation**
 
 ```
-Settings → Apps → CloudToLocalLLM → Uninstall
+Settings → Apps → Zoidbot → Uninstall
 ```
 
 Or use "Add or Remove Programs" in Control Panel.
@@ -116,15 +116,15 @@ Or use "Add or Remove Programs" in Control Panel.
 
 #### **Download and Setup**
 
-1. **Download**: Get `CloudToLocalLLM-Windows-Portable.zip` from [releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest)
-2. **Extract**: Unzip to your preferred location (e.g., `C:\Tools\CloudToLocalLLM`)
-3. **Run**: Double-click `CloudToLocalLLM.exe`
+1. **Download**: Get `Zoidbot-Windows-Portable.zip` from [releases](https://github.com/Zoidbot-online/Zoidbot/releases/latest)
+2. **Extract**: Unzip to your preferred location (e.g., `C:\Tools\Zoidbot`)
+3. **Run**: Double-click `Zoidbot.exe`
 
 #### **Portable Setup**
 
 ```
-CloudToLocalLLM-Portable/
-├── CloudToLocalLLM.exe          # Main application
+Zoidbot-Portable/
+├── Zoidbot.exe          # Main application
 ├── data/                        # Application data
 ├── lib/                         # Required libraries
 ├── README.txt                   # Quick start guide
@@ -161,8 +161,8 @@ CloudToLocalLLM-Portable/
 
 ```powershell
 # Clone repository
-git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
-cd CloudToLocalLLM
+git clone https://github.com/Zoidbot-online/Zoidbot.git
+cd Zoidbot
 
 # Install dependencies
 flutter pub get
@@ -199,10 +199,10 @@ flutter build windows --release
 
 ### 🚀 **First Launch**
 
-1. **Launch CloudToLocalLLM**:
-   - From Start Menu: Search "CloudToLocalLLM"
+1. **Launch Zoidbot**:
+   - From Start Menu: Search "Zoidbot"
    - From Desktop: Double-click desktop shortcut
-   - From System Tray: Look for CloudToLocalLLM icon
+   - From System Tray: Look for Zoidbot icon
 
 2. **System Tray**: The application appears in the Windows system tray (bottom-right corner)
 
@@ -212,7 +212,7 @@ flutter build windows --release
 
 #### **Ollama Connection**
 
-- CloudToLocalLLM automatically detects Ollama on `localhost:11434`
+- Zoidbot automatically detects Ollama on `localhost:11434`
 - Right-click system tray icon → Settings to configure custom Ollama settings
 
 #### **Windows Integration**
@@ -220,18 +220,18 @@ flutter build windows --release
 - **Auto-start**: Enabled by default, can be disabled in Settings
 - **System Tray**: Always visible when running
 - **Notifications**: Windows 10/11 native notifications
-- **Firewall**: Allow CloudToLocalLLM through Windows Defender Firewall
+- **Firewall**: Allow Zoidbot through Windows Defender Firewall
 
 #### **Windows Defender Configuration**
 
 ```powershell
-# Allow CloudToLocalLLM through firewall (run as Administrator)
-New-NetFirewallRule -DisplayName "CloudToLocalLLM" -Direction Inbound -Program "C:\Program Files\CloudToLocalLLM\CloudToLocalLLM.exe" -Action Allow
+# Allow Zoidbot through firewall (run as Administrator)
+New-NetFirewallRule -DisplayName "Zoidbot" -Direction Inbound -Program "C:\Program Files\Zoidbot\Zoidbot.exe" -Action Allow
 ```
 
 ### 🌐 **Web Access**
 
-1. Visit [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
+1. Visit [app.zoidbot.online](https://app.zoidbot.online)
 2. Sign in with your account
 3. Configure tunnel connection to your local instance
 
@@ -260,16 +260,16 @@ eventvwr.msc
 2. **Customize Notifications**:
    - Settings → System → Notifications & actions
    - Select which icons appear on taskbar
-3. **Restart Application**: Exit and restart CloudToLocalLLM
+3. **Restart Application**: Exit and restart Zoidbot
 
 #### **Firewall/Antivirus Issues**
 
 ```powershell
 # Add Windows Defender exclusion
-Add-MpPreference -ExclusionPath "C:\Program Files\CloudToLocalLLM"
+Add-MpPreference -ExclusionPath "C:\Program Files\Zoidbot"
 
 # Check if blocked by antivirus
-Get-MpThreatDetection | Where-Object {$_.Resources -like "*CloudToLocalLLM*"}
+Get-MpThreatDetection | Where-Object {$_.Resources -like "*Zoidbot*"}
 ```
 
 #### **Ollama Connection Issues**
@@ -290,20 +290,20 @@ Start-Service ollama
 
 ```powershell
 # Run as Administrator (if needed)
-# Right-click CloudToLocalLLM → "Run as administrator"
+# Right-click Zoidbot → "Run as administrator"
 
 # Check file permissions
-icacls "C:\Program Files\CloudToLocalLLM"
+icacls "C:\Program Files\Zoidbot"
 ```
 
 ### 📝 **Log Files**
 
 ```powershell
 # Application logs
-Get-Content "$env:APPDATA\CloudToLocalLLM\logs\app.log" -Tail 50
+Get-Content "$env:APPDATA\Zoidbot\logs\app.log" -Tail 50
 
 # Windows Event Logs
-Get-WinEvent -LogName Application | Where-Object {$_.ProviderName -eq "CloudToLocalLLM"}
+Get-WinEvent -LogName Application | Where-Object {$_.ProviderName -eq "Zoidbot"}
 
 # Ollama logs
 Get-Content "$env:LOCALAPPDATA\Ollama\logs\server.log" -Tail 50
@@ -315,20 +315,20 @@ Get-Content "$env:LOCALAPPDATA\Ollama\logs\server.log" -Tail 50
 
 ```powershell
 # Run in debug mode
-& "C:\Program Files\CloudToLocalLLM\CloudToLocalLLM.exe" --debug
+& "C:\Program Files\Zoidbot\Zoidbot.exe" --debug
 
 # Or with verbose output
-& "C:\Program Files\CloudToLocalLLM\CloudToLocalLLM.exe" --verbose
+& "C:\Program Files\Zoidbot\Zoidbot.exe" --verbose
 ```
 
 #### **Reset Configuration**
 
 ```powershell
 # Backup current config
-Copy-Item "$env:APPDATA\CloudToLocalLLM" "$env:APPDATA\CloudToLocalLLM.backup" -Recurse
+Copy-Item "$env:APPDATA\Zoidbot" "$env:APPDATA\Zoidbot.backup" -Recurse
 
 # Reset to defaults
-Remove-Item "$env:APPDATA\CloudToLocalLLM" -Recurse -Force
+Remove-Item "$env:APPDATA\Zoidbot" -Recurse -Force
 ```
 
 #### **Clean Reinstall**
@@ -336,8 +336,8 @@ Remove-Item "$env:APPDATA\CloudToLocalLLM" -Recurse -Force
 ```powershell
 # Uninstall via Control Panel
 # Then remove remaining files
-Remove-Item "$env:APPDATA\CloudToLocalLLM" -Recurse -Force
-Remove-Item "$env:LOCALAPPDATA\CloudToLocalLLM" -Recurse -Force
+Remove-Item "$env:APPDATA\Zoidbot" -Recurse -Force
+Remove-Item "$env:LOCALAPPDATA\Zoidbot" -Recurse -Force
 
 # Reinstall from latest installer
 ```
@@ -364,7 +364,7 @@ Remove-Item "$env:LOCALAPPDATA\CloudToLocalLLM" -Recurse -Force
 #### **Registry Integration**
 
 - **Settings storage** in Windows Registry
-- **File associations** for CloudToLocalLLM files
+- **File associations** for Zoidbot files
 - **URL protocol handlers** for web integration
 
 #### **Windows Notifications**
@@ -386,4 +386,4 @@ Remove-Item "$env:LOCALAPPDATA\CloudToLocalLLM" -Recurse -Force
 
 ---
 
-*For additional help, see our  or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*
+*For additional help, see our  or [open an issue](https://github.com/Zoidbot-online/Zoidbot/issues).*

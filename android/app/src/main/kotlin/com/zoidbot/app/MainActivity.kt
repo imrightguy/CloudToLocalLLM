@@ -1,4 +1,4 @@
-package com.cloudtolocalllm.app
+package com.zoidbot.app
 
 import io.flutter.embedding.android.FlutterActivity
 

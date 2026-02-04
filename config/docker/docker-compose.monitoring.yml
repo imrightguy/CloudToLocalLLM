@@ -1,11 +1,11 @@
-# The docker-compose configuration for the CloudToLocalLLM monitoring services
+# The docker-compose configuration for the Zoidbot monitoring services
 
 version: '3.8'
 services:
   netdata:
     image: netdata/netdata:latest
-    container_name: cloudtolocalllm_monitor
-    hostname: cloudtolocalllm
+    container_name: zoidbot_monitor
+    hostname: zoidbot
     ports:
       - "19999:19999"
     restart: unless-stopped

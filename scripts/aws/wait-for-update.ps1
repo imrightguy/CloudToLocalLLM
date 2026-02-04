@@ -1,4 +1,4 @@
-$ClusterName = "cloudtolocalllm-eks"
+$ClusterName = "zoidbot-eks"
 $UpdateId = "782e569b-5086-31a6-bb8b-d6a51e8e4055"
 $Region = "us-east-1"
 

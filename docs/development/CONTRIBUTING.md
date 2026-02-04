@@ -1,8 +1,8 @@
-# Contributing to CloudToLocalLLM
+# Contributing to Zoidbot
 
 ## 🎉 Welcome Contributors
 
-Thank you for your interest in contributing to CloudToLocalLLM! This project aims to bridge cloud-based LLM interfaces with local execution, and we welcome contributions from developers of all skill levels.
+Thank you for your interest in contributing to Zoidbot! This project aims to bridge cloud-based LLM interfaces with local execution, and we welcome contributions from developers of all skill levels.
 
 **Current Version**: v3.4.0+ (Unified Flutter-Native Architecture)
 
@@ -15,8 +15,8 @@ Thank you for your interest in contributing to CloudToLocalLLM! This project aim
 ```bash
 # Fork the repository on GitHub
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/CloudToLocalLLM.git
-cd CloudToLocalLLM
+git clone https://github.com/YOUR_USERNAME/Zoidbot.git
+cd Zoidbot
 
 # Set up development environment
 flutter pub get
@@ -28,7 +28,7 @@ flutter run -d linux
 
 ### **2. Make Your First Contribution**
 
-- 🐛 **Fix a Bug**: Check [good first issues](https://github.com/imrightguy/CloudToLocalLLM/labels/good%20first%20issue)
+- 🐛 **Fix a Bug**: Check [good first issues](https://github.com/imrightguy/Zoidbot/labels/good%20first%20issue)
 - 📝 **Improve Documentation**: Help us keep docs current and clear
 - ✨ **Add a Feature**: Implement something from our roadmap
 - 🧪 **Write Tests**: Improve test coverage
@@ -270,8 +270,8 @@ class NativeTrayService {
 ```dart
 // Unit test example
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/services/streaming_chat_service.dart';
-import 'package:cloudtolocalllm/services/connection_manager_service.dart';
+import 'package:zoidbot/services/streaming_chat_service.dart';
+import 'package:zoidbot/services/connection_manager_service.dart';
 
 void main() {
   group('StreamingChatService', () {
@@ -405,4 +405,4 @@ Contributors are recognized in:
 
 ---
 
-**Thank you for contributing to CloudToLocalLLM! Together, we're building the future of local AI with cloud convenience.**
+**Thank you for contributing to Zoidbot! Together, we're building the future of local AI with cloud convenience.**

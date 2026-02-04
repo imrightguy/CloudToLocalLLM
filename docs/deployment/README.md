@@ -1,8 +1,8 @@
-# CloudToLocalLLM Deployment Documentation
+# Zoidbot Deployment Documentation
 
 ## 📚 Documentation Overview
 
-This directory contains deployment documentation for CloudToLocalLLM. The project uses **Dockerfile-based builds** and deploys to **Kubernetes** (managed or self-hosted).
+This directory contains deployment documentation for Zoidbot. The project uses **Dockerfile-based builds** and deploys to **Kubernetes** (managed or self-hosted).
 
 ## 🎯 Primary Documentation (Start Here)
 
@@ -67,7 +67,7 @@ This directory contains deployment documentation for CloudToLocalLLM. The projec
 
 ## ✅ Current Deployment Method
 
-**CloudToLocalLLM uses:**
+**Zoidbot uses:**
 
 - **Dockerfiles** for building container images
 - **Kubernetes** for orchestration (any cluster: managed or self-hosted)
@@ -81,4 +81,4 @@ This directory contains deployment documentation for CloudToLocalLLM. The projec
 
 ---
 
-*For questions about deployment, see [COMPLETE_DEPLOYMENT_WORKFLOW.md](./COMPLETE_DEPLOYMENT_WORKFLOW.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*
+*For questions about deployment, see [COMPLETE_DEPLOYMENT_WORKFLOW.md](./COMPLETE_DEPLOYMENT_WORKFLOW.md) or [open an issue](https://github.com/Zoidbot-online/Zoidbot/issues).*

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #######################################################################
-# CloudToLocalLLM - DigitalOcean DNS Setup Script
+# Zoidbot - DigitalOcean DNS Setup Script
 # 
 # This script automates DNS configuration for DigitalOcean DNS
 #######################################################################
@@ -16,12 +16,12 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOMAIN="cloudtolocalllm.online"
+DOMAIN="zoidbot.online"
 SUBDOMAINS=("app" "api" "auth")
 TTL=300
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║   CloudToLocalLLM - DigitalOcean DNS Setup                ║${NC}"
+echo -e "${BLUE}║   Zoidbot - DigitalOcean DNS Setup                ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -203,20 +203,20 @@ echo ""
 echo "2. Wait for DNS propagation (5-15 minutes, up to 48 hours)"
 echo ""
 echo "3. Test DNS resolution:"
-echo "   dig cloudtolocalllm.online +short"
-echo "   dig app.cloudtolocalllm.online +short"
-echo "   dig api.cloudtolocalllm.online +short"
-echo "   dig auth.cloudtolocalllm.online +short"
+echo "   dig zoidbot.online +short"
+echo "   dig app.zoidbot.online +short"
+echo "   dig api.zoidbot.online +short"
+echo "   dig auth.zoidbot.online +short"
 echo ""
-echo "4. Deploy CloudToLocalLLM to Kubernetes:"
+echo "4. Deploy Zoidbot to Kubernetes:"
 echo "   cd k8s && ./deploy.sh"
 echo ""
 echo "5. Wait for SSL certificates (cert-manager will auto-provision)"
-echo "   kubectl get certificate -n cloudtolocalllm"
+echo "   kubectl get certificate -n zoidbot"
 echo ""
 echo "6. Test your deployment:"
-echo "   https://cloudtolocalllm.online"
-echo "   https://api.cloudtolocalllm.online/health"
+echo "   https://zoidbot.online"
+echo "   https://api.zoidbot.online/health"
 echo ""
 echo -e "${BLUE}════════════════════════════════════════════════════════════${NC}"
 echo ""

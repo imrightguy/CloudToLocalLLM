@@ -11,7 +11,7 @@ if (-not $env:CLOUDFLARE_API_TOKEN) {
 }
 
 $CF_API_TOKEN = $env:CLOUDFLARE_API_TOKEN
-$ZONE_NAME = "cloudtolocalllm.online"
+$ZONE_NAME = "zoidbot.online"
 
 Write-Host "🔧 Fixing Cloudflare SSL mode for $ZONE_NAME..." -ForegroundColor Cyan
 

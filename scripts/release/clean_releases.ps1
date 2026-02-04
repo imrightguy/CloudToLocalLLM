@@ -1,4 +1,4 @@
-# CloudToLocalLLM - Release Directory Cleanup Script
+# Zoidbot - Release Directory Cleanup Script
 # This script removes old/unused installer files from the releases directory
 
 param(
@@ -23,7 +23,7 @@ $ReleasesDir = Join-Path $PSScriptRoot "releases"
 
 # Display banner
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "CloudToLocalLLM - Release Directory Cleanup" -ForegroundColor Cyan
+Write-Host "Zoidbot - Release Directory Cleanup" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 # Check if releases directory exists
@@ -48,9 +48,9 @@ if (-not $PreserveAdmin -and -not $PreserveRegular) {
 $allFiles = Get-ChildItem -Path $ReleasesDir -File
 
 # Separate files by type
-$regularInstallers = $allFiles | Where-Object { $_.Name -match "CloudToLocalLLM-Windows-.*-Setup\.exe" -and $_.Name -notmatch "Admin" }
-$adminInstallers = $allFiles | Where-Object { $_.Name -match "CloudToLocalLLM-(Windows-)?Admin.*\.(exe|zip)" }
-$zipFiles = $allFiles | Where-Object { $_.Name -match "CloudToLocalLLM-Windows-.*\.zip" -and $_.Name -notmatch "Admin" }
+$regularInstallers = $allFiles | Where-Object { $_.Name -match "Zoidbot-Windows-.*-Setup\.exe" -and $_.Name -notmatch "Admin" }
+$adminInstallers = $allFiles | Where-Object { $_.Name -match "Zoidbot-(Windows-)?Admin.*\.(exe|zip)" }
+$zipFiles = $allFiles | Where-Object { $_.Name -match "Zoidbot-Windows-.*\.zip" -and $_.Name -notmatch "Admin" }
 
 # Function to get timestamp from filename
 function Get-FileTimestamp($filename) {

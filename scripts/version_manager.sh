@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CloudToLocalLLM Version Management Utility
+# Zoidbot Version Management Utility
 # Provides unified version management across all platforms and build systems
 
 set -euo pipefail
@@ -637,7 +637,7 @@ get_release_type() {
 
 # Increment version based on type (major, minor, patch, build)
 #
-# CloudToLocalLLM Semantic Versioning Strategy:
+# Zoidbot Semantic Versioning Strategy:
 #
 # PATCH (0.0.X+YYYYMMDDHHMM):
 #   - Hotfixes and critical bug fixes requiring immediate deployment
@@ -1070,7 +1070,7 @@ show_version_info() {
     local semantic_version=$(get_semantic_version)
     local build_number=$(get_build_number)
     
-    echo -e "${CYAN}=== CloudToLocalLLM Version Information ===${NC}"
+    echo -e "${CYAN}=== Zoidbot Version Information ===${NC}"
     echo -e "Full Version:     ${GREEN}$full_version${NC}"
     echo -e "Semantic Version: ${GREEN}$semantic_version${NC}"
     echo -e "Build Number:     ${GREEN}$build_number${NC}"
@@ -1229,7 +1229,7 @@ main() {
             show_version_info
             ;;
         "help"|"--help"|"-h"|"")
-            echo "CloudToLocalLLM Version Manager"
+            echo "Zoidbot Version Manager"
             echo ""
             echo "Usage: $0 <command> [arguments]"
             echo ""
@@ -1247,7 +1247,7 @@ main() {
             echo "  validate-placeholders  Validate no BUILD_TIME_PLACEHOLDER remains"
             echo "  help             Show this help message"
             echo ""
-            echo "CloudToLocalLLM Semantic Versioning Strategy:"
+            echo "Zoidbot Semantic Versioning Strategy:"
             echo ""
             echo "  PATCH (0.0.X+YYYYMMDDHHMM) - URGENT FIXES:"
             echo "    Ã¢â‚¬Â¢ Hotfixes and critical bug fixes requiring immediate deployment"

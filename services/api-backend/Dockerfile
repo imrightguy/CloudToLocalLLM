@@ -26,17 +26,17 @@ WORKDIR /app
 # Install runtime utilities
 RUN apk add --no-cache curl wget bash
 
-# Create cloudtolocalllm user with UID 1001
-RUN addgroup -g 1001 -S cloudtolocalllm && \
-    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G cloudtolocalllm -g cloudtolocalllm cloudtolocalllm
+# Create zoidbot user with UID 1001
+RUN addgroup -g 1001 -S zoidbot && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G zoidbot -g zoidbot zoidbot
 
 # Copy pruned node_modules and app from builder
 COPY --from=builder /app /app
 
 # Fix permissions
-RUN mkdir -p /app/logs && chown -R cloudtolocalllm:cloudtolocalllm /app
+RUN mkdir -p /app/logs && chown -R zoidbot:zoidbot /app
 
-USER cloudtolocalllm
+USER zoidbot
 
 EXPOSE 8080
 

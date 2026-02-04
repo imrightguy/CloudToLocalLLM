@@ -17,14 +17,14 @@
 ### 1. Start OAuth Setup
 
 ```bash
-curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/oauth/start" \
+curl -X POST "https://api.zoidbot.online/api/admin/email/oauth/start" \
   -H "Authorization: Bearer <token>"
 ```
 
 ### 2. Complete OAuth (after user grants permissions)
 
 ```bash
-curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/oauth/callback" \
+curl -X POST "https://api.zoidbot.online/api/admin/email/oauth/callback" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"code": "<code>", "state": "<state>"}'
@@ -33,14 +33,14 @@ curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/oauth/callback"
 ### 3. Verify Configuration
 
 ```bash
-curl -X GET "https://api.cloudtolocalllm.online/api/admin/email/status" \
+curl -X GET "https://api.zoidbot.online/api/admin/email/status" \
   -H "Authorization: Bearer <token>"
 ```
 
 ### 4. Send Test Email
 
 ```bash
-curl -X POST "https://api.cloudtolocalllm.online/api/admin/email/test" \
+curl -X POST "https://api.zoidbot.online/api/admin/email/test" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"recipientEmail": "test@example.com"}'

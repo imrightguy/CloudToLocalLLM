@@ -1,5 +1,5 @@
-# CloudToLocalLLM Tray Service Installation Script for Windows
-# This script installs the CloudToLocalLLM tray daemon as a Windows service
+# Zoidbot Tray Service Installation Script for Windows
+# This script installs the Zoidbot tray daemon as a Windows service
 
 param(
     [switch]$Install,
@@ -9,10 +9,10 @@ param(
     [switch]$Status
 )
 
-$ServiceName = "CloudToLocalLLMTray"
-$ServiceDisplayName = "CloudToLocalLLM System Tray Daemon"
-$ServiceDescription = "Provides system tray functionality for CloudToLocalLLM application"
-$ExecutablePath = "$env:PROGRAMFILES\CloudToLocalLLM\bin\cloudtolocalllm-tray.exe"
+$ServiceName = "ZoidbotTray"
+$ServiceDisplayName = "Zoidbot System Tray Daemon"
+$ServiceDescription = "Provides system tray functionality for Zoidbot application"
+$ExecutablePath = "$env:PROGRAMFILES\Zoidbot\bin\zoidbot-tray.exe"
 
 function Test-Administrator {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -27,7 +27,7 @@ function Install-TrayService {
     }
 
     if (-not (Test-Path $ExecutablePath)) {
-        Write-Error "CloudToLocalLLM tray executable not found at: $ExecutablePath"
+        Write-Error "Zoidbot tray executable not found at: $ExecutablePath"
         exit 1
     }
 
@@ -42,7 +42,7 @@ function Install-TrayService {
         }
 
         # Create the service
-        Write-Host "Installing CloudToLocalLLM Tray Service..."
+        Write-Host "Installing Zoidbot Tray Service..."
         $result = sc.exe create $ServiceName binPath= "`"$ExecutablePath`"" DisplayName= $ServiceDisplayName start= auto
         
         if ($LASTEXITCODE -eq 0) {
@@ -76,7 +76,7 @@ function Uninstall-TrayService {
     try {
         $service = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
         if ($service) {
-            Write-Host "Stopping and removing CloudToLocalLLM Tray Service..."
+            Write-Host "Stopping and removing Zoidbot Tray Service..."
             Stop-Service -Name $ServiceName -Force -ErrorAction SilentlyContinue
             sc.exe delete $ServiceName
             
@@ -103,7 +103,7 @@ function Start-TrayService {
             if ($service.Status -eq "Running") {
                 Write-Host "Service is already running" -ForegroundColor Yellow
             } else {
-                Write-Host "Starting CloudToLocalLLM Tray Service..."
+                Write-Host "Starting Zoidbot Tray Service..."
                 Start-Service -Name $ServiceName
                 Write-Host "Service started!" -ForegroundColor Green
             }
@@ -125,7 +125,7 @@ function Stop-TrayService {
             if ($service.Status -eq "Stopped") {
                 Write-Host "Service is already stopped" -ForegroundColor Yellow
             } else {
-                Write-Host "Stopping CloudToLocalLLM Tray Service..."
+                Write-Host "Stopping Zoidbot Tray Service..."
                 Stop-Service -Name $ServiceName -Force
                 Write-Host "Service stopped!" -ForegroundColor Green
             }
@@ -170,7 +170,7 @@ if ($Install) {
 } elseif ($Status) {
     Get-TrayServiceStatus
 } else {
-    Write-Host "CloudToLocalLLM Tray Service Management Script"
+    Write-Host "Zoidbot Tray Service Management Script"
     Write-Host ""
     Write-Host "Usage:"
     Write-Host "  .\install-tray-service.ps1 -Install    # Install and start the service"

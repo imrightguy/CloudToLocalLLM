@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# CloudToLocalLLM post-commit hook
+# Zoidbot post-commit hook
 # Automatically pushes commits when documentation is complete
 #
 

@@ -1,8 +1,8 @@
-# CloudToLocalLLM Developer Onboarding Guide
+# Zoidbot Developer Onboarding Guide
 
-## 🚀 Welcome to CloudToLocalLLM Development
+## 🚀 Welcome to Zoidbot Development
 
-This guide will help you get started contributing to CloudToLocalLLM v3.4.0+. The project uses a unified Flutter-native architecture with integrated system tray functionality.
+This guide will help you get started contributing to Zoidbot v3.4.0+. The project uses a unified Flutter-native architecture with integrated system tray functionality.
 
 **What You'll Learn:**
 
@@ -68,7 +68,7 @@ flutter config --enable-macos-desktop
 
 ### **Unified Flutter-Native Architecture**
 
-CloudToLocalLLM v3.4.0+ uses a single Flutter application with:
+Zoidbot v3.4.0+ uses a single Flutter application with:
 
 - **Integrated System Tray**: Native tray functionality using `tray_manager`
 - **Cross-Platform Support**: Linux, Windows, macOS, and Web
@@ -78,7 +78,7 @@ CloudToLocalLLM v3.4.0+ uses a single Flutter application with:
 ### **Key Directories**
 
 ```
-CloudToLocalLLM/
+Zoidbot/
 ├── lib/                    # Main Flutter application
 │   ├── components/         # Reusable UI components
 │   ├── config/            # App configuration and routing
@@ -125,8 +125,8 @@ CloudToLocalLLM/
 ### **1. Clone the Repository**
 
 ```bash
-git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
-cd CloudToLocalLLM
+git clone https://github.com/Zoidbot-online/Zoidbot.git
+cd Zoidbot
 ```
 
 ### **2. Flutter Setup**
@@ -157,7 +157,7 @@ Install these extensions:
 
 #### **Kiro IDE (Enhanced Development)**
 
-CloudToLocalLLM includes specialized Kiro IDE configuration with:
+Zoidbot includes specialized Kiro IDE configuration with:
 
 - **Custom AI Assistant Modes**: Task-specific AI assistance for documentation, code review, testing, and refactoring
 - **MCP Tool Integration**: Browser automation, documentation lookup, and workflow automation
@@ -301,7 +301,7 @@ import '../models/connection_status.dart';
 import '../services/tunnel_manager_service.dart';
 
 // Class definition with documentation
-/// Native Flutter system tray service for CloudToLocalLLM v3.4.0+
+/// Native Flutter system tray service for Zoidbot v3.4.0+
 class NativeTrayService with TrayListener {
   // Implementation
 }
@@ -314,7 +314,7 @@ class NativeTrayService with TrayListener {
 ```dart
 // test/services/native_tray_service_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/services/native_tray_service.dart';
+import 'package:zoidbot/services/native_tray_service.dart';
 
 void main() {
   group('NativeTrayService', () {
@@ -334,7 +334,7 @@ void main() {
 // test/widgets/chat_message_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/widgets/chat_message.dart';
+import 'package:zoidbot/widgets/chat_message.dart';
 
 void main() {
   testWidgets('ChatMessage displays content correctly', (tester) async {
@@ -485,4 +485,4 @@ flutter run --profile --trace-startup
 
 ---
 
-**Welcome to the CloudToLocalLLM development team! We're excited to see your contributions to the unified Flutter-native architecture.**
+**Welcome to the Zoidbot development team! We're excited to see your contributions to the unified Flutter-native architecture.**

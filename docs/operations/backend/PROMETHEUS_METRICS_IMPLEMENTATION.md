@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of the Prometheus metrics endpoint for the CloudToLocalLLM API Backend. The implementation provides comprehensive metrics collection for monitoring API performance, throughput, errors, and custom application metrics.
+This document describes the implementation of the Prometheus metrics endpoint for the Zoidbot API Backend. The implementation provides comprehensive metrics collection for monitoring API performance, throughput, errors, and custom application metrics.
 
 ## Implementation Summary
 
@@ -140,7 +140,7 @@ Example Prometheus scrape config:
 
 ```yaml
 scrape_configs:
-  - job_name: 'cloudtolocalllm-api'
+  - job_name: 'zoidbot-api'
     static_configs:
       - targets: ['localhost:8080']
     metrics_path: '/metrics'
@@ -268,9 +268,9 @@ Add to Prometheus scrape_configs:
 
 ```yaml
 scrape_configs:
-  - job_name: 'cloudtolocalllm-api'
+  - job_name: 'zoidbot-api'
     static_configs:
-      - targets: ['api.cloudtolocalllm.online:8080']
+      - targets: ['api.zoidbot.online:8080']
     metrics_path: '/metrics'
     scrape_interval: 15s
     scrape_timeout: 10s

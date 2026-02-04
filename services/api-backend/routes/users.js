@@ -15,7 +15,9 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import {
   getUserTier,
   getTierFeatures,
@@ -27,6 +29,15 @@ import {
 import logger from '../logger.js';
 
 const router = express.Router();
+
+/**
+ * Validation schema for feature check
+ */
+const featureCheckSchema = {
+  params: z.object({
+    feature: z.string().min(1).max(100),
+  }),
+};
 
 /**
  * @swagger
@@ -280,7 +291,7 @@ router.get('/tier/features', authenticateJWT, (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/tier/check/:feature', authenticateJWT, (req, res) => {
+router.get('/tier/check/:feature', authenticateJWT, validateSchema(featureCheckSchema), (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -290,14 +301,6 @@ router.get('/tier/check/:feature', authenticateJWT, (req, res) => {
     }
 
     const { feature } = req.params;
-
-    if (!feature || typeof feature !== 'string') {
-      return res.status(400).json({
-        error: 'Invalid feature name',
-        code: 'INVALID_FEATURE',
-        message: 'Feature name must be a non-empty string',
-      });
-    }
 
     const userTier = getUserTier(req.user);
     const hasAccess = hasFeature(req.user, feature);
@@ -340,7 +343,7 @@ router.get('/tier/check/:feature', authenticateJWT, (req, res) => {
         message: getUpgradeMessage(userTier, feature),
         upgradeUrl:
           process.env.UPGRADE_URL ||
-          'https://app.cloudtolocalllm.online/upgrade',
+          'https://app.zoidbot.online/upgrade',
       };
     }
 

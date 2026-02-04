@@ -1,5 +1,5 @@
 /**
- * Authentication Middleware for CloudToLocalLLM API Backend
+ * Authentication Middleware for Zoidbot API Backend
  *
  * Provides JWT authentication and authorization for API endpoints
  * with user ID extraction utilities.
@@ -17,7 +17,7 @@ import { AuthService } from '../auth/auth-service.js';
 const AUTH0_DOMAIN =
   process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
 const AUTH0_AUDIENCE =
-  process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
+  process.env.AUTH0_AUDIENCE || 'https://api.zoidbot.online';
 
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
@@ -122,8 +122,19 @@ export async function syncSession(req, res, next) {
 
     // Optional: Synchronize session with database
     try {
+      let token = req.headers.authorization?.split(' ')[1] || req.auth?.token;
+      
+      // If req.auth is the result of express-oauth2-jwt-bearer, the token might be in req.auth.token
+      // but if it's already a validated payload, we might not have the raw token.
+      // However, createOrUpdateSession uses it for hashing.
+      
+      if (typeof token !== 'string') {
+        logger.debug(' [Auth] Raw token not found as string, using placeholder for sync', { tokenType: typeof token });
+        token = 'validated-payload-no-raw-token';
+      }
+
       const result = await Promise.race([
-        authService.syncSession(userId, req.auth.payload),
+        authService.syncSession(req.auth.payload, token, req),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Timeout')), 2000),
         ),
@@ -323,9 +334,9 @@ export function requireAdmin(req, res, next) {
     }
 
     const userMetadata =
-      user['https://cloudtolocalllm.com/user_metadata'] || {};
-    const appMetadata = user['https://cloudtolocalllm.com/app_metadata'] || {};
-    const userRoles = user['https://cloudtolocalllm.online/roles'] || [];
+      user['https://zoidbot.com/user_metadata'] || {};
+    const appMetadata = user['https://zoidbot.com/app_metadata'] || {};
+    const userRoles = user['https://zoidbot.online/roles'] || [];
     const userScopes = user.scope ? user.scope.split(' ') : [];
 
     const hasAdminRole =

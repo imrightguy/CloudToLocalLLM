@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloudtolocalllm/models/agent.dart';
+import 'package:zoidbot/models/agent.dart';
 
 class AgentDetailScreen extends StatelessWidget {
   final Agent agent;

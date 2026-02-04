@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: cloudtolocalllm-local-apps
+  name: zoidbot-local-apps
   namespace: argocd
 spec:
   generators:
@@ -39,12 +39,12 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+        repoURL: https://github.com/Zoidbot-online/Zoidbot
         targetRevision: main
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: cloudtolocalllm
+        namespace: zoidbot
       syncPolicy:
         automated:
           prune: true

@@ -1,5 +1,5 @@
 
-> cloudtolocalllm-api-backend@1.0.0 test
+> zoidbot-api-backend@1.0.0 test
 > node --experimental-vm-modules ./node_modules/jest/bin/jest.js test/api-backend/request-queuing.test.js
 
  Setting up global test environment...

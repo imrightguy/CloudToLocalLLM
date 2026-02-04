@@ -1,7 +1,7 @@
 param(
     [string]$AwsAccountId = "422017356244",
     [string]$RoleName = "github-actions-role",
-    [string]$GitHubRepo = "cloudtolocalllm/cloudtolocalllm",
+    [string]$GitHubRepo = "zoidbot/zoidbot",
     [string]$GitHubBranch = "main"
 )
 

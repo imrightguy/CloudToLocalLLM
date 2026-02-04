@@ -5,7 +5,7 @@ metadata:
 spec:
   acme:
     server: https://acme.zerossl.com/v2/DV90
-    email: admin@cloudtolocalllm.online
+    email: admin@zoidbot.online
     privateKeySecretRef:
       name: zerossl-prod
     solvers:

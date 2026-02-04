@@ -1,5 +1,5 @@
 /**
- * Administrative API Routes for CloudToLocalLLM
+ * Administrative API Routes for Zoidbot
  *
  * Provides secure administrative endpoints for:
  * - Data flush operations with multi-step confirmation
@@ -471,7 +471,7 @@ router.get('/health', authenticateJWT, requireAdmin, (req, res) => {
 
   res.json({
     status: 'healthy',
-    service: 'cloudtolocalllm-admin',
+    service: 'zoidbot-admin',
     timestamp: new Date().toISOString(),
     adminUserId: req.user.sub,
   });

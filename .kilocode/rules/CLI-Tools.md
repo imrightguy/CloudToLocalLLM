@@ -14,7 +14,7 @@
 - **Auth0 Operations**: Use `auth0` CLI tools for ALL Auth0 management tasks (applications, APIs, actions, logs, forms).
 
 ## Examples from History
-- `ls -la`: Executed in /home/rightguy/dev/CloudToLocalLLM, partial output (SIGINT).
+- `ls -la`: Executed in /home/rightguy/dev/Zoidbot, partial output (SIGINT).
 - Benchmarks: ~1-2s response, reliable for ls/list, truncate for long.
 
 ## Best Practices

@@ -13,7 +13,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json(),
   ),
-  defaultMeta: { service: 'cloudtolocalllm-api' },
+  defaultMeta: { service: 'zoidbot-api' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(

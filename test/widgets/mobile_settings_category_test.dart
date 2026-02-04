@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/widgets/settings/mobile_settings_category.dart';
+import 'package:zoidbot/widgets/settings/mobile_settings_category.dart';
 
 void main() {
   group('MobileSettingsCategory', () {

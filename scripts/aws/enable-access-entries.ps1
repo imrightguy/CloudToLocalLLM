@@ -1,4 +1,4 @@
-$ClusterName = "cloudtolocalllm-eks"
+$ClusterName = "zoidbot-eks"
 $Region = "us-east-1"
 
 Write-Host "Updating cluster authentication mode to API_AND_CONFIG_MAP..."

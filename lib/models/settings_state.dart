@@ -4,7 +4,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
-import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
+import 'package:zoidbot/utils/settings_error_handler.dart';
 
 /// Settings operation state
 enum SettingsOperationState {

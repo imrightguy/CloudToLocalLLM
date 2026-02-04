@@ -130,7 +130,10 @@ class SSHTunnelClient with ChangeNotifier {
       final serverUrl = _config.cloudProxyUrl
           .replaceFirst('wss://', 'https://')
           .replaceFirst('ws://', 'http://');
-      final baseUrl = serverUrl.substring(0, serverUrl.lastIndexOf(':'));
+      
+      // Better way to get baseUrl: remove trailing path segments but keep port
+      final uri = Uri.parse(serverUrl);
+      final baseUrl = '${uri.scheme}://${uri.host}:${uri.port}';
 
       final registerUrl = Uri.parse('$baseUrl/api/tunnel/register');
 
@@ -260,7 +263,9 @@ class SSHTunnelClient with ChangeNotifier {
       final serverUrl = _config.cloudProxyUrl
           .replaceFirst('wss://', 'https://')
           .replaceFirst('ws://', 'http://');
-      final baseUrl = serverUrl.substring(0, serverUrl.lastIndexOf(':'));
+      
+      final uri = Uri.parse(serverUrl);
+      final baseUrl = '${uri.scheme}://${uri.host}:${uri.port}';
 
       await _dio.post(
         '$baseUrl/api/tunnel/unregister',

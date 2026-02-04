@@ -1,6 +1,6 @@
 # Android Build Configuration
 
-This directory contains the Android-specific configuration for CloudToLocalLLM.
+This directory contains the Android-specific configuration for Zoidbot.
 
 ## Signing Configuration
 
@@ -17,7 +17,7 @@ This directory contains the Android-specific configuration for CloudToLocalLLM.
    ```bash
    keytool -genkey -v -keystore release-keystore.jks \
      -keyalg RSA -keysize 2048 -validity 10000 \
-     -alias cloudtolocalllm-release
+     -alias zoidbot-release
    ```
 
 3. **Create key.properties** from template:
@@ -29,7 +29,7 @@ This directory contains the Android-specific configuration for CloudToLocalLLM.
    ```properties
    storePassword=your-keystore-password
    keyPassword=your-key-password
-   keyAlias=cloudtolocalllm-release
+   keyAlias=zoidbot-release
    storeFile=../release-keystore.jks
    ```
 

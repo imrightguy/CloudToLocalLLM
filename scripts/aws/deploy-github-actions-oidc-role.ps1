@@ -15,7 +15,7 @@
     AWS region (default: us-east-1)
 
 .PARAMETER GitHubOrgRepo
-    GitHub organization/repository (default: cloudtolocalllm/cloudtolocalllm)
+    GitHub organization/repository (default: zoidbot/zoidbot)
 
 .PARAMETER GitHubBranch
     GitHub branch to allow (default: main)
@@ -28,7 +28,7 @@
 param(
     [string]$StackName = "github-actions-oidc-role",
     [string]$AwsRegion = "us-east-1",
-    [string]$GitHubOrgRepo = "cloudtolocalllm/cloudtolocalllm",
+    [string]$GitHubOrgRepo = "zoidbot/zoidbot",
     [string]$GitHubBranch = "main"
 )
 

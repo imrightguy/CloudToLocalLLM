@@ -273,7 +273,7 @@ rate(tunnel_throughput_bytes_total[1m])
 
 ## Key Contacts
 
-- **Grafana URL**: https://grafana.cloudtolocalllm.online
+- **Grafana URL**: https://grafana.zoidbot.online
 - **API Key**: [Configure in environment variables]
 - **Metrics Endpoint**: `/api/tunnel/metrics`
 - **Health Endpoint**: `/api/tunnel/health`

@@ -1,8 +1,8 @@
-name: cloudtolocalllm
-description: Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.
+name: zoidbot
+description: Your expressive AI sidekick for local LLMs, orchestrated via a cloud interface.
 publish_to: none
-homepage: https://cloudtolocalllm.online
-repository: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+homepage: https://zoidbot.online
+repository: https://github.com/Zoidbot/Zoidbot
 version: 10.1.187+4120
 
 environment:
@@ -64,7 +64,6 @@ dependencies:
 
   # LangChain Integration
   langchain: ^0.8.0+1
-  langchain_ollama: ^0.4.0+1
   langchain_community: ^0.4.0+1
   get_it: ^9.0.5
   logger: ^2.6.2
@@ -109,5 +108,5 @@ flutter:
 sentry:
   upload_debug_symbols: true
   upload_source_maps: true
-  project: cloudtolocalllm
-  org: cloudtolocalllm-lg
+  project: zoidbot
+  org: zoidbot-lg

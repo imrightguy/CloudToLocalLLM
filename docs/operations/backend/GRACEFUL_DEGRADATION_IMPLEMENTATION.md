@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of graceful degradation for the CloudToLocalLLM API backend. Graceful degradation allows the API to continue operating with reduced functionality when services are unavailable, preventing cascading failures and improving overall system resilience.
+This document describes the implementation of graceful degradation for the Zoidbot API backend. Graceful degradation allows the API to continue operating with reduced functionality when services are unavailable, preventing cascading failures and improving overall system resilience.
 
 ## Requirement
 

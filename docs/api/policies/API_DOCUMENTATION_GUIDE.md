@@ -1,8 +1,8 @@
-# CloudToLocalLLM API Documentation Guide
+# Zoidbot API Documentation Guide
 
 ## Overview
 
-The CloudToLocalLLM API Backend provides comprehensive REST API endpoints for managing tunnels, users, authentication, and system operations. This guide explains how to access and use the API documentation.
+The Zoidbot API Backend provides comprehensive REST API endpoints for managing tunnels, users, authentication, and system operations. This guide explains how to access and use the API documentation.
 
 ## Accessing API Documentation
 
@@ -10,7 +10,7 @@ The CloudToLocalLLM API Backend provides comprehensive REST API endpoints for ma
 
 The interactive Swagger UI is available at:
 
-- **Production**: https://api.cloudtolocalllm.online/api/docs
+- **Production**: https://api.zoidbot.online/api/docs
 - **Development**: http://localhost:8080/api/docs
 
 The Swagger UI provides:
@@ -25,7 +25,7 @@ The Swagger UI provides:
 
 The raw OpenAPI 3.0 specification is available at:
 
-- **Production**: https://api.cloudtolocalllm.online/api/docs/swagger.json
+- **Production**: https://api.zoidbot.online/api/docs/swagger.json
 - **Development**: http://localhost:8080/api/docs/swagger.json
 
 ## API Endpoints
@@ -150,7 +150,7 @@ Authorization: Bearer <JWT_TOKEN>
 Tokens expire after a set period. Refresh tokens using:
 
 ```bash
-curl -X POST https://api.cloudtolocalllm.online/auth/token/refresh \
+curl -X POST https://api.zoidbot.online/auth/token/refresh \
   -H "Content-Type: application/json" \
   -d '{"refreshToken": "your_refresh_token"}'
 ```
@@ -170,7 +170,7 @@ X-API-Key: <API_KEY>
 **Request:**
 
 ```bash
-curl -X POST https://api.cloudtolocalllm.online/tunnels \
+curl -X POST https://api.zoidbot.online/tunnels \
   -H "Authorization: Bearer <JWT_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -228,7 +228,7 @@ curl -X POST https://api.cloudtolocalllm.online/tunnels \
 **Request:**
 
 ```bash
-curl -X GET https://api.cloudtolocalllm.online/users/tier \
+curl -X GET https://api.zoidbot.online/users/tier \
   -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 
@@ -380,9 +380,9 @@ X-Webhook-Signature: sha256=abcdef123456...
 
 Official SDKs are available for:
 
-- **JavaScript/TypeScript**: `@cloudtolocalllm/api-client`
-- **Python**: `cloudtolocalllm-api`
-- **Go**: `github.com/cloudtolocalllm/api-go`
+- **JavaScript/TypeScript**: `@zoidbot/api-client`
+- **Python**: `zoidbot-api`
+- **Go**: `github.com/zoidbot/api-go`
 
 ## API Versioning
 
@@ -406,10 +406,10 @@ The API uses URL-based versioning:
 
 For API support:
 
-- **Documentation**: https://docs.cloudtolocalllm.online
-- **Issues**: https://github.com/ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api/issues
-- **Email**: support@cloudtolocalllm.online
-- **Discord**: https://discord.gg/cloudtolocalllm
+- **Documentation**: https://docs.zoidbot.online
+- **Issues**: https://github.com/ghcr.io/zoidbot-online/zoidbot/api/issues
+- **Email**: support@zoidbot.online
+- **Discord**: https://discord.gg/zoidbot
 
 ## Changelog
 
@@ -417,4 +417,4 @@ See [CHANGELOG.md](../../../docs/CHANGELOG.md) for API changes and updates.
 
 ## License
 
-The CloudToLocalLLM API is licensed under the MIT License.
+The Zoidbot API is licensed under the MIT License.

@@ -1,11 +1,11 @@
-# CloudToLocalLLM Windows Self-Hosted GitHub Actions Runner Setup
+# Zoidbot Windows Self-Hosted GitHub Actions Runner Setup
 # This script sets up a Windows machine as a self-hosted GitHub Actions runner
 # with all prerequisites needed to build the Windows app
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$false)]
-    [string]$GitHubRepo = "https://github.com/CloudToLocalLLM-online/CloudToLocalLLM",
+    [string]$GitHubRepo = "https://github.com/Zoidbot-online/Zoidbot",
     
     [Parameter(Mandatory=$false)]
     [string]$RunnerLabels = "windows,self-hosted",

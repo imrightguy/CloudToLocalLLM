@@ -2,14 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: web-ingress
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     kubernetes.io/ingress.class: "gce"
-    kubernetes.io/ingress.global-static-ip-name: "cloudtolocalllm-static-ip"
-    networking.gke.io/managed-certificates: "cloudtolocalllm-certificate"
+    kubernetes.io/ingress.global-static-ip-name: "zoidbot-static-ip"
+    networking.gke.io/managed-certificates: "zoidbot-certificate"
 spec:
   rules:
-  - host: cloudtolocalllm.online
+  - host: zoidbot.online
     http:
       paths:
       - path: /*
@@ -19,7 +19,7 @@ spec:
             name: web
             port:
               number: 80
-  - host: app.cloudtolocalllm.online
+  - host: app.zoidbot.online
     http:
       paths:
       - path: /*
@@ -29,7 +29,7 @@ spec:
             name: web
             port:
               number: 80
-  - host: docs.cloudtolocalllm.online
+  - host: docs.zoidbot.online
     http:
       paths:
       - path: /*
@@ -39,7 +39,7 @@ spec:
             name: web
             port:
               number: 80
-  - host: api.cloudtolocalllm.online
+  - host: api.zoidbot.online
     http:
       paths:
       - path: /*
@@ -49,7 +49,7 @@ spec:
             name: api-backend
             port:
               number: 8080
-  - host: streaming.cloudtolocalllm.online
+  - host: streaming.zoidbot.online
     http:
       paths:
       - path: /*

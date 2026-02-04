@@ -1,4 +1,4 @@
--- PostgreSQL Schema for CloudToLocalLLM
+-- PostgreSQL Schema for Zoidbot
 -- This is the PostgreSQL-optimized version of schema.sql
 
 -- Enable required extensions
@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
   locale TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ,
   last_login TIMESTAMPTZ,
   login_count INTEGER DEFAULT 0,
   metadata JSONB DEFAULT '{}'::jsonb
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS user_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   session_token TEXT UNIQUE NOT NULL,  -- Our internal session token
+  jwt_token_hash TEXT,                 -- SHA256 hash of current token
   jwt_access_token TEXT,               -- Auth0 Access Token
   jwt_id_token TEXT,                   -- Auth0 ID Token
   refresh_token TEXT,                  -- Auth0 Refresh Token

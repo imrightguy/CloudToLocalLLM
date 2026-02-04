@@ -326,4 +326,4 @@ For implementation questions or issues:
 - Admin Center Design: `.kiro/specs/admin-center/design.md`
 - Admin Center Requirements: `.kiro/specs/admin-center/requirements.md`
 - Admin Center Tasks: `.kiro/specs/admin-center/tasks.md`
-- GitHub Issues: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues
+- GitHub Issues: https://github.com/Zoidbot-online/Zoidbot/issues

@@ -25,7 +25,7 @@ Create `.env` file in `services/streaming-proxy/`:
 ```bash
 # Auth0 Configuration
 SUPABASE_AUTH_DOMAIN=your-domain.auth0.com
-SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.com
+SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.com
 SUPABASE_AUTH_ISSUER=https://your-domain.auth0.com/
 
 # WebSocket Configuration
@@ -473,4 +473,4 @@ For issues or questions:
 
 ## License
 
-Part of CloudToLocalLLM project. See main LICENSE file.
+Part of Zoidbot project. See main LICENSE file.

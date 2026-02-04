@@ -2,7 +2,7 @@ param([switch]$SkipValidation)
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "AWS Credentials Setup for CloudToLocalLLM CI/CD" -ForegroundColor Cyan
+Write-Host "AWS Credentials Setup for Zoidbot CI/CD" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "Enter your AWS credentials:" -ForegroundColor Yellow

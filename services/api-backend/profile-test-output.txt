@@ -1,5 +1,5 @@
 
-> cloudtolocalllm-api-backend@1.0.0 test
+> zoidbot-api-backend@1.0.0 test
 > node --experimental-vm-modules ./node_modules/jest/bin/jest.js --testNamePattern=UserProfileService
 
  Setting up global test environment...
@@ -165,12 +165,12 @@ FAIL ../../test/api-backend/security/user-isolation.test.js
     Configuration error:
 
     Could not locate module ../../tunnel/tunnel-proxy.js mapped as:
-    E:\dev\CloudToLocalLLM\services\api-backend\tunnel\$1.js.
+    E:\dev\Zoidbot\services\api-backend\tunnel\$1.js.
 
     Please check your configuration for these entries:
     {
       "moduleNameMapper": {
-        "/^\.\.\/\.\.\/tunnel\/(.*)\.js$/": "E:\dev\CloudToLocalLLM\services\api-backend\tunnel\$1.js"
+        "/^\.\.\/\.\.\/tunnel\/(.*)\.js$/": "E:\dev\Zoidbot\services\api-backend\tunnel\$1.js"
       },
       "resolver": undefined
     }
@@ -183,12 +183,12 @@ FAIL ../../test/api-backend/message-protocol.test.js
     Configuration error:
 
     Could not locate module ../tunnel/message-protocol.js mapped as:
-    E:\dev\CloudToLocalLLM\services\api-backend\tunnel\$1.js.
+    E:\dev\Zoidbot\services\api-backend\tunnel\$1.js.
 
     Please check your configuration for these entries:
     {
       "moduleNameMapper": {
-        "/^\.\.\/tunnel\/(.*)\.js$/": "E:\dev\CloudToLocalLLM\services\api-backend\tunnel\$1.js"
+        "/^\.\.\/tunnel\/(.*)\.js$/": "E:\dev\Zoidbot\services\api-backend\tunnel\$1.js"
       },
       "resolver": undefined
     }

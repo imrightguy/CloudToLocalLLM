@@ -1,4 +1,4 @@
-# CloudToLocalLLM SDK - Deployment Guide
+# Zoidbot SDK - Deployment Guide
 
 ## Publishing to npm
 
@@ -60,16 +60,16 @@ npm pack
 npm publish
 ```
 
-This will publish the package as `@cloudtolocalllm/sdk` to the npm registry.
+This will publish the package as `@zoidbot/sdk` to the npm registry.
 
 ### Verify Publication
 
 ```bash
 # Check npm registry
-npm view @cloudtolocalllm/sdk
+npm view @zoidbot/sdk
 
 # Install from npm
-npm install @cloudtolocalllm/sdk
+npm install @zoidbot/sdk
 ```
 
 ## Version Management
@@ -153,7 +153,7 @@ jobs:
 ### npm Registry
 
 ```bash
-npm install @cloudtolocalllm/sdk
+npm install @zoidbot/sdk
 ```
 
 ### GitHub Releases
@@ -167,7 +167,7 @@ npm install @cloudtolocalllm/sdk
 For browser usage:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@cloudtolocalllm/sdk@2.0.0/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zoidbot/sdk@2.0.0/dist/index.js"></script>
 ```
 
 ## Post-Publication
@@ -203,7 +203,7 @@ npm login
 
 ```bash
 # Check published versions
-npm view @cloudtolocalllm/sdk versions
+npm view @zoidbot/sdk versions
 
 # Use different version number
 ```
@@ -253,7 +253,7 @@ npm audit fix
 ```bash
 # Check bundle size
 npm pack
-tar -tzf cloudtolocalllm-sdk-*.tgz | wc -l
+tar -tzf zoidbot-sdk-*.tgz | wc -l
 
 # Analyze dependencies
 npm ls

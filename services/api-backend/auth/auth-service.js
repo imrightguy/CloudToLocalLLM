@@ -1,5 +1,5 @@
 /**
- * @fileoverview Authentication Service for CloudToLocalLLM Tunnel
+ * @fileoverview Authentication Service for Zoidbot Tunnel
  * Handles JWT JWT validation, session management, and role-based access control
  */
 
@@ -20,7 +20,7 @@ export class AuthService {
         process.env.AUTH0_JWKS_URI ||
         `https://${process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com'}/.well-known/jwks.json`,
       AUTH0_AUDIENCE:
-        process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online',
+        process.env.AUTH0_AUDIENCE || 'https://api.zoidbot.online',
       SESSION_TIMEOUT: parseInt(process.env.SESSION_TIMEOUT) || 3600000, // 1 hour
       MAX_SESSIONS_PER_USER: parseInt(process.env.MAX_SESSIONS_PER_USER) || 5,
       ...config,
@@ -94,7 +94,7 @@ export class AuthService {
 
     // Special handling for INSERT to get lastID
     let finalSql = pgSql;
-    if (type === 'run' && sql.trim().toUpperCase().startsWith('INSERT')) {
+    if (type === 'run' && sql.trim().toUpperCase().startsWith('INSERT') && !sql.trim().toUpperCase().includes('RETURNING')) {
       finalSql += ' RETURNING id';
     }
 
@@ -383,6 +383,7 @@ export class AuthService {
    * Create or update user session
    */
   async createOrUpdateSession(tokenPayload, token, req) {
+    this.logger.info('Creating/updating session', { tokenType: typeof token });
     const auth0Id = tokenPayload.sub;
     const tokenHash = this.hashToken(token);
     const expiresAt = new Date(tokenPayload.exp * 1000).toISOString();

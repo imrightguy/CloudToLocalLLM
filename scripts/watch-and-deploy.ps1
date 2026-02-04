@@ -5,8 +5,8 @@ Write-Host " Monitoring GitHub Actions workflow..." -ForegroundColor Cyan
 Write-Host ""
 
 $repoOwner = "imrightguy"
-$repoName = "CloudToLocalLLM"
-$namespace = "cloudtolocalllm"
+$repoName = "Zoidbot"
+$namespace = "zoidbot"
 $deployment = "web"
 $maxChecks = 30  # Check for up to 10 minutes
 
@@ -51,7 +51,7 @@ for ($i = 1; $i -le $maxChecks; $i++) {
                     Write-Host "=====================================" -ForegroundColor Cyan
                     Write-Host ""
                     Write-Host "Test your app:" -ForegroundColor White
-                    Write-Host "  https://app.cloudtolocalllm.online" -ForegroundColor Cyan
+                    Write-Host "  https://app.zoidbot.online" -ForegroundColor Cyan
                     Write-Host ""
                     Write-Host "Hard refresh (Ctrl+Shift+R) to clear cache!" -ForegroundColor Yellow
                     Write-Host ""

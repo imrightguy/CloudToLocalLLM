@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of database performance metrics tracking for the CloudToLocalLLM API backend. The system provides comprehensive query performance monitoring, slow query detection, and performance analysis capabilities.
+This document describes the implementation of database performance metrics tracking for the Zoidbot API backend. The system provides comprehensive query performance monitoring, slow query detection, and performance analysis capabilities.
 
 **Requirements**: 9.7 (Database Performance Metrics)
 

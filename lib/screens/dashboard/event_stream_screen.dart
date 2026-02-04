@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:cloudtolocalllm/models/agent_event.dart';
+import 'package:zoidbot/models/agent_event.dart';
 
 /// Real-time event stream showing all agent events
 class EventStreamScreen extends StatefulWidget {
@@ -149,7 +149,7 @@ class _EventStreamScreenState extends State<EventStreamScreen> {
                   value: 'warning',
                   selected: _severityFilter == 'warning',
                   onSelected: (value) {
-                    setState(() => _severityFilter = value;
+                    setState(() => _severityFilter = value);
                   },
                   color: Colors.orange,
                 ),

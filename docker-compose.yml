@@ -4,8 +4,8 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.nginx
-    image: cloudtolocalllm-nginx
-    container_name: cloudtolocalllm-webapp
+    image: zoidbot-nginx
+    container_name: zoidbot-webapp
     ports:
       - "80:80"
       - "443:443"
@@ -30,14 +30,14 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.api-backend
-    container_name: cloudtolocalllm-api-backend
+    container_name: zoidbot-api-backend
     ports:
       - "8080:8080"
     environment:
       - NODE_ENV=production
       - PORT=8080
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
-      - AUTH0_AUDIENCE=https://app.cloudtolocalllm.online
+      - AUTH0_AUDIENCE=https://app.zoidbot.online
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
@@ -52,23 +52,23 @@ services:
   # Port 25 outbound must not be blocked by your VPS provider.
   postfix-mail:
     image: boky/postfix:latest
-    container_name: cloudtolocalllm-postfix-mail
+    container_name: zoidbot-postfix-mail
     restart: always
     environment:
-      - "HOSTNAME=mail.cloudtolocalllm.online"
-      - "DOMAIN=cloudtolocalllm.online"
-      - "ALLOWED_SENDER_DOMAINS=cloudtolocalllm.online"
+      - "HOSTNAME=mail.zoidbot.online"
+      - "DOMAIN=zoidbot.online"
+      - "ALLOWED_SENDER_DOMAINS=zoidbot.online"
       - "NETWORK_INTERFACE=eth0"
       - "RELAYHOST="
       - "MYNETWORKS=127.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
-      - "DKIM_DOMAINS=cloudtolocalllm.online"
+      - "DKIM_DOMAINS=zoidbot.online"
       - "DKIM_SELECTOR=mail"
-      - "DKIM_KEY_PATH=/etc/opendkim/keys/cloudtolocalllm.online/mail.private"
+      - "DKIM_KEY_PATH=/etc/opendkim/keys/zoidbot.online/mail.private"
       - "DKIM_AUTOGENERATE=true"
-      # - "SSL_CERT_PATH=/etc/letsencrypt/live/cloudtolocalllm.online/fullchain.pem"
-      # - "SSL_KEY_PATH=/etc/letsencrypt/live/cloudtolocalllm.online/privkey.pem"
+      # - "SSL_CERT_PATH=/etc/letsencrypt/live/zoidbot.online/fullchain.pem"
+      # - "SSL_KEY_PATH=/etc/letsencrypt/live/zoidbot.online/privkey.pem"
     volumes:
-      - ./config/dkim:/etc/opendkim/keys/cloudtolocalllm.online:ro
+      - ./config/dkim:/etc/opendkim/keys/zoidbot.online:ro
       # - ./certbot/live:/etc/letsencrypt/live:ro
       # - ./certbot/archive:/etc/letsencrypt/archive:ro
     ports:
@@ -81,7 +81,7 @@ services:
   # Certbot for SSL certificates
   certbot:
     image: certbot/certbot
-    container_name: cloudtolocalllm-certbot
+    container_name: zoidbot-certbot
     volumes:
       - ./certbot/www:/var/www/certbot
       - ./certbot/live:/etc/letsencrypt/live
@@ -97,7 +97,7 @@ services:
         mkdir -p /etc/letsencrypt/live /etc/letsencrypt/archive;
         chmod -R 755 /etc/letsencrypt;
         echo "Attempting initial certificate acquisition...";
-        certbot certonly --webroot -w /var/www/certbot --email admin@cloudtolocalllm.online --agree-tos --no-eff-email -d cloudtolocalllm.online -d app.cloudtolocalllm.online -d api.cloudtolocalllm.online -d docs.cloudtolocalllm.online -d mail.cloudtolocalllm.online --force-renewal --deploy-hook "/opt/certbot_permissions_hook.sh" || echo "Initial certonly command failed or no certs due for renewal.";
+        certbot certonly --webroot -w /var/www/certbot --email admin@zoidbot.online --agree-tos --no-eff-email -d zoidbot.online -d app.zoidbot.online -d api.zoidbot.online -d docs.zoidbot.online -d mail.zoidbot.online --force-renewal --deploy-hook "/opt/certbot_permissions_hook.sh" || echo "Initial certonly command failed or no certs due for renewal.";
         # Change ownership of certificates to nginx user (101:101)
         chown -R 101:101 /etc/letsencrypt/live /etc/letsencrypt/archive;
         echo "Initial cert attempt/check done. Starting renewal loop.";
@@ -111,4 +111,4 @@ services:
 
 networks:
   default:
-    name: cloudtolocalllm_default
+    name: zoidbot_default

@@ -514,7 +514,7 @@ class _LLMSecurityDashboardState extends State<LLMSecurityDashboard>
       // Create filename with timestamp
       final timestamp =
           DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
-      final fileName = 'cloudtolocalllm_audit_log_$timestamp.json';
+      final fileName = 'zoidbot_audit_log_$timestamp.json';
 
       if (kIsWeb) {
         // For web platform, show the data in a dialog for manual copy

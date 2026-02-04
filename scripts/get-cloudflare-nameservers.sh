@@ -5,7 +5,7 @@
 
 set -e
 
-DOMAIN="cloudtolocalllm.online"
+DOMAIN="zoidbot.online"
 
 # Check if CLOUDFLARE_API_TOKEN is set
 if [ -z "$CLOUDFLARE_API_TOKEN" ]; then

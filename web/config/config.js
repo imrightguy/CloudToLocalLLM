@@ -1,8 +1,8 @@
-// CloudToLocalLLM Runtime Configuration
+// Zoidbot Runtime Configuration
 window.cloudToLocalLLMConfig = {
   // API endpoints
-  apiEndpoint: 'https://api.cloudtolocalllm.online',
-  wsEndpoint: 'wss://app.cloudtolocalllm.online/ws',
+  apiEndpoint: 'https://api.zoidbot.online',
+  wsEndpoint: 'wss://app.zoidbot.online/ws',
 
   // TURN server for WebRTC
   turnServer: {
@@ -10,7 +10,7 @@ window.cloudToLocalLLMConfig = {
       'turn:174.138.115.184:3478',
       'turn:174.138.115.184:5349'
     ],
-    username: 'cloudtolocalllm',
+    username: 'zoidbot',
     credential: '' // Will be fetched from API after authentication
   },
 
@@ -22,8 +22,8 @@ window.cloudToLocalLLMConfig = {
   enableSentry: true,
 
   // Auth (SuperTokens)
-  authDomain: 'https://cloudtolocalllm.b2clogin.com',
-  appDomain: 'https://app.cloudtolocalllm.online'
+  authDomain: 'https://zoidbot.b2clogin.com',
+  appDomain: 'https://app.zoidbot.online'
 };
 
 /**
@@ -35,7 +35,7 @@ window.cloudToLocalLLMConfig = {
  */
 window.loadTurnCredentials = async function (accessToken) {
   try {
-    const response = await fetch('https://api.cloudtolocalllm.online/turn/credentials', {
+    const response = await fetch('https://api.zoidbot.online/turn/credentials', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

@@ -9,8 +9,8 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cloudtolocalllm/services/langchain_integration_service.dart';
-import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
+import 'package:zoidbot/services/langchain_integration_service.dart';
+import 'package:zoidbot/services/provider_discovery_service.dart';
 
 void main() {
   group('LangChainIntegrationService', () {

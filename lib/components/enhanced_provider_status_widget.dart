@@ -1,4 +1,4 @@
-/// Enhanced Provider Status Widget for CloudToLocalLLM
+/// Enhanced Provider Status Widget for Zoidbot
 ///
 /// This widget provides comprehensive provider status information including:
 /// - Real-time health monitoring

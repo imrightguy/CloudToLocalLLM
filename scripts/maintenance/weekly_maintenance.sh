@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CloudToLocalLLM Weekly Maintenance Script
+# Zoidbot Weekly Maintenance Script
 # Performs weekly maintenance tasks including system updates, Docker cleanup,
 # SSL certificate checks, and performance analysis for optimal system health
 
@@ -11,9 +11,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # VPS configuration
-VPS_HOST="cloudtolocalllm.online"
+VPS_HOST="zoidbot.online"
 VPS_USER="cloudllm"
-VPS_PROJECT_DIR="/opt/cloudtolocalllm"
+VPS_PROJECT_DIR="/opt/zoidbot"
 
 # Maintenance configuration
 DOCKER_IMAGE_RETENTION_DAYS=14
@@ -51,14 +51,14 @@ log_step() {
 
 # Create maintenance log entry
 log_maintenance() {
-    local log_file="/var/log/cloudtolocalllm/maintenance.log"
+    local log_file="/var/log/zoidbot/maintenance.log"
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     echo "[$timestamp] WEEKLY_MAINTENANCE: $1" >> "$log_file" 2>/dev/null || true
 }
 
 # Check if running on VPS or locally
 is_vps_environment() {
-    [[ "$(hostname)" == *"cloudtolocalllm"* ]] || [[ -f "/opt/cloudtolocalllm/docker-compose.yml" ]]
+    [[ "$(hostname)" == *"zoidbot"* ]] || [[ -f "/opt/zoidbot/docker-compose.yml" ]]
 }
 
 # Execute command on VPS or locally
@@ -131,7 +131,7 @@ clean_docker_system() {
 check_ssl_certificates() {
     log_step 3 "Checking SSL certificates..."
     
-    local domains=("cloudtolocalllm.online" "app.cloudtolocalllm.online")
+    local domains=("zoidbot.online" "app.zoidbot.online")
     local ssl_issues=()
     
     for domain in "${domains[@]}"; do
@@ -194,7 +194,7 @@ performance_analysis() {
     echo "$container_stats"
     
     # Log performance metrics
-    local perf_log="/var/log/cloudtolocalllm/performance.log"
+    local perf_log="/var/log/zoidbot/performance.log"
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     execute_command "echo '[$timestamp] CPU:${cpu_usage}% MEM:${memory_usage}% DISK:${disk_io}% CONN:$network_connections' >> $perf_log" 2>/dev/null || true
     
@@ -231,7 +231,7 @@ security_updates_check() {
 backup_verification() {
     log_step 6 "Verifying backup integrity..."
     
-    local backup_dir="/var/backups/cloudtolocalllm"
+    local backup_dir="/var/backups/zoidbot"
     
     if execute_command "test -d $backup_dir"; then
         local latest_backup=$(execute_command "ls -t $backup_dir/*.tar.gz 2>/dev/null | head -1" || echo "")
@@ -267,7 +267,7 @@ generate_weekly_report() {
     local status="$1"
     
     echo
-    echo "=== CloudToLocalLLM Weekly Maintenance Report ==="
+    echo "=== Zoidbot Weekly Maintenance Report ==="
     echo "Week of: $(date -d 'last monday' +%Y-%m-%d) to $(date -d 'next sunday' +%Y-%m-%d)"
     echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "Status: $status"
@@ -302,14 +302,14 @@ generate_weekly_report() {
 
 # Main execution function
 main() {
-    log_info "Starting CloudToLocalLLM weekly maintenance..."
+    log_info "Starting Zoidbot weekly maintenance..."
     log_maintenance "Weekly maintenance started"
     echo
     
     local maintenance_status="COMPLETED"
     
     # Create log directory if it doesn't exist
-    execute_command "mkdir -p /var/log/cloudtolocalllm" 2>/dev/null || true
+    execute_command "mkdir -p /var/log/zoidbot" 2>/dev/null || true
     
     # Execute maintenance tasks
     update_system_packages || maintenance_status="ISSUES"
@@ -347,7 +347,7 @@ main() {
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "CloudToLocalLLM Weekly Maintenance Script"
+        echo "Zoidbot Weekly Maintenance Script"
         echo
         echo "Usage: $0 [options]"
         echo

@@ -1,4 +1,4 @@
-/// Provider Configuration Manager for CloudToLocalLLM
+/// Provider Configuration Manager for Zoidbot
 ///
 /// This service manages provider configurations including:
 /// - Configuration persistence and loading

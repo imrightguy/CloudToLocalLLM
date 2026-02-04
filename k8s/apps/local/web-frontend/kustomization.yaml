@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ./shared/base/web-frontend
 images:
-  - name: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web
+  - name: ghcr.io/zoidbot-online/zoidbot/web
     newTag: main-1ebf1f7843b7278fc86964ccca37b9268a244160
 patches:
   - patch: |-
@@ -11,7 +11,7 @@ patches:
       kind: Deployment
       metadata:
         name: web
-        namespace: cloudtolocalllm
+        namespace: zoidbot
       spec:
         replicas: 1
         template:

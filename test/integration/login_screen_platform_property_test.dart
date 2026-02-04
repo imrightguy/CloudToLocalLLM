@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/screens/login_screen.dart';
+import 'package:zoidbot/screens/login_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,9 +1,9 @@
-# Unit Tests for Deploy-CloudToLocalLLM.ps1
+# Unit Tests for Deploy-Zoidbot.ps1
 # Tests individual PowerShell functions with mock objects for WSL, SSH, and external dependencies
 
 BeforeAll {
     # Import the script under test
-    $ScriptPath = Join-Path $PSScriptRoot "..\..\scripts\powershell\Deploy-CloudToLocalLLM.ps1"
+    $ScriptPath = Join-Path $PSScriptRoot "..\..\scripts\powershell\Deploy-Zoidbot.ps1"
 
     # Check if script exists before proceeding
     if (-not (Test-Path $ScriptPath)) {
@@ -44,7 +44,7 @@ BeforeAll {
     }
 }
 
-Describe "Deploy-CloudToLocalLLM Core Functions" {
+Describe "Deploy-Zoidbot Core Functions" {
 
     Context "Basic Environment Tests" {
         It "Should have PowerShell available" {

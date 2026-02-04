@@ -1,13 +1,13 @@
-// Test configuration for CloudToLocalLLM
+// Test configuration for Zoidbot
 // Provides mock implementations and test setup utilities
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/di/locator.dart' as di;
-import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
-import 'package:cloudtolocalllm/services/platform_adapter.dart';
+import 'package:zoidbot/di/locator.dart' as di;
+import 'package:zoidbot/services/theme_provider.dart';
+import 'package:zoidbot/services/platform_detection_service.dart';
+import 'package:zoidbot/services/platform_adapter.dart';
 
 /// Test configuration class that sets up mocks for plugins
 class TestConfig {
@@ -85,8 +85,8 @@ class TestConfig {
         switch (methodCall.method) {
           case 'getAll':
             return {
-              'appName': 'CloudToLocalLLM',
-              'packageName': 'com.cloudtolocalllm.app',
+              'appName': 'Zoidbot',
+              'packageName': 'com.zoidbot.app',
               'version': '3.6.1',
               'buildNumber': '202506192205',
               'buildSignature': '',

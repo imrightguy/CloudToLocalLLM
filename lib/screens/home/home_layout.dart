@@ -128,10 +128,28 @@ class _HomeLayoutState extends State<HomeLayout> {
                         : const SizedBox.shrink(),
                   ),
                   Expanded(
-                    child: _ChatPane(
-                      isCompact: widget.isCompact,
-                      scrollController: widget.scrollController,
-                      onSendMessage: widget.onSendMessage,
+                    child: Stack(
+                      children: [
+                        _ChatPane(
+                          isCompact: widget.isCompact,
+                          scrollController: widget.scrollController,
+                          onSendMessage: widget.onSendMessage,
+                        ),
+                        // Small persistent Zoidbot in corner of chat
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Consumer<StreamingChatService>(
+                            builder: (context, chatService, child) {
+                              if (chatService.currentConversation == null) return const SizedBox.shrink();
+                              return const Opacity(
+                                opacity: 0.5,
+                                child: Text('🦞', style: TextStyle(fontSize: 24)),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -223,11 +241,7 @@ class _HeaderBar extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppLogo.small(
-                    backgroundColor: Colors.white,
-                    textColor: Color(0xFF6e8efb),
-                    borderColor: Color(0xFFa777e3),
-                  ),
+                  const Text('🦞', style: TextStyle(fontSize: 24)),
                   SizedBox(width: spacing.s),
                   Text(
                     AppConfig.appName,
@@ -394,31 +408,52 @@ class _SidebarPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final spacing = AppTheme.spacingOf(context);
+
     return Consumer<StreamingChatService>(
       builder: (context, chatService, child) {
-        return ConversationList(
-          conversations: chatService.conversations,
-          selectedConversation: chatService.currentConversation,
-          onConversationSelected: (conversationId) {
-            final conversation = chatService.conversations.firstWhere(
-              (c) => c.id == conversationId,
-            );
-            chatService.selectConversation(conversation);
-          },
-          onConversationDeleted: (conversationId) {
-            final conversation = chatService.conversations.firstWhere(
-              (c) => c.id == conversationId,
-            );
-            chatService.deleteConversation(conversation);
-          },
-          onConversationRenamed: (conversationId, newTitle) {
-            final conversation = chatService.conversations.firstWhere(
-              (c) => c.id == conversationId,
-            );
-            chatService.updateConversationTitle(conversation, newTitle);
-          },
-          onNewConversation: () => chatService.createConversation(),
-          isCollapsed: false,
+        return Column(
+          children: [
+            // Home button to go back to Zoidbot screen
+            Padding(
+              padding: EdgeInsets.all(spacing.s),
+              child: ListTile(
+                leading: const Text('🦞', style: TextStyle(fontSize: 20)),
+                title: const Text('Zoidbot Home', style: TextStyle(fontWeight: FontWeight.bold)),
+                selected: chatService.currentConversation == null,
+                onTap: () => chatService.selectConversationById(null),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            const Divider(),
+            Expanded(
+              child: ConversationList(
+                conversations: chatService.conversations,
+                selectedConversation: chatService.currentConversation,
+                onConversationSelected: (conversationId) {
+                  final conversation = chatService.conversations.firstWhere(
+                    (c) => c.id == conversationId,
+                  );
+                  chatService.selectConversation(conversation);
+                },
+                onConversationDeleted: (conversationId) {
+                  final conversation = chatService.conversations.firstWhere(
+                    (c) => c.id == conversationId,
+                  );
+                  chatService.deleteConversation(conversation);
+                },
+                onConversationRenamed: (conversationId, newTitle) {
+                  final conversation = chatService.conversations.firstWhere(
+                    (c) => c.id == conversationId,
+                  );
+                  chatService.updateConversationTitle(conversation, newTitle);
+                },
+                onNewConversation: () => chatService.createConversation(),
+                isCollapsed: false,
+              ),
+            ),
+          ],
         );
       },
     );
@@ -555,61 +590,158 @@ class _EmptyConversationState extends StatelessWidget {
     final spacing = AppTheme.spacingOf(context);
     final textColor = theme.colorScheme.onSurface;
     final textColorLight = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+    final authService = context.watch<AuthService>();
+    final assistantName = authService.assistantName;
 
     return Column(
       children: [
         Expanded(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.chat_bubble_outline,
-                  size: 64,
-                  color: textColorLight,
-                ),
-                SizedBox(height: spacing.l),
-                Text(
-                  'Welcome to CloudToLocalLLM',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(spacing.l),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Expressive Agent Avatar (Zoidbot)
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.primaryColor.withValues(alpha: 0.3),
+                        width: 6,
                       ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: spacing.m),
-                Text(
-                  'Start a new conversation to begin chatting with your local LLM',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: textColorLight,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: spacing.xl),
-                Consumer<StreamingChatService>(
-                  builder: (context, chatService, child) {
-                    return ElevatedButton.icon(
-                      onPressed: () => chatService.createConversation(),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Start New Conversation'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: spacing.l,
-                          vertical: spacing.m,
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.primaryColor.withValues(alpha: 0.3),
+                          blurRadius: 30,
+                          spreadRadius: 10,
                         ),
-                        // Ensure minimum touch target size
-                        minimumSize: const Size(44, 44),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '🦞',
+                        style: TextStyle(fontSize: 80),
                       ),
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  ),
+                  SizedBox(height: spacing.xl),
+                  Text(
+                    '$assistantName is Ready!',
+                    style: theme.textTheme.displaySmall?.copyWith(
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: spacing.m),
+                  Text(
+                    'How can I help you today?',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: textColorLight,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: spacing.xl),
+                  Wrap(
+                    spacing: spacing.m,
+                    runSpacing: spacing.m,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _QuickActionCard(
+                        icon: Icons.chat_bubble_outline,
+                        label: 'Start Chatting',
+                        onTap: () {
+                          final chatService = Provider.of<StreamingChatService>(context, listen: false);
+                          chatService.createConversation();
+                        },
+                        color: theme.primaryColor,
+                      ),
+                      if (authService.isAuthenticated.value) ...[
+                        _QuickActionCard(
+                          icon: Icons.dashboard_outlined,
+                          label: 'Agent Dashboard',
+                          onTap: () => context.go('/dashboard'),
+                          color: Colors.blue,
+                        ),
+                      ],
+                      if (!authService.isAuthenticated.value) ...[
+                        _QuickActionCard(
+                          icon: Icons.cloud_upload_outlined,
+                          label: 'Connect Cloud',
+                          onTap: () => context.go('/login'),
+                          color: Colors.orange,
+                        ),
+                      ],
+                      _QuickActionCard(
+                        icon: Icons.settings_outlined,
+                        label: 'Settings',
+                        onTap: () => context.go('/settings'),
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color color;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final spacing = AppTheme.spacingOf(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 160,
+        padding: EdgeInsets.all(spacing.m),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 32),
+            SizedBox(height: spacing.s),
+            Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

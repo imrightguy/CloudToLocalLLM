@@ -96,7 +96,7 @@ class BaseSettingsCategory implements SettingsCategory {
 /// Predefined category IDs
 class SettingsCategoryIds {
   static const String general = 'general';
-  static const String localLLMProviders = 'local_llm_providers';
+  static const String localLLMProviders = 'llm_providers';
   static const String account = 'account';
   static const String privacy = 'privacy';
   static const String desktop = 'desktop';
@@ -243,7 +243,7 @@ class SettingsCategoryMetadata {
       case SettingsCategoryIds.general:
         return 'General';
       case SettingsCategoryIds.localLLMProviders:
-        return 'Local LLM Providers';
+        return 'LLM Providers';
       case SettingsCategoryIds.account:
         return 'Account';
       case SettingsCategoryIds.privacy:
@@ -271,7 +271,7 @@ class SettingsCategoryMetadata {
       case SettingsCategoryIds.general:
         return 'Theme, language, and general preferences';
       case SettingsCategoryIds.localLLMProviders:
-        return 'Configure local AI model providers';
+        return 'Configure AI model providers';
       case SettingsCategoryIds.account:
         return 'Account information and subscription';
       case SettingsCategoryIds.privacy:

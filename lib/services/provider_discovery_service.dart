@@ -173,74 +173,7 @@ class ProviderDiscoveryService extends ChangeNotifier {
   /// Note: On web platforms, this method returns an empty list to prevent CORS errors
   /// from direct localhost connections. Web platforms should use the tunnel/bridge system.
   Future<List<ProviderInfo>> scanForProviders() async {
-    // Skip scanning on web platforms to prevent CORS errors
-    if (_isWebPlatform) {
-      debugPrint(' [ProviderDiscovery] Skipping provider scan on web platform');
-      debugPrint(
-          ' [ProviderDiscovery] Web platform should use tunnel/bridge for provider access');
-      return [];
-    }
-
-    if (_isScanning) {
-      debugPrint('Provider scan already in progress, skipping...');
-      return _discoveredProviders;
-    }
-
-    _isScanning = true;
-    notifyListeners();
-
-    try {
-      debugPrint('Starting provider discovery scan...');
-
-      // Update last scan time
-      _lastScanTimes['all'] = DateTime.now();
-
-      final List<ProviderInfo> foundProviders = [];
-
-      // Always try to detect Ollama first
-      final ollamaProvider = await detectOllama();
-
-      if (ollamaProvider != null) {
-        foundProviders.add(ollamaProvider);
-        debugPrint(
-            'Ollama detected - skipping other provider detection to avoid errors');
-      } else {
-        // Only scan for other providers if Ollama is not available
-        debugPrint('Ollama not detected - scanning for alternative providers');
-        final results = await Future.wait([
-          detectLMStudio(),
-          detectOpenAICompatible(),
-        ]);
-
-        // Collect all non-null results
-        for (final result in results) {
-          if (result != null) {
-            if (result is List<ProviderInfo>) {
-              foundProviders.addAll(result);
-            } else if (result is ProviderInfo) {
-              foundProviders.add(result);
-            }
-          }
-        }
-      }
-
-      // Update discovered providers list
-      _discoveredProviders.clear();
-      _discoveredProviders.addAll(foundProviders);
-
-      debugPrint(
-        'Provider discovery completed. Found ${foundProviders.length} providers',
-      );
-
-      notifyListeners();
-      return foundProviders;
-    } catch (error) {
-      debugPrint('Error during provider discovery: $error');
-      return _discoveredProviders;
-    } finally {
-      _isScanning = false;
-      notifyListeners();
-    }
+    return [];
   }
 
   /// Detect Ollama provider (default port 11434)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of proxy configuration management for the CloudToLocalLLM API backend. The implementation provides comprehensive configuration management, validation, and audit trails for streaming proxy instances.
+This document describes the implementation of proxy configuration management for the Zoidbot API backend. The implementation provides comprehensive configuration management, validation, and audit trails for streaming proxy instances.
 
 **Validates: Requirements 5.4**
 

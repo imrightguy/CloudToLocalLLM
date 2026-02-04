@@ -2,7 +2,7 @@
 
 ## Overview
 
-CloudToLocalLLM utilizes a multi-tiered rate limiting strategy to protect the API from abuse, ensure fair resource allocation, and defend against brute-force attacks.
+Zoidbot utilizes a multi-tiered rate limiting strategy to protect the API from abuse, ensure fair resource allocation, and defend against brute-force attacks.
 
 ---
 

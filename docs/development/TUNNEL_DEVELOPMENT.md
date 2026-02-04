@@ -67,8 +67,8 @@ Before starting tunnel system development, ensure you have the following install
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/cloudtolocalllm/cloudtolocalllm.git
-cd cloudtolocalllm
+git clone https://github.com/zoidbot/zoidbot.git
+cd zoidbot
 ```
 
 ### 2. Install Dependencies
@@ -132,7 +132,7 @@ CIRCUIT_BREAKER_TIMEOUT=60000
 
 # Auth0 Configuration
 JWT_ISSUER_DOMAIN=your-auth0-domain.auth0.com
-JWT_AUDIENCE=https://api.cloudtolocalllm.online
+JWT_AUDIENCE=https://api.zoidbot.online
 
 # Monitoring
 METRICS_ENABLED=true
@@ -729,8 +729,8 @@ cat test-results.log
 - **API Documentation**: `docs/API/TUNNEL_CLIENT_API.md`, `docs/API/TUNNEL_SERVER_API.md`
 - **Architecture Documentation**: `docs/ARCHITECTURE/TUNNEL_SYSTEM.md`
 - **Troubleshooting Guide**: `docs/OPERATIONS/TUNNEL_TROUBLESHOOTING.md`
-- **GitHub Repository**: https://github.com/cloudtolocalllm/cloudtolocalllm
-- **Issue Tracker**: https://github.com/cloudtolocalllm/cloudtolocalllm/issues
+- **GitHub Repository**: https://github.com/zoidbot/zoidbot
+- **Issue Tracker**: https://github.com/zoidbot/zoidbot/issues
 
 ## Getting Help
 

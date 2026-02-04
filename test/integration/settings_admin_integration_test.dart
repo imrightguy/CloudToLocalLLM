@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
-import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
-import 'package:cloudtolocalllm/models/provider_configuration.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:zoidbot/services/provider_configuration_manager.dart';
+import 'package:zoidbot/models/provider_configuration.dart';
 import '../test_config.dart';
 
 void main() {

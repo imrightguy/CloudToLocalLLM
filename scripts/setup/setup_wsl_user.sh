@@ -26,7 +26,7 @@ flutter config --enable-linux-desktop
 
 # 3. Project Dependencies
 echo "Installing Project Dependencies..."
-cd /mnt/d/dev/CloudToLocalLLM
+cd /mnt/d/dev/Zoidbot
 
 echo "Running flutter pub get..."
 flutter pub get

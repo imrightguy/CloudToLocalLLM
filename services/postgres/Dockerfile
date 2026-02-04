@@ -1,5 +1,5 @@
 # ============================================================================
-# PostgreSQL Dockerfile for CloudToLocalLLM
+# PostgreSQL Dockerfile for Zoidbot
 # Uses the standard Postgres Alpine image
 # ============================================================================
 FROM postgres:16-alpine

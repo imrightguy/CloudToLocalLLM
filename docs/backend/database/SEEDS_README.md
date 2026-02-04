@@ -50,7 +50,7 @@ Creates comprehensive test data for the admin center:
    # OR
    export PGHOST=localhost
    export PGPORT=5432
-   export PGDATABASE=cloudtolocalllm
+   export PGDATABASE=zoidbot
    export PGUSER=postgres
    export PGPASSWORD=yourpassword
    ```
@@ -92,7 +92,7 @@ This will:
 You can also run seed scripts manually using `psql`:
 
 ```bash
-psql -h localhost -U postgres -d cloudtolocalllm -f services/api-backend/database/seeds/001_admin_center_dev_data.sql
+psql -h localhost -U postgres -d zoidbot -f services/api-backend/database/seeds/001_admin_center_dev_data.sql
 ```
 
 ## Test Data Details
@@ -111,7 +111,7 @@ psql -h localhost -U postgres -d cloudtolocalllm -f services/api-backend/databas
 
 | Email                           | Role          | Purpose                        |
 | ------------------------------- | ------------- | ------------------------------ |
-| cmaltais@cloudtolocalllm.online | Super Admin   | Full admin access              |
+| cmaltais@zoidbot.online | Super Admin   | Full admin access              |
 | test.support@example.com        | Support Admin | Test support admin permissions |
 | test.finance@example.com        | Finance Admin | Test finance admin permissions |
 
@@ -134,16 +134,16 @@ After applying seed data, verify the results:
 
 ```bash
 # Check test users
-psql -h localhost -U postgres -d cloudtolocalllm -c "SELECT email, name FROM users WHERE email LIKE 'test.%@example.com';"
+psql -h localhost -U postgres -d zoidbot -c "SELECT email, name FROM users WHERE email LIKE 'test.%@example.com';"
 
 # Check subscriptions
-psql -h localhost -U postgres -d cloudtolocalllm -c "SELECT u.email, s.tier, s.status FROM subscriptions s JOIN users u ON s.user_id = u.id WHERE u.email LIKE 'test.%@example.com';"
+psql -h localhost -U postgres -d zoidbot -c "SELECT u.email, s.tier, s.status FROM subscriptions s JOIN users u ON s.user_id = u.id WHERE u.email LIKE 'test.%@example.com';"
 
 # Check transactions
-psql -h localhost -U postgres -d cloudtolocalllm -c "SELECT u.email, pt.amount, pt.status FROM payment_transactions pt JOIN users u ON pt.user_id = u.id WHERE u.email LIKE 'test.%@example.com';"
+psql -h localhost -U postgres -d zoidbot -c "SELECT u.email, pt.amount, pt.status FROM payment_transactions pt JOIN users u ON pt.user_id = u.id WHERE u.email LIKE 'test.%@example.com';"
 
 # Check admin roles
-psql -h localhost -U postgres -d cloudtolocalllm -c "SELECT u.email, ar.role, ar.is_active FROM admin_roles ar JOIN users u ON ar.user_id = u.id;"
+psql -h localhost -U postgres -d zoidbot -c "SELECT u.email, ar.role, ar.is_active FROM admin_roles ar JOIN users u ON ar.user_id = u.id;"
 ```
 
 ## Development Workflow

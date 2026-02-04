@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloudtolocalllm/models/agent.dart';
+import 'package:zoidbot/models/agent.dart';
 
 class AgentListItem extends StatelessWidget {
   final Agent agent;
@@ -20,8 +20,12 @@ class AgentListItem extends StatelessWidget {
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: _getStatusColor(agent.status).withOpacity(0.1),
-          backgroundImage: agent.avatarUrl != null ? NetworkImage(agent.avatarUrl!) : null,
-          child: agent.avatarUrl == null ? Icon(Icons.smart_toy, color: _getStatusColor(agent.status)) : null,
+          child: agent.avatarUrl != null 
+            ? Image.network(
+                agent.avatarUrl!,
+                errorBuilder: (context, error, stackTrace) => Icon(Icons.smart_toy, color: _getStatusColor(agent.status)),
+              )
+            : Icon(Icons.smart_toy, color: _getStatusColor(agent.status)),
         ),
         title: Text(
           agent.name,

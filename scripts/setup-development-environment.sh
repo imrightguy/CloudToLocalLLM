@@ -1,6 +1,6 @@
 #!/bin/bash
-# CloudToLocalLLM Development Environment Setup Script
-# This script installs all required tools and dependencies for CloudToLocalLLM development
+# Zoidbot Development Environment Setup Script
+# This script installs all required tools and dependencies for Zoidbot development
 # on Manjaro Linux with all green checkmarks in flutter doctor (except VSCode)
 
 set -e  # Exit on any error
@@ -45,8 +45,8 @@ check_command() {
     fi
 }
 
-REPO_ROOT="/data/dev/CloudToLocalLLM"
-log_info "Starting CloudToLocalLLM development environment setup..."
+REPO_ROOT="/data/dev/Zoidbot"
+log_info "Starting Zoidbot development environment setup..."
 log_info "Target directory: $REPO_ROOT"
 
 # Ensure repository ownership

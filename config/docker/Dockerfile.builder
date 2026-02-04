@@ -1,5 +1,5 @@
 # ============================================================================
-# Builder Dockerfile for CloudToLocalLLM
+# Builder Dockerfile for Zoidbot
 # Contains tools to build Flutter, Node.js, and sync artifacts
 # ============================================================================
 FROM fedora:40
@@ -26,19 +26,19 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl
 
-RUN useradd -u 1000 -m -s /bin/bash cloudtolocalllm
+RUN useradd -u 1000 -m -s /bin/bash zoidbot
 
-USER cloudtolocalllm
-WORKDIR /home/cloudtolocalllm
+USER zoidbot
+WORKDIR /home/zoidbot
 
 RUN git clone https://github.com/flutter/flutter.git -b stable
-ENV PATH="/home/cloudtolocalllm/flutter/bin:$PATH"
+ENV PATH="/home/zoidbot/flutter/bin:$PATH"
 RUN flutter config --no-analytics
 RUN flutter doctor
 
 WORKDIR /app
 
-COPY --chown=cloudtolocalllm:cloudtolocalllm scripts/build-and-sync.sh /usr/local/bin/build-and-sync.sh
+COPY --chown=zoidbot:zoidbot scripts/build-and-sync.sh /usr/local/bin/build-and-sync.sh
 RUN chmod +x /usr/local/bin/build-and-sync.sh
 
 CMD ["/bin/bash", "-c", "while true; do sleep 3600; done"]

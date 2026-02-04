@@ -1,11 +1,11 @@
 # App Icon Generation
 
-This directory contains scripts for generating app icons for CloudToLocalLLM across different platforms.
+This directory contains scripts for generating app icons for Zoidbot across different platforms.
 
 ## Prerequisites
 
 1. Install ImageMagick from https://imagemagick.org/script/download.php
-2. Make sure the logo file is in `assets/images/CloudToLocalLLM_logo.jpg`
+2. Make sure the logo file is in `assets/images/Zoidbot_logo.jpg`
 
 ## Generating Icons
 

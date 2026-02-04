@@ -13,7 +13,7 @@
     AWS Account ID (default: 422017356244)
 
 .PARAMETER GitHubRepo
-    GitHub repository (default: cloudtolocalllm/cloudtolocalllm)
+    GitHub repository (default: zoidbot/zoidbot)
 
 .PARAMETER AwsRegion
     AWS region (default: us-east-1)
@@ -27,7 +27,7 @@
 param(
     [string]$RoleName = "github-actions-role",
     [string]$AwsAccountId = "422017356244",
-    [string]$GitHubRepo = "cloudtolocalllm/cloudtolocalllm",
+    [string]$GitHubRepo = "zoidbot/zoidbot",
     [string]$AwsRegion = "us-east-1"
 )
 

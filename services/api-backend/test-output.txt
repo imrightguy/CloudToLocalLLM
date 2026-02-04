@@ -1,5 +1,5 @@
 
-> cloudtolocalllm-api-backend@1.0.0 test
+> zoidbot-api-backend@1.0.0 test
 > node --experimental-vm-modules ./node_modules/jest/bin/jest.js
 
  Setting up global test environment...
@@ -435,7 +435,7 @@ FAIL ../../test/api-backend/admin-data-flush.test.js
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: {"all": true, "filters": {"label": ["cloudtolocalllm.type"]}}
+    Expected: {"all": true, "filters": {"label": ["zoidbot.type"]}}
 
     Number of calls: 0
 
@@ -444,7 +444,7 @@ FAIL ../../test/api-backend/admin-data-flush.test.js
     > 197 |       expect(mockDocker.listContainers).toHaveBeenCalledWith({
           |                                         ^
       198 |         all: true,
-      199 |         filters: { label: ['cloudtolocalllm.type'] },
+      199 |         filters: { label: ['zoidbot.type'] },
       200 |       });
 
       at Object.<anonymous> (../../test/api-backend/admin-data-flush.test.js:197:41)
@@ -5780,7 +5780,7 @@ FAIL ../../test/api-backend/admin-data-flush.test.js
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: {"all": true, "filters": {"label": ["cloudtolocalllm.type"]}}
+    Expected: {"all": true, "filters": {"label": ["zoidbot.type"]}}
 
     Number of calls: 0
 
@@ -5789,7 +5789,7 @@ FAIL ../../test/api-backend/admin-data-flush.test.js
     > 197 |       expect(mockDocker.listContainers).toHaveBeenCalledWith({
           |                                         ^
       198 |         all: true,
-      199 |         filters: { label: ['cloudtolocalllm.type'] },
+      199 |         filters: { label: ['zoidbot.type'] },
       200 |       });
 
       at Object.<anonymous> (../../test/api-backend/admin-data-flush.test.js:197:41)

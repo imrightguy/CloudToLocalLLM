@@ -1,4 +1,4 @@
--- PostgreSQL Schema for CloudToLocalLLM Authentication Database
+-- PostgreSQL Schema for Zoidbot Authentication Database
 -- This is a separate database instance dedicated to authentication data only
 
 -- Enable required extensions

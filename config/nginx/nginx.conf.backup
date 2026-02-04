@@ -33,7 +33,7 @@ http {
     server {
         listen 80;
         listen [::]:80;
-        server_name cloudtolocalllm.online www.cloudtolocalllm.online;
+        server_name zoidbot.online www.zoidbot.online;
         server_tokens off;
 
         location /.well-known/acme-challenge/ {
@@ -48,10 +48,10 @@ http {
     server {
         listen 443 ssl http2;
         listen [::]:443 ssl http2;
-        server_name cloudtolocalllm.online www.cloudtolocalllm.online;
+        server_name zoidbot.online www.zoidbot.online;
 
-        ssl_certificate /etc/letsencrypt/live/cloudtolocalllm.online/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/cloudtolocalllm.online/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/zoidbot.online/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/zoidbot.online/privkey.pem;
 
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_prefer_server_ciphers off;

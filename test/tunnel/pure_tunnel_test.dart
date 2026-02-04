@@ -42,7 +42,7 @@ Future<void> testTunnelConfiguration() async {
     // Test configuration parameters
     const configParams = {
       'userId': 'test-user-123',
-      'cloudProxyUrl': 'wss://api.cloudtolocalllm.online:8080/ssh',
+      'cloudProxyUrl': 'wss://api.zoidbot.online:8080/ssh',
       'localBackendUrl': 'http://localhost:11434',
       'authToken': 'test-jwt-token-12345',
       'enableCloudProxy': true,
@@ -85,7 +85,7 @@ Future<void> testWebSocketUrlConstruction() async {
 
   try {
     // Test URL construction logic from SSH tunnel client
-    const cloudProxyUrl = 'wss://api.cloudtolocalllm.online:8080/ssh';
+    const cloudProxyUrl = 'wss://api.zoidbot.online:8080/ssh';
     const authToken = 'test-jwt-token-12345';
     const userId = 'test-user-123';
 
@@ -116,7 +116,7 @@ Future<void> testWebSocketUrlConstruction() async {
 
     // Validate the constructed URI
     if (wsUri.scheme == 'wss' &&
-        wsUri.host == 'api.cloudtolocalllm.online' &&
+        wsUri.host == 'api.zoidbot.online' &&
         wsUri.port == 8080 &&
         wsUri.path == '/ssh' &&
         wsUri.queryParameters.containsKey('token') &&

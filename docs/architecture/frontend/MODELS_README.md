@@ -1,6 +1,6 @@
 # Data Models
 
-This directory contains all data models used throughout the CloudToLocalLLM application.
+This directory contains all data models used throughout the Zoidbot application.
 
 ## Admin Center Models
 

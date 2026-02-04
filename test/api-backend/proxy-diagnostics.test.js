@@ -23,7 +23,7 @@ describe('Proxy Diagnostics', () => {
     mockAuthMiddleware = (req, res, next) => {
       req.user = {
         sub: 'test-user-123',
-        'https://cloudtolocalllm.online/role': 'admin',
+        'https://zoidbot.online/role': 'admin',
       };
       next();
     };
@@ -217,7 +217,7 @@ describe('Proxy Diagnostics', () => {
     customRouter.post('/diagnostics/:proxyId/clear', mockAuthMiddleware, mockTierMiddleware, (req, res) => {
       try {
         const { proxyId } = req.params;
-        const userRole = req.user?.['https://cloudtolocalllm.online/role'] || 'user';
+        const userRole = req.user?.['https://zoidbot.online/role'] || 'user';
 
         if (userRole !== 'admin') {
           return res.status(403).json({
@@ -520,7 +520,7 @@ describe('Proxy Diagnostics', () => {
       const nonAdminMiddleware = (req, res, next) => {
         req.user = {
           sub: 'test-user-123',
-          'https://cloudtolocalllm.online/role': 'user',
+          'https://zoidbot.online/role': 'user',
         };
         next();
       };
@@ -530,7 +530,7 @@ describe('Proxy Diagnostics', () => {
       customRouter.post('/diagnostics/:proxyId/clear', nonAdminMiddleware, mockTierMiddleware, (req, res) => {
         try {
           const { proxyId } = req.params;
-          const userRole = req.user?.['https://cloudtolocalllm.online/role'] || 'user';
+          const userRole = req.user?.['https://zoidbot.online/role'] || 'user';
 
           if (userRole !== 'admin') {
             return res.status(403).json({

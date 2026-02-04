@@ -1,6 +1,6 @@
 # Security Policy
 
-The following versions of the CloudToLocalLLM project are currently supported with security updates:
+The following versions of the Zoidbot project are currently supported with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -46,7 +46,7 @@ Use this section to tell people how to report a vulnerability.
 
 To report a vulnerability, please do **not** open a public issue. Instead, please report it via the "Security" tab in this repository (if enabled) or contact the maintainers directly at:
 
-**Email**: `support@cloudtolocalllm.online`
+**Email**: `support@zoidbot.online`
 *(Please include "[SECURITY]" in the subject line)*
 
 We aim to acknowledge reports within 48 hours and provide updates on the remediation process.

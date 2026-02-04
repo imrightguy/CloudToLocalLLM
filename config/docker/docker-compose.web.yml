@@ -1,4 +1,4 @@
-# The docker-compose configuration for the CloudToLocalLLM web service
+# The docker-compose configuration for the Zoidbot web service
 
 services:
   webapp:
@@ -12,8 +12,8 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     environment:
-      - SSL_CERT_PATH=/etc/letsencrypt/live/cloudtolocalllm.online/fullchain.pem
-      - SSL_KEY_PATH=/etc/letsencrypt/live/cloudtolocalllm.online/privkey.pem
+      - SSL_CERT_PATH=/etc/letsencrypt/live/zoidbot.online/fullchain.pem
+      - SSL_KEY_PATH=/etc/letsencrypt/live/zoidbot.online/privkey.pem
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s

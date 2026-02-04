@@ -8,9 +8,9 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/widgets/accessible_screen_wrapper.dart';
-import 'package:cloudtolocalllm/services/accessibility_service.dart';
-import 'package:cloudtolocalllm/utils/accessibility_helpers.dart';
+import 'package:zoidbot/widgets/accessible_screen_wrapper.dart';
+import 'package:zoidbot/services/accessibility_service.dart';
+import 'package:zoidbot/utils/accessibility_helpers.dart';
 import 'package:provider/provider.dart';
 
 void main() {

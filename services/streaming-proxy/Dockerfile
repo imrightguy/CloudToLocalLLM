@@ -2,9 +2,9 @@
 FROM node:24-alpine
 WORKDIR /app
 
-# Create cloudtolocalllm user with UID 1001
-RUN addgroup -g 1001 -S cloudtolocalllm && \
-    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G cloudtolocalllm -g cloudtolocalllm cloudtolocalllm
+# Create zoidbot user with UID 1001
+RUN addgroup -g 1001 -S zoidbot && \
+    adduser -S -D -H -u 1001 -h /app -s /bin/sh -G zoidbot -g zoidbot zoidbot
 
 # Install deps using files in the build context
 COPY package*.json ./
@@ -14,13 +14,13 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY . .
 
 # Fix ownership
-RUN chown -R cloudtolocalllm:cloudtolocalllm /app
+RUN chown -R zoidbot:zoidbot /app
 
 # Install wget for health checks
 RUN apk add --no-cache wget
 
 EXPOSE 3001
-USER cloudtolocalllm
+USER zoidbot
 
 # Health check - verify streaming proxy is responding
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \

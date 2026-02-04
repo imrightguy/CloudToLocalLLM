@@ -1,5 +1,5 @@
 /**
- * Authentication Routes for CloudToLocalLLM API Backend
+ * Authentication Routes for Zoidbot API Backend
  *
  * Provides JWT token validation and user information endpoints.
  * Note: Authentication is handled by provider-agnostic JWT validation (e.g., Auth0).

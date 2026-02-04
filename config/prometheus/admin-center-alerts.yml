@@ -26,7 +26,7 @@ groups:
           description: "Admin API error rate is {{ $value | humanizePercentage }}% (threshold: 5%) for the last 5 minutes"
           impact: "Admin users may experience failures when managing users, payments, or subscriptions"
           action: "Check API logs for error details. Investigate database connectivity and Stripe API status."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#high-error-rate"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#high-error-rate"
       
       # Slow API responses (>2 seconds)
       - alert: AdminApiSlowResponses
@@ -41,7 +41,7 @@ groups:
           description: "95th percentile API response time is {{ $value | humanizeDuration }}ms (threshold: 2000ms)"
           impact: "Admin users may experience slow page loads and timeouts"
           action: "Check database query performance. Review slow query logs. Consider scaling database resources."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#slow-responses"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#slow-responses"
       
       # Very slow API responses (>5 seconds)
       - alert: AdminApiVerySlowResponses
@@ -56,7 +56,7 @@ groups:
           description: "95th percentile API response time is {{ $value | humanizeDuration }}ms (threshold: 5000ms)"
           impact: "Admin Center is nearly unusable. Users experiencing frequent timeouts."
           action: "URGENT: Check database connection pool. Review active queries. Consider emergency scaling."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#very-slow-responses"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#very-slow-responses"
       
       # High number of slow requests
       - alert: AdminApiManySlowRequests
@@ -71,7 +71,7 @@ groups:
           description: "{{ $value }} slow requests per second (>2s response time)"
           impact: "Admin users experiencing degraded performance"
           action: "Identify slow endpoints. Optimize database queries. Review API logs."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#many-slow-requests"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#many-slow-requests"
 
   - name: admin_payment_alerts
     interval: 30s
@@ -89,7 +89,7 @@ groups:
           description: "Payment failure rate is {{ $value | humanizePercentage }}% (threshold: 10%) for the last 5 minutes"
           impact: "Users unable to complete payments. Revenue loss."
           action: "Check Stripe API status. Review payment error logs. Verify Stripe API keys."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#payment-failures"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#payment-failures"
       
       # Very high payment failure rate (>25%)
       - alert: AdminPaymentVeryHighFailureRate
@@ -104,7 +104,7 @@ groups:
           description: "Payment failure rate is {{ $value | humanizePercentage }}% (threshold: 25%)"
           impact: "CRITICAL: Most payments are failing. Significant revenue loss."
           action: "URGENT: Check Stripe service status. Verify API credentials. Review recent code changes."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#critical-payment-failures"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#critical-payment-failures"
       
       # No successful payments in 15 minutes
       - alert: AdminPaymentNoSuccessfulPayments
@@ -119,7 +119,7 @@ groups:
           description: "Payment attempts are being made but none are succeeding"
           impact: "CRITICAL: Complete payment system failure. All revenue blocked."
           action: "URGENT: Check Stripe API connectivity. Verify webhook configuration. Review error logs."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#no-successful-payments"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#no-successful-payments"
 
   - name: admin_refund_alerts
     interval: 30s
@@ -137,7 +137,7 @@ groups:
           description: "95th percentile refund processing time is {{ $value | humanizeDuration }}ms (threshold: 5000ms)"
           impact: "Admins experiencing delays when processing refunds"
           action: "Check Stripe API response times. Review refund processing logs."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#slow-refunds"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#slow-refunds"
       
       # High refund failure rate
       - alert: AdminRefundHighFailureRate
@@ -157,7 +157,7 @@ groups:
           description: "Refund failure rate is {{ $value | humanizePercentage }}% (threshold: 20%)"
           impact: "Admins unable to process refunds. Customer service impact."
           action: "Check Stripe API status. Review refund error logs. Verify transaction eligibility."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#refund-failures"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#refund-failures"
 
   - name: admin_database_alerts
     interval: 30s
@@ -175,7 +175,7 @@ groups:
           description: "{{ $value }} requests waiting for database connection"
           impact: "Admin API experiencing severe performance degradation or failures"
           action: "Check database connectivity. Review connection pool configuration. Scale database if needed."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#db-connection-issues"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#db-connection-issues"
       
       # Low database connection pool availability
       - alert: AdminDatabaseLowPoolAvailability
@@ -190,7 +190,7 @@ groups:
           description: "Only {{ $value | humanizePercentage }}% of connections are idle (threshold: 10%)"
           impact: "Database connection pool under heavy load. May lead to connection exhaustion."
           action: "Monitor connection pool usage. Consider increasing pool size. Review long-running queries."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#low-pool-availability"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#low-pool-availability"
       
       # Slow database queries
       - alert: AdminDatabaseSlowQueries
@@ -205,7 +205,7 @@ groups:
           description: "95th percentile database query time is {{ $value }}ms (threshold: 100ms)"
           impact: "Admin API performance degradation"
           action: "Review slow query logs. Check for missing indexes. Optimize queries."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#slow-queries"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#slow-queries"
       
       # Very slow database queries
       - alert: AdminDatabaseVerySlowQueries
@@ -220,7 +220,7 @@ groups:
           description: "95th percentile database query time is {{ $value }}ms (threshold: 500ms)"
           impact: "CRITICAL: Admin API severely degraded. Users experiencing timeouts."
           action: "URGENT: Identify slow queries. Check database load. Consider emergency optimization."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#very-slow-queries"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#very-slow-queries"
 
   - name: admin_stripe_alerts
     interval: 30s
@@ -238,7 +238,7 @@ groups:
           description: "{{ $value }} Stripe API errors per second"
           impact: "Payment and subscription operations may be failing"
           action: "Check Stripe API status. Review error logs. Verify API credentials."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#stripe-errors"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#stripe-errors"
       
       # High Stripe API error rate
       - alert: AdminStripeApiHighErrorRate
@@ -253,7 +253,7 @@ groups:
           description: "Stripe API error rate is {{ $value | humanizePercentage }}% (threshold: 10%)"
           impact: "CRITICAL: Most Stripe operations are failing. Payment system compromised."
           action: "URGENT: Check Stripe service status. Verify API keys. Review recent changes."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#high-stripe-error-rate"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#high-stripe-error-rate"
       
       # Stripe API rate limiting
       - alert: AdminStripeApiRateLimited
@@ -268,7 +268,7 @@ groups:
           description: "{{ $value }} rate limit errors per second"
           impact: "Stripe operations being throttled. May cause delays or failures."
           action: "Review API usage patterns. Implement request batching. Contact Stripe for limit increase."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#stripe-rate-limit"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#stripe-rate-limit"
       
       # Slow Stripe API responses
       - alert: AdminStripeApiSlowResponses
@@ -283,7 +283,7 @@ groups:
           description: "95th percentile Stripe API response time is {{ $value | humanizeDuration }}ms (threshold: 5000ms)"
           impact: "Payment and refund operations experiencing delays"
           action: "Check Stripe API status. Monitor Stripe service health. Consider retry logic."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#slow-stripe-responses"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#slow-stripe-responses"
 
   - name: admin_auth_alerts
     interval: 30s
@@ -301,7 +301,7 @@ groups:
           description: "Authentication failure rate is {{ $value | humanizePercentage }}% (threshold: 20%)"
           impact: "Admins may be unable to access Admin Center"
           action: "Check Auth0 service status. Review authentication logs. Verify JWT configuration."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#auth-failures"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#auth-failures"
       
       # Possible brute force attack
       - alert: AdminAuthPossibleBruteForce
@@ -316,7 +316,7 @@ groups:
           description: "{{ $value }} failed authentication attempts per second"
           impact: "SECURITY: Possible unauthorized access attempt"
           action: "URGENT: Review authentication logs. Check source IPs. Enable rate limiting. Consider blocking suspicious IPs."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#brute-force"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#brute-force"
 
   - name: admin_service_alerts
     interval: 30s
@@ -334,7 +334,7 @@ groups:
           description: "Admin API service has been unavailable for more than 2 minutes"
           impact: "CRITICAL: Admin Center completely unavailable. No admin operations possible."
           action: "URGENT: Check service status. Review deployment logs. Restart service if needed."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#service-down"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#service-down"
       
       # High memory usage
       - alert: AdminApiHighMemoryUsage
@@ -349,4 +349,4 @@ groups:
           description: "Memory usage is {{ $value | humanizePercentage }}% (threshold: 90%)"
           impact: "Service may crash or experience performance degradation"
           action: "Review memory usage patterns. Check for memory leaks. Consider scaling resources."
-          runbook_url: "https://docs.cloudtolocalllm.online/operations/admin-center-troubleshooting#high-memory"
+          runbook_url: "https://docs.zoidbot.online/operations/admin-center-troubleshooting#high-memory"

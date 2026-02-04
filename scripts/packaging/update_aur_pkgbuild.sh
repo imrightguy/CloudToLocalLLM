@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CloudToLocalLLM AUR PKGBUILD Update Script
+# Zoidbot AUR PKGBUILD Update Script
 # Updates PKGBUILD with current version and checksum
 
 set -e
@@ -32,7 +32,7 @@ cp "$PKGBUILD_TEMPLATE" "$AUR_OUTPUT_DIR/PKGBUILD"
 sed -i "s/pkgver=VERSION/pkgver=$VERSION/" "$AUR_OUTPUT_DIR/PKGBUILD"
 
 # Calculate checksum if tarball exists locally
-TARBALL="$PROJECT_ROOT/dist/linux/CloudToLocalLLM-Linux-x64.tar.gz"
+TARBALL="$PROJECT_ROOT/dist/linux/Zoidbot-Linux-x64.tar.gz"
 if [ -f "$TARBALL" ]; then
     print_status "Calculating checksum for $TARBALL..."
     CHECKSUM=$(sha256sum "$TARBALL" | cut -d' ' -f1)

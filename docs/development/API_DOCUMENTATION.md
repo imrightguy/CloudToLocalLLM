@@ -1,12 +1,12 @@
-# CloudToLocalLLM API Documentation
+# Zoidbot API Documentation
 
 ## 📋 Overview
 
-CloudToLocalLLM v3.6.2+ provides comprehensive APIs for bridge communication, streaming proxy management, and service integration. This document covers all available APIs for developers and integrators.
+Zoidbot v3.6.2+ provides comprehensive APIs for bridge communication, streaming proxy management, and service integration. This document covers all available APIs for developers and integrators.
 
 **API Base URLs:**
 
-- **Production**: `https://app.cloudtolocalllm.online/api`
+- **Production**: `https://app.zoidbot.online/api`
 - **Local Development**: `http://localhost:3000/api`
 
 ---
@@ -26,8 +26,8 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 #### **Token Validation**
 
 - **Algorithm**: RS256
-- **Issuer**: `https://cloudtolocalllm.auth0.com/`
-- **Audience**: `cloudtolocalllm-api`
+- **Issuer**: `https://zoidbot.auth0.com/`
+- **Audience**: `zoidbot-api`
 - **Expiry**: 24 hours
 
 #### **Error Responses**
@@ -69,7 +69,7 @@ Register a desktop client with the bridge service.
   "bridgeId": "bridge-uuid",
   "sessionToken": "session-jwt-token",
   "endpoints": {
-    "websocket": "wss://app.cloudtolocalllm.online/ws/bridge/bridge-uuid",
+    "websocket": "wss://app.zoidbot.online/ws/bridge/bridge-uuid",
     "status": "/api/bridge/bridge-uuid/status"
   }
 }
@@ -157,7 +157,7 @@ Create ephemeral streaming proxy for user session.
 {
   "success": true,
   "proxyId": "proxy-uuid",
-  "endpoint": "https://proxy-uuid.cloudtolocalllm.online",
+  "endpoint": "https://proxy-uuid.zoidbot.online",
   "credentials": {
     "token": "proxy-access-token",
     "expires": "2025-06-20T17:52:20.850Z"
@@ -379,7 +379,7 @@ The Simplified Tunnel System replaces the complex multi-layered bridge architect
 #### **WebSocket Connection**
 
 ```
-wss://api.cloudtolocalllm.online/ws/tunnel?token=<jwt_token>
+wss://api.zoidbot.online/ws/tunnel?token=<jwt_token>
 ```
 
 **Authentication**: JWT token required as query parameter
@@ -451,7 +451,7 @@ Proxy HTTP requests to user's desktop client (requires auth)
 
 ```bash
 # Proxy request to local Ollama
-curl -X POST https://api.cloudtolocalllm.online/api/tunnel/auth0|user123/api/chat \
+curl -X POST https://api.zoidbot.online/api/tunnel/auth0|user123/api/chat \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \
   -d '{"model":"llama2","prompt":"Hello"}'
@@ -545,7 +545,7 @@ const MESSAGE_TYPES = {
 
 ```bash
 # Set environment variable
-export OLLAMA_BASE_URL="https://api.cloudtolocalllm.online/api/tunnel/${USER_ID}"
+export OLLAMA_BASE_URL="https://api.zoidbot.online/api/tunnel/${USER_ID}"
 
 # Use standard HTTP client
 curl -H "Authorization: Bearer ${JWT_TOKEN}" \
@@ -594,7 +594,7 @@ await client.connect();
 #### **Connection Endpoint**
 
 ```
-wss://app.cloudtolocalllm.online/ws/{type}/{id}
+wss://app.zoidbot.online/ws/{type}/{id}
 ```
 
 **Types:**
@@ -651,14 +651,14 @@ wss://app.cloudtolocalllm.online/ws/{type}/{id}
 Download the complete API collection:
 
 ```bash
-curl -o cloudtolocalllm-api.json \
-  https://raw.githubusercontent.com/CloudToLocalLLM-online/CloudToLocalLLM/main/docs/api/postman-collection.json
+curl -o zoidbot-api.json \
+  https://raw.githubusercontent.com/Zoidbot-online/Zoidbot/main/docs/api/postman-collection.json
 ```
 
 #### **OpenAPI Specification**
 
 ```bash
-curl https://app.cloudtolocalllm.online/api/docs/openapi.json
+curl https://app.zoidbot.online/api/docs/openapi.json
 ```
 
 ### **Rate Limiting**
@@ -706,4 +706,4 @@ X-RateLimit-Reset: 1640995200
 
 ---
 
-**For additional API details, examples, and SDKs, visit the [GitHub repository](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM) or check the interactive API documentation at `/api/docs`.**
+**For additional API details, examples, and SDKs, visit the [GitHub repository](https://github.com/Zoidbot-online/Zoidbot) or check the interactive API documentation at `/api/docs`.**

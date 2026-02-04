@@ -1,4 +1,4 @@
-# CloudToLocalLLM - Google Cloud Run Deployment PowerShell Script
+# Zoidbot - Google Cloud Run Deployment PowerShell Script
 # Windows-friendly wrapper for Cloud Run deployment
 #
 # Prerequisites:
@@ -75,7 +75,7 @@ function Write-Header {
 # Help function
 function Show-Help {
     @"
-CloudToLocalLLM - Google Cloud Run Deployment (PowerShell)
+Zoidbot - Google Cloud Run Deployment (PowerShell)
 
 USAGE:
     .\Deploy-CloudRun.ps1 [OPTIONS]
@@ -190,7 +190,7 @@ function Invoke-BashScript {
 
 # Setup action
 function Invoke-Setup {
-    Write-Header "=== CloudToLocalLLM - Google Cloud Run Setup ==="
+    Write-Header "=== Zoidbot - Google Cloud Run Setup ==="
     
     $args = @()
     if ($ProjectId) { $args += $ProjectId }
@@ -206,7 +206,7 @@ function Invoke-Setup {
 
 # Deploy action
 function Invoke-Deploy {
-    Write-Header "=== CloudToLocalLLM - Google Cloud Run Deployment ==="
+    Write-Header "=== Zoidbot - Google Cloud Run Deployment ==="
     
     $args = @()
     if ($Service -ne 'all') { $args += "--service"; $args += $Service }
@@ -225,7 +225,7 @@ function Invoke-Deploy {
 
 # Health check action
 function Invoke-HealthCheck {
-    Write-Header "=== CloudToLocalLLM - Health Check ==="
+    Write-Header "=== Zoidbot - Health Check ==="
     
     $args = @()
     if ($ProjectId) { $args += "--project"; $args += $ProjectId }
@@ -240,7 +240,7 @@ function Invoke-HealthCheck {
 
 # Cost estimation action
 function Invoke-CostEstimation {
-    Write-Header "=== CloudToLocalLLM - Cost Estimation ==="
+    Write-Header "=== Zoidbot - Cost Estimation ==="
     
     $args = @()
     if ($Requests -ne 10000) { $args += "--requests"; $args += $Requests }
@@ -258,7 +258,7 @@ function Main {
         return
     }
     
-    Write-Info "CloudToLocalLLM - Google Cloud Run Deployment (PowerShell)"
+    Write-Info "Zoidbot - Google Cloud Run Deployment (PowerShell)"
     Write-Info "Action: $Action"
     
     Test-Prerequisites

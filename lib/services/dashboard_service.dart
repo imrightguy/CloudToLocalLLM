@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:cloudtolocalllm/models/agent.dart';
-import 'package:cloudtolocalllm/models/agent_event.dart';
-import 'package:cloudtolocalllm/services/auth_service.dart';
-import 'package:cloudtolocalllm/di/locator.dart';
-import 'package:cloudtolocalllm/config/app_config.dart';
+import 'package:zoidbot/models/agent.dart';
+import 'package:zoidbot/models/agent_event.dart';
+import 'package:zoidbot/services/auth_service.dart';
+import 'package:zoidbot/di/locator.dart';
+import 'package:zoidbot/config/app_config.dart';
 
 class DashboardService {
   final String baseUrl = '${AppConfig.apiBaseUrl}/api/agent/dashboard';
@@ -13,7 +13,7 @@ class DashboardService {
   WebSocketChannel? _channel;
 
   Future<List<Agent>> getAgents() async {
-    final token = await _authService.getToken();
+    final token = await _authService.getAccessToken();
     final response = await http.get(
       Uri.parse('$baseUrl/agents'),
       headers: {'Authorization': 'Bearer $token'},
@@ -28,7 +28,7 @@ class DashboardService {
   }
 
   Future<List<AgentEvent>> getRecentEvents({int limit = 50}) async {
-    final token = await _authService.getToken();
+    final token = await _authService.getAccessToken();
     final response = await http.get(
       Uri.parse('$baseUrl/events?limit=$limit'),
       headers: {'Authorization': 'Bearer $token'},
@@ -49,7 +49,7 @@ class DashboardService {
     required Function(Map<String, dynamic>) onData,
     required Function(dynamic) onError,
   }) async {
-    final token = await _authService.getToken();
+    final token = await _authService.getAccessToken();
     if (token == null) {
       onError('Authentication token missing');
       return;

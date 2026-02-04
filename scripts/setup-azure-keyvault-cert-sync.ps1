@@ -4,8 +4,8 @@
 
 $ErrorActionPreference = "Stop"
 
-$RESOURCE_GROUP = if ($env:AZURE_RESOURCE_GROUP) { $env:AZURE_RESOURCE_GROUP } else { "cloudtolocalllm-rg" }
-$KEY_VAULT_NAME = if ($env:AZURE_KEY_VAULT_NAME) { $env:AZURE_KEY_VAULT_NAME } else { "cloudtolocalllm-kv" }
+$RESOURCE_GROUP = if ($env:AZURE_RESOURCE_GROUP) { $env:AZURE_RESOURCE_GROUP } else { "zoidbot-rg" }
+$KEY_VAULT_NAME = if ($env:AZURE_KEY_VAULT_NAME) { $env:AZURE_KEY_VAULT_NAME } else { "zoidbot-kv" }
 $LOCATION = if ($env:AZURE_LOCATION) { $env:AZURE_LOCATION } else { "eastus" }
 
 Write-Host "🔐 Setting up Azure Key Vault certificate sync..." -ForegroundColor Cyan

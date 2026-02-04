@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 /// Service for registering custom URL schemes on Windows desktop
 /// This is required for Auth0 OAuth callbacks to work properly
 class UrlSchemeRegistrationService {
-  static const String _customScheme = 'com.cloudtolocalllm.app';
+  static const String _customScheme = 'com.zoidbot.app';
 
   /// Registers the custom URL scheme in Windows Registry
   /// This allows the OS to launch our app when Auth0 redirects to our custom scheme
@@ -27,7 +27,7 @@ class UrlSchemeRegistrationService {
         'HKEY_CURRENT_USER\\Software\\Classes\\$_customScheme',
         '/ve',
         '/d',
-        'URL:CloudToLocalLLM Protocol',
+        'URL:Zoidbot Protocol',
         '/f'
       ]);
 

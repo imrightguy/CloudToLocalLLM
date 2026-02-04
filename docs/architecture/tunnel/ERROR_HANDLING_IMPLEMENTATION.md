@@ -107,7 +107,7 @@ try {
 
 ```dart
 final testSuite = DiagnosticTestSuite(
-  serverHost: 'api.cloudtolocalllm.online',
+  serverHost: 'api.zoidbot.online',
   serverPort: 443,
   authToken: userToken,
   testTimeout: Duration(seconds: 30),
@@ -378,7 +378,7 @@ Potential improvements:
 
 ## Documentation
 
-- Error codes are documented at: `https://docs.cloudtolocalllm.com/errors/{code}`
+- Error codes are documented at: `https://docs.zoidbot.com/errors/{code}`
 - Each error includes a link to relevant documentation
 - Diagnostic reports can be exported for support tickets
 - Recovery strategies are logged for debugging

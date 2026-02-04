@@ -2,7 +2,7 @@
 # This syncs certificates from Kubernetes secrets to Azure Key Vault
 #
 # Prerequisites:
-# 1. Azure Key Vault: cloudtolocalllm-kv
+# 1. Azure Key Vault: zoidbot-kv
 # 2. Service Principal or Managed Identity with Key Vault access
 # 3. Azure CSI Secret Store Driver installed in cluster
 #
@@ -15,7 +15,7 @@ apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
   name: azure-keyvault-certificates
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   provider: azure
   parameters:
@@ -30,26 +30,26 @@ spec:
     clientId: "${AZURE_CLIENT_ID}"  # Injected from GitHub Secrets
     clientSecret: "${AZURE_CLIENT_SECRET}"  # Injected from GitHub Secrets
     
-    keyvaultName: "cloudtolocalllm-kv"
+    keyvaultName: "zoidbot-kv"
     tenantId: "${AZURE_TENANT_ID}"  # Injected from GitHub Secrets
     
     # Objects to sync from Key Vault to Kubernetes
     objects: |
       array:
         - |
-          objectName: cloudtolocalllm-wildcard-tls
+          objectName: zoidbot-wildcard-tls
           objectType: secret
           objectVersion: ""
           objectEncoding: base64
   
   # Create Kubernetes secret from Key Vault secret (moved to root level)
   secretObjects:
-    - secretName: cloudtolocalllm-wildcard-tls
+    - secretName: zoidbot-wildcard-tls
       type: kubernetes.io/tls
       data:
-        - objectName: cloudtolocalllm-wildcard-tls
+        - objectName: zoidbot-wildcard-tls
           key: tls.crt
-        - objectName: cloudtolocalllm-wildcard-tls
+        - objectName: zoidbot-wildcard-tls
           key: tls.key
 
 ---
@@ -59,7 +59,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: sync-cert-to-keyvault
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   # Run every 6 hours to sync certificates
   schedule: "0 */6 * * *"
@@ -83,10 +83,10 @@ spec:
               set -e
               echo "🔄 Syncing certificate from Kubernetes to Azure Key Vault..."
               
-              NAMESPACE="cloudtolocalllm"
-              SECRET_NAME="cloudtolocalllm-wildcard-tls"
-              KEY_VAULT_NAME="cloudtolocalllm-kv"
-              CERT_NAME="cloudtolocalllm-wildcard"
+              NAMESPACE="zoidbot"
+              SECRET_NAME="zoidbot-wildcard-tls"
+              KEY_VAULT_NAME="zoidbot-kv"
+              CERT_NAME="zoidbot-wildcard"
               
               # Check if secret exists
               if ! kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" &>/dev/null; then
@@ -154,7 +154,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: cert-sync
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 
 ---
 # Secret for Azure credentials (can use managed identity instead)
@@ -162,7 +162,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: azure-keyvault-sync
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 type: Opaque
 stringData:
   # IMPORTANT: Replace these with actual values from your Azure credentials
@@ -179,7 +179,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: cert-sync
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 rules:
 - apiGroups: [""]
   resources: ["secrets"]
@@ -190,7 +190,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: cert-sync
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -198,6 +198,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: cert-sync
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 
 

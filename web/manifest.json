@@ -1,6 +1,6 @@
 {
-    "name": "CloudToLocalLLM",
-    "short_name": "CloudToLocalLLM",
+    "name": "Zoidbot",
+    "short_name": "Zoidbot",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#181a20",

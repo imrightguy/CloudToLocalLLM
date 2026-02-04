@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cloudtolocalllm-config
+  name: zoidbot-config
 data:
   # Staging-specific domain configuration
-  DOMAIN: "staging.cloudtolocalllm.online"
-  WEB_DOMAIN: "staging-app.cloudtolocalllm.online"
-  API_DOMAIN: "staging-api.cloudtolocalllm.online"
+  DOMAIN: "staging.zoidbot.online"
+  WEB_DOMAIN: "staging-app.zoidbot.online"
+  API_DOMAIN: "staging-api.zoidbot.online"
 
   # Staging environment settings
   NODE_ENV: "staging"
@@ -15,10 +15,10 @@ data:
 
   # Database configuration (staging)
   DB_TYPE: "postgresql"
-  DB_HOST: "postgres.cloudtolocalllm-staging.svc.cluster.local"
+  DB_HOST: "postgres.zoidbot-staging.svc.cluster.local"
   DB_PORT: "5432"
-  DB_NAME: "cloudtolocalllm_staging"
-  DB_USER: "cloudtolocalllm_staging"
+  DB_NAME: "zoidbot_staging"
+  DB_USER: "zoidbot_staging"
 
   # API configuration
   PORT: "8080"
@@ -26,12 +26,12 @@ data:
 
   # Auth0 Configuration (staging/test)
   AUTH0_DOMAIN: "${AUTH0_DOMAIN}"
-  AUTH0_AUDIENCE: "https://staging-api.cloudtolocalllm.online"
+  AUTH0_AUDIENCE: "https://staging-api.zoidbot.online"
   AUTH0_CLIENT_ID: "${AUTH0_CLIENT_ID}"
 
   # Admin Center Configuration
   ADMIN_CENTER_ENABLED: "true"
-  ADMIN_EMAIL: "staging@cloudtolocalllm.online"
+  ADMIN_EMAIL: "staging@zoidbot.online"
 
   # Database Connection Pool (moderate for staging)
   DB_POOL_MAX: "25"
@@ -39,9 +39,9 @@ data:
   DB_POOL_CONNECTION_TIMEOUT: "30000"
 
   # Kubernetes cluster configuration
-  CLUSTER_NAME: "cloudtolocalllm-eks"
+  CLUSTER_NAME: "zoidbot-eks"
   CLUSTER_REGION: "us-east-1"
-  NAMESPACE: "cloudtolocalllm-staging"
+  NAMESPACE: "zoidbot-staging"
 
   # Logging and monitoring
   LOG_FORMAT: "json"

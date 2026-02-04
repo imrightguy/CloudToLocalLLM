@@ -1,5 +1,5 @@
 /**
- * Request Timeout Middleware for CloudToLocalLLM API Backend
+ * Request Timeout Middleware for Zoidbot API Backend
  *
  * Implements configurable request timeout handling with graceful error responses.
  * Prevents long-running requests from consuming resources indefinitely.

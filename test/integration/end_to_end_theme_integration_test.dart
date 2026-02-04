@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
-import 'package:cloudtolocalllm/services/platform_adapter.dart';
-import 'package:cloudtolocalllm/di/locator.dart' as di;
-import 'package:cloudtolocalllm/config/theme.dart';
+import 'package:zoidbot/services/theme_provider.dart';
+import 'package:zoidbot/services/platform_detection_service.dart';
+import 'package:zoidbot/services/platform_adapter.dart';
+import 'package:zoidbot/di/locator.dart' as di;
+import 'package:zoidbot/config/theme.dart';
 
 // Import screens to test
-import 'package:cloudtolocalllm/screens/marketing/homepage_screen.dart';
-import 'package:cloudtolocalllm/screens/marketing/documentation_screen.dart';
+import 'package:zoidbot/screens/marketing/homepage_screen.dart';
+import 'package:zoidbot/screens/marketing/documentation_screen.dart';
 
 /// End-to-end integration test for theme application across screens
 ///

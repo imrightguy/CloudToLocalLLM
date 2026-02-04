@@ -15,7 +15,7 @@
     IAM role name (default: github-actions-role)
 
 .PARAMETER GitHubRepo
-    GitHub repository in format owner/repo (default: cloudtolocalllm/cloudtolocalllm)
+    GitHub repository in format owner/repo (default: zoidbot/zoidbot)
 
 .PARAMETER GitHubBranch
     GitHub branch to allow (default: main)
@@ -27,7 +27,7 @@
 param(
     [string]$AwsAccountId = "422017356244",
     [string]$RoleName = "github-actions-role",
-    [string]$GitHubRepo = "cloudtolocalllm/cloudtolocalllm",
+    [string]$GitHubRepo = "zoidbot/zoidbot",
     [string]$GitHubBranch = "main"
 )
 

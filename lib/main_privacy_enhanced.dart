@@ -39,21 +39,21 @@ void main() async {
   final platformManager = PlatformServiceManager();
   await platformManager.initialize();
 
-  runApp(CloudToLocalLLMPrivacyApp(platformManager: platformManager));
+  runApp(ZoidbotPrivacyApp(platformManager: platformManager));
 }
 
 /// Privacy-enhanced main application widget with comprehensive data protection
-class CloudToLocalLLMPrivacyApp extends StatefulWidget {
+class ZoidbotPrivacyApp extends StatefulWidget {
   final PlatformServiceManager platformManager;
 
-  const CloudToLocalLLMPrivacyApp({super.key, required this.platformManager});
+  const ZoidbotPrivacyApp({super.key, required this.platformManager});
 
   @override
-  State<CloudToLocalLLMPrivacyApp> createState() =>
-      _CloudToLocalLLMPrivacyAppState();
+  State<ZoidbotPrivacyApp> createState() =>
+      _ZoidbotPrivacyAppState();
 }
 
-class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
+class _ZoidbotPrivacyAppState extends State<ZoidbotPrivacyApp> {
   bool _isInitialized = false;
   String _initializationStatus = 'Initializing privacy-first architecture...';
 

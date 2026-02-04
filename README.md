@@ -1,4 +1,4 @@
-# CloudToLocalLLM
+# Zoidbot
  
 <div align="center">
  
@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Web-lightgrey.svg)]()
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange.svg)]()
  
-**A privacy-first platform to manage and run powerful Large Language Models (LLMs) locally, with an optional cloud relay for seamless remote access.**
+**Zoidbot: A privacy-first platform to manage and run powerful Large Language Models (LLMs) locally, with an optional cloud relay for seamless remote access.**
  
 [Key Features](#key-features) • [Download & Install](#-download--install) • [Documentation](#-documentation) • [Development](#-development)
  
@@ -18,7 +18,7 @@
  
 ## 🚀 Overview
  
-**CloudToLocalLLM** bridges the gap between secure local AI execution and the convenience of cloud-based management. Designed for privacy-conscious users and businesses, it allows you to run models like Llama 3 and Mistral entirely on your own hardware while offering an optional, secure pathway for remote interaction.
+**Zoidbot** bridges the gap between secure local AI execution and the convenience of cloud-based management. Designed for privacy-conscious users and businesses, it allows you to run models like Llama 3 and Mistral entirely on your own hardware while offering an optional, secure pathway for remote interaction.
  
 > **Note:** The project is currently in **Heavy Development/Early Access**.
  
@@ -33,7 +33,7 @@
  
 ## 📋 Prerequisites
  
-To use CloudToLocalLLM locally:
+To use Zoidbot locally:
  
 *   **[Ollama](https://ollama.com/download):** The engine that runs the AI models.
     *   Pull a model: `ollama pull llama3.2`
@@ -41,12 +41,12 @@ To use CloudToLocalLLM locally:
 ## 📥 Download & Install
  
 ### Windows & Linux
-1.  Go to the **[Latest Releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest)** page.
+1.  Go to the **[Latest Releases](https://github.com/Zoidbot/Zoidbot/releases/latest)** page.
 2.  Download the installer or executable (`.exe` for Windows, `.AppImage` for Linux).
 3.  Launch the application.
  
 ### Web Version
-Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online)**
+Latest web deployment: **[zoidbot.online](https://zoidbot.online)**
  
 ## 📖 Documentation
 
@@ -67,7 +67,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
  
 ### Build from Source
  
-1.  **Clone:** `git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git`
+1.  **Clone:** `git clone https://github.com/Zoidbot/Zoidbot.git`
 2.  **Deps:** `flutter pub get` && `(cd services/api-backend && npm install)`
 3.  **Run:** `flutter run -d linux` (Desktop) or `flutter run -d chrome` (Web)
  

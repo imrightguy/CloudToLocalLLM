@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-backend
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     argocd.argoproj.io/sync-wave: "5"
   labels:
@@ -34,12 +34,12 @@ spec:
             - sh
             - -c
             - |
-              until pg_isready -h postgres.cloudtolocalllm.svc.cluster.local -p 5432; do
+              until pg_isready -h postgres.zoidbot.svc.cluster.local -p 5432; do
                 echo "Waiting for postgres..."
                 sleep 2
               done
         - name: db-migrate
-          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
+          image: ghcr.io/zoidbot-online/zoidbot/api:latest
           imagePullPolicy: Always
           command: ["npm", "run", "db:migrate"]
           securityContext:
@@ -55,159 +55,159 @@ spec:
             - name: NODE_ENV
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: NODE_ENV
             - name: LOG_LEVEL
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: LOG_LEVEL
             - name: CLIENT_LOG_DIR
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: CLIENT_LOG_DIR
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: PORT
             - name: DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DOMAIN
             - name: DB_TYPE
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_TYPE
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_HOST
             - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_PORT
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_NAME
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-user
             - name: AUTH_DB_HOST
               value: "postgres"
             - name: AUTH_DB_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_PORT
             - name: AUTH_DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_NAME
             - name: AUTH_DB_USER
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_USER
             - name: AUTH_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-auth-password
 
             # Secrets
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-password
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: jwt-secret
             - name: AUTH0_ISSUER_URL
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-issuer-url
             - name: AUTH0_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-client-id
             - name: AUTH0_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-client-secret
             - name: AUTH0_AUDIENCE
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-audience
 
             # Admin Center Configuration
             - name: ADMIN_EMAIL
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: ADMIN_EMAIL
 
             # Database Connection Pool
             - name: DB_POOL_MAX
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_POOL_MAX
             - name: DB_POOL_IDLE_TIMEOUT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_POOL_IDLE_TIMEOUT
             - name: DB_POOL_CONNECTION_TIMEOUT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_POOL_CONNECTION_TIMEOUT
 
             # Stripe API Keys (use test or live based on NODE_ENV)
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: stripe-test-secret-key
             - name: STRIPE_PUBLISHABLE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: stripe-test-publishable-key
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: stripe-test-webhook-secret
 
             # Sentry Configuration
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: sentry-dsn
                   optional: true
       containers:
         - name: api-backend
-          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
+          image: ghcr.io/zoidbot-online/zoidbot/api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -217,154 +217,154 @@ spec:
             - name: NODE_ENV
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: NODE_ENV
             - name: LOG_LEVEL
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: LOG_LEVEL
             - name: CLIENT_LOG_DIR
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: CLIENT_LOG_DIR
             - name: PORT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: PORT
             - name: DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DOMAIN
             - name: DB_TYPE
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_TYPE
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_HOST
             - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_PORT
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_NAME
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-user
             - name: AUTH_DB_HOST
               value: "postgres"
             - name: AUTH_DB_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_PORT
             - name: AUTH_DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_NAME
             - name: AUTH_DB_USER
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_USER
             - name: AUTH_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-auth-password
 
             # Secrets
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-password
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: jwt-secret
             - name: AUTH0_ISSUER_URL
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-issuer-url
             - name: AUTH0_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-client-id
             - name: AUTH0_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-client-secret
             - name: AUTH0_AUDIENCE
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: auth0-audience
 
             # Admin Center Configuration
             - name: ADMIN_EMAIL
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: ADMIN_EMAIL
 
             # Database Connection Pool
             - name: DB_POOL_MAX
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_POOL_MAX
             - name: DB_POOL_IDLE_TIMEOUT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_POOL_IDLE_TIMEOUT
             - name: DB_POOL_CONNECTION_TIMEOUT
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DB_POOL_CONNECTION_TIMEOUT
 
             # Stripe API Keys (use test or live based on NODE_ENV)
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: stripe-test-secret-key
             - name: STRIPE_PUBLISHABLE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: stripe-test-publishable-key
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: stripe-test-webhook-secret
 
             # Sentry Configuration
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: sentry-dsn
                   optional: true
 

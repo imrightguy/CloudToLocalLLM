@@ -1,7 +1,7 @@
 {
-  "name": "cloudtolocalllm-tunnel-container",
+  "name": "zoidbot-tunnel-container",
   "version": "10.1.187",
-  "description": "Simplified tunnel-aware container for CloudToLocalLLM using standard HTTP libraries",
+  "description": "Simplified tunnel-aware container for Zoidbot using standard HTTP libraries",
   "main": "proxy-server.js",
   "type": "module",
   "scripts": {
@@ -19,9 +19,9 @@
     "container",
     "http-client",
     "multi-tenant",
-    "cloudtolocalllm"
+    "zoidbot"
   ],
-  "author": "CloudToLocalLLM",
+  "author": "Zoidbot",
   "license": "MIT",
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",

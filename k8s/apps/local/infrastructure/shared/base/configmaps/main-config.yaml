@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cloudtolocalllm-config
-  namespace: cloudtolocalllm
+  name: zoidbot-config
+  namespace: zoidbot
 data:
   # Domain configuration
-  DOMAIN: "cloudtolocalllm.online"
-  WEB_DOMAIN: "app.cloudtolocalllm.online"
-  API_DOMAIN: "api.cloudtolocalllm.online"
+  DOMAIN: "zoidbot.online"
+  WEB_DOMAIN: "app.zoidbot.online"
+  API_DOMAIN: "api.zoidbot.online"
 
   # Node environment
   NODE_ENV: "production"
@@ -18,11 +18,11 @@ data:
   DB_TYPE: "postgresql"
   DB_HOST: "postgres"
   DB_PORT: "5432"
-  DB_NAME: "cloudtolocalllm"
+  DB_NAME: "zoidbot"
   DB_USER: "cloud_admin"
   AUTH_DB_HOST: "postgres-auth"
   AUTH_DB_PORT: "5432"
-  AUTH_DB_NAME: "cloudtolocalllm_auth"
+  AUTH_DB_NAME: "zoidbot_auth"
   AUTH_DB_USER: "authuser"
 
   # API configuration
@@ -39,9 +39,9 @@ data:
   DB_POOL_CONNECTION_TIMEOUT: "30000"
 
   # Kubernetes cluster configuration
-  CLUSTER_NAME: "cloudtolocalllm-eks"
+  CLUSTER_NAME: "zoidbot-eks"
   CLUSTER_REGION: "us-east-1"
-  NAMESPACE: "cloudtolocalllm"
+  NAMESPACE: "zoidbot"
 
   # Logging and monitoring
   LOG_FORMAT: "json"

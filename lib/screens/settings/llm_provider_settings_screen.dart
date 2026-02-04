@@ -33,8 +33,8 @@ class _LLMProviderSettingsScreenState extends State<LLMProviderSettingsScreen> {
   LLMProviderManager? _llmProviderManager;
 
   // Desktop connection settings
-  String _ollamaHost = AppConfig.defaultOllamaHost;
-  int _ollamaPort = AppConfig.defaultOllamaPort;
+  String _ollamaHost = 'localhost';
+  int _ollamaPort = 11434;
 
   // Test chat functionality
   String? _selectedModel;
@@ -343,7 +343,7 @@ class _LLMProviderSettingsScreenState extends State<LLMProviderSettingsScreen> {
                         const SizedBox(width: 8),
                         Text(
                           proxyService.isProxyRunning
-                              ? 'Connected via CloudToLocalLLM streaming proxy'
+                              ? 'Connected via Zoidbot streaming proxy'
                               : 'Proxy tunnel connection failed - check authentication',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
@@ -446,7 +446,7 @@ class _LLMProviderSettingsScreenState extends State<LLMProviderSettingsScreen> {
             onChanged: (value) {
               setState(() {
                 _ollamaHost =
-                    value.isNotEmpty ? value : AppConfig.defaultOllamaHost;
+                    value.isNotEmpty ? value : 'localhost';
               });
             },
           ),
@@ -465,7 +465,7 @@ class _LLMProviderSettingsScreenState extends State<LLMProviderSettingsScreen> {
             onChanged: (value) {
               setState(() {
                 _ollamaPort =
-                    int.tryParse(value) ?? AppConfig.defaultOllamaPort;
+                    int.tryParse(value) ?? 11434;
               });
             },
           ),
@@ -524,7 +524,7 @@ class _LLMProviderSettingsScreenState extends State<LLMProviderSettingsScreen> {
                         Text(
                           ollamaService.isConnected
                               ? (kIsWeb
-                                  ? 'Connected via CloudToLocalLLM streaming proxy'
+                                  ? 'Connected via Zoidbot streaming proxy'
                                   : 'Connected to Ollama at localhost:$_ollamaPort')
                               : (kIsWeb
                                   ? 'Proxy tunnel connection failed - check authentication'

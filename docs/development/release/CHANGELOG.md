@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to CloudToLocalLLM will be documented in this file.
+All notable changes to Zoidbot will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
-* Fixed ArgoCD 502 errors by enabling HA deployment, removing insecure mode, fixing Ingress host to cloudtolocalllm.online, and adding TLS configuration.
+* Fixed ArgoCD 502 errors by enabling HA deployment, removing insecure mode, fixing Ingress host to zoidbot.online, and adding TLS configuration.
 * Fixed ArgoCD cloudflared configuration to use HTTP instead of HTTPS.
 * Resolved grep option error in build pipeline.
 * Ensured actions/checkout is executed before gh commands in orchestrator.

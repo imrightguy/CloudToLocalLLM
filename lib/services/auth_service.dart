@@ -100,6 +100,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
 
     await _sessionBootstrapService.initialize();
+    _areAuthenticatedServicesLoaded.value = true;
     debugPrint('[AuthService] Authenticated services loaded');
   }
 
@@ -118,6 +119,15 @@ class AuthService extends ChangeNotifier {
   Future<void> get sessionBootstrapFuture => _sessionBootstrapCompleter.future;
   bool get isRestoringSession => _isRestoringSession;
   UserModel? get currentUser => _authProvider.currentUser;
+
+  String get assistantName {
+    final user = currentUser;
+    if (user == null) return 'Your AI Assistant';
+    if (user.email == 'christopher.maltais@gmail.com' || user.email == 'chokesmaster@gmail.com' || user.email == 'dev@zoidbot.online') {
+      return 'Zoidbot';
+    }
+    return '${user.name ?? 'Your'}\'s Assistant';
+  }
 
   // Platform detection
   bool get isWeb => kIsWeb;

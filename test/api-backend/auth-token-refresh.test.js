@@ -13,7 +13,7 @@ import fetch from 'node-fetch';
 
 // Mock JWT configuration
 const JWT_ISSUER_DOMAIN = 'dev-v2f2p008x3dr74ww.us.jwt.com';
-const JWT_AUDIENCE = 'https://api.cloudtolocalllm.online';
+const JWT_AUDIENCE = 'https://api.zoidbot.online';
 const TEST_USER_ID = 'jwt|test-user-123';
 const TEST_EMAIL = 'test@example.com';
 

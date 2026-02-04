@@ -27,7 +27,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   host: process.env.PGHOST || 'localhost',
   port: parseInt(process.env.PGPORT || '5432'),
-  database: process.env.PGDATABASE || 'cloudtolocalllm',
+  database: process.env.PGDATABASE || 'zoidbot',
   user: process.env.PGUSER || 'postgres',
   password: process.env.PGPASSWORD,
   ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false,

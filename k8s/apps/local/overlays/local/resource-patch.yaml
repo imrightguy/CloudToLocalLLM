@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-backend
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
   template:
@@ -21,7 +21,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
   template:

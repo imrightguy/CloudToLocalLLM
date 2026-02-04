@@ -81,7 +81,7 @@ test('package.json updated with simplified dependencies', () => {
   const noJwtDependency = !packageJson.dependencies.jsonwebtoken;
   
   // Should have updated name and description
-  const hasUpdatedName = packageJson.name === 'cloudtolocalllm-tunnel-container';
+  const hasUpdatedName = packageJson.name === 'zoidbot-tunnel-container';
   const hasUpdatedDescription = packageJson.description.includes('standard HTTP libraries');
   
   return noWsDependency && noJwtDependency && hasUpdatedName && hasUpdatedDescription;

@@ -1,5 +1,5 @@
 /**
- * CloudToLocalLLM Administrative Server
+ * Zoidbot Administrative Server
  *
  * Dedicated administrative interface running on separate port for:
  * - Secure admin-only operations
@@ -40,7 +40,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json(),
   ),
-  defaultMeta: { service: 'cloudtolocalllm-admin' },
+  defaultMeta: { service: 'zoidbot-admin' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
@@ -56,9 +56,9 @@ const logger = winston.createLogger({
 // Configuration
 const ADMIN_PORT = process.env.ADMIN_PORT || 3001;
 const JWT_ISSUER_DOMAIN =
-  process.env.JWT_ISSUER_DOMAIN || 'jwt-issuer.cloudtolocalllm.online';
+  process.env.JWT_ISSUER_DOMAIN || 'jwt-issuer.zoidbot.online';
 const JWT_AUDIENCE =
-  process.env.JWT_AUDIENCE || 'https://api.cloudtolocalllm.online';
+  process.env.JWT_AUDIENCE || 'https://api.zoidbot.online';
 
 // Docker client for container management
 const docker = new Docker();
@@ -93,8 +93,8 @@ app.use(
 app.use(
   cors({
     origin: [
-      'https://app.cloudtolocalllm.online',
-      'https://cloudtolocalllm.online',
+      'https://app.zoidbot.online',
+      'https://zoidbot.online',
       'http://localhost:3000', // Development
       'http://localhost:8080', // Development
     ],
@@ -148,7 +148,7 @@ app.use((req, res, next) => {
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
-    service: 'cloudtolocalllm-admin',
+    service: 'zoidbot-admin',
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || '1.0.0',
   });
@@ -166,7 +166,7 @@ app.get('/api/admin/auth/check', authenticateJWT, requireAdmin, (req, res) => {
     user: {
       id: req.user.sub,
       email: req.user.email,
-      roles: req.user['https://cloudtolocalllm.online/roles'] || [],
+      roles: req.user['https://zoidbot.online/roles'] || [],
     },
     timestamp: new Date().toISOString(),
   });
@@ -199,22 +199,22 @@ app.get(
       const containers = await docker.listContainers({
         all: true,
         filters: {
-          label: ['cloudtolocalllm.type'],
+          label: ['zoidbot.type'],
         },
       });
 
       const networks = await docker.listNetworks({
         filters: {
-          label: ['cloudtolocalllm.type=user-network'],
+          label: ['zoidbot.type=user-network'],
         },
       });
 
       const userContainers = containers.filter(
-        (c) => c.Labels['cloudtolocalllm.type'] === 'streaming-proxy',
+        (c) => c.Labels['zoidbot.type'] === 'streaming-proxy',
       );
 
       const activeUsers = new Set(
-        userContainers.map((c) => c.Labels['cloudtolocalllm.user']),
+        userContainers.map((c) => c.Labels['zoidbot.user']),
       ).size;
 
       const stats = {
@@ -326,7 +326,7 @@ app.get(
       const containers = await docker.listContainers({
         all: true,
         filters: {
-          label: ['cloudtolocalllm.type'],
+          label: ['zoidbot.type'],
         },
       });
 
@@ -424,7 +424,7 @@ app.get(
 
       const networks = await docker.listNetworks({
         filters: {
-          label: ['cloudtolocalllm.type'],
+          label: ['zoidbot.type'],
         },
       });
 
@@ -471,14 +471,14 @@ app.get(
       // Get streaming proxy containers (active sessions)
       const containers = await docker.listContainers({
         filters: {
-          label: ['cloudtolocalllm.type=streaming-proxy'],
+          label: ['zoidbot.type=streaming-proxy'],
           status: ['running'],
         },
       });
 
       const sessions = containers.map((container) => ({
-        userId: container.Labels['cloudtolocalllm.user'],
-        proxyId: container.Labels['cloudtolocalllm.proxy-id'],
+        userId: container.Labels['zoidbot.user'],
+        proxyId: container.Labels['zoidbot.proxy-id'],
         containerId: container.Id,
         containerName: container.Names[0],
         status: container.Status,
@@ -593,7 +593,7 @@ app.get('/api/admin/users', authenticateJWT, requireAdmin, async (req, res) => {
     const containers = await docker.listContainers({
       all: true,
       filters: {
-        label: ['cloudtolocalllm.type=streaming-proxy'],
+        label: ['zoidbot.type=streaming-proxy'],
       },
     });
 
@@ -601,7 +601,7 @@ app.get('/api/admin/users', authenticateJWT, requireAdmin, async (req, res) => {
     const userMap = new Map();
 
     containers.forEach((container) => {
-      const userId = container.Labels['cloudtolocalllm.user'];
+      const userId = container.Labels['zoidbot.user'];
       if (userId) {
         if (!userMap.has(userId)) {
           userMap.set(userId, {
@@ -683,7 +683,7 @@ app.get(
       const containers = await docker.listContainers({
         all: true,
         filters: {
-          label: [`cloudtolocalllm.user=${userId}`],
+          label: [`zoidbot.user=${userId}`],
         },
       });
 
@@ -767,7 +767,7 @@ app.post(
       // Verify container belongs to user
       const containerInfo = await docker.getContainer(containerId).inspect();
 
-      if (containerInfo.Config.Labels['cloudtolocalllm.user'] !== userId) {
+      if (containerInfo.Config.Labels['zoidbot.user'] !== userId) {
         return res.status(403).json({
           error: 'Container does not belong to specified user',
           code: 'CONTAINER_USER_MISMATCH',
@@ -1062,11 +1062,11 @@ app.get(
 
       const container = docker.getContainer(containerId);
 
-      // Verify container exists and belongs to CloudToLocalLLM
+      // Verify container exists and belongs to Zoidbot
       const inspect = await container.inspect();
-      if (!inspect.Config.Labels['cloudtolocalllm.type']) {
+      if (!inspect.Config.Labels['zoidbot.type']) {
         return res.status(403).json({
-          error: 'Container is not managed by CloudToLocalLLM',
+          error: 'Container is not managed by Zoidbot',
           code: 'CONTAINER_NOT_MANAGED',
         });
       }
@@ -1216,18 +1216,18 @@ app.get(
         adminUserId: req.user.sub,
       });
 
-      // Get all CloudToLocalLLM networks
+      // Get all Zoidbot networks
       const networks = await docker.listNetworks({
         filters: {
-          label: ['cloudtolocalllm.type'],
+          label: ['zoidbot.type'],
         },
       });
 
-      // Get all CloudToLocalLLM containers
+      // Get all Zoidbot containers
       const containers = await docker.listContainers({
         all: true,
         filters: {
-          label: ['cloudtolocalllm.type'],
+          label: ['zoidbot.type'],
         },
       });
 
@@ -1334,7 +1334,7 @@ app.use((req, res) => {
 
 // Start admin server
 server.listen(ADMIN_PORT, () => {
-  logger.info(' [AdminPanel] CloudToLocalLLM Admin Server started', {
+  logger.info(' [AdminPanel] Zoidbot Admin Server started', {
     port: ADMIN_PORT,
     environment: process.env.NODE_ENV || 'development',
     jwtDomain: JWT_ISSUER_DOMAIN,

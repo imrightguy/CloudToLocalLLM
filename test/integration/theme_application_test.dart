@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/config/theme.dart';
+import 'package:zoidbot/services/theme_provider.dart';
+import 'package:zoidbot/config/theme.dart';
 
 /// Integration test for theme application across MaterialApp
 /// Validates Requirements 1.1, 1.2, 1.3, 1.4

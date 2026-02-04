@@ -1,5 +1,5 @@
 param(
-    [string]$UserName = "cloudtolocalllm-admin"
+    [string]$UserName = "zoidbot-admin"
 )
 
 $ErrorActionPreference = "Stop"

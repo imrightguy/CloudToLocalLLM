@@ -1,7 +1,7 @@
 {
-  "name": "cloudtolocalllm-auth-backend",
+  "name": "zoidbot-auth-backend",
   "version": "1.0.0",
-  "description": "Auth0 JWT validation backend for CloudToLocalLLM",
+  "description": "Auth0 JWT validation backend for Zoidbot",
   "main": "auth/handlers.js",
   "scripts": {
     "start": "node auth/handlers.js",

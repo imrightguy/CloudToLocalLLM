@@ -1,5 +1,5 @@
 /**
- * User Tier Checking Middleware for CloudToLocalLLM API Backend
+ * User Tier Checking Middleware for Zoidbot API Backend
  *
  * Provides tier detection and feature access control for API endpoints
  * based on JWT user metadata. Implements secure tier validation with
@@ -7,14 +7,14 @@
  *
  * @fileoverview Tier-based access control middleware
  * @version 1.0.0
- * @author CloudToLocalLLM Team
+ * @author Zoidbot Team
  */
 
 import { logger } from '../utils/logger.js';
 
 // Environment configuration
 const UPGRADE_URL =
-  process.env.UPGRADE_URL || 'https://app.cloudtolocalllm.online/upgrade';
+  process.env.UPGRADE_URL || 'https://app.zoidbot.online/upgrade';
 
 // User tier definitions
 export const USER_TIERS = {
@@ -91,11 +91,11 @@ export function getUserTier(user) {
     // Safely extract metadata with validation (Supabase and Auth0 structures)
     const userMetadata =
       user.user_metadata ||
-      user['https://cloudtolocalllm.com/user_metadata'] ||
+      user['https://zoidbot.com/user_metadata'] ||
       {};
     const appMetadata =
       user.app_metadata ||
-      user['https://cloudtolocalllm.com/app_metadata'] ||
+      user['https://zoidbot.com/app_metadata'] ||
       {};
 
     // Validate metadata objects

@@ -50,8 +50,8 @@ class SecureSetupStatusStorage implements SetupStatusStorage {
 /// - Setup progress persistence and recovery
 /// - Integration with authentication and client detection services
 class SetupStatusService extends ChangeNotifier {
-  static const String _setupStatusKey = 'cloudtolocalllm_setup_status';
-  static const String _setupProgressKey = 'cloudtolocalllm_setup_progress';
+  static const String _setupStatusKey = 'zoidbot_setup_status';
+  static const String _setupProgressKey = 'zoidbot_setup_progress';
 
   final SetupStatusStorage _storage;
   final AuthService _authService;

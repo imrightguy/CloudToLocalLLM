@@ -196,7 +196,7 @@ function generateServiceAccountName() {
  * Generate random namespace
  */
 function generateNamespace() {
-  const namespaces = ['cloudtolocalllm', 'monitoring', 'kube-system', 'default'];
+  const namespaces = ['zoidbot', 'monitoring', 'kube-system', 'default'];
   return namespaces[Math.floor(Math.random() * namespaces.length)];
 }
 
@@ -206,7 +206,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('test-secret', secretValue, 'zoidbot');
 
       expect(store.isSecretEncrypted('test-secret')).toBe(true);
     });
@@ -215,7 +215,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('test-secret', secretValue, 'zoidbot');
       const metadata = store.getSecretMetadata('test-secret');
 
       expect(metadata.encrypted).toBe(true);
@@ -225,8 +225,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('secret-1', secretValue, 'cloudtolocalllm');
-      store.storeSecret('secret-2', secretValue, 'cloudtolocalllm');
+      store.storeSecret('secret-1', secretValue, 'zoidbot');
+      store.storeSecret('secret-2', secretValue, 'zoidbot');
 
       const secret1 = store.secrets.get('secret-1');
       const secret2 = store.secrets.get('secret-2');
@@ -240,8 +240,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('test-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('test-secret', secretValue, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('test-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(secretValue);
     });
@@ -250,11 +250,11 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('test-secret', secretValue, 'zoidbot', 'web-app');
 
       // Try to access with different service account
       expect(() => {
-        store.retrieveSecret('test-secret', 'api-backend', 'cloudtolocalllm');
+        store.retrieveSecret('test-secret', 'api-backend', 'zoidbot');
       }).toThrow('Access denied');
     });
 
@@ -262,7 +262,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('test-secret', secretValue, 'zoidbot', 'web-app');
 
       // Try to access from different namespace
       expect(() => {
@@ -274,7 +274,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
       const serviceAccount = 'web-app';
-      const namespace = 'cloudtolocalllm';
+      const namespace = 'zoidbot';
 
       store.storeSecret('test-secret', secretValue, namespace, serviceAccount);
       const retrieved = store.retrieveSecret('test-secret', serviceAccount, namespace);
@@ -286,14 +286,14 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('test-secret', secretValue, 'zoidbot', 'web-app');
 
       // Successful access
-      store.retrieveSecret('test-secret', 'web-app', 'cloudtolocalllm');
+      store.retrieveSecret('test-secret', 'web-app', 'zoidbot');
 
       // Failed access attempt
       try {
-        store.retrieveSecret('test-secret', 'api-backend', 'cloudtolocalllm');
+        store.retrieveSecret('test-secret', 'api-backend', 'zoidbot');
       } catch (e) {
         // Expected
       }
@@ -308,7 +308,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('test-secret', secretValue, 'zoidbot');
       const integrity = store.verifySecretIntegrity('test-secret');
 
       expect(integrity.valid).toBe(true);
@@ -318,7 +318,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('test-secret', secretValue, 'zoidbot');
 
       // Tamper with the encrypted data
       const secret = store.secrets.get('test-secret');
@@ -332,7 +332,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('test-secret', secretValue, 'zoidbot', 'web-app');
       const logs = store.getAccessLogs();
 
       // Logs should not contain the actual secret value
@@ -344,7 +344,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('test-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('test-secret', secretValue, 'zoidbot');
       const metadata = store.getSecretMetadata('test-secret');
 
       // Metadata should not contain the actual secret value
@@ -358,13 +358,13 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const secret2 = generateRandomSecret();
       const secret3 = generateRandomSecret();
 
-      store.storeSecret('secret-1', secret1, 'cloudtolocalllm', 'web-app');
-      store.storeSecret('secret-2', secret2, 'cloudtolocalllm', 'web-app');
-      store.storeSecret('secret-3', secret3, 'cloudtolocalllm', 'api-backend');
+      store.storeSecret('secret-1', secret1, 'zoidbot', 'web-app');
+      store.storeSecret('secret-2', secret2, 'zoidbot', 'web-app');
+      store.storeSecret('secret-3', secret3, 'zoidbot', 'api-backend');
 
-      const retrieved1 = store.retrieveSecret('secret-1', 'web-app', 'cloudtolocalllm');
-      const retrieved2 = store.retrieveSecret('secret-2', 'web-app', 'cloudtolocalllm');
-      const retrieved3 = store.retrieveSecret('secret-3', 'api-backend', 'cloudtolocalllm');
+      const retrieved1 = store.retrieveSecret('secret-1', 'web-app', 'zoidbot');
+      const retrieved2 = store.retrieveSecret('secret-2', 'web-app', 'zoidbot');
+      const retrieved3 = store.retrieveSecret('secret-3', 'api-backend', 'zoidbot');
 
       expect(retrieved1).toBe(secret1);
       expect(retrieved2).toBe(secret2);
@@ -376,11 +376,11 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const secretValue = generateRandomSecret();
 
       // Store secret without service account restriction
-      store.storeSecret('public-secret', secretValue, 'cloudtolocalllm', null);
+      store.storeSecret('public-secret', secretValue, 'zoidbot', null);
 
       // Any service account should be able to access
-      const retrieved1 = store.retrieveSecret('public-secret', 'web-app', 'cloudtolocalllm');
-      const retrieved2 = store.retrieveSecret('public-secret', 'api-backend', 'cloudtolocalllm');
+      const retrieved1 = store.retrieveSecret('public-secret', 'web-app', 'zoidbot');
+      const retrieved2 = store.retrieveSecret('public-secret', 'api-backend', 'zoidbot');
 
       expect(retrieved1).toBe(secretValue);
       expect(retrieved2).toBe(secretValue);
@@ -392,7 +392,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
 
       const secretValue = generateRandomSecret();
 
-      store1.storeSecret('test-secret', secretValue, 'cloudtolocalllm');
+      store1.storeSecret('test-secret', secretValue, 'zoidbot');
       const encrypted1 = store1.secrets.get('test-secret').encryptedData;
 
       // Different encryption key should not decrypt the same ciphertext
@@ -406,13 +406,13 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const oldSecret = generateRandomSecret();
       const newSecret = generateRandomSecret();
 
-      store.storeSecret('rotating-secret', oldSecret, 'cloudtolocalllm', 'web-app');
-      const oldRetrieved = store.retrieveSecret('rotating-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('rotating-secret', oldSecret, 'zoidbot', 'web-app');
+      const oldRetrieved = store.retrieveSecret('rotating-secret', 'web-app', 'zoidbot');
       expect(oldRetrieved).toBe(oldSecret);
 
       // Rotate secret
-      store.storeSecret('rotating-secret', newSecret, 'cloudtolocalllm', 'web-app');
-      const newRetrieved = store.retrieveSecret('rotating-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('rotating-secret', newSecret, 'zoidbot', 'web-app');
+      const newRetrieved = store.retrieveSecret('rotating-secret', 'web-app', 'zoidbot');
       expect(newRetrieved).toBe(newSecret);
     });
 
@@ -420,8 +420,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const largeSecret = generateRandomSecret(4096); // 4KB secret
 
-      store.storeSecret('large-secret', largeSecret, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('large-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('large-secret', largeSecret, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('large-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(largeSecret);
       expect(retrieved.length).toBe(largeSecret.length);
@@ -431,8 +431,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const specialSecret = 'p@$$w0rd!#%&*()[]{}|;:,.<>?/~`';
 
-      store.storeSecret('special-secret', specialSecret, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('special-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('special-secret', specialSecret, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('special-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(specialSecret);
     });
@@ -441,8 +441,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const unicodeSecret = '密码🔐🔑🛡️';
 
-      store.storeSecret('unicode-secret', unicodeSecret, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('unicode-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('unicode-secret', unicodeSecret, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('unicode-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(unicodeSecret);
     });
@@ -451,12 +451,12 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('tracked-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('tracked-secret', secretValue, 'zoidbot', 'web-app');
 
       // Multiple accesses
-      store.retrieveSecret('tracked-secret', 'web-app', 'cloudtolocalllm');
-      store.retrieveSecret('tracked-secret', 'web-app', 'cloudtolocalllm');
-      store.retrieveSecret('tracked-secret', 'web-app', 'cloudtolocalllm');
+      store.retrieveSecret('tracked-secret', 'web-app', 'zoidbot');
+      store.retrieveSecret('tracked-secret', 'web-app', 'zoidbot');
+      store.retrieveSecret('tracked-secret', 'web-app', 'zoidbot');
 
       const metadata = store.getSecretMetadata('tracked-secret');
       expect(metadata.accessCount).toBe(3);
@@ -466,11 +466,11 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('secret-1', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('secret-1', secretValue, 'zoidbot', 'web-app');
 
       // Try to access non-existent secret
       expect(() => {
-        store.retrieveSecret('secret-2', 'web-app', 'cloudtolocalllm');
+        store.retrieveSecret('secret-2', 'web-app', 'zoidbot');
       }).toThrow('Secret not found');
     });
 
@@ -478,7 +478,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('aead-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('aead-secret', secretValue, 'zoidbot');
       const encrypted = store.secrets.get('aead-secret').encryptedData;
 
       // AEAD should have authentication tag
@@ -490,10 +490,10 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('transparent-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('transparent-secret', secretValue, 'zoidbot', 'web-app');
 
       // Authorized user should get plaintext, not encrypted data
-      const retrieved = store.retrieveSecret('transparent-secret', 'web-app', 'cloudtolocalllm');
+      const retrieved = store.retrieveSecret('transparent-secret', 'web-app', 'zoidbot');
       expect(retrieved).toBe(secretValue);
       expect(retrieved).not.toContain('encrypted');
       expect(retrieved).not.toContain('iv');
@@ -504,16 +504,16 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const secret1 = generateRandomSecret();
       const secret2 = generateRandomSecret();
 
-      store.storeSecret('secret-ns1', secret1, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('secret-ns1', secret1, 'zoidbot', 'web-app');
       store.storeSecret('secret-ns2', secret2, 'monitoring', 'prometheus');
 
       // Each namespace should have its own secret
-      const retrieved1 = store.retrieveSecret('secret-ns1', 'web-app', 'cloudtolocalllm');
+      const retrieved1 = store.retrieveSecret('secret-ns1', 'web-app', 'zoidbot');
       expect(retrieved1).toBe(secret1);
 
       // Verify namespace isolation
       const metadata1 = store.getSecretMetadata('secret-ns1');
-      expect(metadata1.namespace).toBe('cloudtolocalllm');
+      expect(metadata1.namespace).toBe('zoidbot');
 
       const metadata2 = store.getSecretMetadata('secret-ns2');
       expect(metadata2.namespace).toBe('monitoring');
@@ -525,7 +525,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
 
       // Valid secret name
       expect(() => {
-        store.storeSecret('valid-secret-name', secretValue, 'cloudtolocalllm');
+        store.storeSecret('valid-secret-name', secretValue, 'zoidbot');
       }).not.toThrow();
 
       // Secret should be stored
@@ -536,12 +536,12 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('concurrent-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('concurrent-secret', secretValue, 'zoidbot', 'web-app');
 
       // Simulate concurrent reads
       const results = [];
       for (let i = 0; i < 10; i++) {
-        results.push(store.retrieveSecret('concurrent-secret', 'web-app', 'cloudtolocalllm'));
+        results.push(store.retrieveSecret('concurrent-secret', 'web-app', 'zoidbot'));
       }
 
       // All reads should return the same value
@@ -560,8 +560,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const emptySecret = '';
 
-      store.storeSecret('empty-secret', emptySecret, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('empty-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('empty-secret', emptySecret, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('empty-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(emptySecret);
     });
@@ -571,7 +571,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const longName = 'a'.repeat(253); // Kubernetes max name length
       const secretValue = generateRandomSecret();
 
-      store.storeSecret(longName, secretValue, 'cloudtolocalllm');
+      store.storeSecret(longName, secretValue, 'zoidbot');
       expect(store.isSecretEncrypted(longName)).toBe(true);
     });
 
@@ -579,8 +579,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretWithNewlines = 'line1\nline2\nline3';
 
-      store.storeSecret('multiline-secret', secretWithNewlines, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('multiline-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('multiline-secret', secretWithNewlines, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('multiline-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(secretWithNewlines);
     });
@@ -589,8 +589,8 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretWithNull = 'before\x00after';
 
-      store.storeSecret('null-secret', secretWithNull, 'cloudtolocalllm', 'web-app');
-      const retrieved = store.retrieveSecret('null-secret', 'web-app', 'cloudtolocalllm');
+      store.storeSecret('null-secret', secretWithNull, 'zoidbot', 'web-app');
+      const retrieved = store.retrieveSecret('null-secret', 'web-app', 'zoidbot');
 
       expect(retrieved).toBe(secretWithNull);
     });
@@ -601,13 +601,13 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('timing-secret', secretValue, 'cloudtolocalllm');
+      store.storeSecret('timing-secret', secretValue, 'zoidbot');
 
       // Multiple decryptions should take similar time
       const times = [];
       for (let i = 0; i < 5; i++) {
         const start = process.hrtime.bigint();
-        store.retrieveSecret('timing-secret', 'web-app', 'cloudtolocalllm');
+        store.retrieveSecret('timing-secret', 'web-app', 'zoidbot');
         const end = process.hrtime.bigint();
         times.push(Number(end - start));
       }
@@ -626,7 +626,7 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
 
       const ivs = [];
       for (let i = 0; i < 10; i++) {
-        store.storeSecret(`secret-${i}`, secretValue, 'cloudtolocalllm');
+        store.storeSecret(`secret-${i}`, secretValue, 'zoidbot');
         const encrypted = store.secrets.get(`secret-${i}`).encryptedData;
         ivs.push(encrypted.iv);
       }
@@ -640,11 +640,11 @@ describe('Kubernetes Secret Encryption - Property Tests', () => {
       const store = new KubernetesSecretStore();
       const secretValue = generateRandomSecret();
 
-      store.storeSecret('replay-secret', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('replay-secret', secretValue, 'zoidbot', 'web-app');
       const encrypted1 = store.secrets.get('replay-secret').encryptedData;
 
       // Store another secret with same value
-      store.storeSecret('replay-secret-2', secretValue, 'cloudtolocalllm', 'web-app');
+      store.storeSecret('replay-secret-2', secretValue, 'zoidbot', 'web-app');
       const encrypted2 = store.secrets.get('replay-secret-2').encryptedData;
 
       // Ciphertexts should be different (due to different IVs)

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:cloudtolocalllm/screens/dashboard/agent_list_view.dart';
-import 'package:cloudtolocalllm/screens/dashboard/agent_detail_screen.dart';
-import 'package:cloudtolocalllm/screens/dashboard/event_stream_screen.dart';
-import 'package:cloudtolocalllm/screens/dashboard/resource_overview_screen.dart';
-import 'package:cloudtolocalllm/models/agent.dart';
-import 'package:cloudtolocalllm/models/agent_event.dart';
-import 'package:cloudtolocalllm/services/dashboard_service.dart';
-import 'package:cloudtolocalllm/providers/agent_provider.dart';
+import 'package:zoidbot/screens/dashboard/agent_list_view.dart';
+import 'package:zoidbot/screens/dashboard/agent_detail_screen.dart';
+import 'package:zoidbot/screens/dashboard/event_stream_screen.dart';
+import 'package:zoidbot/screens/dashboard/resource_overview_screen.dart';
+import 'package:zoidbot/models/agent.dart';
+import 'package:zoidbot/models/agent_event.dart';
+import 'package:zoidbot/services/dashboard_service.dart';
+import 'package:zoidbot/providers/agent_provider.dart';
 
 /// Main dashboard screen with tabs for different views
 class DashboardScreen extends StatefulWidget {
@@ -99,26 +99,36 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _handleAgentUpdate(Map<String, dynamic> data) {
-    final agent = Agent.fromJson(data);
-    context.read<AgentProvider>().updateAgent(agent);
+    if (!mounted) return;
+    try {
+      final agent = Agent.fromJson(data);
+      Provider.of<AgentProvider>(context, listen: false).updateAgent(agent);
 
-    setState(() {
-      final index = _agents.indexWhere((a) => a.agentId == agent.agentId);
-      if (index >= 0) {
-        _agents[index] = agent;
-      } else {
-        _agents.add(agent);
-      }
-    });
+      setState(() {
+        final index = _agents.indexWhere((a) => a.agentId == agent.agentId);
+        if (index >= 0) {
+          _agents[index] = agent;
+        } else {
+          _agents.add(agent);
+        }
+      });
+    } catch (e) {
+      debugPrint('[DashboardScreen] Error handling agent update: $e');
+    }
   }
 
   void _handleNewEvent(Map<String, dynamic> eventData) {
-    final event = AgentEvent.fromJson(eventData);
+    if (!mounted) return;
+    try {
+      final event = AgentEvent.fromJson(eventData);
 
-    setState(() {
-      _events.insert(0, event);
-      if (_events.length > 100) _events.removeLast();
-    });
+      setState(() {
+        _events.insert(0, event);
+        if (_events.length > 100) _events.removeLast();
+      });
+    } catch (e) {
+      debugPrint('[DashboardScreen] Error handling new event: $e');
+    }
   }
 
   @override

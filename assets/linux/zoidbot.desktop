@@ -1,16 +1,16 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=CloudToLocalLLM
+Name=Zoidbot
 Comment=Manage and run powerful Large Language Models locally
 GenericName=LLM Manager
-Exec=cloudtolocalllm
-Icon=cloudtolocalllm
+Exec=zoidbot
+Icon=zoidbot
 Terminal=false
 StartupNotify=true
 Categories=Development;Utility;Network;
 Keywords=LLM;AI;Machine Learning;Ollama;Local;Cloud;
-MimeType=application/x-cloudtolocalllm;
-StartupWMClass=CloudToLocalLLM
+MimeType=application/x-zoidbot;
+StartupWMClass=Zoidbot
 X-GNOME-SingleWindow=true
-X-Ubuntu-Gettext-Domain=cloudtolocalllm
+X-Ubuntu-Gettext-Domain=zoidbot

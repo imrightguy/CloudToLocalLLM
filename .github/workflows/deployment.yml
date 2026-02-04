@@ -217,9 +217,9 @@ jobs:
           mkdir -p dist/linux
           # Create standard bundle tarball with a top-level directory
           STAGING_DIR=$(mktemp -d)
-          mkdir -p $STAGING_DIR/cloudtolocalllm
-          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/cloudtolocalllm/
-          tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
+          mkdir -p $STAGING_DIR/zoidbot
+          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/zoidbot/
+          tar -czf dist/linux/Zoidbot-Linux-x64.tar.gz -C $STAGING_DIR zoidbot
 
           # Build .deb package
           chmod +x scripts/packaging/build_deb.sh
@@ -237,7 +237,7 @@ jobs:
         run: |
           mkdir -p dist/windows
           cd build/windows/x64/runner/Release
-          zip -r ../../../../../dist/windows/CloudToLocalLLM-Windows-x64.zip .
+          zip -r ../../../../../dist/windows/Zoidbot-Windows-x64.zip .
           cd ../../../../../
 
       - name: Create GitHub Release
@@ -268,7 +268,7 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
 
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
+          git clone ssh://aur@aur.archlinux.org/zoidbot.git /tmp/aur-repo
           cp dist/aur/PKGBUILD /tmp/aur-repo/
 
           cd /tmp/aur-repo
@@ -279,8 +279,8 @@ jobs:
           # Fix permissions as the docker container changed ownership of the files
           sudo chown -R $(id -u):$(id -g) .
 
-          git config user.name "CloudToLocalLLM CI"
-          git config user.email "ci@cloudtolocalllm.online"
+          git config user.name "Zoidbot CI"
+          git config user.email "ci@zoidbot.online"
           git add PKGBUILD .SRCINFO
 
           if git diff --cached --quiet; then
@@ -328,8 +328,8 @@ jobs:
           GH_ACTOR: ${{ github.actor }}
           REPO: ${{ github.repository }}
         run: |
-          RESOURCE_GROUP="cloudtolocalllm-rg"
-          VM_NAME="cloudtolocalllm-swarm"
+          RESOURCE_GROUP="zoidbot-rg"
+          VM_NAME="zoidbot-swarm"
 
           echo "🔍 Looking for VM: $VM_NAME in $RESOURCE_GROUP"
 
@@ -389,7 +389,7 @@ jobs:
           export CLOUDFLARE_API_KEY="\$(printf '$CF_API_B64' | base64 -d)"
           export INFRASTRUCTURE_API_KEY="\$(printf '$INFRA_API_B64' | base64 -d)"
           export AUTH0_DOMAIN="dev-vivn1fcgzi0c2czy.us.auth0.com"
-          export AUTH0_AUDIENCE="https://api.cloudtolocalllm.online"
+          export AUTH0_AUDIENCE="https://api.zoidbot.online"
 
           # Clone or update repository
           if [ ! -d ".git" ]; then
@@ -400,7 +400,7 @@ jobs:
 
           # Docker login and deploy
           printf '$GH_B64' | base64 -d | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
-          docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
+          docker stack deploy -c docker-stack.yml zoidbot --with-registry-auth
           DEPLOY_EOF
 
           echo "📜 Deploying to VM..."

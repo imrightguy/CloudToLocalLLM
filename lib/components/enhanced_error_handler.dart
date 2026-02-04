@@ -1,4 +1,4 @@
-/// Enhanced Error Handler for CloudToLocalLLM
+/// Enhanced Error Handler for Zoidbot
 ///
 /// This component provides comprehensive error handling and user feedback including:
 /// - User-friendly error messages with context

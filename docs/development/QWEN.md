@@ -1,8 +1,8 @@
-# CloudToLocalLLM - Qwen Context
+# Zoidbot - Qwen Context
 
 ## Project Overview
 
-CloudToLocalLLM is a revolutionary Flutter-based application that bridges the gap between cloud-based AI services and local AI models. It provides a seamless, secure, and efficient way to interact with various AI models while maintaining complete control over your data and privacy.
+Zoidbot is a revolutionary Flutter-based application that bridges the gap between cloud-based AI services and local AI models. It provides a seamless, secure, and efficient way to interact with various AI models while maintaining complete control over your data and privacy.
 
 The project uses a hybrid architecture supporting both cloud-based (OpenAI, Anthropic) and local AI models (via Ollama). It's built with Flutter for cross-platform support (Windows, Linux, Web) and incorporates secure authentication, real-time communication via WebSockets, and end-to-end encryption.
 
@@ -49,8 +49,8 @@ The project uses a hybrid architecture supporting both cloud-based (OpenAI, Anth
 
 ```bash
 # Clone the repository
-git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
-cd CloudToLocalLLM
+git clone https://github.com/Zoidbot-online/Zoidbot.git
+cd Zoidbot
 
 # Install dependencies
 flutter pub get
@@ -95,7 +95,7 @@ npm test
 
 ### Version Management
 
-CloudToLocalLLM uses a sophisticated version management system with automated updates across all relevant files:
+Zoidbot uses a sophisticated version management system with automated updates across all relevant files:
 
 - **Version Format**: `MAJOR.MINOR.PATCH+BUILD_NUMBER` (e.g., `4.1.1+202508071645`)
 - **Build Numbers**: Timestamp format `YYYYMMDDHHMM`

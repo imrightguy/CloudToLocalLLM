@@ -107,20 +107,23 @@ class ConnectionManagerService extends ChangeNotifier {
 
   Future<void> initialize() async {
     if (!kIsWeb) {
-      await _localOllama.initialize();
+      try {
+        await _localOllama.initialize().timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugPrint('[ConnectionManager] Local Ollama initialization timed out/failed: $e');
+      }
     }
     if (_authService.isAuthenticated.value) {
       if (kIsWeb) {
         // On web, we just need to verify the cloud connection
-        await _ollamaService.testConnection();
+        _ollamaService.testConnection().catchError((e) {
+          debugPrint('[ConnectionManager] Cloud connection test failed: $e');
+        });
       } else {
-        // Desktop: attempt tunnel connection, but don't fail if it doesn't work
-        try {
-          await _tunnelService.connect();
-        } catch (e) {
-          debugPrint('[ConnectionManager] Tunnel connection failed: $e');
-          // Continue without tunnel - direct API calls will still work
-        }
+        // Desktop: attempt tunnel connection, but don't block initialization
+        _tunnelService.connect().catchError((e) {
+          debugPrint('[ConnectionManager] Tunnel connection failed during initialization: $e');
+        });
       }
     }
     _autoSelectModel();

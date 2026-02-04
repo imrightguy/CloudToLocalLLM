@@ -2,19 +2,19 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: backup-secret
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 type: Opaque
 stringData:
   SPACES_ACCESS_KEY: ""
   SPACES_SECRET_KEY: ""
   SPACES_ENDPOINT: "nyc3.digitaloceanspaces.com"
-  SPACES_BUCKET: "cloudtolocalllm-backups"
+  SPACES_BUCKET: "zoidbot-backups"
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: postgres-backup
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   schedule: "0 2 * * *"  # Daily at 2 AM
   jobTemplate:
@@ -33,21 +33,21 @@ spec:
                   # Upload to Spaces using s3cmd or rclone (configure in future)
               env:
                 - name: POSTGRES_HOST
-                  value: "postgres.cloudtolocalllm.svc.cluster.local"
+                  value: "postgres.zoidbot.svc.cluster.local"
                 - name: POSTGRES_USER
                   valueFrom:
                     configMapKeyRef:
-                      name: cloudtolocalllm-config
+                      name: zoidbot-config
                       key: DB_USER
                 - name: POSTGRES_DB
                   valueFrom:
                     configMapKeyRef:
-                      name: cloudtolocalllm-config
+                      name: zoidbot-config
                       key: DB_NAME
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: cloudtolocalllm-secrets
+                      name: zoidbot-secrets
                       key: postgres-password
               volumeMounts:
                 - name: backup

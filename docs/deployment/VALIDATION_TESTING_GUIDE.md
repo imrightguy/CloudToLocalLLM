@@ -63,7 +63,7 @@ To run the full validation suite, you'll need a valid JWT token:
 
    ```bash
    # Method 1: Extract from browser developer tools
-   # 1. Login to https://app.cloudtolocalllm.online
+   # 1. Login to https://app.zoidbot.online
    # 2. Open Developer Tools (F12)
    # 3. Go to Application/Storage > Local Storage
    # 4. Find the JWT token
@@ -118,7 +118,7 @@ powershell -File ./scripts/deploy/validate_tunnel_deployment.ps1
 
 ```bash
 # Test against staging environment
-./scripts/deploy/run_tunnel_validation.sh -u https://staging-api.cloudtolocalllm.online
+./scripts/deploy/run_tunnel_validation.sh -u https://staging-api.zoidbot.online
 
 # Test against local development
 ./scripts/deploy/run_tunnel_validation.sh -u http://localhost:3000
@@ -363,10 +363,10 @@ DEPLOYMENT VALIDATION PASSED
 
 ```bash
 # Check network connectivity
-ping api.cloudtolocalllm.online
+ping api.zoidbot.online
 
 # Test basic HTTP connectivity
-curl -I https://api.cloudtolocalllm.online/api/health
+curl -I https://api.zoidbot.online/api/health
 
 # Check firewall settings
 # Ensure ports 80, 443 are accessible
@@ -390,7 +390,7 @@ echo $TEST_JWT_TOKEN | cut -d. -f2 | base64 -d
 
 # Test token manually
 curl -H "Authorization: Bearer $TEST_JWT_TOKEN" \
-     https://api.cloudtolocalllm.online/api/tunnel/status
+     https://api.zoidbot.online/api/tunnel/status
 ```
 
 #### 3. WebSocket Connection Issues
@@ -407,7 +407,7 @@ curl -H "Authorization: Bearer $TEST_JWT_TOKEN" \
 npm install -g wscat
 
 # Test WebSocket manually
-wscat -c "wss://api.cloudtolocalllm.online/ws/tunnel?token=$TEST_JWT_TOKEN"
+wscat -c "wss://api.zoidbot.online/ws/tunnel?token=$TEST_JWT_TOKEN"
 
 # Check proxy/firewall WebSocket support
 ```
@@ -452,15 +452,15 @@ DEBUG=* node ./scripts/deploy/validate_tunnel_deployment.js
 
 ```bash
 # Test individual endpoints
-curl -v https://api.cloudtolocalllm.online/api/health
-curl -v https://api.cloudtolocalllm.online/api/tunnel/health
+curl -v https://api.zoidbot.online/api/health
+curl -v https://api.zoidbot.online/api/tunnel/health
 
 # Test with authentication
 curl -v -H "Authorization: Bearer $TEST_JWT_TOKEN" \
-     https://api.cloudtolocalllm.online/api/tunnel/status
+     https://api.zoidbot.online/api/tunnel/status
 
 # Test WebSocket connection
-wscat -c "wss://api.cloudtolocalllm.online/ws/tunnel?token=$TEST_JWT_TOKEN"
+wscat -c "wss://api.zoidbot.online/ws/tunnel?token=$TEST_JWT_TOKEN"
 ```
 
 #### Log Analysis
@@ -473,7 +473,7 @@ tail -f /tmp/tunnel-deployment-validation-*.log
 docker-compose logs -f api-backend
 
 # Check system logs
-journalctl -u cloudtolocalllm-api -f
+journalctl -u zoidbot-api -f
 ```
 
 ## Integration with CI/CD

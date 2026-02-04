@@ -33,11 +33,11 @@ let poolMetrics = {
  * Database pool configuration
  * All values can be overridden via environment variables
  */
-const poolConfig = {
+const getPoolConfig = () => ({
   // Connection settings
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432', 10),
-  database: process.env.DB_NAME || 'cloudtolocalllm',
+  database: process.env.DB_NAME || 'zoidbot',
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
 
@@ -61,7 +61,7 @@ const poolConfig = {
 
   // Statement timeout (prevent long-running queries)
   statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT || '60000', 10), // 60 seconds
-};
+});
 
 /**
  * Initialize the database connection pool
@@ -73,6 +73,8 @@ export function initializePool() {
   if (pool) {
     return pool;
   }
+
+  const poolConfig = getPoolConfig();
 
   // Support for testing without real database (Requirement: CI Stability)
   if (process.env.NODE_ENV === 'test' && !process.env.DB_HOST) {
@@ -337,7 +339,7 @@ export async function getClient() {
 }
 
 // Export pool configuration for reference
-export { poolConfig };
+export const poolConfig = getPoolConfig();
 
 // Default export
 export default {

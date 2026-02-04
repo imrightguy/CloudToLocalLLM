@@ -1,7 +1,7 @@
-# CloudToLocalLLM OAuth Configuration Test
+# Zoidbot OAuth Configuration Test
 # This script tests the OAuth client ID configuration
 
-Write-Host "=== CloudToLocalLLM OAuth Configuration Test ===" -ForegroundColor Cyan
+Write-Host "=== Zoidbot OAuth Configuration Test ===" -ForegroundColor Cyan
 Write-Host ""
 
 $configFile = "lib\config\app_config.dart"

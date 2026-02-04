@@ -21,7 +21,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'cloudtolocalllm-api' },
+  defaultMeta: { service: 'zoidbot-api' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
@@ -35,7 +35,7 @@ const logger = winston.createLogger({
 // Configuration
 const PORT = process.env.PORT || 8080;
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || 'dev-xafu7oedkd5wlrbo.us.auth0.com';
-const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || 'https://app.cloudtolocalllm.online';
+const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || 'https://app.zoidbot.online';
 
 // JWKS client for Auth0 token verification
 const jwksClientInstance = jwksClient({
@@ -67,9 +67,9 @@ app.use(helmet({
 // CORS configuration
 app.use(cors({
   origin: [
-    'https://app.cloudtolocalllm.online',
-    'https://cloudtolocalllm.online',
-    'https://docs.cloudtolocalllm.online',
+    'https://app.zoidbot.online',
+    'https://zoidbot.online',
+    'https://docs.zoidbot.online',
     'http://localhost:3000', // Development
     'http://localhost:8080'  // Development
   ],
@@ -458,7 +458,7 @@ app.all('/ollama/*', authenticateToken, async(req, res) => {
   if (userBridges.length === 0) {
     return res.status(503).json({
       error: 'No bridge connected',
-      message: 'Please ensure the CloudToLocalLLM desktop bridge is running and connected.'
+      message: 'Please ensure the Zoidbot desktop bridge is running and connected.'
     });
   }
 
@@ -529,7 +529,7 @@ app.use((req, res) => {
 
 // Start server
 server.listen(PORT, () => {
-  logger.info(`CloudToLocalLLM API Backend listening on port ${PORT}`);
+  logger.info(`Zoidbot API Backend listening on port ${PORT}`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`Auth0 Domain: ${AUTH0_DOMAIN}`);
   logger.info(`Auth0 Audience: ${AUTH0_AUDIENCE}`);

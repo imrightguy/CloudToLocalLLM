@@ -1,5 +1,5 @@
 /**
- * @fileoverview HTTP Polling Bridge Routes for CloudToLocalLLM
+ * @fileoverview HTTP Polling Bridge Routes for Zoidbot
  * Provides HTTP-based communication as fallback when WebSocket connections fail
  */
 

@@ -6,13 +6,13 @@ import '../services/auth_service.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/callback_screen.dart';
+import '../screens/dashboard/dashboard_screen.dart';
 
 // Settings screens are lazy-loaded
 import '../screens/settings/settings_lazy.dart' as settings_lazy;
 
 // Admin screens are lazy-loaded
 import '../screens/admin/admin_lazy.dart' as admin_lazy;
-import '../screens/ollama_test_lazy.dart' as ollama_test_lazy;
 
 // Marketing screens (web-only) are lazy-loaded
 import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
@@ -35,7 +35,7 @@ bool _isAppSubdomain() {
 
   final hostname = _getCurrentHostname();
   final isApp = hostname.startsWith('app.') ||
-      hostname == 'app.cloudtolocalllm.online' ||
+      hostname == 'app.zoidbot.online' ||
       hostname == 'localhost' ||
       hostname == '127.0.0.1';
 
@@ -110,7 +110,8 @@ class AppRouter {
               return const marketing_lazy.HomepageScreen();
             }
 
-            return const LoginScreen();
+            // ALLOW HOME SCREEN WITHOUT AUTH
+            return const HomeScreen();
           },
         ),
 
@@ -134,7 +135,6 @@ class AppRouter {
 
         // Marketing & Other routes
         ...marketing_lazy.marketingRoutes,
-        ...ollama_test_lazy.ollamaTestRoutes,
         ...settings_lazy.settingsRoutes,
         ...admin_lazy.adminRoutes,
 
@@ -161,6 +161,12 @@ class AppRouter {
                 : Uri.base.queryParameters;
             return CallbackScreen(queryParams: params);
           },
+        ),
+
+        GoRoute(
+          path: '/dashboard',
+          name: 'dashboard',
+          builder: (context, state) => const DashboardScreen(),
         ),
       ],
       redirect: (context, state) {
@@ -200,6 +206,9 @@ class AppRouter {
 
         // 5. Unauthenticated state on App domain or Desktop
         if (isLoggingIn || isCallback) return null; // Allow these
+
+        // ALLOW ACCESS TO HOME EVEN IF UNAUTHENTICATED
+        if (state.matchedLocation == '/') return null;
 
         // Redirect all other protected routes to login
         debugPrint(

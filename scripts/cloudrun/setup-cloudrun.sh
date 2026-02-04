@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# CloudToLocalLLM - Google Cloud Run Initial Setup Script
-# This script sets up the Google Cloud environment for deploying CloudToLocalLLM to Cloud Run
+# Zoidbot - Google Cloud Run Initial Setup Script
+# This script sets up the Google Cloud environment for deploying Zoidbot to Cloud Run
 # 
 # Prerequisites:
 # - Google Cloud SDK (gcloud) installed and authenticated
@@ -44,7 +44,7 @@ log_error() {
 # Help function
 show_help() {
     cat << EOF
-CloudToLocalLLM - Google Cloud Run Setup Script
+Zoidbot - Google Cloud Run Setup Script
 
 USAGE:
     $0 [PROJECT_ID] [REGION]
@@ -164,7 +164,7 @@ setup_project() {
 setup_artifact_registry() {
     log_info "Setting up Artifact Registry..."
     
-    REPO_NAME="cloudtolocalllm"
+    REPO_NAME="zoidbot"
     
     # Check if repository already exists
     if gcloud artifacts repositories describe "$REPO_NAME" --location="$REGION" &>/dev/null; then
@@ -174,7 +174,7 @@ setup_artifact_registry() {
         gcloud artifacts repositories create "$REPO_NAME" \
             --repository-format=docker \
             --location="$REGION" \
-            --description="CloudToLocalLLM container images"
+            --description="Zoidbot container images"
         
         log_success "Artifact Registry repository created"
     fi
@@ -191,7 +191,7 @@ setup_service_accounts() {
     log_info "Setting up service accounts..."
     
     # Cloud Run service account
-    SA_NAME="cloudtolocalllm-runner"
+    SA_NAME="zoidbot-runner"
     SA_EMAIL="$SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
     
     if gcloud iam service-accounts describe "$SA_EMAIL" &>/dev/null; then
@@ -199,8 +199,8 @@ setup_service_accounts() {
     else
         log_info "Creating Cloud Run service account..."
         gcloud iam service-accounts create "$SA_NAME" \
-            --display-name="CloudToLocalLLM Cloud Run Service Account" \
-            --description="Service account for CloudToLocalLLM Cloud Run services"
+            --display-name="Zoidbot Cloud Run Service Account" \
+            --description="Service account for Zoidbot Cloud Run services"
         
         log_success "Service account created"
     fi
@@ -225,7 +225,7 @@ create_env_config() {
     ENV_FILE="$PROJECT_ROOT/config/cloudrun/.env.cloudrun"
     
     cat > "$ENV_FILE" << EOF
-# CloudToLocalLLM - Google Cloud Run Environment Configuration
+# Zoidbot - Google Cloud Run Environment Configuration
 # Generated on $(date)
 
 # Google Cloud Configuration
@@ -233,15 +233,15 @@ GOOGLE_CLOUD_PROJECT=$PROJECT_ID
 GOOGLE_CLOUD_REGION=$REGION
 
 # Artifact Registry
-ARTIFACT_REGISTRY_REPO=$REGION-docker.pkg.dev/$PROJECT_ID/cloudtolocalllm
+ARTIFACT_REGISTRY_REPO=$REGION-docker.pkg.dev/$PROJECT_ID/zoidbot
 
 # Service Account
-SERVICE_ACCOUNT_EMAIL=cloudtolocalllm-runner@$PROJECT_ID.iam.gserviceaccount.com
+SERVICE_ACCOUNT_EMAIL=zoidbot-runner@$PROJECT_ID.iam.gserviceaccount.com
 
 # Cloud Run Service Names
-WEB_SERVICE_NAME=cloudtolocalllm-web
-API_SERVICE_NAME=cloudtolocalllm-api
-STREAMING_SERVICE_NAME=cloudtolocalllm-streaming
+WEB_SERVICE_NAME=zoidbot-web
+API_SERVICE_NAME=zoidbot-api
+STREAMING_SERVICE_NAME=zoidbot-streaming
 
 # Application Configuration (customize as needed)
 NODE_ENV=production
@@ -256,7 +256,7 @@ JWT_CLIENT_SECRET=your-jwt-client-secret
 # DB_HOST=your-cloud-sql-instance
 # DB_USER=your-db-user
 # DB_PASSWORD=your-db-password
-# DB_NAME=cloudtolocalllm
+# DB_NAME=zoidbot
 
 EOF
 
@@ -271,7 +271,7 @@ main() {
         exit 0
     fi
     
-    log_info "Starting CloudToLocalLLM Google Cloud Run setup..."
+    log_info "Starting Zoidbot Google Cloud Run setup..."
     
     check_prerequisites
     get_project_id "$@"

@@ -10,7 +10,7 @@ No additional dependencies required - uses Node.js built-in modules and Web Cryp
 
 ```bash
 export SUPABASE_AUTH_DOMAIN=your-tenant.auth0.com
-export SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.com
+export SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.com
 ```
 
 ### 2. Initialize Middleware

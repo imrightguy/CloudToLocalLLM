@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:cloudtolocalllm/models/agent.dart';
-import 'package:cloudtolocalllm/screens/dashboard/widgets/agent_avatar_card.dart';
-import 'package:cloudtolocalllm/screens/dashboard/widgets/agent_list_item.dart';
+import 'package:zoidbot/models/agent.dart';
+import 'package:zoidbot/screens/dashboard/widgets/agent_list_item.dart';
 
 /// Grid view showing all agents with their status
 class AgentListView extends StatelessWidget {

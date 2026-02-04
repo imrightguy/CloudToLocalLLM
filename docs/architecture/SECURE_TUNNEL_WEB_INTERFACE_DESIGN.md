@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document provides comprehensive design specifications for implementing the "Secure Tunnel" and "Web Interface" components mentioned in the CloudToLocalLLM README.md, integrating with the existing autonomous VPS deployment system and cross-platform CI/CD pipeline.
+This document provides comprehensive design specifications for implementing the "Secure Tunnel" and "Web Interface" components mentioned in the Zoidbot README.md, integrating with the existing autonomous VPS deployment system and cross-platform CI/CD pipeline.
 
 **Document Version**: 1.0.0  
 **Last Updated**: 2025-01-29  
@@ -182,7 +182,7 @@ class SecureTunnelWebApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'CloudToLocalLLM',
+      title: 'Zoidbot',
       routerConfig: AppRouter.createWebRouter(),
       theme: AppTheme.webTheme,
       builder: (context, child) => WebSecurityWrapper(
@@ -420,7 +420,7 @@ verify_tunnel_endpoints() {
     )
     
     for endpoint in "${endpoints[@]}"; do
-        if ! curl -f "https://app.cloudtolocalllm.online$endpoint"; then
+        if ! curl -f "https://app.zoidbot.online$endpoint"; then
             log_error "Tunnel endpoint verification failed: $endpoint"
             return 1
         fi
@@ -613,7 +613,7 @@ const PERFORMANCE_THRESHOLDS = {
 ### **File Structure and Organization**
 
 ```
-CloudToLocalLLM/
+Zoidbot/
 ├── services/
 │   └── api-backend/
 │       ├── tunnel/
@@ -688,13 +688,13 @@ tunnel:
     auth0Domain: "${JWT_ISSUER_DOMAIN}"
     auth0Audience: "${JWT_AUDIENCE}"
     corsOrigins:
-      - "https://app.cloudtolocalllm.online"
-      - "https://cloudtolocalllm.online"
+      - "https://app.zoidbot.online"
+      - "https://zoidbot.online"
 
   database:
     host: "${DB_HOST}"
     port: 5432
-    database: "cloudtolocalllm"
+    database: "zoidbot"
     ssl: true
     poolSize: 20
 
@@ -1502,14 +1502,14 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          ssh $VPS_USER@$VPS_HOST "cd /opt/cloudtolocalllm && ./scripts/deploy/deploy_tunnel_system.sh --force"
+          ssh $VPS_USER@$VPS_HOST "cd /opt/zoidbot && ./scripts/deploy/deploy_tunnel_system.sh --force"
 
       - name: Verify deployment
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          ssh $VPS_USER@$VPS_HOST "cd /opt/cloudtolocalllm && ./scripts/deploy/verify_tunnel_deployment.sh"
+          ssh $VPS_USER@$VPS_HOST "cd /opt/zoidbot && ./scripts/deploy/verify_tunnel_deployment.sh"
 
       - name: Run post-deployment tests
         run: |
@@ -1615,14 +1615,14 @@ const tunnelLogger = winston.createLogger({
   defaultMeta: { service: 'tunnel-system' },
   transports: [
     new winston.transports.File({
-      filename: '/var/log/cloudtolocalllm/tunnel-error.log',
+      filename: '/var/log/zoidbot/tunnel-error.log',
       level: 'error'
     }),
     new winston.transports.File({
-      filename: '/var/log/cloudtolocalllm/tunnel-combined.log'
+      filename: '/var/log/zoidbot/tunnel-combined.log'
     }),
     new winston.transports.File({
-      filename: '/var/log/cloudtolocalllm/tunnel-security.log',
+      filename: '/var/log/zoidbot/tunnel-security.log',
       level: 'warn'
     })
   ]

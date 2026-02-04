@@ -1,7 +1,7 @@
 /**
  * Cloudflare Infrastructure Tunnel Service
  *
- * Manages the infrastructure Cloudflare tunnel for the CloudToLocalLLM deployment.
+ * Manages the infrastructure Cloudflare tunnel for the Zoidbot deployment.
  * Provides operations for:
  * - Tunnel status and health monitoring
  * - Connector management
@@ -40,7 +40,7 @@ class CloudflareInfrastructureTunnelService {
     this.accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     this.zoneId = process.env.CLOUDFLARE_ZONE_ID;
     this.tunnelId = process.env.CLOUDFLARE_TUNNEL_ID;
-    this.domain = 'cloudtolocalllm.online';
+    this.domain = 'zoidbot.online';
   }
 
   /**
@@ -510,7 +510,7 @@ class CloudflareInfrastructureTunnelService {
       // Try Docker Swarm service update first
       try {
         const { stdout } = await execAsync(
-          'docker service update --force cloudtolocalllm_cloudflared 2>&1',
+          'docker service update --force zoidbot_cloudflared 2>&1',
           { timeout: 60000 },
         );
 
@@ -635,44 +635,44 @@ class CloudflareInfrastructureTunnelService {
   getDefaultSwarmIngress() {
     return [
       {
-        hostname: 'app.cloudtolocalllm.online',
+        hostname: 'app.zoidbot.online',
         path: '/ws',
         service: 'http://streaming-proxy:3001',
       },
       {
-        hostname: 'app.cloudtolocalllm.online',
+        hostname: 'app.zoidbot.online',
         path: '/api/tunnel',
         service: 'http://streaming-proxy:3001',
       },
       {
-        hostname: 'app.cloudtolocalllm.online',
+        hostname: 'app.zoidbot.online',
         path: '/health',
         service: 'http://api-backend:8080',
       },
       {
-        hostname: 'app.cloudtolocalllm.online',
+        hostname: 'app.zoidbot.online',
         path: '/api',
         service: 'http://api-backend:8080',
       },
       {
-        hostname: 'app.cloudtolocalllm.online',
+        hostname: 'app.zoidbot.online',
         service: 'http://web:8080',
       },
       {
-        hostname: 'api.cloudtolocalllm.online',
+        hostname: 'api.zoidbot.online',
         path: '/health',
         service: 'http://api-backend:8080',
       },
       {
-        hostname: 'api.cloudtolocalllm.online',
+        hostname: 'api.zoidbot.online',
         service: 'http://api-backend:8080',
       },
       {
-        hostname: 'streaming.cloudtolocalllm.online',
+        hostname: 'streaming.zoidbot.online',
         service: 'http://streaming-proxy:3001',
       },
       {
-        hostname: 'cloudtolocalllm.online',
+        hostname: 'zoidbot.online',
         service: 'http://web:8080',
       },
       {

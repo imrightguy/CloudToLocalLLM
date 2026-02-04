@@ -530,13 +530,13 @@ class LLMProviderManager extends ChangeNotifier {
   /// Get default priority for provider type
   int _getDefaultPriority(ProviderType type) {
     switch (type) {
-      case ProviderType.ollama:
-        return 100; // Highest priority
-      case ProviderType.lmStudio:
-        return 80;
-      case ProviderType.openAICompatible:
-        return 60;
       case ProviderType.custom:
+        return 100; // OpenClaw/Custom highest priority
+      case ProviderType.ollama:
+        return 80;
+      case ProviderType.lmStudio:
+        return 60;
+      case ProviderType.openAICompatible:
         return 40;
     }
   }

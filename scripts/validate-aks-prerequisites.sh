@@ -11,9 +11,9 @@
 # Options:
 #   --check-secrets-only     Only validate GitHub secrets (skip Azure resources)
 #   --check-azure-only       Only validate Azure resources (skip secrets)
-#   --resource-group NAME    Resource group name (default: cloudtolocalllm-rg)
-#   --acr-name NAME          ACR name (default: cloudtolocalllm)
-#   --keyvault-name NAME     Key Vault name (default: cloudtolocalllm-kv)
+#   --resource-group NAME    Resource group name (default: zoidbot-rg)
+#   --acr-name NAME          ACR name (default: zoidbot)
+#   --keyvault-name NAME     Key Vault name (default: zoidbot-kv)
 #   --verbose                Show detailed output
 #   --help                   Show this help message
 #
@@ -35,9 +35,9 @@ NC='\033[0m' # No Color
 # Default values
 CHECK_SECRETS_ONLY="false"
 CHECK_AZURE_ONLY="false"
-RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-cloudtolocalllm-rg}"
-ACR_NAME="${ACR_NAME:-cloudtolocalllm}"
-KEYVAULT_NAME="${AZURE_KEY_VAULT_NAME:-cloudtolocalllm-kv}"
+RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-zoidbot-rg}"
+ACR_NAME="${ACR_NAME:-zoidbot}"
+KEYVAULT_NAME="${AZURE_KEY_VAULT_NAME:-zoidbot-kv}"
 VERBOSE="false"
 
 # Track validation status
@@ -481,7 +481,7 @@ generate_summary() {
 main() {
     echo ""
     echo -e "${BLUE}AKS Deployment Prerequisites Validation${NC}"
-    echo -e "${BLUE}CloudToLocalLLM${NC}"
+    echo -e "${BLUE}Zoidbot${NC}"
     echo ""
     
     # Always check CLI tools

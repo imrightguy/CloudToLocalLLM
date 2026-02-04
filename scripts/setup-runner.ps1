@@ -13,7 +13,7 @@ Invoke-WebRequest -Uri "https://github.com/actions/runner/releases/download/v2.3
 Expand-Archive -Path "actions-runner-win-x64-2.311.0.zip" -DestinationPath "."
 
 # Configure the runner
-.\config.cmd --url https://github.com/CloudToLocalLLM-online/CloudToLocalLLM --token BOBH5XEA7XJPPTNW2CYI7F3IUR2RG --labels windows,self-hosted --unattended
+.\config.cmd --url https://github.com/Zoidbot-online/Zoidbot --token BOBH5XEA7XJPPTNW2CYI7F3IUR2RG --labels windows,self-hosted --unattended
 
 # Install as a service
 .\svc.exe install

@@ -28,10 +28,10 @@ const dnsResolveTxt = promisify(dns.resolveTxt);
 
 // Configuration
 const DOMAINS = [
-  'cloudtolocalllm.online',
-  'app.cloudtolocalllm.online',
-  'api.cloudtolocalllm.online',
-  'auth.cloudtolocalllm.online',
+  'zoidbot.online',
+  'app.zoidbot.online',
+  'api.zoidbot.online',
+  'auth.zoidbot.online',
 ];
 
 const EXPECTED_NLB_PATTERN = /^\d+\.\d+\.\d+\.\d+$/; // IPv4 pattern
@@ -160,10 +160,10 @@ describe('Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency', 
     it('should handle DNS queries for all domain variations', async () => {
       // Test that all domain variations resolve correctly
       const testDomains = [
-        'cloudtolocalllm.online',
-        'app.cloudtolocalllm.online',
-        'api.cloudtolocalllm.online',
-        'auth.cloudtolocalllm.online',
+        'zoidbot.online',
+        'app.zoidbot.online',
+        'api.zoidbot.online',
+        'auth.zoidbot.online',
       ];
 
       for (const domain of testDomains) {

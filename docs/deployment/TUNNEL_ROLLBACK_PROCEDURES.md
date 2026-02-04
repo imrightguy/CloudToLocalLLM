@@ -95,7 +95,7 @@ docker-compose stop streaming-proxy
 
 ```bash
 # Navigate to deployment directory
-cd /opt/cloudtolocalllm
+cd /opt/zoidbot
 
 # Stop current services
 docker-compose down api-backend
@@ -117,10 +117,10 @@ docker-compose logs api-backend
 
 ```bash
 # Stop current service
-sudo systemctl stop cloudtolocalllm-api
+sudo systemctl stop zoidbot-api
 
 # Revert code to previous version
-cd /opt/cloudtolocalllm
+cd /opt/zoidbot
 git stash
 git checkout <previous_stable_commit>
 
@@ -129,16 +129,16 @@ cd api-backend
 npm ci  # Install exact versions from package-lock.json
 
 # Restart service
-sudo systemctl start cloudtolocalllm-api
-sudo systemctl status cloudtolocalllm-api
+sudo systemctl start zoidbot-api
+sudo systemctl status zoidbot-api
 ```
 
 #### 1.3 Revert Nginx Configuration
 
 ```bash
 # Restore previous nginx configuration
-sudo cp /etc/nginx/sites-available/cloudtolocalllm.backup \
-       /etc/nginx/sites-available/cloudtolocalllm
+sudo cp /etc/nginx/sites-available/zoidbot.backup \
+       /etc/nginx/sites-available/zoidbot
 
 # Test configuration
 sudo nginx -t
@@ -154,13 +154,13 @@ sudo systemctl status nginx
 
 ```bash
 # Test basic connectivity
-curl -I https://api.cloudtolocalllm.online/api/health
+curl -I https://api.zoidbot.online/api/health
 
 # Test legacy bridge endpoints (if applicable)
-curl -I https://api.cloudtolocalllm.online/api/bridge/health
+curl -I https://api.zoidbot.online/api/bridge/health
 
 # Check WebSocket endpoints
-wscat -c "wss://api.cloudtolocalllm.online/ws/bridge"
+wscat -c "wss://api.zoidbot.online/ws/bridge"
 
 # Monitor error rates
 tail -f /var/log/nginx/error.log
@@ -177,20 +177,20 @@ docker-compose logs -f api-backend
 
 ```bash
 # Create snapshot of current database state
-pg_dump cloudtolocalllm > /backup/rollback-$(date +%Y%m%d-%H%M%S).sql
+pg_dump zoidbot > /backup/rollback-$(date +%Y%m%d-%H%M%S).sql
 
 # Or for other databases
-mysqldump cloudtolocalllm > /backup/rollback-$(date +%Y%m%d-%H%M%S).sql
+mysqldump zoidbot > /backup/rollback-$(date +%Y%m%d-%H%M%S).sql
 ```
 
 **Restore Previous State:**
 
 ```bash
 # Restore from pre-deployment backup
-psql cloudtolocalllm < /backup/pre-deployment-$(date +%Y%m%d).sql
+psql zoidbot < /backup/pre-deployment-$(date +%Y%m%d).sql
 
 # Verify database integrity
-psql -c "SELECT version();" cloudtolocalllm
+psql -c "SELECT version();" zoidbot
 ```
 
 #### 2.2 Configuration Rollback
@@ -199,7 +199,7 @@ psql -c "SELECT version();" cloudtolocalllm
 
 ```bash
 # Restore previous environment configuration
-sudo cp /opt/cloudtolocalllm/.env.backup /opt/cloudtolocalllm/.env
+sudo cp /opt/zoidbot/.env.backup /opt/zoidbot/.env
 
 # Restart services to pick up changes
 docker-compose restart api-backend
@@ -209,11 +209,11 @@ docker-compose restart api-backend
 
 ```bash
 # Restore previous certificates if updated
-sudo cp /etc/letsencrypt/live/api.cloudtolocalllm.online/fullchain.pem.backup \
-       /etc/letsencrypt/live/api.cloudtolocalllm.online/fullchain.pem
+sudo cp /etc/letsencrypt/live/api.zoidbot.online/fullchain.pem.backup \
+       /etc/letsencrypt/live/api.zoidbot.online/fullchain.pem
 
-sudo cp /etc/letsencrypt/live/api.cloudtolocalllm.online/privkey.pem.backup \
-       /etc/letsencrypt/live/api.cloudtolocalllm.online/privkey.pem
+sudo cp /etc/letsencrypt/live/api.zoidbot.online/privkey.pem.backup \
+       /etc/letsencrypt/live/api.zoidbot.online/privkey.pem
 
 # Reload nginx
 sudo systemctl reload nginx
@@ -225,10 +225,10 @@ sudo systemctl reload nginx
 
 ```bash
 # List available images
-docker images | grep cloudtolocalllm
+docker images | grep zoidbot
 
 # Tag previous stable image
-docker tag cloudtolocalllm-api:previous cloudtolocalllm-api:latest
+docker tag zoidbot-api:previous zoidbot-api:latest
 ```
 
 **Update Docker Compose:**
@@ -237,7 +237,7 @@ docker tag cloudtolocalllm-api:previous cloudtolocalllm-api:latest
 # Update docker-compose.yml to use previous image
 services:
   api-backend:
-    image: cloudtolocalllm-api:previous
+    image: zoidbot-api:previous
     # ... rest of configuration
 ```
 
@@ -261,11 +261,11 @@ docker-compose up -d --force-recreate api-backend
 
 ```bash
 # Download from GitHub releases
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v3.10.2/cloudtolocalllm-linux.AppImage
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v3.10.2/cloudtolocalllm-windows.exe
+wget https://github.com/Zoidbot-online/Zoidbot/releases/download/v3.10.2/zoidbot-linux.AppImage
+wget https://github.com/Zoidbot-online/Zoidbot/releases/download/v3.10.2/zoidbot-windows.exe
 
 # Verify checksums
-sha256sum cloudtolocalllm-linux.AppImage
+sha256sum zoidbot-linux.AppImage
 ```
 
 #### 3.2 Update Distribution Channels
@@ -278,7 +278,7 @@ sha256sum cloudtolocalllm-linux.AppImage
 cat > /var/www/updates/version.json << EOF
 {
   "version": "3.10.2",
-  "url": "https://releases.cloudtolocalllm.online/v3.10.2/",
+  "url": "https://releases.zoidbot.online/v3.10.2/",
   "mandatory": true,
   "changelog": "Rollback to stable version due to deployment issues"
 }
@@ -289,11 +289,11 @@ EOF
 
 ```bash
 # Update DEB repository
-reprepro -b /var/www/apt remove stable cloudtolocalllm
-reprepro -b /var/www/apt includedeb stable cloudtolocalllm_3.10.2_amd64.deb
+reprepro -b /var/www/apt remove stable zoidbot
+reprepro -b /var/www/apt includedeb stable zoidbot_3.10.2_amd64.deb
 
 # Update AppImage repository
-cp cloudtolocalllm-3.10.2.AppImage /var/www/releases/latest/cloudtolocalllm.AppImage
+cp zoidbot-3.10.2.AppImage /var/www/releases/latest/zoidbot.AppImage
 ```
 
 #### 3.3 User Communication
@@ -302,7 +302,7 @@ cp cloudtolocalllm-3.10.2.AppImage /var/www/releases/latest/cloudtolocalllm.AppI
 
 ```bash
 # Send push notification to connected clients
-curl -X POST https://api.cloudtolocalllm.online/api/admin/broadcast \
+curl -X POST https://api.zoidbot.online/api/admin/broadcast \
   -H "Authorization: Bearer <admin_token>" \
   -d '{
     "message": "System maintenance in progress. Please update your desktop client.",
@@ -333,15 +333,15 @@ echo "=== Rollback Health Check ==="
 
 # Test API endpoints
 echo "Testing API health..."
-curl -f https://api.cloudtolocalllm.online/api/health || echo "API health check failed"
+curl -f https://api.zoidbot.online/api/health || echo "API health check failed"
 
 # Test WebSocket connections
 echo "Testing WebSocket..."
-timeout 10 wscat -c "wss://api.cloudtolocalllm.online/ws/bridge" || echo "WebSocket test failed"
+timeout 10 wscat -c "wss://api.zoidbot.online/ws/bridge" || echo "WebSocket test failed"
 
 # Test database connectivity
 echo "Testing database..."
-psql -c "SELECT 1;" cloudtolocalllm || echo "Database test failed"
+psql -c "SELECT 1;" zoidbot || echo "Database test failed"
 
 # Check service status
 echo "Checking services..."
@@ -350,7 +350,7 @@ docker-compose ps | grep -v "Up" && echo "Some services are down"
 # Test user authentication
 echo "Testing authentication..."
 curl -f -H "Authorization: Bearer <test_token>" \
-     https://api.cloudtolocalllm.online/api/user/profile || echo "Auth test failed"
+     https://api.zoidbot.online/api/user/profile || echo "Auth test failed"
 
 echo "=== Health Check Complete ==="
 ```
@@ -361,26 +361,26 @@ echo "=== Health Check Complete ==="
 
 ```bash
 # Run basic load test
-ab -n 100 -c 10 https://api.cloudtolocalllm.online/api/health
+ab -n 100 -c 10 https://api.zoidbot.online/api/health
 
 # Test WebSocket connections
 node test-websocket-load.js
 
 # Monitor response times
-curl -w "@curl-format.txt" -s -o /dev/null https://api.cloudtolocalllm.online/api/health
+curl -w "@curl-format.txt" -s -o /dev/null https://api.zoidbot.online/api/health
 ```
 
 **Metrics Validation:**
 
 ```bash
 # Check error rates
-curl https://api.cloudtolocalllm.online/api/metrics | jq '.errorRate'
+curl https://api.zoidbot.online/api/metrics | jq '.errorRate'
 
 # Check response times
-curl https://api.cloudtolocalllm.online/api/metrics | jq '.averageResponseTime'
+curl https://api.zoidbot.online/api/metrics | jq '.averageResponseTime'
 
 # Check connection counts
-curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
+curl https://api.zoidbot.online/api/metrics | jq '.activeConnections'
 ```
 
 #### 4.3 User Experience Validation
@@ -481,7 +481,7 @@ curl https://api.cloudtolocalllm.online/api/metrics | jq '.activeConnections'
 
 ```bash
 # Analyze logs from failed deployment
-grep -i error /var/log/cloudtolocalllm/*.log
+grep -i error /var/log/zoidbot/*.log
 
 # Check system metrics during incident
 # Review performance data
@@ -616,7 +616,7 @@ echo "=== Rollback Drill Complete ==="
 
 while true; do
   # Check error rate
-  ERROR_RATE=$(curl -s https://api.cloudtolocalllm.online/api/metrics | jq '.errorRate')
+  ERROR_RATE=$(curl -s https://api.zoidbot.online/api/metrics | jq '.errorRate')
   
   if (( $(echo "$ERROR_RATE > 10" | bc -l) )); then
     echo "High error rate detected: $ERROR_RATE%"

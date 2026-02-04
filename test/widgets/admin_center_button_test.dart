@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/widgets/settings/admin_center_button.dart';
-import 'package:cloudtolocalllm/services/admin_center_service.dart';
-import 'package:cloudtolocalllm/models/admin_role_model.dart';
-import 'package:cloudtolocalllm/di/locator.dart' as di;
+import 'package:zoidbot/widgets/settings/admin_center_button.dart';
+import 'package:zoidbot/services/admin_center_service.dart';
+import 'package:zoidbot/models/admin_role_model.dart';
+import 'package:zoidbot/di/locator.dart' as di;
 import 'package:dio/dio.dart';
 
 // Simple mock for AdminCenterService

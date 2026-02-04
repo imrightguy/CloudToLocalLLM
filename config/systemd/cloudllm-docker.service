@@ -1,14 +1,14 @@
 [Unit]
-Description=CloudToLocalLLM Docker Admin Daemon
+Description=Zoidbot Docker Admin Daemon
 After=docker.service
 Requires=docker.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/cloudtolocalllm
-ExecStart=/bin/bash /opt/cloudtolocalllm/scripts/setup/docker_startup_vps.sh
-ExecStop=/usr/bin/docker compose -f /opt/cloudtolocalllm/config/docker/docker-compose.admin.yml down
+WorkingDirectory=/opt/zoidbot
+ExecStart=/bin/bash /opt/zoidbot/scripts/setup/docker_startup_vps.sh
+ExecStop=/usr/bin/docker compose -f /opt/zoidbot/config/docker/docker-compose.admin.yml down
 
 [Install]
 WantedBy=multi-user.target 

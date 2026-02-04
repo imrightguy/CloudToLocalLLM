@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Zoidbot
+GenericName=AI Model Bridge
+Comment=Bridge cloud-based AI services with local AI models
+Icon=com.zoidbot.Zoidbot
+Exec=zoidbot %u
+Terminal=false
+Categories=Development;Utility;Network;
+Keywords=AI;LLM;Ollama;OpenAI;Machine Learning;
+StartupNotify=true
+StartupWMClass=Zoidbot
+MimeType=x-scheme-handler/zoidbot;

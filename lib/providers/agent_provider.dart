@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloudtolocalllm/models/agent.dart';
+import 'package:zoidbot/models/agent.dart';
 
 class AgentProvider with ChangeNotifier {
   List<Agent> _agents = [];

@@ -249,21 +249,21 @@ const updatedProfile = await avatarResponse.json();
 ```bash
 # Get profile
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.cloudtolocalllm.online/api/users/profile
+  https://api.zoidbot.online/api/users/profile
 
 # Update preferences
 curl -X PUT \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"theme":"dark","language":"en","notifications":true}' \
-  https://api.cloudtolocalllm.online/api/users/preferences
+  https://api.zoidbot.online/api/users/preferences
 
 # Update avatar
 curl -X PUT \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"avatarUrl":"https://example.com/avatar.jpg"}' \
-  https://api.cloudtolocalllm.online/api/users/avatar
+  https://api.zoidbot.online/api/users/avatar
 ```
 
 ## Rate Limiting

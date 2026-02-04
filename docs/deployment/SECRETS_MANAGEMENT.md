@@ -1,6 +1,6 @@
-# CloudToLocalLLM - Secrets Management Guide
+# Zoidbot - Secrets Management Guide
 
-This document provides a comprehensive overview of all the required secrets for the CloudToLocalLLM CI/CD pipeline and local development.
+This document provides a comprehensive overview of all the required secrets for the Zoidbot CI/CD pipeline and local development.
 
 ## Table of Contents
 
@@ -12,7 +12,7 @@ This document provides a comprehensive overview of all the required secrets for 
 
 ## Overview
 
-Secrets are sensitive pieces of information, such as API keys, passwords, and certificates, that are required for the application to function correctly. This guide provides a single source of truth for all the secrets used in the CloudToLocalLLM project.
+Secrets are sensitive pieces of information, such as API keys, passwords, and certificates, that are required for the application to function correctly. This guide provides a single source of truth for all the secrets used in the Zoidbot project.
 
 ## Required Secrets
 

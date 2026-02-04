@@ -1,6 +1,6 @@
 # Flutter Services
 
-This directory contains the business logic and state management services for CloudToLocalLLM.
+This directory contains the business logic and state management services for Zoidbot.
 
 ## Overview
 

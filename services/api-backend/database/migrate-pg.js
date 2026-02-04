@@ -1,5 +1,5 @@
 /**
- * Database Migration System (PostgreSQL) for CloudToLocalLLM
+ * Database Migration System (PostgreSQL) for Zoidbot
  */
 
 import { readFileSync } from 'fs';
@@ -19,7 +19,7 @@ export class DatabaseMigratorPG {
     this.config = {
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT || '5432', 10),
-      database: process.env.DB_NAME || 'cloudtolocalllm',
+      database: process.env.DB_NAME || 'zoidbot',
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       ssl:

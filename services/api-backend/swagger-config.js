@@ -1,5 +1,5 @@
 /**
- * Swagger/OpenAPI Configuration for CloudToLocalLLM API Backend
+ * Swagger/OpenAPI Configuration for Zoidbot API Backend
  *
  * Generates OpenAPI 3.0 specification from JSDoc comments
  * and serves Swagger UI at /api/docs
@@ -13,13 +13,13 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'CloudToLocalLLM API Backend',
+      title: 'Zoidbot API Backend',
       version: '2.0.0',
       description:
-        'Comprehensive API for CloudToLocalLLM - Bridge cloud AI services with local models',
+        'Comprehensive API for Zoidbot - Bridge cloud AI services with local models',
       contact: {
-        name: 'CloudToLocalLLM Team',
-        url: 'https://cloudtolocalllm.online',
+        name: 'Zoidbot Team',
+        url: 'https://zoidbot.online',
       },
       license: {
         name: 'MIT',
@@ -28,15 +28,15 @@ const options = {
     },
     servers: [
       {
-        url: 'https://api.cloudtolocalllm.online/v2',
+        url: 'https://api.zoidbot.online/v2',
         description: 'Production API Server (v2 - Current)',
       },
       {
-        url: 'https://api.cloudtolocalllm.online/v1',
+        url: 'https://api.zoidbot.online/v1',
         description: 'Production API Server (v1 - Deprecated)',
       },
       {
-        url: 'https://api.cloudtolocalllm.online',
+        url: 'https://api.zoidbot.online',
         description: 'Production API Server (defaults to v2)',
       },
       {
