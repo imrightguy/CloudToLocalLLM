@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import { query } from '../database/db-pool.js';
 import logger from '../logger.js';
+import { dashboardWebSocketService } from '../services/dashboard-websocket-service.js';
 
 const router = express.Router();
 
@@ -119,7 +120,42 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
        );
     }
 
-    // Note: Real-time broadcast via WebSocket will be implemented in a future step
+    // 5. Broadcast to dashboard
+    const broadcastAgent = {
+      ...agent,
+      status: newStatus,
+      updated_at: new Date().toISOString()
+    };
+
+    const broadcastEvent = {
+      id: crypto.randomUUID(),
+      agent_id: agent.id,
+      event_type,
+      event_data,
+      correlation_id,
+      timestamp: new Date().toISOString(),
+      agent_name: agent.name
+    };
+
+    if (agent.user_id) {
+      dashboardWebSocketService.broadcastToUser(agent.user_id, {
+        type: 'agent_update',
+        agent: broadcastAgent
+      });
+      dashboardWebSocketService.broadcastToUser(agent.user_id, {
+        type: 'event_stream',
+        event: broadcastEvent
+      });
+    } else {
+      dashboardWebSocketService.broadcastToAll({
+        type: 'agent_update',
+        agent: broadcastAgent
+      });
+      dashboardWebSocketService.broadcastToAll({
+        type: 'event_stream',
+        event: broadcastEvent
+      });
+    }
 
     res.json({ success: true, agent_db_id: agent.id });
   } catch (error) {

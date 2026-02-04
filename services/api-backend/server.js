@@ -146,6 +146,7 @@ import {
 import rateLimitMetricsRoutes from './routes/rate-limit-metrics.js';
 import prometheusMetricsRoutes from './routes/prometheus-metrics.js';
 import changelogRoutes from './routes/changelog.js';
+import { dashboardWebSocketService } from './services/dashboard-websocket-service.js';
 
 // Sentry and dotenv already initialized at top of file
 
@@ -519,6 +520,8 @@ server.on('upgrade', (request, socket, head) => {
       );
       socket.destroy();
     }
+  } else if (pathname === '/dashboard') {
+    dashboardWebSocketService.handleUpgrade(request, socket, head);
   } else {
     // Let other handlers handle it or destroy
     socket.destroy();
@@ -703,6 +706,9 @@ async function initializeTunnelSystem(retries = 10) {
 
       // Use the same auth service for SSH proxy
       sshAuthService = authService;
+
+      // Initialize Dashboard WebSocket service
+      dashboardWebSocketService.initialize(server, authService);
 
       // Initialize SSH Proxy
       try {

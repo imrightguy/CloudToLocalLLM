@@ -38,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _dashboardService.disconnectWebSocket();
     super.dispose();
   }
 
