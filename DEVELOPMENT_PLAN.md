@@ -229,26 +229,26 @@ Run powerful AI agents with one-click simplicity. OpenClaw provides the AI engin
 
 ## Phase 5: Public Release
 
-### Roadmap (2025)
+### Roadmap (2026)
 
-**Q1 2025 — Foundation**
-- ✅ Multi-Provider Support (Ollama)
+**Q1 2026 — Foundation**
+- ✅ Multi-Provider Support (OpenClaw)
 - ✅ Auth0 Integration
 - ✅ Tunnel Streaming
 - 🔄 Desktop Apps (Linux/Windows/macOS — macOS just added)
 
-**Q2 2025 — Mobile**
+**Q2 2026 — Mobile**
 - 📱 Location-Aware Agents
 - 📱 Offline Optimization
 - 📱 Push Notifications
 - 📱 Mobile-first UI polish
 
-**Q3 2025 — Cloud Integrations**
+**Q3 2026 — Cloud Integrations**
 - 📧 Google Workspace (Calendar, Gmail, Drive)
 - 📧 Apple Ecosystem (macOS Calendar, Contacts, Health)
 - 📧 Health APIs (Strava, Oura)
 
-**Q4 2025 — Production**
+**Q4 2026 — Production**
 - 🚀 Full production deployment
 - 🚀 Monitoring & alerting
 - 🚀 App Store / GitHub releases
