@@ -13,14 +13,11 @@ import 'package:zoidbot/auth/auth_provider.dart';
 import 'package:zoidbot/auth/providers/auth0_auth_provider.dart';
 import 'package:zoidbot/services/desktop_client_detection_service.dart';
 import 'package:zoidbot/services/enhanced_user_tier_service.dart';
-import 'package:zoidbot/services/langchain_integration_service.dart';
-import 'package:zoidbot/services/langchain_prompt_service.dart';
-import 'package:zoidbot/services/langchain_rag_service.dart'
     if (dart.library.html) 'package:zoidbot/services/langchain_rag_service_stub.dart';
-import 'package:zoidbot/services/llm_audit_service.dart';
-import 'package:zoidbot/services/llm_error_handler.dart';
-import 'package:zoidbot/services/llm_provider_manager.dart';
-import 'package:zoidbot/services/provider_discovery_service.dart';
+
+
+
+
 import 'package:zoidbot/services/streaming_chat_service.dart';
 import 'package:zoidbot/services/streaming_proxy_service.dart';
 import 'package:zoidbot/services/tunnel_service.dart';
@@ -31,7 +28,7 @@ import 'package:zoidbot/services/web_download_prompt_service.dart'
     if (dart.library.io) 'package:zoidbot/services/web_download_prompt_service_stub.dart';
 import 'package:zoidbot/services/settings_preference_service.dart';
 import 'package:zoidbot/services/settings_import_export_service.dart';
-import 'package:zoidbot/services/provider_configuration_manager.dart';
+
 import 'package:zoidbot/services/admin_center_service.dart';
 import 'package:zoidbot/services/theme_provider.dart';
 import 'package:zoidbot/services/platform_detection_service.dart';
@@ -79,8 +76,6 @@ Future<void> setupCoreServices() async {
   serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
 
   // Provider discovery - create but don't initialize until auth
-  final providerDiscoveryService = ProviderDiscoveryService();
-  serviceLocator.registerSingleton<ProviderDiscoveryService>(
     providerDiscoveryService,
   );
 
@@ -333,7 +328,6 @@ Future<void> setupAuthenticatedServices() async {
     _authenticatedServicesRegistered = true;
 
     final providerDiscoveryService =
-        serviceLocator.get<ProviderDiscoveryService>();
     final enhancedUserTierService =
         serviceLocator.get<EnhancedUserTierService>();
     final webDownloadPromptService =
@@ -350,7 +344,6 @@ Future<void> setupAuthenticatedServices() async {
     // LangChain Prompt Service is already initialized in constructor
 
     // Initialize Provider Discovery Service and auto-configure discovered providers
-    debugPrint('[ServiceLocator] Initializing ProviderDiscoveryService...');
     await _initializeProviderDiscoveryAndAutoConfig(
       providerDiscoveryService,
       serviceLocator.get<ProviderConfigurationManager>(),
@@ -396,8 +389,6 @@ Future<void> setupAuthenticatedServices() async {
     );
 
     // LLM Provider Manager - requires authentication
-    debugPrint('[ServiceLocator] Initializing LLMProviderManager...');
-    final llmProviderManager = LLMProviderManager(
       discoveryService: providerDiscoveryService,
       langchainService: langchainIntegrationService,
     );
@@ -407,9 +398,7 @@ Future<void> setupAuthenticatedServices() async {
           .timeout(const Duration(seconds: 10));
     } catch (e) {
       debugPrint(
-          '[ServiceLocator] Warning: LLMProviderManager initialization failed: $e');
     }
-    serviceLocator.registerSingleton<LLMProviderManager>(llmProviderManager);
 
     // Connection Manager - requires authentication for tunnel/cloud connections
     final connectionManager = ConnectionManagerService(
@@ -440,14 +429,11 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<LangChainRAGService>(langchainRagService);
 
     // LLM Audit service - requires authentication
-    final llmAuditService = LLMAuditService(authService: authService);
     try {
       await llmAuditService.initialize().timeout(const Duration(seconds: 10));
     } catch (e) {
       debugPrint(
-          '[ServiceLocator] Warning: LLMAuditService initialization failed: $e');
     }
-    serviceLocator.registerSingleton<LLMAuditService>(llmAuditService);
 
     // Streaming chat service - requires connection manager
     final streamingChatService = StreamingChatService(
@@ -498,7 +484,6 @@ Future<void> setupAuthenticatedServices() async {
 
 /// Initialize provider discovery and auto-configure discovered providers
 Future<void> _initializeProviderDiscoveryAndAutoConfig(
-  ProviderDiscoveryService discoveryService,
   ProviderConfigurationManager configManager,
 ) async {
   try {
