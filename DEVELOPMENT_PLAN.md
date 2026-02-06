@@ -78,6 +78,24 @@ Run powerful AI agents with one-click simplicity. OpenClaw provides the AI engin
    - Font size
    - Polling interval (agent dashboard)
 
+### Priority: OpenClaw LLM Management (via WebSocket/API)
+
+**Features:**
+1. **Agent Model Selection**
+   - Switch between OpenClaw agent models (GLM, Claude, etc.)
+   - Configure per-agent model preferences
+   - Model performance comparison
+
+2. **Resource Monitoring**
+   - View OpenClaw token usage and costs
+   - Agent health status (heartbeat, uptime)
+   - Active sessions overview
+
+3. **OpenClaw Settings**
+   - Gateway configuration (via app)
+   - Skill management
+   - Cron job management
+
 ---
 
 ## Phase 2: Mobile Experience
