@@ -9,12 +9,12 @@
 
 **Privacy-First AI Workspace for Everyone**
 
-Run powerful LLMs locally with one-click simplicity. Your data stays on your machine — but optional cloud relay means you can still access it remotely when needed.
+Run powerful AI agents with one-click simplicity. OpenClaw provides the AI engine — your data stays on your machine unless you explicitly enable cloud relay for remote access.
 
 ### Three Pillars
 
 1. **Privacy by Default**
-   - All AI execution happens locally via Ollama
+   - All AI execution happens locally via OpenClaw agent system
    - Zero telemetry, no data leaving your device unless explicitly enabled
    - User has full control
 
@@ -60,21 +60,6 @@ Run powerful LLMs locally with one-click simplicity. Your data stays on your mac
    - Settings screen for OpenClaw status URL input
    - Persist via SharedPreferences
 
-### Priority: LLM Management
-
-**Features:**
-1. **Model Selection UI**
-   - List available Ollama models
-   - Switch between models (llama3.2, mistral, etc.)
-   - Show model parameters (context window, quantization)
-   - Download new models directly from app
-
-2. **Resource Monitoring**
-   - Show GPU/CPU usage
-   - Memory consumption per model
-   - Active sessions list
-   - Kill stuck processes
-
 ### Priority: Conversation UX
 
 **Features:**
@@ -92,7 +77,6 @@ Run powerful LLMs locally with one-click simplicity. Your data stays on your mac
    - Theme selection (dark/light)
    - Font size
    - Polling interval (agent dashboard)
-   - Ollama endpoint configuration
 
 ---
 
