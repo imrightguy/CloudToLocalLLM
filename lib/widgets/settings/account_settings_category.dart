@@ -110,7 +110,7 @@ class _AccountSettingsCategoryState extends State<AccountSettingsCategory> {
           color: isAdmin ? Colors.red : Colors.grey,
         ),
         title: Text(isAdmin ? 'Admin Access' : 'User'),
-        subtitle: isAdmin ? 'You have admin privileges' : 'Standard user account',
+        subtitle: Text(isAdmin ? 'You have admin privileges' : 'Standard user account'),
         trailing: isAdmin
             ? const Icon(Icons.check_circle, color: Colors.green)
             : const Icon(Icons.circle_outlined, color: Colors.grey),

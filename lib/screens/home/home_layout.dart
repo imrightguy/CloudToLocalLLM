@@ -426,6 +426,24 @@ class _SidebarPane extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spacing.s),
+              child: ListTile(
+                leading: const Icon(Icons.web, size: 20),
+                title: const Text('Agent Browser', style: TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () => context.push('/browser'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: spacing.s),
+              child: ListTile(
+                leading: const Icon(Icons.hub, size: 20),
+                title: const Text('System Hub', style: TextStyle(fontWeight: FontWeight.bold)),
+                onTap: () => context.push('/system'),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
             const Divider(),
             Expanded(
               child: ConversationList(
@@ -676,6 +694,18 @@ class _EmptyConversationState extends StatelessWidget {
                           color: Colors.orange,
                         ),
                       ],
+                      _QuickActionCard(
+                        icon: Icons.web_outlined,
+                        label: 'Agent Browser',
+                        onTap: () => context.push('/browser'),
+                        color: Colors.purple,
+                      ),
+                      _QuickActionCard(
+                        icon: Icons.hub_outlined,
+                        label: 'System Hub',
+                        onTap: () => context.push('/system'),
+                        color: Colors.teal,
+                      ),
                       _QuickActionCard(
                         icon: Icons.settings_outlined,
                         label: 'Settings',

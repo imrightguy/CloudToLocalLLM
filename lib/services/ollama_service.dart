@@ -34,10 +34,10 @@ class OllamaService extends ChangeNotifier {
   OllamaService._internal();
 
   /// Check if Ollama is available
-  static bool get isAvailable => false;
+  bool get isAvailable => false;
 
   /// Get Ollama status
-  static Map<String, dynamic> getStatus() {
+  Map<String, dynamic> getStatus() {
     return {
       'available': false,
       'service': 'Ollama integration removed from application',
@@ -47,27 +47,27 @@ class OllamaService extends ChangeNotifier {
   }
 
   /// Check if Ollama is connected (stub)
-  static bool get isConnected => false;
+  bool get isConnected => false;
 
   /// Get last error message (stub)
-  static String? get error => null;
+  String? get error => null;
 
   /// List available models (stub - returns empty)
-  static List<OllamaModel> get models => [];
+  List<OllamaModel> get models => [];
 
   /// Pull a model (stub - no-op)
-  static Future<void> pullModel(String model) async {
+  Future<void> pullModel(String model) async {
     debugPrint('[OllamaService] Model pull requested: $model (no-op in stub)');
   }
 
   /// Generate chat completion (stub - returns empty response)
-  static Future<List<String>> generate(String prompt, String model) async {
+  Future<List<String>> generate(String prompt, String model) async {
     debugPrint('[OllamaService] Chat completion requested (stub, empty response)');
     return ['Ollama integration removed from application'];
   }
 
   /// Get service version
-  static Map<String, dynamic> getVersion() {
+  Map<String, dynamic> getVersion() {
     return {
       'version': 'stub',
       'message': 'Ollama integration removed, stub provides compatibility',
@@ -76,13 +76,13 @@ class OllamaService extends ChangeNotifier {
   }
 
   /// Check if service is loading (stub)
-  static bool get isLoading => false;
+  bool get isLoading => false;
 
   /// Get last connection error (stub)
-  static String? get lastError => null;
+  String? get lastError => null;
 
   /// Test connection (stub - no-op)
-  static Future<void> testConnection() async {
+  Future<void> testConnection() async {
     debugPrint('[OllamaService] Connection test requested (no-op in stub)');
   }
 

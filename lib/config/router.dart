@@ -7,6 +7,8 @@ import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/callback_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
+import '../features/browser/agent_browser_page.dart';
+import '../features/system/system_hub_page.dart';
 
 // Settings screens are lazy-loaded
 import '../screens/settings/settings_lazy.dart' as settings_lazy;
@@ -167,6 +169,18 @@ class AppRouter {
           path: '/dashboard',
           name: 'dashboard',
           builder: (context, state) => const DashboardScreen(),
+        ),
+
+        GoRoute(
+          path: '/browser',
+          name: 'browser',
+          builder: (context, state) => const AgentBrowserPage(),
+        ),
+
+        GoRoute(
+          path: '/system',
+          name: 'system',
+          builder: (context, state) => const SystemHubPage(),
         ),
       ],
       redirect: (context, state) {
