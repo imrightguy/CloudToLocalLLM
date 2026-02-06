@@ -27,6 +27,7 @@
 *   **🔒 Privacy-First:** Run models locally using [Ollama](https://ollama.com). Your data stays on your device by default.
 *   **💻 Cross-Platform:** Native support for **Windows** and **Linux**, with a responsive **Web** interface.
 *   **⚡ Hybrid Architecture:** Seamlessly switch between local models when needed.
+*   **🎙️ Voice Interface:** (Planned) Speech-to-Text and Text-to-Speech for voice-driven conversations.
 *   **🔌 Extensible:** Integrated with LangChain for advanced AI workflows.
 *   **☁️ Cloud Infrastructure:** Deployed on **Azure** for scalable management.
 *   **🏠 Self-Hosted:** Easily deploy your own instance on any Linux VPS using Docker Compose.
@@ -55,6 +56,7 @@ Latest web deployment: **[zoidbot.online](https://zoidbot.online)**
 *   **[Troubleshooting](docs/user-guide/TROUBLESHOOTING.md):** Common issues and fixes.
 *   **[Self-Hosting Guide](docs/operations/SELF_HOSTING.md):** Run your own relay server.
 *   **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
+*   **[Voice Interface](docs/development/features/VOICE_INTERFACE_IMPLEMENTATION.md):** Voice features (STT/TTS) documentation.
 
  
 ## 🛠️ Development
