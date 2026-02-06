@@ -29,6 +29,7 @@ dependencies:
   # HTTP and Web
   intl: ^0.20.2
   http: ^1.2.2
+  flutter_inappwebview: ^6.1.5
 
   # Streaming and WebSocket support
   web_socket_channel: ^3.0.3
@@ -41,6 +42,10 @@ dependencies:
 
   # System Integration - Flutter plugins for window management and secure storage
   window_manager: ^0.5.1
+  system_tray: ^2.1.0
+  local_notifier: ^0.1.7
+  process_run: ^1.1.1
+  device_info_plus: ^11.3.0
 
   flutter_secure_storage: ^9.2.2
   mutex: ^3.0.1

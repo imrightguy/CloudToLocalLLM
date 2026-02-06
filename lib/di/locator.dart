@@ -38,8 +38,10 @@ import 'package:zoidbot/services/platform_detection_service.dart';
 import 'package:zoidbot/services/platform_adapter.dart';
 import 'package:zoidbot/services/url_scheme_registration_service.dart';
 import 'package:zoidbot/services/token_storage_service.dart';
-import 'package:zoidbot/models/provider_configuration.dart';import 'package:zoidbot/services/openclaw_dashboard_client_service.dart';// OpenClaw dashboard client service - manages WebSocket connection to OpenClaw agent dashboardfinal openClawDashboardClientService = OpenClawDashboardService();serviceLocator.registerSingleton<OpenClawDashboardClientService>(openClawDashboardClientService);
+import 'package:zoidbot/models/provider_configuration.dart';// OpenClaw dashboard client service - manages WebSocket connection to OpenClaw agent dashboardfinal openClawDashboardClientService = OpenClawDashboardService();serviceLocator.registerSingleton<OpenClawDashboardClientService>(openClawDashboardClientService);
 import 'package:zoidbot/services/ollama_service.dart';
+import 'package:zoidbot/services/system_control_service.dart';
+import 'package:zoidbot/services/window_manager_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -179,6 +181,14 @@ Future<void> setupCoreServices() async {
   // Theme provider - manages application theme mode
   final themeProvider = ThemeProvider();
   serviceLocator.registerSingleton<ThemeProvider>(themeProvider);
+
+  // Window manager service - manages application window
+  final windowManagerService = WindowManagerService();
+  serviceLocator.registerSingleton<WindowManagerService>(windowManagerService);
+
+  // System control service - low-level OS control
+  final systemControlService = SystemControlService();
+  serviceLocator.registerSingleton<SystemControlService>(systemControlService);
 
   // Provider configuration manager - manages local LLM provider configurations
   final providerConfigurationManager = ProviderConfigurationManager();
