@@ -1,7 +1,71 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Application configuration constants
 class AppConfig {
+  // Agent Status Configuration Keys
+  static const String _prefAgentStatusUrl = 'agent_status_url';
+  static const String _prefAgentStatusPollIntervalMs = 'agent_status_poll_interval_ms';
+  static const String _prefAgentStatusTimeoutMs = 'agent_status_timeout_ms';
+
+  // Agent Status Default Values
+  static const String defaultAgentStatusUrl = 'http://localhost:8080/status';
+  static const int defaultAgentStatusPollIntervalMs = 2000;
+  static const int defaultAgentStatusTimeoutMs = 5000;
+
+  // Singleton pattern for runtime configuration
+  static final AppConfig _instance = AppConfig._internal();
+  factory AppConfig() => _instance;
+  AppConfig._internal();
+
+  SharedPreferences? _prefs;
+
+  /// Initialize the configuration (load from SharedPreferences)
+  Future<void> initialize() async {
+    _prefs ??= await SharedPreferences.getInstance();
+  }
+
+  /// Get the Agent Status URL
+  String getAgentStatusUrl() {
+    return _prefs?.getString(_prefAgentStatusUrl) ?? defaultAgentStatusUrl;
+  }
+
+  /// Set the Agent Status URL (persisted)
+  Future<bool> setAgentStatusUrl(String url) async {
+    await initialize();
+    return await _prefs!.setString(_prefAgentStatusUrl, url);
+  }
+
+  /// Get the Agent Status polling interval in milliseconds
+  int getAgentStatusPollIntervalMs() {
+    return _prefs?.getInt(_prefAgentStatusPollIntervalMs) ?? defaultAgentStatusPollIntervalMs;
+  }
+
+  /// Set the Agent Status polling interval in milliseconds (persisted)
+  Future<bool> setAgentStatusPollIntervalMs(int intervalMs) async {
+    await initialize();
+    return await _prefs!.setInt(_prefAgentStatusPollIntervalMs, intervalMs);
+  }
+
+  /// Get the Agent Status connection timeout in milliseconds
+  int getAgentStatusTimeoutMs() {
+    return _prefs?.getInt(_prefAgentStatusTimeoutMs) ?? defaultAgentStatusTimeoutMs;
+  }
+
+  /// Set the Agent Status connection timeout in milliseconds (persisted)
+  Future<bool> setAgentStatusTimeoutMs(int timeoutMs) async {
+    await initialize();
+    return await _prefs!.setInt(_prefAgentStatusTimeoutMs, timeoutMs);
+  }
+
+  /// Reset Agent Status settings to defaults
+  Future<bool> resetAgentStatusSettings() async {
+    await initialize();
+    await _prefs!.remove(_prefAgentStatusUrl);
+    await _prefs!.remove(_prefAgentStatusPollIntervalMs);
+    await _prefs!.remove(_prefAgentStatusTimeoutMs);
+    return true;
+  }
   // App Information
   static const String appName = 'CloudToLocalLLM';
   static const String appVersion = '10.1.187';

@@ -97,6 +97,7 @@ class BaseSettingsCategory implements SettingsCategory {
 class SettingsCategoryIds {
   static const String general = 'general';
   static const String localLLMProviders = 'llm_providers';
+  static const String agentStatus = 'agent_status';
   static const String account = 'account';
   static const String privacy = 'privacy';
   static const String desktop = 'desktop';
@@ -121,6 +122,7 @@ class CategoryVisibilityRules {
     switch (categoryId) {
       case SettingsCategoryIds.general:
       case SettingsCategoryIds.localLLMProviders:
+      case SettingsCategoryIds.agentStatus:
       case SettingsCategoryIds.account:
       case SettingsCategoryIds.privacy:
       case SettingsCategoryIds.importExport:
@@ -173,6 +175,7 @@ class SettingsCategoryMetadata {
   /// Standard category priorities (lower = appears first)
   static const int priorityGeneral = 0;
   static const int priorityLocalLLM = 10;
+  static const int priorityAgentStatus = 15;
   static const int priorityAccount = 20;
   static const int priorityPrivacy = 30;
   static const int priorityDesktop = 40;
@@ -188,6 +191,8 @@ class SettingsCategoryMetadata {
         return priorityGeneral;
       case SettingsCategoryIds.localLLMProviders:
         return priorityLocalLLM;
+      case SettingsCategoryIds.agentStatus:
+        return priorityAgentStatus;
       case SettingsCategoryIds.account:
         return priorityAccount;
       case SettingsCategoryIds.privacy:
@@ -216,6 +221,8 @@ class SettingsCategoryMetadata {
         return Icons.tune;
       case SettingsCategoryIds.localLLMProviders:
         return Icons.storage;
+      case SettingsCategoryIds.agentStatus:
+        return Icons.psychology;
       case SettingsCategoryIds.account:
         return Icons.person;
       case SettingsCategoryIds.privacy:
@@ -244,6 +251,8 @@ class SettingsCategoryMetadata {
         return 'General';
       case SettingsCategoryIds.localLLMProviders:
         return 'LLM Providers';
+      case SettingsCategoryIds.agentStatus:
+        return 'Agent Status';
       case SettingsCategoryIds.account:
         return 'Account';
       case SettingsCategoryIds.privacy:
@@ -272,6 +281,8 @@ class SettingsCategoryMetadata {
         return 'Theme, language, and general preferences';
       case SettingsCategoryIds.localLLMProviders:
         return 'Configure AI model providers';
+      case SettingsCategoryIds.agentStatus:
+        return 'Configure agent status monitoring and connection settings';
       case SettingsCategoryIds.account:
         return 'Account information and subscription';
       case SettingsCategoryIds.privacy:
