@@ -71,7 +71,7 @@ dependencies:
 
   # Web interop for dart:js_interop
   web: ^1.0.0
-  app_links: ^6.3.0
+  app_links: ^7.0.0
 
   meta: any
   package_info_plus: ^9.0.0
