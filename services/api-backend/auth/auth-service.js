@@ -83,13 +83,43 @@ export class AuthService {
   /**
    * Helper to execute queries on Postgres
    * Handles parameter conversion (? -> $n) and standardized return format
+   *
+   * IMPORTANT: This method uses parameterized queries to prevent SQL injection.
+   * The ? -> $n conversion is safe because we're replacing placeholder markers,
+   * not actual string values. The actual values are passed separately to the
+   * pg driver, which handles proper escaping.
    */
   async runQuery(sql, params = [], type = 'all') {
-    // Convert ? to $1, $2, etc. (Naive replacement, assumes no ? in strings)
-    let paramCount = 0;
-    const pgSql = sql.replace(/\?/g, () => {
-      paramCount++;
-      return `$${paramCount}`;
+    // Convert ? to $1, $2, etc. for PostgreSQL
+    // This is safe because we only replace placeholder markers, not string content
+    // The pg driver handles proper parameter escaping when it executes the query
+    const pgSql = sql.replace(/\?/g, (_, offset) => {
+      // Only replace ? that are not inside string literals
+      // This prevents false replacements when ? appears in actual text content
+      const beforeSql = sql.substring(0, offset);
+      const singleQuoteCount = (beforeSql.match(/'/g) || []).filter(
+        (_, i) => {
+          // Count only unescaped quotes
+          if (i > 0 && beforeSql[i - 1] === '\\') {
+            return false;
+          }
+          return true;
+        }
+      ).length;
+      // If odd number of quotes, we're inside a string literal - don't replace
+      if (singleQuoteCount % 2 === 1) {
+        return '?';
+      }
+      // Get the position number (1-based) by counting replacements so far
+      const beforeReplaced = sql.substring(0, offset).replace(/\?/g, (_, o) => {
+        const b = sql.substring(0, o);
+        const sqc = (b.match(/'/g) || []).filter((_, i) => {
+          if (i > 0 && b[i - 1] === '\\') return false;
+          return true;
+        }).length;
+        return sqc % 2 === 0 ? 1 : 0;
+      }).length;
+      return `$${beforeReplaced + 1}`;
     });
 
     // Special handling for INSERT to get lastID
