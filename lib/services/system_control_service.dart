@@ -16,9 +16,7 @@ class SystemControlService {
     if (kIsWeb) return;
     try {
       await localNotifier.setup(
-        appName: 'Zoidbot',
-        // The shortcutId is only used for Windows
-        shortcutId: 'online.zoidbot.app',
+        appName: 'CloudToLocalLLM',
       );
       _isNotifierInitialized = true;
       appLogger.info('[SystemControl] Local notifier initialized');

@@ -67,9 +67,7 @@ dependencies:
   # SSH tunneling
   dartssh2: ^2.9.0
 
-  # LangChain Integration
-  langchain: ^0.8.0+1
-  langchain_community: ^0.4.0+1
+  # System Integration
   get_it: ^9.0.5
   logger: ^2.6.2
 

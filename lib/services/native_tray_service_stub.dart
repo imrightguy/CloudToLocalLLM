@@ -1,7 +1,6 @@
 // Web stub for NativeTrayService - not available on web
 import 'package:flutter/foundation.dart';
 import 'connection_manager_service.dart';
-import 'local_ollama_connection_service.dart';
 
 /// Stub mixin for TrayListener - not needed on web
 mixin TrayListener {}
@@ -20,7 +19,6 @@ class NativeTrayService with TrayListener {
 
   Future<bool> initialize({
     ConnectionManagerService? connectionManager,
-    required LocalOllamaConnectionService localOllama,
     void Function()? onShowWindow,
     void Function()? onHideWindow,
     void Function()? onSettings,

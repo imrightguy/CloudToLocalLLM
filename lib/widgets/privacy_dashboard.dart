@@ -292,7 +292,7 @@ class _PrivacyDashboardState extends State<PrivacyDashboard> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        tierService.currentTier.toUpperCase(),
+                        tierService.currentTier.name.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

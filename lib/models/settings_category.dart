@@ -96,7 +96,6 @@ class BaseSettingsCategory implements SettingsCategory {
 /// Predefined category IDs
 class SettingsCategoryIds {
   static const String general = 'general';
-  static const String localLLMProviders = 'llm_providers';
   static const String agentStatus = 'agent_status';
   static const String account = 'account';
   static const String privacy = 'privacy';
@@ -121,7 +120,6 @@ class CategoryVisibilityRules {
   }) {
     switch (categoryId) {
       case SettingsCategoryIds.general:
-      case SettingsCategoryIds.localLLMProviders:
       case SettingsCategoryIds.agentStatus:
       case SettingsCategoryIds.account:
       case SettingsCategoryIds.privacy:
@@ -189,8 +187,6 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return priorityGeneral;
-      case SettingsCategoryIds.localLLMProviders:
-        return priorityLocalLLM;
       case SettingsCategoryIds.agentStatus:
         return priorityAgentStatus;
       case SettingsCategoryIds.account:
@@ -219,8 +215,6 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return Icons.tune;
-      case SettingsCategoryIds.localLLMProviders:
-        return Icons.storage;
       case SettingsCategoryIds.agentStatus:
         return Icons.psychology;
       case SettingsCategoryIds.account:
@@ -249,8 +243,6 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return 'General';
-      case SettingsCategoryIds.localLLMProviders:
-        return 'LLM Providers';
       case SettingsCategoryIds.agentStatus:
         return 'Agent Status';
       case SettingsCategoryIds.account:
@@ -279,8 +271,6 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return 'Theme, language, and general preferences';
-      case SettingsCategoryIds.localLLMProviders:
-        return 'Configure AI model providers';
       case SettingsCategoryIds.agentStatus:
         return 'Configure agent status monitoring and connection settings';
       case SettingsCategoryIds.account:

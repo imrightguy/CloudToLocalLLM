@@ -349,6 +349,9 @@ class _MinimalAuthService extends ChangeNotifier implements AuthService {
   Future<void> updateDisplayName(String name) async {}
 
   @override
+  String get assistantName => 'Zoidbot';
+
+  @override
   bool get isWeb => kIsWeb;
 
   @override

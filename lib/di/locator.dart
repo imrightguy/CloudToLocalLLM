@@ -13,11 +13,6 @@ import 'package:zoidbot/auth/auth_provider.dart';
 import 'package:zoidbot/auth/providers/auth0_auth_provider.dart';
 import 'package:zoidbot/services/desktop_client_detection_service.dart';
 import 'package:zoidbot/services/enhanced_user_tier_service.dart';
-    if (dart.library.html) 'package:zoidbot/services/langchain_rag_service_stub.dart';
-
-
-
-
 import 'package:zoidbot/services/streaming_chat_service.dart';
 import 'package:zoidbot/services/streaming_proxy_service.dart';
 import 'package:zoidbot/services/tunnel_service.dart';
@@ -36,7 +31,6 @@ import 'package:zoidbot/services/platform_adapter.dart';
 import 'package:zoidbot/services/url_scheme_registration_service.dart';
 import 'package:zoidbot/services/token_storage_service.dart';
 import 'package:zoidbot/services/openclaw_gateway_service.dart';
-import 'package:zoidbot/services/ollama_service.dart';
 import 'package:zoidbot/services/system_control_service.dart';
 import 'package:zoidbot/services/window_manager_service.dart';
 
@@ -47,556 +41,137 @@ bool _authenticatedServicesRegistered = false;
 bool _isRegisteringAuthenticatedServices = false;
 
 /// Registers core services that are needed before authentication.
-/// These services don't require authentication tokens and can be safely
-/// initialized during app bootstrap.
 Future<void> setupCoreServices() async {
-  if (_coreServicesRegistered) {
-    debugPrint('[ServiceLocator] Core services already registered, skipping');
-    return;
-  }
+  if (_coreServicesRegistered) return;
 
-  debugPrint('[ServiceLocator] ===== REGISTERING CORE SERVICES START =====');
   debugPrint('[ServiceLocator] Registering core services...');
 
-  // Settings preference service - manages user preferences
-  // Register this early as other services (like AuthProvider) may need it
   final settingsPreferenceService = SettingsPreferenceService();
-  serviceLocator.registerSingleton<SettingsPreferenceService>(
-    settingsPreferenceService,
-  );
+  serviceLocator.registerSingleton<SettingsPreferenceService>(settingsPreferenceService);
 
-  // Session storage service for PostgreSQL session management
   final sessionStorageService = SessionStorageService();
-  serviceLocator
-      .registerSingleton<SessionStorageService>(sessionStorageService);
+  serviceLocator.registerSingleton<SessionStorageService>(sessionStorageService);
 
-  // Token storage service for encrypted local persistence (SQLite)
   final tokenStorageService = TokenStorageService();
   await tokenStorageService.init();
   serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
 
-  // Provider discovery - create but don't initialize until auth
-    providerDiscoveryService,
-  );
-
-  // Authentication Provider - Using platform-specific provider
   late AuthProvider authProvider;
-
-  try {
-    debugPrint('[Locator] Detecting platform...');
-
-    // Check if we're on web first
-    if (kIsWeb) {
-      debugPrint('[Locator] ✓ Web platform detected, using Auth0AuthProvider');
-      authProvider = Auth0AuthProvider();
-    } else {
-      // Use Auth0AuthProvider for all desktop platforms
-      debugPrint('[Locator] Using Auth0AuthProvider for desktop');
-      authProvider = Auth0AuthProvider();
-    }
-  } catch (e, stack) {
-    debugPrint('[Locator] ERROR during platform detection: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    // Fallback to Auth0 if platform detection fails
-    debugPrint('[Locator] Falling back to Auth0AuthProvider');
+  if (kIsWeb) {
+    authProvider = Auth0AuthProvider();
+  } else {
     authProvider = Auth0AuthProvider();
   }
+  serviceLocator.registerSingleton<AuthProvider>(authProvider);
 
-  debugPrint('[Locator] Selected auth provider: ${authProvider.runtimeType}');
+  final authService = AuthService(authProvider);
+  serviceLocator.registerSingleton<AuthService>(authService);
 
-  // Register strictly as AuthProvider interface to enforce abstraction
-  try {
-    debugPrint('[Locator] Registering AuthProvider...');
-    serviceLocator.registerSingleton<AuthProvider>(authProvider);
-    debugPrint('[Locator] ✓ AuthProvider registered successfully');
-  } catch (e, stack) {
-    debugPrint('[Locator] ❌ CRITICAL ERROR registering AuthProvider: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    rethrow;
-  }
+  final desktopClientDetectionService = DesktopClientDetectionService(authService: authService);
+  serviceLocator.registerSingleton<DesktopClientDetectionService>(desktopClientDetectionService);
 
-  late final AuthService authService;
-  try {
-    debugPrint('[Locator] Registering AuthService...');
-    authService = AuthService(authProvider);
-    serviceLocator.registerSingleton<AuthService>(authService);
-    debugPrint('[Locator] ✓ AuthService registered successfully');
-  } catch (e, stack) {
-    debugPrint('[Locator] ❌ CRITICAL ERROR registering AuthService: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    rethrow;
-  }
+  final appInitializationService = AppInitializationService(authService: authService);
+  serviceLocator.registerSingleton<AppInitializationService>(appInitializationService);
 
-  // LLM Error Handler - lightweight, doesn't require auth
-  final llmErrorHandler = LLMErrorHandler(
-    providerDiscovery: providerDiscoveryService,
-  );
-  serviceLocator.registerSingleton<LLMErrorHandler>(llmErrorHandler);
+  final settingsImportExportService = SettingsImportExportService(preferencesService: settingsPreferenceService);
+  serviceLocator.registerSingleton<SettingsImportExportService>(settingsImportExportService);
 
-  // LangChain Prompt Service - create but don't initialize templates until auth
-  final langchainPromptService = LangChainPromptService();
-  serviceLocator.registerSingleton<LangChainPromptService>(
-    langchainPromptService,
-  );
-
-  // Desktop client detection - can check client type without auth
-  final desktopClientDetectionService = DesktopClientDetectionService(
-    authService: authService,
-  );
-  serviceLocator.registerSingleton<DesktopClientDetectionService>(
-    desktopClientDetectionService,
-  );
-
-  // App initialization service - manages initialization order
-  final appInitializationService = AppInitializationService(
-    authService: authService,
-  );
-  serviceLocator.registerSingleton<AppInitializationService>(
-    appInitializationService,
-  );
-
-  // Settings import/export service - handles settings backup/restore
-  final settingsImportExportService = SettingsImportExportService(
-    preferencesService: settingsPreferenceService,
-  );
-  serviceLocator.registerSingleton<SettingsImportExportService>(
-    settingsImportExportService,
-  );
-
-  // Platform detection service - detects current platform and provides platform info
   final platformDetectionService = PlatformDetectionService();
-  serviceLocator.registerSingleton<PlatformDetectionService>(
-    platformDetectionService,
-  );
+  serviceLocator.registerSingleton<PlatformDetectionService>(platformDetectionService);
 
-  // Platform adapter - provides platform-appropriate UI components
   final platformAdapter = PlatformAdapter(platformDetectionService);
   serviceLocator.registerSingleton<PlatformAdapter>(platformAdapter);
 
-  // Theme provider - manages application theme mode
   final themeProvider = ThemeProvider();
   serviceLocator.registerSingleton<ThemeProvider>(themeProvider);
 
-  // Window manager service - manages application window
   final windowManagerService = WindowManagerService();
   serviceLocator.registerSingleton<WindowManagerService>(windowManagerService);
 
-  // System control service - low-level OS control
   final systemControlService = SystemControlService();
   serviceLocator.registerSingleton<SystemControlService>(systemControlService);
 
-  // Provider configuration manager - manages local LLM provider configurations
-  final providerConfigurationManager = ProviderConfigurationManager();
-  serviceLocator.registerSingleton<ProviderConfigurationManager>(
-    providerConfigurationManager,
-  );
+  serviceLocator.registerSingleton<UrlSchemeRegistrationService>(UrlSchemeRegistrationService());
 
-  // URL scheme registration service - registers custom URL schemes for OAuth callbacks (Windows)
-  serviceLocator.registerSingleton<UrlSchemeRegistrationService>(
-    UrlSchemeRegistrationService(),
-  );
-
-  // Web download prompt service - can be created but won't do heavy work until auth
   final webDownloadPromptService = WebDownloadPromptService(
     authService: authService,
     clientDetectionService: desktopClientDetectionService,
   );
-  // Don't initialize yet - wait for auth
-  serviceLocator.registerSingleton<WebDownloadPromptService>(
-    webDownloadPromptService,
-  );
+  serviceLocator.registerSingleton<WebDownloadPromptService>(webDownloadPromptService);
 
-  // Enhanced user tier service - can be created but won't initialize until auth
-  final enhancedUserTierService = EnhancedUserTierService(
-    authService: authService,
-  );
-  serviceLocator.registerSingleton<EnhancedUserTierService>(
-    enhancedUserTierService,
-  );
+  final enhancedUserTierService = EnhancedUserTierService();
+  serviceLocator.registerSingleton<EnhancedUserTierService>(enhancedUserTierService);
 
-  // Don't initialize yet - wait for auth token
-
-  debugPrint('[ServiceLocator] Core services registered successfully');
-
-  // OpenClaw gateway service - manages connection to agent gateway
   final openClawGatewayService = OpenClawGatewayService();
   serviceLocator.registerSingleton<OpenClawGatewayService>(openClawGatewayService);
 
-  // Initialize AuthService last, after all dependencies are registered
-  try {
-    debugPrint('[Locator] Initializing AuthService...');
-    final authService = serviceLocator.get<AuthService>();
-    await authService.init();
-    debugPrint('[Locator] ✓ AuthService initialized successfully');
-  } catch (e, stack) {
-    debugPrint('[Locator] ❌ CRITICAL ERROR initializing AuthService: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    rethrow;
-  }
+  await authService.init();
 
-  debugPrint('[ServiceLocator] ===== REGISTERING CORE SERVICES END =====');
-
-  // Verify all core services are registered
-  _verifyCoreServicesRegistered();
-
-  // Only mark as registered if we got this far without exceptions
   _coreServicesRegistered = true;
-  debugPrint(
-      '[ServiceLocator] Core services registration completed successfully');
-}
-
-/// Verify that all critical core services are registered
-void _verifyCoreServicesRegistered() {
-  final criticalServices = [
-    'AuthService',
-    'ThemeProvider',
-    'ProviderConfigurationManager',
-    'DesktopClientDetectionService',
-    'AppInitializationService',
-  ];
-
-  debugPrint('[ServiceLocator] Verifying core services registration...');
-  bool allServicesRegistered = true;
-
-  for (final serviceName in criticalServices) {
-    try {
-      bool isRegistered = false;
-      switch (serviceName) {
-        case 'AuthService':
-          isRegistered = serviceLocator.isRegistered<AuthService>();
-          break;
-        case 'ThemeProvider':
-          isRegistered = serviceLocator.isRegistered<ThemeProvider>();
-          break;
-        case 'ProviderConfigurationManager':
-          isRegistered =
-              serviceLocator.isRegistered<ProviderConfigurationManager>();
-          break;
-        case 'DesktopClientDetectionService':
-          isRegistered =
-              serviceLocator.isRegistered<DesktopClientDetectionService>();
-          break;
-        case 'AppInitializationService':
-          isRegistered =
-              serviceLocator.isRegistered<AppInitializationService>();
-          break;
-      }
-
-      if (isRegistered) {
-        debugPrint('[ServiceLocator] ✓ $serviceName registered');
-      } else {
-        debugPrint('[ServiceLocator] ✗ $serviceName NOT registered');
-        allServicesRegistered = false;
-      }
-    } catch (e) {
-      debugPrint('[ServiceLocator] Error checking $serviceName: $e');
-      allServicesRegistered = false;
-    }
-  }
-
-  if (!allServicesRegistered) {
-    throw Exception('Critical core services failed to register properly');
-  }
 }
 
 /// Registers authenticated services that require authentication tokens.
-/// These services should only be registered after the user has authenticated.
-/// This prevents unnecessary initialization and improves security.
 Future<void> setupAuthenticatedServices() async {
-  if (_authenticatedServicesRegistered) {
-    debugPrint(
-        '[ServiceLocator] Authenticated services already registered (Early Exit)');
-    // Services are already registered, so we're done
-    return;
-  }
-
-  if (_isRegisteringAuthenticatedServices) {
-    debugPrint(
-        '[ServiceLocator] Authenticated services registration already in progress (Race Condition Avoided)');
-    return;
-  }
+  if (_authenticatedServicesRegistered || _isRegisteringAuthenticatedServices) return;
 
   _isRegisteringAuthenticatedServices = true;
 
   try {
-    debugPrint(
-        '[ServiceLocator] ===== REGISTERING AUTHENTICATED SERVICES START =====');
-    debugPrint('[Locator] setupAuthenticatedServices called (Entry Point)');
-
-    // Verify authentication before proceeding
-    debugPrint('[Locator] Getting AuthService from serviceLocator...');
-    final authService = serviceLocator.get<AuthService>();
-    debugPrint('[Locator] Got AuthService instance');
-
     debugPrint('[ServiceLocator] Registering authenticated services...');
+    final authService = serviceLocator.get<AuthService>();
     _authenticatedServicesRegistered = true;
 
-    final providerDiscoveryService =
-    final enhancedUserTierService =
-        serviceLocator.get<EnhancedUserTierService>();
-    final webDownloadPromptService =
-        serviceLocator.get<WebDownloadPromptService>();
+    final webDownloadPromptService = serviceLocator.get<WebDownloadPromptService>();
 
-    // Initialize enhanced user tier service now that we have auth
-    debugPrint('[ServiceLocator] Initializing EnhancedUserTierService...');
-    unawaited(enhancedUserTierService.initialize());
-
-    // Initialize web download prompt service
-    debugPrint('[ServiceLocator] Initializing WebDownloadPromptService...');
     await webDownloadPromptService.initialize();
 
-    // LangChain Prompt Service is already initialized in constructor
-
-    // Initialize Provider Discovery Service and auto-configure discovered providers
-    await _initializeProviderDiscoveryAndAutoConfig(
-      providerDiscoveryService,
-      serviceLocator.get<ProviderConfigurationManager>(),
-    );
-
-    // Tunnel configuration manager - requires SharedPreferences
-    debugPrint('[ServiceLocator] Initializing TunnelConfigManager...');
     final tunnelConfigManager = TunnelConfigManager();
     await tunnelConfigManager.initialize();
     serviceLocator.registerSingleton<TunnelConfigManager>(tunnelConfigManager);
 
-    // Tunnel service - requires authentication token
     final tunnelService = TunnelService(authService: authService);
     serviceLocator.registerSingleton<TunnelService>(tunnelService);
 
-    // Streaming proxy service - requires authentication token
-    final streamingProxyService =
-        StreamingProxyService(authService: authService);
-    serviceLocator.registerSingleton<StreamingProxyService>(
-      streamingProxyService,
-    );
+    final streamingProxyService = StreamingProxyService(authService: authService);
+    serviceLocator.registerSingleton<StreamingProxyService>(streamingProxyService);
 
-    // User container service - requires authentication token
     final userContainerService = UserContainerService(authService: authService);
-    serviceLocator
-        .registerSingleton<UserContainerService>(userContainerService);
+    serviceLocator.registerSingleton<UserContainerService>(userContainerService);
 
-    // LangChain integration service - requires authentication for provider access
-    debugPrint('[ServiceLocator] Initializing LangChainIntegrationService...');
-    final langchainIntegrationService = LangChainIntegrationService(
-      discoveryService: providerDiscoveryService,
-    );
-    try {
-      await langchainIntegrationService
-          .initializeProviders()
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: LangChainIntegrationService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<LangChainIntegrationService>(
-      langchainIntegrationService,
-    );
-
-    // LLM Provider Manager - requires authentication
-      discoveryService: providerDiscoveryService,
-      langchainService: langchainIntegrationService,
-    );
-    try {
-      await llmProviderManager
-          .initialize()
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-    }
-
-    // Connection Manager - requires authentication for tunnel/cloud connections
+    // Connection Manager - uses OpenClaw Gateway for all LLM providers
+    final openClawGatewayService = serviceLocator.get<OpenClawGatewayService>();
     final connectionManager = ConnectionManagerService(
-      tunnelService: tunnelService,
       authService: authService,
+      gateway: openClawGatewayService,
     );
-    try {
-      await connectionManager.initialize().timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: ConnectionManagerService initialization failed: $e');
-    }
-    serviceLocator
-        .registerSingleton<ConnectionManagerService>(connectionManager);
+    await connectionManager.initialize();
+    serviceLocator.registerSingleton<ConnectionManagerService>(connectionManager);
 
-    // LangChain RAG service - requires connection manager
-    final langchainRagService = LangChainRAGService(
-      connectionManager: connectionManager,
-    );
-    try {
-      await langchainRagService
-          .initialize()
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: LangChainRAGService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<LangChainRAGService>(langchainRagService);
-
-    // LLM Audit service - requires authentication
-    try {
-      await llmAuditService.initialize().timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-    }
-
-    // Streaming chat service - requires connection manager
     final streamingChatService = StreamingChatService(
       connectionManager,
       authService,
     );
-    serviceLocator
-        .registerSingleton<StreamingChatService>(streamingChatService);
+    serviceLocator.registerSingleton<StreamingChatService>(streamingChatService);
 
-    // Unified connection service - requires connection manager
-    debugPrint('[ServiceLocator] Initializing UnifiedConnectionService...');
     final unifiedConnectionService = UnifiedConnectionService();
     unifiedConnectionService.setConnectionManager(connectionManager);
-    try {
-      await unifiedConnectionService
-          .initialize()
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: UnifiedConnectionService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<UnifiedConnectionService>(
-      unifiedConnectionService,
-    );
+    serviceLocator.registerSingleton<UnifiedConnectionService>(unifiedConnectionService);
 
-    // Admin services - require authentication and admin privileges
     final adminService = AdminService(authService: authService);
     serviceLocator.registerSingleton<AdminService>(adminService);
 
-    final adminDataFlushService =
-        AdminDataFlushService(authService: authService);
-    serviceLocator.registerSingleton<AdminDataFlushService>(
-      adminDataFlushService,
-    );
+    final adminDataFlushService = AdminDataFlushService(authService: authService);
+    serviceLocator.registerSingleton<AdminDataFlushService>(adminDataFlushService);
 
-    // Admin center service - requires authentication
     final adminCenterService = AdminCenterService(authService: authService);
     serviceLocator.registerSingleton<AdminCenterService>(adminCenterService);
 
-    debugPrint(
-        '[ServiceLocator] Authenticated services registered successfully');
-    debugPrint(
-        '[ServiceLocator] ===== REGISTERING AUTHENTICATED SERVICES END =====');
+    debugPrint('[ServiceLocator] Authenticated services registered successfully');
   } finally {
     _isRegisteringAuthenticatedServices = false;
   }
 }
 
-/// Initialize provider discovery and auto-configure discovered providers
-Future<void> _initializeProviderDiscoveryAndAutoConfig(
-  ProviderConfigurationManager configManager,
-) async {
-  try {
-    debugPrint('[ServiceLocator] Starting provider discovery scan...');
-
-    // Scan for available providers
-    final discoveredProviders = await discoveryService.scanForProviders();
-    debugPrint(
-        '[ServiceLocator] Found ${discoveredProviders.length} providers');
-
-    // Auto-configure discovered providers if not already configured
-    for (final providerInfo in discoveredProviders) {
-      final providerId = 'auto_${providerInfo.id}';
-
-      // Skip if already configured
-      if (configManager.isProviderConfigured(providerId)) {
-        debugPrint(
-            '[ServiceLocator] Provider ${providerInfo.name} already configured, skipping');
-        continue;
-      }
-
-      debugPrint('[ServiceLocator] Auto-configuring ${providerInfo.name}...');
-
-      try {
-        ProviderConfiguration? config;
-
-        switch (providerInfo.type) {
-          case ProviderType.ollama:
-            config = OllamaProviderConfiguration(
-              providerId: providerId,
-              baseUrl: providerInfo.baseUrl,
-              port: providerInfo.port,
-              timeout: const Duration(seconds: 60),
-              enableStreaming: true,
-              enableEmbeddings: true,
-              customSettings: {
-                'auto_configured': true,
-                'discovered_at': DateTime.now().toIso8601String(),
-                'version': providerInfo.version,
-                'models': providerInfo.availableModels,
-              },
-            );
-            break;
-
-          case ProviderType.lmStudio:
-            config = LMStudioProviderConfiguration(
-              providerId: providerId,
-              baseUrl: providerInfo.baseUrl,
-              port: providerInfo.port,
-              timeout: const Duration(seconds: 120),
-              enableStreaming: true,
-              customSettings: {
-                'auto_configured': true,
-                'discovered_at': DateTime.now().toIso8601String(),
-                'models': providerInfo.availableModels,
-              },
-            );
-            break;
-
-          case ProviderType.openAICompatible:
-            config = OpenAICompatibleProviderConfiguration(
-              providerId: providerId,
-              baseUrl: providerInfo.baseUrl,
-              port: providerInfo.port,
-              timeout: const Duration(seconds: 90),
-              requiresAuth: false,
-              enableStreaming: true,
-              customSettings: {
-                'auto_configured': true,
-                'discovered_at': DateTime.now().toIso8601String(),
-                'models': providerInfo.availableModels,
-              },
-            );
-            break;
-
-          case ProviderType.custom:
-            // Skip custom providers for auto-configuration
-            debugPrint(
-                '[ServiceLocator] Skipping custom provider ${providerInfo.name}');
-            continue;
-        }
-
-        await configManager.setConfiguration(config);
-        debugPrint(
-            '[ServiceLocator] ✓ Auto-configured ${providerInfo.name} as $providerId');
-
-        // Set Ollama as default provider if found and no preferred provider is set
-        if (providerInfo.type == ProviderType.ollama &&
-            configManager.preferredProviderId == null) {
-          await configManager.setPreferredProvider(providerId);
-          debugPrint('[ServiceLocator] ✓ Set Ollama as default provider');
-        }
-      } catch (e) {
-        debugPrint(
-            '[ServiceLocator] Failed to auto-configure ${providerInfo.name}: $e');
-      }
-    }
-
-    // Start periodic scanning for new providers
-    discoveryService.startPeriodicScanning();
-    debugPrint('[ServiceLocator] Started periodic provider scanning');
-  } catch (e) {
-    debugPrint(
-        '[ServiceLocator] Error during provider discovery initialization: $e');
-  }
-}
-
-/// Legacy function for backward compatibility.
-/// Now delegates to setupCoreServices() to maintain existing code.
 Future<void> setupServiceLocator() async {
   await setupCoreServices();
 }

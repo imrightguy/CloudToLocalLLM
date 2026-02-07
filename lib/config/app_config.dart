@@ -134,6 +134,9 @@ class AppConfig {
       'https://api.cloudtolocalllm.online:3001';
   static const String adminServerUrlDesktop = 'http://localhost:3001';
 
+  // Fixed: Added missing bridgeStatusUrl
+  static String get bridgeStatusUrl => '$apiBaseUrl/api/bridge/status';
+
   // Get admin server URL based on platform
   static String get adminServerUrl =>
       kIsWeb ? adminServerUrlWeb : adminServerUrlDesktop;

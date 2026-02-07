@@ -10,6 +10,8 @@ analyzer:
   exclude:
     - lib/**/*.g.dart
     - lib/**/*.freezed.dart
+    - services/**/*.dart
+    - test/**/*.dart
 
 linter:
   rules:

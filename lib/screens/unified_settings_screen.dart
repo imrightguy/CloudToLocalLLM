@@ -10,7 +10,6 @@ import '../services/platform_adapter.dart';
 import '../models/settings_category.dart';
 import '../widgets/settings/settings_category_list.dart';
 import '../widgets/settings/general_settings_category.dart';
-import '../widgets/settings/local_llm_providers_category.dart';
 import '../widgets/settings/agent_status_settings_category.dart';
 import '../widgets/settings/import_export_settings_category.dart';
 import '../widgets/settings/account_settings_category.dart';
@@ -166,26 +165,6 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
         ),
       ),
       BaseSettingsCategory(
-        id: SettingsCategoryIds.localLLMProviders,
-        title: SettingsCategoryMetadata.getTitle(
-          SettingsCategoryIds.localLLMProviders,
-        ),
-        icon: SettingsCategoryMetadata.getIcon(
-          SettingsCategoryIds.localLLMProviders,
-        ),
-        description: SettingsCategoryMetadata.getDescription(
-          SettingsCategoryIds.localLLMProviders,
-        ),
-        priority: SettingsCategoryMetadata.getPriority(
-          SettingsCategoryIds.localLLMProviders,
-        ),
-        isVisible: true,
-        contentBuilder: (context) => LocalLLMProvidersCategory(
-          categoryId: SettingsCategoryIds.localLLMProviders,
-          isActive: _activeCategory == SettingsCategoryIds.localLLMProviders,
-        ),
-      ),
-      BaseSettingsCategory(
         id: SettingsCategoryIds.agentStatus,
         title: SettingsCategoryMetadata.getTitle(
           SettingsCategoryIds.agentStatus,
@@ -216,10 +195,7 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
           SettingsCategoryIds.account,
         ),
         isVisible: true,
-        contentBuilder: (context) => AccountSettingsCategory(
-          categoryId: SettingsCategoryIds.account,
-          isActive: _activeCategory == SettingsCategoryIds.account,
-        ),
+        contentBuilder: (context) => const AccountSettingsCategory(),
       ),
       BaseSettingsCategory(
         id: SettingsCategoryIds.privacy,

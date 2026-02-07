@@ -82,4 +82,29 @@ class EnhancedUserTierService extends ChangeNotifier {
 
   /// Check if user has enterprise features
   bool get isEnterprise => _currentTier == UserTier.enterprise;
+
+  List<String> get tierBenefits {
+    switch (_currentTier) {
+      case UserTier.enterprise:
+        return ['Unlimited local models', 'Priority cloud routing', 'Advanced analytics', 'Multi-user support', 'Custom LLM configurations'];
+      case UserTier.premium:
+        return ['Unlimited local models', 'Priority cloud routing', 'Standard analytics'];
+      case UserTier.free:
+        return ['Standard local models', 'Cloud routing'];
+    }
+  }
+
+  List<String> get tierLimitations {
+    switch (_currentTier) {
+      case UserTier.enterprise:
+      case UserTier.premium:
+        return [];
+      case UserTier.free:
+        return ['Limited to 3 concurrent models', 'No advanced analytics'];
+    }
+  }
+
+  Future<void> initialize() async {
+    await _loadTier();
+  }
 }
