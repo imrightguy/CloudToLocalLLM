@@ -12,11 +12,11 @@ class OpenClawGatewayService extends ChangeNotifier {
   WebSocketChannel? _channel;
   GatewayConnectionState _state = GatewayConnectionState.disconnected;
   String? _error;
-  
+
   // Configuration (should ideally come from settings)
   final String _url = "ws://100.112.240.71:18789"; // Tailscale IP
   final String _token = "d6453f5073999c971426923e3504b47a99d0198e481d41f5";
-  
+
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
 
@@ -28,11 +28,11 @@ class OpenClawGatewayService extends ChangeNotifier {
     if (_state == GatewayConnectionState.connecting || _state == GatewayConnectionState.connected) return;
 
     _updateState(GatewayConnectionState.connecting);
-    
+
     try {
       debugPrint('[Gateway] Connecting to $_url...');
       _channel = WebSocketChannel.connect(Uri.parse(_url));
-      
+
       // Perform handshake immediately
       _sendHandshake();
 
@@ -72,7 +72,7 @@ class OpenClawGatewayService extends ChangeNotifier {
         "caps": ["agent", "send", "status"]
       }
     };
-    
+
     _sendRaw(jsonEncode(handshake));
   }
 
@@ -143,7 +143,7 @@ class OpenClawGatewayService extends ChangeNotifier {
     _reconnectAttempts++;
     final delay = Duration(seconds: _reconnectAttempts * 2);
     debugPrint('[Gateway] Retrying in ${delay.inSeconds}s...');
-    
+
     _reconnectTimer = Timer(delay, () => connect());
   }
 
