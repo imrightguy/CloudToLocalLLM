@@ -24,6 +24,7 @@ import 'package:zoidbot/services/web_download_prompt_service.dart'
 import 'package:zoidbot/services/settings_preference_service.dart';
 import 'package:zoidbot/services/settings_import_export_service.dart';
 
+import 'package:zoidbot/services/discord_service.dart';
 import 'package:zoidbot/services/admin_center_service.dart';
 import 'package:zoidbot/services/theme_provider.dart';
 import 'package:zoidbot/services/platform_detection_service.dart';
@@ -104,6 +105,10 @@ Future<void> setupCoreServices() async {
 
   final openClawGatewayService = OpenClawGatewayService();
   serviceLocator.registerSingleton<OpenClawGatewayService>(openClawGatewayService);
+
+  final discordService = DiscordService();
+  await discordService.initialize();
+  serviceLocator.registerSingleton<DiscordService>(discordService);
 
   await authService.init();
 

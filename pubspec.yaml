@@ -58,6 +58,9 @@ dependencies:
   # UUID generation
   uuid: any
 
+  # Discord Bot Integration
+  nyxx: ^6.3.0
+
   # Encryption for local storage
   encrypt: ^5.0.3
 
