@@ -9,7 +9,7 @@ metadata:
     networking.gke.io/managed-certificates: "zoidbot-certificate"
 spec:
   rules:
-  - host: zoidbot.online
+  - host: cloudtolocalllm.online
     http:
       paths:
       - path: /*
@@ -19,7 +19,7 @@ spec:
             name: web
             port:
               number: 80
-  - host: app.zoidbot.online
+  - host: app.cloudtolocalllm.online
     http:
       paths:
       - path: /*
@@ -29,7 +29,7 @@ spec:
             name: web
             port:
               number: 80
-  - host: docs.zoidbot.online
+  - host: docs.cloudtolocalllm.online
     http:
       paths:
       - path: /*
@@ -39,7 +39,7 @@ spec:
             name: web
             port:
               number: 80
-  - host: api.zoidbot.online
+  - host: api.cloudtolocalllm.online
     http:
       paths:
       - path: /*
@@ -49,7 +49,7 @@ spec:
             name: api-backend
             port:
               number: 8080
-  - host: streaming.zoidbot.online
+  - host: streaming.cloudtolocalllm.online
     http:
       paths:
       - path: /*

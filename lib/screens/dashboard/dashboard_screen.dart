@@ -8,6 +8,7 @@ import 'package:zoidbot/screens/dashboard/resource_overview_screen.dart';
 import 'package:zoidbot/models/agent.dart';
 import 'package:zoidbot/models/agent_event.dart';
 import 'package:zoidbot/services/dashboard_service.dart';
+import 'package:zoidbot/services/openclaw_gateway_service.dart';
 import 'package:zoidbot/providers/agent_provider.dart';
 
 /// Main dashboard screen with tabs for different views
@@ -22,24 +23,41 @@ class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final DashboardService _dashboardService = DashboardService();
+  final OpenClawGatewayService _gatewayService = OpenClawGatewayService();
   List<Agent> _agents = [];
   List<AgentEvent> _events = [];
   bool _isLoading = true;
   String? _error;
+  GatewayConnectionState _gatewayState = GatewayConnectionState.disconnected;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    
+    // Listen to gateway state changes
+    _gatewayService.addListener(_onGatewayStateChanged);
+    
+    // Connect immediately
+    _gatewayService.connect();
+    
     _loadData();
-    _connectWebSocket();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _dashboardService.disconnectWebSocket();
+    _gatewayService.disconnect();
+    _gatewayService.removeListener(_onGatewayStateChanged);
     super.dispose();
+  }
+
+  void _onGatewayStateChanged() {
+    if (mounted) {
+      setState(() {
+        _gatewayState = _gatewayService.state;
+      });
+    }
   }
 
   Future<void> _loadData() async {
@@ -70,67 +88,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
   }
 
-  void _connectWebSocket() {
-    _dashboardService.connectWebSocket(
-      onData: (data) {
-        if (!mounted) return;
-
-        switch (data['type']) {
-          case 'agent_update':
-            _handleAgentUpdate(data['agent']);
-            break;
-          case 'event_stream':
-            _handleNewEvent(data['event']);
-            break;
-          case 'agent_spawn':
-          case 'agent_terminate':
-            _loadData(); // Refresh agent list
-            break;
-        }
-      },
-      onError: (error) {
-        if (mounted) {
-          setState(() {
-            _error = 'WebSocket error: $error';
-          });
-        }
-      },
-    );
-  }
-
-  void _handleAgentUpdate(Map<String, dynamic> data) {
-    if (!mounted) return;
-    try {
-      final agent = Agent.fromJson(data);
-      Provider.of<AgentProvider>(context, listen: false).updateAgent(agent);
-
-      setState(() {
-        final index = _agents.indexWhere((a) => a.agentId == agent.agentId);
-        if (index >= 0) {
-          _agents[index] = agent;
-        } else {
-          _agents.add(agent);
-        }
-      });
-    } catch (e) {
-      debugPrint('[DashboardScreen] Error handling agent update: $e');
-    }
-  }
-
-  void _handleNewEvent(Map<String, dynamic> eventData) {
-    if (!mounted) return;
-    try {
-      final event = AgentEvent.fromJson(eventData);
-
-      setState(() {
-        _events.insert(0, event);
-        if (_events.length > 100) _events.removeLast();
-      });
-    } catch (e) {
-      debugPrint('[DashboardScreen] Error handling new event: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -139,6 +96,15 @@ class _DashboardScreenState extends State<DashboardScreen>
       appBar: AppBar(
         title: const Text('Agent Dashboard'),
         actions: [
+          // Gateway Status Indicator
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Icon(
+              Icons.fiber_manual_record,
+              color: _getGatewayStatusColor(),
+              size: 20.0,
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadData,
@@ -173,6 +139,18 @@ class _DashboardScreenState extends State<DashboardScreen>
       ),
       body: _buildBody(theme),
     );
+  }
+
+  Color _getGatewayStatusColor() {
+    switch (_gatewayState) {
+      case GatewayConnectionState.connected:
+        return Colors.green;
+      case GatewayConnectionState.connecting:
+        return Colors.orange;
+      case GatewayConnectionState.error:
+      case GatewayConnectionState.disconnected:
+        return Colors.red;
+    }
   }
 
   Widget _buildBody(ThemeData theme) {

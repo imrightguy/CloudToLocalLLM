@@ -35,7 +35,7 @@ import 'package:zoidbot/services/platform_detection_service.dart';
 import 'package:zoidbot/services/platform_adapter.dart';
 import 'package:zoidbot/services/url_scheme_registration_service.dart';
 import 'package:zoidbot/services/token_storage_service.dart';
-import 'package:zoidbot/models/provider_configuration.dart';// OpenClaw dashboard client service - manages WebSocket connection to OpenClaw agent dashboardfinal openClawDashboardClientService = OpenClawDashboardService();serviceLocator.registerSingleton<OpenClawDashboardClientService>(openClawDashboardClientService);
+import 'package:zoidbot/services/openclaw_gateway_service.dart';
 import 'package:zoidbot/services/ollama_service.dart';
 import 'package:zoidbot/services/system_control_service.dart';
 import 'package:zoidbot/services/window_manager_service.dart';
@@ -217,6 +217,10 @@ Future<void> setupCoreServices() async {
   // Don't initialize yet - wait for auth token
 
   debugPrint('[ServiceLocator] Core services registered successfully');
+
+  // OpenClaw gateway service - manages connection to agent gateway
+  final openClawGatewayService = OpenClawGatewayService();
+  serviceLocator.registerSingleton<OpenClawGatewayService>(openClawGatewayService);
 
   // Initialize AuthService last, after all dependencies are registered
   try {
