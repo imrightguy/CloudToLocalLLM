@@ -73,9 +73,9 @@ class AppConfig {
       'Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.';
 
   // URLs
-  static const String homepageUrl = 'http://cloudtolocalllm.online';
-  static const String appUrl = 'http://app.cloudtolocalllm.online';
-  static const String adminCenterUrl = 'http://admin.cloudtolocalllm.online';
+  static const String homepageUrl = 'https://cloudtolocalllm.online';
+  static const String appUrl = 'https://app.cloudtolocalllm.online';
+  static const String adminCenterUrl = 'https://admin.cloudtolocalllm.online';
   static const String githubUrl =
       'https://github.com/Zoidbot/Zoidbot';
   static const String githubReleasesUrl =
@@ -131,7 +131,7 @@ class AppConfig {
 
   // Platform-specific admin server URLs
   static const String adminServerUrlWeb =
-      'http://api.cloudtolocalllm.online:3001';
+      'https://api.cloudtolocalllm.online:3001';
   static const String adminServerUrlDesktop = 'http://localhost:3001';
 
   // Get admin server URL based on platform
