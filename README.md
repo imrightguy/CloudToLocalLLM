@@ -1,4 +1,4 @@
-# Zoidbot
+# CloudToLocalLLM
  
 <div align="center">
  
@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Web-lightgrey.svg)]()
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange.svg)]()
  
-**Zoidbot: A privacy-first platform to manage and run powerful Large Language Models (LLMs) locally, with an optional cloud relay for seamless remote access.**
+**CloudToLocalLLM: A privacy-first local AI assistant with voice, desktop awareness, and intelligent automation.**
  
 [Key Features](#key-features) • [Download & Install](#-download--install) • [Documentation](#-documentation) • [Development](#-development)
  
@@ -18,23 +18,23 @@
  
 ## 🚀 Overview
  
-**Zoidbot** bridges the gap between secure local AI execution and the convenience of cloud-based management. Designed for privacy-conscious users and businesses, it allows you to run models like Llama 3 and Mistral entirely on your own hardware while offering an optional, secure pathway for remote interaction.
+**CloudToLocalLLM** is your private, local AI assistant that lives on your desktop. Powered by local LLMs (Ollama) and optional cloud relay, it combines the privacy of local AI with intelligent voice interaction and desktop automation.
  
-> **Note:** The project is currently in **Heavy Development/Early Access**.
+> **The Vision:** A local alternative to cloud AI assistants - one that listens, sees, and helps without your data ever leaving your machine.
  
 ## ✨ Key Features
  
-*   **🔒 Privacy-First:** Run models locally using [Ollama](https://ollama.com). Your data stays on your device by default.
+*   **🔒 Privacy-First:** Everything runs locally. Your conversations and desktop activity never leave your device.
+*   **🎙️ Voice Assistant:** Natural voice conversations using local STT (Whisper) and TTS - talk to your AI like a real assistant.
+*   **👁️ Desktop Awareness:** See your screen, understand context, and help with what you're working on.
+*   **🖱️ Desktop Automation:** Execute tasks through voice commands - open apps, manage windows, automate workflows.
 *   **💻 Cross-Platform:** Native support for **Windows** and **Linux**, with a responsive **Web** interface.
-*   **⚡ Hybrid Architecture:** Seamlessly switch between local models when needed.
-*   **🎙️ Voice Interface:** (Planned) Speech-to-Text and Text-to-Speech for voice-driven conversations.
-*   **🔌 Extensible:** Integrated with LangChain for advanced AI workflows.
-*   **☁️ Cloud Infrastructure:** Deployed on **Azure** for scalable management.
-*   **🏠 Self-Hosted:** Easily deploy your own instance on any Linux VPS using Docker Compose.
+*   **⚡ Hybrid Architecture:** Seamlessly switch between local models (Ollama) and cloud fallbacks.
+*   **☁️ Optional Cloud Relay:** Secure remote access when you need it, without compromising local privacy.
  
 ## 📋 Prerequisites
  
-To use Zoidbot locally:
+To use CloudToLocalLLM locally:
  
 *   **[Ollama](https://ollama.com/download):** The engine that runs the AI models.
     *   Pull a model: `ollama pull llama3.2`
@@ -42,12 +42,12 @@ To use Zoidbot locally:
 ## 📥 Download & Install
  
 ### Windows & Linux
-1.  Go to the **[Latest Releases](https://github.com/Zoidbot/Zoidbot/releases/latest)** page.
+1.  Go to the **[Latest Releases](https://github.com/CloudToLocalLLM/CloudToLocalLLM/releases/latest)** page.
 2.  Download the installer or executable (`.exe` for Windows, `.AppImage` for Linux).
 3.  Launch the application.
  
 ### Web Version
-Latest web deployment: **[zoidbot.online](https://zoidbot.online)**
+Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online)**
  
 ## 📖 Documentation
 
@@ -56,7 +56,7 @@ Latest web deployment: **[zoidbot.online](https://zoidbot.online)**
 *   **[Troubleshooting](docs/user-guide/TROUBLESHOOTING.md):** Common issues and fixes.
 *   **[Self-Hosting Guide](docs/operations/SELF_HOSTING.md):** Run your own relay server.
 *   **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
-*   **[Voice Interface](docs/development/features/VOICE_INTERFACE_IMPLEMENTATION.md):** Voice features (STT/TTS) documentation.
+*   **[Voice & Desktop Control](docs/development/features/):** Voice interface and desktop automation documentation.
 
  
 ## 🛠️ Development
@@ -65,11 +65,21 @@ Latest web deployment: **[zoidbot.online](https://zoidbot.online)**
 *   **Frontend:** Flutter (Linux, Windows, Web)
 *   **Backend:** Node.js (Express.js)
 *   **Authentication:** Auth0
+*   **Local AI:** Ollama (Llama, Mistral, etc.)
+*   **Voice:** Whisper (STT), local TTS integration
+*   **Desktop Automation:** PyAutoGUI, UI-TARS, or similar
 *   **Deployment:** Azure (Cloud) or Docker Compose (Self-Hosted)
  
+### Voice & Desktop Control (Coming Soon)
+CloudToLocalLLM is evolving to support:
+- **Voice Input:** Local Whisper STT for privacy-first speech recognition
+- **Voice Output:** TTS integration for natural voice responses
+- **Screen Awareness:** Desktop context for smarter assistance
+- **Desktop Control:** Voice-guided automation of common tasks
+
 ### Build from Source
  
-1.  **Clone:** `git clone https://github.com/Zoidbot/Zoidbot.git`
+1.  **Clone:** `git clone https://github.com/CloudToLocalLLM/CloudToLocalLLM.git`
 2.  **Deps:** `flutter pub get` && `(cd services/api-backend && npm install)`
 3.  **Run:** `flutter run -d linux` (Desktop) or `flutter run -d chrome` (Web)
  
