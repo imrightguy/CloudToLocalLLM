@@ -186,13 +186,61 @@ class _AccountSettingsCategoryContentState
     return 'Free';
   }
 
+  /// Get subscription tier color
+  Color _getTierColor() {
+    final tier = _tierService?.currentTier ?? 'free';
+    switch (tier) {
+      case 'enterprise':
+        return Colors.purple;
+      case 'premium':
+        return Colors.blue;
+      case 'free':
+      default:
+        return Colors.grey;
+    }
+  }
+
+  /// Get subscription tier icon
+  IconData _getTierIcon() {
+    final tier = _tierService?.currentTier ?? 'free';
+    switch (tier) {
+      case 'enterprise':
+        return Icons.diamond;
+      case 'premium':
+        return Icons.star;
+      case 'free':
+      default:
+        return Icons.info;
+    }
+  }
+
+  /// Get tier description/benefits
+  List<String> _getTierBenefits() {
+    if (_tierService != null) {
+      return _tierService!.tierBenefits;
+    }
+    return ['Basic features', 'Local storage only'];
+  }
+
+  /// Check if user is on free tier
+  bool _isFreeTier() {
+    return (_tierService?.currentTier ?? 'free') == 'free';
+  }
+
+  /// Handle upgrade button press
+  void _handleUpgrade() {
+    // Navigate to upgrade/pricing page
+    // This will be handled by the router
+    Navigator.of(context).pushNamed('/upgrade');
+  }
+
   /// Check if user is admin
   bool _isAdminUser() {
+    // First try AdminCenterService
     if (_adminCenterService != null) {
       return _adminCenterService!.isAdmin;
     }
-    // Fallback: check if user has admin role in profile
-    // This is a secondary check if AdminCenterService is not available
+    // Fallback: cannot determine admin status without service
     return false;
   }
 
@@ -379,25 +427,75 @@ class _AccountSettingsCategoryContentState
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue.shade300),
+                        color: _getTierColor().withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _getTierColor().withValues(alpha: 0.3),
+                        ),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.star, color: Colors.blue.shade600),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _getSubscriptionTier(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.w500),
-                            ),
+                          Row(
+                            children: [
+                              Icon(
+                                _getTierIcon(),
+                                color: _getTierColor(),
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _getSubscriptionTier(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: _getTierColor(),
+                                      ),
+                                ),
+                              ),
+                              // Upgrade button for free tier
+                              if (_isFreeTier())
+                                FilledButton.icon(
+                                  onPressed: _handleUpgrade,
+                                  icon: const Icon(Icons.upgrade, size: 18),
+                                  label: const Text('Upgrade'),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: _getTierColor(),
+                                  ),
+                                ),
+                            ],
                           ),
+                          const SizedBox(height: 12),
+                          // Tier benefits
+                          ..._getTierBenefits().take(3).map((benefit) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 16,
+                                    color: _getTierColor().withValues(alpha: 0.7),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    benefit,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Colors.grey.shade700,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
