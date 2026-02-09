@@ -190,6 +190,8 @@ jobs:
     needs: [ai_change_analysis, run_tests]
     if: always() && (needs.ai_change_analysis.outputs.linux_needed == 'true' || needs.ai_change_analysis.outputs.windows_needed == 'true' || github.event_name == 'workflow_dispatch') && (needs.run_tests.result == 'success' || contains(github.event.head_commit.message, '[skip tests]'))
     uses: ./.github/workflows/app-builds.yml
+    with:
+      version: ${{ needs.ai_change_analysis.outputs.new_version }}
 
   publish_desktop_releases:
     needs: [ai_change_analysis, build_desktop_apps]
@@ -199,6 +201,17 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Update Version Files
+        run: |
+          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+          echo "Updating version to $VERSION"
+          
+          # Update pubspec.yaml
+          sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          
+          # Update assets/version.json
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\" | .build_date = \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
 
       - name: Download Linux Bundle
         uses: actions/download-artifact@v4
