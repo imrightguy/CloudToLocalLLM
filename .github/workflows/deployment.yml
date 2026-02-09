@@ -227,6 +227,10 @@ jobs:
 
       - name: Package Linux Distributions
         run: |
+          # Install FUSE for AppImage build
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+          
           mkdir -p dist/linux
           # Create standard bundle tarball with a top-level directory
           STAGING_DIR=$(mktemp -d)
