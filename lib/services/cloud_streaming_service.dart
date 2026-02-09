@@ -166,9 +166,10 @@ class CloudStreamingService extends StreamingService {
       debugPrint('☁ [CloudStreaming] Starting stream for model: $model');
 
       final baseHeaders = await _getHeaders();
+      final endpoint = _baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
 
       final response = await _dio.post(
-        '/chat/completions',
+        endpoint,
         data: requestBody,
         options: Options(
           headers: {

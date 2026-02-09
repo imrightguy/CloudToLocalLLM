@@ -88,10 +88,13 @@ class ConnectionManagerService extends ChangeNotifier {
     final baseUrl = connectionType == ConnectionType.local 
         ? AppConfig.defaultGatewayUrl 
         : AppConfig.cloudGatewayUrl;
+    
+    // Ensure we don't double up on /v1
+    final chatEndpoint = baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
 
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/v1/chat/completions'),
+        Uri.parse('$baseUrl$chatEndpoint'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer your-token-here',
@@ -138,10 +141,13 @@ class ConnectionManagerService extends ChangeNotifier {
 
   Future<void> testConnection() async {
     debugPrint('[ConnectionManager] Testing connection to ${AppConfig.defaultGatewayUrl}...');
+    final baseUrl = AppConfig.defaultGatewayUrl;
+    final chatEndpoint = baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
+
     try {
       // Test the OpenAI API directly
       final response = await http.post(
-        Uri.parse('${AppConfig.defaultGatewayUrl}/v1/chat/completions'),
+        Uri.parse('$baseUrl$chatEndpoint'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer your-token-here',
