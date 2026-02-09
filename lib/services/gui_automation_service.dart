@@ -11,7 +11,7 @@ class GuiAutomationService extends ChangeNotifier {
   bool _isProcessing = false;
   String _status = 'Ready';
   String _lastResult = '';
-  String _modelEndpoint = 'http://localhost:8000'; // vLLM endpoint
+  String _modelEndpoint = 'http://localhost:18789'; // OpenClaw Gateway endpoint
 
   bool get isInitialized => _isInitialized;
   bool get isProcessing => _isProcessing;
@@ -24,16 +24,16 @@ class GuiAutomationService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Check if vLLM server is running
-      final response = await http.get(Uri.parse('$_modelEndpoint/v1/models'));
+      // Check if OpenClaw Gateway is running
+      final response = await http.get(Uri.parse('$_modelEndpoint/status'));
       if (response.statusCode == 200) {
         _isInitialized = true;
-        _status = 'Ready - vLLM connected';
+        _status = 'Ready - OpenClaw connected';
       } else {
-        _status = 'Warning: vLLM not running (will use placeholder)';
+        _status = 'Warning: OpenClaw Gateway not running';
       }
     } catch (e) {
-      _status = 'vLLM not available - GUI features limited';
+      _status = 'OpenClaw not available - GUI features limited';
     }
 
     notifyListeners();
@@ -63,7 +63,7 @@ class GuiAutomationService extends ChangeNotifier {
     }
   }
 
-  /// Analyze screenshot with vision model
+  /// Analyze screenshot with vision model via OpenClaw
   Future<String> analyzeScreenshot(String imagePath) async {
     if (!_isInitialized) {
       return 'Service not initialized';
@@ -79,12 +79,12 @@ class GuiAutomationService extends ChangeNotifier {
       final bytes = await file.readAsBytes();
       final base64Image = base64Encode(bytes);
 
-      // Send to vLLM server with UI-TARS model
+      // Send to OpenClaw Gateway
       final response = await http.post(
         Uri.parse('$_modelEndpoint/v1/chat/completions'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'model': 'ByteDance-Seed/UI-TARS-1.5-7B',
+          'model': 'google-antigravity/gemini-3-flash', // Use the primary model
           'messages': [
             {
               'role': 'user',

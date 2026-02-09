@@ -26,17 +26,17 @@
  
 ## ✨ Key Features
  
-*   **🔒 Privacy-First:** Run models locally via vLLM or local GPU backends. Your data stays on your device. **Login optional for local use.**
-*   **🎮 GUI Automation:** Control your desktop applications using Vision-Language Models (UI-TARS).
+*   **🔒 Privacy-First:** All processing handled by **OpenClaw**. Your data stays on your device. **Login optional for local use.**
+*   **🎮 GUI Automation:** Control your desktop applications using Vision-Language Models (powered by OpenClaw).
 *   **💻 Cross-Platform:** Native support for **Windows** and **Linux**, with a responsive **Web** interface.
-*   **⚡ Hybrid Architecture:** Seamlessly switch between local and cloud models.
+*   **⚡ Hybrid Architecture:** Seamlessly switch between local and cloud models via OpenClaw Gateway.
 *   **🏠 Self-Hosted:** Easily deploy your own instance on any Linux VPS using Docker Compose.
  
 ## 📋 Prerequisites
  
 To use CloudToLocalLLM locally:
  
-*   **[vLLM](https://docs.vllm.ai/):** High-throughput serving engine for LLMs (Recommended for GUI Automation).
+*   **[OpenClaw Gateway](https://github.com/openclaw/openclaw):** The primary engine for all LLM and Vision tasks.
 *   **[NVIDIA Drivers](https://www.nvidia.com/drivers):** Required for GPU acceleration (RTX 30/40 series recommended).
  
 ## 📥 Download & Install

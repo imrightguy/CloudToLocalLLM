@@ -141,7 +141,7 @@ class _GuiAutomationScreenState extends State<GuiAutomationScreen> {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'GUI Automation requires vLLM server with UI-TARS model running.',
+                      'GUI Automation is powered by OpenClaw Gateway.',
                       style: TextStyle(fontSize: 12),
                     ),
                   ),

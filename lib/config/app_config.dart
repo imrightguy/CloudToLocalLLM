@@ -65,14 +65,14 @@ class AppConfig {
   static const bool showTierInformation = true;
   static const bool enableDirectTunnelMode = true;
 
-  // vLLM Configuration (Direct Local Connection for Desktop)
-  static const String defaultVllmHost = 'localhost';
-  static const int defaultVllmPort = 8000;
-  static const String defaultVllmUrl = 'http://localhost:8000';
-  static const Duration vllmTimeout = Duration(seconds: 60);
+  // OpenClaw Gateway Configuration (Primary LLM Provider)
+  static const String defaultGatewayHost = 'localhost';
+  static const int defaultGatewayPort = 18789;
+  static const String defaultGatewayUrl = 'http://localhost:18789';
+  static const Duration gatewayTimeout = Duration(seconds: 60);
 
-  // Cloud Relay Configuration (for web/mobile)
-  static const String cloudVllmUrl = '$apiBaseUrl/v1';
+  // Cloud Relay Configuration (via OpenClaw)
+  static const String cloudGatewayUrl = '$apiBaseUrl/v1';
 
   // Admin Interface Configuration
   static const bool enableAdminInterface = true;
@@ -112,7 +112,7 @@ class AppConfig {
   // Debug logging for configuration
   static void logConfiguration() {
     debugPrint('[DEBUG] AppConfig loaded:');
-    debugPrint('[DEBUG] - vLLM URL: $defaultVllmUrl');
+    debugPrint('[DEBUG] - OpenClaw Gateway: $defaultGatewayUrl');
     debugPrint('[DEBUG] - Bridge Status URL: $bridgeStatusUrl');
     debugPrint('[DEBUG] - Bridge Register URL: $bridgeRegisterUrl');
     debugPrint('[DEBUG] - Admin Server URL: $adminServerUrl');
