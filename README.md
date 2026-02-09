@@ -57,19 +57,6 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 *   **[Self-Hosting Guide](docs/operations/SELF_HOSTING.md):** Run your own relay server.
 *   **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
 
-## 🖼️ Screenshots
-
-<div align="center">
-  <img src="assets/screenshots/app_home.png" width="800" alt="Home Screen">
-  <p><em>Home Screen - Unified Chat Interface</em></p>
-  
-  <img src="assets/screenshots/app_gui_automation.png" width="800" alt="GUI Automation">
-  <p><em>GUI Automation Screen - Vision-based Control</em></p>
-
-  <img src="assets/screenshots/app_admin.png" width="800" alt="Admin Center">
-  <p><em>Admin Center - System Monitoring & Management</em></p>
-</div>
-
 ## 🛠️ Development
  
 ### Tech Stack
