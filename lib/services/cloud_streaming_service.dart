@@ -188,42 +188,43 @@ class CloudStreamingService extends StreamingService {
       }
 
       // Process streaming response (OpenAI SSE format)
+      // Using LineSplitter ensures we handle partial packets correctly
       final stream = response.data.stream as Stream<List<int>>;
-      await for (final chunk in stream.transform(
-        convert.utf8.decoder,
-      )) {
-        final lines = chunk.split('\n');
-        for (final line in lines) {
-          if (line.trim().isEmpty) continue;
-          if (!line.startsWith('data: ')) continue;
-          
-          final dataStr = line.substring(6).trim();
-          if (dataStr == '[DONE]') break;
+      final lineStream = stream
+          .transform(convert.utf8.decoder)
+          .transform(const convert.LineSplitter());
 
-          try {
-            final data = json.decode(dataStr);
-            final delta = data['choices']?[0]?['delta'];
-            if (delta == null) continue;
+      await for (final line in lineStream) {
+        final trimmedLine = line.trim();
+        if (trimmedLine.isEmpty) continue;
+        if (!trimmedLine.startsWith('data: ')) continue;
+        
+        final dataStr = trimmedLine.substring(6).trim();
+        if (dataStr == '[DONE]') break;
 
-            final content = delta['content'] as String? ?? '';
-            final reasoning = delta['reasoning_content'] as String?;
+        try {
+          final data = json.decode(dataStr);
+          final delta = data['choices']?[0]?['delta'];
+          if (delta == null) continue;
 
-            if (content.isNotEmpty || reasoning != null) {
-              final message = StreamingMessage.chunk(
-                id: messageId,
-                conversationId: conversationId,
-                chunk: content,
-                reasoning: reasoning,
-                sequence: sequence++,
-                model: model,
-              );
+          final content = delta['content'] as String? ?? '';
+          final reasoning = delta['reasoning_content'] as String?;
 
-              yield message;
-              _messageSubject.add(message);
-            }
-          } catch (e) {
-            debugPrint('☁ [CloudStreaming] Error parsing SSE chunk: $e');
+          if (content.isNotEmpty || reasoning != null) {
+            final message = StreamingMessage.chunk(
+              id: messageId,
+              conversationId: conversationId,
+              chunk: content,
+              reasoning: reasoning,
+              sequence: sequence++,
+              model: model,
+            );
+
+            yield message;
+            _messageSubject.add(message);
           }
+        } catch (e) {
+          debugPrint('☁ [CloudStreaming] Error parsing SSE line: $e');
         }
       }
 
