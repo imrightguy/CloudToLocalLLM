@@ -21,20 +21,41 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool? _compactSidebarPreference;
   bool _initializedWithContext = false;
+  StreamingChatService? _chatService;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_initializedWithContext) return;
     _initializedWithContext = true;
+    
+    _chatService = context.read<StreamingChatService>();
+    _chatService?.addListener(_onChatChanged);
+
     final appInit = context.read<AppInitializationService>();
     scheduleMicrotask(() => appInit.initializeWithContext(context));
   }
 
   @override
   void dispose() {
+    _chatService?.removeListener(_onChatChanged);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onChatChanged() {
+    // Automatically scroll to bottom on new messages or streaming updates
+    if (_scrollController.hasClients && (_chatService?.isStreaming ?? false)) {
+      scheduleMicrotask(() {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -88,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
     scheduleMicrotask(() {
       if (!_scrollController.hasClients) return;
       _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
+        0, // Bottom is 0 when ListView is reversed
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );

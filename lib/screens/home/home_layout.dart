@@ -472,15 +472,15 @@ class _MessageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTheme.spacingOf(context);
+    final messages = conversation.messages.reversed.toList();
+    
     return ListView.builder(
       controller: controller,
+      reverse: true,
       padding: EdgeInsets.symmetric(vertical: spacing.m),
-      itemCount: conversation.messages.length,
+      itemCount: messages.length,
       itemBuilder: (context, index) {
-        if (index >= conversation.messages.length) {
-          return const SizedBox.shrink();
-        }
-        final message = conversation.messages[index];
+        final message = messages[index];
         return MessageBubble(
           key: ValueKey(message.id),
           message: message,
