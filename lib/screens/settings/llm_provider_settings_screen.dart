@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../components/modern_card.dart';
 
 /// LLM Provider Settings Screen - OpenClaw focused
@@ -11,6 +12,11 @@ class LLMProviderSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/settings'),
+          tooltip: 'Back to Settings',
+        ),
         title: const Text('LLM Provider Settings'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),

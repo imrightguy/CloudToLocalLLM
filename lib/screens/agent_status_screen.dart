@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/agent_status_service.dart';
 import '../../components/agent_status_widget.dart';
 import '../../components/app_logo.dart';
@@ -31,6 +32,11 @@ class _AgentStatusScreenState extends State<AgentStatusScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+          tooltip: 'Back to Chat',
+        ),
         title: Row(
           children: [
             const AppLogo.small(),

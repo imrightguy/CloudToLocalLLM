@@ -47,7 +47,7 @@ class AgentStatusService {
   AgentStatusService({
     String? statusUrl,
     Duration? pollInterval,
-  })  : _statusUrl = statusUrl ?? 'http://localhost:3000/status.json',
+  })  : _statusUrl = statusUrl ?? 'http://localhost:18789/status',
         _pollInterval = pollInterval ?? const Duration(seconds: 2);
 
   /// Stream of agent status updates

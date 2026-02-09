@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../di/locator.dart' as di;
 
@@ -68,6 +69,11 @@ class _AdminDataFlushScreenState extends State<AdminDataFlushScreen>
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/admin-center'),
+          tooltip: 'Back to Admin Center',
+        ),
         title: Text(
           '🔒 Administrative Data Flush',
           style: theme.textTheme.headlineMedium?.copyWith(
