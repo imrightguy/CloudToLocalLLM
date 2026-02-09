@@ -326,6 +326,11 @@ class _AdminCenterScreenState extends State<AdminCenterScreen> {
           selectedItem.label,
           semanticsLabel: selectedItem.label,
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+          tooltip: 'Back to Chat',
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

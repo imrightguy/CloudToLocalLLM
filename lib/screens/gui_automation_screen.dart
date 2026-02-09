@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../services/gui_automation_service.dart';
 
 class GuiAutomationScreen extends StatefulWidget {
@@ -26,6 +27,10 @@ class _GuiAutomationScreenState extends State<GuiAutomationScreen> {
       appBar: AppBar(
         title: const Text('GUI Automation'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
