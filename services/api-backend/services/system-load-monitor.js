@@ -179,18 +179,24 @@ export class SystemLoadMonitor {
 
   /**
    * Update adaptive rate limiting multiplier based on system load
+   * @param {boolean} force - Force update regardless of cooldown (for testing)
    */
-  updateAdaptiveMultiplier() {
+  updateAdaptiveMultiplier(force = false) {
     const now = Date.now();
     const timeSinceLastAdjustment = now - this.lastAdjustmentTime;
 
-    // Only adjust if cooldown period has passed
-    if (timeSinceLastAdjustment < this.adjustmentCooldownMs) {
+    // Only adjust if cooldown period has passed, unless forced
+    if (!force && timeSinceLastAdjustment < this.adjustmentCooldownMs) {
       return;
     }
 
-    const avgMetrics = this.getAverageMetrics();
-    const load = parseFloat(avgMetrics.loadPercentage);
+    // Use current metrics for immediate response, or average if history is available
+    const useCurrentMetrics = force || this.metricsHistory.length === 0;
+
+    const load = useCurrentMetrics
+      ? this.currentMetrics.getLoadPercentage()
+      : parseFloat(this.getAverageMetrics().loadPercentage);
+
     let newMultiplier = 1.0;
 
     // Determine load level based on average load
@@ -214,6 +220,15 @@ export class SystemLoadMonitor {
 
     // Only log if multiplier changed
     if (newMultiplier !== this.adaptiveMultiplier) {
+      // Get metrics for logging
+      const metricsForLogging = useCurrentMetrics
+        ? {
+            cpuUsage: this.currentMetrics.cpuUsage.toFixed(2),
+            memoryUsage: this.currentMetrics.memoryUsage.toFixed(2),
+            sampleCount: 0,
+          }
+        : this.getAverageMetrics();
+
       this.logger.info('Adaptive rate limit multiplier adjusted', {
         previousMultiplier: this.adaptiveMultiplier.toFixed(2),
         newMultiplier: newMultiplier.toFixed(2),
@@ -225,9 +240,9 @@ export class SystemLoadMonitor {
             : isMedium
               ? 'medium'
               : 'low',
-        cpuUsage: avgMetrics.cpuUsage,
-        memoryUsage: avgMetrics.memoryUsage,
-        sampleCount: avgMetrics.sampleCount,
+        cpuUsage: metricsForLogging.cpuUsage,
+        memoryUsage: metricsForLogging.memoryUsage,
+        sampleCount: metricsForLogging.sampleCount,
         activeRequests: this.currentMetrics.activeRequests,
         queuedRequests: this.currentMetrics.queuedRequests,
       });
@@ -243,6 +258,8 @@ export class SystemLoadMonitor {
   recordActiveRequest() {
     this.activeRequests++;
     this.totalRequests++;
+    // Update current metrics immediately
+    this.currentMetrics.activeRequests = this.activeRequests;
   }
 
   /**
@@ -251,6 +268,8 @@ export class SystemLoadMonitor {
   recordCompletedRequest() {
     if (this.activeRequests > 0) {
       this.activeRequests--;
+      // Update current metrics immediately
+      this.currentMetrics.activeRequests = this.activeRequests;
     }
     this.totalProcessedRequests++;
   }
@@ -260,6 +279,8 @@ export class SystemLoadMonitor {
    */
   recordQueuedRequest() {
     this.queuedRequests++;
+    // Update current metrics immediately
+    this.currentMetrics.queuedRequests = this.queuedRequests;
   }
 
   /**
@@ -268,6 +289,8 @@ export class SystemLoadMonitor {
   recordDequeuedRequest() {
     if (this.queuedRequests > 0) {
       this.queuedRequests--;
+      // Update current metrics immediately
+      this.currentMetrics.queuedRequests = this.queuedRequests;
     }
   }
 
