@@ -244,6 +244,17 @@ class _HeaderBar extends StatelessWidget {
           const Spacer(),
           const _ModelSelector(),
           SizedBox(width: spacing.m),
+          IconButton(
+            icon: const Icon(Icons.smart_toy, color: Colors.white),
+            tooltip: 'GUI Automation',
+            onPressed: () => context.go('/gui-automation'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.dashboard, color: Colors.white),
+            tooltip: 'Admin Dashboard',
+            onPressed: () => context.go('/admin-center'),
+          ),
+          SizedBox(width: spacing.m),
           const _UserMenu(),
         ],
       ),

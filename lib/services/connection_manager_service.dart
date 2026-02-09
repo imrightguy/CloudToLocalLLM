@@ -1,22 +1,27 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'tunnel_service.dart';
 import 'streaming_service.dart';
 import 'cloud_streaming_service.dart';
 import 'auth_service.dart';
 import '../models/llm_communication_error.dart';
 import '../utils/logger.dart';
+import '../config/app_config.dart';
 
 enum ConnectionType { none, local, cloud }
 
 /// Connection Manager Service - manages connections to LLM providers
-/// Note: Ollama integration removed - use GUI Automation or vLLM directly
+/// Standardized on OpenClaw Gateway as the sole provider.
 class ConnectionManagerService extends ChangeNotifier {
   final TunnelService _tunnelService;
   final AuthService _authService;
 
   String? _selectedModel;
   CloudStreamingService? _cloudStreamingService;
+  bool _isOpenClawAvailable = false;
+  List<String> _availableModels = [];
 
   ConnectionManagerService({
     required TunnelService tunnelService,
@@ -27,13 +32,16 @@ class ConnectionManagerService extends ChangeNotifier {
     _authService.addListener(_onAuthChanged);
   }
 
-  bool get hasLocalConnection => false; // Ollama removed
+  bool get hasLocalConnection => _isOpenClawAvailable;
   bool get hasCloudConnection => _tunnelService.isConnected;
   bool get hasAnyConnection => hasLocalConnection || hasCloudConnection;
   String? get selectedModel => _selectedModel;
-  List<String> get availableModels => _getAvailableModels();
+  List<String> get availableModels => _availableModels;
 
   ConnectionType getBestConnectionType() {
+    if (hasLocalConnection) {
+      return ConnectionType.local;
+    }
     if (hasCloudConnection) {
       return ConnectionType.cloud;
     }
@@ -43,6 +51,10 @@ class ConnectionManagerService extends ChangeNotifier {
   StreamingService? getStreamingService() {
     final connectionType = getBestConnectionType();
     switch (connectionType) {
+      case ConnectionType.local:
+        // For local OpenClaw, we use a simple HTTP implementation for now
+        // In a full implementation, this would return a specific OpenClawStreamingService
+        return null; 
       case ConnectionType.cloud:
         _cloudStreamingService ??= CloudStreamingService(
           authService: _authService,
@@ -66,26 +78,79 @@ class ConnectionManagerService extends ChangeNotifier {
     List<Map<String, String>>? history,
   }) async {
     final connectionType = getBestConnectionType();
-    switch (connectionType) {
-      case ConnectionType.cloud:
-        // Cloud streaming only - Ollama removed
-        throw LLMCommunicationError.providerNotFound();
-      default:
-        throw LLMCommunicationError.providerNotFound();
+    
+    if (connectionType == ConnectionType.none) {
+      throw LLMCommunicationError.providerNotFound();
+    }
+
+    final baseUrl = connectionType == ConnectionType.local 
+        ? AppConfig.defaultGatewayUrl 
+        : AppConfig.cloudGatewayUrl;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/v1/chat/completions'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'model': model,
+          'messages': [
+            ...?history,
+            {'role': 'user', 'content': message},
+          ],
+        }),
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['choices'][0]['message']['content'] as String?;
+      } else {
+        throw LLMCommunicationError(
+          type: LLMCommunicationErrorType.modelError,
+          message: 'OpenClaw Gateway returned error: ${response.body}',
+          severity: ErrorSeverity.medium,
+          recoveryStrategy: RecoveryStrategy.retry,
+          httpStatusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      appLogger.error('[ConnectionManager] Chat request failed: $e');
+      rethrow;
     }
   }
 
   Future<void> initialize() async {
+    await testConnection();
     if (_authService.isAuthenticated.value) {
-      // Desktop: attempt tunnel connection, but don't fail if it doesn't work
       try {
         await _tunnelService.connect();
       } catch (e) {
         debugPrint('[ConnectionManager] Tunnel connection failed: $e');
-        // Continue without tunnel - direct API calls will still work
       }
     }
     _autoSelectModel();
+    notifyListeners();
+  }
+
+  Future<void> testConnection() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.defaultGatewayUrl}/v1/models'),
+      ).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        _isOpenClawAvailable = true;
+        final data = jsonDecode(response.body);
+        _availableModels = (data['data'] as List)
+            .map((m) => m['id'] as String)
+            .toList();
+      } else {
+        _isOpenClawAvailable = false;
+        _availableModels = [];
+      }
+    } catch (e) {
+      _isOpenClawAvailable = false;
+      _availableModels = [];
+    }
     notifyListeners();
   }
 
@@ -95,12 +160,12 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   Future<void> reconnectAll() async {
-    if (!kIsWeb && !_tunnelService.isConnected) {
+    await testConnection();
+    if (!_tunnelService.isConnected) {
       try {
         await _tunnelService.connect();
       } catch (e) {
         debugPrint('[ConnectionManager] Tunnel reconnection failed: $e');
-        // Continue without tunnel - direct API calls will still work
       }
     }
     notifyListeners();
@@ -108,23 +173,17 @@ class ConnectionManagerService extends ChangeNotifier {
 
   Map<String, dynamic> getConnectionStatus() {
     return {
-      'local': {'connected': hasLocalConnection, 'models': <String>[]},
+      'local': {'connected': hasLocalConnection, 'models': _availableModels},
       'cloud': {'connected': hasCloudConnection},
       'active': getBestConnectionType().name,
       'selectedModel': _selectedModel,
     };
   }
 
-  List<String> _getAvailableModels() {
-    // Ollama models removed - return empty list
-    return <String>[];
-  }
-
   void _autoSelectModel() {
     if (_selectedModel != null) return;
-    final models = availableModels;
-    if (models.isNotEmpty) {
-      setSelectedModel(models.first);
+    if (_availableModels.isNotEmpty) {
+      setSelectedModel(_availableModels.first);
     }
   }
 
@@ -135,11 +194,9 @@ class ConnectionManagerService extends ChangeNotifier {
 
   void _onAuthChanged() {
     if (_authService.isAuthenticated.value) {
-      if (!kIsWeb && !_tunnelService.isConnected) {
-        // Try to connect tunnel, but don't block on failure
+      if (!_tunnelService.isConnected) {
         _tunnelService.connect().catchError((e) {
-          debugPrint(
-              '[ConnectionManager] Tunnel connection failed on auth change: $e');
+          debugPrint('[ConnectionManager] Tunnel connection failed on auth change: $e');
         });
       }
     }
