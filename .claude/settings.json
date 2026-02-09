@@ -1,0 +1,96 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "Bash(for:*)",
+      "Bash(do:*)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(jq:*)",
+      "Bash(gh diff:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(gh pr list:*)",
+      "Bash(flutter format:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(cd:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run lint:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "pattern": "Edit(lib/**/*.dart)",
+        "command": "flutter format {{_arg0}}",
+        "background": true
+      },
+      {
+        "pattern": "Write(lib/**/*.dart)",
+        "command": "flutter format {{_arg0}}",
+        "background": true
+      },
+      {
+        "pattern": "Edit(services/api-backend/**/*.js)",
+        "command": "cd services/api-backend && npm run format",
+        "background": true
+      },
+      {
+        "pattern": "Write(services/api-backend/**/*.js)",
+        "command": "cd services/api-backend && npm run format",
+        "background": true
+      }
+    ],
+    "PreToolUse": [
+      {
+        "pattern": "**/*.secret.yaml",
+        "description": "Blocking edit to Kubernetes secret file",
+        "command": "echo 'Cannot edit secret files directly. Use kubectl or secret management tools.'"
+      },
+      {
+        "pattern": "**/.env.production",
+        "description": "Blocking edit to production environment file",
+        "command": "echo 'Cannot edit .env.production directly. Use environment variable management.'"
+      },
+      {
+        "pattern": "**/.env",
+        "description": "Blocking edit to environment file with warning",
+        "command": "echo 'Warning: Editing .env files directly is not recommended. Consider using environment variable templates.'"
+      },
+      {
+        "pattern": "**/secrets/**",
+        "description": "Blocking edit to secrets directory",
+        "command": "echo 'Cannot edit files in secrets directories. Use proper secret management.'"
+      },
+      {
+        "pattern": "**/*.key",
+        "description": "Blocking edit to private key files",
+        "command": "echo 'Cannot edit private key files. Generate new keys if needed.'"
+      }
+    ]
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-context7"
+      ]
+    },
+    "sentry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.sentry.dev/mcp"
+      ]
+    }
+  }
+}
