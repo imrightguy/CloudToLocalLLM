@@ -60,9 +60,9 @@ class AdminDataFlushService extends ChangeNotifier {
       DateTime.now().isBefore(_tokenExpiresAt!);
 
   void _setupDio() {
-    _dio.options.baseUrl = AppConfig.cloudOllamaUrl;
-    _dio.options.connectTimeout = AppConfig.ollamaTimeout;
-    _dio.options.receiveTimeout = AppConfig.ollamaTimeout;
+    _dio.options.baseUrl = AppConfig.cloudVllmUrl;
+    _dio.options.connectTimeout = AppConfig.vllmTimeout;
+    _dio.options.receiveTimeout = AppConfig.vllmTimeout;
 
     // Add auth interceptor
     _dio.interceptors.add(

@@ -33,7 +33,7 @@ class CloudStreamingService extends StreamingService {
     String? baseUrl,
     StreamingConfig? config,
     required AuthService authService,
-  })  : _baseUrl = baseUrl ?? AppConfig.cloudOllamaUrl,
+  })  : _baseUrl = baseUrl ?? AppConfig.cloudVllmUrl,
         _config = config ?? StreamingConfig.cloud(),
         _authService = authService {
     _setupDio();

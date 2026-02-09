@@ -51,12 +51,12 @@ class SettingsSidebar extends StatelessWidget {
           icon: Icons.settings_ethernet,
           subtitle: 'Cloud proxy settings',
         ),
-        // Model Manager - Ollama connection & models
+        // Model Manager - Vision & vLLM
         const SettingsSection(
           id: 'model-download-manager',
           title: 'Model Manager',
           icon: Icons.download_for_offline,
-          subtitle: 'Ollama connection & models',
+          subtitle: 'Vision & vLLM models',
         ),
         // Added 'Downloads' section for web platform
         const SettingsSection(
@@ -94,12 +94,12 @@ class SettingsSidebar extends StatelessWidget {
           icon: Icons.settings_ethernet,
           subtitle: 'Cloud proxy settings',
         ),
-        // Model Manager - Ollama connection & models
+        // Model Manager - Vision & vLLM
         const SettingsSection(
           id: 'model-download-manager',
           title: 'Model Manager',
           icon: Icons.download_for_offline,
-          subtitle: 'Ollama connection & models',
+          subtitle: 'Vision & vLLM models',
         ),
         const SettingsSection(
           id: 'data-management',

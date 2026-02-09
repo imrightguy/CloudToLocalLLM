@@ -26,19 +26,18 @@
  
 ## ✨ Key Features
  
-*   **🔒 Privacy-First:** Run models locally using [Ollama](https://ollama.com). Your data stays on your device by default.
+*   **🔒 Privacy-First:** Run models locally via vLLM or local GPU backends. Your data stays on your device.
+*   **🎮 GUI Automation:** Control your desktop applications using Vision-Language Models (UI-TARS).
 *   **💻 Cross-Platform:** Native support for **Windows** and **Linux**, with a responsive **Web** interface.
-*   **⚡ Hybrid Architecture:** Seamlessly switch between local models when needed.
-*   **🔌 Extensible:** Integrated with LangChain for advanced AI workflows.
-*   **☁️ Cloud Infrastructure:** Deployed on **Azure** for scalable management.
+*   **⚡ Hybrid Architecture:** Seamlessly switch between local and cloud models.
 *   **🏠 Self-Hosted:** Easily deploy your own instance on any Linux VPS using Docker Compose.
  
 ## 📋 Prerequisites
  
 To use CloudToLocalLLM locally:
  
-*   **[Ollama](https://ollama.com/download):** The engine that runs the AI models.
-    *   Pull a model: `ollama pull llama3.2`
+*   **[vLLM](https://docs.vllm.ai/):** High-throughput serving engine for LLMs (Recommended for GUI Automation).
+*   **[NVIDIA Drivers](https://www.nvidia.com/drivers):** Required for GPU acceleration (RTX 30/40 series recommended).
  
 ## 📥 Download & Install
  
@@ -51,14 +50,23 @@ To use CloudToLocalLLM locally:
 Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online)**
  
 ## 📖 Documentation
-
+ 
 *   **[User Guide](docs/user-guide/USER_GUIDE.md):** Features and detailed usage.
 *   **[Setup Guide](docs/user-guide/SETUP_GUIDE.md):** Step-by-step installation.
 *   **[Troubleshooting](docs/user-guide/TROUBLESHOOTING.md):** Common issues and fixes.
 *   **[Self-Hosting Guide](docs/operations/SELF_HOSTING.md):** Run your own relay server.
 *   **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
 
- 
+## 🖼️ Screenshots
+
+<div align="center">
+  <img src="assets/screenshots/app_home.png" width="800" alt="Home Screen">
+  <p><em>Home Screen - Unified Chat Interface</em></p>
+  
+  <img src="assets/screenshots/app_gui_automation.png" width="800" alt="GUI Automation">
+  <p><em>GUI Automation Screen - Vision-based Control</em></p>
+</div>
+
 ## 🛠️ Development
  
 ### Tech Stack
