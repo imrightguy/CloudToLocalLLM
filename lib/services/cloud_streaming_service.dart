@@ -70,43 +70,38 @@ class CloudStreamingService extends StreamingService {
       final stopwatch = Stopwatch()..start();
 
       // Test basic connectivity first
-      final headers = await _getHeaders();
-      final response = await _dio.get(
-        '/version',
-        options: Options(headers: headers),
-      );
+      // final headers = await _getHeaders();
+      // final response = await _dio.get(
+      //   '/models',
+      //   options: Options(headers: headers),
+      // );
 
       stopwatch.stop();
 
-      if (response.statusCode == 200) {
-        final data = response.data;
-        final version = data['version'] as String?;
-
+      // if (response.statusCode == 200) {
         _connection = StreamingConnection.connected(_baseUrl).copyWith(
           latency: Duration(milliseconds: stopwatch.elapsedMilliseconds),
         );
-
-        // Reset retry state on successful connection
 
         if (_config.enableHeartbeat) {
           _startHeartbeat();
         }
 
-        // Establish WebSocket connection for streaming
-        await _establishWebSocket();
+        // Establish WebSocket connection for streaming (Optional in OpenAI compatible)
+        // await _establishWebSocket();
 
         notifyListeners();
 
         debugPrint(
-          '☁ [CloudStreaming] Connected to cloud proxy v$version '
+          '☁ [CloudStreaming] Connected to OpenClaw Gateway '
           '(${stopwatch.elapsedMilliseconds}ms)',
         );
-      } else {
-        throw StreamingException(
-          'Failed to connect: HTTP ${response.statusCode}',
-          code: 'HTTP_ERROR',
-        );
-      }
+      // } else {
+      //   throw StreamingException(
+      //     'Failed to connect: HTTP ${response.statusCode}',
+      //     code: 'HTTP_ERROR',
+      //   );
+      // }
     } catch (e) {
       _connection = StreamingConnection.error(
         'Connection failed: $e',
@@ -173,12 +168,12 @@ class CloudStreamingService extends StreamingService {
       final baseHeaders = await _getHeaders();
 
       final response = await _dio.post(
-        '/chat',
+        '/chat/completions',
         data: requestBody,
         options: Options(
           headers: {
             ...baseHeaders,
-            'Accept': 'application/x-ndjson',
+            'Accept': 'text/event-stream',
           },
           responseType: ResponseType.stream,
         ),
@@ -191,47 +186,54 @@ class CloudStreamingService extends StreamingService {
         );
       }
 
-      // Process streaming response
+      // Process streaming response (OpenAI SSE format)
       await for (final chunk in response.data.stream.transform(
         convert.utf8.decoder,
       )) {
         final lines = chunk.split('\n');
         for (final line in lines) {
           if (line.trim().isEmpty) continue;
+          if (!line.startsWith('data: ')) continue;
+          
+          final dataStr = line.substring(6).trim();
+          if (dataStr == '[DONE]') break;
 
           try {
-            final data = json.decode(line);
-            final content = data['message']?['content'] as String? ?? '';
-            final done = data['done'] as bool? ?? false;
+            final data = json.decode(dataStr);
+            final delta = data['choices']?[0]?['delta'];
+            if (delta == null) continue;
 
-            final message = StreamingMessage.chunk(
-              id: messageId,
-              conversationId: conversationId,
-              chunk: content,
-              sequence: sequence++,
-              model: model,
-            );
+            final content = delta['content'] as String? ?? '';
+            final reasoning = delta['reasoning_content'] as String?;
 
-            yield message;
-            _messageSubject.add(message);
-
-            if (done) {
-              final completeMessage = StreamingMessage.complete(
+            if (content.isNotEmpty || reasoning != null) {
+              final message = StreamingMessage.chunk(
                 id: messageId,
                 conversationId: conversationId,
-                sequence: sequence,
+                chunk: content,
+                reasoning: reasoning,
+                sequence: sequence++,
                 model: model,
               );
 
-              yield completeMessage;
-              _messageSubject.add(completeMessage);
-              break;
+              yield message;
+              _messageSubject.add(message);
             }
           } catch (e) {
-            debugPrint('☁ [CloudStreaming] Error parsing chunk: $e');
+            debugPrint('☁ [CloudStreaming] Error parsing SSE chunk: $e');
           }
         }
       }
+
+      final completeMessage = StreamingMessage.complete(
+        id: messageId,
+        conversationId: conversationId,
+        sequence: sequence,
+        model: model,
+      );
+
+      yield completeMessage;
+      _messageSubject.add(completeMessage);
 
       _connection = _connection.copyWith(
         state: StreamingConnectionState.connected,

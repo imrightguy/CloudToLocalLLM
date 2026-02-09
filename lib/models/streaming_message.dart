@@ -9,6 +9,7 @@ class StreamingMessage {
   final String id;
   final String conversationId;
   final String chunk;
+  final String? reasoning; // Thinking content from the model
   final bool isComplete;
   final int sequence;
   final DateTime timestamp;
@@ -19,6 +20,7 @@ class StreamingMessage {
     required this.id,
     required this.conversationId,
     required this.chunk,
+    this.reasoning,
     required this.isComplete,
     required this.sequence,
     required this.timestamp,
@@ -31,6 +33,7 @@ class StreamingMessage {
     required String id,
     required String conversationId,
     required String chunk,
+    String? reasoning,
     required int sequence,
     String? model,
   }) {
@@ -38,6 +41,7 @@ class StreamingMessage {
       id: id,
       conversationId: conversationId,
       chunk: chunk,
+      reasoning: reasoning,
       isComplete: false,
       sequence: sequence,
       timestamp: DateTime.now(),
@@ -87,6 +91,7 @@ class StreamingMessage {
       id: json['id'] as String,
       conversationId: json['conversationId'] as String,
       chunk: json['chunk'] as String? ?? '',
+      reasoning: json['reasoning'] as String?,
       isComplete: json['isComplete'] as bool? ?? false,
       sequence: json['sequence'] as int? ?? 0,
       timestamp: DateTime.parse(json['timestamp'] as String),
@@ -101,6 +106,7 @@ class StreamingMessage {
       'id': id,
       'conversationId': conversationId,
       'chunk': chunk,
+      if (reasoning != null) 'reasoning': reasoning,
       'isComplete': isComplete,
       'sequence': sequence,
       'timestamp': timestamp.toIso8601String(),
@@ -113,7 +119,7 @@ class StreamingMessage {
   bool get hasError => error != null;
 
   /// Check if this is a data chunk (not completion or error)
-  bool get isDataChunk => !isComplete && !hasError && chunk.isNotEmpty;
+  bool get isDataChunk => !isComplete && !hasError && (chunk.isNotEmpty || reasoning != null);
 
   @override
   bool operator ==(Object other) {
@@ -133,7 +139,7 @@ class StreamingMessage {
   String toString() {
     return 'StreamingMessage(id: $id, conversationId: $conversationId, '
         'sequence: $sequence, isComplete: $isComplete, '
-        'chunk: ${chunk.length} chars, hasError: $hasError)';
+        'chunk: ${chunk.length} chars, reasoning: ${reasoning?.length ?? 0} chars, hasError: $hasError)';
   }
 
   /// Copy with modifications
@@ -141,6 +147,7 @@ class StreamingMessage {
     String? id,
     String? conversationId,
     String? chunk,
+    String? reasoning,
     bool? isComplete,
     int? sequence,
     DateTime? timestamp,
@@ -151,6 +158,7 @@ class StreamingMessage {
       id: id ?? this.id,
       conversationId: conversationId ?? this.conversationId,
       chunk: chunk ?? this.chunk,
+      reasoning: reasoning ?? this.reasoning,
       isComplete: isComplete ?? this.isComplete,
       sequence: sequence ?? this.sequence,
       timestamp: timestamp ?? this.timestamp,

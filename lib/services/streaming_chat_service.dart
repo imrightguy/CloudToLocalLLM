@@ -36,6 +36,8 @@ class StreamingChatService extends ChangeNotifier {
   // Streaming state
   final BehaviorSubject<String> _streamingContentSubject =
       BehaviorSubject<String>.seeded('');
+  final BehaviorSubject<String> _streamingReasoningSubject =
+      BehaviorSubject<String>.seeded('');
   StreamSubscription<StreamingMessage>? _currentStreamSubscription;
   String _currentStreamingMessageId = '';
 
@@ -49,6 +51,9 @@ class StreamingChatService extends ChangeNotifier {
 
   /// Stream of current streaming content for real-time UI updates
   Stream<String> get streamingContentStream => _streamingContentSubject.stream;
+
+  /// Stream of current streaming reasoning for real-time UI updates
+  Stream<String> get streamingReasoningStream => _streamingReasoningSubject.stream;
 
   /// Initialize the service
   void _initializeService() {
@@ -269,6 +274,7 @@ class StreamingChatService extends ChangeNotifier {
       // Start streaming
       _setStreaming(true);
       _streamingContentSubject.add('');
+      _streamingReasoningSubject.add('');
 
       final conversationId = _currentConversation!.id;
       final messageStream = streamingService.streamResponse(
@@ -325,13 +331,25 @@ class StreamingChatService extends ChangeNotifier {
     }
 
     if (streamingMessage.isDataChunk) {
-      // Update streaming content
-      final currentContent = _streamingContentSubject.value;
-      final newContent = currentContent + streamingMessage.chunk;
-      _streamingContentSubject.add(newContent);
+      // Update content
+      if (streamingMessage.chunk.isNotEmpty) {
+        final currentContent = _streamingContentSubject.value;
+        final newContent = currentContent + streamingMessage.chunk;
+        _streamingContentSubject.add(newContent);
+      }
+
+      // Update reasoning
+      if (streamingMessage.reasoning != null && streamingMessage.reasoning!.isNotEmpty) {
+        final currentReasoning = _streamingReasoningSubject.value;
+        final newReasoning = currentReasoning + streamingMessage.reasoning!;
+        _streamingReasoningSubject.add(newReasoning);
+      }
 
       // Update the streaming message in the conversation
-      _updateStreamingMessage(newContent);
+      _updateStreamingMessage(
+        _streamingContentSubject.value,
+        _streamingReasoningSubject.value,
+      );
     }
   }
 
@@ -360,30 +378,41 @@ class StreamingChatService extends ChangeNotifier {
 
     // Convert streaming message to final assistant message
     final finalContent = _streamingContentSubject.value;
-    if (finalContent.isNotEmpty) {
-      _removeLastMessage();
+    final finalReasoning = _streamingReasoningSubject.value;
 
+    // Always remove the streaming placeholder if it exists
+    if (_currentConversation != null &&
+        _currentConversation!.messages.isNotEmpty &&
+        _currentConversation!.messages.last.id == _currentStreamingMessageId) {
+      _removeLastMessage();
+    }
+
+    if (finalContent.isNotEmpty || finalReasoning.isNotEmpty) {
       final assistantMessage = Message.assistant(
         content: finalContent,
+        reasoning: finalReasoning.isNotEmpty ? finalReasoning : null,
         model: _selectedModel!,
       );
       _addMessageToCurrentConversation(assistantMessage);
+    } else {
+      appLogger.warning('[StreamingChat] Streaming completed with empty content');
     }
 
     // Clear streaming content
     _streamingContentSubject.add('');
+    _streamingReasoningSubject.add('');
     _currentStreamingMessageId = '';
   }
 
   /// Update the streaming message content
-  void _updateStreamingMessage(String content) {
+  void _updateStreamingMessage(String content, String? reasoning) {
     if (_currentConversation == null || _currentStreamingMessageId.isEmpty) {
       return;
     }
 
-    final index = _conversations.indexWhere(
-      (c) => c.id == _currentConversation!.id,
-    );
+    final conversationId = _currentConversation!.id;
+    final index = _conversations.indexWhere((c) => c.id == conversationId);
+    
     if (index != -1) {
       final conversation = _conversations[index];
       final messageIndex = conversation.messages.indexWhere(
@@ -393,15 +422,19 @@ class StreamingChatService extends ChangeNotifier {
       if (messageIndex != -1) {
         final updatedMessage = conversation.messages[messageIndex].copyWith(
           content: content,
+          reasoning: reasoning,
         );
 
         final updatedMessages = List<Message>.from(conversation.messages);
         updatedMessages[messageIndex] = updatedMessage;
 
-        _conversations[index] = conversation.copyWith(
+        final updatedConversation = conversation.copyWith(
           messages: updatedMessages,
+          updatedAt: DateTime.now(),
         );
-        _currentConversation = _conversations[index];
+
+        _conversations[index] = updatedConversation;
+        _currentConversation = updatedConversation;
         notifyListeners();
       }
     }
@@ -480,6 +513,7 @@ class StreamingChatService extends ChangeNotifier {
     _currentStreamSubscription = null;
     _setStreaming(false);
     _streamingContentSubject.add('');
+    _streamingReasoningSubject.add('');
   }
 
   /// Add message to current conversation
@@ -490,12 +524,13 @@ class StreamingChatService extends ChangeNotifier {
         return;
       }
 
-      final index = _conversations.indexWhere(
-        (c) => c.id == _currentConversation!.id,
-      );
+      final conversationId = _currentConversation!.id;
+      final index = _conversations.indexWhere((c) => c.id == conversationId);
+      
       if (index != -1) {
-        _conversations[index] = _conversations[index].addMessage(message);
-        _currentConversation = _conversations[index];
+        final updatedConversation = _conversations[index].addMessage(message);
+        _conversations[index] = updatedConversation;
+        _currentConversation = updatedConversation;
         _saveConversations();
         notifyListeners();
       } else {
@@ -516,19 +551,25 @@ class StreamingChatService extends ChangeNotifier {
         return;
       }
 
-      final index = _conversations.indexWhere(
-        (c) => c.id == _currentConversation!.id,
-      );
+      final conversationId = _currentConversation!.id;
+      final index = _conversations.indexWhere((c) => c.id == conversationId);
+      
       if (index != -1) {
-        final messages = List<Message>.from(_currentConversation!.messages);
-        messages.removeLast();
-
-        _conversations[index] = _conversations[index].copyWith(
-          messages: messages,
-        );
-        _currentConversation = _conversations[index];
-        _saveConversations();
-        notifyListeners();
+        final updatedMessages = List<Message>.from(_conversations[index].messages);
+        if (updatedMessages.isNotEmpty) {
+          updatedMessages.removeLast();
+          
+          final updatedConversation = _conversations[index].copyWith(
+            messages: updatedMessages,
+            updatedAt: DateTime.now(),
+          );
+          
+          _conversations[index] = updatedConversation;
+          _currentConversation = updatedConversation;
+          
+          _saveConversations();
+          notifyListeners();
+        }
       }
     } catch (e) {
       appLogger.error('Error removing last message', error: e);
@@ -590,6 +631,7 @@ class StreamingChatService extends ChangeNotifier {
 
     _cancelCurrentStream();
     _streamingContentSubject.close();
+    _streamingReasoningSubject.close();
     _connectionManager.removeListener(_onConnectionManagerChanged);
     _storageService.dispose();
 
