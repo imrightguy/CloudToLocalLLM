@@ -52,6 +52,9 @@ import 'package:cloudtolocalllm/utils/platform_file_utils.dart'
 // navigatorKey is now imported from config/navigator_key.dart
 
 void main(List<String> args) async {
+  // Flutter requires WidgetsFlutterBinding to be initialized first
+  WidgetsFlutterBinding.ensureInitialized();
+  
   // Immediate logging to verify Dart entry point is reached
   // Build trigger: force new release tag
   debugPrint('----- DART MAIN START ----- v10.1.187');
@@ -70,27 +73,30 @@ void main(List<String> args) async {
   // Initialize Sentry IMMEDIATELY after Flutter binding (before all other services)
   debugPrint('[Main] Initializing Sentry (FIRST after Flutter binding)...');
 
-  try {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = AppConfig.sentryDsn;
-        options.environment = AppConfig.sentryEnvironment;
-        options.release = '${AppConfig.appName}@${AppConfig.appVersion}';
-        // Lower sample rate in production to reduce costs
-        options.tracesSampleRate = kReleaseMode ? 0.1 : 1.0;
-        // Enable debug only in development
-        options.debug = !kReleaseMode;
-        // Enable Sentry Logs
-        options.enableLogs = true;
-      },
-      appRunner: () async {
-        debugPrint('[Main] Sentry initialized, running app with Sentry...');
-        _runAppWithSentry();
-      },
-    ).timeout(const Duration(seconds: 5));
-    debugPrint('[Main] Sentry init completed');
-  } catch (e) {
-    debugPrint('Sentry initialization failed or timed out: $e');
+  if (kReleaseMode) {
+    try {
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = AppConfig.sentryDsn;
+          options.environment = AppConfig.sentryEnvironment;
+          options.release = '${AppConfig.appName}@${AppConfig.appVersion}';
+          // Lower sample rate in production to reduce costs
+          options.tracesSampleRate = 0.1;
+          // Disable Sentry Logs
+          options.enableLogs = false;
+        },
+        appRunner: () async {
+          debugPrint('[Main] Sentry initialized, running app with Sentry...');
+          _runAppWithSentry();
+        },
+      ).timeout(const Duration(seconds: 5));
+      debugPrint('[Main] Sentry init completed');
+    } catch (e) {
+      debugPrint('Sentry initialization failed or timed out: $e');
+      _runAppWithoutSentry();
+    }
+  } else {
+    debugPrint('[Main] Debug mode detected, skipping Sentry initialization');
     _runAppWithoutSentry();
   }
 }
@@ -147,7 +153,6 @@ void _runAppCommon() {
   // Run the app inside a zone to catch async errors
   runZonedGuarded(
     () {
-      WidgetsFlutterBinding.ensureInitialized();
       runApp(
         SentryWidget(
           child: FutureProvider<AppBootstrapData?>(

@@ -50,7 +50,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
         ),
       ),
       child: Column(
@@ -80,7 +80,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
         ),
       ),
       child: Center(
@@ -100,7 +100,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
             Text(
               'Start an agent session to see status',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
             ),
           ],
@@ -122,7 +122,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: _getStatusColor().withOpacity(0.2),
+            color: _getStatusColor().withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -143,7 +143,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _getStatusColorForStatus(agent.status).withOpacity(0.2),
+          backgroundColor: _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
           child: Text(
             _getStatusEmoji(agent.status),
             style: TextStyle(fontSize: 20),
@@ -169,7 +169,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurface
-                                .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                           ),
                     ),
                 ],
@@ -178,7 +178,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: _getStatusColorForStatus(agent.status).withOpacity(0.2),
+            color: _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
