@@ -21,11 +21,11 @@ class AgentStatus {
 
   factory AgentStatus.fromJson(Map<String, dynamic> json) {
     return AgentStatus(
-      id: json['id'] ?? '',
-      name: json['name'] ?? 'Unknown',
-      status: json['status'] ?? 'idle',
-      activity: json['activity'],
-      lastUpdate: json['lastUpdate'],
+      id: json['sessionId'] ?? '',
+      name: json['key']?.split(':')?.last ?? 'Unknown',
+      status: json['abortedLastRun'] == true ? 'error' : 'active',
+      activity: 'Model: ${json['model'] ?? 'unknown'} (${json['inputTokens'] ?? 0} in, ${json['outputTokens'] ?? 0} out)',
+      lastUpdate: json['updatedAt']?.toString(),
     );
   }
 }
@@ -47,7 +47,7 @@ class AgentStatusService {
   AgentStatusService({
     String? statusUrl,
     Duration? pollInterval,
-  })  : _statusUrl = statusUrl ?? 'http://localhost:18789/status',
+  })  : _statusUrl = statusUrl ?? 'http://localhost:3000/status.json',
         _pollInterval = pollInterval ?? const Duration(seconds: 2);
 
   /// Stream of agent status updates
@@ -85,13 +85,13 @@ class AgentStatusService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        if (data is Map<String, dynamic> && data.containsKey('agents')) {
-          final agents = data['agents'] as List<dynamic>;
+        if (data is Map<String, dynamic> && data.containsKey('sessions')) {
+          final sessions = data['sessions'] as List<dynamic>;
           final statuses =
-              agents.map((e) => AgentStatus.fromJson(e as Map<String, dynamic>)).toList();
+              sessions.map((e) => AgentStatus.fromJson(e as Map<String, dynamic>)).toList();
           _cachedStatuses = statuses;
           _statusController.add(statuses);
-          _logger.d('Polled agent status: ${statuses.length} agents');
+          _logger.d('Polled agent status: ${statuses.length} sessions');
         }
       } else {
         _logger.w('Failed to poll agent status: ${response.statusCode}');

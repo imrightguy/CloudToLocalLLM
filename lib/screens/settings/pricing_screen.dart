@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../di/locator.dart' as di;
 import '../../services/enhanced_user_tier_service.dart';
 
@@ -198,7 +199,7 @@ class _PricingScreenState extends State<PricingScreen> {
         title: const Text('Subscription Plans'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
         ),
       ),
       body: SingleChildScrollView(

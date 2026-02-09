@@ -208,6 +208,8 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
     switch (status) {
       case 'idle':
         return Colors.green;
+      case 'active':
+        return Colors.blue;
       case 'thinking':
       case 'busy':
         return Colors.orange;
@@ -222,6 +224,8 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
     switch (status) {
       case 'idle':
         return '😴';
+      case 'active':
+        return '🚀';
       case 'thinking':
         return '🤔';
       case 'busy':

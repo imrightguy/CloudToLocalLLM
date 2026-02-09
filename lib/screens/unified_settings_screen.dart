@@ -597,6 +597,10 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
               SettingsCategoryMetadata.getTitle(categoryId),
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             backgroundColor: Theme.of(context).colorScheme.surface,
             foregroundColor: Theme.of(context).colorScheme.onSurface,
           ),
