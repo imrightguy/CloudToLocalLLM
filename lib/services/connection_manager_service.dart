@@ -90,7 +90,10 @@ class ConnectionManagerService extends ChangeNotifier {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/v1/chat/completions'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer your-token-here',
+        },
         body: jsonEncode({
           'model': model,
           'messages': [
@@ -133,21 +136,32 @@ class ConnectionManagerService extends ChangeNotifier {
 
   Future<void> testConnection() async {
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.defaultGatewayUrl}/v1/models'),
+      // Test the OpenAI API directly
+      final response = await http.post(
+        Uri.parse('${AppConfig.defaultGatewayUrl}/v1/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer your-token-here',
+        },
+        body: jsonEncode({
+          'model': 'gemini-3-flash',
+          'messages': [{'role': 'user', 'content': 'ping'}],
+          'max_tokens': 1,
+        }),
       ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         _isOpenClawAvailable = true;
-        final data = jsonDecode(response.body);
-        _availableModels = (data['data'] as List)
-            .map((m) => m['id'] as String)
-            .toList();
+        // In a real app, we'd fetch actual models, 
+        // but for now we'll just hardcode the primary one
+        _availableModels = ['google-antigravity/gemini-3-flash'];
       } else {
+        debugPrint('[ConnectionManager] API test failed with status: ${response.statusCode}');
         _isOpenClawAvailable = false;
         _availableModels = [];
       }
     } catch (e) {
+      debugPrint('[ConnectionManager] Connection test exception: $e');
       _isOpenClawAvailable = false;
       _availableModels = [];
     }
