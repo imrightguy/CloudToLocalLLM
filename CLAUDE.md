@@ -89,8 +89,9 @@ The Flutter app uses a layered service architecture with dependency injection:
 ### Backend Services
 
 - **api-backend**: Main Express.js server with Auth0 JWT auth, PostgreSQL, rate limiting, OpenTelemetry tracing
-- **streaming-proxy**: WebSocket proxy for real-time LLM communication
+- **postgres**: PostgreSQL database configuration and migrations
 - **sdk**: TypeScript SDK for third-party integrations
+- **streaming-proxy**: WebSocket proxy for real-time LLM communication
 
 ### Authentication Flow
 
@@ -101,8 +102,8 @@ The Flutter app uses a layered service architecture with dependency injection:
 ### LLM Provider System
 
 Supports multiple local LLM providers:
-- **Ollama**: Default local provider, auto-discovery on localhost:11434
-- **LM Studio**: Alternative local provider
+- **OpenClaw Gateway**: Primary local provider, auto-discovery on localhost:18789
+- **LM Studio**: Alternative local provider (localhost:1234)
 - **OpenAI-compatible**: Generic OpenAI API providers
 
 Providers are configured via `ProviderConfigurationManager` with auto-discovery in `ProviderDiscoveryService`. LangChain integration for advanced workflows.
@@ -160,7 +161,8 @@ import 'package:cloudtolocalllm/services/some_service.dart'
 - **Dart SDK**: >=3.5.0 <4.0.0
 - **Node.js**: >=22.0.0 <25.0.0 (API backend and streaming proxy)
 - **PostgreSQL**: For backend database
-- **Ollama**: For local model execution (optional for development)
+- **OpenClaw Gateway**: Primary LLM engine (localhost:18789)
+- **NVIDIA Drivers**: Required for GPU acceleration (RTX 30/40 series recommended)
 
 ## Key Configuration Files
 
