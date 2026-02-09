@@ -29,7 +29,7 @@ class StreamingChatService extends ChangeNotifier {
 
   List<Conversation> _conversations = [];
   Conversation? _currentConversation;
-  String? _selectedModel;
+  String? _selectedModel = 'google-antigravity/gemini-3-flash';
   bool _isLoading = false;
   bool _isStreaming = false;
 

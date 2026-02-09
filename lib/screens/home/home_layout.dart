@@ -242,8 +242,6 @@ class _HeaderBar extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          const _ModelSelector(),
-          SizedBox(width: spacing.m),
           IconButton(
             icon: const Icon(Icons.smart_toy, color: Colors.white),
             tooltip: 'GUI Automation',
@@ -262,58 +260,7 @@ class _HeaderBar extends StatelessWidget {
   }
 }
 
-class _ModelSelector extends StatelessWidget {
-  const _ModelSelector();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer2<StreamingChatService, ConnectionManagerService>(
-      builder: (context, chatService, connectionManager, child) {
-        final spacing = AppTheme.spacingOf(context);
-        final models = connectionManager.availableModels;
-        return Container(
-          width: 200,
-          padding: EdgeInsets.symmetric(horizontal: spacing.s),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: chatService.selectedModel,
-              hint: Text(
-                'Select Model',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
-                overflow: TextOverflow.ellipsis,
-              ),
-              items: models.map((model) {
-                return DropdownMenuItem(
-                  value: model,
-                  child: Text(model, overflow: TextOverflow.ellipsis),
-                );
-              }).toList(),
-              onChanged: (model) {
-                if (model != null) {
-                  chatService.setSelectedModel(model);
-                }
-              },
-              dropdownColor: Colors.white,
-              icon: Icon(
-                Icons.arrow_drop_down,
-                color: Colors.white.withValues(alpha: 0.8),
-              ),
-              isExpanded: true,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
+// Removed _ModelSelector class as it's no longer needed in the UI
 
 class _UserMenu extends StatelessWidget {
   const _UserMenu();
@@ -505,9 +452,7 @@ class _ChatPane extends StatelessWidget {
                   onSendMessage: (message) =>
                       onSendMessage(chatService, message),
                   isLoading: chatService.isLoading,
-                  placeholder: chatService.selectedModel == null
-                      ? 'Please select a model first...'
-                      : 'Type your message...',
+                  placeholder: 'Type your message...',
                 ),
               ),
             ],
