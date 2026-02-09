@@ -66,9 +66,9 @@ class AppConfig {
   static const bool enableDirectTunnelMode = true;
 
   // OpenClaw Gateway Configuration (Primary LLM Provider)
-  static const String defaultGatewayHost = 'localhost';
+  static const String defaultGatewayHost = '127.0.0.1';
   static const int defaultGatewayPort = 18789;
-  static const String defaultGatewayUrl = 'http://localhost:18789';
+  static const String defaultGatewayUrl = 'http://127.0.0.1:18789';
   static const Duration gatewayTimeout = Duration(seconds: 60);
 
   // Cloud Relay Configuration (via OpenClaw)
