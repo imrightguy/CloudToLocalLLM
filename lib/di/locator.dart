@@ -14,15 +14,12 @@ import 'package:cloudtolocalllm/auth/providers/auth0_auth_provider.dart';
 import 'package:cloudtolocalllm/services/desktop_client_detection_service.dart';
 import 'package:cloudtolocalllm/services/enhanced_user_tier_service.dart';
 import 'package:cloudtolocalllm/services/langchain_integration_service.dart';
-import 'package:cloudtolocalllm/services/langchain_ollama_service.dart';
 import 'package:cloudtolocalllm/services/langchain_prompt_service.dart';
 import 'package:cloudtolocalllm/services/langchain_rag_service.dart'
     if (dart.library.html) 'package:cloudtolocalllm/services/langchain_rag_service_stub.dart';
 import 'package:cloudtolocalllm/services/llm_audit_service.dart';
 import 'package:cloudtolocalllm/services/llm_error_handler.dart';
 import 'package:cloudtolocalllm/services/llm_provider_manager.dart';
-import 'package:cloudtolocalllm/services/local_ollama_connection_service.dart';
-import 'package:cloudtolocalllm/services/ollama_service.dart';
 import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
 import 'package:cloudtolocalllm/services/streaming_chat_service.dart';
 import 'package:cloudtolocalllm/services/streaming_proxy_service.dart';
@@ -125,11 +122,6 @@ Future<void> setupCoreServices() async {
     debugPrint('[Locator] Stack trace: $stack');
     rethrow;
   }
-  // Local Ollama service - create but don't initialize until auth
-  final localOllamaService = LocalOllamaConnectionService();
-  serviceLocator.registerSingleton<LocalOllamaConnectionService>(
-    localOllamaService,
-  );
 
   // Provider discovery - create but don't initialize until auth
   final providerDiscoveryService = ProviderDiscoveryService();
@@ -249,7 +241,6 @@ void _verifyCoreServicesRegistered() {
     'AuthService',
     'ThemeProvider',
     'ProviderConfigurationManager',
-    'LocalOllamaConnectionService',
     'DesktopClientDetectionService',
     'AppInitializationService',
   ];
@@ -270,10 +261,6 @@ void _verifyCoreServicesRegistered() {
         case 'ProviderConfigurationManager':
           isRegistered =
               serviceLocator.isRegistered<ProviderConfigurationManager>();
-          break;
-        case 'LocalOllamaConnectionService':
-          isRegistered =
-              serviceLocator.isRegistered<LocalOllamaConnectionService>();
           break;
         case 'DesktopClientDetectionService':
           isRegistered =
@@ -334,8 +321,6 @@ Future<void> setupAuthenticatedServices() async {
     debugPrint('[ServiceLocator] Registering authenticated services...');
     _authenticatedServicesRegistered = true;
 
-    final localOllamaService =
-        serviceLocator.get<LocalOllamaConnectionService>();
     final providerDiscoveryService =
         serviceLocator.get<ProviderDiscoveryService>();
     final enhancedUserTierService =
@@ -350,10 +335,6 @@ Future<void> setupAuthenticatedServices() async {
     // Initialize web download prompt service
     debugPrint('[ServiceLocator] Initializing WebDownloadPromptService...');
     await webDownloadPromptService.initialize();
-
-    // Initialize LocalOllama service now that we have auth
-    debugPrint('[ServiceLocator] Initializing LocalOllamaConnectionService...');
-    await localOllamaService.initialize();
 
     // LangChain Prompt Service is already initialized in constructor
 
@@ -380,17 +361,6 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<StreamingProxyService>(
       streamingProxyService,
     );
-
-    // Ollama service - requires authentication token
-    debugPrint('[ServiceLocator] Initializing OllamaService...');
-    final ollamaService = OllamaService(authService: authService);
-    try {
-      await ollamaService.initialize().timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: OllamaService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<OllamaService>(ollamaService);
 
     // User container service - requires authentication token
     final userContainerService = UserContainerService(authService: authService);
@@ -432,10 +402,8 @@ Future<void> setupAuthenticatedServices() async {
 
     // Connection Manager - requires authentication for tunnel/cloud connections
     final connectionManager = ConnectionManagerService(
-      localOllama: localOllamaService,
       tunnelService: tunnelService,
       authService: authService,
-      ollamaService: ollamaService,
     );
     try {
       await connectionManager.initialize().timeout(const Duration(seconds: 10));
@@ -446,26 +414,8 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator
         .registerSingleton<ConnectionManagerService>(connectionManager);
 
-    // LangChain Ollama service - requires connection manager (which requires auth)
-    final langchainOllamaService = LangChainOllamaService(
-      connectionManager: connectionManager,
-    );
-    try {
-      await langchainOllamaService
-          .initialize()
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {
-      debugPrint(
-          '[ServiceLocator] Warning: LangChainOllamaService initialization failed: $e');
-    }
-    serviceLocator.registerSingleton<LangChainOllamaService>(
-      langchainOllamaService,
-    );
-
-    // LangChain RAG service - requires LangChain Ollama service
-    final langchainRagService = LangChainRAGService(
-      ollamaService: langchainOllamaService,
-    );
+    // LangChain RAG service - requires connection manager
+    final langchainRagService = LangChainRAGService();
     try {
       await langchainRagService
           .initialize()

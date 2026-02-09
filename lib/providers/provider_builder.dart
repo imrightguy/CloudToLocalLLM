@@ -12,14 +12,11 @@ import 'package:cloudtolocalllm/services/connection_manager_service.dart';
 import 'package:cloudtolocalllm/services/desktop_client_detection_service.dart';
 import 'package:cloudtolocalllm/services/enhanced_user_tier_service.dart';
 import 'package:cloudtolocalllm/services/langchain_integration_service.dart';
-import 'package:cloudtolocalllm/services/langchain_ollama_service.dart';
 import 'package:cloudtolocalllm/services/langchain_prompt_service.dart';
 import 'package:cloudtolocalllm/services/langchain_rag_service.dart';
 import 'package:cloudtolocalllm/services/llm_audit_service.dart';
 import 'package:cloudtolocalllm/services/llm_error_handler.dart';
 import 'package:cloudtolocalllm/services/llm_provider_manager.dart';
-import 'package:cloudtolocalllm/services/local_ollama_connection_service.dart';
-import 'package:cloudtolocalllm/services/ollama_service.dart';
 import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
 import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
 import 'package:cloudtolocalllm/services/streaming_chat_service.dart';
@@ -38,7 +35,6 @@ class ProviderBuilder {
 
     // Core services
     _addCoreProvider<AuthService>(providers);
-    _addCoreProvider<LocalOllamaConnectionService>(providers);
     _addCoreProvider<DesktopClientDetectionService>(providers);
     _addCoreProvider<AppInitializationService>(providers);
     _addCoreProvider<WebDownloadPromptService>(providers);
@@ -63,12 +59,10 @@ class ProviderBuilder {
     // Authenticated services
     _addProviderIfRegistered<TunnelService>(providers);
     _addProviderIfRegistered<StreamingProxyService>(providers);
-    _addProviderIfRegistered<OllamaService>(providers);
     _addProviderIfRegistered<UserContainerService>(providers);
     _addProviderIfRegistered<LangChainIntegrationService>(providers);
     _addProviderIfRegistered<LLMProviderManager>(providers);
     _addProviderIfRegistered<ConnectionManagerService>(providers);
-    _addProviderIfRegistered<LangChainOllamaService>(providers);
     _addProviderIfRegistered<LangChainRAGService>(providers);
     _addProviderIfRegistered<LLMAuditService>(providers);
     _addProviderIfRegistered<StreamingChatService>(providers);

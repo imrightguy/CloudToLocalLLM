@@ -10,9 +10,11 @@ import '../screens/callback_screen.dart';
 // Settings screens are lazy-loaded
 import '../screens/settings/settings_lazy.dart' as settings_lazy;
 
-// Admin screens are lazy-loaded
+// GUI Automation screen (lazy-loaded)
+import '../screens/gui_automation_lazy.dart' as gui_automation_lazy;
+
+// Admin screens (lazy-loaded)
 import '../screens/admin/admin_lazy.dart' as admin_lazy;
-import '../screens/ollama_test_lazy.dart' as ollama_test_lazy;
 
 // Agent status screen is lazy-loaded
 import '../screens/agent_status_lazy.dart' as agent_status_lazy;
@@ -137,10 +139,10 @@ class AppRouter {
 
         // Marketing & Other routes
         ...marketing_lazy.marketingRoutes,
-        ...ollama_test_lazy.ollamaTestRoutes,
         ...settings_lazy.settingsRoutes,
         ...admin_lazy.adminRoutes,
         ...agent_status_lazy.agentStatusRoutes,
+        ...gui_automation_lazy.guiAutomationRoutes,
 
         GoRoute(
           path: '/login',

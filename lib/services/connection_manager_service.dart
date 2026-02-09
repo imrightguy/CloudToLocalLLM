@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'local_ollama_connection_service.dart';
 import 'tunnel_service.dart';
 import 'streaming_service.dart';
-import 'ollama_service.dart';
 import 'cloud_streaming_service.dart';
 import 'auth_service.dart';
 import '../models/llm_communication_error.dart';
@@ -11,50 +9,33 @@ import '../utils/logger.dart';
 
 enum ConnectionType { none, local, cloud }
 
+/// Connection Manager Service - manages connections to LLM providers
+/// Note: Ollama integration removed - use GUI Automation or vLLM directly
 class ConnectionManagerService extends ChangeNotifier {
-  final LocalOllamaConnectionService _localOllama;
   final TunnelService _tunnelService;
   final AuthService _authService;
-  final OllamaService _ollamaService;
 
-  bool _preferLocalOllama = true;
   String? _selectedModel;
   CloudStreamingService? _cloudStreamingService;
 
   ConnectionManagerService({
-    required LocalOllamaConnectionService localOllama,
     required TunnelService tunnelService,
     required AuthService authService,
-    required OllamaService ollamaService,
-  })  : _localOllama = localOllama,
-        _tunnelService = tunnelService,
-        _authService = authService,
-        _ollamaService = ollamaService {
-    _localOllama.addListener(_onConnectionChanged);
+  })  : _tunnelService = tunnelService,
+        _authService = authService {
     _tunnelService.addListener(_onConnectionChanged);
     _authService.addListener(_onAuthChanged);
-    _ollamaService.addListener(_onConnectionChanged);
   }
 
-  bool get hasLocalConnection => _localOllama.isConnected;
-  bool get hasCloudConnection =>
-      kIsWeb ? _ollamaService.isConnected : _tunnelService.isConnected;
+  bool get hasLocalConnection => false; // Ollama removed
+  bool get hasCloudConnection => _tunnelService.isConnected;
   bool get hasAnyConnection => hasLocalConnection || hasCloudConnection;
   String? get selectedModel => _selectedModel;
   List<String> get availableModels => _getAvailableModels();
 
   ConnectionType getBestConnectionType() {
-    if (kIsWeb) {
-      return hasCloudConnection ? ConnectionType.cloud : ConnectionType.none;
-    }
-    if (_preferLocalOllama && hasLocalConnection) {
-      return ConnectionType.local;
-    }
     if (hasCloudConnection) {
       return ConnectionType.cloud;
-    }
-    if (hasLocalConnection) {
-      return ConnectionType.local;
     }
     return ConnectionType.none;
   }
@@ -62,8 +43,6 @@ class ConnectionManagerService extends ChangeNotifier {
   StreamingService? getStreamingService() {
     final connectionType = getBestConnectionType();
     switch (connectionType) {
-      case ConnectionType.local:
-        return _localOllama.streamingService;
       case ConnectionType.cloud:
         _cloudStreamingService ??= CloudStreamingService(
           authService: _authService,
@@ -88,39 +67,22 @@ class ConnectionManagerService extends ChangeNotifier {
   }) async {
     final connectionType = getBestConnectionType();
     switch (connectionType) {
-      case ConnectionType.local:
-        return await _localOllama.chat(
-          model: model,
-          message: message,
-          history: history,
-        );
       case ConnectionType.cloud:
-        return await _ollamaService.chat(
-          model: model,
-          message: message,
-          history: history,
-        );
+        // Cloud streaming only - Ollama removed
+        throw LLMCommunicationError.providerNotFound();
       default:
         throw LLMCommunicationError.providerNotFound();
     }
   }
 
   Future<void> initialize() async {
-    if (!kIsWeb) {
-      await _localOllama.initialize();
-    }
     if (_authService.isAuthenticated.value) {
-      if (kIsWeb) {
-        // On web, we just need to verify the cloud connection
-        await _ollamaService.testConnection();
-      } else {
-        // Desktop: attempt tunnel connection, but don't fail if it doesn't work
-        try {
-          await _tunnelService.connect();
-        } catch (e) {
-          debugPrint('[ConnectionManager] Tunnel connection failed: $e');
-          // Continue without tunnel - direct API calls will still work
-        }
+      // Desktop: attempt tunnel connection, but don't fail if it doesn't work
+      try {
+        await _tunnelService.connect();
+      } catch (e) {
+        debugPrint('[ConnectionManager] Tunnel connection failed: $e');
+        // Continue without tunnel - direct API calls will still work
       }
     }
     _autoSelectModel();
@@ -132,15 +94,7 @@ class ConnectionManagerService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPreferLocalOllama(bool prefer) {
-    _preferLocalOllama = prefer;
-    notifyListeners();
-  }
-
   Future<void> reconnectAll() async {
-    if (!kIsWeb) {
-      await _localOllama.reconnect();
-    }
     if (!kIsWeb && !_tunnelService.isConnected) {
       try {
         await _tunnelService.connect();
@@ -154,7 +108,7 @@ class ConnectionManagerService extends ChangeNotifier {
 
   Map<String, dynamic> getConnectionStatus() {
     return {
-      'local': {'connected': hasLocalConnection, 'models': _localOllama.models},
+      'local': {'connected': hasLocalConnection, 'models': <String>[]},
       'cloud': {'connected': hasCloudConnection},
       'active': getBestConnectionType().name,
       'selectedModel': _selectedModel,
@@ -162,11 +116,8 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   List<String> _getAvailableModels() {
-    final models = <String>{};
-    if (hasLocalConnection) {
-      models.addAll(_localOllama.models);
-    }
-    return models.toList()..sort();
+    // Ollama models removed - return empty list
+    return <String>[];
   }
 
   void _autoSelectModel() {
@@ -184,9 +135,7 @@ class ConnectionManagerService extends ChangeNotifier {
 
   void _onAuthChanged() {
     if (_authService.isAuthenticated.value) {
-      if (kIsWeb) {
-        _ollamaService.testConnection();
-      } else if (!_tunnelService.isConnected) {
+      if (!kIsWeb && !_tunnelService.isConnected) {
         // Try to connect tunnel, but don't block on failure
         _tunnelService.connect().catchError((e) {
           debugPrint(
@@ -199,10 +148,8 @@ class ConnectionManagerService extends ChangeNotifier {
 
   @override
   void dispose() {
-    _localOllama.removeListener(_onConnectionChanged);
     _tunnelService.removeListener(_onConnectionChanged);
     _authService.removeListener(_onAuthChanged);
-    _ollamaService.removeListener(_onConnectionChanged);
     _cloudStreamingService?.dispose();
     super.dispose();
   }

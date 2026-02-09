@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../agent_status_screen.dart';
+import 'agent_status_screen.dart';
 
 // Lazy-loaded agent status routes
 final agentStatusRoutes = [

@@ -10,11 +10,9 @@ import 'services/auth_service.dart';
 import 'auth/auth_provider_factory.dart';
 
 import 'services/enhanced_user_tier_service.dart';
-import 'services/ollama_service.dart';
 import 'services/streaming_proxy_service.dart';
 import 'services/unified_connection_service.dart';
 import 'services/tunnel_service.dart';
-import 'services/local_ollama_connection_service.dart';
 import 'services/connection_manager_service.dart';
 import 'services/streaming_chat_service.dart';
 import 'services/native_tray_service.dart';
@@ -238,28 +236,6 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
               StreamingProxyService(authService: context.read<AuthService>()),
         ),
 
-        // Ollama service
-        ChangeNotifierProvider(
-          create: (context) =>
-              OllamaService(authService: context.read<AuthService>()),
-        ),
-
-        // Local Ollama connection service (platform-aware)
-        ChangeNotifierProvider(
-          create: (context) {
-            final localOllama = LocalOllamaConnectionService();
-            // Only initialize if platform supports it
-            if (widget.platformManager.localOllamaAvailable) {
-              localOllama.initialize();
-            } else {
-              debugPrint(
-                '[LocalOllama] Skipping initialization - not available on this platform',
-              );
-            }
-            return localOllama;
-          },
-        ),
-
         // Desktop client detection service (web platform only)
         ChangeNotifierProvider(
           create: (context) {
@@ -312,10 +288,8 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
         ChangeNotifierProvider(
           create: (context) {
             final connectionManager = ConnectionManagerService(
-              localOllama: context.read<LocalOllamaConnectionService>(),
               tunnelService: context.read<TunnelService>(),
               authService: context.read<AuthService>(),
-              ollamaService: context.read<OllamaService>(),
             );
             connectionManager.initialize();
             return connectionManager;
@@ -439,14 +413,12 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
       debugPrint('[SystemTray] Initializing tray service...');
 
       final connectionManager = context.read<ConnectionManagerService>();
-      final localOllama = context.read<LocalOllamaConnectionService>();
       final windowManager = context.read<WindowManagerService>();
 
       // Initialize native tray service
       final nativeTray = NativeTrayService();
       final success = await nativeTray.initialize(
         connectionManager: connectionManager,
-        localOllama: localOllama,
         onShowWindow: () {
           debugPrint('[SystemTray] Native tray requested to show window');
           windowManager.showWindow();
