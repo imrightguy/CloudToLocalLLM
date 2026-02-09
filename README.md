@@ -65,6 +65,9 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
   
   <img src="assets/screenshots/app_gui_automation.png" width="800" alt="GUI Automation">
   <p><em>GUI Automation Screen - Vision-based Control</em></p>
+
+  <img src="assets/screenshots/app_admin.png" width="800" alt="Admin Center">
+  <p><em>Admin Center - System Monitoring & Management</em></p>
 </div>
 
 ## 🛠️ Development
