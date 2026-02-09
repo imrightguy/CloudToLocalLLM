@@ -16,9 +16,7 @@ class MessageContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (hasReasoning) _buildReasoning(context),
-        if (message.isStreaming && !hasContent && !hasReasoning)
-          _buildTypingIndicator(context)
-        else if (hasContent)
+        if (hasContent)
           SelectableText(
             message.content,
             style: Theme.of(context)
@@ -26,6 +24,8 @@ class MessageContent extends StatelessWidget {
                 .bodyMedium
                 ?.copyWith(color: AppTheme.textColor, height: 1.5),
           ),
+        if (message.isStreaming && !hasContent)
+          _buildTypingIndicator(context),
       ],
     );
   }

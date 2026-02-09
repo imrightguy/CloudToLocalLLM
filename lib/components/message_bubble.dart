@@ -86,13 +86,28 @@ class _MessageBubbleState extends State<MessageBubble>
                       ),
                       child: _buildMessageContent(theme),
                     ),
-                    // Actions row placed explicitly below the bubble
-                    Opacity(
-                      opacity: (_isHovered || widget.message.hasError) ? 1.0 : 0.0,
-                      child: MessageActions(
-                        message: widget.message,
-                        onCopy: () => _copyToClipboard(context),
-                        onRetry: widget.onRetry,
+                    // Stable action area to prevent layout shift
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: SizedBox(
+                        height: 32, // Fixed height for action area
+                        child: Row(
+                          mainAxisAlignment: isUser 
+                              ? MainAxisAlignment.end 
+                              : MainAxisAlignment.start,
+                          children: [
+                            Opacity(
+                              opacity: (_isHovered || widget.message.hasError) ? 1.0 : 0.0,
+                              child: MessageActions(
+                                message: widget.message,
+                                onCopy: () => _copyToClipboard(context),
+                                onRetry: widget.onRetry,
+                              ),
+                            ),
+                            // Future functions space
+                            const SizedBox(width: 4),
+                          ],
+                        ),
                       ),
                     ),
                   ],

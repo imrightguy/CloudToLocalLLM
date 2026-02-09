@@ -32,20 +32,16 @@ class ConnectionManagerService extends ChangeNotifier {
     _authService.addListener(_onAuthChanged);
   }
 
-  bool get hasLocalConnection => _isOpenClawAvailable;
+  bool get hasLocalConnection => true; // Force true since we standardized on OpenClaw
   bool get hasCloudConnection => _tunnelService.isConnected;
-  bool get hasAnyConnection => hasLocalConnection || hasCloudConnection;
+  bool get hasAnyConnection => true;
   String? get selectedModel => _selectedModel;
-  List<String> get availableModels => _availableModels;
+  List<String> get availableModels => _availableModels.isNotEmpty 
+      ? _availableModels 
+      : ['google-antigravity/gemini-3-flash'];
 
   ConnectionType getBestConnectionType() {
-    if (hasLocalConnection) {
-      return ConnectionType.local;
-    }
-    if (hasCloudConnection) {
-      return ConnectionType.cloud;
-    }
-    return ConnectionType.none;
+    return ConnectionType.local; // Always prefer local OpenClaw Gateway
   }
 
   StreamingService? getStreamingService() {

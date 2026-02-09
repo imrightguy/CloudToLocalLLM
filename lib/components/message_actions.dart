@@ -17,29 +17,21 @@ class MessageActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 32, // Reserved constant height to prevent layout shift
-      child: Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment:
-              message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-          children: [
-            _buildActionButton(
-              icon: Icons.copy,
-              tooltip: 'Copy message',
-              onPressed: onCopy,
-            ),
-            if (message.hasError && onRetry != null)
-              _buildActionButton(
-                icon: Icons.refresh,
-                tooltip: 'Retry',
-                onPressed: onRetry!,
-              ),
-          ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildActionButton(
+          icon: Icons.copy,
+          tooltip: 'Copy message',
+          onPressed: onCopy,
         ),
-      ),
+        if (message.hasError && onRetry != null)
+          _buildActionButton(
+            icon: Icons.refresh,
+            tooltip: 'Retry',
+            onPressed: onRetry!,
+          ),
+      ],
     );
   }
 

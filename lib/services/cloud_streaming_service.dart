@@ -208,14 +208,18 @@ class CloudStreamingService extends StreamingService {
           final delta = data['choices']?[0]?['delta'];
           if (delta == null) continue;
 
-          final content = delta['content'] as String? ?? '';
+          final content = delta['content'] as String?;
           final reasoning = delta['reasoning_content'] as String?;
 
-          if (content.isNotEmpty || reasoning != null) {
+          if (kDebugMode) {
+            debugPrint('☁ [CloudStreaming] Chunk - Content: ${content?.length ?? "null"}, Reasoning: ${reasoning?.length ?? "null"}');
+          }
+
+          if ((content != null && content.isNotEmpty) || (reasoning != null && reasoning.isNotEmpty)) {
             final message = StreamingMessage.chunk(
               id: messageId,
               conversationId: conversationId,
-              chunk: content,
+              chunk: content ?? '',
               reasoning: reasoning,
               sequence: sequence++,
               model: model,
