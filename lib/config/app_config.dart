@@ -6,7 +6,7 @@ class AppConfig {
   static const String appName = 'CloudToLocalLLM';
   static const String appVersion = '10.1.187';
   static const String appDescription =
-      'Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.';
+      'Privacy-first local AI workspace powered by OpenClaw. Login is optional and used only to enable Cloud Relay and secure tunnels.';
 
   // URLs
   static const String homepageUrl = 'https://cloudtolocalllm.online';

@@ -316,6 +316,11 @@ class _UserMenu extends StatelessWidget {
         return PopupMenuButton<String>(
           onSelected: (value) async {
             switch (value) {
+              case 'login':
+                if (context.mounted) {
+                  context.go('/login');
+                }
+                break;
               case 'settings':
                 if (context.mounted) {
                   context.go('/settings');
@@ -330,6 +335,17 @@ class _UserMenu extends StatelessWidget {
             }
           },
           itemBuilder: (context) => [
+            if (!authService.isAuthenticated.value)
+              PopupMenuItem(
+                value: 'login',
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_queue, size: 18),
+                    SizedBox(width: spacing.s),
+                    const Text('Connect Cloud Relay'),
+                  ],
+                ),
+              ),
             PopupMenuItem(
               value: 'settings',
               child: Row(
@@ -341,16 +357,17 @@ class _UserMenu extends StatelessWidget {
               ),
             ),
             const PopupMenuDivider(),
-            PopupMenuItem(
-              value: 'logout',
-              child: Row(
-                children: [
-                  const Icon(Icons.logout, size: 18),
-                  SizedBox(width: spacing.s),
-                  const Text('Sign Out'),
-                ],
+            if (authService.isAuthenticated.value)
+              PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    const Icon(Icons.logout, size: 18),
+                    SizedBox(width: spacing.s),
+                    const Text('Sign Out'),
+                  ],
+                ),
               ),
-            ),
           ],
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -366,21 +383,27 @@ class _UserMenu extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: authService.isAuthenticated.value
+                    ? Colors.green.withValues(alpha: 0.5)
+                    : Colors.white.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryColor,
-              child: Text(
-                user?.initials ?? '?',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              backgroundColor: authService.isAuthenticated.value
+                  ? AppTheme.primaryColor
+                  : Colors.grey[700],
+              child: authService.isAuthenticated.value
+                  ? Text(
+                      user?.initials ?? '?',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : const Icon(Icons.cloud_off, size: 16, color: Colors.white),
             ),
           ),
         );

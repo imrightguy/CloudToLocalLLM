@@ -308,10 +308,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        const Icon(Icons.login, size: 20),
+                                        const Icon(Icons.cloud_queue, size: 20),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Sign In',
+                                          'Connect to Cloud Relay',
                                           style: TextStyle(
                                             fontSize: isMobile ? 16.0 : 18.0,
                                             fontWeight: FontWeight.w600,
@@ -323,6 +323,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
 
                           SizedBox(height: 16.0),
+
+                          TextButton(
+                            onPressed: () => context.go('/'),
+                            child: const Text('Continue in Local Mode'),
+                          ),
                         ],
                       ),
                     ),
