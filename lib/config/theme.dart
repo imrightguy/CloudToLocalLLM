@@ -9,16 +9,16 @@ import 'theme_extensions.dart';
 class AppTheme {
   // Color scheme matching Zoidbot lobster branding
   static const Color primaryColor = Color(
-    0xFFD32F2F,
+    0xFFFF0000,
   ); // Lobster red
   static const Color secondaryColor = Color(
-    0xFFFF6F00,
-  ); // Deep orange
-  static const Color accentColor = Color(0xFF4caf50); // Green for success
+    0xFFFF7F00,
+  ); // Lobster orange
+  static const Color accentColor = Color(0xFF000000); // Black
 
   // Background colors
-  static const Color backgroundMain = Color(0xFF181a20); // --bg-main: #181a20
-  static const Color backgroundCard = Color(0xFF23243a); // --bg-card: #23243a
+  static const Color backgroundMain = Color(0xFF000000); // Black
+  static const Color backgroundCard = Color(0xFF000000); // Black
   static const Color backgroundLight = Color(0xFFf5f5f5); // --bg-light: #f5f5f5
 
   // Text colors
