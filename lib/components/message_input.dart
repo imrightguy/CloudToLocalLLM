@@ -93,13 +93,14 @@ class _MessageInputState extends State<MessageInput> {
                     width: 1.5,
                   ),
                 ),
-                child: CallbackShortcuts(
-                  bindings: {
-                    const SingleActivator(LogicalKeyboardKey.enter): () {
-                      if (!HardwareKeyboard.instance.isShiftPressed) {
-                        _sendMessage();
-                      }
-                    },
+                child: KeyboardListener(
+                  focusNode: FocusNode(),
+                  onKeyEvent: (event) {
+                    if (event is KeyDownEvent &&
+                        event.logicalKey == LogicalKeyboardKey.enter &&
+                        !HardwareKeyboard.instance.isShiftPressed) {
+                      _sendMessage();
+                    }
                   },
                   child: TextField(
                     controller: _controller,
