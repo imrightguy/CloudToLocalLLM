@@ -165,10 +165,10 @@ copy_assets() {
     log_info "Copying application assets..."
     
     # Copy icon if available
-    if [[ -f "$PROJECT_ROOT/assets/images/icon.png" ]]; then
-        cp "$PROJECT_ROOT/assets/images/icon.png" "$BUILD_DIR/CloudToLocalLLM.AppDir/cloudtolocalllm.png"
+    if [[ -f "$PROJECT_ROOT/assets/images/app_icon.png" ]]; then
+        cp "$PROJECT_ROOT/assets/images/app_icon.png" "$BUILD_DIR/CloudToLocalLLM.AppDir/cloudtolocalllm.png"
         log_success "Updated app icon from assets/images/"
-    elif [[ -f "$PROJECT_ROOT/assets/icons/app_icon.png" ]]; then
+    elif [[ -f "$PROJECT_ROOT/assets/images/icon.png" ]]; then
         cp "$PROJECT_ROOT/assets/icons/app_icon.png" "$BUILD_DIR/CloudToLocalLLM.AppDir/cloudtolocalllm.png"
         log_success "Updated app icon from assets/icons/"
     else

@@ -394,6 +394,9 @@ class StreamingChatService extends ChangeNotifier {
         model: _selectedModel!,
       );
       _addMessageToCurrentConversation(assistantMessage);
+
+      // Auto-rename conversation if it's the first message
+      _autoRenameConversation();
     } else {
       appLogger.warning('[StreamingChat] Streaming completed with empty content');
     }
@@ -440,6 +443,55 @@ class StreamingChatService extends ChangeNotifier {
     }
   }
 
+  /// Auto-rename the conversation if it's the first message
+  Future<void> _autoRenameConversation() async {
+    final conversation = _currentConversation;
+    if (conversation == null || conversation.title != 'New Chat') {
+      return;
+    }
+
+    // Only rename after the first user message and its assistant response
+    if (conversation.userMessageCount != 1) {
+      return;
+    }
+
+    final firstUserMessage =
+        conversation.messages.firstWhere((m) => m.isUser).content;
+
+    appLogger.debug(
+      '[StreamingChat] Auto-renaming conversation based on: "$firstUserMessage"',
+    );
+
+    try {
+      final prompt =
+          'Generate a short, catchy title (max 5-6 words) for a conversation that starts with: "$firstUserMessage". Respond only with the title text, no quotes or prefix.';
+
+      final newTitle = await _connectionManager.sendChatMessage(
+        model: _selectedModel!,
+        message: prompt,
+        history: [], // Send as a fresh request to avoid context confusion
+      );
+
+      if (newTitle != null && newTitle.trim().isNotEmpty) {
+        var cleanTitle = newTitle.trim().replaceAll('"', '').replaceAll("'", "");
+        // Remove trailing punctuation if it's just a period
+        if (cleanTitle.endsWith('.') && !cleanTitle.endsWith('...')) {
+          cleanTitle = cleanTitle.substring(0, cleanTitle.length - 1);
+        }
+
+        updateConversationTitle(conversation, cleanTitle);
+        appLogger.info(
+          '[StreamingChat] Auto-renamed conversation to: $cleanTitle',
+        );
+      }
+    } catch (e) {
+      appLogger.error(
+        '[StreamingChat] Failed to auto-rename conversation',
+        error: e,
+      );
+    }
+  }
+
   /// Get the appropriate streaming service
   StreamingService? _getStreamingService() {
     // Use connection manager to get the best streaming service
@@ -475,6 +527,9 @@ class StreamingChatService extends ChangeNotifier {
         );
         _addMessageToCurrentConversation(assistantMessage);
         appLogger.debug('[StreamingChat] Fallback chat completed successfully');
+
+        // Auto-rename conversation if it's the first message
+        _autoRenameConversation();
       } else {
         final errorMessage = Message.assistant(
           content:

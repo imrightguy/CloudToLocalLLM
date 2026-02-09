@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CloudToLocalLLM AUR PKGBUILD Update Script
-# Updates PKGBUILD with current version and checksum
+# Updates PKGBUILD with current version and checksum for AppImage
 
 set -e
 
@@ -31,15 +31,15 @@ cp "$PKGBUILD_TEMPLATE" "$AUR_OUTPUT_DIR/PKGBUILD"
 # Update version
 sed -i "s/pkgver=VERSION/pkgver=$VERSION/" "$AUR_OUTPUT_DIR/PKGBUILD"
 
-# Calculate checksum if tarball exists locally
-TARBALL="$PROJECT_ROOT/dist/linux/CloudToLocalLLM-Linux-x64.tar.gz"
-if [ -f "$TARBALL" ]; then
-    print_status "Calculating checksum for $TARBALL..."
-    CHECKSUM=$(sha256sum "$TARBALL" | cut -d' ' -f1)
+# Calculate checksum if AppImage exists locally
+APPIMAGE="$PROJECT_ROOT/dist/linux/cloudtolocalllm-${VERSION}-x86_64.AppImage"
+if [ -f "$APPIMAGE" ]; then
+    print_status "Calculating checksum for $APPIMAGE..."
+    CHECKSUM=$(sha256sum "$APPIMAGE" | cut -d' ' -f1)
     sed -i "s/sha256sums=('SKIP')/sha256sums=('$CHECKSUM')/" "$AUR_OUTPUT_DIR/PKGBUILD"
     print_success "Updated PKGBUILD with local checksum: $CHECKSUM"
 else
-    print_status "Tarball not found locally, PKGBUILD will use SKIP for checksums"
+    print_status "AppImage not found locally ($APPIMAGE), PKGBUILD will use SKIP for checksums"
 fi
 
 # Generate .SRCINFO if makepkg is available
