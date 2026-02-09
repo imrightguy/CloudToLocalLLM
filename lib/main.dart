@@ -325,7 +325,10 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
   }
 
   List<SingleChildWidget> _buildProviders() {
-    final providers = <SingleChildWidget>[];
+    final providers = <SingleChildWidget>[
+      // Always add a dummy provider to ensure children.isNotEmpty for Nested
+      Provider<bool>.value(value: true),
+    ];
 
     // Core services
     _addCoreProvider<AuthService>(providers);

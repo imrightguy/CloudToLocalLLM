@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../config/theme.dart';
 
@@ -92,26 +93,35 @@ class _MessageInputState extends State<MessageInput> {
                     width: 1.5,
                   ),
                 ),
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  maxLines: null,
-                  textInputAction: TextInputAction.newline,
-                  enabled: !widget.isLoading,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textColor,
-                        height: 1.5,
-                      ),
-                  decoration: InputDecoration(
-                    hintText: widget.placeholder ?? 'Type your message...',
-                    hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textColorLight,
+                child: CallbackShortcuts(
+                  bindings: {
+                    const SingleActivator(LogicalKeyboardKey.enter): () {
+                      if (!HardwareKeyboard.instance.isShiftPressed) {
+                        _sendMessage();
+                      }
+                    },
+                  },
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    maxLines: null,
+                    textInputAction: TextInputAction.send,
+                    enabled: !widget.isLoading,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textColor,
+                          height: 1.5,
                         ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(AppTheme.spacingM),
+                    decoration: InputDecoration(
+                      hintText: widget.placeholder ?? 'Type your message...',
+                      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.textColorLight,
+                          ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(AppTheme.spacingM),
+                    ),
+                    onSubmitted: (_) => _sendMessage(),
+                    onChanged: (_) => _onTextChanged(),
                   ),
-                  onSubmitted: (_) => _sendMessage(),
-                  onChanged: (_) => _onTextChanged(),
                 ),
               ),
             ),
