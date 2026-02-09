@@ -43,6 +43,9 @@ npm test                      # Run all tests
 npm run test:unit             # Unit tests only
 npm run test:auth             # Authentication tests
 npm run test:security         # Security tests
+npm run test:tunnel          # Tunnel tests
+npm run test:tunnel:unit     # Tunnel unit tests
+npm run test:tunnel:security # Tunnel security tests
 npm run lint                  # ESLint
 npm run format                # Prettier
 
@@ -81,7 +84,7 @@ The Flutter app uses a layered service architecture with dependency injection:
 
 - **Service Categories**:
   - Core Services: `SettingsPreferenceService`, `AuthService`, `ThemeProvider`
-  - Authenticated Services: `OllamaService`, `TunnelService`, `LLMProviderManager`
+  - Authenticated Services: `TunnelService`, `LLMProviderManager`, `StreamingChatService`
   - Platform Services: Uses conditional imports for desktop vs web (e.g., `*_stub.dart` files)
 
 - **Platform Abstraction**: Web-specific code uses `dart:js_interop` and `dart:html` conditional imports with stub implementations for desktop
@@ -174,13 +177,36 @@ import 'package:cloudtolocalllm/services/some_service.dart'
 
 ## MCP Integration
 
-- Workspace MCP servers configured in `.vscode/settings.json`
+- Workspace MCP servers configured in `.claude/settings.json`
 - Available tools: context7, sequentialthinking, memory, Sentry
 - Remote MCP servers use OAuth via `mcp-remote` wrapper
+
+### Claude Code Automations
+
+The repository includes configured Claude Code automations in `.claude/`:
+
+**Skills** (user-invocable with `/skill-name`):
+- `/api-endpoint` - Generate Express.js endpoints with Auth0 JWT middleware
+- `/flutter-service` - Generate Flutter services with Provider pattern
+
+**Hooks** (automatic):
+- Auto-format: Flutter (dartfmt) and Node.js (prettier) on edit
+- Security blocks: Prevents edits to `.env`, secrets, `*.key` files
+
+**Subagents** (auto-invoked):
+- `security-reviewer` - Reviews Auth0, Stripe, SSH, and database security
+- `integration-tester` - Generates tests for services and endpoints
+
+**MCP Servers**:
+- `context7` - Live documentation for Flutter, Node.js, Auth0
+- `Sentry` - Error investigation and stack trace analysis
+
+See `.claude/SETUP_SUMMARY.md` for complete automation documentation.
 
 ## Development Notes
 
 - The app supports both local-only mode (privacy-first) and cloud-relay mode
-- Auth0 configuration requires environment variables (see `.env.example`)
+- Auth0 configuration requires environment variables (see `config/.env.production.template`)
 - Docker deployment options available in `docker-compose.yml`
 - CI/CD via GitHub Actions (see `.github/workflows/`)
+- Claude Code automations documented in `.claude/SETUP_SUMMARY.md`
