@@ -281,11 +281,19 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
 
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-repo
-          cp dist/aur/PKGBUILD /tmp/aur-repo/
+          # Handle initial repository setup
+          if ! git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-repo; then
+            echo "AUR repository does not exist yet. Creating local placeholder..."
+            mkdir -p /tmp/aur-repo
+            cd /tmp/aur-repo
+            git init
+            git remote add origin ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git
+          else
+            cd /tmp/aur-repo
+          fi
 
-          cd /tmp/aur-repo
-
+          cp -f $GITHUB_WORKSPACE/dist/aur/PKGBUILD .
+          
           # Generate .SRCINFO using docker
           docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
 
