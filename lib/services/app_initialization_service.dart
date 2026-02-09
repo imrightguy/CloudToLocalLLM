@@ -20,8 +20,8 @@ class AppInitializationService extends ChangeNotifier {
     // Listen for auth state changes
     _authService.addListener(_onAuthStateChanged);
 
-    // If already authenticated, initialize immediately
-    if (_authService.isAuthenticated.value) {
+    // If already authenticated or on Desktop, initialize immediately
+    if (_authService.isAuthenticated.value || !kIsWeb) {
       _initializeServices();
     }
   }
@@ -78,7 +78,11 @@ class AppInitializationService extends ChangeNotifier {
   Future<void> initializeWithContext(BuildContext context) async {
     appLogger.debug(
         '[AppInit] initializeWithContext called. isAuthenticated: ${_authService.isAuthenticated.value}, isInitialized: $_isInitialized');
-    if (!_authService.isAuthenticated.value || _isInitialized) return;
+    
+    // Allow initialization without auth on Desktop
+    final canInitialize = _authService.isAuthenticated.value || !kIsWeb;
+    
+    if (!canInitialize || _isInitialized) return;
 
     try {
       appLogger.debug('[AppInit] Initializing services with context...');

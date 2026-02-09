@@ -218,6 +218,14 @@ Future<void> setupCoreServices() async {
     final authService = serviceLocator.get<AuthService>();
     await authService.init();
     debugPrint('[Locator] ✓ AuthService initialized successfully');
+
+    // On Desktop, auto-bootstrap authenticated services immediately
+    // This allows local use without mandatory login
+    if (!kIsWeb) {
+      debugPrint(
+          '[Locator] Desktop detected, auto-bootstrapping services for local use...');
+      unawaited(setupAuthenticatedServices());
+    }
   } catch (e, stack) {
     debugPrint('[Locator] ❌ CRITICAL ERROR initializing AuthService: $e');
     debugPrint('[Locator] Stack trace: $stack');

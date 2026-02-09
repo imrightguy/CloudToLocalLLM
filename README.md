@@ -26,7 +26,7 @@
  
 ## ✨ Key Features
  
-*   **🔒 Privacy-First:** Run models locally via vLLM or local GPU backends. Your data stays on your device.
+*   **🔒 Privacy-First:** Run models locally via vLLM or local GPU backends. Your data stays on your device. **Login optional for local use.**
 *   **🎮 GUI Automation:** Control your desktop applications using Vision-Language Models (UI-TARS).
 *   **💻 Cross-Platform:** Native support for **Windows** and **Linux**, with a responsive **Web** interface.
 *   **⚡ Hybrid Architecture:** Seamlessly switch between local and cloud models.

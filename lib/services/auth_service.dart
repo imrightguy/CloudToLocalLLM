@@ -26,6 +26,12 @@ class AuthService extends ChangeNotifier {
     debugPrint(
         '[AuthService] Constructor called with provider: ${_authProvider.runtimeType}');
     _sessionBootstrapService = SessionBootstrapService();
+    // Sync the services loaded state
+    _sessionBootstrapService.areAuthenticatedServicesLoaded.addListener(() {
+      _areAuthenticatedServicesLoaded.value =
+          _sessionBootstrapService.areAuthenticatedServicesLoaded.value;
+      notifyListeners();
+    });
   }
 
   Future<void> init() async {
@@ -105,7 +111,14 @@ class AuthService extends ChangeNotifier {
 
   Future<void> _handleLogout() async {
     _isAuthenticated.value = false;
-    _areAuthenticatedServicesLoaded.value = false;
+    
+    if (kIsWeb) {
+      _areAuthenticatedServicesLoaded.value = false;
+    } else {
+      // On Desktop, keep services loaded for local use
+      debugPrint('[AuthService] User logged out on desktop, keeping services loaded for local use');
+    }
+    
     notifyListeners();
   }
 

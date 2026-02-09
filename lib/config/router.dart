@@ -109,7 +109,7 @@ class AppRouter {
             final isAuthenticated = authService.isAuthenticated.value;
             final isAppDomain = _isAppSubdomain();
 
-            if (isAuthenticated) return const HomeScreen();
+            if (isAuthenticated || !kIsWeb) return const HomeScreen();
 
             if (kIsWeb && !isAppDomain) {
               return const marketing_lazy.HomepageScreen();
@@ -124,7 +124,7 @@ class AppRouter {
           path: '/chat',
           name: 'chat',
           builder: (context, state) {
-            if (!authService.isAuthenticated.value) {
+            if (!authService.isAuthenticated.value && kIsWeb) {
               debugPrint(
                   '[Router] /chat requested but not authenticated, going to /login');
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -205,7 +205,7 @@ class AppRouter {
         }
 
         // 5. Unauthenticated state on App domain or Desktop
-        if (isLoggingIn || isCallback) return null; // Allow these
+        if (isLoggingIn || isCallback || !kIsWeb) return null; // Allow these (Desktop is always allowed)
 
         // Redirect all other protected routes to login
         debugPrint(
