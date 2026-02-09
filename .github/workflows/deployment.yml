@@ -281,7 +281,7 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
 
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
+          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-repo
           cp dist/aur/PKGBUILD /tmp/aur-repo/
 
           cd /tmp/aur-repo

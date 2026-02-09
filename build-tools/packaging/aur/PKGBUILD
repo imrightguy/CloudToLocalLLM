@@ -1,5 +1,4 @@
-# Maintainer: Christopher Maltais <christopher.maltais@gmail.com>
-pkgname=cloudtolocalllm
+pkgname=cloudtolocalllm-appimage
 pkgver=VERSION
 pkgrel=1
 pkgdesc="Privacy-first local AI workspace (AppImage version)"
