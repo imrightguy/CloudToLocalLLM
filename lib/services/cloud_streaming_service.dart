@@ -188,7 +188,8 @@ class CloudStreamingService extends StreamingService {
       }
 
       // Process streaming response (OpenAI SSE format)
-      await for (final chunk in response.data.stream.transform(
+      final stream = response.data.stream as Stream<List<int>>;
+      await for (final chunk in stream.transform(
         convert.utf8.decoder,
       )) {
         final lines = chunk.split('\n');
