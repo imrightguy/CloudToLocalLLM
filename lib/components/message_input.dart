@@ -55,7 +55,13 @@ class _MessageInputState extends State<MessageInput> {
     if (text.isNotEmpty && !widget.isLoading) {
       widget.onSendMessage(text);
       _controller.clear();
-      _focusNode.requestFocus();
+      
+      // Re-focus the text field after sending
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _focusNode.requestFocus();
+        }
+      });
     }
   }
 
