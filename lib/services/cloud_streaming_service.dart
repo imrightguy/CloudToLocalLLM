@@ -189,7 +189,8 @@ class CloudStreamingService extends StreamingService {
 
       // Process streaming response (OpenAI SSE format)
       // Using LineSplitter ensures we handle partial packets correctly
-      final stream = response.data.stream as Stream<List<int>>;
+      // We use .cast<List<int>>() to satisfy the type system for Utf8Decoder
+      final stream = response.data.stream.cast<List<int>>();
       final lineStream = stream
           .transform(convert.utf8.decoder)
           .transform(const convert.LineSplitter());
