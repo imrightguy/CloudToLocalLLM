@@ -52,9 +52,11 @@ class ConnectionManagerService extends ChangeNotifier {
     final connectionType = getBestConnectionType();
     switch (connectionType) {
       case ConnectionType.local:
-        // For local OpenClaw, we use a simple HTTP implementation for now
-        // In a full implementation, this would return a specific OpenClawStreamingService
-        return null; 
+        _cloudStreamingService ??= CloudStreamingService(
+          baseUrl: AppConfig.defaultGatewayUrl,
+          authService: _authService,
+        );
+        return _cloudStreamingService;
       case ConnectionType.cloud:
         _cloudStreamingService ??= CloudStreamingService(
           authService: _authService,
@@ -101,7 +103,7 @@ class ConnectionManagerService extends ChangeNotifier {
             {'role': 'user', 'content': message},
           ],
         }),
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(const Duration(seconds: 120));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

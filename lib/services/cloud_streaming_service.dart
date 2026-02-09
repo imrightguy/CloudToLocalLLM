@@ -312,8 +312,10 @@ class CloudStreamingService extends StreamingService {
       'Accept': 'application/json',
     };
 
-    // Add authentication if available
-    if (_authService.isAuthenticated.value) {
+    // Use local token if on localhost, otherwise use auth service
+    if (_baseUrl.contains('127.0.0.1') || _baseUrl.contains('localhost')) {
+      headers['Authorization'] = 'Bearer your-token-here';
+    } else if (_authService.isAuthenticated.value) {
       final accessToken = await _authService.getAccessToken();
       if (accessToken != null && accessToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $accessToken';
