@@ -15,7 +15,17 @@ class SessionBootstrapService {
   Future<void> initialize() async {
     _isRestoringSession = true;
     try {
-      await _loadAuthenticatedServices();
+      // Add timeout to prevent endless loading
+      await _loadAuthenticatedServices().timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {
+          debugPrint('[SessionBootstrapService] TIMEOUT: Force setting services loaded = true');
+          _areAuthenticatedServicesLoaded.value = true;
+        },
+      );
+    } catch (e) {
+      debugPrint('[SessionBootstrapService] ERROR: $e - forcing services loaded = true');
+      _areAuthenticatedServicesLoaded.value = true;
     } finally {
       _isRestoringSession = false;
       _completeSessionBootstrap();

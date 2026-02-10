@@ -31,11 +31,112 @@ class ConversationList extends StatefulWidget {
 class _ConversationListState extends State<ConversationList> {
   String? _editingConversationId;
   final TextEditingController _editController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  List<Conversation> _filteredConversations = [];
+  bool _isSearchExpanded = false;
 
   @override
   void dispose() {
     _editController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredConversations = widget.conversations;
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      final query = _searchController.text.toLowerCase();
+      if (query.isEmpty) {
+        _filteredConversations = widget.conversations;
+      } else {
+        _filteredConversations = widget.conversations.where((conv) {
+          // Search in title
+          if (conv.title.toLowerCase().contains(query)) return true;
+          // Search in messages
+          return conv.messages.any((m) =>
+            m.content.toLowerCase().contains(query));
+        }).toList();
+      }
+    });
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearchExpanded = !_isSearchExpanded;
+      if (!_isSearchExpanded) {
+        _searchController.clear();
+        _filteredConversations = widget.conversations;
+      }
+    });
+  }
+
+  Future<void> _showExportDialog() async {
+    final action = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Export Conversations'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'json'),
+            child: Row(
+              children: const [
+                Icon(Icons.description, color: Colors.blue),
+                SizedBox(width: 8),
+                Text('Export as JSON'),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'csv'),
+            child: Row(
+              children: const [
+                Icon(Icons.table_view, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Export as CSV'),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'none'),
+            child: Row(
+              children: const [
+                Icon(Icons.cancel, color: Colors.red),
+                SizedBox(width: 8),
+                Text('Cancel'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (action == null || action == 'none') return;
+
+    // TODO: Implement actual export to file
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Export to $action not implemented yet'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _showImportDialog() async {
+    // TODO: Implement import from file
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Import from file not implemented yet'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -92,6 +193,40 @@ class _ConversationListState extends State<ConversationList> {
                 ),
               ),
               tooltip: 'New Conversation',
+            ),
+          ),
+
+          // Export button
+          Padding(
+            padding: EdgeInsets.all(AppTheme.spacingS),
+            child: IconButton(
+              onPressed: _showExportDialog,
+              icon: const Icon(Icons.file_download),
+              style: IconButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                foregroundColor: AppTheme.primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+                ),
+              ),
+              tooltip: 'Export Conversations',
+            ),
+          ),
+
+          // Import button
+          Padding(
+            padding: EdgeInsets.all(AppTheme.spacingS),
+            child: IconButton(
+              onPressed: _showImportDialog,
+              icon: const Icon(Icons.file_upload),
+              style: IconButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                foregroundColor: AppTheme.primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+                ),
+              ),
+              tooltip: 'Import Conversations',
             ),
           ),
 
@@ -154,43 +289,102 @@ class _ConversationListState extends State<ConversationList> {
           ),
         ),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Text(
-              'Conversations',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppTheme.textColor,
-                    fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Conversations',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.textColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => context.go('/agent-status'),
+                icon: const Text('🦞', style: TextStyle(fontSize: 18)),
+                iconSize: 20,
+                color: AppTheme.primaryColor,
+                style: IconButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
                   ),
-            ),
+                ),
+                tooltip: 'Agent Status',
+              ),
+              IconButton(
+                onPressed: _isSearchExpanded ? _toggleSearch : _toggleSearch,
+                icon: Icon(_isSearchExpanded ? Icons.search_off : Icons.search),
+                iconSize: 20,
+                color: AppTheme.primaryColor,
+                style: IconButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+                  ),
+                ),
+                tooltip: _isSearchExpanded ? 'Close Search' : 'Search',
+              ),
+              IconButton(
+                onPressed: widget.onNewConversation,
+                icon: const Icon(Icons.add),
+                iconSize: 20,
+                color: AppTheme.primaryColor,
+                style: IconButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+                  ),
+                ),
+                tooltip: 'New Conversation',
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: () => context.go('/agent-status'),
-            icon: const Text('🦞', style: TextStyle(fontSize: 18)),
-            iconSize: 20,
-            color: AppTheme.primaryColor,
-            style: IconButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+          if (_isSearchExpanded) ...[
+            const SizedBox(height: AppTheme.spacingS),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search conversations...',
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filteredConversations = widget.conversations;
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                ),
+                onChanged: (_) => _onSearchChanged(),
               ),
             ),
-            tooltip: 'Agent Status',
-          ),
-          IconButton(
-            onPressed: widget.onNewConversation,
-            icon: const Icon(Icons.add),
-            iconSize: 20,
-            color: AppTheme.primaryColor,
-            style: IconButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
+            if (_filteredConversations.length != widget.conversations.length) ...[
+              const SizedBox(height: AppTheme.spacingXS),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+                child: Text(
+                  '${_filteredConversations.length} of ${widget.conversations.length} conversations',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textColorLight,
+                      ),
+                ),
               ),
-            ),
-            tooltip: 'New Conversation',
-          ),
+            ],
+          ],
         ],
       ),
     );
@@ -228,10 +422,46 @@ class _ConversationListState extends State<ConversationList> {
       );
     }
 
+    if (_filteredConversations.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 48,
+              color: AppTheme.textColorLight,
+            ),
+            SizedBox(height: AppTheme.spacingM),
+            Text(
+              'No results found',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textColorLight,
+                  ),
+            ),
+            if (_searchController.text.isNotEmpty) ...[
+              SizedBox(height: AppTheme.spacingS),
+              TextButton.icon(
+                onPressed: () {
+                  _searchController.clear();
+                  _filteredConversations = widget.conversations;
+                },
+                icon: const Icon(Icons.clear),
+                label: const Text('Clear search'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppTheme.primaryColor,
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
-      itemCount: widget.conversations.length,
+      itemCount: _filteredConversations.length,
       itemBuilder: (context, index) {
-        final conversation = widget.conversations[index];
+        final conversation = _filteredConversations[index];
         return _buildConversationItem(conversation);
       },
     );

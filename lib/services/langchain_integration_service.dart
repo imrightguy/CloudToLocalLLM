@@ -413,7 +413,13 @@ class LangChainIntegrationService extends ChangeNotifier {
 
   /// Handle provider discovery changes
   void _onProvidersChanged() {
-    if (_isInitialized && !_isInitializing) {
+    // Prevent infinite loops - don't re-initialize if already in progress
+    if (_isInitializing) {
+      debugPrint('Provider discovery changed, but initialization already in progress - skipping');
+      return;
+    }
+    
+    if (_isInitialized) {
       // Re-initialize providers when discovery changes
       debugPrint('Provider discovery changed, re-initializing...');
       initializeProviders();

@@ -29,8 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_initializedWithContext) return;
     _initializedWithContext = true;
     
-    _chatService = context.read<StreamingChatService>();
-    _chatService?.addListener(_onChatChanged);
+    try {
+      _chatService = context.read<StreamingChatService>();
+      _chatService?.addListener(_onChatChanged);
+    } catch (e) {
+      debugPrint('[HomeScreen] StreamingChatService not available, using null: $e');
+    }
 
     final appInit = context.read<AppInitializationService>();
     scheduleMicrotask(() => appInit.initializeWithContext(context));

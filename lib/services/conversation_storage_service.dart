@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
@@ -45,7 +47,7 @@ class ConversationStorageService {
       debugPrint('[ConversationStorage] Initializing local and cloud storage');
       _isInitialized = true;
       debugPrint('[ConversationStorage] Service initialized');
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('[ConversationStorage] Failed to initialize: $e');
       _isInitialized = true;
     }
@@ -190,7 +192,7 @@ class ConversationStorageService {
     if (!kIsWeb) {
       await _localStorage.clearAll();
     }
-    
+
     if (_authService?.isAuthenticated.value == true) {
       try {
         final conversations = await _loadFromApi();
@@ -200,6 +202,124 @@ class ConversationStorageService {
       } catch (e) {
         debugPrint('[ConversationStorage] Cloud clear error: $e');
       }
+    }
+  }
+
+  /// Search conversations by keyword
+  Future<List<Conversation>> searchConversations(String query) async {
+    final conversations = await loadConversations();
+
+    if (query.trim().isEmpty) {
+      return conversations;
+    }
+
+    final lowerQuery = query.toLowerCase();
+    return conversations.where((conv) {
+      // Search in title
+      if (conv.title.toLowerCase().contains(lowerQuery)) {
+        return true;
+      }
+
+      // Search in messages
+      for (final message in conv.messages) {
+        if (message.content.toLowerCase().contains(lowerQuery)) {
+          return true;
+        }
+      }
+
+      // Search in metadata
+      if (conv.metadata.values.any((value) {
+        if (value == null) return false;
+        return value.toString().toLowerCase().contains(lowerQuery);
+      })) {
+        return true;
+      }
+
+      return false;
+    }).toList();
+  }
+
+  /// Filter conversations by date range
+  Future<List<Conversation>> filterByDateRange(
+    DateTime? startDate,
+    DateTime? endDate,
+  ) async {
+    final conversations = await loadConversations();
+
+    if (startDate != null) {
+      conversations.removeWhere((c) => c.createdAt.isBefore(startDate));
+    }
+
+    if (endDate != null) {
+      conversations.removeWhere((c) => c.createdAt.isAfter(endDate));
+    }
+
+    return conversations;
+  }
+
+  /// Filter conversations by model
+  Future<List<Conversation>> filterByModel(String? model) async {
+    if (model == null || model.isEmpty) {
+      return await loadConversations();
+    }
+
+    final conversations = await loadConversations();
+    return conversations.where((c) => c.model == model).toList();
+  }
+
+  /// Export conversations to JSON
+  Future<String> exportConversationsToJson(List<Conversation> conversations) async {
+    final exportData = {
+      'export_date': DateTime.now().toIso8601String(),
+      'total_conversations': conversations.length,
+      'conversations': conversations.map((c) => c.toJson()).toList(),
+    };
+
+    return const JsonEncoder.withIndent('  ').convert(exportData);
+  }
+
+  /// Export conversations to CSV
+  Future<String> exportConversationsToCsv(List<Conversation> conversations) async {
+    // CSV header
+    const lines = [
+      'ID,Title,Model,Messages,User Messages,Assistant Messages,Created At,Updated At',
+    ];
+
+    for (final conv in conversations) {
+      final line = [
+        conv.id,
+        '"${conv.title.replaceAll('"', '""')}"',
+        conv.model ?? '',
+        conv.messages.length.toString(),
+        conv.userMessageCount.toString(),
+        conv.assistantMessageCount.toString(),
+        conv.createdAt.toIso8601String(),
+        conv.updatedAt.toIso8601String(),
+      ].join(',');
+
+      lines.add(line);
+    }
+
+    return lines.join('\n');
+  }
+
+  /// Import conversations from JSON
+  Future<List<Conversation>> importConversationsFromJson(String json) async {
+    try {
+      final data = jsonDecode(json) as Map<String, dynamic>;
+      final conversationsData = data['conversations'] as List<dynamic>? ?? [];
+
+      final conversations = <Conversation>[];
+      for (final convData in conversationsData) {
+        final conv = Conversation.fromJson(convData as Map<String, dynamic>);
+        conversations.add(conv);
+      }
+
+      debugPrint('[ConversationStorage] Imported ${conversations.length} conversations');
+      return conversations;
+    } catch (e) {
+      debugPrint('[ConversationStorage] Import error: $e');
+      throw FormatException('Invalid JSON format');
     }
   }
 

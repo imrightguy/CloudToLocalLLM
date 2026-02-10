@@ -17,7 +17,7 @@ QueryExecutor openConnection() {
         db.execute('PRAGMA journal_mode = WAL;');
         db.execute('PRAGMA synchronous = NORMAL;');
         db.execute('PRAGMA temp_store = MEMORY;');
-        db.execute('PRAGMA cache_size = -64000;');
+        db.execute('PRAGMA cache_size = -65536;'); // 64MB Cache
       },
     );
   });

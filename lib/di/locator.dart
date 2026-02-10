@@ -40,6 +40,8 @@ import 'package:cloudtolocalllm/services/platform_adapter.dart';
 import 'package:cloudtolocalllm/services/url_scheme_registration_service.dart';
 import 'package:cloudtolocalllm/services/token_storage_service.dart';
 import 'package:cloudtolocalllm/database/local_brain.dart';
+import 'package:cloudtolocalllm/services/brain_sync_service.dart';
+import 'package:cloudtolocalllm/services/full_context_indexer.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 final GetIt serviceLocator = GetIt.instance;
@@ -80,6 +82,15 @@ Future<void> setupCoreServices() async {
   // Local Brain Database - Main relational engine for durable memory
   final localBrain = LocalBrain();
   serviceLocator.registerSingleton<LocalBrain>(localBrain);
+
+  // Brain Sync Service - Synchronizes local thoughts with cloud backbone
+  final brainSyncService = BrainSyncService(localBrain);
+  serviceLocator.registerSingleton<BrainSyncService>(brainSyncService);
+  brainSyncService.startSync();
+
+  // Full Context Indexer - Manages system-wide file indexing in local brain
+  final fullContextIndexer = FullContextIndexer(localBrain);
+  serviceLocator.registerSingleton<FullContextIndexer>(fullContextIndexer);
 
   // Authentication Provider - Using platform-specific provider
   late AuthProvider authProvider;

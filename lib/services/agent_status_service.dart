@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import '../database/local_brain.dart';
+import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 /// Agent status data model
 class AgentStatus {
@@ -35,9 +38,11 @@ class AgentStatusService {
   final Logger _logger = Logger();
   final String _statusUrl;
   final Duration _pollInterval;
+  final LocalBrain? _db;
   Timer? _pollTimer;
   int _consecutiveErrors = 0;
   static const int _maxConsecutiveErrors = 5;
+  static const _uuid = Uuid();
 
   final StreamController<List<AgentStatus>> _statusController =
       StreamController<List<AgentStatus>>.broadcast();
@@ -52,8 +57,10 @@ class AgentStatusService {
   AgentStatusService({
     String? statusUrl,
     Duration? pollInterval,
+    LocalBrain? db,
   })  : _statusUrl = statusUrl ?? 'http://127.0.0.1:3000/status.json',
-        _pollInterval = pollInterval ?? const Duration(seconds: 2);
+        _pollInterval = pollInterval ?? const Duration(seconds: 2),
+        _db = db;
 
   /// Stream of agent status updates
   Stream<List<AgentStatus>> get statusStream => _statusController.stream;
@@ -116,6 +123,32 @@ class AgentStatusService {
           _errorController.add(null); // Clear error
           _consecutiveErrors = 0; // Reset on success
           _logger.d('Polled agent status: ${statuses.length} sessions');
+          
+          // Save to Local Brain - TODO: Create Agents and AgentEvents tables
+          // if (_db != null) {
+          //   for (final agent in statuses) {
+          //     await _db!.upsertAgent(AgentsCompanion(
+          //       id: Value(agent.id),
+          //       name: Value(agent.name),
+          //       agentId: Value(agent.id),
+          //       type: const Value('custom'),
+          //       status: Value(agent.status),
+          //       updatedAt: Value(DateTime.now()),
+          //     ));
+          //     
+          //     await _db!.addAgentEvent(AgentEventsCompanion(
+          //       id: Value(_uuid.v4()),
+          //       agentId: Value(agent.id),
+          //       eventType: const Value('status_update'),
+          //       eventData: Value(jsonEncode({
+          //         'status': agent.status,
+          //         'activity': agent.activity,
+          //         'lastUpdate': agent.lastUpdate,
+          //       })),
+          //       timestamp: Value(DateTime.now()),
+          //     ));
+          //   }
+          // }
         } else {
            _consecutiveErrors++;
            _errorController.add('Invalid data from server');

@@ -34,16 +34,22 @@ class _TrayInitializerState extends State<TrayInitializer> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    appLogger.info('[TrayInitializer] didChangeDependencies called');
     if (_trayInitialized || kIsWeb) {
+      appLogger.info('[TrayInitializer] Already initialized or web, skipping');
       return;
     }
     _trayInitialized = true;
 
+    appLogger.info('[TrayInitializer] Starting async tray init...');
     unawaited(_initializeTray(context));
+    appLogger.info('[TrayInitializer] Tray init scheduled');
   }
 
   Future<void> _initializeTray(BuildContext context) async {
     try {
+      appLogger.info('[TrayInitializer] Starting tray initialization...');
+      
       // ConnectionManagerService is an authenticated service that may not be available yet
       // Use Provider.of with listen: false to safely check if it's available
       ConnectionManagerService? connectionManager;
@@ -59,8 +65,11 @@ class _TrayInitializerState extends State<TrayInitializer> {
       final windowManager = WindowManagerService();
       final nativeTray = NativeTrayService();
 
+      appLogger.info('[TrayInitializer] Initializing window manager...');
       await windowManager.initialize();
+      appLogger.info('[TrayInitializer] Window manager initialized');
 
+      appLogger.info('[TrayInitializer] Initializing native tray...');
       final initialized = await nativeTray.initialize(
         connectionManager: connectionManager,
         onShowWindow: windowManager.showWindow,
@@ -80,6 +89,7 @@ class _TrayInitializerState extends State<TrayInitializer> {
           await windowManager.forceClose();
         },
       );
+      appLogger.info('[TrayInitializer] Native tray initialized: $initialized');
 
       if (initialized) {
         appLogger.info('[TrayInitializer] Native tray initialized');
@@ -92,5 +102,8 @@ class _TrayInitializerState extends State<TrayInitializer> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    appLogger.info('[TrayInitializer] build() called');
+    return widget.child;
+  }
 }

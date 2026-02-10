@@ -4,6 +4,7 @@ services:
     image: postgres:17
     container_name: cloudtolocalllm-postgres
     restart: unless-stopped
+    command: postgres -c shared_buffers=4GB -c effective_cache_size=6GB -c work_mem=64MB -c maintenance_work_mem=512MB
     environment:
       - POSTGRES_DB=cloudtolocalllm
       - POSTGRES_USER=postgres
@@ -12,6 +13,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+        reservations:
+          memory: 4G
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s

@@ -22,6 +22,9 @@ import '../screens/agent_status_lazy.dart' as agent_status_lazy;
 // Marketing screens (web-only) are lazy-loaded
 import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
 
+// Construction screen (lazy-loaded)
+import '../screens/construction_lazy.dart' as construction_lazy;
+
 /// Utility function to get the current hostname in web environment
 String _getCurrentHostname() {
   if (kIsWeb) {
@@ -143,6 +146,7 @@ class AppRouter {
         ...admin_lazy.adminRoutes,
         ...agent_status_lazy.agentStatusRoutes,
         ...gui_automation_lazy.guiAutomationRoutes,
+        ...construction_lazy.constructionRoutes,
 
         GoRoute(
           path: '/login',

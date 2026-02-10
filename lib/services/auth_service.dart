@@ -88,6 +88,11 @@ class AuthService extends ChangeNotifier {
         await _handleAuthenticatedUser(currentUser);
       } else {
         debugPrint('[AuthService] No current user found');
+        // For desktop: set services loaded even without auth (local mode)
+        if (!kIsWeb) {
+          debugPrint('[AuthService] Desktop mode: setting services loaded = true for local use');
+          _areAuthenticatedServicesLoaded.value = true;
+        }
       }
     } catch (e) {
       debugPrint(' Failed to initialize Auth Provider: $e');

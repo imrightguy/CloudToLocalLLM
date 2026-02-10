@@ -1293,6 +1293,1628 @@ class AgentLogsCompanion extends UpdateCompanion<AgentLog> {
   }
 }
 
+class $AgentEventsTable extends AgentEvents
+    with TableInfo<$AgentEventsTable, AgentEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _agentIdMeta =
+      const VerificationMeta('agentId');
+  @override
+  late final GeneratedColumn<String> agentId = GeneratedColumn<String>(
+      'agent_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _eventTypeMeta =
+      const VerificationMeta('eventType');
+  @override
+  late final GeneratedColumn<String> eventType = GeneratedColumn<String>(
+      'event_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _eventDataMeta =
+      const VerificationMeta('eventData');
+  @override
+  late final GeneratedColumn<String> eventData = GeneratedColumn<String>(
+      'event_data', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _correlationIdMeta =
+      const VerificationMeta('correlationId');
+  @override
+  late final GeneratedColumn<String> correlationId = GeneratedColumn<String>(
+      'correlation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
+      'synced', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _syncedAtMeta =
+      const VerificationMeta('syncedAt');
+  @override
+  late final GeneratedColumn<DateTime> syncedAt = GeneratedColumn<DateTime>(
+      'synced_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        agentId,
+        eventType,
+        eventData,
+        correlationId,
+        timestamp,
+        synced,
+        syncedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agent_events';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgentEvent> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('agent_id')) {
+      context.handle(_agentIdMeta,
+          agentId.isAcceptableOrUnknown(data['agent_id']!, _agentIdMeta));
+    } else if (isInserting) {
+      context.missing(_agentIdMeta);
+    }
+    if (data.containsKey('event_type')) {
+      context.handle(_eventTypeMeta,
+          eventType.isAcceptableOrUnknown(data['event_type']!, _eventTypeMeta));
+    } else if (isInserting) {
+      context.missing(_eventTypeMeta);
+    }
+    if (data.containsKey('event_data')) {
+      context.handle(_eventDataMeta,
+          eventData.isAcceptableOrUnknown(data['event_data']!, _eventDataMeta));
+    } else if (isInserting) {
+      context.missing(_eventDataMeta);
+    }
+    if (data.containsKey('correlation_id')) {
+      context.handle(
+          _correlationIdMeta,
+          correlationId.isAcceptableOrUnknown(
+              data['correlation_id']!, _correlationIdMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta,
+          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
+    }
+    if (data.containsKey('synced_at')) {
+      context.handle(_syncedAtMeta,
+          syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgentEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgentEvent(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      agentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}agent_id'])!,
+      eventType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}event_type'])!,
+      eventData: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}event_data'])!,
+      correlationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}correlation_id']),
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      synced: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+      syncedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}synced_at']),
+    );
+  }
+
+  @override
+  $AgentEventsTable createAlias(String alias) {
+    return $AgentEventsTable(attachedDatabase, alias);
+  }
+}
+
+class AgentEvent extends DataClass implements Insertable<AgentEvent> {
+  final String id;
+  final String agentId;
+  final String eventType;
+  final String eventData;
+  final String? correlationId;
+  final DateTime timestamp;
+  final bool synced;
+  final DateTime? syncedAt;
+  const AgentEvent(
+      {required this.id,
+      required this.agentId,
+      required this.eventType,
+      required this.eventData,
+      this.correlationId,
+      required this.timestamp,
+      required this.synced,
+      this.syncedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['agent_id'] = Variable<String>(agentId);
+    map['event_type'] = Variable<String>(eventType);
+    map['event_data'] = Variable<String>(eventData);
+    if (!nullToAbsent || correlationId != null) {
+      map['correlation_id'] = Variable<String>(correlationId);
+    }
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['synced'] = Variable<bool>(synced);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<DateTime>(syncedAt);
+    }
+    return map;
+  }
+
+  AgentEventsCompanion toCompanion(bool nullToAbsent) {
+    return AgentEventsCompanion(
+      id: Value(id),
+      agentId: Value(agentId),
+      eventType: Value(eventType),
+      eventData: Value(eventData),
+      correlationId: correlationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(correlationId),
+      timestamp: Value(timestamp),
+      synced: Value(synced),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
+    );
+  }
+
+  factory AgentEvent.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgentEvent(
+      id: serializer.fromJson<String>(json['id']),
+      agentId: serializer.fromJson<String>(json['agentId']),
+      eventType: serializer.fromJson<String>(json['eventType']),
+      eventData: serializer.fromJson<String>(json['eventData']),
+      correlationId: serializer.fromJson<String?>(json['correlationId']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      synced: serializer.fromJson<bool>(json['synced']),
+      syncedAt: serializer.fromJson<DateTime?>(json['syncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'agentId': serializer.toJson<String>(agentId),
+      'eventType': serializer.toJson<String>(eventType),
+      'eventData': serializer.toJson<String>(eventData),
+      'correlationId': serializer.toJson<String?>(correlationId),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'synced': serializer.toJson<bool>(synced),
+      'syncedAt': serializer.toJson<DateTime?>(syncedAt),
+    };
+  }
+
+  AgentEvent copyWith(
+          {String? id,
+          String? agentId,
+          String? eventType,
+          String? eventData,
+          Value<String?> correlationId = const Value.absent(),
+          DateTime? timestamp,
+          bool? synced,
+          Value<DateTime?> syncedAt = const Value.absent()}) =>
+      AgentEvent(
+        id: id ?? this.id,
+        agentId: agentId ?? this.agentId,
+        eventType: eventType ?? this.eventType,
+        eventData: eventData ?? this.eventData,
+        correlationId:
+            correlationId.present ? correlationId.value : this.correlationId,
+        timestamp: timestamp ?? this.timestamp,
+        synced: synced ?? this.synced,
+        syncedAt: syncedAt.present ? syncedAt.value : this.syncedAt,
+      );
+  AgentEvent copyWithCompanion(AgentEventsCompanion data) {
+    return AgentEvent(
+      id: data.id.present ? data.id.value : this.id,
+      agentId: data.agentId.present ? data.agentId.value : this.agentId,
+      eventType: data.eventType.present ? data.eventType.value : this.eventType,
+      eventData: data.eventData.present ? data.eventData.value : this.eventData,
+      correlationId: data.correlationId.present
+          ? data.correlationId.value
+          : this.correlationId,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      synced: data.synced.present ? data.synced.value : this.synced,
+      syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentEvent(')
+          ..write('id: $id, ')
+          ..write('agentId: $agentId, ')
+          ..write('eventType: $eventType, ')
+          ..write('eventData: $eventData, ')
+          ..write('correlationId: $correlationId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('synced: $synced, ')
+          ..write('syncedAt: $syncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, agentId, eventType, eventData,
+      correlationId, timestamp, synced, syncedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgentEvent &&
+          other.id == this.id &&
+          other.agentId == this.agentId &&
+          other.eventType == this.eventType &&
+          other.eventData == this.eventData &&
+          other.correlationId == this.correlationId &&
+          other.timestamp == this.timestamp &&
+          other.synced == this.synced &&
+          other.syncedAt == this.syncedAt);
+}
+
+class AgentEventsCompanion extends UpdateCompanion<AgentEvent> {
+  final Value<String> id;
+  final Value<String> agentId;
+  final Value<String> eventType;
+  final Value<String> eventData;
+  final Value<String?> correlationId;
+  final Value<DateTime> timestamp;
+  final Value<bool> synced;
+  final Value<DateTime?> syncedAt;
+  final Value<int> rowid;
+  const AgentEventsCompanion({
+    this.id = const Value.absent(),
+    this.agentId = const Value.absent(),
+    this.eventType = const Value.absent(),
+    this.eventData = const Value.absent(),
+    this.correlationId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AgentEventsCompanion.insert({
+    required String id,
+    required String agentId,
+    required String eventType,
+    required String eventData,
+    this.correlationId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.synced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        agentId = Value(agentId),
+        eventType = Value(eventType),
+        eventData = Value(eventData);
+  static Insertable<AgentEvent> custom({
+    Expression<String>? id,
+    Expression<String>? agentId,
+    Expression<String>? eventType,
+    Expression<String>? eventData,
+    Expression<String>? correlationId,
+    Expression<DateTime>? timestamp,
+    Expression<bool>? synced,
+    Expression<DateTime>? syncedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (agentId != null) 'agent_id': agentId,
+      if (eventType != null) 'event_type': eventType,
+      if (eventData != null) 'event_data': eventData,
+      if (correlationId != null) 'correlation_id': correlationId,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (synced != null) 'synced': synced,
+      if (syncedAt != null) 'synced_at': syncedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AgentEventsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? agentId,
+      Value<String>? eventType,
+      Value<String>? eventData,
+      Value<String?>? correlationId,
+      Value<DateTime>? timestamp,
+      Value<bool>? synced,
+      Value<DateTime?>? syncedAt,
+      Value<int>? rowid}) {
+    return AgentEventsCompanion(
+      id: id ?? this.id,
+      agentId: agentId ?? this.agentId,
+      eventType: eventType ?? this.eventType,
+      eventData: eventData ?? this.eventData,
+      correlationId: correlationId ?? this.correlationId,
+      timestamp: timestamp ?? this.timestamp,
+      synced: synced ?? this.synced,
+      syncedAt: syncedAt ?? this.syncedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (agentId.present) {
+      map['agent_id'] = Variable<String>(agentId.value);
+    }
+    if (eventType.present) {
+      map['event_type'] = Variable<String>(eventType.value);
+    }
+    if (eventData.present) {
+      map['event_data'] = Variable<String>(eventData.value);
+    }
+    if (correlationId.present) {
+      map['correlation_id'] = Variable<String>(correlationId.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (synced.present) {
+      map['synced'] = Variable<bool>(synced.value);
+    }
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<DateTime>(syncedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('agentId: $agentId, ')
+          ..write('eventType: $eventType, ')
+          ..write('eventData: $eventData, ')
+          ..write('correlationId: $correlationId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('synced: $synced, ')
+          ..write('syncedAt: $syncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncQueueTable extends SyncQueue
+    with TableInfo<$SyncQueueTable, SyncQueueData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncQueueTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _targetTableMeta =
+      const VerificationMeta('targetTable');
+  @override
+  late final GeneratedColumn<String> targetTable = GeneratedColumn<String>(
+      'target_table', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _operationMeta =
+      const VerificationMeta('operation');
+  @override
+  late final GeneratedColumn<String> operation = GeneratedColumn<String>(
+      'operation', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _recordIdMeta =
+      const VerificationMeta('recordId');
+  @override
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+      'record_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _retryCountMeta =
+      const VerificationMeta('retryCount');
+  @override
+  late final GeneratedColumn<int> retryCount = GeneratedColumn<int>(
+      'retry_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, targetTable, operation, recordId, payload, createdAt, retryCount];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_queue';
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncQueueData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('target_table')) {
+      context.handle(
+          _targetTableMeta,
+          targetTable.isAcceptableOrUnknown(
+              data['target_table']!, _targetTableMeta));
+    } else if (isInserting) {
+      context.missing(_targetTableMeta);
+    }
+    if (data.containsKey('operation')) {
+      context.handle(_operationMeta,
+          operation.isAcceptableOrUnknown(data['operation']!, _operationMeta));
+    } else if (isInserting) {
+      context.missing(_operationMeta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(_recordIdMeta,
+          recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta));
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('retry_count')) {
+      context.handle(
+          _retryCountMeta,
+          retryCount.isAcceptableOrUnknown(
+              data['retry_count']!, _retryCountMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncQueueData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncQueueData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      targetTable: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_table'])!,
+      operation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operation'])!,
+      recordId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}record_id'])!,
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      retryCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}retry_count'])!,
+    );
+  }
+
+  @override
+  $SyncQueueTable createAlias(String alias) {
+    return $SyncQueueTable(attachedDatabase, alias);
+  }
+}
+
+class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
+  final int id;
+  final String targetTable;
+  final String operation;
+  final String recordId;
+  final String payload;
+  final DateTime createdAt;
+  final int retryCount;
+  const SyncQueueData(
+      {required this.id,
+      required this.targetTable,
+      required this.operation,
+      required this.recordId,
+      required this.payload,
+      required this.createdAt,
+      required this.retryCount});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['target_table'] = Variable<String>(targetTable);
+    map['operation'] = Variable<String>(operation);
+    map['record_id'] = Variable<String>(recordId);
+    map['payload'] = Variable<String>(payload);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['retry_count'] = Variable<int>(retryCount);
+    return map;
+  }
+
+  SyncQueueCompanion toCompanion(bool nullToAbsent) {
+    return SyncQueueCompanion(
+      id: Value(id),
+      targetTable: Value(targetTable),
+      operation: Value(operation),
+      recordId: Value(recordId),
+      payload: Value(payload),
+      createdAt: Value(createdAt),
+      retryCount: Value(retryCount),
+    );
+  }
+
+  factory SyncQueueData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncQueueData(
+      id: serializer.fromJson<int>(json['id']),
+      targetTable: serializer.fromJson<String>(json['targetTable']),
+      operation: serializer.fromJson<String>(json['operation']),
+      recordId: serializer.fromJson<String>(json['recordId']),
+      payload: serializer.fromJson<String>(json['payload']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      retryCount: serializer.fromJson<int>(json['retryCount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'targetTable': serializer.toJson<String>(targetTable),
+      'operation': serializer.toJson<String>(operation),
+      'recordId': serializer.toJson<String>(recordId),
+      'payload': serializer.toJson<String>(payload),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'retryCount': serializer.toJson<int>(retryCount),
+    };
+  }
+
+  SyncQueueData copyWith(
+          {int? id,
+          String? targetTable,
+          String? operation,
+          String? recordId,
+          String? payload,
+          DateTime? createdAt,
+          int? retryCount}) =>
+      SyncQueueData(
+        id: id ?? this.id,
+        targetTable: targetTable ?? this.targetTable,
+        operation: operation ?? this.operation,
+        recordId: recordId ?? this.recordId,
+        payload: payload ?? this.payload,
+        createdAt: createdAt ?? this.createdAt,
+        retryCount: retryCount ?? this.retryCount,
+      );
+  SyncQueueData copyWithCompanion(SyncQueueCompanion data) {
+    return SyncQueueData(
+      id: data.id.present ? data.id.value : this.id,
+      targetTable:
+          data.targetTable.present ? data.targetTable.value : this.targetTable,
+      operation: data.operation.present ? data.operation.value : this.operation,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      retryCount:
+          data.retryCount.present ? data.retryCount.value : this.retryCount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueData(')
+          ..write('id: $id, ')
+          ..write('targetTable: $targetTable, ')
+          ..write('operation: $operation, ')
+          ..write('recordId: $recordId, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('retryCount: $retryCount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, targetTable, operation, recordId, payload, createdAt, retryCount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncQueueData &&
+          other.id == this.id &&
+          other.targetTable == this.targetTable &&
+          other.operation == this.operation &&
+          other.recordId == this.recordId &&
+          other.payload == this.payload &&
+          other.createdAt == this.createdAt &&
+          other.retryCount == this.retryCount);
+}
+
+class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
+  final Value<int> id;
+  final Value<String> targetTable;
+  final Value<String> operation;
+  final Value<String> recordId;
+  final Value<String> payload;
+  final Value<DateTime> createdAt;
+  final Value<int> retryCount;
+  const SyncQueueCompanion({
+    this.id = const Value.absent(),
+    this.targetTable = const Value.absent(),
+    this.operation = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.retryCount = const Value.absent(),
+  });
+  SyncQueueCompanion.insert({
+    this.id = const Value.absent(),
+    required String targetTable,
+    required String operation,
+    required String recordId,
+    required String payload,
+    this.createdAt = const Value.absent(),
+    this.retryCount = const Value.absent(),
+  })  : targetTable = Value(targetTable),
+        operation = Value(operation),
+        recordId = Value(recordId),
+        payload = Value(payload);
+  static Insertable<SyncQueueData> custom({
+    Expression<int>? id,
+    Expression<String>? targetTable,
+    Expression<String>? operation,
+    Expression<String>? recordId,
+    Expression<String>? payload,
+    Expression<DateTime>? createdAt,
+    Expression<int>? retryCount,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (targetTable != null) 'target_table': targetTable,
+      if (operation != null) 'operation': operation,
+      if (recordId != null) 'record_id': recordId,
+      if (payload != null) 'payload': payload,
+      if (createdAt != null) 'created_at': createdAt,
+      if (retryCount != null) 'retry_count': retryCount,
+    });
+  }
+
+  SyncQueueCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? targetTable,
+      Value<String>? operation,
+      Value<String>? recordId,
+      Value<String>? payload,
+      Value<DateTime>? createdAt,
+      Value<int>? retryCount}) {
+    return SyncQueueCompanion(
+      id: id ?? this.id,
+      targetTable: targetTable ?? this.targetTable,
+      operation: operation ?? this.operation,
+      recordId: recordId ?? this.recordId,
+      payload: payload ?? this.payload,
+      createdAt: createdAt ?? this.createdAt,
+      retryCount: retryCount ?? this.retryCount,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (targetTable.present) {
+      map['target_table'] = Variable<String>(targetTable.value);
+    }
+    if (operation.present) {
+      map['operation'] = Variable<String>(operation.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (retryCount.present) {
+      map['retry_count'] = Variable<int>(retryCount.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueCompanion(')
+          ..write('id: $id, ')
+          ..write('targetTable: $targetTable, ')
+          ..write('operation: $operation, ')
+          ..write('recordId: $recordId, ')
+          ..write('payload: $payload, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('retryCount: $retryCount')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FileIndexTable extends FileIndex
+    with TableInfo<$FileIndexTable, FileIndexData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FileIndexTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+      'path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _filenameMeta =
+      const VerificationMeta('filename');
+  @override
+  late final GeneratedColumn<String> filename = GeneratedColumn<String>(
+      'filename', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _extensionMeta =
+      const VerificationMeta('extension');
+  @override
+  late final GeneratedColumn<String> extension = GeneratedColumn<String>(
+      'extension', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
+  @override
+  late final GeneratedColumn<int> size = GeneratedColumn<int>(
+      'size', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _modifiedAtMeta =
+      const VerificationMeta('modifiedAt');
+  @override
+  late final GeneratedColumn<DateTime> modifiedAt = GeneratedColumn<DateTime>(
+      'modified_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _contentHashMeta =
+      const VerificationMeta('contentHash');
+  @override
+  late final GeneratedColumn<String> contentHash = GeneratedColumn<String>(
+      'content_hash', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _mimeTypeMeta =
+      const VerificationMeta('mimeType');
+  @override
+  late final GeneratedColumn<String> mimeType = GeneratedColumn<String>(
+      'mime_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isDirectoryMeta =
+      const VerificationMeta('isDirectory');
+  @override
+  late final GeneratedColumn<bool> isDirectory = GeneratedColumn<bool>(
+      'is_directory', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_directory" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _parentPathMeta =
+      const VerificationMeta('parentPath');
+  @override
+  late final GeneratedColumn<String> parentPath = GeneratedColumn<String>(
+      'parent_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _indexedAtMeta =
+      const VerificationMeta('indexedAt');
+  @override
+  late final GeneratedColumn<DateTime> indexedAt = GeneratedColumn<DateTime>(
+      'indexed_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        path,
+        filename,
+        extension,
+        size,
+        modifiedAt,
+        contentHash,
+        mimeType,
+        isDirectory,
+        parentPath,
+        indexedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'file_index';
+  @override
+  VerificationContext validateIntegrity(Insertable<FileIndexData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+          _pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('filename')) {
+      context.handle(_filenameMeta,
+          filename.isAcceptableOrUnknown(data['filename']!, _filenameMeta));
+    } else if (isInserting) {
+      context.missing(_filenameMeta);
+    }
+    if (data.containsKey('extension')) {
+      context.handle(_extensionMeta,
+          extension.isAcceptableOrUnknown(data['extension']!, _extensionMeta));
+    }
+    if (data.containsKey('size')) {
+      context.handle(
+          _sizeMeta, size.isAcceptableOrUnknown(data['size']!, _sizeMeta));
+    }
+    if (data.containsKey('modified_at')) {
+      context.handle(
+          _modifiedAtMeta,
+          modifiedAt.isAcceptableOrUnknown(
+              data['modified_at']!, _modifiedAtMeta));
+    }
+    if (data.containsKey('content_hash')) {
+      context.handle(
+          _contentHashMeta,
+          contentHash.isAcceptableOrUnknown(
+              data['content_hash']!, _contentHashMeta));
+    }
+    if (data.containsKey('mime_type')) {
+      context.handle(_mimeTypeMeta,
+          mimeType.isAcceptableOrUnknown(data['mime_type']!, _mimeTypeMeta));
+    }
+    if (data.containsKey('is_directory')) {
+      context.handle(
+          _isDirectoryMeta,
+          isDirectory.isAcceptableOrUnknown(
+              data['is_directory']!, _isDirectoryMeta));
+    }
+    if (data.containsKey('parent_path')) {
+      context.handle(
+          _parentPathMeta,
+          parentPath.isAcceptableOrUnknown(
+              data['parent_path']!, _parentPathMeta));
+    }
+    if (data.containsKey('indexed_at')) {
+      context.handle(_indexedAtMeta,
+          indexedAt.isAcceptableOrUnknown(data['indexed_at']!, _indexedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FileIndexData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FileIndexData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      path: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      filename: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}filename'])!,
+      extension: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}extension']),
+      size: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}size']),
+      modifiedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}modified_at']),
+      contentHash: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_hash']),
+      mimeType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mime_type']),
+      isDirectory: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_directory'])!,
+      parentPath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parent_path']),
+      indexedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}indexed_at'])!,
+    );
+  }
+
+  @override
+  $FileIndexTable createAlias(String alias) {
+    return $FileIndexTable(attachedDatabase, alias);
+  }
+}
+
+class FileIndexData extends DataClass implements Insertable<FileIndexData> {
+  final int id;
+  final String path;
+  final String filename;
+  final String? extension;
+  final int? size;
+  final DateTime? modifiedAt;
+  final String? contentHash;
+  final String? mimeType;
+  final bool isDirectory;
+  final String? parentPath;
+  final DateTime indexedAt;
+  const FileIndexData(
+      {required this.id,
+      required this.path,
+      required this.filename,
+      this.extension,
+      this.size,
+      this.modifiedAt,
+      this.contentHash,
+      this.mimeType,
+      required this.isDirectory,
+      this.parentPath,
+      required this.indexedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['path'] = Variable<String>(path);
+    map['filename'] = Variable<String>(filename);
+    if (!nullToAbsent || extension != null) {
+      map['extension'] = Variable<String>(extension);
+    }
+    if (!nullToAbsent || size != null) {
+      map['size'] = Variable<int>(size);
+    }
+    if (!nullToAbsent || modifiedAt != null) {
+      map['modified_at'] = Variable<DateTime>(modifiedAt);
+    }
+    if (!nullToAbsent || contentHash != null) {
+      map['content_hash'] = Variable<String>(contentHash);
+    }
+    if (!nullToAbsent || mimeType != null) {
+      map['mime_type'] = Variable<String>(mimeType);
+    }
+    map['is_directory'] = Variable<bool>(isDirectory);
+    if (!nullToAbsent || parentPath != null) {
+      map['parent_path'] = Variable<String>(parentPath);
+    }
+    map['indexed_at'] = Variable<DateTime>(indexedAt);
+    return map;
+  }
+
+  FileIndexCompanion toCompanion(bool nullToAbsent) {
+    return FileIndexCompanion(
+      id: Value(id),
+      path: Value(path),
+      filename: Value(filename),
+      extension: extension == null && nullToAbsent
+          ? const Value.absent()
+          : Value(extension),
+      size: size == null && nullToAbsent ? const Value.absent() : Value(size),
+      modifiedAt: modifiedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(modifiedAt),
+      contentHash: contentHash == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentHash),
+      mimeType: mimeType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mimeType),
+      isDirectory: Value(isDirectory),
+      parentPath: parentPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentPath),
+      indexedAt: Value(indexedAt),
+    );
+  }
+
+  factory FileIndexData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FileIndexData(
+      id: serializer.fromJson<int>(json['id']),
+      path: serializer.fromJson<String>(json['path']),
+      filename: serializer.fromJson<String>(json['filename']),
+      extension: serializer.fromJson<String?>(json['extension']),
+      size: serializer.fromJson<int?>(json['size']),
+      modifiedAt: serializer.fromJson<DateTime?>(json['modifiedAt']),
+      contentHash: serializer.fromJson<String?>(json['contentHash']),
+      mimeType: serializer.fromJson<String?>(json['mimeType']),
+      isDirectory: serializer.fromJson<bool>(json['isDirectory']),
+      parentPath: serializer.fromJson<String?>(json['parentPath']),
+      indexedAt: serializer.fromJson<DateTime>(json['indexedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'path': serializer.toJson<String>(path),
+      'filename': serializer.toJson<String>(filename),
+      'extension': serializer.toJson<String?>(extension),
+      'size': serializer.toJson<int?>(size),
+      'modifiedAt': serializer.toJson<DateTime?>(modifiedAt),
+      'contentHash': serializer.toJson<String?>(contentHash),
+      'mimeType': serializer.toJson<String?>(mimeType),
+      'isDirectory': serializer.toJson<bool>(isDirectory),
+      'parentPath': serializer.toJson<String?>(parentPath),
+      'indexedAt': serializer.toJson<DateTime>(indexedAt),
+    };
+  }
+
+  FileIndexData copyWith(
+          {int? id,
+          String? path,
+          String? filename,
+          Value<String?> extension = const Value.absent(),
+          Value<int?> size = const Value.absent(),
+          Value<DateTime?> modifiedAt = const Value.absent(),
+          Value<String?> contentHash = const Value.absent(),
+          Value<String?> mimeType = const Value.absent(),
+          bool? isDirectory,
+          Value<String?> parentPath = const Value.absent(),
+          DateTime? indexedAt}) =>
+      FileIndexData(
+        id: id ?? this.id,
+        path: path ?? this.path,
+        filename: filename ?? this.filename,
+        extension: extension.present ? extension.value : this.extension,
+        size: size.present ? size.value : this.size,
+        modifiedAt: modifiedAt.present ? modifiedAt.value : this.modifiedAt,
+        contentHash: contentHash.present ? contentHash.value : this.contentHash,
+        mimeType: mimeType.present ? mimeType.value : this.mimeType,
+        isDirectory: isDirectory ?? this.isDirectory,
+        parentPath: parentPath.present ? parentPath.value : this.parentPath,
+        indexedAt: indexedAt ?? this.indexedAt,
+      );
+  FileIndexData copyWithCompanion(FileIndexCompanion data) {
+    return FileIndexData(
+      id: data.id.present ? data.id.value : this.id,
+      path: data.path.present ? data.path.value : this.path,
+      filename: data.filename.present ? data.filename.value : this.filename,
+      extension: data.extension.present ? data.extension.value : this.extension,
+      size: data.size.present ? data.size.value : this.size,
+      modifiedAt:
+          data.modifiedAt.present ? data.modifiedAt.value : this.modifiedAt,
+      contentHash:
+          data.contentHash.present ? data.contentHash.value : this.contentHash,
+      mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
+      isDirectory:
+          data.isDirectory.present ? data.isDirectory.value : this.isDirectory,
+      parentPath:
+          data.parentPath.present ? data.parentPath.value : this.parentPath,
+      indexedAt: data.indexedAt.present ? data.indexedAt.value : this.indexedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FileIndexData(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('filename: $filename, ')
+          ..write('extension: $extension, ')
+          ..write('size: $size, ')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('contentHash: $contentHash, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('isDirectory: $isDirectory, ')
+          ..write('parentPath: $parentPath, ')
+          ..write('indexedAt: $indexedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, path, filename, extension, size,
+      modifiedAt, contentHash, mimeType, isDirectory, parentPath, indexedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FileIndexData &&
+          other.id == this.id &&
+          other.path == this.path &&
+          other.filename == this.filename &&
+          other.extension == this.extension &&
+          other.size == this.size &&
+          other.modifiedAt == this.modifiedAt &&
+          other.contentHash == this.contentHash &&
+          other.mimeType == this.mimeType &&
+          other.isDirectory == this.isDirectory &&
+          other.parentPath == this.parentPath &&
+          other.indexedAt == this.indexedAt);
+}
+
+class FileIndexCompanion extends UpdateCompanion<FileIndexData> {
+  final Value<int> id;
+  final Value<String> path;
+  final Value<String> filename;
+  final Value<String?> extension;
+  final Value<int?> size;
+  final Value<DateTime?> modifiedAt;
+  final Value<String?> contentHash;
+  final Value<String?> mimeType;
+  final Value<bool> isDirectory;
+  final Value<String?> parentPath;
+  final Value<DateTime> indexedAt;
+  const FileIndexCompanion({
+    this.id = const Value.absent(),
+    this.path = const Value.absent(),
+    this.filename = const Value.absent(),
+    this.extension = const Value.absent(),
+    this.size = const Value.absent(),
+    this.modifiedAt = const Value.absent(),
+    this.contentHash = const Value.absent(),
+    this.mimeType = const Value.absent(),
+    this.isDirectory = const Value.absent(),
+    this.parentPath = const Value.absent(),
+    this.indexedAt = const Value.absent(),
+  });
+  FileIndexCompanion.insert({
+    this.id = const Value.absent(),
+    required String path,
+    required String filename,
+    this.extension = const Value.absent(),
+    this.size = const Value.absent(),
+    this.modifiedAt = const Value.absent(),
+    this.contentHash = const Value.absent(),
+    this.mimeType = const Value.absent(),
+    this.isDirectory = const Value.absent(),
+    this.parentPath = const Value.absent(),
+    this.indexedAt = const Value.absent(),
+  })  : path = Value(path),
+        filename = Value(filename);
+  static Insertable<FileIndexData> custom({
+    Expression<int>? id,
+    Expression<String>? path,
+    Expression<String>? filename,
+    Expression<String>? extension,
+    Expression<int>? size,
+    Expression<DateTime>? modifiedAt,
+    Expression<String>? contentHash,
+    Expression<String>? mimeType,
+    Expression<bool>? isDirectory,
+    Expression<String>? parentPath,
+    Expression<DateTime>? indexedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (path != null) 'path': path,
+      if (filename != null) 'filename': filename,
+      if (extension != null) 'extension': extension,
+      if (size != null) 'size': size,
+      if (modifiedAt != null) 'modified_at': modifiedAt,
+      if (contentHash != null) 'content_hash': contentHash,
+      if (mimeType != null) 'mime_type': mimeType,
+      if (isDirectory != null) 'is_directory': isDirectory,
+      if (parentPath != null) 'parent_path': parentPath,
+      if (indexedAt != null) 'indexed_at': indexedAt,
+    });
+  }
+
+  FileIndexCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? path,
+      Value<String>? filename,
+      Value<String?>? extension,
+      Value<int?>? size,
+      Value<DateTime?>? modifiedAt,
+      Value<String?>? contentHash,
+      Value<String?>? mimeType,
+      Value<bool>? isDirectory,
+      Value<String?>? parentPath,
+      Value<DateTime>? indexedAt}) {
+    return FileIndexCompanion(
+      id: id ?? this.id,
+      path: path ?? this.path,
+      filename: filename ?? this.filename,
+      extension: extension ?? this.extension,
+      size: size ?? this.size,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+      contentHash: contentHash ?? this.contentHash,
+      mimeType: mimeType ?? this.mimeType,
+      isDirectory: isDirectory ?? this.isDirectory,
+      parentPath: parentPath ?? this.parentPath,
+      indexedAt: indexedAt ?? this.indexedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (filename.present) {
+      map['filename'] = Variable<String>(filename.value);
+    }
+    if (extension.present) {
+      map['extension'] = Variable<String>(extension.value);
+    }
+    if (size.present) {
+      map['size'] = Variable<int>(size.value);
+    }
+    if (modifiedAt.present) {
+      map['modified_at'] = Variable<DateTime>(modifiedAt.value);
+    }
+    if (contentHash.present) {
+      map['content_hash'] = Variable<String>(contentHash.value);
+    }
+    if (mimeType.present) {
+      map['mime_type'] = Variable<String>(mimeType.value);
+    }
+    if (isDirectory.present) {
+      map['is_directory'] = Variable<bool>(isDirectory.value);
+    }
+    if (parentPath.present) {
+      map['parent_path'] = Variable<String>(parentPath.value);
+    }
+    if (indexedAt.present) {
+      map['indexed_at'] = Variable<DateTime>(indexedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FileIndexCompanion(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('filename: $filename, ')
+          ..write('extension: $extension, ')
+          ..write('size: $size, ')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('contentHash: $contentHash, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('isDirectory: $isDirectory, ')
+          ..write('parentPath: $parentPath, ')
+          ..write('indexedAt: $indexedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FileContentCacheTable extends FileContentCache
+    with TableInfo<$FileContentCacheTable, FileContentCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FileContentCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _filePathMeta =
+      const VerificationMeta('filePath');
+  @override
+  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
+      'file_path', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES file_index (path)'));
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _cachedAtMeta =
+      const VerificationMeta('cachedAt');
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+      'cached_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, filePath, content, cachedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'file_content_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<FileContentCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('file_path')) {
+      context.handle(_filePathMeta,
+          filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta));
+    } else if (isInserting) {
+      context.missing(_filePathMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(_cachedAtMeta,
+          cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FileContentCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FileContentCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      filePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}file_path'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      cachedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}cached_at'])!,
+    );
+  }
+
+  @override
+  $FileContentCacheTable createAlias(String alias) {
+    return $FileContentCacheTable(attachedDatabase, alias);
+  }
+}
+
+class FileContentCacheData extends DataClass
+    implements Insertable<FileContentCacheData> {
+  final int id;
+  final String filePath;
+  final String content;
+  final DateTime cachedAt;
+  const FileContentCacheData(
+      {required this.id,
+      required this.filePath,
+      required this.content,
+      required this.cachedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['file_path'] = Variable<String>(filePath);
+    map['content'] = Variable<String>(content);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  FileContentCacheCompanion toCompanion(bool nullToAbsent) {
+    return FileContentCacheCompanion(
+      id: Value(id),
+      filePath: Value(filePath),
+      content: Value(content),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory FileContentCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FileContentCacheData(
+      id: serializer.fromJson<int>(json['id']),
+      filePath: serializer.fromJson<String>(json['filePath']),
+      content: serializer.fromJson<String>(json['content']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'filePath': serializer.toJson<String>(filePath),
+      'content': serializer.toJson<String>(content),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  FileContentCacheData copyWith(
+          {int? id, String? filePath, String? content, DateTime? cachedAt}) =>
+      FileContentCacheData(
+        id: id ?? this.id,
+        filePath: filePath ?? this.filePath,
+        content: content ?? this.content,
+        cachedAt: cachedAt ?? this.cachedAt,
+      );
+  FileContentCacheData copyWithCompanion(FileContentCacheCompanion data) {
+    return FileContentCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      content: data.content.present ? data.content.value : this.content,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FileContentCacheData(')
+          ..write('id: $id, ')
+          ..write('filePath: $filePath, ')
+          ..write('content: $content, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, filePath, content, cachedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FileContentCacheData &&
+          other.id == this.id &&
+          other.filePath == this.filePath &&
+          other.content == this.content &&
+          other.cachedAt == this.cachedAt);
+}
+
+class FileContentCacheCompanion extends UpdateCompanion<FileContentCacheData> {
+  final Value<int> id;
+  final Value<String> filePath;
+  final Value<String> content;
+  final Value<DateTime> cachedAt;
+  const FileContentCacheCompanion({
+    this.id = const Value.absent(),
+    this.filePath = const Value.absent(),
+    this.content = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+  });
+  FileContentCacheCompanion.insert({
+    this.id = const Value.absent(),
+    required String filePath,
+    required String content,
+    this.cachedAt = const Value.absent(),
+  })  : filePath = Value(filePath),
+        content = Value(content);
+  static Insertable<FileContentCacheData> custom({
+    Expression<int>? id,
+    Expression<String>? filePath,
+    Expression<String>? content,
+    Expression<DateTime>? cachedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (filePath != null) 'file_path': filePath,
+      if (content != null) 'content': content,
+      if (cachedAt != null) 'cached_at': cachedAt,
+    });
+  }
+
+  FileContentCacheCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? filePath,
+      Value<String>? content,
+      Value<DateTime>? cachedAt}) {
+    return FileContentCacheCompanion(
+      id: id ?? this.id,
+      filePath: filePath ?? this.filePath,
+      content: content ?? this.content,
+      cachedAt: cachedAt ?? this.cachedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (filePath.present) {
+      map['file_path'] = Variable<String>(filePath.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FileContentCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('filePath: $filePath, ')
+          ..write('content: $content, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalBrain extends GeneratedDatabase {
   _$LocalBrain(QueryExecutor e) : super(e);
   $LocalBrainManager get managers => $LocalBrainManager(this);
@@ -1300,12 +2922,25 @@ abstract class _$LocalBrain extends GeneratedDatabase {
   late final $ConversationsTable conversations = $ConversationsTable(this);
   late final $MessagesTable messages = $MessagesTable(this);
   late final $AgentLogsTable agentLogs = $AgentLogsTable(this);
+  late final $AgentEventsTable agentEvents = $AgentEventsTable(this);
+  late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
+  late final $FileIndexTable fileIndex = $FileIndexTable(this);
+  late final $FileContentCacheTable fileContentCache =
+      $FileContentCacheTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, conversations, messages, agentLogs];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        users,
+        conversations,
+        messages,
+        agentLogs,
+        agentEvents,
+        syncQueue,
+        fileIndex,
+        fileContentCache
+      ];
 }
 
 typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
@@ -2358,6 +3993,1012 @@ typedef $$AgentLogsTableProcessedTableManager = ProcessedTableManager<
     (AgentLog, BaseReferences<_$LocalBrain, $AgentLogsTable, AgentLog>),
     AgentLog,
     PrefetchHooks Function()>;
+typedef $$AgentEventsTableCreateCompanionBuilder = AgentEventsCompanion
+    Function({
+  required String id,
+  required String agentId,
+  required String eventType,
+  required String eventData,
+  Value<String?> correlationId,
+  Value<DateTime> timestamp,
+  Value<bool> synced,
+  Value<DateTime?> syncedAt,
+  Value<int> rowid,
+});
+typedef $$AgentEventsTableUpdateCompanionBuilder = AgentEventsCompanion
+    Function({
+  Value<String> id,
+  Value<String> agentId,
+  Value<String> eventType,
+  Value<String> eventData,
+  Value<String?> correlationId,
+  Value<DateTime> timestamp,
+  Value<bool> synced,
+  Value<DateTime?> syncedAt,
+  Value<int> rowid,
+});
+
+class $$AgentEventsTableFilterComposer
+    extends Composer<_$LocalBrain, $AgentEventsTable> {
+  $$AgentEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get agentId => $composableBuilder(
+      column: $table.agentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get eventType => $composableBuilder(
+      column: $table.eventType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get eventData => $composableBuilder(
+      column: $table.eventData, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get correlationId => $composableBuilder(
+      column: $table.correlationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get syncedAt => $composableBuilder(
+      column: $table.syncedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentEventsTableOrderingComposer
+    extends Composer<_$LocalBrain, $AgentEventsTable> {
+  $$AgentEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get agentId => $composableBuilder(
+      column: $table.agentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get eventType => $composableBuilder(
+      column: $table.eventType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get eventData => $composableBuilder(
+      column: $table.eventData, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get correlationId => $composableBuilder(
+      column: $table.correlationId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
+      column: $table.syncedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentEventsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AgentEventsTable> {
+  $$AgentEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get agentId =>
+      $composableBuilder(column: $table.agentId, builder: (column) => column);
+
+  GeneratedColumn<String> get eventType =>
+      $composableBuilder(column: $table.eventType, builder: (column) => column);
+
+  GeneratedColumn<String> get eventData =>
+      $composableBuilder(column: $table.eventData, builder: (column) => column);
+
+  GeneratedColumn<String> get correlationId => $composableBuilder(
+      column: $table.correlationId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get syncedAt =>
+      $composableBuilder(column: $table.syncedAt, builder: (column) => column);
+}
+
+class $$AgentEventsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AgentEventsTable,
+    AgentEvent,
+    $$AgentEventsTableFilterComposer,
+    $$AgentEventsTableOrderingComposer,
+    $$AgentEventsTableAnnotationComposer,
+    $$AgentEventsTableCreateCompanionBuilder,
+    $$AgentEventsTableUpdateCompanionBuilder,
+    (AgentEvent, BaseReferences<_$LocalBrain, $AgentEventsTable, AgentEvent>),
+    AgentEvent,
+    PrefetchHooks Function()> {
+  $$AgentEventsTableTableManager(_$LocalBrain db, $AgentEventsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> agentId = const Value.absent(),
+            Value<String> eventType = const Value.absent(),
+            Value<String> eventData = const Value.absent(),
+            Value<String?> correlationId = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<DateTime?> syncedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentEventsCompanion(
+            id: id,
+            agentId: agentId,
+            eventType: eventType,
+            eventData: eventData,
+            correlationId: correlationId,
+            timestamp: timestamp,
+            synced: synced,
+            syncedAt: syncedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String agentId,
+            required String eventType,
+            required String eventData,
+            Value<String?> correlationId = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<DateTime?> syncedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentEventsCompanion.insert(
+            id: id,
+            agentId: agentId,
+            eventType: eventType,
+            eventData: eventData,
+            correlationId: correlationId,
+            timestamp: timestamp,
+            synced: synced,
+            syncedAt: syncedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentEventsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $AgentEventsTable,
+    AgentEvent,
+    $$AgentEventsTableFilterComposer,
+    $$AgentEventsTableOrderingComposer,
+    $$AgentEventsTableAnnotationComposer,
+    $$AgentEventsTableCreateCompanionBuilder,
+    $$AgentEventsTableUpdateCompanionBuilder,
+    (AgentEvent, BaseReferences<_$LocalBrain, $AgentEventsTable, AgentEvent>),
+    AgentEvent,
+    PrefetchHooks Function()>;
+typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
+  Value<int> id,
+  required String targetTable,
+  required String operation,
+  required String recordId,
+  required String payload,
+  Value<DateTime> createdAt,
+  Value<int> retryCount,
+});
+typedef $$SyncQueueTableUpdateCompanionBuilder = SyncQueueCompanion Function({
+  Value<int> id,
+  Value<String> targetTable,
+  Value<String> operation,
+  Value<String> recordId,
+  Value<String> payload,
+  Value<DateTime> createdAt,
+  Value<int> retryCount,
+});
+
+class $$SyncQueueTableFilterComposer
+    extends Composer<_$LocalBrain, $SyncQueueTable> {
+  $$SyncQueueTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetTable => $composableBuilder(
+      column: $table.targetTable, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get operation => $composableBuilder(
+      column: $table.operation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recordId => $composableBuilder(
+      column: $table.recordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncQueueTableOrderingComposer
+    extends Composer<_$LocalBrain, $SyncQueueTable> {
+  $$SyncQueueTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetTable => $composableBuilder(
+      column: $table.targetTable, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get operation => $composableBuilder(
+      column: $table.operation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recordId => $composableBuilder(
+      column: $table.recordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncQueueTableAnnotationComposer
+    extends Composer<_$LocalBrain, $SyncQueueTable> {
+  $$SyncQueueTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetTable => $composableBuilder(
+      column: $table.targetTable, builder: (column) => column);
+
+  GeneratedColumn<String> get operation =>
+      $composableBuilder(column: $table.operation, builder: (column) => column);
+
+  GeneratedColumn<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => column);
+}
+
+class $$SyncQueueTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $SyncQueueTable,
+    SyncQueueData,
+    $$SyncQueueTableFilterComposer,
+    $$SyncQueueTableOrderingComposer,
+    $$SyncQueueTableAnnotationComposer,
+    $$SyncQueueTableCreateCompanionBuilder,
+    $$SyncQueueTableUpdateCompanionBuilder,
+    (
+      SyncQueueData,
+      BaseReferences<_$LocalBrain, $SyncQueueTable, SyncQueueData>
+    ),
+    SyncQueueData,
+    PrefetchHooks Function()> {
+  $$SyncQueueTableTableManager(_$LocalBrain db, $SyncQueueTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncQueueTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncQueueTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncQueueTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> targetTable = const Value.absent(),
+            Value<String> operation = const Value.absent(),
+            Value<String> recordId = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> retryCount = const Value.absent(),
+          }) =>
+              SyncQueueCompanion(
+            id: id,
+            targetTable: targetTable,
+            operation: operation,
+            recordId: recordId,
+            payload: payload,
+            createdAt: createdAt,
+            retryCount: retryCount,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String targetTable,
+            required String operation,
+            required String recordId,
+            required String payload,
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> retryCount = const Value.absent(),
+          }) =>
+              SyncQueueCompanion.insert(
+            id: id,
+            targetTable: targetTable,
+            operation: operation,
+            recordId: recordId,
+            payload: payload,
+            createdAt: createdAt,
+            retryCount: retryCount,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncQueueTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $SyncQueueTable,
+    SyncQueueData,
+    $$SyncQueueTableFilterComposer,
+    $$SyncQueueTableOrderingComposer,
+    $$SyncQueueTableAnnotationComposer,
+    $$SyncQueueTableCreateCompanionBuilder,
+    $$SyncQueueTableUpdateCompanionBuilder,
+    (
+      SyncQueueData,
+      BaseReferences<_$LocalBrain, $SyncQueueTable, SyncQueueData>
+    ),
+    SyncQueueData,
+    PrefetchHooks Function()>;
+typedef $$FileIndexTableCreateCompanionBuilder = FileIndexCompanion Function({
+  Value<int> id,
+  required String path,
+  required String filename,
+  Value<String?> extension,
+  Value<int?> size,
+  Value<DateTime?> modifiedAt,
+  Value<String?> contentHash,
+  Value<String?> mimeType,
+  Value<bool> isDirectory,
+  Value<String?> parentPath,
+  Value<DateTime> indexedAt,
+});
+typedef $$FileIndexTableUpdateCompanionBuilder = FileIndexCompanion Function({
+  Value<int> id,
+  Value<String> path,
+  Value<String> filename,
+  Value<String?> extension,
+  Value<int?> size,
+  Value<DateTime?> modifiedAt,
+  Value<String?> contentHash,
+  Value<String?> mimeType,
+  Value<bool> isDirectory,
+  Value<String?> parentPath,
+  Value<DateTime> indexedAt,
+});
+
+final class $$FileIndexTableReferences
+    extends BaseReferences<_$LocalBrain, $FileIndexTable, FileIndexData> {
+  $$FileIndexTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$FileContentCacheTable, List<FileContentCacheData>>
+      _fileContentCacheRefsTable(_$LocalBrain db) =>
+          MultiTypedResultKey.fromTable(db.fileContentCache,
+              aliasName: $_aliasNameGenerator(
+                  db.fileIndex.path, db.fileContentCache.filePath));
+
+  $$FileContentCacheTableProcessedTableManager get fileContentCacheRefs {
+    final manager =
+        $$FileContentCacheTableTableManager($_db, $_db.fileContentCache).filter(
+            (f) => f.filePath.path.sqlEquals($_itemColumn<String>('path')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_fileContentCacheRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$FileIndexTableFilterComposer
+    extends Composer<_$LocalBrain, $FileIndexTable> {
+  $$FileIndexTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get path => $composableBuilder(
+      column: $table.path, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get filename => $composableBuilder(
+      column: $table.filename, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get extension => $composableBuilder(
+      column: $table.extension, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get modifiedAt => $composableBuilder(
+      column: $table.modifiedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mimeType => $composableBuilder(
+      column: $table.mimeType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDirectory => $composableBuilder(
+      column: $table.isDirectory, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parentPath => $composableBuilder(
+      column: $table.parentPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get indexedAt => $composableBuilder(
+      column: $table.indexedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> fileContentCacheRefs(
+      Expression<bool> Function($$FileContentCacheTableFilterComposer f) f) {
+    final $$FileContentCacheTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.path,
+        referencedTable: $db.fileContentCache,
+        getReferencedColumn: (t) => t.filePath,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FileContentCacheTableFilterComposer(
+              $db: $db,
+              $table: $db.fileContentCache,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$FileIndexTableOrderingComposer
+    extends Composer<_$LocalBrain, $FileIndexTable> {
+  $$FileIndexTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get path => $composableBuilder(
+      column: $table.path, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get filename => $composableBuilder(
+      column: $table.filename, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get extension => $composableBuilder(
+      column: $table.extension, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get modifiedAt => $composableBuilder(
+      column: $table.modifiedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mimeType => $composableBuilder(
+      column: $table.mimeType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDirectory => $composableBuilder(
+      column: $table.isDirectory, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parentPath => $composableBuilder(
+      column: $table.parentPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get indexedAt => $composableBuilder(
+      column: $table.indexedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$FileIndexTableAnnotationComposer
+    extends Composer<_$LocalBrain, $FileIndexTable> {
+  $$FileIndexTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get filename =>
+      $composableBuilder(column: $table.filename, builder: (column) => column);
+
+  GeneratedColumn<String> get extension =>
+      $composableBuilder(column: $table.extension, builder: (column) => column);
+
+  GeneratedColumn<int> get size =>
+      $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get modifiedAt => $composableBuilder(
+      column: $table.modifiedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get contentHash => $composableBuilder(
+      column: $table.contentHash, builder: (column) => column);
+
+  GeneratedColumn<String> get mimeType =>
+      $composableBuilder(column: $table.mimeType, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDirectory => $composableBuilder(
+      column: $table.isDirectory, builder: (column) => column);
+
+  GeneratedColumn<String> get parentPath => $composableBuilder(
+      column: $table.parentPath, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get indexedAt =>
+      $composableBuilder(column: $table.indexedAt, builder: (column) => column);
+
+  Expression<T> fileContentCacheRefs<T extends Object>(
+      Expression<T> Function($$FileContentCacheTableAnnotationComposer a) f) {
+    final $$FileContentCacheTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.path,
+        referencedTable: $db.fileContentCache,
+        getReferencedColumn: (t) => t.filePath,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FileContentCacheTableAnnotationComposer(
+              $db: $db,
+              $table: $db.fileContentCache,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$FileIndexTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $FileIndexTable,
+    FileIndexData,
+    $$FileIndexTableFilterComposer,
+    $$FileIndexTableOrderingComposer,
+    $$FileIndexTableAnnotationComposer,
+    $$FileIndexTableCreateCompanionBuilder,
+    $$FileIndexTableUpdateCompanionBuilder,
+    (FileIndexData, $$FileIndexTableReferences),
+    FileIndexData,
+    PrefetchHooks Function({bool fileContentCacheRefs})> {
+  $$FileIndexTableTableManager(_$LocalBrain db, $FileIndexTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FileIndexTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FileIndexTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FileIndexTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> path = const Value.absent(),
+            Value<String> filename = const Value.absent(),
+            Value<String?> extension = const Value.absent(),
+            Value<int?> size = const Value.absent(),
+            Value<DateTime?> modifiedAt = const Value.absent(),
+            Value<String?> contentHash = const Value.absent(),
+            Value<String?> mimeType = const Value.absent(),
+            Value<bool> isDirectory = const Value.absent(),
+            Value<String?> parentPath = const Value.absent(),
+            Value<DateTime> indexedAt = const Value.absent(),
+          }) =>
+              FileIndexCompanion(
+            id: id,
+            path: path,
+            filename: filename,
+            extension: extension,
+            size: size,
+            modifiedAt: modifiedAt,
+            contentHash: contentHash,
+            mimeType: mimeType,
+            isDirectory: isDirectory,
+            parentPath: parentPath,
+            indexedAt: indexedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String path,
+            required String filename,
+            Value<String?> extension = const Value.absent(),
+            Value<int?> size = const Value.absent(),
+            Value<DateTime?> modifiedAt = const Value.absent(),
+            Value<String?> contentHash = const Value.absent(),
+            Value<String?> mimeType = const Value.absent(),
+            Value<bool> isDirectory = const Value.absent(),
+            Value<String?> parentPath = const Value.absent(),
+            Value<DateTime> indexedAt = const Value.absent(),
+          }) =>
+              FileIndexCompanion.insert(
+            id: id,
+            path: path,
+            filename: filename,
+            extension: extension,
+            size: size,
+            modifiedAt: modifiedAt,
+            contentHash: contentHash,
+            mimeType: mimeType,
+            isDirectory: isDirectory,
+            parentPath: parentPath,
+            indexedAt: indexedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$FileIndexTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({fileContentCacheRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (fileContentCacheRefs) db.fileContentCache
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (fileContentCacheRefs)
+                    await $_getPrefetchedData<FileIndexData, $FileIndexTable,
+                            FileContentCacheData>(
+                        currentTable: table,
+                        referencedTable: $$FileIndexTableReferences
+                            ._fileContentCacheRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$FileIndexTableReferences(db, table, p0)
+                                .fileContentCacheRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.filePath == item.path),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$FileIndexTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $FileIndexTable,
+    FileIndexData,
+    $$FileIndexTableFilterComposer,
+    $$FileIndexTableOrderingComposer,
+    $$FileIndexTableAnnotationComposer,
+    $$FileIndexTableCreateCompanionBuilder,
+    $$FileIndexTableUpdateCompanionBuilder,
+    (FileIndexData, $$FileIndexTableReferences),
+    FileIndexData,
+    PrefetchHooks Function({bool fileContentCacheRefs})>;
+typedef $$FileContentCacheTableCreateCompanionBuilder
+    = FileContentCacheCompanion Function({
+  Value<int> id,
+  required String filePath,
+  required String content,
+  Value<DateTime> cachedAt,
+});
+typedef $$FileContentCacheTableUpdateCompanionBuilder
+    = FileContentCacheCompanion Function({
+  Value<int> id,
+  Value<String> filePath,
+  Value<String> content,
+  Value<DateTime> cachedAt,
+});
+
+final class $$FileContentCacheTableReferences extends BaseReferences<
+    _$LocalBrain, $FileContentCacheTable, FileContentCacheData> {
+  $$FileContentCacheTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $FileIndexTable _filePathTable(_$LocalBrain db) =>
+      db.fileIndex.createAlias($_aliasNameGenerator(
+          db.fileContentCache.filePath, db.fileIndex.path));
+
+  $$FileIndexTableProcessedTableManager get filePath {
+    final $_column = $_itemColumn<String>('file_path')!;
+
+    final manager = $$FileIndexTableTableManager($_db, $_db.fileIndex)
+        .filter((f) => f.path.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_filePathTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$FileContentCacheTableFilterComposer
+    extends Composer<_$LocalBrain, $FileContentCacheTable> {
+  $$FileContentCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+      column: $table.cachedAt, builder: (column) => ColumnFilters(column));
+
+  $$FileIndexTableFilterComposer get filePath {
+    final $$FileIndexTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.filePath,
+        referencedTable: $db.fileIndex,
+        getReferencedColumn: (t) => t.path,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FileIndexTableFilterComposer(
+              $db: $db,
+              $table: $db.fileIndex,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$FileContentCacheTableOrderingComposer
+    extends Composer<_$LocalBrain, $FileContentCacheTable> {
+  $$FileContentCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+      column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
+
+  $$FileIndexTableOrderingComposer get filePath {
+    final $$FileIndexTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.filePath,
+        referencedTable: $db.fileIndex,
+        getReferencedColumn: (t) => t.path,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FileIndexTableOrderingComposer(
+              $db: $db,
+              $table: $db.fileIndex,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$FileContentCacheTableAnnotationComposer
+    extends Composer<_$LocalBrain, $FileContentCacheTable> {
+  $$FileContentCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+
+  $$FileIndexTableAnnotationComposer get filePath {
+    final $$FileIndexTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.filePath,
+        referencedTable: $db.fileIndex,
+        getReferencedColumn: (t) => t.path,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$FileIndexTableAnnotationComposer(
+              $db: $db,
+              $table: $db.fileIndex,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$FileContentCacheTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $FileContentCacheTable,
+    FileContentCacheData,
+    $$FileContentCacheTableFilterComposer,
+    $$FileContentCacheTableOrderingComposer,
+    $$FileContentCacheTableAnnotationComposer,
+    $$FileContentCacheTableCreateCompanionBuilder,
+    $$FileContentCacheTableUpdateCompanionBuilder,
+    (FileContentCacheData, $$FileContentCacheTableReferences),
+    FileContentCacheData,
+    PrefetchHooks Function({bool filePath})> {
+  $$FileContentCacheTableTableManager(
+      _$LocalBrain db, $FileContentCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FileContentCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FileContentCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FileContentCacheTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> filePath = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<DateTime> cachedAt = const Value.absent(),
+          }) =>
+              FileContentCacheCompanion(
+            id: id,
+            filePath: filePath,
+            content: content,
+            cachedAt: cachedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String filePath,
+            required String content,
+            Value<DateTime> cachedAt = const Value.absent(),
+          }) =>
+              FileContentCacheCompanion.insert(
+            id: id,
+            filePath: filePath,
+            content: content,
+            cachedAt: cachedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$FileContentCacheTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({filePath = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (filePath) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.filePath,
+                    referencedTable:
+                        $$FileContentCacheTableReferences._filePathTable(db),
+                    referencedColumn: $$FileContentCacheTableReferences
+                        ._filePathTable(db)
+                        .path,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$FileContentCacheTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $FileContentCacheTable,
+    FileContentCacheData,
+    $$FileContentCacheTableFilterComposer,
+    $$FileContentCacheTableOrderingComposer,
+    $$FileContentCacheTableAnnotationComposer,
+    $$FileContentCacheTableCreateCompanionBuilder,
+    $$FileContentCacheTableUpdateCompanionBuilder,
+    (FileContentCacheData, $$FileContentCacheTableReferences),
+    FileContentCacheData,
+    PrefetchHooks Function({bool filePath})>;
 
 class $LocalBrainManager {
   final _$LocalBrain _db;
@@ -2370,4 +5011,12 @@ class $LocalBrainManager {
       $$MessagesTableTableManager(_db, _db.messages);
   $$AgentLogsTableTableManager get agentLogs =>
       $$AgentLogsTableTableManager(_db, _db.agentLogs);
+  $$AgentEventsTableTableManager get agentEvents =>
+      $$AgentEventsTableTableManager(_db, _db.agentEvents);
+  $$SyncQueueTableTableManager get syncQueue =>
+      $$SyncQueueTableTableManager(_db, _db.syncQueue);
+  $$FileIndexTableTableManager get fileIndex =>
+      $$FileIndexTableTableManager(_db, _db.fileIndex);
+  $$FileContentCacheTableTableManager get fileContentCache =>
+      $$FileContentCacheTableTableManager(_db, _db.fileContentCache);
 }
