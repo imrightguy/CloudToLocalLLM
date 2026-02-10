@@ -11,7 +11,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PKGBUILD_TEMPLATE="$PROJECT_ROOT/build-tools/packaging/aur/PKGBUILD"
 AUR_OUTPUT_DIR="$PROJECT_ROOT/dist/aur"
 VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)
-GITHUB_REPO="chokesmaster/CloudToLocalLLM"
+GITHUB_REPO="rightguy/CloudToLocalLLM"
 
 # Functions
 print_status() { echo -e "\033[0;34m[INFO]\033[0m $1"; }
