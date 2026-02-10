@@ -70,6 +70,7 @@ import {
 import rateLimitMetricsRoutes from './rate-limit-metrics.js';
 import prometheusMetricsRoutes from './prometheus-metrics.js';
 import changelogRoutes from './changelog.js';
+import agentEventsRoutes from './agent-events.js';
 
 export function setupRoutes(
   app,
@@ -202,6 +203,7 @@ export function setupRoutes(
   registerRoutes('/webhook-rate-limiting', webhookRateLimitingRoutes);
   registerRoutes('/webhook-testing', webhookTestingRoutes);
   registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
+  registerRoutes('/agent/events', agentEventsRoutes);
 
   // Health check endpoints
   app.get('/healthz', (req, res) => {

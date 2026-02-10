@@ -18,6 +18,55 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis for Tunnel State
+  redis:
+    image: redis:7-alpine
+    container_name: cloudtolocalllm-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      default:
+        aliases:
+          - redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # Cloudflare Tunnel (Ingress)
+  cloudflared:
+    image: cloudflare/cloudflared:2024.12.2
+    container_name: cloudtolocalllm-cloudflared
+    command: tunnel --no-autoupdate --metrics 0.0.0.0:2000 run
+    environment:
+       - TUNNEL_TOKEN=62da6c19-947b-4bf6-acad-100a73de4e0d
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # Tailscale Relay
+  tailscale-relay:
+    build:
+      context: .
+      dockerfile: services/tailscale-relay/Dockerfile
+    container_name: cloudtolocalllm-tailscale-relay
+    environment:
+      - PORT=3002
+      - JWT_SECRET=${JWT_SECRET}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
   # Web application service
   webapp:
     build:
@@ -56,6 +105,9 @@ services:
     container_name: cloudtolocalllm-api-backend
     ports:
       - "8080:8080"
+    volumes:
+      - ./services/api-backend:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=production
       - PORT=8080
@@ -143,3 +195,5 @@ networks:
 volumes:
   postgres_data:
     name: postgres_data
+  redis_data:
+    name: redis_data

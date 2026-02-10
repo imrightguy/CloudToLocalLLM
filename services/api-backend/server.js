@@ -98,6 +98,7 @@ import quotasRoutes from './routes/quotas.js';
 import rateLimitExemptionsRoutes from './routes/rate-limit-exemptions.js';
 import rateLimitViolationsRoutes from './routes/rate-limit-violations.js';
 import sandboxRoutes from './routes/sandbox.js';
+import dashboardWSManager from './websocket/dashboard-ws.js';
 import tunnelFailoverRoutes from './routes/tunnel-failover.js';
 import tunnelHealthRoutes from './routes/tunnel-health.js';
 import tunnelSharingRoutes from './routes/tunnel-sharing.js';
@@ -144,6 +145,7 @@ import {
 import rateLimitMetricsRoutes from './routes/rate-limit-metrics.js';
 import prometheusMetricsRoutes from './routes/prometheus-metrics.js';
 import changelogRoutes from './routes/changelog.js';
+import agentEventsRoutes from './routes/agent-events.js';
 
 // Sentry and dotenv already initialized at top of file
 
@@ -199,6 +201,7 @@ setupMiddlewarePipeline(app, {
 });
 
 const server = http.createServer(app);
+dashboardWSManager.initialize(server, logger);
 
 // Prevent 502s by ensuring Node keep-alive is longer than Nginx (60s)
 server.keepAliveTimeout = 65000; // 65 seconds
@@ -392,6 +395,8 @@ registerRoutes('/webhook-testing', webhookTestingRoutes);
 
 // Infrastructure tunnel management routes (API key authenticated)
 registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
+registerRoutes('/agent/events', agentEventsRoutes);
+app.post('/api/agent/events', agentEventsRoutes);
 
 // LLM Tunnel Cloud Proxy Endpoints (support both /api/ollama and /ollama)
 setSshProxy(sshProxy);
@@ -515,6 +520,8 @@ server.on('upgrade', (request, socket, head) => {
       );
       socket.destroy();
     }
+  } else if (pathname === '/dashboard/ws') {
+    dashboardWSManager.handleUpgrade(request, socket, head);
   } else {
     // Let other handlers handle it or destroy
     socket.destroy();
@@ -818,6 +825,11 @@ async function gracefulShutdown() {
     process.exit(1);
   }
 }
+
+app.post('/test-hook', (req, res) => {
+  console.log('Received test hook');
+  res.json({ ok: true });
+});
 
 // Start server with enhanced tunnel system
 async function startServer() {
