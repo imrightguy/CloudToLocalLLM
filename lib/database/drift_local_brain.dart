@@ -79,6 +79,16 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'local_brain.sqlite'));
-    return NativeDatabase(file);
+    
+    return NativeDatabase(
+      file,
+      setup: (db) {
+        // High performance optimizations for the Local Brain
+        db.execute('PRAGMA journal_mode = WAL;');
+        db.execute('PRAGMA synchronous = NORMAL;');
+        db.execute('PRAGMA temp_store = MEMORY;');
+        db.execute('PRAGMA cache_size = -64000;'); // 64MB cache
+      },
+    );
   });
 }
