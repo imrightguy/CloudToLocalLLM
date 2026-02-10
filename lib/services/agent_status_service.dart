@@ -124,31 +124,37 @@ class AgentStatusService {
           _consecutiveErrors = 0; // Reset on success
           _logger.d('Polled agent status: ${statuses.length} sessions');
           
-          // Save to Local Brain - TODO: Create Agents and AgentEvents tables
-          // if (_db != null) {
-          //   for (final agent in statuses) {
-          //     await _db!.upsertAgent(AgentsCompanion(
-          //       id: Value(agent.id),
-          //       name: Value(agent.name),
-          //       agentId: Value(agent.id),
-          //       type: const Value('custom'),
-          //       status: Value(agent.status),
-          //       updatedAt: Value(DateTime.now()),
-          //     ));
-          //     
-          //     await _db!.addAgentEvent(AgentEventsCompanion(
-          //       id: Value(_uuid.v4()),
-          //       agentId: Value(agent.id),
-          //       eventType: const Value('status_update'),
-          //       eventData: Value(jsonEncode({
-          //         'status': agent.status,
-          //         'activity': agent.activity,
-          //         'lastUpdate': agent.lastUpdate,
-          //       })),
-          //       timestamp: Value(DateTime.now()),
-          //     ));
-          //   }
-          // }
+          // Save to Local Brain
+          if (_db != null) {
+            for (final agent in statuses) {
+              await _db!.upsertAgent(AgentsCompanion(
+                id: Value(agent.id),
+                name: Value(agent.name ?? 'Unknown'),
+                agentId: Value(agent.id),
+                type: const Value('custom'),
+                status: Value(agent.status),
+                activity: Value(agent.activity),
+                lastUpdate: Value(agent.lastUpdate != null 
+                  ? DateTime.tryParse(agent.lastUpdate!) 
+                  : null),
+                updatedAt: Value(DateTime.now()),
+              ));
+              
+              await _db!.addAgentEvent(AgentEventsCompanion(
+                id: Value(_uuid.v4()),
+                agentId: Value(agent.id),
+                eventType: const Value('status_update'),
+                eventData: Value(jsonEncode({
+                  'status': agent.status,
+                  'activity': agent.activity,
+                  'lastUpdate': agent.lastUpdate,
+                })),
+                timestamp: Value(DateTime.now()),
+                synced: const Value(true),
+              ));
+            }
+            _logger.d('Saved ${statuses.length} agents to LocalBrain');
+          }
         } else {
            _consecutiveErrors++;
            _errorController.add('Invalid data from server');

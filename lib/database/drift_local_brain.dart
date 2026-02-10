@@ -57,6 +57,21 @@ class AgentLogs extends Table {
 // SYNC TABLES (Local-Cloud Bridge)
 // ============================================================================
 
+/// Table for agents - local cache of remote agents
+class Agents extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get agentId => text()(); // Remote agent ID
+  TextColumn get type => text().withDefault(const Constant('custom'))();
+  TextColumn get status => text().withDefault(const Constant('unknown'))();
+  TextColumn get activity => text().nullable()();
+  DateTimeColumn get lastUpdate => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Table for agent events - mirrors cloud PostgreSQL agent_events
 class AgentEvents extends Table {
   TextColumn get id => text()();
@@ -125,6 +140,7 @@ class FileContentCache extends Table {
   Conversations,
   Messages,
   AgentLogs,
+  Agents,
   AgentEvents,
   SyncQueue,
   FileIndex,
@@ -144,6 +160,7 @@ class LocalBrain extends _$LocalBrain {
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
         // Add new tables for v2
+        await m.createTable(agents);
         await m.createTable(agentEvents);
         await m.createTable(syncQueue);
         await m.createTable(fileIndex);
@@ -170,6 +187,29 @@ class LocalBrain extends _$LocalBrain {
   /// Create a new conversation
   Future<void> createConversation(ConversationsCompanion entry) =>
       into(conversations).insert(entry);
+
+  // ==========================================================================
+  // AGENTS DAO
+  // ==========================================================================
+
+  /// Upsert an agent
+  Future<void> upsertAgent(AgentsCompanion entry) =>
+      into(agents).insert(entry, mode: InsertMode.insertOrReplace);
+
+  /// Get all agents
+  Future<List<Agent>> getAllAgents() => select(agents).get();
+
+  /// Get agent by ID
+  Future<Agent?> getAgentById(String id) =>
+      (select(agents)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  /// Delete old agents
+  Future<int> deleteOldAgents(Duration age) async {
+    final cutoff = DateTime.now().subtract(age);
+    return (delete(agents)
+      ..where((t) => t.updatedAt.isSmallerThanValue(cutoff)))
+      .go();
+  }
 
   // ==========================================================================
   // AGENT EVENTS DAO (Sync)

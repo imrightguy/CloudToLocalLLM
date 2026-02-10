@@ -1293,6 +1293,425 @@ class AgentLogsCompanion extends UpdateCompanion<AgentLog> {
   }
 }
 
+class $AgentsTable extends Agents with TableInfo<$AgentsTable, Agent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _agentIdMeta =
+      const VerificationMeta('agentId');
+  @override
+  late final GeneratedColumn<String> agentId = GeneratedColumn<String>(
+      'agent_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('custom'));
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('unknown'));
+  static const VerificationMeta _activityMeta =
+      const VerificationMeta('activity');
+  @override
+  late final GeneratedColumn<String> activity = GeneratedColumn<String>(
+      'activity', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastUpdateMeta =
+      const VerificationMeta('lastUpdate');
+  @override
+  late final GeneratedColumn<DateTime> lastUpdate = GeneratedColumn<DateTime>(
+      'last_update', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, agentId, type, status, activity, lastUpdate, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agents';
+  @override
+  VerificationContext validateIntegrity(Insertable<Agent> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('agent_id')) {
+      context.handle(_agentIdMeta,
+          agentId.isAcceptableOrUnknown(data['agent_id']!, _agentIdMeta));
+    } else if (isInserting) {
+      context.missing(_agentIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('activity')) {
+      context.handle(_activityMeta,
+          activity.isAcceptableOrUnknown(data['activity']!, _activityMeta));
+    }
+    if (data.containsKey('last_update')) {
+      context.handle(
+          _lastUpdateMeta,
+          lastUpdate.isAcceptableOrUnknown(
+              data['last_update']!, _lastUpdateMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Agent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Agent(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      agentId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}agent_id'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      activity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}activity']),
+      lastUpdate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_update']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $AgentsTable createAlias(String alias) {
+    return $AgentsTable(attachedDatabase, alias);
+  }
+}
+
+class Agent extends DataClass implements Insertable<Agent> {
+  final String id;
+  final String name;
+  final String agentId;
+  final String type;
+  final String status;
+  final String? activity;
+  final DateTime? lastUpdate;
+  final DateTime updatedAt;
+  const Agent(
+      {required this.id,
+      required this.name,
+      required this.agentId,
+      required this.type,
+      required this.status,
+      this.activity,
+      this.lastUpdate,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['agent_id'] = Variable<String>(agentId);
+    map['type'] = Variable<String>(type);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || activity != null) {
+      map['activity'] = Variable<String>(activity);
+    }
+    if (!nullToAbsent || lastUpdate != null) {
+      map['last_update'] = Variable<DateTime>(lastUpdate);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  AgentsCompanion toCompanion(bool nullToAbsent) {
+    return AgentsCompanion(
+      id: Value(id),
+      name: Value(name),
+      agentId: Value(agentId),
+      type: Value(type),
+      status: Value(status),
+      activity: activity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(activity),
+      lastUpdate: lastUpdate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUpdate),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Agent.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Agent(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      agentId: serializer.fromJson<String>(json['agentId']),
+      type: serializer.fromJson<String>(json['type']),
+      status: serializer.fromJson<String>(json['status']),
+      activity: serializer.fromJson<String?>(json['activity']),
+      lastUpdate: serializer.fromJson<DateTime?>(json['lastUpdate']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'agentId': serializer.toJson<String>(agentId),
+      'type': serializer.toJson<String>(type),
+      'status': serializer.toJson<String>(status),
+      'activity': serializer.toJson<String?>(activity),
+      'lastUpdate': serializer.toJson<DateTime?>(lastUpdate),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  Agent copyWith(
+          {String? id,
+          String? name,
+          String? agentId,
+          String? type,
+          String? status,
+          Value<String?> activity = const Value.absent(),
+          Value<DateTime?> lastUpdate = const Value.absent(),
+          DateTime? updatedAt}) =>
+      Agent(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        agentId: agentId ?? this.agentId,
+        type: type ?? this.type,
+        status: status ?? this.status,
+        activity: activity.present ? activity.value : this.activity,
+        lastUpdate: lastUpdate.present ? lastUpdate.value : this.lastUpdate,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  Agent copyWithCompanion(AgentsCompanion data) {
+    return Agent(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      agentId: data.agentId.present ? data.agentId.value : this.agentId,
+      type: data.type.present ? data.type.value : this.type,
+      status: data.status.present ? data.status.value : this.status,
+      activity: data.activity.present ? data.activity.value : this.activity,
+      lastUpdate:
+          data.lastUpdate.present ? data.lastUpdate.value : this.lastUpdate,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Agent(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('agentId: $agentId, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('activity: $activity, ')
+          ..write('lastUpdate: $lastUpdate, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, name, agentId, type, status, activity, lastUpdate, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Agent &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.agentId == this.agentId &&
+          other.type == this.type &&
+          other.status == this.status &&
+          other.activity == this.activity &&
+          other.lastUpdate == this.lastUpdate &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AgentsCompanion extends UpdateCompanion<Agent> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> agentId;
+  final Value<String> type;
+  final Value<String> status;
+  final Value<String?> activity;
+  final Value<DateTime?> lastUpdate;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const AgentsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.agentId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.status = const Value.absent(),
+    this.activity = const Value.absent(),
+    this.lastUpdate = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AgentsCompanion.insert({
+    required String id,
+    required String name,
+    required String agentId,
+    this.type = const Value.absent(),
+    this.status = const Value.absent(),
+    this.activity = const Value.absent(),
+    this.lastUpdate = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        agentId = Value(agentId);
+  static Insertable<Agent> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? agentId,
+    Expression<String>? type,
+    Expression<String>? status,
+    Expression<String>? activity,
+    Expression<DateTime>? lastUpdate,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (agentId != null) 'agent_id': agentId,
+      if (type != null) 'type': type,
+      if (status != null) 'status': status,
+      if (activity != null) 'activity': activity,
+      if (lastUpdate != null) 'last_update': lastUpdate,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AgentsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String>? agentId,
+      Value<String>? type,
+      Value<String>? status,
+      Value<String?>? activity,
+      Value<DateTime?>? lastUpdate,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return AgentsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      agentId: agentId ?? this.agentId,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      activity: activity ?? this.activity,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (agentId.present) {
+      map['agent_id'] = Variable<String>(agentId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (activity.present) {
+      map['activity'] = Variable<String>(activity.value);
+    }
+    if (lastUpdate.present) {
+      map['last_update'] = Variable<DateTime>(lastUpdate.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('agentId: $agentId, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('activity: $activity, ')
+          ..write('lastUpdate: $lastUpdate, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AgentEventsTable extends AgentEvents
     with TableInfo<$AgentEventsTable, AgentEvent> {
   @override
@@ -2922,6 +3341,7 @@ abstract class _$LocalBrain extends GeneratedDatabase {
   late final $ConversationsTable conversations = $ConversationsTable(this);
   late final $MessagesTable messages = $MessagesTable(this);
   late final $AgentLogsTable agentLogs = $AgentLogsTable(this);
+  late final $AgentsTable agents = $AgentsTable(this);
   late final $AgentEventsTable agentEvents = $AgentEventsTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $FileIndexTable fileIndex = $FileIndexTable(this);
@@ -2936,6 +3356,7 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         conversations,
         messages,
         agentLogs,
+        agents,
         agentEvents,
         syncQueue,
         fileIndex,
@@ -3993,6 +4414,215 @@ typedef $$AgentLogsTableProcessedTableManager = ProcessedTableManager<
     (AgentLog, BaseReferences<_$LocalBrain, $AgentLogsTable, AgentLog>),
     AgentLog,
     PrefetchHooks Function()>;
+typedef $$AgentsTableCreateCompanionBuilder = AgentsCompanion Function({
+  required String id,
+  required String name,
+  required String agentId,
+  Value<String> type,
+  Value<String> status,
+  Value<String?> activity,
+  Value<DateTime?> lastUpdate,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+typedef $$AgentsTableUpdateCompanionBuilder = AgentsCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String> agentId,
+  Value<String> type,
+  Value<String> status,
+  Value<String?> activity,
+  Value<DateTime?> lastUpdate,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$AgentsTableFilterComposer extends Composer<_$LocalBrain, $AgentsTable> {
+  $$AgentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get agentId => $composableBuilder(
+      column: $table.agentId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get activity => $composableBuilder(
+      column: $table.activity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastUpdate => $composableBuilder(
+      column: $table.lastUpdate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentsTableOrderingComposer
+    extends Composer<_$LocalBrain, $AgentsTable> {
+  $$AgentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get agentId => $composableBuilder(
+      column: $table.agentId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get activity => $composableBuilder(
+      column: $table.activity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastUpdate => $composableBuilder(
+      column: $table.lastUpdate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AgentsTable> {
+  $$AgentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get agentId =>
+      $composableBuilder(column: $table.agentId, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get activity =>
+      $composableBuilder(column: $table.activity, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUpdate => $composableBuilder(
+      column: $table.lastUpdate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$AgentsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AgentsTable,
+    Agent,
+    $$AgentsTableFilterComposer,
+    $$AgentsTableOrderingComposer,
+    $$AgentsTableAnnotationComposer,
+    $$AgentsTableCreateCompanionBuilder,
+    $$AgentsTableUpdateCompanionBuilder,
+    (Agent, BaseReferences<_$LocalBrain, $AgentsTable, Agent>),
+    Agent,
+    PrefetchHooks Function()> {
+  $$AgentsTableTableManager(_$LocalBrain db, $AgentsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> agentId = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String?> activity = const Value.absent(),
+            Value<DateTime?> lastUpdate = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentsCompanion(
+            id: id,
+            name: name,
+            agentId: agentId,
+            type: type,
+            status: status,
+            activity: activity,
+            lastUpdate: lastUpdate,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            required String agentId,
+            Value<String> type = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String?> activity = const Value.absent(),
+            Value<DateTime?> lastUpdate = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentsCompanion.insert(
+            id: id,
+            name: name,
+            agentId: agentId,
+            type: type,
+            status: status,
+            activity: activity,
+            lastUpdate: lastUpdate,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $AgentsTable,
+    Agent,
+    $$AgentsTableFilterComposer,
+    $$AgentsTableOrderingComposer,
+    $$AgentsTableAnnotationComposer,
+    $$AgentsTableCreateCompanionBuilder,
+    $$AgentsTableUpdateCompanionBuilder,
+    (Agent, BaseReferences<_$LocalBrain, $AgentsTable, Agent>),
+    Agent,
+    PrefetchHooks Function()>;
 typedef $$AgentEventsTableCreateCompanionBuilder = AgentEventsCompanion
     Function({
   required String id,
@@ -5011,6 +5641,8 @@ class $LocalBrainManager {
       $$MessagesTableTableManager(_db, _db.messages);
   $$AgentLogsTableTableManager get agentLogs =>
       $$AgentLogsTableTableManager(_db, _db.agentLogs);
+  $$AgentsTableTableManager get agents =>
+      $$AgentsTableTableManager(_db, _db.agents);
   $$AgentEventsTableTableManager get agentEvents =>
       $$AgentEventsTableTableManager(_db, _db.agentEvents);
   $$SyncQueueTableTableManager get syncQueue =>
