@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'connection/connection.dart'
+    if (dart.library.io) 'connection/native.dart'
+    if (dart.library.js_interop) 'connection/web.dart';
 
 part 'drift_local_brain.g.dart';
 
@@ -52,7 +52,7 @@ class AgentLogs extends Table {
 /// The main Database class for the Local Brain
 @DriftDatabase(tables: [Users, Conversations, Messages, AgentLogs])
 class LocalBrain extends _$LocalBrain {
-  LocalBrain() : super(_openConnection());
+  LocalBrain() : super(openConnection());
 
   @override
   int get schemaVersion => 1;
@@ -73,22 +73,4 @@ class LocalBrain extends _$LocalBrain {
   /// Create a new conversation
   Future<void> createConversation(ConversationsCompanion entry) =>
       into(conversations).insert(entry);
-}
-
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'local_brain.sqlite'));
-    
-    return NativeDatabase(
-      file,
-      setup: (db) {
-        // High performance optimizations for the Local Brain
-        db.execute('PRAGMA journal_mode = WAL;');
-        db.execute('PRAGMA synchronous = NORMAL;');
-        db.execute('PRAGMA temp_store = MEMORY;');
-        db.execute('PRAGMA cache_size = -64000;'); // 64MB cache
-      },
-    );
-  });
 }

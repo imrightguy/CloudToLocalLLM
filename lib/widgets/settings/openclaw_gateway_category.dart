@@ -44,7 +44,8 @@ class _OpenClawGatewayCategoryContentState
   Future<void> _initialize() async {
     _configManager = di.serviceLocator.get<ProviderConfigurationManager>();
     _currentUrl = _configManager.getPreference<String>(
-        'openclaw_gateway_url', 'http://127.0.0.1:18789');
+            'openclaw_gateway_url', 'http://127.0.0.1:18789') ??
+        'http://127.0.0.1:18789';
     setState(() {
       _isInitialized = true;
     });
