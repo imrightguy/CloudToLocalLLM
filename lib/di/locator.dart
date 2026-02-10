@@ -39,6 +39,7 @@ import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
 import 'package:cloudtolocalllm/services/url_scheme_registration_service.dart';
 import 'package:cloudtolocalllm/services/token_storage_service.dart';
+import 'package:cloudtolocalllm/database/local_brain.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 final GetIt serviceLocator = GetIt.instance;
@@ -75,6 +76,10 @@ Future<void> setupCoreServices() async {
   final tokenStorageService = TokenStorageService();
   await tokenStorageService.init();
   serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
+
+  // Local Brain Database - Main relational engine for durable memory
+  final localBrain = LocalBrain();
+  serviceLocator.registerSingleton<LocalBrain>(localBrain);
 
   // Authentication Provider - Using platform-specific provider
   late AuthProvider authProvider;

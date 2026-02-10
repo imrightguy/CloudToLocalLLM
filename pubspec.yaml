@@ -23,6 +23,10 @@ dependencies:
   auth0_flutter: ^1.5.0
   shared_preferences: ^2.5.4
 
+  # Database - Local Brain
+  drift: ^2.20.0
+  sqlite3_flutter_libs: ^0.5.24
+
   # Error tracking
   url_launcher: ^6.3.2
 
@@ -79,6 +83,11 @@ dependencies:
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0
   flutter_lints: ^6.0.0
+  
+  # Code Generation for Database
+  drift_dev: ^2.20.0
+  build_runner: ^2.4.11
+
   flutter_test:
     sdk: flutter
   integration_test:
