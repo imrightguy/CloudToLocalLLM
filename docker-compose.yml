@@ -1,4 +1,23 @@
 services:
+  # PostgreSQL Database
+  database:
+    image: postgres:17
+    container_name: cloudtolocalllm-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=cloudtolocalllm
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Web application service
   webapp:
     build:
@@ -18,6 +37,9 @@ services:
       - ./config/nginx/nginx-webapp-internal.conf:/etc/nginx/conf.d/default.conf
       - ./config/docker/entrypoint-with-ssl-fallback.sh:/entrypoint.sh:ro
     restart: unless-stopped
+    depends_on:
+      api-backend:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
       interval: 30s
@@ -25,20 +47,35 @@ services:
       retries: 3
       start_period: 15s
 
-  # API Backend Container (for tunnel server and bridge communication)
+  # API Backend Container
   api-backend:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.api-backend
+    image: cloudtolocalllm-api-backend
     container_name: cloudtolocalllm-api-backend
     ports:
       - "8080:8080"
     environment:
       - NODE_ENV=production
       - PORT=8080
+      - DB_TYPE=postgresql
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_NAME=cloudtolocalllm
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - PGHOST=database
+      - PGPORT=5432
+      - PGDATABASE=cloudtolocalllm
+      - PGUSER=postgres
+      - PGPASSWORD=postgres
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
       - AUTH0_AUDIENCE=https://app.cloudtolocalllm.online
     restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -46,10 +83,7 @@ services:
       retries: 3
       start_period: 15s
 
-  # Postfix Mail Server for direct email sending
-  # WARNING: Ensuring email deliverability with a self-hosted MTA is complex.
-  # Requires proper rDNS (PTR), SPF, DKIM, DMARC, and an IP with good reputation.
-  # Port 25 outbound must not be blocked by your VPS provider.
+  # Postfix Mail Server
   postfix-mail:
     image: boky/postfix:latest
     container_name: cloudtolocalllm-postfix-mail
@@ -65,16 +99,12 @@ services:
       - "DKIM_SELECTOR=mail"
       - "DKIM_KEY_PATH=/etc/opendkim/keys/cloudtolocalllm.online/mail.private"
       - "DKIM_AUTOGENERATE=true"
-      # - "SSL_CERT_PATH=/etc/letsencrypt/live/cloudtolocalllm.online/fullchain.pem"
-      # - "SSL_KEY_PATH=/etc/letsencrypt/live/cloudtolocalllm.online/privkey.pem"
     volumes:
       - ./config/dkim:/etc/opendkim/keys/cloudtolocalllm.online:ro
-      # - ./certbot/live:/etc/letsencrypt/live:ro
-      # - ./certbot/archive:/etc/letsencrypt/archive:ro
     ports:
       - "2500:25"
-      - "587:587"  # Submission port for authenticated SMTP
-      - "465:465"  # SMTPS port for SSL/TLS
+      - "587:587"
+      - "465:465"
     cap_add:
       - NET_ADMIN
 
@@ -91,19 +121,16 @@ services:
     entrypoint: |
       /bin/sh -c '
         trap exit TERM;
-        # Initialize certbot directories with proper permissions
         mkdir -p /var/www/certbot/.well-known/acme-challenge;
         chmod -R 755 /var/www/certbot;
         mkdir -p /etc/letsencrypt/live /etc/letsencrypt/archive;
         chmod -R 755 /etc/letsencrypt;
         echo "Attempting initial certificate acquisition...";
         certbot certonly --webroot -w /var/www/certbot --email admin@cloudtolocalllm.online --agree-tos --no-eff-email -d cloudtolocalllm.online -d app.cloudtolocalllm.online -d api.cloudtolocalllm.online -d docs.cloudtolocalllm.online -d mail.cloudtolocalllm.online --force-renewal --deploy-hook "/opt/certbot_permissions_hook.sh" || echo "Initial certonly command failed or no certs due for renewal.";
-        # Change ownership of certificates to nginx user (101:101)
         chown -R 101:101 /etc/letsencrypt/live /etc/letsencrypt/archive;
         echo "Initial cert attempt/check done. Starting renewal loop.";
         while :; do
           certbot renew --quiet --webroot -w /var/www/certbot --deploy-hook "/opt/certbot_permissions_hook.sh";
-          # Change ownership after each renewal
           chown -R 101:101 /etc/letsencrypt/live /etc/letsencrypt/archive;
           sleep 12h & wait $${!};
         done;
@@ -112,3 +139,7 @@ services:
 networks:
   default:
     name: cloudtolocalllm_default
+
+volumes:
+  postgres_data:
+    name: postgres_data

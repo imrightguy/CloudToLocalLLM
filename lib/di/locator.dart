@@ -33,6 +33,7 @@ import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
 import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
 import 'package:cloudtolocalllm/services/admin_center_service.dart';
+import 'package:cloudtolocalllm/services/gmail_service.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
@@ -481,6 +482,13 @@ Future<void> setupAuthenticatedServices() async {
     // Admin center service - requires authentication
     final adminCenterService = AdminCenterService(authService: authService);
     serviceLocator.registerSingleton<AdminCenterService>(adminCenterService);
+
+    // Gmail service - handles personal Gmail integrations
+    final gmailService = GmailService(
+      authService: authService,
+      tokenStorage: serviceLocator.get<TokenStorageService>(),
+    );
+    serviceLocator.registerSingleton<GmailService>(gmailService);
 
     debugPrint(
         '[ServiceLocator] Authenticated services registered successfully');

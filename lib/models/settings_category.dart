@@ -103,6 +103,7 @@ class SettingsCategoryIds {
   static const String mobile = 'mobile';
   static const String importExport = 'import_export';
   static const String premiumFeatures = 'premium_features';
+  static const String openClawGateway = 'openclaw_gateway';
   static const String adminCenter = 'admin_center';
   static const String about = 'about';
 }
@@ -121,6 +122,7 @@ class CategoryVisibilityRules {
     switch (categoryId) {
       case SettingsCategoryIds.general:
       case SettingsCategoryIds.localLLMProviders:
+      case SettingsCategoryIds.openClawGateway:
       case SettingsCategoryIds.account:
       case SettingsCategoryIds.privacy:
       case SettingsCategoryIds.importExport:
@@ -188,6 +190,8 @@ class SettingsCategoryMetadata {
         return priorityGeneral;
       case SettingsCategoryIds.localLLMProviders:
         return priorityLocalLLM;
+      case SettingsCategoryIds.openClawGateway:
+        return 15;
       case SettingsCategoryIds.account:
         return priorityAccount;
       case SettingsCategoryIds.privacy:
@@ -216,6 +220,8 @@ class SettingsCategoryMetadata {
         return Icons.tune;
       case SettingsCategoryIds.localLLMProviders:
         return Icons.storage;
+      case SettingsCategoryIds.openClawGateway:
+        return Icons.hub;
       case SettingsCategoryIds.account:
         return Icons.person;
       case SettingsCategoryIds.privacy:
@@ -244,6 +250,8 @@ class SettingsCategoryMetadata {
         return 'General';
       case SettingsCategoryIds.localLLMProviders:
         return 'Local LLM Providers';
+      case SettingsCategoryIds.openClawGateway:
+        return 'OpenClaw Gateway';
       case SettingsCategoryIds.account:
         return 'Account';
       case SettingsCategoryIds.privacy:
@@ -272,6 +280,8 @@ class SettingsCategoryMetadata {
         return 'Theme, language, and general preferences';
       case SettingsCategoryIds.localLLMProviders:
         return 'Configure local AI model providers';
+      case SettingsCategoryIds.openClawGateway:
+        return 'Configure the primary AI engine connection';
       case SettingsCategoryIds.account:
         return 'Account information and subscription';
       case SettingsCategoryIds.privacy:

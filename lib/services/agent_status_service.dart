@@ -36,8 +36,13 @@ class AgentStatusService {
   final String _statusUrl;
   final Duration _pollInterval;
   Timer? _pollTimer;
+  int _consecutiveErrors = 0;
+  static const int _maxConsecutiveErrors = 5;
+
   final StreamController<List<AgentStatus>> _statusController =
       StreamController<List<AgentStatus>>.broadcast();
+  final StreamController<String?> _errorController =
+      StreamController<String?>.broadcast();
   List<AgentStatus> _cachedStatuses = [];
 
   /// Create a new agent status service
@@ -53,6 +58,9 @@ class AgentStatusService {
   /// Stream of agent status updates
   Stream<List<AgentStatus>> get statusStream => _statusController.stream;
 
+  /// Stream of connection errors
+  Stream<String?> get errorStream => _errorController.stream;
+
   /// Get cached agent statuses (synchronous)
   List<AgentStatus> get currentStatuses => List.unmodifiable(_cachedStatuses);
 
@@ -64,8 +72,22 @@ class AgentStatusService {
     }
 
     _logger.i('Starting agent status polling: $_statusUrl');
-    _poll(); // Initial poll
-    _pollTimer = Timer.periodic(_pollInterval, (_) => _poll());
+    _scheduleNextPoll();
+  }
+
+  /// Schedule next poll with backoff if needed
+  void _scheduleNextPoll() {
+    _pollTimer?.cancel();
+    
+    Duration nextDelay = _pollInterval;
+    if (_consecutiveErrors > 0) {
+      // Exponential backoff: base interval * 2^errors (max 32x interval)
+      int exponent = _consecutiveErrors > 5 ? 5 : _consecutiveErrors;
+      nextDelay = _pollInterval * (1 << exponent);
+      _logger.d('Applying backoff: polling in ${nextDelay.inSeconds}s (errors: $_consecutiveErrors)');
+    }
+
+    _pollTimer = Timer(nextDelay, () => _poll());
   }
 
   /// Stop polling for agent status
@@ -91,14 +113,27 @@ class AgentStatusService {
               sessions.map((e) => AgentStatus.fromJson(e as Map<String, dynamic>)).toList();
           _cachedStatuses = statuses;
           _statusController.add(statuses);
+          _errorController.add(null); // Clear error
+          _consecutiveErrors = 0; // Reset on success
           _logger.d('Polled agent status: ${statuses.length} sessions');
+        } else {
+           _consecutiveErrors++;
+           _errorController.add('Invalid data from server');
+           _logger.w('Invalid status data received');
         }
       } else {
+        _consecutiveErrors++;
+        _errorController.add('Server returned ${response.statusCode}');
         _logger.w('Failed to poll agent status: ${response.statusCode}');
       }
     } catch (e) {
+      _consecutiveErrors++;
+      _errorController.add('Connection error: $e');
       _logger.e('Error polling agent status: $e');
-      // Don't throw - continue polling even if one request fails
+    } finally {
+      if (_pollTimer != null) { // Only reschedule if we haven't stopped
+        _scheduleNextPoll();
+      }
     }
   }
 

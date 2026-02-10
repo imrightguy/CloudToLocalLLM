@@ -22,15 +22,29 @@ class AgentStatusWidget extends StatefulWidget {
 
 class _AgentStatusWidgetState extends State<AgentStatusWidget> {
   List<AgentStatus> _agents = [];
+  String? _error;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _agents = widget.service.currentStatuses;
+    if (_agents.isNotEmpty) _isLoading = false;
+
     widget.service.statusStream.listen((agents) {
       if (mounted) {
         setState(() {
           _agents = agents;
+          _isLoading = false;
+        });
+      }
+    });
+
+    widget.service.errorStream.listen((error) {
+      if (mounted) {
+        setState(() {
+          _error = error;
+          if (error != null) _isLoading = false;
         });
       }
     });
@@ -38,6 +52,14 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return _buildLoadingState();
+    }
+
+    if (_error != null && _agents.isEmpty) {
+      return _buildErrorState();
+    }
+
     if (_agents.isEmpty) {
       return _buildEmptyState();
     }
@@ -67,6 +89,86 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Container(
+      width: widget.width,
+      height: widget.height ?? 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Connecting to OpenClaw...',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Container(
+      width: widget.width,
+      height: widget.height ?? 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 48,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Connection Problem',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _error ?? 'Unknown error occurred',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                  _error = null;
+                });
+                widget.service.startPolling();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }
