@@ -66,7 +66,7 @@ jobs:
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
 
