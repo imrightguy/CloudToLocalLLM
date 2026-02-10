@@ -12,8 +12,8 @@ importers:
         specifier: ^3.968.0
         version: 3.985.0
       '@aws-sdk/client-cost-explorer':
-        specifier: ^3.500.0
-        version: 3.985.0
+        specifier: ^3.986.0
+        version: 3.986.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.24.3
         version: 1.26.0(zod@4.3.6)
@@ -110,8 +110,8 @@ packages:
     resolution: {integrity: sha512-/3qhOv1/NzeZIGNlqPwFjSNN1dat4AaoV+4C3zVF2vO9/MPLtWZPOwK5gxvd5jbYZHeCW/FxzcDh2M+uyNirMg==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-cost-explorer@3.985.0':
-    resolution: {integrity: sha512-o9ZMWNkNZLBpTKwXKYrg8EJ1NI6cwkS1A7wUzZDxZMQkEazn+D4yUcUDrIxO0NBhytfbz0xpmm755Jb4qsybjw==}
+  '@aws-sdk/client-cost-explorer@3.986.0':
+    resolution: {integrity: sha512-dCvb9doQOR35avWHxHJ97WJFF58SWV8RB2t42H5tJsayOGtXB2K3loZVjhPftm73CUGVO4OV2sqIJOe6PBH/TQ==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-sso@3.985.0':
@@ -188,6 +188,10 @@ packages:
 
   '@aws-sdk/util-endpoints@3.985.0':
     resolution: {integrity: sha512-vth7UfGSUR3ljvaq8V4Rc62FsM7GUTH/myxPWkaEgOrprz1/Pc72EgTXxj+cPPPDAfHFIpjhkB7T7Td0RJx+BA==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/util-endpoints@3.986.0':
+    resolution: {integrity: sha512-Mqi79L38qi1gCG3adlVdbNrSxvcm1IPDLiJPA3OBypY5ewxUyWbaA3DD4goG+EwET6LSFgZJcRSIh6KBNpP5pA==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/util-locate-window@3.965.4':
@@ -2595,7 +2599,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/client-cost-explorer@3.985.0':
+  '@aws-sdk/client-cost-explorer@3.986.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -2607,7 +2611,7 @@ snapshots:
       '@aws-sdk/middleware-user-agent': 3.972.7
       '@aws-sdk/region-config-resolver': 3.972.3
       '@aws-sdk/types': 3.973.1
-      '@aws-sdk/util-endpoints': 3.985.0
+      '@aws-sdk/util-endpoints': 3.986.0
       '@aws-sdk/util-user-agent-browser': 3.972.3
       '@aws-sdk/util-user-agent-node': 3.972.5
       '@smithy/config-resolver': 4.4.6
@@ -2902,6 +2906,14 @@ snapshots:
       tslib: 2.8.1
 
   '@aws-sdk/util-endpoints@3.985.0':
+    dependencies:
+      '@aws-sdk/types': 3.973.1
+      '@smithy/types': 4.12.0
+      '@smithy/url-parser': 4.2.8
+      '@smithy/util-endpoints': 3.2.8
+      tslib: 2.8.1
+
+  '@aws-sdk/util-endpoints@3.986.0':
     dependencies:
       '@aws-sdk/types': 3.973.1
       '@smithy/types': 4.12.0
