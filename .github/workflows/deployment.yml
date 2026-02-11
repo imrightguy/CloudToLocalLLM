@@ -304,12 +304,12 @@ jobs:
           ssh-add ~/.ssh/id_rsa
 
           # Handle initial repository setup
-          if ! git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-repo; then
+          if ! git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo; then
             echo "AUR repository does not exist yet. Creating local placeholder..."
             mkdir -p /tmp/aur-repo
             cd /tmp/aur-repo
             git init
-            git remote add origin ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git
+            git remote add origin ssh://aur@aur.archlinux.org/cloudtolocalllm.git
           else
             cd /tmp/aur-repo
           fi
