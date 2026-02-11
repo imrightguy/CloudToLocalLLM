@@ -150,6 +150,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Google Auth for GAR
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Login to Google Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
       - uses: subosito/flutter-action@v2
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         with:
@@ -159,31 +168,40 @@ jobs:
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+          GAR_REPO=us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images
 
           if [ "${{ needs.ai_change_analysis.outputs.api_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} services/api-backend
+            docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} -t ${GAR_REPO}/api:${VERSION} -t ${GAR_REPO}/api:latest services/api-backend
             docker push ghcr.io/${REPO_LOWER}/api:latest
             docker push ghcr.io/${REPO_LOWER}/api:${VERSION}
+            docker push ${GAR_REPO}/api:${VERSION}
+            docker push ${GAR_REPO}/api:latest
           fi
 
           if [ "${{ needs.ai_change_analysis.outputs.web_needs_build }}" == "true" ]; then
             flutter pub get
             flutter build web --release --no-tree-shake-icons
-            docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/docker/Dockerfile.web .
+            docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ${GAR_REPO}/web:${VERSION} -t ${GAR_REPO}/web:latest -f config/docker/Dockerfile.web .
             docker push ghcr.io/${REPO_LOWER}/web:latest
             docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
+            docker push ${GAR_REPO}/web:${VERSION}
+            docker push ${GAR_REPO}/web:latest
           fi
 
           if [ "${{ needs.ai_change_analysis.outputs.postgres_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -f config/docker/Dockerfile.postgres .
+            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -t ${GAR_REPO}/postgres:${VERSION} -t ${GAR_REPO}/postgres:latest -f config/docker/Dockerfile.postgres .
             docker push ghcr.io/${REPO_LOWER}/postgres:latest
             docker push ghcr.io/${REPO_LOWER}/postgres:${VERSION}
+            docker push ${GAR_REPO}/postgres:${VERSION}
+            docker push ${GAR_REPO}/postgres:latest
           fi
 
           if [ "${{ needs.ai_change_analysis.outputs.streaming_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -f config/docker/Dockerfile.streaming-proxy .
+            docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -t ${GAR_REPO}/streaming:${VERSION} -t ${GAR_REPO}/streaming:latest -f config/docker/Dockerfile.streaming-proxy .
             docker push ghcr.io/${REPO_LOWER}/streaming:latest
             docker push ghcr.io/${REPO_LOWER}/streaming:${VERSION}
+            docker push ${GAR_REPO}/streaming:${VERSION}
+            docker push ${GAR_REPO}/streaming:latest
           fi
 
   build_desktop_apps:
@@ -347,8 +365,8 @@ jobs:
 
       - name: Deploy API to Cloud Run
         if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
-        run: gcloud run deploy cloudtolocalllm-api --image ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:${{ needs.ai_change_analysis.outputs.new_version }} --region us-central1 --platform managed --allow-unauthenticated --memory 1Gi --cpu 1 --concurrency 80 --max-instances 3 --min-instances 0
+        run: gcloud run deploy cloudtolocalllm-api --image us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images/api:${{ needs.ai_change_analysis.outputs.new_version }} --region us-central1 --platform managed --allow-unauthenticated --memory 1Gi --cpu 1 --concurrency 80 --max-instances 3 --min-instances 0
 
       - name: Deploy Web to Cloud Run
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
-        run: gcloud run deploy cloudtolocalllm-web --image ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${{ needs.ai_change_analysis.outputs.new_version }} --region us-central1 --platform managed --allow-unauthenticated --memory 512Mi --cpu 1 --concurrency 100 --max-instances 2 --min-instances 0
+        run: gcloud run deploy cloudtolocalllm-web --image us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images/web:${{ needs.ai_change_analysis.outputs.new_version }} --region us-central1 --platform managed --allow-unauthenticated --memory 512Mi --cpu 1 --concurrency 100 --max-instances 2 --min-instances 0
