@@ -133,9 +133,28 @@ class DesktopClientDetectionService extends ChangeNotifier {
         return;
       }
 
-      // Fixed: Corrected API endpoint path
-      final response = await _dio.get(
-        AppConfig.bridgeStatusUrl,
+      // First, register the desktop client
+      final registerResponse = await _dio.post(
+        AppConfig.bridgeRegisterUrl,
+        data: {
+          'clientId': 'desktop-web',
+          'platform': 'web',
+          'version': AppConfig.appVersion,
+        },
+        options: Options(headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        }),
+      );
+
+      if (registerResponse.statusCode != 200) {
+        throw Exception('Failed to register desktop client: ${registerResponse.statusMessage}');
+      }
+
+      // Then check connected clients using the registered bridge
+      final bridgeId = registerResponse.data['bridgeId'];
+      final statusResponse = await _dio.get(
+        '${AppConfig.bridgePollingUrl}/$bridgeId/status',
         options: Options(headers: {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',

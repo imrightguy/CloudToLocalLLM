@@ -120,8 +120,9 @@ class AppConfig {
   }
 
   // Bridge Configuration
-  static const String bridgeStatusUrl = '$apiBaseUrl/v1/bridge/status';
-  static const String bridgeRegisterUrl = '$apiBaseUrl/v1/bridge/register';
+  static const String bridgePollingUrl = '$apiBaseUrl/v1/bridge-polling';
+  static const String bridgeStatusUrl = '$bridgePollingUrl/:bridgeId/status';
+  static const String bridgeRegisterUrl = '$bridgePollingUrl/register';
 }
 
 enum AuthProviderType {
