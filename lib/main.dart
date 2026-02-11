@@ -365,6 +365,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
   }
 
   List<SingleChildWidget> _buildProviders() {
+    debugPrint('[App] _buildProviders called');
     final providers = <SingleChildWidget>[
       // Always add a dummy provider to ensure children.isNotEmpty for Nested
       Provider<bool>.value(value: true),
@@ -449,6 +450,9 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       if (di.serviceLocator.isRegistered<T>()) {
         final service = di.serviceLocator.get<T>();
         providers.add(ChangeNotifierProvider<T>.value(value: service));
+        debugPrint('[Providers] Added core provider: $T');
+      } else {
+        debugPrint('[Providers] NOT registered: $T');
       }
     } catch (e, stack) {
       debugPrint('[Providers] Error adding core provider $T: $e');
