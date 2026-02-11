@@ -314,3 +314,56 @@ jobs:
             git commit -m "Update to v${{ needs.ai_change_analysis.outputs.new_version }}"
             git push origin master
           fi
+
+  deploy:
+    needs: [ai_change_analysis, build_images]
+    if: always() && needs.ai_change_analysis.outputs.components != '' && needs.build_images.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID || 'cloudtolocalllm' }}
+
+      - name: Deploy API to Cloud Run
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
+        run: |
+          gcloud run deploy cloudtolocalllm-api \
+            --image ghcr.io/${{ github.repository | lower }}/api:${{ needs.ai_change_analysis.outputs.new_version }} \
+            --region ${{ secrets.GCP_REGION || 'us-central1' }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "POSTGRES_USER=${{ secrets.POSTGRES_USER || 'postgres' }},POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD || 'postgres' }},JWT_SECRET=${{ secrets.JWT_SECRET || 'secret' }},INFRASTRUCTURE_API_KEY=${{ secrets.INFRASTRUCTURE_API_KEY }}" \
+            --memory 1Gi \
+            --cpu 1 \
+            --concurrency 80 \
+            --max-instances 3 \
+            --min-instances 0
+
+      - name: Deploy Web to Cloud Run
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
+        run: |
+          gcloud run deploy cloudtolocalllm-web \
+            --image ghcr.io/${{ github.repository | lower }}/web:${{ needs.ai_change_analysis.outputs.new_version }} \
+            --region ${{ secrets.GCP_REGION || 'us-central1' }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars "API_URL=https://cloudtolocalllm-api-${{ secrets.GCP_REGION || 'us-central1' }}-uc.a.run.app" \
+            --memory 512Mi \
+            --cpu 1 \
+            --concurrency 100 \
+            --max-instances 2 \
+            --min-instances 0
