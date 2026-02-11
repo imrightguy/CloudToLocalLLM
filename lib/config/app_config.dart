@@ -76,12 +76,12 @@ class AppConfig {
 
   // Admin Interface Configuration
   static const bool enableAdminInterface = true;
-  static const int adminServerPort = 3001;
+  static const int adminServerPort = 8080;
 
   // Platform-specific admin server URLs
   static const String adminServerUrlWeb =
-      'https://api.cloudtolocalllm.online:3001';
-  static const String adminServerUrlDesktop = 'http://localhost:3001';
+      'https://api.cloudtolocalllm.online';
+  static const String adminServerUrlDesktop = 'http://127.0.0.1:8080';
 
   // Get admin server URL based on platform
   static String get adminServerUrl =>
