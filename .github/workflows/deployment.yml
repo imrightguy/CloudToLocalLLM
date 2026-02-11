@@ -339,8 +339,8 @@ jobs:
       - name: Get GCP Config
         id: gcp_config
         run: |
-          PROJECT_ID=$(gcloud config get-value project)
-          REGION=$(gcloud config get-value compute/region 2>/dev/null || echo "us-central1")
+          PROJECT_ID=$(gcloud config get-value project 2>/dev/null || echo "cloudtolocalllm")
+          REGION="us-central1"
           echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
           echo "region=$REGION" >> $GITHUB_OUTPUT
           echo "Using project: $PROJECT_ID, region: $REGION"
