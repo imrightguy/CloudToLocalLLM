@@ -288,6 +288,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       _addProviderIfAvailable<WebDownloadPromptService>(providersList, 'WebDownloadPromptService');
       _addProviderIfAvailable<EnhancedUserTierService>(providersList, 'EnhancedUserTierService');
       _addProviderIfAvailable<LangChainPromptService>(providersList, 'LangChainPromptService');
+      _addProviderIfAvailable<PlatformDetectionService>(providersList, 'PlatformDetectionService');
       
       debugPrint('[App] Returning MultiProvider with ${providersList.length} providers');
       return MultiProvider(
@@ -372,6 +373,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     ];
 
     // Core services
+    debugPrint('[App] About to add core providers...');
     _addCoreProvider<AuthService>(providers);
     _addCoreProvider<DesktopClientDetectionService>(providers);
     _addCoreProvider<AppInitializationService>(providers);
@@ -383,6 +385,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     _addCoreProvider<ThemeProvider>(providers);
     _addCoreProvider<ProviderConfigurationManager>(providers);
     _addCoreProvider<PlatformDetectionService>(providers);
+    debugPrint('[App] Core providers added. Total: ${providers.length}');
 
     try {
       if (di.serviceLocator.isRegistered<PlatformAdapter>()) {

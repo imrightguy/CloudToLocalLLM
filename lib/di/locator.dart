@@ -187,6 +187,7 @@ Future<void> setupCoreServices() async {
   serviceLocator.registerSingleton<PlatformDetectionService>(
     platformDetectionService,
   );
+  debugPrint('[ServiceLocator] ✓ PlatformDetectionService registered');
 
   // Platform adapter - provides platform-appropriate UI components
   final platformAdapter = PlatformAdapter(platformDetectionService);
