@@ -348,8 +348,9 @@ jobs:
       - name: Deploy API to Cloud Run
         if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
         run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           gcloud run deploy cloudtolocalllm-api \
-            --image ghcr.io/${{ github.repository | lower }}/api:${{ needs.ai_change_analysis.outputs.new_version }} \
+            --image ghcr.io/${REPO_LOWER}/api:${{ needs.ai_change_analysis.outputs.new_version }} \
             --region ${{ steps.gcp_config.outputs.region }} \
             --platform managed \
             --allow-unauthenticated \
@@ -363,8 +364,9 @@ jobs:
       - name: Deploy Web to Cloud Run
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           gcloud run deploy cloudtolocalllm-web \
-            --image ghcr.io/${{ github.repository | lower }}/web:${{ needs.ai_change_analysis.outputs.new_version }} \
+            --image ghcr.io/${REPO_LOWER}/web:${{ needs.ai_change_analysis.outputs.new_version }} \
             --region ${{ steps.gcp_config.outputs.region }} \
             --platform managed \
             --allow-unauthenticated \
