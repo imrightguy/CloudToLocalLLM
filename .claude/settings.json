@@ -28,51 +28,118 @@
   "hooks": {
     "PostToolUse": [
       {
-        "pattern": "Edit(lib/**/*.dart)",
-        "command": "flutter format {{_arg0}}",
-        "background": true
+        "matcher": {
+          "tools": ["EditTool"]
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "flutter format {{_arg0}}",
+            "background": true,
+            "condition": "{{_arg0}} matches lib/**/*.dart"
+          }
+        ]
       },
       {
-        "pattern": "Write(lib/**/*.dart)",
-        "command": "flutter format {{_arg0}}",
-        "background": true
+        "matcher": {
+          "tools": ["WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "flutter format {{_arg0}}",
+            "background": true,
+            "condition": "{{_arg0}} matches lib/**/*.dart"
+          }
+        ]
       },
       {
-        "pattern": "Edit(services/api-backend/**/*.js)",
-        "command": "cd services/api-backend && npm run format",
-        "background": true
+        "matcher": {
+          "tools": ["EditTool"]
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd services/api-backend && npm run format",
+            "background": true,
+            "condition": "{{_arg0}} matches services/api-backend/**/*.js"
+          }
+        ]
       },
       {
-        "pattern": "Write(services/api-backend/**/*.js)",
-        "command": "cd services/api-backend && npm run format",
-        "background": true
+        "matcher": {
+          "tools": ["WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd services/api-backend && npm run format",
+            "background": true,
+            "condition": "{{_arg0}} matches services/api-backend/**/*.js"
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
-        "pattern": "**/*.secret.yaml",
-        "description": "Blocking edit to Kubernetes secret file",
-        "command": "echo 'Cannot edit secret files directly. Use kubectl or secret management tools.'"
+        "matcher": {
+          "tools": ["EditTool", "WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "block",
+            "description": "Blocking edit to Kubernetes secret file",
+            "condition": "{{_arg0}} matches **/*.secret.yaml"
+          }
+        ]
       },
       {
-        "pattern": "**/.env.production",
-        "description": "Blocking edit to production environment file",
-        "command": "echo 'Cannot edit .env.production directly. Use environment variable management.'"
+        "matcher": {
+          "tools": ["EditTool", "WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "block",
+            "description": "Blocking edit to production environment file",
+            "condition": "{{_arg0}} matches **/.env.production"
+          }
+        ]
       },
       {
-        "pattern": "**/.env",
-        "description": "Blocking edit to environment file with warning",
-        "command": "echo 'Warning: Editing .env files directly is not recommended. Consider using environment variable templates.'"
+        "matcher": {
+          "tools": ["EditTool", "WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "block",
+            "description": "Blocking edit to environment file with warning",
+            "condition": "{{_arg0}} matches **/.env"
+          }
+        ]
       },
       {
-        "pattern": "**/secrets/**",
-        "description": "Blocking edit to secrets directory",
-        "command": "echo 'Cannot edit files in secrets directories. Use proper secret management.'"
+        "matcher": {
+          "tools": ["EditTool", "WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "block",
+            "description": "Blocking edit to secrets directory",
+            "condition": "{{_arg0}} matches **/secrets/**"
+          }
+        ]
       },
       {
-        "pattern": "**/*.key",
-        "description": "Blocking edit to private key files",
-        "command": "echo 'Cannot edit private key files. Generate new keys if needed.'"
+        "matcher": {
+          "tools": ["EditTool", "WriteTool"]
+        },
+        "hooks": [
+          {
+            "type": "block",
+            "description": "Blocking edit to private key files",
+            "condition": "{{_arg0}} matches **/*.key"
+          }
+        ]
       }
     ]
   },

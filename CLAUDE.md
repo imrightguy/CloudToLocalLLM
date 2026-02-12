@@ -72,6 +72,24 @@ npm run db:validate           # Validate schema
 npm run db:stats              # Database statistics
 ```
 
+### LLM Router (Flutter)
+
+The Flutter app runs an embedded HTTP server that routes LLM requests:
+
+```bash
+# Router runs automatically on app start (port 1337)
+# Health check
+curl http://localhost:1337/health
+
+# List available models
+curl http://localhost:1337/v1/models
+
+# Chat completion (OpenAI-compatible)
+curl http://localhost:1337/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"glm-4","messages":[{"role":"user","content":"Hello"}]}'
+```
+
 ## Architecture
 
 ### Service Layer Pattern (Flutter)
@@ -79,12 +97,15 @@ npm run db:stats              # Database statistics
 The Flutter app uses a layered service architecture with dependency injection:
 
 - **lib/di/locator.dart**: GetIt service locator with two-phase initialization
-  - `setupCoreServices()`: Services available before authentication (settings, auth, detection)
-  - `setupAuthenticatedServices()`: Services requiring auth tokens (LLM providers, tunnels, containers)
+  - `setupAuthenticatedServices()`: Entry point that delegates to `setupCoreServices()` first, then registers auth-dependent services
+  - `setupCoreServices()`: Services available before authentication (settings, auth, detection, local brain, token storage)
 
 - **Service Categories**:
-  - Core Services: `SettingsPreferenceService`, `AuthService`, `ThemeProvider`
+  - Core Services: `SettingsPreferenceService`, `AuthService`, `ThemeProvider`, `TokenStorageService`
   - Authenticated Services: `TunnelService`, `LLMProviderManager`, `StreamingChatService`
+  - Router Services: `RouterServer`, `RateLimitManager`, provider adapters in `lib/services/providers/`
+  - Monitoring Services: `BehaviorWarningsService`, `SubagentRegistryService`, `AgentStatusService`
+  - Integration Services: `GoogleWorkspaceService`
   - Platform Services: Uses conditional imports for desktop vs web (e.g., `*_stub.dart` files)
 
 - **Platform Abstraction**: Web-specific code uses `dart:js_interop` and `dart:html` conditional imports with stub implementations for desktop
@@ -92,9 +113,12 @@ The Flutter app uses a layered service architecture with dependency injection:
 ### Backend Services
 
 - **api-backend**: Main Express.js server with Auth0 JWT auth, PostgreSQL, rate limiting, OpenTelemetry tracing
+  - **Routes**: Admin, auth, tunnels, conversations, bridge polling, agent events
+  - **New Routes**: `behavior-warnings-routes.js`, `context-usage-routes.js`, `models-routes.js`, `subagent-registry-routes.js`
 - **postgres**: PostgreSQL database configuration and migrations
 - **sdk**: TypeScript SDK for third-party integrations
 - **streaming-proxy**: WebSocket proxy for real-time LLM communication
+- **backend/**: Docker setup for database deployment (alternative to services/postgres)
 
 ### Authentication Flow
 
@@ -111,6 +135,22 @@ Supports multiple local LLM providers:
 
 Providers are configured via `ProviderConfigurationManager` with auto-discovery in `ProviderDiscoveryService`. LangChain integration for advanced workflows.
 
+### LLM Router System
+
+The Flutter app exposes an OpenAI-compatible HTTP server (port 1337) for routing requests to multiple cloud providers:
+
+- **RouterServer** (`lib/services/router_server.dart`): Embedded shelf HTTP server
+- **Provider Adapters** (`lib/services/providers/`):
+  - `zhipu_adapter.dart` - Zhipu AI (GLM models)
+  - `google_adapter.dart` - Google (Gemini models)
+  - `moonshot_adapter.dart` - Moonshot AI
+- **Rate Limiting**: `RateLimitManager` tracks concurrent requests per model
+- **Model Tiers**: `lib/services/model_tiers.dart` defines capacity tiers (critical/high/medium/unlimited)
+- **Fallback Logic**: Automatically switches to fallback models when rate limits reached
+- **Database**: `ModelCapacity` and `LlmRequests` tables (Drift/SQLite) track usage
+
+Router endpoints: `GET /v1/models`, `POST /v1/chat/completions`, `GET /health`
+
 ### Tunnel/Cloud Architecture
 
 - SSH tunneling for secure remote access to local models
@@ -121,7 +161,9 @@ Providers are configured via `ProviderConfigurationManager` with auto-discovery 
 ### Data Storage
 
 - **Server**: PostgreSQL for user sessions, cloud storage, tunnel configs
-- **Desktop (Client)**: SQLite with encryption for conversation history
+- **Desktop (Client)**:
+  - SQLite with encryption for conversation history (`LocalBrain`)
+  - Router tables: `ModelCapacity` (rate limit tracking), `LlmRequests` (request history)
 - **Web**: IndexedDB for conversations, zero local persistence for sensitive data
 
 ## Project Conventions
@@ -164,7 +206,10 @@ import 'package:cloudtolocalllm/services/some_service.dart'
 - **Dart SDK**: >=3.5.0 <4.0.0
 - **Node.js**: >=22.0.0 <25.0.0 (API backend and streaming proxy)
 - **PostgreSQL**: For backend database
-- **OpenClaw Gateway**: Primary LLM engine (localhost:18789)
+- **LLM Providers**:
+  - Local: OpenClaw Gateway (localhost:18789) or LM Studio (localhost:1234)
+  - Cloud: Zhipu AI, Google Gemini, Moonshot (configured via router)
+- **Router Port**: 1337 (embedded Flutter HTTP server)
 - **NVIDIA Drivers**: Required for GPU acceleration (RTX 30/40 series recommended)
 
 ## Key Configuration Files
@@ -172,6 +217,8 @@ import 'package:cloudtolocalllm/services/some_service.dart'
 - `pubspec.yaml`: Flutter dependencies and project config
 - `analysis_options.yaml`: Dart lint rules (strong mode enabled, no implicit casts)
 - `lib/di/locator.dart`: Service registration and dependency injection
+- `lib/services/router_server.dart`: LLM router HTTP server
+- `lib/services/model_tiers.dart`: Model capacity tier definitions
 - `services/api-backend/package.json`: Node.js dependencies and scripts
 - `.github/copilot-instructions.md`: Additional AI agent guidance
 
@@ -191,7 +238,7 @@ The repository includes configured Claude Code automations in `.claude/`:
 
 **Hooks** (automatic):
 - Auto-format: Flutter (dartfmt) and Node.js (prettier) on edit
-- Security blocks: Prevents edits to `.env`, secrets, `*.key` files
+- Security blocks: Prevents edits to `.env`, `.env.production`, `**/*.secret.yaml`, `**/secrets/**`, `**/*.key` files
 
 **Subagents** (auto-invoked):
 - `security-reviewer` - Reviews Auth0, Stripe, SSH, and database security
