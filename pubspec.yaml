@@ -9,6 +9,10 @@ environment:
   sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
+  # HTTP Server for LLM Router
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+
   sentry_flutter: ^9.8.0
   flutter:
     sdk: flutter
@@ -42,6 +46,11 @@ dependencies:
 
   # Real-time event handling
   rxdart: ^0.28.0
+
+  # Google APIs for Local Integration
+  googleapis: ^13.1.0
+  googleapis_auth: ^1.6.0
+  google_sign_in: ^6.2.1
 
   # System Integration - Flutter plugins for window management and secure storage
   window_manager: ^0.5.1

@@ -20,7 +20,6 @@ class ConnectionManagerService extends ChangeNotifier {
 
   String? _selectedModel;
   CloudStreamingService? _cloudStreamingService;
-  bool _isOpenClawAvailable = false;
   List<String> _availableModels = [];
 
   ConnectionManagerService({
@@ -32,12 +31,13 @@ class ConnectionManagerService extends ChangeNotifier {
     _authService.addListener(_onAuthChanged);
   }
 
-  bool get hasLocalConnection => true; // Force true since we standardized on OpenClaw
+  bool get hasLocalConnection =>
+      true; // Force true since we standardized on OpenClaw
   bool get hasCloudConnection => _tunnelService.isConnected;
   bool get hasAnyConnection => true;
   String? get selectedModel => _selectedModel;
-  List<String> get availableModels => _availableModels.isNotEmpty 
-      ? _availableModels 
+  List<String> get availableModels => _availableModels.isNotEmpty
+      ? _availableModels
       : ['google-antigravity/gemini-3-flash'];
 
   ConnectionType getBestConnectionType() {
@@ -76,33 +76,36 @@ class ConnectionManagerService extends ChangeNotifier {
     List<Map<String, String>>? history,
   }) async {
     final connectionType = getBestConnectionType();
-    
+
     if (connectionType == ConnectionType.none) {
       throw LLMCommunicationError.providerNotFound();
     }
 
-    final baseUrl = connectionType == ConnectionType.local 
-        ? AppConfig.defaultGatewayUrl 
+    final baseUrl = connectionType == ConnectionType.local
+        ? AppConfig.defaultGatewayUrl
         : AppConfig.cloudGatewayUrl;
-    
+
     // Ensure we don't double up on /v1
-    final chatEndpoint = baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
+    final chatEndpoint =
+        baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
 
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl$chatEndpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer your-token-here',
-        },
-        body: jsonEncode({
-          'model': model,
-          'messages': [
-            ...?history,
-            {'role': 'user', 'content': message},
-          ],
-        }),
-      ).timeout(const Duration(seconds: 120));
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl$chatEndpoint'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer your-token-here',
+            },
+            body: jsonEncode({
+              'model': model,
+              'messages': [
+                ...?history,
+                {'role': 'user', 'content': message},
+              ],
+            }),
+          )
+          .timeout(const Duration(seconds: 120));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -136,42 +139,44 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   Future<void> testConnection() async {
-    debugPrint('[ConnectionManager] Testing connection to ${AppConfig.defaultGatewayUrl}...');
+    debugPrint(
+        '[ConnectionManager] Testing connection to ${AppConfig.defaultGatewayUrl}...');
     final baseUrl = AppConfig.defaultGatewayUrl;
-    final chatEndpoint = baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
+    final chatEndpoint =
+        baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
 
     try {
       // Test the OpenAI API directly
-      final response = await http.post(
-        Uri.parse('$baseUrl$chatEndpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer your-token-here',
-        },
-        body: jsonEncode({
-          'model': 'gemini-3-flash',
-          'messages': [{'role': 'user', 'content': 'ping'}],
-          'max_tokens': 1,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl$chatEndpoint'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer your-token-here',
+            },
+            body: jsonEncode({
+              'model': 'gemini-3-flash',
+              'messages': [
+                {'role': 'user', 'content': 'ping'}
+              ],
+              'max_tokens': 1,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
 
       debugPrint('[ConnectionManager] API test status: ${response.statusCode}');
-      
+
       if (response.statusCode == 200) {
-        _isOpenClawAvailable = true;
         _availableModels = ['google-antigravity/gemini-3-flash'];
         debugPrint('[ConnectionManager] OpenClaw verified and ready');
       } else {
-        debugPrint('[ConnectionManager] API test failed with status: ${response.statusCode}');
+        debugPrint(
+            '[ConnectionManager] API test failed with status: ${response.statusCode}');
         debugPrint('[ConnectionManager] Response: ${response.body}');
-        // Fallback to true since we know the gateway is running
-        _isOpenClawAvailable = true; 
         _availableModels = ['google-antigravity/gemini-3-flash'];
       }
     } catch (e) {
       debugPrint('[ConnectionManager] Connection test exception: $e');
-      // Fallback to true since we know the gateway is running
-      _isOpenClawAvailable = true;
       _availableModels = ['google-antigravity/gemini-3-flash'];
     }
     notifyListeners();
@@ -219,7 +224,8 @@ class ConnectionManagerService extends ChangeNotifier {
     if (_authService.isAuthenticated.value) {
       if (!_tunnelService.isConnected) {
         _tunnelService.connect().catchError((e) {
-          debugPrint('[ConnectionManager] Tunnel connection failed on auth change: $e');
+          debugPrint(
+              '[ConnectionManager] Tunnel connection failed on auth change: $e');
         });
       }
     }

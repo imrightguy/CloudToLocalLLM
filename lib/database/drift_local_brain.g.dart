@@ -3334,6 +3334,1053 @@ class FileContentCacheCompanion extends UpdateCompanion<FileContentCacheData> {
   }
 }
 
+class $ModelCapacityTable extends ModelCapacity
+    with TableInfo<$ModelCapacityTable, ModelCapacityData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ModelCapacityTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _modelIdMeta =
+      const VerificationMeta('modelId');
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+      'model_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _providerMeta =
+      const VerificationMeta('provider');
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+      'provider', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _displayNameMeta =
+      const VerificationMeta('displayName');
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+      'display_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _concurrentUsedMeta =
+      const VerificationMeta('concurrentUsed');
+  @override
+  late final GeneratedColumn<int> concurrentUsed = GeneratedColumn<int>(
+      'concurrent_used', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _concurrentLimitMeta =
+      const VerificationMeta('concurrentLimit');
+  @override
+  late final GeneratedColumn<int> concurrentLimit = GeneratedColumn<int>(
+      'concurrent_limit', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _tpmUsedMeta =
+      const VerificationMeta('tpmUsed');
+  @override
+  late final GeneratedColumn<int> tpmUsed = GeneratedColumn<int>(
+      'tpm_used', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _tpmLimitMeta =
+      const VerificationMeta('tpmLimit');
+  @override
+  late final GeneratedColumn<int> tpmLimit = GeneratedColumn<int>(
+      'tpm_limit', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _rpmUsedMeta =
+      const VerificationMeta('rpmUsed');
+  @override
+  late final GeneratedColumn<int> rpmUsed = GeneratedColumn<int>(
+      'rpm_used', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _rpmLimitMeta =
+      const VerificationMeta('rpmLimit');
+  @override
+  late final GeneratedColumn<int> rpmLimit = GeneratedColumn<int>(
+      'rpm_limit', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _lastUpdatedMeta =
+      const VerificationMeta('lastUpdated');
+  @override
+  late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>(
+      'last_updated', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('active'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        modelId,
+        provider,
+        displayName,
+        concurrentUsed,
+        concurrentLimit,
+        tpmUsed,
+        tpmLimit,
+        rpmUsed,
+        rpmLimit,
+        lastUpdated,
+        status
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'model_capacity';
+  @override
+  VerificationContext validateIntegrity(Insertable<ModelCapacityData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('model_id')) {
+      context.handle(_modelIdMeta,
+          modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta));
+    } else if (isInserting) {
+      context.missing(_modelIdMeta);
+    }
+    if (data.containsKey('provider')) {
+      context.handle(_providerMeta,
+          provider.isAcceptableOrUnknown(data['provider']!, _providerMeta));
+    } else if (isInserting) {
+      context.missing(_providerMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+          _displayNameMeta,
+          displayName.isAcceptableOrUnknown(
+              data['display_name']!, _displayNameMeta));
+    }
+    if (data.containsKey('concurrent_used')) {
+      context.handle(
+          _concurrentUsedMeta,
+          concurrentUsed.isAcceptableOrUnknown(
+              data['concurrent_used']!, _concurrentUsedMeta));
+    }
+    if (data.containsKey('concurrent_limit')) {
+      context.handle(
+          _concurrentLimitMeta,
+          concurrentLimit.isAcceptableOrUnknown(
+              data['concurrent_limit']!, _concurrentLimitMeta));
+    } else if (isInserting) {
+      context.missing(_concurrentLimitMeta);
+    }
+    if (data.containsKey('tpm_used')) {
+      context.handle(_tpmUsedMeta,
+          tpmUsed.isAcceptableOrUnknown(data['tpm_used']!, _tpmUsedMeta));
+    }
+    if (data.containsKey('tpm_limit')) {
+      context.handle(_tpmLimitMeta,
+          tpmLimit.isAcceptableOrUnknown(data['tpm_limit']!, _tpmLimitMeta));
+    }
+    if (data.containsKey('rpm_used')) {
+      context.handle(_rpmUsedMeta,
+          rpmUsed.isAcceptableOrUnknown(data['rpm_used']!, _rpmUsedMeta));
+    }
+    if (data.containsKey('rpm_limit')) {
+      context.handle(_rpmLimitMeta,
+          rpmLimit.isAcceptableOrUnknown(data['rpm_limit']!, _rpmLimitMeta));
+    }
+    if (data.containsKey('last_updated')) {
+      context.handle(
+          _lastUpdatedMeta,
+          lastUpdated.isAcceptableOrUnknown(
+              data['last_updated']!, _lastUpdatedMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {modelId};
+  @override
+  ModelCapacityData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ModelCapacityData(
+      modelId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}model_id'])!,
+      provider: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}provider'])!,
+      displayName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}display_name']),
+      concurrentUsed: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}concurrent_used'])!,
+      concurrentLimit: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}concurrent_limit'])!,
+      tpmUsed: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}tpm_used'])!,
+      tpmLimit: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}tpm_limit']),
+      rpmUsed: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rpm_used'])!,
+      rpmLimit: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rpm_limit']),
+      lastUpdated: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+    );
+  }
+
+  @override
+  $ModelCapacityTable createAlias(String alias) {
+    return $ModelCapacityTable(attachedDatabase, alias);
+  }
+}
+
+class ModelCapacityData extends DataClass
+    implements Insertable<ModelCapacityData> {
+  final String modelId;
+  final String provider;
+  final String? displayName;
+  final int concurrentUsed;
+  final int concurrentLimit;
+  final int tpmUsed;
+  final int? tpmLimit;
+  final int rpmUsed;
+  final int? rpmLimit;
+  final DateTime lastUpdated;
+  final String status;
+  const ModelCapacityData(
+      {required this.modelId,
+      required this.provider,
+      this.displayName,
+      required this.concurrentUsed,
+      required this.concurrentLimit,
+      required this.tpmUsed,
+      this.tpmLimit,
+      required this.rpmUsed,
+      this.rpmLimit,
+      required this.lastUpdated,
+      required this.status});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['model_id'] = Variable<String>(modelId);
+    map['provider'] = Variable<String>(provider);
+    if (!nullToAbsent || displayName != null) {
+      map['display_name'] = Variable<String>(displayName);
+    }
+    map['concurrent_used'] = Variable<int>(concurrentUsed);
+    map['concurrent_limit'] = Variable<int>(concurrentLimit);
+    map['tpm_used'] = Variable<int>(tpmUsed);
+    if (!nullToAbsent || tpmLimit != null) {
+      map['tpm_limit'] = Variable<int>(tpmLimit);
+    }
+    map['rpm_used'] = Variable<int>(rpmUsed);
+    if (!nullToAbsent || rpmLimit != null) {
+      map['rpm_limit'] = Variable<int>(rpmLimit);
+    }
+    map['last_updated'] = Variable<DateTime>(lastUpdated);
+    map['status'] = Variable<String>(status);
+    return map;
+  }
+
+  ModelCapacityCompanion toCompanion(bool nullToAbsent) {
+    return ModelCapacityCompanion(
+      modelId: Value(modelId),
+      provider: Value(provider),
+      displayName: displayName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(displayName),
+      concurrentUsed: Value(concurrentUsed),
+      concurrentLimit: Value(concurrentLimit),
+      tpmUsed: Value(tpmUsed),
+      tpmLimit: tpmLimit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tpmLimit),
+      rpmUsed: Value(rpmUsed),
+      rpmLimit: rpmLimit == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rpmLimit),
+      lastUpdated: Value(lastUpdated),
+      status: Value(status),
+    );
+  }
+
+  factory ModelCapacityData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ModelCapacityData(
+      modelId: serializer.fromJson<String>(json['modelId']),
+      provider: serializer.fromJson<String>(json['provider']),
+      displayName: serializer.fromJson<String?>(json['displayName']),
+      concurrentUsed: serializer.fromJson<int>(json['concurrentUsed']),
+      concurrentLimit: serializer.fromJson<int>(json['concurrentLimit']),
+      tpmUsed: serializer.fromJson<int>(json['tpmUsed']),
+      tpmLimit: serializer.fromJson<int?>(json['tpmLimit']),
+      rpmUsed: serializer.fromJson<int>(json['rpmUsed']),
+      rpmLimit: serializer.fromJson<int?>(json['rpmLimit']),
+      lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
+      status: serializer.fromJson<String>(json['status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'modelId': serializer.toJson<String>(modelId),
+      'provider': serializer.toJson<String>(provider),
+      'displayName': serializer.toJson<String?>(displayName),
+      'concurrentUsed': serializer.toJson<int>(concurrentUsed),
+      'concurrentLimit': serializer.toJson<int>(concurrentLimit),
+      'tpmUsed': serializer.toJson<int>(tpmUsed),
+      'tpmLimit': serializer.toJson<int?>(tpmLimit),
+      'rpmUsed': serializer.toJson<int>(rpmUsed),
+      'rpmLimit': serializer.toJson<int?>(rpmLimit),
+      'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
+      'status': serializer.toJson<String>(status),
+    };
+  }
+
+  ModelCapacityData copyWith(
+          {String? modelId,
+          String? provider,
+          Value<String?> displayName = const Value.absent(),
+          int? concurrentUsed,
+          int? concurrentLimit,
+          int? tpmUsed,
+          Value<int?> tpmLimit = const Value.absent(),
+          int? rpmUsed,
+          Value<int?> rpmLimit = const Value.absent(),
+          DateTime? lastUpdated,
+          String? status}) =>
+      ModelCapacityData(
+        modelId: modelId ?? this.modelId,
+        provider: provider ?? this.provider,
+        displayName: displayName.present ? displayName.value : this.displayName,
+        concurrentUsed: concurrentUsed ?? this.concurrentUsed,
+        concurrentLimit: concurrentLimit ?? this.concurrentLimit,
+        tpmUsed: tpmUsed ?? this.tpmUsed,
+        tpmLimit: tpmLimit.present ? tpmLimit.value : this.tpmLimit,
+        rpmUsed: rpmUsed ?? this.rpmUsed,
+        rpmLimit: rpmLimit.present ? rpmLimit.value : this.rpmLimit,
+        lastUpdated: lastUpdated ?? this.lastUpdated,
+        status: status ?? this.status,
+      );
+  ModelCapacityData copyWithCompanion(ModelCapacityCompanion data) {
+    return ModelCapacityData(
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      provider: data.provider.present ? data.provider.value : this.provider,
+      displayName:
+          data.displayName.present ? data.displayName.value : this.displayName,
+      concurrentUsed: data.concurrentUsed.present
+          ? data.concurrentUsed.value
+          : this.concurrentUsed,
+      concurrentLimit: data.concurrentLimit.present
+          ? data.concurrentLimit.value
+          : this.concurrentLimit,
+      tpmUsed: data.tpmUsed.present ? data.tpmUsed.value : this.tpmUsed,
+      tpmLimit: data.tpmLimit.present ? data.tpmLimit.value : this.tpmLimit,
+      rpmUsed: data.rpmUsed.present ? data.rpmUsed.value : this.rpmUsed,
+      rpmLimit: data.rpmLimit.present ? data.rpmLimit.value : this.rpmLimit,
+      lastUpdated:
+          data.lastUpdated.present ? data.lastUpdated.value : this.lastUpdated,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ModelCapacityData(')
+          ..write('modelId: $modelId, ')
+          ..write('provider: $provider, ')
+          ..write('displayName: $displayName, ')
+          ..write('concurrentUsed: $concurrentUsed, ')
+          ..write('concurrentLimit: $concurrentLimit, ')
+          ..write('tpmUsed: $tpmUsed, ')
+          ..write('tpmLimit: $tpmLimit, ')
+          ..write('rpmUsed: $rpmUsed, ')
+          ..write('rpmLimit: $rpmLimit, ')
+          ..write('lastUpdated: $lastUpdated, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      modelId,
+      provider,
+      displayName,
+      concurrentUsed,
+      concurrentLimit,
+      tpmUsed,
+      tpmLimit,
+      rpmUsed,
+      rpmLimit,
+      lastUpdated,
+      status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ModelCapacityData &&
+          other.modelId == this.modelId &&
+          other.provider == this.provider &&
+          other.displayName == this.displayName &&
+          other.concurrentUsed == this.concurrentUsed &&
+          other.concurrentLimit == this.concurrentLimit &&
+          other.tpmUsed == this.tpmUsed &&
+          other.tpmLimit == this.tpmLimit &&
+          other.rpmUsed == this.rpmUsed &&
+          other.rpmLimit == this.rpmLimit &&
+          other.lastUpdated == this.lastUpdated &&
+          other.status == this.status);
+}
+
+class ModelCapacityCompanion extends UpdateCompanion<ModelCapacityData> {
+  final Value<String> modelId;
+  final Value<String> provider;
+  final Value<String?> displayName;
+  final Value<int> concurrentUsed;
+  final Value<int> concurrentLimit;
+  final Value<int> tpmUsed;
+  final Value<int?> tpmLimit;
+  final Value<int> rpmUsed;
+  final Value<int?> rpmLimit;
+  final Value<DateTime> lastUpdated;
+  final Value<String> status;
+  final Value<int> rowid;
+  const ModelCapacityCompanion({
+    this.modelId = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.concurrentUsed = const Value.absent(),
+    this.concurrentLimit = const Value.absent(),
+    this.tpmUsed = const Value.absent(),
+    this.tpmLimit = const Value.absent(),
+    this.rpmUsed = const Value.absent(),
+    this.rpmLimit = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ModelCapacityCompanion.insert({
+    required String modelId,
+    required String provider,
+    this.displayName = const Value.absent(),
+    this.concurrentUsed = const Value.absent(),
+    required int concurrentLimit,
+    this.tpmUsed = const Value.absent(),
+    this.tpmLimit = const Value.absent(),
+    this.rpmUsed = const Value.absent(),
+    this.rpmLimit = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : modelId = Value(modelId),
+        provider = Value(provider),
+        concurrentLimit = Value(concurrentLimit);
+  static Insertable<ModelCapacityData> custom({
+    Expression<String>? modelId,
+    Expression<String>? provider,
+    Expression<String>? displayName,
+    Expression<int>? concurrentUsed,
+    Expression<int>? concurrentLimit,
+    Expression<int>? tpmUsed,
+    Expression<int>? tpmLimit,
+    Expression<int>? rpmUsed,
+    Expression<int>? rpmLimit,
+    Expression<DateTime>? lastUpdated,
+    Expression<String>? status,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (modelId != null) 'model_id': modelId,
+      if (provider != null) 'provider': provider,
+      if (displayName != null) 'display_name': displayName,
+      if (concurrentUsed != null) 'concurrent_used': concurrentUsed,
+      if (concurrentLimit != null) 'concurrent_limit': concurrentLimit,
+      if (tpmUsed != null) 'tpm_used': tpmUsed,
+      if (tpmLimit != null) 'tpm_limit': tpmLimit,
+      if (rpmUsed != null) 'rpm_used': rpmUsed,
+      if (rpmLimit != null) 'rpm_limit': rpmLimit,
+      if (lastUpdated != null) 'last_updated': lastUpdated,
+      if (status != null) 'status': status,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ModelCapacityCompanion copyWith(
+      {Value<String>? modelId,
+      Value<String>? provider,
+      Value<String?>? displayName,
+      Value<int>? concurrentUsed,
+      Value<int>? concurrentLimit,
+      Value<int>? tpmUsed,
+      Value<int?>? tpmLimit,
+      Value<int>? rpmUsed,
+      Value<int?>? rpmLimit,
+      Value<DateTime>? lastUpdated,
+      Value<String>? status,
+      Value<int>? rowid}) {
+    return ModelCapacityCompanion(
+      modelId: modelId ?? this.modelId,
+      provider: provider ?? this.provider,
+      displayName: displayName ?? this.displayName,
+      concurrentUsed: concurrentUsed ?? this.concurrentUsed,
+      concurrentLimit: concurrentLimit ?? this.concurrentLimit,
+      tpmUsed: tpmUsed ?? this.tpmUsed,
+      tpmLimit: tpmLimit ?? this.tpmLimit,
+      rpmUsed: rpmUsed ?? this.rpmUsed,
+      rpmLimit: rpmLimit ?? this.rpmLimit,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      status: status ?? this.status,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (concurrentUsed.present) {
+      map['concurrent_used'] = Variable<int>(concurrentUsed.value);
+    }
+    if (concurrentLimit.present) {
+      map['concurrent_limit'] = Variable<int>(concurrentLimit.value);
+    }
+    if (tpmUsed.present) {
+      map['tpm_used'] = Variable<int>(tpmUsed.value);
+    }
+    if (tpmLimit.present) {
+      map['tpm_limit'] = Variable<int>(tpmLimit.value);
+    }
+    if (rpmUsed.present) {
+      map['rpm_used'] = Variable<int>(rpmUsed.value);
+    }
+    if (rpmLimit.present) {
+      map['rpm_limit'] = Variable<int>(rpmLimit.value);
+    }
+    if (lastUpdated.present) {
+      map['last_updated'] = Variable<DateTime>(lastUpdated.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ModelCapacityCompanion(')
+          ..write('modelId: $modelId, ')
+          ..write('provider: $provider, ')
+          ..write('displayName: $displayName, ')
+          ..write('concurrentUsed: $concurrentUsed, ')
+          ..write('concurrentLimit: $concurrentLimit, ')
+          ..write('tpmUsed: $tpmUsed, ')
+          ..write('tpmLimit: $tpmLimit, ')
+          ..write('rpmUsed: $rpmUsed, ')
+          ..write('rpmLimit: $rpmLimit, ')
+          ..write('lastUpdated: $lastUpdated, ')
+          ..write('status: $status, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LlmRequestsTable extends LlmRequests
+    with TableInfo<$LlmRequestsTable, LlmRequest> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LlmRequestsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _requestIdMeta =
+      const VerificationMeta('requestId');
+  @override
+  late final GeneratedColumn<String> requestId = GeneratedColumn<String>(
+      'request_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _modelIdMeta =
+      const VerificationMeta('modelId');
+  @override
+  late final GeneratedColumn<String> modelId = GeneratedColumn<String>(
+      'model_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES model_capacity (model_id)'));
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('pending'));
+  static const VerificationMeta _promptTokensMeta =
+      const VerificationMeta('promptTokens');
+  @override
+  late final GeneratedColumn<int> promptTokens = GeneratedColumn<int>(
+      'prompt_tokens', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _completionTokensMeta =
+      const VerificationMeta('completionTokens');
+  @override
+  late final GeneratedColumn<int> completionTokens = GeneratedColumn<int>(
+      'completion_tokens', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _errorMessageMeta =
+      const VerificationMeta('errorMessage');
+  @override
+  late final GeneratedColumn<String> errorMessage = GeneratedColumn<String>(
+      'error_message', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        requestId,
+        modelId,
+        status,
+        promptTokens,
+        completionTokens,
+        startedAt,
+        completedAt,
+        errorMessage
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'llm_requests';
+  @override
+  VerificationContext validateIntegrity(Insertable<LlmRequest> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('request_id')) {
+      context.handle(_requestIdMeta,
+          requestId.isAcceptableOrUnknown(data['request_id']!, _requestIdMeta));
+    } else if (isInserting) {
+      context.missing(_requestIdMeta);
+    }
+    if (data.containsKey('model_id')) {
+      context.handle(_modelIdMeta,
+          modelId.isAcceptableOrUnknown(data['model_id']!, _modelIdMeta));
+    } else if (isInserting) {
+      context.missing(_modelIdMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('prompt_tokens')) {
+      context.handle(
+          _promptTokensMeta,
+          promptTokens.isAcceptableOrUnknown(
+              data['prompt_tokens']!, _promptTokensMeta));
+    }
+    if (data.containsKey('completion_tokens')) {
+      context.handle(
+          _completionTokensMeta,
+          completionTokens.isAcceptableOrUnknown(
+              data['completion_tokens']!, _completionTokensMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    }
+    if (data.containsKey('error_message')) {
+      context.handle(
+          _errorMessageMeta,
+          errorMessage.isAcceptableOrUnknown(
+              data['error_message']!, _errorMessageMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LlmRequest map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LlmRequest(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      requestId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}request_id'])!,
+      modelId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}model_id'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      promptTokens: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}prompt_tokens']),
+      completionTokens: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}completion_tokens']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at']),
+      errorMessage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}error_message']),
+    );
+  }
+
+  @override
+  $LlmRequestsTable createAlias(String alias) {
+    return $LlmRequestsTable(attachedDatabase, alias);
+  }
+}
+
+class LlmRequest extends DataClass implements Insertable<LlmRequest> {
+  final int id;
+  final String requestId;
+  final String modelId;
+  final String status;
+  final int? promptTokens;
+  final int? completionTokens;
+  final DateTime startedAt;
+  final DateTime? completedAt;
+  final String? errorMessage;
+  const LlmRequest(
+      {required this.id,
+      required this.requestId,
+      required this.modelId,
+      required this.status,
+      this.promptTokens,
+      this.completionTokens,
+      required this.startedAt,
+      this.completedAt,
+      this.errorMessage});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['request_id'] = Variable<String>(requestId);
+    map['model_id'] = Variable<String>(modelId);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || promptTokens != null) {
+      map['prompt_tokens'] = Variable<int>(promptTokens);
+    }
+    if (!nullToAbsent || completionTokens != null) {
+      map['completion_tokens'] = Variable<int>(completionTokens);
+    }
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    if (!nullToAbsent || errorMessage != null) {
+      map['error_message'] = Variable<String>(errorMessage);
+    }
+    return map;
+  }
+
+  LlmRequestsCompanion toCompanion(bool nullToAbsent) {
+    return LlmRequestsCompanion(
+      id: Value(id),
+      requestId: Value(requestId),
+      modelId: Value(modelId),
+      status: Value(status),
+      promptTokens: promptTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(promptTokens),
+      completionTokens: completionTokens == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completionTokens),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      errorMessage: errorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorMessage),
+    );
+  }
+
+  factory LlmRequest.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LlmRequest(
+      id: serializer.fromJson<int>(json['id']),
+      requestId: serializer.fromJson<String>(json['requestId']),
+      modelId: serializer.fromJson<String>(json['modelId']),
+      status: serializer.fromJson<String>(json['status']),
+      promptTokens: serializer.fromJson<int?>(json['promptTokens']),
+      completionTokens: serializer.fromJson<int?>(json['completionTokens']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      errorMessage: serializer.fromJson<String?>(json['errorMessage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'requestId': serializer.toJson<String>(requestId),
+      'modelId': serializer.toJson<String>(modelId),
+      'status': serializer.toJson<String>(status),
+      'promptTokens': serializer.toJson<int?>(promptTokens),
+      'completionTokens': serializer.toJson<int?>(completionTokens),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'errorMessage': serializer.toJson<String?>(errorMessage),
+    };
+  }
+
+  LlmRequest copyWith(
+          {int? id,
+          String? requestId,
+          String? modelId,
+          String? status,
+          Value<int?> promptTokens = const Value.absent(),
+          Value<int?> completionTokens = const Value.absent(),
+          DateTime? startedAt,
+          Value<DateTime?> completedAt = const Value.absent(),
+          Value<String?> errorMessage = const Value.absent()}) =>
+      LlmRequest(
+        id: id ?? this.id,
+        requestId: requestId ?? this.requestId,
+        modelId: modelId ?? this.modelId,
+        status: status ?? this.status,
+        promptTokens:
+            promptTokens.present ? promptTokens.value : this.promptTokens,
+        completionTokens: completionTokens.present
+            ? completionTokens.value
+            : this.completionTokens,
+        startedAt: startedAt ?? this.startedAt,
+        completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        errorMessage:
+            errorMessage.present ? errorMessage.value : this.errorMessage,
+      );
+  LlmRequest copyWithCompanion(LlmRequestsCompanion data) {
+    return LlmRequest(
+      id: data.id.present ? data.id.value : this.id,
+      requestId: data.requestId.present ? data.requestId.value : this.requestId,
+      modelId: data.modelId.present ? data.modelId.value : this.modelId,
+      status: data.status.present ? data.status.value : this.status,
+      promptTokens: data.promptTokens.present
+          ? data.promptTokens.value
+          : this.promptTokens,
+      completionTokens: data.completionTokens.present
+          ? data.completionTokens.value
+          : this.completionTokens,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      errorMessage: data.errorMessage.present
+          ? data.errorMessage.value
+          : this.errorMessage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LlmRequest(')
+          ..write('id: $id, ')
+          ..write('requestId: $requestId, ')
+          ..write('modelId: $modelId, ')
+          ..write('status: $status, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('errorMessage: $errorMessage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, requestId, modelId, status, promptTokens,
+      completionTokens, startedAt, completedAt, errorMessage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LlmRequest &&
+          other.id == this.id &&
+          other.requestId == this.requestId &&
+          other.modelId == this.modelId &&
+          other.status == this.status &&
+          other.promptTokens == this.promptTokens &&
+          other.completionTokens == this.completionTokens &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.errorMessage == this.errorMessage);
+}
+
+class LlmRequestsCompanion extends UpdateCompanion<LlmRequest> {
+  final Value<int> id;
+  final Value<String> requestId;
+  final Value<String> modelId;
+  final Value<String> status;
+  final Value<int?> promptTokens;
+  final Value<int?> completionTokens;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> completedAt;
+  final Value<String?> errorMessage;
+  const LlmRequestsCompanion({
+    this.id = const Value.absent(),
+    this.requestId = const Value.absent(),
+    this.modelId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+  });
+  LlmRequestsCompanion.insert({
+    this.id = const Value.absent(),
+    required String requestId,
+    required String modelId,
+    this.status = const Value.absent(),
+    this.promptTokens = const Value.absent(),
+    this.completionTokens = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.errorMessage = const Value.absent(),
+  })  : requestId = Value(requestId),
+        modelId = Value(modelId);
+  static Insertable<LlmRequest> custom({
+    Expression<int>? id,
+    Expression<String>? requestId,
+    Expression<String>? modelId,
+    Expression<String>? status,
+    Expression<int>? promptTokens,
+    Expression<int>? completionTokens,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? completedAt,
+    Expression<String>? errorMessage,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (requestId != null) 'request_id': requestId,
+      if (modelId != null) 'model_id': modelId,
+      if (status != null) 'status': status,
+      if (promptTokens != null) 'prompt_tokens': promptTokens,
+      if (completionTokens != null) 'completion_tokens': completionTokens,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (errorMessage != null) 'error_message': errorMessage,
+    });
+  }
+
+  LlmRequestsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? requestId,
+      Value<String>? modelId,
+      Value<String>? status,
+      Value<int?>? promptTokens,
+      Value<int?>? completionTokens,
+      Value<DateTime>? startedAt,
+      Value<DateTime?>? completedAt,
+      Value<String?>? errorMessage}) {
+    return LlmRequestsCompanion(
+      id: id ?? this.id,
+      requestId: requestId ?? this.requestId,
+      modelId: modelId ?? this.modelId,
+      status: status ?? this.status,
+      promptTokens: promptTokens ?? this.promptTokens,
+      completionTokens: completionTokens ?? this.completionTokens,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (requestId.present) {
+      map['request_id'] = Variable<String>(requestId.value);
+    }
+    if (modelId.present) {
+      map['model_id'] = Variable<String>(modelId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (promptTokens.present) {
+      map['prompt_tokens'] = Variable<int>(promptTokens.value);
+    }
+    if (completionTokens.present) {
+      map['completion_tokens'] = Variable<int>(completionTokens.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (errorMessage.present) {
+      map['error_message'] = Variable<String>(errorMessage.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LlmRequestsCompanion(')
+          ..write('id: $id, ')
+          ..write('requestId: $requestId, ')
+          ..write('modelId: $modelId, ')
+          ..write('status: $status, ')
+          ..write('promptTokens: $promptTokens, ')
+          ..write('completionTokens: $completionTokens, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('errorMessage: $errorMessage')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalBrain extends GeneratedDatabase {
   _$LocalBrain(QueryExecutor e) : super(e);
   $LocalBrainManager get managers => $LocalBrainManager(this);
@@ -3347,6 +4394,8 @@ abstract class _$LocalBrain extends GeneratedDatabase {
   late final $FileIndexTable fileIndex = $FileIndexTable(this);
   late final $FileContentCacheTable fileContentCache =
       $FileContentCacheTable(this);
+  late final $ModelCapacityTable modelCapacity = $ModelCapacityTable(this);
+  late final $LlmRequestsTable llmRequests = $LlmRequestsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3360,7 +4409,9 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         agentEvents,
         syncQueue,
         fileIndex,
-        fileContentCache
+        fileContentCache,
+        modelCapacity,
+        llmRequests
       ];
 }
 
@@ -5629,6 +6680,690 @@ typedef $$FileContentCacheTableProcessedTableManager = ProcessedTableManager<
     (FileContentCacheData, $$FileContentCacheTableReferences),
     FileContentCacheData,
     PrefetchHooks Function({bool filePath})>;
+typedef $$ModelCapacityTableCreateCompanionBuilder = ModelCapacityCompanion
+    Function({
+  required String modelId,
+  required String provider,
+  Value<String?> displayName,
+  Value<int> concurrentUsed,
+  required int concurrentLimit,
+  Value<int> tpmUsed,
+  Value<int?> tpmLimit,
+  Value<int> rpmUsed,
+  Value<int?> rpmLimit,
+  Value<DateTime> lastUpdated,
+  Value<String> status,
+  Value<int> rowid,
+});
+typedef $$ModelCapacityTableUpdateCompanionBuilder = ModelCapacityCompanion
+    Function({
+  Value<String> modelId,
+  Value<String> provider,
+  Value<String?> displayName,
+  Value<int> concurrentUsed,
+  Value<int> concurrentLimit,
+  Value<int> tpmUsed,
+  Value<int?> tpmLimit,
+  Value<int> rpmUsed,
+  Value<int?> rpmLimit,
+  Value<DateTime> lastUpdated,
+  Value<String> status,
+  Value<int> rowid,
+});
+
+final class $$ModelCapacityTableReferences extends BaseReferences<_$LocalBrain,
+    $ModelCapacityTable, ModelCapacityData> {
+  $$ModelCapacityTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$LlmRequestsTable, List<LlmRequest>>
+      _llmRequestsRefsTable(_$LocalBrain db) =>
+          MultiTypedResultKey.fromTable(db.llmRequests,
+              aliasName: $_aliasNameGenerator(
+                  db.modelCapacity.modelId, db.llmRequests.modelId));
+
+  $$LlmRequestsTableProcessedTableManager get llmRequestsRefs {
+    final manager = $$LlmRequestsTableTableManager($_db, $_db.llmRequests)
+        .filter((f) =>
+            f.modelId.modelId.sqlEquals($_itemColumn<String>('model_id')!));
+
+    final cache = $_typedResult.readTableOrNull(_llmRequestsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$ModelCapacityTableFilterComposer
+    extends Composer<_$LocalBrain, $ModelCapacityTable> {
+  $$ModelCapacityTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get modelId => $composableBuilder(
+      column: $table.modelId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get concurrentUsed => $composableBuilder(
+      column: $table.concurrentUsed,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get concurrentLimit => $composableBuilder(
+      column: $table.concurrentLimit,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get tpmUsed => $composableBuilder(
+      column: $table.tpmUsed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get tpmLimit => $composableBuilder(
+      column: $table.tpmLimit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rpmUsed => $composableBuilder(
+      column: $table.rpmUsed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rpmLimit => $composableBuilder(
+      column: $table.rpmLimit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastUpdated => $composableBuilder(
+      column: $table.lastUpdated, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> llmRequestsRefs(
+      Expression<bool> Function($$LlmRequestsTableFilterComposer f) f) {
+    final $$LlmRequestsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modelId,
+        referencedTable: $db.llmRequests,
+        getReferencedColumn: (t) => t.modelId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LlmRequestsTableFilterComposer(
+              $db: $db,
+              $table: $db.llmRequests,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$ModelCapacityTableOrderingComposer
+    extends Composer<_$LocalBrain, $ModelCapacityTable> {
+  $$ModelCapacityTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get modelId => $composableBuilder(
+      column: $table.modelId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get provider => $composableBuilder(
+      column: $table.provider, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get concurrentUsed => $composableBuilder(
+      column: $table.concurrentUsed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get concurrentLimit => $composableBuilder(
+      column: $table.concurrentLimit,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get tpmUsed => $composableBuilder(
+      column: $table.tpmUsed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get tpmLimit => $composableBuilder(
+      column: $table.tpmLimit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rpmUsed => $composableBuilder(
+      column: $table.rpmUsed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rpmLimit => $composableBuilder(
+      column: $table.rpmLimit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastUpdated => $composableBuilder(
+      column: $table.lastUpdated, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ModelCapacityTableAnnotationComposer
+    extends Composer<_$LocalBrain, $ModelCapacityTable> {
+  $$ModelCapacityTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get modelId =>
+      $composableBuilder(column: $table.modelId, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+      column: $table.displayName, builder: (column) => column);
+
+  GeneratedColumn<int> get concurrentUsed => $composableBuilder(
+      column: $table.concurrentUsed, builder: (column) => column);
+
+  GeneratedColumn<int> get concurrentLimit => $composableBuilder(
+      column: $table.concurrentLimit, builder: (column) => column);
+
+  GeneratedColumn<int> get tpmUsed =>
+      $composableBuilder(column: $table.tpmUsed, builder: (column) => column);
+
+  GeneratedColumn<int> get tpmLimit =>
+      $composableBuilder(column: $table.tpmLimit, builder: (column) => column);
+
+  GeneratedColumn<int> get rpmUsed =>
+      $composableBuilder(column: $table.rpmUsed, builder: (column) => column);
+
+  GeneratedColumn<int> get rpmLimit =>
+      $composableBuilder(column: $table.rpmLimit, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUpdated => $composableBuilder(
+      column: $table.lastUpdated, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  Expression<T> llmRequestsRefs<T extends Object>(
+      Expression<T> Function($$LlmRequestsTableAnnotationComposer a) f) {
+    final $$LlmRequestsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modelId,
+        referencedTable: $db.llmRequests,
+        getReferencedColumn: (t) => t.modelId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LlmRequestsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.llmRequests,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$ModelCapacityTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $ModelCapacityTable,
+    ModelCapacityData,
+    $$ModelCapacityTableFilterComposer,
+    $$ModelCapacityTableOrderingComposer,
+    $$ModelCapacityTableAnnotationComposer,
+    $$ModelCapacityTableCreateCompanionBuilder,
+    $$ModelCapacityTableUpdateCompanionBuilder,
+    (ModelCapacityData, $$ModelCapacityTableReferences),
+    ModelCapacityData,
+    PrefetchHooks Function({bool llmRequestsRefs})> {
+  $$ModelCapacityTableTableManager(_$LocalBrain db, $ModelCapacityTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ModelCapacityTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ModelCapacityTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ModelCapacityTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> modelId = const Value.absent(),
+            Value<String> provider = const Value.absent(),
+            Value<String?> displayName = const Value.absent(),
+            Value<int> concurrentUsed = const Value.absent(),
+            Value<int> concurrentLimit = const Value.absent(),
+            Value<int> tpmUsed = const Value.absent(),
+            Value<int?> tpmLimit = const Value.absent(),
+            Value<int> rpmUsed = const Value.absent(),
+            Value<int?> rpmLimit = const Value.absent(),
+            Value<DateTime> lastUpdated = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ModelCapacityCompanion(
+            modelId: modelId,
+            provider: provider,
+            displayName: displayName,
+            concurrentUsed: concurrentUsed,
+            concurrentLimit: concurrentLimit,
+            tpmUsed: tpmUsed,
+            tpmLimit: tpmLimit,
+            rpmUsed: rpmUsed,
+            rpmLimit: rpmLimit,
+            lastUpdated: lastUpdated,
+            status: status,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String modelId,
+            required String provider,
+            Value<String?> displayName = const Value.absent(),
+            Value<int> concurrentUsed = const Value.absent(),
+            required int concurrentLimit,
+            Value<int> tpmUsed = const Value.absent(),
+            Value<int?> tpmLimit = const Value.absent(),
+            Value<int> rpmUsed = const Value.absent(),
+            Value<int?> rpmLimit = const Value.absent(),
+            Value<DateTime> lastUpdated = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ModelCapacityCompanion.insert(
+            modelId: modelId,
+            provider: provider,
+            displayName: displayName,
+            concurrentUsed: concurrentUsed,
+            concurrentLimit: concurrentLimit,
+            tpmUsed: tpmUsed,
+            tpmLimit: tpmLimit,
+            rpmUsed: rpmUsed,
+            rpmLimit: rpmLimit,
+            lastUpdated: lastUpdated,
+            status: status,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ModelCapacityTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({llmRequestsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (llmRequestsRefs) db.llmRequests],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (llmRequestsRefs)
+                    await $_getPrefetchedData<ModelCapacityData,
+                            $ModelCapacityTable, LlmRequest>(
+                        currentTable: table,
+                        referencedTable: $$ModelCapacityTableReferences
+                            ._llmRequestsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ModelCapacityTableReferences(db, table, p0)
+                                .llmRequestsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.modelId == item.modelId),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ModelCapacityTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $ModelCapacityTable,
+    ModelCapacityData,
+    $$ModelCapacityTableFilterComposer,
+    $$ModelCapacityTableOrderingComposer,
+    $$ModelCapacityTableAnnotationComposer,
+    $$ModelCapacityTableCreateCompanionBuilder,
+    $$ModelCapacityTableUpdateCompanionBuilder,
+    (ModelCapacityData, $$ModelCapacityTableReferences),
+    ModelCapacityData,
+    PrefetchHooks Function({bool llmRequestsRefs})>;
+typedef $$LlmRequestsTableCreateCompanionBuilder = LlmRequestsCompanion
+    Function({
+  Value<int> id,
+  required String requestId,
+  required String modelId,
+  Value<String> status,
+  Value<int?> promptTokens,
+  Value<int?> completionTokens,
+  Value<DateTime> startedAt,
+  Value<DateTime?> completedAt,
+  Value<String?> errorMessage,
+});
+typedef $$LlmRequestsTableUpdateCompanionBuilder = LlmRequestsCompanion
+    Function({
+  Value<int> id,
+  Value<String> requestId,
+  Value<String> modelId,
+  Value<String> status,
+  Value<int?> promptTokens,
+  Value<int?> completionTokens,
+  Value<DateTime> startedAt,
+  Value<DateTime?> completedAt,
+  Value<String?> errorMessage,
+});
+
+final class $$LlmRequestsTableReferences
+    extends BaseReferences<_$LocalBrain, $LlmRequestsTable, LlmRequest> {
+  $$LlmRequestsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ModelCapacityTable _modelIdTable(_$LocalBrain db) =>
+      db.modelCapacity.createAlias($_aliasNameGenerator(
+          db.llmRequests.modelId, db.modelCapacity.modelId));
+
+  $$ModelCapacityTableProcessedTableManager get modelId {
+    final $_column = $_itemColumn<String>('model_id')!;
+
+    final manager = $$ModelCapacityTableTableManager($_db, $_db.modelCapacity)
+        .filter((f) => f.modelId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_modelIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$LlmRequestsTableFilterComposer
+    extends Composer<_$LocalBrain, $LlmRequestsTable> {
+  $$LlmRequestsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get requestId => $composableBuilder(
+      column: $table.requestId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get promptTokens => $composableBuilder(
+      column: $table.promptTokens, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completionTokens => $composableBuilder(
+      column: $table.completionTokens,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get errorMessage => $composableBuilder(
+      column: $table.errorMessage, builder: (column) => ColumnFilters(column));
+
+  $$ModelCapacityTableFilterComposer get modelId {
+    final $$ModelCapacityTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modelId,
+        referencedTable: $db.modelCapacity,
+        getReferencedColumn: (t) => t.modelId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelCapacityTableFilterComposer(
+              $db: $db,
+              $table: $db.modelCapacity,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LlmRequestsTableOrderingComposer
+    extends Composer<_$LocalBrain, $LlmRequestsTable> {
+  $$LlmRequestsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get requestId => $composableBuilder(
+      column: $table.requestId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get promptTokens => $composableBuilder(
+      column: $table.promptTokens,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completionTokens => $composableBuilder(
+      column: $table.completionTokens,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get errorMessage => $composableBuilder(
+      column: $table.errorMessage,
+      builder: (column) => ColumnOrderings(column));
+
+  $$ModelCapacityTableOrderingComposer get modelId {
+    final $$ModelCapacityTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modelId,
+        referencedTable: $db.modelCapacity,
+        getReferencedColumn: (t) => t.modelId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelCapacityTableOrderingComposer(
+              $db: $db,
+              $table: $db.modelCapacity,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LlmRequestsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $LlmRequestsTable> {
+  $$LlmRequestsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get requestId =>
+      $composableBuilder(column: $table.requestId, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get promptTokens => $composableBuilder(
+      column: $table.promptTokens, builder: (column) => column);
+
+  GeneratedColumn<int> get completionTokens => $composableBuilder(
+      column: $table.completionTokens, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get errorMessage => $composableBuilder(
+      column: $table.errorMessage, builder: (column) => column);
+
+  $$ModelCapacityTableAnnotationComposer get modelId {
+    final $$ModelCapacityTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.modelId,
+        referencedTable: $db.modelCapacity,
+        getReferencedColumn: (t) => t.modelId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ModelCapacityTableAnnotationComposer(
+              $db: $db,
+              $table: $db.modelCapacity,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LlmRequestsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $LlmRequestsTable,
+    LlmRequest,
+    $$LlmRequestsTableFilterComposer,
+    $$LlmRequestsTableOrderingComposer,
+    $$LlmRequestsTableAnnotationComposer,
+    $$LlmRequestsTableCreateCompanionBuilder,
+    $$LlmRequestsTableUpdateCompanionBuilder,
+    (LlmRequest, $$LlmRequestsTableReferences),
+    LlmRequest,
+    PrefetchHooks Function({bool modelId})> {
+  $$LlmRequestsTableTableManager(_$LocalBrain db, $LlmRequestsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LlmRequestsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LlmRequestsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LlmRequestsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> requestId = const Value.absent(),
+            Value<String> modelId = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int?> promptTokens = const Value.absent(),
+            Value<int?> completionTokens = const Value.absent(),
+            Value<DateTime> startedAt = const Value.absent(),
+            Value<DateTime?> completedAt = const Value.absent(),
+            Value<String?> errorMessage = const Value.absent(),
+          }) =>
+              LlmRequestsCompanion(
+            id: id,
+            requestId: requestId,
+            modelId: modelId,
+            status: status,
+            promptTokens: promptTokens,
+            completionTokens: completionTokens,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            errorMessage: errorMessage,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String requestId,
+            required String modelId,
+            Value<String> status = const Value.absent(),
+            Value<int?> promptTokens = const Value.absent(),
+            Value<int?> completionTokens = const Value.absent(),
+            Value<DateTime> startedAt = const Value.absent(),
+            Value<DateTime?> completedAt = const Value.absent(),
+            Value<String?> errorMessage = const Value.absent(),
+          }) =>
+              LlmRequestsCompanion.insert(
+            id: id,
+            requestId: requestId,
+            modelId: modelId,
+            status: status,
+            promptTokens: promptTokens,
+            completionTokens: completionTokens,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            errorMessage: errorMessage,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LlmRequestsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({modelId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (modelId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.modelId,
+                    referencedTable:
+                        $$LlmRequestsTableReferences._modelIdTable(db),
+                    referencedColumn:
+                        $$LlmRequestsTableReferences._modelIdTable(db).modelId,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$LlmRequestsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $LlmRequestsTable,
+    LlmRequest,
+    $$LlmRequestsTableFilterComposer,
+    $$LlmRequestsTableOrderingComposer,
+    $$LlmRequestsTableAnnotationComposer,
+    $$LlmRequestsTableCreateCompanionBuilder,
+    $$LlmRequestsTableUpdateCompanionBuilder,
+    (LlmRequest, $$LlmRequestsTableReferences),
+    LlmRequest,
+    PrefetchHooks Function({bool modelId})>;
 
 class $LocalBrainManager {
   final _$LocalBrain _db;
@@ -5651,4 +7386,8 @@ class $LocalBrainManager {
       $$FileIndexTableTableManager(_db, _db.fileIndex);
   $$FileContentCacheTableTableManager get fileContentCache =>
       $$FileContentCacheTableTableManager(_db, _db.fileContentCache);
+  $$ModelCapacityTableTableManager get modelCapacity =>
+      $$ModelCapacityTableTableManager(_db, _db.modelCapacity);
+  $$LlmRequestsTableTableManager get llmRequests =>
+      $$LlmRequestsTableTableManager(_db, _db.llmRequests);
 }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cloudtolocalllm/main.dart';
+import 'package:cloudtolocalllm/bootstrap/bootstrapper.dart';
 import 'test_config.dart';
 
 void main() {
@@ -17,8 +18,11 @@ void main() {
   testWidgets('CloudToLocalLLM app initialization test', (
     WidgetTester tester,
   ) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const CloudToLocalLLMApp());
+    // Build our app and trigger a frame with a mock bootstrap future
+    await tester.pumpWidget(CloudToLocalLLMApp(
+      bootstrapFuture: Future.value(
+          AppBootstrapData(isWeb: true, supportsNativeShell: false)),
+    ));
 
     // Wait for a reasonable amount of time for initialization
     await tester.pump(const Duration(seconds: 1));
@@ -41,7 +45,10 @@ void main() {
     WidgetTester tester,
   ) async {
     // This test verifies that the app doesn't crash when plugins are mocked
-    await tester.pumpWidget(const CloudToLocalLLMApp());
+    await tester.pumpWidget(CloudToLocalLLMApp(
+      bootstrapFuture: Future.value(
+          AppBootstrapData(isWeb: true, supportsNativeShell: false)),
+    ));
 
     // Pump a few frames to allow for async initialization
     for (int i = 0; i < 5; i++) {

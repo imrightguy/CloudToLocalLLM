@@ -11,36 +11,20 @@ import 'package:cloudtolocalllm/config/router.dart';
 import 'package:cloudtolocalllm/config/theme.dart';
 
 import 'package:cloudtolocalllm/di/locator.dart' as di;
-import 'package:cloudtolocalllm/services/admin_center_service.dart';
-import 'package:cloudtolocalllm/services/admin_data_flush_service.dart';
-import 'package:cloudtolocalllm/services/admin_service.dart';
 import 'package:cloudtolocalllm/services/app_initialization_service.dart';
 import 'package:cloudtolocalllm/services/auth_service.dart';
-import 'package:cloudtolocalllm/services/connection_manager_service.dart';
 import 'package:cloudtolocalllm/services/desktop_client_detection_service.dart';
 import 'package:cloudtolocalllm/services/enhanced_user_tier_service.dart';
-import 'package:cloudtolocalllm/services/langchain_integration_service.dart';
 import 'package:cloudtolocalllm/services/langchain_prompt_service.dart';
-import 'package:cloudtolocalllm/services/langchain_rag_service.dart';
-import 'package:cloudtolocalllm/services/llm_audit_service.dart';
-import 'package:cloudtolocalllm/services/llm_error_handler.dart';
-import 'package:cloudtolocalllm/services/llm_provider_manager.dart';
 import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
 import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
 import 'package:cloudtolocalllm/services/streaming_chat_service.dart';
-import 'package:cloudtolocalllm/services/streaming_proxy_service.dart';
-import 'package:cloudtolocalllm/services/tunnel_service.dart';
-import 'package:cloudtolocalllm/services/unified_connection_service.dart';
-import 'package:cloudtolocalllm/services/user_container_service.dart';
 import 'package:cloudtolocalllm/services/web_download_prompt_service.dart'
     if (dart.library.io) 'package:cloudtolocalllm/services/web_download_prompt_service_stub.dart';
 import 'package:cloudtolocalllm/services/log_buffer_service.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
-import 'package:cloudtolocalllm/services/platform_adapter.dart';
-import 'package:cloudtolocalllm/database/local_brain.dart';
-import 'package:cloudtolocalllm/services/brain_sync_service.dart';
-import 'package:cloudtolocalllm/services/full_context_indexer.dart';
+import 'package:cloudtolocalllm/services/google_workspace_service.dart';
 import 'web_plugins_stub.dart'
     if (dart.library.html) 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cloudtolocalllm/widgets/tray_initializer.dart';
@@ -57,7 +41,7 @@ import 'package:cloudtolocalllm/utils/platform_file_utils.dart'
 void main(List<String> args) async {
   // Flutter requires WidgetsFlutterBinding to be initialized first
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Immediate logging to verify Dart entry point is reached
   // Build trigger: force new release tag
   debugPrint('----- DART MAIN START ----- v10.1.187');
@@ -79,24 +63,6 @@ void main(List<String> args) async {
   // TEMPORARY: Skip Sentry to test app loading
   debugPrint('[Main] Skipping Sentry for testing');
   _runAppWithoutSentry();
-}
-
-void _runAppWithSentry() {
-  // Now that Sentry is initialized, set up error handlers
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    debugPrint('FlutterError: \'${details.exception}\'');
-    if (details.stack != null) {
-      debugPrint('Stack trace: ${details.stack}');
-    }
-    Sentry.captureException(
-      details.exception,
-      stackTrace: details.stack,
-    );
-  };
-
-  _initializeClientLogBuffer();
-  _runAppCommon();
 }
 
 void _runAppWithoutSentry() {
@@ -171,7 +137,7 @@ void _initializeClientLogBuffer() {
 /// Main application widget with comprehensive loading screen
 class CloudToLocalLLMApp extends StatefulWidget {
   final Future<AppBootstrapData> bootstrapFuture;
-  
+
   const CloudToLocalLLMApp({super.key, required this.bootstrapFuture});
 
   @override
@@ -200,11 +166,12 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
   @override
   Widget build(BuildContext context) {
     debugPrint('[App] build() called with FutureBuilder');
-    
+
     return FutureBuilder<AppBootstrapData>(
       future: widget.bootstrapFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            !snapshot.hasData) {
           debugPrint('[App] Bootstrap loading, showing loading screen');
           return MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -221,7 +188,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
             ),
           );
         }
-        
+
         if (snapshot.hasError) {
           debugPrint('[App] Bootstrap error: ${snapshot.error}');
           return MaterialApp(
@@ -231,7 +198,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    const Icon(Icons.error_outline,
+                        size: 64, color: Colors.red),
                     const SizedBox(height: 16),
                     const Text('Initialization Error'),
                     const SizedBox(height: 8),
@@ -242,14 +210,14 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
             ),
           );
         }
-        
+
         final bootstrap = snapshot.data!;
         debugPrint('[App] Bootstrap loaded, building app');
         return _buildAppWithBootstrap(bootstrap);
       },
     );
   }
-  
+
   Widget _buildAppWithBootstrap(AppBootstrapData bootstrap) {
     _ensureAuthListener();
 
@@ -262,12 +230,12 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
         child: const _AppRouterHost(),
       );
       debugPrint('[App] TrayInitializer created');
-      
+
       debugPrint('[App] Building MultiProvider...');
-      
+
       // Add providers one by one with debug
       final providersList = <SingleChildWidget>[];
-      
+
       debugPrint('[App] Adding AuthService...');
       if (di.serviceLocator.isRegistered<AuthService>()) {
         providersList.add(ChangeNotifierProvider<AuthService>.value(
@@ -277,20 +245,34 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       } else {
         debugPrint('[App] AuthService NOT registered!');
       }
-      
+
       // Add other core services needed by HomeScreen
-      _addProviderIfAvailable<StreamingChatService>(providersList, 'StreamingChatService');
-      _addProviderIfAvailable<AppInitializationService>(providersList, 'AppInitializationService');
+      _addProviderIfAvailable<StreamingChatService>(
+          providersList, 'StreamingChatService');
+      _addProviderIfAvailable<AppInitializationService>(
+          providersList, 'AppInitializationService');
       _addProviderIfAvailable<ThemeProvider>(providersList, 'ThemeProvider');
-      _addProviderIfAvailable<ProviderDiscoveryService>(providersList, 'ProviderDiscoveryService');
-      _addProviderIfAvailable<ProviderConfigurationManager>(providersList, 'ProviderConfigurationManager');
-      _addProviderIfAvailable<DesktopClientDetectionService>(providersList, 'DesktopClientDetectionService');
-      _addProviderIfAvailable<WebDownloadPromptService>(providersList, 'WebDownloadPromptService');
-      _addProviderIfAvailable<EnhancedUserTierService>(providersList, 'EnhancedUserTierService');
-      _addProviderIfAvailable<LangChainPromptService>(providersList, 'LangChainPromptService');
-      _addProviderIfAvailable<PlatformDetectionService>(providersList, 'PlatformDetectionService');
-      
-      debugPrint('[App] Returning MultiProvider with ${providersList.length} providers');
+      _addProviderIfAvailable<ProviderDiscoveryService>(
+          providersList, 'ProviderDiscoveryService');
+      _addProviderIfAvailable<ProviderConfigurationManager>(
+          providersList, 'ProviderConfigurationManager');
+      _addProviderIfAvailable<DesktopClientDetectionService>(
+          providersList, 'DesktopClientDetectionService');
+      _addProviderIfAvailable<WebDownloadPromptService>(
+          providersList, 'WebDownloadPromptService');
+      _addProviderIfAvailable<EnhancedUserTierService>(
+          providersList, 'EnhancedUserTierService');
+      _addProviderIfAvailable<LangChainPromptService>(
+          providersList, 'LangChainPromptService');
+      _addProviderIfAvailable<PlatformDetectionService>(
+          providersList, 'PlatformDetectionService');
+
+      // Add Google Workspace Service
+      _addProviderIfAvailable<GoogleWorkspaceService>(
+          providersList, 'GoogleWorkspaceService');
+
+      debugPrint(
+          '[App] Returning MultiProvider with ${providersList.length} providers');
       return MultiProvider(
         providers: providersList,
         child: trayInitializer,
@@ -365,73 +347,6 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     }
   }
 
-  List<SingleChildWidget> _buildProviders() {
-    debugPrint('[App] _buildProviders called');
-    final providers = <SingleChildWidget>[
-      // Always add a dummy provider to ensure children.isNotEmpty for Nested
-      Provider<bool>.value(value: true),
-    ];
-
-    // Core services
-    debugPrint('[App] About to add core providers...');
-    _addCoreProvider<AuthService>(providers);
-    _addCoreProvider<DesktopClientDetectionService>(providers);
-    _addCoreProvider<AppInitializationService>(providers);
-    _addCoreProvider<WebDownloadPromptService>(providers);
-    _addCoreProvider<ProviderDiscoveryService>(providers);
-    _addCoreProvider<LLMErrorHandler>(providers);
-    _addCoreProvider<LangChainPromptService>(providers);
-    _addCoreProvider<EnhancedUserTierService>(providers);
-    _addCoreProvider<ThemeProvider>(providers);
-    _addCoreProvider<ProviderConfigurationManager>(providers);
-    _addCoreProvider<PlatformDetectionService>(providers);
-    debugPrint('[App] Core providers added. Total: ${providers.length}');
-
-    try {
-      if (di.serviceLocator.isRegistered<PlatformAdapter>()) {
-        final platformAdapter = di.serviceLocator.get<PlatformAdapter>();
-        providers.add(
-          Provider<PlatformAdapter>.value(value: platformAdapter),
-        );
-      }
-    } catch (e, stack) {
-      debugPrint('[Providers] Error adding PlatformAdapter: $e');
-      Sentry.captureException(e, stackTrace: stack);
-    }
-
-    // Authenticated services
-    _addProviderIfRegistered<TunnelService>(providers);
-    _addProviderIfRegistered<StreamingProxyService>(providers);
-    _addProviderIfRegistered<UserContainerService>(providers);
-    _addProviderIfRegistered<LangChainIntegrationService>(providers);
-    _addProviderIfRegistered<LLMProviderManager>(providers);
-    _addProviderIfRegistered<ConnectionManagerService>(providers);
-    _addProviderIfRegistered<LangChainRAGService>(providers);
-    _addProviderIfRegistered<LLMAuditService>(providers);
-    _addProviderIfRegistered<StreamingChatService>(providers);
-    _addProviderIfRegistered<UnifiedConnectionService>(providers);
-    _addProviderIfRegistered<AdminService>(providers);
-    _addProviderIfRegistered<AdminDataFlushService>(providers);
-    _addProviderIfRegistered<AdminCenterService>(providers);
-
-    // Local Brain Services
-    try {
-      if (di.serviceLocator.isRegistered<LocalBrain>()) {
-        providers.add(Provider<LocalBrain>.value(value: di.serviceLocator.get<LocalBrain>()));
-      }
-      if (di.serviceLocator.isRegistered<BrainSyncService>()) {
-        providers.add(Provider<BrainSyncService>.value(value: di.serviceLocator.get<BrainSyncService>()));
-      }
-      if (di.serviceLocator.isRegistered<FullContextIndexer>()) {
-        providers.add(Provider<FullContextIndexer>.value(value: di.serviceLocator.get<FullContextIndexer>()));
-      }
-    } catch (e) {
-      debugPrint('[Providers] Error adding local brain providers: $e');
-    }
-
-    return providers;
-  }
-
   void _addProviderIfAvailable<T extends ChangeNotifier>(
       List<SingleChildWidget> providers, String name) {
     try {
@@ -444,34 +359,6 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       }
     } catch (e) {
       debugPrint('[App] Error adding $name: $e');
-    }
-  }
-
-  void _addCoreProvider<T extends ChangeNotifier>(
-      List<SingleChildWidget> providers) {
-    try {
-      if (di.serviceLocator.isRegistered<T>()) {
-        final service = di.serviceLocator.get<T>();
-        providers.add(ChangeNotifierProvider<T>.value(value: service));
-        debugPrint('[Providers] Added core provider: $T');
-      } else {
-        debugPrint('[Providers] NOT registered: $T');
-      }
-    } catch (e, stack) {
-      debugPrint('[Providers] Error adding core provider $T: $e');
-      Sentry.captureException(e, stackTrace: stack);
-    }
-  }
-
-  void _addProviderIfRegistered<T extends ChangeNotifier>(
-      List<SingleChildWidget> providers) {
-    try {
-      if (di.serviceLocator.isRegistered<T>()) {
-        final service = di.serviceLocator.get<T>();
-        providers.add(ChangeNotifierProvider<T>.value(value: service));
-      }
-    } catch (e) {
-      debugPrint('[Providers] Error adding provider $T: $e');
     }
   }
 }
@@ -524,10 +411,10 @@ class _AppRouterHostState extends State<_AppRouterHost> {
 
   void _initializeRouterWhenReady() async {
     final authService = context.read<AuthService>();
-    
+
     // Skip waiting for bootstrap - initialize router immediately
     debugPrint('[Router] Initializing without waiting for bootstrap');
-    
+
     if (!mounted) return;
     _initializeRouter(authService);
   }
@@ -574,7 +461,7 @@ class _AppRouterHostState extends State<_AppRouterHost> {
               ),
             );
           }
-          
+
           final mediaQuery = MediaQuery.of(context);
           return MediaQuery(
             data: mediaQuery.copyWith(

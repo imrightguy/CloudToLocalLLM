@@ -148,7 +148,8 @@ class DesktopClientDetectionService extends ChangeNotifier {
       );
 
       if (registerResponse.statusCode != 200) {
-        throw Exception('Failed to register desktop client: ${registerResponse.statusMessage}');
+        throw Exception(
+            'Failed to register desktop client: ${registerResponse.statusMessage}');
       }
 
       // Then check connected clients using the registered bridge
@@ -161,8 +162,8 @@ class DesktopClientDetectionService extends ChangeNotifier {
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = response.data;
+      if (statusResponse.statusCode == 200) {
+        final data = statusResponse.data;
         final bridges = data['bridges'] as List<dynamic>? ?? [];
 
         final clientInfos = bridges
@@ -180,7 +181,8 @@ class DesktopClientDetectionService extends ChangeNotifier {
           ' [DesktopClientDetection] Found ${clientInfos.length} connected clients',
         );
       } else {
-        throw Exception('HTTP ${response.statusCode}: ${response.data}');
+        throw Exception(
+            'HTTP ${statusResponse.statusCode}: ${statusResponse.data}');
       }
     } catch (e) {
       debugPrint(' [DesktopClientDetection] Error checking clients: $e');

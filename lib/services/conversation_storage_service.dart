@@ -66,7 +66,8 @@ class ConversationStorageService {
         try {
           await saveConversation(conversation);
         } catch (e) {
-          debugPrint('[ConversationStorage] Cloud sync failed for ${conversation.id}: $e');
+          debugPrint(
+              '[ConversationStorage] Cloud sync failed for ${conversation.id}: $e');
           // Don't throw - local is already saved
         }
       }
@@ -79,7 +80,8 @@ class ConversationStorageService {
     if (!kIsWeb) {
       final localConversations = await _localStorage.loadConversations();
       if (localConversations.isNotEmpty) {
-        debugPrint('[ConversationStorage] Loaded ${localConversations.length} conversations from local storage');
+        debugPrint(
+            '[ConversationStorage] Loaded ${localConversations.length} conversations from local storage');
         return localConversations;
       }
     }
@@ -91,7 +93,7 @@ class ConversationStorageService {
   /// Load conversations from Cloud API
   Future<List<Conversation>> _loadFromApi() async {
     if (_authService?.isAuthenticated.value != true) return [];
-    
+
     try {
       final headers = await _getAuthHeaders();
       final response = await _dio.get('/api/conversations',
@@ -115,7 +117,8 @@ class ConversationStorageService {
           }));
         }
 
-        debugPrint('[ConversationStorage] Loaded ${conversations.length} conversations from API');
+        debugPrint(
+            '[ConversationStorage] Loaded ${conversations.length} conversations from API');
         return conversations;
       }
     } catch (e) {
@@ -159,7 +162,8 @@ class ConversationStorageService {
           data: body, options: Options(headers: headers));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('[ConversationStorage] Saved to cloud: ${conversation.title}');
+        debugPrint(
+            '[ConversationStorage] Saved to cloud: ${conversation.title}');
       }
     } catch (e) {
       debugPrint('[ConversationStorage] Cloud save error: $e');
@@ -268,7 +272,8 @@ class ConversationStorageService {
   }
 
   /// Export conversations to JSON
-  Future<String> exportConversationsToJson(List<Conversation> conversations) async {
+  Future<String> exportConversationsToJson(
+      List<Conversation> conversations) async {
     final exportData = {
       'export_date': DateTime.now().toIso8601String(),
       'total_conversations': conversations.length,
@@ -279,7 +284,8 @@ class ConversationStorageService {
   }
 
   /// Export conversations to CSV
-  Future<String> exportConversationsToCsv(List<Conversation> conversations) async {
+  Future<String> exportConversationsToCsv(
+      List<Conversation> conversations) async {
     // CSV header
     const lines = [
       'ID,Title,Model,Messages,User Messages,Assistant Messages,Created At,Updated At',
@@ -315,7 +321,8 @@ class ConversationStorageService {
         conversations.add(conv);
       }
 
-      debugPrint('[ConversationStorage] Imported ${conversations.length} conversations');
+      debugPrint(
+          '[ConversationStorage] Imported ${conversations.length} conversations');
       return conversations;
     } catch (e) {
       debugPrint('[ConversationStorage] Import error: $e');
@@ -335,6 +342,29 @@ class ConversationStorageService {
   }
 
   bool get isInitialized => _isInitialized;
+
+  /// Set storage location (stub for PrivacyStorageManager compatibility)
+  /// TODO: Implement actual storage location switching
+  Future<void> setStorageLocation(String location) async {
+    debugPrint(
+        '[ConversationStorage] Storage location set to: $location (stub)');
+  }
+
+  /// Set encryption enabled (stub for PrivacyStorageManager compatibility)
+  /// TODO: Implement actual encryption
+  Future<void> setEncryptionEnabled(bool enabled) async {
+    debugPrint('[ConversationStorage] Encryption enabled: $enabled (stub)');
+  }
+
+  /// Export conversations as a map (for PrivacyStorageManager compatibility)
+  Future<Map<String, dynamic>> exportConversations() async {
+    final conversations = await loadConversations();
+    return {
+      'export_date': DateTime.now().toIso8601String(),
+      'total_conversations': conversations.length,
+      'conversations': conversations.map((c) => c.toJson()).toList(),
+    };
+  }
 
   Future<Map<String, dynamic>> getDatabaseStats() async {
     final conversations = await loadConversations();

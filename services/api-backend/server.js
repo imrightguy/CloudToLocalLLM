@@ -146,6 +146,10 @@ import rateLimitMetricsRoutes from './routes/rate-limit-metrics.js';
 import prometheusMetricsRoutes from './routes/prometheus-metrics.js';
 import changelogRoutes from './routes/changelog.js';
 import agentEventsRoutes from './routes/agent-events.js';
+import subagentRegistryRoutes from './routes/subagent-registry-routes.js';
+import modelsRoutes from './routes/models-routes.js';
+import contextUsageRoutes from './routes/context-usage-routes.js';
+import behaviorWarningsRoutes from './routes/behavior-warnings-routes.js';
 
 // Sentry and dotenv already initialized at top of file
 
@@ -339,6 +343,10 @@ registerRoutes('/turn', turnCredentialsRoutes);
 
 // Administrative routes
 registerRoutes('/admin', adminRoutes);
+registerRoutes('/admin/behavior-warnings', behaviorWarningsRoutes);
+registerRoutes('/admin/subagents', subagentRegistryRoutes);
+registerRoutes('/admin/models', modelsRoutes);
+registerRoutes('/admin/context-usage', contextUsageRoutes);
 registerRoutes('/admin/users', adminUserRoutes);
 registerRoutes('/admin', adminSubscriptionRoutes);
 
@@ -859,4 +867,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export { app, server, startServer };
-// Deploy test: 
+// Deploy test:

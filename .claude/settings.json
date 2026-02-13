@@ -28,116 +28,53 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": {
-          "tools": ["EditTool"]
-        },
+        "matcher": "Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "flutter format {{_arg0}}",
-            "background": true,
-            "condition": "{{_arg0}} matches lib/**/*.dart"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi",
+            "background": true
           }
         ]
       },
       {
-        "matcher": {
-          "tools": ["WriteTool"]
-        },
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "flutter format {{_arg0}}",
-            "background": true,
-            "condition": "{{_arg0}} matches lib/**/*.dart"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi",
+            "background": true
           }
         ]
       },
       {
-        "matcher": {
-          "tools": ["EditTool"]
-        },
+        "matcher": "Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "cd services/api-backend && npm run format",
-            "background": true,
-            "condition": "{{_arg0}} matches services/api-backend/**/*.js"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi",
+            "background": true
           }
         ]
       },
       {
-        "matcher": {
-          "tools": ["WriteTool"]
-        },
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "cd services/api-backend && npm run format",
-            "background": true,
-            "condition": "{{_arg0}} matches services/api-backend/**/*.js"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi",
+            "background": true
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": {
-          "tools": ["EditTool", "WriteTool"]
-        },
+        "matcher": "Edit|Write",
         "hooks": [
           {
-            "type": "block",
-            "description": "Blocking edit to Kubernetes secret file",
-            "condition": "{{_arg0}} matches **/*.secret.yaml"
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "tools": ["EditTool", "WriteTool"]
-        },
-        "hooks": [
-          {
-            "type": "block",
-            "description": "Blocking edit to production environment file",
-            "condition": "{{_arg0}} matches **/.env.production"
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "tools": ["EditTool", "WriteTool"]
-        },
-        "hooks": [
-          {
-            "type": "block",
-            "description": "Blocking edit to environment file with warning",
-            "condition": "{{_arg0}} matches **/.env"
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "tools": ["EditTool", "WriteTool"]
-        },
-        "hooks": [
-          {
-            "type": "block",
-            "description": "Blocking edit to secrets directory",
-            "condition": "{{_arg0}} matches **/secrets/**"
-          }
-        ]
-      },
-      {
-        "matcher": {
-          "tools": ["EditTool", "WriteTool"]
-        },
-        "hooks": [
-          {
-            "type": "block",
-            "description": "Blocking edit to private key files",
-            "condition": "{{_arg0}} matches **/*.key"
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-sensitive-files.sh"
           }
         ]
       }

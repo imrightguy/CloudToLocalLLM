@@ -15,7 +15,7 @@ class DashboardWebSocketManager {
 
     this.wss.on('connection', (ws, req) => {
       const userId = req.userId;
-      
+
       if (!this.clients.has(userId)) {
         this.clients.set(userId, new Set());
       }
@@ -54,7 +54,7 @@ class DashboardWebSocketManager {
       // Verify token (using JWT_SECRET or Auth0)
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abc12d491e2bc24a60e9e276be8d5b1af62bf');
       request.userId = decoded.sub || decoded.userId || 'system';
-      
+
       this.wss.handleUpgrade(request, socket, head, (ws) => {
         this.wss.emit('connection', ws, request);
       });
@@ -67,18 +67,22 @@ class DashboardWebSocketManager {
 
   broadcast(data, targetUserId = null) {
     const message = JSON.stringify(data);
-    
+
     if (targetUserId) {
       const userClients = this.clients.get(targetUserId);
       if (userClients) {
         userClients.forEach(ws => {
-          if (ws.readyState === 1) ws.send(message);
+          if (ws.readyState === 1) {
+ws.send(message);
+}
         });
       }
     } else {
       this.clients.forEach(userClients => {
         userClients.forEach(ws => {
-          if (ws.readyState === 1) ws.send(message);
+          if (ws.readyState === 1) {
+ws.send(message);
+}
         });
       });
     }

@@ -53,7 +53,8 @@ class StreamingChatService extends ChangeNotifier {
   Stream<String> get streamingContentStream => _streamingContentSubject.stream;
 
   /// Stream of current streaming reasoning for real-time UI updates
-  Stream<String> get streamingReasoningStream => _streamingReasoningSubject.stream;
+  Stream<String> get streamingReasoningStream =>
+      _streamingReasoningSubject.stream;
 
   /// Initialize the service
   void _initializeService() {
@@ -339,7 +340,8 @@ class StreamingChatService extends ChangeNotifier {
       }
 
       // Update reasoning
-      if (streamingMessage.reasoning != null && streamingMessage.reasoning!.isNotEmpty) {
+      if (streamingMessage.reasoning != null &&
+          streamingMessage.reasoning!.isNotEmpty) {
         final currentReasoning = _streamingReasoningSubject.value;
         final newReasoning = currentReasoning + streamingMessage.reasoning!;
         _streamingReasoningSubject.add(newReasoning);
@@ -398,7 +400,8 @@ class StreamingChatService extends ChangeNotifier {
       // Auto-rename conversation if it's the first message
       _autoRenameConversation();
     } else {
-      appLogger.warning('[StreamingChat] Streaming completed with empty content');
+      appLogger
+          .warning('[StreamingChat] Streaming completed with empty content');
     }
 
     // Clear streaming content
@@ -415,7 +418,7 @@ class StreamingChatService extends ChangeNotifier {
 
     final conversationId = _currentConversation!.id;
     final index = _conversations.indexWhere((c) => c.id == conversationId);
-    
+
     if (index != -1) {
       final conversation = _conversations[index];
       final messageIndex = conversation.messages.indexWhere(
@@ -473,7 +476,8 @@ class StreamingChatService extends ChangeNotifier {
       );
 
       if (newTitle != null && newTitle.trim().isNotEmpty) {
-        var cleanTitle = newTitle.trim().replaceAll('"', '').replaceAll("'", "");
+        var cleanTitle =
+            newTitle.trim().replaceAll('"', '').replaceAll("'", '');
         // Remove trailing punctuation if it's just a period
         if (cleanTitle.endsWith('.') && !cleanTitle.endsWith('...')) {
           cleanTitle = cleanTitle.substring(0, cleanTitle.length - 1);
@@ -529,7 +533,7 @@ class StreamingChatService extends ChangeNotifier {
         appLogger.debug('[StreamingChat] Fallback chat completed successfully');
 
         // Auto-rename conversation if it's the first message
-        _autoRenameConversation();
+        await _autoRenameConversation();
       } else {
         final errorMessage = Message.assistant(
           content:
@@ -581,7 +585,7 @@ class StreamingChatService extends ChangeNotifier {
 
       final conversationId = _currentConversation!.id;
       final index = _conversations.indexWhere((c) => c.id == conversationId);
-      
+
       if (index != -1) {
         final updatedConversation = _conversations[index].addMessage(message);
         _conversations[index] = updatedConversation;
@@ -608,20 +612,21 @@ class StreamingChatService extends ChangeNotifier {
 
       final conversationId = _currentConversation!.id;
       final index = _conversations.indexWhere((c) => c.id == conversationId);
-      
+
       if (index != -1) {
-        final updatedMessages = List<Message>.from(_conversations[index].messages);
+        final updatedMessages =
+            List<Message>.from(_conversations[index].messages);
         if (updatedMessages.isNotEmpty) {
           updatedMessages.removeLast();
-          
+
           final updatedConversation = _conversations[index].copyWith(
             messages: updatedMessages,
             updatedAt: DateTime.now(),
           );
-          
+
           _conversations[index] = updatedConversation;
           _currentConversation = updatedConversation;
-          
+
           _saveConversations();
           notifyListeners();
         }

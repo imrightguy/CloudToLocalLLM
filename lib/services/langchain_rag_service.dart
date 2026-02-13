@@ -13,7 +13,7 @@ import 'package:flutter/foundation.dart';
 class LangChainRAGService extends ChangeNotifier {
   // State management
   bool _isInitialized = false;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String? _error;
   int _documentCount = 0;
 

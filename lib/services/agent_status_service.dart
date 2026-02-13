@@ -27,7 +27,8 @@ class AgentStatus {
       id: json['sessionId'] ?? '',
       name: json['key']?.split(':')?.last ?? 'Unknown',
       status: json['abortedLastRun'] == true ? 'error' : 'active',
-      activity: 'Model: ${json['model'] ?? 'unknown'} (${json['inputTokens'] ?? 0} in, ${json['outputTokens'] ?? 0} out)',
+      activity:
+          'Model: ${json['model'] ?? 'unknown'} (${json['inputTokens'] ?? 0} in, ${json['outputTokens'] ?? 0} out)',
       lastUpdate: json['updatedAt']?.toString(),
     );
   }
@@ -41,7 +42,6 @@ class AgentStatusService {
   final LocalBrain? _db;
   Timer? _pollTimer;
   int _consecutiveErrors = 0;
-  static const int _maxConsecutiveErrors = 5;
   static const _uuid = Uuid();
 
   final StreamController<List<AgentStatus>> _statusController =
@@ -85,16 +85,17 @@ class AgentStatusService {
   /// Schedule next poll with backoff if needed
   void _scheduleNextPoll() {
     _pollTimer?.cancel();
-    
+
     Duration nextDelay = _pollInterval;
     if (_consecutiveErrors > 0) {
       // Exponential backoff: base interval * 2^errors (max 32x interval)
       int exponent = _consecutiveErrors > 5 ? 5 : _consecutiveErrors;
       nextDelay = _pollInterval * (1 << exponent);
-      _logger.d('Applying backoff: polling in ${nextDelay.inSeconds}s (errors: $_consecutiveErrors)');
+      _logger.d(
+          'Applying backoff: polling in ${nextDelay.inSeconds}s (errors: $_consecutiveErrors)');
     }
 
-    _pollTimer = Timer(nextDelay, () => _poll());
+    _pollTimer = Timer(nextDelay, _poll);
   }
 
   /// Stop polling for agent status
@@ -116,31 +117,32 @@ class AgentStatusService {
 
         if (data is Map<String, dynamic> && data.containsKey('sessions')) {
           final sessions = data['sessions'] as List<dynamic>;
-          final statuses =
-              sessions.map((e) => AgentStatus.fromJson(e as Map<String, dynamic>)).toList();
+          final statuses = sessions
+              .map((e) => AgentStatus.fromJson(e as Map<String, dynamic>))
+              .toList();
           _cachedStatuses = statuses;
           _statusController.add(statuses);
           _errorController.add(null); // Clear error
           _consecutiveErrors = 0; // Reset on success
           _logger.d('Polled agent status: ${statuses.length} sessions');
-          
+
           // Save to Local Brain
           if (_db != null) {
             for (final agent in statuses) {
-              await _db!.upsertAgent(AgentsCompanion(
+              await _db.upsertAgent(AgentsCompanion(
                 id: Value(agent.id),
-                name: Value(agent.name ?? 'Unknown'),
+                name: Value(agent.name),
                 agentId: Value(agent.id),
                 type: const Value('custom'),
                 status: Value(agent.status),
                 activity: Value(agent.activity),
-                lastUpdate: Value(agent.lastUpdate != null 
-                  ? DateTime.tryParse(agent.lastUpdate!) 
-                  : null),
+                lastUpdate: Value(agent.lastUpdate != null
+                    ? DateTime.tryParse(agent.lastUpdate!)
+                    : null),
                 updatedAt: Value(DateTime.now()),
               ));
-              
-              await _db!.addAgentEvent(AgentEventsCompanion(
+
+              await _db.addAgentEvent(AgentEventsCompanion(
                 id: Value(_uuid.v4()),
                 agentId: Value(agent.id),
                 eventType: const Value('status_update'),
@@ -156,9 +158,9 @@ class AgentStatusService {
             _logger.d('Saved ${statuses.length} agents to LocalBrain');
           }
         } else {
-           _consecutiveErrors++;
-           _errorController.add('Invalid data from server');
-           _logger.w('Invalid status data received');
+          _consecutiveErrors++;
+          _errorController.add('Invalid data from server');
+          _logger.w('Invalid status data received');
         }
       } else {
         _consecutiveErrors++;
@@ -170,7 +172,8 @@ class AgentStatusService {
       _errorController.add('Connection error: $e');
       _logger.e('Error polling agent status: $e');
     } finally {
-      if (_pollTimer != null) { // Only reschedule if we haven't stopped
+      if (_pollTimer != null) {
+        // Only reschedule if we haven't stopped
         _scheduleNextPoll();
       }
     }

@@ -16,9 +16,10 @@ import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../components/conversation_list.dart';
+import '../../widgets/capacity_gauge.dart';
 import '../../services/auth_service.dart';
-import '../../services/connection_manager_service.dart';
 import '../../services/web_download_prompt_service.dart';
+import '../../services/google_workspace_service.dart';
 
 /// Main layout for the chat interface, handling responsiveness and sidebar toggle.
 class HomeLayout extends StatefulWidget {
@@ -253,7 +254,102 @@ class _HeaderBar extends StatelessWidget {
             onPressed: () => context.go('/admin-center'),
           ),
           SizedBox(width: spacing.m),
+          const _EmailStatusIndicator(),
+          SizedBox(width: spacing.m),
           const _UserMenu(),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmailStatusIndicator extends StatelessWidget {
+  const _EmailStatusIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GoogleWorkspaceService>(
+      builder: (context, workspaceService, child) {
+        final isConnected = workspaceService.connectedAccounts.isNotEmpty;
+        final isLoading = workspaceService.isLoading;
+
+        if (isLoading) {
+          return const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          );
+        }
+
+        return IconButton(
+          icon: Icon(
+            isConnected ? Icons.workspace_premium : Icons.mail_outline,
+            color: isConnected ? Colors.greenAccent : Colors.white70,
+          ),
+          tooltip: isConnected ? 'Check Workspace' : 'Connect Google Workspace',
+          onPressed: () async {
+            if (!isConnected) {
+              await workspaceService.connectAccount();
+            } else {
+              final email = workspaceService.connectedAccounts.first;
+              final messages = await workspaceService.getUnreadMessages(email);
+              final events = await workspaceService.getTodayEvents(email);
+              if (context.mounted) {
+                _showWorkspacePopup(context, messages, events);
+              }
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _showWorkspacePopup(BuildContext context, List<Map<String, dynamic>> messages, List<Map<String, dynamic>> events) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Google Workspace'),
+        content: SizedBox(
+          width: 500,
+          height: 400,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Upcoming Events', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Divider(),
+                if (events.isEmpty)
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No events for today'))
+                else
+                  ...events.map((e) => ListTile(
+                    title: Text(e['summary']),
+                    subtitle: Text('${e['start']} - ${e['end']}'),
+                    leading: const Icon(Icons.calendar_today, size: 20),
+                  )),
+                const SizedBox(height: 20),
+                const Text('Unread Emails', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Divider(),
+                if (messages.isEmpty)
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No unread messages'))
+                else
+                  ...messages.map((m) => ListTile(
+                    title: Text(m['subject'], maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: Text('${m['from']} • ${m['date']}'),
+                    isThreeLine: true,
+                    leading: const Icon(Icons.email, size: 20),
+                  )),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );
@@ -377,29 +473,37 @@ class _SidebarPane extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<StreamingChatService>(
       builder: (context, chatService, child) {
-        return ConversationList(
-          conversations: chatService.conversations,
-          selectedConversation: chatService.currentConversation,
-          onConversationSelected: (conversationId) {
-            final conversation = chatService.conversations.firstWhere(
-              (c) => c.id == conversationId,
-            );
-            chatService.selectConversation(conversation);
-          },
-          onConversationDeleted: (conversationId) {
-            final conversation = chatService.conversations.firstWhere(
-              (c) => c.id == conversationId,
-            );
-            chatService.deleteConversation(conversation);
-          },
-          onConversationRenamed: (conversationId, newTitle) {
-            final conversation = chatService.conversations.firstWhere(
-              (c) => c.id == conversationId,
-            );
-            chatService.updateConversationTitle(conversation, newTitle);
-          },
-          onNewConversation: () => chatService.createConversation(),
-          isCollapsed: false,
+        return Column(
+          children: [
+            const CapacityGaugeWidget(),
+            const Divider(),
+            Expanded(
+              child: ConversationList(
+                conversations: chatService.conversations,
+                selectedConversation: chatService.currentConversation,
+                onConversationSelected: (conversationId) {
+                  final conversation = chatService.conversations.firstWhere(
+                    (c) => c.id == conversationId,
+                  );
+                  chatService.selectConversation(conversation);
+                },
+                onConversationDeleted: (conversationId) {
+                  final conversation = chatService.conversations.firstWhere(
+                    (c) => c.id == conversationId,
+                  );
+                  chatService.deleteConversation(conversation);
+                },
+                onConversationRenamed: (conversationId, newTitle) {
+                  final conversation = chatService.conversations.firstWhere(
+                    (c) => c.id == conversationId,
+                  );
+                  chatService.updateConversationTitle(conversation, newTitle);
+                },
+                onNewConversation: () => chatService.createConversation(),
+                isCollapsed: false,
+              ),
+            ),
+          ],
         );
       },
     );

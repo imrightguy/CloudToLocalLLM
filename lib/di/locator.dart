@@ -33,7 +33,7 @@ import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
 import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
 import 'package:cloudtolocalllm/services/admin_center_service.dart';
-import 'package:cloudtolocalllm/services/gmail_service.dart';
+import 'package:cloudtolocalllm/services/google_workspace_service.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
@@ -42,6 +42,11 @@ import 'package:cloudtolocalllm/services/token_storage_service.dart';
 import 'package:cloudtolocalllm/database/local_brain.dart';
 import 'package:cloudtolocalllm/services/brain_sync_service.dart';
 import 'package:cloudtolocalllm/services/full_context_indexer.dart';
+import 'package:cloudtolocalllm/services/rate_limit_manager.dart';
+import 'package:cloudtolocalllm/services/router_server.dart';
+import 'package:cloudtolocalllm/services/providers/zhipu_adapter.dart';
+import 'package:cloudtolocalllm/services/providers/google_adapter.dart';
+import 'package:cloudtolocalllm/services/providers/moonshot_adapter.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 final GetIt serviceLocator = GetIt.instance;
@@ -91,6 +96,26 @@ Future<void> setupCoreServices() async {
   // Full Context Indexer - Manages system-wide file indexing in local brain
   final fullContextIndexer = FullContextIndexer(localBrain);
   serviceLocator.registerSingleton<FullContextIndexer>(fullContextIndexer);
+
+  // LLM Router Services
+  final rateLimitManager = RateLimitManager(localBrain);
+  serviceLocator.registerSingleton<RateLimitManager>(rateLimitManager);
+
+  final routerServer = RouterServer(
+    rateLimitManager: rateLimitManager,
+    providers: {
+      'zhipu':
+          ZhipuAdapter(apiKey: const String.fromEnvironment('GLM_API_KEY')),
+      'google':
+          GoogleAdapter(apiKey: const String.fromEnvironment('GEMINI_API_KEY')),
+      'moonshot':
+          MoonshotAdapter(apiKey: const String.fromEnvironment('KIMI_API_KEY')),
+    },
+  );
+  serviceLocator.registerSingleton<RouterServer>(routerServer);
+
+  // Start the router server in the background
+  unawaited(routerServer.start());
 
   // Authentication Provider - Using platform-specific provider
   late AuthProvider authProvider;
@@ -500,12 +525,12 @@ Future<void> setupAuthenticatedServices() async {
     final adminCenterService = AdminCenterService(authService: authService);
     serviceLocator.registerSingleton<AdminCenterService>(adminCenterService);
 
-    // Gmail service - handles personal Gmail integrations
-    final gmailService = GmailService(
-      authService: authService,
+    // Google Workspace service - handles personal Gmail/Calendar integrations
+    final googleWorkspaceService = GoogleWorkspaceService(
       tokenStorage: serviceLocator.get<TokenStorageService>(),
     );
-    serviceLocator.registerSingleton<GmailService>(gmailService);
+    serviceLocator
+        .registerSingleton<GoogleWorkspaceService>(googleWorkspaceService);
 
     debugPrint(
         '[ServiceLocator] Authenticated services registered successfully');

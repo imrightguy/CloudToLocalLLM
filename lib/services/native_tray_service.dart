@@ -87,7 +87,8 @@ class NativeTrayService with TrayListener {
       _onQuit = onQuit;
 
       // Initialize tray manager
-      await trayManager.setIcon(_getTrayIconPath(TrayConnectionStatus.disconnected));
+      await trayManager
+          .setIcon(_getTrayIconPath(TrayConnectionStatus.disconnected));
 
       // Listen to connection changes
       if (_connectionManager != null) {
@@ -101,10 +102,12 @@ class NativeTrayService with TrayListener {
       trayManager.addListener(this);
 
       _isInitialized = true;
-      appLogger.info('[NativeTray] Native tray service initialized successfully');
+      appLogger
+          .info('[NativeTray] Native tray service initialized successfully');
       return true;
     } catch (e) {
-      appLogger.error('[NativeTray] Failed to initialize tray service', error: e);
+      appLogger.error('[NativeTray] Failed to initialize tray service',
+          error: e);
       return false;
     }
   }
@@ -189,7 +192,8 @@ class NativeTrayService with TrayListener {
       );
 
       await trayManager.setContextMenu(menu);
-      await trayManager.setToolTip('CloudToLocalLLM - ${_getStatusLabel(status)}');
+      await trayManager
+          .setToolTip('CloudToLocalLLM - ${_getStatusLabel(status)}');
     } catch (e) {
       appLogger.error('[NativeTray] Failed to update tray menu', error: e);
     }
@@ -255,7 +259,7 @@ class NativeTrayService with TrayListener {
   /// Dispose tray service
   Future<void> dispose() async {
     _updateDebounceTimer?.cancel();
-    _statusSubscription?.cancel();
+    await _statusSubscription?.cancel();
     _connectionManager?.removeListener(_onConnectionStatusChanged);
     trayManager.removeListener(this);
     await trayManager.destroy();

@@ -1,7 +1,5 @@
-import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { specs } from '../swagger-config.js';
-import { getAuthMiddleware } from '../middleware/pipeline.js';
 import adminRoutes from './admin.js';
 import adminUserRoutes from './admin/users.js';
 import adminSubscriptionRoutes from './admin/subscriptions.js';
@@ -53,14 +51,12 @@ import databasePerformanceRoutes from './database-performance.js';
 import turnCredentialsRoutes from './turn-credentials.js';
 import { createTunnelRoutes } from '../tunnel/tunnel-routes.js';
 import { createMonitoringRoutes } from './monitoring.js';
-import { createConversationRoutes } from './conversations.js';
 import { authenticateJWT } from '../middleware/auth.js';
 import serviceVersionHandler from './service-version.js';
 import { addTierInfo } from '../middleware/tier-check.js';
 import { authenticateComposite } from '../middleware/composite-auth.js';
 import {
   dbHealthHandler,
-  setSshProxy,
   handleOllamaProxyRequest,
   userTierHandler,
   versionInfoHandler,
@@ -128,11 +124,11 @@ export function setupRoutes(
     res.send(specs);
   });
 
-  // Auth middleware wrapper
-  async function authenticateToken(req, res, next) {
-    const authMiddleware = getAuthMiddleware();
-    return authMiddleware(req, res, next);
-  }
+  // Auth middleware wrapper (kept for potential future use)
+  // async function authenticateToken(req, res, next) {
+  //   const authMiddleware = getAuthMiddleware();
+  //   return authMiddleware(req, res, next);
+  // }
 
   // Create tunnel and monitoring routes
   const tunnelRouter = createTunnelRoutes({}, sshProxy, logger, sshAuthService);

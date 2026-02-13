@@ -131,6 +131,41 @@ class FileContentCache extends Table {
 }
 
 // ============================================================================
+// RATE LIMIT TABLES
+// ============================================================================
+
+/// Table for tracking LLM model capacity and usage
+class ModelCapacity extends Table {
+  TextColumn get modelId => text()();
+  TextColumn get provider => text()(); // zhipu, google, moonshot
+  TextColumn get displayName => text().nullable()();
+  IntColumn get concurrentUsed => integer().withDefault(const Constant(0))();
+  IntColumn get concurrentLimit => integer()();
+  IntColumn get tpmUsed => integer().withDefault(const Constant(0))();
+  IntColumn get tpmLimit => integer().nullable()();
+  IntColumn get rpmUsed => integer().withDefault(const Constant(0))();
+  IntColumn get rpmLimit => integer().nullable()();
+  DateTimeColumn get lastUpdated => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get status => text().withDefault(const Constant('active'))(); // active, degraded, offline
+
+  @override
+  Set<Column> get primaryKey => {modelId};
+}
+
+/// Table for tracking LLM requests and queue
+class LlmRequests extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get requestId => text()();
+  TextColumn get modelId => text().references(ModelCapacity, #modelId)();
+  TextColumn get status => text().withDefault(const Constant('pending'))(); // pending, active, completed, failed
+  IntColumn get promptTokens => integer().nullable()();
+  IntColumn get completionTokens => integer().nullable()();
+  DateTimeColumn get startedAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get completedAt => dateTime().nullable()();
+  TextColumn get errorMessage => text().nullable()();
+}
+
+// ============================================================================
 // DATABASE CLASS
 // ============================================================================
 
@@ -145,17 +180,20 @@ class FileContentCache extends Table {
   SyncQueue,
   FileIndex,
   FileContentCache,
+  ModelCapacity,
+  LlmRequests,
 ])
 class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) async {
       await m.createAll();
+      await _populateInitialRateLimits();
     },
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
@@ -166,8 +204,139 @@ class LocalBrain extends _$LocalBrain {
         await m.createTable(fileIndex);
         await m.createTable(fileContentCache);
       }
+      if (from < 3) {
+        // Add rate limit tables for v3
+        await m.createTable(modelCapacity);
+        await m.createTable(llmRequests);
+        await _populateInitialRateLimits();
+      }
     },
   );
+
+  /// Populate initial rate limits
+  Future<void> _populateInitialRateLimits() async {
+    // GLM (Zhipu)
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'glm-4-plus',
+      provider: 'zhipu',
+      displayName: const Value('GLM-4 Plus'),
+      concurrentLimit: 20,
+    ), mode: InsertMode.insertOrIgnore);
+    
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'glm-4-32b-0414-128k',
+      provider: 'zhipu',
+      displayName: const Value('GLM-4 32B'),
+      concurrentLimit: 15,
+    ), mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'glm-4.5',
+      provider: 'zhipu',
+      displayName: const Value('GLM-4.5'),
+      concurrentLimit: 10,
+    ), mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'glm-4.7',
+      provider: 'zhipu',
+      displayName: const Value('GLM-4.7'),
+      concurrentLimit: 3,
+    ), mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'glm-4.7-flash',
+      provider: 'zhipu',
+      displayName: const Value('GLM-4.7 Flash'),
+      concurrentLimit: 1,
+    ), mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'glm-5',
+      provider: 'zhipu',
+      displayName: const Value('GLM-5'),
+      concurrentLimit: 1,
+    ), mode: InsertMode.insertOrIgnore);
+
+    // Kimi (Moonshot)
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'kimi-k2.5',
+      provider: 'moonshot',
+      displayName: const Value('Kimi K2.5'),
+      concurrentLimit: 5, // Estimate
+    ), mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'kimi-k2-thinking',
+      provider: 'moonshot',
+      displayName: const Value('Kimi K2 Thinking'),
+      concurrentLimit: 3, // Estimate
+    ), mode: InsertMode.insertOrIgnore);
+
+    // Gemini (Google)
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'gemini-3-flash',
+      provider: 'google',
+      displayName: const Value('Gemini 3 Flash'),
+      concurrentLimit: 60,
+    ), mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
+      modelId: 'gemini-3-pro',
+      provider: 'google',
+      displayName: const Value('Gemini 3 Pro'),
+      concurrentLimit: 60,
+    ), mode: InsertMode.insertOrIgnore);
+  }
+
+  // ==========================================================================
+  // RATE LIMIT DAO
+  // ==========================================================================
+
+  /// Get capacity for a model
+  Future<ModelCapacityData?> getModelCapacity(String modelId) =>
+      (select(modelCapacity)..where((t) => t.modelId.equals(modelId))).getSingleOrNull();
+
+  /// Get all model capacities
+  Future<List<ModelCapacityData>> getAllModelCapacities() =>
+      select(modelCapacity).get();
+
+  /// Watch all model capacities (for UI gauge)
+  Stream<List<ModelCapacityData>> watchAllModelCapacities() =>
+      select(modelCapacity).watch();
+
+  /// Update usage
+  Future<void> updateUsage(String modelId, int concurrentChange) async {
+    // This needs to be a raw query or transaction to be atomic-ish
+    // But for Drift/SQLite, a simple read-modify-write in transaction works
+    await transaction(() async {
+      final model = await (select(modelCapacity)..where((t) => t.modelId.equals(modelId))).getSingle();
+      final newUsage = model.concurrentUsed + concurrentChange;
+      
+      await (update(modelCapacity)..where((t) => t.modelId.equals(modelId))).write(
+        ModelCapacityCompanion(
+          concurrentUsed: Value(newUsage < 0 ? 0 : newUsage), // Prevent negative
+          lastUpdated: Value(DateTime.now()),
+        ),
+      );
+    });
+  }
+
+  /// Sync from API header (Trust but Verify)
+  Future<void> syncUsageFromHeader(String modelId, int remaining) async {
+     await transaction(() async {
+      final model = await (select(modelCapacity)..where((t) => t.modelId.equals(modelId))).getSingle();
+      // If API says 50 remaining and limit is 60, then used is 10.
+      final calculatedUsed = model.concurrentLimit - remaining;
+      
+      await (update(modelCapacity)..where((t) => t.modelId.equals(modelId))).write(
+        ModelCapacityCompanion(
+          concurrentUsed: Value(calculatedUsed < 0 ? 0 : calculatedUsed),
+          lastUpdated: Value(DateTime.now()),
+        ),
+      );
+    });
+  }
 
   // ==========================================================================
   // CONVERSATION DAO

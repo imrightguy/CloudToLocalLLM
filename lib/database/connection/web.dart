@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 
@@ -11,7 +12,8 @@ QueryExecutor openConnection() {
     );
 
     if (result.missingFeatures.isNotEmpty) {
-      print('Warning: Missing browser features for Drift: ${result.missingFeatures}');
+      debugPrint(
+          'Warning: Missing browser features for Drift: ${result.missingFeatures}');
     }
 
     return result.resolvedExecutor;

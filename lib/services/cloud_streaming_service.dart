@@ -79,23 +79,20 @@ class CloudStreamingService extends StreamingService {
       stopwatch.stop();
 
       // if (response.statusCode == 200) {
-        _connection = StreamingConnection.connected(_baseUrl).copyWith(
-          latency: Duration(milliseconds: stopwatch.elapsedMilliseconds),
-        );
+      _connection = StreamingConnection.connected(_baseUrl).copyWith(
+        latency: Duration(milliseconds: stopwatch.elapsedMilliseconds),
+      );
 
-        if (_config.enableHeartbeat) {
-          _startHeartbeat();
-        }
+      if (_config.enableHeartbeat) {
+        _startHeartbeat();
+      }
 
-        // Establish WebSocket connection for streaming (Optional in OpenAI compatible)
-        // await _establishWebSocket();
+      notifyListeners();
 
-        notifyListeners();
-
-        debugPrint(
-          '☁ [CloudStreaming] Connected to OpenClaw Gateway '
-          '(${stopwatch.elapsedMilliseconds}ms)',
-        );
+      debugPrint(
+        '☁ [CloudStreaming] Connected to OpenClaw Gateway '
+        '(${stopwatch.elapsedMilliseconds}ms)',
+      );
       // } else {
       //   throw StreamingException(
       //     'Failed to connect: HTTP ${response.statusCode}',
@@ -166,7 +163,9 @@ class CloudStreamingService extends StreamingService {
       debugPrint('☁ [CloudStreaming] Starting stream for model: $model');
 
       final baseHeaders = await _getHeaders();
-      final endpoint = _baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
+      final endpoint = _baseUrl.endsWith('/v1')
+          ? '/chat/completions'
+          : '/v1/chat/completions';
 
       final response = await _dio.post(
         endpoint,
@@ -199,7 +198,7 @@ class CloudStreamingService extends StreamingService {
         final trimmedLine = line.trim();
         if (trimmedLine.isEmpty) continue;
         if (!trimmedLine.startsWith('data: ')) continue;
-        
+
         final dataStr = trimmedLine.substring(6).trim();
         if (dataStr == '[DONE]') break;
 
@@ -212,10 +211,12 @@ class CloudStreamingService extends StreamingService {
           final reasoning = delta['reasoning_content'] as String?;
 
           if (kDebugMode) {
-            debugPrint('☁ [CloudStreaming] Chunk - Content: ${content?.length ?? "null"}, Reasoning: ${reasoning?.length ?? "null"}');
+            debugPrint(
+                '☁ [CloudStreaming] Chunk - Content: ${content?.length ?? "null"}, Reasoning: ${reasoning?.length ?? "null"}');
           }
 
-          if ((content != null && content.isNotEmpty) || (reasoning != null && reasoning.isNotEmpty)) {
+          if ((content != null && content.isNotEmpty) ||
+              (reasoning != null && reasoning.isNotEmpty)) {
             final message = StreamingMessage.chunk(
               id: messageId,
               conversationId: conversationId,
@@ -331,62 +332,6 @@ class CloudStreamingService extends StreamingService {
     }
 
     return headers;
-  }
-
-  /// Establish WebSocket connection for real-time communication
-  Future<void> _establishWebSocket() async {
-    try {
-      final wsUrl = _baseUrl
-          .replaceFirst('https://', 'wss://')
-          .replaceFirst('http://', 'ws://');
-      final wsUri = Uri.parse('$wsUrl/ws/stream');
-
-      _channel = WebSocketChannel.connect(wsUri);
-
-      _channel!.stream.listen(
-        (data) {
-          try {
-            final message = json.decode(data as String);
-            _handleWebSocketMessage(message);
-          } catch (e) {
-            debugPrint(
-              '☁ [CloudStreaming] Error parsing WebSocket message: $e',
-            );
-          }
-        },
-        onError: (error) {
-          debugPrint('☁ [CloudStreaming] WebSocket error: $error');
-          _channel = null;
-        },
-        onDone: () {
-          debugPrint('☁ [CloudStreaming] WebSocket connection closed');
-          _channel = null;
-        },
-      );
-
-      debugPrint('☁ [CloudStreaming] WebSocket connection established');
-    } catch (e) {
-      debugPrint('☁ [CloudStreaming] Failed to establish WebSocket: $e');
-      // WebSocket is optional, continue without it
-    }
-  }
-
-  /// Handle incoming WebSocket messages
-  void _handleWebSocketMessage(Map<String, dynamic> message) {
-    final type = message['type'] as String?;
-
-    switch (type) {
-      case 'ping':
-        // Respond to ping with pong
-        _channel?.sink.add(json.encode({'type': 'pong'}));
-        break;
-      case 'status':
-        // Handle status updates
-        debugPrint('☁ [CloudStreaming] Status update: ${message['status']}');
-        break;
-      default:
-        debugPrint('☁ [CloudStreaming] Unknown message type: $type');
-    }
   }
 
   /// Start heartbeat timer

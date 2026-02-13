@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:async';
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 import '../database/local_brain.dart';
@@ -28,28 +28,30 @@ class FullContextIndexer {
 
     _isIndexing = true;
     _progressController.add(IndexingProgress.started());
-    
+
     final stopwatch = Stopwatch()..start();
     int totalFiles = 0;
     int totalDirs = 0;
     int errors = 0;
 
     try {
-      print('[FullContext] Starting full index of ${directories.length} directories...');
+      debugPrint(
+          '[FullContext] Starting full index of ${directories.length} directories...');
 
       for (final dirPath in directories) {
         final dir = Directory(dirPath);
         if (!await dir.exists()) {
-          print('[FullContext] Directory not found: $dirPath');
+          debugPrint('[FullContext] Directory not found: $dirPath');
           continue;
         }
 
-        await for (final entity in dir.list(recursive: true, followLinks: false)) {
+        await for (final entity
+            in dir.list(recursive: true, followLinks: false)) {
           try {
             if (entity is File) {
               await _indexFile(entity);
               totalFiles++;
-              
+
               // Emit progress every 100 files
               if (totalFiles % 100 == 0) {
                 _progressController.add(IndexingProgress.inProgress(
@@ -64,14 +66,15 @@ class FullContextIndexer {
           } catch (e) {
             errors++;
             if (errors <= 10) {
-              print('[FullContext] Error indexing ${entity.path}: $e');
+              debugPrint('[FullContext] Error indexing ${entity.path}: $e');
             }
           }
         }
       }
 
       stopwatch.stop();
-      print('[FullContext] Indexing completed: $totalFiles files, $totalDirs dirs in ${stopwatch.elapsed}');
+      debugPrint(
+          '[FullContext] Indexing completed: $totalFiles files, $totalDirs dirs in ${stopwatch.elapsed}');
 
       final result = IndexingResult(
         success: true,
@@ -82,12 +85,11 @@ class FullContextIndexer {
       );
       _progressController.add(IndexingProgress.completed(result));
       return result;
-
     } catch (e, stack) {
       stopwatch.stop();
-      print('[FullContext] Indexing failed: $e');
-      print('[FullContext] Stack: $stack');
-      
+      debugPrint('[FullContext] Indexing failed: $e');
+      debugPrint('[FullContext] Stack: $stack');
+
       final result = IndexingResult(
         success: false,
         filesIndexed: totalFiles,
@@ -108,9 +110,10 @@ class FullContextIndexer {
     final stat = await file.stat();
     final path = file.path;
     final filename = path.split(Platform.pathSeparator).last;
-    final ext = filename.contains('.') ? filename.split('.').last.toLowerCase() : null;
+    final ext =
+        filename.contains('.') ? filename.split('.').last.toLowerCase() : null;
     final parentPath = path.substring(0, path.length - filename.length - 1);
-    
+
     // Calculate content hash for small files (< 10MB)
     String? contentHash;
     if (stat.size < 10 * 1024 * 1024) {
@@ -156,9 +159,10 @@ class FullContextIndexer {
   }
 
   /// Perform incremental scan (only modified files)
-  Future<IndexingResult> performIncrementalScan(List<String> directories) async {
-    print('[FullContext] Starting incremental scan...');
-    
+  Future<IndexingResult> performIncrementalScan(
+      List<String> directories) async {
+    debugPrint('[FullContext] Starting incremental scan...');
+
     final stopwatch = Stopwatch()..start();
     int updated = 0;
     int removed = 0;
@@ -166,22 +170,24 @@ class FullContextIndexer {
     try {
       // Get all indexed paths
       final indexedCount = await _db.getIndexedFileCount();
-      print('[FullContext] Current index: $indexedCount entries');
+      debugPrint('[FullContext] Current index: $indexedCount entries');
 
       // Check each indexed file still exists and is up to date
       // Note: This is simplified - for large indexes we'd need batching
-      
+
       for (final dirPath in directories) {
         final dir = Directory(dirPath);
         if (!await dir.exists()) continue;
 
-        await for (final entity in dir.list(recursive: true, followLinks: false)) {
+        await for (final entity
+            in dir.list(recursive: true, followLinks: false)) {
           if (entity is File) {
             final existing = await _db.getFileByPath(entity.path);
             final stat = await entity.stat();
-            
+
             // Update if new or modified
-            if (existing == null || existing.modifiedAt?.isBefore(stat.modified) != false) {
+            if (existing == null ||
+                existing.modifiedAt?.isBefore(stat.modified) != false) {
               await _indexFile(entity);
               updated++;
             }
@@ -190,7 +196,8 @@ class FullContextIndexer {
       }
 
       stopwatch.stop();
-      print('[FullContext] Incremental scan completed: $updated updated, $removed removed');
+      debugPrint(
+          '[FullContext] Incremental scan completed: $updated updated, $removed removed');
 
       return IndexingResult(
         success: true,
@@ -199,10 +206,9 @@ class FullContextIndexer {
         errors: 0,
         duration: stopwatch.elapsed,
       );
-
     } catch (e) {
       stopwatch.stop();
-      print('[FullContext] Incremental scan failed: $e');
+      debugPrint('[FullContext] Incremental scan failed: $e');
       return IndexingResult(
         success: false,
         filesIndexed: updated,
@@ -225,54 +231,65 @@ class FullContextIndexer {
   }
 
   /// Search indexed files by name
-  Future<List<FileSearchResult>> searchFiles(String query, {int limit = 50}) async {
+  Future<List<FileSearchResult>> searchFiles(String query,
+      {int limit = 50}) async {
     final results = await _db.searchFilesByName(query, limit: limit);
-    return results.map((f) => FileSearchResult(
-      path: f.path,
-      filename: f.filename,
-      isDirectory: f.isDirectory,
-      size: f.size,
-      modifiedAt: f.modifiedAt,
-    )).toList();
+    return results
+        .map((f) => FileSearchResult(
+              path: f.path,
+              filename: f.filename,
+              isDirectory: f.isDirectory,
+              size: f.size,
+              modifiedAt: f.modifiedAt,
+            ))
+        .toList();
   }
 
   /// Search indexed files by path pattern
-  Future<List<FileSearchResult>> searchByPath(String pattern, {int limit = 50}) async {
+  Future<List<FileSearchResult>> searchByPath(String pattern,
+      {int limit = 50}) async {
     final results = await _db.searchFilesByPath(pattern, limit: limit);
-    return results.map((f) => FileSearchResult(
-      path: f.path,
-      filename: f.filename,
-      isDirectory: f.isDirectory,
-      size: f.size,
-      modifiedAt: f.modifiedAt,
-    )).toList();
+    return results
+        .map((f) => FileSearchResult(
+              path: f.path,
+              filename: f.filename,
+              isDirectory: f.isDirectory,
+              size: f.size,
+              modifiedAt: f.modifiedAt,
+            ))
+        .toList();
   }
 
   /// Get files by extension
-  Future<List<FileSearchResult>> getFilesByExtension(String ext, {int limit = 100}) async {
-    final results = await _db.getFilesByExtension(ext.toLowerCase(), limit: limit);
-    return results.map((f) => FileSearchResult(
-      path: f.path,
-      filename: f.filename,
-      isDirectory: f.isDirectory,
-      size: f.size,
-      modifiedAt: f.modifiedAt,
-    )).toList();
+  Future<List<FileSearchResult>> getFilesByExtension(String ext,
+      {int limit = 100}) async {
+    final results =
+        await _db.getFilesByExtension(ext.toLowerCase(), limit: limit);
+    return results
+        .map((f) => FileSearchResult(
+              path: f.path,
+              filename: f.filename,
+              isDirectory: f.isDirectory,
+              size: f.size,
+              modifiedAt: f.modifiedAt,
+            ))
+        .toList();
   }
 
   /// Clear file index
   Future<int> clearIndex() async {
-    print('[FullContext] Clearing file index...');
+    debugPrint('[FullContext] Clearing file index...');
     final count = await _db.clearFileIndex();
-    print('[FullContext] Cleared $count entries');
+    debugPrint('[FullContext] Cleared $count entries');
     return count;
   }
 
   /// Cache file content for small files
-  Future<void> cacheFileContent(String filePath, {int maxSize = 1024 * 1024}) async {
+  Future<void> cacheFileContent(String filePath,
+      {int maxSize = 1024 * 1024}) async {
     final file = File(filePath);
     if (!await file.exists()) return;
-    
+
     final stat = await file.stat();
     if (stat.size > maxSize) return;
 
@@ -296,10 +313,12 @@ class FullContextIndexer {
   }
 
   /// Start watching directories for changes (periodic scan)
-  void startWatching(List<String> directories, {Duration interval = const Duration(minutes: 5)}) {
+  void startWatching(List<String> directories,
+      {Duration interval = const Duration(minutes: 5)}) {
     stopWatching();
-    print('[FullContext] Starting directory watch (interval: ${interval.inMinutes}m)');
-    
+    debugPrint(
+        '[FullContext] Starting directory watch (interval: ${interval.inMinutes}m)');
+
     _watchTimer = Timer.periodic(interval, (_) async {
       if (!_isIndexing) {
         await performIncrementalScan(directories);
@@ -316,7 +335,7 @@ class FullContextIndexer {
   /// Get mime type from extension
   String? _getMimeType(String? ext) {
     if (ext == null) return null;
-    
+
     final mimeTypes = {
       'dart': 'application/vnd.dart',
       'json': 'application/json',
@@ -337,7 +356,7 @@ class FullContextIndexer {
       'tar': 'application/x-tar',
       'gz': 'application/gzip',
     };
-    
+
     return mimeTypes[ext.toLowerCase()];
   }
 
@@ -356,7 +375,8 @@ abstract class IndexingProgress {
     required int filesProcessed,
     required int directoriesProcessed,
   }) = IndexingInProgress;
-  const factory IndexingProgress.completed(IndexingResult result) = IndexingCompleted;
+  const factory IndexingProgress.completed(IndexingResult result) =
+      IndexingCompleted;
   const factory IndexingProgress.error(String message) = IndexingError;
 }
 
@@ -410,7 +430,8 @@ class IndexingResult {
         error = 'Indexing already in progress';
 
   @override
-  String toString() => 'IndexingResult(success: $success, files: $filesIndexed, '
+  String toString() =>
+      'IndexingResult(success: $success, files: $filesIndexed, '
       'dirs: $directoriesIndexed, errors: $errors, duration: ${duration.inSeconds}s)';
 }
 
@@ -431,15 +452,16 @@ class FileSearchResult {
   });
 
   @override
-  String toString() => isDirectory 
-      ? '📁 $filename/'
-      : '📄 $filename (${_formatSize(size)})';
+  String toString() =>
+      isDirectory ? '📁 $filename/' : '📄 $filename (${_formatSize(size)})';
 
   static String _formatSize(int? bytes) {
     if (bytes == null) return '?';
     if (bytes < 1024) return '${bytes}B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)}KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)}MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)}GB';
   }
 }

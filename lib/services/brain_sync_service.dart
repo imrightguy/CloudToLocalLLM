@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:drift/drift.dart';
 import '../database/local_brain.dart';
@@ -23,11 +24,12 @@ class BrainSyncService {
   /// Start periodic sync
   void startSync({Duration interval = const Duration(minutes: 5)}) {
     stopSync();
-    print('[BrainSync] Starting periodic sync (interval: ${interval.inMinutes}m)');
-    
+    debugPrint(
+        '[BrainSync] Starting periodic sync (interval: ${interval.inMinutes}m)');
+
     // Immediate first sync
     sync();
-    
+
     // Schedule periodic sync
     _syncTimer = Timer.periodic(interval, (_) => sync());
   }
@@ -36,31 +38,31 @@ class BrainSyncService {
   void stopSync() {
     _syncTimer?.cancel();
     _syncTimer = null;
-    print('[BrainSync] Sync stopped');
+    debugPrint('[BrainSync] Sync stopped');
   }
 
   /// Perform sync (upload local events, download cloud events)
   Future<SyncResult> sync() async {
     if (_isSyncing) {
-      print('[BrainSync] Sync already in progress, skipping');
+      debugPrint('[BrainSync] Sync already in progress, skipping');
       return SyncResult.alreadyRunning();
     }
 
     _isSyncing = true;
     _syncController.add(const SyncStatus.syncing());
-    
+
     final stopwatch = Stopwatch()..start();
     int uploaded = 0;
     int downloaded = 0;
     int failed = 0;
 
     try {
-      print('[BrainSync] Starting sync...');
+      debugPrint('[BrainSync] Starting sync...');
 
       // 1. Upload unsynced local events
       final unsynced = await _db.getUnsyncedEvents(limit: 100);
       if (unsynced.isNotEmpty) {
-        print('[BrainSync] Uploading ${unsynced.length} events...');
+        debugPrint('[BrainSync] Uploading ${unsynced.length} events...');
         final uploadedIds = await _uploadEvents(unsynced);
         await _db.markEventsSynced(uploadedIds);
         uploaded = uploadedIds.length;
@@ -70,7 +72,8 @@ class BrainSyncService {
       // 2. Process sync queue (pending operations)
       final pendingOps = await _db.getPendingSyncItems(limit: 50);
       if (pendingOps.isNotEmpty) {
-        print('[BrainSync] Processing ${pendingOps.length} pending operations...');
+        debugPrint(
+            '[BrainSync] Processing ${pendingOps.length} pending operations...');
         for (final op in pendingOps) {
           final success = await _processSyncOperation(op);
           if (success) {
@@ -88,8 +91,10 @@ class BrainSyncService {
       }
 
       stopwatch.stop();
-      print('[BrainSync] Sync completed in ${stopwatch.elapsedMilliseconds}ms');
-      print('[BrainSync] Uploaded: $uploaded, Downloaded: $downloaded, Failed: $failed');
+      debugPrint(
+          '[BrainSync] Sync completed in ${stopwatch.elapsedMilliseconds}ms');
+      debugPrint(
+          '[BrainSync] Uploaded: $uploaded, Downloaded: $downloaded, Failed: $failed');
 
       final result = SyncResult(
         success: true,
@@ -100,12 +105,11 @@ class BrainSyncService {
       );
       _syncController.add(SyncStatus.completed(result));
       return result;
-
     } catch (e, stack) {
       stopwatch.stop();
-      print('[BrainSync] Sync failed: $e');
-      print('[BrainSync] Stack: $stack');
-      
+      debugPrint('[BrainSync] Sync failed: $e');
+      debugPrint('[BrainSync] Stack: $stack');
+
       final result = SyncResult(
         success: false,
         uploaded: uploaded,
@@ -124,7 +128,7 @@ class BrainSyncService {
   /// Upload events to cloud backend
   Future<List<String>> _uploadEvents(List<AgentEvent> events) async {
     final uploadedIds = <String>[];
-    
+
     for (final event in events) {
       try {
         final payload = {
@@ -148,10 +152,11 @@ class BrainSyncService {
         if (response.statusCode == 200 || response.statusCode == 201) {
           uploadedIds.add(event.id);
         } else {
-          print('[BrainSync] Failed to upload event ${event.id}: ${response.statusCode}');
+          debugPrint(
+              '[BrainSync] Failed to upload event ${event.id}: ${response.statusCode}');
         }
       } catch (e) {
-        print('[BrainSync] Error uploading event ${event.id}: $e');
+        debugPrint('[BrainSync] Error uploading event ${event.id}: $e');
       }
     }
 
@@ -161,8 +166,9 @@ class BrainSyncService {
   /// Process a sync queue operation
   Future<bool> _processSyncOperation(SyncQueueData op) async {
     try {
-      final url = Uri.parse('$_backendUrl/api/${op.targetTable}/${op.recordId}');
-      
+      final url =
+          Uri.parse('$_backendUrl/api/${op.targetTable}/${op.recordId}');
+
       late final http.Response response;
       switch (op.operation) {
         case 'insert':
@@ -185,13 +191,13 @@ class BrainSyncService {
           );
           break;
         default:
-          print('[BrainSync] Unknown operation: ${op.operation}');
+          debugPrint('[BrainSync] Unknown operation: ${op.operation}');
           return false;
       }
 
       return response.statusCode >= 200 && response.statusCode < 300;
     } catch (e) {
-      print('[BrainSync] Error processing operation ${op.id}: $e');
+      debugPrint('[BrainSync] Error processing operation ${op.id}: $e');
       return false;
     }
   }
@@ -209,7 +215,7 @@ class BrainSyncService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final events = data['events'] as List<dynamic>? ?? [];
-        
+
         for (final eventJson in events) {
           await _db.addAgentEvent(AgentEventsCompanion(
             id: Value(eventJson['id'] as String),
@@ -222,11 +228,11 @@ class BrainSyncService {
             syncedAt: Value(DateTime.now()),
           ));
         }
-        
+
         return events.length;
       }
     } catch (e) {
-      print('[BrainSync] Error downloading events: $e');
+      debugPrint('[BrainSync] Error downloading events: $e');
     }
     return 0;
   }
@@ -287,7 +293,8 @@ class BrainSyncService {
 
   String _randomString(int length) {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return List.generate(length, (_) => chars[DateTime.now().microsecond % chars.length]).join();
+    return List.generate(
+        length, (_) => chars[DateTime.now().microsecond % chars.length]).join();
   }
 
   /// Dispose

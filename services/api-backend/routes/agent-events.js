@@ -7,9 +7,10 @@ const router = express.Router();
 
 // Middleware: Verify webhook signature
 const verifyWebhookSignature = (req, res, next) => {
-  const webhookSecret = process.env.OPENCLAW_WEBHOOK_SECRET || process.env.JWT_SECRET;
+  const webhookSecret =
+    process.env.OPENCLAW_WEBHOOK_SECRET || process.env.JWT_SECRET;
   const signature = req.headers['x-openclaw-signature'];
-  
+
   if (!webhookSecret) {
     return next(); // Skip verification if secret not configured (for dev)
   }
@@ -36,7 +37,7 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
     // 1. Find or create agent
     let agentResult = await pool.query(
       'SELECT * FROM agents WHERE agent_id = $1',
-      [agent_id]
+      [agent_id],
     );
     let agent = agentResult.rows[0];
 
@@ -51,8 +52,8 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
           agent_id,
           event_data.agent_type || 'custom',
           'idle',
-          `https://api.dicebear.com/7.x/bottts/svg?seed=${agent_id}`
-        ]
+          `https://api.dicebear.com/7.x/bottts/svg?seed=${agent_id}`,
+        ],
       );
       agent = newAgentResult.rows[0];
     }
@@ -61,14 +62,14 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
     const newStatus = determineAgentStatus(event_type, event_data);
     await pool.query(
       'UPDATE agents SET status = $1, updated_at = NOW() WHERE id = $2',
-      [newStatus, agent.id]
+      [newStatus, agent.id],
     );
 
     // 3. Store event
     await pool.query(
       `INSERT INTO agent_events (agent_id, event_type, event_data, correlation_id)
        VALUES ($1, $2, $3, $4)`,
-      [agent.id, event_type, JSON.stringify(event_data), correlation_id]
+      [agent.id, event_type, JSON.stringify(event_data), correlation_id],
     );
 
     // 4. Update metrics (placeholder)
@@ -82,8 +83,8 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
         agent_id: agent.agent_id,
         name: agent.name,
         status: newStatus,
-        event: { event_type, event_data }
-      }
+        event: { event_type, event_data },
+      },
     });
 
     res.json({ success: true, agent_id: agent.id });
@@ -93,7 +94,7 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
   }
 });
 
-function determineAgentStatus(eventType, eventData) {
+function determineAgentStatus(eventType, _eventData) {
   switch (eventType) {
     case 'message:received':
     case 'message:thinking':
