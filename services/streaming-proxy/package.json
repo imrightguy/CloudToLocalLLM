@@ -28,7 +28,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.67.2",
     "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
     "@opentelemetry/sdk-node": "^0.203.0",
-    "@sentry/node": "^10.5.0",
+    "@sentry/node": "^10.34.0",
     "@sentry/profiling-node": "^10.29.0",
     "@types/jsonwebtoken": "^9.0.10",
     "express": "^5.1.0",
