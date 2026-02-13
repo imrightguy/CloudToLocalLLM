@@ -96,28 +96,13 @@ void _runAppCommon() {
     usePathUrlStrategy();
   }
 
-  // Run the app inside a zone to catch async errors
-  runZonedGuarded(
-    () {
-      debugPrint('[Main] Starting runApp...');
-      runApp(
-        SentryWidget(
-          child: CloudToLocalLLMApp(bootstrapFuture: appLoadFuture),
-        ),
-      );
-      debugPrint('[Main] runApp completed');
-    },
-    (error, stack) {
-      debugPrint('Uncaught error: $error');
-      debugPrint('Stack trace: $stack');
-      try {
-        Sentry.captureException(
-          error,
-          stackTrace: stack,
-        );
-      } catch (_) {} // Ignore Sentry errors here
-    },
+  debugPrint('[Main] Starting runApp...');
+  runApp(
+    SentryWidget(
+      child: CloudToLocalLLMApp(bootstrapFuture: appLoadFuture),
+    ),
   );
+  debugPrint('[Main] runApp completed');
 }
 
 void _initializeClientLogBuffer() {
