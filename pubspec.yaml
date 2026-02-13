@@ -77,7 +77,7 @@ dependencies:
 
   # LangChain Integration
   langchain: ^0.8.0+1
-  langchain_ollama: ^0.4.0+1
+  langchain_ollama: ^0.4.1
   langchain_community: ^0.4.0+1
   get_it: ^9.0.5
   logger: ^2.6.2
