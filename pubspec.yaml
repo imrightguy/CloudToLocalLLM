@@ -13,7 +13,7 @@ dependencies:
   shelf: ^1.4.1
   shelf_router: ^1.1.4
 
-  sentry_flutter: ^9.8.0
+  sentry_flutter: ^9.13.0
   flutter:
     sdk: flutter
 
