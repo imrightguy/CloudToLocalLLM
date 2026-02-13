@@ -590,7 +590,7 @@ export class WebhookPayloadTransformer {
    * @param {string} script - Custom script (IGNORED for security)
    * @returns {Object} Original payload (custom scripts disabled)
    */
-  _applyCustomTransform(payload, script) {
+  _applyCustomTransform(payload, _script) {
     logger.warn(
       '[WebhookPayloadTransformer] Custom transformation disabled for security. Use map/filter/enrich instead.',
     );
