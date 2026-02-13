@@ -39,6 +39,9 @@ test_output*.txt
 .env*
 .env.*.local
 
+# MCP configuration (contains API keys)
+.kilocode/mcp.json
+
 # IDE and editor files
 .idea/
 .vscode/
