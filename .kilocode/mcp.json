@@ -6,7 +6,8 @@
       "env": {
         "DEFAULT_MINIMUM_TOKENS": ""
       },
-      "alwaysAllow": ["resolve-library-id", "query-docs"]
+      "alwaysAllow": ["query-docs", "resolve-library-id"],
+      "disabled": true
     },
     "memory": {
       "command": "npx",
@@ -26,13 +27,14 @@
     "sequentialthinking": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "alwaysAllow": ["sequentialthinking"]
+      "alwaysAllow": ["sequentialthinking"],
+      "disabled": false
     },
     "zai-vision": {
       "command": "npx",
       "args": ["-y", "@z_ai/mcp-server"],
       "env": {
-        "Z_AI_API_KEY": "dfb640fd6112445b8ce7fd4797f33173.yJxeEauFg11KoZg5",
+        "Z_AI_API_KEY": "${Z_AI_API_KEY}",
         "Z_AI_MODE": "ZAI"
       },
       "alwaysAllow": [
@@ -43,14 +45,15 @@
         "analyze_data_visualization",
         "ui_diff_check",
         "image_analysis",
-        "video_analysis"
+        "video_analysis",
+        "analyze_image"
       ]
     },
     "web-reader": {
       "type": "streamable-http",
       "url": "https://api.z.ai/api/mcp/web_reader/mcp",
       "headers": {
-        "Authorization": "Bearer dfb640fd6112445b8ce7fd4797f33173.yJxeEauFg11KoZg5"
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
       "alwaysAllow": ["webReader"]
     },
@@ -58,7 +61,7 @@
       "type": "streamable-http",
       "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
       "headers": {
-        "Authorization": "Bearer dfb640fd6112445b8ce7fd4797f33173.yJxeEauFg11KoZg5"
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
       "alwaysAllow": ["webSearchPrime"]
     },
@@ -66,7 +69,7 @@
       "type": "streamable-http",
       "url": "https://api.z.ai/api/mcp/zread/mcp",
       "headers": {
-        "Authorization": "Bearer dfb640fd6112445b8ce7fd4797f33173.yJxeEauFg11KoZg5"
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
       "alwaysAllow": ["search_doc", "get_repo_structure", "read_file"]
     }
