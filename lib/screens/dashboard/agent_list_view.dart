@@ -135,7 +135,7 @@ class _AgentListViewState extends State<AgentListView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.robots,
+                    Icons.smart_toy,
                     size: 64,
                     color: Colors.grey.shade400,
                   ),
@@ -332,7 +332,7 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(result.message ?? 'Unknown error'),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
     );
@@ -348,7 +348,7 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(result.message ?? 'Unknown error'),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
     );
@@ -364,7 +364,7 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(result.message ?? 'Unknown error'),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
     );

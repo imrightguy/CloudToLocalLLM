@@ -47,7 +47,7 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(result.message ?? 'Unknown error'),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
     );
@@ -63,7 +63,7 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(result.message ?? 'Unknown error'),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
     );
@@ -79,7 +79,7 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(result.message),
+        content: Text(result.message ?? 'Unknown error'),
         backgroundColor: result.success ? Colors.green : Colors.red,
       ),
     );

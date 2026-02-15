@@ -214,8 +214,9 @@ class ConnectionManagerService extends ChangeNotifier {
     try {
       await for (final data in _wsChannel!.stream.timeout(
         const Duration(seconds: 10),
-        onTimeout: () {
-          throw TimeoutException('Handshake timed out after 10 seconds');
+        onTimeout: (sink) {
+          sink.add(TimeoutException('Handshake timed out after 10 seconds'));
+          sink.close();
         },
       ).take(5)) {
         final msg = jsonDecode(data as String);

@@ -532,7 +532,6 @@ Future<void> setupAuthenticatedServices() async {
 
     // Agent Lifecycle Service - manages agent start/stop/restart operations
     debugPrint('[ServiceLocator] Initializing AgentLifecycleService...');
-    final connectionManager = serviceLocator.get<ConnectionManagerService>();
     final agentLifecycleService = AgentLifecycleService(
       connectionManager: connectionManager,
     );

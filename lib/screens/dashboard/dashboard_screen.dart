@@ -184,7 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.robots, size: 28),
+                    const Icon(Icons.smart_toy, size: 28),
                     const SizedBox(width: 12),
                     Text(
                       'Agent Overview',
