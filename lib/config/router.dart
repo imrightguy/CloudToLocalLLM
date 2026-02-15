@@ -19,6 +19,9 @@ import '../screens/admin/admin_lazy.dart' as admin_lazy;
 // Agent status screen is lazy-loaded
 import '../screens/agent_status_lazy.dart' as agent_status_lazy;
 
+// Dashboard screens (lazy-loaded)
+import '../screens/dashboard_lazy.dart' as dashboard_lazy;
+
 // Marketing screens (web-only) are lazy-loaded
 import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
 
@@ -145,6 +148,7 @@ class AppRouter {
         ...settings_lazy.settingsRoutes,
         ...admin_lazy.adminRoutes,
         ...agent_status_lazy.agentStatusRoutes,
+        ...dashboard_lazy.dashboardRoutes,
         ...gui_automation_lazy.guiAutomationRoutes,
         ...construction_lazy.constructionRoutes,
 

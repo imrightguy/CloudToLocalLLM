@@ -11,6 +11,7 @@ import '../utils/logger.dart';
 import '../config/app_config.dart';
 
 enum ConnectionType { none, local, cloud }
+enum GatewayHealthStatus { unknown, healthy, unhealthy, connecting, error }
 
 /// Connection Manager Service - manages connections to LLM providers
 /// Standardized on OpenClaw Gateway as the sole provider.
@@ -23,6 +24,9 @@ class ConnectionManagerService extends ChangeNotifier {
   List<String> _availableModels = [];
   WebSocketChannel? _wsChannel;
   bool _isConnected = false;
+  GatewayHealthStatus _healthStatus = GatewayHealthStatus.unknown;
+  String? _lastError;
+  DateTime? _lastSuccessfulConnection;
   final _responseCompleters = <String, Completer<String>>{};
   final _runIdToCompleter = <String, String>{}; // runId -> requestId mapping
 
@@ -36,15 +40,16 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   bool get isConnected => _isConnected;
+  GatewayHealthStatus get healthStatus => _healthStatus;
+  String? get lastError => _lastError;
+  DateTime? get lastSuccessfulConnection => _lastSuccessfulConnection;
 
   bool get hasLocalConnection =>
       true; // Force true since we standardized on OpenClaw
   bool get hasCloudConnection => _tunnelService.isConnected;
   bool get hasAnyConnection => true;
   String? get selectedModel => _selectedModel;
-  List<String> get availableModels => _availableModels.isNotEmpty
-      ? _availableModels
-      : ['google-antigravity/gemini-3-flash'];
+  List<String> get availableModels => _availableModels;
 
   ConnectionType getBestConnectionType() {
     return ConnectionType.local; // Always prefer local OpenClaw Gateway
@@ -122,38 +127,66 @@ class ConnectionManagerService extends ChangeNotifier {
         .replaceFirst('http://', 'ws://')
         .replaceFirst('https://', 'wss://');
 
+    _healthStatus = GatewayHealthStatus.connecting;
+    _lastError = null;
+    notifyListeners();
+
     try {
+      debugPrint('[ConnectionManager] Connecting to WebSocket: $wsUrl');
       _wsChannel = WebSocketChannel.connect(Uri.parse('$wsUrl/'));
-      
-      await _wsChannel!.ready;
-      
+
+      await _wsChannel!.ready.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('WebSocket connection timed out after 10 seconds');
+        },
+      );
+
       // Listen for responses in background
       _wsChannel!.stream.listen(
         (data) => _handleWebSocketMessage(data.toString()),
         onError: (e) {
-          debugPrint('[ConnectionManager] WebSocket error: $e');
+          final error = 'WebSocket error: $e';
+          debugPrint('[ConnectionManager] $error');
+          appLogger.error('[ConnectionManager] WebSocket error', error: e);
           _isConnected = false;
+          _healthStatus = GatewayHealthStatus.error;
+          _lastError = error;
+          notifyListeners();
         },
         onDone: () {
           debugPrint('[ConnectionManager] WebSocket closed');
           _isConnected = false;
+          _healthStatus = GatewayHealthStatus.unhealthy;
+          notifyListeners();
         },
       );
 
       // Do handshake
       await _performHandshake();
       _isConnected = true;
-      debugPrint('[ConnectionManager] WebSocket connected to OpenClaw');
-    } catch (e) {
-      debugPrint('[ConnectionManager] WebSocket connection failed: $e');
+      _healthStatus = GatewayHealthStatus.healthy;
+      _lastSuccessfulConnection = DateTime.now();
+      _lastError = null;
+      debugPrint('[ConnectionManager] ✓ WebSocket connected to OpenClaw Gateway');
+      notifyListeners();
+    } catch (e, stack) {
+      final error = 'WebSocket connection failed: $e';
+      debugPrint('[ConnectionManager] ✗ $error');
+      debugPrint('[ConnectionManager] Stack trace: $stack');
+      appLogger.error('[ConnectionManager] Connection failed', error: e, stackTrace: stack);
       _isConnected = false;
+      _healthStatus = GatewayHealthStatus.error;
+      _lastError = error;
+      notifyListeners();
+      rethrow;
     }
   }
 
   Future<void> _performHandshake() async {
     final token = await _authService.getAccessToken() ?? '';
     final id = DateTime.now().millisecondsSinceEpoch.toString();
-    
+
     final connectRequest = {
       'type': 'req',
       'id': id,
@@ -176,17 +209,28 @@ class ConnectionManagerService extends ChangeNotifier {
     };
 
     _wsChannel?.sink.add(jsonEncode(connectRequest));
-    
+
     // Wait for hello-ok by listening once
     try {
-      await for (final data in _wsChannel!.stream.take(5)) {
+      await for (final data in _wsChannel!.stream.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Handshake timed out after 10 seconds');
+        },
+      ).take(5)) {
         final msg = jsonDecode(data as String);
         if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
+          debugPrint('[ConnectionManager] ✓ Handshake successful');
           break;
+        } else if (msg['type'] == 'res' && msg['ok'] == false) {
+          final error = msg['error']?['message'] ?? 'Handshake failed';
+          throw Exception('Handshake rejected: $error');
         }
       }
-    } catch (e) {
-      debugPrint('[ConnectionManager] Handshake error: $e');
+    } catch (e, stack) {
+      debugPrint('[ConnectionManager] ✗ Handshake error: $e');
+      appLogger.error('[ConnectionManager] Handshake failed', error: e, stackTrace: stack);
+      rethrow;
     }
   }
 
@@ -265,19 +309,53 @@ class ConnectionManagerService extends ChangeNotifier {
 
     try {
       await _connectWebSocket();
-      
+
       if (_isConnected) {
-        _availableModels = ['google-antigravity/gemini-3-flash'];
-        debugPrint('[ConnectionManager] OpenClaw WebSocket verified and ready');
+        _availableModels = [];
+        debugPrint('[ConnectionManager] ✓ OpenClaw WebSocket verified and ready');
       } else {
-        _availableModels = ['google-antigravity/gemini-3-flash'];
-        debugPrint('[ConnectionManager] WebSocket connection failed');
+        _availableModels = [];
+        debugPrint('[ConnectionManager] ✗ WebSocket connection failed');
       }
-    } catch (e) {
-      debugPrint('[ConnectionManager] Connection test exception: $e');
-      _availableModels = ['google-antigravity/gemini-3-flash'];
+    } catch (e, stack) {
+      debugPrint('[ConnectionManager] ✗ Connection test exception: $e');
+      appLogger.error('[ConnectionManager] Connection test failed', error: e, stackTrace: stack);
+      _availableModels = [];
+      _healthStatus = GatewayHealthStatus.unhealthy;
+      _lastError = e.toString();
     }
     notifyListeners();
+  }
+
+  /// Check if OpenClaw Gateway is healthy
+  /// Returns true if connected and recently active
+  bool isGatewayHealthy() {
+    if (!_isConnected || _healthStatus != GatewayHealthStatus.healthy) {
+      return false;
+    }
+
+    // Consider unhealthy if no activity for 5 minutes
+    if (_lastSuccessfulConnection != null) {
+      final timeSinceLastConnection = DateTime.now().difference(_lastSuccessfulConnection!);
+      if (timeSinceLastConnection > const Duration(minutes: 5)) {
+        _healthStatus = GatewayHealthStatus.unhealthy;
+        notifyListeners();
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Get detailed gateway status for UI display
+  Map<String, dynamic> getGatewayStatus() {
+    return {
+      'isConnected': _isConnected,
+      'healthStatus': _healthStatus.name,
+      'lastError': _lastError,
+      'lastSuccessfulConnection': _lastSuccessfulConnection?.toIso8601String(),
+      'endpoint': AppConfig.defaultGatewayUrl,
+    };
   }
 
   void setSelectedModel(String model) {

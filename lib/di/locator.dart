@@ -48,6 +48,8 @@ import 'package:cloudtolocalllm/services/providers/zhipu_adapter.dart';
 import 'package:cloudtolocalllm/services/providers/google_adapter.dart';
 import 'package:cloudtolocalllm/services/providers/moonshot_adapter.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
+import 'package:cloudtolocalllm/services/agent_status_service.dart';
+import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -244,9 +246,7 @@ Future<void> setupCoreServices() async {
   );
 
   // Enhanced user tier service - can be created but won't initialize until auth
-  final enhancedUserTierService = EnhancedUserTierService(
-    authService: authService,
-  );
+  final enhancedUserTierService = EnhancedUserTierService();
   serviceLocator.registerSingleton<EnhancedUserTierService>(
     enhancedUserTierService,
   );
@@ -267,7 +267,22 @@ Future<void> setupCoreServices() async {
     if (!kIsWeb) {
       debugPrint(
           '[Locator] Desktop detected, auto-bootstrapping services for local use...');
-      unawaited(setupAuthenticatedServices());
+      // Wait for authenticated services to complete initialization
+      // with timeout to prevent blocking forever
+      try {
+        await setupAuthenticatedServices().timeout(
+          const Duration(seconds: 30),
+          onTimeout: () {
+            debugPrint('[Locator] ⚠ Authenticated services initialization timed out after 30s');
+            // Don't throw - allow app to continue with core services
+          },
+        );
+        debugPrint('[Locator] ✓ Authenticated services initialized');
+      } catch (e, stack) {
+        debugPrint('[Locator] ⚠ Authenticated services initialization failed: $e');
+        debugPrint('[Locator] Stack trace: $stack');
+        // Don't rethrow - allow app to continue with core services
+      }
     }
   } catch (e, stack) {
     debugPrint('[Locator] ❌ CRITICAL ERROR initializing AuthService: $e');
@@ -420,9 +435,7 @@ Future<void> setupAuthenticatedServices() async {
 
     // LangChain integration service - requires authentication for provider access
     debugPrint('[ServiceLocator] Initializing LangChainIntegrationService...');
-    final langchainIntegrationService = LangChainIntegrationService(
-      discoveryService: providerDiscoveryService,
-    );
+    final langchainIntegrationService = LangChainIntegrationService();
     try {
       await langchainIntegrationService
           .initializeProviders()
@@ -510,6 +523,20 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<UnifiedConnectionService>(
       unifiedConnectionService,
     );
+
+    // Agent Status Service - monitors OpenClaw Gateway agent status
+    debugPrint('[ServiceLocator] Initializing AgentStatusService...');
+    final localBrain = serviceLocator.get<LocalBrain>();
+    final agentStatusService = AgentStatusService(db: localBrain);
+    serviceLocator.registerSingleton<AgentStatusService>(agentStatusService);
+
+    // Agent Lifecycle Service - manages agent start/stop/restart operations
+    debugPrint('[ServiceLocator] Initializing AgentLifecycleService...');
+    final connectionManager = serviceLocator.get<ConnectionManagerService>();
+    final agentLifecycleService = AgentLifecycleService(
+      connectionManager: connectionManager,
+    );
+    serviceLocator.registerSingleton<AgentLifecycleService>(agentLifecycleService);
 
     // Admin services - require authentication and admin privileges
     final adminService = AdminService(authService: authService);

@@ -392,7 +392,10 @@ class Auth0AuthProvider implements AuthProvider {
             await auth0Web.credentials().timeout(const Duration(seconds: 3));
         if (credentials.accessToken.isNotEmpty) return credentials.accessToken;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Auth0Provider] ⚠ Failed to get credentials from Auth0Web: $e');
+      // Fall through to local storage retrieval
+    }
 
     String? token;
     if (kIsWeb) {

@@ -25,6 +25,9 @@ import 'package:cloudtolocalllm/services/log_buffer_service.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/google_workspace_service.dart';
+import 'package:cloudtolocalllm/services/connection_manager_service.dart';
+import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
+import 'package:cloudtolocalllm/services/agent_status_service.dart';
 import 'web_plugins_stub.dart'
     if (dart.library.html) 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cloudtolocalllm/widgets/tray_initializer.dart';
@@ -84,7 +87,10 @@ void _runAppCommon() {
       debugPrint('Bootstrap failed: $e');
       try {
         await Sentry.captureException(e, stackTrace: stack);
-      } catch (_) {} // Ignore Sentry errors here
+      } catch (sentryError) {
+        debugPrint('[Main] ⚠ Sentry capture failed: $sentryError');
+        // Continue without Sentry - don't let error reporting failure crash the app
+      }
       // Return minimal bootstrap data to allow app to load error screen or retry
       return AppBootstrapData(isWeb: kIsWeb, supportsNativeShell: !kIsWeb);
     }
@@ -223,7 +229,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
 
       debugPrint('[App] Adding AuthService...');
       if (di.serviceLocator.isRegistered<AuthService>()) {
-        providersList.add(ChangeNotifierProvider<AuthService>.value(
+        providersList.add(Provider<AuthService>.value(
           value: di.serviceLocator.get<AuthService>(),
         ));
         debugPrint('[App] AuthService added');
@@ -237,9 +243,9 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       _addProviderIfAvailable<AppInitializationService>(
           providersList, 'AppInitializationService');
       _addProviderIfAvailable<ThemeProvider>(providersList, 'ThemeProvider');
-      _addProviderIfAvailable<ProviderDiscoveryService>(
+      _addProviderIfAvailableNoChangeNotifier<ProviderDiscoveryService>(
           providersList, 'ProviderDiscoveryService');
-      _addProviderIfAvailable<ProviderConfigurationManager>(
+      _addProviderIfAvailableNoChangeNotifier<ProviderConfigurationManager>(
           providersList, 'ProviderConfigurationManager');
       _addProviderIfAvailable<DesktopClientDetectionService>(
           providersList, 'DesktopClientDetectionService');
@@ -247,10 +253,18 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
           providersList, 'WebDownloadPromptService');
       _addProviderIfAvailable<EnhancedUserTierService>(
           providersList, 'EnhancedUserTierService');
-      _addProviderIfAvailable<LangChainPromptService>(
+      _addProviderIfAvailableNoChangeNotifier<LangChainPromptService>(
           providersList, 'LangChainPromptService');
       _addProviderIfAvailable<PlatformDetectionService>(
           providersList, 'PlatformDetectionService');
+
+      // Add agent-related services
+      _addProviderIfAvailable<AgentLifecycleService>(
+          providersList, 'AgentLifecycleService');
+      _addProviderIfAvailableNoChangeNotifier<AgentStatusService>(
+          providersList, 'AgentStatusService');
+      _addProviderIfAvailableNoChangeNotifier<ConnectionManagerService>(
+          providersList, 'ConnectionManagerService');
 
       // Add Google Workspace Service
       _addProviderIfAvailable<GoogleWorkspaceService>(
@@ -346,6 +360,21 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       debugPrint('[App] Error adding $name: $e');
     }
   }
+
+  void _addProviderIfAvailableNoChangeNotifier<T extends Object>(
+      List<SingleChildWidget> providers, String name) {
+    try {
+      if (di.serviceLocator.isRegistered<T>()) {
+        final service = di.serviceLocator.get<T>();
+        providers.add(Provider<T>.value(value: service));
+        debugPrint('[App] $name added');
+      } else {
+        debugPrint('[App] $name not registered, skipping');
+      }
+    } catch (e) {
+      debugPrint('[App] Error adding $name: $e');
+    }
+  }
 }
 
 Future<void> _handleCommandLineArgs(List<String> args) async {
@@ -427,7 +456,10 @@ class _AppRouterHostState extends State<_AppRouterHost> {
     ThemeProvider? themeProvider;
     try {
       themeProvider = context.watch<ThemeProvider>();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Main] ⚠ ThemeProvider not available: $e');
+      // themeProvider remains null, will use ThemeMode.system as fallback
+    }
 
     return WindowListenerWidget(
       child: MaterialApp.router(

@@ -58,8 +58,9 @@ class LogBufferService {
       }
 
       _enqueueForUpload(logEntry, level: level, rawMessage: message);
-    } catch (_) {
-      // Fallback silently – logging should never crash the app.
+    } catch (e) {
+      // Logging should never crash the app, but log the error for debugging
+      debugPrint('[LogBuffer] ⚠ Failed to write log: $e');
     }
   }
 
@@ -69,7 +70,9 @@ class LogBufferService {
     }
     try {
       window.localStorage.remove(storageKey);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[LogBuffer] ⚠ Failed to clear logs: $e');
+    }
   }
 
   String? export() {

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import '../database/local_brain.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
+import '../config/app_config.dart';
 
 /// Agent status data model
 class AgentStatus {
@@ -52,15 +54,17 @@ class AgentStatusService {
 
   /// Create a new agent status service
   ///
-  /// [statusUrl] URL to poll for agent status (default: http://localhost:3000/status.json)
+  /// [statusUrl] URL to poll for agent status (default: uses AppConfig.defaultGatewayUrl)
   /// [pollInterval] How often to poll (default: 2 seconds)
   AgentStatusService({
     String? statusUrl,
     Duration? pollInterval,
     LocalBrain? db,
-  })  : _statusUrl = statusUrl ?? 'http://127.0.0.1:3000/status.json',
+  })  : _statusUrl = statusUrl ?? '${AppConfig.defaultGatewayUrl}/status.json',
         _pollInterval = pollInterval ?? const Duration(seconds: 2),
-        _db = db;
+        _db = db {
+    debugPrint('[AgentStatusService] Initialized with URL: $_statusUrl');
+  }
 
   /// Stream of agent status updates
   Stream<List<AgentStatus>> get statusStream => _statusController.stream;
@@ -164,13 +168,18 @@ class AgentStatusService {
         }
       } else {
         _consecutiveErrors++;
-        _errorController.add('Server returned ${response.statusCode}');
+        final error = 'Server returned ${response.statusCode}';
+        _errorController.add(error);
         _logger.w('Failed to poll agent status: ${response.statusCode}');
+        debugPrint('[AgentStatusService] ⚠ $error');
       }
-    } catch (e) {
+    } catch (e, stack) {
       _consecutiveErrors++;
-      _errorController.add('Connection error: $e');
+      final error = 'Connection error: $e';
+      _errorController.add(error);
       _logger.e('Error polling agent status: $e');
+      debugPrint('[AgentStatusService] ✗ $error');
+      debugPrint('[AgentStatusService] Stack: $stack');
     } finally {
       if (_pollTimer != null) {
         // Only reschedule if we haven't stopped

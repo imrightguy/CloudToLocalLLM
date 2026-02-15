@@ -242,7 +242,10 @@ class CloudStreamingService extends StreamingService {
       String? token;
       try {
         token = await _authService.getAccessToken();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('☁ [CloudStreaming] ⚠ Failed to get access token: $e');
+        // Continue without token - some providers may not require authentication
+      }
       await ws.connect(_baseUrl, authToken: token ?? '');
     }
 
