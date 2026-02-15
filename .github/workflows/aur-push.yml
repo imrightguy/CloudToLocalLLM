@@ -17,6 +17,7 @@ jobs:
         with:
           repository: CloudToLocalLLM-online/CloudToLocalLLM
           path: aur-package
+          ref: main
           sparse-checkout: |
             aur-package
           sparse-checkout-cone-mode: false
@@ -57,4 +58,5 @@ jobs:
           git remote add aur git@aur.archlinux.org:cloudtolocalllm.git || true
           echo "=== Pushing to AUR ==="
           git remote -v
-          git push aur master -v
+          # AUR uses main branch
+          git push aur main -v
