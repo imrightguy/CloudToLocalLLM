@@ -28,6 +28,7 @@ import 'package:cloudtolocalllm/services/google_workspace_service.dart';
 import 'package:cloudtolocalllm/services/connection_manager_service.dart';
 import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
 import 'package:cloudtolocalllm/services/agent_status_service.dart';
+import 'package:cloudtolocalllm/services/rate_limit_manager.dart';
 import 'web_plugins_stub.dart'
     if (dart.library.html) 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cloudtolocalllm/widgets/tray_initializer.dart';
@@ -265,6 +266,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
           providersList, 'AgentStatusService');
       _addProviderIfAvailableNoChangeNotifier<ConnectionManagerService>(
           providersList, 'ConnectionManagerService');
+      _addProviderIfAvailableNoChangeNotifier<RateLimitManager>(
+          providersList, 'RateLimitManager');
 
       // Add Google Workspace Service
       _addProviderIfAvailable<GoogleWorkspaceService>(
