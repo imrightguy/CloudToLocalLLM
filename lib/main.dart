@@ -229,7 +229,7 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
 
       debugPrint('[App] Adding AuthService...');
       if (di.serviceLocator.isRegistered<AuthService>()) {
-        providersList.add(Provider<AuthService>.value(
+        providersList.add(ListenableProvider<AuthService>.value(
           value: di.serviceLocator.get<AuthService>(),
         ));
         debugPrint('[App] AuthService added');
@@ -366,7 +366,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     try {
       if (di.serviceLocator.isRegistered<T>()) {
         final service = di.serviceLocator.get<T>();
-        providers.add(Provider<T>.value(value: service));
+        // Use InheritedProvider to avoid type checking warnings
+        providers.add(InheritedProvider<T>.value(value: service));
         debugPrint('[App] $name added');
       } else {
         debugPrint('[App] $name not registered, skipping');

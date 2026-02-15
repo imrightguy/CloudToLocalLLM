@@ -142,9 +142,66 @@ class ConnectionManagerService extends ChangeNotifier {
         },
       );
 
-      // Listen for responses in background
+      // Send handshake request
+      final token = await _authService.getAccessToken() ?? '';
+      final id = DateTime.now().millisecondsSinceEpoch.toString();
+
+      final connectRequest = {
+        'type': 'req',
+        'id': id,
+        'method': 'connect',
+        'params': {
+          'minProtocol': 3,
+          'maxProtocol': 3,
+          'client': {
+            'id': 'cloudtolocalllm',
+            'version': '10.1.187',
+            'platform': 'linux',
+            'mode': 'operator'
+          },
+          'role': 'operator',
+          'scopes': ['operator.read', 'operator.write'],
+          'auth': {'token': token},
+          'locale': 'en-US',
+          'userAgent': 'CloudToLocalLLM/10.1.187',
+        }
+      };
+
+      _wsChannel?.sink.add(jsonEncode(connectRequest));
+
+      // Set up stream listener with handshake completion tracking
+      final completer = Completer<void>();
+      bool handshakeReceived = false;
+
       _wsChannel!.stream.listen(
-        (data) => _handleWebSocketMessage(data.toString()),
+        (data) {
+          if (!handshakeReceived) {
+            // Handle handshake response
+            try {
+              final msg = jsonDecode(data as String);
+              if (msg['type'] == 'res' && msg['id'] == id) {
+                if (msg['payload']?['type'] == 'hello-ok') {
+                  debugPrint('[ConnectionManager] ✓ Handshake successful');
+                  handshakeReceived = true;
+                  _isConnected = true;
+                  _healthStatus = GatewayHealthStatus.healthy;
+                  _lastSuccessfulConnection = DateTime.now();
+                  _lastError = null;
+                  notifyListeners();
+                  completer.complete();
+                } else if (msg['ok'] == false) {
+                  final error = msg['error']?['message'] ?? 'Handshake failed';
+                  completer.completeError(Exception('Handshake rejected: $error'));
+                }
+              }
+            } catch (e) {
+              debugPrint('[ConnectionManager] Handshake parse error: $e');
+            }
+          } else {
+            // Handle normal messages after handshake
+            _handleWebSocketMessage(data.toString());
+          }
+        },
         onError: (e) {
           final error = 'WebSocket error: $e';
           debugPrint('[ConnectionManager] $error');
@@ -153,21 +210,27 @@ class ConnectionManagerService extends ChangeNotifier {
           _healthStatus = GatewayHealthStatus.error;
           _lastError = error;
           notifyListeners();
+          if (!completer.isCompleted) {
+            completer.completeError(e);
+          }
         },
         onDone: () {
           debugPrint('[ConnectionManager] WebSocket closed');
           _isConnected = false;
           _healthStatus = GatewayHealthStatus.unhealthy;
           notifyListeners();
+          if (!completer.isCompleted) {
+            completer.completeError(Exception('WebSocket closed during handshake'));
+          }
         },
       );
 
-      // Do handshake
-      await _performHandshake();
-      _isConnected = true;
-      _healthStatus = GatewayHealthStatus.healthy;
-      _lastSuccessfulConnection = DateTime.now();
-      _lastError = null;
+      // Wait for handshake to complete with timeout
+      await completer.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException('Handshake timed out after 10 seconds'),
+      );
+
       debugPrint('[ConnectionManager] ✓ WebSocket connected to OpenClaw Gateway');
       notifyListeners();
     } catch (e, stack) {
