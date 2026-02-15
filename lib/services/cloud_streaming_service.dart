@@ -11,6 +11,104 @@ import '../models/streaming_message.dart';
 import 'streaming_service.dart';
 import 'auth_service.dart';
 
+/// Shared WebSocket connection for streaming
+class _SharedWebSocket {
+  static _SharedWebSocket? _instance;
+  WebSocketChannel? _channel;
+  bool _isConnected = false;
+  final _messageController = StreamController<Map<String, dynamic>>.broadcast();
+  
+  Stream<Map<String, dynamic>> get messages => _messageController.stream;
+  bool get isConnected => _isConnected;
+  
+  static _SharedWebSocket get instance {
+    _instance ??= _instance = _SharedWebSocket._();
+    return _instance!;
+  }
+  
+  _SharedWebSocket._();
+  
+  String? _authToken;
+  
+  Future<void> connect(String baseUrl, {String? authToken}) async {
+    if (_channel != null && _isConnected) return;
+    
+    _authToken = authToken ?? '';
+    
+    final wsUrl = baseUrl
+        .replaceFirst('http://', 'ws://')
+        .replaceFirst('https://', 'wss://');
+    
+    _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/'));
+    await _channel!.ready;
+    
+    // Listen and broadcast messages
+    _channel!.stream.listen(
+      (data) {
+        final msg = jsonDecode(data.toString());
+        _messageController.add(msg);
+      },
+      onError: (e) {
+        debugPrint('☁ [_SharedWebSocket] Error: $e');
+        _isConnected = false;
+      },
+      onDone: () {
+        debugPrint('☁ [_SharedWebSocket] Connection closed');
+        _isConnected = false;
+      },
+    );
+    
+    // Do handshake with proper auth
+    final handshake = {
+      'type': 'req',
+      'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cloudtolocalllm',
+          'version': '10.1.187',
+          'platform': 'linux',
+          'mode': 'operator'
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write'],
+        'auth': {'token': _authToken},
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.187',
+      }
+    };
+    
+    _channel!.sink.add(jsonEncode(handshake));
+    _isConnected = true;
+    
+    debugPrint('☁ [_SharedWebSocket] Handshake sent, waiting for hello-ok');
+    
+    // Wait for hello-ok response
+    try {
+      await for (final msg in _messageController.stream.timeout(Duration(seconds: 10))) {
+        if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
+          debugPrint('☁ [_SharedWebSocket] Handshake complete');
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('☁ [_SharedWebSocket] Handshake timeout/error: $e');
+    }
+  }
+  
+  void send(Map<String, dynamic> msg) {
+    _channel?.sink.add(jsonEncode(msg));
+  }
+  
+  Future<void> disconnect() async {
+    await _channel?.sink.close();
+    _channel = null;
+    _isConnected = false;
+  }
+}
+
 /// Cloud streaming service implementation
 ///
 /// Handles streaming communication with cloud Ollama proxy through WebSocket
@@ -33,7 +131,7 @@ class CloudStreamingService extends StreamingService {
     String? baseUrl,
     StreamingConfig? config,
     required AuthService authService,
-  })  : _baseUrl = baseUrl ?? AppConfig.cloudGatewayUrl,
+  })  : _baseUrl = baseUrl ?? AppConfig.defaultGatewayUrl,  // Use local OpenClaw gateway
         _config = config ?? StreamingConfig.cloud(),
         _authService = authService {
     _setupDio();
@@ -135,8 +233,16 @@ class CloudStreamingService extends StreamingService {
     required String conversationId,
     List<Map<String, String>>? history,
   }) async* {
-    if (!_connection.isActive) {
-      await establishConnection();
+    // Use shared WebSocket connection
+    final ws = _SharedWebSocket.instance;
+    
+    if (!ws.isConnected) {
+      // Get auth token from auth service
+      String? token;
+      try {
+        token = await _authService.getAccessToken();
+      } catch (_) {}
+      await ws.connect(_baseUrl, authToken: token ?? '');
     }
 
     _connection = _connection.copyWith(
@@ -146,109 +252,95 @@ class CloudStreamingService extends StreamingService {
     notifyListeners();
 
     final messageId = 'msg_${DateTime.now().millisecondsSinceEpoch}';
+    final requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    final idempotencyKey = 'chat-$requestId';
     int sequence = 0;
+    String? runId;
 
     try {
-      final messages = [
-        if (history != null) ...history,
-        {'role': 'user', 'content': prompt},
-      ];
+      debugPrint('☁ [CloudStreaming] Starting chat.send for model: $model');
 
-      final requestBody = {
-        'model': model,
-        'messages': messages,
-        'stream': true,
+      // Send chat.send request with correct OpenClaw protocol params
+      final chatRequest = {
+        'type': 'req',
+        'id': requestId,
+        'method': 'chat.send',
+        'params': {
+          'sessionKey': 'cloudtolocalllm',
+          'message': prompt,
+          'idempotencyKey': idempotencyKey,
+        }
       };
 
-      debugPrint('☁ [CloudStreaming] Starting stream for model: $model');
+      ws.send(chatRequest);
 
-      final baseHeaders = await _getHeaders();
-      final endpoint = _baseUrl.endsWith('/v1')
-          ? '/chat/completions'
-          : '/v1/chat/completions';
-
-      final response = await _dio.post(
-        endpoint,
-        data: requestBody,
-        options: Options(
-          headers: {
-            ...baseHeaders,
-            'Accept': 'text/event-stream',
-          },
-          responseType: ResponseType.stream,
-        ),
-      );
-
-      if (response.statusCode != 200) {
-        throw StreamingException(
-          'Stream request failed: HTTP ${response.statusCode}',
-          code: 'STREAM_ERROR',
-        );
-      }
-
-      // Process streaming response (OpenAI SSE format)
-      // Using LineSplitter ensures we handle partial packets correctly
-      // We use .cast<List<int>>() to satisfy the type system for Utf8Decoder
-      final stream = response.data.stream.cast<List<int>>();
-      final lineStream = stream
-          .transform(convert.utf8.decoder)
-          .transform(const convert.LineSplitter());
-
-      await for (final line in lineStream) {
-        final trimmedLine = line.trim();
-        if (trimmedLine.isEmpty) continue;
-        if (!trimmedLine.startsWith('data: ')) continue;
-
-        final dataStr = trimmedLine.substring(6).trim();
-        if (dataStr == '[DONE]') break;
-
-        try {
-          final data = json.decode(dataStr);
-          final delta = data['choices']?[0]?['delta'];
-          if (delta == null) continue;
-
-          final content = delta['content'] as String?;
-          final reasoning = delta['reasoning_content'] as String?;
-
-          if (kDebugMode) {
-            debugPrint(
-                '☁ [CloudStreaming] Chunk - Content: ${content?.length ?? "null"}, Reasoning: ${reasoning?.length ?? "null"}');
+      // Listen for responses
+      await for (final msg in ws.messages) {
+        // Handle chat.send response (acknowledgment with runId)
+        if (msg['type'] == 'res' && msg['id'] == requestId) {
+          if (msg['ok'] == true) {
+            runId = msg['payload']?['runId'];
+            debugPrint('☁ [CloudStreaming] Chat started, runId: $runId');
+          } else {
+            throw Exception(msg['error']?['message'] ?? 'Chat request failed');
           }
-
-          if ((content != null && content.isNotEmpty) ||
-              (reasoning != null && reasoning.isNotEmpty)) {
-            final message = StreamingMessage.chunk(
-              id: messageId,
-              conversationId: conversationId,
-              chunk: content ?? '',
-              reasoning: reasoning,
-              sequence: sequence++,
-              model: model,
-            );
-
-            yield message;
-            _messageSubject.add(message);
+        }
+        
+        // Handle chat events (streaming text and final message)
+        if (msg['type'] == 'event' && msg['event'] == 'chat') {
+          final payload = msg['payload'] as Map<String, dynamic>?;
+          final eventRunId = payload?['runId'] as String?;
+          final state = payload?['state'] as String?;
+          
+          // Only process events for our run
+          if (runId != null && eventRunId == runId) {
+            if (state == 'final') {
+              // Extract final message content
+              final message = payload?['message'] as Map<String, dynamic>?;
+              final content = message?['content'] as List?;
+              if (content != null) {
+                for (final block in content) {
+                  if (block is Map && block['type'] == 'text') {
+                    final text = block['text'] as String? ?? '';
+                    if (text.isNotEmpty) {
+                      final chunk = StreamingMessage.chunk(
+                        id: messageId,
+                        conversationId: conversationId,
+                        chunk: text,
+                        sequence: sequence++,
+                        model: model,
+                      );
+                      yield chunk;
+                      _messageSubject.add(chunk);
+                    }
+                  }
+                }
+              }
+              
+              // Send complete message
+              final completeMessage = StreamingMessage.complete(
+                id: messageId,
+                conversationId: conversationId,
+                sequence: sequence,
+                model: model,
+              );
+              yield completeMessage;
+              _messageSubject.add(completeMessage);
+              break;
+            } else if (state == 'error') {
+              throw Exception(payload?['errorMessage'] ?? 'Chat error');
+            }
           }
-        } catch (e) {
-          debugPrint('☁ [CloudStreaming] Error parsing SSE line: $e');
         }
       }
-
-      final completeMessage = StreamingMessage.complete(
-        id: messageId,
-        conversationId: conversationId,
-        sequence: sequence,
-        model: model,
-      );
-
-      yield completeMessage;
-      _messageSubject.add(completeMessage);
 
       _connection = _connection.copyWith(
         state: StreamingConnectionState.connected,
         lastActivity: DateTime.now(),
       );
       notifyListeners();
+      
+      debugPrint('☁ [CloudStreaming] Stream completed');
     } catch (e) {
       final errorMessage = StreamingMessage.error(
         id: messageId,

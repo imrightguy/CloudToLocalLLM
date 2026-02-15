@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'tunnel_service.dart';
 import 'streaming_service.dart';
 import 'cloud_streaming_service.dart';
@@ -21,6 +21,10 @@ class ConnectionManagerService extends ChangeNotifier {
   String? _selectedModel;
   CloudStreamingService? _cloudStreamingService;
   List<String> _availableModels = [];
+  WebSocketChannel? _wsChannel;
+  bool _isConnected = false;
+  final _responseCompleters = <String, Completer<String>>{};
+  final _runIdToCompleter = <String, String>{}; // runId -> requestId mapping
 
   ConnectionManagerService({
     required TunnelService tunnelService,
@@ -30,6 +34,8 @@ class ConnectionManagerService extends ChangeNotifier {
     _tunnelService.addListener(_onConnectionChanged);
     _authService.addListener(_onAuthChanged);
   }
+
+  bool get isConnected => _isConnected;
 
   bool get hasLocalConnection =>
       true; // Force true since we standardized on OpenClaw
@@ -75,53 +81,168 @@ class ConnectionManagerService extends ChangeNotifier {
     required String message,
     List<Map<String, String>>? history,
   }) async {
-    final connectionType = getBestConnectionType();
+    if (!_isConnected) {
+      await _connectWebSocket();
+    }
 
-    if (connectionType == ConnectionType.none) {
+    if (!_isConnected) {
       throw LLMCommunicationError.providerNotFound();
     }
 
-    final baseUrl = connectionType == ConnectionType.local
-        ? AppConfig.defaultGatewayUrl
-        : AppConfig.cloudGatewayUrl;
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final completer = Completer<String>();
+    _responseCompleters[id] = completer;
 
-    // Ensure we don't double up on /v1
-    final chatEndpoint =
-        baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
+    // Use correct OpenClaw chat.send protocol
+    final request = {
+      'type': 'req',
+      'id': id,
+      'method': 'chat.send',
+      'params': {
+        'sessionKey': 'cloudtolocalllm',
+        'message': message,
+        'idempotencyKey': 'chat-$id',
+      }
+    };
+
+    _wsChannel?.sink.add(jsonEncode(request));
 
     try {
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl$chatEndpoint'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer your-token-here',
-            },
-            body: jsonEncode({
-              'model': model,
-              'messages': [
-                ...?history,
-                {'role': 'user', 'content': message},
-              ],
-            }),
-          )
-          .timeout(const Duration(seconds: 120));
+      return await completer.future.timeout(const Duration(seconds: 120));
+    } catch (e) {
+      _responseCompleters.remove(id);
+      rethrow;
+    }
+  }
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['choices'][0]['message']['content'] as String?;
-      } else {
-        throw LLMCommunicationError(
-          type: LLMCommunicationErrorType.modelError,
-          message: 'OpenClaw Gateway returned error: ${response.body}',
-          severity: ErrorSeverity.medium,
-          recoveryStrategy: RecoveryStrategy.retry,
-          httpStatusCode: response.statusCode,
-        );
+  Future<void> _connectWebSocket() async {
+    if (_wsChannel != null && _isConnected) return;
+
+    final wsUrl = AppConfig.defaultGatewayUrl
+        .replaceFirst('http://', 'ws://')
+        .replaceFirst('https://', 'wss://');
+
+    try {
+      _wsChannel = WebSocketChannel.connect(Uri.parse('$wsUrl/'));
+      
+      await _wsChannel!.ready;
+      
+      // Listen for responses in background
+      _wsChannel!.stream.listen(
+        (data) => _handleWebSocketMessage(data.toString()),
+        onError: (e) {
+          debugPrint('[ConnectionManager] WebSocket error: $e');
+          _isConnected = false;
+        },
+        onDone: () {
+          debugPrint('[ConnectionManager] WebSocket closed');
+          _isConnected = false;
+        },
+      );
+
+      // Do handshake
+      await _performHandshake();
+      _isConnected = true;
+      debugPrint('[ConnectionManager] WebSocket connected to OpenClaw');
+    } catch (e) {
+      debugPrint('[ConnectionManager] WebSocket connection failed: $e');
+      _isConnected = false;
+    }
+  }
+
+  Future<void> _performHandshake() async {
+    final token = await _authService.getAccessToken() ?? '';
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    
+    final connectRequest = {
+      'type': 'req',
+      'id': id,
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cloudtolocalllm',
+          'version': '10.1.187',
+          'platform': 'linux',
+          'mode': 'operator'
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write'],
+        'auth': {'token': token},
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.187',
+      }
+    };
+
+    _wsChannel?.sink.add(jsonEncode(connectRequest));
+    
+    // Wait for hello-ok by listening once
+    try {
+      await for (final data in _wsChannel!.stream.take(5)) {
+        final msg = jsonDecode(data as String);
+        if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
+          break;
+        }
       }
     } catch (e) {
-      appLogger.error('[ConnectionManager] Chat request failed: $e');
-      rethrow;
+      debugPrint('[ConnectionManager] Handshake error: $e');
+    }
+  }
+
+  void _handleWebSocketMessage(String data) {
+    final msg = jsonDecode(data);
+    
+    // Handle chat response (acknowledgment with runId)
+    if (msg['type'] == 'res' && msg['id'] != null) {
+      final completer = _responseCompleters[msg['id']];
+      if (completer != null && !completer.isCompleted) {
+        if (msg['ok'] == true) {
+          // chat.send returns runId, not the response yet
+          // Keep completer open for chat event with state='final'
+          final runId = msg['payload']?['runId'];
+          if (runId != null) {
+            // Store runId -> completer mapping for event handling
+            _runIdToCompleter[runId] = msg['id'];
+          }
+        } else {
+          _responseCompleters.remove(msg['id']);
+          completer.completeError(Exception(msg['error']?['message'] ?? 'Unknown error'));
+        }
+      }
+    }
+    
+    // Handle chat events (final message delivery)
+    if (msg['type'] == 'event' && msg['event'] == 'chat') {
+      final payload = msg['payload'] as Map<String, dynamic>?;
+      final runId = payload?['runId'] as String?;
+      final state = payload?['state'] as String?;
+      
+      if (runId != null && state == 'final') {
+        final reqId = _runIdToCompleter.remove(runId);
+        final completer = reqId != null ? _responseCompleters.remove(reqId) : null;
+        if (completer != null && !completer.isCompleted) {
+          final message = payload?['message'] as Map<String, dynamic>?;
+          final content = message?['content'] as List?;
+          if (content != null) {
+            final textBuffer = StringBuffer();
+            for (final block in content) {
+              if (block is Map && block['type'] == 'text') {
+                textBuffer.write(block['text'] ?? '');
+              }
+            }
+            completer.complete(textBuffer.toString());
+          } else {
+            completer.complete('');
+          }
+        }
+      } else if (state == 'error') {
+        final reqId = runId != null ? _runIdToCompleter.remove(runId) : null;
+        final completer = reqId != null ? _responseCompleters.remove(reqId) : null;
+        if (completer != null && !completer.isCompleted) {
+          completer.completeError(Exception(payload?['errorMessage'] ?? 'Chat error'));
+        }
+      }
     }
   }
 
@@ -140,40 +261,17 @@ class ConnectionManagerService extends ChangeNotifier {
 
   Future<void> testConnection() async {
     debugPrint(
-        '[ConnectionManager] Testing connection to ${AppConfig.defaultGatewayUrl}...');
-    final baseUrl = AppConfig.defaultGatewayUrl;
-    final chatEndpoint =
-        baseUrl.endsWith('/v1') ? '/chat/completions' : '/v1/chat/completions';
+        '[ConnectionManager] Testing WebSocket connection to ${AppConfig.defaultGatewayUrl}...');
 
     try {
-      // Test the OpenAI API directly
-      final response = await http
-          .post(
-            Uri.parse('$baseUrl$chatEndpoint'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer your-token-here',
-            },
-            body: jsonEncode({
-              'model': 'gemini-3-flash',
-              'messages': [
-                {'role': 'user', 'content': 'ping'}
-              ],
-              'max_tokens': 1,
-            }),
-          )
-          .timeout(const Duration(seconds: 10));
-
-      debugPrint('[ConnectionManager] API test status: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
+      await _connectWebSocket();
+      
+      if (_isConnected) {
         _availableModels = ['google-antigravity/gemini-3-flash'];
-        debugPrint('[ConnectionManager] OpenClaw verified and ready');
+        debugPrint('[ConnectionManager] OpenClaw WebSocket verified and ready');
       } else {
-        debugPrint(
-            '[ConnectionManager] API test failed with status: ${response.statusCode}');
-        debugPrint('[ConnectionManager] Response: ${response.body}');
         _availableModels = ['google-antigravity/gemini-3-flash'];
+        debugPrint('[ConnectionManager] WebSocket connection failed');
       }
     } catch (e) {
       debugPrint('[ConnectionManager] Connection test exception: $e');
