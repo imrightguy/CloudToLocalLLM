@@ -210,22 +210,25 @@ class ConnectionManagerService extends ChangeNotifier {
 
     _wsChannel?.sink.add(jsonEncode(connectRequest));
 
-    // Wait for hello-ok by listening once
+    // Wait for hello-ok by listening once with timeout
     try {
-      await for (final data in _wsChannel!.stream.timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          throw TimeoutException('Handshake timed out after 10 seconds');
-        },
-      ).take(5)) {
-        final msg = jsonDecode(data as String);
-        if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
-          debugPrint('[ConnectionManager] ✓ Handshake successful');
-          break;
-        } else if (msg['type'] == 'res' && msg['ok'] == false) {
-          final error = msg['error']?['message'] ?? 'Handshake failed';
-          throw Exception('Handshake rejected: $error');
-        }
+      final handshakeResult = await _wsChannel!.stream
+          .take(5)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: (sink) {
+              sink.addError(TimeoutException('Handshake timed out after 10 seconds'));
+              sink.close();
+            },
+          )
+          .first;
+
+      final msg = jsonDecode(handshakeResult as String);
+      if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
+        debugPrint('[ConnectionManager] ✓ Handshake successful');
+      } else if (msg['type'] == 'res' && msg['ok'] == false) {
+        final error = msg['error']?['message'] ?? 'Handshake failed';
+        throw Exception('Handshake rejected: $error');
       }
     } catch (e, stack) {
       debugPrint('[ConnectionManager] ✗ Handshake error: $e');
