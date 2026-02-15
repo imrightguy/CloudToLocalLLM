@@ -19,15 +19,15 @@ class RateLimitManager {
   /// Gets the best available model based on requested ID and tier fallbacks
   Future<String> getAvailableModel(String requestedModelId) async {
     final chain = ModelRegistry.getFallbackChain(requestedModelId);
-    
+
     for (final modelId in chain) {
       if (await isAvailable(modelId)) {
         return modelId;
       }
     }
-    
-    // If everything in chain is busy, return the primary fallback (usually Gemini Flash)
-    return 'gemini-3-flash';
+
+    // If everything in chain is busy, return the requested model (let gateway handle it)
+    return requestedModelId;
   }
 
   /// Mark the start of a request
