@@ -18,7 +18,6 @@ class EnhancedUserTierService extends ChangeNotifier {
 
   UserTier _currentTier = UserTier.free;
   String _tierName = 'Free';
-  final SharedPreferences _prefs;
 
   bool _isInitialized = false;
 
@@ -33,9 +32,8 @@ class EnhancedUserTierService extends ChangeNotifier {
     return instance;
   }
 
-  EnhancedUserTierService._internal()
-      : _prefs = SharedPreferences.getInstance() as dynamic {
-    _loadTier();
+  EnhancedUserTierService._internal() {
+    // Don't initialize in constructor - prefs must be loaded asynchronously
   }
 
   /// Get current tier
