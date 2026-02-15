@@ -2,7 +2,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: web-pdb
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   minAvailable: 1
   selector:

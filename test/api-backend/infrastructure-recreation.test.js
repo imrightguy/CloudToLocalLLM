@@ -252,9 +252,9 @@ function createCloudFormationStack(template) {
 function resolveDNS(domain, loadBalancerDNS) {
   // Simulate DNS resolution
   const dnsRecords = {
-    'cloudtolocalllm.online': loadBalancerDNS,
-    'app.cloudtolocalllm.online': loadBalancerDNS,
-    'api.cloudtolocalllm.online': loadBalancerDNS,
+    'zoidbot.online': loadBalancerDNS,
+    'app.zoidbot.online': loadBalancerDNS,
+    'api.zoidbot.online': loadBalancerDNS,
   };
   
   return dnsRecords[domain] || null;
@@ -272,7 +272,7 @@ function verifyDNSConsistency(stack1, stack2) {
   }
   
   // DNS should resolve to the same load balancer
-  const domains = ['cloudtolocalllm.online', 'app.cloudtolocalllm.online', 'api.cloudtolocalllm.online'];
+  const domains = ['zoidbot.online', 'app.zoidbot.online', 'api.zoidbot.online'];
   
   for (const domain of domains) {
     const resolution1 = resolveDNS(domain, nlbDns1);
@@ -457,7 +457,7 @@ describe('Infrastructure Recreation Property Test', () => {
           assert(nlbDns2, 'Stack 2 should have LoadBalancerDNS');
           
           // DNS should resolve to load balancer
-          const domains = ['cloudtolocalllm.online', 'app.cloudtolocalllm.online', 'api.cloudtolocalllm.online'];
+          const domains = ['zoidbot.online', 'app.zoidbot.online', 'api.zoidbot.online'];
           
           for (const domain of domains) {
             const resolution1 = resolveDNS(domain, nlbDns1);
@@ -487,7 +487,7 @@ describe('Infrastructure Recreation Property Test', () => {
             assert(stack2.Outputs.LoadBalancerDNS?.OutputValue, 'Stack 2 should have LoadBalancerDNS');
             
             // DNS should be resolvable for both
-            const domains = ['cloudtolocalllm.online', 'app.cloudtolocalllm.online', 'api.cloudtolocalllm.online'];
+            const domains = ['zoidbot.online', 'app.zoidbot.online', 'api.zoidbot.online'];
             
             for (const domain of domains) {
               const resolution1 = resolveDNS(domain, stack1.Outputs.LoadBalancerDNS.OutputValue);

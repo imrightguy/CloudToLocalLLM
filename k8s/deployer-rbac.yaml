@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: deployer-sa
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -36,7 +36,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: deployer-sa
-    namespace: cloudtolocalllm
+    namespace: zoidbot
 roleRef:
   kind: ClusterRole
   name: deployer-role

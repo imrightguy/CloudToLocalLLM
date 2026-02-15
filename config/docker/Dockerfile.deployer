@@ -1,5 +1,5 @@
 # ============================================================================
-# Deployer Dockerfile for CloudToLocalLLM
+# Deployer Dockerfile for Zoidbot
 # Contains kubectl, kustomize, and psql for in-cluster deployment tasks
 # ============================================================================
 FROM alpine:3.20

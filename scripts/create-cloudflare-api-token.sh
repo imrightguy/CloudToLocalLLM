@@ -27,7 +27,7 @@ echo "â”â”â”â”â”â”â”â”â”â”â�
 echo ""
 
 # Get Zone ID first
-DOMAIN="cloudtolocalllm.online"
+DOMAIN="zoidbot.online"
 echo "Step 1: Getting Zone ID for $DOMAIN..."
 
 ZONE_RESPONSE=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$DOMAIN" \
@@ -51,12 +51,12 @@ echo "Step 2: Creating scoped API token..."
 echo "Permissions:"
 echo "  - Zone.Cache Purge (Purge)"
 echo "  - Zone.Zone (Read)"
-echo "  - Scope: cloudtolocalllm.online only"
+echo "  - Scope: zoidbot.online only"
 echo ""
 
 TOKEN_REQUEST=$(cat <<EOF
 {
-  "name": "CloudToLocalLLM Deployment - Cache Purge (No IP Restrictions)",
+  "name": "Zoidbot Deployment - Cache Purge (No IP Restrictions)",
   "policies": [
     {
       "effect": "allow",
@@ -114,10 +114,10 @@ if echo "$RESPONSE" | grep -q '"success": true'; then
 {
   "global_api_key": "abc12d491e2bc24a60e9e276be8d5b1af62bf",
   "origin_ca_key": "v1.0-5ec28e52c84a8165343ae25b-5cc5dbb2d8bd9d901872aa2e7d9fb23c28a0f65231fb4f49e3d272a33989876bc02b7bd4f8988688c0673468321887bf07b4ce797f94eb05741306583a5f93046cfd5e12900988053e",
-  "email": "cmaltais@cloudtolocalllm.online",
+  "email": "cmaltais@zoidbot.online",
   "scoped_api_token": "$TOKEN",
   "scoped_token_id": "$TOKEN_ID",
-  "scoped_token_permissions": "Zone Read + Cache Purge for cloudtolocalllm.online only"
+  "scoped_token_permissions": "Zone Read + Cache Purge for zoidbot.online only"
 }
 EOF
         echo "âœ… Credentials file updated"

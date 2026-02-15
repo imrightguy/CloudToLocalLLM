@@ -18,7 +18,7 @@ storePassword=YOUR_KEYSTORE_PASSWORD_HERE
 keyPassword=YOUR_KEY_PASSWORD_HERE
 
 # Alias of the signing key in the keystore
-keyAlias=cloudtolocalllm-release
+keyAlias=zoidbot-release
 
 # Path to the keystore file (relative to android/ directory)
 # For local builds: ../release-keystore.jks
@@ -26,7 +26,7 @@ keyAlias=cloudtolocalllm-release
 storeFile=../release-keystore.jks
 
 # Notes:
-# - Generate keystore with: keytool -genkey -v -keystore release-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias cloudtolocalllm-release
+# - Generate keystore with: keytool -genkey -v -keystore release-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias zoidbot-release
 # - Keep keystore file secure and backed up
 # - Never commit keystore or key.properties to version control
 # - For CI/CD setup, see: docs/ANDROID_BUILD_GUIDE.md

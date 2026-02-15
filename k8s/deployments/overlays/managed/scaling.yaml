@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-backend
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
 ---
@@ -10,7 +10,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
 ---
@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: streaming-proxy
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
 ---
@@ -26,7 +26,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cloudflared
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
 ---
@@ -34,7 +34,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1
 ---
@@ -42,6 +42,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis-tunnel-state
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 spec:
   replicas: 1

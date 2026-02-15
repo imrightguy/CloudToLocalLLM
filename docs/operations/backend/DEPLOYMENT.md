@@ -1,4 +1,4 @@
-# CloudToLocalLLM API Backend Deployment Guide
+# Zoidbot API Backend Deployment Guide
 
 ## PostgreSQL Migration & Cloud Run Deployment
 
@@ -7,7 +7,7 @@ This guide covers the complete deployment process for migrating from SQLite to P
 ## Prerequisites
 
 - Google Cloud SDK installed and authenticated
-- Project ID: `cloudtolocalllm-468303`
+- Project ID: `zoidbot-468303`
 - Required APIs enabled:
   - Cloud SQL Admin API
   - Cloud Run API
@@ -30,8 +30,8 @@ npm run db:setup-cloud-sql
 
 This will:
 
-- Create a PostgreSQL 15 instance named `cloudtolocalllm-db`
-- Create the `cloudtolocalllm` database
+- Create a PostgreSQL 15 instance named `zoidbot-db`
+- Create the `zoidbot` database
 - Create an `appuser` with a secure password
 - Generate `cloud-sql-config.env` with connection details
 
@@ -68,10 +68,10 @@ curl https://your-service-url/api/db/health
 
 ```bash
 # Set project
-gcloud config set project cloudtolocalllm-468303
+gcloud config set project zoidbot-468303
 
 # Create PostgreSQL instance
-gcloud sql instances create cloudtolocalllm-db \
+gcloud sql instances create zoidbot-db \
     --database-version=POSTGRES_15 \
     --tier=db-f1-micro \
     --region=us-central1 \
@@ -80,11 +80,11 @@ gcloud sql instances create cloudtolocalllm-db \
     --backup-start-time=03:00
 
 # Create database
-gcloud sql databases create cloudtolocalllm --instance=cloudtolocalllm-db
+gcloud sql databases create zoidbot --instance=zoidbot-db
 
 # Create user
 gcloud sql users create appuser \
-    --instance=cloudtolocalllm-db \
+    --instance=zoidbot-db \
     --password=<SECURE_PASSWORD>
 ```
 
@@ -100,28 +100,28 @@ cp .env.production.template .env.production
 Required environment variables:
 
 - `DB_TYPE=postgresql`
-- `DB_NAME=cloudtolocalllm`
+- `DB_NAME=zoidbot`
 - `DB_USER=appuser`
 - `DB_PASSWORD=<your-password>`
-- `DB_HOST=/cloudsql/cloudtolocalllm-468303:us-central1:cloudtolocalllm-db`
+- `DB_HOST=/cloudsql/zoidbot-468303:us-central1:zoidbot-db`
 - `SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.auth0.com`
-- `SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.online`
+- `SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.online`
 
 ### Step 3: Build and Deploy
 
 ```bash
 # Build container image
-gcloud builds submit --tag gcr.io/cloudtolocalllm-468303/cloudtolocalllm-api
+gcloud builds submit --tag gcr.io/zoidbot-468303/zoidbot-api
 
 # Deploy to Cloud Run
-gcloud run deploy cloudtolocalllm-api \
-    --image gcr.io/cloudtolocalllm-468303/cloudtolocalllm-api \
+gcloud run deploy zoidbot-api \
+    --image gcr.io/zoidbot-468303/zoidbot-api \
     --platform managed \
     --region us-central1 \
     --allow-unauthenticated \
     --memory 1Gi \
-    --set-env-vars "NODE_ENV=production,DB_TYPE=postgresql,SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.auth0.com,SUPABASE_AUTH_AUDIENCE=https://api.cloudtolocalllm.online" \
-    --add-cloudsql-instances cloudtolocalllm-468303:us-central1:cloudtolocalllm-db
+    --set-env-vars "NODE_ENV=production,DB_TYPE=postgresql,SUPABASE_AUTH_DOMAIN=dev-v2f2p008x3dr74ww.us.auth0.com,SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.online" \
+    --add-cloudsql-instances zoidbot-468303:us-central1:zoidbot-db
 ```
 
 ## Testing
@@ -170,20 +170,20 @@ curl https://your-service-url/api/db/health
 
 ```bash
 # View logs
-gcloud logs tail --service=cloudtolocalllm-api
+gcloud logs tail --service=zoidbot-api
 
 # Filter for database logs
-gcloud logs tail --service=cloudtolocalllm-api --filter="database"
+gcloud logs tail --service=zoidbot-api --filter="database"
 
 # Filter for authentication logs
-gcloud logs tail --service=cloudtolocalllm-api --filter="auth"
+gcloud logs tail --service=zoidbot-api --filter="auth"
 ```
 
 ### Cloud SQL Monitoring
 
 ```bash
 # Check Cloud SQL instance status
-gcloud sql instances describe cloudtolocalllm-db
+gcloud sql instances describe zoidbot-db
 
 # View Cloud SQL logs
 gcloud logging read "resource.type=cloudsql_database"

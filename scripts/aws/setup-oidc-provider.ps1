@@ -4,7 +4,7 @@
 
 param(
     [string]$AwsAccountId = "422017356244",
-    [string]$GitHubRepo = "cloudtolocalllm/cloudtolocalllm",
+    [string]$GitHubRepo = "zoidbot/zoidbot",
     [string]$OidcProviderUrl = "token.actions.githubusercontent.com",
     [string]$OidcAudience = "sts.amazonaws.com",
     [string]$AwsRegion = "us-east-1"

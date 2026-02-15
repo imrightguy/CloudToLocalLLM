@@ -2,7 +2,7 @@
 
 ## Overview
 
-CloudToLocalLLM uses an intelligent, AI-powered versioning system powered by Gemini to analyze commits and automatically determine appropriate version bumps across all platforms.
+Zoidbot uses an intelligent, AI-powered versioning system powered by Gemini to analyze commits and automatically determine appropriate version bumps across all platforms.
 
 ## Architecture
 
@@ -171,7 +171,7 @@ gh workflow run deploy-aks.yml -f version_tag=4.5.0-cloud-abc123
 ### In API
 
 ```bash
-curl https://api.cloudtolocalllm.online/service-version
+curl https://api.zoidbot.online/service-version
 # Returns: { "service": "api-backend", "version": "4.5.0-api", ... }
 ```
 
@@ -194,8 +194,8 @@ git tag -l "*-cloud-*" | sort -V | tail -5
 gh workflow run deploy-aks.yml -f version_tag=4.4.0-cloud-xyz789
 
 # OR manually update Kubernetes
-kubectl set image deployment/web web=registry/web:4.4.0 -n cloudtolocalllm
-kubectl set image deployment/api-backend api-backend=registry/api-backend:4.4.0-api -n cloudtolocalllm
+kubectl set image deployment/web web=registry/web:4.4.0 -n zoidbot
+kubectl set image deployment/api-backend api-backend=registry/api-backend:4.4.0-api -n zoidbot
 ```
 
 ## Benefits

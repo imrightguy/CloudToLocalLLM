@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/config/theme_config.dart';
+import 'package:zoidbot/config/theme_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Simplified Property-Based Tests for Diagnostic Screens

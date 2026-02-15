@@ -3,7 +3,7 @@
 /**
 
 
- * Authentication Audit Logging Tests for CloudToLocalLLM API Backend
+ * Authentication Audit Logging Tests for Zoidbot API Backend
  *
  * Tests for authentication audit logging functionality including:
  * - Logging authentication attempts (success and failure)

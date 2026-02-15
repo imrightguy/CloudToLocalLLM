@@ -2,15 +2,15 @@
 
 ## Overview
 
-This guide explains how to implement accessibility features in CloudToLocalLLM screens using the provided accessibility components and services.
+This guide explains how to implement accessibility features in Zoidbot screens using the provided accessibility components and services.
 
 ## Quick Start
 
 ### 1. Wrap Your Screen with AccessibleScreenWrapper
 
 ```dart
-import 'package:cloudtolocalllm/widgets/accessible_screen_wrapper.dart';
-import 'package:cloudtolocalllm/services/accessibility_service.dart';
+import 'package:zoidbot/widgets/accessible_screen_wrapper.dart';
+import 'package:zoidbot/services/accessibility_service.dart';
 
 class MyScreen extends StatelessWidget {
   @override

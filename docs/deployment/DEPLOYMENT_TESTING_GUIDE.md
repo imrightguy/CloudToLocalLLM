@@ -1,6 +1,6 @@
-# CloudToLocalLLM Deployment Testing Guide
+# Zoidbot Deployment Testing Guide
 
-This document provides comprehensive guidance on testing the automated deployment workflow for CloudToLocalLLM.
+This document provides comprehensive guidance on testing the automated deployment workflow for Zoidbot.
 
 ## Overview
 
@@ -192,4 +192,4 @@ To add new tests:
 
 ## Conclusion
 
-The deployment testing framework provides comprehensive validation of the automated deployment workflow. Regular testing ensures the reliability and robustness of the deployment process, reducing the risk of deployment failures and improving the overall quality of the CloudToLocalLLM application.
+The deployment testing framework provides comprehensive validation of the automated deployment workflow. Regular testing ensures the reliability and robustness of the deployment process, reducing the risk of deployment failures and improving the overall quality of the Zoidbot application.

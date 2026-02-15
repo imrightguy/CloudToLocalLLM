@@ -1,11 +1,11 @@
-# CloudToLocalLLM OAuth Client ID Fix
+# Zoidbot OAuth Client ID Fix
 param(
     [string]$WebClientId,
     [string]$DesktopClientId,
     [switch]$Interactive
 )
 
-Write-Host "=== CloudToLocalLLM OAuth Client ID Fix ===" -ForegroundColor Cyan
+Write-Host "=== Zoidbot OAuth Client ID Fix ===" -ForegroundColor Cyan
 Write-Host ""
 
 $configFile = "lib\config\app_config.dart"
@@ -19,7 +19,7 @@ if (-not (Test-Path (Join-Path $projectRoot $configFile))) {
 
 # Open browser to Google Cloud Console
 Write-Host "Opening Google Cloud Console..." -ForegroundColor Yellow
-Start-Process "https://console.cloud.google.com/apis/credentials?project=cloudtolocalllm-468303"
+Start-Process "https://console.cloud.google.com/apis/credentials?project=zoidbot-468303"
 Write-Host ""
 
 # Interactive mode to get client IDs
@@ -28,7 +28,7 @@ if ($Interactive -or (-not $WebClientId -and -not $DesktopClientId)) {
     Write-Host "1. In the Google Cloud Console that just opened:" -ForegroundColor White
     Write-Host "   - Click '+ CREATE CREDENTIALS' > 'OAuth client ID'" -ForegroundColor Gray
     Write-Host "   - For Web: Select 'Web application', add origins:" -ForegroundColor Gray
-    Write-Host "     * https://app.cloudtolocalllm.online" -ForegroundColor Gray
+    Write-Host "     * https://app.zoidbot.online" -ForegroundColor Gray
     Write-Host "     * http://localhost:3000" -ForegroundColor Gray
     Write-Host "   - For Desktop: Select 'Desktop application'" -ForegroundColor Gray
     Write-Host "2. Copy the client IDs and paste them below" -ForegroundColor White

@@ -23,7 +23,7 @@ import fetch from 'node-fetch';
 const EMAIL_ENABLED = process.env.ALERT_EMAIL_ENABLED === 'true';
 const EMAIL_TO = process.env.ALERT_EMAIL_TO || '';
 const EMAIL_FROM =
-  process.env.ALERT_EMAIL_FROM || 'alerts@cloudtolocalllm.online';
+  process.env.ALERT_EMAIL_FROM || 'alerts@zoidbot.online';
 const EMAIL_SMTP_HOST = process.env.ALERT_EMAIL_SMTP_HOST || 'smtp.gmail.com';
 const EMAIL_SMTP_PORT = parseInt(
   process.env.ALERT_EMAIL_SMTP_PORT || '587',
@@ -103,7 +103,7 @@ async function sendEmailAlert(subject, message, metadata = {}) {
           : ''
       }
       <hr>
-      <p><small>CloudToLocalLLM Alerting System</small></p>
+      <p><small>Zoidbot Alerting System</small></p>
     `;
 
     const info = await emailTransporter.sendMail({
@@ -153,7 +153,7 @@ async function sendSlackAlert(title, message, metadata = {}) {
           color: 'danger',
           text: message,
           fields: fields.length > 0 ? fields : undefined,
-          footer: 'CloudToLocalLLM Alerting System',
+          footer: 'Zoidbot Alerting System',
           ts: Math.floor(Date.now() / 1000),
         },
       ],
@@ -206,7 +206,7 @@ async function sendPagerDutyAlert(summary, severity = 'error', metadata = {}) {
       payload: {
         summary: summary,
         severity: severity,
-        source: 'cloudtolocalllm-api',
+        source: 'zoidbot-api',
         custom_details: metadata,
       },
     };

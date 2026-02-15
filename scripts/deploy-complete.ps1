@@ -7,7 +7,7 @@ $ErrorActionPreference = "Stop"
 Write-Host @"
 
 ╔════════════════════════════════════════════════════════════════╗
-║     CloudToLocalLLM - Complete Deployment to DO K8s           ║
+║     Zoidbot - Complete Deployment to DO K8s           ║
 ╚════════════════════════════════════════════════════════════════╝
 
 "@ -ForegroundColor Cyan
@@ -16,9 +16,9 @@ Write-Host @"
 $env:Path = "$env:Path;$env:LOCALAPPDATA\doctl"
 
 # Variables
-$registry = "registry.digitalocean.com/cloudtolocalllm"
-$clusterName = "cloudtolocalllm"
-$namespace = "cloudtolocalllm"
+$registry = "registry.digitalocean.com/zoidbot"
+$clusterName = "zoidbot"
+$namespace = "zoidbot"
 
 Write-Host "Step 1: Logging in to DigitalOcean Container Registry..." -ForegroundColor Yellow
 doctl registry login

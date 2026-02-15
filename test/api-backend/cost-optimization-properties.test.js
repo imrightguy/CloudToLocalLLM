@@ -17,7 +17,7 @@ import fc from 'fast-check';
 
 const AWS_ACCOUNT_ID = '422017356244';
 const AWS_REGION = 'us-east-1';
-const CLUSTER_NAME = 'cloudtolocalllm-eks';
+const CLUSTER_NAME = 'zoidbot-eks';
 const MONTHLY_BUDGET = 300;
 
 // Valid instance types for development (cost-optimized)

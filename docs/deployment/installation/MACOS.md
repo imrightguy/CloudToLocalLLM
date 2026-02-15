@@ -1,6 +1,6 @@
 # macOS Installation Guide
 
-CloudToLocalLLM support for macOS is currently in development. This guide will be updated as macOS support becomes available.
+Zoidbot support for macOS is currently in development. This guide will be updated as macOS support becomes available.
 
 ## 📋 Current Status
 
@@ -42,8 +42,8 @@ If you're a developer or want to help test macOS support, you can build from sou
 flutter config --enable-macos-desktop
 
 # Clone repository
-git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
-cd CloudToLocalLLM
+git clone https://github.com/Zoidbot-online/Zoidbot.git
+cd Zoidbot
 
 # Install dependencies
 flutter pub get
@@ -67,7 +67,7 @@ flutter build macos --release
 
 ### 🧠 **Ollama Installation**
 
-CloudToLocalLLM will require Ollama to be installed:
+Zoidbot will require Ollama to be installed:
 
 ```bash
 # Install Ollama for macOS
@@ -125,21 +125,21 @@ ollama list
 ### 🏠 **Homebrew (Planned)**
 
 ```bash
-# Add CloudToLocalLLM tap
-brew tap CloudToLocalLLM-online/CloudToLocalLLM
+# Add Zoidbot tap
+brew tap Zoidbot-online/Zoidbot
 
-# Install CloudToLocalLLM
-brew install cloudtolocalllm
+# Install Zoidbot
+brew install zoidbot
 
 # Start the service
-brew services start cloudtolocalllm
+brew services start zoidbot
 ```
 
 ### 📱 **App Bundle (Planned)**
 
 1. Download `.dmg` file from releases
 2. Open the disk image
-3. Drag CloudToLocalLLM to Applications folder
+3. Drag Zoidbot to Applications folder
 4. Launch from Applications or Spotlight
 
 ### 🏪 **Mac App Store (Under Consideration)**
@@ -164,8 +164,8 @@ We welcome contributions to macOS support:
 
 ### 📝 **How to Contribute**
 
-1. **Join the Discussion**: [GitHub Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)
-2. **Report Issues**: [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues) with "macOS" label
+1. **Join the Discussion**: [GitHub Discussions](https://github.com/Zoidbot-online/Zoidbot/discussions)
+2. **Report Issues**: [GitHub Issues](https://github.com/Zoidbot-online/Zoidbot/issues) with "macOS" label
 3. **Submit PRs**: Follow our [Contributing Guide](../../CONTRIBUTING.md)
 4. **Test Builds**: Help test development builds
 
@@ -183,16 +183,16 @@ We welcome contributions to macOS support:
 
 ### 🔔 **Get Notified**
 
-- **Watch** the [GitHub repository](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM) for updates
+- **Watch** the [GitHub repository](https://github.com/Zoidbot-online/Zoidbot) for updates
 - **Follow** releases for macOS availability announcements
-- **Join** our [discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions) for development updates
+- **Join** our [discussions](https://github.com/Zoidbot-online/Zoidbot/discussions) for development updates
 
 ### 📅 **Milestones**
 
 Track macOS development progress:
 
-- [macOS Support Milestone](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/milestone/1)
-- [macOS Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/labels/macOS)
+- [macOS Support Milestone](https://github.com/Zoidbot-online/Zoidbot/milestone/1)
+- [macOS Issues](https://github.com/Zoidbot-online/Zoidbot/labels/macOS)
 
 ---
 
@@ -205,23 +205,23 @@ Track macOS development progress:
 While waiting for native macOS support, you can:
 
 1. Install Ollama on your Mac
-2. Use CloudToLocalLLM on another device (Windows/Linux)
-3. Access via [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
+2. Use Zoidbot on another device (Windows/Linux)
+3. Access via [app.zoidbot.online](https://app.zoidbot.online)
 
 #### **Virtual Machine**
 
 - Run Linux in a VM (VirtualBox, Parallels, VMware)
-- Install CloudToLocalLLM Linux version in the VM
+- Install Zoidbot Linux version in the VM
 - Access from macOS through the VM
 
 #### **Docker (Advanced)**
 
 ```bash
-# Run CloudToLocalLLM in Docker (when available)
-docker run -d --name cloudtolocalllm \
+# Run Zoidbot in Docker (when available)
+docker run -d --name zoidbot \
   -p 8080:8080 \
-  -v ~/.config/cloudtolocalllm:/config \
-  cloudtolocalllm/app:latest
+  -v ~/.config/zoidbot:/config \
+  zoidbot/app:latest
 ```
 
 ---
@@ -240,10 +240,10 @@ docker run -d --name cloudtolocalllm \
 
 For questions about macOS support:
 
-- **GitHub Issues**: [Report macOS-related issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues/new?labels=macOS)
-- **Discussions**: [Join macOS development discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)
+- **GitHub Issues**: [Report macOS-related issues](https://github.com/Zoidbot-online/Zoidbot/issues/new?labels=macOS)
+- **Discussions**: [Join macOS development discussions](https://github.com/Zoidbot-online/Zoidbot/discussions)
 - **Email**: Contact us through GitHub for specific macOS development questions
 
 ---
 
-*We appreciate your patience as we work on bringing CloudToLocalLLM to macOS. Your feedback and contributions help us prioritize development efforts!*
+*We appreciate your patience as we work on bringing Zoidbot to macOS. Your feedback and contributions help us prioritize development efforts!*

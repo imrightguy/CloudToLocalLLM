@@ -2,9 +2,9 @@
 set -e
 
 # Configuration
-APP_NAME="CloudToLocalLLM-Auth"
+APP_NAME="Zoidbot-Auth"
 REPO_OWNER="imrightguy"
-REPO_NAME="CloudToLocalLLM"
+REPO_NAME="Zoidbot"
 ENV_FILE=".env.entra"
 
 echo "Checking Azure CLI login status..."

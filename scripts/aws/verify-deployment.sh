@@ -3,7 +3,7 @@
 ##############################################################################
 # AWS EKS Deployment Verification Script
 #
-# This script verifies that all components of the CloudToLocalLLM deployment
+# This script verifies that all components of the Zoidbot deployment
 # on AWS EKS are running correctly and accessible.
 #
 # Usage: ./verify-deployment.sh [environment]
@@ -13,17 +13,17 @@
 set -e
 
 # Configuration
-NAMESPACE="${NAMESPACE:-cloudtolocalllm}"
+NAMESPACE="${NAMESPACE:-zoidbot}"
 ENVIRONMENT="${1:-development}"
-CLUSTER_NAME="cloudtolocalllm-eks"
+CLUSTER_NAME="zoidbot-eks"
 REGION="${AWS_REGION:-us-east-1}"
 
 # Cloudflare domains
 DOMAINS=(
-  "cloudtolocalllm.online"
-  "app.cloudtolocalllm.online"
-  "api.cloudtolocalllm.online"
-  "auth.cloudtolocalllm.online"
+  "zoidbot.online"
+  "app.zoidbot.online"
+  "api.zoidbot.online"
+  "auth.zoidbot.online"
 )
 
 # Color codes for output
@@ -281,8 +281,8 @@ verify_health_endpoints() {
   log_info "Verifying health check endpoints..."
   
   local health_endpoints=(
-    "https://api.cloudtolocalllm.online/health"
-    "https://app.cloudtolocalllm.online/health"
+    "https://api.zoidbot.online/health"
+    "https://app.zoidbot.online/health"
   )
   
   local all_healthy=true

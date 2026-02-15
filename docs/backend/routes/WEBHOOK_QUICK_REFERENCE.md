@@ -35,7 +35,7 @@ LOG_LEVEL=info
 ### Stripe Dashboard Setup
 
 1. Go to: Developers > Webhooks > Add endpoint
-2. URL: `https://api.cloudtolocalllm.online/api/webhooks/stripe`
+2. URL: `https://api.zoidbot.online/api/webhooks/stripe`
 3. Events: Select all 5 events listed above
 4. Copy signing secret to `STRIPE_WEBHOOK_SECRET`
 

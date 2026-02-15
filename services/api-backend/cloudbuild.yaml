@@ -1,4 +1,4 @@
-# Cloud Build configuration for CloudToLocalLLM API Backend
+# Cloud Build configuration for Zoidbot API Backend
 # Builds and deploys the Node.js backend with PostgreSQL support
 
 steps:
@@ -7,9 +7,9 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:$COMMIT_SHA'
+      - 'gcr.io/$PROJECT_ID/zoidbot-api:$COMMIT_SHA'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:latest'
+      - 'gcr.io/$PROJECT_ID/zoidbot-api:latest'
       - '.'
     dir: 'services/api-backend'
 
@@ -17,12 +17,12 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:$COMMIT_SHA'
+      - 'gcr.io/$PROJECT_ID/zoidbot-api:$COMMIT_SHA'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:latest'
+      - 'gcr.io/$PROJECT_ID/zoidbot-api:latest'
 
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -30,9 +30,9 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'cloudtolocalllm-api'
+      - 'zoidbot-api'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:$COMMIT_SHA'
+      - 'gcr.io/$PROJECT_ID/zoidbot-api:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
@@ -51,7 +51,7 @@ steps:
       - '--set-env-vars'
       - 'NODE_ENV=production,PORT=8080,DB_TYPE=postgresql'
       - '--add-cloudsql-instances'
-      - '$PROJECT_ID:us-central1:cloudtolocalllm-db'
+      - '$PROJECT_ID:us-central1:zoidbot-db'
 
   # Test the deployment
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -60,7 +60,7 @@ steps:
       - '-c'
       - |
         # Get the service URL
-        SERVICE_URL=$(gcloud run services describe cloudtolocalllm-api --region=us-central1 --format="value(status.url)")
+        SERVICE_URL=$(gcloud run services describe zoidbot-api --region=us-central1 --format="value(status.url)")
         echo "Service deployed at: $SERVICE_URL"
 
         # Wait for deployment to be ready
@@ -73,8 +73,8 @@ steps:
 
 # Store images in Container Registry
 images:
-  - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:$COMMIT_SHA'
-  - 'gcr.io/$PROJECT_ID/cloudtolocalllm-api:latest'
+  - 'gcr.io/$PROJECT_ID/zoidbot-api:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/zoidbot-api:latest'
 
 # Build options
 options:

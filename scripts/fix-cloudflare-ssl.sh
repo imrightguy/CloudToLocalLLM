@@ -13,7 +13,7 @@ if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
 fi
 
 CF_API_TOKEN="$CLOUDFLARE_API_TOKEN"
-ZONE_NAME="cloudtolocalllm.online"
+ZONE_NAME="zoidbot.online"
 
 echo "ðŸ”§ Fixing Cloudflare SSL mode for $ZONE_NAME..."
 

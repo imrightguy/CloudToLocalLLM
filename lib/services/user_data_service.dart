@@ -7,7 +7,7 @@ import 'auth_logger.dart';
 import '../utils/web_interop_stub.dart'
     if (dart.library.html) '../utils/web_interop.dart';
 
-/// Simple user data management service for CloudToLocalLLM
+/// Simple user data management service for Zoidbot
 ///
 /// Provides straightforward functionality to clear all user data
 /// when needed for privacy, troubleshooting, or starting fresh.
@@ -119,15 +119,15 @@ class UserDataService extends ChangeNotifier {
     }
 
     try {
-      // Clear CloudToLocalLLM-specific localStorage keys
+      // Clear Zoidbot-specific localStorage keys
       final keysToRemove = [
-        'cloudtolocalllm_access_token',
-        'cloudtolocalllm_id_token',
-        'cloudtolocalllm_token_expiry',
-        'cloudtolocalllm_authenticated',
-        'cloudtolocalllm_auth_logs',
-        'cloudtolocalllm_last_validation',
-        'cloudtolocalllm_auth_persistent',
+        'zoidbot_access_token',
+        'zoidbot_id_token',
+        'zoidbot_token_expiry',
+        'zoidbot_authenticated',
+        'zoidbot_auth_logs',
+        'zoidbot_last_validation',
+        'zoidbot_auth_persistent',
       ];
 
       for (final key in keysToRemove) {

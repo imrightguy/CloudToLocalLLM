@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/widgets/settings/desktop_settings_category.dart';
+import 'package:zoidbot/widgets/settings/desktop_settings_category.dart';
 
 void main() {
   group('DesktopSettingsCategory', () {

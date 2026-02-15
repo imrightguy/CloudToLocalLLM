@@ -3,7 +3,7 @@
 # Certificates are stored in Kubernetes secrets and automatically renewed
 #
 # Prerequisites:
-# 1. Azure DNS zone: cloudtolocalllm.online
+# 1. Azure DNS zone: zoidbot.online
 # 2. Service Principal with DNS Zone Contributor role on the DNS zone
 # 3. Create Kubernetes secret with Azure credentials (use GitHub secrets in workflow):
 #    kubectl create secret generic azure-dns-config \
@@ -25,7 +25,7 @@ spec:
     # Domain validation uses Azure DNS-01 challenge
     server: https://acme-v02.api.letsencrypt.org/directory
     
-    email: admin@cloudtolocalllm.online
+    email: admin@zoidbot.online
     
     privateKeySecretRef:
       name: azure-dns-prod-key
@@ -43,8 +43,8 @@ spec:
               key: client-secret
             subscriptionID: <AZURE_SUBSCRIPTION_ID>
             tenantID: <AZURE_TENANT_ID>
-            resourceGroupName: cloudtolocalllm-rg
-            hostedZoneName: cloudtolocalllm.online
+            resourceGroupName: zoidbot-rg
+            hostedZoneName: zoidbot.online
             environment: AzurePublicCloud
 ---
 # Staging ClusterIssuer for testing wildcard certificate setup
@@ -58,7 +58,7 @@ spec:
     # Let's Encrypt staging server (for testing - no rate limits)
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     
-    email: admin@cloudtolocalllm.online
+    email: admin@zoidbot.online
     
     privateKeySecretRef:
       name: azure-dns-staging-key
@@ -73,7 +73,7 @@ spec:
               key: client-secret
             subscriptionID: <AZURE_SUBSCRIPTION_ID>
             tenantID: <AZURE_TENANT_ID>
-            resourceGroupName: cloudtolocalllm-rg
-            hostedZoneName: cloudtolocalllm.online
+            resourceGroupName: zoidbot-rg
+            hostedZoneName: zoidbot.online
             environment: AzurePublicCloud
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CloudToLocalLLM is a privacy-first platform for running Large Language Models locally with optional cloud relay for remote access. The architecture consists of a Flutter frontend (Windows, Linux, Web) and Node.js backend services.
+Zoidbot is a privacy-first platform for running Large Language Models locally with optional cloud relay for remote access. The architecture consists of a Flutter frontend (Windows, Linux, Web) and Node.js backend services.
 
 ## Commands
 
@@ -184,8 +184,8 @@ Router endpoints: `GET /v1/models`, `POST /v1/chat/completions`, `GET /health`
 Use `kIsWeb` from Flutter Foundation to detect web platform. For desktop-specific code, use conditional imports:
 
 ```dart
-import 'package:cloudtolocalllm/services/some_service.dart'
-    if (dart.library.html) 'package:cloudtolocalllm/services/some_service_web.dart';
+import 'package:zoidbot/services/some_service.dart'
+    if (dart.library.html) 'package:zoidbot/services/some_service_web.dart';
 ```
 
 ### Error Handling

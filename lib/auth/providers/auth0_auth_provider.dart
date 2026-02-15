@@ -17,11 +17,12 @@ import 'package:app_links/app_links.dart';
 import 'auth_web_utils.dart';
 import '../auth_provider.dart';
 import '../../models/user_model.dart';
+import '../../config/app_config.dart';
 
 class Auth0AuthProvider implements AuthProvider {
   static const String _domain = 'dev-vivn1fcgzi0c2czy.us.auth0.com';
   static const String _clientId = 'mm7lIRm33LGyoQ0FKCy04x88fsgnbvr1';
-  static const String _audience = 'https://api.cloudtolocalllm.online';
+  static const String _audience = 'https://api.zoidbot.online';
   static const String _scheme = 'cloudtolocalllm';
 
   final Auth0 _auth0 = Auth0(_domain, _clientId);
@@ -117,6 +118,21 @@ class Auth0AuthProvider implements AuthProvider {
   }
 
   Future<void> _loadFromStorage() async {
+    // Dev Mode Auto-Login Bypass
+    if (AppConfig.enableDevMode && !kIsWeb) {
+      debugPrint(' [Auth0] Dev Mode enabled, simulating login...');
+      _currentUser = UserModel(
+        id: 'google-oauth2|102509433531341542550',
+        email: 'dev@zoidbot.online',
+        name: 'Christopher (Dev)',
+        nickname: 'rightguy',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      _authSubject.add(true);
+      return;
+    }
+
     try {
       String? accessToken, idToken, userJson;
       if (kIsWeb) {

@@ -17,7 +17,7 @@ Write-Host ""
 Write-Host "Steps to create a token:" -ForegroundColor Green
 Write-Host "  1. Go to: https://cloud.digitalocean.com/account/api/tokens" -ForegroundColor White
 Write-Host "  2. Click 'Generate New Token'" -ForegroundColor White
-Write-Host "  3. Name: 'CloudToLocalLLM-CLI'" -ForegroundColor White
+Write-Host "  3. Name: 'Zoidbot-CLI'" -ForegroundColor White
 Write-Host "  4. Scopes: Select 'Read' and 'Write'" -ForegroundColor White
 Write-Host "  5. Copy the token (you'll only see it once!)" -ForegroundColor White
 Write-Host ""

@@ -12,7 +12,7 @@ import fc from 'fast-check';
 import { describe, test, expect } from '@jest/globals';
 
 // Valid namespaces in the cluster
-const VALID_NAMESPACES = ['cloudtolocalllm', 'monitoring', 'kube-system', 'ingress-nginx'];
+const VALID_NAMESPACES = ['zoidbot', 'monitoring', 'kube-system', 'ingress-nginx'];
 
 // Valid pod labels
 const VALID_POD_LABELS = {
@@ -24,7 +24,7 @@ const VALID_POD_LABELS = {
 
 // Valid service accounts
 const VALID_SERVICE_ACCOUNTS = {
-  'cloudtolocalllm': ['web-app-sa', 'api-backend-sa', 'postgres-sa', 'streaming-proxy-sa'],
+  'zoidbot': ['web-app-sa', 'api-backend-sa', 'postgres-sa', 'streaming-proxy-sa'],
   'monitoring': ['prometheus-sa', 'grafana-sa', 'loki-sa'],
   'kube-system': ['coredns', 'ebs-csi-controller-sa', 'ebs-csi-node-sa'],
   'ingress-nginx': ['ingress-nginx'],
@@ -33,35 +33,35 @@ const VALID_SERVICE_ACCOUNTS = {
 // Network policy rules
 const NETWORK_POLICIES = {
   'default-deny-ingress': {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     policyType: 'Ingress',
     effect: 'deny',
   },
   'default-deny-egress': {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     policyType: 'Egress',
     effect: 'deny',
   },
   'allow-web-app-ingress': {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     podSelector: { app: 'web-app' },
     policyType: 'Ingress',
     effect: 'allow',
   },
   'allow-api-backend-ingress': {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     podSelector: { app: 'api-backend' },
     policyType: 'Ingress',
     effect: 'allow',
   },
   'allow-web-to-api': {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     podSelector: { app: 'web-app' },
     policyType: 'Egress',
     effect: 'allow',
   },
   'allow-api-to-postgres': {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     podSelector: { app: 'api-backend' },
     policyType: 'Egress',
     effect: 'allow',
@@ -74,7 +74,7 @@ const NETWORK_POLICIES = {
 function generatePodConfig(options = {}) {
   return {
     name: options.name || 'test-pod',
-    namespace: options.namespace || 'cloudtolocalllm',
+    namespace: options.namespace || 'zoidbot',
     labels: options.labels || { app: 'test-app' },
     serviceAccount: options.serviceAccount || 'default',
     containers: options.containers || [
@@ -104,7 +104,7 @@ function generateNamespaceConfig(options = {}) {
 function generateServiceAccountConfig(options = {}) {
   return {
     name: options.name || 'test-sa',
-    namespace: options.namespace || 'cloudtolocalllm',
+    namespace: options.namespace || 'zoidbot',
     automountServiceAccountToken: options.automountServiceAccountToken !== undefined ? options.automountServiceAccountToken : true,
   };
 }
@@ -115,7 +115,7 @@ function generateServiceAccountConfig(options = {}) {
 function generateNetworkPolicyConfig(options = {}) {
   return {
     name: options.name || 'test-policy',
-    namespace: options.namespace || 'cloudtolocalllm',
+    namespace: options.namespace || 'zoidbot',
     podSelector: options.podSelector || {},
     policyTypes: options.policyTypes || ['Ingress', 'Egress'],
     ingress: options.ingress || [],
@@ -218,11 +218,11 @@ function canAccessResource(sourcePod, targetPod, networkPolicies) {
 describe('Kubernetes Resource Isolation - Property Tests', () => {
   describe('Property 7: Resource Isolation', () => {
     test('should isolate pods in different namespaces', () => {
-      const pod1 = generatePodConfig({ namespace: 'cloudtolocalllm' });
+      const pod1 = generatePodConfig({ namespace: 'zoidbot' });
       const pod2 = generatePodConfig({ namespace: 'monitoring' });
 
       expect(pod1.namespace).not.toBe(pod2.namespace);
-      expect(validatePodNamespace(pod1, 'cloudtolocalllm')).toBe(true);
+      expect(validatePodNamespace(pod1, 'zoidbot')).toBe(true);
       expect(validatePodNamespace(pod2, 'monitoring')).toBe(true);
     });
 
@@ -241,26 +241,26 @@ describe('Kubernetes Resource Isolation - Property Tests', () => {
     });
 
     test('should isolate service accounts by namespace', () => {
-      const sa1 = generateServiceAccountConfig({ namespace: 'cloudtolocalllm' });
+      const sa1 = generateServiceAccountConfig({ namespace: 'zoidbot' });
       const sa2 = generateServiceAccountConfig({ namespace: 'monitoring' });
 
-      expect(validateServiceAccountNamespace(sa1, 'cloudtolocalllm')).toBe(true);
+      expect(validateServiceAccountNamespace(sa1, 'zoidbot')).toBe(true);
       expect(validateServiceAccountNamespace(sa2, 'monitoring')).toBe(true);
       expect(sa1.namespace).not.toBe(sa2.namespace);
     });
 
     test('should enforce network policies in namespace', () => {
       const policy = generateNetworkPolicyConfig({
-        namespace: 'cloudtolocalllm',
+        namespace: 'zoidbot',
         podSelector: { app: 'web-app' },
       });
 
-      expect(validateNetworkPolicyNamespace(policy, 'cloudtolocalllm')).toBe(true);
+      expect(validateNetworkPolicyNamespace(policy, 'zoidbot')).toBe(true);
       expect(validateNetworkPolicyPodSelector(policy)).toBe(true);
     });
 
     test('should deny cross-namespace pod communication by default', () => {
-      const sourcePod = generatePodConfig({ namespace: 'cloudtolocalllm', labels: { app: 'web-app' } });
+      const sourcePod = generatePodConfig({ namespace: 'zoidbot', labels: { app: 'web-app' } });
       const targetPod = generatePodConfig({ namespace: 'monitoring', labels: { app: 'prometheus' } });
 
       const canAccess = canAccessCrossNamespace(sourcePod, targetPod.namespace, NETWORK_POLICIES);
@@ -269,8 +269,8 @@ describe('Kubernetes Resource Isolation - Property Tests', () => {
     });
 
     test('should allow same-namespace pod communication with policies', () => {
-      const sourcePod = generatePodConfig({ namespace: 'cloudtolocalllm', labels: { app: 'web-app' } });
-      const targetPod = generatePodConfig({ namespace: 'cloudtolocalllm', labels: { app: 'api-backend' } });
+      const sourcePod = generatePodConfig({ namespace: 'zoidbot', labels: { app: 'web-app' } });
+      const targetPod = generatePodConfig({ namespace: 'zoidbot', labels: { app: 'api-backend' } });
 
       const canAccess = canAccessResource(sourcePod, targetPod, NETWORK_POLICIES);
 
@@ -327,15 +327,15 @@ describe('Kubernetes Resource Isolation - Property Tests', () => {
     });
 
     test('should enforce namespace isolation for service accounts', () => {
-      const sa = generateServiceAccountConfig({ namespace: 'cloudtolocalllm' });
+      const sa = generateServiceAccountConfig({ namespace: 'zoidbot' });
 
-      expect(sa.namespace).toBe('cloudtolocalllm');
-      expect(validateServiceAccountNamespace(sa, 'cloudtolocalllm')).toBe(true);
+      expect(sa.namespace).toBe('zoidbot');
+      expect(validateServiceAccountNamespace(sa, 'zoidbot')).toBe(true);
     });
 
     test('should prevent unauthorized pod access to secrets', () => {
-      const pod1 = generatePodConfig({ namespace: 'cloudtolocalllm', serviceAccount: 'web-app-sa' });
-      const pod2 = generatePodConfig({ namespace: 'cloudtolocalllm', serviceAccount: 'api-backend-sa' });
+      const pod1 = generatePodConfig({ namespace: 'zoidbot', serviceAccount: 'web-app-sa' });
+      const pod2 = generatePodConfig({ namespace: 'zoidbot', serviceAccount: 'api-backend-sa' });
 
       // Different service accounts should have different permissions
       expect(pod1.serviceAccount).not.toBe(pod2.serviceAccount);
@@ -372,23 +372,23 @@ describe('Kubernetes Resource Isolation - Property Tests', () => {
     });
 
     test('should validate pod has correct namespace', () => {
-      const pod = generatePodConfig({ namespace: 'cloudtolocalllm' });
+      const pod = generatePodConfig({ namespace: 'zoidbot' });
 
-      expect(validatePodNamespace(pod, 'cloudtolocalllm')).toBe(true);
+      expect(validatePodNamespace(pod, 'zoidbot')).toBe(true);
       expect(validatePodNamespace(pod, 'monitoring')).toBe(false);
     });
 
     test('should validate service account has correct namespace', () => {
-      const sa = generateServiceAccountConfig({ namespace: 'cloudtolocalllm' });
+      const sa = generateServiceAccountConfig({ namespace: 'zoidbot' });
 
-      expect(validateServiceAccountNamespace(sa, 'cloudtolocalllm')).toBe(true);
+      expect(validateServiceAccountNamespace(sa, 'zoidbot')).toBe(true);
       expect(validateServiceAccountNamespace(sa, 'monitoring')).toBe(false);
     });
 
     test('should validate network policy has correct namespace', () => {
-      const policy = generateNetworkPolicyConfig({ namespace: 'cloudtolocalllm' });
+      const policy = generateNetworkPolicyConfig({ namespace: 'zoidbot' });
 
-      expect(validateNetworkPolicyNamespace(policy, 'cloudtolocalllm')).toBe(true);
+      expect(validateNetworkPolicyNamespace(policy, 'zoidbot')).toBe(true);
       expect(validateNetworkPolicyNamespace(policy, 'monitoring')).toBe(false);
     });
   });

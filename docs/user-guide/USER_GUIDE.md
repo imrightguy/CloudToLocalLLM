@@ -1,6 +1,6 @@
-# CloudToLocalLLM User Guide
+# Zoidbot User Guide
 
-This guide will help you get the most out of CloudToLocalLLM, covering all major features and functionality.
+This guide will help you get the most out of Zoidbot, covering all major features and functionality.
 
 ## Contents
 
@@ -15,11 +15,11 @@ This guide will help you get the most out of CloudToLocalLLM, covering all major
 
 ## Getting Started
 
-After [installing the application](SETUP_GUIDE.md), launch CloudToLocalLLM. The first time you run it, you'll be taken to the home screen, which displays a welcome message and prompts you to start a new conversation.
+After [installing the application](SETUP_GUIDE.md), launch Zoidbot. The first time you run it, you'll be taken to the home screen, which displays a welcome message and prompts you to start a new conversation.
 
 ## Interface Overview
 
-The CloudToLocalLLM interface consists of several main components:
+The Zoidbot interface consists of several main components:
 
 ### Main Navigation
 
@@ -132,6 +132,6 @@ For common issues and solutions, please refer to the [Troubleshooting Guide](TRO
 
 If you encounter persistent issues:
 
-1. Check [GitHub Issues](https://github.com/your-username/CloudToLocalLLM/issues) for similar problems
+1. Check [GitHub Issues](https://github.com/your-username/Zoidbot/issues) for similar problems
 2. Join our community discussion (link in README)
 3. Open a new issue with detailed information about your problem

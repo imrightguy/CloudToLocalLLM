@@ -7,14 +7,14 @@
 #   2. Run the script: powershell -File scripts/gcp-windows-runner-setup.ps1
 
 # --- Configuration Variables ---
-$GCP_PROJECT_ID = "cloudtolocalllm-468303"
+$GCP_PROJECT_ID = "zoidbot-468303"
 $GCP_REGION = "us-central1"
 $GCP_ZONE = "us-central1-a"
 $VM_NAME = "github-runner-windows-$(Get-Date -Format yyyyMMddHHmmss)"
 $MACHINE_TYPE = "e2-medium"
 $IMAGE_FAMILY = "windows-2019"
 $IMAGE_PROJECT = "windows-cloud"
-$GITHUB_RUNNER_ORG_URL = "https://github.com/CloudToLocalLLM-online/CloudToLocalLLM" # e.g., https://github.com/CloudToLocalLLM-online
+$GITHUB_RUNNER_ORG_URL = "https://github.com/Zoidbot-online/Zoidbot" # e.g., https://github.com/Zoidbot-online
 $GITHUB_RUNNER_TOKEN = "BOBH5XEA7XJPPTNW2CYI7F3IUR2RG" # Obtain from GitHub -> Settings -> Actions -> Runners -> New runner
 
 # --- Startup Script for the VM (PowerShell) ---

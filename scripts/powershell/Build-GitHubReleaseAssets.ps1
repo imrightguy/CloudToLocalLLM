@@ -1,4 +1,4 @@
-# CloudToLocalLLM Complete Release Assets Builder
+# Zoidbot Complete Release Assets Builder
 # Creates all release assets: Windows portable ZIP, Windows installer, and checksums
 
 [CmdletBinding()]
@@ -62,7 +62,7 @@ if (-not $Version) {
 }
 
 function Show-Help {
-    Write-Host "CloudToLocalLLM Complete Release Assets Builder" -ForegroundColor Cyan
+    Write-Host "Zoidbot Complete Release Assets Builder" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Usage: .\Build-GitHubReleaseAssets.ps1 [options]" -ForegroundColor White
     Write-Host ""
@@ -156,7 +156,7 @@ function Build-FlutterWindows {
         $buildArgs = "build windows --release"
         Invoke-WindowsFlutterCommand -FlutterArgs $buildArgs -WorkingDirectory $ProjectRoot
 
-        $mainExecutable = Join-Path $WindowsBuildDir "cloudtolocalllm.exe"
+        $mainExecutable = Join-Path $WindowsBuildDir "zoidbot.exe"
         if (-not (Test-Path $mainExecutable)) {
             throw "Flutter Windows executable not found after build at: $mainExecutable"
         }
@@ -172,7 +172,7 @@ function Build-FlutterWindows {
 function New-PortableZipPackage {
     Write-LogInfo "Creating portable ZIP package..."
     
-    $packageName = "cloudtolocalllm-$Version-portable.zip"
+    $packageName = "zoidbot-$Version-portable.zip"
     New-DirectoryIfNotExists -Path $WindowsOutputDir
     
     if (-not (Test-Path $WindowsBuildDir)) {
@@ -236,7 +236,7 @@ function New-WindowsInstaller {
         }
         
         # Find the created installer
-        $installerName = "CloudToLocalLLM-Windows-$Version-Setup.exe"
+        $installerName = "Zoidbot-Windows-$Version-Setup.exe"
         $installerPath = Join-Path $WindowsOutputDir $installerName
         
         if (Test-Path $installerPath) {
@@ -264,7 +264,7 @@ function New-WindowsInstaller {
 }
 
 function Main {
-    Write-LogInfo "CloudToLocalLLM Complete Release Assets Builder v$Version"
+    Write-LogInfo "Zoidbot Complete Release Assets Builder v$Version"
     Write-LogInfo "============================================================"
     
     if ($Help) {

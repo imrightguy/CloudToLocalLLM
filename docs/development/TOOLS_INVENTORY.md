@@ -1,6 +1,6 @@
 # Tools Inventory: MCP and CLI Comparison
 
-This document provides a comprehensive audit of all available tools within both the Model Context Protocol (MCP) framework and the command-line interface (CLI) environment for the CloudToLocalLLM project.
+This document provides a comprehensive audit of all available tools within both the Model Context Protocol (MCP) framework and the command-line interface (CLI) environment for the Zoidbot project.
 
 ## 1. MCP Servers Configuration
 

@@ -91,8 +91,8 @@ describe('JWTValidationMiddleware', () => {
   describe('getUserContext', () => {
     it('should extract user context from token', async () => {
       const token = createValidMockToken({
-        'https://cloudtolocalllm.com/tier': 'premium',
-        'https://cloudtolocalllm.com/permissions': ['read', 'write'],
+        'https://zoidbot.com/tier': 'premium',
+        'https://zoidbot.com/permissions': ['read', 'write'],
       });
 
       const context = await middleware.getUserContext(token);
@@ -156,8 +156,8 @@ describe('UserContextManager', () => {
     it('should extract context from JWT payload', () => {
       const payload = {
         sub: 'user123',
-        'https://cloudtolocalllm.com/tier': 'enterprise',
-        'https://cloudtolocalllm.com/permissions': ['admin:read', 'admin:write'],
+        'https://zoidbot.com/tier': 'enterprise',
+        'https://zoidbot.com/permissions': ['admin:read', 'admin:write'],
       };
 
       const context = manager.extractUserContext(payload);
@@ -171,7 +171,7 @@ describe('UserContextManager', () => {
     it('should cache extracted contexts', () => {
       const payload = {
         sub: 'user123',
-        'https://cloudtolocalllm.com/tier': 'premium',
+        'https://zoidbot.com/tier': 'premium',
       };
 
       const context1 = manager.extractUserContext(payload);

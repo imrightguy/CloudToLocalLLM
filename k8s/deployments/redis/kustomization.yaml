@@ -8,7 +8,7 @@ patches:
       kind: StatefulSet
       metadata:
         name: redis-tunnel-state
-        namespace: cloudtolocalllm
+        namespace: zoidbot
       spec:
         volumeClaimTemplates:
         - metadata:

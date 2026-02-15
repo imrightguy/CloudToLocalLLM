@@ -10,14 +10,14 @@ Parameters:
   GitHubRepository:
     Type: String
     Description: GitHub repository in format owner/repo
-    Default: 'cloudtolocalllm/cloudtolocalllm'
+    Default: 'zoidbot/zoidbot'
 
 Resources:
   # EKS Service Role
   EKSServiceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: cloudtolocalllm-eks-service-role
+      RoleName: zoidbot-eks-service-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -30,7 +30,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/AmazonEKSVPCResourceController'
       Tags:
         - Key: Name
-          Value: cloudtolocalllm-eks-service-role
+          Value: zoidbot-eks-service-role
         - Key: Environment
           Value: production
 
@@ -38,7 +38,7 @@ Resources:
   NodeInstanceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: cloudtolocalllm-eks-node-role
+      RoleName: zoidbot-eks-node-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -53,7 +53,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy'
       Tags:
         - Key: Name
-          Value: cloudtolocalllm-eks-node-role
+          Value: zoidbot-eks-node-role
         - Key: Environment
           Value: production
 
@@ -61,7 +61,7 @@ Resources:
   NodeInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: cloudtolocalllm-eks-node-profile
+      InstanceProfileName: zoidbot-eks-node-profile
       Roles:
         - !Ref NodeInstanceRole
 
@@ -139,7 +139,7 @@ Resources:
           - Effect: Allow
             Action:
               - 'eks:DescribeCluster'
-            Resource: !Sub 'arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/cloudtolocalllm-eks'
+            Resource: !Sub 'arn:aws:eks:${AWS::Region}:${AWS::AccountId}:cluster/zoidbot-eks'
       Roles:
         - !Ref GitHubActionsRole
 
@@ -147,7 +147,7 @@ Resources:
   PodExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: cloudtolocalllm-pod-execution-role
+      RoleName: zoidbot-pod-execution-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -157,12 +157,12 @@ Resources:
             Action: 'sts:AssumeRoleWithWebIdentity'
             Condition:
               StringEquals:
-                "oidc.eks.${AWS::Region}.amazonaws.com/id/EXAMPLEID:sub": 'system:serviceaccount:cloudtolocalllm:default'
+                "oidc.eks.${AWS::Region}.amazonaws.com/id/EXAMPLEID:sub": 'system:serviceaccount:zoidbot:default'
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy'
       Tags:
         - Key: Name
-          Value: cloudtolocalllm-pod-execution-role
+          Value: zoidbot-pod-execution-role
         - Key: Environment
           Value: production
 
@@ -178,7 +178,7 @@ Resources:
             Action:
               - 'secretsmanager:GetSecretValue'
               - 'secretsmanager:DescribeSecret'
-            Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:cloudtolocalllm/*'
+            Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:zoidbot/*'
           - Effect: Allow
             Action:
               - 'kms:Decrypt'
@@ -190,7 +190,7 @@ Resources:
   EKSCloudWatchLogsRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: cloudtolocalllm-eks-cloudwatch-logs-role
+      RoleName: zoidbot-eks-cloudwatch-logs-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -202,7 +202,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/CloudWatchLogsFullAccess'
       Tags:
         - Key: Name
-          Value: cloudtolocalllm-eks-cloudwatch-logs-role
+          Value: zoidbot-eks-cloudwatch-logs-role
         - Key: Environment
           Value: production
 
@@ -211,19 +211,19 @@ Outputs:
     Description: ARN of EKS Service Role
     Value: !GetAtt EKSServiceRole.Arn
     Export:
-      Name: cloudtolocalllm-eks-service-role-arn
+      Name: zoidbot-eks-service-role-arn
 
   NodeInstanceRoleArn:
     Description: ARN of Node Instance Role
     Value: !GetAtt NodeInstanceRole.Arn
     Export:
-      Name: cloudtolocalllm-node-instance-role-arn
+      Name: zoidbot-node-instance-role-arn
 
   NodeInstanceProfileArn:
     Description: ARN of Node Instance Profile
     Value: !GetAtt NodeInstanceProfile.Arn
     Export:
-      Name: cloudtolocalllm-node-instance-profile-arn
+      Name: zoidbot-node-instance-profile-arn
 
   GitHubActionsRoleArn:
     Description: ARN of GitHub Actions Role
@@ -235,10 +235,10 @@ Outputs:
     Description: ARN of Pod Execution Role
     Value: !GetAtt PodExecutionRole.Arn
     Export:
-      Name: cloudtolocalllm-pod-execution-role-arn
+      Name: zoidbot-pod-execution-role-arn
 
   EKSCloudWatchLogsRoleArn:
     Description: ARN of EKS CloudWatch Logs Role
     Value: !GetAtt EKSCloudWatchLogsRole.Arn
     Export:
-      Name: cloudtolocalllm-eks-cloudwatch-logs-role-arn
+      Name: zoidbot-eks-cloudwatch-logs-role-arn

@@ -1,4 +1,4 @@
-# CloudToLocalLLM Privacy-First Architecture Testing Checklist
+# Zoidbot Privacy-First Architecture Testing Checklist
 
 ## 🚨 **CRITICAL ISSUE VALIDATION**
 

@@ -1,12 +1,12 @@
 @echo off
-REM CloudToLocalLLM Deployment Integration Tests Runner
+REM Zoidbot Deployment Integration Tests Runner
 REM Batch file to easily run deployment tests from Windows
 REM
 REM Version: 1.0.0
-REM Author: CloudToLocalLLM Development Team
+REM Author: Zoidbot Development Team
 REM Last Updated: 2025-07-18
 
-echo === CloudToLocalLLM Deployment Integration Tests ===
+echo === Zoidbot Deployment Integration Tests ===
 echo.
 
 REM Check if PowerShell is available
@@ -53,7 +53,7 @@ shift
 goto parse_args
 
 :show_help
-echo CloudToLocalLLM Deployment Integration Tests Runner
+echo Zoidbot Deployment Integration Tests Runner
 echo.
 echo USAGE:
 echo   run-deployment-tests.bat [options]

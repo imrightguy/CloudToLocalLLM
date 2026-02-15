@@ -1,6 +1,6 @@
 # Operations Documentation
 
-This directory contains operational guides for CloudToLocalLLM infrastructure management.
+This directory contains operational guides for Zoidbot infrastructure management.
 
 ## 📚 Contents
 
@@ -20,7 +20,7 @@ This directory contains operational guides for CloudToLocalLLM infrastructure ma
 
 ## 📖 Operations Overview
 
-CloudToLocalLLM supports two primary production paths:
+Zoidbot supports two primary production paths:
 
 1. **Azure Swarm**: Primary managed infrastructure using Azure Virtual Machines and Docker Swarm for orchestration.
 2. **Self-Hosted**: Docker Compose on a single Linux VPS for privacy and simplicity.

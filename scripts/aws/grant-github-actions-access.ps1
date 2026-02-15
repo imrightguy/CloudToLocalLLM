@@ -1,4 +1,4 @@
-$ClusterName = "cloudtolocalllm-eks"
+$ClusterName = "zoidbot-eks"
 $Region = "us-east-1"
 $RoleArn = "arn:aws:iam::422017356244:role/github-actions-role"
 

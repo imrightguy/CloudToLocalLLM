@@ -1,5 +1,5 @@
 /**
- * @fileoverview Authentication Service for CloudToLocalLLM Tunnel
+ * @fileoverview Authentication Service for Zoidbot Tunnel
  * Handles JWT JWT validation, session management, and role-based access control
  */
 
@@ -20,7 +20,7 @@ export class AuthService {
         process.env.AUTH0_JWKS_URI ||
         `https://${process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com'}/.well-known/jwks.json`,
       AUTH0_AUDIENCE:
-        process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online',
+        process.env.AUTH0_AUDIENCE || 'https://api.zoidbot.online',
       SESSION_TIMEOUT: parseInt(process.env.SESSION_TIMEOUT) || 3600000, // 1 hour
       MAX_SESSIONS_PER_USER: parseInt(process.env.MAX_SESSIONS_PER_USER) || 5,
       ...config,
@@ -83,18 +83,48 @@ export class AuthService {
   /**
    * Helper to execute queries on Postgres
    * Handles parameter conversion (? -> $n) and standardized return format
+   *
+   * IMPORTANT: This method uses parameterized queries to prevent SQL injection.
+   * The ? -> $n conversion is safe because we're replacing placeholder markers,
+   * not actual string values. The actual values are passed separately to the
+   * pg driver, which handles proper escaping.
    */
   async runQuery(sql, params = [], type = 'all') {
-    // Convert ? to $1, $2, etc. (Naive replacement, assumes no ? in strings)
-    let paramCount = 0;
-    const pgSql = sql.replace(/\?/g, () => {
-      paramCount++;
-      return `$${paramCount}`;
+    // Convert ? to $1, $2, etc. for PostgreSQL
+    // This is safe because we only replace placeholder markers, not string content
+    // The pg driver handles proper parameter escaping when it executes the query
+    const pgSql = sql.replace(/\?/g, (_, offset) => {
+      // Only replace ? that are not inside string literals
+      // This prevents false replacements when ? appears in actual text content
+      const beforeSql = sql.substring(0, offset);
+      const singleQuoteCount = (beforeSql.match(/'/g) || []).filter(
+        (_, i) => {
+          // Count only unescaped quotes
+          if (i > 0 && beforeSql[i - 1] === '\\') {
+            return false;
+          }
+          return true;
+        }
+      ).length;
+      // If odd number of quotes, we're inside a string literal - don't replace
+      if (singleQuoteCount % 2 === 1) {
+        return '?';
+      }
+      // Get the position number (1-based) by counting replacements so far
+      const beforeReplaced = sql.substring(0, offset).replace(/\?/g, (_, o) => {
+        const b = sql.substring(0, o);
+        const sqc = (b.match(/'/g) || []).filter((_, i) => {
+          if (i > 0 && b[i - 1] === '\\') return false;
+          return true;
+        }).length;
+        return sqc % 2 === 0 ? 1 : 0;
+      }).length;
+      return `$${beforeReplaced + 1}`;
     });
 
     // Special handling for INSERT to get lastID
     let finalSql = pgSql;
-    if (type === 'run' && sql.trim().toUpperCase().startsWith('INSERT')) {
+    if (type === 'run' && sql.trim().toUpperCase().startsWith('INSERT') && !sql.trim().toUpperCase().includes('RETURNING')) {
       finalSql += ' RETURNING id';
     }
 
@@ -383,6 +413,7 @@ export class AuthService {
    * Create or update user session
    */
   async createOrUpdateSession(tokenPayload, token, req) {
+    this.logger.info('Creating/updating session', { tokenType: typeof token });
     const auth0Id = tokenPayload.sub;
     const tokenHash = this.hashToken(token);
     const expiresAt = new Date(tokenPayload.exp * 1000).toISOString();

@@ -483,7 +483,7 @@ EOF
 # Main execution
 main() {
     log_section "GitHub Secrets Setup for AKS Deployment"
-    log_info "CloudToLocalLLM - GitHub Actions Configuration"
+    log_info "Zoidbot - GitHub Actions Configuration"
     
     validate_github_cli
     load_azure_config

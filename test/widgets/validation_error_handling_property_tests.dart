@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/services/settings_validator.dart';
-import 'package:cloudtolocalllm/models/settings_state.dart';
-import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
+import 'package:zoidbot/services/settings_validator.dart';
+import 'package:zoidbot/models/settings_state.dart';
+import 'package:zoidbot/utils/settings_error_handler.dart';
 
 void main() {
   group('Validation and Error Handling Property Tests', () {

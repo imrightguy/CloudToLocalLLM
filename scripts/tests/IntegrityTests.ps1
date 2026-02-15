@@ -60,9 +60,9 @@ function Remove-IntegrityTestEnvironment {
 function New-TestFiles {
     # Standard UTF-8 file with LF endings
     $contentLF = @"
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 Test file with LF line endings.
 "@
@@ -74,9 +74,9 @@ Test file with LF line endings.
 
     # File without final newline
     $contentNoNewline = @"
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 Test file without final newline.
 "@
@@ -84,9 +84,9 @@ Test file without final newline.
 
     # File with Unicode characters
     $contentUnicode = @"
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 Test file with Unicode:  �  �
 Special characters: àáâãäåæçèéêë
@@ -96,9 +96,9 @@ Mathematical symbols: ∑ ∏ ∫ ∆ ∇
 
     # Large file for performance testing
     $contentLarge = @"
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 "@
     for ($i = 1; $i -le 1000; $i++) {

@@ -1,4 +1,4 @@
-// Jest setup file for CloudToLocalLLM API Backend tests
+// Jest setup file for Zoidbot API Backend tests
 // Configures test environment and global mocks
 
 import { jest, afterEach } from '@jest/globals';

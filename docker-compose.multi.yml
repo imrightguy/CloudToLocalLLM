@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.nginx-proxy
-    container_name: cloudtolocalllm-nginx-proxy
+    container_name: zoidbot-nginx-proxy
     ports:
       - "80:80"
       - "443:443"
@@ -28,16 +28,16 @@ services:
   # Static Website and Documentation Container - DEPRECATED
   # This container has been replaced by unified Flutter web architecture
   # All domains now served by flutter-app container:
-  # - cloudtolocalllm.online: Flutter marketing pages
-  # - app.cloudtolocalllm.online: Flutter chat interface
-  # - docs.cloudtolocalllm.online: Flutter documentation
+  # - zoidbot.online: Flutter marketing pages
+  # - app.zoidbot.online: Flutter chat interface
+  # - docs.zoidbot.online: Flutter documentation
   #
   # Uncomment below if you need to temporarily restore static site functionality
   # static-site:
   #   build:
   #     context: .
   #     dockerfile: config/docker/Dockerfile.static-site
-  #   container_name: cloudtolocalllm-static-site
+  #   container_name: zoidbot-static-site
   #   volumes:
   #     - ./static_homepage:/usr/share/nginx/html/static:ro
   #     - ./docs-site/dist:/usr/share/nginx/html/docs:ro
@@ -57,7 +57,7 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.flutter-app
-    container_name: cloudtolocalllm-flutter-app
+    container_name: zoidbot-flutter-app
     volumes:
       - ./build/web:/usr/share/nginx/html:ro
       - ./config/nginx/nginx-flutter.conf:/etc/nginx/nginx.conf:ro
@@ -76,12 +76,12 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.api-backend
-    container_name: cloudtolocalllm-api-backend
+    container_name: zoidbot-api-backend
     environment:
       - NODE_ENV=production
       - PORT=8080
       - AUTH0_DOMAIN=dev-xafu7oedkd5wlrbo.us.auth0.com
-      - AUTH0_AUDIENCE=https://app.cloudtolocalllm.online
+      - AUTH0_AUDIENCE=https://app.zoidbot.online
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro # Docker socket for proxy management
     networks:
@@ -99,14 +99,14 @@ services:
     build:
       context: .
       dockerfile: config/docker/Dockerfile.streaming-proxy
-    image: cloudtolocalllm-streaming-proxy:latest
+    image: zoidbot-streaming-proxy:latest
     profiles:
       - build-only # Only built, not started
 
   # Certbot for SSL certificate management
   certbot:
     image: certbot/certbot:latest
-    container_name: cloudtolocalllm-certbot
+    container_name: zoidbot-certbot
     volumes:
       - ./certbot/www:/var/www/certbot
       - ./certbot/live:/etc/letsencrypt/live
@@ -114,14 +114,14 @@ services:
       - ./certbot/logs:/var/log/letsencrypt
     networks:
       - cloudllm-network
-    command: certonly --webroot --webroot-path=/var/www/certbot --email support@cloudtolocalllm.online --agree-tos --no-eff-email -d cloudtolocalllm.online -d app.cloudtolocalllm.online -d api.cloudtolocalllm.online -d docs.cloudtolocalllm.online
+    command: certonly --webroot --webroot-path=/var/www/certbot --email support@zoidbot.online --agree-tos --no-eff-email -d zoidbot.online -d app.zoidbot.online -d api.zoidbot.online -d docs.zoidbot.online
     profiles:
       - ssl-setup
 
 networks:
   cloudllm-network:
     driver: bridge
-    name: cloudtolocalllm-network
+    name: zoidbot-network
 
 volumes:
   certbot-www:

@@ -14,7 +14,7 @@ set -e
 # Configuration
 AWS_ACCOUNT_ID="${1:-422017356244}"
 ROLE_NAME="${2:-github-actions-role}"
-GITHUB_REPO="${3:-cloudtolocalllm/cloudtolocalllm}"
+GITHUB_REPO="${3:-zoidbot/zoidbot}"
 GITHUB_BRANCH="${4:-main}"
 
 echo "Setting up AWS IAM Role for GitHub Actions OIDC Authentication"

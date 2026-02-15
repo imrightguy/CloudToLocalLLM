@@ -58,16 +58,16 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/mnt/data/dev/CloudToLocalLLM"
+        "/mnt/data/dev/Zoidbot"
       ],
       "_notes": "For file operations - update path to your project root"
     }
   },
   "env": {
-    "PROJECT_ROOT": "/mnt/data/dev/CloudToLocalLLM",
-    "API_BACKEND_PATH": "/mnt/data/dev/CloudToLocalLLM/services/api-backend",
-    "SDK_PATH": "/mnt/data/dev/CloudToLocalLLM/services/sdk",
-    "STREAMING_PROXY_PATH": "/mnt/data/dev/CloudToLocalLLM/services/streaming-proxy",
+    "PROJECT_ROOT": "/mnt/data/dev/Zoidbot",
+    "API_BACKEND_PATH": "/mnt/data/dev/Zoidbot/services/api-backend",
+    "SDK_PATH": "/mnt/data/dev/Zoidbot/services/sdk",
+    "STREAMING_PROXY_PATH": "/mnt/data/dev/Zoidbot/services/streaming-proxy",
     "_notes": "Update these paths to match your project location"
   }
 }

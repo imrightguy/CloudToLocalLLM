@@ -3,19 +3,19 @@ version: '3.8'
 services:
   # PostgreSQL Database
   postgres:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:${DOCKER_TAG}
+    image: ghcr.io/zoidbot-online/zoidbot/postgres:${DOCKER_TAG}
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-cloudtolocalllm}
+      POSTGRES_DB: ${POSTGRES_DB:-zoidbot}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      cloudtolocalllm_net:
+      zoidbot_net:
         aliases:
           - postgres
     healthcheck:
-      test: pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-cloudtolocalllm}
+      test: pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-zoidbot}
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,7 +38,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      cloudtolocalllm_net:
+      zoidbot_net:
         aliases:
           - redis
     healthcheck:
@@ -58,7 +58,7 @@ services:
 
   # API Backend
   api-backend:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:${DOCKER_TAG}
+    image: ghcr.io/zoidbot-online/zoidbot/api:${DOCKER_TAG}
     user: "1001:1001"
     environment:
       NODE_ENV: production
@@ -66,7 +66,7 @@ services:
       DB_TYPE: postgresql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${POSTGRES_DB:-cloudtolocalllm}
+      DB_NAME: ${POSTGRES_DB:-zoidbot}
       DB_USER: ${POSTGRES_USER:-postgres}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_HOST: redis
@@ -76,16 +76,16 @@ services:
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
       # Cloudflare Infrastructure Management
       CLOUDFLARE_API_KEY: ${CLOUDFLARE_API_KEY}
-      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL:-cmaltais@cloudtolocalllm.online}
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL:-cmaltais@zoidbot.online}
       CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-35fa09929e656c4e96e4aa79909d11b7}
       CLOUDFLARE_ZONE_ID: ${CLOUDFLARE_ZONE_ID:-01bae6fa9d97d5e731a1fa6fc8e1f960}
       CLOUDFLARE_TUNNEL_ID: ${CLOUDFLARE_TUNNEL_ID:-62da6c19-947b-4bf6-acad-100a73de4e0d}
       INFRASTRUCTURE_API_KEY: ${INFRASTRUCTURE_API_KEY}
     networks:
-      cloudtolocalllm_net:
+      zoidbot_net:
         aliases:
           - api-backend
-          - api-backend.cloudtolocalllm.svc.cluster.local
+          - api-backend.zoidbot.svc.cluster.local
     ports:
       - "8081:8080"
     volumes:
@@ -107,17 +107,17 @@ services:
 
   # Streaming Proxy
   streaming-proxy:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:${DOCKER_TAG}
+    image: ghcr.io/zoidbot-online/zoidbot/streaming:${DOCKER_TAG}
     user: "1001:1001"
     environment:
       NODE_ENV: production
       PORT: 3001
       API_BACKEND_URL: http://api-backend:8080
     networks:
-      cloudtolocalllm_net:
+      zoidbot_net:
         aliases:
           - streaming-proxy
-          - streaming-proxy.cloudtolocalllm.svc.cluster.local
+          - streaming-proxy.zoidbot.svc.cluster.local
     ports:
       - "3001:3001"
     healthcheck:
@@ -136,13 +136,13 @@ services:
 
   # Web Frontend (Nginx serving Flutter)
   web:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
+    image: ghcr.io/zoidbot-online/zoidbot/web:${DOCKER_TAG}
     user: "1001:1001"
     networks:
-      cloudtolocalllm_net:
+      zoidbot_net:
         aliases:
           - web
-          - web.cloudtolocalllm.svc.cluster.local
+          - web.zoidbot.svc.cluster.local
     ports:
       - "8080:8080"
     healthcheck:
@@ -169,7 +169,7 @@ services:
     environment:
        - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
-      cloudtolocalllm_net:
+      zoidbot_net:
         aliases:
           - cloudflared
     # DNS is handled by Docker's embedded DNS at 127.0.0.11 automatically
@@ -186,7 +186,7 @@ services:
         max_attempts: 0
 
 networks:
-  cloudtolocalllm_net:
+  zoidbot_net:
     driver: overlay
     attachable: true
 

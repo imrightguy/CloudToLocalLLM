@@ -61,18 +61,18 @@ cleanup_test_environment() {
 create_test_files() {
     # Standard UTF-8 file with LF endings
     cat > "$TEST_DIR/readme_lf.md" << 'EOF'
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 Test file with LF line endings.
 EOF
 
     # UTF-8 file with CRLF endings
     cat > "$TEST_DIR/readme_crlf.md" << 'EOF'
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 Test file with CRLF line endings.
 EOF
@@ -80,13 +80,13 @@ EOF
     sed -i 's/$/\r/' "$TEST_DIR/readme_crlf.md"
 
     # File without final newline
-    printf "# CloudToLocalLLM\n\n[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)\n\nTest file without final newline." > "$TEST_DIR/readme_no_final_newline.md"
+    printf "# Zoidbot\n\n[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)\n\nTest file without final newline." > "$TEST_DIR/readme_no_final_newline.md"
 
     # File with Unicode characters
     cat > "$TEST_DIR/readme_unicode.md" << 'EOF'
-# CloudToLocalLLM 🚀
+# Zoidbot 🚀
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 Test file with Unicode: ✅ 🔒 📝 🌟
 Special characters: àáâãäåæçèéêë
@@ -95,9 +95,9 @@ EOF
 
     # Large file for performance testing
     {
-        echo "# CloudToLocalLLM"
+        echo "# Zoidbot"
         echo ""
-        echo "[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)"
+        echo "[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)"
         echo ""
         for i in {1..1000}; do
             echo "Line $i: This is a test line with some content to make the file larger."

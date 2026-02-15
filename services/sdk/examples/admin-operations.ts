@@ -4,11 +4,11 @@
  * Demonstrates admin-only operations like user management and audit logs
  */
 
-import { CloudToLocalLLMClient } from '../src/index';
+import { ZoidbotClient } from '../src/index';
 
 async function main() {
-  const client = new CloudToLocalLLMClient({
-    baseURL: 'https://api.cloudtolocalllm.online',
+  const client = new ZoidbotClient({
+    baseURL: 'https://api.zoidbot.online',
     apiVersion: 'v2',
   });
 

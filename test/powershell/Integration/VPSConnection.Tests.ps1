@@ -17,17 +17,17 @@ BeforeAll {
     # Set up VPS test configuration
     $Global:VPSTestConfig = @{
         StagingVPS = @{
-            Host = "staging.cloudtolocalllm.online"
+            Host = "staging.zoidbot.online"
             User = "staging-user"
             Port = 22
-            ProjectPath = "/opt/cloudtolocalllm-staging"
+            ProjectPath = "/opt/zoidbot-staging"
             SSHKeyPath = "~/.ssh/id_ed25519"
         }
         ProductionVPS = @{
-            Host = "cloudtolocalllm.online"
+            Host = "zoidbot.online"
             User = "cloudllm"
             Port = 22
-            ProjectPath = "/opt/cloudtolocalllm"
+            ProjectPath = "/opt/zoidbot"
             SSHKeyPath = "~/.ssh/id_ed25519"
         }
         TestVPS = @{
@@ -406,8 +406,8 @@ Describe "VPS Environment Validation Tests" {
                     $Global:LASTEXITCODE = 0
                     return @(
                         "CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS       PORTS                    NAMES",
-                        "abc123def456   cloudtolocalllm-nginx    '/docker-entrypoint.…'   2 hours ago   Up 2 hours   0.0.0.0:80->80/tcp       nginx-proxy",
-                        "def456ghi789   cloudtolocalllm-app      'flutter run --web'      2 hours ago   Up 2 hours   0.0.0.0:3000->3000/tcp   flutter-app"
+                        "abc123def456   zoidbot-nginx    '/docker-entrypoint.…'   2 hours ago   Up 2 hours   0.0.0.0:80->80/tcp       nginx-proxy",
+                        "def456ghi789   zoidbot-app      'flutter run --web'      2 hours ago   Up 2 hours   0.0.0.0:3000->3000/tcp   flutter-app"
                     ) -join "`n"
                 }
                 return "SSH command output"
@@ -450,7 +450,7 @@ Describe "VPS Environment Validation Tests" {
                 return "SSH command output"
             }
             
-            $result = ssh "$($vpsConfig.User)@$($vpsConfig.Host)" "openssl x509 -in /etc/ssl/certs/cloudtolocalllm.crt -noout -dates"
+            $result = ssh "$($vpsConfig.User)@$($vpsConfig.Host)" "openssl x509 -in /etc/ssl/certs/zoidbot.crt -noout -dates"
             
             $result | Should -Not -BeNullOrEmpty
             $LASTEXITCODE | Should -Be 0

@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 
-$DOMAIN = "cloudtolocalllm.online"
+$DOMAIN = "zoidbot.online"
 
 # Check if CLOUDFLARE_API_TOKEN is set
 if (-not $env:CLOUDFLARE_API_TOKEN) {

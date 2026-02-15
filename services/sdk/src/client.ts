@@ -1,7 +1,7 @@
 /**
- * CloudToLocalLLM SDK Client
+ * Zoidbot SDK Client
  *
- * Main client for interacting with the CloudToLocalLLM API
+ * Main client for interacting with the Zoidbot API
  * Provides methods for authentication, user management, tunnels, and more
  *
  * Requirements: 12.6
@@ -31,7 +31,7 @@ import {
   UserUpdateRequest,
 } from './types';
 
-export class CloudToLocalLLMClient {
+export class ZoidbotClient {
   private client: AxiosInstance;
   private config: Required<SDKConfig>;
   private accessToken?: string;
@@ -469,4 +469,4 @@ export class CloudToLocalLLMClient {
   }
 }
 
-export default CloudToLocalLLMClient;
+export default ZoidbotClient;

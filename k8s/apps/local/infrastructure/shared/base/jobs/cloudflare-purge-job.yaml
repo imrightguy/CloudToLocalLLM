@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: cloudflare-cache-purge
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
@@ -65,7 +65,7 @@ spec:
             - name: DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: DOMAIN
             - name: CLOUDFLARE_API_TOKEN
               valueFrom:

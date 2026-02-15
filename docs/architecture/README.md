@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-This directory contains comprehensive system architecture documentation for CloudToLocalLLM.
+This directory contains comprehensive system architecture documentation for Zoidbot.
 
 ## 📚 Contents
 
@@ -30,7 +30,7 @@ This directory contains comprehensive system architecture documentation for Clou
 
 ## 📖 Architecture Overview
 
-CloudToLocalLLM follows a hybrid architecture that bridges cloud-based AI services with local AI models:
+Zoidbot follows a hybrid architecture that bridges cloud-based AI services with local AI models:
 
 ### Key Components
 

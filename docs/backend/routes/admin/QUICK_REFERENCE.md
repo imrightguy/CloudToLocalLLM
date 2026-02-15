@@ -1,11 +1,11 @@
 # Admin API Quick Reference
 
-Quick reference guide for CloudToLocalLLM Admin Center API endpoints.
+Quick reference guide for Zoidbot Admin Center API endpoints.
 
 ## Base URL
 
 ```
-Production: https://api.cloudtolocalllm.online/api/admin
+Production: https://api.zoidbot.online/api/admin
 Development: http://localhost:3001/api/admin
 ```
 
@@ -327,7 +327,7 @@ node services/api-backend/database/migrations/run-migration.js status
 # Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=cloudtolocalllm
+DB_NAME=zoidbot
 DB_USER=postgres
 DB_PASSWORD=yourpassword
 DB_SSL=false
@@ -408,5 +408,5 @@ LIMIT 10;
 
 For questions or issues:
 
-- GitHub Issues: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues
-- Email: support@cloudtolocalllm.online
+- GitHub Issues: https://github.com/Zoidbot-online/Zoidbot/issues
+- Email: support@zoidbot.online

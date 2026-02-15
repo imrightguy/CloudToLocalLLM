@@ -1,8 +1,8 @@
-# CloudToLocalLLM Features Guide
+# Zoidbot Features Guide
 
 ## 📋 Overview
 
-CloudToLocalLLM provides a comprehensive suite of features for local and cloud LLM management. This guide covers all features, integrations, and premium capabilities in a single authoritative reference.
+Zoidbot provides a comprehensive suite of features for local and cloud LLM management. This guide covers all features, integrations, and premium capabilities in a single authoritative reference.
 
 ---
 
@@ -84,7 +84,7 @@ ollama pull mistral
 
 #### **Model Management**
 
-- **Automatic Discovery**: CloudToLocalLLM automatically detects available Ollama models
+- **Automatic Discovery**: Zoidbot automatically detects available Ollama models
 - **Model Information**: Display model details, size, and capabilities
 - **Performance Metrics**: Real-time performance monitoring and optimization
 - **Custom Models**: Support for custom and fine-tuned models
@@ -104,8 +104,8 @@ ollama pull mistral
 # Install Context7 MCP server
 npm install -g @context7/mcp-server
 
-# Configure CloudToLocalLLM integration
-cloudtolocalllm-settings --enable-context7
+# Configure Zoidbot integration
+zoidbot-settings --enable-context7
 
 # Test integration
 context7-mcp --test-connection
@@ -146,10 +146,10 @@ context7-mcp --test-connection
 const authConfig = {
   domain: 'dev-vivn1fcgzi0c2czy.us.auth0.com',
   clientId: 'mm7lIRm33LGyoQ0FKCy04x88fsgnbvr1',
-  audience: 'https://api.cloudtolocalllm.online',
+  audience: 'https://api.zoidbot.online',
   redirectUri: {
-    web: 'https://app.cloudtolocalllm.online/callback',
-    desktop: 'cloudtolocalllm://callback'
+    web: 'https://app.zoidbot.online/callback',
+    desktop: 'zoidbot://callback'
   }
 };
 ```
@@ -165,7 +165,7 @@ class AuthService {
   Future<AuthResult> login() async {
     final auth0 = Auth0(domain, clientId);
     return await auth0.webAuthentication().login(
-      audience: 'https://api.cloudtolocalllm.online',
+      audience: 'https://api.zoidbot.online',
       scopes: {'openid', 'profile', 'email', 'offline_access'},
     );
   }
@@ -244,12 +244,12 @@ class AuthService {
 
 ```bash
 # Get authentication token
-curl -X POST https://api.cloudtolocalllm.online/auth/token \
+curl -X POST https://api.zoidbot.online/auth/token \
   -H "Content-Type: application/json" \
   -d '{"username": "user", "password": "pass"}'
 
 # Send chat message
-curl -X POST https://api.cloudtolocalllm.online/api/chat \
+curl -X POST https://api.zoidbot.online/api/chat \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"message": "Hello, world!", "model": "llama2"}'
@@ -276,7 +276,7 @@ model_config = {
 ```javascript
 // Webhook configuration for external integrations
 const webhookConfig = {
-  url: 'https://your-webhook-endpoint.com/cloudtolocalllm',
+  url: 'https://your-webhook-endpoint.com/zoidbot',
   events: ['message_sent', 'model_changed', 'connection_status'],
   authentication: {
     type: 'bearer',
@@ -295,13 +295,13 @@ const webhookConfig = {
 
 ```bash
 # Clear authentication cache
-rm -rf ~/.cloudtolocalllm/auth_cache
+rm -rf ~/.zoidbot/auth_cache
 
 # Reset Auth0 configuration
-cloudtolocalllm-settings --reset-auth
+zoidbot-settings --reset-auth
 
 # Test authentication
-cloudtolocalllm --test-auth
+zoidbot --test-auth
 ```
 
 #### **Integration Issues**
@@ -314,28 +314,28 @@ curl http://localhost:11434/api/version
 context7-mcp --health-check
 
 # Verify system tray
-cloudtolocalllm-tray --debug
+zoidbot-tray --debug
 ```
 
 #### **Performance Issues**
 
 ```bash
 # Check resource usage
-cloudtolocalllm --performance-report
+zoidbot --performance-report
 
 # Clear cache
-cloudtolocalllm --clear-cache
+zoidbot --clear-cache
 
 # Reset configuration
-cloudtolocalllm-settings --reset-performance
+zoidbot-settings --reset-performance
 ```
 
 ### **Log Analysis**
 
-- **Application Logs**: `~/.cloudtolocalllm/app.log`
-- **Authentication Logs**: `~/.cloudtolocalllm/auth.log`
-- **Integration Logs**: `~/.cloudtolocalllm/integrations.log`
-- **Performance Logs**: `~/.cloudtolocalllm/performance.log`
+- **Application Logs**: `~/.zoidbot/app.log`
+- **Authentication Logs**: `~/.zoidbot/auth.log`
+- **Integration Logs**: `~/.zoidbot/integrations.log`
+- **Performance Logs**: `~/.zoidbot/performance.log`
 
 ---
 
@@ -349,7 +349,7 @@ cloudtolocalllm-settings --reset-performance
 
 ### **Community Resources**
 
-- **GitHub Repository**: [CloudToLocalLLM](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+- **GitHub Repository**: [Zoidbot](https://github.com/Zoidbot-online/Zoidbot)
 - **Issue Tracker**: Report bugs and request features
 - **Discussions**: Community support and tips
 - **Wiki**: Additional documentation and tutorials
@@ -363,4 +363,4 @@ cloudtolocalllm-settings --reset-performance
 
 ---
 
-This comprehensive features guide consolidates all CloudToLocalLLM capabilities, integrations, and premium features into a single authoritative reference, replacing the scattered feature documentation with clear, organized information.
+This comprehensive features guide consolidates all Zoidbot capabilities, integrations, and premium features into a single authoritative reference, replacing the scattered feature documentation with clear, organized information.

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis-tunnel-state
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   labels:
     app: redis-tunnel-state
 spec:

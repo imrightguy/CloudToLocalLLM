@@ -10,8 +10,8 @@ get_version() {
 VERSION=$(get_version)
 DEB_VERSION=$(echo $VERSION | cut -d '+' -f 1)
 BUILD_NUMBER=$(echo $VERSION | cut -d '+' -f 2)
-PACKAGE_NAME="cloudtolocalllm_${DEB_VERSION}_amd64.deb"
-BUILD_DIR="/tmp/cloudtolocalllm-deb-build"
+PACKAGE_NAME="zoidbot_${DEB_VERSION}_amd64.deb"
+BUILD_DIR="/tmp/zoidbot-deb-build"
 OUTPUT_DIR="dist/linux/deb"
 OUTPUT_PATH="$OUTPUT_DIR/$PACKAGE_NAME"
 
@@ -30,27 +30,27 @@ echo "Copied debian package structure"
 
 # Copy Flutter Linux build to package structure
 mkdir -p "$BUILD_DIR/usr/bin"
-mkdir -p "$BUILD_DIR/usr/lib/cloudtolocalllm"
+mkdir -p "$BUILD_DIR/usr/lib/zoidbot"
 
-cp build/linux/x64/release/bundle/cloudtolocalllm "$BUILD_DIR/usr/lib/cloudtolocalllm/"
-cp -r build/linux/x64/release/bundle/data "$BUILD_DIR/usr/lib/cloudtolocalllm/"
-cp -r build/linux/x64/release/bundle/lib "$BUILD_DIR/usr/lib/cloudtolocalllm/"
+cp build/linux/x64/release/bundle/zoidbot "$BUILD_DIR/usr/lib/zoidbot/"
+cp -r build/linux/x64/release/bundle/data "$BUILD_DIR/usr/lib/zoidbot/"
+cp -r build/linux/x64/release/bundle/lib "$BUILD_DIR/usr/lib/zoidbot/"
 
 # Create wrapper script
-cat > "$BUILD_DIR/usr/bin/cloudtolocalllm" << EOF
+cat > "$BUILD_DIR/usr/bin/zoidbot" << EOF
 #!/bin/bash
-cd /usr/lib/cloudtolocalllm
-exec ./cloudtolocalllm "$@"
+cd /usr/lib/zoidbot
+exec ./zoidbot "$@"
 EOF
 
 echo "Copied Flutter build files and created wrapper script"
 
 # Copy icon
 if [ -f "assets/icons/app_icon.png" ]; then
-    cp "assets/icons/app_icon.png" "$BUILD_DIR/usr/share/pixmaps/cloudtolocalllm.png"
+    cp "assets/icons/app_icon.png" "$BUILD_DIR/usr/share/pixmaps/zoidbot.png"
     echo "Copied app icon"
-elif [ -f "linux/cloudtolocalllm.png" ]; then
-    cp "linux/cloudtolocalllm.png" "$BUILD_DIR/usr/share/pixmaps/cloudtolocalllm.png"
+elif [ -f "linux/zoidbot.png" ]; then
+    cp "linux/zoidbot.png" "$BUILD_DIR/usr/share/pixmaps/zoidbot.png"
     echo "Copied linux icon"
 fi
 
@@ -63,12 +63,12 @@ echo "Updated control file with version $DEB_VERSION and size $INSTALLED_SIZE KB
 # Set permissions
 chmod 755 "$BUILD_DIR/DEBIAN/postinst"
 chmod 755 "$BUILD_DIR/DEBIAN/postrm"
-chmod 755 "$BUILD_DIR/usr/bin/cloudtolocalllm"
-chmod 755 "$BUILD_DIR/usr/lib/cloudtolocalllm/cloudtolocalllm"
-find "$BUILD_DIR/usr/lib/cloudtolocalllm/data" -type f -exec chmod 644 {} \; 2>/dev/null || true
-find "$BUILD_DIR/usr/lib/cloudtolocalllm/data" -type d -exec chmod 755 {} \; 2>/dev/null || true
-find "$BUILD_DIR/usr/lib/cloudtolocalllm/lib" -type f -exec chmod 644 {} \; 2>/dev/null || true
-find "$BUILD_DIR/usr/lib/cloudtolocalllm/lib" -type d -exec chmod 755 {} \; 2>/dev/null || true
+chmod 755 "$BUILD_DIR/usr/bin/zoidbot"
+chmod 755 "$BUILD_DIR/usr/lib/zoidbot/zoidbot"
+find "$BUILD_DIR/usr/lib/zoidbot/data" -type f -exec chmod 644 {} \; 2>/dev/null || true
+find "$BUILD_DIR/usr/lib/zoidbot/data" -type d -exec chmod 755 {} \; 2>/dev/null || true
+find "$BUILD_DIR/usr/lib/zoidbot/lib" -type f -exec chmod 644 {} \; 2>/dev/null || true
+find "$BUILD_DIR/usr/lib/zoidbot/lib" -type d -exec chmod 755 {} \; 2>/dev/null || true
 echo "Set correct permissions"
 
 # Build the DEB package

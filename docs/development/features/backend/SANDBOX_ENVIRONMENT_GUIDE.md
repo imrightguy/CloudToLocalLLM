@@ -696,7 +696,7 @@ jobs:
     
     services:
       api:
-        image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:latest
+        image: ghcr.io/zoidbot-online/zoidbot/api:latest
         env:
           SANDBOX_MODE: true
           NODE_ENV: sandbox

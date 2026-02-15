@@ -21,7 +21,7 @@ const POD_STATES = ['Running', 'Pending', 'Failed', 'Succeeded', 'Unknown'];
 const NODE_STATES = ['Ready', 'NotReady', 'Unknown'];
 
 // Valid namespaces
-const VALID_NAMESPACES = ['cloudtolocalllm', 'monitoring', 'kube-system', 'ingress-nginx'];
+const VALID_NAMESPACES = ['zoidbot', 'monitoring', 'kube-system', 'ingress-nginx'];
 
 /**
  * Generate a pod metric
@@ -29,7 +29,7 @@ const VALID_NAMESPACES = ['cloudtolocalllm', 'monitoring', 'kube-system', 'ingre
 function generatePodMetric(options = {}) {
   return {
     podName: options.podName !== undefined ? options.podName : 'test-pod',
-    namespace: options.namespace !== undefined ? options.namespace : 'cloudtolocalllm',
+    namespace: options.namespace !== undefined ? options.namespace : 'zoidbot',
     containerName: options.containerName !== undefined ? options.containerName : 'app',
     cpuUsage: options.cpuUsage !== undefined ? options.cpuUsage : Math.random() * 1000, // millicores
     memoryUsage: options.memoryUsage !== undefined ? options.memoryUsage : Math.random() * 512, // MB
@@ -227,8 +227,8 @@ describe('CloudWatch Metrics Collection - Property Tests', () => {
 
     test('should collect metrics from multiple pods', () => {
       const pods = [
-        { podName: 'pod-1', namespace: 'cloudtolocalllm' },
-        { podName: 'pod-2', namespace: 'cloudtolocalllm' },
+        { podName: 'pod-1', namespace: 'zoidbot' },
+        { podName: 'pod-2', namespace: 'zoidbot' },
         { podName: 'pod-3', namespace: 'monitoring' },
       ];
 
@@ -255,15 +255,15 @@ describe('CloudWatch Metrics Collection - Property Tests', () => {
 
     test('should aggregate pod metrics by namespace', () => {
       const metrics = [
-        generatePodMetric({ namespace: 'cloudtolocalllm' }),
-        generatePodMetric({ namespace: 'cloudtolocalllm' }),
+        generatePodMetric({ namespace: 'zoidbot' }),
+        generatePodMetric({ namespace: 'zoidbot' }),
         generatePodMetric({ namespace: 'monitoring' }),
       ];
 
       const aggregated = aggregatePodMetricsByNamespace(metrics);
 
       expect(Object.keys(aggregated).length).toBe(2);
-      expect(aggregated['cloudtolocalllm'].length).toBe(2);
+      expect(aggregated['zoidbot'].length).toBe(2);
       expect(aggregated['monitoring'].length).toBe(1);
     });
 
@@ -304,7 +304,7 @@ describe('CloudWatch Metrics Collection - Property Tests', () => {
     });
 
     test('should validate pod is in valid namespace', () => {
-      const metric = generatePodMetric({ namespace: 'cloudtolocalllm' });
+      const metric = generatePodMetric({ namespace: 'zoidbot' });
 
       expect(validatePodNamespace(metric)).toBe(true);
     });

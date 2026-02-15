@@ -11,7 +11,7 @@
 
 param(
     [string]$KeystorePath = "android/release-keystore.jks",
-    [string]$KeyAlias = "cloudtolocalllm-release",
+    [string]$KeyAlias = "zoidbot-release",
     [int]$Validity = 10000,
     [switch]$SkipKeystoreGeneration,
     [switch]$Force
@@ -124,7 +124,7 @@ if ($keystoreExists -and -not $Force) {
     }
     
     # Generate keystore
-    $dname = "CN=CloudToLocalLLM, OU=Development, O=CloudToLocalLLM, L=Unknown, ST=Unknown, C=US"
+    $dname = "CN=Zoidbot, OU=Development, O=Zoidbot, L=Unknown, ST=Unknown, C=US"
     
     $keytoolArgs = @(
         "-genkey",

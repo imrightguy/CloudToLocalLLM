@@ -1,6 +1,6 @@
 # Security Test Suite
 
-This directory contains comprehensive security tests for the CloudToLocalLLM simplified tunnel system. The tests validate authentication, authorization, user isolation, rate limiting, and other security measures.
+This directory contains comprehensive security tests for the Zoidbot simplified tunnel system. The tests validate authentication, authorization, user isolation, rate limiting, and other security measures.
 
 ## Test Files
 

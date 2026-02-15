@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Database Testing Script for CloudToLocalLLM PostgreSQL
+ * Database Testing Script for Zoidbot PostgreSQL
  * Tests database connectivity, schema validation, and basic operations
  */
 
@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 async function testDatabase() {
-  console.log(' CloudToLocalLLM Database Testing Script');
+  console.log(' Zoidbot Database Testing Script');
   console.log('==========================================\n');
 
   const dbType = process.env.DB_TYPE || 'postgresql';

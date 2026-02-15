@@ -1,5 +1,5 @@
 /**
- * Authentication Audit Logging Routes for CloudToLocalLLM API Backend
+ * Authentication Audit Logging Routes for Zoidbot API Backend
  *
  * Provides endpoints for retrieving authentication audit logs
  * with proper authorization and filtering.

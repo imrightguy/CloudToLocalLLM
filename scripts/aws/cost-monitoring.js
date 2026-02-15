@@ -16,7 +16,7 @@ const path = require('path');
 
 const AWS_ACCOUNT_ID = '422017356244';
 const AWS_REGION = 'us-east-1';
-const CLUSTER_NAME = 'cloudtolocalllm-eks';
+const CLUSTER_NAME = 'zoidbot-eks';
 
 // Initialize AWS SDK v3 clients
 const costExplorerClient = new CostExplorerClient({ region: AWS_REGION });

@@ -1,4 +1,4 @@
-# Base Image for CloudToLocalLLM
+# Base Image for Zoidbot
 # Using Ubuntu 24.04 as requested to match GitHub Actions runner.
 # Updated to force full rebuild of all services.
 
@@ -19,19 +19,19 @@ RUN apt-get update && \
     npm install -g npm@latest && \
     rm -rf /var/lib/apt/lists/*
 
-# Create custom user 'cloudtolocalllm' (UID 1000)
+# Create custom user 'zoidbot' (UID 1000)
 # Ubuntu 24.04 has a default user 'ubuntu' with UID 1000.
-# We rename it to 'cloudtolocalllm' to match our expectation.
+# We rename it to 'zoidbot' to match our expectation.
 RUN if id -u ubuntu >/dev/null 2>&1; then \
-    usermod -l cloudtolocalllm -d /home/cloudtolocalllm -m ubuntu; \
-    groupmod -n cloudtolocalllm ubuntu; \
+    usermod -l zoidbot -d /home/zoidbot -m ubuntu; \
+    groupmod -n zoidbot ubuntu; \
     else \
-    useradd -u 1000 -m -s /bin/bash cloudtolocalllm; \
+    useradd -u 1000 -m -s /bin/bash zoidbot; \
     fi
 
 # Set up working directory
 WORKDIR /app
-RUN chown cloudtolocalllm:cloudtolocalllm /app
+RUN chown zoidbot:zoidbot /app
 
 # Default to non-root user
-USER cloudtolocalllm
+USER zoidbot

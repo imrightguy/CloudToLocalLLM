@@ -1,4 +1,4 @@
-# CloudToLocalLLM Version Management Utility (PowerShell)
+# Zoidbot Version Management Utility (PowerShell)
 # Provides unified version management across all platforms and build systems
 
 [CmdletBinding()]
@@ -1153,7 +1153,7 @@ function Show-VersionInfo {
     $semanticVersion = Get-SemanticVersion
     $buildNumber = Get-BuildNumber
     
-    Write-Host "=== CloudToLocalLLM Version Information ===" -ForegroundColor Cyan
+    Write-Host "=== Zoidbot Version Information ===" -ForegroundColor Cyan
     Write-Host "Full Version:     " -NoNewline
     Write-Host $fullVersion -ForegroundColor Green
     Write-Host "Semantic Version: " -NoNewline
@@ -1305,7 +1305,7 @@ switch ($Command) {
         Test-VersionFormat -Version $version
     }
     'help' {
-        Write-Host "CloudToLocalLLM Version Manager (PowerShell)" -ForegroundColor Cyan
+        Write-Host "Zoidbot Version Manager (PowerShell)" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "Usage: .\version_manager.ps1 [command] [arguments]" -ForegroundColor White
         Write-Host ""
@@ -1329,7 +1329,7 @@ switch ($Command) {
         Write-Host "  .\version_manager.ps1 prepare build"
         Write-Host "  .\version_manager.ps1 set 3.1.0"
         Write-Host ""
-        Write-Host "CloudToLocalLLM Semantic Versioning Strategy:" -ForegroundColor Yellow
+        Write-Host "Zoidbot Semantic Versioning Strategy:" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "  PATCH - 0.0.X+YYYYMMDDHHMM - URGENT FIXES:"
         Write-Host "    - Hotfixes and critical bug fixes requiring immediate deployment"

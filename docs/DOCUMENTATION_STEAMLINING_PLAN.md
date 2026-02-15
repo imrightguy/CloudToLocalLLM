@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-This plan outlines the strategy to audit, consolidate, and streamline the CloudToLocalLLM project documentation. The goal is to eliminate redundant content, standardize formatting, verify technical accuracy, and establish automated maintenance workflows.
+This plan outlines the strategy to audit, consolidate, and streamline the Zoidbot project documentation. The goal is to eliminate redundant content, standardize formatting, verify technical accuracy, and establish automated maintenance workflows.
 
 ## 2. Phase 1: Audit and Inventory (Week 1)
 

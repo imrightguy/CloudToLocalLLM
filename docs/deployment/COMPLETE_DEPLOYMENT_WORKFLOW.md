@@ -1,6 +1,6 @@
-# CloudToLocalLLM Complete Deployment Workflow
+# Zoidbot Complete Deployment Workflow
 
-This is the **ONE AND ONLY** deployment document for CloudToLocalLLM. Follow this exactly to ensure a smooth and successful deployment.
+This is the **ONE AND ONLY** deployment document for Zoidbot. Follow this exactly to ensure a smooth and successful deployment.
 
 **Estimated Total Time:** 45-90 minutes
 
@@ -23,7 +23,7 @@ This is the **ONE AND ONLY** deployment document for CloudToLocalLLM. Follow thi
 ```bash
 # 1. Verify you're in the correct directory
 pwd
-# Expected: /path/to/CloudToLocalLLM
+# Expected: /path/to/Zoidbot
 
 # 2. Check Git status
 git status
@@ -61,7 +61,7 @@ kubectl cluster-info
 
 ### **Build and Push Images to Container Registry**
 
-CloudToLocalLLM uses Dockerfiles for container builds. Build and push images to your registry:
+Zoidbot uses Dockerfiles for container builds. Build and push images to your registry:
 
 ```bash
 # Authenticate with your container registry
@@ -71,13 +71,13 @@ CloudToLocalLLM uses Dockerfiles for container builds. Build and push images to 
 
 # Build and push web application image (update registry as needed)
 docker build -f config/docker/Dockerfile.web \
-  -t your-registry/cloudtolocalllm-web:latest .
-docker push your-registry/cloudtolocalllm-web:latest
+  -t your-registry/zoidbot-web:latest .
+docker push your-registry/zoidbot-web:latest
 
 # Build and push API backend image
 docker build -f services/api-backend/Dockerfile.prod \
-  -t your-registry/cloudtolocalllm-api:latest .
-docker push your-registry/cloudtolocalllm-api:latest
+  -t your-registry/zoidbot-api:latest .
+docker push your-registry/zoidbot-api:latest
 ```
 
 **Note:** Update image tags in `k8s/api-backend-deployment.yaml` and `k8s/web-deployment.yaml` if using different tags.
@@ -110,7 +110,7 @@ kubectl apply -f k8s/configmap.yaml
 kubectl apply -f k8s/postgres-statefulset.yaml
 
 # Wait for database to be ready
-kubectl wait --for=condition=ready pod -l app=postgres -n cloudtolocalllm --timeout=300s
+kubectl wait --for=condition=ready pod -l app=postgres -n zoidbot --timeout=300s
 ```
 
 ### **Step 3.3: Deploy Applications**
@@ -130,17 +130,17 @@ kubectl apply -f k8s/ingress-nginx.yaml
 
 ```bash
 # Check pod status
-kubectl get pods -n cloudtolocalllm
+kubectl get pods -n zoidbot
 
 # Check services
-kubectl get svc -n cloudtolocalllm
+kubectl get svc -n zoidbot
 
 # Test main application
-curl -I https://app.cloudtolocalllm.online
+curl -I https://app.zoidbot.online
 # Expected: HTTP/1.1 200 OK
 
 # Check version endpoint
-curl -s https://app.cloudtolocalllm.online/version.json
+curl -s https://app.zoidbot.online/version.json
 ```
 
 ---
@@ -151,19 +151,19 @@ curl -s https://app.cloudtolocalllm.online/version.json
 
 ```bash
 # Check all pods are running
-kubectl get pods -n cloudtolocalllm
+kubectl get pods -n zoidbot
 
 # View pod logs
-kubectl logs -f deployment/api-backend -n cloudtolocalllm
-kubectl logs -f deployment/web -n cloudtolocalllm
+kubectl logs -f deployment/api-backend -n zoidbot
+kubectl logs -f deployment/web -n zoidbot
 
 # Check ingress status
-kubectl get ingress -n cloudtolocalllm
+kubectl get ingress -n zoidbot
 ```
 
 ### **Manual Verification**
 
-- **Web Application:** Loads correctly at https://app.cloudtolocalllm.online, authentication works, no console errors
+- **Web Application:** Loads correctly at https://app.zoidbot.online, authentication works, no console errors
 - **API Backend:** Health check endpoint returns 200 OK
 - **Database:** PostgreSQL pods are running and accepting connections
 
@@ -179,7 +179,7 @@ kubectl get ingress -n cloudtolocalllm
 
 ## 🔧 **Troubleshooting**
 
-- **Pod Not Starting:** Check pod logs with `kubectl logs <pod-name> -n cloudtolocalllm`
+- **Pod Not Starting:** Check pod logs with `kubectl logs <pod-name> -n zoidbot`
 - **Image Pull Errors:** Verify image registry credentials and image tags
 - **Database Connection Issues:** Check PostgreSQL pod logs and verify secrets
 - **Ingress Issues:** Check ingress controller and DNS configuration

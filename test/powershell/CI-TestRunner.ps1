@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    CI/CD optimized PowerShell test runner for CloudToLocalLLM
+    CI/CD optimized PowerShell test runner for Zoidbot
 
 .DESCRIPTION
     This script runs PowerShell tests in a CI/CD environment with proper
@@ -64,7 +64,7 @@ $PesterConfig = New-PesterConfiguration
 
 # Test discovery
 $PesterConfig.Run.Path = @(
-    "$PSScriptRoot\Deploy-CloudToLocalLLM.Tests.ps1",
+    "$PSScriptRoot\Deploy-Zoidbot.Tests.ps1",
     "$PSScriptRoot\BuildEnvironmentUtilities.Tests.ps1",
     "$PSScriptRoot\Integration\"
 )

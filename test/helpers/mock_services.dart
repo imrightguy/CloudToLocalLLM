@@ -8,14 +8,14 @@ library;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
-import 'package:cloudtolocalllm/services/platform_adapter.dart';
+import 'package:zoidbot/services/platform_detection_service.dart';
+import 'package:zoidbot/services/platform_adapter.dart';
 import 'package:get_it/get_it.dart';
-import 'package:cloudtolocalllm/services/auth_service.dart';
-import 'package:cloudtolocalllm/services/admin_center_service.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
-import 'package:cloudtolocalllm/models/user_model.dart';
-import 'package:cloudtolocalllm/models/admin_role_model.dart';
+import 'package:zoidbot/services/auth_service.dart';
+import 'package:zoidbot/services/admin_center_service.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:zoidbot/models/user_model.dart';
+import 'package:zoidbot/models/admin_role_model.dart';
 
 /// Initialize mock plugins for testing
 Future<void> initializeMockPlugins() async {

@@ -1,4 +1,4 @@
-# CloudToLocalLLM GitHub Release Asset Upload Script
+# Zoidbot GitHub Release Asset Upload Script
 # Uploads built assets to an existing GitHub release
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '')]
@@ -42,7 +42,7 @@ if (Test-Path $versionManagerPath) {
 }
 
 function Show-Help {
-    Write-Host "CloudToLocalLLM GitHub Release Asset Upload Script" -ForegroundColor Cyan
+    Write-Host "Zoidbot GitHub Release Asset Upload Script" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Usage: .\Upload-GitHubReleaseAssets.ps1 -ReleaseId <id> [-AssetPath <path>]" -ForegroundColor White
     Write-Host ""
@@ -53,7 +53,7 @@ function Show-Help {
     Write-Host ""
     Write-Host "Examples:" -ForegroundColor Green
     Write-Host "  .\Upload-GitHubReleaseAssets.ps1 -ReleaseId 228513276"
-    Write-Host "  .\Upload-GitHubReleaseAssets.ps1 -ReleaseId 228513276 -AssetPath 'dist\windows\cloudtolocalllm-3.7.0-portable.zip'"
+    Write-Host "  .\Upload-GitHubReleaseAssets.ps1 -ReleaseId 228513276 -AssetPath 'dist\windows\zoidbot-3.7.0-portable.zip'"
 }
 
 function Send-AssetToGitHub {
@@ -81,9 +81,9 @@ function Send-AssetToGitHub {
             }
 
             # GitHub CLI approach (requires gh CLI to be installed and authenticated)
-            Write-LogInfo "Executing: gh release upload v$Version `"$FilePath`" --repo imrightguy/CloudToLocalLLM --clobber"
+            Write-LogInfo "Executing: gh release upload v$Version `"$FilePath`" --repo imrightguy/Zoidbot --clobber"
 
-            $result = & gh release upload "v$Version" $FilePath --repo imrightguy/CloudToLocalLLM --clobber 2>&1
+            $result = & gh release upload "v$Version" $FilePath --repo imrightguy/Zoidbot --clobber 2>&1
 
             if ($LASTEXITCODE -eq 0) {
                 Write-LogSuccess "Successfully uploaded $fileName (attempt $attempt)"
@@ -121,7 +121,7 @@ function Test-AssetUpload {
 
     try {
         Write-LogInfo "Verifying upload of $FileName..."
-        $assets = gh api "repos/imrightguy/CloudToLocalLLM/releases/$ReleaseId/assets" | ConvertFrom-Json
+        $assets = gh api "repos/imrightguy/Zoidbot/releases/$ReleaseId/assets" | ConvertFrom-Json
 
         $asset = $assets | Where-Object { $_.name -eq $FileName }
 
@@ -140,7 +140,7 @@ function Test-AssetUpload {
 }
 
 function Main {
-    Write-LogInfo "CloudToLocalLLM GitHub Release Asset Upload v$Version"
+    Write-LogInfo "Zoidbot GitHub Release Asset Upload v$Version"
     Write-LogInfo "================================================"
 
     if ($Help) {
@@ -177,7 +177,7 @@ function Main {
         }
     } else {
         # Upload all v3.7.0 assets
-        $assetPattern = "cloudtolocalllm-$Version-portable.*"
+        $assetPattern = "zoidbot-$Version-portable.*"
         $assets = Get-ChildItem -Path $DistDir -Filter $assetPattern
 
         if ($assets.Count -eq 0) {

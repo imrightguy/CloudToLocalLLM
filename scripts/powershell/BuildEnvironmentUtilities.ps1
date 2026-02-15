@@ -1,4 +1,4 @@
-# CloudToLocalLLM PowerShell Utilities
+# Zoidbot PowerShell Utilities
 # Common functions for WSL integration, logging, and cross-platform operations
 
 [CmdletBinding()]
@@ -914,15 +914,15 @@ function Set-SSHKeyPermissions {
 function Update-SSHConfig {
     [CmdletBinding()]
     param(
-        [string]$VPSHost = "cloudtolocalllm.online",
+        [string]$VPSHost = "zoidbot.online",
         [string]$VPSUser = "cloudllm"
     )
 
     $sshConfigPath = Join-Path $env:USERPROFILE ".ssh\config"
     $configEntry = @"
 
-# CloudToLocalLLM VPS Configuration (Auto-generated)
-Host cloudtolocalllm
+# Zoidbot VPS Configuration (Auto-generated)
+Host zoidbot
     HostName $VPSHost
     User $VPSUser
     IdentitiesOnly yes
@@ -944,11 +944,11 @@ Host $VPSHost
 "@
 
     try {
-        # Check if config already contains CloudToLocalLLM entries
+        # Check if config already contains Zoidbot entries
         if (Test-Path $sshConfigPath) {
             $existingConfig = Get-Content $sshConfigPath -Raw
-            if ($existingConfig -like "*CloudToLocalLLM VPS Configuration*") {
-                Write-LogInfo "SSH config already contains CloudToLocalLLM VPS configuration"
+            if ($existingConfig -like "*Zoidbot VPS Configuration*") {
+                Write-LogInfo "SSH config already contains Zoidbot VPS configuration"
                 return $true
             }
         }

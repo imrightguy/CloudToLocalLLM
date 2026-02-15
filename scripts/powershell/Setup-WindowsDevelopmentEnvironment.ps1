@@ -1,5 +1,5 @@
-# CloudToLocalLLM Windows Development Environment Setup Script
-# Comprehensive setup for CloudToLocalLLM development on Windows
+# Zoidbot Windows Development Environment Setup Script
+# Comprehensive setup for Zoidbot development on Windows
 
 [CmdletBinding()]
 param(
@@ -375,7 +375,7 @@ function Test-FlutterProject {
     Write-LogInfo "Testing Flutter project setup..."
 
     if (-not (Test-Path "pubspec.yaml")) {
-        Write-LogError "pubspec.yaml not found. Are you in the CloudToLocalLLM project directory?"
+        Write-LogError "pubspec.yaml not found. Are you in the Zoidbot project directory?"
         return $false
     }
 
@@ -422,7 +422,7 @@ function Test-PowerShellScripts {
 
 # Main execution
 function Main {
-    Write-Host " CloudToLocalLLM Windows Development Environment Setup" -ForegroundColor Green
+    Write-Host " Zoidbot Windows Development Environment Setup" -ForegroundColor Green
     Write-Host "=======================================================" -ForegroundColor Green
     Write-Host ""
 
@@ -522,7 +522,7 @@ function Main {
     Write-Host "==================" -ForegroundColor Green
 
     if ($success) {
-        Write-LogSuccess "CloudToLocalLLM development environment setup completed successfully!"
+        Write-LogSuccess "Zoidbot development environment setup completed successfully!"
     } else {
         Write-LogWarning "Setup completed with some issues. Please review the output above."
     }

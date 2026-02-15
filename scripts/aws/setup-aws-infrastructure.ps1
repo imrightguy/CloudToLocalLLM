@@ -5,7 +5,7 @@ param(
     [string]$AccessKeyId,
     [string]$SecretAccessKey,
     [string]$AwsAccountId = "422017356244",
-    [string]$GitHubRepo = "cloudtolocalllm/cloudtolocalllm",
+    [string]$GitHubRepo = "zoidbot/zoidbot",
     [string]$AwsRegion = "us-east-1"
 )
 

@@ -1,6 +1,6 @@
-# CloudToLocalLLM Helper
+# Zoidbot Helper
 
-This file provides context and helpers for the CloudToLocalLLM project.
+This file provides context and helpers for the Zoidbot project.
 
 ## CLI Tools
 The following CLI tools are essential for working on this repository:

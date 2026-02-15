@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CloudToLocalLLM ArchLinux Flutter/Dart Setup Script
+# Zoidbot ArchLinux Flutter/Dart Setup Script
 # Simple installation script for Flutter and Dart SDK
 
 set -euo pipefail
@@ -118,7 +118,7 @@ verify_installation() {
 
 # Main function
 main() {
-    log_info "CloudToLocalLLM ArchLinux Flutter/Dart Setup"
+    log_info "Zoidbot ArchLinux Flutter/Dart Setup"
     log_info "============================================="
 
     install_system_packages

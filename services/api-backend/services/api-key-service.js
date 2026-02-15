@@ -1,5 +1,5 @@
 /**
- * API Key Service for CloudToLocalLLM
+ * API Key Service for Zoidbot
  *
  * Manages API key generation, validation, rotation, and revocation
  * for service-to-service authentication.

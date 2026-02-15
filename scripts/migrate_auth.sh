@@ -2,7 +2,7 @@
 # scripts/migrate_auth.sh
 # Stub for Supabase -> Auth0 migration (no data migration needed for fresh setup)
 
-echo "=== CloudToLocalLLM Auth Migration Stub ==="
+echo "=== Zoidbot Auth Migration Stub ==="
 echo "No user data migration required for fresh Auth0 setup."
 echo ""
 echo "For existing Supabase users (manual):"

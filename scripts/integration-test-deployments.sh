@@ -8,7 +8,7 @@ set -e
 
 # Configuration
 ARGOCD_NAMESPACE="argocd"
-CLOUDTOLOCLLM_NAMESPACE="cloudtolocalllm"
+CLOUDTOLOCLLM_NAMESPACE="zoidbot"
 TEST_NAMESPACE="argocd-integration-test"
 LOG_FILE="/var/log/integration-test-deployments.log"
 REPORT_FILE="/tmp/integration-test-report-$(date +%Y%m%d_%H%M%S).json"
@@ -93,7 +93,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+    repoURL: https://github.com/Zoidbot-online/Zoidbot
     targetRevision: main
     path: k8s/apps/local/api-backend/shared/base
   destination:
@@ -252,7 +252,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+    repoURL: https://github.com/Zoidbot-online/Zoidbot
     targetRevision: main
     path: k8s/apps/local/api-backend/shared/base
   destination:

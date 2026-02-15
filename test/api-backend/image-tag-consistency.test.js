@@ -39,10 +39,10 @@ const dockerImageTagArbitrary = () => {
 const repositoryNameArbitrary = () => {
   // CI-stable repositories
   return fc.constantFrom(
-    'cloudtolocalllm-api',
-    'cloudtolocalllm-web',
-    'cloudtolocalllm-streaming',
-    'cloudtolocalllm-postgres'
+    'zoidbot-api',
+    'zoidbot-web',
+    'zoidbot-streaming',
+    'zoidbot-postgres'
   );
 };
 
@@ -52,7 +52,7 @@ const repositoryNameArbitrary = () => {
  */
 const dockerImageReferenceArbitrary = () => {
   return fc.record({
-    registry: fc.constant('cloudtolocalllm'),
+    registry: fc.constant('zoidbot'),
     repository: repositoryNameArbitrary(),
     tag: dockerImageTagArbitrary(),
   });
@@ -78,8 +78,8 @@ function buildAndTagImage(repository, commitSHA) {
 
   // Create image reference with both latest and commit SHA tags
   return {
-    latest: `cloudtolocalllm/${repository}:latest`,
-    commit: `cloudtolocalllm/${repository}:${commitSHA}`,
+    latest: `zoidbot/${repository}:latest`,
+    commit: `zoidbot/${repository}:${commitSHA}`,
     commitSHA: commitSHA,
     repository: repository,
     timestamp: Date.now(),
@@ -98,7 +98,7 @@ function pushImageToRegistry(imageRef) {
   return {
     ...imageRef,
     pushed: true,
-    registryURL: 'https://hub.docker.com/r/cloudtolocalllm',
+    registryURL: 'https://hub.docker.com/r/zoidbot',
     pullCommands: {
       latest: `docker pull ${imageRef.latest}`,
       commit: `docker pull ${imageRef.commit}`,
@@ -128,7 +128,7 @@ function pullImageFromRegistry(imageRef, tag = 'commit') {
  * Simulate Kubernetes deployment with image
  * Returns deployment metadata
  */
-function deployImageToKubernetes(imageRef, namespace = 'cloudtolocalllm') {
+function deployImageToKubernetes(imageRef, namespace = 'zoidbot') {
   assert(imageRef.commit, 'Image reference must have commit tag');
   assert(namespace, 'Namespace must be provided');
 
@@ -171,7 +171,7 @@ function isValidImageReference(ref) {
   const [registry, repoName] = imageParts;
 
   return (
-    registry === 'cloudtolocalllm' &&
+    registry === 'zoidbot' &&
     /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(repoName) &&
     isValidImageTag(tag)
   );
@@ -424,7 +424,7 @@ describe('Image Tag Consistency Property Tests', () => {
 
             // Latest tag should always reflect the last build
             const lastBuild = builds[builds.length - 1];
-            expect(lastBuild.latest).toBe(`cloudtolocalllm/${repository}:latest`);
+            expect(lastBuild.latest).toBe(`zoidbot/${repository}:latest`);
             expect(builds.every((b) => b.latest === lastBuild.latest)).toBe(true);
 
             // And different commit tags
@@ -447,8 +447,8 @@ describe('Image Tag Consistency Property Tests', () => {
 
 
             // Both tags should have registry prefix
-            expect(imageRef.latest).toMatch(/^cloudtolocalllm\//);
-            expect(imageRef.commit).toMatch(/^cloudtolocalllm\//);
+            expect(imageRef.latest).toMatch(/^zoidbot\//);
+            expect(imageRef.commit).toMatch(/^zoidbot\//);
           }
         ),
         { numRuns: 100 }
@@ -481,7 +481,7 @@ describe('Image Tag Consistency Property Tests', () => {
             const imageParts = imagePart.split('/');
             expect(imageParts.length).toBe(2);
 
-            expect(imageParts[0]).toBe('cloudtolocalllm');
+            expect(imageParts[0]).toBe('zoidbot');
             expect(imageParts[1]).toBe(repository);
             expect(tag).toBe(commitSHA);
           }

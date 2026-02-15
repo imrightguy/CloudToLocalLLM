@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
-import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
+import 'package:zoidbot/services/settings_import_export_service.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:zoidbot/utils/settings_error_handler.dart';
 
 void main() {
   group('SettingsImportExportService', () {
@@ -107,7 +107,7 @@ void main() {
         final filename = service.generateExportFilename();
 
         // Assert
-        expect(filename, startsWith('cloudtolocalllm-settings-'));
+        expect(filename, startsWith('zoidbot-settings-'));
         expect(filename, endsWith('.json'));
       });
     });

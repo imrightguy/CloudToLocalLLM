@@ -7,7 +7,7 @@ The Tunnel Server API provides REST endpoints and WebSocket protocol for managin
 ## Base URL
 
 ```
-https://proxy.cloudtolocalllm.online
+https://proxy.zoidbot.online
 ```
 
 ## Authentication
@@ -32,7 +32,7 @@ Returns the health status of the tunnel service.
 
 ```http
 GET /api/tunnel/health HTTP/1.1
-Host: proxy.cloudtolocalllm.online
+Host: proxy.zoidbot.online
 ```
 
 **Response (200 OK):**
@@ -77,7 +77,7 @@ Returns detailed diagnostic information about the tunnel service.
 
 ```http
 GET /api/tunnel/diagnostics HTTP/1.1
-Host: proxy.cloudtolocalllm.online
+Host: proxy.zoidbot.online
 Authorization: Bearer <JWT_TOKEN>
 ```
 
@@ -142,7 +142,7 @@ Returns Prometheus-format metrics for scraping.
 
 ```http
 GET /api/tunnel/metrics HTTP/1.1
-Host: proxy.cloudtolocalllm.online
+Host: proxy.zoidbot.online
 ```
 
 **Response (200 OK):**
@@ -203,7 +203,7 @@ Returns current tunnel configuration (admin only).
 
 ```http
 GET /api/tunnel/config HTTP/1.1
-Host: proxy.cloudtolocalllm.online
+Host: proxy.zoidbot.online
 Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
@@ -290,7 +290,7 @@ Updates tunnel configuration (admin only).
 
 ```http
 PUT /api/tunnel/config HTTP/1.1
-Host: proxy.cloudtolocalllm.online
+Host: proxy.zoidbot.online
 Authorization: Bearer <ADMIN_JWT_TOKEN>
 Content-Type: application/json
 
@@ -346,7 +346,7 @@ Content-Type: application/json
 
 ```http
 GET /ws HTTP/1.1
-Host: proxy.cloudtolocalllm.online
+Host: proxy.zoidbot.online
 Upgrade: websocket
 Connection: Upgrade
 Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
@@ -568,17 +568,17 @@ Rate limits reset every minute. The `X-RateLimit-Reset` header indicates the Uni
 
 ```bash
 # 1. Get JWT token from Auth0
-TOKEN=$(curl -X POST https://auth.cloudtolocalllm.online/oauth/token \
+TOKEN=$(curl -X POST https://auth.zoidbot.online/oauth/token \
   -H "Content-Type: application/json" \
   -d '{
     "client_id": "YOUR_CLIENT_ID",
     "client_secret": "YOUR_CLIENT_SECRET",
-    "audience": "https://api.cloudtolocalllm.online",
+    "audience": "https://api.zoidbot.online",
     "grant_type": "client_credentials"
   }' | jq -r '.access_token')
 
 # 2. Connect to WebSocket
-wscat -c wss://proxy.cloudtolocalllm.online/ws \
+wscat -c wss://proxy.zoidbot.online/ws \
   -H "Authorization: Bearer $TOKEN"
 
 # 3. Send request through tunnel
@@ -599,14 +599,14 @@ wscat -c wss://proxy.cloudtolocalllm.online/ws \
 
 ```bash
 # Check health status
-curl https://proxy.cloudtolocalllm.online/api/tunnel/health
+curl https://proxy.zoidbot.online/api/tunnel/health
 
 # Get detailed diagnostics
 curl -H "Authorization: Bearer $TOKEN" \
-  https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics
+  https://proxy.zoidbot.online/api/tunnel/diagnostics
 
 # Scrape Prometheus metrics
-curl https://proxy.cloudtolocalllm.online/api/tunnel/metrics
+curl https://proxy.zoidbot.online/api/tunnel/metrics
 ```
 
 ### Handling Errors
@@ -614,7 +614,7 @@ curl https://proxy.cloudtolocalllm.online/api/tunnel/metrics
 ```bash
 # Rate limit error
 curl -H "Authorization: Bearer $TOKEN" \
-  https://proxy.cloudtolocalllm.online/api/tunnel/health
+  https://proxy.zoidbot.online/api/tunnel/health
 
 # Response:
 # HTTP/1.1 429 Too Many Requests

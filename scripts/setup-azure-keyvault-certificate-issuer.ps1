@@ -4,9 +4,9 @@
 
 $ErrorActionPreference = "Stop"
 
-$KEY_VAULT_NAME = "cloudtolocalllm-kv"
-$RESOURCE_GROUP = "cloudtolocalllm-rg"
-$DOMAIN = "cloudtolocalllm.online"
+$KEY_VAULT_NAME = "zoidbot-kv"
+$RESOURCE_GROUP = "zoidbot-rg"
+$DOMAIN = "zoidbot.online"
 
 Write-Host "🔐 Setting up Azure Key Vault Certificate Issuer..." -ForegroundColor Cyan
 Write-Host ""

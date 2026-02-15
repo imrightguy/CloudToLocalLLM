@@ -54,7 +54,7 @@ $scriptPath = Join-Path $PSScriptRoot ".." "setup-wsl-linux-runner.sh"
 $scriptPath = Resolve-Path $scriptPath
 
 # Make script executable and copy to WSL
-wsl -d $WslDistribution bash -c "chmod +x /mnt/d/dev/CloudToLocalLLM/scripts/setup-wsl-linux-runner.sh"
+wsl -d $WslDistribution bash -c "chmod +x /mnt/d/dev/Zoidbot/scripts/setup-wsl-linux-runner.sh"
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "Setup Instructions" -ForegroundColor Cyan
@@ -64,7 +64,7 @@ Write-Host "Run the setup script in WSL:" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Option 1: Run in current WSL session" -ForegroundColor Green
 Write-Host "  wsl -d $WslDistribution" -ForegroundColor Cyan
-Write-Host "  cd /mnt/d/dev/CloudToLocalLLM" -ForegroundColor Cyan
+Write-Host "  cd /mnt/d/dev/Zoidbot" -ForegroundColor Cyan
 Write-Host "  bash scripts/setup-wsl-linux-runner.sh" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Option 2: Run directly from PowerShell" -ForegroundColor Green
@@ -77,5 +77,5 @@ Write-Host "  • Set up GitHub Actions runner" -ForegroundColor White
 Write-Host "  • Configure runner service" -ForegroundColor White
 Write-Host ""
 Write-Host "You'll need a runner registration token from:" -ForegroundColor Yellow
-Write-Host "  https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/settings/actions/runners/new" -ForegroundColor Cyan
+Write-Host "  https://github.com/Zoidbot-online/Zoidbot/settings/actions/runners/new" -ForegroundColor Cyan
 

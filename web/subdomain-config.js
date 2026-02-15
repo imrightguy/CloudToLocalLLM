@@ -1,4 +1,4 @@
-// CloudToLocalLLM - Production Subdomain Configuration
+// Zoidbot - Production Subdomain Configuration
 // This file configures the Flutter web app to use production subdomains
 
 window.cloudToLocalLLMConfig = {
@@ -7,7 +7,7 @@ window.cloudToLocalLLMConfig = {
   // Production subdomain URLs
   services: {
     api: {
-      baseUrl: 'https://api.cloudtolocalllm.online',
+      baseUrl: 'https://api.zoidbot.online',
       endpoints: {
         health: '/health',
         auth: '/api/auth',
@@ -19,7 +19,7 @@ window.cloudToLocalLLMConfig = {
       }
     },
     streaming: {
-      baseUrl: 'https://streaming.cloudtolocalllm.online',
+      baseUrl: 'https://streaming.zoidbot.online',
       endpoints: {
         health: '/health',
         proxy: '/proxy',
@@ -51,12 +51,12 @@ window.cloudToLocalLLMConfig = {
   }
 };
 
-console.log('CloudToLocalLLM: Production subdomain configuration loaded');
+console.log('Zoidbot: Production subdomain configuration loaded');
 console.log('API URL:', window.cloudToLocalLLMConfig.services.api.baseUrl);
 console.log('Streaming URL:', window.cloudToLocalLLMConfig.services.streaming.baseUrl);
 
 // Override the cloudRunConfig if it exists
 if (window.cloudRunConfig) {
-  window.cloudRunConfig.services.api.baseUrl = 'https://api.cloudtolocalllm.online';
-  window.cloudRunConfig.services.streaming.baseUrl = 'https://streaming.cloudtolocalllm.online';
+  window.cloudRunConfig.services.api.baseUrl = 'https://api.zoidbot.online';
+  window.cloudRunConfig.services.streaming.baseUrl = 'https://streaming.zoidbot.online';
 }

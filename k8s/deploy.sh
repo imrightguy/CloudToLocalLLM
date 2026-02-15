@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================================
-# CloudToLocalLLM - Kubernetes Deployment Script for Azure AKS
+# Zoidbot - Kubernetes Deployment Script for Azure AKS
 # NOTE: This script is for manual deployment. CI/CD handles automated deployment.
 # ============================================================================
 
@@ -107,7 +107,7 @@ print_success "secrets.yaml found"
 # Deploy Application
 # ============================================================================
 
-print_header "Deploying CloudToLocalLLM to Kubernetes"
+print_header "Deploying Zoidbot to Kubernetes"
 
 # Apply manifests in order
 print_info "Creating namespace..."
@@ -123,7 +123,7 @@ print_info "Deploying PostgreSQL..."
 kubectl apply -f postgres-statefulset.yaml
 
 print_info "Waiting for PostgreSQL to be ready..."
-kubectl wait --namespace cloudtolocalllm \
+kubectl wait --namespace zoidbot \
   --for=condition=ready pod \
   --selector=app=postgres \
   --timeout=120s
@@ -149,12 +149,12 @@ print_success "All components deployed!"
 print_header "Waiting for Deployments to be Ready"
 
 print_info "Waiting for API backend..."
-kubectl wait --namespace cloudtolocalllm \
+kubectl wait --namespace zoidbot \
   --for=condition=available deployment/api-backend \
   --timeout=180s
 
 print_info "Waiting for web application..."
-kubectl wait --namespace cloudtolocalllm \
+kubectl wait --namespace zoidbot \
   --for=condition=available deployment/web \
   --timeout=180s
 
@@ -192,20 +192,20 @@ fi
 
 print_header "Deployment Status"
 
-kubectl get pods -n cloudtolocalllm
+kubectl get pods -n zoidbot
 echo ""
-kubectl get svc -n cloudtolocalllm
+kubectl get svc -n zoidbot
 echo ""
-kubectl get ingress -n cloudtolocalllm
+kubectl get ingress -n zoidbot
 
 print_header "Deployment Complete!"
 
 print_info "Useful commands:"
-echo "  View logs:          kubectl logs -n cloudtolocalllm -l app=api-backend -f"
-echo "  Check pods:         kubectl get pods -n cloudtolocalllm"
-echo "  Check ingress:      kubectl get ingress -n cloudtolocalllm"
-echo "  Describe pod:       kubectl describe pod -n cloudtolocalllm <pod-name>"
-echo "  Scale deployment:   kubectl scale -n cloudtolocalllm deployment/api-backend --replicas=3"
+echo "  View logs:          kubectl logs -n zoidbot -l app=api-backend -f"
+echo "  Check pods:         kubectl get pods -n zoidbot"
+echo "  Check ingress:      kubectl get ingress -n zoidbot"
+echo "  Describe pod:       kubectl describe pod -n zoidbot <pod-name>"
+echo "  Scale deployment:   kubectl scale -n zoidbot deployment/api-backend --replicas=3"
 echo ""
 print_info "Once DNS is configured, your application will be available at:"
 echo "  https://yourdomain.com"

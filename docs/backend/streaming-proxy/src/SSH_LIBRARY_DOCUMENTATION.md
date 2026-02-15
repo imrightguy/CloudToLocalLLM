@@ -11,7 +11,7 @@
 
 ### Library Selection Rationale
 
-The `ssh2` library was selected for the CloudToLocalLLM tunnel system because:
+The `ssh2` library was selected for the Zoidbot tunnel system because:
 
 1. **Pure JavaScript Implementation**: Provides SSH2 client and server modules for Node.js without native dependencies
 2. **Comprehensive Feature Set**: Supports SFTP, port forwarding, multiple authentication methods, and channel multiplexing
@@ -398,7 +398,7 @@ connection.sftp((err, sftp) => {
 
 ---
 
-## Implementation Guidelines for CloudToLocalLLM
+## Implementation Guidelines for Zoidbot
 
 ### SSH Connection Manager
 

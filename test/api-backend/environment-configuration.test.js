@@ -17,7 +17,7 @@ const VALID_ENVIRONMENTS = ['development', 'staging', 'production'];
 // Environment-specific configurations
 const ENVIRONMENT_CONFIGS = {
   development: {
-    namespace: 'cloudtolocalllm-dev',
+    namespace: 'zoidbot-dev',
     replicas: 1,
     webResources: {
       requests: { memory: '128Mi', cpu: '50m' },
@@ -38,7 +38,7 @@ const ENVIRONMENT_CONFIGS = {
     estimatedMonthlyCost: 30,
   },
   staging: {
-    namespace: 'cloudtolocalllm-staging',
+    namespace: 'zoidbot-staging',
     replicas: 2,
     webResources: {
       requests: { memory: '256Mi', cpu: '100m' },
@@ -59,7 +59,7 @@ const ENVIRONMENT_CONFIGS = {
     estimatedMonthlyCost: 60,
   },
   production: {
-    namespace: 'cloudtolocalllm',
+    namespace: 'zoidbot',
     replicas: 3,
     webResources: {
       requests: { memory: '512Mi', cpu: '250m' },
@@ -209,7 +209,7 @@ describe('Environment Configuration - Property Tests', () => {
     test('should use development configuration for development environment', () => {
       const config = ENVIRONMENT_CONFIGS.development;
 
-      expect(config.namespace).toBe('cloudtolocalllm-dev');
+      expect(config.namespace).toBe('zoidbot-dev');
       expect(config.replicas).toBe(1);
       expect(config.logLevel).toBe('debug');
       expect(config.nodeEnv).toBe('development');
@@ -219,7 +219,7 @@ describe('Environment Configuration - Property Tests', () => {
     test('should use staging configuration for staging environment', () => {
       const config = ENVIRONMENT_CONFIGS.staging;
 
-      expect(config.namespace).toBe('cloudtolocalllm-staging');
+      expect(config.namespace).toBe('zoidbot-staging');
       expect(config.replicas).toBe(2);
       expect(config.logLevel).toBe('info');
       expect(config.nodeEnv).toBe('staging');
@@ -229,7 +229,7 @@ describe('Environment Configuration - Property Tests', () => {
     test('should use production configuration for production environment', () => {
       const config = ENVIRONMENT_CONFIGS.production;
 
-      expect(config.namespace).toBe('cloudtolocalllm');
+      expect(config.namespace).toBe('zoidbot');
       expect(config.replicas).toBe(3);
       expect(config.logLevel).toBe('warn');
       expect(config.nodeEnv).toBe('production');

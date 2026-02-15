@@ -18,7 +18,7 @@ RUN mkdir -p \
     /var/cache/nginx/scgi_temp \
     /tmp/nginx \
     /etc/nginx/ssl \
-    /etc/letsencrypt/live/cloudtolocalllm.online && \
+    /etc/letsencrypt/live/zoidbot.online && \
     chown -R nginx:nginx /var/cache/nginx /tmp/nginx /etc/letsencrypt /etc/nginx/ssl && \
     chmod -R 700 /var/cache/nginx && \
     chmod -R 755 /tmp/nginx

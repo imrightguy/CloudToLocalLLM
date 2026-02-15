@@ -2,14 +2,14 @@ Windows Registry Editor Version 5.00
 
 [HKEY_CURRENT_USER\Software\Classes\io.supabase.flutterquickstart]
 "URL Protocol"=""
-@="URL:CloudToLocalLLM Protocol"
+@="URL:Zoidbot Protocol"
 
 [HKEY_CURRENT_USER\Software\Classes\io.supabase.flutterquickstart\DefaultIcon]
-@="cloudtolocalllm.exe,0"
+@="zoidbot.exe,0"
 
 [HKEY_CURRENT_USER\Software\Classes\io.supabase.flutterquickstart\shell]
 
 [HKEY_CURRENT_USER\Software\Classes\io.supabase.flutterquickstart\shell\open]
 
 [HKEY_CURRENT_USER\Software\Classes\io.supabase.flutterquickstart\shell\open\command]
-@="\"C:\\Path\\To\\Your\\cloudtolocalllm.exe\" \"%1\""
+@="\"C:\\Path\\To\\Your\\zoidbot.exe\" \"%1\""

@@ -1,5 +1,5 @@
-# CloudToLocalLLM Update Checker
-# This script checks for updates to CloudToLocalLLM on GitHub and downloads/installs them if available
+# Zoidbot Update Checker
+# This script checks for updates to Zoidbot on GitHub and downloads/installs them if available
 
 # Parse command line arguments
 param (
@@ -9,11 +9,11 @@ param (
 
 # GitHub repository information
 $repoOwner = "imrightguy"
-$repoName = "CloudToLocalLLM"
+$repoName = "Zoidbot"
 $apiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/latest"
 
 # Registry settings
-$registryPath = "HKCU:\Software\CloudToLocalLLM\Updates"
+$registryPath = "HKCU:\Software\Zoidbot\Updates"
 
 # Function to get registry settings
 function Get-UpdateSettings {
@@ -55,10 +55,10 @@ function Get-CurrentVersion {
         }
 
         # Fallback: Try to extract version from the executable name
-        $exePath = Join-Path $PSScriptRoot "CloudToLocalLLM-*.exe"
+        $exePath = Join-Path $PSScriptRoot "Zoidbot-*.exe"
         $exeFile = Get-ChildItem -Path $exePath | Select-Object -First 1
         if ($exeFile) {
-            $match = [regex]::Match($exeFile.Name, "CloudToLocalLLM-(\d+\.\d+\.\d+)\.exe")
+            $match = [regex]::Match($exeFile.Name, "Zoidbot-(\d+\.\d+\.\d+)\.exe")
             if ($match.Success) {
                 return $match.Groups[1].Value
             }
@@ -128,7 +128,7 @@ function Install-Update {
 
     try {
         Write-Host "Downloading update..."
-        $tempFile = Join-Path $env:TEMP "CloudToLocalLLM-Update.exe"
+        $tempFile = Join-Path $env:TEMP "Zoidbot-Update.exe"
 
         # Download the installer
         Invoke-WebRequest -Uri $downloadUrl -OutFile $tempFile

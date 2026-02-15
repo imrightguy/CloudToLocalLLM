@@ -39,7 +39,7 @@ function makeRequest(url, options = {}) {
       method: options.method || 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'CloudToLocalLLM-IntegrationTest/1.0',
+        'User-Agent': 'Zoidbot-IntegrationTest/1.0',
         ...options.headers
       },
       timeout: options.timeout || 30000
@@ -229,7 +229,7 @@ async function testConcurrentRequests() {
   for (let i = 0; i < concurrentRequests; i++) {
     promises.push(
       makeRequest(`${TUNNEL_BASE_URL}/api/tags`, {
-        headers: { 'User-Agent': `CloudToLocalLLM-Test-${i}/1.0` },
+        headers: { 'User-Agent': `Zoidbot-Test-${i}/1.0` },
         timeout: 30000
       })
     );

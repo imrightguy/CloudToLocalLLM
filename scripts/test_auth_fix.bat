@@ -38,7 +38,7 @@ if exist auth_logs.txt (
 
 echo.
 echo 4. Cleaning up...
-taskkill /f /im cloudtolocalllm.exe > nul 2>&1
+taskkill /f /im zoidbot.exe > nul 2>&1
 del auth_logs.txt > nul 2>&1
 
 echo.

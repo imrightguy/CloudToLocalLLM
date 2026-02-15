@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 void main() {
   group('Download Functionality Tests', () {
     const String repoOwner = 'imrightguy';
-    const String repoName = 'CloudToLocalLLM';
+    const String repoName = 'Zoidbot';
     const String baseApiUrl = 'https://api.github.com/repos';
 
     test('GitHub API - Latest Release Accessible', () async {
@@ -153,12 +153,12 @@ void main() {
     test('Construct Valid Download URLs', () {
       const version = 'v3.14.45';
       const repoOwner = 'imrightguy';
-      const repoName = 'CloudToLocalLLM';
+      const repoName = 'Zoidbot';
 
       final portableUrl =
-          'https://github.com/$repoOwner/$repoName/releases/download/$version/cloudtolocalllm-${version.substring(1)}-portable.zip';
+          'https://github.com/$repoOwner/$repoName/releases/download/$version/zoidbot-${version.substring(1)}-portable.zip';
       final installerUrl =
-          'https://github.com/$repoOwner/$repoName/releases/download/$version/CloudToLocalLLM-Windows-${version.substring(1)}-Setup.exe';
+          'https://github.com/$repoOwner/$repoName/releases/download/$version/Zoidbot-Windows-${version.substring(1)}-Setup.exe';
 
       expect(portableUrl, startsWith('https://github.com/'));
       expect(installerUrl, startsWith('https://github.com/'));

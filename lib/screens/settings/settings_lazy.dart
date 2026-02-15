@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../unified_settings_screen.dart';
-import 'llm_provider_settings_screen.dart';
 import 'daemon_settings_screen.dart';
 import 'connection_status_screen.dart';
 import 'pricing_screen.dart';
@@ -27,11 +26,6 @@ final settingsRoutes = [
     name: 'tunnel-settings',
     builder: (context, state) =>
         const UnifiedSettingsScreen(initialCategory: 'tunnel-connection'),
-  ),
-  GoRoute(
-    path: '/settings/llm-provider',
-    name: 'llm-provider-settings',
-    builder: (context, state) => const LLMProviderSettingsScreen(),
   ),
   GoRoute(
     path: '/settings/daemon',

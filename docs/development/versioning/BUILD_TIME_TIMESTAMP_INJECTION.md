@@ -1,8 +1,8 @@
-# CloudToLocalLLM Build-Time Timestamp Injection v3.5.5+
+# Zoidbot Build-Time Timestamp Injection v3.5.5+
 
 ## Overview
 
-CloudToLocalLLM now implements build-time timestamp injection to ensure that timestamp-based build numbers (YYYYMMDDHHMM format) are generated at the exact moment when the actual build process occurs, not during version increment or preparation phases. This provides accurate build tracking and deployment correlation.
+Zoidbot now implements build-time timestamp injection to ensure that timestamp-based build numbers (YYYYMMDDHHMM format) are generated at the exact moment when the actual build process occurs, not during version increment or preparation phases. This provides accurate build tracking and deployment correlation.
 
 ## Key Concepts
 
@@ -372,4 +372,4 @@ Use build timestamps to correlate with deployment logs and monitor build perform
 
 The system automatically creates backups, but consider manual backups before major version changes.
 
-The build-time timestamp injection system ensures that CloudToLocalLLM build numbers accurately represent when build artifacts were actually created, providing true build tracking and deployment correlation! 🚀
+The build-time timestamp injection system ensures that Zoidbot build numbers accurately represent when build artifacts were actually created, providing true build tracking and deployment correlation! 🚀

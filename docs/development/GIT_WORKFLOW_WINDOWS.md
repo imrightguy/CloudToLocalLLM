@@ -1,12 +1,12 @@
-# CloudToLocalLLM Git Workflow for Windows
+# Zoidbot Git Workflow for Windows
 
 ## Overview
 
-This document defines the comprehensive git workflow for CloudToLocalLLM development on Windows, addressing SSH authentication issues by using Git Bash for push operations while maintaining PowerShell for other development tasks.
+This document defines the comprehensive git workflow for Zoidbot development on Windows, addressing SSH authentication issues by using Git Bash for push operations while maintaining PowerShell for other development tasks.
 
 ## Comprehensive Commit and Push Workflow
 
-When performing git operations in the CloudToLocalLLM repository, always follow this workflow:
+When performing git operations in the Zoidbot repository, always follow this workflow:
 
 ### 1. Check for All Uncommitted Changes
 
@@ -131,7 +131,7 @@ git status
 git log --oneline -3
 ```
 
-## Integration with CloudToLocalLLM Workflows
+## Integration with Zoidbot Workflows
 
 ### Manual Version Increment Workflow
 

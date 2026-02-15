@@ -1,4 +1,4 @@
-# CloudToLocalLLM Docker Scripts
+# Zoidbot Docker Scripts
 
 **⚠️ NOTICE: AUR Docker Building Temporarily Removed**
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
-import 'package:cloudtolocalllm/widgets/settings/general_settings_category.dart';
-import 'package:cloudtolocalllm/models/settings_category.dart';
+import 'package:zoidbot/services/theme_provider.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:zoidbot/widgets/settings/general_settings_category.dart';
+import 'package:zoidbot/models/settings_category.dart';
 
 void main() {
   group('General Settings Property Tests', () {

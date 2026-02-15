@@ -1,9 +1,9 @@
 $ErrorActionPreference = "Stop"
 
-$ClusterName = "cloudtolocalllm-eks"
+$ClusterName = "zoidbot-eks"
 $Region = "us-east-1"
-$NodeGroupName = "cloudtolocalllm-eks-node-group"
-$NodeRoleArn = "arn:aws:iam::422017356244:role/cloudtolocalllm-eks-node-role"
+$NodeGroupName = "zoidbot-eks-node-group"
+$NodeRoleArn = "arn:aws:iam::422017356244:role/zoidbot-eks-node-role"
 $Subnets = "subnet-029797aeb6cd6d69c", "subnet-04c42b1dbf2649b38"
 
 Write-Host "--- Creating Cluster (v1.34) ---"

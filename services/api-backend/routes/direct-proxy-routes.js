@@ -8,7 +8,7 @@
  *
  * @fileoverview Direct proxy routes for free tier users
  * @version 1.0.0
- * @author CloudToLocalLLM Team
+ * @author Zoidbot Team
  */
 
 import express from 'express';
@@ -137,7 +137,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
           error: 'Desktop client not connected',
           code: 'DESKTOP_CLIENT_DISCONNECTED',
           message:
-            'Please ensure your CloudToLocalLLM desktop client is running and connected.',
+            'Please ensure your Zoidbot desktop client is running and connected.',
           requestId,
         });
       }
@@ -338,7 +338,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
           error: 'Desktop client not connected',
           code: 'DESKTOP_CLIENT_DISCONNECTED',
           message:
-            'Please ensure your CloudToLocalLLM desktop client is running and connected.',
+            'Please ensure your Zoidbot desktop client is running and connected.',
           requestId,
         });
       }

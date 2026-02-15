@@ -158,7 +158,7 @@ Conversion Rate = (Paid Subscribers / Total Users) × 100
 ### cURL
 
 ```bash
-curl -X GET https://api.cloudtolocalllm.online/api/admin/dashboard/metrics \
+curl -X GET https://api.zoidbot.online/api/admin/dashboard/metrics \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 

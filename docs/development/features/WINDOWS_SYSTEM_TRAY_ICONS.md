@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-CloudToLocalLLM now provides native Windows system tray icon support using ICO format files with embedded multiple sizes for optimal display across different DPI settings and Windows themes.
+Zoidbot now provides native Windows system tray icon support using ICO format files with embedded multiple sizes for optimal display across different DPI settings and Windows themes.
 
 ## 🎯 Features
 
@@ -92,7 +92,7 @@ python scripts/convert_icons_to_ico.py
 - **Clarity**: Icons remain clear at 16x16 pixels
 - **Contrast**: High contrast for visibility in both light and dark themes
 - **Consistency**: Unified design language across all connection states
-- **Branding**: Uses CloudToLocalLLM visual identity
+- **Branding**: Uses Zoidbot visual identity
 
 ### **Theme Compatibility**
 

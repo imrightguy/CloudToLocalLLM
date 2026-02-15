@@ -15,7 +15,7 @@
     AWS Account ID (default: 422017356244)
 
 .PARAMETER GitHubRepo
-    GitHub repository (default: cloudtolocalllm/cloudtolocalllm)
+    GitHub repository (default: zoidbot/zoidbot)
 
 .EXAMPLE
     .\fix-oidc-trust-policy.ps1
@@ -24,7 +24,7 @@
 param(
     [string]$RoleName = "github-actions-role",
     [string]$AwsAccountId = "422017356244",
-    [string]$GitHubRepo = "cloudtolocalllm/cloudtolocalllm"
+    [string]$GitHubRepo = "zoidbot/zoidbot"
 )
 
 $ErrorActionPreference = "Stop"

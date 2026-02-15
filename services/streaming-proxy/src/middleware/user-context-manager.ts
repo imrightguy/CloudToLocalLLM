@@ -152,7 +152,7 @@ export class UserContextManager {
    */
   private extractTier(payload: any): UserTier {
     // Check multiple possible locations for tier information
-    const tier = payload['https://cloudtolocalllm.com/tier'] || 
+    const tier = payload['https://zoidbot.com/tier'] || 
                  payload.tier || 
                  payload['app_metadata']?.tier ||
                  payload['user_metadata']?.tier;
@@ -173,7 +173,7 @@ export class UserContextManager {
   private extractPermissions(payload: any): string[] {
     // Check multiple possible locations for permissions
     const permissions = payload.permissions || 
-                       payload['https://cloudtolocalllm.com/permissions'] ||
+                       payload['https://zoidbot.com/permissions'] ||
                        payload.scope?.split(' ') ||
                        [];
     

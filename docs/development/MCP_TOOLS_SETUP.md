@@ -1,6 +1,6 @@
 # MCP Tools Setup and Configuration
 
-This document describes the Model Context Protocol (MCP) tools configured for efficient development of CloudToLocalLLM.
+This document describes the Model Context Protocol (MCP) tools configured for efficient development of Zoidbot.
 
 ## Overview
 
@@ -39,7 +39,7 @@ MCP tools provide specialized capabilities for interacting with external service
   - Write files
   - List directory
   - Search files
-- **Scope**: `/home/rightguy/dev/CloudToLocalLLM`
+- **Scope**: `/home/rightguy/dev/Zoidbot`
 
 ### 3. PostgreSQL (`postgres`)
 
@@ -85,7 +85,7 @@ MCP tools provide specialized capabilities for interacting with external service
   - Manage ingress
 - **Environment Variables**:
   - `KUBECONFIG`: Path to kubeconfig file (default: `~/.kube/config`)
-  - `KUBERNETES_NAMESPACE`: Namespace to operate in (default: `cloudtolocalllm`)
+  - `KUBERNETES_NAMESPACE`: Namespace to operate in (default: `zoidbot`)
 
 ### 7. DigitalOcean (`digitalocean`)
 
@@ -100,7 +100,7 @@ MCP tools provide specialized capabilities for interacting with external service
   - DNS management
 - **Environment Variables**:
   - `DIGITALOCEAN_TOKEN`: DigitalOcean API token
-  - `DO_CLUSTER_NAME`: Cluster name (default: `cloudtolocalllm`)
+  - `DO_CLUSTER_NAME`: Cluster name (default: `zoidbot`)
   - `DO_REGION`: Region (default: `tor1`)
   - `DO_REGISTRY`: Container registry URL
 
@@ -112,7 +112,7 @@ MCP tools provide specialized capabilities for interacting with external service
   - Query execution
   - Schema inspection
   - Table operations
-- **Database**: `/home/rightguy/dev/CloudToLocalLLM/data/app.db`
+- **Database**: `/home/rightguy/dev/Zoidbot/data/app.db`
 
 ### 9. Memory (`memory`)
 
@@ -190,13 +190,13 @@ export BRAVE_API_KEY="your_brave_api_key"
 
 # DigitalOcean
 export DIGITALOCEAN_TOKEN="your_digitalocean_token"
-export DO_CLUSTER_NAME="cloudtolocalllm"
+export DO_CLUSTER_NAME="zoidbot"
 export DO_REGION="tor1"
-export DO_REGISTRY="registry.digitalocean.com/cloudtolocalllm"
+export DO_REGISTRY="registry.digitalocean.com/zoidbot"
 
 # Kubernetes
 export KUBECONFIG="$HOME/.kube/config"
-export KUBERNETES_NAMESPACE="cloudtolocalllm"
+export KUBERNETES_NAMESPACE="zoidbot"
 ```
 
 ## Browser Testing
@@ -290,7 +290,7 @@ For custom Kubernetes and DigitalOcean servers:
 
 ## Kiro IDE Integration
 
-CloudToLocalLLM includes specialized configuration for Kiro IDE with custom AI assistant modes and enhanced MCP integration. See the [Kiro IDE Configuration Guide](KIRO_IDE_CONFIGURATION.md) for:
+Zoidbot includes specialized configuration for Kiro IDE with custom AI assistant modes and enhanced MCP integration. See the [Kiro IDE Configuration Guide](KIRO_IDE_CONFIGURATION.md) for:
 
 - Custom AI assistant modes (Documentation Specialist, Code Reviewer, Test Engineer, Code Simplifier)
 - Enhanced MCP server configurations

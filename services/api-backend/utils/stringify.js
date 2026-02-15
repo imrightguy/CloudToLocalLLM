@@ -1,5 +1,5 @@
 /**
- * String utilities for CloudToLocalLLM API Backend
+ * String utilities for Zoidbot API Backend
  */
 
 /**

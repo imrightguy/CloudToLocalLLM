@@ -1,5 +1,5 @@
 # ============================================================================
-# Runtime Dockerfile for CloudToLocalLLM API Backend
+# Runtime Dockerfile for Zoidbot API Backend
 # Uses standard Node.js Alpine images
 # ============================================================================
 

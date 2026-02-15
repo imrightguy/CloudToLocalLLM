@@ -27,7 +27,7 @@ NC='\033[0m'
 CONFIG_FILE=".aws-deployment-config.json"
 NON_INTERACTIVE="false"
 SKIP_VALIDATION="false"
-EKS_CLUSTER_NAME="cloudtolocalllm-eks"
+EKS_CLUSTER_NAME="zoidbot-eks"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -143,7 +143,7 @@ load_aws_config() {
     fi
 
     AWS_REGION=$(jq -r '.AWS_REGION // "us-east-1"' "$CONFIG_FILE")
-    AWS_SECRETS_MANAGER_SECRET_ID=$(jq -r '.AWS_SECRETS_MANAGER_SECRET_ID // "cloudtolocalllm/production"' "$CONFIG_FILE")
+    AWS_SECRETS_MANAGER_SECRET_ID=$(jq -r '.AWS_SECRETS_MANAGER_SECRET_ID // "zoidbot/production"' "$CONFIG_FILE")
 
     if [[ -z "${GITHUB_REPO:-}" ]]; then
         GITHUB_REPO=$(jq -r '.GITHUB_REPO // ""' "$CONFIG_FILE")
@@ -473,7 +473,7 @@ Generated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
 AWS Configuration:
   AWS_REGION: $AWS_REGION
   AWS_SECRETS_MANAGER_SECRET_ID: $AWS_SECRETS_MANAGER_SECRET_ID
-  EKS_CLUSTER_NAME: ${EKS_CLUSTER_NAME:-cloudtolocalllm-eks}
+  EKS_CLUSTER_NAME: ${EKS_CLUSTER_NAME:-zoidbot-eks}
 
 Application Secrets:
   POSTGRES_PASSWORD: [stored in AWS Secrets Manager]
@@ -493,7 +493,7 @@ EOF
 
 main() {
     log_section "GitHub Secrets Setup for AWS EKS Deployment"
-    log_info "CloudToLocalLLM - AWS EKS Configuration"
+    log_info "Zoidbot - AWS EKS Configuration"
 
     validate_aws_cli
     load_aws_config

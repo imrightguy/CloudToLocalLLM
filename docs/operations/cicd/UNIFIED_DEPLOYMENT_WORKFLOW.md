@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Unified Deployment Workflow (`build-pipeline.yml`) represents a significant evolution in CloudToLocalLLM's CI/CD system. It consolidates AI analysis, version management, and multi-platform deployment into a single intelligent workflow, eliminating the complexity of previous orchestrator-based systems.
+The Unified Deployment Workflow (`build-pipeline.yml`) represents a significant evolution in Zoidbot's CI/CD system. It consolidates AI analysis, version management, and multi-platform deployment into a single intelligent workflow, eliminating the complexity of previous orchestrator-based systems.
 
 ## Architecture
 
@@ -102,7 +102,7 @@ git push origin main
 - **Streaming Proxy**: WebSocket proxy service
 - **Postgres**: Customized database container
 
-**Docker Registry**: GitHub Container Registry (GHCR) - `ghcr.io/cloudtolocalllm-online/cloudtolocalllm`
+**Docker Registry**: GitHub Container Registry (GHCR) - `ghcr.io/zoidbot-online/zoidbot`
 
 ## Deployment Process
 
@@ -158,4 +158,4 @@ The Unified Deployment Workflow provides:
 - **Azure Centric**: Native integration with Azure CLI via Service Principal
 - **Better Visibility**: Complete status reporting in one view
 
-This system ensures that CloudToLocalLLM is deployed reliably and efficiently with every change to the main branch.
+This system ensures that Zoidbot is deployed reliably and efficiently with every change to the main branch.

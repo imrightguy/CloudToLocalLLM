@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: api-backend-sa
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     argocd.argoproj.io/sync-wave: "2"
     argocd.argoproj.io/sync-options: Replace=true
@@ -12,14 +12,14 @@ metadata:
     app.kubernetes.io/name: api-backend
     app.kubernetes.io/instance: api-backend
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/part-of: cloudtolocalllm
+    app.kubernetes.io/part-of: zoidbot
     app.kubernetes.io/managed-by: argocd
     environment: production
     tier: backend
     component: api
-    cloudtolocalllm.com/app-tier: backend
-    cloudtolocalllm.com/app-type: api
-    cloudtolocalllm.com/app-environment: production
+    zoidbot.com/app-tier: backend
+    zoidbot.com/app-type: api
+    zoidbot.com/app-environment: production
 imagePullSecrets:
   - name: acr-credentials
   - name: regcred

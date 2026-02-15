@@ -9,8 +9,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/utils/responsive_layout.dart';
-import 'package:cloudtolocalllm/widgets/responsive_screen_wrapper.dart';
+import 'package:zoidbot/utils/responsive_layout.dart';
+import 'package:zoidbot/widgets/responsive_screen_wrapper.dart';
 
 void main() {
   group('Property 5: Responsive Layout Adaptation', () {

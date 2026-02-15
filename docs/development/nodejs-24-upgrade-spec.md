@@ -1,4 +1,4 @@
-# CloudToLocalLLM – Node.js 24 LTS Upgrade Specification and Plan
+# Zoidbot – Node.js 24 LTS Upgrade Specification and Plan
 
 ## 1. Upgrade Rationale
 

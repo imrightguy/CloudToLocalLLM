@@ -1,8 +1,8 @@
-# CloudToLocalLLM Code Refactoring Plan
+# Zoidbot Code Refactoring Plan
 
 ## Executive Summary
 
-This comprehensive refactoring plan outlines a structured approach to improve the code quality, maintainability, performance, and security of the CloudToLocalLLM project. The project consists of a Flutter frontend, Node.js API backend, TypeScript SDK, and streaming proxy services. The refactoring will be conducted in five phases over multiple development cycles, prioritizing high-impact changes with manageable effort.
+This comprehensive refactoring plan outlines a structured approach to improve the code quality, maintainability, performance, and security of the Zoidbot project. The project consists of a Flutter frontend, Node.js API backend, TypeScript SDK, and streaming proxy services. The refactoring will be conducted in five phases over multiple development cycles, prioritizing high-impact changes with manageable effort.
 
 ## Priority Matrix
 
@@ -177,4 +177,4 @@ graph TD
 - Enhanced security posture
 
 
-This plan provides a roadmap for systematic improvement of the CloudToLocalLLM codebase while maintaining stability and functionality.
+This plan provides a roadmap for systematic improvement of the Zoidbot codebase while maintaining stability and functionality.

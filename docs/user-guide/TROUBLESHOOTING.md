@@ -1,6 +1,6 @@
-# CloudToLocalLLM Troubleshooting Guide
+# Zoidbot Troubleshooting Guide
 
-This guide helps you resolve common issues with CloudToLocalLLM.
+This guide helps you resolve common issues with Zoidbot.
 
 ## 🚨 Connection Problems
 
@@ -14,7 +14,7 @@ This guide helps you resolve common issues with CloudToLocalLLM.
     * **Linux**: `systemctl --user status ollama`
     * **Windows**: Check for the Ollama icon in the system tray.
 2. **Verify Port**: Ollama defaults to port `11434`. Ensure no other service is using this port.
-3. **Manual Configuration**: If you run Ollama on a custom IP or port, go to **Settings > Connection Settings** in CloudToLocalLLM and update the URL.
+3. **Manual Configuration**: If you run Ollama on a custom IP or port, go to **Settings > Connection Settings** in Zoidbot and update the URL.
 4. **CORS Issues**: Ensure Ollama allows connections from the application. (Usually handled automatically by the native app).
 
 ### Cloud Relay / Tunnel Connection Failed
@@ -23,7 +23,7 @@ This guide helps you resolve common issues with CloudToLocalLLM.
 
 **Solutions**:
 
-1. **Check Internet**: Ensure you have a stable outbound connection to `*.cloudtolocalllm.online`.
+1. **Check Internet**: Ensure you have a stable outbound connection to `*.zoidbot.online`.
 2. **Auth Status**: Ensure you are logged in. Tokens expire periodically; try logging out and back in.
 3. **Firewall**: Ensure your firewall allows outbound HTTPS (443) and WebSocket connections.
 4. **System Time**: Ensure your system clock is accurate. Out-of-sync clocks can cause authentication (JWT) failures.
@@ -47,8 +47,8 @@ This guide helps you resolve common issues with CloudToLocalLLM.
 
 1. **Dependencies**: (Linux) Run `ldd` on the executable to check for missing shared libraries.
 2. **Corrupted Config**: If the app hangs, try clearing the local config directory:
-    * **Linux**: `~/.config/cloudtolocalllm/`
-    * **Windows**: `%APPDATA%\cloudtolocalllm\`
+    * **Linux**: `~/.config/zoidbot/`
+    * **Windows**: `%APPDATA%\zoidbot\`
 
 ---
 
@@ -58,7 +58,7 @@ This guide helps you resolve common issues with CloudToLocalLLM.
 
 **Solutions**:
 
-1. **Clear Browser Data**: If using the web version, clear cookies and localStorage for `cloudtolocalllm.online`.
+1. **Clear Browser Data**: If using the web version, clear cookies and localStorage for `zoidbot.online`.
 2. **Check Auth0 Status**: Occasionally the identity provider may have outages. Check [status.auth0.com](https://status.auth0.com).
 3. **Secure Storage (Desktop)**: If the desktop app fails to remember your session, ensure your OS keyring/keychain is unlocked.
 
@@ -81,7 +81,7 @@ This guide helps you resolve common issues with CloudToLocalLLM.
 If your issue isn't listed here:
 
 1. **Check Logs**:
-    * **Linux**: `~/.local/share/cloudtolocalllm/logs/app.log`
-    * **Windows**: `%LOCALAPPDATA%\cloudtolocalllm\logs\app.log`
-2. **GitHub Issues**: [Report a bug](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
+    * **Linux**: `~/.local/share/zoidbot/logs/app.log`
+    * **Windows**: `%LOCALAPPDATA%\zoidbot\logs\app.log`
+2. **GitHub Issues**: [Report a bug](https://github.com/Zoidbot-online/Zoidbot/issues)
 3. **Community**: Join our Discord or GitHub Discussions.

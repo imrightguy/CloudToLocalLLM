@@ -18,7 +18,7 @@ RUN if [ ! -f "bin/tunnel_server.dart" ]; then \
     echo '  HttpServer.bind(InternetAddress.anyIPv4, 8080).then((server) {' >> bin/tunnel_server.dart && \
     echo '    print("Server listening on port 8080");' >> bin/tunnel_server.dart && \
     echo '    server.listen((request) {' >> bin/tunnel_server.dart && \
-    echo '      request.response.write("CloudToLocalLLM Tunnel Service");' >> bin/tunnel_server.dart && \
+    echo '      request.response.write("Zoidbot Tunnel Service");' >> bin/tunnel_server.dart && \
     echo '      request.response.close();' >> bin/tunnel_server.dart && \
     echo '    });' >> bin/tunnel_server.dart && \
     echo '  });' >> bin/tunnel_server.dart && \

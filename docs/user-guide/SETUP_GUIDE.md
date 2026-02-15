@@ -1,6 +1,6 @@
-# CloudToLocalLLM Setup Guide
+# Zoidbot Setup Guide
 
-Welcome to CloudToLocalLLM! This guide will walk you through the initial setup process for Windows, Linux, and Web.
+Welcome to Zoidbot! This guide will walk you through the initial setup process for Windows, Linux, and Web.
 
 ## 📋 Prerequisites
 
@@ -15,11 +15,11 @@ Before starting, ensure you have:
 
 ## 🚀 Setup Process
 
-The CloudToLocalLLM setup consists of three main phases:
+The Zoidbot setup consists of three main phases:
 
 ### 1. Local Engine Setup (Ollama)
 
-CloudToLocalLLM relies on Ollama to run models on your hardware.
+Zoidbot relies on Ollama to run models on your hardware.
 
 1. **Install Ollama**: Follow instructions at [ollama.com](https://ollama.com).
 2. **Start the Service**:
@@ -29,7 +29,7 @@ CloudToLocalLLM relies on Ollama to run models on your hardware.
 
 ### 2. Desktop Application Installation
 
-1. **Download**: Visit the **[Latest Releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest)**.
+1. **Download**: Visit the **[Latest Releases](https://github.com/Zoidbot-online/Zoidbot/releases/latest)**.
 2. **Install**:
     * **Windows**: Run the `.exe` installer.
     * **Linux**: Make the `.AppImage` executable (`chmod +x ...`) and run it, or install the `.deb` package.
@@ -37,7 +37,7 @@ CloudToLocalLLM relies on Ollama to run models on your hardware.
 
 ### 3. Account & Cloud Relay Configuration
 
-When you first launch the app, or visit the [Web Version](https://cloudtolocalllm.online), the Setup Wizard will guide you:
+When you first launch the app, or visit the [Web Version](https://zoidbot.online), the Setup Wizard will guide you:
 
 1. **Login**: Use your Auth0 credentials to sign in.
 2. **Container Creation**: (Cloud/Web only) The system will provision an isolated streaming proxy for your secure remote access.
@@ -50,7 +50,7 @@ When you first launch the app, or visit the [Web Version](https://cloudtolocalll
 
 ## 💬 Your First Chat
 
-1. **Open the Window**: Click the tray icon or "Show CloudToLocalLLM".
+1. **Open the Window**: Click the tray icon or "Show Zoidbot".
 2. **Select a Model**: Use the dropdown at the top to select a model you've pulled (e.g., `llama3.2`).
 3. **Start Chatting**: Your data stays local by default!
 

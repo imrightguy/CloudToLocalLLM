@@ -99,7 +99,8 @@ class StreamingChatService extends ChangeNotifier {
 
       if (loadedConversations.isNotEmpty) {
         _conversations = loadedConversations;
-        _currentConversation = _conversations.first;
+        // Don't auto-select on startup to show Zoidbot Ready screen
+        _currentConversation = null; 
         appLogger.info(
           '[StreamingChat] Loaded ${_conversations.length} conversations from storage',
         );
@@ -138,11 +139,12 @@ class StreamingChatService extends ChangeNotifier {
 
     final welcomeMessage = Message.system(
       content:
-          'Welcome to CloudToLocalLLM! I\'m ready to help you with any questions or tasks. What would you like to talk about?',
+          'Welcome to Zoidbot! I\'m ready to help you with any questions or tasks. What would you like to talk about?',
     );
 
     _conversations = [sampleConversation.addMessage(welcomeMessage)];
-    _currentConversation = _conversations.first;
+    // Don't auto-select to show Zoidbot Ready screen
+    _currentConversation = null; 
 
     // Save the welcome conversation
     _saveConversations();
@@ -183,12 +185,26 @@ class StreamingChatService extends ChangeNotifier {
   }
 
   /// Select a conversation
-  void selectConversation(Conversation conversation) {
+  void selectConversation(Conversation? conversation) {
     _currentConversation = conversation;
 
     // Cancel any ongoing streaming
     _cancelCurrentStream();
 
+    notifyListeners();
+  }
+
+  /// Select a conversation by ID (null to deselect)
+  void selectConversationById(String? conversationId) {
+    if (conversationId == null) {
+      _currentConversation = null;
+    } else {
+      final index = _conversations.indexWhere((c) => c.id == conversationId);
+      if (index != -1) {
+        _currentConversation = _conversations[index];
+      }
+    }
+    _cancelCurrentStream();
     notifyListeners();
   }
 

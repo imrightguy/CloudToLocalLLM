@@ -1,7 +1,7 @@
 ##############################################################################
 # AWS EKS Deployment Verification Script (PowerShell)
 #
-# This script verifies that all components of the CloudToLocalLLM deployment
+# This script verifies that all components of the Zoidbot deployment
 # on AWS EKS are running correctly and accessible.
 #
 # Usage: .\verify-deployment.ps1 -Environment development
@@ -9,17 +9,17 @@
 
 param(
     [string]$Environment = "development",
-    [string]$Namespace = "cloudtolocalllm",
-    [string]$ClusterName = "cloudtolocalllm-eks",
+    [string]$Namespace = "zoidbot",
+    [string]$ClusterName = "zoidbot-eks",
     [string]$Region = "us-east-1"
 )
 
 # Configuration
 $Domains = @(
-    "cloudtolocalllm.online",
-    "app.cloudtolocalllm.online",
-    "api.cloudtolocalllm.online",
-    "auth.cloudtolocalllm.online"
+    "zoidbot.online",
+    "app.zoidbot.online",
+    "api.zoidbot.online",
+    "auth.zoidbot.online"
 )
 
 # Counters
@@ -397,8 +397,8 @@ function Verify-HealthEndpoints {
     Write-Info "Verifying health check endpoints..."
     
     $healthEndpoints = @(
-        "https://api.cloudtolocalllm.online/health",
-        "https://app.cloudtolocalllm.online/health"
+        "https://api.zoidbot.online/health",
+        "https://app.zoidbot.online/health"
     )
     
     $allHealthy = $true

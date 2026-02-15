@@ -67,7 +67,7 @@ Future<void> exampleRunDiagnostics() async {
   print('=== Example 2: Running Diagnostics ===\n');
 
   final testSuite = DiagnosticTestSuite(
-    serverHost: 'api.cloudtolocalllm.online',
+    serverHost: 'api.zoidbot.online',
     serverPort: 443,
     authToken: 'sample-token',
     testTimeout: const Duration(seconds: 30),
@@ -103,7 +103,7 @@ Future<void> exampleDiagnosticReport() async {
   print('=== Example 3: Diagnostic Report ===\n');
 
   final testSuite = DiagnosticTestSuite(
-    serverHost: 'api.cloudtolocalllm.online',
+    serverHost: 'api.zoidbot.online',
     serverPort: 443,
     authToken: 'sample-token',
   );
@@ -300,7 +300,7 @@ Future<void> exampleCompleteFlow() async {
 
         // Step 4: Run diagnostics if recovery fails
         final testSuite = DiagnosticTestSuite(
-          serverHost: 'api.cloudtolocalllm.online',
+          serverHost: 'api.zoidbot.online',
           serverPort: 443,
         );
 

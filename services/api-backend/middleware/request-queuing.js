@@ -1,5 +1,5 @@
 /**
- * Request Queuing Middleware for CloudToLocalLLM API Backend
+ * Request Queuing Middleware for Zoidbot API Backend
  *
  * Implements request queuing when rate limit is approached.
  * Queues requests and processes them in FIFO order when capacity becomes available.

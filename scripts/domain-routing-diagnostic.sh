@@ -1,5 +1,5 @@
 #!/bin/bash
-# Domain Routing Diagnostic Script for CloudToLocalLLM
+# Domain Routing Diagnostic Script for Zoidbot
 # Diagnoses and fixes domain routing issues with Cloudflare tunnel
 # Tests DNS resolution, service connectivity, and tunnel configuration
 # Usage: ./domain-routing-diagnostic.sh [options]
@@ -8,18 +8,18 @@ set -e
 
 # Configuration
 ARGOCD_NAMESPACE="argocd"
-CLOUDTOLOCLLM_NAMESPACE="cloudtolocalllm"
+CLOUDTOLOCLLM_NAMESPACE="zoidbot"
 LOG_FILE="./domain-routing-diagnostic.log"
 REPORT_FILE="./domain-routing-report.json"
 DATE=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Domain configuration
 DOMAINS=(
-    "cloudtolocalllm.online"
-    "app.cloudtolocalllm.online"
-    "api.cloudtolocalllm.online"
-    "argocd.cloudtolocalllm.online"
-    "grafana.cloudtolocalllm.online"
+    "zoidbot.online"
+    "app.zoidbot.online"
+    "api.zoidbot.online"
+    "argocd.zoidbot.online"
+    "grafana.zoidbot.online"
 )
 
 # Service configuration
@@ -335,36 +335,36 @@ generate_routing_fixes() {
 
     cat > $fixes_file << 'EOF'
 #!/bin/bash
-# Auto-generated routing fixes for CloudToLocalLLM
+# Auto-generated routing fixes for Zoidbot
 # Run this script to apply fixes for identified routing issues
 
 set -e
 
-echo "Applying CloudToLocalLLM routing fixes..."
+echo "Applying Zoidbot routing fixes..."
 
 # Fix 1: Ensure services are running
 echo "1. Checking service status..."
-kubectl get pods -n cloudtolocalllm --no-headers | head -10
+kubectl get pods -n zoidbot --no-headers | head -10
 
 # Fix 2: Restart cloudflared tunnel if needed
 echo "2. Checking tunnel status..."
-if [ "$(kubectl get pods -n cloudtolocalllm -l app=cloudflared --field-selector=status.phase=Running --no-headers | wc -l)" -eq 0 ]; then
+if [ "$(kubectl get pods -n zoidbot -l app=cloudflared --field-selector=status.phase=Running --no-headers | wc -l)" -eq 0 ]; then
     echo "Restarting cloudflared tunnel..."
-    kubectl rollout restart deployment/cloudflared -n cloudtolocalllm
+    kubectl rollout restart deployment/cloudflared -n zoidbot
     sleep 30
 fi
 
 # Fix 3: Verify service endpoints
 echo "3. Testing service endpoints..."
-kubectl run test-connectivity --image=busybox --rm -i --restart=Never -- nslookup web.cloudtolocalllm.svc.cluster.local || echo "DNS lookup failed"
+kubectl run test-connectivity --image=busybox --rm -i --restart=Never -- nslookup web.zoidbot.svc.cluster.local || echo "DNS lookup failed"
 
 # Fix 4: Check tunnel logs
 echo "4. Checking tunnel logs for errors..."
-kubectl logs -n cloudtolocalllm -l app=cloudflared --tail=20 | grep -i error || echo "No errors found in recent logs"
+kubectl logs -n zoidbot -l app=cloudflared --tail=20 | grep -i error || echo "No errors found in recent logs"
 
 # Fix 5: Validate tunnel configuration
 echo "5. Validating tunnel configuration..."
-kubectl get configmap cloudflared-config -n cloudtolocalllm -o yaml
+kubectl get configmap cloudflared-config -n zoidbot -o yaml
 
 echo "Routing fixes applied. Monitor the system and check domain connectivity."
 EOF
@@ -429,7 +429,7 @@ EOF
 
 # Main execution function
 main() {
-    log "=== CloudToLocalLLM Domain Routing Diagnostic Started ==="
+    log "=== Zoidbot Domain Routing Diagnostic Started ==="
 
     # Parse command line arguments
     local run_dns_test=false
@@ -502,7 +502,7 @@ main() {
     done
 
     # Initialize log file
-    echo "=== CloudToLocalLLM Domain Routing Diagnostic Started at $DATE ===" > $LOG_FILE
+    echo "=== Zoidbot Domain Routing Diagnostic Started at $DATE ===" > $LOG_FILE
 
     # Determine what to run
     if [ $# -eq 0 ]; then

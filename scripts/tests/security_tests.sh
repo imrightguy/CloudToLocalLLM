@@ -50,9 +50,9 @@ setup_test_environment() {
     
     # Create a test README.md with version badge
     cat > "$TEST_README" << 'EOF'
-# CloudToLocalLLM
+# Zoidbot
 
-[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM)
+[![Version](https://img.shields.io/badge/version-4.0.32-blue.svg)](https://github.com/Zoidbot-online/Zoidbot)
 
 A sophisticated Flutter-based application that bridges cloud-based AI services with local AI models.
 

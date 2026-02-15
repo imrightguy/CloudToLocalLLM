@@ -3,7 +3,7 @@
 ##############################################################################
 # AWS EKS Final Deployment Verification Script
 #
-# This script performs comprehensive final verification of the CloudToLocalLLM
+# This script performs comprehensive final verification of the Zoidbot
 # deployment on AWS EKS, including:
 # - All services running on AWS EKS
 # - Smoke tests on all endpoints
@@ -18,30 +18,30 @@
 set -e
 
 # Configuration
-NAMESPACE="${NAMESPACE:-cloudtolocalllm}"
+NAMESPACE="${NAMESPACE:-zoidbot}"
 ENVIRONMENT="${1:-development}"
-CLUSTER_NAME="cloudtolocalllm-eks"
+CLUSTER_NAME="zoidbot-eks"
 REGION="${AWS_REGION:-us-east-1}"
 
 # Cloudflare domains
 DOMAINS=(
-  "cloudtolocalllm.online"
-  "app.cloudtolocalllm.online"
-  "api.cloudtolocalllm.online"
-  "auth.cloudtolocalllm.online"
+  "zoidbot.online"
+  "app.zoidbot.online"
+  "api.zoidbot.online"
+  "auth.zoidbot.online"
 )
 
 # Health endpoints
 HEALTH_ENDPOINTS=(
-  "https://api.cloudtolocalllm.online/health"
-  "https://app.cloudtolocalllm.online/health"
+  "https://api.zoidbot.online/health"
+  "https://app.zoidbot.online/health"
 )
 
 # Smoke test endpoints
 SMOKE_TEST_ENDPOINTS=(
-  "https://app.cloudtolocalllm.online"
-  "https://api.cloudtolocalllm.online/health"
-  "https://cloudtolocalllm.online"
+  "https://app.zoidbot.online"
+  "https://api.zoidbot.online/health"
+  "https://zoidbot.online"
 )
 
 # Color codes for output
@@ -222,7 +222,7 @@ verify_end_to_end_flow() {
   
   # Step 1: Access main domain
   log_info "Step 1: Accessing main domain..."
-  if timeout 10 curl -s -k -o /dev/null -w "%{http_code}" "https://cloudtolocalllm.online" | grep -q "200"; then
+  if timeout 10 curl -s -k -o /dev/null -w "%{http_code}" "https://zoidbot.online" | grep -q "200"; then
     log_success "Main domain is accessible"
     add_verification_result "E2E Flow" "Main Domain Access" "PASSED" "Status: 200"
   else
@@ -232,7 +232,7 @@ verify_end_to_end_flow() {
   
   # Step 2: Access app domain
   log_info "Step 2: Accessing app domain..."
-  if timeout 10 curl -s -k -o /dev/null -w "%{http_code}" "https://app.cloudtolocalllm.online" | grep -q "200"; then
+  if timeout 10 curl -s -k -o /dev/null -w "%{http_code}" "https://app.zoidbot.online" | grep -q "200"; then
     log_success "App domain is accessible"
     add_verification_result "E2E Flow" "App Domain Access" "PASSED" "Status: 200"
   else
@@ -242,7 +242,7 @@ verify_end_to_end_flow() {
   
   # Step 3: Check API health
   log_info "Step 3: Checking API health..."
-  if timeout 10 curl -s -k "https://api.cloudtolocalllm.online/health" | grep -q "ok\|healthy\|running"; then
+  if timeout 10 curl -s -k "https://api.zoidbot.online/health" | grep -q "ok\|healthy\|running"; then
     log_success "API health check passed"
     add_verification_result "E2E Flow" "API Health Check" "PASSED" "Status: 200"
   else

@@ -4,20 +4,20 @@ services:
   # PostgreSQL Database for Application Data
   postgres:
     image: postgres:16-alpine
-    container_name: cloudtolocalllm-postgres
+    container_name: zoidbot-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-cloudtolocalllm}
+      POSTGRES_DB: ${POSTGRES_DB:-zoidbot}
       POSTGRES_USER: ${POSTGRES_USER:-appuser}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./services/api-backend/database/schema.pg.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     networks:
-      - cloudtolocalllm
+      - zoidbot
     # No ports exposed - only accessible within Docker network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-appuser} -d ${POSTGRES_DB:-cloudtolocalllm}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-appuser} -d ${POSTGRES_DB:-zoidbot}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,28 +25,28 @@ services:
   # PostgreSQL Database for Authentication (Separate Instance)
   postgres-auth:
     image: postgres:16-alpine
-    container_name: cloudtolocalllm-postgres-auth
+    container_name: zoidbot-postgres-auth
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_AUTH_DB:-cloudtolocalllm_auth}
+      POSTGRES_DB: ${POSTGRES_AUTH_DB:-zoidbot_auth}
       POSTGRES_USER: ${POSTGRES_AUTH_USER:-authuser}
       POSTGRES_PASSWORD: ${POSTGRES_AUTH_PASSWORD:-changeme_auth}
     volumes:
       - postgres_auth_data:/var/lib/postgresql/data
       - ./services/api-backend/database/schema-auth.pg.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     networks:
-      - cloudtolocalllm
+      - zoidbot
     # No ports exposed - only accessible within Docker network for security
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_AUTH_USER:-authuser} -d ${POSTGRES_AUTH_DB:-cloudtolocalllm_auth}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_AUTH_USER:-authuser} -d ${POSTGRES_AUTH_DB:-zoidbot_auth}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # API Backend (WebSocket Tunnel + REST API)
   api-backend:
-    image: ghcr.io/cloudtolocalllm/api:latest
-    container_name: cloudtolocalllm-api-backend
+    image: ghcr.io/zoidbot/api:latest
+    container_name: zoidbot-api-backend
     restart: unless-stopped
     environment:
       # Server Configuration
@@ -58,7 +58,7 @@ services:
       DB_TYPE: postgresql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${POSTGRES_DB:-cloudtolocalllm}
+      DB_NAME: ${POSTGRES_DB:-zoidbot}
       DB_USER: ${POSTGRES_USER:-appuser}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
 
@@ -66,7 +66,7 @@ services:
       AUTH_DB_TYPE: postgresql
       AUTH_DB_HOST: postgres-auth
       AUTH_DB_PORT: 5432
-      AUTH_DB_NAME: ${POSTGRES_AUTH_DB:-cloudtolocalllm_auth}
+      AUTH_DB_NAME: ${POSTGRES_AUTH_DB:-zoidbot_auth}
       AUTH_DB_USER: ${POSTGRES_AUTH_USER:-authuser}
       AUTH_DB_PASSWORD: ${POSTGRES_AUTH_PASSWORD:-changeme_auth}
 
@@ -90,7 +90,7 @@ services:
       postgres-auth:
         condition: service_healthy
     networks:
-      - cloudtolocalllm
+      - zoidbot
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health" ]
       interval: 30s
@@ -100,8 +100,8 @@ services:
 
   # Streaming Proxy (WebSocket Tunnel)
   streaming-proxy:
-    image: ghcr.io/cloudtolocalllm/streaming:latest
-    container_name: cloudtolocalllm-streaming-proxy
+    image: ghcr.io/zoidbot/streaming:latest
+    container_name: zoidbot-streaming-proxy
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -111,7 +111,7 @@ services:
     depends_on:
       - api-backend
     networks:
-      - cloudtolocalllm
+      - zoidbot
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health" ]
       interval: 30s
@@ -120,11 +120,11 @@ services:
 
   # Web Application (Flutter + Nginx)
   web:
-    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
-    container_name: cloudtolocalllm-web
+    image: ghcr.io/zoidbot-online/zoidbot/web:latest
+    container_name: zoidbot-web
     restart: unless-stopped
     networks:
-      - cloudtolocalllm
+      - zoidbot
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/" ]
       interval: 30s
@@ -134,7 +134,7 @@ services:
   # Nginx Reverse Proxy (SSL Termination)
   nginx:
     image: nginx:alpine
-    container_name: cloudtolocalllm-nginx
+    container_name: zoidbot-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -154,7 +154,7 @@ services:
       - api-backend
       - web
     networks:
-      - cloudtolocalllm
+      - zoidbot
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health" ]
       interval: 30s
@@ -164,13 +164,13 @@ services:
   # Certbot for SSL Certificate Management
   certbot:
     image: certbot/certbot:latest
-    container_name: cloudtolocalllm-certbot
+    container_name: zoidbot-certbot
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
       - ./certbot/logs:/var/log/letsencrypt
     networks:
-      - cloudtolocalllm
+      - zoidbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;'"
 
   # Cloudflare Tunnel
@@ -183,17 +183,17 @@ services:
     volumes:
       - ./config/cloudflared/config.yml:/etc/cloudflared/config.yml
     networks:
-      - cloudtolocalllm
+      - zoidbot
 
 networks:
-  cloudtolocalllm:
-    name: cloudtolocalllm_network
+  zoidbot:
+    name: zoidbot_network
     driver: bridge
 
 volumes:
   postgres_data:
-    name: cloudtolocalllm_postgres_data
+    name: zoidbot_postgres_data
   postgres_auth_data:
-    name: cloudtolocalllm_postgres_auth_data
+    name: zoidbot_postgres_auth_data
   nginx_logs:
-    name: cloudtolocalllm_nginx_logs
+    name: zoidbot_nginx_logs

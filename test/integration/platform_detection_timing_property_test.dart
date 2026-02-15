@@ -10,7 +10,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
+import 'package:zoidbot/services/platform_detection_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -25,7 +25,7 @@ describe('Log Aggregation Support', () => {
       expect(logAggregationConfig.loki).toBeDefined();
       expect(logAggregationConfig.loki.url).toBeDefined();
       expect(logAggregationConfig.loki.labels).toBeDefined();
-      expect(logAggregationConfig.loki.labels.service).toBe('cloudtolocalllm-api');
+      expect(logAggregationConfig.loki.labels.service).toBe('zoidbot-api');
     });
 
     test('should have default ELK configuration', () => {
@@ -57,7 +57,7 @@ describe('Log Aggregation Support', () => {
       expect(formatted).toHaveProperty('stream');
       expect(formatted).toHaveProperty('values');
       expect(formatted.stream.level).toBe('info');
-      expect(formatted.stream.service).toBe('cloudtolocalllm-api');
+      expect(formatted.stream.service).toBe('zoidbot-api');
     });
 
     test('should include correlation ID in Loki stream labels', () => {

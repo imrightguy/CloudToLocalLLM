@@ -1,14 +1,14 @@
 # ==========================================================================
-# Custom Postgres Image for CloudToLocalLLM
+# Custom Postgres Image for Zoidbot
 # Based on the standard Postgres Alpine image
 # ==========================================================================
 FROM postgres:16-alpine
 
 USER root
 
-# Create cloudtolocalllm user with UID 1001 (consistent with app)
-RUN addgroup -g 1001 -S cloudtolocalllm && \
-    adduser -S -D -H -u 1001 -h /var/lib/postgresql/data -s /bin/sh -G cloudtolocalllm -g cloudtolocalllm cloudtolocalllm
+# Create zoidbot user with UID 1001 (consistent with app)
+RUN addgroup -g 1001 -S zoidbot && \
+    adduser -S -D -H -u 1001 -h /var/lib/postgresql/data -s /bin/sh -G zoidbot -g zoidbot zoidbot
 
 RUN apk add --no-cache bash
 
@@ -26,6 +26,6 @@ EXPOSE 5432
 
 # Health check - verify PostgreSQL is ready to accept connections
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
-  CMD pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cloudtolocalllm} || exit 1
+  CMD pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-zoidbot} || exit 1
 
 ENTRYPOINT ["/usr/local/bin/postgres-entrypoint.sh"]

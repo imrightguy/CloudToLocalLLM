@@ -1,5 +1,5 @@
 /**
- * Graceful Shutdown Manager for CloudToLocalLLM API Backend
+ * Graceful Shutdown Manager for Zoidbot API Backend
  *
  * Manages graceful shutdown of the HTTP server with in-flight request completion.
  * Ensures all active requests are completed before closing the server.

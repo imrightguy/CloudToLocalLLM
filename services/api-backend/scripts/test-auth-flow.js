@@ -13,11 +13,11 @@ dotenv.config();
 
 const SERVICE_URL =
   process.env.SERVICE_URL ||
-  'https://cloudtolocalllm-api-123456789-uc.a.run.app';
+  'https://zoidbot-api-123456789-uc.a.run.app';
 const TEST_TOKEN = process.env.TEST_TOKEN; // Valid JWT JWT token for testing
 
 async function testAuthFlow() {
-  console.log(' CloudToLocalLLM Authentication Flow Testing');
+  console.log(' Zoidbot Authentication Flow Testing');
   console.log('==============================================\n');
 
   console.log(` Testing service: ${SERVICE_URL}`);
@@ -118,7 +118,7 @@ async function testAuthFlow() {
     const response = await fetch(`${SERVICE_URL}/api/db/health`, {
       method: 'OPTIONS',
       headers: {
-        Origin: 'https://app.cloudtolocalllm.online',
+        Origin: 'https://app.zoidbot.online',
         'Access-Control-Request-Method': 'GET',
         'Access-Control-Request-Headers': 'Authorization',
       },

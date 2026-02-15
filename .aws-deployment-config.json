@@ -1,9 +1,9 @@
 {
   "AWS_REGION": "us-east-1",
-  "CLUSTER_NAME": "cloudtolocalllm-eks",
-  "AWS_SECRETS_MANAGER_SECRET_ID": "cloudtolocalllm/production",
+  "CLUSTER_NAME": "zoidbot-eks",
+  "AWS_SECRETS_MANAGER_SECRET_ID": "zoidbot/production",
   "EKS_CLUSTER_ENDPOINT": "https://0682372CDD6A68D8CBBC05C520A27647.gr7.us-east-1.eks.amazonaws.com",
-  "EKS_CLUSTER_ARN": "arn:aws:eks:us-east-1:422017356244:cluster/cloudtolocalllm-eks",
+  "EKS_CLUSTER_ARN": "arn:aws:eks:us-east-1:422017356244:cluster/zoidbot-eks",
   "GITHUB_ACTIONS_ROLE_ARN": "arn:aws:iam::422017356244:role/github-actions-role",
-  "GITHUB_REPO": "CloudToLocalLLM-online/CloudToLocalLLM"
+  "GITHUB_REPO": "Zoidbot-online/Zoidbot"
 }

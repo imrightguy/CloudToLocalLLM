@@ -1,6 +1,6 @@
 # Linux Installation Guide
 
-This guide covers all methods for installing CloudToLocalLLM on Linux systems.
+This guide covers all methods for installing Zoidbot on Linux systems.
 
 ## 📋 Table of Contents
 
@@ -18,7 +18,7 @@ This guide covers all methods for installing CloudToLocalLLM on Linux systems.
 
 ### 🧠 **Ollama Installation**
 
-CloudToLocalLLM requires Ollama to be installed and running:
+Zoidbot requires Ollama to be installed and running:
 
 ```bash
 # Install Ollama
@@ -71,10 +71,10 @@ sudo apt-get install -y libgtk-3-0 libglib2.0-0 libnss3 libatk-bridge2.0-0
 
 ```bash
 # Download latest DEB package
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm_amd64.deb
+wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot_amd64.deb
 
 # Install the package
-sudo dpkg -i cloudtolocalllm_amd64.deb
+sudo dpkg -i zoidbot_amd64.deb
 
 # Fix any dependency issues
 sudo apt-get install -f
@@ -84,11 +84,11 @@ sudo apt-get install -f
 
 ```bash
 # Add repository (if available)
-curl -fsSL https://cloudtolocalllm.online/install.sh | sudo bash
+curl -fsSL https://zoidbot.online/install.sh | sudo bash
 
 # Install via apt
 sudo apt-get update
-sudo apt-get install cloudtolocalllm
+sudo apt-get install zoidbot
 ```
 
 ### ✅ **DEB Package Benefits**
@@ -104,17 +104,17 @@ sudo apt-get install cloudtolocalllm
 ```bash
 # Update via package manager
 sudo apt-get update
-sudo apt-get upgrade cloudtolocalllm
+sudo apt-get upgrade zoidbot
 ```
 
 ### 🗑️ **Uninstallation**
 
 ```bash
 # Remove package
-sudo apt-get remove cloudtolocalllm
+sudo apt-get remove zoidbot
 
 # Remove package and configuration
-sudo apt-get purge cloudtolocalllm
+sudo apt-get purge zoidbot
 ```
 
 ---
@@ -127,28 +127,28 @@ sudo apt-get purge cloudtolocalllm
 
 ```bash
 # Download latest AppImage
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-x86_64.AppImage
+wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/Zoidbot-x86_64.AppImage
 
 # Make executable
-chmod +x CloudToLocalLLM-x86_64.AppImage
+chmod +x Zoidbot-x86_64.AppImage
 
 # Run the application
-./CloudToLocalLLM-x86_64.AppImage
+./Zoidbot-x86_64.AppImage
 ```
 
 #### **Optional: Desktop Integration**
 
 ```bash
 # Move to applications directory
-sudo mv CloudToLocalLLM-x86_64.AppImage /opt/cloudtolocalllm/
+sudo mv Zoidbot-x86_64.AppImage /opt/zoidbot/
 
 # Create desktop entry
-cat > ~/.local/share/applications/cloudtolocalllm.desktop << EOF
+cat > ~/.local/share/applications/zoidbot.desktop << EOF
 [Desktop Entry]
-Name=CloudToLocalLLM
+Name=Zoidbot
 Comment=Access your local AI models from anywhere
-Exec=/opt/cloudtolocalllm/CloudToLocalLLM-x86_64.AppImage
-Icon=cloudtolocalllm
+Exec=/opt/zoidbot/Zoidbot-x86_64.AppImage
+Icon=zoidbot
 Terminal=false
 Type=Application
 Categories=Development;Network;
@@ -170,8 +170,8 @@ update-desktop-database ~/.local/share/applications/
 
 ```bash
 # Download new version and replace old file
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-x86_64.AppImage
-chmod +x CloudToLocalLLM-x86_64.AppImage
+wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/Zoidbot-x86_64.AppImage
+chmod +x Zoidbot-x86_64.AppImage
 ```
 
 ---
@@ -196,8 +196,8 @@ sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
 
 ```bash
 # Clone repository
-git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
-cd CloudToLocalLLM
+git clone https://github.com/Zoidbot-online/Zoidbot.git
+cd Zoidbot
 
 # Install dependencies
 flutter pub get
@@ -216,10 +216,10 @@ flutter build linux --release
 
 ```bash
 # Copy built application
-sudo cp -r build/linux/x64/release/bundle /opt/cloudtolocalllm
+sudo cp -r build/linux/x64/release/bundle /opt/zoidbot
 
 # Create symlink for command line access
-sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
+sudo ln -s /opt/zoidbot/zoidbot /usr/local/bin/zoidbot
 
 # Create desktop entry (optional)
 ./scripts/create_desktop_entry.sh
@@ -238,17 +238,17 @@ sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
 
 ### 🚀 **First Launch**
 
-1. **Launch CloudToLocalLLM**:
+1. **Launch Zoidbot**:
 
    ```bash
    # If installed via package manager
-   cloudtolocalllm
+   zoidbot
    
    # If using AppImage
-   ./CloudToLocalLLM-x86_64.AppImage
+   ./Zoidbot-x86_64.AppImage
    
    # If built from source
-   /opt/cloudtolocalllm/cloudtolocalllm
+   /opt/zoidbot/zoidbot
    ```
 
 2. **System Tray**: The application will appear in your system tray
@@ -259,7 +259,7 @@ sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
 
 #### **Ollama Connection**
 
-- CloudToLocalLLM automatically detects Ollama on `localhost:11434`
+- Zoidbot automatically detects Ollama on `localhost:11434`
 - Configure custom Ollama settings in the application preferences
 
 #### **System Integration**
@@ -267,7 +267,7 @@ sudo ln -s /opt/cloudtolocalllm/cloudtolocalllm /usr/local/bin/cloudtolocalllm
 ```bash
 # Enable autostart (optional)
 mkdir -p ~/.config/autostart
-cp /usr/share/applications/cloudtolocalllm.desktop ~/.config/autostart/
+cp /usr/share/applications/zoidbot.desktop ~/.config/autostart/
 
 # Configure system tray (if needed)
 # Ensure your desktop environment supports system tray
@@ -275,7 +275,7 @@ cp /usr/share/applications/cloudtolocalllm.desktop ~/.config/autostart/
 
 ### 🌐 **Web Access**
 
-1. Visit [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
+1. Visit [app.zoidbot.online](https://app.zoidbot.online)
 2. Sign in with your account
 3. Configure tunnel connection to your local instance
 
@@ -289,13 +289,13 @@ cp /usr/share/applications/cloudtolocalllm.desktop ~/.config/autostart/
 
 ```bash
 # Check dependencies
-ldd /opt/cloudtolocalllm/cloudtolocalllm
+ldd /opt/zoidbot/zoidbot
 
 # Install missing libraries
 sudo apt-get install -y libgtk-3-0 libglib2.0-0
 
 # Check permissions
-chmod +x /opt/cloudtolocalllm/cloudtolocalllm
+chmod +x /opt/zoidbot/zoidbot
 ```
 
 #### **System Tray Not Visible**
@@ -327,21 +327,21 @@ netstat -tlnp | grep 11434
 
 ```bash
 # Fix file permissions
-sudo chown -R $USER:$USER ~/.config/cloudtolocalllm
-chmod -R 755 ~/.config/cloudtolocalllm
+sudo chown -R $USER:$USER ~/.config/zoidbot
+chmod -R 755 ~/.config/zoidbot
 
 # Fix executable permissions
-chmod +x /opt/cloudtolocalllm/cloudtolocalllm
+chmod +x /opt/zoidbot/zoidbot
 ```
 
 ### 📝 **Log Files**
 
 ```bash
 # Application logs
-tail -f ~/.config/cloudtolocalllm/logs/app.log
+tail -f ~/.config/zoidbot/logs/app.log
 
 # System logs
-journalctl -u cloudtolocalllm -f
+journalctl -u zoidbot -f
 
 # Ollama logs
 journalctl -u ollama -f
@@ -353,20 +353,20 @@ journalctl -u ollama -f
 
 ```bash
 # Run in debug mode
-cloudtolocalllm --debug
+zoidbot --debug
 
 # Or with verbose output
-cloudtolocalllm --verbose
+zoidbot --verbose
 ```
 
 #### **Reset Configuration**
 
 ```bash
 # Backup current config
-cp -r ~/.config/cloudtolocalllm ~/.config/cloudtolocalllm.backup
+cp -r ~/.config/zoidbot ~/.config/zoidbot.backup
 
 # Reset to defaults
-rm -rf ~/.config/cloudtolocalllm
+rm -rf ~/.config/zoidbot
 ```
 
 ---
@@ -412,4 +412,4 @@ rm -rf ~/.config/cloudtolocalllm
 
 ---
 
-*For additional help, see our  or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*
+*For additional help, see our  or [open an issue](https://github.com/Zoidbot-online/Zoidbot/issues).*

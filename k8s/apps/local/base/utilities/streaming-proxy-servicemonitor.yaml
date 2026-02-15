@@ -2,7 +2,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: streaming-proxy
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   labels:
     app: streaming-proxy
     release: prometheus

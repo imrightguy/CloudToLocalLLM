@@ -1,4 +1,4 @@
-CREATE DATABASE cloudtolocalllm;
+CREATE DATABASE zoidbot;
 CREATE USER appuser WITH PASSWORD '1Cp:=4cxTF/9E!)$*k{0]@G?7Ku#6(j2';
-GRANT ALL PRIVILEGES ON DATABASE cloudtolocalllm TO appuser;
+GRANT ALL PRIVILEGES ON DATABASE zoidbot TO appuser;
 GRANT ALL ON SCHEMA public TO appuser;

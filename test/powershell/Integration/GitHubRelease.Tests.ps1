@@ -16,14 +16,14 @@ BeforeAll {
     $Global:GitHubTestConfig = @{
         Repository = @{
             Owner = "test-owner"
-            Name = "cloudtolocalllm"
-            FullName = "test-owner/cloudtolocalllm"
+            Name = "zoidbot"
+            FullName = "test-owner/zoidbot"
             DefaultBranch = "main"
-            RemoteUrl = "https://github.com/test-owner/cloudtolocalllm.git"
+            RemoteUrl = "https://github.com/test-owner/zoidbot.git"
         }
         Release = @{
             TagName = "v3.10.4"
-            Name = "CloudToLocalLLM v3.10.4"
+            Name = "Zoidbot v3.10.4"
             Body = "Release notes for version 3.10.4"
             Draft = $false
             Prerelease = $false
@@ -103,7 +103,7 @@ Describe "GitHub CLI Integration Tests" {
                     return @(
                         "name: $($repoConfig.Name)",
                         "owner: $($repoConfig.Owner)",
-                        "description: CloudToLocalLLM - Multi-tenant AI application",
+                        "description: Zoidbot - Multi-tenant AI application",
                         "visibility: public",
                         "defaultBranch: $($repoConfig.DefaultBranch)"
                     ) -join "`n"
@@ -233,9 +233,9 @@ Describe "GitHub CLI Integration Tests" {
                 if ($args -contains "release" -and $args -contains "list") {
                     $Global:LASTEXITCODE = 0
                     return @(
-                        "v3.10.4	CloudToLocalLLM v3.10.4	Latest	2024-01-15T10:30:00Z",
-                        "v3.10.3	CloudToLocalLLM v3.10.3	        	2024-01-10T15:20:00Z",
-                        "v3.10.2	CloudToLocalLLM v3.10.2	        	2024-01-05T09:15:00Z"
+                        "v3.10.4	Zoidbot v3.10.4	Latest	2024-01-15T10:30:00Z",
+                        "v3.10.3	Zoidbot v3.10.3	        	2024-01-10T15:20:00Z",
+                        "v3.10.2	Zoidbot v3.10.2	        	2024-01-05T09:15:00Z"
                     ) -join "`n"
                 }
                 return "gh command output"
@@ -305,7 +305,7 @@ Describe "GitHub CLI Integration Tests" {
             $repoConfig = $Global:GitHubTestConfig.Repository
             
             # Create mock asset file
-            $assetPath = Join-Path $TestDrive "cloudtolocalllm-v3.10.4.zip"
+            $assetPath = Join-Path $TestDrive "zoidbot-v3.10.4.zip"
             Set-Content -Path $assetPath -Value "Mock release asset content"
             
             Mock gh { 
@@ -539,7 +539,7 @@ Describe "Release Notes Generation Tests" {
         
         It "Should format release notes with proper sections" {
             $releaseNotes = @"
-# CloudToLocalLLM v3.10.4
+# Zoidbot v3.10.4
 
 ## New Features
 - Add automated deployment workflow
@@ -557,7 +557,7 @@ Describe "Release Notes Generation Tests" {
 - Improve error handling in deployment script
 "@
             
-            $releaseNotes | Should -Match "# CloudToLocalLLM v3.10.4"
+            $releaseNotes | Should -Match "# Zoidbot v3.10.4"
             $releaseNotes | Should -Match "## New Features"
             $releaseNotes | Should -Match "## Bug Fixes"
             $releaseNotes | Should -Match "## Documentation"

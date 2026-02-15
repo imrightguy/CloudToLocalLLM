@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres-auth
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   labels:
     app: postgres-auth
 spec:
@@ -18,7 +18,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres-auth
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
@@ -42,17 +42,17 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_NAME
             - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: AUTH_DB_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudtolocalllm-secrets
+                  name: zoidbot-secrets
                   key: postgres-auth-password
           volumeMounts:
             - name: postgres-auth-data
@@ -72,7 +72,7 @@ spec:
               command:
                 - sh
                 - -c
-                - pg_isready -U authuser -d cloudtolocalllm_auth
+                - pg_isready -U authuser -d zoidbot_auth
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
@@ -80,7 +80,7 @@ spec:
               command:
                 - sh
                 - -c
-                - pg_isready -U authuser -d cloudtolocalllm_auth
+                - pg_isready -U authuser -d zoidbot_auth
             initialDelaySeconds: 5
             periodSeconds: 5
       volumes:
@@ -101,7 +101,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-auth-init-scripts
-  namespace: cloudtolocalllm
+  namespace: zoidbot
 data:
   01-schema.sql: |
     -- PostgreSQL Authentication Schema

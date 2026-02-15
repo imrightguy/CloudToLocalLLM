@@ -2,7 +2,7 @@
 """
 Convert PNG tray icons to ICO format for Windows system tray compatibility.
 
-This script converts the existing CloudToLocalLLM PNG tray icons to ICO format
+This script converts the existing Zoidbot PNG tray icons to ICO format
 with multiple embedded sizes (16x16, 24x24, 32x32, 48x48) for optimal Windows
 system tray display across different DPI settings and themes.
 """
@@ -57,7 +57,7 @@ def main():
     project_root = script_dir.parent
     assets_dir = project_root / "assets" / "images"
     
-    print("🔄 CloudToLocalLLM Icon Converter - PNG to ICO")
+    print("🔄 Zoidbot Icon Converter - PNG to ICO")
     print(f"📁 Assets directory: {assets_dir}")
     
     # Define the tray icons to convert

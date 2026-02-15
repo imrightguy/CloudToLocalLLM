@@ -1,10 +1,10 @@
-// Flutter test configuration for CloudToLocalLLM
+// Flutter test configuration for Zoidbot
 // This file configures the test environment for CI/CD pipeline
 
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Test configuration for CloudToLocalLLM Flutter tests
+/// Test configuration for Zoidbot Flutter tests
 /// Provides setup and teardown for CI/CD pipeline execution
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   // Set up test environment

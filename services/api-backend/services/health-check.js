@@ -171,7 +171,7 @@ export class HealthCheckService {
       return {
         status: overallStatus,
         timestamp,
-        service: 'cloudtolocalllm-api',
+        service: 'zoidbot-api',
         dependencies: {
           database: databaseHealth,
           cache: cacheHealth,
@@ -184,7 +184,7 @@ export class HealthCheckService {
       return {
         status: 'unhealthy',
         timestamp,
-        service: 'cloudtolocalllm-api',
+        service: 'zoidbot-api',
         error: error.message || 'Failed to determine health status',
       };
     }

@@ -1,4 +1,4 @@
-# The docker-compose configuration for the CloudToLocalLLM services
+# The docker-compose configuration for the Zoidbot services
 
 services:
 # The tunnel service is commented out because there is no package.json in the build context.
@@ -27,8 +27,8 @@ services:
     user: "1000:1000" # Run as non-root user for security and compatibility
 
   webapp:
-    container_name: cloudtolocalllm-webapp
-    image: cloudtolocalllm-webapp:latest
+    container_name: zoidbot-webapp
+    image: zoidbot-webapp:latest
     build:
       context: ../..
       dockerfile: config/docker/Dockerfile.web
@@ -38,7 +38,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ../../ssl:/etc/nginx/ssl:ro
-      - ../../certbot/live/cloudtolocalllm.online:/etc/letsencrypt/live/cloudtolocalllm.online:ro
+      - ../../certbot/live/zoidbot.online:/etc/letsencrypt/live/zoidbot.online:ro
       - ../../certbot/archive:/etc/letsencrypt/archive:ro
       - ../../.env:/app/.env:ro
       - ../../static_portal_files:/usr/share/nginx/html/portal_files:ro

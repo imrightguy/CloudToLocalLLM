@@ -246,7 +246,7 @@ class _DnsConfigTabState extends State<DnsConfigTab> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'DNS records are managed via Cloudflare API. Your domain (cloudtolocalllm.online) is configured with Cloudflare.',
+                                  'DNS records are managed via Cloudflare API. Your domain (zoidbot.online) is configured with Cloudflare.',
                                   style: TextStyle(color: Colors.blue.shade900),
                                 ),
                               ),

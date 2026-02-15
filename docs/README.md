@@ -1,6 +1,6 @@
-# CloudToLocalLLM Documentation Index
+# Zoidbot Documentation Index
 
-Welcome to the consolidated documentation for CloudToLocalLLM.
+Welcome to the consolidated documentation for Zoidbot.
 
 ## 📚 Documentation Categories
 

@@ -292,7 +292,7 @@ class _PrivacyDashboardState extends State<PrivacyDashboard> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        tierService.currentTier.toUpperCase(),
+                        tierService.currentTier.name.toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -551,7 +551,7 @@ class _PrivacyDashboardState extends State<PrivacyDashboard> {
                         '  ',
                       ).convert(exportData);
                       final fileName =
-                          'cloudtolocalllm_conversations_${DateTime.now().millisecondsSinceEpoch}.json';
+                          'zoidbot_conversations_${DateTime.now().millisecondsSinceEpoch}.json';
 
                       // Copy to clipboard for now (file saving requires additional package)
                       await Clipboard.setData(ClipboardData(text: jsonString));

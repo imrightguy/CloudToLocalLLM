@@ -40,7 +40,7 @@ class MockPostgresBackupService {
 
   initializeTestDatabase() {
     // Initialize with sample data
-    this.databases.set('cloudtolocalllm', {
+    this.databases.set('zoidbot', {
       tables: {
         users: [
           { id: 1, email: 'user1@example.com', name: 'User One' },
@@ -230,7 +230,7 @@ class MockPostgresBackupService {
  */
 describe('Disaster Recovery Integration Tests', () => {
   let backupService;
-  const testDbName = 'cloudtolocalllm';
+  const testDbName = 'zoidbot';
 
   beforeAll(() => {
     backupService = new MockPostgresBackupService();

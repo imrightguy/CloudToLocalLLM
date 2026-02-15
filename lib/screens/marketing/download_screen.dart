@@ -77,7 +77,7 @@ class DownloadScreen extends StatelessWidget {
 
           // Title
           Text(
-            'Download CloudToLocalLLM',
+            'Download Zoidbot',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -147,7 +147,7 @@ class DownloadScreen extends StatelessWidget {
       context,
       title: '� Quick Downloads',
       description:
-          'Download the latest version of CloudToLocalLLM for your platform',
+          'Download the latest version of Zoidbot for your platform',
       child: Column(
         children: [
           const SizedBox(height: 24),
@@ -182,8 +182,8 @@ class DownloadScreen extends StatelessWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () => _downloadFile(
-                    'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-Windows-${AppConfig.appVersion}-Setup.exe',
-                    'CloudToLocalLLM-Windows-${AppConfig.appVersion}-Setup.exe',
+                    'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/Zoidbot-Windows-${AppConfig.appVersion}-Setup.exe',
+                    'Zoidbot-Windows-${AppConfig.appVersion}-Setup.exe',
                     context,
                   ),
                   icon: const Icon(Icons.desktop_windows),
@@ -199,8 +199,8 @@ class DownloadScreen extends StatelessWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () => _downloadFile(
-                    'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-${AppConfig.appVersion}-portable.zip',
-                    'cloudtolocalllm-${AppConfig.appVersion}-portable.zip',
+                    'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-${AppConfig.appVersion}-portable.zip',
+                    'zoidbot-${AppConfig.appVersion}-portable.zip',
                     context,
                   ),
                   icon: const Icon(Icons.archive),
@@ -304,10 +304,10 @@ class DownloadScreen extends StatelessWidget {
       child: _buildInstallationSection(
         'Installation from Snap Store (Coming Soon)',
         '''# Install from Snap Store (when available)
-sudo snap install cloudtolocalllm
+sudo snap install zoidbot
 
 # Enable system tray access
-sudo snap connect cloudtolocalllm:system-observe''',
+sudo snap connect zoidbot:system-observe''',
       ),
     );
   }
@@ -321,10 +321,10 @@ sudo snap connect cloudtolocalllm:system-observe''',
       child: _buildInstallationSection(
         'Installation',
         '''# Download from GitHub releases
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm_${AppConfig.appVersion}_amd64.deb
+wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot_${AppConfig.appVersion}_amd64.deb
 
 # Install with dpkg
-sudo dpkg -i cloudtolocalllm_${AppConfig.appVersion}_amd64.deb
+sudo dpkg -i zoidbot_${AppConfig.appVersion}_amd64.deb
 
 # Install dependencies if needed
 sudo apt-get install -f''',
@@ -341,13 +341,13 @@ sudo apt-get install -f''',
       child: _buildInstallationSection(
         'Download and Run',
         '''# Download AppImage from GitHub releases
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-${AppConfig.appVersion}-x86_64.AppImage
+wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-${AppConfig.appVersion}-x86_64.AppImage
 
 # Make executable
-chmod +x cloudtolocalllm-${AppConfig.appVersion}-x86_64.AppImage
+chmod +x zoidbot-${AppConfig.appVersion}-x86_64.AppImage
 
 # Run directly
-./cloudtolocalllm-${AppConfig.appVersion}-x86_64.AppImage''',
+./zoidbot-${AppConfig.appVersion}-x86_64.AppImage''',
       ),
     );
   }
@@ -361,13 +361,13 @@ chmod +x cloudtolocalllm-${AppConfig.appVersion}-x86_64.AppImage
       child: _buildInstallationSection(
         'Installation with AUR Helper (Recommended)',
         '''# Install with yay (no build dependencies needed)
-yay -S cloudtolocalllm
+yay -S zoidbot
 
 # Or using paru
-paru -S cloudtolocalllm
+paru -S zoidbot
 
 # Or using pamac
-pamac install cloudtolocalllm''',
+pamac install zoidbot''',
       ),
     );
   }
@@ -381,14 +381,14 @@ pamac install cloudtolocalllm''',
       child: _buildInstallationSection(
         'Download and Install',
         '''# Download pre-built binary from GitHub releases
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-${AppConfig.appVersion}-x86_64.tar.gz
+wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-${AppConfig.appVersion}-x86_64.tar.gz
 
 # Extract to local directory
-tar -xzf cloudtolocalllm-${AppConfig.appVersion}-x86_64.tar.gz
-cd cloudtolocalllm-${AppConfig.appVersion}-x86_64
+tar -xzf zoidbot-${AppConfig.appVersion}-x86_64.tar.gz
+cd zoidbot-${AppConfig.appVersion}-x86_64
 
 # Run directly
-./cloudtolocalllm''',
+./zoidbot''',
       ),
     );
   }
@@ -412,7 +412,7 @@ cd cloudtolocalllm-${AppConfig.appVersion}-x86_64
           ),
           const SizedBox(height: 8),
           const Text(
-            'CloudToLocalLLM will minimize to the system tray by default. Look for the LLM icon in your system tray.',
+            'Zoidbot will minimize to the system tray by default. Look for the LLM icon in your system tray.',
             style: TextStyle(color: Color(0xFFb0b0b0)),
           ),
           const SizedBox(height: 16),
@@ -432,7 +432,7 @@ cd cloudtolocalllm-${AppConfig.appVersion}-x86_64
           const SizedBox(height: 8),
           ...[
             'Desktop: Configure direct localhost:11434 connection to Ollama',
-            'Web: Uses CloudToLocalLLM streaming proxy automatically',
+            'Web: Uses Zoidbot streaming proxy automatically',
           ].map(
             (item) => Padding(
               padding: const EdgeInsets.only(bottom: 4),

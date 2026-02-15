@@ -1,4 +1,4 @@
-# Base Builder Image for CloudToLocalLLM
+# Base Builder Image for Zoidbot
 # Uses standard Fedora image
 
 FROM fedora:40
@@ -12,28 +12,28 @@ RUN dnf -y update && \
     dnf clean all
 
 # Create non-root user
-RUN useradd -u 1000 -m -s /bin/bash cloudtolocalllm
+RUN useradd -u 1000 -m -s /bin/bash zoidbot
 
 # Install Flutter SDK
 ENV FLUTTER_ROOT=/opt/flutter
 RUN mkdir -p $FLUTTER_ROOT && \
-    chown -R cloudtolocalllm:cloudtolocalllm $FLUTTER_ROOT
+    chown -R zoidbot:zoidbot $FLUTTER_ROOT
 
 # Switch back to non-root user
-USER cloudtolocalllm
-WORKDIR /home/cloudtolocalllm
+USER zoidbot
+WORKDIR /home/zoidbot
 
 # Install NVM and Node.js (LTS)
-ENV NVM_DIR=/home/cloudtolocalllm/.nvm
+ENV NVM_DIR=/home/zoidbot/.nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
     . "$NVM_DIR/nvm.sh" && \
     nvm install 24 && \
     nvm alias default 24 && \
     nvm use default && \
-    ln -s $(dirname $(nvm which default)) /home/cloudtolocalllm/node-bin
+    ln -s $(dirname $(nvm which default)) /home/zoidbot/node-bin
 
 # Add Node.js and Flutter to PATH
-ENV PATH="/home/cloudtolocalllm/node-bin:$FLUTTER_ROOT/bin:$FLUTTER_ROOT/bin/cache/dart-sdk/bin:$PATH"
+ENV PATH="/home/zoidbot/node-bin:$FLUTTER_ROOT/bin:$FLUTTER_ROOT/bin/cache/dart-sdk/bin:$PATH"
 
 # Download and extract Flutter SDK
 RUN git clone https://github.com/flutter/flutter.git -b stable $FLUTTER_ROOT

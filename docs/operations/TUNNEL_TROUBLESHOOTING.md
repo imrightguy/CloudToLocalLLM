@@ -37,13 +37,13 @@ START
 
    ```bash
    # Test DNS resolution
-   nslookup proxy.cloudtolocalllm.online
+   nslookup proxy.zoidbot.online
    
    # Test connectivity
-   ping proxy.cloudtolocalllm.online
+   ping proxy.zoidbot.online
    
    # Test WebSocket port
-   telnet proxy.cloudtolocalllm.online 443
+   telnet proxy.zoidbot.online 443
    ```
 
 2. **Check firewall settings:**
@@ -56,7 +56,7 @@ START
 
    ```bash
    # Check server health
-   curl https://proxy.cloudtolocalllm.online/api/tunnel/health
+   curl https://proxy.zoidbot.online/api/tunnel/health
    
    # Expected response:
    # {"status": "healthy", "activeConnections": 42, ...}
@@ -72,7 +72,7 @@ START
 | Issue | Solution |
 |-------|----------|
 | DNS resolution fails | Check DNS settings, try alternative DNS (8.8.8.8) |
-| Firewall blocks connection | Whitelist proxy.cloudtolocalllm.online in firewall |
+| Firewall blocks connection | Whitelist proxy.zoidbot.online in firewall |
 | Server unavailable | Wait for server to recover, check status page |
 | Invalid JWT token | Re-authenticate, refresh token |
 | Network timeout | Check network speed, try from different network |
@@ -84,7 +84,7 @@ START
 [ERROR] Error code: TUNNEL_001
 [ERROR] Category: network
 [ERROR] Suggestion: Check your internet connection and firewall settings
-[DEBUG] Server URL: wss://proxy.cloudtolocalllm.online
+[DEBUG] Server URL: wss://proxy.zoidbot.online
 [DEBUG] Network conditions: Timeout after 30 seconds
 ```
 
@@ -104,7 +104,7 @@ START
 
    ```bash
    # Monitor packet loss
-   ping -c 100 proxy.cloudtolocalllm.online
+   ping -c 100 proxy.zoidbot.online
    
    # Look for: 0% packet loss (good), >5% packet loss (bad)
    ```
@@ -118,7 +118,7 @@ START
 
    ```bash
    # Get server logs
-   kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm
+   kubectl logs -f deployment/streaming-proxy -n zoidbot
    
    # Look for: Connection closed, timeout, error messages
    ```
@@ -180,7 +180,7 @@ START
 
    ```bash
    # If token is expired, refresh it
-   curl -X POST https://auth.cloudtolocalllm.online/oauth/token \
+   curl -X POST https://auth.zoidbot.online/oauth/token \
      -H "Content-Type: application/json" \
      -d '{
        "client_id": "YOUR_CLIENT_ID",
@@ -231,7 +231,7 @@ START
    ```bash
    # Get server diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
-     https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics
+     https://proxy.zoidbot.online/api/tunnel/diagnostics
    
    # Look for: activeConnections, averageLatency, errorRate
    ```
@@ -250,7 +250,7 @@ START
 
    ```bash
    # Measure latency
-   ping proxy.cloudtolocalllm.online
+   ping proxy.zoidbot.online
    
    # Should be < 100ms for good performance
    ```
@@ -350,7 +350,7 @@ START
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
-     https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics
+     https://proxy.zoidbot.online/api/tunnel/diagnostics
    
    # Look for: queueSize, queueFillPercentage
    ```
@@ -405,7 +405,7 @@ START
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
-     https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics
+     https://proxy.zoidbot.online/api/tunnel/diagnostics
    
    # Look for: averageLatency, p95Latency, p99Latency
    ```
@@ -420,7 +420,7 @@ START
 
    ```bash
    # Measure network latency
-   ping -c 10 proxy.cloudtolocalllm.online
+   ping -c 10 proxy.zoidbot.online
    
    # Should be < 50ms for good performance
    ```
@@ -429,7 +429,7 @@ START
 
    ```bash
    # Get server metrics
-   curl https://proxy.cloudtolocalllm.online/api/tunnel/metrics
+   curl https://proxy.zoidbot.online/api/tunnel/metrics
    
    # Look for: tunnel_request_latency_ms histogram
    ```
@@ -472,7 +472,7 @@ START
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
-     https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics
+     https://proxy.zoidbot.online/api/tunnel/diagnostics
    
    # Look for: errorRate, errorsByCategory
    ```
@@ -487,7 +487,7 @@ START
 
    ```bash
    # Get server logs
-   kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm
+   kubectl logs -f deployment/streaming-proxy -n zoidbot
    
    # Look for: ERROR, WARN, exception messages
    ```
@@ -497,7 +497,7 @@ START
    ```bash
    # Get diagnostics
    curl -H "Authorization: Bearer $TOKEN" \
-     https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics
+     https://proxy.zoidbot.online/api/tunnel/diagnostics
    
    # Look for: circuitBreaker.state (should be "closed")
    ```
@@ -570,35 +570,35 @@ if (report.summary.recommendations.isNotEmpty) {
 ```bash
 # Get server diagnostics
 curl -H "Authorization: Bearer $TOKEN" \
-  https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics | jq .
+  https://proxy.zoidbot.online/api/tunnel/diagnostics | jq .
 
 # Get server health
-curl https://proxy.cloudtolocalllm.online/api/tunnel/health | jq .
+curl https://proxy.zoidbot.online/api/tunnel/health | jq .
 
 # Get server metrics
-curl https://proxy.cloudtolocalllm.online/api/tunnel/metrics
+curl https://proxy.zoidbot.online/api/tunnel/metrics
 ```
 
 #### Kubernetes Diagnostics
 
 ```bash
 # Check pod status
-kubectl get pods -n cloudtolocalllm -l app=streaming-proxy
+kubectl get pods -n zoidbot -l app=streaming-proxy
 
 # Check pod logs
-kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm
+kubectl logs -f deployment/streaming-proxy -n zoidbot
 
 # Check pod events
-kubectl describe pod <pod-name> -n cloudtolocalllm
+kubectl describe pod <pod-name> -n zoidbot
 
 # Check resource usage
-kubectl top pod <pod-name> -n cloudtolocalllm
+kubectl top pod <pod-name> -n zoidbot
 
 # Check service status
-kubectl get svc streaming-proxy -n cloudtolocalllm
+kubectl get svc streaming-proxy -n zoidbot
 
 # Check ingress status
-kubectl get ingress -n cloudtolocalllm
+kubectl get ingress -n zoidbot
 ```
 
 ### Enabling Debug Logging
@@ -613,7 +613,7 @@ final config = TunnelConfig(
 );
 
 await tunnelService.connect(
-  serverUrl: 'wss://proxy.cloudtolocalllm.online',
+  serverUrl: 'wss://proxy.zoidbot.online',
   authToken: authToken,
   config: config,
 );
@@ -627,10 +627,10 @@ curl -X PUT \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"monitoring": {"logLevel": "debug"}}' \
-  https://proxy.cloudtolocalllm.online/api/tunnel/config
+  https://proxy.zoidbot.online/api/tunnel/config
 
 # Check logs
-kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm | grep DEBUG
+kubectl logs -f deployment/streaming-proxy -n zoidbot | grep DEBUG
 ```
 
 ### Monitoring Metrics
@@ -639,13 +639,13 @@ kubectl logs -f deployment/streaming-proxy -n cloudtolocalllm | grep DEBUG
 
 ```bash
 # Scrape metrics
-curl https://proxy.cloudtolocalllm.online/api/tunnel/metrics
+curl https://proxy.zoidbot.online/api/tunnel/metrics
 
 # Query specific metric
-curl 'https://prometheus.cloudtolocalllm.online/api/v1/query?query=tunnel_active_connections'
+curl 'https://prometheus.zoidbot.online/api/v1/query?query=tunnel_active_connections'
 
 # Query metric range
-curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_request_latency_ms&start=1705314600&end=1705318200&step=60'
+curl 'https://prometheus.zoidbot.online/api/v1/query_range?query=tunnel_request_latency_ms&start=1705314600&end=1705318200&step=60'
 ```
 
 #### Grafana Dashboards
@@ -663,10 +663,10 @@ curl 'https://prometheus.cloudtolocalllm.online/api/v1/query_range?query=tunnel_
 
 **Solution:**
 
-1. Check server status: `curl https://proxy.cloudtolocalllm.online/api/tunnel/health`
+1. Check server status: `curl https://proxy.zoidbot.online/api/tunnel/health`
 2. Check firewall: Ensure port 443 is open
-3. Check DNS: Verify proxy.cloudtolocalllm.online resolves correctly
-4. Restart server: `kubectl rollout restart deployment/streaming-proxy -n cloudtolocalllm`
+3. Check DNS: Verify proxy.zoidbot.online resolves correctly
+4. Restart server: `kubectl rollout restart deployment/streaming-proxy -n zoidbot`
 
 ---
 
@@ -738,7 +738,7 @@ Before contacting support, collect:
 
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
-     https://proxy.cloudtolocalllm.online/api/tunnel/diagnostics > diagnostics.json
+     https://proxy.zoidbot.online/api/tunnel/diagnostics > diagnostics.json
    ```
 
 3. **Logs:**
@@ -746,7 +746,7 @@ Before contacting support, collect:
    ```bash
    # Client logs (from app)
    # Server logs
-   kubectl logs deployment/streaming-proxy -n cloudtolocalllm > server-logs.txt
+   kubectl logs deployment/streaming-proxy -n zoidbot > server-logs.txt
    ```
 
 4. **System information:**
@@ -757,10 +757,10 @@ Before contacting support, collect:
 
 ### Support Channels
 
-- **Documentation**: https://docs.cloudtolocalllm.online
-- **GitHub Issues**: https://github.com/cloudtolocalllm/issues
-- **Email Support**: support@cloudtolocalllm.online
-- **Community Forum**: https://forum.cloudtolocalllm.online
+- **Documentation**: https://docs.zoidbot.online
+- **GitHub Issues**: https://github.com/zoidbot/issues
+- **Email Support**: support@zoidbot.online
+- **Community Forum**: https://forum.zoidbot.online
 
 ### Providing Feedback
 

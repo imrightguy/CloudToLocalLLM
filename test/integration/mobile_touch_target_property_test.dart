@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/utils/responsive_layout.dart';
+import 'package:zoidbot/utils/responsive_layout.dart';
 
 void main() {
   group('Property 6: Mobile Touch Target Size', () {

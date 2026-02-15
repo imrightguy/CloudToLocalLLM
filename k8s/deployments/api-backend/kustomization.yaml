@@ -8,7 +8,7 @@ patches:
       kind: Deployment
       metadata:
         name: api-backend
-        namespace: cloudtolocalllm
+        namespace: zoidbot
       spec:
         template:
           spec:
@@ -30,7 +30,7 @@ patches:
       kind: Deployment
       metadata:
         name: api-backend
-        namespace: cloudtolocalllm
+        namespace: zoidbot
       spec:
         replicas: 1
         template:

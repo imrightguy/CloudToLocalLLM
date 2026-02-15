@@ -1,12 +1,12 @@
 # Security Audit Report
 
 **Date:** November 15, 2025  
-**Scope:** CloudToLocalLLM Repository  
+**Scope:** Zoidbot Repository  
 **Status:** ✅ Vulnerabilities Addressed
 
 ## Executive Summary
 
-A comprehensive security audit was performed on the CloudToLocalLLM repository to identify and remediate security vulnerabilities in dependencies. The audit focused on both production and development dependencies.
+A comprehensive security audit was performed on the Zoidbot repository to identify and remediate security vulnerabilities in dependencies. The audit focused on both production and development dependencies.
 
 ## Vulnerabilities Found and Fixed
 
@@ -115,7 +115,7 @@ A comprehensive security audit was performed on the CloudToLocalLLM repository t
 
 ## Audit Conclusion
 
-The CloudToLocalLLM project maintains a strong security posture. All critical and high-severity vulnerabilities have been addressed. Remaining moderate-severity vulnerabilities are isolated to development dependencies and do not affect production security.
+The Zoidbot project maintains a strong security posture. All critical and high-severity vulnerabilities have been addressed. Remaining moderate-severity vulnerabilities are isolated to development dependencies and do not affect production security.
 
 **Overall Security Rating: ✅ GOOD**
 

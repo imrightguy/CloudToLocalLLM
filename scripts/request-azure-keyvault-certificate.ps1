@@ -3,10 +3,10 @@
 
 $ErrorActionPreference = "Stop"
 
-$KEY_VAULT_NAME = "cloudtolocalllm-kv"
-$CERT_NAME = "cloudtolocalllm-wildcard"
-$DOMAIN = "cloudtolocalllm.online"
-$WILDCARD_DOMAIN = "*.cloudtolocalllm.online"
+$KEY_VAULT_NAME = "zoidbot-kv"
+$CERT_NAME = "zoidbot-wildcard"
+$DOMAIN = "zoidbot.online"
+$WILDCARD_DOMAIN = "*.zoidbot.online"
 
 Write-Host "🔐 Requesting certificate from Azure Key Vault..." -ForegroundColor Cyan
 
@@ -90,5 +90,5 @@ if ($LASTEXITCODE -eq 0) {
 
 Write-Host ""
 Write-Host "📋 Next: Sync certificate to Kubernetes" -ForegroundColor Cyan
-Write-Host "   kubectl create job --from=cronjob/sync-cert-to-keyvault sync-now -n cloudtolocalllm" -ForegroundColor White
+Write-Host "   kubectl create job --from=cronjob/sync-cert-to-keyvault sync-now -n zoidbot" -ForegroundColor White
 

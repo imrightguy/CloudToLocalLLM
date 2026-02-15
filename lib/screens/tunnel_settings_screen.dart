@@ -234,7 +234,7 @@ class _TunnelSettingsScreenState extends State<TunnelSettingsScreen> {
     try {
       // Create diagnostic test suite
       final diagnosticSuite = DiagnosticTestSuite(
-        serverHost: 'api.cloudtolocalllm.online',
+        serverHost: 'api.zoidbot.online',
         serverPort: 443,
         authToken: null, // Will be set from auth service if needed
         testTimeout: const Duration(seconds: 30),

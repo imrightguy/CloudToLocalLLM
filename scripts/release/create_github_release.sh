@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CloudToLocalLLM GitHub Release Creator
+# Zoidbot GitHub Release Creator
 # Creates GitHub releases with binary artifacts for AUR distribution
 
 set -e
@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 REPO_OWNER="imrightguy"
-REPO_NAME="CloudToLocalLLM"
+REPO_NAME="Zoidbot"
 
 # Functions
 print_status() {
@@ -101,20 +101,20 @@ verify_packages() {
     print_status "Verifying Phase 3 build packages for version $version..."
 
     # Check Windows packages
-    if [[ ! -f "$PROJECT_ROOT/dist/windows/cloudtolocalllm-$version-portable.zip" ]]; then
+    if [[ ! -f "$PROJECT_ROOT/dist/windows/zoidbot-$version-portable.zip" ]]; then
         missing_packages+=("Windows portable ZIP")
     fi
 
-    if [[ ! -f "$PROJECT_ROOT/dist/windows/CloudToLocalLLM-Windows-$version-Setup.exe" ]]; then
+    if [[ ! -f "$PROJECT_ROOT/dist/windows/Zoidbot-Windows-$version-Setup.exe" ]]; then
         missing_packages+=("Windows installer")
     fi
 
     # Check Linux packages
-    if [[ ! -f "$PROJECT_ROOT/dist/linux/cloudtolocalllm-$version-amd64.deb" ]]; then
+    if [[ ! -f "$PROJECT_ROOT/dist/linux/zoidbot-$version-amd64.deb" ]]; then
         missing_packages+=("Linux .deb package")
     fi
 
-    if [[ ! -f "$PROJECT_ROOT/dist/linux/cloudtolocalllm-$version-x86_64.AppImage" ]]; then
+    if [[ ! -f "$PROJECT_ROOT/dist/linux/zoidbot-$version-x86_64.AppImage" ]]; then
         missing_packages+=("Linux AppImage")
     fi
 
@@ -136,7 +136,7 @@ generate_release_notes() {
     local notes_file="/tmp/release_notes_$version.md"
     
     cat > "$notes_file" << EOF
-# CloudToLocalLLM v$version
+# Zoidbot v$version
 
 ## 🚀 New Features & Improvements
 
@@ -169,17 +169,17 @@ generate_release_notes() {
 ### Linux (AUR Package)
 \`\`\`bash
 # Install from AUR (recommended)
-yay -S cloudtolocalllm
+yay -S zoidbot
 
 # Or build manually
-git clone https://aur.archlinux.org/cloudtolocalllm.git
-cd cloudtolocalllm
+git clone https://aur.archlinux.org/zoidbot.git
+cd zoidbot
 makepkg -si
 \`\`\`
 
 ### Manual Installation
-1. Download the binary package: \`cloudtolocalllm-$version-x86_64.tar.gz\`
-2. Verify integrity: \`sha256sum -c cloudtolocalllm-$version-x86_64.tar.gz.sha256\`
+1. Download the binary package: \`zoidbot-$version-x86_64.tar.gz\`
+2. Verify integrity: \`sha256sum -c zoidbot-$version-x86_64.tar.gz.sha256\`
 3. Extract and install according to included instructions
 
 ### System Requirements
@@ -190,8 +190,8 @@ makepkg -si
 
 ## 🔗 Links
 
-- **Homepage**: https://cloudtolocalllm.online
-- **Web App**: https://app.cloudtolocalllm.online
+- **Homepage**: https://zoidbot.online
+- **Web App**: https://app.zoidbot.online
 - **Documentation**: https://github.com/$REPO_OWNER/$REPO_NAME/wiki
 - **Issues**: https://github.com/$REPO_OWNER/$REPO_NAME/issues
 
@@ -222,10 +222,10 @@ create_release() {
         if [[ "$FORCE_RECREATE" == "true" ]]; then
             print_status "Deleting existing local tag due to force flag"
             git tag -d "$tag"
-            git tag -a "$tag" -m "CloudToLocalLLM v$version"
+            git tag -a "$tag" -m "Zoidbot v$version"
         fi
     else
-        git tag -a "$tag" -m "CloudToLocalLLM v$version"
+        git tag -a "$tag" -m "Zoidbot v$version"
     fi
 
     # Push tag (force push if recreating)
@@ -239,32 +239,32 @@ create_release() {
     local assets=()
 
     # Windows packages
-    if [[ -f "$PROJECT_ROOT/dist/windows/cloudtolocalllm-$version-portable.zip" ]]; then
-        assets+=("$PROJECT_ROOT/dist/windows/cloudtolocalllm-$version-portable.zip")
-        assets+=("$PROJECT_ROOT/dist/windows/cloudtolocalllm-$version-portable.zip.sha256")
+    if [[ -f "$PROJECT_ROOT/dist/windows/zoidbot-$version-portable.zip" ]]; then
+        assets+=("$PROJECT_ROOT/dist/windows/zoidbot-$version-portable.zip")
+        assets+=("$PROJECT_ROOT/dist/windows/zoidbot-$version-portable.zip.sha256")
     fi
 
-    if [[ -f "$PROJECT_ROOT/dist/windows/CloudToLocalLLM-Windows-$version-Setup.exe" ]]; then
-        assets+=("$PROJECT_ROOT/dist/windows/CloudToLocalLLM-Windows-$version-Setup.exe")
-        assets+=("$PROJECT_ROOT/dist/windows/CloudToLocalLLM-Windows-$version-Setup.exe.sha256")
+    if [[ -f "$PROJECT_ROOT/dist/windows/Zoidbot-Windows-$version-Setup.exe" ]]; then
+        assets+=("$PROJECT_ROOT/dist/windows/Zoidbot-Windows-$version-Setup.exe")
+        assets+=("$PROJECT_ROOT/dist/windows/Zoidbot-Windows-$version-Setup.exe.sha256")
     fi
 
     # Linux packages
-    if [[ -f "$PROJECT_ROOT/dist/linux/cloudtolocalllm_${version}_amd64.deb" ]]; then
-        assets+=("$PROJECT_ROOT/dist/linux/cloudtolocalllm_${version}_amd64.deb")
-        assets+=("$PROJECT_ROOT/dist/linux/cloudtolocalllm_${version}_amd64.deb.sha256")
+    if [[ -f "$PROJECT_ROOT/dist/linux/zoidbot_${version}_amd64.deb" ]]; then
+        assets+=("$PROJECT_ROOT/dist/linux/zoidbot_${version}_amd64.deb")
+        assets+=("$PROJECT_ROOT/dist/linux/zoidbot_${version}_amd64.deb.sha256")
     fi
 
-    if [[ -f "$PROJECT_ROOT/dist/linux/cloudtolocalllm-$version-x86_64.AppImage" ]]; then
-        assets+=("$PROJECT_ROOT/dist/linux/cloudtolocalllm-$version-x86_64.AppImage")
-        assets+=("$PROJECT_ROOT/dist/linux/cloudtolocalllm-$version-x86_64.AppImage.sha256")
+    if [[ -f "$PROJECT_ROOT/dist/linux/zoidbot-$version-x86_64.AppImage" ]]; then
+        assets+=("$PROJECT_ROOT/dist/linux/zoidbot-$version-x86_64.AppImage")
+        assets+=("$PROJECT_ROOT/dist/linux/zoidbot-$version-x86_64.AppImage.sha256")
     fi
 
     # Create release with multi-platform assets
     print_status "Creating GitHub release with multi-platform assets..."
     gh release create "$tag" \
         --repo "$REPO_OWNER/$REPO_NAME" \
-        --title "CloudToLocalLLM v$version" \
+        --title "Zoidbot v$version" \
         --notes-file "$notes_file" \
         "${assets[@]}"
 
@@ -287,7 +287,7 @@ parse_arguments() {
                 shift
                 ;;
             --help|-h)
-                echo "CloudToLocalLLM GitHub Release Creator"
+                echo "Zoidbot GitHub Release Creator"
                 echo "Usage: $0 [OPTIONS]"
                 echo ""
                 echo "Options:"
@@ -308,7 +308,7 @@ main() {
     # Parse arguments
     parse_arguments "$@"
 
-    print_status "CloudToLocalLLM GitHub Release Creator"
+    print_status "Zoidbot GitHub Release Creator"
     print_status "======================================"
 
     # Change to project root

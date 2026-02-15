@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
+import 'package:zoidbot/services/settings_import_export_service.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
 
-import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
+import 'package:zoidbot/utils/settings_error_handler.dart';
 
 void main() {
   group('Import/Export Property Tests', () {
@@ -73,7 +73,7 @@ void main() {
 
             // Verify filename format and timing
             if (stopwatch.elapsedMilliseconds <= 100 &&
-                filename.contains('cloudtolocalllm-settings') &&
+                filename.contains('zoidbot-settings') &&
                 filename.endsWith('.json')) {
               passCount++;
             }

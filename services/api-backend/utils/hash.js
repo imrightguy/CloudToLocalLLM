@@ -1,5 +1,5 @@
 /**
- * Hash utilities for CloudToLocalLLM API Backend
+ * Hash utilities for Zoidbot API Backend
  */
 
 import crypto from 'crypto';

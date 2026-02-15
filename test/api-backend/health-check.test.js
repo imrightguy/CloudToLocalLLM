@@ -176,7 +176,7 @@ describe('HealthCheckService', () => {
       const result = await healthCheckService.getHealthStatus();
 
       expect(result.status).toBe('healthy');
-      expect(result.service).toBe('cloudtolocalllm-api');
+      expect(result.service).toBe('zoidbot-api');
       expect(result.dependencies.database.status).toBe('healthy');
       expect(result.dependencies.cache.status).toBe('healthy');
       expect(result.dependencies.services['test-service'].status).toBe('healthy');

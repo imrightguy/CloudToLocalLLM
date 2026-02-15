@@ -27,7 +27,7 @@ Write-Host "✓ NAT Gateway is available."
 Write-Host "Creating Private Route Table..."
 $rt = aws ec2 create-route-table --vpc-id $VpcId --region $Region | ConvertFrom-Json
 $rtId = $rt.RouteTable.RouteTableId
-aws ec2 create-tags --resources $rtId --tags Key=Name,Value=cloudtolocalllm-eks-private-rt --region $Region
+aws ec2 create-tags --resources $rtId --tags Key=Name,Value=zoidbot-eks-private-rt --region $Region
 Write-Host "✓ Created Route Table: $rtId"
 
 # 4. Add Route to NAT Gateway

@@ -1,4 +1,4 @@
-# Test Configuration for CloudToLocalLLM PowerShell Tests
+# Test Configuration for Zoidbot PowerShell Tests
 # Centralized configuration for test execution and mock behavior
 
 # Test execution configuration
@@ -8,7 +8,7 @@ $Script:TestConfig = @{
         ProjectRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
         TestDataPath = Join-Path $PSScriptRoot "TestData"
         MocksPath = Join-Path $PSScriptRoot "Mocks"
-        TempPath = Join-Path $env:TEMP "CloudToLocalLLM_Tests"
+        TempPath = Join-Path $env:TEMP "Zoidbot_Tests"
     }
     
     # Mock behavior configuration
@@ -23,7 +23,7 @@ $Script:TestConfig = @{
         
         # SSH mock settings
         SSH = @{
-            DefaultHost = "test.cloudtolocalllm.online"
+            DefaultHost = "test.zoidbot.online"
             DefaultUser = "testuser"
             DefaultPort = 22
             SimulateConnectivity = $true
@@ -35,7 +35,7 @@ $Script:TestConfig = @{
             SimulateRepository = $true
             DefaultBranch = "main"
             HasUncommittedChanges = $false
-            RemoteUrl = "https://github.com/test/cloudtolocalllm.git"
+            RemoteUrl = "https://github.com/test/zoidbot.git"
         }
         
         # Flutter mock settings
@@ -68,8 +68,8 @@ $Script:TestConfig = @{
         # Sample project files
         ProjectFiles = @{
             "pubspec.yaml" = @"
-name: cloudtolocalllm
-description: CloudToLocalLLM Flutter Application
+name: zoidbot
+description: Zoidbot Flutter Application
 version: 3.10.3+123
 
 environment:
@@ -94,14 +94,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
-  runApp(CloudToLocalLLMApp());
+  runApp(ZoidbotApp());
 }
 
-class CloudToLocalLLMApp extends StatelessWidget {
+class ZoidbotApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'CloudToLocalLLM',
+      title: 'Zoidbot',
       routerConfig: _router,
     );
   }
@@ -120,8 +120,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('CloudToLocalLLM')),
-      body: Center(child: Text('Welcome to CloudToLocalLLM')),
+      appBar: AppBar(title: Text('Zoidbot')),
+      body: Center(child: Text('Welcome to Zoidbot')),
     );
   }
 }
@@ -224,7 +224,7 @@ QyNTUxOQAAACAbcdef1234567890...
             EnableVerbose = $false
             EnableDebug = $false
             LogToFile = $false
-            LogFilePath = Join-Path $env:TEMP "CloudToLocalLLM_Test.log"
+            LogFilePath = Join-Path $env:TEMP "Zoidbot_Test.log"
         }
         
         # Cleanup settings
@@ -242,7 +242,7 @@ QyNTUxOQAAACAbcdef1234567890...
             RequiredProjectFiles = @(
                 "pubspec.yaml",
                 "lib/main.dart",
-                "scripts/powershell/Deploy-CloudToLocalLLM.ps1",
+                "scripts/powershell/Deploy-Zoidbot.ps1",
                 "scripts/powershell/BuildEnvironmentUtilities.ps1"
             )
             
@@ -276,8 +276,8 @@ QyNTUxOQAAACAbcdef1234567890...
             )
             
             VPSEndpoints = @(
-                "https://cloudtolocalllm.online",
-                "https://api.cloudtolocalllm.online"
+                "https://zoidbot.online",
+                "https://api.zoidbot.online"
             )
         }
     }

@@ -1,6 +1,6 @@
 {
   "NodeSecurityGroup": "sg-0be046e389c678afa",
-  "ClusterName": "cloudtolocalllm-eks",
+  "ClusterName": "zoidbot-eks",
   "MaxNodes": 3,
   "DesiredNodes": 2,
   "MinNodes": 2,
@@ -9,7 +9,7 @@
     "subnet-0f86ad9e6835c66ad",
     "subnet-02604349a698e0e50"
   ],
-  "ClusterRoleArn": "arn:aws:iam::422017356244:role/cloudtolocalllm-eks-cluster-role",
+  "ClusterRoleArn": "arn:aws:iam::422017356244:role/zoidbot-eks-cluster-role",
   "EksSecurityGroup": "sg-041ab736a29d8bd67",
   "VpcId": "vpc-03628f637e676764b",
   "NodeInstanceType": "t3.small",
@@ -20,5 +20,5 @@
   "SetupDate": "2025-11-25 05:36:42",
   "AwsAccountId": "422017356244",
   "AwsRegion": "us-east-1",
-  "NodeRoleArn": "arn:aws:iam::422017356244:role/cloudtolocalllm-eks-node-role"
+  "NodeRoleArn": "arn:aws:iam::422017356244:role/zoidbot-eks-node-role"
 }

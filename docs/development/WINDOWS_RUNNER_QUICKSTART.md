@@ -27,7 +27,7 @@ Get-Content C:\actions-runner\_diag\Runner_*.log -Tail 20
 
 ## 📍 Verify in GitHub
 
-Visit: `https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/settings/actions/runners`
+Visit: `https://github.com/Zoidbot-online/Zoidbot/settings/actions/runners`
 
 Your runner should appear with:
 

@@ -1,4 +1,4 @@
-# CloudToLocalLLM Streaming Proxy - Google Cloud Run Optimized
+# Zoidbot Streaming Proxy - Google Cloud Run Optimized
 # Lightweight proxy service optimized for Cloud Run deployment
 # Features: WebSocket support, fast cold starts, minimal image size
 

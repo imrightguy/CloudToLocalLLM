@@ -28,7 +28,7 @@ async function loadVersion() {
     cachedVersion = {
       service: 'api-backend',
       version: packageJson.version || process.env.API_VERSION || 'unknown',
-      name: packageJson.name || 'cloudtolocalllm-api-backend',
+      name: packageJson.name || 'zoidbot-api-backend',
       build_number: process.env.BUILD_NUMBER || 'dev',
       git_commit: process.env.GIT_COMMIT || 'unknown',
       environment: process.env.NODE_ENV || 'production',

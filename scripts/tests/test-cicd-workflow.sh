@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CloudToLocalLLM - Local CI/CD Workflow Test Script
+# Zoidbot - Local CI/CD Workflow Test Script
 # This script simulates the CI/CD workflow to validate the build and deployment process locally.
 
 set -euo pipefail

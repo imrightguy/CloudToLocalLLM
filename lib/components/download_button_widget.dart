@@ -262,7 +262,7 @@ class _DownloadOptionsWidgetState extends State<DownloadOptionsWidget> {
         Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
-            'Download CloudToLocalLLM Desktop Client',
+            'Download Zoidbot Desktop Client',
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),

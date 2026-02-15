@@ -10,7 +10,7 @@ ACR_NAME="$2"
 
 if [ -z "$SERVICE_NAME" ] || [ -z "$ACR_NAME" ]; then
     >&2 echo "Usage: $0 <service-name> <acr-name>"
-    >&2 echo "Example: $0 web imrightguycloudtolocalllm"
+    >&2 echo "Example: $0 web imrightguyzoidbot"
     exit 1
 fi
 

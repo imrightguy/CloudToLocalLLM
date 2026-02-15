@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of the Circuit Breaker pattern for the CloudToLocalLLM API backend. The circuit breaker prevents cascading failures by monitoring service calls and failing fast when a service is unavailable.
+This document describes the implementation of the Circuit Breaker pattern for the Zoidbot API backend. The circuit breaker prevents cascading failures by monitoring service calls and failing fast when a service is unavailable.
 
 ## Implementation Details
 

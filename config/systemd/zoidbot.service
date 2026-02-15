@@ -1,0 +1,27 @@
+[Unit]
+Description=Zoidbot Service
+After=network.target postgresql.service
+Wants=network.target postgresql.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/zoidbot/portal
+User=root
+Group=root
+
+# Setup environment
+ExecStartPre=/bin/bash -c 'mkdir -p /opt/zoidbot/logs'
+
+# Start all services
+ExecStart=/usr/bin/docker-compose -f docker-compose.auth.yml -f docker-compose.web.yml up -d
+
+# Stop all services
+ExecStop=/usr/bin/docker-compose -f docker-compose.auth.yml -f docker-compose.web.yml down
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target 

@@ -1,4 +1,4 @@
-# CloudToLocalLLM API Backend - Google Cloud Run Optimized
+# Zoidbot API Backend - Google Cloud Run Optimized
 # Node.js/Express API optimized for Cloud Run deployment
 # Features: Fast cold starts, minimal image size, proper health checks
 

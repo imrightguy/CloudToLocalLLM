@@ -21,13 +21,13 @@ Add these variables to `.env`:
 # Primary database (existing configuration)
 DB_HOST=primary.example.com
 DB_PORT=5432
-DB_NAME=cloudtolocalllm
+DB_NAME=zoidbot
 DB_USER=db_user
 DB_PASSWORD=db_password
 
 # Replica Configuration (JSON format)
-# Format: [{"host":"replica1.example.com","port":5432,"database":"cloudtolocalllm","user":"db_user","password":"db_password"},...]
-DB_REPLICAS='[{"host":"replica1.example.com","port":5432,"database":"cloudtolocalllm","user":"db_user","password":"db_password"},{"host":"replica2.example.com","port":5432,"database":"cloudtolocalllm","user":"db_user","password":"db_password"}]'
+# Format: [{"host":"replica1.example.com","port":5432,"database":"zoidbot","user":"db_user","password":"db_password"},...]
+DB_REPLICAS='[{"host":"replica1.example.com","port":5432,"database":"zoidbot","user":"db_user","password":"db_password"},{"host":"replica2.example.com","port":5432,"database":"zoidbot","user":"db_user","password":"db_password"}]'
 
 # Health Check Interval (milliseconds, default: 30000)
 REPLICA_HEALTH_CHECK_INTERVAL=30000
@@ -88,7 +88,7 @@ console.log(status);
 //   replica_0: {
 //     host: 'replica1.example.com',
 //     port: 5432,
-//     database: 'cloudtolocalllm',
+//     database: 'zoidbot',
 //     healthy: true,
 //     lastHealthCheck: '2024-01-01T00:00:00Z',
 //     failureCount: 0,
@@ -97,7 +97,7 @@ console.log(status);
 //   replica_1: {
 //     host: 'replica2.example.com',
 //     port: 5432,
-//     database: 'cloudtolocalllm',
+//     database: 'zoidbot',
 //     healthy: true,
 //     lastHealthCheck: '2024-01-01T00:00:00Z',
 //     failureCount: 0,
@@ -222,7 +222,7 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_DB
-          value: cloudtolocalllm
+          value: zoidbot
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -269,7 +269,7 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_DB
-          value: cloudtolocalllm
+          value: zoidbot
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -308,8 +308,8 @@ metadata:
 data:
   DB_HOST: postgres-primary.default.svc.cluster.local
   DB_PORT: "5432"
-  DB_NAME: cloudtolocalllm
-  DB_REPLICAS: '[{"host":"postgres-replica-0.postgres-replica.default.svc.cluster.local","port":5432,"database":"cloudtolocalllm","user":"postgres","password":""},{"host":"postgres-replica-1.postgres-replica.default.svc.cluster.local","port":5432,"database":"cloudtolocalllm","user":"postgres","password":""}]'
+  DB_NAME: zoidbot
+  DB_REPLICAS: '[{"host":"postgres-replica-0.postgres-replica.default.svc.cluster.local","port":5432,"database":"zoidbot","user":"postgres","password":""},{"host":"postgres-replica-1.postgres-replica.default.svc.cluster.local","port":5432,"database":"zoidbot","user":"postgres","password":""}]'
   REPLICA_HEALTH_CHECK_INTERVAL: "30000"
 ```
 

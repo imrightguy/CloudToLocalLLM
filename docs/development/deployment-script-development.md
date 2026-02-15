@@ -1,13 +1,13 @@
 # Deployment Script Development Guide
 
-This document provides technical guidance for developers who need to maintain, extend, or customize the CloudToLocalLLM automated deployment script. It covers the script architecture, key components, and best practices for modifications.
+This document provides technical guidance for developers who need to maintain, extend, or customize the Zoidbot automated deployment script. It covers the script architecture, key components, and best practices for modifications.
 
 ## Script Architecture
 
-The automated deployment script (`Deploy-CloudToLocalLLM.ps1`) follows a modular architecture with clear separation of concerns:
+The automated deployment script (`Deploy-Zoidbot.ps1`) follows a modular architecture with clear separation of concerns:
 
 ```
-Deploy-CloudToLocalLLM.ps1
+Deploy-Zoidbot.ps1
 ├── Parameter Handling and Configuration
 ├── Logging and Status Tracking
 ├── Core Deployment Phases
@@ -295,7 +295,7 @@ if ($BuildLinuxPackages) {
 }
 
 # For VPS deployment, use PowerShell SSH instead:
-# ssh cloudllm@cloudtolocalllm.online "cd /opt/cloudtolocalllm && ./scripts/deploy/complete_deployment.sh --force"
+# ssh cloudllm@zoidbot.online "cd /opt/zoidbot && ./scripts/deploy/complete_deployment.sh --force"
 ```
 
 ## PowerShell Deployment Integration
@@ -311,7 +311,7 @@ For deployment operations, use native PowerShell capabilities:
 
 ```powershell
 # Use PowerShell for deployment, not WSL
-$sshCommand = "ssh cloudllm@cloudtolocalllm.online 'cd /opt/cloudtolocalllm && bash scripts/deploy/complete_deployment.sh'"
+$sshCommand = "ssh cloudllm@zoidbot.online 'cd /opt/zoidbot && bash scripts/deploy/complete_deployment.sh'"
 Invoke-Expression $sshCommand
 ```
 
@@ -378,7 +378,7 @@ if ($Script:DeploymentConfig.KiroHookMode) {
     Write-Host "Progress: 75%" -ForegroundColor Green
     Write-Host "[INFO] Executing deployment on VPS" -ForegroundColor White
 } else {
-    Write-Progress -Activity "CloudToLocalLLM Deployment" -Status "Deploying" -CurrentOperation "Executing on VPS" -PercentComplete 75
+    Write-Progress -Activity "Zoidbot Deployment" -Status "Deploying" -CurrentOperation "Executing on VPS" -PercentComplete 75
     Write-Host "Executing deployment on VPS..." -ForegroundColor Cyan
 }
 ```

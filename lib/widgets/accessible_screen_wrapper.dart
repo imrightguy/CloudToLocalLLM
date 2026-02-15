@@ -10,7 +10,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:cloudtolocalllm/services/accessibility_service.dart';
+import 'package:zoidbot/services/accessibility_service.dart';
 
 /// Wrapper widget that adds accessibility features to screens
 class AccessibleScreenWrapper extends StatefulWidget {

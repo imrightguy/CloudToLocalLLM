@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# Setup Azure DNS for CloudToLocalLLM
+# Setup Azure DNS for Zoidbot
 # This script creates an Azure DNS zone and all required DNS records
 
 set -e
 
 # Configuration
-RESOURCE_GROUP="cloudtolocalllm-rg"
-DNS_ZONE_NAME="cloudtolocalllm.online"
-AKS_CLUSTER_NAME="cloudtolocalllm-aks"
+RESOURCE_GROUP="zoidbot-rg"
+DNS_ZONE_NAME="zoidbot.online"
+AKS_CLUSTER_NAME="zoidbot-aks"
 TTL=300
 
 # DNS records to create
 declare -a DOMAINS=(
-    "cloudtolocalllm.online"
-    "app.cloudtolocalllm.online"
-    "api.cloudtolocalllm.online"
-    "auth.cloudtolocalllm.online"
+    "zoidbot.online"
+    "app.zoidbot.online"
+    "api.zoidbot.online"
+    "auth.zoidbot.online"
 )
 
 echo "ðŸ”§ Setting up Azure DNS for $DNS_ZONE_NAME..."
@@ -75,10 +75,10 @@ echo "ðŸ“‹ Step 5: Creating DNS records..."
 
 for domain in "${DOMAINS[@]}"; do
     # Extract subdomain name
-    if [ "$domain" = "cloudtolocalllm.online" ]; then
+    if [ "$domain" = "zoidbot.online" ]; then
         record_name="@"
     else
-        record_name=$(echo "$domain" | sed 's/\.cloudtolocalllm\.online//')
+        record_name=$(echo "$domain" | sed 's/\.zoidbot\.online//')
     fi
     
     echo "Creating/updating: $domain â†’ $LB_IP"

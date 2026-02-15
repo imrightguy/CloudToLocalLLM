@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
-  namespace: cloudtolocalllm
+  namespace: zoidbot
   annotations:
     argocd.argoproj.io/sync-wave: "10"
   labels:
@@ -49,7 +49,7 @@ spec:
               done
       containers:
         - name: web
-          image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest
+          image: ghcr.io/zoidbot-online/zoidbot/web:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -60,7 +60,7 @@ spec:
             - name: API_URL
               valueFrom:
                 configMapKeyRef:
-                  name: cloudtolocalllm-config
+                  name: zoidbot-config
                   key: API_DOMAIN
           resources:
             requests:

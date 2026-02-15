@@ -10,7 +10,7 @@ import '../services/platform_adapter.dart';
 import '../models/settings_category.dart';
 import '../widgets/settings/settings_category_list.dart';
 import '../widgets/settings/general_settings_category.dart';
-import '../widgets/settings/local_llm_providers_category.dart';
+import '../widgets/settings/agent_status_settings_category.dart';
 import '../widgets/settings/import_export_settings_category.dart';
 import '../widgets/settings/account_settings_category.dart';
 import '../widgets/settings/privacy_settings_category.dart';
@@ -166,23 +166,23 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
         ),
       ),
       BaseSettingsCategory(
-        id: SettingsCategoryIds.localLLMProviders,
+        id: SettingsCategoryIds.agentStatus,
         title: SettingsCategoryMetadata.getTitle(
-          SettingsCategoryIds.localLLMProviders,
+          SettingsCategoryIds.agentStatus,
         ),
         icon: SettingsCategoryMetadata.getIcon(
-          SettingsCategoryIds.localLLMProviders,
+          SettingsCategoryIds.agentStatus,
         ),
         description: SettingsCategoryMetadata.getDescription(
-          SettingsCategoryIds.localLLMProviders,
+          SettingsCategoryIds.agentStatus,
         ),
         priority: SettingsCategoryMetadata.getPriority(
-          SettingsCategoryIds.localLLMProviders,
+          SettingsCategoryIds.agentStatus,
         ),
         isVisible: true,
-        contentBuilder: (context) => LocalLLMProvidersCategory(
-          categoryId: SettingsCategoryIds.localLLMProviders,
-          isActive: _activeCategory == SettingsCategoryIds.localLLMProviders,
+        contentBuilder: (context) => AgentStatusSettingsCategory(
+          categoryId: SettingsCategoryIds.agentStatus,
+          isActive: _activeCategory == SettingsCategoryIds.agentStatus,
         ),
       ),
       BaseSettingsCategory(
@@ -213,10 +213,7 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
           SettingsCategoryIds.account,
         ),
         isVisible: true,
-        contentBuilder: (context) => AccountSettingsCategory(
-          categoryId: SettingsCategoryIds.account,
-          isActive: _activeCategory == SettingsCategoryIds.account,
-        ),
+        contentBuilder: (context) => const AccountSettingsCategory(),
       ),
       BaseSettingsCategory(
         id: SettingsCategoryIds.privacy,

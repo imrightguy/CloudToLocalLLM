@@ -358,7 +358,7 @@ router.post('/restart', authenticateInfrastructure, async (req, res) => {
  *
  * Request body (optional):
  * {
- *   "urls": ["https://app.cloudtolocalllm.online/"]  // Specific URLs to purge
+ *   "urls": ["https://app.zoidbot.online/"]  // Specific URLs to purge
  * }
  *
  * If no body provided, purges entire zone cache.

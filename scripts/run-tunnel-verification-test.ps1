@@ -7,7 +7,7 @@ param(
     [string]$ContainerHealthUrl = "http://localhost:8081"
 )
 
-Write-Host " CloudToLocalLLM Container Tunnel Integration Tests" -ForegroundColor Cyan
+Write-Host " Zoidbot Container Tunnel Integration Tests" -ForegroundColor Cyan
 Write-Host "====================================================" -ForegroundColor Cyan
 
 # Check if Node.js is available

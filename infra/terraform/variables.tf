@@ -1,7 +1,7 @@
 variable "resource_group_name" {
   description = "The name of the resource group"
   type        = string
-  default     = "cloudtolocalllm-rg"
+  default     = "zoidbot-rg"
 }
 
 variable "location" {
@@ -13,13 +13,13 @@ variable "location" {
 variable "cluster_name" {
   description = "The name of the AKS cluster"
   type        = string
-  default     = "cloudtolocalllm-aks"
+  default     = "zoidbot-aks"
 }
 
 variable "dns_prefix" {
   description = "DNS prefix for the AKS cluster"
   type        = string
-  default     = "cloudtolocalllm"
+  default     = "zoidbot"
 }
 
 variable "node_count" {

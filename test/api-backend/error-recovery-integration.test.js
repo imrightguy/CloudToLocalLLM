@@ -70,7 +70,7 @@ const mockAuthMiddleware = (req, res, next) => {
 const mockRBACMiddlewareFactory = () => {
   return (req, res, next) => {
     // Check for admin role in several places to be compatible with both mock and real RBAC
-    const roles = req.auth?.payload?.['https://cloudtolocalllm.online/roles'] || [];
+    const roles = req.auth?.payload?.['https://zoidbot.online/roles'] || [];
     const role = req.auth?.payload?.role;
     
     if (role === 'admin' || roles.includes('super_admin') || roles.includes('admin')) {
@@ -101,7 +101,7 @@ const createAdminToken = () => {
     { 
       sub: 'admin-user', 
       role: 'admin',
-      'https://cloudtolocalllm.online/roles': ['super_admin'],
+      'https://zoidbot.online/roles': ['super_admin'],
       iat: now, 
       exp: now + 3600,
       aud: 'test-audience',
@@ -118,7 +118,7 @@ const createUserToken = () => {
     { 
       sub: 'regular-user', 
       role: 'user',
-      'https://cloudtolocalllm.online/roles': ['user'],
+      'https://zoidbot.online/roles': ['user'],
       iat: now, 
       exp: now + 3600,
       aud: 'test-audience',

@@ -1,4 +1,4 @@
-# CloudToLocalLLM – Architecture Codemap (Reorganized)
+# Zoidbot – Architecture Codemap (Reorganized)
 
 ## Trace 0: System Overview
 
@@ -37,7 +37,7 @@ Application Bootstrap Flow
 │   ├── Auth0.initialize()                           <-- 1b
 │   │   └── url, anonKey from Auth0Config
 │   └── _runAppWithSentry()
-│       └── runApp(CloudToLocalLLMApp)
+│       └── runApp(ZoidbotApp)
 │           └── FutureProvider<AppBootstrapData>
 │               └── loadApp()
 │                   └── AppBootstrapper.load()
@@ -50,7 +50,7 @@ Application Bootstrap Flow
 │                               ├── LocalOllamaConnectionService
 │                               ├── ProviderDiscoveryService
 │                               └── ThemeProvider
-└── CloudToLocalLLMApp.build()
+└── ZoidbotApp.build()
     └── _AppRouterHost.initState()
         └── _initializeRouterWhenReady()
             └── AppRouter.createRouter()                <-- 1f
@@ -105,7 +105,7 @@ User Authentication & Service Loading Flow
 │                       └── provider tree rebuild       <-- 2f
 │                           └── MultiProvider updated with authed services
 └── UI Reactivity
-    └── CloudToLocalLLMApp rebuilds with new providers
+    └── ZoidbotApp rebuilds with new providers
 ```
 
 ### Key Locations

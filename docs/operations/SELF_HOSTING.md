@@ -1,8 +1,8 @@
-# Self-Hosting CloudToLocalLLM
+# Self-Hosting Zoidbot
 
-This document provides comprehensive instructions for self-hosting the CloudToLocalLLM application stack on a Linux VPS.
+This document provides comprehensive instructions for self-hosting the Zoidbot application stack on a Linux VPS.
 
-**Website: [https://cloudtolocalllm.online](https://cloudtolocalllm.online)**
+**Website: [https://zoidbot.online](https://zoidbot.online)**
 
 ## 🛠️ Prerequisites (Server-Side)
 
@@ -15,7 +15,7 @@ Before you begin, ensure your VPS meets the following requirements:
   - Minimum 20GB disk space (more if storing many LLMs or extensive data).
 - **Networking**:
   - Static IP address.
-  - Domain name pointed to the server's static IP (e.g., `cloudtolocalllm.online` and `*.cloudtolocalllm.online` for wildcard SSL).
+  - Domain name pointed to the server's static IP (e.g., `zoidbot.online` and `*.zoidbot.online` for wildcard SSL).
 - **Software to be installed (scripts will assist with some of these):**
   - **Git**: For cloning the repository.
   - **Docker**: Containerization platform.
@@ -35,7 +35,7 @@ It's highly recommended to run the application under a dedicated non-root user.
 - The `scripts/setup_cloudllm_user.sh` script can automate this. Download and run it:
 
   ```bash
-  curl -o setup_cloudllm_user.sh https://raw.githubusercontent.com/CloudToLocalLLM-online/CloudToLocalLLM/main/scripts/setup_cloudllm_user.sh
+  curl -o setup_cloudllm_user.sh https://raw.githubusercontent.com/Zoidbot-online/Zoidbot/main/scripts/setup_cloudllm_user.sh
   chmod +x setup_cloudllm_user.sh
   ./setup_cloudllm_user.sh cloudllm your_public_ssh_key_string
   ```
@@ -54,18 +54,18 @@ It's highly recommended to run the application under a dedicated non-root user.
 As the `cloudllm` user, clone the project repository:
 
 ```bash
-git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git /opt/cloudtolocalllm
-cd /opt/cloudtolocalllm
+git clone https://github.com/Zoidbot-online/Zoidbot.git /opt/zoidbot
+cd /opt/zoidbot
 ```
 
-The rest of the setup will assume you are in the `/opt/cloudtolocalllm` directory.
+The rest of the setup will assume you are in the `/opt/zoidbot` directory.
 
 ### 3. Run the Deployment Script
 
 The `scripts/deploy/deploy_to_vps.sh` script automates many of the subsequent setup tasks. Execute it as the `cloudllm` user (it will use `sudo` internally for privileged operations where necessary, assuming `cloudllm` has appropriate sudo rights, or you might need to run specific parts as root if `cloudllm` sudo is restricted).
 
 ```bash
-cd /opt/cloudtolocalllm
+cd /opt/zoidbot
 ./scripts/deploy/deploy_to_vps.sh
 ```
 
@@ -81,13 +81,13 @@ Review the script's output for any errors or important messages.
 
 ## 🔒 SSL Certificate Setup (Let's Encrypt Wildcard)
 
-This project uses Let's Encrypt for SSL certificates, managed via Certbot with a manual DNS challenge for wildcard support (e.g., `*.cloudtolocalllm.online`). This allows HTTPS on your main domain and any subdomains.
+This project uses Let's Encrypt for SSL certificates, managed via Certbot with a manual DNS challenge for wildcard support (e.g., `*.zoidbot.online`). This allows HTTPS on your main domain and any subdomains.
 
-**Run these steps as the `cloudllm` user from `/opt/cloudtolocalllm`.**
+**Run these steps as the `cloudllm` user from `/opt/zoidbot`.**
 
 ### Directory Structure for Certbot
 
-The `docker-compose.yml` file maps `./certbot/conf:/etc/letsencrypt` and `./certbot/www:/var/www/certbot` into the `webapp` (Nginx) container. This means Certbot data will be stored in `/opt/cloudtolocalllm/certbot/` on the host.
+The `docker-compose.yml` file maps `./certbot/conf:/etc/letsencrypt` and `./certbot/www:/var/www/certbot` into the `webapp` (Nginx) container. This means Certbot data will be stored in `/opt/zoidbot/certbot/` on the host.
 
 ### Using SSL Certificate Setup Script
 
@@ -112,7 +112,7 @@ The script `scripts/ssl/setup_letsencrypt.sh` is used to obtain and renew certif
     ./scripts/ssl/setup_letsencrypt.sh yourdomain.online youremail@example.com
     ```
 
-    Replace `yourdomain.online` with your actual domain (e.g., `cloudtolocalllm.online`) and `youremail@example.com` with your email for Let's Encrypt notifications.
+    Replace `yourdomain.online` with your actual domain (e.g., `zoidbot.online`) and `youremail@example.com` with your email for Let's Encrypt notifications.
 
 4. **Manual DNS Verification**:
     - Certbot will pause and ask you to deploy DNS TXT records. For example:
@@ -138,22 +138,22 @@ The script `scripts/ssl/setup_letsencrypt.sh` is used to obtain and renew certif
 
 5. **Certificate Issuance**:
     - If DNS verification is successful, Certbot will issue the certificate.
-    - Certificates are typically stored in `/opt/cloudtolocalllm/certbot/conf/live/yourdomain.online/` (e.g., `/opt/cloudtolocalllm/certbot/conf/live/cloudtolocalllm.online/`).
+    - Certificates are typically stored in `/opt/zoidbot/certbot/conf/live/yourdomain.online/` (e.g., `/opt/zoidbot/certbot/conf/live/zoidbot.online/`).
     - **Important - Symlink Check**:
         - Sometimes, especially after re-runs or issues, Certbot might create a directory like `yourdomain.online-0001`. Nginx expects `yourdomain.online`.
-        - Check the `live` directory: `ls -lA /opt/cloudtolocalllm/certbot/conf/live/`
+        - Check the `live` directory: `ls -lA /opt/zoidbot/certbot/conf/live/`
         - If you see `yourdomain.online-0001` and `yourdomain.online` is missing or is not a symlink to it, create/fix the symlink:
 
             ```bash
-            cd /opt/cloudtolocalllm/certbot/conf/live/
+            cd /opt/zoidbot/certbot/conf/live/
             ln -sfn yourdomain.online-0001 yourdomain.online 
-            cd /opt/cloudtolocalllm # Return to project root
+            cd /opt/zoidbot # Return to project root
             ```
 
-        - Also ensure that files like `fullchain.pem` and `privkey.pem` inside `/opt/cloudtolocalllm/certbot/conf/live/yourdomain.online/` are symlinks to the actual certificate files in the `../../archive/yourdomain.online/` directory. If they are plain files (not symlinks), it indicates a broken Certbot state. You might need to rename the `live/yourdomain.online` directory and re-run the script. Example fix if `live/yourdomain.online` is problematic:
+        - Also ensure that files like `fullchain.pem` and `privkey.pem` inside `/opt/zoidbot/certbot/conf/live/yourdomain.online/` are symlinks to the actual certificate files in the `../../archive/yourdomain.online/` directory. If they are plain files (not symlinks), it indicates a broken Certbot state. You might need to rename the `live/yourdomain.online` directory and re-run the script. Example fix if `live/yourdomain.online` is problematic:
 
             ```bash
-            mv /opt/cloudtolocalllm/certbot/conf/live/yourdomain.online /opt/cloudtolocalllm/certbot/conf/live/yourdomain.online.bak
+            mv /opt/zoidbot/certbot/conf/live/yourdomain.online /opt/zoidbot/certbot/conf/live/yourdomain.online.bak
             # Then re-run ./scripts/ssl/setup_letsencrypt.sh ...
             ```
 
@@ -161,7 +161,7 @@ The script `scripts/ssl/setup_letsencrypt.sh` is used to obtain and renew certif
     Ensure `privkey.pem` has appropriate permissions for Nginx to read it. Often, Certbot sets this correctly, but it's good to verify.
 
     ```bash
-    sudo chmod 640 /opt/cloudtolocalllm/certbot/conf/live/yourdomain.online/privkey.pem
+    sudo chmod 640 /opt/zoidbot/certbot/conf/live/yourdomain.online/privkey.pem
     # Or 644 if Nginx still has issues and runs as a different user than the group of privkey.pem
     ```
 
@@ -176,7 +176,7 @@ Once Docker, Docker Compose, and SSL certificates are set up:
 1. **Navigate to the project directory**:
 
     ```bash
-    cd /opt/cloudtolocalllm
+    cd /opt/zoidbot
     ```
 
 2. **Start all services in detached mode**:
@@ -204,7 +204,7 @@ Once Docker, Docker Compose, and SSL certificates are set up:
 
     Look for any Nginx errors, especially related to SSL certificates.
 
-Your CloudToLocalLLM instance should now be accessible at `https://yourdomain.online`.
+Your Zoidbot instance should now be accessible at `https://yourdomain.online`.
 
 ## 🔄 Updating the Application
 
@@ -213,7 +213,7 @@ To update the application to the latest version from Git:
 1. **Log in as `cloudllm` user and navigate to the project directory**:
 
     ```bash
-    cd /opt/cloudtolocalllm
+    cd /opt/zoidbot
     ```
 
 2. **Pull latest changes**:
@@ -253,11 +253,11 @@ To update the application to the latest version from Git:
 
 - **Docker Permission Errors**:
   - Ensure the `cloudllm` user is part of the `docker` group (`sudo usermod -aG docker cloudllm`, then log out/in).
-  - Ensure `/opt/cloudtolocalllm` and its subdirectories (especially `certbot/` and any other volume mounts) are owned by `cloudllm`: `sudo chown -R cloudllm:cloudllm /opt/cloudtolocalllm`.
+  - Ensure `/opt/zoidbot` and its subdirectories (especially `certbot/` and any other volume mounts) are owned by `cloudllm`: `sudo chown -R cloudllm:cloudllm /opt/zoidbot`.
 - **SSL Certificate Errors in Nginx Logs (`webapp` service)**:
   - `"cannot load certificate ... No such file or directory"`:
     - Verify the volume mount in `docker-compose.yml`: `webapp` service should mount `./certbot/conf:/etc/letsencrypt`.
-    - Double-check the host path: `ls -lA /opt/cloudtolocalllm/certbot/conf/live/yourdomain.online/`. Ensure `fullchain.pem` and `privkey.pem` exist and are correct symlinks.
+    - Double-check the host path: `ls -lA /opt/zoidbot/certbot/conf/live/yourdomain.online/`. Ensure `fullchain.pem` and `privkey.pem` exist and are correct symlinks.
     - Fix symlinks or re-run Certbot script as described in the SSL section.
 - **Flutter Web App UI Not Updating**:
   - After `git pull`, you **must** rebuild the `webapp` Docker image with `--no-cache` and then recreate the container, as detailed in the "Updating the Application" section.
@@ -269,4 +269,4 @@ To update the application to the latest version from Git:
   - Refer to `scripts/troubleshooting_commands.sh` for more diagnostic commands.
   - Check system logs: `journalctl -u docker.service` or `/var/log/syslog`.
 
-This guide provides a comprehensive path to self-hosting CloudToLocalLLM. For further details on specific components or advanced configurations, refer to other documents in the `/docs` directory or the project's main `README.md`.
+This guide provides a comprehensive path to self-hosting Zoidbot. For further details on specific components or advanced configurations, refer to other documents in the `/docs` directory or the project's main `README.md`.

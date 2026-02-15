@@ -7,7 +7,7 @@ import '../config/app_config.dart';
 /// Service for managing download links, tracking, and validation
 class DownloadManagementService extends ChangeNotifier {
   static const String _githubApiUrl =
-      'https://api.github.com/repos/CloudToLocalLLM-online/CloudToLocalLLM';
+      'https://api.github.com/repos/Zoidbot-online/Zoidbot';
   static const String _githubReleasesUrl = '$_githubApiUrl/releases';
 
   // Cache for GitHub release data
@@ -73,7 +73,7 @@ class DownloadManagementService extends ChangeNotifier {
         '$_githubReleasesUrl/latest',
         options: Options(headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'CloudToLocalLLM/${AppConfig.appVersion}',
+          'User-Agent': 'Zoidbot/${AppConfig.appVersion}',
         }),
       );
 
@@ -104,9 +104,9 @@ class DownloadManagementService extends ChangeNotifier {
         switch (packageType.toLowerCase()) {
           case 'exe':
           case 'msi':
-            return 'CloudToLocalLLM-Windows-';
+            return 'Zoidbot-Windows-';
           case 'zip':
-            return 'cloudtolocalllm-';
+            return 'zoidbot-';
           default:
             return 'Windows';
         }
@@ -143,29 +143,29 @@ class DownloadManagementService extends ChangeNotifier {
         switch (packageType.toLowerCase()) {
           case 'exe':
           case 'msi':
-            return '$baseUrl/CloudToLocalLLM-Windows-$version-Setup.exe';
+            return '$baseUrl/Zoidbot-Windows-$version-Setup.exe';
           case 'zip':
-            return '$baseUrl/cloudtolocalllm-$version-portable.zip';
+            return '$baseUrl/zoidbot-$version-portable.zip';
           default:
-            return '$baseUrl/CloudToLocalLLM-Windows-$version-Setup.exe';
+            return '$baseUrl/Zoidbot-Windows-$version-Setup.exe';
         }
       case 'linux':
         switch (packageType.toLowerCase()) {
           case 'appimage':
-            return '$baseUrl/cloudtolocalllm-$version-x86_64.AppImage';
+            return '$baseUrl/zoidbot-$version-x86_64.AppImage';
           case 'deb':
-            return '$baseUrl/cloudtolocalllm_${version}_amd64.deb';
+            return '$baseUrl/zoidbot_${version}_amd64.deb';
           case 'tar.gz':
-            return '$baseUrl/cloudtolocalllm-$version-x86_64.tar.gz';
+            return '$baseUrl/zoidbot-$version-x86_64.tar.gz';
           default:
-            return '$baseUrl/cloudtolocalllm-$version-x86_64.AppImage';
+            return '$baseUrl/zoidbot-$version-x86_64.AppImage';
         }
       case 'macos':
         switch (packageType.toLowerCase()) {
           case 'dmg':
-            return '$baseUrl/cloudtolocalllm-$version-macos.dmg';
+            return '$baseUrl/zoidbot-$version-macos.dmg';
           default:
-            return '$baseUrl/cloudtolocalllm-$version-macos.dmg';
+            return '$baseUrl/zoidbot-$version-macos.dmg';
         }
       default:
         return AppConfig.githubReleasesUrl;
@@ -247,17 +247,17 @@ class DownloadManagementService extends ChangeNotifier {
       switch (platform.toLowerCase()) {
         case 'windows':
           alternatives.add(
-            '$baseUrl/CloudToLocalLLM-Windows-$version-Setup.exe',
+            '$baseUrl/Zoidbot-Windows-$version-Setup.exe',
           );
-          alternatives.add('$baseUrl/cloudtolocalllm-$version-portable.zip');
+          alternatives.add('$baseUrl/zoidbot-$version-portable.zip');
           break;
         case 'linux':
-          alternatives.add('$baseUrl/cloudtolocalllm-$version-x86_64.AppImage');
-          alternatives.add('$baseUrl/cloudtolocalllm_${version}_amd64.deb');
-          alternatives.add('$baseUrl/cloudtolocalllm-$version-x86_64.tar.gz');
+          alternatives.add('$baseUrl/zoidbot-$version-x86_64.AppImage');
+          alternatives.add('$baseUrl/zoidbot_${version}_amd64.deb');
+          alternatives.add('$baseUrl/zoidbot-$version-x86_64.tar.gz');
           break;
         case 'macos':
-          alternatives.add('$baseUrl/cloudtolocalllm-$version-macos.dmg');
+          alternatives.add('$baseUrl/zoidbot-$version-macos.dmg');
           break;
       }
 

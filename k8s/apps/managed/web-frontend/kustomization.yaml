@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ../../../deployments/app_base/web-frontend
 images:
-  - name: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web
+  - name: ghcr.io/zoidbot-online/zoidbot/web
     newTag: main-8d91e61c261508376f5bc9443f4e1a47130586ae
 patches:
   - path: ../../../deployments/overlays/managed/env-patch.yaml

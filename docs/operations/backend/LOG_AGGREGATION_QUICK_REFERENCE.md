@@ -48,7 +48,7 @@ logger.info('User login', {
 | LOKI_BATCH_TIMEOUT | 5000 | Batch timeout in ms |
 | ELK_ENABLED | false | Enable ELK log aggregation |
 | ELK_HOSTS | localhost:9200 | Elasticsearch hosts |
-| ELK_INDEX | cloudtolocalllm-api | Index name |
+| ELK_INDEX | zoidbot-api | Index name |
 | LOG_ERRORS_TO_SENTRY | true | Send errors to Sentry |
 | LOG_ERRORS_TO_FILE | true | Write errors to file |
 | LOG_WARNINGS_TO_FILE | true | Write warnings to file |
@@ -124,38 +124,38 @@ if (logRouter.isDestinationEnabled('loki')) {
 
 ```
 # All logs
-{service="cloudtolocalllm-api"}
+{service="zoidbot-api"}
 
 # Error logs
-{service="cloudtolocalllm-api", level="error"}
+{service="zoidbot-api", level="error"}
 
 # Logs for specific user
-{service="cloudtolocalllm-api", userId="user-123"}
+{service="zoidbot-api", userId="user-123"}
 
 # Logs with correlation ID
-{service="cloudtolocalllm-api", correlationId="corr-123"}
+{service="zoidbot-api", correlationId="corr-123"}
 
 # Logs in time range
-{service="cloudtolocalllm-api"} | since 1h
+{service="zoidbot-api"} | since 1h
 ```
 
 ## ELK Queries
 
 ```
 # All logs
-service: "cloudtolocalllm-api"
+service: "zoidbot-api"
 
 # Error logs
-service: "cloudtolocalllm-api" AND level: "error"
+service: "zoidbot-api" AND level: "error"
 
 # Logs for specific user
-service: "cloudtolocalllm-api" AND userId: "user-123"
+service: "zoidbot-api" AND userId: "user-123"
 
 # Logs with correlation ID
-service: "cloudtolocalllm-api" AND correlationId: "corr-123"
+service: "zoidbot-api" AND correlationId: "corr-123"
 
 # Logs in time range
-service: "cloudtolocalllm-api" AND @timestamp: [now-1h TO now]
+service: "zoidbot-api" AND @timestamp: [now-1h TO now]
 ```
 
 ## Testing

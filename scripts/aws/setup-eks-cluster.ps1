@@ -3,7 +3,7 @@
 # This script uses CloudFormation for Infrastructure as Code
 
 param(
-    [string]$ClusterName = "cloudtolocalllm-eks",
+    [string]$ClusterName = "zoidbot-eks",
     [string]$AwsRegion = "us-east-1",
     [string]$AwsAccountId = "422017356244",
     [string]$NodeInstanceType = "t3.small",

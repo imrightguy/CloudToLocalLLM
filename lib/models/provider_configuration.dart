@@ -1,4 +1,4 @@
-/// Provider Configuration Models for CloudToLocalLLM
+/// Provider Configuration Models for Zoidbot
 ///
 /// This file contains comprehensive configuration models for different LLM provider types,
 /// including validation, persistence, and type-specific settings management.

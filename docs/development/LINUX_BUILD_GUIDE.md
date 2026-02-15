@@ -1,6 +1,6 @@
 # Linux Build Guide
 
-This guide explains the Linux build system for CloudToLocalLLM, which creates both Flatpak and .deb packages.
+This guide explains the Linux build system for Zoidbot, which creates both Flatpak and .deb packages.
 
 ## Overview
 
@@ -15,12 +15,12 @@ Linux builds are **ENABLED** and fully integrated into the CI/CD pipeline. The b
 
 Linux builds produce two package formats:
 
-1. **Flatpak** (`cloudtolocalllm-{version}.flatpak`)
+1. **Flatpak** (`zoidbot-{version}.flatpak`)
    - Universal package for all Linux distributions
    - Sandboxed environment with controlled permissions
    - Works on Ubuntu, Fedora, Arch, Debian, openSUSE, etc.
 
-2. **.deb Package** (`cloudtolocalllm_{version}_amd64.deb`)
+2. **.deb Package** (`zoidbot_{version}_amd64.deb`)
    - Native package for Debian/Ubuntu-based systems
    - Integrates with system package manager
    - Appears in application menu automatically
@@ -93,7 +93,7 @@ flutter build linux --release
 ### 4. Test the Build
 
 ```bash
-./build/linux/x64/release/bundle/cloudtolocalllm
+./build/linux/x64/release/bundle/zoidbot
 ```
 
 ### 5. Build Flatpak (Optional)
@@ -106,21 +106,21 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
 
 # Build Flatpak
-flatpak-builder --force-clean --repo=repo build-dir com.cloudtolocalllm.CloudToLocalLLM.yml
+flatpak-builder --force-clean --repo=repo build-dir com.zoidbot.Zoidbot.yml
 
 # Create bundle
-flatpak build-bundle repo cloudtolocalllm.flatpak com.cloudtolocalllm.CloudToLocalLLM
+flatpak build-bundle repo zoidbot.flatpak com.zoidbot.Zoidbot
 
 # Test installation
-flatpak install --user cloudtolocalllm.flatpak
+flatpak install --user zoidbot.flatpak
 
 # Run the app
-flatpak run com.cloudtolocalllm.CloudToLocalLLM
+flatpak run com.zoidbot.Zoidbot
 ```
 
 ## Flatpak Manifest Configuration
 
-The Flatpak manifest (`com.cloudtolocalllm.CloudToLocalLLM.yml`) defines:
+The Flatpak manifest (`com.zoidbot.Zoidbot.yml`) defines:
 
 ### Runtime and SDK
 
@@ -155,13 +155,13 @@ The manifest copies the Flutter build output and installs:
 ### Option 1: GitHub Releases (Current)
 
 - Users download `.flatpak` file from GitHub releases
-- Manual installation: `flatpak install cloudtolocalllm-*.flatpak`
+- Manual installation: `flatpak install zoidbot-*.flatpak`
 - Simple but requires manual updates
 
 ### Option 2: Flathub (Recommended for Future)
 
 - Submit to Flathub for centralized distribution
-- Users can install via: `flatpak install flathub com.cloudtolocalllm.CloudToLocalLLM`
+- Users can install via: `flatpak install flathub com.zoidbot.Zoidbot`
 - Automatic updates through Flatpak
 - Better discoverability in software centers
 
@@ -201,15 +201,15 @@ flatpak install flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.
 
 # Clear build cache and retry
 rm -rf build-dir repo
-flatpak-builder --force-clean --repo=repo build-dir com.cloudtolocalllm.CloudToLocalLLM.yml
+flatpak-builder --force-clean --repo=repo build-dir com.zoidbot.Zoidbot.yml
 ```
 
 ### Application Won't Start
 
 ```bash
 # Check Flatpak logs
-flatpak run --command=sh com.cloudtolocalllm.CloudToLocalLLM
-journalctl --user -xe | grep cloudtolocalllm
+flatpak run --command=sh com.zoidbot.Zoidbot
+journalctl --user -xe | grep zoidbot
 ```
 
 ### Missing Dependencies
@@ -249,7 +249,7 @@ Expected cache hit rate: >80% for subsequent builds
 - Public repositories: **FREE unlimited minutes**
 - Private repositories: 2,000 free minutes/month
 
-**CloudToLocalLLM Status**: Public repository
+**Zoidbot Status**: Public repository
 **Monthly Cost**: **$0** (completely free)
 
 ## Next Steps

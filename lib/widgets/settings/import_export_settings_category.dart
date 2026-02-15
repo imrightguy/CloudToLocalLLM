@@ -4,10 +4,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
-import 'package:cloudtolocalllm/widgets/settings/settings_import_export_widget.dart';
-import 'package:cloudtolocalllm/di/locator.dart' as di;
+import 'package:zoidbot/services/settings_import_export_service.dart';
+import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:zoidbot/widgets/settings/settings_import_export_widget.dart';
+import 'package:zoidbot/di/locator.dart' as di;
 
 /// Import/Export settings category widget
 class ImportExportSettingsCategory extends StatefulWidget {

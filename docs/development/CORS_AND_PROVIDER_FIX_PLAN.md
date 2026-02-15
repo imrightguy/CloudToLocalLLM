@@ -83,9 +83,9 @@
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
-      'https://app.cloudtolocalllm.online',
-      'https://cloudtolocalllm.online',
-      'https://docs.cloudtolocalllm.online'
+      'https://app.zoidbot.online',
+      'https://zoidbot.online',
+      'https://docs.zoidbot.online'
     ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {

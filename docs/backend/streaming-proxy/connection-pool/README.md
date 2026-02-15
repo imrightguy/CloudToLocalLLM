@@ -1,6 +1,6 @@
 # Connection Pool and SSH Management
 
-This module implements server-side connection pooling and SSH connection management for the CloudToLocalLLM tunnel system.
+This module implements server-side connection pooling and SSH connection management for the Zoidbot tunnel system.
 
 ## Overview
 
