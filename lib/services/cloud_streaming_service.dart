@@ -81,7 +81,7 @@ class _SharedWebSocket {
     };
     
     _channel!.sink.add(jsonEncode(handshake));
-    _isConnected = true;
+    // Don't set _isConnected until handshake completes
     
     debugPrint('☁ [_SharedWebSocket] Handshake sent, waiting for hello-ok');
     
@@ -90,6 +90,7 @@ class _SharedWebSocket {
       await for (final msg in _messageController.stream.timeout(Duration(seconds: 10))) {
         if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
           debugPrint('☁ [_SharedWebSocket] Handshake complete');
+          _isConnected = true;
           break;
         }
       }

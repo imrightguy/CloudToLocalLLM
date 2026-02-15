@@ -179,8 +179,9 @@ class _AccountSettingsCategoryContentState
   String _getSubscriptionTier() {
     if (_tierService != null) {
       final tier = _tierService!.currentTier;
-      // Capitalize first letter
-      return tier.isEmpty ? 'Free' : tier[0].toUpperCase() + tier.substring(1);
+      // Convert enum to string and capitalize
+      final tierStr = tier.name;
+      return tierStr.isEmpty ? 'Free' : tierStr[0].toUpperCase() + tierStr.substring(1);
     }
     // Fallback to default
     return 'Free';
