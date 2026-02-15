@@ -7,8 +7,6 @@ on:
         description: 'Version to release'
         required: true
         default: '10.1.200'
-  repository_dispatch:
-    types: [aur-push]
 
 jobs:
   aur-push:
@@ -28,18 +26,35 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/id_ed
           echo "${{ secrets.AUR_SSH_PUB }}" > ~/.ssh/id_ed.pub
-          echo "${{ secrets.AUR_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_ed
           chmod 644 ~/.ssh/id_ed.pub
+          
+          # Add known hosts
+          echo "${{ secrets.AUR_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
           
+          # Verify SSH key
+          echo "=== SSH Key ==="
+          head -1 ~/.ssh/id_ed
+          echo "=== SSH Pub Key ==="
+          cat ~/.ssh/id_ed.pub
+          echo "=== Known Hosts ==="
+          cat ~/.ssh/known_hosts
+
       - name: Configure git
         run: |
           git config --global user.email "christopher.maltais@gmail.com"
           git config --global user.name "Christopher Maltais"
 
+      - name: Test SSH connection
+        run: |
+          echo "=== Testing SSH ==="
+          ssh -T git@aur.archlinux.org 2>&1 || true
+          
       - name: Push to AUR
         run: |
           cd aur-package
           git remote add aur git@aur.archlinux.org:cloudtolocalllm.git || true
-          git push aur master
+          echo "=== Pushing to AUR ==="
+          git remote -v
+          git push aur master -v
