@@ -24,21 +24,21 @@ class ThemeConfig {
   // Color Definitions
   // ============================================================================
 
-  /// Primary brand color (purple)
-  static const Color primaryColor = Color(0xFFa777e3);
+  /// Primary brand color (Lobster Red)
+  static const Color primaryColor = Color(0xFFFF0000);
 
-  /// Secondary brand color (blue)
-  static const Color secondaryColor = Color(0xFF6e8efb);
+  /// Secondary brand color (Lobster Orange)
+  static const Color secondaryColor = Color(0xFFFF7F00);
 
-  /// Accent color (green)
-  static const Color accentColor = Color(0xFF00c58e);
+  /// Accent color (Black)
+  static const Color accentColor = Color(0xFF000000);
 
   // Dark Mode Colors
-  static const Color darkBackgroundMain = Color(0xFF181a20);
-  static const Color darkBackgroundCard = Color(0xFF23243a);
+  static const Color darkBackgroundMain = Color(0xFF000000);
+  static const Color darkBackgroundCard = Color(0xFF000000);
   static const Color darkTextColor = Color(0xFFf1f1f1);
   static const Color darkTextColorLight = Color(0xFFb0b0b0);
-  static const Color darkBorderColor = Color(0xFF3a3a3a);
+  static const Color darkBorderColor = Color(0xFF1E1E1E);
 
   // Light Mode Colors
   static const Color lightBackgroundMain = Colors.white;
@@ -429,7 +429,7 @@ class ThemeConfig {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadiusM),
         side: BorderSide(
-          color: secondaryColor.withValues(alpha: 0.27),
+          color: secondaryColor.withValues(alpha: 0.5),
           width: 1.5,
         ),
       ),

@@ -1,0 +1,129 @@
+{
+  "path": "/home/rightguy/.openclaw/agents/main/sessions/sessions.json",
+  "count": 10,
+  "activeMinutes": null,
+  "sessions": [
+    {
+      "key": "agent:main:openai:4c89f201-e67a-4915-adba-1c87af4113ba",
+      "kind": "direct",
+      "updatedAt": 1770617240539,
+      "ageMs": 11306,
+      "sessionId": "44d68a42-48bf-4325-a0e8-e5cab780dd54",
+      "abortedLastRun": false,
+      "inputTokens": 6850,
+      "outputTokens": 127,
+      "totalTokens": 23150,
+      "model": "gemini-3-flash",
+      "contextTokens": 1048576
+    },
+    {
+      "key": "agent:main:openai:44573121-21c3-4113-935e-32472a6d7ce2",
+      "kind": "direct",
+      "updatedAt": 1770617231426,
+      "ageMs": 20419,
+      "sessionId": "dcaac9c9-b8cf-4aea-a689-aff9429f30e6",
+      "abortedLastRun": false,
+      "inputTokens": 6823,
+      "outputTokens": 7,
+      "totalTokens": 23123,
+      "model": "gemini-3-flash",
+      "contextTokens": 1048576
+    },
+    {
+      "key": "agent:main:discord:channel:1470231311183646812",
+      "kind": "group",
+      "updatedAt": 1770617198444,
+      "ageMs": 53401,
+      "sessionId": "13fdcfea-824a-4657-9b1d-659a7414ad5b",
+      "systemSent": true,
+      "abortedLastRun": false,
+      "inputTokens": 357637,
+      "outputTokens": 390,
+      "totalTokens": 357637,
+      "model": "gemini-3-flash",
+      "contextTokens": 1048576
+    },
+    {
+      "key": "agent:main:openai:6146fbd1-c19e-47ff-b9fc-8cd948f38a70",
+      "kind": "direct",
+      "updatedAt": 1770617149819,
+      "ageMs": 102026,
+      "sessionId": "04a5c7c1-da3b-4790-90cd-420dd03bcff8",
+      "abortedLastRun": false,
+      "inputTokens": 30513,
+      "outputTokens": 405,
+      "totalTokens": 46808,
+      "model": "gemini-3-flash",
+      "contextTokens": 1048576
+    },
+    {
+      "key": "agent:main:openai:44d09c4d-864d-4f5c-a75b-e03eeb7fb71d",
+      "kind": "direct",
+      "updatedAt": 1770617121488,
+      "ageMs": 130357,
+      "sessionId": "26d811ae-b5c7-46fb-834f-30ecced4dda8",
+      "abortedLastRun": false,
+      "inputTokens": 23123,
+      "outputTokens": 68,
+      "totalTokens": 23123,
+      "model": "gemini-3-flash",
+      "contextTokens": 1048576
+    },
+    {
+      "key": "agent:main:main",
+      "kind": "direct",
+      "updatedAt": 1770617055384,
+      "ageMs": 196461,
+      "sessionId": "2adca9ec-3720-420c-b215-35126a1583f2",
+      "systemSent": true,
+      "abortedLastRun": false,
+      "inputTokens": 44767,
+      "outputTokens": 9,
+      "totalTokens": 44767,
+      "model": "claude-opus-4-5-thinking",
+      "contextTokens": 200000
+    },
+    {
+      "key": "agent:main:discord:channel:1464756277849620740",
+      "kind": "group",
+      "updatedAt": 1770615962853,
+      "ageMs": 1288992,
+      "sessionId": "25592db4-fd1f-4613-9f00-2bf4b0ce74bb",
+      "systemSent": true,
+      "abortedLastRun": false,
+      "inputTokens": 4782,
+      "outputTokens": 172,
+      "totalTokens": 70083,
+      "model": "gemini-3-flash",
+      "contextTokens": 1048576
+    },
+    {
+      "key": "agent:main:subagent:277c0576-b75f-4178-bb93-ade08294f320",
+      "kind": "direct",
+      "updatedAt": 1770613960831,
+      "ageMs": 3291014,
+      "sessionId": "81f7960d-c9ca-4847-899a-9172fe7fcbd7",
+      "abortedLastRun": false,
+      "model": "claude-opus-4-5-thinking",
+      "contextTokens": 200000
+    },
+    {
+      "key": "agent:main:discord:channel:1464756277849620738",
+      "kind": "group",
+      "updatedAt": 1770602470181,
+      "ageMs": 14781664,
+      "sessionId": "e55ce9c4-4b45-45d0-b7a6-64eee35d469a",
+      "model": "gemini-3-flash",
+      "contextTokens": 200000
+    },
+    {
+      "key": "agent:main:discord:channel:1466397358790152353",
+      "kind": "group",
+      "updatedAt": 1770576217760,
+      "ageMs": 41034085,
+      "sessionId": "eb664cfa-2804-4689-acd3-0086066da8ad",
+      "model": "gemini-3-flash",
+      "contextTokens": 200000
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+name: "Remove AUR AppImage Package"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  remove_aur_appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove cloudtolocalllm-appimage from AUR
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "$AUR_SSH_PRIVATE_KEY" ]; then
+            echo "AUR_SSH_PRIVATE_KEY not set"
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          echo "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/id_rsa
+
+          # Clone and delete
+          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-remove || exit 0
+          cd /tmp/aur-remove
+          
+          # Remove all files
+          git rm -f PKGBUILD .SRCINFO 2>/dev/null || true
+          
+          git config user.name "rightguy"
+          git config user.email "christopher.maltais@gmail.com"
+          git commit -m "Remove package - consolidated into cloudtolocalllm" || echo "Nothing to remove"
+          git push origin master || echo "Push failed"
+          
+          echo "cloudtolocalllm-appimage removal complete"

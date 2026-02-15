@@ -1,20 +1,13 @@
 #!/bin/bash
-API_KEY="abc12d491e2bc24a60e9e276be8d5b1af62bf"
-EMAIL="christopher.maltais@gmail.com"
+API_TOKEN="9lO2G2n_jL_jtfhOG_zAnCa-GIU9flTsLl6bGbvG"
+ACCOUNT_ID="35fa09929e656c4e96e4aa79909d11b7"
 TUNNEL_ID="62da6c19-947b-4bf6-acad-100a73de4e0d"
 
-echo "Fetching Account ID..."
-ACCOUNT_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts" \
-  -H "X-Auth-Email: $EMAIL" \
-  -H "X-Auth-Key: $API_KEY" \
-  -H "Content-Type: application/json" | jq -r '.result[0].id')
-
-echo "Account ID: $ACCOUNT_ID"
+echo "Using Account ID: $ACCOUNT_ID"
 
 echo "Fetching Tunnel Token..."
 RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tunnels/$TUNNEL_ID/token" \
-  -H "X-Auth-Email: $EMAIL" \
-  -H "X-Auth-Key: $API_KEY" \
+  -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json")
 
 HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
@@ -29,8 +22,7 @@ if [ "$TUNNEL_TOKEN" == "null" ] || [ -z "$TUNNEL_TOKEN" ]; then
     echo "Failed to fetch Tunnel Token"
     echo "Retrying with cfd_tunnel endpoint..."
     RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID/token" \
-      -H "X-Auth-Email: $EMAIL" \
-      -H "X-Auth-Key: $API_KEY" \
+      -H "Authorization: Bearer $API_TOKEN" \
       -H "Content-Type: application/json")
     
     HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
@@ -51,24 +43,21 @@ echo "Tunnel Token fetched."
 
 echo "Fetching DNS Write Permission ID..."
 PERM_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/user/tokens/permission_groups" \
-  -H "X-Auth-Email: $EMAIL" \
-  -H "X-Auth-Key: $API_KEY" \
+  -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" | jq -r '.result[] | select(.name == "DNS Write") | .id')
 
 echo "Permission ID: $PERM_ID"
 
 echo "Fetching Zone ID..."
-ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=zoidbot.online" \
-  -H "X-Auth-Email: $EMAIL" \
-  -H "X-Auth-Key: $API_KEY" \
+ZONE_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=cloudtolocalllm.online" \
+  -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" | jq -r '.result[0].id')
 
 echo "Zone ID: $ZONE_ID"
 
 echo "Creating DNS Token..."
 DNS_TOKEN_RESPONSE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/user/tokens" \
-  -H "X-Auth-Email: $EMAIL" \
-  -H "X-Auth-Key: $API_KEY" \
+  -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" \
   --data "{
     \"name\": \"GitHub Actions DNS Update $(date +%s)\",

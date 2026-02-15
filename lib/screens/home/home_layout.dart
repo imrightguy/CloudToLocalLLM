@@ -16,9 +16,10 @@ import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../components/conversation_list.dart';
+import '../../widgets/capacity_gauge.dart';
 import '../../services/auth_service.dart';
-import '../../services/connection_manager_service.dart';
 import '../../services/web_download_prompt_service.dart';
+import '../../services/google_workspace_service.dart';
 
 /// Main layout for the chat interface, handling responsiveness and sidebar toggle.
 class HomeLayout extends StatefulWidget {
@@ -128,28 +129,10 @@ class _HomeLayoutState extends State<HomeLayout> {
                         : const SizedBox.shrink(),
                   ),
                   Expanded(
-                    child: Stack(
-                      children: [
-                        _ChatPane(
-                          isCompact: widget.isCompact,
-                          scrollController: widget.scrollController,
-                          onSendMessage: widget.onSendMessage,
-                        ),
-                        // Small persistent Zoidbot in corner of chat
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Consumer<StreamingChatService>(
-                            builder: (context, chatService, child) {
-                              if (chatService.currentConversation == null) return const SizedBox.shrink();
-                              return const Opacity(
-                                opacity: 0.5,
-                                child: Text('🦞', style: TextStyle(fontSize: 24)),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                    child: _ChatPane(
+                      isCompact: widget.isCompact,
+                      scrollController: widget.scrollController,
+                      onSendMessage: widget.onSendMessage,
                     ),
                   ),
                 ],
@@ -241,7 +224,11 @@ class _HeaderBar extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('🦞', style: TextStyle(fontSize: 24)),
+                  const AppLogo.small(
+                    backgroundColor: Colors.white,
+                    textColor: Color(0xFF6e8efb),
+                    borderColor: Color(0xFFa777e3),
+                  ),
                   SizedBox(width: spacing.s),
                   Text(
                     AppConfig.appName,
@@ -256,7 +243,18 @@ class _HeaderBar extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          const _ModelSelector(),
+          IconButton(
+            icon: const Icon(Icons.smart_toy, color: Colors.white),
+            tooltip: 'GUI Automation',
+            onPressed: () => context.go('/gui-automation'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.dashboard, color: Colors.white),
+            tooltip: 'Admin Dashboard',
+            onPressed: () => context.go('/admin-center'),
+          ),
+          SizedBox(width: spacing.m),
+          const _EmailStatusIndicator(),
           SizedBox(width: spacing.m),
           const _UserMenu(),
         ],
@@ -265,58 +263,100 @@ class _HeaderBar extends StatelessWidget {
   }
 }
 
-class _ModelSelector extends StatelessWidget {
-  const _ModelSelector();
+class _EmailStatusIndicator extends StatelessWidget {
+  const _EmailStatusIndicator();
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<StreamingChatService, ConnectionManagerService>(
-      builder: (context, chatService, connectionManager, child) {
-        final spacing = AppTheme.spacingOf(context);
-        final models = connectionManager.availableModels;
-        return Container(
-          width: 200,
-          padding: EdgeInsets.symmetric(horizontal: spacing.s),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusS),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.3),
-              width: 1,
+    return Consumer<GoogleWorkspaceService>(
+      builder: (context, workspaceService, child) {
+        final isConnected = workspaceService.connectedAccounts.isNotEmpty;
+        final isLoading = workspaceService.isLoading;
+
+        if (isLoading) {
+          return const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
+          );
+        }
+
+        return IconButton(
+          icon: Icon(
+            isConnected ? Icons.workspace_premium : Icons.mail_outline,
+            color: isConnected ? Colors.greenAccent : Colors.white70,
           ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: chatService.selectedModel,
-              hint: Text(
-                'Select Model',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
-                overflow: TextOverflow.ellipsis,
-              ),
-              items: models.map((model) {
-                return DropdownMenuItem(
-                  value: model,
-                  child: Text(model, overflow: TextOverflow.ellipsis),
-                );
-              }).toList(),
-              onChanged: (model) {
-                if (model != null) {
-                  chatService.setSelectedModel(model);
-                }
-              },
-              dropdownColor: Colors.white,
-              icon: Icon(
-                Icons.arrow_drop_down,
-                color: Colors.white.withValues(alpha: 0.8),
-              ),
-              isExpanded: true,
-            ),
-          ),
+          tooltip: isConnected ? 'Check Workspace' : 'Connect Google Workspace',
+          onPressed: () async {
+            if (!isConnected) {
+              await workspaceService.connectAccount();
+            } else {
+              final email = workspaceService.connectedAccounts.first;
+              final messages = await workspaceService.getUnreadMessages(email);
+              final events = await workspaceService.getTodayEvents(email);
+              if (context.mounted) {
+                _showWorkspacePopup(context, messages, events);
+              }
+            }
+          },
         );
       },
     );
   }
+
+  void _showWorkspacePopup(BuildContext context, List<Map<String, dynamic>> messages, List<Map<String, dynamic>> events) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Google Workspace'),
+        content: SizedBox(
+          width: 500,
+          height: 400,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Upcoming Events', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Divider(),
+                if (events.isEmpty)
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No events for today'))
+                else
+                  ...events.map((e) => ListTile(
+                    title: Text(e['summary']),
+                    subtitle: Text('${e['start']} - ${e['end']}'),
+                    leading: const Icon(Icons.calendar_today, size: 20),
+                  )),
+                const SizedBox(height: 20),
+                const Text('Unread Emails', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Divider(),
+                if (messages.isEmpty)
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No unread messages'))
+                else
+                  ...messages.map((m) => ListTile(
+                    title: Text(m['subject'], maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: Text('${m['from']} • ${m['date']}'),
+                    isThreeLine: true,
+                    leading: const Icon(Icons.email, size: 20),
+                  )),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+// Removed _ModelSelector class as it's no longer needed in the UI
 
 class _UserMenu extends StatelessWidget {
   const _UserMenu();
@@ -330,6 +370,11 @@ class _UserMenu extends StatelessWidget {
         return PopupMenuButton<String>(
           onSelected: (value) async {
             switch (value) {
+              case 'login':
+                if (context.mounted) {
+                  context.go('/login');
+                }
+                break;
               case 'settings':
                 if (context.mounted) {
                   context.go('/settings');
@@ -344,6 +389,17 @@ class _UserMenu extends StatelessWidget {
             }
           },
           itemBuilder: (context) => [
+            if (!authService.isAuthenticated.value)
+              PopupMenuItem(
+                value: 'login',
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_queue, size: 18),
+                    SizedBox(width: spacing.s),
+                    const Text('Connect Cloud Relay'),
+                  ],
+                ),
+              ),
             PopupMenuItem(
               value: 'settings',
               child: Row(
@@ -355,16 +411,17 @@ class _UserMenu extends StatelessWidget {
               ),
             ),
             const PopupMenuDivider(),
-            PopupMenuItem(
-              value: 'logout',
-              child: Row(
-                children: [
-                  const Icon(Icons.logout, size: 18),
-                  SizedBox(width: spacing.s),
-                  const Text('Sign Out'),
-                ],
+            if (authService.isAuthenticated.value)
+              PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    const Icon(Icons.logout, size: 18),
+                    SizedBox(width: spacing.s),
+                    const Text('Sign Out'),
+                  ],
+                ),
               ),
-            ),
           ],
           elevation: 8,
           shape: RoundedRectangleBorder(
@@ -380,21 +437,27 @@ class _UserMenu extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: authService.isAuthenticated.value
+                    ? Colors.green.withValues(alpha: 0.5)
+                    : Colors.white.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
             child: CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryColor,
-              child: Text(
-                user?.initials ?? '?',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              backgroundColor: authService.isAuthenticated.value
+                  ? AppTheme.primaryColor
+                  : Colors.grey[700],
+              child: authService.isAuthenticated.value
+                  ? Text(
+                      user?.initials ?? '?',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : const Icon(Icons.cloud_off, size: 16, color: Colors.white),
             ),
           ),
         );
@@ -408,42 +471,11 @@ class _SidebarPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTheme.spacingOf(context);
-
     return Consumer<StreamingChatService>(
       builder: (context, chatService, child) {
         return Column(
           children: [
-            // Home button to go back to Zoidbot screen
-            Padding(
-              padding: EdgeInsets.all(spacing.s),
-              child: ListTile(
-                leading: const Text('🦞', style: TextStyle(fontSize: 20)),
-                title: const Text('Zoidbot Home', style: TextStyle(fontWeight: FontWeight.bold)),
-                selected: chatService.currentConversation == null,
-                onTap: () => chatService.selectConversationById(null),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: spacing.s),
-              child: ListTile(
-                leading: const Icon(Icons.web, size: 20),
-                title: const Text('Agent Browser', style: TextStyle(fontWeight: FontWeight.bold)),
-                onTap: () => context.push('/browser'),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: spacing.s),
-              child: ListTile(
-                leading: const Icon(Icons.hub, size: 20),
-                title: const Text('System Hub', style: TextStyle(fontWeight: FontWeight.bold)),
-                onTap: () => context.push('/system'),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
+            const CapacityGaugeWidget(),
             const Divider(),
             Expanded(
               child: ConversationList(
@@ -524,9 +556,7 @@ class _ChatPane extends StatelessWidget {
                   onSendMessage: (message) =>
                       onSendMessage(chatService, message),
                   isLoading: chatService.isLoading,
-                  placeholder: chatService.selectedModel == null
-                      ? 'Please select a model first...'
-                      : 'Type your message...',
+                  placeholder: 'Type your message...',
                 ),
               ),
             ],
@@ -546,15 +576,15 @@ class _MessageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTheme.spacingOf(context);
+    final messages = conversation.messages.reversed.toList();
+    
     return ListView.builder(
       controller: controller,
+      reverse: true,
       padding: EdgeInsets.symmetric(vertical: spacing.m),
-      itemCount: conversation.messages.length,
+      itemCount: messages.length,
       itemBuilder: (context, index) {
-        if (index >= conversation.messages.length) {
-          return const SizedBox.shrink();
-        }
-        final message = conversation.messages[index];
+        final message = messages[index];
         return MessageBubble(
           key: ValueKey(message.id),
           message: message,
@@ -608,170 +638,61 @@ class _EmptyConversationState extends StatelessWidget {
     final spacing = AppTheme.spacingOf(context);
     final textColor = theme.colorScheme.onSurface;
     final textColorLight = theme.colorScheme.onSurface.withValues(alpha: 0.6);
-    final authService = context.watch<AuthService>();
-    final assistantName = authService.assistantName;
 
     return Column(
       children: [
         Expanded(
           child: Center(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(spacing.l),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Expressive Agent Avatar (Zoidbot)
-                  Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      color: theme.primaryColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: theme.primaryColor.withValues(alpha: 0.3),
-                        width: 6,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.chat_bubble_outline,
+                  size: 64,
+                  color: textColorLight,
+                ),
+                SizedBox(height: spacing.l),
+                Text(
+                  'Welcome to CloudToLocalLLM',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.primaryColor.withValues(alpha: 0.3),
-                          blurRadius: 30,
-                          spreadRadius: 10,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: spacing.m),
+                Text(
+                  'Start a new conversation to begin chatting with your local LLM',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: textColorLight,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: spacing.xl),
+                Consumer<StreamingChatService>(
+                  builder: (context, chatService, child) {
+                    return ElevatedButton.icon(
+                      onPressed: () => chatService.createConversation(),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Start New Conversation'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: spacing.l,
+                          vertical: spacing.m,
                         ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '🦞',
-                        style: TextStyle(fontSize: 80),
+                        // Ensure minimum touch target size
+                        minimumSize: const Size(44, 44),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: spacing.xl),
-                  Text(
-                    '$assistantName is Ready!',
-                    style: theme.textTheme.displaySmall?.copyWith(
-                      color: textColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing.m),
-                  Text(
-                    'How can I help you today?',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: textColorLight,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing.xl),
-                  Wrap(
-                    spacing: spacing.m,
-                    runSpacing: spacing.m,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      _QuickActionCard(
-                        icon: Icons.chat_bubble_outline,
-                        label: 'Start Chatting',
-                        onTap: () {
-                          final chatService = Provider.of<StreamingChatService>(context, listen: false);
-                          chatService.createConversation();
-                        },
-                        color: theme.primaryColor,
-                      ),
-                      if (authService.isAuthenticated.value) ...[
-                        _QuickActionCard(
-                          icon: Icons.dashboard_outlined,
-                          label: 'Agent Dashboard',
-                          onTap: () => context.go('/dashboard'),
-                          color: Colors.blue,
-                        ),
-                      ],
-                      if (!authService.isAuthenticated.value) ...[
-                        _QuickActionCard(
-                          icon: Icons.cloud_upload_outlined,
-                          label: 'Connect Cloud',
-                          onTap: () => context.go('/login'),
-                          color: Colors.orange,
-                        ),
-                      ],
-                      _QuickActionCard(
-                        icon: Icons.web_outlined,
-                        label: 'Agent Browser',
-                        onTap: () => context.push('/browser'),
-                        color: Colors.purple,
-                      ),
-                      _QuickActionCard(
-                        icon: Icons.hub_outlined,
-                        label: 'System Hub',
-                        onTap: () => context.push('/system'),
-                        color: Colors.teal,
-                      ),
-                      _QuickActionCard(
-                        icon: Icons.settings_outlined,
-                        label: 'Settings',
-                        onTap: () => context.go('/settings'),
-                        color: Colors.grey,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final Color color;
-
-  const _QuickActionCard({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTheme.spacingOf(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: 160,
-        padding: EdgeInsets.all(spacing.m),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            SizedBox(height: spacing.s),
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,148 +1,83 @@
-# Zoidbot - Agent Instructions
+# AGENTS.md
 
-This file provides guidance for AI coding agents working in this repository.
+This file provides guidance to agents when working with code in this repository.
 
-## Build/Lint/Test Commands
+## Non-Obvious Build/Lint/Test Commands
 
 ### Flutter (Frontend)
 ```bash
-flutter pub get              # Install dependencies
-flutter run -d linux         # Run on Linux desktop
-flutter run -d chrome        # Run on Chrome (Web)
-flutter test                 # Run all tests
-flutter test test/widget_test.dart  # Run single test file
-flutter analyze              # Analyze code for issues
-flutter format .             # Format code
-flutter build web --release  # Build web release
+flutter test test/widget_test.dart  # Single test file requires specific path
+flutter build linux --release         # Linux release build (distinct from web)
 ```
 
 ### API Backend (`services/api-backend/`)
 ```bash
-npm install && npm run dev   # Start development server
-npm test                     # Run all tests
-npm run test:unit            # Unit tests only
-npm run test:auth            # Authentication tests
-npm run test:user-isolation  # User isolation tests
-npm run test:security        # Security tests
-npm run lint                 # ESLint
-npm run format               # Prettier
-
-# Run single test file (Jest with ES modules)
+# Jest with ES modules requires experimental flag
 node --experimental-vm-modules node_modules/jest/bin/jest.js path/to/test.test.js
-node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose  # With verbose output
+
+# Database operations
+npm run db:migrate    # Run PostgreSQL migrations
+npm run db:validate   # Validate schema
 ```
 
-### SDK (`services/sdk/`)
+### LLM Router (Flutter - runs on port 1337)
 ```bash
-npm install && npm run build  # Build TypeScript
-npm run dev                   # Build with watch mode
-npm test                      # Run Jest tests
-npm run lint && npm run format
+curl http://localhost:1337/health           # Health check
+curl http://localhost:1337/v1/models        # List models
 ```
 
-### Streaming Proxy (`services/streaming-proxy/`)
-```bash
-npm install && npm run dev    # Start development
-npm test && npm run lint
-```
+## Non-Obvious Code Patterns
 
-## Project Structure
-```
-Zoidbot/
-├── lib/                      # Flutter app (Dart)
-│   ├── services/             # LLM providers, auth, tunnel services
-│   ├── widgets/              # UI components
-│   ├── di/                   # Dependency injection (GetIt)
-│   └── utils/                # Utilities
-├── services/
-│   ├── api-backend/          # Main API server (Express.js)
-│   ├── streaming-proxy/      # WebSocket proxy
-│   └── sdk/                  # TypeScript client SDK
-├── backend/auth/             # Auth0 JWT validation
-├── test/                     # Test files
-└── docs/                     # Documentation
-```
+### Flutter DI (GetIt - Two Phase)
+- [`lib/di/locator.dart`](lib/di/locator.dart): `setupCoreServices()` → `setupAuthenticatedServices()`
+- Core services available pre-auth: Settings, Auth, Theme, TokenStorage
+- Auth services available post-auth: Tunnel, LLM providers, Streaming
 
-## Code Style Guidelines
+### Platform Detection
+- Use `kIsWeb` from `package:flutter/foundation.dart` for web detection
+- Desktop vs web: conditional imports with `*_stub.dart` files
 
-### Node.js / TypeScript
-- **ES Modules**: Use `"type": "module"` in package.json
-- **Imports**: Group by built-ins, third-party, local; use named imports
-- **Files**: `kebab-case.js` for files
-- **Naming**: `PascalCase` for classes, `camelCase` for functions/variables, `UPPER_SNAKE_CASE` for constants
-- **Async**: Suffix with `Async` when ambiguous
+### Auth0 Integration
+- Desktop: Native Auth0 flow with encrypted SQLite token storage
+- Web: Uses `auth0-bridge.js` for session-based storage (NOT native)
 
-#### Error Handling
-```javascript
-try {
-  const result = await someAsyncOperation();
-  return result;
-} catch (error) {
-  logger.error('Operation failed', { error, context });
-  throw new Error('User-friendly error message');
-}
-```
+### LLM Router System
+- Embedded shelf HTTP server at port 1337
+- Provider adapters in [`lib/services/providers/`](lib/services/providers/)
+- Model tiers: critical/high/medium/unlimited in [`lib/services/model_tiers.dart`](lib/services/model_tiers.dart)
+- Rate limiting via `RateLimitManager`
 
-#### Logging
-- Use `winston` for structured logging with correlation IDs
-- Log levels: ERROR, WARN, INFO, DEBUG
-- **Never** log secrets or credentials
+## Non-Obvious Architecture
 
-### Flutter / Dart
-- **DI**: Use `GetIt` via `lib/di/locator.dart` (`setupCoreServices()`, `setupAuthenticatedServices()`)
-- **State**: Use `provider` for state management
-- **Web**: Use `dart:js_interop` (not deprecated `js` package), detect platform with `kIsWeb`
-- **Logging**: Prefer `debugPrint()` over `print()`
-- **Pre-commit**: Always run `flutter analyze` and `flutter format` before committing
+### Data Storage
+- Server: PostgreSQL for sessions, cloud storage, tunnel configs
+- Desktop Client: SQLite with encryption (LocalBrain), Drift for router tables
+- Web Client: IndexedDB, no local persistence for sensitive data
 
-### TypeScript Configuration (SDK)
-- Target: ES2020, Module: ESNext, Strict mode enabled
-- Generate declaration files and source maps
+### Claude Code Automations (from `.claude/`)
+- **Skills** (user-invocable with `/skill-name`):
+  - `/api-endpoint` - Generate Express.js endpoints with Auth0 JWT middleware
+  - `/flutter-service` - Generate Flutter services with Provider pattern
+- **Hooks**: Auto-format on edit, security blocks for `.env`, `.env.production`, `secrets/`
+- **Subagents**: `security-reviewer`, `integration-tester`
 
-## Security Requirements
-- **Never** hardcode secrets, API keys, or credentials
-- Use environment variables or secret management
-- Validate and sanitize all user inputs
-- Run containers as non-root users (`USER 1000:1000`)
-- Implement request rate limiting
+## Critical Requirements
 
-## Git Workflow
-- **Conventional commits**: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
-- **Agent prefix**: `ai(AgentName): description` for automated commits
-- Keep commits focused and atomic
-- Run linter and fix errors before committing
+### Engine Versions (non-standard)
+- Node.js: **>=22.0.0 <25.0.0** (API backend - NOT latest)
+- Dart SDK: **>=3.5.0 <4.0.0**
+- Node.js: >=18.0.0 (SDK)
 
-## Key Integration Notes
-- **Auth**: Auth0 - web uses `auth0-bridge.js`, desktop uses native flows
-- **Local models**: Ollama/LM Studio via OpenAI-compatible APIs in `lib/services/`
-- **Database**: PostgreSQL for server sessions, local SQLite/IndexedDB for client
+### Container Security
+- Run containers as non-root: `USER 1000:1000` in Dockerfiles
 
-## AI Agent Operational Rules
-1. **Minimal changes**: Keep edits scoped to the issue; don't change unrelated files
-2. **Feature branches**: If multiple agents may touch a file, create a branch and PR
-3. **TodoWrite tool**: Use to track multi-step work; update as you progress
-4. **Root directory**: Do NOT create new files in repo root (use docs/, config/, scripts/)
-5. **Linting first**: Fix all linter errors before committing
+### Free Tier Policy
+- Azure: B-series VMs only (B1s/B2s) for Docker Swarm
+- Never create: Standard SKU Load Balancers, Application Gateway, Premium SSDs
+- Use: ghcr.io instead of ACR, Cloudflare Tunnel for ingress
 
-## Engine Requirements
-- **Node.js**: >=22.0.0 <25.0.0 (API backend)
-- **Node.js**: >=18.0.0 (SDK)
-- **Dart SDK**: >=3.5.0 <4.0.0
+## Key Integration Points
 
-## Free Tier Policy
-All cloud resources must stay within free tier limits:
-- **Azure**: B-series VMs (B1s/B2s) for Docker Swarm
-- **Never create**: Standard SKU Load Balancers, Application Gateway, Premium SSDs
-- **Use**: ghcr.io instead of ACR, Cloudflare Tunnel for ingress
-
-## Key Dependencies
-| Component | Key Libraries |
-|-----------|--------------|
-| API Backend | Express 5, Zod, Winston, JWT, PostgreSQL |
-| Flutter | provider, GetIt, auth0_flutter, langchain |
-| SDK | TypeScript, Axios, Zod |
-
-## Additional Resources
-- `.github/copilot-instructions.md` - Copilot/AI agent operational rules
-- `docs/development/` - Detailed development documentation
-- `config/mcp/` - MCP server configurations
+- **Local Models**: OpenClaw Gateway (localhost:18789), LM Studio (localhost:1234)
+- **Tunnel**: SSH tunneling with WebSocket connections, health monitoring
+- **MCP**: Workspace MCP in `.vscode/settings.json`, user MCP at `%APPDATA%/Code/User/mcp.json`

@@ -13,7 +13,9 @@ enum TrayConnectionStatus {
   disconnected,
 }
 
-/// Native Flutter system tray service
+/// Native Flutter system tray service for CloudToLocalLLM
+///
+/// Note: Ollama integration removed. Uses ConnectionManagerService only.
 class NativeTrayService with TrayListener {
   static final NativeTrayService _instance = NativeTrayService._internal();
   factory NativeTrayService() => _instance;
@@ -32,9 +34,13 @@ class NativeTrayService with TrayListener {
   void Function()? _onSettings;
   void Function()? _onQuit;
 
+  /// Check if system tray is supported on this platform
   bool get isSupported => _isSupported;
+
+  /// Check if tray service is initialized
   bool get isInitialized => _isInitialized;
 
+  /// Initialize the native tray service
   Future<bool> initialize({
     ConnectionManagerService? connectionManager,
     void Function()? onShowWindow,
@@ -45,122 +51,201 @@ class NativeTrayService with TrayListener {
     if (_isInitialized) return true;
 
     try {
-      _isSupported = (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-      if (!_isSupported) return false;
+      appLogger.debug('[NativeTray] Initializing native tray service...');
 
-      _connectionManager = connectionManager;
+      // Check platform support - web platforms don't support native tray
+      if (kIsWeb) {
+        _isSupported = false;
+        appLogger.warning(
+          '[NativeTray] System tray not supported on web platform',
+        );
+        return false;
+      }
+
+      try {
+        _isSupported =
+            Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+        if (!_isSupported) {
+          appLogger.warning(
+            '[NativeTray] System tray not supported on this platform',
+          );
+          return false;
+        }
+      } catch (e) {
+        appLogger.error('[NativeTray] Platform detection failed', error: e);
+        _isSupported = false;
+        return false;
+      }
+
+      // Store connection manager and callbacks
+      if (connectionManager != null) {
+        _connectionManager = connectionManager;
+      }
       _onShowWindow = onShowWindow;
       _onHideWindow = onHideWindow;
       _onSettings = onSettings;
       _onQuit = onQuit;
 
-      trayManager.addListener(this);
+      // Initialize tray manager
+      await trayManager
+          .setIcon(_getTrayIconPath(TrayConnectionStatus.disconnected));
 
-      await _setupTray();
-      _isInitialized = true;
-
+      // Listen to connection changes
       if (_connectionManager != null) {
-        _connectionManager!.addListener(_onConnectionChanged);
+        _connectionManager!.addListener(_onConnectionStatusChanged);
       }
 
+      // Set up initial menu
+      await _updateTrayMenu();
+
+      // Add tray listener
+      trayManager.addListener(this);
+
+      _isInitialized = true;
+      appLogger
+          .info('[NativeTray] Native tray service initialized successfully');
       return true;
     } catch (e) {
-      appLogger.error('[NativeTray] Failed to initialize tray', error: e);
+      appLogger.error('[NativeTray] Failed to initialize tray service',
+          error: e);
       return false;
     }
   }
 
-  void updateConnectionManager(ConnectionManagerService connectionManager) {
-    if (_connectionManager != null) {
-      _connectionManager!.removeListener(_onConnectionChanged);
-    }
-    _connectionManager = connectionManager;
-    _connectionManager!.addListener(_onConnectionChanged);
-    _onConnectionChanged();
-  }
-
-  Future<void> _setupTray() async {
-    try {
-      String iconPath = Platform.isWindows
-          ? 'assets/images/app_icon.ico'
-          : 'assets/images/app_icon.png';
-
-      await trayManager.setIcon(iconPath);
-      await _updateTrayMenu();
-      await trayManager.setToolTip('CloudToLocalLLM');
-    } catch (e) {
-      appLogger.error('[NativeTray] Error setting up tray', error: e);
-    }
-  }
-
-  Future<void> _updateTrayMenu() async {
-    if (!_isSupported) return;
-
-    final status = _getConnectionStatus();
-    String statusLabel = 'Status: Disconnected';
-    if (status == TrayConnectionStatus.allConnected) {
-      statusLabel = 'Status: Connected';
-    } else if (status == TrayConnectionStatus.connecting) {
-      statusLabel = 'Status: Connecting...';
+  /// Get the current connection status
+  TrayConnectionStatus _getCurrentStatus() {
+    if (_connectionManager == null) {
+      return TrayConnectionStatus.disconnected;
     }
 
-    List<MenuItem> items = [
-      MenuItem(
-        key: 'show_window',
-        label: 'Show Dashboard',
-      ),
-      MenuItem.separator(),
-      MenuItem(
-        key: 'status',
-        label: statusLabel,
-        disabled: true,
-      ),
-      MenuItem(
-        key: 'settings',
-        label: 'Settings',
-      ),
-      MenuItem.separator(),
-      MenuItem(
-        key: 'quit',
-        label: 'Quit',
-      ),
-    ];
+    final hasCloud = _connectionManager!.hasCloudConnection;
 
-    await trayManager.setContextMenu(Menu(items: items));
-  }
-
-  TrayConnectionStatus _getConnectionStatus() {
-    if (_connectionManager == null) return TrayConnectionStatus.disconnected;
-    if (_connectionManager!.isConnected) return TrayConnectionStatus.allConnected;
+    if (hasCloud) {
+      return TrayConnectionStatus.allConnected;
+    }
     return TrayConnectionStatus.disconnected;
   }
 
-  void _onConnectionChanged() {
+  /// Get tray icon path based on connection status
+  String _getTrayIconPath(TrayConnectionStatus status) {
+    // Use appropriate icon based on platform and status
+    final String iconName;
+    switch (status) {
+      case TrayConnectionStatus.allConnected:
+        iconName = 'tray_connected';
+        break;
+      case TrayConnectionStatus.partiallyConnected:
+        iconName = 'tray_partial';
+        break;
+      case TrayConnectionStatus.connecting:
+        iconName = 'tray_connecting';
+        break;
+      case TrayConnectionStatus.disconnected:
+        iconName = 'tray_disconnected';
+        break;
+    }
+
+    if (Platform.isWindows) {
+      return 'assets/icons/$iconName.ico';
+    } else if (Platform.isMacOS) {
+      return 'assets/icons/$iconName.png';
+    } else {
+      return 'assets/icons/$iconName.png';
+    }
+  }
+
+  /// Update tray menu based on current status
+  Future<void> _updateTrayMenu() async {
+    final status = _getCurrentStatus();
+    _lastStatus = status;
+
+    try {
+      await trayManager.setIcon(_getTrayIconPath(status));
+
+      final Menu menu = Menu(
+        items: [
+          MenuItem(
+            key: 'show',
+            label: 'Show CloudToLocalLLM',
+          ),
+          MenuItem(
+            key: 'hide',
+            label: 'Hide to Tray',
+          ),
+          MenuItem.separator(),
+          MenuItem(
+            key: 'status',
+            label: 'Status: ${_getStatusLabel(status)}',
+            disabled: true,
+          ),
+          MenuItem.separator(),
+          MenuItem(
+            key: 'settings',
+            label: 'Settings',
+          ),
+          MenuItem.separator(),
+          MenuItem(
+            key: 'quit',
+            label: 'Quit',
+          ),
+        ],
+      );
+
+      await trayManager.setContextMenu(menu);
+      await trayManager
+          .setToolTip('CloudToLocalLLM - ${_getStatusLabel(status)}');
+    } catch (e) {
+      appLogger.error('[NativeTray] Failed to update tray menu', error: e);
+    }
+  }
+
+  /// Get human-readable status label
+  String _getStatusLabel(TrayConnectionStatus status) {
+    switch (status) {
+      case TrayConnectionStatus.allConnected:
+        return 'Connected';
+      case TrayConnectionStatus.partiallyConnected:
+        return 'Partially Connected';
+      case TrayConnectionStatus.connecting:
+        return 'Connecting...';
+      case TrayConnectionStatus.disconnected:
+        return 'Disconnected';
+    }
+  }
+
+  /// Handle connection status changes
+  void _onConnectionStatusChanged() {
+    // Debounce updates to prevent rapid menu rebuilds
     _updateDebounceTimer?.cancel();
     _updateDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-      final currentStatus = _getConnectionStatus();
+      final currentStatus = _getCurrentStatus();
       if (currentStatus != _lastStatus) {
-        _lastStatus = currentStatus;
         _updateTrayMenu();
       }
     });
   }
 
+  /// TrayListener: Handle tray icon click
   @override
   void onTrayIconMouseDown() {
     _onShowWindow?.call();
   }
 
+  /// TrayListener: Handle tray icon right-click
   @override
   void onTrayIconRightMouseDown() {
     trayManager.popUpContextMenu();
   }
 
+  /// TrayListener: Handle menu item click
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
     switch (menuItem.key) {
-      case 'show_window':
+      case 'show':
         _onShowWindow?.call();
+        break;
+      case 'hide':
+        _onHideWindow?.call();
         break;
       case 'settings':
         _onSettings?.call();
@@ -171,10 +256,13 @@ class NativeTrayService with TrayListener {
     }
   }
 
-  void dispose() {
+  /// Dispose tray service
+  Future<void> dispose() async {
     _updateDebounceTimer?.cancel();
-    _statusSubscription?.cancel();
-    _connectionManager?.removeListener(_onConnectionChanged);
+    await _statusSubscription?.cancel();
+    _connectionManager?.removeListener(_onConnectionStatusChanged);
     trayManager.removeListener(this);
+    await trayManager.destroy();
+    _isInitialized = false;
   }
 }

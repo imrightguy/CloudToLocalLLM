@@ -4,12 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
-  flutter_inappwebview_windows
   flutter_secure_storage_windows
-  local_notifier
   screen_retriever_windows
   sentry_flutter
-  system_tray
+  sqlite3_flutter_libs
   tray_manager
   url_launcher_windows
   window_manager

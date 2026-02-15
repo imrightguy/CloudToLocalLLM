@@ -1,5 +1,13 @@
--- Migration: Add Agent Dashboard tables
--- This migration creates tables for monitoring OpenClaw agents
+-- Migration: Add Agent Dashboard Tables
+-- Created: 2026-02-10
+
+-- Update users table (add agent_management flag if not exists)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='agent_management_enabled') THEN
+        ALTER TABLE users ADD COLUMN agent_management_enabled BOOLEAN DEFAULT false;
+    END IF;
+END $$;
 
 -- Agents (OpenClaw agents)
 CREATE TABLE IF NOT EXISTS agents (
@@ -62,19 +70,16 @@ CREATE TABLE IF NOT EXISTS agent_settings (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_settings_user_agent ON agent_settings(user_id, agent_id);
 
--- Update users table (add agent_management flag)
+-- Create triggers for updated_at (function already exists in schema.pg.sql)
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='agent_management_enabled') THEN
-        ALTER TABLE users ADD COLUMN agent_management_enabled BOOLEAN DEFAULT false;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_agents_updated_at') THEN
+        CREATE TRIGGER update_agents_updated_at BEFORE UPDATE ON agents
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_agent_settings_updated_at') THEN
+        CREATE TRIGGER update_agent_settings_updated_at BEFORE UPDATE ON agent_settings
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     END IF;
 END $$;
-
--- Triggers for updated_at (update_updated_at_column already exists)
-DROP TRIGGER IF EXISTS update_agents_updated_at ON agents;
-CREATE TRIGGER update_agents_updated_at BEFORE UPDATE ON agents
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-DROP TRIGGER IF EXISTS update_agent_settings_updated_at ON agent_settings;
-CREATE TRIGGER update_agent_settings_updated_at BEFORE UPDATE ON agent_settings
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

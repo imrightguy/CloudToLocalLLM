@@ -1,85 +1,21 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Application configuration constants
 class AppConfig {
-  // Agent Status Configuration Keys
-  static const String _prefAgentStatusUrl = 'agent_status_url';
-  static const String _prefAgentStatusPollIntervalMs = 'agent_status_poll_interval_ms';
-  static const String _prefAgentStatusTimeoutMs = 'agent_status_timeout_ms';
-
-  // Agent Status Default Values
-  static const String defaultAgentStatusUrl = 'http://localhost:8080/status';
-  static const int defaultAgentStatusPollIntervalMs = 2000;
-  static const int defaultAgentStatusTimeoutMs = 5000;
-
-  // Singleton pattern for runtime configuration
-  static final AppConfig _instance = AppConfig._internal();
-  factory AppConfig() => _instance;
-  AppConfig._internal();
-
-  SharedPreferences? _prefs;
-
-  /// Initialize the configuration (load from SharedPreferences)
-  Future<void> initialize() async {
-    _prefs ??= await SharedPreferences.getInstance();
-  }
-
-  /// Get the Agent Status URL
-  String getAgentStatusUrl() {
-    return _prefs?.getString(_prefAgentStatusUrl) ?? defaultAgentStatusUrl;
-  }
-
-  /// Set the Agent Status URL (persisted)
-  Future<bool> setAgentStatusUrl(String url) async {
-    await initialize();
-    return await _prefs!.setString(_prefAgentStatusUrl, url);
-  }
-
-  /// Get the Agent Status polling interval in milliseconds
-  int getAgentStatusPollIntervalMs() {
-    return _prefs?.getInt(_prefAgentStatusPollIntervalMs) ?? defaultAgentStatusPollIntervalMs;
-  }
-
-  /// Set the Agent Status polling interval in milliseconds (persisted)
-  Future<bool> setAgentStatusPollIntervalMs(int intervalMs) async {
-    await initialize();
-    return await _prefs!.setInt(_prefAgentStatusPollIntervalMs, intervalMs);
-  }
-
-  /// Get the Agent Status connection timeout in milliseconds
-  int getAgentStatusTimeoutMs() {
-    return _prefs?.getInt(_prefAgentStatusTimeoutMs) ?? defaultAgentStatusTimeoutMs;
-  }
-
-  /// Set the Agent Status connection timeout in milliseconds (persisted)
-  Future<bool> setAgentStatusTimeoutMs(int timeoutMs) async {
-    await initialize();
-    return await _prefs!.setInt(_prefAgentStatusTimeoutMs, timeoutMs);
-  }
-
-  /// Reset Agent Status settings to defaults
-  Future<bool> resetAgentStatusSettings() async {
-    await initialize();
-    await _prefs!.remove(_prefAgentStatusUrl);
-    await _prefs!.remove(_prefAgentStatusPollIntervalMs);
-    await _prefs!.remove(_prefAgentStatusTimeoutMs);
-    return true;
-  }
   // App Information
   static const String appName = 'CloudToLocalLLM';
   static const String appVersion = '10.1.187';
   static const String appDescription =
-      'Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.';
+      'Privacy-first local AI workspace powered by OpenClaw. Login is optional and used only to enable Cloud Relay and secure tunnels.';
 
   // URLs
   static const String homepageUrl = 'https://cloudtolocalllm.online';
   static const String appUrl = 'https://app.cloudtolocalllm.online';
   static const String adminCenterUrl = 'https://admin.cloudtolocalllm.online';
   static const String githubUrl =
-      'https://github.com/Zoidbot/Zoidbot';
+      'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM';
   static const String githubReleasesUrl =
-      'https://github.com/Zoidbot/Zoidbot/releases/latest';
+      'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest';
 
 
   // Configured Authentication Provider
@@ -100,16 +36,16 @@ class AppConfig {
 
   // Development mode settings
   static const bool enableDevMode = true; // Set to false for production
-  static const String devModeUser = 'dev@zoidbot.online';
+  static const String devModeUser = 'dev@cloudtolocalllm.online';
 
   // API Configuration
-  static const String apiBaseUrl = 'http://localhost:3000';
+  static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';
   static const Duration apiTimeout = Duration(seconds: 30);
   // Tunnel Configuration (SSH over WebSocket)
   static const String tunnelSshUrl =
-      'ws://localhost:3000/ssh';
+      'wss://api.cloudtolocalllm.online:8080/ssh';
   static const String tunnelSshUrlDev =
-      'ws://localhost:3000/ssh';
+      'wss://api.cloudtolocalllm.online:8080/ssh';
   // UI Configuration
   static const double maxContentWidth = 1200.0;
   static const double mobileBreakpoint = 768.0;
@@ -129,13 +65,23 @@ class AppConfig {
   static const bool showTierInformation = true;
   static const bool enableDirectTunnelMode = true;
 
+  // OpenClaw Gateway Configuration (Primary LLM Provider)
+  static const String defaultGatewayHost = '127.0.0.1';
+  static const int defaultGatewayPort = 18789;
+  static const String defaultGatewayUrl = 'http://127.0.0.1:18789';
+  static const Duration gatewayTimeout = Duration(seconds: 60);
+
+  // Cloud Relay Configuration (via OpenClaw)
+  static const String cloudGatewayUrl = '$apiBaseUrl/v1';
+
+  // Admin Interface Configuration
+  static const bool enableAdminInterface = true;
+  static const int adminServerPort = 8080;
+
   // Platform-specific admin server URLs
   static const String adminServerUrlWeb =
-      'https://api.cloudtolocalllm.online:3001';
-  static const String adminServerUrlDesktop = 'http://localhost:3001';
-
-  // Fixed: Added missing bridgeStatusUrl
-  static String get bridgeStatusUrl => '$apiBaseUrl/api/bridge/status';
+      'https://api.cloudtolocalllm.online';
+  static const String adminServerUrlDesktop = 'http://127.0.0.1:8080';
 
   // Get admin server URL based on platform
   static String get adminServerUrl =>
@@ -166,9 +112,17 @@ class AppConfig {
   // Debug logging for configuration
   static void logConfiguration() {
     debugPrint('[DEBUG] AppConfig loaded:');
+    debugPrint('[DEBUG] - OpenClaw Gateway: $defaultGatewayUrl');
+    debugPrint('[DEBUG] - Bridge Status URL: $bridgeStatusUrl');
+    debugPrint('[DEBUG] - Bridge Register URL: $bridgeRegisterUrl');
     debugPrint('[DEBUG] - Admin Server URL: $adminServerUrl');
     debugPrint('[DEBUG] - Admin API Base URL: $adminApiBaseUrl');
   }
+
+  // Bridge Configuration
+  static const String bridgePollingUrl = '$apiBaseUrl/v1/bridge-polling';
+  static const String bridgeStatusUrl = '$bridgePollingUrl/:bridgeId/status';
+  static const String bridgeRegisterUrl = '$bridgePollingUrl/register';
 }
 
 enum AuthProviderType {

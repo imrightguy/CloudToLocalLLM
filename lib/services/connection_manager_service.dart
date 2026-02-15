@@ -1,41 +1,79 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'auth_service.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'tunnel_service.dart';
 import 'streaming_service.dart';
-import 'openclaw_gateway_service.dart';
+import 'cloud_streaming_service.dart';
+import 'auth_service.dart';
+import '../models/llm_communication_error.dart';
+import '../utils/logger.dart';
+import '../config/app_config.dart';
 
-enum ConnectionType { none, openclaw, local, cloud }
+enum ConnectionType { none, local, cloud }
 
+/// Connection Manager Service - manages connections to LLM providers
+/// Standardized on OpenClaw Gateway as the sole provider.
 class ConnectionManagerService extends ChangeNotifier {
+  final TunnelService _tunnelService;
   final AuthService _authService;
-  final OpenClawGatewayService _gateway;
 
   String? _selectedModel;
+  CloudStreamingService? _cloudStreamingService;
+  List<String> _availableModels = [];
+  WebSocketChannel? _wsChannel;
+  bool _isConnected = false;
+  final _responseCompleters = <String, Completer<String>>{};
+  final _runIdToCompleter = <String, String>{}; // runId -> requestId mapping
 
   ConnectionManagerService({
+    required TunnelService tunnelService,
     required AuthService authService,
-    required OpenClawGatewayService gateway,
-  })  : _authService = authService,
-        _gateway = gateway {
-    _authService.addListener(notifyListeners);
-    _gateway.addListener(notifyListeners);
+  })  : _tunnelService = tunnelService,
+        _authService = authService {
+    _tunnelService.addListener(_onConnectionChanged);
+    _authService.addListener(_onAuthChanged);
   }
 
-  bool get isConnected => _gateway.isConnected;
-  bool get hasAnyConnection => isConnected;
+  bool get isConnected => _isConnected;
 
-  // Stubs for compatibility
-  bool get hasLocalConnection => false;
-  bool get hasCloudConnection => isConnected;
-  String? get selectedModel => _selectedModel ?? (_getAvailableModels().isNotEmpty ? _getAvailableModels().first : null);
-  List<String> get availableModels => _getAvailableModels();
+  bool get hasLocalConnection =>
+      true; // Force true since we standardized on OpenClaw
+  bool get hasCloudConnection => _tunnelService.isConnected;
+  bool get hasAnyConnection => true;
+  String? get selectedModel => _selectedModel;
+  List<String> get availableModels => _availableModels.isNotEmpty
+      ? _availableModels
+      : ['google-antigravity/gemini-3-flash'];
 
   ConnectionType getBestConnectionType() {
-    return isConnected ? ConnectionType.openclaw : ConnectionType.none;
+    return ConnectionType.local; // Always prefer local OpenClaw Gateway
   }
 
   StreamingService? getStreamingService() {
-    // This will be refactored to use OpenClaw Gateway
-    return null;
+    final connectionType = getBestConnectionType();
+    switch (connectionType) {
+      case ConnectionType.local:
+        _cloudStreamingService ??= CloudStreamingService(
+          baseUrl: AppConfig.defaultGatewayUrl,
+          authService: _authService,
+        );
+        return _cloudStreamingService;
+      case ConnectionType.cloud:
+        _cloudStreamingService ??= CloudStreamingService(
+          authService: _authService,
+        );
+        if (!_cloudStreamingService!.connection.isActive) {
+          _cloudStreamingService!.establishConnection().catchError((e) {
+            appLogger.warning(
+              '[ConnectionManager] Cloud streaming connection failed: $e',
+            );
+          });
+        }
+        return _cloudStreamingService;
+      default:
+        return null;
+    }
   }
 
   Future<String?> sendChatMessage({
@@ -43,12 +81,202 @@ class ConnectionManagerService extends ChangeNotifier {
     required String message,
     List<Map<String, String>>? history,
   }) async {
-    // All chat should go through OpenClaw Gateway
-    return "This is a placeholder. All LLM logic is managed by OpenClaw ONLY.";
+    if (!_isConnected) {
+      await _connectWebSocket();
+    }
+
+    if (!_isConnected) {
+      throw LLMCommunicationError.providerNotFound();
+    }
+
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final completer = Completer<String>();
+    _responseCompleters[id] = completer;
+
+    // Use correct OpenClaw chat.send protocol
+    final request = {
+      'type': 'req',
+      'id': id,
+      'method': 'chat.send',
+      'params': {
+        'sessionKey': 'cloudtolocalllm',
+        'message': message,
+        'idempotencyKey': 'chat-$id',
+      }
+    };
+
+    _wsChannel?.sink.add(jsonEncode(request));
+
+    try {
+      return await completer.future.timeout(const Duration(seconds: 120));
+    } catch (e) {
+      _responseCompleters.remove(id);
+      rethrow;
+    }
+  }
+
+  Future<void> _connectWebSocket() async {
+    if (_wsChannel != null && _isConnected) return;
+
+    final wsUrl = AppConfig.defaultGatewayUrl
+        .replaceFirst('http://', 'ws://')
+        .replaceFirst('https://', 'wss://');
+
+    try {
+      _wsChannel = WebSocketChannel.connect(Uri.parse('$wsUrl/'));
+      
+      await _wsChannel!.ready;
+      
+      // Listen for responses in background
+      _wsChannel!.stream.listen(
+        (data) => _handleWebSocketMessage(data.toString()),
+        onError: (e) {
+          debugPrint('[ConnectionManager] WebSocket error: $e');
+          _isConnected = false;
+        },
+        onDone: () {
+          debugPrint('[ConnectionManager] WebSocket closed');
+          _isConnected = false;
+        },
+      );
+
+      // Do handshake
+      await _performHandshake();
+      _isConnected = true;
+      debugPrint('[ConnectionManager] WebSocket connected to OpenClaw');
+    } catch (e) {
+      debugPrint('[ConnectionManager] WebSocket connection failed: $e');
+      _isConnected = false;
+    }
+  }
+
+  Future<void> _performHandshake() async {
+    final token = await _authService.getAccessToken() ?? '';
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    
+    final connectRequest = {
+      'type': 'req',
+      'id': id,
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cloudtolocalllm',
+          'version': '10.1.187',
+          'platform': 'linux',
+          'mode': 'operator'
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write'],
+        'auth': {'token': token},
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.187',
+      }
+    };
+
+    _wsChannel?.sink.add(jsonEncode(connectRequest));
+    
+    // Wait for hello-ok by listening once
+    try {
+      await for (final data in _wsChannel!.stream.take(5)) {
+        final msg = jsonDecode(data as String);
+        if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('[ConnectionManager] Handshake error: $e');
+    }
+  }
+
+  void _handleWebSocketMessage(String data) {
+    final msg = jsonDecode(data);
+    
+    // Handle chat response (acknowledgment with runId)
+    if (msg['type'] == 'res' && msg['id'] != null) {
+      final completer = _responseCompleters[msg['id']];
+      if (completer != null && !completer.isCompleted) {
+        if (msg['ok'] == true) {
+          // chat.send returns runId, not the response yet
+          // Keep completer open for chat event with state='final'
+          final runId = msg['payload']?['runId'];
+          if (runId != null) {
+            // Store runId -> completer mapping for event handling
+            _runIdToCompleter[runId] = msg['id'];
+          }
+        } else {
+          _responseCompleters.remove(msg['id']);
+          completer.completeError(Exception(msg['error']?['message'] ?? 'Unknown error'));
+        }
+      }
+    }
+    
+    // Handle chat events (final message delivery)
+    if (msg['type'] == 'event' && msg['event'] == 'chat') {
+      final payload = msg['payload'] as Map<String, dynamic>?;
+      final runId = payload?['runId'] as String?;
+      final state = payload?['state'] as String?;
+      
+      if (runId != null && state == 'final') {
+        final reqId = _runIdToCompleter.remove(runId);
+        final completer = reqId != null ? _responseCompleters.remove(reqId) : null;
+        if (completer != null && !completer.isCompleted) {
+          final message = payload?['message'] as Map<String, dynamic>?;
+          final content = message?['content'] as List?;
+          if (content != null) {
+            final textBuffer = StringBuffer();
+            for (final block in content) {
+              if (block is Map && block['type'] == 'text') {
+                textBuffer.write(block['text'] ?? '');
+              }
+            }
+            completer.complete(textBuffer.toString());
+          } else {
+            completer.complete('');
+          }
+        }
+      } else if (state == 'error') {
+        final reqId = runId != null ? _runIdToCompleter.remove(runId) : null;
+        final completer = reqId != null ? _responseCompleters.remove(reqId) : null;
+        if (completer != null && !completer.isCompleted) {
+          completer.completeError(Exception(payload?['errorMessage'] ?? 'Chat error'));
+        }
+      }
+    }
   }
 
   Future<void> initialize() async {
-    _gateway.connect();
+    await testConnection();
+    if (_authService.isAuthenticated.value) {
+      try {
+        await _tunnelService.connect();
+      } catch (e) {
+        debugPrint('[ConnectionManager] Tunnel connection failed: $e');
+      }
+    }
+    _autoSelectModel();
+    notifyListeners();
+  }
+
+  Future<void> testConnection() async {
+    debugPrint(
+        '[ConnectionManager] Testing WebSocket connection to ${AppConfig.defaultGatewayUrl}...');
+
+    try {
+      await _connectWebSocket();
+      
+      if (_isConnected) {
+        _availableModels = ['google-antigravity/gemini-3-flash'];
+        debugPrint('[ConnectionManager] OpenClaw WebSocket verified and ready');
+      } else {
+        _availableModels = ['google-antigravity/gemini-3-flash'];
+        debugPrint('[ConnectionManager] WebSocket connection failed');
+      }
+    } catch (e) {
+      debugPrint('[ConnectionManager] Connection test exception: $e');
+      _availableModels = ['google-antigravity/gemini-3-flash'];
+    }
     notifyListeners();
   }
 
@@ -58,25 +286,55 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   Future<void> reconnectAll() async {
-    _gateway.connect();
+    await testConnection();
+    if (!_tunnelService.isConnected) {
+      try {
+        await _tunnelService.connect();
+      } catch (e) {
+        debugPrint('[ConnectionManager] Tunnel reconnection failed: $e');
+      }
+    }
     notifyListeners();
   }
 
   Map<String, dynamic> getConnectionStatus() {
     return {
-      'connected': isConnected,
-      'gateway_state': _gateway.state.toString(),
+      'local': {'connected': hasLocalConnection, 'models': _availableModels},
+      'cloud': {'connected': hasCloudConnection},
+      'active': getBestConnectionType().name,
+      'selectedModel': _selectedModel,
     };
   }
 
-  List<String> _getAvailableModels() {
-    return ['openclaw-default'];
+  void _autoSelectModel() {
+    if (_selectedModel != null) return;
+    if (_availableModels.isNotEmpty) {
+      setSelectedModel(_availableModels.first);
+    }
+  }
+
+  void _onConnectionChanged() {
+    _autoSelectModel();
+    notifyListeners();
+  }
+
+  void _onAuthChanged() {
+    if (_authService.isAuthenticated.value) {
+      if (!_tunnelService.isConnected) {
+        _tunnelService.connect().catchError((e) {
+          debugPrint(
+              '[ConnectionManager] Tunnel connection failed on auth change: $e');
+        });
+      }
+    }
+    notifyListeners();
   }
 
   @override
   void dispose() {
-    _authService.removeListener(notifyListeners);
-    _gateway.removeListener(notifyListeners);
+    _tunnelService.removeListener(_onConnectionChanged);
+    _authService.removeListener(_onAuthChanged);
+    _cloudStreamingService?.dispose();
     super.dispose();
   }
 }

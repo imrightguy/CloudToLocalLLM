@@ -583,26 +583,18 @@ export class WebhookPayloadTransformer {
 
   /**
    * Apply custom transformation script
+   * SECURITY: Custom scripts are disabled due to code injection risk.
+   * Use predefined transform types (map, filter, enrich) instead.
    *
    * @param {Object} payload - Payload
-   * @param {string} script - Custom script
-   * @returns {Object} Transformed payload
+   * @param {string} script - Custom script (IGNORED for security)
+   * @returns {Object} Original payload (custom scripts disabled)
    */
-  _applyCustomTransform(payload, script) {
-    try {
-      // Create a safe function context
-
-      const transformFn = new Function(
-        'payload',
-        `return (${script})(payload)`,
-      );
-      return transformFn(payload);
-    } catch (error) {
-      logger.error('[WebhookPayloadTransformer] Custom transformation failed', {
-        error: error.message,
-      });
-      return payload;
-    }
+  _applyCustomTransform(payload, _script) {
+    logger.warn(
+      '[WebhookPayloadTransformer] Custom transformation disabled for security. Use map/filter/enrich instead.',
+    );
+    return payload;
   }
 
   /**
@@ -649,18 +641,10 @@ export class WebhookPayloadTransformer {
         return Buffer.from(String(value)).toString('base64');
 
       case 'custom':
-        try {
-          const transformFn = new Function(
-            'value',
-            `return (${transform.fn})(value)`,
-          );
-          return transformFn(value);
-        } catch (error) {
-          logger.error('[WebhookPayloadTransformer] Custom transform failed', {
-            error: error.message,
-          });
-          return value;
-        }
+        logger.warn(
+          '[WebhookPayloadTransformer] Custom transform disabled for security',
+        );
+        return value;
 
       default:
         return value;
@@ -731,15 +715,10 @@ export class WebhookPayloadTransformer {
         return uuidv4();
 
       case 'custom':
-        try {
-          const enrichFn = new Function(`return (${enrichment.value})()`);
-          return enrichFn();
-        } catch (error) {
-          logger.error('[WebhookPayloadTransformer] Custom enrichment failed', {
-            error: error.message,
-          });
-          return null;
-        }
+        logger.warn(
+          '[WebhookPayloadTransformer] Custom enrichment disabled for security',
+        );
+        return null;
 
       default:
         return null;

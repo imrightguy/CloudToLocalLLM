@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Zoidbot AUR PKGBUILD Update Script
-# Updates PKGBUILD with current version and checksum
+# CloudToLocalLLM AUR PKGBUILD Update Script
+# Updates PKGBUILD with current version and checksum for AppImage
 
 set -e
 
@@ -11,6 +11,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PKGBUILD_TEMPLATE="$PROJECT_ROOT/build-tools/packaging/aur/PKGBUILD"
 AUR_OUTPUT_DIR="$PROJECT_ROOT/dist/aur"
 VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)
+GITHUB_REPO="rightguy/CloudToLocalLLM"
 
 # Functions
 print_status() { echo -e "\033[0;34m[INFO]\033[0m $1"; }
@@ -31,15 +32,15 @@ cp "$PKGBUILD_TEMPLATE" "$AUR_OUTPUT_DIR/PKGBUILD"
 # Update version
 sed -i "s/pkgver=VERSION/pkgver=$VERSION/" "$AUR_OUTPUT_DIR/PKGBUILD"
 
-# Calculate checksum if tarball exists locally
-TARBALL="$PROJECT_ROOT/dist/linux/Zoidbot-Linux-x64.tar.gz"
-if [ -f "$TARBALL" ]; then
-    print_status "Calculating checksum for $TARBALL..."
-    CHECKSUM=$(sha256sum "$TARBALL" | cut -d' ' -f1)
+# Calculate checksum if AppImage exists locally
+APPIMAGE="$PROJECT_ROOT/dist/linux/cloudtolocalllm-${VERSION}-x86_64.AppImage"
+if [ -f "$APPIMAGE" ]; then
+    print_status "Calculating checksum for $APPIMAGE..."
+    CHECKSUM=$(sha256sum "$APPIMAGE" | cut -d' ' -f1)
     sed -i "s/sha256sums=('SKIP')/sha256sums=('$CHECKSUM')/" "$AUR_OUTPUT_DIR/PKGBUILD"
     print_success "Updated PKGBUILD with local checksum: $CHECKSUM"
 else
-    print_status "Tarball not found locally, PKGBUILD will use SKIP for checksums"
+    print_status "AppImage not found locally ($APPIMAGE), PKGBUILD will use SKIP for checksums"
 fi
 
 # Generate .SRCINFO if makepkg is available

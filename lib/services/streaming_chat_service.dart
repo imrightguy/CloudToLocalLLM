@@ -29,12 +29,14 @@ class StreamingChatService extends ChangeNotifier {
 
   List<Conversation> _conversations = [];
   Conversation? _currentConversation;
-  String? _selectedModel;
+  String? _selectedModel = 'google-antigravity/gemini-3-flash';
   bool _isLoading = false;
   bool _isStreaming = false;
 
   // Streaming state
   final BehaviorSubject<String> _streamingContentSubject =
+      BehaviorSubject<String>.seeded('');
+  final BehaviorSubject<String> _streamingReasoningSubject =
       BehaviorSubject<String>.seeded('');
   StreamSubscription<StreamingMessage>? _currentStreamSubscription;
   String _currentStreamingMessageId = '';
@@ -49,6 +51,10 @@ class StreamingChatService extends ChangeNotifier {
 
   /// Stream of current streaming content for real-time UI updates
   Stream<String> get streamingContentStream => _streamingContentSubject.stream;
+
+  /// Stream of current streaming reasoning for real-time UI updates
+  Stream<String> get streamingReasoningStream =>
+      _streamingReasoningSubject.stream;
 
   /// Initialize the service
   void _initializeService() {
@@ -285,6 +291,7 @@ class StreamingChatService extends ChangeNotifier {
       // Start streaming
       _setStreaming(true);
       _streamingContentSubject.add('');
+      _streamingReasoningSubject.add('');
 
       final conversationId = _currentConversation!.id;
       final messageStream = streamingService.streamResponse(
@@ -341,13 +348,26 @@ class StreamingChatService extends ChangeNotifier {
     }
 
     if (streamingMessage.isDataChunk) {
-      // Update streaming content
-      final currentContent = _streamingContentSubject.value;
-      final newContent = currentContent + streamingMessage.chunk;
-      _streamingContentSubject.add(newContent);
+      // Update content
+      if (streamingMessage.chunk.isNotEmpty) {
+        final currentContent = _streamingContentSubject.value;
+        final newContent = currentContent + streamingMessage.chunk;
+        _streamingContentSubject.add(newContent);
+      }
+
+      // Update reasoning
+      if (streamingMessage.reasoning != null &&
+          streamingMessage.reasoning!.isNotEmpty) {
+        final currentReasoning = _streamingReasoningSubject.value;
+        final newReasoning = currentReasoning + streamingMessage.reasoning!;
+        _streamingReasoningSubject.add(newReasoning);
+      }
 
       // Update the streaming message in the conversation
-      _updateStreamingMessage(newContent);
+      _updateStreamingMessage(
+        _streamingContentSubject.value,
+        _streamingReasoningSubject.value,
+      );
     }
   }
 
@@ -376,30 +396,45 @@ class StreamingChatService extends ChangeNotifier {
 
     // Convert streaming message to final assistant message
     final finalContent = _streamingContentSubject.value;
-    if (finalContent.isNotEmpty) {
-      _removeLastMessage();
+    final finalReasoning = _streamingReasoningSubject.value;
 
+    // Always remove the streaming placeholder if it exists
+    if (_currentConversation != null &&
+        _currentConversation!.messages.isNotEmpty &&
+        _currentConversation!.messages.last.id == _currentStreamingMessageId) {
+      _removeLastMessage();
+    }
+
+    if (finalContent.isNotEmpty || finalReasoning.isNotEmpty) {
       final assistantMessage = Message.assistant(
         content: finalContent,
+        reasoning: finalReasoning.isNotEmpty ? finalReasoning : null,
         model: _selectedModel!,
       );
       _addMessageToCurrentConversation(assistantMessage);
+
+      // Auto-rename conversation if it's the first message
+      _autoRenameConversation();
+    } else {
+      appLogger
+          .warning('[StreamingChat] Streaming completed with empty content');
     }
 
     // Clear streaming content
     _streamingContentSubject.add('');
+    _streamingReasoningSubject.add('');
     _currentStreamingMessageId = '';
   }
 
   /// Update the streaming message content
-  void _updateStreamingMessage(String content) {
+  void _updateStreamingMessage(String content, String? reasoning) {
     if (_currentConversation == null || _currentStreamingMessageId.isEmpty) {
       return;
     }
 
-    final index = _conversations.indexWhere(
-      (c) => c.id == _currentConversation!.id,
-    );
+    final conversationId = _currentConversation!.id;
+    final index = _conversations.indexWhere((c) => c.id == conversationId);
+
     if (index != -1) {
       final conversation = _conversations[index];
       final messageIndex = conversation.messages.indexWhere(
@@ -409,17 +444,71 @@ class StreamingChatService extends ChangeNotifier {
       if (messageIndex != -1) {
         final updatedMessage = conversation.messages[messageIndex].copyWith(
           content: content,
+          reasoning: reasoning,
         );
 
         final updatedMessages = List<Message>.from(conversation.messages);
         updatedMessages[messageIndex] = updatedMessage;
 
-        _conversations[index] = conversation.copyWith(
+        final updatedConversation = conversation.copyWith(
           messages: updatedMessages,
+          updatedAt: DateTime.now(),
         );
-        _currentConversation = _conversations[index];
+
+        _conversations[index] = updatedConversation;
+        _currentConversation = updatedConversation;
         notifyListeners();
       }
+    }
+  }
+
+  /// Auto-rename the conversation if it's the first message
+  Future<void> _autoRenameConversation() async {
+    final conversation = _currentConversation;
+    if (conversation == null || conversation.title != 'New Chat') {
+      return;
+    }
+
+    // Only rename after the first user message and its assistant response
+    if (conversation.userMessageCount != 1) {
+      return;
+    }
+
+    final firstUserMessage =
+        conversation.messages.firstWhere((m) => m.isUser).content;
+
+    appLogger.debug(
+      '[StreamingChat] Auto-renaming conversation based on: "$firstUserMessage"',
+    );
+
+    try {
+      final prompt =
+          'Generate a short, catchy title (max 5-6 words) for a conversation that starts with: "$firstUserMessage". Respond only with the title text, no quotes or prefix.';
+
+      final newTitle = await _connectionManager.sendChatMessage(
+        model: _selectedModel!,
+        message: prompt,
+        history: [], // Send as a fresh request to avoid context confusion
+      );
+
+      if (newTitle != null && newTitle.trim().isNotEmpty) {
+        var cleanTitle =
+            newTitle.trim().replaceAll('"', '').replaceAll("'", '');
+        // Remove trailing punctuation if it's just a period
+        if (cleanTitle.endsWith('.') && !cleanTitle.endsWith('...')) {
+          cleanTitle = cleanTitle.substring(0, cleanTitle.length - 1);
+        }
+
+        updateConversationTitle(conversation, cleanTitle);
+        appLogger.info(
+          '[StreamingChat] Auto-renamed conversation to: $cleanTitle',
+        );
+      }
+    } catch (e) {
+      appLogger.error(
+        '[StreamingChat] Failed to auto-rename conversation',
+        error: e,
+      );
     }
   }
 
@@ -458,6 +547,9 @@ class StreamingChatService extends ChangeNotifier {
         );
         _addMessageToCurrentConversation(assistantMessage);
         appLogger.debug('[StreamingChat] Fallback chat completed successfully');
+
+        // Auto-rename conversation if it's the first message
+        await _autoRenameConversation();
       } else {
         final errorMessage = Message.assistant(
           content:
@@ -496,6 +588,7 @@ class StreamingChatService extends ChangeNotifier {
     _currentStreamSubscription = null;
     _setStreaming(false);
     _streamingContentSubject.add('');
+    _streamingReasoningSubject.add('');
   }
 
   /// Add message to current conversation
@@ -506,12 +599,13 @@ class StreamingChatService extends ChangeNotifier {
         return;
       }
 
-      final index = _conversations.indexWhere(
-        (c) => c.id == _currentConversation!.id,
-      );
+      final conversationId = _currentConversation!.id;
+      final index = _conversations.indexWhere((c) => c.id == conversationId);
+
       if (index != -1) {
-        _conversations[index] = _conversations[index].addMessage(message);
-        _currentConversation = _conversations[index];
+        final updatedConversation = _conversations[index].addMessage(message);
+        _conversations[index] = updatedConversation;
+        _currentConversation = updatedConversation;
         _saveConversations();
         notifyListeners();
       } else {
@@ -532,19 +626,26 @@ class StreamingChatService extends ChangeNotifier {
         return;
       }
 
-      final index = _conversations.indexWhere(
-        (c) => c.id == _currentConversation!.id,
-      );
-      if (index != -1) {
-        final messages = List<Message>.from(_currentConversation!.messages);
-        messages.removeLast();
+      final conversationId = _currentConversation!.id;
+      final index = _conversations.indexWhere((c) => c.id == conversationId);
 
-        _conversations[index] = _conversations[index].copyWith(
-          messages: messages,
-        );
-        _currentConversation = _conversations[index];
-        _saveConversations();
-        notifyListeners();
+      if (index != -1) {
+        final updatedMessages =
+            List<Message>.from(_conversations[index].messages);
+        if (updatedMessages.isNotEmpty) {
+          updatedMessages.removeLast();
+
+          final updatedConversation = _conversations[index].copyWith(
+            messages: updatedMessages,
+            updatedAt: DateTime.now(),
+          );
+
+          _conversations[index] = updatedConversation;
+          _currentConversation = updatedConversation;
+
+          _saveConversations();
+          notifyListeners();
+        }
       }
     } catch (e) {
       appLogger.error('Error removing last message', error: e);
@@ -606,6 +707,7 @@ class StreamingChatService extends ChangeNotifier {
 
     _cancelCurrentStream();
     _streamingContentSubject.close();
+    _streamingReasoningSubject.close();
     _connectionManager.removeListener(_onConnectionManagerChanged);
     _storageService.dispose();
 

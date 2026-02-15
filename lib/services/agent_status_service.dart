@@ -1,314 +1,187 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../config/app_config.dart';
-
-/// Agent state enumeration
-enum AgentState {
-  idle,
-  thinking,
-  busy,
-  error,
-}
+import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
+import '../database/local_brain.dart';
+import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 /// Agent status data model
 class AgentStatus {
-  final AgentState state;
-  final String message;
-  final DateTime timestamp;
-  final Map<String, dynamic>? metadata;
+  final String id;
+  final String name;
+  final String status;
+  final String? activity;
+  final String? lastUpdate;
 
   AgentStatus({
-    required this.state,
-    required this.message,
-    required this.timestamp,
-    this.metadata,
+    required this.id,
+    required this.name,
+    required this.status,
+    this.activity,
+    this.lastUpdate,
   });
 
   factory AgentStatus.fromJson(Map<String, dynamic> json) {
     return AgentStatus(
-      state: _parseAgentState(json['state'] as String?),
-      message: json['message'] as String? ?? 'No message',
-      timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
-          : DateTime.now(),
-      metadata: json['metadata'] as Map<String, dynamic>?,
+      id: json['sessionId'] ?? '',
+      name: json['key']?.split(':')?.last ?? 'Unknown',
+      status: json['abortedLastRun'] == true ? 'error' : 'active',
+      activity:
+          'Model: ${json['model'] ?? 'unknown'} (${json['inputTokens'] ?? 0} in, ${json['outputTokens'] ?? 0} out)',
+      lastUpdate: json['updatedAt']?.toString(),
     );
-  }
-
-  static AgentState _parseAgentState(String? value) {
-    switch (value?.toLowerCase()) {
-      case 'idle':
-        return AgentState.idle;
-      case 'thinking':
-        return AgentState.thinking;
-      case 'busy':
-        return AgentState.busy;
-      case 'error':
-        return AgentState.error;
-      default:
-        return AgentState.idle;
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'state': state.name,
-      'message': message,
-      'timestamp': timestamp.toIso8601String(),
-      if (metadata != null) 'metadata': metadata,
-    };
-  }
-
-  @override
-  String toString() {
-    return 'AgentStatus(state: $state, message: $message, timestamp: $timestamp)';
   }
 }
 
-/// Service for fetching and managing agent status with retry/backoff logic
+/// Service for polling agent status from OpenClaw
 class AgentStatusService {
-  // Configuration
-  static const int _maxConsecutiveErrors = 5;
-  static const Duration _initialBackoff = Duration(seconds: 1);
-  static const double _backoffMultiplier = 2.0;
-  static const Duration _maxBackoff = Duration(minutes: 5);
-
-  // Stream controllers
-  final _statusController = StreamController<AgentStatus>.broadcast();
-  final _errorController = StreamController<String>.broadcast();
-
-  // State
-  final AppConfig _config = AppConfig();
+  final Logger _logger = Logger();
+  final String _statusUrl;
+  final Duration _pollInterval;
+  final LocalBrain? _db;
   Timer? _pollTimer;
-  Timer? _backoffTimer;
-
-  // Backoff state
   int _consecutiveErrors = 0;
-  DateTime? _backoffUntil;
-  bool _isBackedOff = false;
-  int _currentBackoffIndex = 0;
+  static const _uuid = Uuid();
 
-  // Latest data
-  AgentStatus? _latestStatus;
-  String? _lastError;
+  final StreamController<List<AgentStatus>> _statusController =
+      StreamController<List<AgentStatus>>.broadcast();
+  final StreamController<String?> _errorController =
+      StreamController<String?>.broadcast();
+  List<AgentStatus> _cachedStatuses = [];
 
-  // Getters
-  Stream<AgentStatus> get statusStream => _statusController.stream;
-  Stream<String> get errorStream => _errorController.stream;
-  bool get isBackedOff => _isBackedOff;
-  DateTime? get backoffUntil => _backoffUntil;
-  int get consecutiveErrors => _consecutiveErrors;
-  AgentStatus? get latestStatus => _latestStatus;
-  String? get lastError => _lastError;
+  /// Create a new agent status service
+  ///
+  /// [statusUrl] URL to poll for agent status (default: http://localhost:3000/status.json)
+  /// [pollInterval] How often to poll (default: 2 seconds)
+  AgentStatusService({
+    String? statusUrl,
+    Duration? pollInterval,
+    LocalBrain? db,
+  })  : _statusUrl = statusUrl ?? 'http://127.0.0.1:3000/status.json',
+        _pollInterval = pollInterval ?? const Duration(seconds: 2),
+        _db = db;
 
-  /// Calculate backoff duration with exponential increase
-  Duration _calculateBackoff(int errorCount) {
-    final backoffMs = (_initialBackoff.inMilliseconds *
-            pow(_backoffMultiplier, errorCount - 1))
-        .toInt();
-    final cappedMs = backoffMs.clamp(
-      _initialBackoff.inMilliseconds,
-      _maxBackoff.inMilliseconds,
-    );
-    return Duration(milliseconds: cappedMs);
-  }
+  /// Stream of agent status updates
+  Stream<List<AgentStatus>> get statusStream => _statusController.stream;
 
-  /// Check if we're currently in backoff period
-  bool _checkBackoffStatus() {
-    if (_backoffUntil == null) {
-      return false;
-    }
+  /// Stream of connection errors
+  Stream<String?> get errorStream => _errorController.stream;
 
-    final now = DateTime.now();
-    if (now.isBefore(_backoffUntil!)) {
-      _isBackedOff = true;
-      return true;
-    }
+  /// Get cached agent statuses (synchronous)
+  List<AgentStatus> get currentStatuses => List.unmodifiable(_cachedStatuses);
 
-    // Backoff period has expired
-    _isBackedOff = false;
-    _backoffUntil = null;
-    return false;
-  }
-
-  /// Enter backoff mode after too many consecutive errors
-  void _enterBackoff() {
-    if (_consecutiveErrors < _maxConsecutiveErrors) {
+  /// Start polling for agent status
+  void startPolling() {
+    if (_pollTimer != null && _pollTimer!.isActive) {
+      _logger.d('Agent status polling already started');
       return;
     }
 
-    _currentBackoffIndex++;
-    final backoffDuration = _calculateBackoff(_currentBackoffIndex);
-    _backoffUntil = DateTime.now().add(backoffDuration);
-    _isBackedOff = true;
-
-    debugPrint('[AgentStatusService] Entering backoff for $backoffDuration '
-        'after $_consecutiveErrors consecutive errors');
-
-    // Schedule backoff expiration
-    _backoffTimer?.cancel();
-    _backoffTimer = Timer(backoffDuration, _exitBackoff);
-
-    _errorController.add(
-      'Too many connection errors. Retrying in ${backoffDuration.inSeconds}s...',
-    );
+    _logger.i('Starting agent status polling: $_statusUrl');
+    _scheduleNextPoll();
   }
 
-  /// Exit backoff mode and allow retries
-  void _exitBackoff() {
-    debugPrint('[AgentStatusService] Exiting backoff mode');
-    _isBackedOff = false;
-    _backoffUntil = null;
-    _backoffTimer?.cancel();
-  }
+  /// Schedule next poll with backoff if needed
+  void _scheduleNextPoll() {
+    _pollTimer?.cancel();
 
-  /// Reset the error count (for manual retries)
-  void resetErrorCount() {
-    debugPrint('[AgentStatusService] Resetting error count');
-    _consecutiveErrors = 0;
-    _currentBackoffIndex = 0;
-    _exitBackoff();
-  }
-
-  /// Increment error count and potentially enter backoff
-  void _incrementErrorCount(String error) {
-    _consecutiveErrors++;
-    _lastError = error;
-
-    debugPrint('[AgentStatusService] Connection error ($_consecutiveErrors/$_maxConsecutiveErrors): $error');
-
-    if (_consecutiveErrors >= _maxConsecutiveErrors) {
-      _enterBackoff();
-    } else {
-      _errorController.add(error);
-    }
-  }
-
-  /// Reset success state after a successful fetch
-  void _onSuccess() {
-    _consecutiveErrors = 0;
-    _currentBackoffIndex = 0;
-    _lastError = null;
-    _isBackedOff = false;
-    _backoffUntil = null;
-  }
-
-  /// Fetch agent status from the configured URL
-  Future<AgentStatus?> fetchStatus() async {
-    // Check if we're in backoff mode
-    if (_checkBackoffStatus()) {
-      debugPrint('[AgentStatusService] Skipping fetch: currently in backoff');
-      return null;
+    Duration nextDelay = _pollInterval;
+    if (_consecutiveErrors > 0) {
+      // Exponential backoff: base interval * 2^errors (max 32x interval)
+      int exponent = _consecutiveErrors > 5 ? 5 : _consecutiveErrors;
+      nextDelay = _pollInterval * (1 << exponent);
+      _logger.d(
+          'Applying backoff: polling in ${nextDelay.inSeconds}s (errors: $_consecutiveErrors)');
     }
 
-    await _config.initialize();
-    final url = _config.getAgentStatusUrl();
-    final timeoutMs = _config.getAgentStatusTimeoutMs();
-
-    try {
-      debugPrint('[AgentStatusService] Fetching status from: $url');
-
-      final uri = Uri.parse(url);
-      final request = await HttpClient().openUrl('GET', uri);
-      request.headers.contentType = ContentType.json;
-
-      final response = await request.close().timeout(
-        Duration(milliseconds: timeoutMs),
-        onTimeout: () {
-          throw TimeoutException('Connection timed out after ${timeoutMs}ms');
-        },
-      );
-
-      if (response.statusCode == HttpStatus.ok) {
-        final responseBody = await response.transform(utf8.decoder).join();
-        final jsonData = jsonDecode(responseBody) as Map<String, dynamic>;
-
-        final status = AgentStatus.fromJson(jsonData);
-        _latestStatus = status;
-        _onSuccess();
-
-        _statusController.add(status);
-        debugPrint('[AgentStatusService] Successfully fetched status: $status');
-
-        return status;
-      } else {
-        throw HttpException(
-          'Server returned status code ${response.statusCode}',
-        );
-      }
-    } on SocketException catch (e) {
-      final error = 'Network error: ${e.message}';
-      _incrementErrorCount(error);
-      return null;
-    } on HttpException catch (e) {
-      final error = 'HTTP error: ${e.message}';
-      _incrementErrorCount(error);
-      return null;
-    } on TimeoutException catch (e) {
-      final error = 'Connection timeout: ${e.message ?? "Request timed out"}';
-      _incrementErrorCount(error);
-      return null;
-    } on FormatException catch (e) {
-      final error = 'Invalid response format: ${e.message}';
-      _incrementErrorCount(error);
-      return null;
-    } catch (e) {
-      final error = 'Unexpected error: $e';
-      _incrementErrorCount(error);
-      return null;
-    }
+    _pollTimer = Timer(nextDelay, _poll);
   }
 
-  /// Start periodic polling
-  void startPolling() {
-    stopPolling();
-
-    // Poll immediately on start
-    fetchStatus();
-
-    // Set up periodic polling
-    final prefs = SharedPreferences.getInstance();
-    prefs.then((prefs) {
-      final intervalMs = prefs.getInt('agent_status_poll_interval_ms') ??
-          AppConfig.defaultAgentStatusPollIntervalMs;
-
-      _pollTimer = Timer.periodic(
-        Duration(milliseconds: intervalMs),
-        (_) => fetchStatus(),
-      );
-    });
-  }
-
-  /// Stop periodic polling
+  /// Stop polling for agent status
   void stopPolling() {
     _pollTimer?.cancel();
     _pollTimer = null;
+    _logger.i('Stopped agent status polling');
   }
 
-  /// Restart polling (useful after config changes)
-  void restartPolling() {
-    stopPolling();
-    startPolling();
+  /// Poll status from the server
+  Future<void> _poll() async {
+    try {
+      final response = await http
+          .get(Uri.parse(_statusUrl))
+          .timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data is Map<String, dynamic> && data.containsKey('sessions')) {
+          final sessions = data['sessions'] as List<dynamic>;
+          final statuses = sessions
+              .map((e) => AgentStatus.fromJson(e as Map<String, dynamic>))
+              .toList();
+          _cachedStatuses = statuses;
+          _statusController.add(statuses);
+          _errorController.add(null); // Clear error
+          _consecutiveErrors = 0; // Reset on success
+          _logger.d('Polled agent status: ${statuses.length} sessions');
+
+          // Save to Local Brain
+          if (_db != null) {
+            for (final agent in statuses) {
+              await _db.upsertAgent(AgentsCompanion(
+                id: Value(agent.id),
+                name: Value(agent.name),
+                agentId: Value(agent.id),
+                type: const Value('custom'),
+                status: Value(agent.status),
+                activity: Value(agent.activity),
+                lastUpdate: Value(agent.lastUpdate != null
+                    ? DateTime.tryParse(agent.lastUpdate!)
+                    : null),
+                updatedAt: Value(DateTime.now()),
+              ));
+
+              await _db.addAgentEvent(AgentEventsCompanion(
+                id: Value(_uuid.v4()),
+                agentId: Value(agent.id),
+                eventType: const Value('status_update'),
+                eventData: Value(jsonEncode({
+                  'status': agent.status,
+                  'activity': agent.activity,
+                  'lastUpdate': agent.lastUpdate,
+                })),
+                timestamp: Value(DateTime.now()),
+                synced: const Value(true),
+              ));
+            }
+            _logger.d('Saved ${statuses.length} agents to LocalBrain');
+          }
+        } else {
+          _consecutiveErrors++;
+          _errorController.add('Invalid data from server');
+          _logger.w('Invalid status data received');
+        }
+      } else {
+        _consecutiveErrors++;
+        _errorController.add('Server returned ${response.statusCode}');
+        _logger.w('Failed to poll agent status: ${response.statusCode}');
+      }
+    } catch (e) {
+      _consecutiveErrors++;
+      _errorController.add('Connection error: $e');
+      _logger.e('Error polling agent status: $e');
+    } finally {
+      if (_pollTimer != null) {
+        // Only reschedule if we haven't stopped
+        _scheduleNextPoll();
+      }
+    }
   }
 
   /// Dispose resources
   void dispose() {
     stopPolling();
-    _backoffTimer?.cancel();
     _statusController.close();
-    _errorController.close();
-  }
-
-  /// Power function for backoff calculation
-  static double pow(double base, int exponent) {
-    if (exponent == 0) return 1.0;
-    double result = 1.0;
-    for (int i = 0; i < exponent; i++) {
-      result *= base;
-    }
-    return result;
   }
 }

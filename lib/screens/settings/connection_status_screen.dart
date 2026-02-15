@@ -129,8 +129,8 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
             _buildAuthenticationStatus(),
             SizedBox(height: AppTheme.spacingL),
 
-            // Local Ollama Status
-            _buildLocalOllamaStatus(),
+            // OpenClaw Status
+            _buildOpenClawStatus(),
             SizedBox(height: AppTheme.spacingL),
 
             // Cloud Proxy Status
@@ -195,32 +195,32 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
     );
   }
 
-  Widget _buildLocalOllamaStatus() {
+  Widget _buildOpenClawStatus() {
     return ModernCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Local Ollama', Icons.computer, Colors.orange),
+          _buildSectionHeader('OpenClaw Gateway', Icons.computer, Colors.blue),
           SizedBox(height: AppTheme.spacingM),
-          _buildStatusRow('Connection', 'Checking...', Colors.orange),
+          _buildStatusRow('Connection', 'Checking...', Colors.blue),
           _buildStatusRow(
             'URL',
-            'http://localhost:11434',
+            'http://localhost:18789',
             AppTheme.textColorLight,
           ),
           _buildStatusRow(
             'Platform',
-            kIsWeb ? 'Web (via proxy)' : 'Desktop (direct)',
+            kIsWeb ? 'Web (via relay)' : 'Desktop (direct)',
             AppTheme.textColorLight,
           ),
           SizedBox(height: AppTheme.spacingM),
           ElevatedButton.icon(
             onPressed: () {
-              // Navigate to Ollama test screen
-              Navigator.of(context).pushNamed('/ollama-test');
+              // Navigate to agent status screen
+              context.go('/agent-status');
             },
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('Test Connection'),
+            icon: const Icon(Icons.analytics),
+            label: const Text('View Agent Status'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
               foregroundColor: Colors.white,

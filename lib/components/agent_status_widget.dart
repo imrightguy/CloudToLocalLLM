@@ -1,135 +1,210 @@
 import 'package:flutter/material.dart';
-import '../services/agent_status_service.dart' show AgentState, AgentStatus, AgentStatusService;
+import '../services/agent_status_service.dart';
 
-/// Widget state for loading/error scenarios
-enum WidgetState {
-  loading,  // Initial connection
-  success,  // Successfully showing data
-  error,    // Connection problem
-  empty,    // No agents available (distinct from error)
-}
-
-/// Agent Status Widget with improved error handling and loading states
+/// Widget for displaying agent status with real-time updates
 class AgentStatusWidget extends StatefulWidget {
-  const AgentStatusWidget({super.key});
+  final AgentStatusService service;
+  final bool showDetails;
+  final double? width;
+  final double? height;
+
+  const AgentStatusWidget({
+    super.key,
+    required this.service,
+    this.showDetails = true,
+    this.width,
+    this.height,
+  });
 
   @override
   State<AgentStatusWidget> createState() => _AgentStatusWidgetState();
 }
 
 class _AgentStatusWidgetState extends State<AgentStatusWidget> {
-  final AgentStatusService _service = AgentStatusService();
-
-  AgentStatus? _currentStatus;
-  WidgetState _widgetState = WidgetState.loading;
-  String? _errorMessage;
-  bool _isRetrying = false;
+  List<AgentStatus> _agents = [];
+  String? _error;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadInitialStatus();
+    _agents = widget.service.currentStatuses;
+    if (_agents.isNotEmpty) _isLoading = false;
 
-    // Listen to status updates
-    _service.statusStream.listen((status) {
+    widget.service.statusStream.listen((agents) {
       if (mounted) {
         setState(() {
-          _currentStatus = status;
-          _widgetState = WidgetState.success;
-          _errorMessage = null;
+          _agents = agents;
+          _isLoading = false;
         });
       }
     });
 
-    // Listen to errors
-    _service.errorStream.listen((error) {
+    widget.service.errorStream.listen((error) {
       if (mounted) {
         setState(() {
-          if (_widgetState == WidgetState.loading) {
-            _widgetState = WidgetState.error;
-          }
-          _errorMessage = error;
-          _isRetrying = false;
+          _error = error;
+          if (error != null) _isLoading = false;
         });
       }
     });
-  }
-
-  /// Load initial status
-  Future<void> _loadInitialStatus() async {
-    setState(() {
-      _widgetState = WidgetState.loading;
-      _errorMessage = null;
-    });
-
-    final status = await _service.fetchStatus();
-
-    if (mounted) {
-      setState(() {
-        if (status != null) {
-          _currentStatus = status;
-          _widgetState = WidgetState.success;
-        } else {
-          // Determine if it's "no agents" or "connection problem"
-          if (_service.consecutiveErrors > 0) {
-            _widgetState = WidgetState.error;
-            _errorMessage = 'Connection failed. Tap Retry to reconnect.';
-          } else {
-            _widgetState = WidgetState.empty;
-          }
-        }
-      });
-    }
-  }
-
-  /// User-triggered retry
-  Future<void> _retryConnection() async {
-    if (_isRetrying) return;
-
-    setState(() {
-      _isRetrying = true;
-      _widgetState = WidgetState.loading;
-      _errorMessage = null;
-    });
-
-    // Reset error count to allow immediate retry
-    _service.resetErrorCount();
-
-    final status = await _service.fetchStatus();
-
-    if (mounted) {
-      setState(() {
-        if (status != null) {
-          _currentStatus = status;
-          _widgetState = WidgetState.success;
-        } else {
-          _widgetState = WidgetState.error;
-          _errorMessage = 'Connection failed. Tap Retry to reconnect.';
-        }
-        _isRetrying = false;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _service.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    if (_isLoading) {
+      return _buildLoadingState();
+    }
+
+    if (_error != null && _agents.isEmpty) {
+      return _buildErrorState();
+    }
+
+    if (_agents.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return Container(
+      width: widget.width,
+      height: widget.height,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _agents.length,
+              itemBuilder: (context, index) {
+                return _buildAgentCard(_agents[index]);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Container(
+      width: widget.width,
+      height: widget.height ?? 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildHeader(),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Connecting to OpenClaw...',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Container(
+      width: widget.width,
+      height: widget.height ?? 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 48,
+            ),
             const SizedBox(height: 12),
-            _buildContent(),
+            Text(
+              'Connection Problem',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _error ?? 'Unknown error occurred',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  _isLoading = true;
+                  _error = null;
+                });
+                widget.service.startPolling();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      width: widget.width,
+      height: widget.height ?? 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '🦞',
+              style: TextStyle(fontSize: 48),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No agents detected',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Start an agent session to see status',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+            ),
           ],
         ),
       ),
@@ -138,219 +213,129 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
 
   Widget _buildHeader() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Icon(Icons.psychology, size: 24),
-        const SizedBox(width: 8),
-        const Text(
+        Text(
           'Agent Status',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Spacer(),
-        if (_service.isBackedOff)
-          _buildBackoffBadge(),
-      ],
-    );
-  }
-
-  Widget _buildBackoffBadge() {
-    final remainingMs = _service.backoffUntil
-        ?.difference(DateTime.now())
-        .inMilliseconds
-        .clamp(0, 60000);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.orange.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.schedule, size: 14, color: Colors.orange),
-          const SizedBox(width: 4),
-          Text(
-            'Retry in ${remainingMs ?? 0 ~/ 1000}s',
-            style: const TextStyle(fontSize: 12, color: Colors.orange),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    switch (_widgetState) {
-      case WidgetState.loading:
-        return _buildLoadingState();
-      case WidgetState.success:
-        return _buildSuccessState();
-      case WidgetState.error:
-        return _buildErrorState();
-      case WidgetState.empty:
-        return _buildEmptyState();
-    }
-  }
-
-  Widget _buildLoadingState() {
-    return Column(
-      children: [
-        const CircularProgressIndicator(),
-        const SizedBox(height: 12),
-        Text(
-          _isRetrying ? 'Reconnecting...' : 'Loading agent status...',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSuccessState() {
-    if (_currentStatus == null) {
-      return _buildEmptyState();
-    }
-
-    return Column(
-      children: [
-        _buildStatusIcon(_currentStatus!.state),
-        const SizedBox(height: 8),
-        Text(
-          _currentStatus!.message,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Updated: ${_formatTimestamp(_currentStatus!.timestamp)}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Column(
-      children: [
-        Icon(
-          Icons.error_outline,
-          size: 48,
-          color: Colors.red[400],
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Connection Problem',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.red[700],
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
-        const SizedBox(height: 8),
-        if (_errorMessage != null)
-          Text(
-            _errorMessage!,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: _getStatusColor().withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
           ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: _isRetrying ? null : _retryConnection,
-          icon: _isRetrying
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.refresh),
-          label: Text(_isRetrying ? 'Connecting...' : 'Retry'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Text(
+            '${_agents.length} active',
+            style: TextStyle(
+              color: _getStatusColor(),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
-    return Column(
-      children: [
-        Icon(
-          Icons.inbox_outlined,
-          size: 48,
-          color: Colors.grey[400],
+  Widget _buildAgentCard(AgentStatus agent) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
+          child: Text(
+            _getStatusEmoji(agent.status),
+            style: TextStyle(fontSize: 20),
+          ),
         ),
-        const SizedBox(height: 12),
-        Text(
-          'No Agents Available',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+        title: Text(
+          agent.name,
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 4),
-        Text(
-          'No agent status data received',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
-              ),
+        subtitle: widget.showDetails
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (agent.activity != null)
+                    Text(
+                      agent.activity!,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  if (agent.lastUpdate != null)
+                    Text(
+                      'Updated: ${agent.lastUpdate}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.5),
+                          ),
+                    ),
+                ],
+              )
+            : null,
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            agent.status.toUpperCase(),
+            style: TextStyle(
+              color: _getStatusColorForStatus(agent.status),
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+            ),
+          ),
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildStatusIcon(AgentState state) {
-    IconData icon;
-    Color color;
-
-    switch (state) {
-      case AgentState.idle:
-        icon = Icons.check_circle_outline;
-        color = Colors.green;
-        break;
-      case AgentState.thinking:
-        icon = Icons.psychology;
-        color = Colors.blue;
-        break;
-      case AgentState.busy:
-        icon = Icons.build;
-        color = Colors.orange;
-        break;
-      case AgentState.error:
-        icon = Icons.error_outline;
-        color = Colors.red;
-        break;
+  Color _getStatusColor() {
+    // Return overall status color based on all agents
+    if (_agents.any((a) => a.status == 'error')) {
+      return Colors.red;
+    } else if (_agents.any((a) => a.status == 'busy' || a.status == 'thinking')) {
+      return Colors.orange;
     }
-
-    return Container(
-      width: 64,
-      height: 64,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        icon,
-        size: 32,
-        color: color,
-      ),
-    );
+    return Colors.green;
   }
 
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
+  Color _getStatusColorForStatus(String status) {
+    switch (status) {
+      case 'idle':
+        return Colors.green;
+      case 'active':
+        return Colors.blue;
+      case 'thinking':
+      case 'busy':
+        return Colors.orange;
+      case 'error':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 
-    if (difference.inSeconds < 60) {
-      return '${difference.inSeconds}s ago';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else {
-      return '${difference.inHours}h ago';
+  String _getStatusEmoji(String status) {
+    switch (status) {
+      case 'idle':
+        return '😴';
+      case 'active':
+        return '🚀';
+      case 'thinking':
+        return '🤔';
+      case 'busy':
+        return '⚙️';
+      case 'error':
+        return '❌';
+      default:
+        return '❓';
     }
   }
 }

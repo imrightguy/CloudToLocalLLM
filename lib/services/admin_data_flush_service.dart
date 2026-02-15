@@ -10,7 +10,7 @@ import 'auth_logger.dart';
 import '../utils/web_interop_stub.dart'
     if (dart.library.html) '../utils/web_interop.dart';
 
-/// Administrative data flush service for Zoidbot
+/// Administrative data flush service for CloudToLocalLLM
 ///
 /// Provides secure administrative functionality to clear all user data
 /// when needed for maintenance, testing, or emergency scenarios.
@@ -60,9 +60,9 @@ class AdminDataFlushService extends ChangeNotifier {
       DateTime.now().isBefore(_tokenExpiresAt!);
 
   void _setupDio() {
-    _dio.options.baseUrl = '${AppConfig.apiBaseUrl}/ollama';
-    _dio.options.connectTimeout = const Duration(seconds: 60);
-    _dio.options.receiveTimeout = const Duration(seconds: 60);
+    _dio.options.baseUrl = AppConfig.cloudGatewayUrl;
+    _dio.options.connectTimeout = AppConfig.gatewayTimeout;
+    _dio.options.receiveTimeout = AppConfig.gatewayTimeout;
 
     // Add auth interceptor
     _dio.interceptors.add(
@@ -383,15 +383,15 @@ class AdminDataFlushService extends ChangeNotifier {
     if (!kIsWeb) return;
 
     try {
-      // Clear Zoidbot-specific localStorage keys
+      // Clear CloudToLocalLLM-specific localStorage keys
       final keysToRemove = [
-        'zoidbot_access_token',
-        'zoidbot_id_token',
-        'zoidbot_token_expiry',
-        'zoidbot_authenticated',
-        'zoidbot_auth_logs',
-        'zoidbot_last_validation',
-        'zoidbot_auth_persistent',
+        'cloudtolocalllm_access_token',
+        'cloudtolocalllm_id_token',
+        'cloudtolocalllm_token_expiry',
+        'cloudtolocalllm_authenticated',
+        'cloudtolocalllm_auth_logs',
+        'cloudtolocalllm_last_validation',
+        'cloudtolocalllm_auth_persistent',
       ];
 
       for (final key in keysToRemove) {

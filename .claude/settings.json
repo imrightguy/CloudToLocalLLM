@@ -1,0 +1,100 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "Bash(for:*)",
+      "Bash(do:*)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(jq:*)",
+      "Bash(gh diff:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(gh pr list:*)",
+      "Bash(flutter format:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(cd:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run lint:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi",
+            "background": true
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi",
+            "background": true
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi",
+            "background": true
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi",
+            "background": true
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-sensitive-files.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-context7"
+      ]
+    },
+    "sentry": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.sentry.dev/mcp"
+      ]
+    }
+  }
+}

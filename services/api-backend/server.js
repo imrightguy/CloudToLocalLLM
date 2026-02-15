@@ -1,5 +1,9 @@
-import 'dotenv/config';
+// Import Sentry FIRST to catch all errors from the very beginning
 import * as Sentry from '@sentry/node';
+import dotenv from 'dotenv';
+
+// Load environment variables before anything else
+dotenv.config();
 
 // Initialize Sentry IMMEDIATELY - before any other code runs
 Sentry.init({
@@ -44,10 +48,10 @@ import swaggerUi from 'swagger-ui-express';
 const specs = {
   openapi: '3.0.0',
   info: {
-    title: 'Zoidbot API Backend',
+    title: 'CloudToLocalLLM API Backend',
     version: '2.0.0',
     description:
-      'Comprehensive API for Zoidbot - Bridge cloud AI services with local models',
+      'Comprehensive API for CloudToLocalLLM - Bridge cloud AI services with local models',
   },
   paths: {},
 };
@@ -94,8 +98,7 @@ import quotasRoutes from './routes/quotas.js';
 import rateLimitExemptionsRoutes from './routes/rate-limit-exemptions.js';
 import rateLimitViolationsRoutes from './routes/rate-limit-violations.js';
 import sandboxRoutes from './routes/sandbox.js';
-import agentEventsRoutes from './routes/agent-events.js';
-import agentDashboardRoutes from './routes/agent/dashboard.js';
+import dashboardWSManager from './websocket/dashboard-ws.js';
 import tunnelFailoverRoutes from './routes/tunnel-failover.js';
 import tunnelHealthRoutes from './routes/tunnel-health.js';
 import tunnelSharingRoutes from './routes/tunnel-sharing.js';
@@ -142,7 +145,11 @@ import {
 import rateLimitMetricsRoutes from './routes/rate-limit-metrics.js';
 import prometheusMetricsRoutes from './routes/prometheus-metrics.js';
 import changelogRoutes from './routes/changelog.js';
-import { dashboardWebSocketService } from './services/dashboard-websocket-service.js';
+import agentEventsRoutes from './routes/agent-events.js';
+import subagentRegistryRoutes from './routes/subagent-registry-routes.js';
+import modelsRoutes from './routes/models-routes.js';
+import contextUsageRoutes from './routes/context-usage-routes.js';
+import behaviorWarningsRoutes from './routes/behavior-warnings-routes.js';
 
 // Sentry and dotenv already initialized at top of file
 
@@ -159,7 +166,7 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json(),
   ),
-  defaultMeta: { service: 'zoidbot-api' },
+  defaultMeta: { service: 'cloudtolocalllm-api' },
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
@@ -198,6 +205,7 @@ setupMiddlewarePipeline(app, {
 });
 
 const server = http.createServer(app);
+dashboardWSManager.initialize(server, logger);
 
 // Prevent 502s by ensuring Node keep-alive is longer than Nginx (60s)
 server.keepAliveTimeout = 65000; // 65 seconds
@@ -238,7 +246,7 @@ app.use(
       deepLinking: true,
     },
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Zoidbot API Documentation',
+    customSiteTitle: 'CloudToLocalLLM API Documentation',
   }),
 );
 
@@ -261,7 +269,7 @@ app.use(
       deepLinking: true,
     },
     customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Zoidbot API Documentation',
+    customSiteTitle: 'CloudToLocalLLM API Documentation',
   }),
 );
 
@@ -335,6 +343,10 @@ registerRoutes('/turn', turnCredentialsRoutes);
 
 // Administrative routes
 registerRoutes('/admin', adminRoutes);
+registerRoutes('/admin/behavior-warnings', behaviorWarningsRoutes);
+registerRoutes('/admin/subagents', subagentRegistryRoutes);
+registerRoutes('/admin/models', modelsRoutes);
+registerRoutes('/admin/context-usage', contextUsageRoutes);
 registerRoutes('/admin/users', adminUserRoutes);
 registerRoutes('/admin', adminSubscriptionRoutes);
 
@@ -373,8 +385,6 @@ registerRoutes('/quotas', quotasRoutes);
 registerRoutes('/rate-limit-exemptions', rateLimitExemptionsRoutes);
 registerRoutes('/rate-limit-violations', rateLimitViolationsRoutes);
 registerRoutes('/sandbox', sandboxRoutes);
-registerRoutes('/agent/events', agentEventsRoutes);
-registerRoutes('/agent/dashboard', agentDashboardRoutes);
 registerRoutes('/tunnel-failover', tunnelFailoverRoutes);
 registerRoutes('/tunnel-health', tunnelHealthRoutes);
 registerRoutes('/tunnel-sharing', tunnelSharingRoutes);
@@ -393,6 +403,8 @@ registerRoutes('/webhook-testing', webhookTestingRoutes);
 
 // Infrastructure tunnel management routes (API key authenticated)
 registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
+registerRoutes('/agent/events', agentEventsRoutes);
+app.post('/api/agent/events', agentEventsRoutes);
 
 // LLM Tunnel Cloud Proxy Endpoints (support both /api/ollama and /ollama)
 setSshProxy(sshProxy);
@@ -446,7 +458,7 @@ registerRoutes('/health', (req, res) => {
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        service: 'zoidbot-api',
+        service: 'cloudtolocalllm-api',
         error: 'Health check failed',
         message: error.message,
       });
@@ -498,7 +510,6 @@ server.on('upgrade', (request, socket, head) => {
     .pathname;
 
   if (pathname === '/ssh') {
-    logger.info('Received WebSocket upgrade request for /ssh');
     if (sshProxy && sshProxy.handleUpgrade) {
       logger.info('Received WebSocket upgrade request for /ssh', {
         url: request.url,
@@ -517,9 +528,8 @@ server.on('upgrade', (request, socket, head) => {
       );
       socket.destroy();
     }
-  } else if (pathname === '/dashboard') {
-    logger.info('Received WebSocket upgrade request for /dashboard');
-    dashboardWebSocketService.handleUpgrade(request, socket, head);
+  } else if (pathname === '/dashboard/ws') {
+    dashboardWSManager.handleUpgrade(request, socket, head);
   } else {
     // Let other handlers handle it or destroy
     socket.destroy();
@@ -705,9 +715,6 @@ async function initializeTunnelSystem(retries = 10) {
       // Use the same auth service for SSH proxy
       sshAuthService = authService;
 
-      // Initialize Dashboard WebSocket service
-      dashboardWebSocketService.initialize(server, authService);
-
       // Initialize SSH Proxy
       try {
         sshProxy = new SSHProxy(
@@ -827,6 +834,11 @@ async function gracefulShutdown() {
   }
 }
 
+app.post('/test-hook', (req, res) => {
+  console.log('Received test hook');
+  res.json({ ok: true });
+});
+
 // Start server with enhanced tunnel system
 async function startServer() {
   logger.info('Starting server...');
@@ -834,7 +846,7 @@ async function startServer() {
   // Listen early to pass healthchecks during initialization
   server.listen(PORT, '0.0.0.0', async () => {
     logger.info(
-      `Zoidbot API Backend listening on 0.0.0.0:${PORT} (Initializing...)`,
+      `CloudToLocalLLM API Backend listening on 0.0.0.0:${PORT} (Initializing...)`,
     );
 
     try {
@@ -855,3 +867,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 export { app, server, startServer };
+// Deploy test:

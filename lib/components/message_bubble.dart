@@ -84,23 +84,32 @@ class _MessageBubbleState extends State<MessageBubble>
                         borderRadius: _getBorderRadius(),
                         border: _getBubbleBorder(context),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (widget.message.isStreaming &&
-                              widget.message.content.isEmpty)
-                            _buildTypingIndicator()
-                          else
-                            _buildMessageContent(theme),
-                        ],
+                      child: _buildMessageContent(theme),
+                    ),
+                    // Stable action area to prevent layout shift
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: SizedBox(
+                        height: 32, // Fixed height for action area
+                        child: Row(
+                          mainAxisAlignment: isUser 
+                              ? MainAxisAlignment.end 
+                              : MainAxisAlignment.start,
+                          children: [
+                            Opacity(
+                              opacity: (_isHovered || widget.message.hasError) ? 1.0 : 0.0,
+                              child: MessageActions(
+                                message: widget.message,
+                                onCopy: () => _copyToClipboard(context),
+                                onRetry: widget.onRetry,
+                              ),
+                            ),
+                            // Future functions space
+                            const SizedBox(width: 4),
+                          ],
+                        ),
                       ),
                     ),
-                    if (_isHovered || widget.message.hasError)
-                      MessageActions(
-                        message: widget.message,
-                        onCopy: () => _copyToClipboard(context),
-                        onRetry: widget.onRetry,
-                      ),
                   ],
                 ),
               ),
@@ -168,26 +177,8 @@ class _MessageBubbleState extends State<MessageBubble>
     );
   }
 
-  Widget _buildTypingIndicator() {
-    return const SizedBox(
-      height: 24, // Matches default text height
-      child: MessageContent.streaming(),
-    );
-  }
-
   Widget _buildMessageContent(ThemeData theme) {
-    // This part remains mostly the same as what was in the previous MessageContent widget
-    if (widget.message.isStreaming) {
-      return MessageContent.streaming(content: widget.message.content);
-    }
-    // Handle potential markdown and code blocks here if needed
-    return SelectableText(
-      widget.message.content,
-      style: theme.textTheme.bodyMedium?.copyWith(
-        color: AppTheme.textColor,
-        height: 1.5,
-      ),
-    );
+    return MessageContent(message: widget.message);
   }
 
   void _copyToClipboard(BuildContext context) {

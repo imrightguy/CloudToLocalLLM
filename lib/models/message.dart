@@ -2,6 +2,7 @@
 class Message {
   final String id;
   final String content;
+  final String? reasoning; // Thinking/Reasoning content from the model
   final MessageRole role;
   final DateTime timestamp;
   final String? model; // The LLM model used for assistant messages
@@ -12,6 +13,7 @@ class Message {
   const Message({
     required this.id,
     required this.content,
+    this.reasoning,
     required this.role,
     required this.timestamp,
     this.model,
@@ -36,6 +38,7 @@ class Message {
   /// Create an assistant message
   factory Message.assistant({
     required String content,
+    String? reasoning,
     required String model,
     String? id,
     MessageStatus status = MessageStatus.sent,
@@ -45,6 +48,7 @@ class Message {
     return Message(
       id: id ?? _generateId(),
       content: content,
+      reasoning: reasoning,
       role: MessageRole.assistant,
       timestamp: DateTime.now(),
       model: model,
@@ -84,11 +88,13 @@ class Message {
     required String model,
     String? id,
     String content = '',
+    String? reasoning,
     Map<String, dynamic>? metadata,
   }) {
     return Message(
       id: id ?? _generateId(),
       content: content,
+      reasoning: reasoning,
       role: MessageRole.assistant,
       timestamp: DateTime.now(),
       model: model,
@@ -102,6 +108,7 @@ class Message {
     return Message(
       id: json['id'] ?? '',
       content: json['content'] ?? '',
+      reasoning: json['reasoning'],
       role: MessageRole.values.firstWhere(
         (e) => e.name == json['role'],
         orElse: () => MessageRole.user,
@@ -122,6 +129,7 @@ class Message {
     return {
       'id': id,
       'content': content,
+      'reasoning': reasoning,
       'role': role.name,
       'timestamp': timestamp.toIso8601String(),
       'model': model,
@@ -135,6 +143,7 @@ class Message {
   Message copyWith({
     String? id,
     String? content,
+    String? reasoning,
     MessageRole? role,
     DateTime? timestamp,
     String? model,
@@ -145,6 +154,7 @@ class Message {
     return Message(
       id: id ?? this.id,
       content: content ?? this.content,
+      reasoning: reasoning ?? this.reasoning,
       role: role ?? this.role,
       timestamp: timestamp ?? this.timestamp,
       model: model ?? this.model,

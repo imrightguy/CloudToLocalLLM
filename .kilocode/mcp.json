@@ -1,1 +1,77 @@
-{"mcpServers":{"context7":{"command":"npx","args":["-y","@upstash/context7-mcp"],"env":{"DEFAULT_MINIMUM_TOKENS":""},"alwaysAllow":["resolve-library-id","query-docs"]},"memory":{"command":"npx","args":["-y","@modelcontextprotocol/server-memory"],"alwaysAllow":["create_entities","create_relations","add_observations","delete_entities","delete_observations","delete_relations","read_graph","search_nodes","open_nodes"]},"sequentialthinking":{"command":"npx","args":["-y","@modelcontextprotocol/server-sequential-thinking"],"alwaysAllow":["sequentialthinking"]}}}
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "DEFAULT_MINIMUM_TOKENS": ""
+      },
+      "alwaysAllow": ["query-docs", "resolve-library-id"],
+      "disabled": true
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "alwaysAllow": [
+        "create_entities",
+        "create_relations",
+        "add_observations",
+        "delete_entities",
+        "delete_observations",
+        "delete_relations",
+        "read_graph",
+        "search_nodes",
+        "open_nodes"
+      ]
+    },
+    "sequentialthinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "alwaysAllow": ["sequentialthinking"],
+      "disabled": false
+    },
+    "zai-vision": {
+      "command": "npx",
+      "args": ["-y", "@z_ai/mcp-server"],
+      "env": {
+        "Z_AI_API_KEY": "${Z_AI_API_KEY}",
+        "Z_AI_MODE": "ZAI"
+      },
+      "alwaysAllow": [
+        "ui_to_artifact",
+        "extract_text_from_screenshot",
+        "diagnose_error_screenshot",
+        "understand_technical_diagram",
+        "analyze_data_visualization",
+        "ui_diff_check",
+        "image_analysis",
+        "video_analysis",
+        "analyze_image"
+      ]
+    },
+    "web-reader": {
+      "type": "streamable-http",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
+      },
+      "alwaysAllow": ["webReader"]
+    },
+    "web-search-prime": {
+      "type": "streamable-http",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
+      },
+      "alwaysAllow": ["webSearchPrime"]
+    },
+    "zread": {
+      "type": "streamable-http",
+      "url": "https://api.z.ai/api/mcp/zread/mcp",
+      "headers": {
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
+      },
+      "alwaysAllow": ["search_doc", "get_repo_structure", "read_file"]
+    }
+  }
+}

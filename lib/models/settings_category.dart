@@ -96,13 +96,14 @@ class BaseSettingsCategory implements SettingsCategory {
 /// Predefined category IDs
 class SettingsCategoryIds {
   static const String general = 'general';
-  static const String agentStatus = 'agent_status';
+  static const String localLLMProviders = 'local_llm_providers';
   static const String account = 'account';
   static const String privacy = 'privacy';
   static const String desktop = 'desktop';
   static const String mobile = 'mobile';
   static const String importExport = 'import_export';
   static const String premiumFeatures = 'premium_features';
+  static const String openClawGateway = 'openclaw_gateway';
   static const String adminCenter = 'admin_center';
   static const String about = 'about';
 }
@@ -120,7 +121,8 @@ class CategoryVisibilityRules {
   }) {
     switch (categoryId) {
       case SettingsCategoryIds.general:
-      case SettingsCategoryIds.agentStatus:
+      case SettingsCategoryIds.localLLMProviders:
+      case SettingsCategoryIds.openClawGateway:
       case SettingsCategoryIds.account:
       case SettingsCategoryIds.privacy:
       case SettingsCategoryIds.importExport:
@@ -173,7 +175,6 @@ class SettingsCategoryMetadata {
   /// Standard category priorities (lower = appears first)
   static const int priorityGeneral = 0;
   static const int priorityLocalLLM = 10;
-  static const int priorityAgentStatus = 15;
   static const int priorityAccount = 20;
   static const int priorityPrivacy = 30;
   static const int priorityDesktop = 40;
@@ -187,8 +188,10 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return priorityGeneral;
-      case SettingsCategoryIds.agentStatus:
-        return priorityAgentStatus;
+      case SettingsCategoryIds.localLLMProviders:
+        return priorityLocalLLM;
+      case SettingsCategoryIds.openClawGateway:
+        return 15;
       case SettingsCategoryIds.account:
         return priorityAccount;
       case SettingsCategoryIds.privacy:
@@ -215,8 +218,10 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return Icons.tune;
-      case SettingsCategoryIds.agentStatus:
-        return Icons.psychology;
+      case SettingsCategoryIds.localLLMProviders:
+        return Icons.storage;
+      case SettingsCategoryIds.openClawGateway:
+        return Icons.hub;
       case SettingsCategoryIds.account:
         return Icons.person;
       case SettingsCategoryIds.privacy:
@@ -243,8 +248,10 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return 'General';
-      case SettingsCategoryIds.agentStatus:
-        return 'Agent Status';
+      case SettingsCategoryIds.localLLMProviders:
+        return 'Local LLM Providers';
+      case SettingsCategoryIds.openClawGateway:
+        return 'OpenClaw Gateway';
       case SettingsCategoryIds.account:
         return 'Account';
       case SettingsCategoryIds.privacy:
@@ -271,8 +278,10 @@ class SettingsCategoryMetadata {
     switch (categoryId) {
       case SettingsCategoryIds.general:
         return 'Theme, language, and general preferences';
-      case SettingsCategoryIds.agentStatus:
-        return 'Configure agent status monitoring and connection settings';
+      case SettingsCategoryIds.localLLMProviders:
+        return 'Configure local AI model providers';
+      case SettingsCategoryIds.openClawGateway:
+        return 'Configure the primary AI engine connection';
       case SettingsCategoryIds.account:
         return 'Account information and subscription';
       case SettingsCategoryIds.privacy:

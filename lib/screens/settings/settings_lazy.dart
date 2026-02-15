@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../unified_settings_screen.dart';
 import 'daemon_settings_screen.dart';
 import 'connection_status_screen.dart';
+import 'pricing_screen.dart';
 
 // This file contains the route configuration for the settings screens,
 // which will be lazy-loaded to improve initial application performance.
@@ -40,6 +41,14 @@ final settingsRoutes = [
     builder: (context, state) {
       debugPrint('[Router] Building ConnectionStatusScreen');
       return const ConnectionStatusScreen();
+    },
+  ),
+  GoRoute(
+    path: '/upgrade',
+    name: 'pricing',
+    builder: (context, state) {
+      debugPrint('[Router] Building PricingScreen');
+      return const PricingScreen();
     },
   ),
 ];

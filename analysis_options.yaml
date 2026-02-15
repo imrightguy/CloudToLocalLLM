@@ -8,10 +8,10 @@ analyzer:
     missing_required_param: error
     missing_return: error
   exclude:
+    # Only exclude auto-generated files that should not be manually edited
     - lib/**/*.g.dart
     - lib/**/*.freezed.dart
-    - services/**/*.dart
-    - test/**/*.dart
+    # DO NOT exclude services/ or test/ directories - they must be linted for code quality
 
 linter:
   rules:

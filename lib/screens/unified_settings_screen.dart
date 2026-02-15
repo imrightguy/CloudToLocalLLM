@@ -19,6 +19,7 @@ import '../widgets/settings/mobile_settings_category.dart';
 import '../widgets/settings/admin_settings_category.dart';
 import '../widgets/settings/premium_settings_category.dart';
 import '../widgets/settings/about_settings_category.dart';
+import '../widgets/settings/openclaw_gateway_category.dart';
 import '../utils/responsive_layout.dart';
 import '../di/locator.dart' as di;
 import 'package:go_router/go_router.dart';
@@ -182,6 +183,23 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
         contentBuilder: (context) => AgentStatusSettingsCategory(
           categoryId: SettingsCategoryIds.agentStatus,
           isActive: _activeCategory == SettingsCategoryIds.agentStatus,
+        ),
+      ),
+      BaseSettingsCategory(
+        id: SettingsCategoryIds.openClawGateway,
+        title:
+            SettingsCategoryMetadata.getTitle(SettingsCategoryIds.openClawGateway),
+        icon: SettingsCategoryMetadata.getIcon(SettingsCategoryIds.openClawGateway),
+        description: SettingsCategoryMetadata.getDescription(
+          SettingsCategoryIds.openClawGateway,
+        ),
+        priority: SettingsCategoryMetadata.getPriority(
+          SettingsCategoryIds.openClawGateway,
+        ),
+        isVisible: true,
+        contentBuilder: (context) => OpenClawGatewayCategory(
+          categoryId: SettingsCategoryIds.openClawGateway,
+          isActive: _activeCategory == SettingsCategoryIds.openClawGateway,
         ),
       ),
       BaseSettingsCategory(
@@ -593,6 +611,10 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
             title: Text(
               SettingsCategoryMetadata.getTitle(categoryId),
               style: Theme.of(context).textTheme.titleLarge,
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             backgroundColor: Theme.of(context).colorScheme.surface,
             foregroundColor: Theme.of(context).colorScheme.onSurface,

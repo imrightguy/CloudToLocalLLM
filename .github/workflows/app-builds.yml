@@ -2,6 +2,11 @@ name: "📦 App Builds"
 
 on:
   workflow_call:
+    inputs:
+      version:
+        description: "Version string to apply before build"
+        required: false
+        type: string
     outputs:
       linux_artifact:
         description: "Name of the uploaded Linux bundle"
@@ -17,6 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Update Version
+        if: inputs.version != ''
+        run: |
+          VERSION=${{ inputs.version }}
+          sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
+
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
@@ -43,6 +55,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Update Version
+        if: inputs.version != ''
+        shell: bash
+        run: |
+          VERSION=${{ inputs.version }}
+          sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
 
       - uses: subosito/flutter-action@v2
         with:

@@ -94,4 +94,55 @@ class TokenStorageService {
     await _secureStorage.delete(key: 'token_id_token');
     await _secureStorage.delete(key: 'token_refresh_token');
   }
+
+  // Multi-account support for Gmail/external integrations
+  
+  Future<void> saveTokens({
+    required String provider,
+    required String email,
+    required String accessToken,
+    String? idToken,
+    String? refreshToken,
+  }) async {
+    if (_encrypter == null) await init();
+    
+    await _secureStorage.write(
+      key: 'tokens_$provider:$email:access', 
+      value: _encrypter!.encrypt(accessToken, iv: _iv).base64
+    );
+    
+    if (idToken != null) {
+      await _secureStorage.write(
+        key: 'tokens_$provider:$email:id', 
+        value: _encrypter!.encrypt(idToken, iv: _iv).base64
+      );
+    }
+    
+    if (refreshToken != null) {
+      await _secureStorage.write(
+        key: 'tokens_$provider:$email:refresh', 
+        value: _encrypter!.encrypt(refreshToken, iv: _iv).base64
+      );
+    }
+
+    // Keep track of connected emails for this provider
+    final existing = await getConnectedEmails(provider);
+    if (!existing.contains(email)) {
+      existing.add(email);
+      await _secureStorage.write(key: 'emails_$provider', value: existing.join(','));
+    }
+  }
+
+  Future<List<String>> getConnectedEmails(String provider) async {
+    final str = await _secureStorage.read(key: 'emails_$provider');
+    if (str == null || str.isEmpty) return [];
+    return str.split(',');
+  }
+
+  Future<String?> getAccessToken(String provider, String email) async {
+    if (_encrypter == null) await init();
+    final encrypted = await _secureStorage.read(key: 'tokens_$provider:$email:access');
+    if (encrypted == null) return null;
+    return _encrypter!.decrypt64(encrypted, iv: _iv);
+  }
 }

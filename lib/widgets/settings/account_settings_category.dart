@@ -1,119 +1,777 @@
-import 'package:flutter/material.dart';
-import '../../services/enhanced_user_tier_service.dart';
+/// Account Settings Category Widget
+///
+/// Provides user account information, subscription tier, session details,
+/// logout functionality, and admin center access for admin users.
+library;
 
-class AccountSettingsCategory extends StatefulWidget {
-  const AccountSettingsCategory({Key? key}) : super(key: key);
+import 'package:flutter/material.dart';
+import '../../di/locator.dart' as di;
+import '../../services/auth_service.dart';
+import '../../services/session_storage_service.dart';
+import '../../services/enhanced_user_tier_service.dart';
+import '../../services/admin_center_service.dart';
+import '../../models/user_model.dart';
+import '../../models/session_model.dart';
+import 'settings_category_widgets.dart';
+import 'settings_base.dart';
+
+/// Account Settings Category - User Account and Session Information
+class AccountSettingsCategory extends SettingsCategoryContentWidget {
+  final SessionStorageService? sessionStorageService;
+
+  const AccountSettingsCategory({
+    super.key,
+    required super.categoryId,
+    super.isActive = true,
+    super.onSettingsChanged,
+    this.sessionStorageService,
+  });
 
   @override
-  State<AccountSettingsCategory> createState() => _AccountSettingsCategoryState();
+  Widget buildCategoryContent(BuildContext context) {
+    return _AccountSettingsCategoryContent(
+      sessionStorageService: sessionStorageService,
+    );
+  }
 }
 
-class _AccountSettingsCategoryState extends State<AccountSettingsCategory> {
-  final _tierService = EnhancedUserTierService.instance;
+class _AccountSettingsCategoryContent extends StatefulWidget {
+  final SessionStorageService? sessionStorageService;
+
+  const _AccountSettingsCategoryContent({this.sessionStorageService});
+
+  @override
+  State<_AccountSettingsCategoryContent> createState() =>
+      _AccountSettingsCategoryContentState();
+}
+
+class _AccountSettingsCategoryContentState
+    extends State<_AccountSettingsCategoryContent> {
+  late AuthService _authService;
+  late SessionStorageService _sessionStorage;
+  EnhancedUserTierService? _tierService;
+  AdminCenterService? _adminCenterService;
+
+  // State variables
+  UserModel? _currentUser;
+  SessionModel? _currentSession;
+  bool _isLoading = true;
+  bool _isLoggingOut = false;
+  String? _errorMessage;
+  String? _successMessage;
 
   @override
   void initState() {
     super.initState();
-    // Listen to tier changes
-    _tierService.addListener(_onTierChanged);
+    _authService = di.serviceLocator.get<AuthService>();
+    _sessionStorage = widget.sessionStorageService ?? SessionStorageService();
+
+    // Get tier service if available
+    try {
+      _tierService = di.serviceLocator.get<EnhancedUserTierService>();
+    } catch (e) {
+      debugPrint('[AccountSettings] EnhancedUserTierService not available: $e');
+    }
+
+    // Get admin center service if available
+    try {
+      _adminCenterService = di.serviceLocator.get<AdminCenterService>();
+    } catch (e) {
+      debugPrint('[AccountSettings] AdminCenterService not available: $e');
+    }
+
+    _loadAccountInfo();
   }
 
-  @override
-  void dispose() {
-    _tierService.removeListener(_onTierChanged);
-    super.dispose();
+  /// Load current user and session information
+  Future<void> _loadAccountInfo() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      // Get current user from AuthService
+      _currentUser = _authService.currentUser;
+
+      // Get current session from SessionStorageService
+      _currentSession = await _sessionStorage.getCurrentSession();
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('[AccountSettings] Error loading account info: $e');
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to load account information';
+      });
+    }
   }
 
-  void _onTierChanged() {
-    setState(() {}); // Rebuild on tier change
+  /// Handle logout
+  Future<void> _handleLogout() async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _isLoggingOut = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    try {
+      // Perform logout
+      await _authService.logout();
+
+      setState(() {
+        _isLoggingOut = false;
+        _successMessage = 'Logged out successfully';
+      });
+
+      // Navigate to login screen after a short delay
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          // The router should handle navigation based on auth state
+          // This will be handled by the app's routing logic
+        }
+      });
+    } catch (e) {
+      debugPrint('[AccountSettings] Error during logout: $e');
+      setState(() {
+        _isLoggingOut = false;
+        _errorMessage = 'Failed to logout: ${e.toString()}';
+      });
+    }
+  }
+
+  /// Navigate to Admin Center
+  void _navigateToAdminCenter() {
+    // Navigate to admin center screen
+    // This will be handled by the router
+    Navigator.of(context).pushNamed('/admin');
+  }
+
+  /// Format date for display
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// Get subscription tier display text
+  String _getSubscriptionTier() {
+    if (_tierService != null) {
+      final tier = _tierService!.currentTier;
+      // Capitalize first letter
+      return tier.isEmpty ? 'Free' : tier[0].toUpperCase() + tier.substring(1);
+    }
+    // Fallback to default
+    return 'Free';
+  }
+
+  /// Get subscription tier color
+  Color _getTierColor() {
+    final tier = _tierService?.currentTier ?? 'free';
+    switch (tier) {
+      case 'enterprise':
+        return Colors.purple;
+      case 'premium':
+        return Colors.blue;
+      case 'free':
+      default:
+        return Colors.grey;
+    }
+  }
+
+  /// Get subscription tier icon
+  IconData _getTierIcon() {
+    final tier = _tierService?.currentTier ?? 'free';
+    switch (tier) {
+      case 'enterprise':
+        return Icons.diamond;
+      case 'premium':
+        return Icons.star;
+      case 'free':
+      default:
+        return Icons.info;
+    }
+  }
+
+  /// Get tier description/benefits
+  List<String> _getTierBenefits() {
+    if (_tierService != null) {
+      return _tierService!.tierBenefits;
+    }
+    return ['Basic features', 'Local storage only'];
+  }
+
+  /// Check if user is on free tier
+  bool _isFreeTier() {
+    return (_tierService?.currentTier ?? 'free') == 'free';
+  }
+
+  /// Handle upgrade button press
+  void _handleUpgrade() {
+    // Navigate to upgrade/pricing page
+    // This will be handled by the router
+    Navigator.of(context).pushNamed('/upgrade');
+  }
+
+  /// Check if user is admin
+  bool _isAdminUser() {
+    // First try AdminCenterService
+    if (_adminCenterService != null) {
+      return _adminCenterService!.isAdmin;
+    }
+    // Fallback: cannot determine admin status without service
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Account',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 16),
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        // Current Tier Display
-        Card(
-          child: ListTile(
-            leading: _getTierIcon(),
-            title: Text(_tierService.tierName),
-            subtitle: Text(_getTierDescription()),
-            trailing: _tierService.isPremium
-                ? const Icon(Icons.verified, color: Colors.amber)
-                : const Icon(Icons.lock_outline),
-          ),
+    if (_currentUser == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: Colors.red.shade600),
+            const SizedBox(height: 16),
+            const Text('Failed to load account information'),
+          ],
         ),
-        const SizedBox(height: 16),
+      );
+    }
 
-        // Upgrade Button (only for free tier)
-        if (_tierService.currentTier == UserTier.free)
-          ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Navigate to upgrade page
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Upgrade page coming soon')),
-              );
-            },
-            icon: const Icon(Icons.star),
-            label: const Text('Upgrade to Premium'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber,
-              foregroundColor: Colors.black,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // Success message
+          if (_successMessage != null)
+            SettingsSuccessMessage(
+              message: _successMessage!,
+              onDismiss: () {
+                setState(() {
+                  _successMessage = null;
+                });
+              },
             ),
+
+          // Error message
+          if (_errorMessage != null)
+            SettingsValidationError(
+              message: _errorMessage!,
+              onDismiss: () {
+                setState(() {
+                  _errorMessage = null;
+                });
+              },
+            ),
+
+          // User Profile Section
+          SettingsGroup(
+            title: 'User Profile',
+            description: 'Your account information',
+            children: [
+              // User Email
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Email',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Your email address',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.email, color: Colors.grey.shade600),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _currentUser!.email,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Divider(
+                height: 1,
+                color: Colors.grey.shade300,
+                indent: 16,
+                endIndent: 16,
+              ),
+
+              // Display Name
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Display Name',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Your profile name',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.person, color: Colors.grey.shade600),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _currentUser!.displayName,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
 
-        // Admin Status Check
-        const SizedBox(height: 24),
-        _buildAdminStatus(),
-      ],
+          const SizedBox(height: 16),
+
+          // Subscription Section
+          SettingsGroup(
+            title: 'Subscription',
+            description: 'Your subscription tier and benefits',
+            children: [
+              // Subscription Tier
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Subscription Tier',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Your current subscription level',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: _getTierColor().withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _getTierColor().withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                _getTierIcon(),
+                                color: _getTierColor(),
+                                size: 24,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _getSubscriptionTier(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: _getTierColor(),
+                                      ),
+                                ),
+                              ),
+                              // Upgrade button for free tier
+                              if (_isFreeTier())
+                                FilledButton.icon(
+                                  onPressed: _handleUpgrade,
+                                  icon: const Icon(Icons.upgrade, size: 18),
+                                  label: const Text('Upgrade'),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: _getTierColor(),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Tier benefits
+                          ..._getTierBenefits().take(3).map((benefit) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 16,
+                                    color: _getTierColor().withValues(alpha: 0.7),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    benefit,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Colors.grey.shade700,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Session Section
+          SettingsGroup(
+            title: 'Session',
+            description: 'Your current session information',
+            children: [
+              // Login Time
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Login Time',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'When you logged in',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_time, color: Colors.grey.shade600),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _currentSession != null
+                                  ? _formatDate(_currentSession!.createdAt)
+                                  : 'Not available',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Divider(
+                height: 1,
+                color: Colors.grey.shade300,
+                indent: 16,
+                endIndent: 16,
+              ),
+
+              // Token Expiration
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Token Expiration',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'When your session expires',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.schedule, color: Colors.grey.shade600),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _currentSession != null
+                                  ? _formatDate(_currentSession!.expiresAt)
+                                  : 'Not available',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Admin Section (only for admin users)
+          if (_isAdminUser())
+            SettingsGroup(
+              title: 'Administration',
+              description: 'Admin tools and management',
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _navigateToAdminCenter,
+                      icon: const Icon(Icons.admin_panel_settings),
+                      label: const Text('Open Admin Center'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+          const SizedBox(height: 16),
+
+          // Logout Section
+          SettingsGroup(
+            title: 'Session Management',
+            description: 'Manage your session',
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _isLoggingOut ? null : _handleLogout,
+                    icon: _isLoggingOut
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Icon(Icons.logout),
+                    label: Text(_isLoggingOut ? 'Logging out...' : 'Logout'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.red.shade600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+        ],
+      ),
     );
   }
+}
 
-  Widget _getTierIcon() {
-    switch (_tierService.currentTier) {
-      case UserTier.premium:
-        return const Icon(Icons.workspace_premium, color: Colors.amber);
-      case UserTier.enterprise:
-        return const Icon(Icons.business, color: Colors.blue);
-      default:
-        return const Icon(Icons.person_outline);
-    }
-  }
+/// Settings success message widget
+class SettingsSuccessMessage extends StatelessWidget {
+  final String message;
+  final VoidCallback? onDismiss;
 
-  String _getTierDescription() {
-    switch (_tierService.currentTier) {
-      case UserTier.premium:
-        return 'Premium features unlocked';
-      case UserTier.enterprise:
-        return 'Full enterprise access';
-      default:
-        return 'Basic features included';
-    }
-  }
+  const SettingsSuccessMessage({
+    super.key,
+    required this.message,
+    this.onDismiss,
+  });
 
-  Widget _buildAdminStatus() {
-    // TODO: Check actual admin status from AuthService/AdminService
-    // For now, use hardcoded status
-    final isAdmin = false;
-
-    return Card(
-      child: ListTile(
-        leading: Icon(
-          isAdmin ? Icons.admin_panel_settings : Icons.person,
-          color: isAdmin ? Colors.red : Colors.grey,
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.green.shade50,
+          border: Border.all(color: Colors.green.shade300),
+          borderRadius: BorderRadius.circular(8),
         ),
-        title: Text(isAdmin ? 'Admin Access' : 'User'),
-        subtitle: Text(isAdmin ? 'You have admin privileges' : 'Standard user account'),
-        trailing: isAdmin
-            ? const Icon(Icons.check_circle, color: Colors.green)
-            : const Icon(Icons.circle_outlined, color: Colors.grey),
+        child: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green.shade600),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.green.shade600),
+              ),
+            ),
+            if (onDismiss != null)
+              IconButton(
+                icon: Icon(Icons.close, color: Colors.green.shade600),
+                onPressed: onDismiss,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Settings validation error widget
+class SettingsValidationError extends StatelessWidget {
+  final String message;
+  final VoidCallback? onDismiss;
+
+  const SettingsValidationError({
+    super.key,
+    required this.message,
+    this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          border: Border.all(color: Colors.red.shade300),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red.shade600),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.red.shade600),
+              ),
+            ),
+            if (onDismiss != null)
+              IconButton(
+                icon: Icon(Icons.close, color: Colors.red.shade600),
+                onPressed: onDismiss,
+              ),
+          ],
+        ),
       ),
     );
   }

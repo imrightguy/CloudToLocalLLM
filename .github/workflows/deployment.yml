@@ -66,7 +66,7 @@ jobs:
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
 
@@ -150,6 +150,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Google Auth for GAR
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Login to Google Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
       - uses: subosito/flutter-action@v2
         if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         with:
@@ -159,37 +168,48 @@ jobs:
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+          GAR_REPO=us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images
 
           if [ "${{ needs.ai_change_analysis.outputs.api_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} services/api-backend
+            docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} -t ${GAR_REPO}/api:${VERSION} -t ${GAR_REPO}/api:latest services/api-backend
             docker push ghcr.io/${REPO_LOWER}/api:latest
             docker push ghcr.io/${REPO_LOWER}/api:${VERSION}
+            docker push ${GAR_REPO}/api:${VERSION}
+            docker push ${GAR_REPO}/api:latest
           fi
 
           if [ "${{ needs.ai_change_analysis.outputs.web_needs_build }}" == "true" ]; then
             flutter pub get
             flutter build web --release --no-tree-shake-icons
-            docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/docker/Dockerfile.web .
+            docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ${GAR_REPO}/web:${VERSION} -t ${GAR_REPO}/web:latest -f config/docker/Dockerfile.web .
             docker push ghcr.io/${REPO_LOWER}/web:latest
             docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
+            docker push ${GAR_REPO}/web:${VERSION}
+            docker push ${GAR_REPO}/web:latest
           fi
 
           if [ "${{ needs.ai_change_analysis.outputs.postgres_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -f config/docker/Dockerfile.postgres .
+            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -t ${GAR_REPO}/postgres:${VERSION} -t ${GAR_REPO}/postgres:latest -f config/docker/Dockerfile.postgres .
             docker push ghcr.io/${REPO_LOWER}/postgres:latest
             docker push ghcr.io/${REPO_LOWER}/postgres:${VERSION}
+            docker push ${GAR_REPO}/postgres:${VERSION}
+            docker push ${GAR_REPO}/postgres:latest
           fi
 
           if [ "${{ needs.ai_change_analysis.outputs.streaming_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -f config/docker/Dockerfile.streaming-proxy .
+            docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -t ${GAR_REPO}/streaming:${VERSION} -t ${GAR_REPO}/streaming:latest -f config/docker/Dockerfile.streaming-proxy .
             docker push ghcr.io/${REPO_LOWER}/streaming:latest
             docker push ghcr.io/${REPO_LOWER}/streaming:${VERSION}
+            docker push ${GAR_REPO}/streaming:${VERSION}
+            docker push ${GAR_REPO}/streaming:latest
           fi
 
   build_desktop_apps:
     needs: [ai_change_analysis, run_tests]
     if: always() && (needs.ai_change_analysis.outputs.linux_needed == 'true' || needs.ai_change_analysis.outputs.windows_needed == 'true' || github.event_name == 'workflow_dispatch') && (needs.run_tests.result == 'success' || contains(github.event.head_commit.message, '[skip tests]'))
     uses: ./.github/workflows/app-builds.yml
+    with:
+      version: ${{ needs.ai_change_analysis.outputs.new_version }}
 
   publish_desktop_releases:
     needs: [ai_change_analysis, build_desktop_apps]
@@ -199,6 +219,17 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Update Version Files
+        run: |
+          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+          echo "Updating version to $VERSION"
+          
+          # Update pubspec.yaml
+          sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
+          
+          # Update assets/version.json
+          jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\" | .build_date = \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
 
       - name: Download Linux Bundle
         uses: actions/download-artifact@v4
@@ -214,12 +245,16 @@ jobs:
 
       - name: Package Linux Distributions
         run: |
+          # Install FUSE for AppImage build
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+          
           mkdir -p dist/linux
           # Create standard bundle tarball with a top-level directory
           STAGING_DIR=$(mktemp -d)
-          mkdir -p $STAGING_DIR/zoidbot
-          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/zoidbot/
-          tar -czf dist/linux/Zoidbot-Linux-x64.tar.gz -C $STAGING_DIR zoidbot
+          mkdir -p $STAGING_DIR/cloudtolocalllm
+          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/cloudtolocalllm/
+          tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
 
           # Build .deb package
           chmod +x scripts/packaging/build_deb.sh
@@ -237,7 +272,7 @@ jobs:
         run: |
           mkdir -p dist/windows
           cd build/windows/x64/runner/Release
-          zip -r ../../../../../dist/windows/Zoidbot-Windows-x64.zip .
+          zip -r ../../../../../dist/windows/CloudToLocalLLM-Windows-x64.zip .
           cd ../../../../../
 
       - name: Create GitHub Release
@@ -268,19 +303,27 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
 
-          git clone ssh://aur@aur.archlinux.org/zoidbot.git /tmp/aur-repo
-          cp dist/aur/PKGBUILD /tmp/aur-repo/
+          # Handle initial repository setup
+          if ! git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo; then
+            echo "AUR repository does not exist yet. Creating local placeholder..."
+            mkdir -p /tmp/aur-repo
+            cd /tmp/aur-repo
+            git init
+            git remote add origin ssh://aur@aur.archlinux.org/cloudtolocalllm.git
+          else
+            cd /tmp/aur-repo
+          fi
 
-          cd /tmp/aur-repo
-
+          cp -f $GITHUB_WORKSPACE/dist/aur/PKGBUILD .
+          
           # Generate .SRCINFO using docker
           docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
 
           # Fix permissions as the docker container changed ownership of the files
           sudo chown -R $(id -u):$(id -g) .
 
-          git config user.name "Zoidbot CI"
-          git config user.email "ci@zoidbot.online"
+          git config user.name "CloudToLocalLLM CI"
+          git config user.email "ci@cloudtolocalllm.online"
           git add PKGBUILD .SRCINFO
 
           if git diff --cached --quiet; then
@@ -294,147 +337,36 @@ jobs:
     needs: [ai_change_analysis, build_images]
     if: always() && needs.ai_change_analysis.outputs.components != '' && needs.build_images.result == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - name: Azure Login
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get GCP Config
+        id: gcp_config
         run: |
-          echo "$AZURE_CREDENTIALS" > azure_creds.json
-          SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_creds.json)
-          az login --service-principal -u $(jq -r .clientId azure_creds.json) -p $(jq -r .clientSecret azure_creds.json) --tenant $(jq -r .tenantId azure_creds.json)
-          rm azure_creds.json
+          PROJECT_ID=$(gcloud config get-value project 2>/dev/null || echo "cloudtolocalllm")
+          REGION="us-central1"
+          echo "project_id=$PROJECT_ID" >> $GITHUB_OUTPUT
+          echo "region=$REGION" >> $GITHUB_OUTPUT
+          echo "Using project: $PROJECT_ID, region: $REGION"
 
-          if [ -n "$SUBSCRIPTION_ID" ] && [ "$SUBSCRIPTION_ID" != "null" ]; then
-            echo "✅ Setting subscription: $SUBSCRIPTION_ID"
-            az account set --subscription "$SUBSCRIPTION_ID"
-          else
-            echo "⚠️ No subscriptionId in credentials, using default"
-          fi
+      - name: Deploy API to Cloud Run
+        if: needs.ai_change_analysis.outputs.api_needs_build == 'true'
+        run: gcloud run deploy cloudtolocalllm-api --image us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images/api:${{ needs.ai_change_analysis.outputs.new_version }} --region us-central1 --platform managed --allow-unauthenticated --memory 1Gi --cpu 1 --concurrency 80 --max-instances 3 --min-instances 0
 
-          az account show --query "{subscription:id,name:name}" -o table
-
-      - name: VM Deploy
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER || 'postgres' }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD || 'postgres' }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET || 'secret' }}
-          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
-          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
-          INFRASTRUCTURE_API_KEY: ${{ secrets.INFRASTRUCTURE_API_KEY }}
-          DOCKER_TAG: ${{ needs.ai_change_analysis.outputs.new_version }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_ACTOR: ${{ github.actor }}
-          REPO: ${{ github.repository }}
-        run: |
-          RESOURCE_GROUP="zoidbot-rg"
-          VM_NAME="zoidbot-swarm"
-
-          echo "🔍 Looking for VM: $VM_NAME in $RESOURCE_GROUP"
-
-          if ! az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv > /dev/null 2>&1; then
-            echo "❌ VM $VM_NAME not found in $RESOURCE_GROUP"
-            echo "Attempting fallback lookup..."
-            VM_ID=$(az vm list --query "[?contains(name, 'swarm')].id" -o tsv | head -n 1)
-            if [ -z "$VM_ID" ]; then
-              echo "❌ No Swarm VM found anywhere"
-              exit 1
-            fi
-          else
-            VM_ID=$(az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" --query "id" -o tsv)
-          fi
-
-          echo "✅ Target VM ID: $VM_ID"
-
-          POWER_STATE=$(az vm get-instance-view --ids "$VM_ID" --query "instanceView.statuses[?starts_with(code, 'PowerState/')].displayStatus" -o tsv 2>/dev/null || echo "Unknown")
-          echo "📊 Current power state: $POWER_STATE"
-
-          if [[ "$POWER_STATE" != *"running"* ]]; then
-            echo "🚀 Starting VM..."
-            az vm start --ids "$VM_ID" --no-wait || {
-              echo "⚠️ Start command failed, VM may already be running or starting"
-            }
-            echo "⏳ Waiting for VM to be ready..."
-            sleep 30
-          else
-            echo "✅ VM already running"
-          fi
-
-          echo "🛡️ Ensuring Auto-Shutdown is disabled..."
-          az vm auto-shutdown disable --ids "$VM_ID" --resource-group "$RESOURCE_GROUP" 2>/dev/null || echo "⚠️ Could not disable auto-shutdown (feature might not be enabled or extension missing)"
-
-          # Base64 encode ALL sensitive values to avoid any shell escaping issues
-          PG_PW_B64=$(printf '%s' "$POSTGRES_PASSWORD" | base64 -w0)
-          JWT_B64=$(printf '%s' "$JWT_SECRET" | base64 -w0)
-          CF_B64=$(printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" | base64 -w0)
-          CF_API_B64=$(printf '%s' "$CLOUDFLARE_API_KEY" | base64 -w0)
-          INFRA_API_B64=$(printf '%s' "$INFRASTRUCTURE_API_KEY" | base64 -w0)
-          GH_B64=$(printf '%s' "$GH_TOKEN" | base64 -w0)
-
-          # Write deployment script to file using heredoc
-          # Variables prefixed with $ will be expanded, escape with \$ if literal needed
-          cat > ds.sh << DEPLOY_EOF
-          #!/bin/bash
-          set -e
-          mkdir -p ~/deploy
-          cd ~/deploy
-
-          # Export environment variables
-          export DOCKER_TAG="$DOCKER_TAG"
-          export POSTGRES_USER="$POSTGRES_USER"
-          export POSTGRES_PASSWORD="\$(printf '$PG_PW_B64' | base64 -d)"
-          export JWT_SECRET="\$(printf '$JWT_B64' | base64 -d)"
-          export CLOUDFLARE_TUNNEL_TOKEN="\$(printf '$CF_B64' | base64 -d)"
-          export CLOUDFLARE_API_KEY="\$(printf '$CF_API_B64' | base64 -d)"
-          export INFRASTRUCTURE_API_KEY="\$(printf '$INFRA_API_B64' | base64 -d)"
-          export AUTH0_DOMAIN="dev-vivn1fcgzi0c2czy.us.auth0.com"
-          export AUTH0_AUDIENCE="https://api.zoidbot.online"
-
-          # Clone or update repository
-          if [ ! -d ".git" ]; then
-            git clone https://github.com/$REPO.git .
-          else
-            git fetch origin main && git reset --hard origin/main
-          fi
-
-          # Docker login and deploy
-          printf '$GH_B64' | base64 -d | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
-          docker stack deploy -c docker-stack.yml zoidbot --with-registry-auth
-          DEPLOY_EOF
-
-          echo "📜 Deploying to VM..."
-
-          # Try to invoke the command, if it fails due to agent issues, restart the VM and retry
-          if ! az vm run-command invoke \
-            --resource-group "$RESOURCE_GROUP" \
-            --name "$VM_NAME" \
-            --command-id RunShellScript \
-            --scripts @ds.sh; then
-              echo "⚠️ Deployment failed (likely agent issue). Attempting VM restart and retry..."
-              
-              # Force restart the VM
-              echo "🔄 Restarting VM $VM_NAME..."
-              az vm restart --ids "$VM_ID"
-              
-              echo "⏳ Waiting for VM to boot and agent to initialize (60s)..."
-              sleep 60
-              
-              echo "🔄 Retrying deployment..."
-              az vm run-command invoke \
-                --resource-group "$RESOURCE_GROUP" \
-                --name "$VM_NAME" \
-                --command-id RunShellScript \
-                --scripts @ds.sh
-          fi
-
-      - name: Purge Cloudflare Cache
-        if: success()
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-        run: |
-          echo "🧹 Purging Cloudflare cache to ensure users see the latest version..."
-          chmod +x scripts/cloudflare-cache-purge.sh
-          ./scripts/cloudflare-cache-purge.sh
+      - name: Deploy Web to Cloud Run
+        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
+        run: gcloud run deploy cloudtolocalllm-web --image us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images/web:${{ needs.ai_change_analysis.outputs.new_version }} --region us-central1 --platform managed --allow-unauthenticated --memory 512Mi --cpu 1 --concurrency 100 --max-instances 2 --min-instances 0

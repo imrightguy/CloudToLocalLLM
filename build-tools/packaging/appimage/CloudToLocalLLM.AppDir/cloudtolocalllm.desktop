@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=CloudToLocalLLM
+Exec=cloudtolocalllm
+Icon=cloudtolocalllm
+Type=Application
+Categories=Development;Utility;
+Comment=Privacy-first local AI workspace

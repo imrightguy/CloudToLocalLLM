@@ -13,6 +13,7 @@ import '../services/window_manager_service.dart'
 import '../utils/logger.dart';
 
 /// Ensures the native tray is configured once all required providers exist.
+/// Enhanced with improved error handling and resource monitoring.
 class TrayInitializer extends StatefulWidget {
   const TrayInitializer({
     required this.child,
@@ -33,16 +34,24 @@ class _TrayInitializerState extends State<TrayInitializer> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    appLogger.info('[TrayInitializer] didChangeDependencies called');
     if (_trayInitialized || kIsWeb) {
+      appLogger.info('[TrayInitializer] Already initialized or web, skipping');
       return;
     }
     _trayInitialized = true;
 
+    appLogger.info('[TrayInitializer] Starting async tray init...');
     unawaited(_initializeTray(context));
+    appLogger.info('[TrayInitializer] Tray init scheduled');
   }
 
   Future<void> _initializeTray(BuildContext context) async {
     try {
+      appLogger.info('[TrayInitializer] Starting tray initialization...');
+      
+      // ConnectionManagerService is an authenticated service that may not be available yet
+      // Use Provider.of with listen: false to safely check if it's available
       ConnectionManagerService? connectionManager;
       try {
         connectionManager =
@@ -56,8 +65,11 @@ class _TrayInitializerState extends State<TrayInitializer> {
       final windowManager = WindowManagerService();
       final nativeTray = NativeTrayService();
 
+      appLogger.info('[TrayInitializer] Initializing window manager...');
       await windowManager.initialize();
+      appLogger.info('[TrayInitializer] Window manager initialized');
 
+      appLogger.info('[TrayInitializer] Initializing native tray...');
       final initialized = await nativeTray.initialize(
         connectionManager: connectionManager,
         onShowWindow: windowManager.showWindow,
@@ -72,48 +84,26 @@ class _TrayInitializerState extends State<TrayInitializer> {
             );
           }
         },
-        onQuit: windowManager.forceClose,
+        onQuit: () async {
+          appLogger.info('[TrayInitializer] Quit requested from tray');
+          await windowManager.forceClose();
+        },
       );
+      appLogger.info('[TrayInitializer] Native tray initialized: $initialized');
 
-      if (!initialized) {
-        appLogger.warning(
-          '[TrayInitializer] Native tray initialization reported failure',
-        );
+      if (initialized) {
+        appLogger.info('[TrayInitializer] Native tray initialized');
       } else {
-        appLogger
-            .info('[TrayInitializer] Native tray initialized successfully');
-
-        if (connectionManager == null) {
-          // ignore: use_build_context_synchronously
-          _setupConnectionManagerListener(context, nativeTray);
-        }
+        appLogger.info('[TrayInitializer] Native tray not supported on this platform');
       }
-    } catch (e, stackTrace) {
-      appLogger.error(
-        '[TrayInitializer] Failed to initialize tray',
-        error: e,
-        stackTrace: stackTrace,
-      );
+    } catch (e, st) {
+      appLogger.error('[TrayInitializer] Tray init failed', error: e, stackTrace: st);
     }
   }
 
-  void _setupConnectionManagerListener(
-      BuildContext context, NativeTrayService nativeTray) {
-    Timer.periodic(const Duration(seconds: 2), (timer) {
-      try {
-        if (!mounted) return;
-        // ignore: use_build_context_synchronously
-        final connectionManager =
-            Provider.of<ConnectionManagerService>(context, listen: false);
-        appLogger.info(
-            '[TrayInitializer] ConnectionManagerService now available, updating tray');
-        nativeTray.updateConnectionManager(connectionManager);
-        timer.cancel();
-      } catch (e) {
-      }
-    });
-  }
-
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    appLogger.info('[TrayInitializer] build() called');
+    return widget.child;
+  }
 }

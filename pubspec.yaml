@@ -1,15 +1,19 @@
-name: zoidbot
-description: Your expressive AI sidekick for local LLMs, orchestrated via a cloud interface.
+name: cloudtolocalllm
+description: Manage and run powerful Large Language Models locally, orchestrated via a cloud interface.
 publish_to: none
-homepage: https://zoidbot.online
-repository: https://github.com/Zoidbot/Zoidbot
-version: 10.1.187+4120
+homepage: https://cloudtolocalllm.online
+repository: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
+version: 10.1.200+4200
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
-  sentry_flutter: ^9.8.0
+  # HTTP Server for LLM Router
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
+
+  sentry_flutter: ^9.13.0
   flutter:
     sdk: flutter
 
@@ -23,29 +27,33 @@ dependencies:
   auth0_flutter: ^1.5.0
   shared_preferences: ^2.5.4
 
+  # Database - Local Brain
+  drift: ^2.20.0
+  sqlite3_flutter_libs: ^0.5.24
+
   # Error tracking
   url_launcher: ^6.3.2
 
   # HTTP and Web
   intl: ^0.20.2
   http: ^1.2.2
-  flutter_inappwebview: ^6.1.5
 
   # Streaming and WebSocket support
   web_socket_channel: ^3.0.3
 
   # Enhanced HTTP handling for streaming
-  dio: ^5.9.0
+  dio: ^5.9.1
 
   # Real-time event handling
   rxdart: ^0.28.0
 
+  # Google APIs for Local Integration
+  googleapis: ^13.1.0
+  googleapis_auth: ^1.6.0
+  google_sign_in: ^6.2.1
+
   # System Integration - Flutter plugins for window management and secure storage
   window_manager: ^0.5.1
-  system_tray: any
-  local_notifier: any
-  process_run: ^1.1.1
-  device_info_plus: ^11.3.0
 
   flutter_secure_storage: ^9.2.2
   mutex: ^3.0.1
@@ -56,10 +64,7 @@ dependencies:
   tray_manager: ^0.5.2
 
   # UUID generation
-  uuid: any
-
-  # Discord Bot Integration
-  nyxx: ^6.3.0
+  uuid: ^4.5.2
 
   # Encryption for local storage
   encrypt: ^5.0.3
@@ -70,13 +75,16 @@ dependencies:
   # SSH tunneling
   dartssh2: ^2.9.0
 
-  # System Integration
+  # LangChain Integration
+  langchain: ^0.8.0+1
+  langchain_ollama: ^0.4.1
+  langchain_community: ^0.4.0+1
   get_it: ^9.0.5
   logger: ^2.6.2
 
   # Web interop for dart:js_interop
   web: ^1.0.0
-  app_links: ^6.3.0
+  app_links: ^7.0.0
 
   meta: any
   package_info_plus: ^9.0.0
@@ -84,6 +92,11 @@ dependencies:
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0
   flutter_lints: ^6.0.0
+  
+  # Code Generation for Database
+  drift_dev: ^2.20.0
+  build_runner: ^2.4.11
+
   flutter_test:
     sdk: flutter
   integration_test:
@@ -93,9 +106,9 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#181a20"
-  image: assets/images/app_icon.png
+  image: assets/images/lobster_avatar.png
   color_dark: "#181a20"
-  image_dark: assets/images/app_icon.png
+  image_dark: assets/images/lobster_avatar.png
 
   web: true
   android: true
@@ -108,11 +121,14 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/lobster_avatar.png
+    - assets/images/lobster_avatar_64.png
+    - assets/images/lobster_avatar_128.png
     - assets/version.json
     - assets/component-versions.json
 
 sentry:
   upload_debug_symbols: true
   upload_source_maps: true
-  project: zoidbot
-  org: zoidbot-lg
+  project: cloudtolocalllm
+  org: cloudtolocalllm-lg

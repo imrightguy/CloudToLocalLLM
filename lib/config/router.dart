@@ -6,18 +6,24 @@ import '../services/auth_service.dart';
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/callback_screen.dart';
-import '../screens/dashboard/dashboard_screen.dart';
-import '../features/browser/agent_browser_page.dart';
-import '../features/system/system_hub_page.dart';
 
 // Settings screens are lazy-loaded
 import '../screens/settings/settings_lazy.dart' as settings_lazy;
 
-// Admin screens are lazy-loaded
+// GUI Automation screen (lazy-loaded)
+import '../screens/gui_automation_lazy.dart' as gui_automation_lazy;
+
+// Admin screens (lazy-loaded)
 import '../screens/admin/admin_lazy.dart' as admin_lazy;
+
+// Agent status screen is lazy-loaded
+import '../screens/agent_status_lazy.dart' as agent_status_lazy;
 
 // Marketing screens (web-only) are lazy-loaded
 import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
+
+// Construction screen (lazy-loaded)
+import '../screens/construction_lazy.dart' as construction_lazy;
 
 /// Utility function to get the current hostname in web environment
 String _getCurrentHostname() {
@@ -37,7 +43,7 @@ bool _isAppSubdomain() {
 
   final hostname = _getCurrentHostname();
   final isApp = hostname.startsWith('app.') ||
-      hostname == 'app.zoidbot.online' ||
+      hostname == 'app.cloudtolocalllm.online' ||
       hostname == 'localhost' ||
       hostname == '127.0.0.1';
 
@@ -106,14 +112,13 @@ class AppRouter {
             final isAuthenticated = authService.isAuthenticated.value;
             final isAppDomain = _isAppSubdomain();
 
-            if (isAuthenticated) return const HomeScreen();
+            if (isAuthenticated || !kIsWeb) return const HomeScreen();
 
             if (kIsWeb && !isAppDomain) {
               return const marketing_lazy.HomepageScreen();
             }
 
-            // ALLOW HOME SCREEN WITHOUT AUTH
-            return const HomeScreen();
+            return const LoginScreen();
           },
         ),
 
@@ -122,7 +127,7 @@ class AppRouter {
           path: '/chat',
           name: 'chat',
           builder: (context, state) {
-            if (!authService.isAuthenticated.value) {
+            if (!authService.isAuthenticated.value && kIsWeb) {
               debugPrint(
                   '[Router] /chat requested but not authenticated, going to /login');
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -139,6 +144,9 @@ class AppRouter {
         ...marketing_lazy.marketingRoutes,
         ...settings_lazy.settingsRoutes,
         ...admin_lazy.adminRoutes,
+        ...agent_status_lazy.agentStatusRoutes,
+        ...gui_automation_lazy.guiAutomationRoutes,
+        ...construction_lazy.constructionRoutes,
 
         GoRoute(
           path: '/login',
@@ -163,24 +171,6 @@ class AppRouter {
                 : Uri.base.queryParameters;
             return CallbackScreen(queryParams: params);
           },
-        ),
-
-        GoRoute(
-          path: '/dashboard',
-          name: 'dashboard',
-          builder: (context, state) => const DashboardScreen(),
-        ),
-
-        GoRoute(
-          path: '/browser',
-          name: 'browser',
-          builder: (context, state) => const AgentBrowserPage(),
-        ),
-
-        GoRoute(
-          path: '/system',
-          name: 'system',
-          builder: (context, state) => const SystemHubPage(),
         ),
       ],
       redirect: (context, state) {
@@ -219,10 +209,7 @@ class AppRouter {
         }
 
         // 5. Unauthenticated state on App domain or Desktop
-        if (isLoggingIn || isCallback) return null; // Allow these
-
-        // ALLOW ACCESS TO HOME EVEN IF UNAUTHENTICATED
-        if (state.matchedLocation == '/') return null;
+        if (isLoggingIn || isCallback || !kIsWeb) return null; // Allow these (Desktop is always allowed)
 
         // Redirect all other protected routes to login
         debugPrint(
