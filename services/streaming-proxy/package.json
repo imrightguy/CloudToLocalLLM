@@ -38,7 +38,7 @@
     "stripe": "^20.0.0",
     "uuid": "^9.0.1",
     "winston": "^3.19.0",
-    "ws": "^8.18.0"
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
