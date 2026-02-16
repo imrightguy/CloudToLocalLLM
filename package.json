@@ -16,7 +16,7 @@
     "@aws-sdk/client-cloudwatch": "^3.968.0",
     "@aws-sdk/client-cost-explorer": "^3.986.0",
     "@modelcontextprotocol/sdk": "^1.24.3",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.58.2",
     "axios": "^1.13.5",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
