@@ -24,7 +24,7 @@ importers:
         specifier: ^1.13.5
         version: 1.13.5
       dotenv:
-        specifier: ^17.2.4
+        specifier: ^17.3.1
         version: 17.3.1
       express:
         specifier: ^5.2.1
