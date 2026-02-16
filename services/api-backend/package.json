@@ -51,7 +51,7 @@
     "jwks-rsa": "^3.2.0",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.10",
-    "pg": "^8.16.3",
+    "pg": "^8.18.0",
     "prom-client": "^15.1.3",
     "rate-limit-redis": "^4.2.0",
     "ssh2": "^1.15.0",
