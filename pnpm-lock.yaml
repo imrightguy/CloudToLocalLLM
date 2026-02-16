@@ -79,7 +79,7 @@ importers:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@25.2.2)
       jsonwebtoken:
-        specifier: ^9.0.2
+        specifier: ^9.0.3
         version: 9.0.3
       nodemon:
         specifier: ^3.0.1
