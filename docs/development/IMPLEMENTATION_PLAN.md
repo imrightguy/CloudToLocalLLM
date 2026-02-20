@@ -2,7 +2,7 @@
 
 **CloudToLocalLLM** is an OpenClaw Agent Manager — a privacy-first desktop AI companion organized around five core pillars.
 
-> **Last Updated**: 2026-02-20 | **Overall Progress**: ~45% complete | **Estimated Timeline**: 8 weeks
+> **Last Updated**: 2026-02-20 | **Overall Progress**: ~50% complete | **Estimated Timeline**: 8 weeks
 
 ---
 
@@ -11,8 +11,8 @@
 | Pillar | Status | Progress | Next Step |
 |--------|--------|----------|-----------|
 | **Setup Wizard** | ✅ Complete | 100% | None |
-| **Chat** | 🟡 Phase 1 | 75% | OpenClaw provider selector |
-| **OpenClaw Manager** | 🟡 Phase 1 | 75% | Provider switching API |
+| **Chat** | ✅ Phase 1 Complete | 85% | Multi-model attachments |
+| **OpenClaw Manager** | ✅ Phase 1 Complete | 85% | Advanced metrics |
 | **Evolving Avatar** | 🔲 Basic | 20% | Personality engine |
 | **Desktop Control** | 🟡 Partial | 40% | Window management |
 | **Vision** | 🟡 Partial | 30% | Region capture + OCR |
@@ -24,7 +24,7 @@
 | Phase | Focus | Duration | Status | Key Deliverables |
 |-------|-------|----------|--------|------------------|
 | **Phase 0** | Setup Wizard | Week 1 | ✅ Complete | Onboarding flow, provider detection |
-| **Phase 1** | Foundation | Weeks 2-3 | 🟡 In Progress | Provider selector, gateway control, chat search |
+| **Phase 1** | Foundation | Weeks 2-3 | ✅ Complete | Provider selector, gateway control, chat search |
 | **Phase 2** | Core Features | Weeks 4-6 | 🔲 Pending | Avatar personality/evolution, clipboard, file ops |
 | **Phase 3** | Advanced | Weeks 7-8 | 🔲 Pending | Camera/OCR, avatar memory, achievements, macros |
 
@@ -109,7 +109,7 @@ Guide new users through OpenClaw Gateway configuration with support for:
 
 ---
 
-## Phase 1: Foundation (Chat + OpenClaw Manager) 🟡 IN PROGRESS
+## Phase 1: Foundation (Chat + OpenClaw Manager) ✅ COMPLETE
 
 ### Prerequisites ✅
 
@@ -121,111 +121,37 @@ Guide new users through OpenClaw Gateway configuration with support for:
 
 | Task | File(s) | Status |
 |------|---------|--------|
-| Implement OpenClaw provider selector | `lib/services/connection_manager_service.dart` | 🔲 Pending |
+| Implement OpenClaw provider selector | `lib/services/connection_manager_service.dart` | ✅ Complete |
 | Add gateway auto-restart on crash | `lib/services/openclaw_manager/gateway_control_service.dart` | ✅ Complete |
 | Add chat message search UI | `lib/components/conversation_list.dart` | ✅ Complete |
 | Enhance rich message rendering | `lib/components/message_content.dart` | ✅ Complete |
 
-**Total Time**: ~15 hours | **In Progress**: 2026-02-20
+**Total Time**: ~15 hours | **Completed**: 2026-02-20
 
-### Completed Tasks
+### Completed Tasks Summary
 
-1. **Gateway Auto-Restart** (`gateway_control_service.dart`) ✅
+1. **OpenClaw Provider Selector** ✅
+   - Created `OpenClawProvider`, `OpenClawModel`, `OpenClawProviderConfig` models
+   - Added `fetchProviderConfig()` - Fetches from OpenClaw Gateway API or config file
+   - Added `setActiveProvider()` - Switches provider via `POST /api/v1/provider`
+   - Added `getProvider()`, `getModel()` - Helper methods for provider lookup
+   - Updated `ModelSelector` widget with provider icons and display names
+   - Model format: `provider-name/model-id` (e.g., "zhipu/glm-4-plus")
+   - Display: "GLM (4 Plus)", "Gemini (Pro)", "Kimi (K2.5)"
+
+2. **Gateway Auto-Restart** ✅
    - Health check loop every 30 seconds
    - Auto-restart on crash with exponential backoff
    - Max 5 retry attempts before disabling
-   - Toggle for auto-restart feature
 
-2. **Chat Message Search** (`conversation_list.dart`) ✅
+3. **Chat Message Search** ✅
    - Search in conversation titles and message content
    - Real-time filtering as user types
-   - Collapsible search UI
 
-3. **Rich Message Rendering** (`message_content.dart`) ✅
+4. **Rich Message Rendering** ✅
    - Markdown support with `flutter_markdown`
    - Code block detection and syntax highlighting
    - Reasoning/thinking display
-
-### Pending Task: OpenClaw Provider Selector
-
-**Goal**: Implement provider switching via OpenClaw Gateway API
-
-**OpenClaw Provider Configuration Format:**
-
-```json
-{
-  "models": {
-    "providers": {
-      "zhipu": {
-        "baseUrl": "https://open.bigmodel.cn/api/paas/v4",
-        "apiKey": "${ZHIPU_API_KEY}",
-        "api": "openai-completions",
-        "models": ["glm-4-plus", "glm-4", "glm-4-flash"]
-      },
-      "google": {
-        "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
-        "apiKey": "${GOOGLE_API_KEY}",
-        "api": "google-gemini",
-        "models": ["gemini-pro", "gemini-flash"]
-      },
-      "moonshot": {
-        "baseUrl": "https://api.moonshot.cn/v1",
-        "apiKey": "${MOONSHOT_API_KEY}",
-        "api": "openai-completions",
-        "models": ["kimi-k2.5", "moonshot-v1-8k"]
-      }
-    }
-  },
-  "agents": {
-    "defaults": {
-      "model": {
-        "primary": "zhipu/glm-4-plus"
-      }
-    }
-  }
-}
-```
-
-**Implementation Required:**
-
-```dart
-// lib/services/connection_manager_service.dart
-
-class ConnectionManagerService extends ChangeNotifier {
-  // Fetch available providers from OpenClaw Gateway config
-  Future<List<OpenClawProvider>> getAvailableProviders() async {
-    // Option 1: Read OpenClaw config file directly
-    // Option 2: Call OpenClaw API: GET /api/v1/providers
-    // Returns: [{"name": "zhipu", "models": ["glm-4-plus", ...]}, ...]
-  }
-
-  // Get current active provider
-  Future<String?> getActiveProvider() async {
-    // Call: GET /api/v1/provider
-    // Returns: "zhipu/glm-4-plus"
-  }
-
-  // Set active provider
-  Future<void> setActiveProvider(String providerModelId) async {
-    // Call: POST /api/v1/provider
-    // Body: {"provider": "zhipu/glm-4-plus"}
-    // Format: provider-name/model-id
-  }
-
-  // Watch for provider changes
-  Stream<String?> watchActiveProvider() {
-    // Emit updates when provider changes
-  }
-}
-
-class OpenClawProvider {
-  final String name;
-  final String displayName;
-  final List<String> models;
-
-  OpenClawProvider({required this.name, required this.displayName, required this.models});
-}
-```
 
 ---
 
