@@ -1,13 +1,18 @@
-# Zoidbot Documentation Index
+# CloudToLocalLLM Documentation Index
 
-Welcome to the consolidated documentation for Zoidbot.
+> **Master Specification**: See [SPEC.md](../SPEC.md) for the complete project vision, architecture, and feature definitions.
+
+Welcome to the consolidated documentation for CloudToLocalLLM — OpenClaw Agent Manager.
 
 ## 📚 Documentation Categories
 
 ### 🏗️ [Architecture](architecture/)
 
 - [System Architecture](architecture/SYSTEM_ARCHITECTURE.md) - Core design and data flow.
-- [Tunnel System](architecture/TUNNEL_SYSTEM.md) - Deep dive into local-cloud bridge.
+- [Avatar System](architecture/AVATAR_SYSTEM.md) - Evolving visual character and personality.
+- [Desktop Control](architecture/DESKTOP_CONTROL.md) - GUI automation and system integration.
+- [Vision System](architecture/VISION_SYSTEM.md) - Screen and camera capabilities.
+- [Tunnel System](architecture/TUNNEL_SYSTEM.md) - Deep dive into local-cloud bridge (optional).
 
 ### 👨‍💻 [Development](development/)
 

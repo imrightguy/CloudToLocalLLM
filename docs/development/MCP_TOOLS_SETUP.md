@@ -1,306 +1,405 @@
 # MCP Tools Setup and Configuration
 
-This document describes the Model Context Protocol (MCP) tools configured for efficient development of Zoidbot.
+This document describes the Model Context Protocol (MCP) tools configured for efficient development of CloudToLocalLLM (Zoidbot).
 
 ## Overview
 
-MCP tools provide specialized capabilities for interacting with external services, automating tasks, and enhancing development workflows. All MCP servers are configured in `~/.cursor/mcp.json`.
+MCP tools provide specialized capabilities for interacting with external services, automating tasks, and enhancing development workflows. All MCP servers are configured in `.claude/settings.json` (Claude Code) and `.vscode/settings.json` (VS Code).
 
 ## Configured MCP Servers
 
 > **Mandatory Framework**: The **Sequential Thinking** MCP server is the primary framework for all complex development tasks. It must be used in conjunction with a **documentation-first methodology** to ensure systematic analysis.
 
-### 1. Sequential Thinking (`sequentialthinking`)
+### Knowledge & Documentation
 
-- **Purpose**: Primary framework for systematic reasoning, complex problem-solving, and iterative analysis.
+#### 1. Context7 (`context7`)
+
+- **Purpose**: Library documentation and knowledge base retrieval for Flutter, Node.js, Auth0, and other dependencies
+- **Package**: `@modelcontextprotocol/server-context7`
+- **Use Cases**:
+  - Looking up Flutter package documentation
+  - Finding Node.js API patterns
+  - Auth0 integration examples
+  - Best practices for libraries
+
+#### 2. Sequential Thinking (`sequentialthinking`)
+
+- **Purpose**: Primary framework for systematic reasoning, complex problem-solving, and iterative analysis
 - **Package**: `@modelcontextprotocol/server-sequential-thinking`
-- **Mandate**: **REQUIRED** for all multi-step tasks and architectural decisions.
+- **Mandate**: **REQUIRED** for all multi-step tasks and architectural decisions
+- **Use Cases**:
+  - Planning complex implementations
+  - Breaking down multi-file refactors
+  - Validating architectural decisions
+  - Systematic troubleshooting
 
-### 2. GitHub (`github`)
+#### 3. Memory (`memory`)
 
-- **Purpose**: GitHub repository and CI/CD management
-- **Package**: `@modelcontextprotocol/server-github`
-- **Capabilities**:
-  - Manage workflows
-  - Create secrets
-  - Trigger deployments
-  - Manage releases
-  - Pull requests
-  - Issues
-  - File operations
-- **Environment Variables**: `GITHUB_TOKEN` (GitHub Personal Access Token)
+- **Purpose**: Persistent knowledge store for project decisions, architectural notes, and ongoing work across sessions
+- **Package**: `@modelcontextprotocol/server-memory`
+- **Use Cases**:
+  - Storing architectural decisions
+  - Remembering context between sessions
+  - Tracking ongoing work items
+  - Retrieving project-specific patterns
 
-### 2. Filesystem (`filesystem`)
+### Development Tools
 
-- **Purpose**: File system operations for project files
+#### 4. Filesystem (`filesystem`)
+
+- **Purpose**: Structured file system operations for reading, writing, and searching files
 - **Package**: `@modelcontextprotocol/server-filesystem`
-- **Capabilities**:
-  - Read files
-  - Write files
-  - List directory
-  - Search files
-- **Scope**: `/home/rightguy/dev/Zoidbot`
+- **Scope**: `/mnt/data/dev/CloudToLocalLLM`
+- **Use Cases**:
+  - Reading project files
+  - Writing new files
+  - Searching code patterns
+  - Directory traversal
 
-### 3. PostgreSQL (`postgres`)
+#### 5. Shell (`shell`)
 
-- **Purpose**: PostgreSQL database operations
+- **Purpose**: Command execution with structured interface and output capture
+- **Package**: `@modelcontextprotocol/server-shell`
+- **Shell**: `bash`
+- **Use Cases**:
+  - Running build commands
+  - Executing tests
+  - Running scripts
+  - System operations
+
+#### 6. Git (`git`)
+
+- **Purpose**: Git operations for version control, commits, branches, and history
+- **Package**: `@modelcontextprotocol/server-git`
+- **Scope**: `/mnt/data/dev/CloudToLocalLLM`
+- **Use Cases**:
+  - Creating commits
+  - Managing branches
+  - Viewing history
+  - Status checking
+
+#### 7. GitHub (`github`)
+
+- **Purpose**: GitHub API operations for PRs, issues, workflows, and releases
+- **Package**: `@modelcontextprotocol/server-github`
+- **Environment Variables**:
+  - `GITHUB_TOKEN` - GitHub Personal Access Token (optional)
+- **Use Cases**:
+  - Creating pull requests
+  - Managing issues
+  - Triggering workflows
+  - Managing releases
+
+### Database
+
+#### 8. PostgreSQL (`postgres`)
+
+- **Purpose**: PostgreSQL database operations for migrations, queries, and schema management
 - **Package**: `@modelcontextprotocol/server-postgres`
-- **Capabilities**:
-  - Query execution
-  - Schema inspection
-  - Table operations
-- **Environment Variables**: `POSTGRES_CONNECTION_STRING`
+- **Connection**: `postgresql://appuser:changeme@localhost:5432/zoidbot`
+- **Environment Variables**:
+  - `POSTGRES_HOST` (default: `localhost`)
+  - `POSTGRES_PORT` (default: `5432`)
+  - `POSTGRES_DB` (default: `zoidbot`)
+  - `POSTGRES_USER` (default: `appuser`)
+  - `POSTGRES_PASSWORD` (default: `changeme`)
+- **Use Cases**:
+  - Running migrations
+  - Executing queries
+  - Inspecting schema
+  - Testing database changes
 
-### 4. Brave Search (`brave-search`)
+### Network & Web
 
-- **Purpose**: Brave Search API for web research
+#### 9. Fetch (`fetch`)
+
+- **Purpose**: HTTP requests for APIs, web content, and external services
+- **Package**: `@modelcontextprotocol/server-fetch`
+- **Use Cases**:
+  - Calling external APIs
+  - Fetching web content
+  - Testing endpoints
+  - Webhook testing
+
+#### 10. Brave Search (`brave-search`)
+
+- **Purpose**: Web search for documentation lookup, troubleshooting, and research
 - **Package**: `@modelcontextprotocol/server-brave-search`
-- **Capabilities**:
-  - Web search
-  - Research
-- **Environment Variables**: `BRAVE_API_KEY`
+- **Environment Variables**:
+  - `BRAVE_API_KEY` - Brave Search API key (optional)
+- **Use Cases**:
+  - Searching documentation
+  - Troubleshooting issues
+  - Researching best practices
+  - Finding examples
 
-### 5. Puppeteer (`puppeteer`)
+#### 11. Puppeteer (`puppeteer`)
 
-- **Purpose**: Puppeteer browser automation
+- **Purpose**: Browser automation for end-to-end testing and web scraping
 - **Package**: `@modelcontextprotocol/server-puppeteer`
-- **Capabilities**:
-  - Page navigation
-  - Screenshots
-  - PDF generation
+- **Use Cases**:
+  - End-to-end testing
+  - Web scraping
+  - Screenshot capture
   - DOM manipulation
 
-### 6. Kubernetes (`kubernetes`)
+### Observability
 
-- **Purpose**: Kubernetes cluster management and operations
-- **Type**: Custom server (project-specific)
-- **Location**: `config/mcp/servers/kubernetes-server.js`
-- **Capabilities**:
-  - Deploy applications
-  - Manage pods
-  - View logs
-  - Scale deployments
-  - Rollback deployments
-  - Manage services
-  - Manage ingress
-- **Environment Variables**:
-  - `KUBECONFIG`: Path to kubeconfig file (default: `~/.kube/config`)
-  - `KUBERNETES_NAMESPACE`: Namespace to operate in (default: `zoidbot`)
+#### 12. Sentry (`sentry`)
 
-### 7. DigitalOcean (`digitalocean`)
+- **Purpose**: Sentry error tracking and issue analysis with OAuth authentication
+- **Wrapper**: `mcp-remote@latest` (enables OAuth flow for remote MCP servers)
+- **Server**: `https://mcp.sentry.dev/mcp`
+- **Use Cases**:
+  - Analyzing production errors
+  - Investigating stack traces
+  - Tracking error trends
+  - Root cause analysis
+- **Note**: Uses `mcp-remote` wrapper to handle OAuth authentication. Opens browser for authentication when first accessed.
 
-- **Purpose**: DigitalOcean automation and management
-- **Type**: Custom server (project-specific)
-- **Location**: `config/mcp/servers/digitalocean-server.js`
-- **Capabilities**:
-  - Kubernetes operations
-  - Container registry management
-  - Cluster management
-  - Load balancer configuration
-  - DNS management
-- **Environment Variables**:
-  - `DIGITALOCEAN_TOKEN`: DigitalOcean API token
-  - `DO_CLUSTER_NAME`: Cluster name (default: `zoidbot`)
-  - `DO_REGION`: Region (default: `tor1`)
-  - `DO_REGISTRY`: Container registry URL
+## Configuration Files
 
-### 8. SQLite (`sqlite`)
+### Claude Code Configuration
 
-- **Purpose**: SQLite database operations for local app database
-- **Package**: `@modelcontextprotocol/server-sqlite`
-- **Capabilities**:
-  - Query execution
-  - Schema inspection
-  - Table operations
-- **Database**: `/home/rightguy/dev/Zoidbot/data/app.db`
+**File**: `.claude/settings.json`
 
-### 9. Memory (`memory`)
+Contains all 12 MCP servers with descriptions, arguments, and environment variables where applicable.
 
-- **Purpose**: Persistent memory storage for context across sessions
-- **Package**: `@modelcontextprotocol/server-memory`
-- **Capabilities**:
-  - Store memories
-  - Retrieve memories
-  - Search memories
+### VS Code Configuration
 
-### 10. Sentry (`sentry`)
+**File**: `.vscode/settings.json`
 
-- **Purpose**: Production error monitoring and detailed debugging.
-- **Server**: `mcp-server-sentry`
-- **Capabilities**: Retrieve and analyze Sentry issues, stacktraces, and error patterns.
+Contains the same MCP server configuration to ensure consistency across both development environments.
 
-### 11. n8n-mcp (`n8n-mcp`)
+**Note**: VS Code also has `kiroAgent.configureMCP: "Disabled"` - do not enable this as it would conflict with the configured MCP servers.
 
-- **Purpose**: Automation workflow management and node documentation.
-- **Package**: `n8n-mcp`
-- **Capabilities**: List nodes, get documentation, search properties, and validate workflows.
+## Required Environment Variables
 
-### 12. Context7 (`context7`)
+### Optional Environment Variables
 
-- **Purpose**: Up-to-date documentation and code examples for libraries.
-- **Package**: `@upstash/context7-mcp`
-- **Capabilities**: Resolve library IDs and retrieve deep documentation.
-
-### 13. Playwright (`playwright`)
-
-- **Purpose**: Browser automation and end-to-end testing.
-- **Package**: `@playwright/mcp`
-- **Capabilities**: Full browser interaction and snapshotting.
-
-### 14. Auth0 (`auth0`)
-
-- **Purpose**: Identity and Access Management (IAM) operations.
-- **Package**: `@auth0/auth0-mcp-server`
-- **Capabilities**: Manage users, applications, and APIs.
-
-## Required CLI Tools
-
-The following CLI tools are required for the MCP servers to function:
-
-### Core Tools
-
-- ✅ **Flutter** (3.8+) - Installed via FVM
-- ✅ **Dart** (3.9+) - Included with Flutter
-- ✅ **Git** - Installed
-- ✅ **Docker** - Installed
-- ✅ **kubectl** - Installed
-- ✅ **GitHub CLI (gh)** - Installed
-- ✅ **Azure CLI (az)** - Installed
-- ✅ **Sentry CLI** - Installed
-- ✅ **Node.js** (18+) - Installed (custom installation, not in PATH)
-- ✅ **npm** - Included with Node.js
-
-### Platform-Specific Tools
-
-- **doctl** - DigitalOcean CLI (required for DigitalOcean MCP server)
-
-## Environment Variables
-
-Set the following environment variables in your shell configuration (`.bashrc`, `.zshrc`, etc.) or in Cursor's environment:
+These environment variables are optional but recommended for full functionality:
 
 ```bash
-# GitHub
+# GitHub (for github MCP server)
 export GITHUB_TOKEN="your_github_personal_access_token"
 
-# PostgreSQL
-export POSTGRES_CONNECTION_STRING="postgresql://user:password@host:port/database"
+# PostgreSQL (for postgres MCP server)
+export POSTGRES_USER="appuser"
+export POSTGRES_PASSWORD="your_secure_password"
 
-# Brave Search
+# Brave Search (for brave-search MCP server)
 export BRAVE_API_KEY="your_brave_api_key"
-
-# DigitalOcean
-export DIGITALOCEAN_TOKEN="your_digitalocean_token"
-export DO_CLUSTER_NAME="zoidbot"
-export DO_REGION="tor1"
-export DO_REGISTRY="registry.digitalocean.com/zoidbot"
-
-# Kubernetes
-export KUBECONFIG="$HOME/.kube/config"
-export KUBERNETES_NAMESPACE="zoidbot"
 ```
 
-## Browser Testing
+### Setting Environment Variables
 
-Cursor provides integrated browser tools for web testing and automation:
-
-- `browser_navigate` - Navigate to URLs
-- `browser_snapshot` - Capture accessibility snapshots
-- `browser_click` - Click elements
-- `browser_type` - Type text
-- `browser_screenshot` - Take screenshots
-- `browser_console_messages` - Get console logs
-- `browser_network_requests` - Monitor network activity
-
-These tools are available directly in Cursor and do not require separate MCP servers.
-
-## Setup Instructions
-
-### 1. Verify Node.js Installation
-
-Node.js is installed via NVM. The PATH has been configured in `~/.zshrc` to include Node.js binaries:
+Add to your shell configuration (`.bashrc`, `.zshrc`, etc.):
 
 ```bash
-# Verify Node.js is in PATH
-which node
-which npx
-node --version
-npx --version
+# GitHub (optional - for GitHub MCP server)
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
+
+# PostgreSQL (optional - override defaults)
+export POSTGRES_USER="appuser"
+export POSTGRES_PASSWORD="changeme"
+
+# Brave Search (optional - for search functionality)
+export BRAVE_API_KEY="BSxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
-If Node.js is not found, ensure your `~/.zshrc` includes:
+**Note**: PostgreSQL uses default values if environment variables are not set:
+- Host: `localhost`
+- Port: `5432`
+- Database: `zoidbot`
+- User: `appuser`
+- Password: `changeme`
 
-```bash
-export PATH="$HOME/.nvm/versions/node/v24.11.1/bin:$PATH"
+## Usage Examples
+
+### Using Sequential Thinking for Complex Tasks
+
+When working on multi-step implementations:
+
+1. Start with documentation review
+2. Use `sequentialthinking` to plan the approach
+3. Execute systematically using other MCP tools
+4. Store decisions in `memory` for future reference
+
+### Using Memory for Context Persistence
+
+Store important architectural decisions:
+
+```
+memory:save - "Added rate limiting to LLM router with ModelRegistry pattern. Model tiers defined in model_tiers.dart."
 ```
 
-**Note**: After updating Node.js via NVM, update the PATH in `~/.zshrc` to point to the new version. Restart your terminal or run `source ~/.zshrc` for changes to take effect.
+### Using Context7 for Documentation
 
-### 2. Verify MCP Configuration
+Look up Flutter package usage:
 
-The MCP configuration is located at `~/.cursor/mcp.json`. After making changes:
+```
+context7:resolve - "package:flutter_riverpod"
+context7:doc - "package:flutter_riverpod ProviderScope"
+```
 
-1. Restart Cursor for changes to take effect
-2. Check Cursor's MCP server status in Settings > Features > MCP Servers
-3. Verify each server connects successfully
+### Using PostgreSQL for Database Operations
 
-### 3. Test MCP Tools
+Test database changes:
 
-Test each MCP server by using its tools in Cursor:
-
-- **GitHub**: List repository issues
-- **Filesystem**: List project directory
-- **Kubernetes**: Get pods in namespace
-- **DigitalOcean**: List clusters
-- **Browser** (Cursor integrated): Navigate to a URL and take a snapshot
+```
+postgres:query - "SELECT * FROM users LIMIT 10"
+postgres:execute - "INSERT INTO conversations (title, created_at) VALUES ('Test', NOW())"
+```
 
 ## Troubleshooting
 
-### Node.js Not Found
-
-If `node` command is not found:
-
-- Node.js is installed but not in PATH
-- Use full path to node in custom MCP servers
-- Or add Node.js to PATH in your shell configuration
-
 ### MCP Server Connection Failures
 
-1. Check server logs in Cursor's MCP server status
-2. Verify environment variables are set correctly
-3. Ensure required CLI tools are installed
-4. Check network connectivity for external services
+If MCP servers fail to connect:
 
-### Custom Servers Not Working
+1. **Check Node.js and npm are installed**:
+   ```bash
+   node --version  # Should be >= 22.0.0 < 25.0.0
+   npm --version
+   ```
 
-For custom Kubernetes and DigitalOcean servers:
+2. **Verify npx can download packages**:
+   ```bash
+   npx -y @modelcontextprotocol/server-context7 --help
+   ```
 
-1. Verify Node.js can execute the server files
-2. Check file permissions: `chmod +x config/mcp/servers/*.js`
-3. Verify environment variables are set
-4. Test server directly: `node config/mcp/servers/kubernetes-server.js`
+3. **Check environment variables** (for servers that require them):
+   ```bash
+   echo $GITHUB_TOKEN
+   echo $BRAVE_API_KEY
+   echo $POSTGRES_USER
+   echo $POSTGRES_PASSWORD
+   ```
+
+4. **Restart Claude Code or VS Code** after changing configuration
+
+### PostgreSQL Connection Issues
+
+If PostgreSQL MCP server fails:
+
+1. **Verify PostgreSQL is running**:
+   ```bash
+   # Using Docker Compose
+   docker-compose ps postgres
+
+   # Using local installation
+   pg_isready -h localhost -p 5432
+   ```
+
+2. **Test connection**:
+   ```bash
+   psql postgresql://appuser:changeme@localhost:5432/zoidbot
+   ```
+
+3. **Check credentials**: Ensure `POSTGRES_USER` and `POSTGRES_PASSWORD` match your database configuration
+
+### Sentry OAuth Issues
+
+When using Sentry MCP server for the first time:
+
+1. The `mcp-remote` wrapper will open a browser window
+2. Complete the OAuth authentication flow
+3. The bridge will create a local proxy for MCP client connections
+4. If you see "Unexpected end of JSON input", ensure your MCP-capable client is configured correctly
+
+### GitHub MCP Server Issues
+
+If GitHub MCP server fails to authenticate:
+
+1. **Verify token has correct permissions**:
+   - `repo` - Full repository access
+   - `workflow` - Workflow actions
+   - `read:org` - Organization read access
+
+2. **Test token**:
+   ```bash
+   gh auth status
+   ```
+
+3. **Regenerate token** if necessary:
+   - Go to GitHub Settings > Developer Settings > Personal Access Tokens
+   - Create new token with required scopes
+   - Update `GITHUB_TOKEN` environment variable
 
 ## Best Practices
 
-1. **Documentation-First Methodology**: Always review project documentation (`docs/`) and steering rules (`.kiro/steering/`) before tool execution.
+1. **Documentation-First Methodology**: Always review project documentation (`docs/`) and steering rules (`.kiro/steering/`, `.kilocode/rules-*/`) before tool execution.
+
 2. **Sequential Thinking Primary**: Use the `sequentialthinking` tool as the foundation for all complex tasks to ensure systematic reasoning.
+
 3. **Use MCP Tools Over CLI**: Prefer MCP tools when available for better integration and structured output.
+
 4. **Atomic Operations**: Execute one tool at a time and wait for success before proceeding.
+
 5. **Schema Adherence**: Strictly follow the input schema for all tool calls.
-6. **Kilocode Identity**: All development actions must align with the technical excellence and architectural standards defined for Kilocode.
 
-## Kiro IDE Integration
+6. **Store Decisions**: Use `memory` to store architectural decisions and patterns for future reference.
 
-Zoidbot includes specialized configuration for Kiro IDE with custom AI assistant modes and enhanced MCP integration. See the [Kiro IDE Configuration Guide](KIRO_IDE_CONFIGURATION.md) for:
+7. **Context Preservation**: Use `context7` for library documentation rather than guessing or using outdated resources.
 
-- Custom AI assistant modes (Documentation Specialist, Code Reviewer, Test Engineer, Code Simplifier)
-- Enhanced MCP server configurations
-- Development workflow automation
-- Gemini CLI integration
+8. **Error Analysis**: Use `sentry` for production error investigation to understand root causes.
+
+## Integration with Development Workflow
+
+### During Feature Development
+
+1. **Plan**: Use `sequentialthinking` to break down the task
+2. **Research**: Use `context7` to find relevant documentation
+3. **Implement**: Use `filesystem` to read/write code, `shell` for build/test
+4. **Validate**: Use `postgres` for database tests if applicable
+5. **Commit**: Use `git` and `github` for version control
+6. **Document**: Use `memory` to store decisions and patterns
+
+### During Troubleshooting
+
+1. **Investigate**: Use `sentry` for production issues, `brave-search` for documentation
+2. **Analyze**: Use `sequentialthinking` for systematic problem-solving
+3. **Test**: Use `shell` for debugging commands, `postgres` for database queries
+4. **Fix**: Use `filesystem` to make changes
+5. **Verify**: Use `puppeteer` for E2E tests if applicable
 
 ## Additional Resources
 
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
 - [MCP Servers Registry](https://github.com/modelcontextprotocol/servers)
-- [Cursor MCP Documentation](https://docs.cursor.com/)
-- [Browser Tools MCP](https://github.com/AgentDeskAI/browser-tools-mcp)
-- [Kiro IDE Configuration Guide](KIRO_IDE_CONFIGURATION.md)
+- [Claude Code Documentation](https://docs.anthropic.com/)
+- [VS Code MCP Extension](https://marketplace.visualstudio.com/items?itemName=Anthropic.claude-dev-vscode)
+- [mcp-remote Wrapper](https://github.com/modelcontextprotocol/mcp-remote)
+
+## Project-Specific Notes
+
+### Flutter Development
+
+- Flutter uses `filesystem` for code operations
+- Use `context7` to look up Flutter package documentation
+- Use `shell` to run `flutter analyze`, `flutter test`, `flutter build`
+- Code formatting is automated via hooks (see `.claude/settings.json`)
+
+### Backend Development
+
+- Node.js services use `shell` for `npm` commands
+- PostgreSQL operations use `postgres` MCP server
+- Use `fetch` to test API endpoints
+- Use `memory` to store backend architectural decisions
+
+### CI/CD Integration
+
+- GitHub workflows can be managed via `github` MCP server
+- Use `git` for local version control
+- Deployments can be triggered via `github` MCP server
+
+### Security Considerations
+
+- Never store secrets in MCP configurations
+- Use environment variables for sensitive data
+- Sentry MCP uses OAuth flow for secure authentication
+- PostgreSQL credentials should be kept secure (use environment variables, not hardcoded)
+
+---
+
+**Last Updated**: February 18, 2026
