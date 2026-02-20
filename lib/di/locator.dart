@@ -50,6 +50,9 @@ import 'package:cloudtolocalllm/services/providers/moonshot_adapter.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 import 'package:cloudtolocalllm/services/agent_status_service.dart';
 import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
+import 'package:cloudtolocalllm/services/setup_status_service.dart';
+import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
+import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -235,6 +238,27 @@ Future<void> setupCoreServices() async {
     UrlSchemeRegistrationService(),
   );
 
+  // Gateway control service - manages OpenClaw Gateway lifecycle (start/stop/restart)
+  final gatewayControlService =
+      GatewayControlService(settingsPreferenceService);
+  serviceLocator
+      .registerSingleton<GatewayControlService>(gatewayControlService);
+
+  // Setup status service - tracks first-run and setup completion
+  final setupStatusService = SetupStatusService(
+    authService: authService,
+    clientDetectionService: desktopClientDetectionService,
+  );
+  serviceLocator.registerSingleton<SetupStatusService>(setupStatusService);
+
+  // Setup wizard service - manages the onboarding wizard flow
+  final setupWizardService = SetupWizardService(
+    serviceLocator.get<ProviderDiscoveryService>(),
+    setupStatusService,
+    providerConfigurationManager,
+  );
+  serviceLocator.registerSingleton<SetupWizardService>(setupWizardService);
+
   // Web download prompt service - can be created but won't do heavy work until auth
   final webDownloadPromptService = WebDownloadPromptService(
     authService: authService,
@@ -273,13 +297,15 @@ Future<void> setupCoreServices() async {
         await setupAuthenticatedServices().timeout(
           const Duration(seconds: 30),
           onTimeout: () {
-            debugPrint('[Locator] ⚠ Authenticated services initialization timed out after 30s');
+            debugPrint(
+                '[Locator] ⚠ Authenticated services initialization timed out after 30s');
             // Don't throw - allow app to continue with core services
           },
         );
         debugPrint('[Locator] ✓ Authenticated services initialized');
       } catch (e, stack) {
-        debugPrint('[Locator] ⚠ Authenticated services initialization failed: $e');
+        debugPrint(
+            '[Locator] ⚠ Authenticated services initialization failed: $e');
         debugPrint('[Locator] Stack trace: $stack');
         // Don't rethrow - allow app to continue with core services
       }
@@ -465,9 +491,11 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<LLMProviderManager>(llmProviderManager);
 
     // Connection Manager - requires authentication for tunnel/cloud connections
+    final settingsPreferenceService = serviceLocator<SettingsPreferenceService>();
     final connectionManager = ConnectionManagerService(
       tunnelService: tunnelService,
       authService: authService,
+      settings: settingsPreferenceService,
     );
     try {
       await connectionManager.initialize().timeout(const Duration(seconds: 10));
@@ -535,7 +563,8 @@ Future<void> setupAuthenticatedServices() async {
     final agentLifecycleService = AgentLifecycleService(
       connectionManager: connectionManager,
     );
-    serviceLocator.registerSingleton<AgentLifecycleService>(agentLifecycleService);
+    serviceLocator
+        .registerSingleton<AgentLifecycleService>(agentLifecycleService);
 
     // Admin services - require authentication and admin privileges
     final adminService = AdminService(authService: authService);
