@@ -27,33 +27,38 @@ CloudToLocalLLM is an **OpenClaw Agent Manager** that provides a comprehensive s
 | **Configuration**     | Manage gateway settings, models, and capabilities  |
 | **Auto-discovery**    | Automatically detect OpenClaw on localhost:18789   |
 
-### 2. Evolving Avatar
+### 3. Evolving Avatar
 
-| Feature              | Description                                         |
-| -------------------- | --------------------------------------------------- |
-| **Visual Character** | 2D/3D avatar that changes appearance based on usage |
-| **Mood States**      | Happy, Neutral, Thoughtful, Excited                 |
-| **Growth System**    | XP and levels tied to interactions                  |
-| **Personality**      | Memory, traits, and learned preferences             |
-| **Achievements**     | Unlockable milestones and rewards                   |
+| Feature | Description |
+|----------|-------------|
+| **Visual Character** | Avatar with emoji-based reactions to system state |
+| **State Reactions** | Idle, thinking, working, error, happy states |
+| **Planned: Growth System** | XP and levels tied to interactions |
+| **Planned: Personality** | Memory, traits, and learned preferences |
+| **Planned: Achievements** | Unlockable milestones and rewards |
 
-### 3. Desktop Control
+### 4. Desktop Control
 
-| Feature                | Description                               |
-| ---------------------- | ----------------------------------------- |
-| **GUI Automation**     | Launch apps, control windows, click, type |
-| **Window Management**  | Move, resize, focus windows               |
-| **System Integration** | File operations, command execution        |
-| **Clipboard**          | Read and write clipboard content          |
+| Feature | Status |
+|----------|--------|
+| **GUI Automation** | ✅ Screenshot capture and vision analysis |
+| **System Commands** | ✅ Execute shell commands |
+| **Notifications** | ✅ System notifications |
+| **Planned: Window Management** | Move, resize, focus windows |
+| **Planned: Clipboard** | Read and write clipboard content |
+| **Planned: File Operations** | File browser and operations |
+| **Planned: Macros** | Record and replay action sequences |
 
-### 4. Vision Capabilities
+### 5. Vision Capabilities
 
-| Feature              | Description                               |
-| -------------------- | ----------------------------------------- |
-| **Screen Capture**   | Full-screen and region screenshots        |
-| **Screen Analysis**  | OCR and UI element detection via OpenClaw |
-| **Camera Input**     | Webcam capture for real-time vision       |
-| **Privacy Controls** | Visual indicator when vision is active    |
+| Feature | Status |
+|----------|--------|
+| **Screen Capture** | ✅ Full-screen screenshots |
+| **Screen Analysis** | ✅ Vision analysis via OpenClaw |
+| **Planned: Region Capture** | Select and capture specific regions |
+| **Planned: OCR** | Text extraction from images |
+| **Planned: Camera Input** | Webcam capture for real-time vision |
+| **Planned: Continuous Monitor** | Watch screen regions for changes |
 
 ---
 

@@ -2,7 +2,9 @@
 
 This guide helps you resolve common issues with CloudToLocalLLM.
 
-## 🚨 Connection Problems
+---
+
+## Connection Problems
 
 ### OpenClaw Gateway Not Detected
 
@@ -11,77 +13,248 @@ This guide helps you resolve common issues with CloudToLocalLLM.
 **Solutions**:
 
 1. **Check if OpenClaw is running**:
-   - **Linux**: Check if the process is running on port 18789
-   - **Windows**: Check for the OpenClaw icon in the system tray.
-2. **Verify Port**: OpenClaw defaults to port `18789`. Ensure no other service is using this port.
-3. **Manual Configuration**: If you run OpenClaw on a custom IP or port, go to **Settings > Connection Settings** in CloudToLocalLLM and update the URL.
-4. **Check OpenClaw Health**: Run `curl http://localhost:18789/health` to verify the gateway is responding.
+   - **Linux**: `ps aux | grep openclaw` or check `localhost:18789`
+   - **Windows**: Check for OpenClaw in Task Manager or system tray
+   - **Command**: `curl http://localhost:18789/health` should return status
 
-### Cloud Relay / Tunnel Connection Failed
+2. **Verify Port**: OpenClaw defaults to port `18789`. Ensure no other service is using this port:
+   ```bash
+   # Linux
+   lsof -i :18789
 
-**Symptoms**: "Cloud proxy unavailable" or "Disconnected" status when trying to access your local LLM via the web.
+   # Windows
+   netstat -ano | findstr :18789
+   ```
+
+3. **Manual Configuration**: If OpenClaw runs on a different port/IP:
+   - Go to **Settings > LLM Provider Settings**
+   - Enter your custom URL (e.g., `http://192.168.1.100:18789`)
+
+4. **Restart Gateway**: Stop and restart OpenClaw Gateway
+
+### Remote Gateway (Tailscale/VPS) Not Connecting
+
+**Symptoms**: Cannot connect to remote OpenClaw Gateway.
 
 **Solutions**:
 
-1. **Check Internet**: Ensure you have a stable outbound connection to `*.zoidbot.online`.
-2. **Auth Status**: Ensure you are logged in. Tokens expire periodically; try logging out and back in.
-3. **Firewall**: Ensure your firewall allows outbound HTTPS (443) and WebSocket connections.
-4. **System Time**: Ensure your system clock is accurate. Out-of-sync clocks can cause authentication (JWT) failures.
+1. **Tailscale Connection**:
+   - Verify Tailscale is running: `tailscale status`
+   - Check you're on the same tailnet
+   - Ping the remote machine: `ping <tailscale-ip>`
+
+2. **SSH Tunnel**:
+   - Verify SSH key is configured
+   - Check tunnel is established
+   - Test connection: `curl http://localhost:18789/health`
+
+3. **Firewall**: Ensure port 18789 is open on the remote machine
 
 ---
 
-## 🖥️ Desktop App Issues
+## Desktop App Issues
+
+### Application Won't Start
+
+**Solutions**:
+
+1. **Dependencies**:
+   - **Linux**: Check for missing libraries with `ldd`
+   - Run with verbose flag: `./cloudtolocalllm --verbose`
+
+2. **Corrupted Config**: Clear local config:
+   ```bash
+   # Linux
+   rm -rf ~/.config/CloudToLocalLLM/
+
+   # Windows
+   rmdir /s "%APPDATA%\CloudToLocalLLM"
+   ```
 
 ### System Tray Not Visible (Linux)
 
 **Solutions**:
 
 1. **Install Support Packages**:
-   - **Ubuntu/Debian**: `sudo apt install libayatana-appindicator3-1`
-   - **GNOME Users**: Install the `AppIndicator and KStatusNotifierItem Support` extension.
-2. **Restart App**: Quit the app completely and relaunch it from the terminal to see any error logs.
+   ```bash
+   sudo apt install libayatana-appindicator3-1
+   ```
 
-### Application Won't Start
+2. **GNOME Extension**: Install "AppIndicator and KStatusNotifierItem Support"
 
-**Solutions**:
-
-1. **Dependencies**: (Linux) Run `ldd` on the executable to check for missing shared libraries.
-2. **Corrupted Config**: If the app hangs, try clearing the local config directory:
-   - **Linux**: `~/.config/zoidbot/`
-   - **Windows**: `%APPDATA%\zoidbot\`
+3. **Restart App**: Quit and relaunch to see error logs
 
 ---
 
-## 🔐 Authentication Issues
+## Authentication Issues (Cloud Features)
 
 ### Login Loops or Failures
 
-**Solutions**:
+**Cloud features are optional** — local mode works without authentication.
 
-1. **Clear Browser Data**: If using the web version, clear cookies and localStorage for `cloudtolocalllm.online`.
-2. **Check Auth0 Status**: Occasionally the identity provider may have outages. Check [status.auth0.com](https://status.auth0.com).
-3. **Secure Storage (Desktop)**: If the desktop app fails to remember your session, ensure your OS keyring/keychain is unlocked.
+**If using cloud features**:
+
+1. **Check Auth0 Status**: [status.auth0.com](https://status.auth0.com)
+
+2. **System Time**: Ensure your clock is accurate (JWT tokens fail with time skew)
+
+3. **Clear Browser Data** (web version only): Clear cookies for the app domain
+
+4. **Keyring/Keychain**: Ensure OS credential storage is unlocked
 
 ---
 
-## 🔧 Performance & Resources
+## Performance & Resources
 
 ### High CPU/RAM Usage
 
 **Solutions**:
 
-1. **Model Size**: Large models require significant RAM and GPU VRAM. Use smaller models if you experience lag.
-2. **Hardware Acceleration**: Ensure OpenClaw is utilizing your GPU. Check `nvidia-smi` or your system monitor during generation.
-3. **Background Activity**: The Cloud Relay uses minimal resources when idle, but active streaming will consume some CPU for encryption.
+1. **Model Size**: Use smaller models (Qwen 7B instead of 70B)
+
+2. **GPU Acceleration**: Ensure NVIDIA drivers are installed and working:
+   ```bash
+   nvidia-smi
+   ```
+
+3. **Context Length**: Reduce conversation context length for faster responses
+
+4. **Vision Features**: OCR and continuous monitoring are CPU-intensive
+
+### Slow Responses
+
+**Solutions**:
+
+1. **Check Gateway Health**: High latency = slow responses
+
+2. **Model Performance**: Some models are faster than others
+
+3. **System Resources**: Check CPU/RAM usage
 
 ---
 
-## 🆘 Getting More Help
+## Desktop Control Issues
+
+### Automation Not Working
+
+**Solutions**:
+
+1. **Permissions**: Ensure the app has necessary permissions
+
+2. **Platform**: Desktop control works on Linux and Windows only (not web)
+
+3. **Wayland (Linux)**: Some features may require X11
+
+4. **Screenshot Failed**: Check temp directory permissions
+
+### Vision Analysis Fails
+
+**Solutions**:
+
+1. **OpenClaw Vision Model**: Verify vision model is loaded in Gateway
+
+2. **Image Format**: Ensure screenshots are in PNG format
+
+3. **OCR Failed**: Install Tesseract:
+   ```bash
+   sudo apt install tesseract-ocr
+   ```
+
+---
+
+## Setup Wizard Issues
+
+### Wizard Won't Proceed
+
+**Symptoms**: Stuck on a step, can't continue.
+
+**Solutions**:
+
+1. **Skip for Returning Users**: If you've configured before, click "Skip Setup"
+
+2. **Force Re-run**: Clear first-run flag in config
+
+3. **Manual Config**: Go to Settings > LLM Provider Settings to configure manually
+
+---
+
+## Platform-Specific Issues
+
+### Linux
+
+**Wayland**: Some features (screenshots, automation) work better on X11
+
+**Dependencies**: Install missing packages:
+```bash
+sudo apt install libayatana-appindicator3-1 tesseract-ocr
+```
+
+### Windows
+
+**Defender**: Add exception for CloudToLocalLLM if needed
+
+**Firewall**: Allow CloudToLocalLLM through Windows Firewall
+
+### Web
+
+**Limitations**: Desktop control and automation not available
+
+**Browser**: Use Chrome or Edge for best experience
+
+---
+
+## Data & Storage
+
+### Lost Conversations
+
+**Local Storage**: Conversations stored in:
+- **Linux**: `~/.local/share/cloudtolocalllm/local_brain.db`
+- **Windows**: `%LOCALAPPDATA%\cloudtolocalllm\local_brain.db`
+
+**Backup**: Copy this file regularly
+
+### Reset to Defaults
+
+**Warning**: This deletes all data!
+
+```bash
+# Linux
+rm -rf ~/.config/CloudToLocalLLM/ ~/.local/share/cloudtolocalllm/
+
+# Windows
+rmdir /s "%APPDATA%\CloudToLocalLLM" %LOCALAPPDATA%\CloudToLocalLLM"
+```
+
+---
+
+## Logs & Debugging
+
+### Finding Logs
+
+**Linux**: `~/.local/share/cloudtolocalllm/logs/app.log`
+
+**Windows**: `%LOCALAPPDATA%\cloudtolocalllm\logs\app.log`
+
+### Enable Debug Mode
+
+Run with verbose flag:
+```bash
+./cloudtolocalllm --verbose
+```
+
+---
+
+## Getting More Help
 
 If your issue isn't listed here:
 
-1. **Check Logs**:
-   - **Linux**: `~/.local/share/cloudtolocalllm/logs/app.log`
-   - **Windows**: `%LOCALAPPDATA%\cloudtolocalllm\logs\app.log`
-2. **GitHub Issues**: [Report a bug](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
-3. **Community**: Join our Discord or GitHub Discussions.
+1. **Documentation**:
+   - [USER_GUIDE.md](USER_GUIDE.md)
+   - [SETUP_GUIDE.md](SETUP_GUIDE.md)
+   - [FEATURES_GUIDE.md](FEATURES_GUIDE.md)
+
+2. **Architecture**: [SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)
+
+3. **GitHub Issues**: [Report a bug](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
+
+4. **Check Existing Issues**: Search before creating new issues

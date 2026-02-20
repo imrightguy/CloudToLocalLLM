@@ -1,65 +1,310 @@
 # CloudToLocalLLM Setup Guide
 
-Welcome to CloudToLocalLLM! This guide will walk you through the initial setup process for Windows, Linux, and Web.
-
-## 📋 Prerequisites
-
-Before starting, ensure you have:
-
-- **[OpenClaw Gateway](https://github.com/openclaw/openclaw)**: The primary engine for all LLM, Vision, and Agent tasks. Runs on `localhost:18789`.
-- **Auth0 Account**: Used for secure authentication and cloud relay features.
-- **Internet Connection**: Required for the initial setup and optional cloud relay.
+Welcome to CloudToLocalLLM — your privacy-first desktop AI companion.
 
 ---
 
-## 🚀 Setup Process
+## Overview
 
-The CloudToLocalLLM setup consists of three main phases:
+CloudToLocalLLM requires **OpenClaw Gateway** to run AI models locally on your computer. This guide walks you through setting up both the Gateway and the CloudToLocalLLM application.
 
-### 1. OpenClaw Gateway Setup
-
-CloudToLocalLLM relies on OpenClaw Gateway to run AI models and vision tasks locally.
-
-1. **Install OpenClaw**: Follow instructions at [OpenClaw GitHub](https://github.com/openclaw/openclaw).
-2. **Start the Gateway**: Ensure OpenClaw is running on `localhost:18789`.
-3. **Verify**: Run `curl http://localhost:18789/health` in your terminal. You should see a health response.
-
-### 2. Desktop Application Installation
-
-1. **Download**: Visit the **[Latest Releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest)**.
-2. **Install**:
-   - **Windows**: Run the `.exe` installer.
-   - **Linux**: Make the `.AppImage` executable (`chmod +x ...`) and run it, or install the `.deb` package.
-3. **Launch**: Open the application. You should see it in your system tray.
-
-### 3. Account & Cloud Relay Configuration
-
-When you first launch the app, or visit the [Web Version](https://cloudtolocalllm.online), the Setup Wizard will guide you:
-
-1. **Login**: Use your Auth0 credentials to sign in.
-2. **Container Creation**: (Cloud/Web only) The system will provision an isolated streaming proxy for your secure remote access.
-3. **Tunnel Configuration**:
-   - The Desktop app will automatically attempt to detect your local OpenClaw Gateway at `http://localhost:18789`.
-   - To enable remote access, ensure "Remote Access" is toggled ON in Settings.
-4. **Validation**: The wizard will test the connection between the web interface, the cloud relay, and your local machine.
+**Privacy First**: All AI processing happens locally. Cloud features are optional.
 
 ---
 
-## 💬 Your First Chat
+## Prerequisites
 
-1. **Open the Window**: Click the tray icon or "Show CloudToLocalLLM".
-2. **Start Chatting**: Your data stays local by default! OpenClaw Gateway handles all AI tasks.
-
----
-
-## ⚙️ Key Settings
-
-- **Theme**: Toggle between Light, Dark, or System themes in Appearance settings.
-- **Startup**: Enable "Start with system" to keep the relay active in the background.
-- **Connection**: If you use a custom port for OpenClaw, update it in the Connection Settings tab.
+| Requirement | Minimum | Recommended |
+|-------------|----------|-------------|
+| **OS** | Windows 10+, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04+ |
+| **RAM** | 8 GB | 16 GB+ |
+| **GPU** | None (CPU mode) | NVIDIA RTX 30/40 series |
+| **Storage** | 500 MB free space | 2 GB+ for models |
+| **Internet** | For download only | For cloud features (optional) |
 
 ---
 
-## ❓ Need Help?
+## Step 1: Install OpenClaw Gateway
 
-If you encounter issues during setup, please refer to the [Troubleshooting Guide](TROUBLESHOOTING.md).
+OpenClaw Gateway is the local AI engine that powers CloudToLocalLLM.
+
+### Download
+
+Get OpenClaw Gateway from:
+- **GitHub**: [https://github.com/openclaw/openclaw/releases](https://github.com/openclaw/openclaw/releases)
+
+### Install
+
+**Linux**:
+```bash
+# Download
+wget https://github.com/openclaw/openclaw/releases/latest/download/openclaw-linux-amd64
+
+# Make executable
+chmod +x openclaw-linux-amd64
+
+# Move to PATH
+sudo mv openclaw-linux-amd64 /usr/local/bin/openclaw
+```
+
+**Windows**:
+1. Download `openclaw-windows.exe`
+2. Place in a folder (e.g., `C:\OpenClaw\`)
+3. Add to PATH if desired
+
+### Verify Installation
+
+```bash
+# Run help
+openclaw --help
+
+# Check version
+openclaw --version
+```
+
+---
+
+## Step 2: Start OpenClaw Gateway
+
+### Start the Gateway
+
+**Linux**:
+```bash
+openclaw serve --port 18789
+```
+
+**Windows**:
+```cmd
+openclaw-windows.exe serve --port 18789
+```
+
+### Verify It's Running
+
+Open a new terminal and test:
+```bash
+curl http://localhost:18789/health
+```
+
+Expected response:
+```json
+{"status": "ok", "version": "1.0.0"}
+```
+
+### GPU Setup (Optional but Recommended)
+
+If you have an NVIDIA GPU:
+
+1. **Install NVIDIA Drivers**:
+   ```bash
+   # Ubuntu
+   sudo apt install nvidia-driver-535
+   ```
+
+2. **Install CUDA** (if not already installed)
+
+3. **Verify GPU**:
+   ```bash
+   nvidia-smi
+   ```
+
+4. **Start OpenClaw with GPU**:
+   ```bash
+   openclaw serve --port 18789 --gpu
+   ```
+
+---
+
+## Step 3: Install CloudToLocalLLM
+
+### Download
+
+Get the latest release for your platform:
+- **GitHub**: [https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
+
+### Install
+
+**Windows**:
+1. Download `CloudToLocalLLM-setup.exe`
+2. Run the installer
+3. Launch from Start Menu
+
+**Linux (AppImage)**:
+```bash
+# Download
+wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-linux.AppImage
+
+# Make executable
+chmod +x CloudToLocalLLM-linux.AppImage
+
+# Run
+./CloudToLocalLLM-linux.AppImage
+```
+
+**Linux (Deb Package)**:
+```bash
+# Download
+wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm_amd64.deb
+
+# Install
+sudo dpkg -i cloudtolocalllm_amd64.deb
+
+# Launch
+cloudtolocalllm
+```
+
+---
+
+## Step 4: First Run Setup Wizard
+
+When you first launch CloudToLocalLLM, the **Setup Wizard** will guide you:
+
+### Welcome Screen
+
+Click "Get Started" to begin.
+
+### Connection Method Selection
+
+Choose how you connect to OpenClaw Gateway:
+
+1. **Local on this computer** — OpenClaw running on localhost:18789
+2. **Remote via Tailscale** — OpenClaw on your tailnet or VPS
+3. **Custom remote URL** — SSH tunnel, VPN, or custom URL
+
+### Provider Detection
+
+The wizard will automatically scan for OpenClaw Gateway:
+- **Local**: Scans localhost:18789
+- **Tailscale**: Lists devices on your tailnet
+- **Custom**: Enter your URL manually
+
+### Connection Test
+
+The wizard tests the connection to ensure everything works.
+
+### Complete
+
+Click "Proceed to Chat" to start using CloudToLocalLLM!
+
+---
+
+## Alternative Providers (Optional)
+
+CloudToLocalLLM also supports other local LLM providers:
+
+### LM Studio
+
+1. Download from [lmstudio.ai](https://lmstudio.ai)
+2. LM Studio runs on `localhost:1234`
+3. CloudToLocalLLM will auto-detect it
+
+### Ollama
+
+1. Install from [ollama.com](https://ollama.com)
+2. Ollama runs on `localhost:11434`
+3. CloudToLocalLLM will auto-detect it
+
+---
+
+## Cloud Features (Optional)
+
+Cloud features are **not required** for local use.
+
+### Account (Optional)
+
+- Create an account to sync conversations across devices
+- **Not required** for local chat
+
+### Remote Access (Optional)
+
+- Access your AI from other devices via Tailscale or SSH
+- Requires OpenClaw Gateway to be accessible remotely
+
+---
+
+## System Tray (Desktop)
+
+Once installed, CloudToLocalLLM runs in your system tray:
+
+- **Windows**: Look in the notification area (system tray)
+- **Linux**: Look in the top panel
+
+**Tray Menu**:
+- Show/Hide window
+- Connection status
+- Settings
+- Quit
+
+---
+
+## Auto-Start (Optional)
+
+### Linux
+
+Create a systemd service or add to startup applications.
+
+### Windows
+
+1. Win+R, type `shell:startup`
+2. Create a shortcut to CloudToLocalLLM
+
+---
+
+## Verify Installation
+
+Once everything is set up:
+
+1. **Open CloudToLocalLLM**
+2. **Check Connection Status**: Should show "Connected"
+3. **Start a Chat**: Type "Hello!" to test
+
+---
+
+## Upgrading
+
+### OpenClaw Gateway
+
+```bash
+# Download latest
+wget https://github.com/openclaw/openclaw/releases/latest/download/openclaw-linux-amd64
+
+# Replace
+sudo mv openclaw-linux-amd64 /usr/local/bin/openclaw
+```
+
+### CloudToLocalLLM
+
+Download the latest release and install over your existing version.
+
+---
+
+## Uninstalling
+
+### OpenClaw Gateway
+
+```bash
+# Linux
+sudo rm /usr/local/bin/openclaw
+
+# Windows
+del C:\OpenClaw\openclaw-windows.exe
+```
+
+### CloudToLocalLLM
+
+**Windows**:
+Use "Add or Remove Programs" in Windows Settings
+
+**Linux**:
+```bash
+sudo apt remove cloudtolocalllm
+# Or delete the AppImage
+```
+
+---
+
+## Need Help?
+
+- **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- **Features**: [FEATURES_GUIDE.md](FEATURES_GUIDE.md)
+- **User Guide**: [USER_GUIDE.md](USER_GUIDE.md)
+- **Issues**: [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)

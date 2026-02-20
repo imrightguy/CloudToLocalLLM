@@ -1,137 +1,269 @@
 # CloudToLocalLLM User Guide
 
-This guide will help you get the most out of CloudToLocalLLM, covering all major features and functionality.
+**OpenClaw Agent Manager** — A privacy-first desktop AI companion.
 
-## Contents
+---
 
-1. [Getting Started](#getting-started)
-2. [Interface Overview](#interface-overview)
-3. [Conversations](#conversations)
-4. [LLM Models](#llm-models)
-5. [Settings](#settings)
-6. [Cloud Synchronization](#cloud-synchronization)
-7. [Remote Access](#remote-access)
-8. [Troubleshooting](#troubleshooting)
+## Overview
+
+CloudToLocalLLM is organized around **Five Core Pillars**:
+
+1. **Chat** — Unified chat interface with streaming responses
+2. **OpenClaw Gateway Management** — Start, stop, monitor your local AI
+3. **Evolving Avatar** — Visual character that grows with you
+4. **Desktop Control** — GUI automation and system control
+5. **Vision** — Screen understanding and camera input
+
+---
 
 ## Getting Started
 
-After [installing the application](SETUP_GUIDE.md), launch CloudToLocalLLM. The first time you run it, you'll be taken to the home screen, which displays a welcome message and prompts you to start a new conversation.
+### First Run
 
-## Interface Overview
+When you first launch CloudToLocalLLM, you'll be guided through the **Setup Wizard**:
 
-The CloudToLocalLLM interface consists of several main components:
+1. **Connection Method** — Choose how to connect to OpenClaw Gateway:
+   - **Local**: OpenClaw running on this computer (localhost:18789)
+   - **Tailscale**: OpenClaw on your tailnet/VPS
+   - **Custom**: SSH tunnel, VPN, or custom URL
 
-### Main Navigation
+2. **Provider Detection** — The wizard automatically detects your OpenClaw Gateway
 
-- **Home Screen**: Displays your conversations
-- **Models Screen**: Manage your LLM models
-- **Settings Screen**: Configure application settings
-- **Account**: Access login and account settings
+3. **Connection Test** — Verify your connection is working
 
-### Drawer Menu
+4. **Complete** — Start chatting!
 
-Access the drawer by clicking the hamburger icon (≡) in the top-left corner. The drawer provides:
+### Installing OpenClaw Gateway
 
-- **Conversations List**: View and manage your conversations
-- **Create New Conversation**: Start a new chat
-- **Models**: Access the Models screen
-- **Settings**: Access application settings
-- **Login/Logout**: Account management
+If the wizard doesn't find OpenClaw Gateway:
 
-## Conversations
+- **Download**: Get OpenClaw Gateway from [GitHub](https://github.com/your-repo/openclaw)
+- **Run**: `./openclaw-gateway` (Linux) or `openclaw-gateway.exe` (Windows)
+- **Default Port**: 18789
 
-### Creating a New Conversation
+---
 
-1. Click the "+" floating action button on the home screen, or
-2. Select "New Conversation" from the drawer menu
+## Pillar 1: Chat
 
-### Managing Conversations
+### Starting a Conversation
 
-- **Select a Conversation**: Click on it in the drawer menu
-- **Delete a Conversation**: Click the trash icon next to the conversation in the drawer
-- **Rename a Conversation**: Available in settings menu (right-click conversation)
+1. Click the "+" button or select "New Conversation" from the drawer
+2. Type your message in the input field
+3. Press Enter or click Send
 
-### Chat Interface
+### Chat Features
 
-- **Message Input**: Type your message at the bottom of the screen
-- **Send Button**: Click to send your message
-- **Message History**: View the conversation history in the main area
-- **Model Selection**: Change the model using the dropdown in the app bar
+- **Streaming Responses**: See responses generate token-by-token
+- **Conversation History**: Automatically saved locally
+- **Model Selection**: Switch between available models
+- **Search**: Find messages across all conversations
+- **Export/Import**: Backup or transfer your conversations
 
-## LLM Models
+### Multi-Model Support
 
-### Viewing Available Models
+CloudToLocalLLM supports multiple local LLM providers:
 
-1. Go to the Models screen from the drawer menu
-2. View installed and available models
+| Provider | Default Port | Status |
+|----------|--------------|--------|
+| OpenClaw Gateway | 18789 | Primary |
+| LM Studio | 1234 | Alternative |
+| Ollama | 11434 | Alternative |
 
-### Managing Models
+---
 
-- **Download a Model**: Click "Pull" next to a model to download it
-- **Delete a Model**: Click the trash icon next to a model to remove it
-- **View Model Info**: Click on a model to view additional information
+## Pillar 2: OpenClaw Gateway Management
+
+### What is OpenClaw Gateway?
+
+OpenClaw Gateway is your local AI engine that runs entirely on your computer. It provides:
+
+- **LLM Models**: Text generation and chat
+- **Vision Models**: Screen and image understanding
+- **Agent System**: Tools, skills, and memory
+
+### Monitoring Your Gateway
+
+Access the **Dashboard** to view:
+
+- **Connection Status**: Online/offline state
+- **Health**: Response times and error rates
+- **Active Agents**: Currently running agent sessions
+- **Resource Usage**: CPU and memory consumption
+
+### Gateway Controls
+
+- **Start**: Launch OpenClaw Gateway
+- **Stop**: Gracefully shutdown
+- **Restart**: Quick restart the service
+- **Auto-Restart**: Automatically restart on crash (settings)
+
+---
+
+## Pillar 3: Evolving Avatar
+
+### Your AI Companion
+
+The avatar is a visual representation of your AI that evolves over time:
+
+- **States**: Reacts to what's happening (idle, thinking, working, happy, error)
+- **Personality**: Develops traits based on your interactions
+- **Leveling**: Earn XP through conversations and achievements
+- **Memory**: Remembers important details from your chats
+
+### Avatar States
+
+| State | Appearance | Meaning |
+|-------|-------------|---------|
+| 🦞 Idle | Lobster resting | Ready for your input |
+| 🤔 Thinking | Question mark | Processing your request |
+| ⚡ Working | Lightning | Executing a task |
+| 💢 Error | Angry face | Something went wrong |
+| ✨ Happy | Sparkles | Success/celebration |
+
+### Evolution System
+
+- **XP**: Earn experience through conversations and feature usage
+- **Levels**: Unlock new visual elements and features
+- **Achievements**: Unlock special milestones (First Words, Social Butterfly, etc.)
+
+---
+
+## Pillar 4: Desktop Control
+
+### GUI Automation
+
+The AI can see and interact with your desktop:
+
+- **Screenshot**: Capture what's on your screen
+- **Vision Analysis**: Understand UI elements and content
+- **Actions**: Click, type text, press keys
+- **Automation**: Execute complex action sequences
+
+### Using Desktop Control
+
+1. Navigate to **Desktop Control** from the menu
+2. Click **"Take Screenshot"** to capture your screen
+3. The AI analyzes the screenshot
+4. Request actions like "Click the Firefox icon" or "Type 'hello world'"
+
+### System Commands
+
+Execute system commands directly:
+- Open applications
+- List files
+- Get system stats (CPU, RAM)
+- Show notifications
+
+### Privacy & Security
+
+- All automation runs **locally only**
+- Visual indicator when automation is active
+- Full action history for review
+- Explicit opt-in required for automation
+
+---
+
+## Pillar 5: Vision
+
+### Screen Capture
+
+- **Full Screen**: Capture your entire desktop
+- **Region Selection**: Select a specific area to analyze
+- **Continuous Monitoring**: Watch a screen region for changes
+
+### OCR (Text Extraction)
+
+Extract text from:
+- Screenshots
+- Application windows
+- Images
+- Camera input
+
+### Camera Input
+
+Use your webcam for:
+- Real-time vision analysis
+- Document scanning
+- Object recognition
+
+### Privacy Indicators
+
+When vision features are active:
+- Screen border highlight
+- System notification
+- Clear visual indicator
+
+---
 
 ## Settings
 
-### LLM Provider Settings
+### Provider Settings
 
-- **Provider Selection**: Choose between Ollama and LM Studio
-- **IP Address Settings**: Configure connection details for each provider
-- **Offline Mode**: Enable/disable to work without internet connection
+Configure your LLM providers:
+- Add/remove providers
+- Set connection URLs
+- Test connections
+- Enable/disable auto-discovery
 
-### Appearance Settings
+### Appearance
 
-- **Theme Selection**: Choose between Light, Dark, or System themes
+- **Theme**: Light, Dark, or System
+- **Avatar Display**: Show/hide avatar
+- **Font Size**: Adjust text size
 
-### Cloud Settings
+### Local Mode
 
-- **Cloud Sync**: Enable/disable synchronization with cloud
-- **Remote Access**: Enable/disable tunnel for remote access
+- **Offline Mode**: Work without any internet connection
+- **Local Storage**: All data stored on your computer
+- **No Cloud**: Privacy-first, everything stays local
 
-## Cloud Synchronization
+### Cloud Features (Optional)
 
-Cloud synchronization allows you to back up and access your conversations across multiple devices.
+Cloud features are **opt-in only**:
 
-### Setting Up Cloud Sync
+- **Account**: Create an account for cloud sync
+- **Cloud Sync**: Back up conversations to the cloud
+- **Remote Access**: Access your AI from other devices (via Tailscale/SSH)
 
-1. Create an account or log in to an existing account
-2. In Settings, enable "Cloud Sync"
-3. Your conversations will automatically synchronize when changes are made
-
-### Privacy Note
-
-Only encrypted data is sent to the cloud. Your local LLM interactions remain private unless you enable remote access.
-
-## Remote Access
-
-Remote access allows you to access your local LLM from other devices or share access with others.
-
-### Setting Up Remote Access
-
-1. Log in to your account
-2. In Settings, enable "Remote Access"
-3. Note the provided access URL
-
-### Tunnel Status
-
-- **Connected**: Your LLM is accessible remotely
-- **Disconnected**: Remote access is currently disabled
-- **Check Status**: Click the button to verify the connection
-
-### Security Considerations
-
-- Remote access requires authentication
-- Access is only available while the application is running
-- Consider firewall settings if you encounter connection issues
+---
 
 ## Troubleshooting
 
-For common issues and solutions, please refer to the [Troubleshooting Guide](TROUBLESHOOTING.md).
+For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
-### Getting Help
+### Common Issues
 
-If you encounter persistent issues:
+**OpenClaw Gateway Not Found**
+- Verify Gateway is running on port 18789
+- Check firewall settings
+- Try "Custom URL" if using alternative port
 
-1. Check [GitHub Issues](https://github.com/your-username/CloudToLocalLLM/issues) for similar problems
-2. Join our community discussion (link in README)
-3. Open a new issue with detailed information about your problem
+**Connection Lost**
+- Check if Gateway is still running
+- Verify network settings for remote connections
+- Check Tailscale connection for remote gateways
+
+**Desktop Control Not Working**
+- Ensure automation permissions are granted
+- Check platform compatibility (Linux/Windows supported)
+- Verify system control service is running
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + N` | New conversation |
+| `Ctrl + /` | Focus search |
+| `Ctrl + S` | Open settings |
+| `Escape` | Close modal/drawer |
+
+---
+
+## Getting Help
+
+- **Documentation**: See [README.md](../../README.md)
+- **Architecture**: See [SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)
+- **Implementation**: See [IMPLEMENTATION_PLAN.md](../development/IMPLEMENTATION_PLAN.md)
+- **Issues**: [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
