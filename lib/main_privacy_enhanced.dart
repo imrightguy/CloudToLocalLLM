@@ -25,6 +25,9 @@ import 'services/admin_data_flush_service.dart';
 import 'services/conversation_storage_service.dart';
 import 'services/privacy_storage_manager.dart';
 import 'services/platform_service_manager.dart';
+import 'di/locator.dart';
+import 'services/onboarding/setup_wizard_service.dart';
+import 'services/provider_configuration_manager.dart';
 import 'widgets/window_listener_widget.dart';
 
 // Global navigator key for navigation from system tray
@@ -198,8 +201,7 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
 
         // Enhanced user tier service with container management
         ChangeNotifierProvider(
-          create: (context) =>
-              EnhancedUserTierService(authService: context.read<AuthService>()),
+          create: (_) => EnhancedUserTierService(),
         ),
 
         // Privacy-first conversation storage
@@ -328,6 +330,11 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
             final authService = context.read<AuthService>();
             return AdminDataFlushService(authService: authService);
           },
+        ),
+
+        // Setup wizard service - uses services from locator
+        ChangeNotifierProvider(
+          create: (context) => serviceLocator<SetupWizardService>(),
         ),
       ],
       child: MaterialApp(

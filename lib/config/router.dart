@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../di/locator.dart';
+import '../services/onboarding/setup_wizard_service.dart';
 
 import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/callback_screen.dart';
+import '../screens/onboarding/setup_wizard_screen.dart';
 
 // Settings screens are lazy-loaded
 import '../screens/settings/settings_lazy.dart' as settings_lazy;
@@ -62,6 +66,52 @@ bool _hasCallbackParameters(Uri uri) {
       uri.queryParameters.containsKey('error_description');
 }
 
+/// Wrapper widget that checks if setup wizard is needed
+/// and redirects to /setup if no providers are configured
+class _HomeWithSetupCheck extends StatefulWidget {
+  final bool isAuthenticated;
+  final bool isAppDomain;
+
+  const _HomeWithSetupCheck({
+    required this.isAuthenticated,
+    required this.isAppDomain,
+    super.key,
+  });
+
+  @override
+  State<_HomeWithSetupCheck> createState() => _HomeWithSetupCheckState();
+}
+
+class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
+  @override
+  void initState() {
+    super.initState();
+    _checkSetupNeeded();
+  }
+
+  Future<void> _checkSetupNeeded() async {
+    try {
+      final setupWizardService = serviceLocator<SetupWizardService>();
+      final shouldShow = await setupWizardService.shouldShowWizard();
+
+      if (shouldShow && mounted) {
+        debugPrint('[Router] No providers configured, redirecting to setup wizard');
+        if (mounted) {
+          context.go('/setup');
+        }
+      }
+    } catch (e) {
+      debugPrint('[Router] Error checking setup status: $e');
+      // On error, show home screen anyway
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const HomeScreen();
+  }
+}
+
 /// Application router configuration using GoRouter
 class AppRouter {
   static GoRouter createRouter({
@@ -115,7 +165,13 @@ class AppRouter {
             final isAuthenticated = authService.isAuthenticated.value;
             final isAppDomain = _isAppSubdomain();
 
-            if (isAuthenticated || !kIsWeb) return const HomeScreen();
+            if (isAuthenticated || !kIsWeb) {
+              // Show home screen first, then check if setup is needed
+              return _HomeWithSetupCheck(
+                isAuthenticated: isAuthenticated,
+                isAppDomain: isAppDomain,
+              );
+            }
 
             if (kIsWeb && !isAppDomain) {
               return const marketing_lazy.HomepageScreen();
@@ -123,6 +179,13 @@ class AppRouter {
 
             return const LoginScreen();
           },
+        ),
+
+        // Setup Wizard route
+        GoRoute(
+          path: '/setup',
+          name: 'setup',
+          builder: (context, state) => const SetupWizardScreen(),
         ),
 
         // Protected Chat route
@@ -213,7 +276,8 @@ class AppRouter {
         }
 
         // 5. Unauthenticated state on App domain or Desktop
-        if (isLoggingIn || isCallback || !kIsWeb) return null; // Allow these (Desktop is always allowed)
+        if (isLoggingIn || isCallback || !kIsWeb)
+          return null; // Allow these (Desktop is always allowed)
 
         // Redirect all other protected routes to login
         debugPrint(
