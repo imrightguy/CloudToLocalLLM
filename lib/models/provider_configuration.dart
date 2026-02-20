@@ -4,6 +4,152 @@
 /// including validation, persistence, and type-specific settings management.
 library;
 
+/// Provider type enumeration
+enum ProviderType {
+  openclaw,
+  ollama,
+  lmStudio,
+  openAICompatible,
+  custom,
+}
+
+/// Provider information discovered on the network
+class ProviderInfo {
+  final String id;
+  final String name;
+  final ProviderType type;
+
+  // URL as a complete string (e.g., "http://localhost:18789")
+  final String url;
+
+  // Backward compatibility: separate baseUrl and port
+  String get baseUrl {
+    final uri = Uri.tryParse(url);
+    if (uri != null) {
+      return uri.hasScheme ? '${uri.scheme}://${uri.host}' : url;
+    }
+    return url.split(':')[0]; // Fallback
+  }
+
+  int get port {
+    final uri = Uri.tryParse(url);
+    if (uri != null && uri.hasPort) {
+      return uri.port;
+    }
+    // Try to extract port from URL
+    final parts = url.split(':');
+    if (parts.length > 1) {
+      return int.tryParse(parts.last) ?? 80;
+    }
+    return 80; // Default
+  }
+
+  // Additional metadata for wizard
+  final bool isLocal;
+  final bool isAvailable;
+  final String? version;
+  final List<String> availableModels;
+
+  const ProviderInfo({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.url,
+    this.isLocal = true,
+    this.isAvailable = false,
+    this.version,
+    this.availableModels = const [],
+  });
+
+  /// Create from URL with auto-generated ID
+  factory ProviderInfo.fromUrl({
+    required String name,
+    required ProviderType type,
+    required String url,
+    bool isLocal = true,
+    bool isAvailable = false,
+    String? version,
+  }) {
+    final id = '${type.name}_${name.toLowerCase().replaceAll(' ', '_')}';
+    return ProviderInfo(
+      id: id,
+      name: name,
+      type: type,
+      url: url,
+      isLocal: isLocal,
+      isAvailable: isAvailable,
+      version: version,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'type': type.name,
+        'url': url,
+        'baseUrl': baseUrl, // For backward compatibility
+        'port': port, // For backward compatibility
+        'isLocal': isLocal,
+        'isAvailable': isAvailable,
+        'version': version,
+        'availableModels': availableModels,
+      };
+
+  factory ProviderInfo.fromJson(Map<String, dynamic> json) {
+    // Handle both old format (baseUrl/port) and new format (url)
+    final String url;
+    if (json.containsKey('url')) {
+      url = json['url'] as String;
+    } else if (json.containsKey('baseUrl') && json.containsKey('port')) {
+      final baseUrl = json['baseUrl'] as String;
+      final port = json['port'] as int;
+      url = '$baseUrl:$port';
+    } else {
+      url = 'http://localhost:80'; // Fallback
+    }
+
+    return ProviderInfo(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      type: ProviderType.values.firstWhere(
+        (e) => e.name == json['type'],
+        orElse: () => ProviderType.custom,
+      ),
+      url: url,
+      isLocal: json['isLocal'] as bool? ?? true,
+      isAvailable: json['isAvailable'] as bool? ?? false,
+      version: json['version'] as String?,
+      availableModels: (json['availableModels'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+    );
+  }
+
+  /// Create a copy with updated values
+  ProviderInfo copyWith({
+    String? id,
+    String? name,
+    ProviderType? type,
+    String? url,
+    bool? isLocal,
+    bool? isAvailable,
+    String? version,
+    List<String>? availableModels,
+  }) {
+    return ProviderInfo(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      url: url ?? this.url,
+      isLocal: isLocal ?? this.isLocal,
+      isAvailable: isAvailable ?? this.isAvailable,
+      version: version ?? this.version,
+      availableModels: availableModels ?? this.availableModels,
+    );
+  }
+}
+
 /// Base provider configuration interface
 abstract class ProviderConfiguration {
   String get providerId;

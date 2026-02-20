@@ -118,8 +118,8 @@ class FileIndex extends Table {
 
   @override
   List<String> get customConstraints => [
-    'UNIQUE(path)',
-  ];
+        'UNIQUE(path)',
+      ];
 }
 
 /// Table for file content cache (for small files)
@@ -128,6 +128,29 @@ class FileContentCache extends Table {
   TextColumn get filePath => text().references(FileIndex, #path)();
   TextColumn get content => text()();
   DateTimeColumn get cachedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+// ============================================================================
+// LLM PROVIDER TABLES
+// ============================================================================
+
+/// Table for storing configured LLM providers
+class LlmProviders extends Table {
+  TextColumn get id => text()(); // Unique provider ID (e.g., "openclaw_local")
+  TextColumn get name => text()(); // Display name (e.g., "OpenClaw Gateway")
+  TextColumn get type => text()(); // Provider type: openclaw, lmstudio, ollama, openai_compatible
+  TextColumn get url => text()(); // Full URL (e.g., "http://localhost:18789")
+  BoolColumn get isLocal => boolean().withDefault(const Constant(true))();
+  BoolColumn get isDefault =>
+      boolean().withDefault(const Constant(false))(); // Whether this is the default provider
+  TextColumn get version => text().nullable()(); // Provider version (if available)
+  TextColumn get config =>
+      text().nullable()(); // Additional config as JSON (headers, timeout, etc.)
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 // ============================================================================
@@ -145,8 +168,10 @@ class ModelCapacity extends Table {
   IntColumn get tpmLimit => integer().nullable()();
   IntColumn get rpmUsed => integer().withDefault(const Constant(0))();
   IntColumn get rpmLimit => integer().nullable()();
-  DateTimeColumn get lastUpdated => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get status => text().withDefault(const Constant('active'))(); // active, degraded, offline
+  DateTimeColumn get lastUpdated =>
+      dateTime().withDefault(currentDateAndTime)();
+  TextColumn get status => text()
+      .withDefault(const Constant('active'))(); // active, degraded, offline
 
   @override
   Set<Column> get primaryKey => {modelId};
@@ -157,12 +182,112 @@ class LlmRequests extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get requestId => text()();
   TextColumn get modelId => text().references(ModelCapacity, #modelId)();
-  TextColumn get status => text().withDefault(const Constant('pending'))(); // pending, active, completed, failed
+  TextColumn get status => text().withDefault(
+      const Constant('pending'))(); // pending, active, completed, failed
   IntColumn get promptTokens => integer().nullable()();
   IntColumn get completionTokens => integer().nullable()();
   DateTimeColumn get startedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get completedAt => dateTime().nullable()();
   TextColumn get errorMessage => text().nullable()();
+}
+
+// ============================================================================
+// AVATAR AND DESKTOP CONTROL TABLES
+// ============================================================================
+
+/// Table for evolving avatar profiles
+class AvatarProfiles extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get personalityType =>
+      text().nullable()(); // e.g., friendly, analytical
+  IntColumn get level => integer().withDefault(const Constant(1))();
+  IntColumn get xp => integer().withDefault(const Constant(0))();
+  IntColumn get xpToNextLevel => integer().withDefault(const Constant(100))();
+  TextColumn get traits =>
+      text().nullable()(); // JSON: {"friendliness": 0.7, ...}
+  TextColumn get avatarConfig =>
+      text().nullable()(); // JSON config for visual appearance
+  DateTimeColumn get lastInteraction => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Table for tracking avatar achievements
+class Achievements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get avatarId => text().references(AvatarProfiles, #id)();
+  TextColumn get achievementId =>
+      text()(); // Unique ID for the achievement type
+  TextColumn get achievementType => text()(); // e.g., first_chat, power_user
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  DateTimeColumn get unlockedAt => dateTime().nullable()();
+  DateTimeColumn get earnedAt => dateTime()
+      .withDefault(currentDateAndTime)(); // For backward compatibility
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Table for avatar memory entries
+class AvatarMemoryEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get avatarId => text().references(AvatarProfiles, #id)();
+  TextColumn get memoryType => text()(); // user_preference, interaction_history
+  TextColumn get memoryKey => text()();
+  TextColumn get memoryValue => text()();
+  TextColumn get tags => text().nullable()(); // Comma-separated tags
+  IntColumn get importance =>
+      integer().withDefault(const Constant(0))(); // 0-100
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime()
+      .withDefault(currentDateAndTime)(); // For backward compatibility
+  DateTimeColumn get lastAccessed => dateTime()
+      .withDefault(currentDateAndTime)(); // For backward compatibility
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Table for clipboard history (Desktop Control)
+class ClipboardHistory extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get content => text()();
+  TextColumn get contentType => text()(); // text, image, file
+  TextColumn get sourceApp => text().nullable()();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get copiedAt => dateTime()
+      .withDefault(currentDateAndTime)(); // For backward compatibility
+  BoolColumn get isPinned => boolean().withDefault(const Constant(false))();
+}
+
+/// Table for action history (Desktop Control)
+class ActionHistoryEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get actionType => text()(); // click, type, drag
+  TextColumn get targetElement => text().nullable()();
+  TextColumn get parameters => text().nullable()(); // JSON
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get result => text().nullable()(); // success, error message
+}
+
+/// Table for macros (Desktop Control)
+class Macros extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get sequence => text()(); // JSON sequence of actions
+  TextColumn get triggerType => text()(); // hotkey, voice, schedule
+  TextColumn get triggerData => text().nullable()(); // e.g., "Ctrl+Shift+A"
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get lastUsed => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 // ============================================================================
@@ -180,113 +305,154 @@ class LlmRequests extends Table {
   SyncQueue,
   FileIndex,
   FileContentCache,
+  LlmProviders,
   ModelCapacity,
   LlmRequests,
+  AvatarProfiles,
+  Achievements,
+  AvatarMemoryEntries,
+  ClipboardHistory,
+  ActionHistoryEntries,
+  Macros,
 ])
 class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) async {
-      await m.createAll();
-      await _populateInitialRateLimits();
-    },
-    onUpgrade: (Migrator m, int from, int to) async {
-      if (from < 2) {
-        // Add new tables for v2
-        await m.createTable(agents);
-        await m.createTable(agentEvents);
-        await m.createTable(syncQueue);
-        await m.createTable(fileIndex);
-        await m.createTable(fileContentCache);
-      }
-      if (from < 3) {
-        // Add rate limit tables for v3
-        await m.createTable(modelCapacity);
-        await m.createTable(llmRequests);
-        await _populateInitialRateLimits();
-      }
-    },
-  );
+        onCreate: (Migrator m) async {
+          await m.createAll();
+          await _populateInitialRateLimits();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from < 2) {
+            // Add new tables for v2
+            await m.createTable(agents);
+            await m.createTable(agentEvents);
+            await m.createTable(syncQueue);
+            await m.createTable(fileIndex);
+            await m.createTable(fileContentCache);
+          }
+          if (from < 3) {
+            // Add rate limit tables for v3
+            await m.createTable(modelCapacity);
+            await m.createTable(llmRequests);
+            await _populateInitialRateLimits();
+          }
+          if (from < 4) {
+            // Add avatar and desktop control tables for v4
+            await m.createTable(avatarProfiles);
+            await m.createTable(achievements);
+            await m.createTable(avatarMemoryEntries);
+            await m.createTable(clipboardHistory);
+            await m.createTable(actionHistoryEntries);
+            await m.createTable(macros);
+            await _createDefaultAvatarProfile();
+          }
+          if (from < 5) {
+            // Add LLM providers table for v5
+            await m.createTable(llmProviders);
+          }
+        },
+      );
 
   /// Populate initial rate limits
   Future<void> _populateInitialRateLimits() async {
     // GLM (Zhipu)
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'glm-4-plus',
-      provider: 'zhipu',
-      displayName: const Value('GLM-4 Plus'),
-      concurrentLimit: 20,
-    ), mode: InsertMode.insertOrIgnore);
-    
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'glm-4-32b-0414-128k',
-      provider: 'zhipu',
-      displayName: const Value('GLM-4 32B'),
-      concurrentLimit: 15,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'glm-4-plus',
+          provider: 'zhipu',
+          displayName: const Value('GLM-4 Plus'),
+          concurrentLimit: 20,
+        ),
+        mode: InsertMode.insertOrIgnore);
 
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'glm-4.5',
-      provider: 'zhipu',
-      displayName: const Value('GLM-4.5'),
-      concurrentLimit: 10,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'glm-4-32b-0414-128k',
+          provider: 'zhipu',
+          displayName: const Value('GLM-4 32B'),
+          concurrentLimit: 15,
+        ),
+        mode: InsertMode.insertOrIgnore);
 
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'glm-4.7',
-      provider: 'zhipu',
-      displayName: const Value('GLM-4.7'),
-      concurrentLimit: 3,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'glm-4.5',
+          provider: 'zhipu',
+          displayName: const Value('GLM-4.5'),
+          concurrentLimit: 10,
+        ),
+        mode: InsertMode.insertOrIgnore);
 
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'glm-4.7-flash',
-      provider: 'zhipu',
-      displayName: const Value('GLM-4.7 Flash'),
-      concurrentLimit: 1,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'glm-4.7',
+          provider: 'zhipu',
+          displayName: const Value('GLM-4.7'),
+          concurrentLimit: 3,
+        ),
+        mode: InsertMode.insertOrIgnore);
 
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'glm-5',
-      provider: 'zhipu',
-      displayName: const Value('GLM-5'),
-      concurrentLimit: 1,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'glm-4.7-flash',
+          provider: 'zhipu',
+          displayName: const Value('GLM-4.7 Flash'),
+          concurrentLimit: 1,
+        ),
+        mode: InsertMode.insertOrIgnore);
+
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'glm-5',
+          provider: 'zhipu',
+          displayName: const Value('GLM-5'),
+          concurrentLimit: 1,
+        ),
+        mode: InsertMode.insertOrIgnore);
 
     // Kimi (Moonshot)
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'kimi-k2.5',
-      provider: 'moonshot',
-      displayName: const Value('Kimi K2.5'),
-      concurrentLimit: 5, // Estimate
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'kimi-k2.5',
+          provider: 'moonshot',
+          displayName: const Value('Kimi K2.5'),
+          concurrentLimit: 5, // Estimate
+        ),
+        mode: InsertMode.insertOrIgnore);
 
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'kimi-k2-thinking',
-      provider: 'moonshot',
-      displayName: const Value('Kimi K2 Thinking'),
-      concurrentLimit: 3, // Estimate
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'kimi-k2-thinking',
+          provider: 'moonshot',
+          displayName: const Value('Kimi K2 Thinking'),
+          concurrentLimit: 3, // Estimate
+        ),
+        mode: InsertMode.insertOrIgnore);
 
     // Gemini (Google)
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'gemini-3-flash',
-      provider: 'google',
-      displayName: const Value('Gemini 3 Flash'),
-      concurrentLimit: 60,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'gemini-3-flash',
+          provider: 'google',
+          displayName: const Value('Gemini 3 Flash'),
+          concurrentLimit: 60,
+        ),
+        mode: InsertMode.insertOrIgnore);
 
-    await into(modelCapacity).insert(ModelCapacityCompanion.insert(
-      modelId: 'gemini-3-pro',
-      provider: 'google',
-      displayName: const Value('Gemini 3 Pro'),
-      concurrentLimit: 60,
-    ), mode: InsertMode.insertOrIgnore);
+    await into(modelCapacity).insert(
+        ModelCapacityCompanion.insert(
+          modelId: 'gemini-3-pro',
+          provider: 'google',
+          displayName: const Value('Gemini 3 Pro'),
+          concurrentLimit: 60,
+        ),
+        mode: InsertMode.insertOrIgnore);
   }
 
   // ==========================================================================
@@ -295,7 +461,8 @@ class LocalBrain extends _$LocalBrain {
 
   /// Get capacity for a model
   Future<ModelCapacityData?> getModelCapacity(String modelId) =>
-      (select(modelCapacity)..where((t) => t.modelId.equals(modelId))).getSingleOrNull();
+      (select(modelCapacity)..where((t) => t.modelId.equals(modelId)))
+          .getSingleOrNull();
 
   /// Get all model capacities
   Future<List<ModelCapacityData>> getAllModelCapacities() =>
@@ -310,12 +477,16 @@ class LocalBrain extends _$LocalBrain {
     // This needs to be a raw query or transaction to be atomic-ish
     // But for Drift/SQLite, a simple read-modify-write in transaction works
     await transaction(() async {
-      final model = await (select(modelCapacity)..where((t) => t.modelId.equals(modelId))).getSingle();
+      final model = await (select(modelCapacity)
+            ..where((t) => t.modelId.equals(modelId)))
+          .getSingle();
       final newUsage = model.concurrentUsed + concurrentChange;
-      
-      await (update(modelCapacity)..where((t) => t.modelId.equals(modelId))).write(
+
+      await (update(modelCapacity)..where((t) => t.modelId.equals(modelId)))
+          .write(
         ModelCapacityCompanion(
-          concurrentUsed: Value(newUsage < 0 ? 0 : newUsage), // Prevent negative
+          concurrentUsed:
+              Value(newUsage < 0 ? 0 : newUsage), // Prevent negative
           lastUpdated: Value(DateTime.now()),
         ),
       );
@@ -324,12 +495,15 @@ class LocalBrain extends _$LocalBrain {
 
   /// Sync from API header (Trust but Verify)
   Future<void> syncUsageFromHeader(String modelId, int remaining) async {
-     await transaction(() async {
-      final model = await (select(modelCapacity)..where((t) => t.modelId.equals(modelId))).getSingle();
+    await transaction(() async {
+      final model = await (select(modelCapacity)
+            ..where((t) => t.modelId.equals(modelId)))
+          .getSingle();
       // If API says 50 remaining and limit is 60, then used is 10.
       final calculatedUsed = model.concurrentLimit - remaining;
-      
-      await (update(modelCapacity)..where((t) => t.modelId.equals(modelId))).write(
+
+      await (update(modelCapacity)..where((t) => t.modelId.equals(modelId)))
+          .write(
         ModelCapacityCompanion(
           concurrentUsed: Value(calculatedUsed < 0 ? 0 : calculatedUsed),
           lastUpdated: Value(DateTime.now()),
@@ -348,10 +522,12 @@ class LocalBrain extends _$LocalBrain {
 
   /// Get messages for a specific conversation
   Future<List<Message>> getMessages(String conversationId) =>
-      (select(messages)..where((t) => t.conversationId.equals(conversationId))).get();
+      (select(messages)..where((t) => t.conversationId.equals(conversationId)))
+          .get();
 
   /// Insert a new message
-  Future<int> addMessage(MessagesCompanion entry) => into(messages).insert(entry);
+  Future<int> addMessage(MessagesCompanion entry) =>
+      into(messages).insert(entry);
 
   /// Create a new conversation
   Future<void> createConversation(ConversationsCompanion entry) =>
@@ -376,8 +552,8 @@ class LocalBrain extends _$LocalBrain {
   Future<int> deleteOldAgents(Duration age) async {
     final cutoff = DateTime.now().subtract(age);
     return (delete(agents)
-      ..where((t) => t.updatedAt.isSmallerThanValue(cutoff)))
-      .go();
+          ..where((t) => t.updatedAt.isSmallerThanValue(cutoff)))
+        .go();
   }
 
   // ==========================================================================
@@ -391,35 +567,39 @@ class LocalBrain extends _$LocalBrain {
   /// Get unsynced events
   Future<List<AgentEvent>> getUnsyncedEvents({int limit = 100}) =>
       (select(agentEvents)
-        ..where((t) => t.synced.equals(false))
-        ..orderBy([(t) => OrderingTerm(expression: t.timestamp)])
-        ..limit(limit))
-      .get();
+            ..where((t) => t.synced.equals(false))
+            ..orderBy([(t) => OrderingTerm(expression: t.timestamp)])
+            ..limit(limit))
+          .get();
 
   /// Mark events as synced
   Future<void> markEventsSynced(List<String> eventIds) async {
-    await (update(agentEvents)
-      ..where((t) => t.id.isIn(eventIds)))
-      .write(AgentEventsCompanion(
-        synced: const Value(true),
-        syncedAt: Value(DateTime.now()),
-      ));
+    await (update(agentEvents)..where((t) => t.id.isIn(eventIds)))
+        .write(AgentEventsCompanion(
+      synced: const Value(true),
+      syncedAt: Value(DateTime.now()),
+    ));
   }
 
   /// Get events by type
-  Future<List<AgentEvent>> getEventsByType(String eventType, {int limit = 100}) =>
+  Future<List<AgentEvent>> getEventsByType(String eventType,
+          {int limit = 100}) =>
       (select(agentEvents)
-        ..where((t) => t.eventType.equals(eventType))
-        ..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)])
-        ..limit(limit))
-      .get();
+            ..where((t) => t.eventType.equals(eventType))
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ])
+            ..limit(limit))
+          .get();
 
   /// Delete old synced events (cleanup)
   Future<int> deleteOldSyncedEvents(Duration age) async {
     final cutoff = DateTime.now().subtract(age);
     return (delete(agentEvents)
-      ..where((t) => t.synced.equals(true) & t.timestamp.isSmallerThanValue(cutoff)))
-      .go();
+          ..where((t) =>
+              t.synced.equals(true) & t.timestamp.isSmallerThanValue(cutoff)))
+        .go();
   }
 
   // ==========================================================================
@@ -438,25 +618,28 @@ class LocalBrain extends _$LocalBrain {
   }
 
   /// Search files by name
-  Future<List<FileIndexData>> searchFilesByName(String query, {int limit = 50}) =>
+  Future<List<FileIndexData>> searchFilesByName(String query,
+          {int limit = 50}) =>
       (select(fileIndex)
-        ..where((t) => t.filename.like('%$query%'))
-        ..limit(limit))
-      .get();
+            ..where((t) => t.filename.like('%$query%'))
+            ..limit(limit))
+          .get();
 
   /// Search files by path
-  Future<List<FileIndexData>> searchFilesByPath(String query, {int limit = 50}) =>
+  Future<List<FileIndexData>> searchFilesByPath(String query,
+          {int limit = 50}) =>
       (select(fileIndex)
-        ..where((t) => t.path.like('%$query%'))
-        ..limit(limit))
-      .get();
+            ..where((t) => t.path.like('%$query%'))
+            ..limit(limit))
+          .get();
 
   /// Get files by extension
-  Future<List<FileIndexData>> getFilesByExtension(String ext, {int limit = 100}) =>
+  Future<List<FileIndexData>> getFilesByExtension(String ext,
+          {int limit = 100}) =>
       (select(fileIndex)
-        ..where((t) => t.extension.equals(ext))
-        ..limit(limit))
-      .get();
+            ..where((t) => t.extension.equals(ext))
+            ..limit(limit))
+          .get();
 
   /// Get indexed file count
   Future<int> getIndexedFileCount() async {
@@ -467,8 +650,8 @@ class LocalBrain extends _$LocalBrain {
   /// Get indexed directory count
   Future<int> getIndexedDirectoryCount() async {
     final result = await (select(fileIndex)
-      ..where((t) => t.isDirectory.equals(true)))
-      .get();
+          ..where((t) => t.isDirectory.equals(true)))
+        .get();
     return result.length;
   }
 
@@ -495,14 +678,15 @@ class LocalBrain extends _$LocalBrain {
 
   /// Get cached file content
   Future<FileContentCacheData?> getCachedContent(String filePath) =>
-      (select(fileContentCache)..where((t) => t.filePath.equals(filePath))).getSingleOrNull();
+      (select(fileContentCache)..where((t) => t.filePath.equals(filePath)))
+          .getSingleOrNull();
 
   /// Clear old cached content
   Future<int> clearOldCache(Duration age) async {
     final cutoff = DateTime.now().subtract(age);
     return (delete(fileContentCache)
-      ..where((t) => t.cachedAt.isSmallerThanValue(cutoff)))
-      .go();
+          ..where((t) => t.cachedAt.isSmallerThanValue(cutoff)))
+        .go();
   }
 
   // ==========================================================================
@@ -516,9 +700,9 @@ class LocalBrain extends _$LocalBrain {
   /// Get pending sync items
   Future<List<SyncQueueData>> getPendingSyncItems({int limit = 100}) =>
       (select(syncQueue)
-        ..orderBy([(t) => OrderingTerm(expression: t.createdAt)])
-        ..limit(limit))
-      .get();
+            ..orderBy([(t) => OrderingTerm(expression: t.createdAt)])
+            ..limit(limit))
+          .get();
 
   /// Remove from sync queue
   Future<int> dequeueSync(int id) =>
@@ -526,17 +710,18 @@ class LocalBrain extends _$LocalBrain {
 
   /// Increment retry count
   Future<void> incrementRetry(int id) async {
-    final item = await (select(syncQueue)..where((t) => t.id.equals(id))).getSingle();
+    final item =
+        await (select(syncQueue)..where((t) => t.id.equals(id))).getSingle();
     await (update(syncQueue)..where((t) => t.id.equals(id)))
-      .write(SyncQueueCompanion(retryCount: Value(item.retryCount + 1)));
+        .write(SyncQueueCompanion(retryCount: Value(item.retryCount + 1)));
   }
 
   /// Clear old sync queue items
   Future<int> clearOldSyncQueue(Duration age) async {
     final cutoff = DateTime.now().subtract(age);
     return (delete(syncQueue)
-      ..where((t) => t.createdAt.isSmallerThanValue(cutoff)))
-      .go();
+          ..where((t) => t.createdAt.isSmallerThanValue(cutoff)))
+        .go();
   }
 
   // ==========================================================================
@@ -552,25 +737,350 @@ class LocalBrain extends _$LocalBrain {
       ));
 
   /// Get recent logs
-  Future<List<AgentLog>> getRecentLogs({int limit = 100}) =>
-      (select(agentLogs)
-        ..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)])
+  Future<List<AgentLog>> getRecentLogs({int limit = 100}) => (select(agentLogs)
+        ..orderBy([
+          (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+        ])
         ..limit(limit))
       .get();
 
   /// Get logs by level
   Future<List<AgentLog>> getLogsByLevel(String level, {int limit = 100}) =>
       (select(agentLogs)
-        ..where((t) => t.level.equals(level))
-        ..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)])
-        ..limit(limit))
-      .get();
+            ..where((t) => t.level.equals(level))
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ])
+            ..limit(limit))
+          .get();
 
   /// Clear old logs
   Future<int> clearOldLogs(Duration age) async {
     final cutoff = DateTime.now().subtract(age);
     return (delete(agentLogs)
-      ..where((t) => t.timestamp.isSmallerThanValue(cutoff)))
-      .go();
+          ..where((t) => t.timestamp.isSmallerThanValue(cutoff)))
+        .go();
+  }
+
+  // ==========================================================================
+  // AVATAR DAO
+  // ==========================================================================
+
+  /// Get all avatar profiles
+  Future<List<AvatarProfile>> getAllAvatarProfiles() =>
+      select(avatarProfiles).get();
+
+  /// Get active avatar profile
+  Future<AvatarProfile?> getActiveAvatarProfile() async {
+    final profiles = await select(avatarProfiles).get();
+    return profiles.isNotEmpty ? profiles.first : null;
+  }
+
+  /// Create default avatar profile
+  Future<void> _createDefaultAvatarProfile() async {
+    final existing = await select(avatarProfiles).get();
+    if (existing.isEmpty) {
+      await into(avatarProfiles).insert(AvatarProfilesCompanion.insert(
+        id: 'default-avatar',
+        name: 'Avatar',
+        level: const Value(1),
+        xp: const Value(0),
+        xpToNextLevel: const Value(100),
+        traits: const Value(
+            '{"friendliness":0.7,"curiosity":0.6,"humor":0.5,"formality":0.4,"empathy":0.8}'),
+      ));
+    }
+  }
+
+  /// Update avatar profile
+  Future<void> updateAvatarProfile(AvatarProfilesCompanion entry) =>
+      into(avatarProfiles).insert(entry, mode: InsertMode.insertOrReplace);
+
+  /// Award XP to avatar
+  Future<void> awardXP(int amount) async {
+    final profile = await getActiveAvatarProfile();
+    if (profile == null) return;
+
+    int newXp = profile.xp + amount;
+    int newLevel = profile.level;
+    int newXpToNextLevel = profile.xpToNextLevel;
+
+    // Check for level up
+    while (newXp >= newXpToNextLevel) {
+      newLevel++;
+      newXp -= newXpToNextLevel;
+      newXpToNextLevel = (newXpToNextLevel * 1.5).toInt();
+    }
+
+    await into(avatarProfiles).insert(
+      AvatarProfilesCompanion(
+        id: Value(profile.id),
+        xp: Value(newXp),
+        level: Value(newLevel),
+        xpToNextLevel: Value(newXpToNextLevel),
+        lastInteraction: Value(DateTime.now()),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  // Achievement DAO
+
+  /// Get all achievements
+  Future<List<Achievement>> getAllAchievements() => select(achievements).get();
+
+  /// Get unlocked achievements
+  Future<List<Achievement>> getUnlockedAchievements() => (select(achievements)
+        ..where((t) => t.unlockedAt.isNotNull())
+        ..orderBy([
+          (t) => OrderingTerm(expression: t.unlockedAt, mode: OrderingMode.desc)
+        ]))
+      .get();
+
+  /// Insert achievement
+  Future<void> insertAchievement(AchievementsCompanion entry) =>
+      into(achievements).insert(entry, mode: InsertMode.insertOrIgnore);
+
+  /// Unlock achievement
+  Future<void> unlockAchievement(String achievementId) async {
+    final existing = await (select(achievements)
+          ..where((t) => t.achievementId.equals(achievementId)))
+        .getSingleOrNull();
+    if (existing == null) {
+      return;
+    }
+    await (update(achievements)
+          ..where((t) => t.achievementId.equals(achievementId)))
+        .write(AchievementsCompanion(
+      unlockedAt: Value(DateTime.now()),
+    ));
+  }
+
+  // Avatar Memory DAO
+
+  /// Store avatar memory
+  Future<void> insertAvatarMemoryEntry(AvatarMemoryEntriesCompanion entry) =>
+      into(avatarMemoryEntries).insert(entry);
+
+  /// Get all avatar memories
+  Future<List<AvatarMemoryEntry>> getAllAvatarMemoryEntries() =>
+      (select(avatarMemoryEntries)
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ]))
+          .get();
+
+  /// Search memories by tag
+  Future<List<AvatarMemoryEntry>> searchMemoriesByTag(String tag) =>
+      (select(avatarMemoryEntries)
+            ..where((t) => t.tags.like('%$tag%'))
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ]))
+          .get();
+
+  /// Delete old memories
+  Future<int> deleteOldAvatarMemories(DateTime cutoff) =>
+      (delete(avatarMemoryEntries)
+            ..where((t) => t.timestamp.isSmallerThanValue(cutoff)))
+          .go();
+
+  // ==========================================================================
+  // DESKTOP CONTROL DAO
+  // ==========================================================================
+
+  // Clipboard History DAO
+
+  /// Insert clipboard entry
+  Future<void> insertClipboardEntry(ClipboardHistoryCompanion entry) =>
+      into(clipboardHistory).insert(entry);
+
+  /// Get all clipboard entries
+  Future<List<ClipboardHistoryData>> getAllClipboardEntries() =>
+      (select(clipboardHistory)
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ]))
+          .get();
+
+  /// Delete clipboard entry
+  Future<int> deleteClipboardEntry(int id) =>
+      (delete(clipboardHistory)..where((t) => t.id.equals(id))).go();
+
+  /// Clear clipboard history
+  Future<int> clearClipboardHistory() => delete(clipboardHistory).go();
+
+  // Action History DAO
+
+  /// Insert action history entry
+  Future<void> insertActionHistoryEntry(ActionHistoryEntriesCompanion entry) =>
+      into(actionHistoryEntries).insert(entry);
+
+  /// Get all action history entries
+  Future<List<ActionHistoryEntry>> getAllActionHistoryEntries() =>
+      (select(actionHistoryEntries)
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ]))
+          .get();
+
+  /// Clear action history
+  Future<int> clearActionHistory() => delete(actionHistoryEntries).go();
+
+  // Macros DAO
+
+  /// Insert macro
+  Future<void> insertMacro(MacrosCompanion entry) => into(macros).insert(entry);
+
+  /// Get all macros
+  Future<List<Macro>> getAllMacros() => select(macros).get();
+
+  /// Get macro by ID
+  Future<Macro?> getMacroById(String id) =>
+      (select(macros)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  /// Update macro last used
+  Future<void> updateMacroLastUsed(String id) =>
+      (update(macros)..where((t) => t.id.equals(id))).write(MacrosCompanion(
+        lastUsed: Value(DateTime.now()),
+      ));
+
+  /// Delete macro
+  Future<int> deleteMacro(String id) =>
+      (delete(macros)..where((t) => t.id.equals(id))).go();
+
+  // ==========================================================================
+  // LLM PROVIDER DAO
+  // ==========================================================================
+
+  /// Get all configured providers
+  /// Note: This uses raw SQL since the generated code might not be updated yet
+  Future<List<dynamic>> getAllProviders() {
+    return customSelect(
+      'SELECT * FROM llm_providers ORDER BY created_at DESC',
+    ).get();
+  }
+
+  /// Get provider by ID
+  Future<dynamic?> getProviderById(String id) {
+    return customSelect(
+      'SELECT * FROM llm_providers WHERE id = ?',
+      variables: [Variable(id)],
+    ).getSingleOrNull();
+  }
+
+  /// Get default provider
+  Future<dynamic?> getDefaultProvider() {
+    return customSelect(
+      'SELECT * FROM llm_providers WHERE is_default = 1 LIMIT 1',
+    ).getSingleOrNull();
+  }
+
+  /// Get providers by type
+  Future<List<dynamic>> getProvidersByType(String type) {
+    return customSelect(
+      'SELECT * FROM llm_providers WHERE type = ?',
+      variables: [Variable(type)],
+    ).get();
+  }
+
+  /// Insert or update a provider
+  Future<void> upsertProvider(Map<String, dynamic> data) {
+    final keys = data.keys.join(', ');
+    final values = data.values.map((v) => '?').join(', ');
+    final updates = data.keys
+        .where((k) => k != 'created_at')
+        .map((k) => '$k = excluded.$k')
+        .join(', ');
+
+    return customExecute('''
+      INSERT INTO llm_providers ($keys)
+      VALUES ($values)
+      ON CONFLICT(id) DO UPDATE SET
+        $updates,
+        updated_at = datetime('now')
+    ''', data.values.toList());
+  }
+
+  /// Delete a provider
+  Future<int> deleteProvider(String id) {
+    return customUpdate(
+      'DELETE FROM llm_providers WHERE id = ?',
+      variables: [Variable(id)],
+      updates: {llmProviders},
+    );
+  }
+
+  /// Set a provider as default (unsets others)
+  Future<void> setDefaultProvider(String id) async {
+    await transaction(() async {
+      // Unset all existing defaults
+      await customUpdate(
+        'UPDATE llm_providers SET is_default = 0',
+        updates: {llmProviders},
+      );
+
+      // Set new default
+      await customUpdate(
+        'UPDATE llm_providers SET is_default = 1 WHERE id = ?',
+        variables: [Variable(id)],
+        updates: {llmProviders},
+      );
+    });
+  }
+
+  /// Check if any providers are configured
+  Future<bool> hasProviders() async {
+    final result = await customSelect(
+      'SELECT COUNT(*) as count FROM llm_providers',
+    ).getSingle();
+    return (result.data['count'] as int) > 0;
+  }
+
+  /// Get provider by ID
+  Future<LlmProvider?> getProviderById(String id) =>
+      (select(llmProviders)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  /// Get default provider
+  Future<LlmProvider?> getDefaultProvider() =>
+      (select(llmProviders)..where((t) => t.isDefault.equals(true)))
+          .getSingleOrNull();
+
+  /// Get providers by type
+  Future<List<LlmProvider>> getProvidersByType(String type) =>
+      (select(llmProviders)..where((t) => t.type.equals(type))).get();
+
+  /// Insert or update a provider
+  Future<void> upsertProvider(LlmProvidersCompanion entry) =>
+      into(llmProviders).insert(entry, mode: InsertMode.insertOrReplace);
+
+  /// Delete a provider
+  Future<int> deleteProvider(String id) =>
+      (delete(llmProviders)..where((t) => t.id.equals(id))).go();
+
+  /// Set a provider as default (unsets others)
+  Future<void> setDefaultProvider(String id) async {
+    await transaction(() async {
+      // Unset all existing defaults
+      await (update(llmProviders))
+          .write(const LlmProvidersCompanion(isDefault: Value(false)));
+
+      // Set new default
+      await (update(llmProviders)..where((t) => t.id.equals(id)))
+          .write(const LlmProvidersCompanion(isDefault: Value(true)));
+    });
+  }
+
+  /// Check if any providers are configured
+  Future<bool> hasProviders() async {
+    final count = await (selectOnly(llmProviders)..addColumns([llmProviders.id]))
+        .get()
+        .then((rows) => rows.length);
+    return count > 0;
   }
 }
