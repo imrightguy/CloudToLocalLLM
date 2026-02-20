@@ -11,14 +11,16 @@ import '../../services/streaming_chat_service.dart';
 import '../../services/theme_provider.dart';
 import '../../services/platform_detection_service.dart';
 import '../../components/message_bubble.dart';
-import '../../components/message_input.dart';
+import '../../components/message_input.dart' as msg_input;
 import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../components/conversation_list.dart';
 import '../../widgets/capacity_gauge.dart';
+import '../../widgets/chat/model_selector.dart';
 import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
+import '../../services/connection_manager_service.dart';
 import '../../services/google_workspace_service.dart';
 
 /// Main layout for the chat interface, handling responsiveness and sidebar toggle.
@@ -307,7 +309,8 @@ class _EmailStatusIndicator extends StatelessWidget {
     );
   }
 
-  void _showWorkspacePopup(BuildContext context, List<Map<String, dynamic>> messages, List<Map<String, dynamic>> events) {
+  void _showWorkspacePopup(BuildContext context,
+      List<Map<String, dynamic>> messages, List<Map<String, dynamic>> events) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -319,28 +322,37 @@ class _EmailStatusIndicator extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Upcoming Events', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Upcoming Events',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const Divider(),
                 if (events.isEmpty)
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No events for today'))
+                  const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text('No events for today'))
                 else
                   ...events.map((e) => ListTile(
-                    title: Text(e['summary']),
-                    subtitle: Text('${e['start']} - ${e['end']}'),
-                    leading: const Icon(Icons.calendar_today, size: 20),
-                  )),
+                        title: Text(e['summary']),
+                        subtitle: Text('${e['start']} - ${e['end']}'),
+                        leading: const Icon(Icons.calendar_today, size: 20),
+                      )),
                 const SizedBox(height: 20),
-                const Text('Unread Emails', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Unread Emails',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const Divider(),
                 if (messages.isEmpty)
-                  const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No unread messages'))
+                  const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text('No unread messages'))
                 else
                   ...messages.map((m) => ListTile(
-                    title: Text(m['subject'], maxLines: 1, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${m['from']} • ${m['date']}'),
-                    isThreeLine: true,
-                    leading: const Icon(Icons.email, size: 20),
-                  )),
+                        title: Text(m['subject'],
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        subtitle: Text('${m['from']} • ${m['date']}'),
+                        isThreeLine: true,
+                        leading: const Icon(Icons.email, size: 20),
+                      )),
               ],
             ),
           ),
@@ -355,8 +367,6 @@ class _EmailStatusIndicator extends StatelessWidget {
     );
   }
 }
-
-// Removed _ModelSelector class as it's no longer needed in the UI
 
 class _UserMenu extends StatelessWidget {
   const _UserMenu();
@@ -475,8 +485,6 @@ class _SidebarPane extends StatelessWidget {
       builder: (context, chatService, child) {
         return Column(
           children: [
-            const CapacityGaugeWidget(),
-            const Divider(),
             Expanded(
               child: ConversationList(
                 conversations: chatService.conversations,
@@ -510,7 +518,7 @@ class _SidebarPane extends StatelessWidget {
   }
 }
 
-class _ChatPane extends StatelessWidget {
+class _ChatPane extends StatefulWidget {
   const _ChatPane({
     required this.isCompact,
     required this.scrollController,
@@ -523,13 +531,69 @@ class _ChatPane extends StatelessWidget {
       onSendMessage;
 
   @override
+  State<_ChatPane> createState() => _ChatPaneState();
+}
+
+class _ChatPaneState extends State<_ChatPane> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch provider config on initialization
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchProviderConfig();
+    });
+  }
+
+  Future<void> _fetchProviderConfig() async {
+    try {
+      final connectionManager = context.read<ConnectionManagerService>();
+      await connectionManager.fetchProviderConfig();
+    } catch (e) {
+      debugPrint('[HomeLayout] Error fetching provider config: $e');
+    }
+  }
+
+  List<String> _getAvailableModels(BuildContext context) {
+    try {
+      final connectionManager = context.read<ConnectionManagerService>();
+      return connectionManager.availableModels;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<void> _onModelChanged(String? model) async {
+    if (model == null) return;
+
+    try {
+      final chatService = context.read<StreamingChatService>();
+      final connectionManager = context.read<ConnectionManagerService>();
+
+      // Update both services
+      chatService.setSelectedModel(model);
+
+      // Set active provider in OpenClaw Gateway
+      final success = await connectionManager.setActiveProvider(model);
+      if (!success) {
+        debugPrint('[HomeLayout] Failed to set provider in OpenClaw Gateway');
+      }
+    } catch (e) {
+      debugPrint('[HomeLayout] Error changing model: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Consumer<StreamingChatService>(
-      builder: (context, chatService, child) {
+    return Consumer2<StreamingChatService, ConnectionManagerService>(
+      builder: (context, chatService, connectionManager, child) {
         final conversation = chatService.currentConversation;
         final spacing = AppTheme.spacingOf(context);
+        final availableModels = connectionManager.availableModels;
+        final activeModel = connectionManager.activeProviderModelId ??
+            chatService.selectedModel ??
+            (availableModels.isNotEmpty ? availableModels.first : null);
 
         if (conversation == null) {
           return const _EmptyConversationState();
@@ -539,22 +603,27 @@ class _ChatPane extends StatelessWidget {
           color: theme.scaffoldBackgroundColor,
           child: Column(
             children: [
+              _ChatHeader(
+                selectedModel: activeModel,
+                availableModels: availableModels,
+                onModelChanged: _onModelChanged,
+              ),
               Expanded(
                 child: _MessageList(
                   conversation: conversation,
-                  controller: scrollController,
+                  controller: widget.scrollController,
                 ),
               ),
               Container(
                 padding: EdgeInsets.only(
-                  bottom: isCompact ? spacing.m : spacing.l,
+                  bottom: widget.isCompact ? spacing.m : spacing.l,
                   left: spacing.m,
                   right: spacing.m,
                 ),
                 color: theme.scaffoldBackgroundColor,
-                child: MessageInput(
+                child: msg_input.MessageInput(
                   onSendMessage: (message) =>
-                      onSendMessage(chatService, message),
+                      widget.onSendMessage(chatService, message),
                   isLoading: chatService.isLoading,
                   placeholder: 'Type your message...',
                 ),
@@ -563,6 +632,39 @@ class _ChatPane extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ChatHeader extends StatelessWidget {
+  final String? selectedModel;
+  final List<String> availableModels;
+  final Function(String?) onModelChanged;
+
+  const _ChatHeader({
+    required this.selectedModel,
+    required this.availableModels,
+    required this.onModelChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).dividerColor,
+            width: 1,
+          ),
+        ),
+      ),
+      child: ModelSelector(
+        selectedModel: selectedModel,
+        availableModels: availableModels,
+        onModelChanged: onModelChanged,
+      ),
     );
   }
 }
@@ -577,7 +679,7 @@ class _MessageList extends StatelessWidget {
   Widget build(BuildContext context) {
     final spacing = AppTheme.spacingOf(context);
     final messages = conversation.messages.reversed.toList();
-    
+
     return ListView.builder(
       controller: controller,
       reverse: true,
