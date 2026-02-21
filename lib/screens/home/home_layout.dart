@@ -16,7 +16,6 @@ import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../components/conversation_list.dart';
-import '../../widgets/capacity_gauge.dart';
 import '../../widgets/chat/model_selector.dart';
 import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
@@ -550,15 +549,6 @@ class _ChatPaneState extends State<_ChatPane> {
       await connectionManager.fetchProviderConfig();
     } catch (e) {
       debugPrint('[HomeLayout] Error fetching provider config: $e');
-    }
-  }
-
-  List<String> _getAvailableModels(BuildContext context) {
-    try {
-      final connectionManager = context.read<ConnectionManagerService>();
-      return connectionManager.availableModels;
-    } catch (e) {
-      return [];
     }
   }
 

@@ -373,60 +373,6 @@ class ConnectionManagerService extends ChangeNotifier {
     }
   }
 
-  Future<void> _performHandshake() async {
-    final id = DateTime.now().millisecondsSinceEpoch.toString();
-
-    // For local OpenClaw Gateway, use password auth
-    // For cloud, use Auth0 token
-    final connectRequest = {
-      'type': 'req',
-      'id': id,
-      'method': 'connect',
-      'params': {
-        'minProtocol': 3,
-        'maxProtocol': 3,
-        'client': {
-          'id': 'cli',
-          'version': '10.1.187',
-          'platform': 'linux',
-          'mode': 'cli'
-        },
-        'role': 'operator',
-        'scopes': ['operator.read', 'operator.write'],
-        'auth': {'password': _gatewayPassword ?? ''},
-        'locale': 'en-US',
-        'userAgent': 'CloudToLocalLLM/10.1.187',
-      }
-    };
-
-    _wsChannel?.sink.add(jsonEncode(connectRequest));
-
-    // Wait for hello-ok by listening once with timeout
-    try {
-      final handshakeResult = await _wsChannel!.stream.take(5).timeout(
-        const Duration(seconds: 10),
-        onTimeout: (sink) {
-          sink.addError(
-              TimeoutException('Handshake timed out after 10 seconds'));
-          sink.close();
-        },
-      ).first;
-
-      final msg = jsonDecode(handshakeResult as String);
-      if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
-        debugPrint('[ConnectionManager] ✓ Handshake successful');
-      } else if (msg['type'] == 'res' && msg['ok'] == false) {
-        final error = msg['error']?['message'] ?? 'Handshake failed';
-        throw Exception('Handshake rejected: $error');
-      }
-    } catch (e, stack) {
-      debugPrint('[ConnectionManager] ✗ Handshake error: $e');
-      appLogger.error('[ConnectionManager] Handshake failed',
-          error: e, stackTrace: stack);
-      rethrow;
-    }
-  }
-
   void _handleWebSocketMessage(String data) {
     final msg = jsonDecode(data);
 
@@ -600,10 +546,10 @@ class ConnectionManagerService extends ChangeNotifier {
   void _onAuthChanged() {
     if (_authService.isAuthenticated.value) {
       if (!_tunnelService.isConnected) {
-        _tunnelService.connect().catchError((e) {
+        unawaited(_tunnelService.connect().catchError((e) {
           debugPrint(
               '[ConnectionManager] Tunnel connection failed on auth change: $e');
-        });
+        }));
       }
     }
     notifyListeners();
@@ -660,7 +606,7 @@ class ConnectionManagerService extends ChangeNotifier {
         return true;
       } else {
         debugPrint('[ConnectionManager] Failed to fetch config: ${response.statusCode}');
-        _loadConfigFromFile();
+        unawaited(_loadConfigFromFile());
         return false;
       }
     } catch (e) {
