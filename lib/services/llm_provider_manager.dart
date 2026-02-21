@@ -1,5 +1,6 @@
 /// LLM Provider Manager
 /// Manages LLM provider lifecycle and interactions
+library;
 
 import 'package:cloudtolocalllm/services/langchain_integration_service.dart';
 import 'package:cloudtolocalllm/services/provider_discovery_service.dart';

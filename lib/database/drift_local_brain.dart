@@ -988,19 +988,19 @@ class LocalBrain extends _$LocalBrain {
   /// Insert or update a provider
   Future<void> upsertProvider(Map<String, dynamic> data) {
     final keys = data.keys.join(', ');
-    final values = data.values.map((v) => '?').join(', ');
     final updates = data.keys
         .where((k) => k != 'created_at')
         .map((k) => '$k = excluded.$k')
         .join(', ');
 
-    return customExecute('''
-      INSERT INTO llm_providers ($keys)
-      VALUES ($values)
-      ON CONFLICT(id) DO UPDATE SET
-        $updates,
-        updated_at = datetime('now')
-    ''', data.values.toList());
+    final valueList = data.values.toList();
+    final placeholders = List.generate(valueList.length, (i) => '?$i').join(', ');
+
+    return customUpdate(
+      'INSERT INTO llm_providers ($keys) VALUES ($placeholders) '
+      'ON CONFLICT(id) DO UPDATE SET $updates, updated_at = datetime("now")',
+      variables: List.generate(valueList.length, (i) => Variable(valueList[i])),
+    );
   }
 
   /// Delete a provider

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
+import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
+import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 /// Tailscale Device Discovery Step
 /// Discovers and lists Tailscale devices on the tailnet
@@ -133,11 +135,12 @@ class _TailscaleDiscoveryStepState extends State<TailscaleDiscoveryStep> {
   }
 
   Widget _buildDeviceCard(BuildContext context, TailscaleDevice device, SetupWizardService wizard) {
-    final isSelected = wizard.state.selectedProvider?.url?.contains(device.primaryIP ?? '') ?? false;
+    final isSelected = wizard.state.selectedProvider?.url.contains(device.primaryIP ?? '') ?? false;
 
     return InkWell(
       onTap: () {
         wizard.selectProvider(ProviderInfo(
+          id: 'tailscale_${device.name.toLowerCase().replaceAll(' ', '_')}',
           type: ProviderType.openclaw,
           name: device.name,
           url: 'http://${device.primaryIP}:18789',

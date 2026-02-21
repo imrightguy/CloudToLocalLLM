@@ -1,3 +1,5 @@
+library;
+
 /// Provider Configuration Manager
 /// Manages local LLM provider configurations with Drift database persistence
 
@@ -39,7 +41,7 @@ class ProviderConfigurationManager {
       ).get();
     } catch (e) {
       debugPrint('[ProviderConfig] llm_providers table does not exist, creating it...');
-      await db.customExecute('''
+      await db.customUpdate('''
         CREATE TABLE IF NOT EXISTS llm_providers (
           id TEXT NOT NULL PRIMARY KEY,
           name TEXT NOT NULL,
@@ -132,7 +134,7 @@ class ProviderConfigurationManager {
       final shouldBeDefault = isDefault || !hasExisting;
 
       // Use custom INSERT with ON CONFLICT UPDATE
-      await db.customExecute(
+      await db.customUpdate(
         '''INSERT INTO llm_providers (id, name, type, url, is_local, is_default, version, created_at, updated_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
            ON CONFLICT(id) DO UPDATE SET
@@ -143,14 +145,14 @@ class ProviderConfigurationManager {
              is_default = excluded.is_default,
              version = excluded.version,
              updated_at = datetime('now')''',
-        [id, name, type.name, isLocal ? 1 : 0, shouldBeDefault ? 1 : 0, version],
+        variables: [Variable(id), Variable(name), Variable(type.name), Variable(isLocal ? 1 : 0), Variable(shouldBeDefault ? 1 : 0), Variable(version)],
       );
 
       // If this should be default, ensure no other providers are marked as default
       if (shouldBeDefault) {
-        await db.customExecute(
+        await db.customUpdate(
           'UPDATE llm_providers SET is_default = 0 WHERE id != ?',
-          [id],
+          variables: [Variable(id)],
         );
       }
 
@@ -186,7 +188,7 @@ class ProviderConfigurationManager {
 
       final results = await db.customSelect(
         'SELECT id, name, type, url, is_local, version FROM llm_providers WHERE id = ?',
-        [id],
+        variables: [Variable(id)],
       ).get();
 
       if (results.isEmpty) return null;
@@ -215,7 +217,7 @@ class ProviderConfigurationManager {
       // First, verify provider exists
       final results = await db.customSelect(
         'SELECT id FROM llm_providers WHERE id = ?',
-        [providerId],
+        variables: [Variable(providerId)],
       ).get();
 
       if (results.isEmpty) {
@@ -224,12 +226,12 @@ class ProviderConfigurationManager {
       }
 
       // Unset all defaults, then set the new one
-      await db.customExecute(
+      await db.customUpdate(
         'UPDATE llm_providers SET is_default = 0',
       );
-      await db.customExecute(
+      await db.customUpdate(
         'UPDATE llm_providers SET is_default = 1 WHERE id = ?',
-        [providerId],
+        variables: [Variable(providerId)],
       );
 
       debugPrint('[ProviderConfig] Set preferred provider: $providerId');
@@ -273,9 +275,9 @@ class ProviderConfigurationManager {
   Future<void> removeConfiguration(String providerId) async {
     try {
       final db = serviceLocator<LocalBrain>();
-      await db.customExecute(
+      await db.customUpdate(
         'DELETE FROM llm_providers WHERE id = ?',
-        [providerId],
+        variables: [Variable(providerId)],
       );
       debugPrint('[ProviderConfig] Removed provider: $providerId');
     } catch (e) {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/widgets/installation_guide.dart';
+import 'package:cloudtolocalllm/widgets/installation_guide.dart';
 
 void main() {
   group('InstallationGuide', () {

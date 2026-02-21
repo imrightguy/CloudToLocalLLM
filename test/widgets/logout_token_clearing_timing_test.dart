@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/services/auth_service.dart';
-import 'package:zoidbot/services/session_storage_service.dart';
-import 'package:zoidbot/models/user_model.dart';
-import 'package:zoidbot/models/session_model.dart';
+import 'package:cloudtolocalllm/services/auth_service.dart';
+import 'package:cloudtolocalllm/services/session_storage_service.dart';
+import 'package:cloudtolocalllm/models/user_model.dart';
+import 'package:cloudtolocalllm/models/session_model.dart';
 
 // Mock SessionStorageService
 class MockSessionStorageService extends SessionStorageService {
@@ -72,6 +72,9 @@ class TestableAuthService extends ChangeNotifier implements AuthService {
     _sessionToken = 'test-session-token';
     _accessToken = 'test-access-token';
   }
+
+  @override
+  String get assistantName => 'Test Assistant';
 
   @override
   Future<void> logout() async {

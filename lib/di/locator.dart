@@ -627,9 +627,10 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
 
         switch (providerInfo.type) {
           case ProviderType.openclaw:
-            config = OpenClawProviderConfiguration(
+            config = OpenAICompatibleProviderConfiguration(
               providerId: providerId,
-              baseUrl: providerInfo.url,
+              baseUrl: providerInfo.baseUrl,
+              port: providerInfo.port,
               timeout: const Duration(seconds: 90),
             );
             break;

@@ -1,5 +1,6 @@
 /// LLM Audit Service
 /// Tracks and audits LLM usage for compliance and analytics
+library;
 
 import 'package:cloudtolocalllm/services/auth_service.dart';
 

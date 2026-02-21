@@ -33,7 +33,7 @@ class _PricingScreenState extends State<PricingScreen> {
 
   /// Get current tier
   String _getCurrentTier() {
-    return _tierService?.currentTier?.toString() ?? 'free';
+    return _tierService?.currentTier.toString() ?? 'free';
   }
 
   /// Check if user can select a plan

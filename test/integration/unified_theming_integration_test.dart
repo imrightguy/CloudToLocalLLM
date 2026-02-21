@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:zoidbot/services/theme_provider.dart';
-import 'package:zoidbot/services/platform_detection_service.dart';
-import 'package:zoidbot/services/platform_adapter.dart';
-import 'package:zoidbot/di/locator.dart' as di;
+import 'package:cloudtolocalllm/services/theme_provider.dart';
+import 'package:cloudtolocalllm/services/platform_detection_service.dart';
+import 'package:cloudtolocalllm/services/platform_adapter.dart';
+import 'package:cloudtolocalllm/di/locator.dart' as di;
 
 /// Integration test for unified theming system
 ///

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/services/platform_category_filter.dart';
-import 'package:zoidbot/services/auth_service.dart';
-import 'package:zoidbot/models/user_model.dart';
+import 'package:cloudtolocalllm/services/platform_category_filter.dart';
+import 'package:cloudtolocalllm/services/auth_service.dart';
+import 'package:cloudtolocalllm/models/user_model.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -192,6 +192,9 @@ class _MinimalAuthService extends ChangeNotifier implements AuthService {
 
   @override
   UserModel? get currentUser => null;
+
+  @override
+  String get assistantName => 'Test Assistant';
 
   @override
   void dispose() {

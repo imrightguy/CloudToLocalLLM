@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'connection_manager_service.dart';
-import '../utils/logger.dart';
 
 /// Service that provides a unified view of all available AI connections.
 class UnifiedConnectionService extends ChangeNotifier {

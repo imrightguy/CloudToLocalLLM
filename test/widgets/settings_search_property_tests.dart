@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/widgets/settings/settings_search_bar.dart';
+import 'package:cloudtolocalllm/widgets/settings/settings_search_bar.dart';
 
 void main() {
   group('SettingsSearchBar Property Tests', () {

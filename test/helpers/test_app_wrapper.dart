@@ -6,10 +6,10 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zoidbot/services/theme_provider.dart';
-import 'package:zoidbot/services/platform_detection_service.dart';
-import 'package:zoidbot/services/platform_adapter.dart';
-import 'package:zoidbot/config/theme.dart';
+import 'package:cloudtolocalllm/services/theme_provider.dart';
+import 'package:cloudtolocalllm/services/platform_detection_service.dart';
+import 'package:cloudtolocalllm/services/platform_adapter.dart';
+import 'package:cloudtolocalllm/config/theme.dart';
 import 'mock_services.dart';
 
 /// Wraps a widget with MaterialApp and theme providers for testing

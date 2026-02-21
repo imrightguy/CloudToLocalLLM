@@ -1,5 +1,6 @@
 /// Dashboard Service - Stub Implementation
 /// This service requires the zoidbot package which is not available.
+library;
 
 class Agent {
   final String id;

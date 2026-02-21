@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zoidbot/widgets/settings/privacy_settings_category.dart';
-import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:cloudtolocalllm/widgets/settings/privacy_settings_category.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 
 // Mock SettingsPreferenceService for testing
 class MockSettingsPreferenceService extends SettingsPreferenceService {

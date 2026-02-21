@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -50,6 +51,7 @@ class ProviderDiscoveryService {
       if (response.statusCode == 200) {
         debugPrint('[ProviderDiscovery] Found OpenClaw Gateway at $url');
         return ProviderInfo(
+          id: 'openclaw_discovered',
           type: ProviderType.openclaw,
           name: 'OpenClaw Gateway',
           url: url.toString(),
@@ -79,7 +81,8 @@ class ProviderDiscoveryService {
       if (response.statusCode == 200) {
         debugPrint('[ProviderDiscovery] Found LM Studio at $url');
         return ProviderInfo(
-          type: ProviderType.lmstudio,
+          id: 'lmstudio_discovered',
+          type: ProviderType.lmStudio,
           name: 'LM Studio',
           url: url.toString(),
           isLocal: true,
@@ -106,6 +109,7 @@ class ProviderDiscoveryService {
       if (response.statusCode == 200) {
         debugPrint('[ProviderDiscovery] Found Ollama at $url');
         return ProviderInfo(
+          id: 'ollama_discovered',
           type: ProviderType.ollama,
           name: 'Ollama',
           url: url.toString(),

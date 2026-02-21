@@ -6,10 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../capacity_gauge.dart';
-import '../../services/rate_limit_manager.dart';
 import '../../services/connection_manager_service.dart';
-import '../../models/settings_category.dart';
-import 'settings_base.dart';
 import 'settings_category_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

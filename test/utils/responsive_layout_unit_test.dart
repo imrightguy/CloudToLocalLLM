@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/utils/responsive_layout.dart';
+import 'package:cloudtolocalllm/utils/responsive_layout.dart';
 
 void main() {
   group('ResponsiveBreakpoints', () {

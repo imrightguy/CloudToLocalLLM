@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:convert' as convert;
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:dio/dio.dart';
@@ -500,20 +499,17 @@ class CloudStreamingService extends StreamingService {
     });
   }
 
-  @override
-
   /// Set the OpenClaw Gateway password
   void setGatewayPassword(String? password) {
     _SharedWebSocket.instance.setGatewayPassword(password);
   }
-
-  @override
 
   /// Set the OpenClaw Gateway token
   void setGatewayToken(String? token) {
     _SharedWebSocket.instance.setGatewayToken(token);
   }
 
+  @override
   void dispose() {
     debugPrint('☁ [CloudStreaming] Disposing service');
     closeConnection();

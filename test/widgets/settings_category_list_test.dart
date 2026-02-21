@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/models/settings_category.dart';
-import 'package:zoidbot/widgets/settings/settings_category_list.dart';
-import 'package:zoidbot/widgets/settings/settings_category_widgets.dart';
+import 'package:cloudtolocalllm/models/settings_category.dart';
+import 'package:cloudtolocalllm/widgets/settings/settings_category_list.dart';
+import 'package:cloudtolocalllm/widgets/settings/settings_category_widgets.dart';
 
 void main() {
   group('SettingsCategoryList', () {

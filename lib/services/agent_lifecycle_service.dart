@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:uuid/uuid.dart';
 
 import 'connection_manager_service.dart';
-import '../config/app_config.dart';
 
 /// Agent lifecycle states
 enum AgentLifecycleState {

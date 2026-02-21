@@ -13,8 +13,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/services/theme_provider.dart';
-import 'package:zoidbot/config/theme_config.dart';
+import 'package:cloudtolocalllm/services/theme_provider.dart';
+import 'package:cloudtolocalllm/config/theme_config.dart';
 import '../test_config.dart';
 
 void main() {

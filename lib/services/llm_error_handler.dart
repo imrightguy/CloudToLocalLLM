@@ -1,5 +1,6 @@
 /// LLM Error Handler
 /// Handles and categorizes LLM provider errors
+library;
 
 import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
 

@@ -1,5 +1,6 @@
 /// Stub for LangChain Prompt Service
 /// This service is needed by the service locator but not yet implemented
+library;
 
 class LangChainPromptService {
   LangChainPromptService();

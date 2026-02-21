@@ -242,39 +242,44 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
                             fontFamily: 'monospace',
                           ),
                     ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: provider.isAvailable
+                                ? Colors.green.shade100
+                                : Colors.orange.shade100,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            provider.isAvailable ? 'Available' : 'Check Connection',
+                            style: TextStyle(
+                              color: provider.isAvailable
+                                  ? Colors.green.shade900
+                                  : Colors.orange.shade900,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (provider.version != null) ...[
+                          const SizedBox(width: 12),
+                          Text(
+                            'v${provider.version}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey.shade600,
+                                ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: provider.isAvailable
-                      ? Colors.green.shade100
-                      : Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  provider.isAvailable ? 'Available' : 'Check Connection',
-                  style: TextStyle(
-                    color: provider.isAvailable
-                        ? Colors.green.shade900
-                        : Colors.orange.shade900,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ],
-          ],
-          if (provider.version != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              'Version: ${provider.version}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
-            ),
-          ],
+          ),
         ],
       ),
     );
@@ -302,10 +307,14 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
     switch (type) {
       case ProviderType.openclaw:
         return Icons.hub;
-      case ProviderType.lmstudio:
+      case ProviderType.lmStudio:
         return Icons.science;
       case ProviderType.ollama:
         return Icons.terminal;
+      case ProviderType.openAICompatible:
+        return Icons.smart_toy;
+      case ProviderType.custom:
+        return Icons.extension;
     }
   }
 }

@@ -1,5 +1,6 @@
 /// LangChain Integration Service - Stub Implementation
 /// Manages LangChain providers and provides a unified interface for LLM operations.
+library;
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -76,7 +77,9 @@ class LangChainIntegrationService extends ChangeNotifier {
     return _providers[providerId];
   }
 
+  @override
   void dispose() {
     _providers.clear();
+    super.dispose();
   }
 }

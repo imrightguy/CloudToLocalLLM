@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
+import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 /// Completion Step
 /// Shows success message and completes setup
@@ -30,7 +31,7 @@ class _CompletionStepState extends State<CompletionStep> {
           content: Text(wizard.state.errorMessage ?? 'Failed to complete setup'),
           action: SnackBarAction(
             label: 'Retry',
-            onPressed: () => _completeSetup(),
+            onPressed: _completeSetup,
           ),
         ),
       );
@@ -196,10 +197,14 @@ class _CompletionStepState extends State<CompletionStep> {
     switch (type) {
       case ProviderType.openclaw:
         return 'OpenClaw Gateway';
-      case ProviderType.lmstudio:
+      case ProviderType.lmStudio:
         return 'LM Studio';
       case ProviderType.ollama:
         return 'Ollama';
+      case ProviderType.openAICompatible:
+        return 'OpenAI Compatible';
+      case ProviderType.custom:
+        return 'Custom';
     }
   }
 }

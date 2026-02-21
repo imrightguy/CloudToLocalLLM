@@ -14,6 +14,7 @@ import 'services/streaming_proxy_service.dart';
 import 'services/unified_connection_service.dart';
 import 'services/tunnel_service.dart';
 import 'services/connection_manager_service.dart';
+import 'services/settings_preference_service.dart';
 import 'services/streaming_chat_service.dart';
 import 'services/native_tray_service.dart';
 import 'services/window_manager_service.dart';
@@ -291,6 +292,7 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
             final connectionManager = ConnectionManagerService(
               tunnelService: context.read<TunnelService>(),
               authService: context.read<AuthService>(),
+              settings: context.read<SettingsPreferenceService>(),
             );
             connectionManager.initialize();
             return connectionManager;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/screens/marketing/homepage_screen.dart';
-import 'package:zoidbot/services/theme_provider.dart';
-import 'package:zoidbot/services/platform_detection_service.dart';
+import 'package:cloudtolocalllm/screens/marketing/homepage_screen.dart';
+import 'package:cloudtolocalllm/services/theme_provider.dart';
+import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import '../helpers/mock_services.dart';
 import '../helpers/test_app_wrapper.dart';
 import '../helpers/test_utilities.dart';

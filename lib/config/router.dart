@@ -72,7 +72,6 @@ class _HomeWithSetupCheck extends StatefulWidget {
 
   const _HomeWithSetupCheck({
     required this.isAuthenticated,
-    super.key,
   });
 
   @override

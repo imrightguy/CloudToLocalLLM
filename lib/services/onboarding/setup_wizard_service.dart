@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
+import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 /// Connection method selection
 enum ConnectionMethod {
@@ -267,7 +268,8 @@ class SetupWizardService extends ChangeNotifier {
   }
 
   ProviderInfo _createDefaultProvider() {
-    return ProviderInfo(
+    return const ProviderInfo(
+      id: 'openclaw_default',
       type: ProviderType.openclaw,
       name: 'OpenClaw Gateway',
       url: 'http://127.0.0.1:18789',

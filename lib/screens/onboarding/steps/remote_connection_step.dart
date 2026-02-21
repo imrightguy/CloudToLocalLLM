@@ -163,5 +163,7 @@ class _RemoteConnectionStepState extends State<RemoteConnectionStep> {
             ],
           ),
         );
+      },
+    );
   }
 }

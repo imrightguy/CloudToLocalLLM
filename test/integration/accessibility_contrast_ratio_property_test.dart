@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/utils/accessibility_helpers.dart';
+import 'package:cloudtolocalllm/utils/accessibility_helpers.dart';
 import 'dart:math';
 
 void main() {

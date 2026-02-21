@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zoidbot/services/settings_preference_service.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 
 void main() {
   group('Persistence and Storage Property Tests', () {

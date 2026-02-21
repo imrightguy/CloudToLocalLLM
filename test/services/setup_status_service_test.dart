@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/models/user_setup_status.dart';
+import 'package:cloudtolocalllm/models/user_setup_status.dart';
 
 void main() {
   group('SetupStatusService', () {

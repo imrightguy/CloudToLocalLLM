@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
-import 'package:zoidbot/services/platform_category_filter.dart';
-import 'package:zoidbot/services/auth_service.dart';
+import 'package:cloudtolocalllm/services/platform_category_filter.dart';
+import 'package:cloudtolocalllm/services/auth_service.dart';
 
-import 'package:zoidbot/models/settings_category.dart';
-import 'package:zoidbot/models/user_model.dart';
+import 'package:cloudtolocalllm/models/settings_category.dart';
+import 'package:cloudtolocalllm/models/user_model.dart';
 
 // Mock AuthService for testing
 class _MockAuthService extends ChangeNotifier implements AuthService {
@@ -29,6 +29,9 @@ class _MockAuthService extends ChangeNotifier implements AuthService {
 
   @override
   UserModel? currentUser;
+
+  @override
+  String get assistantName => 'Test Assistant';
 
   @override
   bool isWeb = kIsWeb;
