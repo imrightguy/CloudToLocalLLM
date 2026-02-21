@@ -66,7 +66,7 @@ class _PricingScreenState extends State<PricingScreen> {
   /// Show upgrade confirmation dialog
   void _showUpgradeConfirmation(String planId) {
     final plan = _getPlanDetails(planId);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -116,7 +116,8 @@ class _PricingScreenState extends State<PricingScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Coming Soon'),
-        content: const Text('Online payment processing will be available soon. Please contact support to upgrade your subscription.'),
+        content: const Text(
+            'Online payment processing will be available soon. Please contact support to upgrade your subscription.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -199,7 +200,8 @@ class _PricingScreenState extends State<PricingScreen> {
         title: const Text('Subscription Plans'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
       ),
       body: SingleChildScrollView(
@@ -318,7 +320,10 @@ class _PricingScreenState extends State<PricingScreen> {
                         children: [
                           Text(
                             plan['name'] as String,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -346,10 +351,11 @@ class _PricingScreenState extends State<PricingScreen> {
                     ),
                     Text(
                       plan['price'] as String,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: color,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: color,
+                              ),
                     ),
                   ],
                 ),

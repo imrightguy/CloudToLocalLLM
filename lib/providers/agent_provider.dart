@@ -1,5 +1,21 @@
 import 'package:flutter/foundation.dart';
-import 'package:zoidbot/models/agent.dart';
+
+/// Agent model - local stub implementation
+class Agent {
+  final String id;
+  final String name;
+  final String status;
+  final String? agentId;
+
+  Agent({
+    required this.id,
+    required this.name,
+    required this.status,
+    this.agentId,
+  });
+
+  String get agentIdValue => agentId ?? id;
+}
 
 class AgentProvider with ChangeNotifier {
   List<Agent> _agents = [];
@@ -11,7 +27,8 @@ class AgentProvider with ChangeNotifier {
   }
 
   void updateAgent(Agent agent) {
-    final index = _agents.indexWhere((a) => a.agentId == agent.agentId);
+    final index =
+        _agents.indexWhere((a) => a.agentIdValue == agent.agentIdValue);
     if (index >= 0) {
       _agents[index] = agent;
     } else {

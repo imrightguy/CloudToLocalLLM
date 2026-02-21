@@ -5,15 +5,16 @@ import 'model_tiers.dart';
 /// Manages LLM rate limits and model availability using Drift database
 class RateLimitManager {
   final LocalBrain db;
-  
+
   RateLimitManager(this.db);
 
   /// Checks if a model is currently available (concurrency < limit)
   Future<bool> isAvailable(String modelId) async {
     final capacity = await db.getModelCapacity(modelId);
     if (capacity == null) return true; // Assume available if unknown
-    
-    return capacity.concurrentUsed < capacity.concurrentLimit && capacity.status == 'active';
+
+    return capacity.concurrentUsed < capacity.concurrentLimit &&
+        capacity.status == 'active';
   }
 
   /// Gets the best available model based on requested ID and tier fallbacks
@@ -44,7 +45,7 @@ class RateLimitManager {
   Future<void> syncFromHeader(String modelId, int remaining) async {
     await db.syncUsageFromHeader(modelId, remaining);
   }
-  
+
   /// Get all capacities (for UI gauges)
   Stream<List<ModelCapacityData>> watchCapacities() {
     return db.watchAllModelCapacities();

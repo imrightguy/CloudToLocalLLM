@@ -29,7 +29,7 @@ class StreamingChatService extends ChangeNotifier {
 
   List<Conversation> _conversations = [];
   Conversation? _currentConversation;
-  String? _selectedModel = 'google-antigravity/gemini-3-flash';
+  String? _selectedModel = null;
   bool _isLoading = false;
   bool _isStreaming = false;
 
@@ -100,7 +100,7 @@ class StreamingChatService extends ChangeNotifier {
       if (loadedConversations.isNotEmpty) {
         _conversations = loadedConversations;
         // Don't auto-select on startup to show Zoidbot Ready screen
-        _currentConversation = null; 
+        _currentConversation = null;
         appLogger.info(
           '[StreamingChat] Loaded ${_conversations.length} conversations from storage',
         );
@@ -144,7 +144,7 @@ class StreamingChatService extends ChangeNotifier {
 
     _conversations = [sampleConversation.addMessage(welcomeMessage)];
     // Don't auto-select to show Zoidbot Ready screen
-    _currentConversation = null; 
+    _currentConversation = null;
 
     // Save the welcome conversation
     _saveConversations();
@@ -256,7 +256,9 @@ class StreamingChatService extends ChangeNotifier {
   Future<void> sendMessage(String content) async {
     if (_currentConversation == null || content.trim().isEmpty) return;
     if (_selectedModel == null) {
-      throw StateError('No model selected');
+      // Use gateway default model - don't require model selection
+      appLogger
+          .debug('[StreamingChat] No model selected, using gateway default');
     }
 
     // Cancel any ongoing streaming
@@ -271,7 +273,8 @@ class StreamingChatService extends ChangeNotifier {
       _addMessageToCurrentConversation(userMessage);
 
       // Add streaming message placeholder for assistant
-      final streamingMessage = Message.streaming(model: _selectedModel!);
+      final streamingModel = _selectedModel ?? 'default';
+      final streamingMessage = Message.streaming(model: streamingModel);
       _addMessageToCurrentConversation(streamingMessage);
       _currentStreamingMessageId = streamingMessage.id;
 
@@ -296,7 +299,7 @@ class StreamingChatService extends ChangeNotifier {
       final conversationId = _currentConversation!.id;
       final messageStream = streamingService.streamResponse(
         prompt: content.trim(),
-        model: _selectedModel!,
+        model: streamingModel,
         conversationId: conversationId,
         history: history,
       );
@@ -322,9 +325,10 @@ class StreamingChatService extends ChangeNotifier {
         }
       }
 
+      final errorModel = _selectedModel ?? 'default';
       final errorMessage = Message.assistant(
         content: 'Sorry, I encountered an error: ${e.toString()}',
-        model: _selectedModel!,
+        model: errorModel,
         status: MessageStatus.error,
         error: e.toString(),
       );
@@ -378,10 +382,11 @@ class StreamingChatService extends ChangeNotifier {
     _setStreaming(false);
     _removeLastMessage();
 
+    final errorModel = _selectedModel ?? 'default';
     final errorMessage = Message.assistant(
       content:
           'Sorry, I encountered an error while streaming: ${error.toString()}',
-      model: _selectedModel!,
+      model: errorModel,
       status: MessageStatus.error,
       error: error.toString(),
     );
@@ -406,10 +411,11 @@ class StreamingChatService extends ChangeNotifier {
     }
 
     if (finalContent.isNotEmpty || finalReasoning.isNotEmpty) {
+      final completeModel = _selectedModel ?? 'default';
       final assistantMessage = Message.assistant(
         content: finalContent,
         reasoning: finalReasoning.isNotEmpty ? finalReasoning : null,
-        model: _selectedModel!,
+        model: completeModel,
       );
       _addMessageToCurrentConversation(assistantMessage);
 
@@ -485,8 +491,9 @@ class StreamingChatService extends ChangeNotifier {
       final prompt =
           'Generate a short, catchy title (max 5-6 words) for a conversation that starts with: "$firstUserMessage". Respond only with the title text, no quotes or prefix.';
 
+      final renameModel = _selectedModel ?? 'default';
       final newTitle = await _connectionManager.sendChatMessage(
-        model: _selectedModel!,
+        model: renameModel,
         message: prompt,
         history: [], // Send as a fresh request to avoid context confusion
       );
@@ -524,7 +531,8 @@ class StreamingChatService extends ChangeNotifier {
       appLogger.debug('[StreamingChat] Using fallback non-streaming chat');
 
       // Add loading message for assistant
-      final loadingMessage = Message.loading(model: _selectedModel!);
+      final fallbackModel = _selectedModel ?? 'default';
+      final loadingMessage = Message.loading(model: fallbackModel);
       _addMessageToCurrentConversation(loadingMessage);
 
       // Get conversation history for context
@@ -532,7 +540,7 @@ class StreamingChatService extends ChangeNotifier {
 
       // Use connection manager for fallback chat
       final response = await _connectionManager.sendChatMessage(
-        model: _selectedModel!,
+        model: fallbackModel,
         message: content,
         history: history,
       );
@@ -543,7 +551,7 @@ class StreamingChatService extends ChangeNotifier {
       if (response != null) {
         final assistantMessage = Message.assistant(
           content: response,
-          model: _selectedModel!,
+          model: fallbackModel,
         );
         _addMessageToCurrentConversation(assistantMessage);
         appLogger.debug('[StreamingChat] Fallback chat completed successfully');
@@ -554,7 +562,7 @@ class StreamingChatService extends ChangeNotifier {
         final errorMessage = Message.assistant(
           content:
               'Sorry, I encountered an error while processing your request.',
-          model: _selectedModel!,
+          model: fallbackModel,
           status: MessageStatus.error,
           error: 'Connection error',
         );
@@ -572,9 +580,10 @@ class StreamingChatService extends ChangeNotifier {
         }
       }
 
+      final fallbackModel = _selectedModel ?? 'default';
       final errorMessage = Message.assistant(
         content: 'Sorry, I encountered an error: ${e.toString()}',
-        model: _selectedModel!,
+        model: fallbackModel,
         status: MessageStatus.error,
         error: e.toString(),
       );

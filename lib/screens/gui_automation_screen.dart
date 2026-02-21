@@ -47,8 +47,12 @@ class _GuiAutomationScreenState extends State<GuiAutomationScreen> {
                     Row(
                       children: [
                         Icon(
-                          _service.isInitialized ? Icons.check_circle : Icons.warning,
-                          color: _service.isInitialized ? Colors.green : Colors.orange,
+                          _service.isInitialized
+                              ? Icons.check_circle
+                              : Icons.warning,
+                          color: _service.isInitialized
+                              ? Colors.green
+                              : Colors.orange,
                         ),
                         const SizedBox(width: 8),
                         Text(_service.status),
@@ -93,7 +97,8 @@ class _GuiAutomationScreenState extends State<GuiAutomationScreen> {
                     TextField(
                       controller: _instructionController,
                       decoration: const InputDecoration(
-                        hintText: 'e.g., Click the search button, Type in the box',
+                        hintText:
+                            'e.g., Click the search button, Type in the box',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -180,9 +185,10 @@ class _GuiAutomationScreenState extends State<GuiAutomationScreen> {
 
   Future<void> _runWorkflow() async {
     if (_instructionController.text.isEmpty) return;
-    
+
     setState(() => _isProcessing = true);
-    final result = await _service.automationWorkflow(_instructionController.text);
+    final result =
+        await _service.automationWorkflow(_instructionController.text);
     setState(() {
       _result = result;
       _isProcessing = false;

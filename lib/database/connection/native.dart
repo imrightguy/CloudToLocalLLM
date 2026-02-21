@@ -10,7 +10,7 @@ QueryExecutor openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'local_brain.sqlite'));
-    
+
     return NativeDatabase(
       file,
       setup: (db) {

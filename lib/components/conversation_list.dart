@@ -59,8 +59,8 @@ class _ConversationListState extends State<ConversationList> {
           // Search in title
           if (conv.title.toLowerCase().contains(query)) return true;
           // Search in messages
-          return conv.messages.any((m) =>
-            m.content.toLowerCase().contains(query));
+          return conv.messages
+              .any((m) => m.content.toLowerCase().contains(query));
         }).toList();
       }
     });
@@ -346,7 +346,8 @@ class _ConversationListState extends State<ConversationList> {
           if (_isSearchExpanded) ...[
             const SizedBox(height: AppTheme.spacingS),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
@@ -372,10 +373,12 @@ class _ConversationListState extends State<ConversationList> {
                 onChanged: (_) => _onSearchChanged(),
               ),
             ),
-            if (_filteredConversations.length != widget.conversations.length) ...[
+            if (_filteredConversations.length !=
+                widget.conversations.length) ...[
               const SizedBox(height: AppTheme.spacingXS),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
                 child: Text(
                   '${_filteredConversations.length} of ${widget.conversations.length} conversations',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

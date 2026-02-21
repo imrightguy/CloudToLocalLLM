@@ -106,6 +106,7 @@ class SettingsCategoryIds {
   static const String openClawGateway = 'openclaw_gateway';
   static const String adminCenter = 'admin_center';
   static const String about = 'about';
+  static const String agentStatus = 'agent_status';
 }
 
 /// Settings category visibility rules based on platform and user role
@@ -121,7 +122,6 @@ class CategoryVisibilityRules {
   }) {
     switch (categoryId) {
       case SettingsCategoryIds.general:
-      case SettingsCategoryIds.localLLMProviders:
       case SettingsCategoryIds.openClawGateway:
       case SettingsCategoryIds.account:
       case SettingsCategoryIds.privacy:
@@ -129,6 +129,10 @@ class CategoryVisibilityRules {
       case SettingsCategoryIds.about:
         // Always visible on all platforms
         return true;
+
+      case SettingsCategoryIds.localLLMProviders:
+        // Disabled - using OpenClaw Gateway only, no local LLM providers
+        return false;
 
       case SettingsCategoryIds.desktop:
         // Only visible on desktop platforms
@@ -208,6 +212,8 @@ class SettingsCategoryMetadata {
         return priorityAdmin;
       case SettingsCategoryIds.about:
         return 100; // Show at the bottom
+      case SettingsCategoryIds.agentStatus:
+        return 5; // Show near the top
       default:
         return 999;
     }
@@ -238,6 +244,8 @@ class SettingsCategoryMetadata {
         return Icons.admin_panel_settings;
       case SettingsCategoryIds.about:
         return Icons.info_outline;
+      case SettingsCategoryIds.agentStatus:
+        return Icons.smart_toy;
       default:
         return Icons.settings;
     }
@@ -268,6 +276,8 @@ class SettingsCategoryMetadata {
         return 'Admin Center';
       case SettingsCategoryIds.about:
         return 'About';
+      case SettingsCategoryIds.agentStatus:
+        return 'Agent Status';
       default:
         return 'Settings';
     }
@@ -298,6 +308,8 @@ class SettingsCategoryMetadata {
         return 'Administration and user management';
       case SettingsCategoryIds.about:
         return 'Version information and system details';
+      case SettingsCategoryIds.agentStatus:
+        return 'View agent status and activity';
       default:
         return '';
     }

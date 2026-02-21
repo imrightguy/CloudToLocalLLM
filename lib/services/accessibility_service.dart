@@ -11,7 +11,7 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
-import 'package:zoidbot/utils/accessibility_helpers.dart';
+import 'package:cloudtolocalllm/utils/accessibility_helpers.dart';
 
 /// Service for managing accessibility features
 class AccessibilityService extends ChangeNotifier {

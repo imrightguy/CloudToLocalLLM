@@ -371,9 +371,7 @@ class _SubscriptionManagementTabState extends State<SubscriptionManagementTab> {
             DataColumn(label: Text('Renewal Date')),
             DataColumn(label: Text('Actions')),
           ],
-          rows: _subscriptions
-              .map(_buildSubscriptionRow)
-              .toList(),
+          rows: _subscriptions.map(_buildSubscriptionRow).toList(),
         ),
       ),
     );

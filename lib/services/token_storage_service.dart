@@ -96,7 +96,7 @@ class TokenStorageService {
   }
 
   // Multi-account support for Gmail/external integrations
-  
+
   Future<void> saveTokens({
     required String provider,
     required String email,
@@ -105,31 +105,29 @@ class TokenStorageService {
     String? refreshToken,
   }) async {
     if (_encrypter == null) await init();
-    
+
     await _secureStorage.write(
-      key: 'tokens_$provider:$email:access', 
-      value: _encrypter!.encrypt(accessToken, iv: _iv).base64
-    );
-    
+        key: 'tokens_$provider:$email:access',
+        value: _encrypter!.encrypt(accessToken, iv: _iv).base64);
+
     if (idToken != null) {
       await _secureStorage.write(
-        key: 'tokens_$provider:$email:id', 
-        value: _encrypter!.encrypt(idToken, iv: _iv).base64
-      );
+          key: 'tokens_$provider:$email:id',
+          value: _encrypter!.encrypt(idToken, iv: _iv).base64);
     }
-    
+
     if (refreshToken != null) {
       await _secureStorage.write(
-        key: 'tokens_$provider:$email:refresh', 
-        value: _encrypter!.encrypt(refreshToken, iv: _iv).base64
-      );
+          key: 'tokens_$provider:$email:refresh',
+          value: _encrypter!.encrypt(refreshToken, iv: _iv).base64);
     }
 
     // Keep track of connected emails for this provider
     final existing = await getConnectedEmails(provider);
     if (!existing.contains(email)) {
       existing.add(email);
-      await _secureStorage.write(key: 'emails_$provider', value: existing.join(','));
+      await _secureStorage.write(
+          key: 'emails_$provider', value: existing.join(','));
     }
   }
 
@@ -141,7 +139,8 @@ class TokenStorageService {
 
   Future<String?> getAccessToken(String provider, String email) async {
     if (_encrypter == null) await init();
-    final encrypted = await _secureStorage.read(key: 'tokens_$provider:$email:access');
+    final encrypted =
+        await _secureStorage.read(key: 'tokens_$provider:$email:access');
     if (encrypted == null) return null;
     return _encrypter!.decrypt64(encrypted, iv: _iv);
   }

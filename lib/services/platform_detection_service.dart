@@ -273,8 +273,7 @@ class PlatformDetectionService extends ChangeNotifier {
         ),
         InstallationStep(
           title: 'Launch the application',
-          description:
-              'Find Zoidbot in your Start menu or desktop shortcut.',
+          description: 'Find Zoidbot in your Start menu or desktop shortcut.',
           applicableTypes: ['msi'],
           order: 2,
         ),

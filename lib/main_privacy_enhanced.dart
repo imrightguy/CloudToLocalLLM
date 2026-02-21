@@ -27,7 +27,6 @@ import 'services/privacy_storage_manager.dart';
 import 'services/platform_service_manager.dart';
 import 'di/locator.dart';
 import 'services/onboarding/setup_wizard_service.dart';
-import 'services/provider_configuration_manager.dart';
 import 'widgets/window_listener_widget.dart';
 
 // Global navigator key for navigation from system tray

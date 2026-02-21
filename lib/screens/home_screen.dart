@@ -28,12 +28,13 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didChangeDependencies();
     if (_initializedWithContext) return;
     _initializedWithContext = true;
-    
+
     try {
       _chatService = context.read<StreamingChatService>();
       _chatService?.addListener(_onChatChanged);
     } catch (e) {
-      debugPrint('[HomeScreen] StreamingChatService not available, using null: $e');
+      debugPrint(
+          '[HomeScreen] StreamingChatService not available, using null: $e');
     }
 
     final appInit = context.read<AppInitializationService>();

@@ -1,5 +1,6 @@
 /// Native tray service stub - for platforms without native tray support
 library;
+
 import 'connection_manager_service.dart';
 
 /// Stub for NativeTrayService on unsupported platforms

@@ -10,8 +10,8 @@ enum AgentState {
 }
 
 /// An expressive avatar for Zoidbot that reacts to the agent's state.
-/// 
-/// Currently uses a reactive placeholder. 
+///
+/// Currently uses a reactive placeholder.
 /// Recommended final implementation: Rive (.riv) for state-driven vector animations.
 class AgentAvatar extends StatefulWidget {
   final AgentState state;
@@ -27,7 +27,8 @@ class AgentAvatar extends StatefulWidget {
   State<AgentAvatar> createState() => _AgentAvatarState();
 }
 
-class _AgentAvatarState extends State<AgentAvatar> with SingleTickerProviderStateMixin {
+class _AgentAvatarState extends State<AgentAvatar>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -54,7 +55,7 @@ class _AgentAvatarState extends State<AgentAvatar> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     // Switch visual properties based on state
     Color baseColor;
     String emoji;
@@ -91,7 +92,7 @@ class _AgentAvatarState extends State<AgentAvatar> with SingleTickerProviderStat
       animation: _controller,
       builder: (context, child) {
         final pulse = isPulsing ? (0.95 + (_controller.value * 0.1)) : 1.0;
-        
+
         return AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           width: widget.size * pulse * scale,

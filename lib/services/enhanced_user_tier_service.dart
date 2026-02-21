@@ -84,9 +84,19 @@ class EnhancedUserTierService extends ChangeNotifier {
   List<String> get tierBenefits {
     switch (_currentTier) {
       case UserTier.enterprise:
-        return ['Unlimited local models', 'Priority cloud routing', 'Advanced analytics', 'Multi-user support', 'Custom LLM configurations'];
+        return [
+          'Unlimited local models',
+          'Priority cloud routing',
+          'Advanced analytics',
+          'Multi-user support',
+          'Custom LLM configurations'
+        ];
       case UserTier.premium:
-        return ['Unlimited local models', 'Priority cloud routing', 'Standard analytics'];
+        return [
+          'Unlimited local models',
+          'Priority cloud routing',
+          'Standard analytics'
+        ];
       case UserTier.free:
         return ['Standard local models', 'Cloud routing'];
     }

@@ -46,15 +46,16 @@ class GuiAutomationService extends ChangeNotifier {
 
     try {
       final directory = await getTemporaryDirectory();
-      final path = '${directory.path}/gui_automation_${DateTime.now().millisecondsSinceEpoch}.png';
-      
+      final path =
+          '${directory.path}/gui_automation_${DateTime.now().millisecondsSinceEpoch}.png';
+
       // Call native method to take screenshot
       // This would use a Flutter method channel to native code
       // For now, placeholder implementation
-      
+
       _status = 'Screenshot saved';
       notifyListeners();
-      
+
       return path;
     } catch (e) {
       _status = 'Screenshot failed: $e';
@@ -84,13 +85,19 @@ class GuiAutomationService extends ChangeNotifier {
         Uri.parse('$_modelEndpoint/v1/chat/completions'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'model': 'google-antigravity/gemini-3-flash', // Use the primary model
           'messages': [
             {
               'role': 'user',
               'content': [
-                {'type': 'text', 'text': 'You are a GUI automation assistant. Analyze this screenshot and describe: 1) What applications are visible, 2) What the user is doing, 3) One simple action to take. Reply concisely.'},
-                {'type': 'image_url', 'image_url': {'url': 'data:image/png;base64,$base64Image'}}
+                {
+                  'type': 'text',
+                  'text':
+                      'You are a GUI automation assistant. Analyze this screenshot and describe: 1) What applications are visible, 2) What the user is doing, 3) One simple action to take. Reply concisely.'
+                },
+                {
+                  'type': 'image_url',
+                  'image_url': {'url': 'data:image/png;base64,$base64Image'}
+                }
               ]
             }
           ],
@@ -123,14 +130,14 @@ class GuiAutomationService extends ChangeNotifier {
     try {
       // Parse action and execute using native code
       // Supported actions: click(x,y), type(text), scroll(direction), keypress(key)
-      
+
       // Example: "click(100,200)" -> click at coordinates
       // Example: "type(hello)" -> type text
       // Example: "scroll(down)" -> scroll down
-      
+
       _status = 'Action completed';
       notifyListeners();
-      
+
       return 'Executed: $action';
     } catch (e) {
       _status = 'Action failed: $e';
@@ -166,7 +173,7 @@ class GuiAutomationService extends ChangeNotifier {
   Future<String> _generateAction(String analysis, String instruction) async {
     // Send to vision model to determine action
     // Placeholder: parse instruction for action type
-    
+
     if (instruction.toLowerCase().contains('click')) {
       return 'click(100, 200)'; // Placeholder coordinates
     } else if (instruction.toLowerCase().contains('type')) {
@@ -174,7 +181,7 @@ class GuiAutomationService extends ChangeNotifier {
     } else if (instruction.toLowerCase().contains('scroll')) {
       return 'scroll(down)';
     }
-    
+
     return 'analyze'; // Just analyze, no action
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 
 /// Application configuration constants
 class AppConfig {
@@ -17,10 +18,8 @@ class AppConfig {
   static const String githubReleasesUrl =
       'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest';
 
-
   // Configured Authentication Provider
   static const AuthProviderType authProvider = AuthProviderType.auth0;
-
 
   // Sentry Configuration
   // Can be overridden at compile time using --dart-define=SENTRY_DSN=your_dsn
@@ -71,6 +70,20 @@ class AppConfig {
   static const String defaultGatewayUrl = 'http://127.0.0.1:18789';
   static const Duration gatewayTimeout = Duration(seconds: 60);
 
+  /// Get the actual gateway URL to use
+  /// This reads from settings preference if configured, otherwise returns default
+  /// Note: This is async and requires SettingsPreferenceService
+  /// For sync contexts, use getGatewayUrlSync() instead
+  static Future<String> getGatewayUrl() async {
+    final settingsService = SettingsPreferenceService();
+    final configuredUrl = await settingsService.getGatewayUrl();
+    return (configuredUrl?.isNotEmpty ?? false) ? configuredUrl! : defaultGatewayUrl;
+  }
+
+  /// Get gateway URL synchronously (for use during initialization)
+  /// Returns default URL since preferences require async loading
+  static String getGatewayUrlSync() => defaultGatewayUrl;
+
   // Cloud Relay Configuration (via OpenClaw)
   static const String cloudGatewayUrl = '$apiBaseUrl/v1';
 
@@ -79,8 +92,7 @@ class AppConfig {
   static const int adminServerPort = 8080;
 
   // Platform-specific admin server URLs
-  static const String adminServerUrlWeb =
-      'https://api.cloudtolocalllm.online';
+  static const String adminServerUrlWeb = 'https://api.cloudtolocalllm.online';
   static const String adminServerUrlDesktop = 'http://127.0.0.1:8080';
 
   // Get admin server URL based on platform

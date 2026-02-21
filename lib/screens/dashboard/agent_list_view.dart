@@ -298,11 +298,13 @@ class _AgentListTile extends StatelessWidget {
         isThreeLine: agent.activity != null || agent.errorMessage != null,
         onTap: () {
           // Navigate to agent detail screen
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => _AgentDetailScreen(agent: agent),
-            ),
-          ).then((_) => onRefresh());
+          Navigator.of(context)
+              .push(
+                MaterialPageRoute(
+                  builder: (context) => _AgentDetailScreen(agent: agent),
+                ),
+              )
+              .then((_) => onRefresh());
         },
       ),
     );
@@ -415,12 +417,17 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
                               children: [
                                 Text(
                                   'Status',
-                                  style: Theme.of(context).textTheme.labelMedium,
+                                  style:
+                                      Theme.of(context).textTheme.labelMedium,
                                 ),
                                 Text(
                                   _getStatusText(currentAgent.state),
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        color: _getStatusColor(currentAgent.state),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        color:
+                                            _getStatusColor(currentAgent.state),
                                       ),
                                 ),
                               ],
@@ -482,12 +489,12 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: (_isOperating ||
-                                          currentAgent.state ==
-                                              AgentLifecycleState.running ||
-                                          currentAgent.state ==
-                                              AgentLifecycleState.starting)
-                                      ? null
-                                      : _startAgent,
+                                      currentAgent.state ==
+                                          AgentLifecycleState.running ||
+                                      currentAgent.state ==
+                                          AgentLifecycleState.starting)
+                                  ? null
+                                  : _startAgent,
                               icon: const Icon(Icons.play_arrow),
                               label: const Text('Start'),
                             ),
@@ -496,12 +503,12 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: (_isOperating ||
-                                          currentAgent.state ==
-                                              AgentLifecycleState.idle ||
-                                          currentAgent.state ==
-                                              AgentLifecycleState.stopping)
-                                      ? null
-                                      : _stopAgent,
+                                      currentAgent.state ==
+                                          AgentLifecycleState.idle ||
+                                      currentAgent.state ==
+                                          AgentLifecycleState.stopping)
+                                  ? null
+                                  : _stopAgent,
                               icon: const Icon(Icons.stop),
                               label: const Text('Stop'),
                             ),

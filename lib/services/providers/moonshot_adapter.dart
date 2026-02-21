@@ -6,7 +6,7 @@ import 'base_provider.dart';
 /// Moonshot AI (Kimi) provider adapter
 class MoonshotAdapter implements LlmProvider {
   final String apiKey;
-  
+
   MoonshotAdapter({required this.apiKey});
 
   @override
@@ -18,7 +18,7 @@ class MoonshotAdapter implements LlmProvider {
   @override
   Stream<StreamEvent> streamCompletion(CompletionRequest request) async* {
     final url = Uri.parse('$baseUrl/chat/completions');
-    
+
     final body = {
       'model': request.model,
       'messages': request.messages,
@@ -40,12 +40,13 @@ class MoonshotAdapter implements LlmProvider {
         throw Exception('Moonshot API error: ${streamedResponse.statusCode}');
       }
 
-      await for (final chunk in streamedResponse.stream.transform(utf8.decoder)) {
+      await for (final chunk
+          in streamedResponse.stream.transform(utf8.decoder)) {
         for (final line in chunk.split('\\n')) {
           if (line.startsWith('data: ')) {
             final data = line.substring(6);
             if (data == '[DONE]') return;
-            
+
             yield StreamEvent(
               id: 'moonshot-${DateTime.now().millisecondsSinceEpoch}',
               data: data,
@@ -61,7 +62,7 @@ class MoonshotAdapter implements LlmProvider {
   @override
   Future<CompletionResponse> complete(CompletionRequest request) async {
     final url = Uri.parse('$baseUrl/chat/completions');
-    
+
     final body = {
       'model': request.model,
       'messages': request.messages,
@@ -80,7 +81,8 @@ class MoonshotAdapter implements LlmProvider {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Moonshot API error: ${response.statusCode} - ${response.body}');
+      throw Exception(
+          'Moonshot API error: ${response.statusCode} - ${response.body}');
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -93,19 +95,23 @@ class MoonshotAdapter implements LlmProvider {
       object: json['object'] as String,
       created: json['created'] as int,
       model: json['model'] as String,
-      choices: (json['choices'] as List).map((c) => Choice(
-        index: c['index'] as int,
-        message: Message(
-          role: c['message']['role'] as String,
-          content: c['message']['content'] as String,
-        ),
-        finishReason: c['finish_reason'] as String?,
-      )).toList(),
-      usage: json['usage'] != null ? Usage(
-        promptTokens: json['usage']['prompt_tokens'] as int,
-        completionTokens: json['usage']['completion_tokens'] as int,
-        totalTokens: json['usage']['total_tokens'] as int,
-      ) : null,
+      choices: (json['choices'] as List)
+          .map((c) => Choice(
+                index: c['index'] as int,
+                message: Message(
+                  role: c['message']['role'] as String,
+                  content: c['message']['content'] as String,
+                ),
+                finishReason: c['finish_reason'] as String?,
+              ))
+          .toList(),
+      usage: json['usage'] != null
+          ? Usage(
+              promptTokens: json['usage']['prompt_tokens'] as int,
+              completionTokens: json['usage']['completion_tokens'] as int,
+              totalTokens: json['usage']['total_tokens'] as int,
+            )
+          : null,
     );
   }
 }

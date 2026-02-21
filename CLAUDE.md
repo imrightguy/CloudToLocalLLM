@@ -4,7 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Zoidbot is a privacy-first platform for running Large Language Models locally with optional cloud relay for remote access. The architecture consists of a Flutter frontend (Windows, Linux, Web) and Node.js backend services.
+CloudToLocalLLM is an OpenClaw Agent Manager — a privacy-first desktop AI companion organized around **Five Core Pillars**:
+
+1. **Chat**: Unified chat interface with streaming responses, conversation persistence, multi-model support
+2. **OpenClaw Gateway Management**: Start, stop, monitor OpenClaw Gateway (localhost:18789), health monitoring
+3. **Evolving Avatar**: Visual character (Zoidbot) with personality engine, evolution tracker, memory system
+4. **Desktop Control**: GUI automation, window management, file operations, clipboard, command execution
+5. **Vision**: Screen capture/analysis, camera input, OCR, continuous monitoring
+
+Architecture: Flutter frontend (Windows, Linux, Web) + Node.js backend services.
+
+**See**: `docs/development/IMPLEMENTATION_PLAN.md` for detailed implementation status.
 
 ## Commands
 
@@ -43,9 +53,9 @@ npm test                      # Run all tests
 npm run test:unit             # Unit tests only
 npm run test:auth             # Authentication tests
 npm run test:security         # Security tests
-npm run test:tunnel          # Tunnel tests
-npm run test:tunnel:unit     # Tunnel unit tests
-npm run test:tunnel:security # Tunnel security tests
+npm run test:tunnel           # Tunnel tests (all)
+npm run test:tunnel:unit      # Tunnel unit tests
+npm run test:tunnel:security  # Tunnel security tests
 npm run lint                  # ESLint
 npm run format                # Prettier
 
@@ -92,6 +102,23 @@ curl http://localhost:1337/v1/chat/completions \
 
 ## Architecture
 
+### Five Core Pillars Overview
+
+The app is organized around five pillars. See `docs/development/IMPLEMENTATION_PLAN.md` for detailed status.
+
+| Pillar | Status | Key Files |
+|--------|--------|-----------|
+| 1. Chat | ✅ Core existing | `streaming_chat_service.dart`, `home_layout.dart` |
+| 2. OpenClaw Manager | ✅ Core existing | `connection_manager_service.dart`, `agent_status_service.dart` |
+| 3. Evolving Avatar | 🔲 Basic only | `avatar_widget.dart` (planned: `personality_engine.dart`, `evolution_tracker.dart`) |
+| 4. Desktop Control | 🔲 Partial | `gui_automation_service.dart` (planned: window management, clipboard) |
+| 5. Vision | 🔲 Partial | `gui_automation_service.dart` (planned: camera, OCR) |
+
+**Implementation phases** (see `docs/development/IMPLEMENTATION_PLAN.md`):
+- Phase 1: Multi-model selector, gateway start/stop control, gateway dashboard
+- Phase 2: Personality engine, evolution tracker, window/clipboard management
+- Phase 3: Camera/OCR, avatar memory system, achievements
+
 ### Service Layer Pattern (Flutter)
 
 The Flutter app uses a layered service architecture with dependency injection:
@@ -104,8 +131,9 @@ The Flutter app uses a layered service architecture with dependency injection:
   - Core Services: `SettingsPreferenceService`, `AuthService`, `ThemeProvider`, `TokenStorageService`
   - Authenticated Services: `TunnelService`, `LLMProviderManager`, `StreamingChatService`
   - Router Services: `RouterServer`, `RateLimitManager`, provider adapters in `lib/services/providers/`
-  - Monitoring Services: `BehaviorWarningsService`, `SubagentRegistryService`, `AgentStatusService`
-  - Integration Services: `GoogleWorkspaceService`
+  - Monitoring Services: `BehaviorWarningsService`, `SubagentRegistryService`, `AgentStatusService`, `AgentLifecycleService`
+  - Integration Services: `GoogleWorkspaceService`, `LangChainIntegrationService`
+  - OpenClaw Manager: `GatewayControlService` in `lib/services/openclaw_manager/`
   - Platform Services: Uses conditional imports for desktop vs web (e.g., `*_stub.dart` files)
 
 - **Platform Abstraction**: Web-specific code uses `dart:js_interop` and `dart:html` conditional imports with stub implementations for desktop
@@ -114,26 +142,50 @@ The Flutter app uses a layered service architecture with dependency injection:
 
 - **api-backend**: Main Express.js server with Auth0 JWT auth, PostgreSQL, rate limiting, OpenTelemetry tracing
   - **Routes**: Admin, auth, tunnels, conversations, bridge polling, agent events
-  - **New Routes**: `behavior-warnings-routes.js`, `context-usage-routes.js`, `models-routes.js`, `subagent-registry-routes.js`
+  - Additional routes: `behavior-warnings-routes.js`, `context-usage-routes.js`, `models-routes.js`, `subagent-registry-routes.js`
 - **postgres**: PostgreSQL database configuration and migrations
 - **sdk**: TypeScript SDK for third-party integrations
-- **streaming-proxy**: WebSocket proxy for real-time LLM communication
-- **backend/**: Docker setup for database deployment (alternative to services/postgres)
+- **streaming-proxy**: WebSocket proxy for real-time LLM communication (zoidbot-tunnel-container)
 
-### Authentication Flow
+### Chat Interface (Pillar 1)
 
-- Desktop: Native Auth0 flow with secure token storage (encrypted SQLite)
-- Web: Auth0 with JavaScript bridge (`auth0-bridge.js`), session-based storage
-- JWT validation via `express-oauth2-jwt-bearer` with JWKS RSA
+- **StreamingChatService** (`lib/services/streaming_chat_service.dart`): Real-time token-by-token streaming
+- **HomeLayout** (`lib/screens/home/home_layout.dart`): Unified chat UI
+- **ConversationStorageService** (or LocalBrain): Persistent conversation history
+- Message bubbles with markdown rendering, code highlighting
+
+**Planned**: Multi-model selector UI, advanced search, rich messages (images, code), export/import.
 
 ### LLM Provider System
 
 Supports multiple local LLM providers:
 - **OpenClaw Gateway**: Primary local provider, auto-discovery on localhost:18789
 - **LM Studio**: Alternative local provider (localhost:1234)
-- **OpenAI-compatible**: Generic OpenAI API providers
+- **Ollama**: Alternative local provider (localhost:11434)
 
 Providers are configured via `ProviderConfigurationManager` with auto-discovery in `ProviderDiscoveryService`. LangChain integration for advanced workflows.
+
+### Desktop Control & Vision (Pillars 4 & 5)
+
+**Desktop Control**:
+- **GuiAutomationService** (`lib/services/gui_automation_service.dart`): Screenshot capture, vision-powered automation
+- **SystemControlService** (`lib/services/system_control_service.dart`): System operations, command execution
+- **GuiAutomationScreen** (`lib/screens/gui_automation_screen.dart`): UI for desktop automation
+
+**Vision** (integrated with desktop control):
+- Screen capture and analysis via OpenClaw vision models
+- OCR capabilities
+- **Planned**: Region capture, camera input, continuous monitoring
+
+### OpenClaw Gateway Management (Pillar 2)
+
+The app manages the OpenClaw Gateway service (localhost:18789):
+- **GatewayControlService** (`lib/services/openclaw_manager/gateway_control_service.dart`): Start, stop, monitor the gateway
+- **ConnectionManagerService** (`lib/services/connection_manager_service.dart`): Connection handling
+- **AgentLifecycleService** (`lib/services/agent_lifecycle_service.dart`): Agent lifecycle management
+- **AgentStatusService** (`lib/services/agent_status_service.dart`): Status polling
+- Health monitoring, configuration management
+- Multi-provider support with automatic fallback
 
 ### LLM Router System
 
@@ -150,6 +202,20 @@ The Flutter app exposes an OpenAI-compatible HTTP server (port 1337) for routing
 - **Database**: `ModelCapacity` and `LlmRequests` tables (Drift/SQLite) track usage
 
 Router endpoints: `GET /v1/models`, `POST /v1/chat/completions`, `GET /health`
+
+### Avatar System (Zoidbot)
+
+The evolving avatar (Pillar 3) is managed through:
+- **AvatarWidget** (`lib/features/avatar/avatar_widget.dart`): Visual 2D/3D character renderer with state-based reactions (idle/thinking/working/error/happy)
+- **BrainInsightWidget** (`lib/components/brain_insight_widget.dart`): Personality/memory visualization
+
+**Planned services** (lib/services/avatar/):
+- `personality_engine.dart` - Trait management
+- `evolution_tracker.dart` - XP/level/achievements
+- `memory_service.dart` - Conversation embeddings
+- `achievement_service.dart` - Unlockables
+
+See IMPLEMENTATION_PLAN.md for database schema (AvatarProfiles, Achievements tables).
 
 ### Tunnel/Cloud Architecture
 
@@ -172,6 +238,7 @@ Router endpoints: `GET /v1/models`, `POST /v1/chat/completions`, `GET /health`
 
 - **Dart**: `snake_case.dart` for files, `PascalCase` for classes
 - **TypeScript/JavaScript**: `kebab-case.js` for files, `PascalCase` for classes
+- **Tests**: `*.test.js` or `*.unit.test.js` for Jest test files
 - **Constants**: `UPPER_SNAKE_CASE`
 
 ### Commit Messages
@@ -200,6 +267,18 @@ import 'package:zoidbot/services/some_service.dart'
 - Tests located in `test/api-backend/` organized by feature
 - Use `--forceExit` flag for Jest to ensure clean exit
 
+Run specific test suites:
+```bash
+cd services/api-backend
+npm run test:unit              # Unit tests only
+npm run test:auth              # Authentication tests
+npm run test:security          # Security tests
+npm run test:tunnel            # Tunnel tests (all)
+npm run test:tunnel:unit       # Tunnel unit tests
+npm run test:tunnel:security   # Tunnel security tests
+npm run test:user-isolation    # User isolation tests
+```
+
 ## Environment Requirements
 
 - **Flutter**: 3.5+
@@ -207,7 +286,7 @@ import 'package:zoidbot/services/some_service.dart'
 - **Node.js**: >=22.0.0 <25.0.0 (API backend and streaming proxy)
 - **PostgreSQL**: For backend database
 - **LLM Providers**:
-  - Local: OpenClaw Gateway (localhost:18789) or LM Studio (localhost:1234)
+  - Local: OpenClaw Gateway (localhost:18789), LM Studio (localhost:1234), Ollama (localhost:11434)
   - Cloud: Zhipu AI, Google Gemini, Moonshot (configured via router)
 - **Router Port**: 1337 (embedded Flutter HTTP server)
 - **NVIDIA Drivers**: Required for GPU acceleration (RTX 30/40 series recommended)
@@ -219,8 +298,10 @@ import 'package:zoidbot/services/some_service.dart'
 - `lib/di/locator.dart`: Service registration and dependency injection
 - `lib/services/router_server.dart`: LLM router HTTP server
 - `lib/services/model_tiers.dart`: Model capacity tier definitions
+- `lib/services/openclaw_manager/gateway_control_service.dart`: OpenClaw Gateway management
 - `services/api-backend/package.json`: Node.js dependencies and scripts
-- `.github/copilot-instructions.md`: Additional AI agent guidance
+- `services/streaming-proxy/package.json`: Streaming proxy service
+- `SPEC.md`: Master specification with project vision and architecture
 
 ## MCP Integration
 
@@ -257,3 +338,30 @@ See `.claude/SETUP_SUMMARY.md` for complete automation documentation.
 - Docker deployment options available in `docker-compose.yml`
 - CI/CD via GitHub Actions (see `.github/workflows/`)
 - Claude Code automations documented in `.claude/SETUP_SUMMARY.md`
+- **Note**: "Zoidbot" is the name of the avatar/bot character; the application is "CloudToLocalLLM"
+
+### Implementation Phases
+
+See `docs/development/IMPLEMENTATION_PLAN.md` for complete status:
+
+**Phase 1: Foundation** (Chat + OpenClaw Manager)
+- Multi-model selector UI
+- Gateway start/stop control
+- Gateway dashboard
+
+**Phase 2: Core Features** (Avatar + Desktop)
+- Personality engine + evolution tracker
+- Window management, clipboard service
+- File operations
+
+**Phase 3: Advanced** (Vision + Avatar)
+- Camera input + OCR
+- Memory system for avatar
+- Achievement system
+
+### Key Documentation
+
+- `SPEC.md` - Master specification with project vision
+- `docs/development/IMPLEMENTATION_PLAN.md` - Five pillars implementation status
+- `docs/architecture/SYSTEM_ARCHITECTURE.md` - Technical deep dive
+- `README.md` - User-facing overview and setup

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
+import 'package:cloudtolocalllm/di/locator.dart';
 
 /// Welcome step - First screen of the setup wizard
 class WelcomeStep extends StatelessWidget {
@@ -9,6 +9,7 @@ class WelcomeStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<SetupWizardService>(
+      builder: (context, wizard, child) {
       builder: (context, wizard, child) {
         return Padding(
           padding: const EdgeInsets.all(32),

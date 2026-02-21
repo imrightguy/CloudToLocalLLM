@@ -203,7 +203,8 @@ class TunnelService extends ChangeNotifier {
     try {
       final config = TunnelConfig(
         userId: _authService.currentUser?.id ?? '',
-        cloudProxyUrl: kDebugMode ? AppConfig.tunnelSshUrl : AppConfig.tunnelSshUrl,
+        cloudProxyUrl:
+            kDebugMode ? AppConfig.tunnelSshUrl : AppConfig.tunnelSshUrl,
         localBackendUrl: 'http://localhost:11434',
         authToken: await _authService.getValidatedAccessToken() ?? '',
         enableCloudProxy: true,
@@ -211,7 +212,8 @@ class TunnelService extends ChangeNotifier {
 
       // Create a test WebSocket connection
       final wsUrl = Uri.parse(config.cloudProxyUrl.replaceFirst('http', 'ws'));
-      final webSocket = await WebSocket.connect(wsUrl.toString(),
+      final webSocket = await WebSocket.connect(
+        wsUrl.toString(),
         headers: {
           'Authorization': 'Bearer ${config.authToken}',
           'X-Tunnel-Test': 'true',
@@ -219,7 +221,8 @@ class TunnelService extends ChangeNotifier {
       );
 
       // Send a test message and expect a response
-      webSocket.add('{"type":"ping","timestamp":"${DateTime.now().toIso8601String()}"}');
+      webSocket.add(
+          '{"type":"ping","timestamp":"${DateTime.now().toIso8601String()}"}');
 
       // Wait for response with timeout
       final completer = Completer<bool>();

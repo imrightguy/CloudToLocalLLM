@@ -393,7 +393,8 @@ class Auth0AuthProvider implements AuthProvider {
         if (credentials.accessToken.isNotEmpty) return credentials.accessToken;
       }
     } catch (e) {
-      debugPrint('[Auth0Provider] ⚠ Failed to get credentials from Auth0Web: $e');
+      debugPrint(
+          '[Auth0Provider] ⚠ Failed to get credentials from Auth0Web: $e');
       // Fall through to local storage retrieval
     }
 

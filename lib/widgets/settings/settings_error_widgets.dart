@@ -4,7 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:zoidbot/utils/settings_error_handler.dart';
+import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
 
 /// Inline error message widget for form fields
 class FieldErrorMessage extends StatelessWidget {

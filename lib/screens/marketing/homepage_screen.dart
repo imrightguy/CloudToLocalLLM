@@ -48,7 +48,7 @@ class HomepageScreen extends StatelessWidget {
   Widget _buildHeader(BuildContext context, {required bool isMobile}) {
     // Welcome message with Zoidbot persona
     final theme = Theme.of(context);
-    
+
     // Responsive sizing
     final logoSize = isMobile ? 60.0 : 70.0;
     final titleFontSize = isMobile ? 32.0 : 40.0;
@@ -263,8 +263,7 @@ class HomepageScreen extends StatelessWidget {
                     // Redirect to app subdomain instead of local route
                     if (kIsWeb) {
                       // Use url_launcher to navigate to app subdomain
-                      final uri =
-                          Uri.parse('https://app.zoidbot.online');
+                      final uri = Uri.parse('https://app.zoidbot.online');
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(uri, webOnlyWindowName: '_self');
                       }

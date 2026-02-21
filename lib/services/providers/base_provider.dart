@@ -30,13 +30,13 @@ class CompletionRequest {
   }
 
   Map<String, dynamic> toJson() => {
-    'model': model,
-    'messages': messages,
-    'stream': stream,
-    if (temperature != null) 'temperature': temperature,
-    if (maxTokens != null) 'max_tokens': maxTokens,
-    if (user != null) 'user': user,
-  };
+        'model': model,
+        'messages': messages,
+        'stream': stream,
+        if (temperature != null) 'temperature': temperature,
+        if (maxTokens != null) 'max_tokens': maxTokens,
+        if (user != null) 'user': user,
+      };
 }
 
 /// Standard OpenAI-compatible completion response
@@ -58,13 +58,13 @@ class CompletionResponse {
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'object': object,
-    'created': created,
-    'model': model,
-    'choices': choices.map((c) => c.toJson()).toList(),
-    if (usage != null) 'usage': usage!.toJson(),
-  };
+        'id': id,
+        'object': object,
+        'created': created,
+        'model': model,
+        'choices': choices.map((c) => c.toJson()).toList(),
+        if (usage != null) 'usage': usage!.toJson(),
+      };
 }
 
 class Choice {
@@ -79,10 +79,10 @@ class Choice {
   });
 
   Map<String, dynamic> toJson() => {
-    'index': index,
-    'message': message.toJson(),
-    if (finishReason != null) 'finish_reason': finishReason,
-  };
+        'index': index,
+        'message': message.toJson(),
+        if (finishReason != null) 'finish_reason': finishReason,
+      };
 }
 
 class Message {
@@ -95,9 +95,9 @@ class Message {
   });
 
   Map<String, dynamic> toJson() => {
-    'role': role,
-    'content': content,
-  };
+        'role': role,
+        'content': content,
+      };
 }
 
 class Usage {
@@ -112,10 +112,10 @@ class Usage {
   });
 
   Map<String, dynamic> toJson() => {
-    'prompt_tokens': promptTokens,
-    'completion_tokens': completionTokens,
-    'total_tokens': totalTokens,
-  };
+        'prompt_tokens': promptTokens,
+        'completion_tokens': completionTokens,
+        'total_tokens': totalTokens,
+      };
 }
 
 /// SSE event for streaming
@@ -144,10 +144,10 @@ class StreamEvent {
 abstract class LlmProvider {
   String get name;
   String get baseUrl;
-  
+
   /// Stream completion (for streaming responses)
   Stream<StreamEvent> streamCompletion(CompletionRequest request);
-  
+
   /// Complete (for non-streaming responses)
   Future<CompletionResponse> complete(CompletionRequest request);
 }

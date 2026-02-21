@@ -202,7 +202,10 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
             Text(
               'Start an agent session to see status',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6),
                   ),
             ),
           ],
@@ -245,7 +248,8 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
+          backgroundColor:
+              _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
           child: Text(
             _getStatusEmoji(agent.status),
             style: TextStyle(fontSize: 20),
@@ -280,7 +284,8 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
+            color:
+                _getStatusColorForStatus(agent.status).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -300,7 +305,8 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
     // Return overall status color based on all agents
     if (_agents.any((a) => a.status == 'error')) {
       return Colors.red;
-    } else if (_agents.any((a) => a.status == 'busy' || a.status == 'thinking')) {
+    } else if (_agents
+        .any((a) => a.status == 'busy' || a.status == 'thinking')) {
       return Colors.orange;
     }
     return Colors.green;

@@ -49,7 +49,7 @@ class _TrayInitializerState extends State<TrayInitializer> {
   Future<void> _initializeTray(BuildContext context) async {
     try {
       appLogger.info('[TrayInitializer] Starting tray initialization...');
-      
+
       // ConnectionManagerService is an authenticated service that may not be available yet
       // Use Provider.of with listen: false to safely check if it's available
       ConnectionManagerService? connectionManager;
@@ -94,10 +94,12 @@ class _TrayInitializerState extends State<TrayInitializer> {
       if (initialized) {
         appLogger.info('[TrayInitializer] Native tray initialized');
       } else {
-        appLogger.info('[TrayInitializer] Native tray not supported on this platform');
+        appLogger.info(
+            '[TrayInitializer] Native tray not supported on this platform');
       }
     } catch (e, st) {
-      appLogger.error('[TrayInitializer] Tray init failed', error: e, stackTrace: st);
+      appLogger.error('[TrayInitializer] Tray init failed',
+          error: e, stackTrace: st);
     }
   }
 

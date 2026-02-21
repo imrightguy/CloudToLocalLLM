@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../di/locator.dart';
 import '../services/onboarding/setup_wizard_service.dart';
@@ -70,11 +69,9 @@ bool _hasCallbackParameters(Uri uri) {
 /// and redirects to /setup if no providers are configured
 class _HomeWithSetupCheck extends StatefulWidget {
   final bool isAuthenticated;
-  final bool isAppDomain;
 
   const _HomeWithSetupCheck({
     required this.isAuthenticated,
-    required this.isAppDomain,
     super.key,
   });
 
@@ -163,17 +160,15 @@ class AppRouter {
             }
 
             final isAuthenticated = authService.isAuthenticated.value;
-            final isAppDomain = _isAppSubdomain();
 
             if (isAuthenticated || !kIsWeb) {
               // Show home screen first, then check if setup is needed
               return _HomeWithSetupCheck(
                 isAuthenticated: isAuthenticated,
-                isAppDomain: isAppDomain,
               );
             }
 
-            if (kIsWeb && !isAppDomain) {
+            if (kIsWeb && !_isAppSubdomain()) {
               return const marketing_lazy.HomepageScreen();
             }
 
@@ -276,8 +271,9 @@ class AppRouter {
         }
 
         // 5. Unauthenticated state on App domain or Desktop
-        if (isLoggingIn || isCallback || !kIsWeb)
+        if (isLoggingIn || isCallback || !kIsWeb) {
           return null; // Allow these (Desktop is always allowed)
+        }
 
         // Redirect all other protected routes to login
         debugPrint(

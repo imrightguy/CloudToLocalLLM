@@ -26,8 +26,8 @@ class BrainInsightWidget extends StatelessWidget {
                 Text(
                   'Local Brain Insights',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const Spacer(),
                 const Chip(
@@ -41,23 +41,26 @@ class BrainInsightWidget extends StatelessWidget {
           Expanded(
             child: StreamBuilder<List<AgentLog>>(
               // Note: Stream logic will be added to LocalBrain later
-              stream: Stream.periodic(const Duration(seconds: 2))
-                  .asyncMap((_) => localBrain.select(localBrain.agentLogs).get()),
+              stream: Stream.periodic(const Duration(seconds: 2)).asyncMap(
+                  (_) => localBrain.select(localBrain.agentLogs).get()),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                
+
                 final logs = snapshot.data ?? [];
                 if (logs.isEmpty) {
-                  return const Center(child: Text('No internal logs recorded yet.'));
+                  return const Center(
+                      child: Text('No internal logs recorded yet.'));
                 }
 
                 return ListView.separated(
                   itemCount: logs.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
                   itemBuilder: (context, index) {
-                    final log = logs[logs.length - 1 - index]; // Reverse chronological
+                    final log =
+                        logs[logs.length - 1 - index]; // Reverse chronological
                     return ListTile(
                       dense: true,
                       leading: _getLogLevelIcon(log.level),

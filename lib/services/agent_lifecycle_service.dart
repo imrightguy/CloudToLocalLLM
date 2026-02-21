@@ -11,14 +11,19 @@ import '../config/app_config.dart';
 enum AgentLifecycleState {
   /// Agent is idle and not running
   idle,
+
   /// Agent is starting up
   starting,
+
   /// Agent is actively processing
   running,
+
   /// Agent is stopping
   stopping,
+
   /// Agent encountered an error
   error,
+
   /// Agent is offline/not reachable
   offline,
 }
@@ -175,8 +180,8 @@ class AgentLifecycleService extends ChangeNotifier {
   String? get lastError => _lastError;
 
   /// Check if service is ready (connected to OpenClaw Gateway)
-  bool get isReady => _connectionManager.isConnected &&
-                      _connectionManager.isGatewayHealthy();
+  bool get isReady =>
+      _connectionManager.isConnected && _connectionManager.isGatewayHealthy();
 
   void _onConnectionChanged() {
     notifyListeners();
@@ -424,7 +429,8 @@ class AgentLifecycleService extends ChangeNotifier {
         notifyListeners();
         return agent;
       } else {
-        _lastError = response['error']?['message'] ?? 'Failed to get agent status';
+        _lastError =
+            response['error']?['message'] ?? 'Failed to get agent status';
         debugPrint('[AgentLifecycle] ✗ $_lastError');
         return null;
       }
@@ -442,7 +448,8 @@ class AgentLifecycleService extends ChangeNotifier {
     // This is a placeholder - the actual implementation needs ConnectionManager to expose the channel
     // or provide a method to send agent commands
     debugPrint('[AgentLifecycle] Sending request: ${request['method']}');
-    debugPrint('[AgentLifecycle] ⚠ WebSocket access not yet implemented - need to integrate with ConnectionManager');
+    debugPrint(
+        '[AgentLifecycle] ⚠ WebSocket access not yet implemented - need to integrate with ConnectionManager');
 
     // TODO: Integrate with ConnectionManagerService's WebSocket
     // For now, this will require ConnectionManager to either:
@@ -459,14 +466,16 @@ class AgentLifecycleService extends ChangeNotifier {
       if (completer != null && !completer.isCompleted) {
         completer.complete(message);
       }
-    } else if (message['type'] == 'event' && message['event'] == 'agent.status') {
+    } else if (message['type'] == 'event' &&
+        message['event'] == 'agent.status') {
       // Handle agent status update events
       final payload = message['payload'] as Map<String, dynamic>?;
       if (payload != null && payload['agentId'] != null) {
         final agent = AgentInfo.fromJson(payload);
         _agents[agent.id] = agent;
         notifyListeners();
-        debugPrint('[AgentLifecycle] Agent status updated: ${agent.name} - ${agent.state}');
+        debugPrint(
+            '[AgentLifecycle] Agent status updated: ${agent.name} - ${agent.state}');
       }
     }
   }

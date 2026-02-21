@@ -228,10 +228,10 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
 
   Widget _buildActionsCard(AgentInfo agent) {
     final canStart = agent.state == AgentLifecycleState.idle ||
-                     agent.state == AgentLifecycleState.error ||
-                     agent.state == AgentLifecycleState.offline;
+        agent.state == AgentLifecycleState.error ||
+        agent.state == AgentLifecycleState.offline;
     final canStop = agent.state == AgentLifecycleState.running ||
-                     agent.state == AgentLifecycleState.starting;
+        agent.state == AgentLifecycleState.starting;
 
     return Card(
       child: Padding(

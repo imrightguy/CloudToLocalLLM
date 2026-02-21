@@ -150,9 +150,12 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
                       );
                     },
               child: Text(
-                isLastStep ? 'Complete' : 'Next',
-                wizard.state.isLoading ? 'Loading...' : null,
-              ]..removeWhere((e) => e == null),
+                isLastStep
+                    ? 'Complete'
+                    : wizard.state.isLoading
+                        ? 'Loading...'
+                        : 'Next',
+              ),
             ),
           ),
         ],

@@ -73,8 +73,10 @@ class _ResourceCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text(status, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  Text(title,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(status,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                 ],
               ),
             ),

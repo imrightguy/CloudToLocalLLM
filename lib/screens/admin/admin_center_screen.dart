@@ -164,7 +164,8 @@ class _AdminCenterScreenState extends State<AdminCenterScreen> {
 
       // Check if user email matches the authorized admin admin email
       // On Desktop, we allow access in Guest Mode
-      final isAuthorized = userEmail == 'christopher.maltais@gmail.com' || (!kIsWeb && userEmail == null);
+      final isAuthorized = userEmail == 'christopher.maltais@gmail.com' ||
+          (!kIsWeb && userEmail == null);
 
       if (isAuthorized) {
         // Initialize admin service to load roles

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:async';
 
 /// Subagent Registry Service
-/// 
+///
 /// Manages subagent lifecycle through the database.
 /// All agents (main, subagents, etc.) can access this registry.
 class SubagentRegistryService {
@@ -19,7 +19,8 @@ class SubagentRegistryService {
         _client = client ?? http.Client();
 
   /// List all subagents (optionally filtered by status or agentId)
-  Future<List<Subagent>> listSubagents({String? status, String? agentId}) async {
+  Future<List<Subagent>> listSubagents(
+      {String? status, String? agentId}) async {
     try {
       final queryParams = <String, String>{};
       if (status != null) queryParams['status'] = status;
@@ -58,16 +59,18 @@ class SubagentRegistryService {
     String? task,
   }) async {
     try {
-      final response = await _client.post(
-        Uri.parse('$_apiBaseUrl/api/admin/subagents'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'subagentId': subagentId,
-          'agentId': agentId,
-          'label': label,
-          'task': task,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      final response = await _client
+          .post(
+            Uri.parse('$_apiBaseUrl/api/admin/subagents'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'subagentId': subagentId,
+              'agentId': agentId,
+              'label': label,
+              'task': task,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -116,16 +119,18 @@ class SubagentRegistryService {
     String? error,
   }) async {
     try {
-      final response = await _client.patch(
-        Uri.parse('$_apiBaseUrl/api/admin/subagents/$subagentId/status'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'status': status.name,
-          if (result != null) 'result': result,
-          if (logs != null) 'logs': logs,
-          if (error != null) 'error': error,
-        }),
-      ).timeout(const Duration(seconds: 10));
+      final response = await _client
+          .patch(
+            Uri.parse('$_apiBaseUrl/api/admin/subagents/$subagentId/status'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({
+              'status': status.name,
+              if (result != null) 'result': result,
+              if (logs != null) 'logs': logs,
+              if (error != null) 'error': error,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
 
       return response.statusCode == 200;
     } catch (e) {
@@ -140,7 +145,8 @@ class SubagentRegistryService {
   }
 
   /// Mark subagent as completed
-  Future<bool> markCompleted(String subagentId, {dynamic result, String? logs}) async {
+  Future<bool> markCompleted(String subagentId,
+      {dynamic result, String? logs}) async {
     return updateStatus(
       subagentId,
       status: SubagentStatus.completed,
@@ -150,7 +156,8 @@ class SubagentRegistryService {
   }
 
   /// Mark subagent as failed
-  Future<bool> markFailed(String subagentId, {String? error, String? logs}) async {
+  Future<bool> markFailed(String subagentId,
+      {String? error, String? logs}) async {
     return updateStatus(
       subagentId,
       status: SubagentStatus.failed,

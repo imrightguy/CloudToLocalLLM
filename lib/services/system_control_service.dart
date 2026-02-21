@@ -21,7 +21,8 @@ class SystemControlService {
       _isNotifierInitialized = true;
       appLogger.info('[SystemControl] Local notifier initialized');
     } catch (e) {
-      appLogger.error('[SystemControl] Failed to initialize local notifier', error: e);
+      appLogger.error('[SystemControl] Failed to initialize local notifier',
+          error: e);
     }
   }
 
@@ -49,7 +50,8 @@ class SystemControlService {
       final results = await _shell.run(command);
       return results.map((r) => r.outText).join('\n');
     } catch (e) {
-      appLogger.error('[SystemControl] Command execution failed: $command', error: e);
+      appLogger.error('[SystemControl] Command execution failed: $command',
+          error: e);
       return 'Error: $e';
     }
   }
@@ -70,7 +72,8 @@ class SystemControlService {
       if (ramResult.isNotEmpty) {
         // Find the line starting with "Mem:"
         final lines = ramResult.first.outText.split('\n');
-        final memLine = lines.firstWhere((l) => l.startsWith('Mem:'), orElse: () => '');
+        final memLine =
+            lines.firstWhere((l) => l.startsWith('Mem:'), orElse: () => '');
         if (memLine.isNotEmpty) {
           stats['ram'] = memLine.trim();
         }
@@ -108,8 +111,9 @@ class SystemControlService {
         try {
           await _shell.run('scrot $path');
         } catch (_) {
-           appLogger.error('[SystemControl] Neither gnome-screenshot nor scrot found');
-           return null;
+          appLogger.error(
+              '[SystemControl] Neither gnome-screenshot nor scrot found');
+          return null;
         }
       }
 

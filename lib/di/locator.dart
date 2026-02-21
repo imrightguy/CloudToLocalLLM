@@ -626,6 +626,14 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
         ProviderConfiguration? config;
 
         switch (providerInfo.type) {
+          case ProviderType.openclaw:
+            config = OpenClawProviderConfiguration(
+              providerId: providerId,
+              baseUrl: providerInfo.url,
+              timeout: const Duration(seconds: 90),
+            );
+            break;
+
           case ProviderType.ollama:
             config = OllamaProviderConfiguration(
               providerId: providerId,

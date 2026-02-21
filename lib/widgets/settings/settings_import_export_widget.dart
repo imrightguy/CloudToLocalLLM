@@ -4,8 +4,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:zoidbot/services/settings_import_export_service.dart';
-import 'package:zoidbot/utils/settings_error_handler.dart';
+import 'package:cloudtolocalllm/services/settings_import_export_service.dart';
+import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
 
 /// Settings import/export widget
 class SettingsImportExportWidget extends StatefulWidget {

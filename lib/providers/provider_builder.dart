@@ -33,17 +33,22 @@ class ProviderBuilder {
   List<SingleChildWidget> buildProviders() {
     final providers = <SingleChildWidget>[];
 
-    // Core services
-    _addCoreProvider<AuthService>(providers);
-    _addCoreProvider<DesktopClientDetectionService>(providers);
-    _addCoreProvider<AppInitializationService>(providers);
-    _addCoreProvider<WebDownloadPromptService>(providers);
-    _addCoreProvider<ProviderDiscoveryService>(providers);
-    _addCoreProvider<LLMErrorHandler>(providers);
-    _addCoreProvider<LangChainPromptService>(providers);
-    _addCoreProvider<EnhancedUserTierService>(providers);
-    _addCoreProvider<ThemeProvider>(providers);
-    _addCoreProvider<ProviderConfigurationManager>(providers);
+    // Core services that extend ChangeNotifier
+    _addChangeNotifierProvider<DesktopClientDetectionService>(providers);
+    _addChangeNotifierProvider<AppInitializationService>(providers);
+    _addChangeNotifierProvider<EnhancedUserTierService>(providers);
+    _addChangeNotifierProvider<ThemeProvider>(providers);
+
+    // Core services that don't extend ChangeNotifier - use regular Provider
+    _addProviderIfRegisteredNoChangeNotifier<AuthService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<WebDownloadPromptService>(
+        providers);
+    _addProviderIfRegisteredNoChangeNotifier<ProviderDiscoveryService>(
+        providers);
+    _addProviderIfRegisteredNoChangeNotifier<LLMErrorHandler>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<LangChainPromptService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<ProviderConfigurationManager>(
+        providers);
 
     try {
       if (di.serviceLocator.isRegistered<PlatformAdapter>()) {
@@ -56,25 +61,28 @@ class ProviderBuilder {
       debugPrint('[Providers] Error adding PlatformAdapter: $e');
     }
 
-    // Authenticated services
-    _addProviderIfRegistered<TunnelService>(providers);
-    _addProviderIfRegistered<StreamingProxyService>(providers);
-    _addProviderIfRegistered<UserContainerService>(providers);
-    _addProviderIfRegistered<LangChainIntegrationService>(providers);
-    _addProviderIfRegistered<LLMProviderManager>(providers);
-    _addProviderIfRegistered<ConnectionManagerService>(providers);
-    _addProviderIfRegistered<LangChainRAGService>(providers);
-    _addProviderIfRegistered<LLMAuditService>(providers);
-    _addProviderIfRegistered<StreamingChatService>(providers);
-    _addProviderIfRegistered<UnifiedConnectionService>(providers);
-    _addProviderIfRegistered<AdminService>(providers);
-    _addProviderIfRegistered<AdminDataFlushService>(providers);
-    _addProviderIfRegistered<AdminCenterService>(providers);
+    // Authenticated services - use regular Provider as they don't extend ChangeNotifier
+    _addProviderIfRegisteredNoChangeNotifier<TunnelService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<StreamingProxyService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<UserContainerService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<LangChainIntegrationService>(
+        providers);
+    _addProviderIfRegisteredNoChangeNotifier<LLMProviderManager>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<ConnectionManagerService>(
+        providers);
+    _addProviderIfRegisteredNoChangeNotifier<LangChainRAGService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<LLMAuditService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<StreamingChatService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<UnifiedConnectionService>(
+        providers);
+    _addProviderIfRegisteredNoChangeNotifier<AdminService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<AdminDataFlushService>(providers);
+    _addProviderIfRegisteredNoChangeNotifier<AdminCenterService>(providers);
 
     return providers;
   }
 
-  void _addCoreProvider<T extends ChangeNotifier>(
+  void _addChangeNotifierProvider<T extends ChangeNotifier>(
       List<SingleChildWidget> providers) {
     try {
       if (di.serviceLocator.isRegistered<T>()) {
@@ -82,7 +90,7 @@ class ProviderBuilder {
         providers.add(ChangeNotifierProvider<T>.value(value: service));
       }
     } catch (e) {
-      debugPrint('[Providers] Error adding core provider $T: $e');
+      debugPrint('[Providers] Error adding ChangeNotifier provider $T: $e');
     }
   }
 
@@ -92,6 +100,18 @@ class ProviderBuilder {
       if (di.serviceLocator.isRegistered<T>()) {
         final service = di.serviceLocator.get<T>();
         providers.add(ChangeNotifierProvider<T>.value(value: service));
+      }
+    } catch (e) {
+      debugPrint('[Providers] Error adding provider $T: $e');
+    }
+  }
+
+  void _addProviderIfRegisteredNoChangeNotifier<T extends Object>(
+      List<SingleChildWidget> providers) {
+    try {
+      if (di.serviceLocator.isRegistered<T>()) {
+        final service = di.serviceLocator.get<T>();
+        providers.add(Provider<T>.value(value: service));
       }
     } catch (e) {
       debugPrint('[Providers] Error adding provider $T: $e');

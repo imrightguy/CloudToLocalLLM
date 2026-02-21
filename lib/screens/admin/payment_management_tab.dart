@@ -394,9 +394,7 @@ class _PaymentManagementTabState extends State<PaymentManagementTab> {
             DataColumn(label: Text('Date')),
             DataColumn(label: Text('Actions')),
           ],
-          rows: _transactions
-              .map(_buildTransactionRow)
-              .toList(),
+          rows: _transactions.map(_buildTransactionRow).toList(),
         ),
       ),
     );

@@ -17,31 +17,43 @@ class _SharedWebSocket {
   WebSocketChannel? _channel;
   bool _isConnected = false;
   final _messageController = StreamController<Map<String, dynamic>>.broadcast();
-  
+
+  String? _authToken;
+  String? _gatewayToken; // OpenClaw Gateway token for local connections
+  String? _gatewayPassword; // OpenClaw Gateway password for local connections
+
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
   bool get isConnected => _isConnected;
-  
+
   static _SharedWebSocket get instance {
     _instance ??= _instance = _SharedWebSocket._();
     return _instance!;
   }
-  
+
   _SharedWebSocket._();
-  
-  String? _authToken;
-  
+
+  /// Set the OpenClaw Gateway token
+  void setGatewayToken(String? token) {
+    _gatewayToken = token;
+  }
+
+  /// Set the OpenClaw Gateway password
+  void setGatewayPassword(String? password) {
+    _gatewayPassword = password;
+  }
+
   Future<void> connect(String baseUrl, {String? authToken}) async {
     if (_channel != null && _isConnected) return;
-    
+
     _authToken = authToken ?? '';
-    
+
     final wsUrl = baseUrl
         .replaceFirst('http://', 'ws://')
         .replaceFirst('https://', 'wss://');
-    
+
     _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/'));
     await _channel!.ready;
-    
+
     // Listen and broadcast messages
     _channel!.stream.listen(
       (data) {
@@ -57,37 +69,79 @@ class _SharedWebSocket {
         _isConnected = false;
       },
     );
-    
-    // Do handshake with proper auth
-    final handshake = {
-      'type': 'req',
-      'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
-      'method': 'connect',
-      'params': {
-        'minProtocol': 3,
-        'maxProtocol': 3,
-        'client': {
-          'id': 'cloudtolocalllm',
-          'version': '10.1.187',
-          'platform': 'linux',
-          'mode': 'operator'
-        },
-        'role': 'operator',
-        'scopes': ['operator.read', 'operator.write'],
-        'auth': {'token': _authToken},
-        'locale': 'en-US',
-        'userAgent': 'CloudToLocalLLM/10.1.187',
+
+    // Check if this is a local connection
+    final isLocalConnection = wsUrl.contains('127.0.0.1') ||
+        wsUrl.contains('localhost') ||
+        wsUrl.contains('::1');
+
+    // Build handshake request
+    final Map<String, dynamic> handshake;
+
+    if (!isLocalConnection && _authToken != null && _authToken!.isNotEmpty) {
+      // Cloud connection with OAuth
+      handshake = {
+        'type': 'req',
+        'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
+        'method': 'connect',
+        'params': {
+          'minProtocol': 3,
+          'maxProtocol': 3,
+          'client': {
+            'id': 'cli',
+            'version': '10.1.187',
+            'platform': 'linux',
+            'mode': 'cli'
+          },
+          'role': 'operator',
+          'scopes': ['operator.read', 'operator.write'],
+          'caps': [],
+          'auth': {'token': _authToken},
+          'locale': 'en-US',
+          'userAgent': 'CloudToLocalLLM/10.1.187',
+        }
+      };
+    } else {
+      // Local connection with gateway password from secure storage
+      if (_gatewayPassword == null || _gatewayPassword!.isEmpty) {
+        throw Exception(
+            'OpenClaw Gateway password not configured. Please add it in Settings > OpenClaw Gateway.');
       }
-    };
-    
+
+      handshake = {
+        'type': 'req',
+        'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
+        'method': 'connect',
+        'params': {
+          'minProtocol': 3,
+          'maxProtocol': 3,
+          'client': {
+            'id': 'cli',
+            'version': '10.1.187',
+            'platform': 'linux',
+            'mode': 'cli'
+          },
+          'role': 'operator',
+          'scopes': ['operator.read', 'operator.write'],
+          'caps': [],
+          'auth': {'password': _gatewayPassword},
+          'locale': 'en-US',
+          'userAgent': 'CloudToLocalLLM/10.1.187',
+        }
+      };
+    }
+
+    debugPrint(
+        '☁ [_SharedWebSocket] Handshake: ${isLocalConnection ? "local" : "cloud"}');
     _channel!.sink.add(jsonEncode(handshake));
     // Don't set _isConnected until handshake completes
-    
+
     debugPrint('☁ [_SharedWebSocket] Handshake sent, waiting for hello-ok');
-    
+
     // Wait for hello-ok response
     try {
-      await for (final msg in _messageController.stream.timeout(Duration(seconds: 10))) {
+      await for (final msg
+          in _messageController.stream.timeout(Duration(seconds: 10))) {
         if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
           debugPrint('☁ [_SharedWebSocket] Handshake complete');
           _isConnected = true;
@@ -98,11 +152,11 @@ class _SharedWebSocket {
       debugPrint('☁ [_SharedWebSocket] Handshake timeout/error: $e');
     }
   }
-  
+
   void send(Map<String, dynamic> msg) {
     _channel?.sink.add(jsonEncode(msg));
   }
-  
+
   Future<void> disconnect() async {
     await _channel?.sink.close();
     _channel = null;
@@ -132,7 +186,8 @@ class CloudStreamingService extends StreamingService {
     String? baseUrl,
     StreamingConfig? config,
     required AuthService authService,
-  })  : _baseUrl = baseUrl ?? AppConfig.defaultGatewayUrl,  // Use local OpenClaw gateway
+  })  : _baseUrl = baseUrl ??
+            AppConfig.defaultGatewayUrl, // Use local OpenClaw gateway
         _config = config ?? StreamingConfig.cloud(),
         _authService = authService {
     _setupDio();
@@ -236,7 +291,7 @@ class CloudStreamingService extends StreamingService {
   }) async* {
     // Use shared WebSocket connection
     final ws = _SharedWebSocket.instance;
-    
+
     if (!ws.isConnected) {
       // Get auth token from auth service
       String? token;
@@ -270,7 +325,7 @@ class CloudStreamingService extends StreamingService {
         'id': requestId,
         'method': 'chat.send',
         'params': {
-          'sessionKey': 'cloudtolocalllm',
+          'sessionKey': 'global',
           'message': prompt,
           'idempotencyKey': idempotencyKey,
         }
@@ -289,13 +344,13 @@ class CloudStreamingService extends StreamingService {
             throw Exception(msg['error']?['message'] ?? 'Chat request failed');
           }
         }
-        
+
         // Handle chat events (streaming text and final message)
         if (msg['type'] == 'event' && msg['event'] == 'chat') {
           final payload = msg['payload'] as Map<String, dynamic>?;
           final eventRunId = payload?['runId'] as String?;
           final state = payload?['state'] as String?;
-          
+
           // Only process events for our run
           if (runId != null && eventRunId == runId) {
             if (state == 'final') {
@@ -320,7 +375,7 @@ class CloudStreamingService extends StreamingService {
                   }
                 }
               }
-              
+
               // Send complete message
               final completeMessage = StreamingMessage.complete(
                 id: messageId,
@@ -343,7 +398,7 @@ class CloudStreamingService extends StreamingService {
         lastActivity: DateTime.now(),
       );
       notifyListeners();
-      
+
       debugPrint('☁ [CloudStreaming] Stream completed');
     } catch (e) {
       final errorMessage = StreamingMessage.error(
@@ -446,6 +501,19 @@ class CloudStreamingService extends StreamingService {
   }
 
   @override
+
+  /// Set the OpenClaw Gateway password
+  void setGatewayPassword(String? password) {
+    _SharedWebSocket.instance.setGatewayPassword(password);
+  }
+
+  @override
+
+  /// Set the OpenClaw Gateway token
+  void setGatewayToken(String? token) {
+    _SharedWebSocket.instance.setGatewayToken(token);
+  }
+
   void dispose() {
     debugPrint('☁ [CloudStreaming] Disposing service');
     closeConnection();

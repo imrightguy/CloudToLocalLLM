@@ -146,8 +146,7 @@ class DownloadScreen extends StatelessWidget {
     return _buildCard(
       context,
       title: '� Quick Downloads',
-      description:
-          'Download the latest version of Zoidbot for your platform',
+      description: 'Download the latest version of Zoidbot for your platform',
       child: Column(
         children: [
           const SizedBox(height: 24),

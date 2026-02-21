@@ -6,20 +6,22 @@ import 'base_provider.dart';
 /// Google Gemini provider adapter
 class GoogleAdapter implements LlmProvider {
   final String apiKey;
-  
+
   GoogleAdapter({required this.apiKey});
 
   @override
   String get name => 'google';
 
   @override
-  String get baseUrl => 'https://generativelanguage.googleapis.com/v1beta/models';
+  String get baseUrl =>
+      'https://generativelanguage.googleapis.com/v1beta/models';
 
   @override
   Stream<StreamEvent> streamCompletion(CompletionRequest request) async* {
     final modelId = _mapModelId(request.model);
-    final url = Uri.parse('$baseUrl/$modelId:streamGenerateContent?key=$apiKey');
-    
+    final url =
+        Uri.parse('$baseUrl/$modelId:streamGenerateContent?key=$apiKey');
+
     final body = {
       'contents': _mapMessages(request.messages),
       'generationConfig': {
@@ -40,7 +42,8 @@ class GoogleAdapter implements LlmProvider {
         throw Exception('Google API error: ${streamedResponse.statusCode}');
       }
 
-      await for (final chunk in streamedResponse.stream.transform(utf8.decoder)) {
+      await for (final chunk
+          in streamedResponse.stream.transform(utf8.decoder)) {
         // Gemini streaming returns a JSON array of candidates
         // This is a simplified parser for SSE-like behavior
         try {
@@ -72,7 +75,7 @@ class GoogleAdapter implements LlmProvider {
   Future<CompletionResponse> complete(CompletionRequest request) async {
     final modelId = _mapModelId(request.model);
     final url = Uri.parse('$baseUrl/$modelId:generateContent?key=$apiKey');
-    
+
     final body = {
       'contents': _mapMessages(request.messages),
       'generationConfig': {
@@ -88,7 +91,8 @@ class GoogleAdapter implements LlmProvider {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Google API error: ${response.statusCode} - ${response.body}');
+      throw Exception(
+          'Google API error: ${response.statusCode} - ${response.body}');
     }
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -105,13 +109,16 @@ class GoogleAdapter implements LlmProvider {
     return messages.map((m) {
       return {
         'role': m['role'] == 'assistant' ? 'model' : 'user',
-        'parts': [{'text': m['content']}]
+        'parts': [
+          {'text': m['content']}
+        ]
       };
     }).toList();
   }
 
   Map<String, dynamic> _transformToOpenAi(Map<String, dynamic> geminiPart) {
-    final text = geminiPart['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? '';
+    final text =
+        geminiPart['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? '';
     return {
       'choices': [
         {
@@ -123,7 +130,8 @@ class GoogleAdapter implements LlmProvider {
   }
 
   CompletionResponse _parseResponse(Map<String, dynamic> json, String model) {
-    final text = json['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? '';
+    final text =
+        json['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? '';
     return CompletionResponse(
       id: 'google-${DateTime.now().millisecondsSinceEpoch}',
       object: 'chat.completion',
@@ -136,7 +144,8 @@ class GoogleAdapter implements LlmProvider {
           finishReason: json['candidates']?[0]?['finishReason'],
         )
       ],
-      usage: null, // Gemini API provides usage in a different field, can extract later
+      usage:
+          null, // Gemini API provides usage in a different field, can extract later
     );
   }
 }

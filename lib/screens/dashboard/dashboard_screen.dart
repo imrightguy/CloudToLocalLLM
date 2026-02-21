@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../services/agent_lifecycle_service.dart';
 import '../../services/connection_manager_service.dart';
+import '../../services/openclaw_manager/gateway_control_service.dart';
 import 'agent_list_view.dart';
 
 /// Main dashboard screen showing agent overview and system status
@@ -52,6 +53,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Gateway Control Card
+              _buildGatewayControlCard(context),
+
+              const SizedBox(height: 16),
+
               // Connection Status Card
               _buildConnectionStatusCard(context),
 
@@ -111,8 +117,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 : isConnected
                                     ? 'Connected - Issues Detected'
                                     : 'Disconnected',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: isHealthy ? Colors.green : Colors.orange,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color:
+                                      isHealthy ? Colors.green : Colors.orange,
                                 ),
                           ),
                         ],
@@ -135,12 +145,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                        Icon(Icons.error_outline,
+                            color: Colors.red.shade700, size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             gatewayStatus['lastError'],
-                            style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                            style: TextStyle(
+                                color: Colors.red.shade700, fontSize: 12),
                           ),
                         ),
                       ],
@@ -172,9 +184,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final agents = agentService.agents;
         final isLoading = agentService.isLoading;
 
-        final runningCount = agents.where((a) => a.state == AgentLifecycleState.running).length;
-        final idleCount = agents.where((a) => a.state == AgentLifecycleState.idle).length;
-        const errorCount = 0; // agents.where((a) => a.state == AgentLifecycleState.error).length;
+        final runningCount =
+            agents.where((a) => a.state == AgentLifecycleState.running).length;
+        final idleCount =
+            agents.where((a) => a.state == AgentLifecycleState.idle).length;
+        const errorCount =
+            0; // agents.where((a) => a.state == AgentLifecycleState.error).length;
 
         return Card(
           child: Padding(
@@ -306,6 +321,136 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildGatewayControlCard(BuildContext context) {
+    return Consumer<GatewayControlService>(
+      builder: (context, gatewayService, child) {
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.dns,
+                      color:
+                          gatewayService.isRunning ? Colors.green : Colors.grey,
+                      size: 32,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'OpenClaw Gateway',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Text(
+                            gatewayService.isRunning
+                                ? 'Running'
+                                : gatewayService.state == GatewayState.starting
+                                    ? 'Starting...'
+                                    : gatewayService.state ==
+                                            GatewayState.stopping
+                                        ? 'Stopping...'
+                                        : 'Stopped',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: gatewayService.isRunning
+                                      ? Colors.green
+                                      : Colors.grey,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (gatewayService.isRunning)
+                      FilledButton.icon(
+                        onPressed: gatewayService.isStopping
+                            ? null
+                            : () => gatewayService.stop(),
+                        icon: const Icon(Icons.stop),
+                        label: const Text('Stop'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                      )
+                    else
+                      FilledButton.icon(
+                        onPressed: gatewayService.isStarting
+                            ? null
+                            : () => gatewayService.start(),
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Start'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      onPressed:
+                          gatewayService.isStarting || gatewayService.isStopping
+                              ? null
+                              : () => gatewayService.restart(),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Restart'),
+                    ),
+                  ],
+                ),
+                if (gatewayService.errorMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline,
+                            color: Colors.red, size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            gatewayService.errorMessage!,
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (gatewayService.startedAt != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Started: ${_formatDateTime(gatewayService.startedAt!)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey,
+                        ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatDateTime(DateTime dt) {
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:${dt.second.toString().padLeft(2, '0')}';
+  }
+
   Widget _buildSystemMetricsCard(BuildContext context) {
     return Consumer<ConnectionManagerService>(
       builder: (context, connService, child) {
@@ -333,8 +478,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _MetricRow(
                   label: 'Connection',
                   value: connService.isConnected ? 'Active' : 'Inactive',
-                  icon: connService.isConnected ? Icons.check_circle : Icons.cancel,
-                  iconColor: connService.isConnected ? Colors.green : Colors.red,
+                  icon: connService.isConnected
+                      ? Icons.check_circle
+                      : Icons.cancel,
+                  iconColor:
+                      connService.isConnected ? Colors.green : Colors.red,
                 ),
                 const SizedBox(height: 12),
                 _MetricRow(

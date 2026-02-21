@@ -20,7 +20,7 @@ class CapacityGaugeWidget extends StatelessWidget {
         }
 
         final capacities = snapshot.data!;
-        
+
         return Card(
           margin: const EdgeInsets.all(16),
           child: Padding(
@@ -33,7 +33,8 @@ class CapacityGaugeWidget extends StatelessWidget {
                   children: [
                     Text(
                       'Model Capacity (Live)',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const Icon(Icons.speed, size: 20, color: Colors.blueGrey),
                   ],
@@ -51,7 +52,7 @@ class CapacityGaugeWidget extends StatelessWidget {
   Widget _buildModelBar(BuildContext context, ModelCapacityData model) {
     final theme = Theme.of(context);
     final usageRatio = model.concurrentUsed / model.concurrentLimit;
-    
+
     Color progressColor = Colors.green;
     if (usageRatio > 0.8) {
       progressColor = Colors.red;
@@ -69,7 +70,8 @@ class CapacityGaugeWidget extends StatelessWidget {
             children: [
               Text(
                 model.displayName ?? model.modelId,
-                style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
               Text(
                 '${model.concurrentUsed}/${model.concurrentLimit}',

@@ -21,6 +21,8 @@ class SettingsPreferenceService {
   static const String _windowPositionYKey = 'settings_window_position_y';
   static const String _windowWidthKey = 'settings_window_width';
   static const String _windowHeightKey = 'settings_window_height';
+  static const String _gatewayAutoRestartKey = 'settings_gateway_auto_restart';
+  static const String _gatewayUrlKey = 'settings_gateway_url';
 
   // Mobile Settings
   static const String _biometricAuthKey = 'settings_biometric_auth_enabled';
@@ -257,5 +259,35 @@ class SettingsPreferenceService {
   Future<void> setVibrationEnabled(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_vibrationKey, value);
+  }
+
+  // Gateway Settings
+
+  /// Get gateway auto-restart enabled preference
+  Future<bool?> getGatewayAutoRestart() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_gatewayAutoRestartKey);
+  }
+
+  /// Set gateway auto-restart enabled preference
+  Future<void> setGatewayAutoRestart(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_gatewayAutoRestartKey, value);
+  }
+
+  /// Get configured gateway URL (returns null if using default)
+  Future<String?> getGatewayUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_gatewayUrlKey);
+  }
+
+  /// Set gateway URL (set to empty string to use default)
+  Future<void> setGatewayUrl(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null || value.isEmpty) {
+      await prefs.remove(_gatewayUrlKey);
+    } else {
+      await prefs.setString(_gatewayUrlKey, value);
+    }
   }
 }

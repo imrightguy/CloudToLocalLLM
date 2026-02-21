@@ -319,7 +319,7 @@ class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -351,10 +351,6 @@ class LocalBrain extends _$LocalBrain {
             await m.createTable(actionHistoryEntries);
             await m.createTable(macros);
             await _createDefaultAvatarProfile();
-          }
-          if (from < 5) {
-            // Add LLM providers table for v5
-            await m.createTable(llmProviders);
           }
         },
       );
@@ -967,7 +963,7 @@ class LocalBrain extends _$LocalBrain {
   }
 
   /// Get provider by ID
-  Future<dynamic?> getProviderById(String id) {
+  Future<dynamic> getProviderById(String id) {
     return customSelect(
       'SELECT * FROM llm_providers WHERE id = ?',
       variables: [Variable(id)],
@@ -975,7 +971,7 @@ class LocalBrain extends _$LocalBrain {
   }
 
   /// Get default provider
-  Future<dynamic?> getDefaultProvider() {
+  Future<dynamic> getDefaultProvider() {
     return customSelect(
       'SELECT * FROM llm_providers WHERE is_default = 1 LIMIT 1',
     ).getSingleOrNull();
@@ -1012,7 +1008,6 @@ class LocalBrain extends _$LocalBrain {
     return customUpdate(
       'DELETE FROM llm_providers WHERE id = ?',
       variables: [Variable(id)],
-      updates: {llmProviders},
     );
   }
 
@@ -1022,14 +1017,12 @@ class LocalBrain extends _$LocalBrain {
       // Unset all existing defaults
       await customUpdate(
         'UPDATE llm_providers SET is_default = 0',
-        updates: {llmProviders},
       );
 
       // Set new default
       await customUpdate(
         'UPDATE llm_providers SET is_default = 1 WHERE id = ?',
         variables: [Variable(id)],
-        updates: {llmProviders},
       );
     });
   }
@@ -1040,47 +1033,5 @@ class LocalBrain extends _$LocalBrain {
       'SELECT COUNT(*) as count FROM llm_providers',
     ).getSingle();
     return (result.data['count'] as int) > 0;
-  }
-
-  /// Get provider by ID
-  Future<LlmProvider?> getProviderById(String id) =>
-      (select(llmProviders)..where((t) => t.id.equals(id))).getSingleOrNull();
-
-  /// Get default provider
-  Future<LlmProvider?> getDefaultProvider() =>
-      (select(llmProviders)..where((t) => t.isDefault.equals(true)))
-          .getSingleOrNull();
-
-  /// Get providers by type
-  Future<List<LlmProvider>> getProvidersByType(String type) =>
-      (select(llmProviders)..where((t) => t.type.equals(type))).get();
-
-  /// Insert or update a provider
-  Future<void> upsertProvider(LlmProvidersCompanion entry) =>
-      into(llmProviders).insert(entry, mode: InsertMode.insertOrReplace);
-
-  /// Delete a provider
-  Future<int> deleteProvider(String id) =>
-      (delete(llmProviders)..where((t) => t.id.equals(id))).go();
-
-  /// Set a provider as default (unsets others)
-  Future<void> setDefaultProvider(String id) async {
-    await transaction(() async {
-      // Unset all existing defaults
-      await (update(llmProviders))
-          .write(const LlmProvidersCompanion(isDefault: Value(false)));
-
-      // Set new default
-      await (update(llmProviders)..where((t) => t.id.equals(id)))
-          .write(const LlmProvidersCompanion(isDefault: Value(true)));
-    });
-  }
-
-  /// Check if any providers are configured
-  Future<bool> hasProviders() async {
-    final count = await (selectOnly(llmProviders)..addColumns([llmProviders.id]))
-        .get()
-        .then((rows) => rows.length);
-    return count > 0;
   }
 }

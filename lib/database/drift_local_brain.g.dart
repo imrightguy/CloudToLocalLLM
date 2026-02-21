@@ -4381,6 +4381,2682 @@ class LlmRequestsCompanion extends UpdateCompanion<LlmRequest> {
   }
 }
 
+class $AvatarProfilesTable extends AvatarProfiles
+    with TableInfo<$AvatarProfilesTable, AvatarProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AvatarProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _personalityTypeMeta =
+      const VerificationMeta('personalityType');
+  @override
+  late final GeneratedColumn<String> personalityType = GeneratedColumn<String>(
+      'personality_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+      'level', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _xpMeta = const VerificationMeta('xp');
+  @override
+  late final GeneratedColumn<int> xp = GeneratedColumn<int>(
+      'xp', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _xpToNextLevelMeta =
+      const VerificationMeta('xpToNextLevel');
+  @override
+  late final GeneratedColumn<int> xpToNextLevel = GeneratedColumn<int>(
+      'xp_to_next_level', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(100));
+  static const VerificationMeta _traitsMeta = const VerificationMeta('traits');
+  @override
+  late final GeneratedColumn<String> traits = GeneratedColumn<String>(
+      'traits', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _avatarConfigMeta =
+      const VerificationMeta('avatarConfig');
+  @override
+  late final GeneratedColumn<String> avatarConfig = GeneratedColumn<String>(
+      'avatar_config', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastInteractionMeta =
+      const VerificationMeta('lastInteraction');
+  @override
+  late final GeneratedColumn<DateTime> lastInteraction =
+      GeneratedColumn<DateTime>('last_interaction', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        personalityType,
+        level,
+        xp,
+        xpToNextLevel,
+        traits,
+        avatarConfig,
+        lastInteraction,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'avatar_profiles';
+  @override
+  VerificationContext validateIntegrity(Insertable<AvatarProfile> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('personality_type')) {
+      context.handle(
+          _personalityTypeMeta,
+          personalityType.isAcceptableOrUnknown(
+              data['personality_type']!, _personalityTypeMeta));
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+          _levelMeta, level.isAcceptableOrUnknown(data['level']!, _levelMeta));
+    }
+    if (data.containsKey('xp')) {
+      context.handle(_xpMeta, xp.isAcceptableOrUnknown(data['xp']!, _xpMeta));
+    }
+    if (data.containsKey('xp_to_next_level')) {
+      context.handle(
+          _xpToNextLevelMeta,
+          xpToNextLevel.isAcceptableOrUnknown(
+              data['xp_to_next_level']!, _xpToNextLevelMeta));
+    }
+    if (data.containsKey('traits')) {
+      context.handle(_traitsMeta,
+          traits.isAcceptableOrUnknown(data['traits']!, _traitsMeta));
+    }
+    if (data.containsKey('avatar_config')) {
+      context.handle(
+          _avatarConfigMeta,
+          avatarConfig.isAcceptableOrUnknown(
+              data['avatar_config']!, _avatarConfigMeta));
+    }
+    if (data.containsKey('last_interaction')) {
+      context.handle(
+          _lastInteractionMeta,
+          lastInteraction.isAcceptableOrUnknown(
+              data['last_interaction']!, _lastInteractionMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AvatarProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AvatarProfile(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      personalityType: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}personality_type']),
+      level: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}level'])!,
+      xp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
+      xpToNextLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}xp_to_next_level'])!,
+      traits: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}traits']),
+      avatarConfig: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar_config']),
+      lastInteraction: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_interaction']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $AvatarProfilesTable createAlias(String alias) {
+    return $AvatarProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class AvatarProfile extends DataClass implements Insertable<AvatarProfile> {
+  final String id;
+  final String name;
+  final String? personalityType;
+  final int level;
+  final int xp;
+  final int xpToNextLevel;
+  final String? traits;
+  final String? avatarConfig;
+  final DateTime? lastInteraction;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const AvatarProfile(
+      {required this.id,
+      required this.name,
+      this.personalityType,
+      required this.level,
+      required this.xp,
+      required this.xpToNextLevel,
+      this.traits,
+      this.avatarConfig,
+      this.lastInteraction,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || personalityType != null) {
+      map['personality_type'] = Variable<String>(personalityType);
+    }
+    map['level'] = Variable<int>(level);
+    map['xp'] = Variable<int>(xp);
+    map['xp_to_next_level'] = Variable<int>(xpToNextLevel);
+    if (!nullToAbsent || traits != null) {
+      map['traits'] = Variable<String>(traits);
+    }
+    if (!nullToAbsent || avatarConfig != null) {
+      map['avatar_config'] = Variable<String>(avatarConfig);
+    }
+    if (!nullToAbsent || lastInteraction != null) {
+      map['last_interaction'] = Variable<DateTime>(lastInteraction);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  AvatarProfilesCompanion toCompanion(bool nullToAbsent) {
+    return AvatarProfilesCompanion(
+      id: Value(id),
+      name: Value(name),
+      personalityType: personalityType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(personalityType),
+      level: Value(level),
+      xp: Value(xp),
+      xpToNextLevel: Value(xpToNextLevel),
+      traits:
+          traits == null && nullToAbsent ? const Value.absent() : Value(traits),
+      avatarConfig: avatarConfig == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarConfig),
+      lastInteraction: lastInteraction == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastInteraction),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory AvatarProfile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AvatarProfile(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      personalityType: serializer.fromJson<String?>(json['personalityType']),
+      level: serializer.fromJson<int>(json['level']),
+      xp: serializer.fromJson<int>(json['xp']),
+      xpToNextLevel: serializer.fromJson<int>(json['xpToNextLevel']),
+      traits: serializer.fromJson<String?>(json['traits']),
+      avatarConfig: serializer.fromJson<String?>(json['avatarConfig']),
+      lastInteraction: serializer.fromJson<DateTime?>(json['lastInteraction']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'personalityType': serializer.toJson<String?>(personalityType),
+      'level': serializer.toJson<int>(level),
+      'xp': serializer.toJson<int>(xp),
+      'xpToNextLevel': serializer.toJson<int>(xpToNextLevel),
+      'traits': serializer.toJson<String?>(traits),
+      'avatarConfig': serializer.toJson<String?>(avatarConfig),
+      'lastInteraction': serializer.toJson<DateTime?>(lastInteraction),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  AvatarProfile copyWith(
+          {String? id,
+          String? name,
+          Value<String?> personalityType = const Value.absent(),
+          int? level,
+          int? xp,
+          int? xpToNextLevel,
+          Value<String?> traits = const Value.absent(),
+          Value<String?> avatarConfig = const Value.absent(),
+          Value<DateTime?> lastInteraction = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      AvatarProfile(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        personalityType: personalityType.present
+            ? personalityType.value
+            : this.personalityType,
+        level: level ?? this.level,
+        xp: xp ?? this.xp,
+        xpToNextLevel: xpToNextLevel ?? this.xpToNextLevel,
+        traits: traits.present ? traits.value : this.traits,
+        avatarConfig:
+            avatarConfig.present ? avatarConfig.value : this.avatarConfig,
+        lastInteraction: lastInteraction.present
+            ? lastInteraction.value
+            : this.lastInteraction,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  AvatarProfile copyWithCompanion(AvatarProfilesCompanion data) {
+    return AvatarProfile(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      personalityType: data.personalityType.present
+          ? data.personalityType.value
+          : this.personalityType,
+      level: data.level.present ? data.level.value : this.level,
+      xp: data.xp.present ? data.xp.value : this.xp,
+      xpToNextLevel: data.xpToNextLevel.present
+          ? data.xpToNextLevel.value
+          : this.xpToNextLevel,
+      traits: data.traits.present ? data.traits.value : this.traits,
+      avatarConfig: data.avatarConfig.present
+          ? data.avatarConfig.value
+          : this.avatarConfig,
+      lastInteraction: data.lastInteraction.present
+          ? data.lastInteraction.value
+          : this.lastInteraction,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarProfile(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('personalityType: $personalityType, ')
+          ..write('level: $level, ')
+          ..write('xp: $xp, ')
+          ..write('xpToNextLevel: $xpToNextLevel, ')
+          ..write('traits: $traits, ')
+          ..write('avatarConfig: $avatarConfig, ')
+          ..write('lastInteraction: $lastInteraction, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      name,
+      personalityType,
+      level,
+      xp,
+      xpToNextLevel,
+      traits,
+      avatarConfig,
+      lastInteraction,
+      createdAt,
+      updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AvatarProfile &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.personalityType == this.personalityType &&
+          other.level == this.level &&
+          other.xp == this.xp &&
+          other.xpToNextLevel == this.xpToNextLevel &&
+          other.traits == this.traits &&
+          other.avatarConfig == this.avatarConfig &&
+          other.lastInteraction == this.lastInteraction &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AvatarProfilesCompanion extends UpdateCompanion<AvatarProfile> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> personalityType;
+  final Value<int> level;
+  final Value<int> xp;
+  final Value<int> xpToNextLevel;
+  final Value<String?> traits;
+  final Value<String?> avatarConfig;
+  final Value<DateTime?> lastInteraction;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const AvatarProfilesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.personalityType = const Value.absent(),
+    this.level = const Value.absent(),
+    this.xp = const Value.absent(),
+    this.xpToNextLevel = const Value.absent(),
+    this.traits = const Value.absent(),
+    this.avatarConfig = const Value.absent(),
+    this.lastInteraction = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AvatarProfilesCompanion.insert({
+    required String id,
+    required String name,
+    this.personalityType = const Value.absent(),
+    this.level = const Value.absent(),
+    this.xp = const Value.absent(),
+    this.xpToNextLevel = const Value.absent(),
+    this.traits = const Value.absent(),
+    this.avatarConfig = const Value.absent(),
+    this.lastInteraction = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name);
+  static Insertable<AvatarProfile> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? personalityType,
+    Expression<int>? level,
+    Expression<int>? xp,
+    Expression<int>? xpToNextLevel,
+    Expression<String>? traits,
+    Expression<String>? avatarConfig,
+    Expression<DateTime>? lastInteraction,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (personalityType != null) 'personality_type': personalityType,
+      if (level != null) 'level': level,
+      if (xp != null) 'xp': xp,
+      if (xpToNextLevel != null) 'xp_to_next_level': xpToNextLevel,
+      if (traits != null) 'traits': traits,
+      if (avatarConfig != null) 'avatar_config': avatarConfig,
+      if (lastInteraction != null) 'last_interaction': lastInteraction,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AvatarProfilesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? personalityType,
+      Value<int>? level,
+      Value<int>? xp,
+      Value<int>? xpToNextLevel,
+      Value<String?>? traits,
+      Value<String?>? avatarConfig,
+      Value<DateTime?>? lastInteraction,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return AvatarProfilesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      personalityType: personalityType ?? this.personalityType,
+      level: level ?? this.level,
+      xp: xp ?? this.xp,
+      xpToNextLevel: xpToNextLevel ?? this.xpToNextLevel,
+      traits: traits ?? this.traits,
+      avatarConfig: avatarConfig ?? this.avatarConfig,
+      lastInteraction: lastInteraction ?? this.lastInteraction,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (personalityType.present) {
+      map['personality_type'] = Variable<String>(personalityType.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
+    if (xp.present) {
+      map['xp'] = Variable<int>(xp.value);
+    }
+    if (xpToNextLevel.present) {
+      map['xp_to_next_level'] = Variable<int>(xpToNextLevel.value);
+    }
+    if (traits.present) {
+      map['traits'] = Variable<String>(traits.value);
+    }
+    if (avatarConfig.present) {
+      map['avatar_config'] = Variable<String>(avatarConfig.value);
+    }
+    if (lastInteraction.present) {
+      map['last_interaction'] = Variable<DateTime>(lastInteraction.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('personalityType: $personalityType, ')
+          ..write('level: $level, ')
+          ..write('xp: $xp, ')
+          ..write('xpToNextLevel: $xpToNextLevel, ')
+          ..write('traits: $traits, ')
+          ..write('avatarConfig: $avatarConfig, ')
+          ..write('lastInteraction: $lastInteraction, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AchievementsTable extends Achievements
+    with TableInfo<$AchievementsTable, Achievement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AchievementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _avatarIdMeta =
+      const VerificationMeta('avatarId');
+  @override
+  late final GeneratedColumn<String> avatarId = GeneratedColumn<String>(
+      'avatar_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES avatar_profiles (id)'));
+  static const VerificationMeta _achievementIdMeta =
+      const VerificationMeta('achievementId');
+  @override
+  late final GeneratedColumn<String> achievementId = GeneratedColumn<String>(
+      'achievement_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _achievementTypeMeta =
+      const VerificationMeta('achievementType');
+  @override
+  late final GeneratedColumn<String> achievementType = GeneratedColumn<String>(
+      'achievement_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unlockedAtMeta =
+      const VerificationMeta('unlockedAt');
+  @override
+  late final GeneratedColumn<DateTime> unlockedAt = GeneratedColumn<DateTime>(
+      'unlocked_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _earnedAtMeta =
+      const VerificationMeta('earnedAt');
+  @override
+  late final GeneratedColumn<DateTime> earnedAt = GeneratedColumn<DateTime>(
+      'earned_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        avatarId,
+        achievementId,
+        achievementType,
+        title,
+        description,
+        unlockedAt,
+        earnedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'achievements';
+  @override
+  VerificationContext validateIntegrity(Insertable<Achievement> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('avatar_id')) {
+      context.handle(_avatarIdMeta,
+          avatarId.isAcceptableOrUnknown(data['avatar_id']!, _avatarIdMeta));
+    } else if (isInserting) {
+      context.missing(_avatarIdMeta);
+    }
+    if (data.containsKey('achievement_id')) {
+      context.handle(
+          _achievementIdMeta,
+          achievementId.isAcceptableOrUnknown(
+              data['achievement_id']!, _achievementIdMeta));
+    } else if (isInserting) {
+      context.missing(_achievementIdMeta);
+    }
+    if (data.containsKey('achievement_type')) {
+      context.handle(
+          _achievementTypeMeta,
+          achievementType.isAcceptableOrUnknown(
+              data['achievement_type']!, _achievementTypeMeta));
+    } else if (isInserting) {
+      context.missing(_achievementTypeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('unlocked_at')) {
+      context.handle(
+          _unlockedAtMeta,
+          unlockedAt.isAcceptableOrUnknown(
+              data['unlocked_at']!, _unlockedAtMeta));
+    }
+    if (data.containsKey('earned_at')) {
+      context.handle(_earnedAtMeta,
+          earnedAt.isAcceptableOrUnknown(data['earned_at']!, _earnedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Achievement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Achievement(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      avatarId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar_id'])!,
+      achievementId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}achievement_id'])!,
+      achievementType: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}achievement_type'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      unlockedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}unlocked_at']),
+      earnedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}earned_at'])!,
+    );
+  }
+
+  @override
+  $AchievementsTable createAlias(String alias) {
+    return $AchievementsTable(attachedDatabase, alias);
+  }
+}
+
+class Achievement extends DataClass implements Insertable<Achievement> {
+  final int id;
+  final String avatarId;
+  final String achievementId;
+  final String achievementType;
+  final String title;
+  final String? description;
+  final DateTime? unlockedAt;
+  final DateTime earnedAt;
+  const Achievement(
+      {required this.id,
+      required this.avatarId,
+      required this.achievementId,
+      required this.achievementType,
+      required this.title,
+      this.description,
+      this.unlockedAt,
+      required this.earnedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['avatar_id'] = Variable<String>(avatarId);
+    map['achievement_id'] = Variable<String>(achievementId);
+    map['achievement_type'] = Variable<String>(achievementType);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || unlockedAt != null) {
+      map['unlocked_at'] = Variable<DateTime>(unlockedAt);
+    }
+    map['earned_at'] = Variable<DateTime>(earnedAt);
+    return map;
+  }
+
+  AchievementsCompanion toCompanion(bool nullToAbsent) {
+    return AchievementsCompanion(
+      id: Value(id),
+      avatarId: Value(avatarId),
+      achievementId: Value(achievementId),
+      achievementType: Value(achievementType),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      unlockedAt: unlockedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unlockedAt),
+      earnedAt: Value(earnedAt),
+    );
+  }
+
+  factory Achievement.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Achievement(
+      id: serializer.fromJson<int>(json['id']),
+      avatarId: serializer.fromJson<String>(json['avatarId']),
+      achievementId: serializer.fromJson<String>(json['achievementId']),
+      achievementType: serializer.fromJson<String>(json['achievementType']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      unlockedAt: serializer.fromJson<DateTime?>(json['unlockedAt']),
+      earnedAt: serializer.fromJson<DateTime>(json['earnedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'avatarId': serializer.toJson<String>(avatarId),
+      'achievementId': serializer.toJson<String>(achievementId),
+      'achievementType': serializer.toJson<String>(achievementType),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'unlockedAt': serializer.toJson<DateTime?>(unlockedAt),
+      'earnedAt': serializer.toJson<DateTime>(earnedAt),
+    };
+  }
+
+  Achievement copyWith(
+          {int? id,
+          String? avatarId,
+          String? achievementId,
+          String? achievementType,
+          String? title,
+          Value<String?> description = const Value.absent(),
+          Value<DateTime?> unlockedAt = const Value.absent(),
+          DateTime? earnedAt}) =>
+      Achievement(
+        id: id ?? this.id,
+        avatarId: avatarId ?? this.avatarId,
+        achievementId: achievementId ?? this.achievementId,
+        achievementType: achievementType ?? this.achievementType,
+        title: title ?? this.title,
+        description: description.present ? description.value : this.description,
+        unlockedAt: unlockedAt.present ? unlockedAt.value : this.unlockedAt,
+        earnedAt: earnedAt ?? this.earnedAt,
+      );
+  Achievement copyWithCompanion(AchievementsCompanion data) {
+    return Achievement(
+      id: data.id.present ? data.id.value : this.id,
+      avatarId: data.avatarId.present ? data.avatarId.value : this.avatarId,
+      achievementId: data.achievementId.present
+          ? data.achievementId.value
+          : this.achievementId,
+      achievementType: data.achievementType.present
+          ? data.achievementType.value
+          : this.achievementType,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      unlockedAt:
+          data.unlockedAt.present ? data.unlockedAt.value : this.unlockedAt,
+      earnedAt: data.earnedAt.present ? data.earnedAt.value : this.earnedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Achievement(')
+          ..write('id: $id, ')
+          ..write('avatarId: $avatarId, ')
+          ..write('achievementId: $achievementId, ')
+          ..write('achievementType: $achievementType, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('unlockedAt: $unlockedAt, ')
+          ..write('earnedAt: $earnedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, avatarId, achievementId, achievementType,
+      title, description, unlockedAt, earnedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Achievement &&
+          other.id == this.id &&
+          other.avatarId == this.avatarId &&
+          other.achievementId == this.achievementId &&
+          other.achievementType == this.achievementType &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.unlockedAt == this.unlockedAt &&
+          other.earnedAt == this.earnedAt);
+}
+
+class AchievementsCompanion extends UpdateCompanion<Achievement> {
+  final Value<int> id;
+  final Value<String> avatarId;
+  final Value<String> achievementId;
+  final Value<String> achievementType;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<DateTime?> unlockedAt;
+  final Value<DateTime> earnedAt;
+  const AchievementsCompanion({
+    this.id = const Value.absent(),
+    this.avatarId = const Value.absent(),
+    this.achievementId = const Value.absent(),
+    this.achievementType = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.unlockedAt = const Value.absent(),
+    this.earnedAt = const Value.absent(),
+  });
+  AchievementsCompanion.insert({
+    this.id = const Value.absent(),
+    required String avatarId,
+    required String achievementId,
+    required String achievementType,
+    required String title,
+    this.description = const Value.absent(),
+    this.unlockedAt = const Value.absent(),
+    this.earnedAt = const Value.absent(),
+  })  : avatarId = Value(avatarId),
+        achievementId = Value(achievementId),
+        achievementType = Value(achievementType),
+        title = Value(title);
+  static Insertable<Achievement> custom({
+    Expression<int>? id,
+    Expression<String>? avatarId,
+    Expression<String>? achievementId,
+    Expression<String>? achievementType,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<DateTime>? unlockedAt,
+    Expression<DateTime>? earnedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (avatarId != null) 'avatar_id': avatarId,
+      if (achievementId != null) 'achievement_id': achievementId,
+      if (achievementType != null) 'achievement_type': achievementType,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (unlockedAt != null) 'unlocked_at': unlockedAt,
+      if (earnedAt != null) 'earned_at': earnedAt,
+    });
+  }
+
+  AchievementsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? avatarId,
+      Value<String>? achievementId,
+      Value<String>? achievementType,
+      Value<String>? title,
+      Value<String?>? description,
+      Value<DateTime?>? unlockedAt,
+      Value<DateTime>? earnedAt}) {
+    return AchievementsCompanion(
+      id: id ?? this.id,
+      avatarId: avatarId ?? this.avatarId,
+      achievementId: achievementId ?? this.achievementId,
+      achievementType: achievementType ?? this.achievementType,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      unlockedAt: unlockedAt ?? this.unlockedAt,
+      earnedAt: earnedAt ?? this.earnedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (avatarId.present) {
+      map['avatar_id'] = Variable<String>(avatarId.value);
+    }
+    if (achievementId.present) {
+      map['achievement_id'] = Variable<String>(achievementId.value);
+    }
+    if (achievementType.present) {
+      map['achievement_type'] = Variable<String>(achievementType.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (unlockedAt.present) {
+      map['unlocked_at'] = Variable<DateTime>(unlockedAt.value);
+    }
+    if (earnedAt.present) {
+      map['earned_at'] = Variable<DateTime>(earnedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AchievementsCompanion(')
+          ..write('id: $id, ')
+          ..write('avatarId: $avatarId, ')
+          ..write('achievementId: $achievementId, ')
+          ..write('achievementType: $achievementType, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('unlockedAt: $unlockedAt, ')
+          ..write('earnedAt: $earnedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AvatarMemoryEntriesTable extends AvatarMemoryEntries
+    with TableInfo<$AvatarMemoryEntriesTable, AvatarMemoryEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AvatarMemoryEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _avatarIdMeta =
+      const VerificationMeta('avatarId');
+  @override
+  late final GeneratedColumn<String> avatarId = GeneratedColumn<String>(
+      'avatar_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES avatar_profiles (id)'));
+  static const VerificationMeta _memoryTypeMeta =
+      const VerificationMeta('memoryType');
+  @override
+  late final GeneratedColumn<String> memoryType = GeneratedColumn<String>(
+      'memory_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _memoryKeyMeta =
+      const VerificationMeta('memoryKey');
+  @override
+  late final GeneratedColumn<String> memoryKey = GeneratedColumn<String>(
+      'memory_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _memoryValueMeta =
+      const VerificationMeta('memoryValue');
+  @override
+  late final GeneratedColumn<String> memoryValue = GeneratedColumn<String>(
+      'memory_value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _importanceMeta =
+      const VerificationMeta('importance');
+  @override
+  late final GeneratedColumn<int> importance = GeneratedColumn<int>(
+      'importance', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastAccessedMeta =
+      const VerificationMeta('lastAccessed');
+  @override
+  late final GeneratedColumn<DateTime> lastAccessed = GeneratedColumn<DateTime>(
+      'last_accessed', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        avatarId,
+        memoryType,
+        memoryKey,
+        memoryValue,
+        tags,
+        importance,
+        timestamp,
+        createdAt,
+        lastAccessed
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'avatar_memory_entries';
+  @override
+  VerificationContext validateIntegrity(Insertable<AvatarMemoryEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('avatar_id')) {
+      context.handle(_avatarIdMeta,
+          avatarId.isAcceptableOrUnknown(data['avatar_id']!, _avatarIdMeta));
+    } else if (isInserting) {
+      context.missing(_avatarIdMeta);
+    }
+    if (data.containsKey('memory_type')) {
+      context.handle(
+          _memoryTypeMeta,
+          memoryType.isAcceptableOrUnknown(
+              data['memory_type']!, _memoryTypeMeta));
+    } else if (isInserting) {
+      context.missing(_memoryTypeMeta);
+    }
+    if (data.containsKey('memory_key')) {
+      context.handle(_memoryKeyMeta,
+          memoryKey.isAcceptableOrUnknown(data['memory_key']!, _memoryKeyMeta));
+    } else if (isInserting) {
+      context.missing(_memoryKeyMeta);
+    }
+    if (data.containsKey('memory_value')) {
+      context.handle(
+          _memoryValueMeta,
+          memoryValue.isAcceptableOrUnknown(
+              data['memory_value']!, _memoryValueMeta));
+    } else if (isInserting) {
+      context.missing(_memoryValueMeta);
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
+    if (data.containsKey('importance')) {
+      context.handle(
+          _importanceMeta,
+          importance.isAcceptableOrUnknown(
+              data['importance']!, _importanceMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('last_accessed')) {
+      context.handle(
+          _lastAccessedMeta,
+          lastAccessed.isAcceptableOrUnknown(
+              data['last_accessed']!, _lastAccessedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AvatarMemoryEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AvatarMemoryEntry(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      avatarId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar_id'])!,
+      memoryType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}memory_type'])!,
+      memoryKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}memory_key'])!,
+      memoryValue: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}memory_value'])!,
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags']),
+      importance: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}importance'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      lastAccessed: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_accessed'])!,
+    );
+  }
+
+  @override
+  $AvatarMemoryEntriesTable createAlias(String alias) {
+    return $AvatarMemoryEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class AvatarMemoryEntry extends DataClass
+    implements Insertable<AvatarMemoryEntry> {
+  final int id;
+  final String avatarId;
+  final String memoryType;
+  final String memoryKey;
+  final String memoryValue;
+  final String? tags;
+  final int importance;
+  final DateTime timestamp;
+  final DateTime createdAt;
+  final DateTime lastAccessed;
+  const AvatarMemoryEntry(
+      {required this.id,
+      required this.avatarId,
+      required this.memoryType,
+      required this.memoryKey,
+      required this.memoryValue,
+      this.tags,
+      required this.importance,
+      required this.timestamp,
+      required this.createdAt,
+      required this.lastAccessed});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['avatar_id'] = Variable<String>(avatarId);
+    map['memory_type'] = Variable<String>(memoryType);
+    map['memory_key'] = Variable<String>(memoryKey);
+    map['memory_value'] = Variable<String>(memoryValue);
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    map['importance'] = Variable<int>(importance);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['last_accessed'] = Variable<DateTime>(lastAccessed);
+    return map;
+  }
+
+  AvatarMemoryEntriesCompanion toCompanion(bool nullToAbsent) {
+    return AvatarMemoryEntriesCompanion(
+      id: Value(id),
+      avatarId: Value(avatarId),
+      memoryType: Value(memoryType),
+      memoryKey: Value(memoryKey),
+      memoryValue: Value(memoryValue),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      importance: Value(importance),
+      timestamp: Value(timestamp),
+      createdAt: Value(createdAt),
+      lastAccessed: Value(lastAccessed),
+    );
+  }
+
+  factory AvatarMemoryEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AvatarMemoryEntry(
+      id: serializer.fromJson<int>(json['id']),
+      avatarId: serializer.fromJson<String>(json['avatarId']),
+      memoryType: serializer.fromJson<String>(json['memoryType']),
+      memoryKey: serializer.fromJson<String>(json['memoryKey']),
+      memoryValue: serializer.fromJson<String>(json['memoryValue']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      importance: serializer.fromJson<int>(json['importance']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      lastAccessed: serializer.fromJson<DateTime>(json['lastAccessed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'avatarId': serializer.toJson<String>(avatarId),
+      'memoryType': serializer.toJson<String>(memoryType),
+      'memoryKey': serializer.toJson<String>(memoryKey),
+      'memoryValue': serializer.toJson<String>(memoryValue),
+      'tags': serializer.toJson<String?>(tags),
+      'importance': serializer.toJson<int>(importance),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'lastAccessed': serializer.toJson<DateTime>(lastAccessed),
+    };
+  }
+
+  AvatarMemoryEntry copyWith(
+          {int? id,
+          String? avatarId,
+          String? memoryType,
+          String? memoryKey,
+          String? memoryValue,
+          Value<String?> tags = const Value.absent(),
+          int? importance,
+          DateTime? timestamp,
+          DateTime? createdAt,
+          DateTime? lastAccessed}) =>
+      AvatarMemoryEntry(
+        id: id ?? this.id,
+        avatarId: avatarId ?? this.avatarId,
+        memoryType: memoryType ?? this.memoryType,
+        memoryKey: memoryKey ?? this.memoryKey,
+        memoryValue: memoryValue ?? this.memoryValue,
+        tags: tags.present ? tags.value : this.tags,
+        importance: importance ?? this.importance,
+        timestamp: timestamp ?? this.timestamp,
+        createdAt: createdAt ?? this.createdAt,
+        lastAccessed: lastAccessed ?? this.lastAccessed,
+      );
+  AvatarMemoryEntry copyWithCompanion(AvatarMemoryEntriesCompanion data) {
+    return AvatarMemoryEntry(
+      id: data.id.present ? data.id.value : this.id,
+      avatarId: data.avatarId.present ? data.avatarId.value : this.avatarId,
+      memoryType:
+          data.memoryType.present ? data.memoryType.value : this.memoryType,
+      memoryKey: data.memoryKey.present ? data.memoryKey.value : this.memoryKey,
+      memoryValue:
+          data.memoryValue.present ? data.memoryValue.value : this.memoryValue,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      importance:
+          data.importance.present ? data.importance.value : this.importance,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      lastAccessed: data.lastAccessed.present
+          ? data.lastAccessed.value
+          : this.lastAccessed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarMemoryEntry(')
+          ..write('id: $id, ')
+          ..write('avatarId: $avatarId, ')
+          ..write('memoryType: $memoryType, ')
+          ..write('memoryKey: $memoryKey, ')
+          ..write('memoryValue: $memoryValue, ')
+          ..write('tags: $tags, ')
+          ..write('importance: $importance, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastAccessed: $lastAccessed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, avatarId, memoryType, memoryKey,
+      memoryValue, tags, importance, timestamp, createdAt, lastAccessed);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AvatarMemoryEntry &&
+          other.id == this.id &&
+          other.avatarId == this.avatarId &&
+          other.memoryType == this.memoryType &&
+          other.memoryKey == this.memoryKey &&
+          other.memoryValue == this.memoryValue &&
+          other.tags == this.tags &&
+          other.importance == this.importance &&
+          other.timestamp == this.timestamp &&
+          other.createdAt == this.createdAt &&
+          other.lastAccessed == this.lastAccessed);
+}
+
+class AvatarMemoryEntriesCompanion extends UpdateCompanion<AvatarMemoryEntry> {
+  final Value<int> id;
+  final Value<String> avatarId;
+  final Value<String> memoryType;
+  final Value<String> memoryKey;
+  final Value<String> memoryValue;
+  final Value<String?> tags;
+  final Value<int> importance;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> lastAccessed;
+  const AvatarMemoryEntriesCompanion({
+    this.id = const Value.absent(),
+    this.avatarId = const Value.absent(),
+    this.memoryType = const Value.absent(),
+    this.memoryKey = const Value.absent(),
+    this.memoryValue = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.importance = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastAccessed = const Value.absent(),
+  });
+  AvatarMemoryEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String avatarId,
+    required String memoryType,
+    required String memoryKey,
+    required String memoryValue,
+    this.tags = const Value.absent(),
+    this.importance = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastAccessed = const Value.absent(),
+  })  : avatarId = Value(avatarId),
+        memoryType = Value(memoryType),
+        memoryKey = Value(memoryKey),
+        memoryValue = Value(memoryValue);
+  static Insertable<AvatarMemoryEntry> custom({
+    Expression<int>? id,
+    Expression<String>? avatarId,
+    Expression<String>? memoryType,
+    Expression<String>? memoryKey,
+    Expression<String>? memoryValue,
+    Expression<String>? tags,
+    Expression<int>? importance,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? lastAccessed,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (avatarId != null) 'avatar_id': avatarId,
+      if (memoryType != null) 'memory_type': memoryType,
+      if (memoryKey != null) 'memory_key': memoryKey,
+      if (memoryValue != null) 'memory_value': memoryValue,
+      if (tags != null) 'tags': tags,
+      if (importance != null) 'importance': importance,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (createdAt != null) 'created_at': createdAt,
+      if (lastAccessed != null) 'last_accessed': lastAccessed,
+    });
+  }
+
+  AvatarMemoryEntriesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? avatarId,
+      Value<String>? memoryType,
+      Value<String>? memoryKey,
+      Value<String>? memoryValue,
+      Value<String?>? tags,
+      Value<int>? importance,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? lastAccessed}) {
+    return AvatarMemoryEntriesCompanion(
+      id: id ?? this.id,
+      avatarId: avatarId ?? this.avatarId,
+      memoryType: memoryType ?? this.memoryType,
+      memoryKey: memoryKey ?? this.memoryKey,
+      memoryValue: memoryValue ?? this.memoryValue,
+      tags: tags ?? this.tags,
+      importance: importance ?? this.importance,
+      timestamp: timestamp ?? this.timestamp,
+      createdAt: createdAt ?? this.createdAt,
+      lastAccessed: lastAccessed ?? this.lastAccessed,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (avatarId.present) {
+      map['avatar_id'] = Variable<String>(avatarId.value);
+    }
+    if (memoryType.present) {
+      map['memory_type'] = Variable<String>(memoryType.value);
+    }
+    if (memoryKey.present) {
+      map['memory_key'] = Variable<String>(memoryKey.value);
+    }
+    if (memoryValue.present) {
+      map['memory_value'] = Variable<String>(memoryValue.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (importance.present) {
+      map['importance'] = Variable<int>(importance.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (lastAccessed.present) {
+      map['last_accessed'] = Variable<DateTime>(lastAccessed.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarMemoryEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('avatarId: $avatarId, ')
+          ..write('memoryType: $memoryType, ')
+          ..write('memoryKey: $memoryKey, ')
+          ..write('memoryValue: $memoryValue, ')
+          ..write('tags: $tags, ')
+          ..write('importance: $importance, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastAccessed: $lastAccessed')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ClipboardHistoryTable extends ClipboardHistory
+    with TableInfo<$ClipboardHistoryTable, ClipboardHistoryData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ClipboardHistoryTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contentTypeMeta =
+      const VerificationMeta('contentType');
+  @override
+  late final GeneratedColumn<String> contentType = GeneratedColumn<String>(
+      'content_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourceAppMeta =
+      const VerificationMeta('sourceApp');
+  @override
+  late final GeneratedColumn<String> sourceApp = GeneratedColumn<String>(
+      'source_app', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _copiedAtMeta =
+      const VerificationMeta('copiedAt');
+  @override
+  late final GeneratedColumn<DateTime> copiedAt = GeneratedColumn<DateTime>(
+      'copied_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _isPinnedMeta =
+      const VerificationMeta('isPinned');
+  @override
+  late final GeneratedColumn<bool> isPinned = GeneratedColumn<bool>(
+      'is_pinned', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_pinned" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, content, contentType, sourceApp, timestamp, copiedAt, isPinned];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'clipboard_history';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ClipboardHistoryData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('content_type')) {
+      context.handle(
+          _contentTypeMeta,
+          contentType.isAcceptableOrUnknown(
+              data['content_type']!, _contentTypeMeta));
+    } else if (isInserting) {
+      context.missing(_contentTypeMeta);
+    }
+    if (data.containsKey('source_app')) {
+      context.handle(_sourceAppMeta,
+          sourceApp.isAcceptableOrUnknown(data['source_app']!, _sourceAppMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('copied_at')) {
+      context.handle(_copiedAtMeta,
+          copiedAt.isAcceptableOrUnknown(data['copied_at']!, _copiedAtMeta));
+    }
+    if (data.containsKey('is_pinned')) {
+      context.handle(_isPinnedMeta,
+          isPinned.isAcceptableOrUnknown(data['is_pinned']!, _isPinnedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ClipboardHistoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ClipboardHistoryData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      contentType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content_type'])!,
+      sourceApp: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_app']),
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      copiedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}copied_at'])!,
+      isPinned: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_pinned'])!,
+    );
+  }
+
+  @override
+  $ClipboardHistoryTable createAlias(String alias) {
+    return $ClipboardHistoryTable(attachedDatabase, alias);
+  }
+}
+
+class ClipboardHistoryData extends DataClass
+    implements Insertable<ClipboardHistoryData> {
+  final int id;
+  final String content;
+  final String contentType;
+  final String? sourceApp;
+  final DateTime timestamp;
+  final DateTime copiedAt;
+  final bool isPinned;
+  const ClipboardHistoryData(
+      {required this.id,
+      required this.content,
+      required this.contentType,
+      this.sourceApp,
+      required this.timestamp,
+      required this.copiedAt,
+      required this.isPinned});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['content'] = Variable<String>(content);
+    map['content_type'] = Variable<String>(contentType);
+    if (!nullToAbsent || sourceApp != null) {
+      map['source_app'] = Variable<String>(sourceApp);
+    }
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['copied_at'] = Variable<DateTime>(copiedAt);
+    map['is_pinned'] = Variable<bool>(isPinned);
+    return map;
+  }
+
+  ClipboardHistoryCompanion toCompanion(bool nullToAbsent) {
+    return ClipboardHistoryCompanion(
+      id: Value(id),
+      content: Value(content),
+      contentType: Value(contentType),
+      sourceApp: sourceApp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceApp),
+      timestamp: Value(timestamp),
+      copiedAt: Value(copiedAt),
+      isPinned: Value(isPinned),
+    );
+  }
+
+  factory ClipboardHistoryData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ClipboardHistoryData(
+      id: serializer.fromJson<int>(json['id']),
+      content: serializer.fromJson<String>(json['content']),
+      contentType: serializer.fromJson<String>(json['contentType']),
+      sourceApp: serializer.fromJson<String?>(json['sourceApp']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      copiedAt: serializer.fromJson<DateTime>(json['copiedAt']),
+      isPinned: serializer.fromJson<bool>(json['isPinned']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'content': serializer.toJson<String>(content),
+      'contentType': serializer.toJson<String>(contentType),
+      'sourceApp': serializer.toJson<String?>(sourceApp),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'copiedAt': serializer.toJson<DateTime>(copiedAt),
+      'isPinned': serializer.toJson<bool>(isPinned),
+    };
+  }
+
+  ClipboardHistoryData copyWith(
+          {int? id,
+          String? content,
+          String? contentType,
+          Value<String?> sourceApp = const Value.absent(),
+          DateTime? timestamp,
+          DateTime? copiedAt,
+          bool? isPinned}) =>
+      ClipboardHistoryData(
+        id: id ?? this.id,
+        content: content ?? this.content,
+        contentType: contentType ?? this.contentType,
+        sourceApp: sourceApp.present ? sourceApp.value : this.sourceApp,
+        timestamp: timestamp ?? this.timestamp,
+        copiedAt: copiedAt ?? this.copiedAt,
+        isPinned: isPinned ?? this.isPinned,
+      );
+  ClipboardHistoryData copyWithCompanion(ClipboardHistoryCompanion data) {
+    return ClipboardHistoryData(
+      id: data.id.present ? data.id.value : this.id,
+      content: data.content.present ? data.content.value : this.content,
+      contentType:
+          data.contentType.present ? data.contentType.value : this.contentType,
+      sourceApp: data.sourceApp.present ? data.sourceApp.value : this.sourceApp,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      copiedAt: data.copiedAt.present ? data.copiedAt.value : this.copiedAt,
+      isPinned: data.isPinned.present ? data.isPinned.value : this.isPinned,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ClipboardHistoryData(')
+          ..write('id: $id, ')
+          ..write('content: $content, ')
+          ..write('contentType: $contentType, ')
+          ..write('sourceApp: $sourceApp, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('copiedAt: $copiedAt, ')
+          ..write('isPinned: $isPinned')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, content, contentType, sourceApp, timestamp, copiedAt, isPinned);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ClipboardHistoryData &&
+          other.id == this.id &&
+          other.content == this.content &&
+          other.contentType == this.contentType &&
+          other.sourceApp == this.sourceApp &&
+          other.timestamp == this.timestamp &&
+          other.copiedAt == this.copiedAt &&
+          other.isPinned == this.isPinned);
+}
+
+class ClipboardHistoryCompanion extends UpdateCompanion<ClipboardHistoryData> {
+  final Value<int> id;
+  final Value<String> content;
+  final Value<String> contentType;
+  final Value<String?> sourceApp;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> copiedAt;
+  final Value<bool> isPinned;
+  const ClipboardHistoryCompanion({
+    this.id = const Value.absent(),
+    this.content = const Value.absent(),
+    this.contentType = const Value.absent(),
+    this.sourceApp = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.copiedAt = const Value.absent(),
+    this.isPinned = const Value.absent(),
+  });
+  ClipboardHistoryCompanion.insert({
+    this.id = const Value.absent(),
+    required String content,
+    required String contentType,
+    this.sourceApp = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.copiedAt = const Value.absent(),
+    this.isPinned = const Value.absent(),
+  })  : content = Value(content),
+        contentType = Value(contentType);
+  static Insertable<ClipboardHistoryData> custom({
+    Expression<int>? id,
+    Expression<String>? content,
+    Expression<String>? contentType,
+    Expression<String>? sourceApp,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? copiedAt,
+    Expression<bool>? isPinned,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (content != null) 'content': content,
+      if (contentType != null) 'content_type': contentType,
+      if (sourceApp != null) 'source_app': sourceApp,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (copiedAt != null) 'copied_at': copiedAt,
+      if (isPinned != null) 'is_pinned': isPinned,
+    });
+  }
+
+  ClipboardHistoryCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? content,
+      Value<String>? contentType,
+      Value<String?>? sourceApp,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? copiedAt,
+      Value<bool>? isPinned}) {
+    return ClipboardHistoryCompanion(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      contentType: contentType ?? this.contentType,
+      sourceApp: sourceApp ?? this.sourceApp,
+      timestamp: timestamp ?? this.timestamp,
+      copiedAt: copiedAt ?? this.copiedAt,
+      isPinned: isPinned ?? this.isPinned,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (contentType.present) {
+      map['content_type'] = Variable<String>(contentType.value);
+    }
+    if (sourceApp.present) {
+      map['source_app'] = Variable<String>(sourceApp.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (copiedAt.present) {
+      map['copied_at'] = Variable<DateTime>(copiedAt.value);
+    }
+    if (isPinned.present) {
+      map['is_pinned'] = Variable<bool>(isPinned.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ClipboardHistoryCompanion(')
+          ..write('id: $id, ')
+          ..write('content: $content, ')
+          ..write('contentType: $contentType, ')
+          ..write('sourceApp: $sourceApp, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('copiedAt: $copiedAt, ')
+          ..write('isPinned: $isPinned')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ActionHistoryEntriesTable extends ActionHistoryEntries
+    with TableInfo<$ActionHistoryEntriesTable, ActionHistoryEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ActionHistoryEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _actionTypeMeta =
+      const VerificationMeta('actionType');
+  @override
+  late final GeneratedColumn<String> actionType = GeneratedColumn<String>(
+      'action_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetElementMeta =
+      const VerificationMeta('targetElement');
+  @override
+  late final GeneratedColumn<String> targetElement = GeneratedColumn<String>(
+      'target_element', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _parametersMeta =
+      const VerificationMeta('parameters');
+  @override
+  late final GeneratedColumn<String> parameters = GeneratedColumn<String>(
+      'parameters', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _resultMeta = const VerificationMeta('result');
+  @override
+  late final GeneratedColumn<String> result = GeneratedColumn<String>(
+      'result', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, actionType, targetElement, parameters, timestamp, result];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'action_history_entries';
+  @override
+  VerificationContext validateIntegrity(Insertable<ActionHistoryEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('action_type')) {
+      context.handle(
+          _actionTypeMeta,
+          actionType.isAcceptableOrUnknown(
+              data['action_type']!, _actionTypeMeta));
+    } else if (isInserting) {
+      context.missing(_actionTypeMeta);
+    }
+    if (data.containsKey('target_element')) {
+      context.handle(
+          _targetElementMeta,
+          targetElement.isAcceptableOrUnknown(
+              data['target_element']!, _targetElementMeta));
+    }
+    if (data.containsKey('parameters')) {
+      context.handle(
+          _parametersMeta,
+          parameters.isAcceptableOrUnknown(
+              data['parameters']!, _parametersMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('result')) {
+      context.handle(_resultMeta,
+          result.isAcceptableOrUnknown(data['result']!, _resultMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ActionHistoryEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ActionHistoryEntry(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      actionType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}action_type'])!,
+      targetElement: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_element']),
+      parameters: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}parameters']),
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      result: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}result']),
+    );
+  }
+
+  @override
+  $ActionHistoryEntriesTable createAlias(String alias) {
+    return $ActionHistoryEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class ActionHistoryEntry extends DataClass
+    implements Insertable<ActionHistoryEntry> {
+  final int id;
+  final String actionType;
+  final String? targetElement;
+  final String? parameters;
+  final DateTime timestamp;
+  final String? result;
+  const ActionHistoryEntry(
+      {required this.id,
+      required this.actionType,
+      this.targetElement,
+      this.parameters,
+      required this.timestamp,
+      this.result});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['action_type'] = Variable<String>(actionType);
+    if (!nullToAbsent || targetElement != null) {
+      map['target_element'] = Variable<String>(targetElement);
+    }
+    if (!nullToAbsent || parameters != null) {
+      map['parameters'] = Variable<String>(parameters);
+    }
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || result != null) {
+      map['result'] = Variable<String>(result);
+    }
+    return map;
+  }
+
+  ActionHistoryEntriesCompanion toCompanion(bool nullToAbsent) {
+    return ActionHistoryEntriesCompanion(
+      id: Value(id),
+      actionType: Value(actionType),
+      targetElement: targetElement == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetElement),
+      parameters: parameters == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parameters),
+      timestamp: Value(timestamp),
+      result:
+          result == null && nullToAbsent ? const Value.absent() : Value(result),
+    );
+  }
+
+  factory ActionHistoryEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ActionHistoryEntry(
+      id: serializer.fromJson<int>(json['id']),
+      actionType: serializer.fromJson<String>(json['actionType']),
+      targetElement: serializer.fromJson<String?>(json['targetElement']),
+      parameters: serializer.fromJson<String?>(json['parameters']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      result: serializer.fromJson<String?>(json['result']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'actionType': serializer.toJson<String>(actionType),
+      'targetElement': serializer.toJson<String?>(targetElement),
+      'parameters': serializer.toJson<String?>(parameters),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'result': serializer.toJson<String?>(result),
+    };
+  }
+
+  ActionHistoryEntry copyWith(
+          {int? id,
+          String? actionType,
+          Value<String?> targetElement = const Value.absent(),
+          Value<String?> parameters = const Value.absent(),
+          DateTime? timestamp,
+          Value<String?> result = const Value.absent()}) =>
+      ActionHistoryEntry(
+        id: id ?? this.id,
+        actionType: actionType ?? this.actionType,
+        targetElement:
+            targetElement.present ? targetElement.value : this.targetElement,
+        parameters: parameters.present ? parameters.value : this.parameters,
+        timestamp: timestamp ?? this.timestamp,
+        result: result.present ? result.value : this.result,
+      );
+  ActionHistoryEntry copyWithCompanion(ActionHistoryEntriesCompanion data) {
+    return ActionHistoryEntry(
+      id: data.id.present ? data.id.value : this.id,
+      actionType:
+          data.actionType.present ? data.actionType.value : this.actionType,
+      targetElement: data.targetElement.present
+          ? data.targetElement.value
+          : this.targetElement,
+      parameters:
+          data.parameters.present ? data.parameters.value : this.parameters,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      result: data.result.present ? data.result.value : this.result,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActionHistoryEntry(')
+          ..write('id: $id, ')
+          ..write('actionType: $actionType, ')
+          ..write('targetElement: $targetElement, ')
+          ..write('parameters: $parameters, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('result: $result')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, actionType, targetElement, parameters, timestamp, result);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ActionHistoryEntry &&
+          other.id == this.id &&
+          other.actionType == this.actionType &&
+          other.targetElement == this.targetElement &&
+          other.parameters == this.parameters &&
+          other.timestamp == this.timestamp &&
+          other.result == this.result);
+}
+
+class ActionHistoryEntriesCompanion
+    extends UpdateCompanion<ActionHistoryEntry> {
+  final Value<int> id;
+  final Value<String> actionType;
+  final Value<String?> targetElement;
+  final Value<String?> parameters;
+  final Value<DateTime> timestamp;
+  final Value<String?> result;
+  const ActionHistoryEntriesCompanion({
+    this.id = const Value.absent(),
+    this.actionType = const Value.absent(),
+    this.targetElement = const Value.absent(),
+    this.parameters = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.result = const Value.absent(),
+  });
+  ActionHistoryEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String actionType,
+    this.targetElement = const Value.absent(),
+    this.parameters = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.result = const Value.absent(),
+  }) : actionType = Value(actionType);
+  static Insertable<ActionHistoryEntry> custom({
+    Expression<int>? id,
+    Expression<String>? actionType,
+    Expression<String>? targetElement,
+    Expression<String>? parameters,
+    Expression<DateTime>? timestamp,
+    Expression<String>? result,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (actionType != null) 'action_type': actionType,
+      if (targetElement != null) 'target_element': targetElement,
+      if (parameters != null) 'parameters': parameters,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (result != null) 'result': result,
+    });
+  }
+
+  ActionHistoryEntriesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? actionType,
+      Value<String?>? targetElement,
+      Value<String?>? parameters,
+      Value<DateTime>? timestamp,
+      Value<String?>? result}) {
+    return ActionHistoryEntriesCompanion(
+      id: id ?? this.id,
+      actionType: actionType ?? this.actionType,
+      targetElement: targetElement ?? this.targetElement,
+      parameters: parameters ?? this.parameters,
+      timestamp: timestamp ?? this.timestamp,
+      result: result ?? this.result,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (actionType.present) {
+      map['action_type'] = Variable<String>(actionType.value);
+    }
+    if (targetElement.present) {
+      map['target_element'] = Variable<String>(targetElement.value);
+    }
+    if (parameters.present) {
+      map['parameters'] = Variable<String>(parameters.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (result.present) {
+      map['result'] = Variable<String>(result.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ActionHistoryEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('actionType: $actionType, ')
+          ..write('targetElement: $targetElement, ')
+          ..write('parameters: $parameters, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('result: $result')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MacrosTable extends Macros with TableInfo<$MacrosTable, Macro> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MacrosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sequenceMeta =
+      const VerificationMeta('sequence');
+  @override
+  late final GeneratedColumn<String> sequence = GeneratedColumn<String>(
+      'sequence', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _triggerTypeMeta =
+      const VerificationMeta('triggerType');
+  @override
+  late final GeneratedColumn<String> triggerType = GeneratedColumn<String>(
+      'trigger_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _triggerDataMeta =
+      const VerificationMeta('triggerData');
+  @override
+  late final GeneratedColumn<String> triggerData = GeneratedColumn<String>(
+      'trigger_data', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastUsedMeta =
+      const VerificationMeta('lastUsed');
+  @override
+  late final GeneratedColumn<DateTime> lastUsed = GeneratedColumn<DateTime>(
+      'last_used', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        description,
+        sequence,
+        triggerType,
+        triggerData,
+        createdAt,
+        lastUsed
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'macros';
+  @override
+  VerificationContext validateIntegrity(Insertable<Macro> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('sequence')) {
+      context.handle(_sequenceMeta,
+          sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta));
+    } else if (isInserting) {
+      context.missing(_sequenceMeta);
+    }
+    if (data.containsKey('trigger_type')) {
+      context.handle(
+          _triggerTypeMeta,
+          triggerType.isAcceptableOrUnknown(
+              data['trigger_type']!, _triggerTypeMeta));
+    } else if (isInserting) {
+      context.missing(_triggerTypeMeta);
+    }
+    if (data.containsKey('trigger_data')) {
+      context.handle(
+          _triggerDataMeta,
+          triggerData.isAcceptableOrUnknown(
+              data['trigger_data']!, _triggerDataMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('last_used')) {
+      context.handle(_lastUsedMeta,
+          lastUsed.isAcceptableOrUnknown(data['last_used']!, _lastUsedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Macro map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Macro(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      sequence: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sequence'])!,
+      triggerType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}trigger_type'])!,
+      triggerData: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}trigger_data']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      lastUsed: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_used']),
+    );
+  }
+
+  @override
+  $MacrosTable createAlias(String alias) {
+    return $MacrosTable(attachedDatabase, alias);
+  }
+}
+
+class Macro extends DataClass implements Insertable<Macro> {
+  final String id;
+  final String name;
+  final String? description;
+  final String sequence;
+  final String triggerType;
+  final String? triggerData;
+  final DateTime createdAt;
+  final DateTime? lastUsed;
+  const Macro(
+      {required this.id,
+      required this.name,
+      this.description,
+      required this.sequence,
+      required this.triggerType,
+      this.triggerData,
+      required this.createdAt,
+      this.lastUsed});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['sequence'] = Variable<String>(sequence);
+    map['trigger_type'] = Variable<String>(triggerType);
+    if (!nullToAbsent || triggerData != null) {
+      map['trigger_data'] = Variable<String>(triggerData);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || lastUsed != null) {
+      map['last_used'] = Variable<DateTime>(lastUsed);
+    }
+    return map;
+  }
+
+  MacrosCompanion toCompanion(bool nullToAbsent) {
+    return MacrosCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      sequence: Value(sequence),
+      triggerType: Value(triggerType),
+      triggerData: triggerData == null && nullToAbsent
+          ? const Value.absent()
+          : Value(triggerData),
+      createdAt: Value(createdAt),
+      lastUsed: lastUsed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastUsed),
+    );
+  }
+
+  factory Macro.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Macro(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      sequence: serializer.fromJson<String>(json['sequence']),
+      triggerType: serializer.fromJson<String>(json['triggerType']),
+      triggerData: serializer.fromJson<String?>(json['triggerData']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      lastUsed: serializer.fromJson<DateTime?>(json['lastUsed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'sequence': serializer.toJson<String>(sequence),
+      'triggerType': serializer.toJson<String>(triggerType),
+      'triggerData': serializer.toJson<String?>(triggerData),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'lastUsed': serializer.toJson<DateTime?>(lastUsed),
+    };
+  }
+
+  Macro copyWith(
+          {String? id,
+          String? name,
+          Value<String?> description = const Value.absent(),
+          String? sequence,
+          String? triggerType,
+          Value<String?> triggerData = const Value.absent(),
+          DateTime? createdAt,
+          Value<DateTime?> lastUsed = const Value.absent()}) =>
+      Macro(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        description: description.present ? description.value : this.description,
+        sequence: sequence ?? this.sequence,
+        triggerType: triggerType ?? this.triggerType,
+        triggerData: triggerData.present ? triggerData.value : this.triggerData,
+        createdAt: createdAt ?? this.createdAt,
+        lastUsed: lastUsed.present ? lastUsed.value : this.lastUsed,
+      );
+  Macro copyWithCompanion(MacrosCompanion data) {
+    return Macro(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description:
+          data.description.present ? data.description.value : this.description,
+      sequence: data.sequence.present ? data.sequence.value : this.sequence,
+      triggerType:
+          data.triggerType.present ? data.triggerType.value : this.triggerType,
+      triggerData:
+          data.triggerData.present ? data.triggerData.value : this.triggerData,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      lastUsed: data.lastUsed.present ? data.lastUsed.value : this.lastUsed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Macro(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('sequence: $sequence, ')
+          ..write('triggerType: $triggerType, ')
+          ..write('triggerData: $triggerData, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastUsed: $lastUsed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, description, sequence, triggerType,
+      triggerData, createdAt, lastUsed);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Macro &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.sequence == this.sequence &&
+          other.triggerType == this.triggerType &&
+          other.triggerData == this.triggerData &&
+          other.createdAt == this.createdAt &&
+          other.lastUsed == this.lastUsed);
+}
+
+class MacrosCompanion extends UpdateCompanion<Macro> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<String> sequence;
+  final Value<String> triggerType;
+  final Value<String?> triggerData;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> lastUsed;
+  final Value<int> rowid;
+  const MacrosCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.triggerType = const Value.absent(),
+    this.triggerData = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastUsed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MacrosCompanion.insert({
+    required String id,
+    required String name,
+    this.description = const Value.absent(),
+    required String sequence,
+    required String triggerType,
+    this.triggerData = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.lastUsed = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        sequence = Value(sequence),
+        triggerType = Value(triggerType);
+  static Insertable<Macro> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? sequence,
+    Expression<String>? triggerType,
+    Expression<String>? triggerData,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? lastUsed,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (sequence != null) 'sequence': sequence,
+      if (triggerType != null) 'trigger_type': triggerType,
+      if (triggerData != null) 'trigger_data': triggerData,
+      if (createdAt != null) 'created_at': createdAt,
+      if (lastUsed != null) 'last_used': lastUsed,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MacrosCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? description,
+      Value<String>? sequence,
+      Value<String>? triggerType,
+      Value<String?>? triggerData,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? lastUsed,
+      Value<int>? rowid}) {
+    return MacrosCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      sequence: sequence ?? this.sequence,
+      triggerType: triggerType ?? this.triggerType,
+      triggerData: triggerData ?? this.triggerData,
+      createdAt: createdAt ?? this.createdAt,
+      lastUsed: lastUsed ?? this.lastUsed,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (sequence.present) {
+      map['sequence'] = Variable<String>(sequence.value);
+    }
+    if (triggerType.present) {
+      map['trigger_type'] = Variable<String>(triggerType.value);
+    }
+    if (triggerData.present) {
+      map['trigger_data'] = Variable<String>(triggerData.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (lastUsed.present) {
+      map['last_used'] = Variable<DateTime>(lastUsed.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MacrosCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('sequence: $sequence, ')
+          ..write('triggerType: $triggerType, ')
+          ..write('triggerData: $triggerData, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('lastUsed: $lastUsed, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalBrain extends GeneratedDatabase {
   _$LocalBrain(QueryExecutor e) : super(e);
   $LocalBrainManager get managers => $LocalBrainManager(this);
@@ -4396,6 +7072,15 @@ abstract class _$LocalBrain extends GeneratedDatabase {
       $FileContentCacheTable(this);
   late final $ModelCapacityTable modelCapacity = $ModelCapacityTable(this);
   late final $LlmRequestsTable llmRequests = $LlmRequestsTable(this);
+  late final $AvatarProfilesTable avatarProfiles = $AvatarProfilesTable(this);
+  late final $AchievementsTable achievements = $AchievementsTable(this);
+  late final $AvatarMemoryEntriesTable avatarMemoryEntries =
+      $AvatarMemoryEntriesTable(this);
+  late final $ClipboardHistoryTable clipboardHistory =
+      $ClipboardHistoryTable(this);
+  late final $ActionHistoryEntriesTable actionHistoryEntries =
+      $ActionHistoryEntriesTable(this);
+  late final $MacrosTable macros = $MacrosTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4411,7 +7096,13 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         fileIndex,
         fileContentCache,
         modelCapacity,
-        llmRequests
+        llmRequests,
+        avatarProfiles,
+        achievements,
+        avatarMemoryEntries,
+        clipboardHistory,
+        actionHistoryEntries,
+        macros
       ];
 }
 
@@ -7364,6 +10055,1701 @@ typedef $$LlmRequestsTableProcessedTableManager = ProcessedTableManager<
     (LlmRequest, $$LlmRequestsTableReferences),
     LlmRequest,
     PrefetchHooks Function({bool modelId})>;
+typedef $$AvatarProfilesTableCreateCompanionBuilder = AvatarProfilesCompanion
+    Function({
+  required String id,
+  required String name,
+  Value<String?> personalityType,
+  Value<int> level,
+  Value<int> xp,
+  Value<int> xpToNextLevel,
+  Value<String?> traits,
+  Value<String?> avatarConfig,
+  Value<DateTime?> lastInteraction,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+typedef $$AvatarProfilesTableUpdateCompanionBuilder = AvatarProfilesCompanion
+    Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> personalityType,
+  Value<int> level,
+  Value<int> xp,
+  Value<int> xpToNextLevel,
+  Value<String?> traits,
+  Value<String?> avatarConfig,
+  Value<DateTime?> lastInteraction,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+final class $$AvatarProfilesTableReferences
+    extends BaseReferences<_$LocalBrain, $AvatarProfilesTable, AvatarProfile> {
+  $$AvatarProfilesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$AchievementsTable, List<Achievement>>
+      _achievementsRefsTable(_$LocalBrain db) =>
+          MultiTypedResultKey.fromTable(db.achievements,
+              aliasName: $_aliasNameGenerator(
+                  db.avatarProfiles.id, db.achievements.avatarId));
+
+  $$AchievementsTableProcessedTableManager get achievementsRefs {
+    final manager = $$AchievementsTableTableManager($_db, $_db.achievements)
+        .filter((f) => f.avatarId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_achievementsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$AvatarMemoryEntriesTable, List<AvatarMemoryEntry>>
+      _avatarMemoryEntriesRefsTable(_$LocalBrain db) =>
+          MultiTypedResultKey.fromTable(db.avatarMemoryEntries,
+              aliasName: $_aliasNameGenerator(
+                  db.avatarProfiles.id, db.avatarMemoryEntries.avatarId));
+
+  $$AvatarMemoryEntriesTableProcessedTableManager get avatarMemoryEntriesRefs {
+    final manager = $$AvatarMemoryEntriesTableTableManager(
+            $_db, $_db.avatarMemoryEntries)
+        .filter((f) => f.avatarId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_avatarMemoryEntriesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$AvatarProfilesTableFilterComposer
+    extends Composer<_$LocalBrain, $AvatarProfilesTable> {
+  $$AvatarProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get personalityType => $composableBuilder(
+      column: $table.personalityType,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get xp => $composableBuilder(
+      column: $table.xp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get xpToNextLevel => $composableBuilder(
+      column: $table.xpToNextLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get traits => $composableBuilder(
+      column: $table.traits, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get avatarConfig => $composableBuilder(
+      column: $table.avatarConfig, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastInteraction => $composableBuilder(
+      column: $table.lastInteraction,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> achievementsRefs(
+      Expression<bool> Function($$AchievementsTableFilterComposer f) f) {
+    final $$AchievementsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.achievements,
+        getReferencedColumn: (t) => t.avatarId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AchievementsTableFilterComposer(
+              $db: $db,
+              $table: $db.achievements,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> avatarMemoryEntriesRefs(
+      Expression<bool> Function($$AvatarMemoryEntriesTableFilterComposer f) f) {
+    final $$AvatarMemoryEntriesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.avatarMemoryEntries,
+        getReferencedColumn: (t) => t.avatarId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarMemoryEntriesTableFilterComposer(
+              $db: $db,
+              $table: $db.avatarMemoryEntries,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AvatarProfilesTableOrderingComposer
+    extends Composer<_$LocalBrain, $AvatarProfilesTable> {
+  $$AvatarProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get personalityType => $composableBuilder(
+      column: $table.personalityType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get xp => $composableBuilder(
+      column: $table.xp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get xpToNextLevel => $composableBuilder(
+      column: $table.xpToNextLevel,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get traits => $composableBuilder(
+      column: $table.traits, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatarConfig => $composableBuilder(
+      column: $table.avatarConfig,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastInteraction => $composableBuilder(
+      column: $table.lastInteraction,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AvatarProfilesTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AvatarProfilesTable> {
+  $$AvatarProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get personalityType => $composableBuilder(
+      column: $table.personalityType, builder: (column) => column);
+
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<int> get xp =>
+      $composableBuilder(column: $table.xp, builder: (column) => column);
+
+  GeneratedColumn<int> get xpToNextLevel => $composableBuilder(
+      column: $table.xpToNextLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get traits =>
+      $composableBuilder(column: $table.traits, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarConfig => $composableBuilder(
+      column: $table.avatarConfig, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastInteraction => $composableBuilder(
+      column: $table.lastInteraction, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> achievementsRefs<T extends Object>(
+      Expression<T> Function($$AchievementsTableAnnotationComposer a) f) {
+    final $$AchievementsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.achievements,
+        getReferencedColumn: (t) => t.avatarId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AchievementsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.achievements,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> avatarMemoryEntriesRefs<T extends Object>(
+      Expression<T> Function($$AvatarMemoryEntriesTableAnnotationComposer a)
+          f) {
+    final $$AvatarMemoryEntriesTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.avatarMemoryEntries,
+            getReferencedColumn: (t) => t.avatarId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$AvatarMemoryEntriesTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.avatarMemoryEntries,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$AvatarProfilesTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AvatarProfilesTable,
+    AvatarProfile,
+    $$AvatarProfilesTableFilterComposer,
+    $$AvatarProfilesTableOrderingComposer,
+    $$AvatarProfilesTableAnnotationComposer,
+    $$AvatarProfilesTableCreateCompanionBuilder,
+    $$AvatarProfilesTableUpdateCompanionBuilder,
+    (AvatarProfile, $$AvatarProfilesTableReferences),
+    AvatarProfile,
+    PrefetchHooks Function(
+        {bool achievementsRefs, bool avatarMemoryEntriesRefs})> {
+  $$AvatarProfilesTableTableManager(_$LocalBrain db, $AvatarProfilesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AvatarProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AvatarProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AvatarProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> personalityType = const Value.absent(),
+            Value<int> level = const Value.absent(),
+            Value<int> xp = const Value.absent(),
+            Value<int> xpToNextLevel = const Value.absent(),
+            Value<String?> traits = const Value.absent(),
+            Value<String?> avatarConfig = const Value.absent(),
+            Value<DateTime?> lastInteraction = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AvatarProfilesCompanion(
+            id: id,
+            name: name,
+            personalityType: personalityType,
+            level: level,
+            xp: xp,
+            xpToNextLevel: xpToNextLevel,
+            traits: traits,
+            avatarConfig: avatarConfig,
+            lastInteraction: lastInteraction,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> personalityType = const Value.absent(),
+            Value<int> level = const Value.absent(),
+            Value<int> xp = const Value.absent(),
+            Value<int> xpToNextLevel = const Value.absent(),
+            Value<String?> traits = const Value.absent(),
+            Value<String?> avatarConfig = const Value.absent(),
+            Value<DateTime?> lastInteraction = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AvatarProfilesCompanion.insert(
+            id: id,
+            name: name,
+            personalityType: personalityType,
+            level: level,
+            xp: xp,
+            xpToNextLevel: xpToNextLevel,
+            traits: traits,
+            avatarConfig: avatarConfig,
+            lastInteraction: lastInteraction,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AvatarProfilesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {achievementsRefs = false, avatarMemoryEntriesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (achievementsRefs) db.achievements,
+                if (avatarMemoryEntriesRefs) db.avatarMemoryEntries
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (achievementsRefs)
+                    await $_getPrefetchedData<AvatarProfile,
+                            $AvatarProfilesTable, Achievement>(
+                        currentTable: table,
+                        referencedTable: $$AvatarProfilesTableReferences
+                            ._achievementsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AvatarProfilesTableReferences(db, table, p0)
+                                .achievementsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.avatarId == item.id),
+                        typedResults: items),
+                  if (avatarMemoryEntriesRefs)
+                    await $_getPrefetchedData<AvatarProfile,
+                            $AvatarProfilesTable, AvatarMemoryEntry>(
+                        currentTable: table,
+                        referencedTable: $$AvatarProfilesTableReferences
+                            ._avatarMemoryEntriesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AvatarProfilesTableReferences(db, table, p0)
+                                .avatarMemoryEntriesRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.avatarId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AvatarProfilesTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $AvatarProfilesTable,
+    AvatarProfile,
+    $$AvatarProfilesTableFilterComposer,
+    $$AvatarProfilesTableOrderingComposer,
+    $$AvatarProfilesTableAnnotationComposer,
+    $$AvatarProfilesTableCreateCompanionBuilder,
+    $$AvatarProfilesTableUpdateCompanionBuilder,
+    (AvatarProfile, $$AvatarProfilesTableReferences),
+    AvatarProfile,
+    PrefetchHooks Function(
+        {bool achievementsRefs, bool avatarMemoryEntriesRefs})>;
+typedef $$AchievementsTableCreateCompanionBuilder = AchievementsCompanion
+    Function({
+  Value<int> id,
+  required String avatarId,
+  required String achievementId,
+  required String achievementType,
+  required String title,
+  Value<String?> description,
+  Value<DateTime?> unlockedAt,
+  Value<DateTime> earnedAt,
+});
+typedef $$AchievementsTableUpdateCompanionBuilder = AchievementsCompanion
+    Function({
+  Value<int> id,
+  Value<String> avatarId,
+  Value<String> achievementId,
+  Value<String> achievementType,
+  Value<String> title,
+  Value<String?> description,
+  Value<DateTime?> unlockedAt,
+  Value<DateTime> earnedAt,
+});
+
+final class $$AchievementsTableReferences
+    extends BaseReferences<_$LocalBrain, $AchievementsTable, Achievement> {
+  $$AchievementsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $AvatarProfilesTable _avatarIdTable(_$LocalBrain db) =>
+      db.avatarProfiles.createAlias(
+          $_aliasNameGenerator(db.achievements.avatarId, db.avatarProfiles.id));
+
+  $$AvatarProfilesTableProcessedTableManager get avatarId {
+    final $_column = $_itemColumn<String>('avatar_id')!;
+
+    final manager = $$AvatarProfilesTableTableManager($_db, $_db.avatarProfiles)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_avatarIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$AchievementsTableFilterComposer
+    extends Composer<_$LocalBrain, $AchievementsTable> {
+  $$AchievementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get achievementId => $composableBuilder(
+      column: $table.achievementId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get achievementType => $composableBuilder(
+      column: $table.achievementType,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get unlockedAt => $composableBuilder(
+      column: $table.unlockedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get earnedAt => $composableBuilder(
+      column: $table.earnedAt, builder: (column) => ColumnFilters(column));
+
+  $$AvatarProfilesTableFilterComposer get avatarId {
+    final $$AvatarProfilesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.avatarId,
+        referencedTable: $db.avatarProfiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarProfilesTableFilterComposer(
+              $db: $db,
+              $table: $db.avatarProfiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AchievementsTableOrderingComposer
+    extends Composer<_$LocalBrain, $AchievementsTable> {
+  $$AchievementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get achievementId => $composableBuilder(
+      column: $table.achievementId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get achievementType => $composableBuilder(
+      column: $table.achievementType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get unlockedAt => $composableBuilder(
+      column: $table.unlockedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get earnedAt => $composableBuilder(
+      column: $table.earnedAt, builder: (column) => ColumnOrderings(column));
+
+  $$AvatarProfilesTableOrderingComposer get avatarId {
+    final $$AvatarProfilesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.avatarId,
+        referencedTable: $db.avatarProfiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarProfilesTableOrderingComposer(
+              $db: $db,
+              $table: $db.avatarProfiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AchievementsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AchievementsTable> {
+  $$AchievementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get achievementId => $composableBuilder(
+      column: $table.achievementId, builder: (column) => column);
+
+  GeneratedColumn<String> get achievementType => $composableBuilder(
+      column: $table.achievementType, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get unlockedAt => $composableBuilder(
+      column: $table.unlockedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get earnedAt =>
+      $composableBuilder(column: $table.earnedAt, builder: (column) => column);
+
+  $$AvatarProfilesTableAnnotationComposer get avatarId {
+    final $$AvatarProfilesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.avatarId,
+        referencedTable: $db.avatarProfiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarProfilesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.avatarProfiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AchievementsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AchievementsTable,
+    Achievement,
+    $$AchievementsTableFilterComposer,
+    $$AchievementsTableOrderingComposer,
+    $$AchievementsTableAnnotationComposer,
+    $$AchievementsTableCreateCompanionBuilder,
+    $$AchievementsTableUpdateCompanionBuilder,
+    (Achievement, $$AchievementsTableReferences),
+    Achievement,
+    PrefetchHooks Function({bool avatarId})> {
+  $$AchievementsTableTableManager(_$LocalBrain db, $AchievementsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AchievementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AchievementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AchievementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> avatarId = const Value.absent(),
+            Value<String> achievementId = const Value.absent(),
+            Value<String> achievementType = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> unlockedAt = const Value.absent(),
+            Value<DateTime> earnedAt = const Value.absent(),
+          }) =>
+              AchievementsCompanion(
+            id: id,
+            avatarId: avatarId,
+            achievementId: achievementId,
+            achievementType: achievementType,
+            title: title,
+            description: description,
+            unlockedAt: unlockedAt,
+            earnedAt: earnedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String avatarId,
+            required String achievementId,
+            required String achievementType,
+            required String title,
+            Value<String?> description = const Value.absent(),
+            Value<DateTime?> unlockedAt = const Value.absent(),
+            Value<DateTime> earnedAt = const Value.absent(),
+          }) =>
+              AchievementsCompanion.insert(
+            id: id,
+            avatarId: avatarId,
+            achievementId: achievementId,
+            achievementType: achievementType,
+            title: title,
+            description: description,
+            unlockedAt: unlockedAt,
+            earnedAt: earnedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AchievementsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({avatarId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (avatarId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.avatarId,
+                    referencedTable:
+                        $$AchievementsTableReferences._avatarIdTable(db),
+                    referencedColumn:
+                        $$AchievementsTableReferences._avatarIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AchievementsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $AchievementsTable,
+    Achievement,
+    $$AchievementsTableFilterComposer,
+    $$AchievementsTableOrderingComposer,
+    $$AchievementsTableAnnotationComposer,
+    $$AchievementsTableCreateCompanionBuilder,
+    $$AchievementsTableUpdateCompanionBuilder,
+    (Achievement, $$AchievementsTableReferences),
+    Achievement,
+    PrefetchHooks Function({bool avatarId})>;
+typedef $$AvatarMemoryEntriesTableCreateCompanionBuilder
+    = AvatarMemoryEntriesCompanion Function({
+  Value<int> id,
+  required String avatarId,
+  required String memoryType,
+  required String memoryKey,
+  required String memoryValue,
+  Value<String?> tags,
+  Value<int> importance,
+  Value<DateTime> timestamp,
+  Value<DateTime> createdAt,
+  Value<DateTime> lastAccessed,
+});
+typedef $$AvatarMemoryEntriesTableUpdateCompanionBuilder
+    = AvatarMemoryEntriesCompanion Function({
+  Value<int> id,
+  Value<String> avatarId,
+  Value<String> memoryType,
+  Value<String> memoryKey,
+  Value<String> memoryValue,
+  Value<String?> tags,
+  Value<int> importance,
+  Value<DateTime> timestamp,
+  Value<DateTime> createdAt,
+  Value<DateTime> lastAccessed,
+});
+
+final class $$AvatarMemoryEntriesTableReferences extends BaseReferences<
+    _$LocalBrain, $AvatarMemoryEntriesTable, AvatarMemoryEntry> {
+  $$AvatarMemoryEntriesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $AvatarProfilesTable _avatarIdTable(_$LocalBrain db) =>
+      db.avatarProfiles.createAlias($_aliasNameGenerator(
+          db.avatarMemoryEntries.avatarId, db.avatarProfiles.id));
+
+  $$AvatarProfilesTableProcessedTableManager get avatarId {
+    final $_column = $_itemColumn<String>('avatar_id')!;
+
+    final manager = $$AvatarProfilesTableTableManager($_db, $_db.avatarProfiles)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_avatarIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$AvatarMemoryEntriesTableFilterComposer
+    extends Composer<_$LocalBrain, $AvatarMemoryEntriesTable> {
+  $$AvatarMemoryEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memoryType => $composableBuilder(
+      column: $table.memoryType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memoryKey => $composableBuilder(
+      column: $table.memoryKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memoryValue => $composableBuilder(
+      column: $table.memoryValue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get importance => $composableBuilder(
+      column: $table.importance, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastAccessed => $composableBuilder(
+      column: $table.lastAccessed, builder: (column) => ColumnFilters(column));
+
+  $$AvatarProfilesTableFilterComposer get avatarId {
+    final $$AvatarProfilesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.avatarId,
+        referencedTable: $db.avatarProfiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarProfilesTableFilterComposer(
+              $db: $db,
+              $table: $db.avatarProfiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AvatarMemoryEntriesTableOrderingComposer
+    extends Composer<_$LocalBrain, $AvatarMemoryEntriesTable> {
+  $$AvatarMemoryEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memoryType => $composableBuilder(
+      column: $table.memoryType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memoryKey => $composableBuilder(
+      column: $table.memoryKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memoryValue => $composableBuilder(
+      column: $table.memoryValue, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get importance => $composableBuilder(
+      column: $table.importance, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastAccessed => $composableBuilder(
+      column: $table.lastAccessed,
+      builder: (column) => ColumnOrderings(column));
+
+  $$AvatarProfilesTableOrderingComposer get avatarId {
+    final $$AvatarProfilesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.avatarId,
+        referencedTable: $db.avatarProfiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarProfilesTableOrderingComposer(
+              $db: $db,
+              $table: $db.avatarProfiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AvatarMemoryEntriesTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AvatarMemoryEntriesTable> {
+  $$AvatarMemoryEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get memoryType => $composableBuilder(
+      column: $table.memoryType, builder: (column) => column);
+
+  GeneratedColumn<String> get memoryKey =>
+      $composableBuilder(column: $table.memoryKey, builder: (column) => column);
+
+  GeneratedColumn<String> get memoryValue => $composableBuilder(
+      column: $table.memoryValue, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<int> get importance => $composableBuilder(
+      column: $table.importance, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastAccessed => $composableBuilder(
+      column: $table.lastAccessed, builder: (column) => column);
+
+  $$AvatarProfilesTableAnnotationComposer get avatarId {
+    final $$AvatarProfilesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.avatarId,
+        referencedTable: $db.avatarProfiles,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AvatarProfilesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.avatarProfiles,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AvatarMemoryEntriesTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AvatarMemoryEntriesTable,
+    AvatarMemoryEntry,
+    $$AvatarMemoryEntriesTableFilterComposer,
+    $$AvatarMemoryEntriesTableOrderingComposer,
+    $$AvatarMemoryEntriesTableAnnotationComposer,
+    $$AvatarMemoryEntriesTableCreateCompanionBuilder,
+    $$AvatarMemoryEntriesTableUpdateCompanionBuilder,
+    (AvatarMemoryEntry, $$AvatarMemoryEntriesTableReferences),
+    AvatarMemoryEntry,
+    PrefetchHooks Function({bool avatarId})> {
+  $$AvatarMemoryEntriesTableTableManager(
+      _$LocalBrain db, $AvatarMemoryEntriesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AvatarMemoryEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AvatarMemoryEntriesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AvatarMemoryEntriesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> avatarId = const Value.absent(),
+            Value<String> memoryType = const Value.absent(),
+            Value<String> memoryKey = const Value.absent(),
+            Value<String> memoryValue = const Value.absent(),
+            Value<String?> tags = const Value.absent(),
+            Value<int> importance = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> lastAccessed = const Value.absent(),
+          }) =>
+              AvatarMemoryEntriesCompanion(
+            id: id,
+            avatarId: avatarId,
+            memoryType: memoryType,
+            memoryKey: memoryKey,
+            memoryValue: memoryValue,
+            tags: tags,
+            importance: importance,
+            timestamp: timestamp,
+            createdAt: createdAt,
+            lastAccessed: lastAccessed,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String avatarId,
+            required String memoryType,
+            required String memoryKey,
+            required String memoryValue,
+            Value<String?> tags = const Value.absent(),
+            Value<int> importance = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> lastAccessed = const Value.absent(),
+          }) =>
+              AvatarMemoryEntriesCompanion.insert(
+            id: id,
+            avatarId: avatarId,
+            memoryType: memoryType,
+            memoryKey: memoryKey,
+            memoryValue: memoryValue,
+            tags: tags,
+            importance: importance,
+            timestamp: timestamp,
+            createdAt: createdAt,
+            lastAccessed: lastAccessed,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AvatarMemoryEntriesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({avatarId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (avatarId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.avatarId,
+                    referencedTable:
+                        $$AvatarMemoryEntriesTableReferences._avatarIdTable(db),
+                    referencedColumn: $$AvatarMemoryEntriesTableReferences
+                        ._avatarIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AvatarMemoryEntriesTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $AvatarMemoryEntriesTable,
+    AvatarMemoryEntry,
+    $$AvatarMemoryEntriesTableFilterComposer,
+    $$AvatarMemoryEntriesTableOrderingComposer,
+    $$AvatarMemoryEntriesTableAnnotationComposer,
+    $$AvatarMemoryEntriesTableCreateCompanionBuilder,
+    $$AvatarMemoryEntriesTableUpdateCompanionBuilder,
+    (AvatarMemoryEntry, $$AvatarMemoryEntriesTableReferences),
+    AvatarMemoryEntry,
+    PrefetchHooks Function({bool avatarId})>;
+typedef $$ClipboardHistoryTableCreateCompanionBuilder
+    = ClipboardHistoryCompanion Function({
+  Value<int> id,
+  required String content,
+  required String contentType,
+  Value<String?> sourceApp,
+  Value<DateTime> timestamp,
+  Value<DateTime> copiedAt,
+  Value<bool> isPinned,
+});
+typedef $$ClipboardHistoryTableUpdateCompanionBuilder
+    = ClipboardHistoryCompanion Function({
+  Value<int> id,
+  Value<String> content,
+  Value<String> contentType,
+  Value<String?> sourceApp,
+  Value<DateTime> timestamp,
+  Value<DateTime> copiedAt,
+  Value<bool> isPinned,
+});
+
+class $$ClipboardHistoryTableFilterComposer
+    extends Composer<_$LocalBrain, $ClipboardHistoryTable> {
+  $$ClipboardHistoryTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contentType => $composableBuilder(
+      column: $table.contentType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceApp => $composableBuilder(
+      column: $table.sourceApp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get copiedAt => $composableBuilder(
+      column: $table.copiedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isPinned => $composableBuilder(
+      column: $table.isPinned, builder: (column) => ColumnFilters(column));
+}
+
+class $$ClipboardHistoryTableOrderingComposer
+    extends Composer<_$LocalBrain, $ClipboardHistoryTable> {
+  $$ClipboardHistoryTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contentType => $composableBuilder(
+      column: $table.contentType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceApp => $composableBuilder(
+      column: $table.sourceApp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get copiedAt => $composableBuilder(
+      column: $table.copiedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isPinned => $composableBuilder(
+      column: $table.isPinned, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ClipboardHistoryTableAnnotationComposer
+    extends Composer<_$LocalBrain, $ClipboardHistoryTable> {
+  $$ClipboardHistoryTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get contentType => $composableBuilder(
+      column: $table.contentType, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceApp =>
+      $composableBuilder(column: $table.sourceApp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get copiedAt =>
+      $composableBuilder(column: $table.copiedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPinned =>
+      $composableBuilder(column: $table.isPinned, builder: (column) => column);
+}
+
+class $$ClipboardHistoryTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $ClipboardHistoryTable,
+    ClipboardHistoryData,
+    $$ClipboardHistoryTableFilterComposer,
+    $$ClipboardHistoryTableOrderingComposer,
+    $$ClipboardHistoryTableAnnotationComposer,
+    $$ClipboardHistoryTableCreateCompanionBuilder,
+    $$ClipboardHistoryTableUpdateCompanionBuilder,
+    (
+      ClipboardHistoryData,
+      BaseReferences<_$LocalBrain, $ClipboardHistoryTable, ClipboardHistoryData>
+    ),
+    ClipboardHistoryData,
+    PrefetchHooks Function()> {
+  $$ClipboardHistoryTableTableManager(
+      _$LocalBrain db, $ClipboardHistoryTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ClipboardHistoryTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ClipboardHistoryTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ClipboardHistoryTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<String> contentType = const Value.absent(),
+            Value<String?> sourceApp = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> copiedAt = const Value.absent(),
+            Value<bool> isPinned = const Value.absent(),
+          }) =>
+              ClipboardHistoryCompanion(
+            id: id,
+            content: content,
+            contentType: contentType,
+            sourceApp: sourceApp,
+            timestamp: timestamp,
+            copiedAt: copiedAt,
+            isPinned: isPinned,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String content,
+            required String contentType,
+            Value<String?> sourceApp = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> copiedAt = const Value.absent(),
+            Value<bool> isPinned = const Value.absent(),
+          }) =>
+              ClipboardHistoryCompanion.insert(
+            id: id,
+            content: content,
+            contentType: contentType,
+            sourceApp: sourceApp,
+            timestamp: timestamp,
+            copiedAt: copiedAt,
+            isPinned: isPinned,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ClipboardHistoryTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $ClipboardHistoryTable,
+    ClipboardHistoryData,
+    $$ClipboardHistoryTableFilterComposer,
+    $$ClipboardHistoryTableOrderingComposer,
+    $$ClipboardHistoryTableAnnotationComposer,
+    $$ClipboardHistoryTableCreateCompanionBuilder,
+    $$ClipboardHistoryTableUpdateCompanionBuilder,
+    (
+      ClipboardHistoryData,
+      BaseReferences<_$LocalBrain, $ClipboardHistoryTable, ClipboardHistoryData>
+    ),
+    ClipboardHistoryData,
+    PrefetchHooks Function()>;
+typedef $$ActionHistoryEntriesTableCreateCompanionBuilder
+    = ActionHistoryEntriesCompanion Function({
+  Value<int> id,
+  required String actionType,
+  Value<String?> targetElement,
+  Value<String?> parameters,
+  Value<DateTime> timestamp,
+  Value<String?> result,
+});
+typedef $$ActionHistoryEntriesTableUpdateCompanionBuilder
+    = ActionHistoryEntriesCompanion Function({
+  Value<int> id,
+  Value<String> actionType,
+  Value<String?> targetElement,
+  Value<String?> parameters,
+  Value<DateTime> timestamp,
+  Value<String?> result,
+});
+
+class $$ActionHistoryEntriesTableFilterComposer
+    extends Composer<_$LocalBrain, $ActionHistoryEntriesTable> {
+  $$ActionHistoryEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get actionType => $composableBuilder(
+      column: $table.actionType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetElement => $composableBuilder(
+      column: $table.targetElement, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get parameters => $composableBuilder(
+      column: $table.parameters, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get result => $composableBuilder(
+      column: $table.result, builder: (column) => ColumnFilters(column));
+}
+
+class $$ActionHistoryEntriesTableOrderingComposer
+    extends Composer<_$LocalBrain, $ActionHistoryEntriesTable> {
+  $$ActionHistoryEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get actionType => $composableBuilder(
+      column: $table.actionType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetElement => $composableBuilder(
+      column: $table.targetElement,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get parameters => $composableBuilder(
+      column: $table.parameters, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get result => $composableBuilder(
+      column: $table.result, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ActionHistoryEntriesTableAnnotationComposer
+    extends Composer<_$LocalBrain, $ActionHistoryEntriesTable> {
+  $$ActionHistoryEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get actionType => $composableBuilder(
+      column: $table.actionType, builder: (column) => column);
+
+  GeneratedColumn<String> get targetElement => $composableBuilder(
+      column: $table.targetElement, builder: (column) => column);
+
+  GeneratedColumn<String> get parameters => $composableBuilder(
+      column: $table.parameters, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => column);
+}
+
+class $$ActionHistoryEntriesTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $ActionHistoryEntriesTable,
+    ActionHistoryEntry,
+    $$ActionHistoryEntriesTableFilterComposer,
+    $$ActionHistoryEntriesTableOrderingComposer,
+    $$ActionHistoryEntriesTableAnnotationComposer,
+    $$ActionHistoryEntriesTableCreateCompanionBuilder,
+    $$ActionHistoryEntriesTableUpdateCompanionBuilder,
+    (
+      ActionHistoryEntry,
+      BaseReferences<_$LocalBrain, $ActionHistoryEntriesTable,
+          ActionHistoryEntry>
+    ),
+    ActionHistoryEntry,
+    PrefetchHooks Function()> {
+  $$ActionHistoryEntriesTableTableManager(
+      _$LocalBrain db, $ActionHistoryEntriesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ActionHistoryEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ActionHistoryEntriesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ActionHistoryEntriesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> actionType = const Value.absent(),
+            Value<String?> targetElement = const Value.absent(),
+            Value<String?> parameters = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> result = const Value.absent(),
+          }) =>
+              ActionHistoryEntriesCompanion(
+            id: id,
+            actionType: actionType,
+            targetElement: targetElement,
+            parameters: parameters,
+            timestamp: timestamp,
+            result: result,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String actionType,
+            Value<String?> targetElement = const Value.absent(),
+            Value<String?> parameters = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> result = const Value.absent(),
+          }) =>
+              ActionHistoryEntriesCompanion.insert(
+            id: id,
+            actionType: actionType,
+            targetElement: targetElement,
+            parameters: parameters,
+            timestamp: timestamp,
+            result: result,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ActionHistoryEntriesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalBrain,
+        $ActionHistoryEntriesTable,
+        ActionHistoryEntry,
+        $$ActionHistoryEntriesTableFilterComposer,
+        $$ActionHistoryEntriesTableOrderingComposer,
+        $$ActionHistoryEntriesTableAnnotationComposer,
+        $$ActionHistoryEntriesTableCreateCompanionBuilder,
+        $$ActionHistoryEntriesTableUpdateCompanionBuilder,
+        (
+          ActionHistoryEntry,
+          BaseReferences<_$LocalBrain, $ActionHistoryEntriesTable,
+              ActionHistoryEntry>
+        ),
+        ActionHistoryEntry,
+        PrefetchHooks Function()>;
+typedef $$MacrosTableCreateCompanionBuilder = MacrosCompanion Function({
+  required String id,
+  required String name,
+  Value<String?> description,
+  required String sequence,
+  required String triggerType,
+  Value<String?> triggerData,
+  Value<DateTime> createdAt,
+  Value<DateTime?> lastUsed,
+  Value<int> rowid,
+});
+typedef $$MacrosTableUpdateCompanionBuilder = MacrosCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> description,
+  Value<String> sequence,
+  Value<String> triggerType,
+  Value<String?> triggerData,
+  Value<DateTime> createdAt,
+  Value<DateTime?> lastUsed,
+  Value<int> rowid,
+});
+
+class $$MacrosTableFilterComposer extends Composer<_$LocalBrain, $MacrosTable> {
+  $$MacrosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get triggerType => $composableBuilder(
+      column: $table.triggerType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get triggerData => $composableBuilder(
+      column: $table.triggerData, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastUsed => $composableBuilder(
+      column: $table.lastUsed, builder: (column) => ColumnFilters(column));
+}
+
+class $$MacrosTableOrderingComposer
+    extends Composer<_$LocalBrain, $MacrosTable> {
+  $$MacrosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sequence => $composableBuilder(
+      column: $table.sequence, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get triggerType => $composableBuilder(
+      column: $table.triggerType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get triggerData => $composableBuilder(
+      column: $table.triggerData, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastUsed => $composableBuilder(
+      column: $table.lastUsed, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MacrosTableAnnotationComposer
+    extends Composer<_$LocalBrain, $MacrosTable> {
+  $$MacrosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get sequence =>
+      $composableBuilder(column: $table.sequence, builder: (column) => column);
+
+  GeneratedColumn<String> get triggerType => $composableBuilder(
+      column: $table.triggerType, builder: (column) => column);
+
+  GeneratedColumn<String> get triggerData => $composableBuilder(
+      column: $table.triggerData, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUsed =>
+      $composableBuilder(column: $table.lastUsed, builder: (column) => column);
+}
+
+class $$MacrosTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $MacrosTable,
+    Macro,
+    $$MacrosTableFilterComposer,
+    $$MacrosTableOrderingComposer,
+    $$MacrosTableAnnotationComposer,
+    $$MacrosTableCreateCompanionBuilder,
+    $$MacrosTableUpdateCompanionBuilder,
+    (Macro, BaseReferences<_$LocalBrain, $MacrosTable, Macro>),
+    Macro,
+    PrefetchHooks Function()> {
+  $$MacrosTableTableManager(_$LocalBrain db, $MacrosTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MacrosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MacrosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MacrosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String> sequence = const Value.absent(),
+            Value<String> triggerType = const Value.absent(),
+            Value<String?> triggerData = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> lastUsed = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MacrosCompanion(
+            id: id,
+            name: name,
+            description: description,
+            sequence: sequence,
+            triggerType: triggerType,
+            triggerData: triggerData,
+            createdAt: createdAt,
+            lastUsed: lastUsed,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> description = const Value.absent(),
+            required String sequence,
+            required String triggerType,
+            Value<String?> triggerData = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> lastUsed = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MacrosCompanion.insert(
+            id: id,
+            name: name,
+            description: description,
+            sequence: sequence,
+            triggerType: triggerType,
+            triggerData: triggerData,
+            createdAt: createdAt,
+            lastUsed: lastUsed,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MacrosTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $MacrosTable,
+    Macro,
+    $$MacrosTableFilterComposer,
+    $$MacrosTableOrderingComposer,
+    $$MacrosTableAnnotationComposer,
+    $$MacrosTableCreateCompanionBuilder,
+    $$MacrosTableUpdateCompanionBuilder,
+    (Macro, BaseReferences<_$LocalBrain, $MacrosTable, Macro>),
+    Macro,
+    PrefetchHooks Function()>;
 
 class $LocalBrainManager {
   final _$LocalBrain _db;
@@ -7390,4 +11776,16 @@ class $LocalBrainManager {
       $$ModelCapacityTableTableManager(_db, _db.modelCapacity);
   $$LlmRequestsTableTableManager get llmRequests =>
       $$LlmRequestsTableTableManager(_db, _db.llmRequests);
+  $$AvatarProfilesTableTableManager get avatarProfiles =>
+      $$AvatarProfilesTableTableManager(_db, _db.avatarProfiles);
+  $$AchievementsTableTableManager get achievements =>
+      $$AchievementsTableTableManager(_db, _db.achievements);
+  $$AvatarMemoryEntriesTableTableManager get avatarMemoryEntries =>
+      $$AvatarMemoryEntriesTableTableManager(_db, _db.avatarMemoryEntries);
+  $$ClipboardHistoryTableTableManager get clipboardHistory =>
+      $$ClipboardHistoryTableTableManager(_db, _db.clipboardHistory);
+  $$ActionHistoryEntriesTableTableManager get actionHistoryEntries =>
+      $$ActionHistoryEntriesTableTableManager(_db, _db.actionHistoryEntries);
+  $$MacrosTableTableManager get macros =>
+      $$MacrosTableTableManager(_db, _db.macros);
 }

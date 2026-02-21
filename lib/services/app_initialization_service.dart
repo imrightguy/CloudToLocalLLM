@@ -78,10 +78,10 @@ class AppInitializationService extends ChangeNotifier {
   Future<void> initializeWithContext(BuildContext context) async {
     appLogger.debug(
         '[AppInit] initializeWithContext called. isAuthenticated: ${_authService.isAuthenticated.value}, isInitialized: $_isInitialized');
-    
+
     // Allow initialization without auth on Desktop
     final canInitialize = _authService.isAuthenticated.value || !kIsWeb;
-    
+
     if (!canInitialize || _isInitialized) return;
 
     try {

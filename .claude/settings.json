@@ -32,8 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi",
-            "background": true
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi"
           }
         ]
       },
@@ -42,8 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi",
-            "background": true
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi"
           }
         ]
       },
@@ -52,8 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi",
-            "background": true
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi"
           }
         ]
       },
@@ -62,8 +59,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi",
-            "background": true
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi"
           }
         ]
       }
@@ -80,13 +76,97 @@
       }
     ]
   },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true
+  },
   "mcpServers": {
     "context7": {
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-context7"
-      ]
+      ],
+      "description": "Library documentation and knowledge base retrieval for Flutter, Node.js, Auth0"
+    },
+    "sequentialthinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "description": "Multi-step problem-solving and planning tool for complex implementations"
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "description": "Persistent knowledge store for project decisions, architectural notes, and ongoing work"
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ],
+      "description": "HTTP requests for APIs, web content, and external services"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/mnt/data/dev/CloudToLocalLLM"
+      ],
+      "description": "Structured file system operations for reading, writing, and searching files"
+    },
+    "shell": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-shell",
+        "bash"
+      ],
+      "description": "Command execution with structured interface and output capture"
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git",
+        "/mnt/data/dev/CloudToLocalLLM"
+      ],
+      "description": "Git operations for version control, commits, branches, and history"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub API operations for PRs, issues, workflows, and releases"
+    },
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://appuser:changeme@localhost:5432/zoidbot"
+      ],
+      "description": "PostgreSQL database operations for migrations, queries, and schema management",
+      "env": {
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "zoidbot",
+        "POSTGRES_USER": "${POSTGRES_USER:-appuser}",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD:-changeme}"
+      }
     },
     "sentry": {
       "command": "npx",
@@ -94,7 +174,27 @@
         "-y",
         "mcp-remote@latest",
         "https://mcp.sentry.dev/mcp"
-      ]
+      ],
+      "description": "Sentry error tracking and issue analysis with OAuth authentication"
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "description": "Web search for documentation lookup, troubleshooting, and research"
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "description": "Browser automation for end-to-end testing and web scraping"
     }
   }
 }

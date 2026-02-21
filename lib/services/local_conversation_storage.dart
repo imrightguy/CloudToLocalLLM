@@ -9,18 +9,18 @@ import '../models/conversation.dart';
 /// Local storage service for conversations using JSON files
 class LocalConversationStorage {
   static const String _fileName = 'conversations.json';
-  
+
   /// Get the local file for storing conversations
   Future<File> _getLocalFile() async {
     final directory = await getApplicationDocumentsDirectory();
     final path = p.join(directory.path, 'CloudToLocalLLM', _fileName);
     final file = File(path);
-    
+
     // Ensure directory exists
     if (!await file.parent.exists()) {
       await file.parent.create(recursive: true);
     }
-    
+
     return file;
   }
 
@@ -30,7 +30,8 @@ class LocalConversationStorage {
       final file = await _getLocalFile();
       final jsonData = conversations.map((c) => c.toJson()).toList();
       await file.writeAsString(jsonEncode(jsonData));
-      debugPrint('[LocalChatStorage] Saved ${conversations.length} conversations to ${file.path}');
+      debugPrint(
+          '[LocalChatStorage] Saved ${conversations.length} conversations to ${file.path}');
     } catch (e) {
       debugPrint('[LocalChatStorage] Error saving conversations: $e');
     }
@@ -43,10 +44,10 @@ class LocalConversationStorage {
       if (!await file.exists()) {
         return [];
       }
-      
+
       final content = await file.readAsString();
       if (content.isEmpty) return [];
-      
+
       final List<dynamic> jsonData = jsonDecode(content);
       return jsonData.map((data) => Conversation.fromJson(data)).toList();
     } catch (e) {

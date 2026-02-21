@@ -55,7 +55,7 @@ class _MessageInputState extends State<MessageInput> {
     if (text.isNotEmpty && !widget.isLoading) {
       widget.onSendMessage(text);
       _controller.clear();
-      
+
       // Re-focus the text field after sending
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -120,9 +120,10 @@ class _MessageInputState extends State<MessageInput> {
                         ),
                     decoration: InputDecoration(
                       hintText: widget.placeholder ?? 'Type your message...',
-                      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppTheme.textColorLight,
-                          ),
+                      hintStyle:
+                          Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppTheme.textColorLight,
+                              ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(AppTheme.spacingM),
                     ),

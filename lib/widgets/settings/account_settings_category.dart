@@ -181,7 +181,9 @@ class _AccountSettingsCategoryContentState
       final tier = _tierService!.currentTier;
       // Convert enum to string and capitalize
       final tierStr = tier.name;
-      return tierStr.isEmpty ? 'Free' : tierStr[0].toUpperCase() + tierStr.substring(1);
+      return tierStr.isEmpty
+          ? 'Free'
+          : tierStr[0].toUpperCase() + tierStr.substring(1);
     }
     // Fallback to default
     return 'Free';
@@ -481,7 +483,8 @@ class _AccountSettingsCategoryContentState
                                   Icon(
                                     Icons.check_circle_outline,
                                     size: 16,
-                                    color: _getTierColor().withValues(alpha: 0.7),
+                                    color:
+                                        _getTierColor().withValues(alpha: 0.7),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(

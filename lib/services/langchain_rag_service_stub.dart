@@ -17,5 +17,7 @@ class LangChainRAGService extends ChangeNotifier {
   Future<void> loadDocumentsFromDirectory(String directoryPath) async {}
   void clearDocuments() {}
   Future<String?> queryDocuments(String query) async => null;
-  Future<List<String>> getRelevantChunks(String query, {int numChunks = 3}) async => [];
+  Future<List<String>> getRelevantChunks(String query,
+          {int numChunks = 3}) async =>
+      [];
 }

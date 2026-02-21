@@ -90,7 +90,8 @@ class ConstructionScreen extends StatelessWidget {
             _buildFeatureCard(
               context,
               title: 'Privacy-First',
-              description: 'Your data stays on your device unless you enable cloud relay',
+              description:
+                  'Your data stays on your device unless you enable cloud relay',
               progress: 100,
               icon: Icons.shield,
               color: Colors.purple,
@@ -119,10 +120,16 @@ class ConstructionScreen extends StatelessWidget {
             _buildRoadmapCard(
               context,
               title: 'Phase 1: Foundation',
-              description: 'Agent Dashboard polish, retry logic, error handling',
+              description:
+                  'Agent Dashboard polish, retry logic, error handling',
               date: 'Completed',
               isCompleted: true,
-              items: ['✓ Agent Dashboard v1', '✓ Retry/Backoff Logic', '✓ Error Handling', '✓ Configurable URLs'],
+              items: [
+                '✓ Agent Dashboard v1',
+                '✓ Retry/Backoff Logic',
+                '✓ Error Handling',
+                '✓ Configurable URLs'
+              ],
             ),
             const SizedBox(height: 12),
 
@@ -132,7 +139,12 @@ class ConstructionScreen extends StatelessWidget {
               description: 'Location-aware agents, offline optimization',
               date: 'Q2 2026',
               isCompleted: false,
-              items: ['📱 Follow Mode', '📍 Geofencing', '⚡ Offline Mode', '🔔 Push Notifications'],
+              items: [
+                '📱 Follow Mode',
+                '📍 Geofencing',
+                '⚡ Offline Mode',
+                '🔔 Push Notifications'
+              ],
             ),
             const SizedBox(height: 12),
 
@@ -142,7 +154,12 @@ class ConstructionScreen extends StatelessWidget {
               description: 'Google Workspace, Apple Ecosystem, Health APIs',
               date: 'Q3 2026',
               isCompleted: false,
-              items: ['📧 Gmail Integration', '📅 Calendar Sync', '📱 HealthKit Access', '🚀 Production Deployment'],
+              items: [
+                '📧 Gmail Integration',
+                '📅 Calendar Sync',
+                '📱 HealthKit Access',
+                '🚀 Production Deployment'
+              ],
             ),
             const SizedBox(height: 32),
 
@@ -228,9 +245,10 @@ class ConstructionScreen extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -245,7 +263,8 @@ class ConstructionScreen extends StatelessWidget {
             const SizedBox(height: 16),
             LinearProgressIndicator(
               value: progress / 100,
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
             const SizedBox(height: 8),
@@ -303,9 +322,10 @@ class ConstructionScreen extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       Text(
                         date,
@@ -328,19 +348,21 @@ class ConstructionScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(left: 12, bottom: 4),
-              child: Row(
-                children: [
-                  Icon(
-                    isCompleted ? Icons.check_circle : Icons.circle_outlined,
-                    size: 16,
-                    color: isCompleted ? Colors.green : Colors.grey,
+                  padding: const EdgeInsets.only(left: 12, bottom: 4),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isCompleted
+                            ? Icons.check_circle
+                            : Icons.circle_outlined,
+                        size: 16,
+                        color: isCompleted ? Colors.green : Colors.grey,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(item),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text(item),
-                ],
-              ),
-            )),
+                )),
           ],
         ),
       ),

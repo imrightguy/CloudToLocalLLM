@@ -90,7 +90,8 @@ class AuthService extends ChangeNotifier {
         debugPrint('[AuthService] No current user found');
         // For desktop: set services loaded even without auth (local mode)
         if (!kIsWeb) {
-          debugPrint('[AuthService] Desktop mode: setting services loaded = true for local use');
+          debugPrint(
+              '[AuthService] Desktop mode: setting services loaded = true for local use');
           _areAuthenticatedServicesLoaded.value = true;
         }
       }
@@ -117,14 +118,15 @@ class AuthService extends ChangeNotifier {
 
   Future<void> _handleLogout() async {
     _isAuthenticated.value = false;
-    
+
     if (kIsWeb) {
       _areAuthenticatedServicesLoaded.value = false;
     } else {
       // On Desktop, keep services loaded for local use
-      debugPrint('[AuthService] User logged out on desktop, keeping services loaded for local use');
+      debugPrint(
+          '[AuthService] User logged out on desktop, keeping services loaded for local use');
     }
-    
+
     notifyListeners();
   }
 
@@ -141,7 +143,9 @@ class AuthService extends ChangeNotifier {
   String get assistantName {
     final user = currentUser;
     if (user == null) return 'Your AI Assistant';
-    if (user.email == 'christopher.maltais@gmail.com' || user.email == 'chokesmaster@gmail.com' || user.email == 'dev@zoidbot.online') {
+    if (user.email == 'christopher.maltais@gmail.com' ||
+        user.email == 'chokesmaster@gmail.com' ||
+        user.email == 'dev@zoidbot.online') {
       return 'Zoidbot';
     }
     return '${user.name ?? 'Your'}\'s Assistant';

@@ -172,7 +172,8 @@ class _DiscordSettingsScreenState extends State<DiscordSettingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  if (discordService.isConnected && discordService.botToken != null)
+                  if (discordService.isConnected &&
+                      discordService.botToken != null)
                     _buildConnectionInfo(discordService),
                   if (discordService.connectionError != null)
                     Padding(
@@ -355,7 +356,8 @@ class _DiscordSettingsScreenState extends State<DiscordSettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.help_outline, color: AppTheme.accentColor),
+                      const Icon(Icons.help_outline,
+                          color: AppTheme.accentColor),
                       const SizedBox(width: 8),
                       Text(
                         'How to Get Your Bot Token',

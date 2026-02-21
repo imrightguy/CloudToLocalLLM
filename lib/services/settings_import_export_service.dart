@@ -4,9 +4,9 @@
 library;
 
 import 'dart:convert';
-import 'package:zoidbot/services/settings_preference_service.dart';
-import 'package:zoidbot/services/settings_validator.dart';
-import 'package:zoidbot/utils/settings_error_handler.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
+import 'package:cloudtolocalllm/services/settings_validator.dart';
+import 'package:cloudtolocalllm/utils/settings_error_handler.dart';
 
 /// Settings import/export service
 class SettingsImportExportService {

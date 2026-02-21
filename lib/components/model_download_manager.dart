@@ -35,7 +35,7 @@ class ModelDownloadProgress {
 }
 
 /// Model download manager widget - stub version
-/// 
+///
 /// Note: Ollama integration removed. Model downloads disabled.
 /// To enable, integrate with vLLM or another model server.
 class ModelDownloadManager extends StatelessWidget {
@@ -58,8 +58,8 @@ class ModelDownloadManager extends StatelessWidget {
               'Model download functionality is currently disabled. '
               'Use GUI Automation for local model control.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+                    color: Colors.grey[600],
+                  ),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(

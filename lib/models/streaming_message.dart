@@ -119,7 +119,8 @@ class StreamingMessage {
   bool get hasError => error != null;
 
   /// Check if this is a data chunk (not completion or error)
-  bool get isDataChunk => !isComplete && !hasError && (chunk.isNotEmpty || reasoning != null);
+  bool get isDataChunk =>
+      !isComplete && !hasError && (chunk.isNotEmpty || reasoning != null);
 
   @override
   bool operator ==(Object other) {

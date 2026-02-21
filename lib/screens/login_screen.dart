@@ -212,7 +212,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: colorScheme.primary.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: colorScheme.primary.withValues(alpha: 0.3),
+                                color:
+                                    colorScheme.primary.withValues(alpha: 0.3),
                                 width: 3,
                               ),
                             ),
@@ -243,7 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text(
                             'I\'m Zoidbot, your AI assistant.',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.8),
+                              color:
+                                  colorScheme.onSurface.withValues(alpha: 0.8),
                               fontSize: descriptionFontSize,
                             ),
                             textAlign: TextAlign.center,

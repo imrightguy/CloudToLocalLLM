@@ -4,8 +4,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:zoidbot/services/settings_validator.dart';
-import 'package:zoidbot/models/settings_state.dart';
+import 'package:cloudtolocalllm/services/settings_validator.dart';
+import 'package:cloudtolocalllm/models/settings_state.dart';
 
 /// Validated text field for settings
 class ValidatedSettingsTextField extends StatefulWidget {

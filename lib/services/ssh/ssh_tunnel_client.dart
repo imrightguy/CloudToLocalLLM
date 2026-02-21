@@ -130,7 +130,7 @@ class SSHTunnelClient with ChangeNotifier {
       final serverUrl = _config.cloudProxyUrl
           .replaceFirst('wss://', 'https://')
           .replaceFirst('ws://', 'http://');
-      
+
       // Better way to get baseUrl: remove trailing path segments but keep port
       final uri = Uri.parse(serverUrl);
       final baseUrl = '${uri.scheme}://${uri.host}:${uri.port}';
@@ -263,7 +263,7 @@ class SSHTunnelClient with ChangeNotifier {
       final serverUrl = _config.cloudProxyUrl
           .replaceFirst('wss://', 'https://')
           .replaceFirst('ws://', 'http://');
-      
+
       final uri = Uri.parse(serverUrl);
       final baseUrl = '${uri.scheme}://${uri.host}:${uri.port}';
 

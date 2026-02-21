@@ -82,6 +82,11 @@ dependencies:
   get_it: ^9.0.5
   logger: ^2.6.2
 
+  # Rich message rendering
+  flutter_markdown: ^0.6.0
+  flutter_highlight: ^0.7.0
+  cached_network_image: ^3.3.0
+
   # Web interop for dart:js_interop
   web: ^1.0.0
   app_links: ^7.0.0
