@@ -1,8 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
-import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
-import 'package:cloudtolocalllm/models/conversation.dart' as models;
 import 'package:cloudtolocalllm/models/message.dart';
 
 void main() {
@@ -47,7 +44,7 @@ void main() {
         // Check for technical terms
         final technicalTerms = {
           'async', 'await', 'flutter', 'error', 'handling', 'try', 'catch',
-          'future', 'promises', 'callbacks', 'async', 'package', 'utilities',
+          'future', 'promises', 'callbacks', 'package', 'utilities',
           'streamqueue', 'coordinating', 'managing', 'streams'
         };
 
