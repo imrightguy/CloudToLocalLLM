@@ -55,6 +55,7 @@ import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
+import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -130,6 +131,10 @@ Future<void> setupCoreServices() async {
     markdownPath: markdownPath,
   );
   serviceLocator.registerLazySingleton<PersonalityEngine>(() => personalityEngine);
+
+  // Avatar Evolution Tracker - Tracks conversation depth and evolution patterns
+  final evolutionTracker = EvolutionTracker(database: localBrain);
+  serviceLocator.registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
 
   // Brain Sync Service - Synchronizes local thoughts with cloud backbone
   final brainSyncService = BrainSyncService(localBrain);
