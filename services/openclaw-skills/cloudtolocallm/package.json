@@ -1,0 +1,27 @@
+{
+  "name": "cloudtolocallm-personality-skill",
+  "version": "1.0.0",
+  "description": "Avatar personality and evolution system for OpenClaw",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest"
+  },
+  "keywords": [
+    "openclaw",
+    "skill",
+    "personality",
+    "avatar",
+    "evolution"
+  ],
+  "dependencies": {
+    "sql.js": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/sql.js": "^1.4.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
