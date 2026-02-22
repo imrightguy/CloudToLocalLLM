@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform, Directory;
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -53,12 +54,41 @@ import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
+import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
 bool _coreServicesRegistered = false;
 bool _authenticatedServicesRegistered = false;
 bool _isRegisteringAuthenticatedServices = false;
+
+/// Determines the OpenClaw skills directory path for the current platform.
+/// Checks common locations and creates the directory if it doesn't exist.
+String _getOpenClawSkillsPath() {
+  // Check common locations for OpenClaw skills directory
+  final home = Platform.environment['HOME'];
+  if (home == null) {
+    // Fallback to temp directory
+    return Directory.systemTemp.path;
+  }
+
+  final possiblePaths = [
+    '$home/.openclaw/skills/cloudtolocallm',
+    '$home/.config/openclaw/skills/cloudtolocallm',
+    '$home/AppData/Roaming/openclaw/skills/cloudtolocallm', // Windows
+  ];
+
+  for (final path in possiblePaths) {
+    if (Directory(path).existsSync()) {
+      return path;
+    }
+  }
+
+  // Create default path if it doesn't exist
+  final defaultPath = '$home/.openclaw/skills/cloudtolocallm';
+  Directory(defaultPath).createSync(recursive: true);
+  return defaultPath;
+}
 
 /// Registers core services that are needed before authentication.
 /// These services don't require authentication tokens and can be safely
@@ -92,6 +122,14 @@ Future<void> setupCoreServices() async {
   // Local Brain Database - Main relational engine for durable memory
   final localBrain = LocalBrain();
   serviceLocator.registerSingleton<LocalBrain>(localBrain);
+
+  // Avatar Personality Engine - Manages avatar personality traits and evolution
+  final markdownPath = _getOpenClawSkillsPath();
+  final personalityEngine = PersonalityEngine(
+    database: localBrain,
+    markdownPath: markdownPath,
+  );
+  serviceLocator.registerLazySingleton<PersonalityEngine>(() => personalityEngine);
 
   // Brain Sync Service - Synchronizes local thoughts with cloud backbone
   final brainSyncService = BrainSyncService(localBrain);
