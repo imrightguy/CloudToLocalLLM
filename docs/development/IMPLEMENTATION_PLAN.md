@@ -13,7 +13,7 @@
 | **Setup Wizard** | ✅ Complete | 100% | None |
 | **Chat** | ✅ Phase 1 Complete | 85% | Multi-model attachments |
 | **OpenClaw Manager** | ✅ Phase 1 Complete | 85% | Advanced metrics |
-| **Evolving Avatar** | 🔲 Basic | 20% | Personality engine |
+| **Evolving Avatar** | 🟡 Design Complete | 20% | Implementing personality engine |
 | **Desktop Control** | 🟡 Partial | 40% | Window management |
 | **Vision** | 🟡 Partial | 30% | Region capture + OCR |
 
@@ -162,21 +162,82 @@ Guide new users through OpenClaw Gateway configuration with support for:
 1. Complete Phase 1
 2. Add dependencies to `pubspec.yaml`:
    - `rive: ^0.13.0`
-   - `lottie: ^3.1.0`
+   - `markdown: ^7.0.0`
    - `flutter_clipboard_listener: ^0.1.0`
    - `file_selector: ^1.0.0`
+
+### Avatar Personality Engine Design
+
+**Architecture**: Hybrid shared state with OpenClaw Gateway
+- **OpenClaw** owns avatar personality & evolution (traits, evolution stages)
+- **CloudToLocalLLM** provides expanded awareness (memory, context, visual data)
+- **Drift database** (on VPS via Tailscale) = primary shared storage
+- **Markdown files** (OpenClaw skills dir) = backup/portable storage
+
+**Personality Traits**:
+- Formality (0-1): How formal/professional responses are
+- Humor (0-1): How playful/casual the agent is
+- Enthusiasm (0-1): Energy level and expressiveness
+- Empathy (0-1): Emotional intelligence and warmth
+
+**Evolution System** (no XP - organic growth):
+- Triggers: Conversation depth, user interaction patterns, agent self-reflection
+- Collaborative: OpenClaw requests evolution, CloudToLocalLLM validates
+- Stages: base → stage1 → stage2 → final
+
+**Data Flow**:
+```
+OpenClaw Gateway              Drift Database (VPS)           CloudToLocalLLM
+     │                              │                              │
+     ├─── self-reflection ────> write evolution request         │
+     │                              │                              │
+     │                              ├─── validate ───────────────>│
+     │                              │                              │
+     │<──── approved ─────────────────────────────────────────────┤
+     │                              │                              │
+     ├─── write evolution stage ────>                              │
+     │                              │                              │
+     │                              ├─── sync ─────────────────────>│
+     │                              │   markdown backup            │
+     │                              │                              │
+     └─── inject personality ──────>                              │
+```
 
 ### Implementation Tasks
 
 | Task | File(s) | Time | Priority |
 |------|---------|------|----------|
-| Database schema migration v4→v5 | `lib/database/drift_local_brain.dart` | 2h | P0 |
-| Implement personality engine | `lib/services/avatar/personality_engine.dart` | 6h | P1 |
-| Implement evolution tracker | `lib/services/avatar/evolution_tracker.dart` | 5h | P1 |
-| Implement clipboard service | `lib/services/desktop_control/clipboard_service.dart` | 4h | P1 |
-| Implement file operations UI | `lib/screens/desktop/file_operations_screen.dart` | 5h | P1 |
+| **Avatar System** | | | |
+| Database schema migration | `lib/database/drift_local_brain.dart` | 2h | P0 |
+| PersonalityEngine service | `lib/services/avatar/personality_engine.dart` | 4h | P1 |
+| EvolutionTracker service | `lib/services/avatar/evolution_tracker.dart` | 5h | P1 |
+| AvatarStateService | `lib/services/avatar/avatar_state_service.dart` | 3h | P1 |
+| MarkdownSyncService | `lib/services/avatar/markdown_sync_service.dart` | 4h | P1 |
+| OpenClaw personality skill | `~/.openclaw/skills/cloudtolocallm/` | 6h | P0 |
+| Evolution API endpoints | `lib/services/router_server.dart` | 3h | P1 |
+| Rive avatar animations | `assets/animations/avatar.riv` | 8h | P2 |
+| Emoji blending fallback | `lib/features/avatar/emoji_blending_avatar.dart` | 3h | P2 |
+| Avatar settings UI | `lib/screens/avatar/avatar_settings_screen.dart` | 4h | P2 |
+| **Desktop Control** | | | |
+| Clipboard service | `lib/services/desktop_control/clipboard_service.dart` | 4h | P1 |
+| File operations UI | `lib/screens/desktop/file_operations_screen.dart` | 5h | P1 |
 
-**Total Time**: ~22 hours
+**Total Time**: ~51 hours (Avatar: ~42h, Desktop: ~9h)
+
+### Phase 2 Success Criteria
+
+**Avatar System**:
+- ✅ Database migrated with avatar_profiles, evolution_history, conversation_depth_metrics tables
+- ✅ Personality traits adjustable via UI (0-1 sliders for formality, humor, enthusiasm, empathy)
+- ✅ Avatar visuals respond to personality (colors, animation speed, emoji selection)
+- ✅ OpenClaw skill loads and injects personality into responses
+- ✅ Evolution flow works: self-reflection → request → validation → transformation
+- ✅ Markdown backup syncs reliably (personality.md, memory.md, context.md)
+- ✅ Fallback to markdown when Drift unavailable
+
+**Desktop Control**:
+- ✅ Clipboard service with history tracking
+- ✅ File operations UI functional
 
 ---
 
@@ -232,9 +293,12 @@ Guide new users through OpenClaw Gateway configuration with support for:
 - 🔲 Provider selector switches OpenClaw cloud providers
 
 ### Phase 2 (Core Features)
-- 🔲 Database migrated to v5
-- 🔲 Avatar personality engine with trait adjustments
-- 🔲 Evolution tracker with XP, levels, achievements
+- 🔲 Database schema: avatar_profiles, evolution_history, conversation_depth_metrics
+- 🔲 Personality engine with 4 traits (formality, humor, enthusiasm, empathy)
+- 🔲 Evolution tracker (no XP - organic growth via conversation depth)
+- 🔲 OpenClaw skill: ~/.openclaw/skills/cloudtolocallm/
+- 🔲 Markdown backup sync (personality.md, memory.md, context.md)
+- 🔲 Avatar visuals respond to personality (Rive + emoji blending)
 - 🔲 Clipboard service with history
 
 ### Phase 3 (Advanced)
@@ -250,3 +314,4 @@ Guide new users through OpenClaw Gateway configuration with support for:
 - **README.md**: User-facing overview
 - **docs/architecture/SYSTEM_ARCHITECTURE.md**: Technical deep dive
 - **CLAUDE.md**: Development guidelines
+- **docs/plans/YYYY-MM-DD-avatar-personality-engine-design.md**: Detailed personality engine design
