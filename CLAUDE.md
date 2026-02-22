@@ -38,6 +38,9 @@ flutter format .              # Format code
 # Build
 flutter build web --release   # Web release build
 flutter build linux --release  # Linux release build
+
+# Run specific test (Flutter test file matching)
+flutter test test/path/to/test_file.dart
 ```
 
 ### Backend Services
@@ -71,6 +74,12 @@ cd services/streaming-proxy
 npm install
 npm run dev                   # Development with inspect
 npm run lint                  # ESLint
+npm run health                # Health check
+
+# Tailscale Relay
+cd services/tailscale-relay
+npm install
+npm run dev                   # Development with nodemon
 ```
 
 ### Database Operations
@@ -128,13 +137,17 @@ The Flutter app uses a layered service architecture with dependency injection:
   - `setupCoreServices()`: Services available before authentication (settings, auth, detection, local brain, token storage)
 
 - **Service Categories**:
-  - Core Services: `SettingsPreferenceService`, `AuthService`, `ThemeProvider`, `TokenStorageService`
-  - Authenticated Services: `TunnelService`, `LLMProviderManager`, `StreamingChatService`
-  - Router Services: `RouterServer`, `RateLimitManager`, provider adapters in `lib/services/providers/`
-  - Monitoring Services: `BehaviorWarningsService`, `SubagentRegistryService`, `AgentStatusService`, `AgentLifecycleService`
-  - Integration Services: `GoogleWorkspaceService`, `LangChainIntegrationService`
-  - OpenClaw Manager: `GatewayControlService` in `lib/services/openclaw_manager/`
-  - Platform Services: Uses conditional imports for desktop vs web (e.g., `*_stub.dart` files)
+  - **Core Services** (pre-auth): `SettingsPreferenceService`, `AuthService`, `ThemeProvider`, `TokenStorageService`, `SessionStorageService`, `PlatformDetectionService`, `PlatformAdapter`
+  - **Data Services**: `LocalBrain` (SQLite), `BrainSyncService`, `FullContextIndexer`, `ConversationStorageService`
+  - **Router Services**: `RouterServer`, `RateLimitManager`, provider adapters in `lib/services/providers/`
+  - **Authenticated Services**: `TunnelService`, `LLMProviderManager`, `StreamingChatService`, `ConnectionManagerService`, `UnifiedConnectionService`
+  - **Monitoring Services**: `BehaviorWarningsService`, `SubagentRegistryService`, `AgentStatusService`, `AgentLifecycleService`, `LLMAuditService`
+  - **Integration Services**: `GoogleWorkspaceService`, `LangChainIntegrationService`, `LangChainPromptService`, `LangChainRAGService`
+  - **Admin Services**: `AdminService`, `AdminCenterService`, `AdminDataFlushService`, `EnhancedUserTierService`
+  - **Setup/Onboarding**: `AppInitializationService`, `SetupStatusService`, `SetupWizardService`, `WebDownloadPromptService`, `DesktopClientDetectionService`
+  - **OpenClaw Manager**: `GatewayControlService` in `lib/services/openclaw_manager/`
+  - **Platform Services**: Uses conditional imports for desktop vs web (e.g., `*_stub.dart` files)
+  - **Utility Services**: `SettingsImportExportService`, `UrlSchemeRegistrationService`, `ProviderConfigurationManager`, `ProviderDiscoveryService`, `LLMErrorHandler`
 
 - **Platform Abstraction**: Web-specific code uses `dart:js_interop` and `dart:html` conditional imports with stub implementations for desktop
 
@@ -146,6 +159,7 @@ The Flutter app uses a layered service architecture with dependency injection:
 - **postgres**: PostgreSQL database configuration and migrations
 - **sdk**: TypeScript SDK for third-party integrations
 - **streaming-proxy**: WebSocket proxy for real-time LLM communication (zoidbot-tunnel-container)
+- **tailscale-relay**: Tailscale tunnel relay service for secure remote access
 
 ### Chat Interface (Pillar 1)
 
@@ -163,7 +177,17 @@ Supports multiple local LLM providers:
 - **LM Studio**: Alternative local provider (localhost:1234)
 - **Ollama**: Alternative local provider (localhost:11434)
 
-Providers are configured via `ProviderConfigurationManager` with auto-discovery in `ProviderDiscoveryService`. LangChain integration for advanced workflows.
+**Provider Architecture**:
+- `ProviderConfigurationManager`: Manages provider configurations with persistence
+- `ProviderDiscoveryService`: Auto-scans and configures discovered providers
+- `LLMProviderManager`: Orchestrates provider selection and switching
+- `LLMErrorHandler`: Centralized error handling with provider-aware recovery
+- Auto-configuration on first discovery with periodic rescanning
+
+**LangChain Integration**:
+- `LangChainIntegrationService`: Provider initialization for LangChain workflows
+- `LangChainPromptService`: Prompt template management
+- `LangChainRAGService`: RAG (Retrieval Augmented Generation) capabilities
 
 ### Desktop Control & Vision (Pillars 4 & 5)
 
@@ -217,12 +241,72 @@ The evolving avatar (Pillar 3) is managed through:
 
 See IMPLEMENTATION_PLAN.md for database schema (AvatarProfiles, Achievements tables).
 
+### Additional Services
+
+**Brain & Memory Services**:
+- `LocalBrain`: SQLite-based local storage engine with encryption
+- `BrainSyncService`: Synchronizes local conversations with cloud backbone
+- `FullContextIndexer`: System-wide file indexing in local brain for context retrieval
+
+**User Management & Onboarding**:
+- `SetupStatusService`: Tracks first-run and setup completion state
+- `SetupWizardService`: Manages the onboarding wizard flow
+- `DesktopClientDetectionService`: Detects client type and platform
+- `WebDownloadPromptService`: Handles download prompts for web users
+- `EnhancedUserTierService`: Advanced subscription tier management
+- `UserDataService`: User data management operations
+
+**Admin & Management**:
+- `AdminService`: Core admin operations
+- `AdminCenterService`: Enhanced admin interface
+- `AdminDataFlushService`: Data flush and cleanup operations
+- `BehaviorWarningsService`: User behavior warnings and metrics
+- `SubagentRegistryService`: Registry for managing AI subagents
+
+**Integration Services**:
+- `GoogleWorkspaceService`: Personal Gmail/Calendar integrations with OAuth
+- `DiscordService`: Discord bot integration
+- `GithubReleaseService`: GitHub release tracking and updates
+- `PaymentGatewayService`: Payment processing via Stripe
+- `DownloadManagementService`: Download queue and management
+
+**Platform & UI Services**:
+- `WindowManagerService`: Window management (desktop only)
+- `NativeTrayService`: System tray integration (desktop only)
+- `AccessibilityService`: Accessibility features and settings
+- `ThemeProvider`: Application theme management
+
+**Utility Services**:
+- `VersionService`: Application version tracking
+- `SettingsValidator`: Settings validation
+- `PrivacyStorageManager`: Privacy-aware storage management
+- `LogBufferService`: Log buffering and management
+- `DashboardService`: Dashboard data aggregation
+- `NavigationService`: Navigation state management
+- `SessionBootstrapService`: Session bootstrap operations
+
 ### Tunnel/Cloud Architecture
 
-- SSH tunneling for secure remote access to local models
-- Tunnel service managed via `TunnelService` with WebSocket connections
-- Connection state tracking, health monitoring, and automatic reconnection
-- Metrics collection via Prometheus
+The tunnel system provides secure remote access to local LLM models:
+
+- **SSH Tunneling**: Secure tunneling via `ssh2` library with key-based authentication
+- **TunnelService**: Main service managing tunnel lifecycle with WebSocket connections
+- **TunnelConfigManager**: Configuration persistence and management
+- **Connection Resilience**:
+  - `ConnectionStateTracker`: Tracks connection state transitions
+  - `ConnectionRecovery`: Automatic reconnection with exponential backoff
+  - `ReconnectionManager`: Orchestrates reconnection attempts
+  - `BackpressureManager`: Handles flow control for streaming data
+- **Diagnostics Suite** (`lib/services/tunnel/diagnostics/`):
+  - `DiagnosticTestSuite`: Comprehensive diagnostic tests
+  - `DiagnosticReportGenerator`: Generates diagnostic reports
+  - Health checks and connection quality metrics
+- **Request Management**:
+  - `PersistentRequestQueue`: Queues requests during disconnection
+  - `RequestPersistenceManager`: Manages request persistence
+  - `RequestTimeoutHandler`: Handles request timeouts
+- **Metrics**: Prometheus metrics collection via `MetricsCollector` and `MetricsExporter`
+- **Error Handling**: `ErrorCategorization` and `ErrorRecoveryStrategy` for resilient error handling
 
 ### Data Storage
 
@@ -231,6 +315,60 @@ See IMPLEMENTATION_PLAN.md for database schema (AvatarProfiles, Achievements tab
   - SQLite with encryption for conversation history (`LocalBrain`)
   - Router tables: `ModelCapacity` (rate limit tracking), `LlmRequests` (request history)
 - **Web**: IndexedDB for conversations, zero local persistence for sensitive data
+
+### Observability & Monitoring
+
+The application uses comprehensive observability stack:
+
+- **OpenTelemetry Tracing**: Distributed tracing across all backend services
+  - Auto-instrumentations via `@opentelemetry/auto-instrumentations-node`
+  - OTLP HTTP exporter for trace export
+  - Trace context propagation for tunnel and streaming-proxy services
+
+- **Prometheus Metrics**: Custom metrics collection via `prom-client`
+  - HTTP request metrics, tunnel health metrics, rate limiting metrics
+  - Database performance tracking, connection pool monitoring
+
+- **Winston Logging**: Structured logging with multiple transports
+  - Console transport for development
+  - File transport for persistent logs
+  - Log levels: error, warn, info, debug
+
+- **Sentry Error Tracking**: Production error monitoring
+  - Stack trace aggregation
+  - Release tracking
+  - Performance monitoring
+  - User context for errors
+
+- **Health Check Endpoints**:
+  - `/health` on router server (port 1337)
+  - Health check script in streaming-proxy: `npm run health`
+
+### Security Architecture
+
+**Authentication & Authorization**:
+- Auth0 JWT authentication with RS256 signing
+- JWKS (JSON Web Key Set) for public key verification via `jwks-rsa`
+- Token refresh flow with refresh token management
+- Role-based access control (RBAC) for admin operations
+
+**API Security**:
+- `express-oauth2-jwt-bearer` middleware for JWT validation
+- Rate limiting via `express-rate-limit` with Redis backend
+- Helmet middleware for HTTP security headers
+- CORS configuration for cross-origin requests
+- Input validation via `zod` schemas
+
+**Tunnel Security**:
+- SSH tunneling with key-based authentication
+- WebSocket heartbeat for connection health monitoring
+- Connection state tracking and automatic reconnection
+- Error categorization and recovery strategies
+
+**Secrets Management**:
+- Environment variables for sensitive configuration
+- Claude Code hooks prevent editing of `.env`, `.env.production`, secret files
+- Encrypted token storage in SQLite (desktop)
 
 ## Project Conventions
 
@@ -266,41 +404,58 @@ import 'package:zoidbot/services/some_service.dart'
 - Backend: Jest with separate unit/integration/security test suites
 - Tests located in `test/api-backend/` organized by feature
 - Use `--forceExit` flag for Jest to ensure clean exit
+- Test categories:
+  - **Unit tests**: Feature-specific logic testing (e.g., `alerting-service.unit.test.js`)
+  - **Integration tests**: End-to-end workflows (e.g., `backup-recovery-integration.test.js`)
+  - **Security tests**: `test/api-backend/security/` directory
+  - **Property-based tests**: Use `fast-check` for invariant verification
 
 Run specific test suites:
 ```bash
 cd services/api-backend
 npm run test:unit              # Unit tests only
+npm run test:integration       # Integration tests
 npm run test:auth              # Authentication tests
 npm run test:security          # Security tests
+npm run test:security:verbose  # Verbose security output
 npm run test:tunnel            # Tunnel tests (all)
 npm run test:tunnel:unit       # Tunnel unit tests
+npm run test:tunnel:integration # Tunnel integration tests
 npm run test:tunnel:security   # Tunnel security tests
 npm run test:user-isolation    # User isolation tests
+
+# Run specific test file
+npm test ../../test/api-backend/security/authentication-authorization.test.js
 ```
 
 ## Environment Requirements
 
 - **Flutter**: 3.5+
 - **Dart SDK**: >=3.5.0 <4.0.0
-- **Node.js**: >=22.0.0 <25.0.0 (API backend and streaming proxy)
-- **PostgreSQL**: For backend database
+- **Node.js**: >=22.0.0 <25.0.0 (API backend and streaming proxy) - exact version enforced in package.json
+- **PostgreSQL**: For backend database (Cloud SQL or local)
+- **Redis**: For rate limiting cache (optional, can use in-memory)
 - **LLM Providers**:
   - Local: OpenClaw Gateway (localhost:18789), LM Studio (localhost:1234), Ollama (localhost:11434)
   - Cloud: Zhipu AI, Google Gemini, Moonshot (configured via router)
 - **Router Port**: 1337 (embedded Flutter HTTP server)
 - **NVIDIA Drivers**: Required for GPU acceleration (RTX 30/40 series recommended)
+- **Tailscale** (optional): For tailscale-relay service
+- **Auth0**: Required for authentication (configure in `config/.env.production`)
 
 ## Key Configuration Files
 
 - `pubspec.yaml`: Flutter dependencies and project config
 - `analysis_options.yaml`: Dart lint rules (strong mode enabled, no implicit casts)
-- `lib/di/locator.dart`: Service registration and dependency injection
-- `lib/services/router_server.dart`: LLM router HTTP server
-- `lib/services/model_tiers.dart`: Model capacity tier definitions
+- `lib/di/locator.dart`: Service registration and dependency injection (core + authenticated phases)
+- `lib/services/router_server.dart`: LLM router HTTP server (port 1337)
+- `lib/services/model_tiers.dart`: Model capacity tier definitions (critical/high/medium/unlimited)
 - `lib/services/openclaw_manager/gateway_control_service.dart`: OpenClaw Gateway management
+- `lib/services/tunnel/tunnel_config_manager.dart`: Tunnel configuration management
 - `services/api-backend/package.json`: Node.js dependencies and scripts
 - `services/streaming-proxy/package.json`: Streaming proxy service
+- `services/tailscale-relay/package.json`: Tailscale relay service
+- `config/.env.production.template`: Environment variable template
 - `SPEC.md`: Master specification with project vision and architecture
 
 ## MCP Integration
@@ -339,6 +494,50 @@ See `.claude/SETUP_SUMMARY.md` for complete automation documentation.
 - CI/CD via GitHub Actions (see `.github/workflows/`)
 - Claude Code automations documented in `.claude/SETUP_SUMMARY.md`
 - **Note**: "Zoidbot" is the name of the avatar/bot character; the application is "CloudToLocalLLM"
+
+### Debugging
+
+**Flutter Development**:
+```bash
+# Run with verbose logging
+flutter run -d linux --verbose
+
+# Attach to running Flutter app
+flutter attach
+
+# Inspect widget tree
+flutter run -d chrome --device-timeout=60
+```
+
+**Backend Development**:
+```bash
+# API backend with inspect for debugging
+cd services/api-backend
+node --inspect server.js
+
+# Streaming proxy with inspect
+cd services/streaming-proxy
+npm run dev  # Uses --inspect flag
+```
+
+### Troubleshooting
+
+**Service Registration Issues**:
+- Check debug logs for `[ServiceLocator]` prefixes
+- Verify `setupCoreServices()` completes before `setupAuthenticatedServices()`
+- Desktop platforms auto-bootstrap authenticated services
+- Web requires explicit authentication
+
+**Provider Discovery**:
+- Providers auto-scan on startup and periodically thereafter
+- Check `ProviderDiscoveryService` logs for discovery results
+- Manual configuration via `ProviderConfigurationManager` if auto-discovery fails
+
+**Tunnel Connection Issues**:
+- Run diagnostics via `TunnelService.getDiagnostics()`
+- Check SSH key configuration in `TunnelConfigManager`
+- Review connection state in `ConnectionStateTracker`
+- Verify WebSocket heartbeat is active
 
 ### Implementation Phases
 
