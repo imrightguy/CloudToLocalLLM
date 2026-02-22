@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 import 'connection/connection.dart'
     if (dart.library.io) 'connection/native.dart'
     if (dart.library.js_interop) 'connection/web.dart';
@@ -291,6 +293,56 @@ class Macros extends Table {
 }
 
 // ============================================================================
+// AVATAR PERSONALITY ENGINE TABLES
+// ============================================================================
+
+/// Avatar personality state (OpenClaw-owned)
+@DataClassName('AvatarPersonalityProfile')
+class AvatarPersonalityProfiles extends Table {
+  TextColumn get id => text().withDefault(const Constant('default'))();
+  TextColumn get agentName => text().withDefault(const Constant('Agent'))();
+  TextColumn get personalityTraits => text()(); // JSON: {formality, humor, enthusiasm, empathy}
+  TextColumn get evolutionStage => text().withDefault(const Constant('base'))();
+  IntColumn get conversationCount => integer().withDefault(const Constant(0))();
+  RealColumn get depthScore => real().withDefault(const Constant(0.0))();
+  IntColumn get createdAt => integer().nullable()();
+  IntColumn get updatedAt => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Evolution history
+@DataClassName('EvolutionHistory')
+class EvolutionHistoryTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get avatarId => text().references(AvatarPersonalityProfiles, #id)();
+  TextColumn get fromStage => text()();
+  TextColumn get toStage => text()();
+  TextColumn get triggerReason => text()(); // 'conversation_depth', 'pattern_recognition', 'self_reflection'
+  TextColumn get context => text().nullable()(); // What triggered it
+  TextColumn get confirmedBy => text()(); // 'agent', 'app', 'collaborative'
+  IntColumn get triggeredAt => integer()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Conversation depth metrics (for evolution tracking)
+@DataClassName('ConversationDepthMetric')
+class ConversationDepthMetrics extends Table {
+  TextColumn get id => text()();
+  TextColumn get conversationId => text().references(Conversations, #id)();
+  RealColumn get complexityScore => real()(); // 0-1: topic diversity, length, reasoning
+  RealColumn get emotionalDepth => real()(); // 0-1: empathy, personal sharing
+  RealColumn get noveltyScore => real()(); // 0-1: new topics vs repeated
+  IntColumn get timestamp => integer()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// ============================================================================
 // DATABASE CLASS
 // ============================================================================
 
@@ -314,12 +366,15 @@ class Macros extends Table {
   ClipboardHistory,
   ActionHistoryEntries,
   Macros,
+  AvatarPersonalityProfiles,
+  EvolutionHistoryTable,
+  ConversationDepthMetrics,
 ])
 class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -351,6 +406,13 @@ class LocalBrain extends _$LocalBrain {
             await m.createTable(actionHistoryEntries);
             await m.createTable(macros);
             await _createDefaultAvatarProfile();
+          }
+          if (from < 5) {
+            // Add avatar personality engine tables for v5
+            await m.createTable(avatarPersonalityProfiles);
+            await m.createTable(evolutionHistoryTable);
+            await m.createTable(conversationDepthMetrics);
+            await _createDefaultAvatarPersonalityProfile();
           }
         },
       );
@@ -1033,5 +1095,141 @@ class LocalBrain extends _$LocalBrain {
       'SELECT COUNT(*) as count FROM llm_providers',
     ).getSingle();
     return (result.data['count'] as int) > 0;
+  }
+
+  // ==========================================================================
+  // AVATAR PERSONALITY ENGINE DAO
+  // ==========================================================================
+
+  // Avatar profile operations
+
+  /// Get avatar personality profile
+  Future<AvatarPersonalityProfile> getAvatarPersonalityProfile() async {
+    final profiles = await select(avatarPersonalityProfiles).get();
+    if (profiles.isEmpty) {
+      // Create default profile
+      final defaultProfile = AvatarPersonalityProfile(
+        id: 'default',
+        agentName: 'Agent',
+        personalityTraits:
+            '{"formality":0.5,"humor":0.5,"enthusiasm":0.5,"empathy":0.5}',
+        evolutionStage: 'base',
+        conversationCount: 0,
+        depthScore: 0.0,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+      );
+      await into(avatarPersonalityProfiles).insert(defaultProfile);
+      return defaultProfile;
+    }
+    return profiles.first;
+  }
+
+  /// Update avatar personality traits
+  Future<void> updateAvatarPersonalityTraits(Map<String, double> traits) async {
+    final json = jsonEncode(traits);
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (update(avatarPersonalityProfiles)
+          ..where((tbl) => tbl.id.equals('default')))
+        .write(AvatarPersonalityProfilesCompanion(
+      personalityTraits: Value(json),
+      updatedAt: Value(now),
+    ));
+  }
+
+  /// Update agent name
+  Future<void> updateAgentName(String name) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (update(avatarPersonalityProfiles)
+          ..where((tbl) => tbl.id.equals('default')))
+        .write(AvatarPersonalityProfilesCompanion(
+      agentName: Value(name),
+      updatedAt: Value(now),
+    ));
+  }
+
+  /// Update evolution stage
+  Future<void> updateEvolutionStage(String stage) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await (update(avatarPersonalityProfiles)
+          ..where((tbl) => tbl.id.equals('default')))
+        .write(AvatarPersonalityProfilesCompanion(
+      evolutionStage: Value(stage),
+      updatedAt: Value(now),
+    ));
+  }
+
+  /// Create default avatar personality profile
+  Future<void> _createDefaultAvatarPersonalityProfile() async {
+    final existing = await select(avatarPersonalityProfiles).get();
+    if (existing.isEmpty) {
+      await into(avatarPersonalityProfiles).insert(
+        AvatarPersonalityProfile(
+          id: 'default',
+          agentName: 'Agent',
+          personalityTraits:
+              '{"formality":0.5,"humor":0.5,"enthusiasm":0.5,"empathy":0.5}',
+          evolutionStage: 'base',
+          conversationCount: 0,
+          depthScore: 0.0,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          updatedAt: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
+    }
+  }
+
+  // Evolution history operations
+
+  /// Record evolution event
+  Future<void> recordEvolution({
+    required String fromStage,
+    required String toStage,
+    required String triggerReason,
+    required String context,
+    required String confirmedBy,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await into(evolutionHistoryTable).insert(EvolutionHistoryTableCompanion(
+      id: Value(const Uuid().v4()),
+      avatarId: const Value('default'),
+      fromStage: Value(fromStage),
+      toStage: Value(toStage),
+      triggerReason: Value(triggerReason),
+      context: Value(context),
+      confirmedBy: Value(confirmedBy),
+      triggeredAt: Value(now),
+    ));
+  }
+
+  /// Get evolution history
+  Future<List<EvolutionHistory>> getEvolutionHistory() async {
+    return await (select(evolutionHistoryTable)
+          ..orderBy([(t) => OrderingTerm.desc(t.triggeredAt)]))
+        .get();
+  }
+
+  // Depth metrics operations
+
+  /// Add conversation depth metrics
+  Future<void> addConversationDepthMetrics(
+          ConversationDepthMetricsCompanion metric) async {
+    await into(conversationDepthMetrics).insert(metric);
+  }
+
+  /// Get recent depth metrics
+  Future<List<ConversationDepthMetric>> getDepthMetrics() async {
+    return await (select(conversationDepthMetrics)
+          ..orderBy([(t) => OrderingTerm.desc(t.timestamp)])
+          ..limit(20))
+        .get();
+  }
+
+  /// Get depth metrics for a specific conversation
+  Future<List<ConversationDepthMetric>> getDepthMetricsForConversation(
+      String conversationId) async {
+    return await (select(conversationDepthMetrics)
+          ..where((tbl) => tbl.conversationId.equals(conversationId)))
+        .get();
   }
 }

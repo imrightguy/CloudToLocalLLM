@@ -3334,6 +3334,508 @@ class FileContentCacheCompanion extends UpdateCompanion<FileContentCacheData> {
   }
 }
 
+class $LlmProvidersTable extends LlmProviders
+    with TableInfo<$LlmProvidersTable, LlmProvider> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LlmProvidersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isLocalMeta =
+      const VerificationMeta('isLocal');
+  @override
+  late final GeneratedColumn<bool> isLocal = GeneratedColumn<bool>(
+      'is_local', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_local" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _isDefaultMeta =
+      const VerificationMeta('isDefault');
+  @override
+  late final GeneratedColumn<bool> isDefault = GeneratedColumn<bool>(
+      'is_default', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_default" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _versionMeta =
+      const VerificationMeta('version');
+  @override
+  late final GeneratedColumn<String> version = GeneratedColumn<String>(
+      'version', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _configMeta = const VerificationMeta('config');
+  @override
+  late final GeneratedColumn<String> config = GeneratedColumn<String>(
+      'config', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        type,
+        url,
+        isLocal,
+        isDefault,
+        version,
+        config,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'llm_providers';
+  @override
+  VerificationContext validateIntegrity(Insertable<LlmProvider> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('is_local')) {
+      context.handle(_isLocalMeta,
+          isLocal.isAcceptableOrUnknown(data['is_local']!, _isLocalMeta));
+    }
+    if (data.containsKey('is_default')) {
+      context.handle(_isDefaultMeta,
+          isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta));
+    }
+    if (data.containsKey('version')) {
+      context.handle(_versionMeta,
+          version.isAcceptableOrUnknown(data['version']!, _versionMeta));
+    }
+    if (data.containsKey('config')) {
+      context.handle(_configMeta,
+          config.isAcceptableOrUnknown(data['config']!, _configMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LlmProvider map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LlmProvider(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      isLocal: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_local'])!,
+      isDefault: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_default'])!,
+      version: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}version']),
+      config: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}config']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $LlmProvidersTable createAlias(String alias) {
+    return $LlmProvidersTable(attachedDatabase, alias);
+  }
+}
+
+class LlmProvider extends DataClass implements Insertable<LlmProvider> {
+  final String id;
+  final String name;
+  final String type;
+  final String url;
+  final bool isLocal;
+  final bool isDefault;
+  final String? version;
+  final String? config;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const LlmProvider(
+      {required this.id,
+      required this.name,
+      required this.type,
+      required this.url,
+      required this.isLocal,
+      required this.isDefault,
+      this.version,
+      this.config,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['type'] = Variable<String>(type);
+    map['url'] = Variable<String>(url);
+    map['is_local'] = Variable<bool>(isLocal);
+    map['is_default'] = Variable<bool>(isDefault);
+    if (!nullToAbsent || version != null) {
+      map['version'] = Variable<String>(version);
+    }
+    if (!nullToAbsent || config != null) {
+      map['config'] = Variable<String>(config);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  LlmProvidersCompanion toCompanion(bool nullToAbsent) {
+    return LlmProvidersCompanion(
+      id: Value(id),
+      name: Value(name),
+      type: Value(type),
+      url: Value(url),
+      isLocal: Value(isLocal),
+      isDefault: Value(isDefault),
+      version: version == null && nullToAbsent
+          ? const Value.absent()
+          : Value(version),
+      config:
+          config == null && nullToAbsent ? const Value.absent() : Value(config),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory LlmProvider.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LlmProvider(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<String>(json['type']),
+      url: serializer.fromJson<String>(json['url']),
+      isLocal: serializer.fromJson<bool>(json['isLocal']),
+      isDefault: serializer.fromJson<bool>(json['isDefault']),
+      version: serializer.fromJson<String?>(json['version']),
+      config: serializer.fromJson<String?>(json['config']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<String>(type),
+      'url': serializer.toJson<String>(url),
+      'isLocal': serializer.toJson<bool>(isLocal),
+      'isDefault': serializer.toJson<bool>(isDefault),
+      'version': serializer.toJson<String?>(version),
+      'config': serializer.toJson<String?>(config),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  LlmProvider copyWith(
+          {String? id,
+          String? name,
+          String? type,
+          String? url,
+          bool? isLocal,
+          bool? isDefault,
+          Value<String?> version = const Value.absent(),
+          Value<String?> config = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      LlmProvider(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        type: type ?? this.type,
+        url: url ?? this.url,
+        isLocal: isLocal ?? this.isLocal,
+        isDefault: isDefault ?? this.isDefault,
+        version: version.present ? version.value : this.version,
+        config: config.present ? config.value : this.config,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  LlmProvider copyWithCompanion(LlmProvidersCompanion data) {
+    return LlmProvider(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      url: data.url.present ? data.url.value : this.url,
+      isLocal: data.isLocal.present ? data.isLocal.value : this.isLocal,
+      isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      version: data.version.present ? data.version.value : this.version,
+      config: data.config.present ? data.config.value : this.config,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LlmProvider(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('url: $url, ')
+          ..write('isLocal: $isLocal, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('version: $version, ')
+          ..write('config: $config, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, type, url, isLocal, isDefault,
+      version, config, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LlmProvider &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.url == this.url &&
+          other.isLocal == this.isLocal &&
+          other.isDefault == this.isDefault &&
+          other.version == this.version &&
+          other.config == this.config &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LlmProvidersCompanion extends UpdateCompanion<LlmProvider> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> type;
+  final Value<String> url;
+  final Value<bool> isLocal;
+  final Value<bool> isDefault;
+  final Value<String?> version;
+  final Value<String?> config;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const LlmProvidersCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.url = const Value.absent(),
+    this.isLocal = const Value.absent(),
+    this.isDefault = const Value.absent(),
+    this.version = const Value.absent(),
+    this.config = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LlmProvidersCompanion.insert({
+    required String id,
+    required String name,
+    required String type,
+    required String url,
+    this.isLocal = const Value.absent(),
+    this.isDefault = const Value.absent(),
+    this.version = const Value.absent(),
+    this.config = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        type = Value(type),
+        url = Value(url);
+  static Insertable<LlmProvider> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? type,
+    Expression<String>? url,
+    Expression<bool>? isLocal,
+    Expression<bool>? isDefault,
+    Expression<String>? version,
+    Expression<String>? config,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (url != null) 'url': url,
+      if (isLocal != null) 'is_local': isLocal,
+      if (isDefault != null) 'is_default': isDefault,
+      if (version != null) 'version': version,
+      if (config != null) 'config': config,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LlmProvidersCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String>? type,
+      Value<String>? url,
+      Value<bool>? isLocal,
+      Value<bool>? isDefault,
+      Value<String?>? version,
+      Value<String?>? config,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return LlmProvidersCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      url: url ?? this.url,
+      isLocal: isLocal ?? this.isLocal,
+      isDefault: isDefault ?? this.isDefault,
+      version: version ?? this.version,
+      config: config ?? this.config,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (isLocal.present) {
+      map['is_local'] = Variable<bool>(isLocal.value);
+    }
+    if (isDefault.present) {
+      map['is_default'] = Variable<bool>(isDefault.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<String>(version.value);
+    }
+    if (config.present) {
+      map['config'] = Variable<String>(config.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LlmProvidersCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('url: $url, ')
+          ..write('isLocal: $isLocal, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('version: $version, ')
+          ..write('config: $config, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ModelCapacityTable extends ModelCapacity
     with TableInfo<$ModelCapacityTable, ModelCapacityData> {
   @override
@@ -7057,6 +7559,1273 @@ class MacrosCompanion extends UpdateCompanion<Macro> {
   }
 }
 
+class $AvatarPersonalityProfilesTable extends AvatarPersonalityProfiles
+    with TableInfo<$AvatarPersonalityProfilesTable, AvatarPersonalityProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AvatarPersonalityProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('default'));
+  static const VerificationMeta _agentNameMeta =
+      const VerificationMeta('agentName');
+  @override
+  late final GeneratedColumn<String> agentName = GeneratedColumn<String>(
+      'agent_name', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('Agent'));
+  static const VerificationMeta _personalityTraitsMeta =
+      const VerificationMeta('personalityTraits');
+  @override
+  late final GeneratedColumn<String> personalityTraits =
+      GeneratedColumn<String>('personality_traits', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _evolutionStageMeta =
+      const VerificationMeta('evolutionStage');
+  @override
+  late final GeneratedColumn<String> evolutionStage = GeneratedColumn<String>(
+      'evolution_stage', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('base'));
+  static const VerificationMeta _conversationCountMeta =
+      const VerificationMeta('conversationCount');
+  @override
+  late final GeneratedColumn<int> conversationCount = GeneratedColumn<int>(
+      'conversation_count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _depthScoreMeta =
+      const VerificationMeta('depthScore');
+  @override
+  late final GeneratedColumn<double> depthScore = GeneratedColumn<double>(
+      'depth_score', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        agentName,
+        personalityTraits,
+        evolutionStage,
+        conversationCount,
+        depthScore,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'avatar_personality_profiles';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<AvatarPersonalityProfile> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('agent_name')) {
+      context.handle(_agentNameMeta,
+          agentName.isAcceptableOrUnknown(data['agent_name']!, _agentNameMeta));
+    }
+    if (data.containsKey('personality_traits')) {
+      context.handle(
+          _personalityTraitsMeta,
+          personalityTraits.isAcceptableOrUnknown(
+              data['personality_traits']!, _personalityTraitsMeta));
+    } else if (isInserting) {
+      context.missing(_personalityTraitsMeta);
+    }
+    if (data.containsKey('evolution_stage')) {
+      context.handle(
+          _evolutionStageMeta,
+          evolutionStage.isAcceptableOrUnknown(
+              data['evolution_stage']!, _evolutionStageMeta));
+    }
+    if (data.containsKey('conversation_count')) {
+      context.handle(
+          _conversationCountMeta,
+          conversationCount.isAcceptableOrUnknown(
+              data['conversation_count']!, _conversationCountMeta));
+    }
+    if (data.containsKey('depth_score')) {
+      context.handle(
+          _depthScoreMeta,
+          depthScore.isAcceptableOrUnknown(
+              data['depth_score']!, _depthScoreMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AvatarPersonalityProfile map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AvatarPersonalityProfile(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      agentName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}agent_name'])!,
+      personalityTraits: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}personality_traits'])!,
+      evolutionStage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}evolution_stage'])!,
+      conversationCount: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}conversation_count'])!,
+      depthScore: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}depth_score'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at']),
+    );
+  }
+
+  @override
+  $AvatarPersonalityProfilesTable createAlias(String alias) {
+    return $AvatarPersonalityProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class AvatarPersonalityProfile extends DataClass
+    implements Insertable<AvatarPersonalityProfile> {
+  final String id;
+  final String agentName;
+  final String personalityTraits;
+  final String evolutionStage;
+  final int conversationCount;
+  final double depthScore;
+  final int? createdAt;
+  final int? updatedAt;
+  const AvatarPersonalityProfile(
+      {required this.id,
+      required this.agentName,
+      required this.personalityTraits,
+      required this.evolutionStage,
+      required this.conversationCount,
+      required this.depthScore,
+      this.createdAt,
+      this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['agent_name'] = Variable<String>(agentName);
+    map['personality_traits'] = Variable<String>(personalityTraits);
+    map['evolution_stage'] = Variable<String>(evolutionStage);
+    map['conversation_count'] = Variable<int>(conversationCount);
+    map['depth_score'] = Variable<double>(depthScore);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<int>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<int>(updatedAt);
+    }
+    return map;
+  }
+
+  AvatarPersonalityProfilesCompanion toCompanion(bool nullToAbsent) {
+    return AvatarPersonalityProfilesCompanion(
+      id: Value(id),
+      agentName: Value(agentName),
+      personalityTraits: Value(personalityTraits),
+      evolutionStage: Value(evolutionStage),
+      conversationCount: Value(conversationCount),
+      depthScore: Value(depthScore),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory AvatarPersonalityProfile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AvatarPersonalityProfile(
+      id: serializer.fromJson<String>(json['id']),
+      agentName: serializer.fromJson<String>(json['agentName']),
+      personalityTraits: serializer.fromJson<String>(json['personalityTraits']),
+      evolutionStage: serializer.fromJson<String>(json['evolutionStage']),
+      conversationCount: serializer.fromJson<int>(json['conversationCount']),
+      depthScore: serializer.fromJson<double>(json['depthScore']),
+      createdAt: serializer.fromJson<int?>(json['createdAt']),
+      updatedAt: serializer.fromJson<int?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'agentName': serializer.toJson<String>(agentName),
+      'personalityTraits': serializer.toJson<String>(personalityTraits),
+      'evolutionStage': serializer.toJson<String>(evolutionStage),
+      'conversationCount': serializer.toJson<int>(conversationCount),
+      'depthScore': serializer.toJson<double>(depthScore),
+      'createdAt': serializer.toJson<int?>(createdAt),
+      'updatedAt': serializer.toJson<int?>(updatedAt),
+    };
+  }
+
+  AvatarPersonalityProfile copyWith(
+          {String? id,
+          String? agentName,
+          String? personalityTraits,
+          String? evolutionStage,
+          int? conversationCount,
+          double? depthScore,
+          Value<int?> createdAt = const Value.absent(),
+          Value<int?> updatedAt = const Value.absent()}) =>
+      AvatarPersonalityProfile(
+        id: id ?? this.id,
+        agentName: agentName ?? this.agentName,
+        personalityTraits: personalityTraits ?? this.personalityTraits,
+        evolutionStage: evolutionStage ?? this.evolutionStage,
+        conversationCount: conversationCount ?? this.conversationCount,
+        depthScore: depthScore ?? this.depthScore,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+      );
+  AvatarPersonalityProfile copyWithCompanion(
+      AvatarPersonalityProfilesCompanion data) {
+    return AvatarPersonalityProfile(
+      id: data.id.present ? data.id.value : this.id,
+      agentName: data.agentName.present ? data.agentName.value : this.agentName,
+      personalityTraits: data.personalityTraits.present
+          ? data.personalityTraits.value
+          : this.personalityTraits,
+      evolutionStage: data.evolutionStage.present
+          ? data.evolutionStage.value
+          : this.evolutionStage,
+      conversationCount: data.conversationCount.present
+          ? data.conversationCount.value
+          : this.conversationCount,
+      depthScore:
+          data.depthScore.present ? data.depthScore.value : this.depthScore,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarPersonalityProfile(')
+          ..write('id: $id, ')
+          ..write('agentName: $agentName, ')
+          ..write('personalityTraits: $personalityTraits, ')
+          ..write('evolutionStage: $evolutionStage, ')
+          ..write('conversationCount: $conversationCount, ')
+          ..write('depthScore: $depthScore, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, agentName, personalityTraits,
+      evolutionStage, conversationCount, depthScore, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AvatarPersonalityProfile &&
+          other.id == this.id &&
+          other.agentName == this.agentName &&
+          other.personalityTraits == this.personalityTraits &&
+          other.evolutionStage == this.evolutionStage &&
+          other.conversationCount == this.conversationCount &&
+          other.depthScore == this.depthScore &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class AvatarPersonalityProfilesCompanion
+    extends UpdateCompanion<AvatarPersonalityProfile> {
+  final Value<String> id;
+  final Value<String> agentName;
+  final Value<String> personalityTraits;
+  final Value<String> evolutionStage;
+  final Value<int> conversationCount;
+  final Value<double> depthScore;
+  final Value<int?> createdAt;
+  final Value<int?> updatedAt;
+  final Value<int> rowid;
+  const AvatarPersonalityProfilesCompanion({
+    this.id = const Value.absent(),
+    this.agentName = const Value.absent(),
+    this.personalityTraits = const Value.absent(),
+    this.evolutionStage = const Value.absent(),
+    this.conversationCount = const Value.absent(),
+    this.depthScore = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AvatarPersonalityProfilesCompanion.insert({
+    this.id = const Value.absent(),
+    this.agentName = const Value.absent(),
+    required String personalityTraits,
+    this.evolutionStage = const Value.absent(),
+    this.conversationCount = const Value.absent(),
+    this.depthScore = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : personalityTraits = Value(personalityTraits);
+  static Insertable<AvatarPersonalityProfile> custom({
+    Expression<String>? id,
+    Expression<String>? agentName,
+    Expression<String>? personalityTraits,
+    Expression<String>? evolutionStage,
+    Expression<int>? conversationCount,
+    Expression<double>? depthScore,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (agentName != null) 'agent_name': agentName,
+      if (personalityTraits != null) 'personality_traits': personalityTraits,
+      if (evolutionStage != null) 'evolution_stage': evolutionStage,
+      if (conversationCount != null) 'conversation_count': conversationCount,
+      if (depthScore != null) 'depth_score': depthScore,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AvatarPersonalityProfilesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? agentName,
+      Value<String>? personalityTraits,
+      Value<String>? evolutionStage,
+      Value<int>? conversationCount,
+      Value<double>? depthScore,
+      Value<int?>? createdAt,
+      Value<int?>? updatedAt,
+      Value<int>? rowid}) {
+    return AvatarPersonalityProfilesCompanion(
+      id: id ?? this.id,
+      agentName: agentName ?? this.agentName,
+      personalityTraits: personalityTraits ?? this.personalityTraits,
+      evolutionStage: evolutionStage ?? this.evolutionStage,
+      conversationCount: conversationCount ?? this.conversationCount,
+      depthScore: depthScore ?? this.depthScore,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (agentName.present) {
+      map['agent_name'] = Variable<String>(agentName.value);
+    }
+    if (personalityTraits.present) {
+      map['personality_traits'] = Variable<String>(personalityTraits.value);
+    }
+    if (evolutionStage.present) {
+      map['evolution_stage'] = Variable<String>(evolutionStage.value);
+    }
+    if (conversationCount.present) {
+      map['conversation_count'] = Variable<int>(conversationCount.value);
+    }
+    if (depthScore.present) {
+      map['depth_score'] = Variable<double>(depthScore.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AvatarPersonalityProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('agentName: $agentName, ')
+          ..write('personalityTraits: $personalityTraits, ')
+          ..write('evolutionStage: $evolutionStage, ')
+          ..write('conversationCount: $conversationCount, ')
+          ..write('depthScore: $depthScore, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $EvolutionHistoryTableTable extends EvolutionHistoryTable
+    with TableInfo<$EvolutionHistoryTableTable, EvolutionHistory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EvolutionHistoryTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _avatarIdMeta =
+      const VerificationMeta('avatarId');
+  @override
+  late final GeneratedColumn<String> avatarId = GeneratedColumn<String>(
+      'avatar_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES avatar_personality_profiles (id)'));
+  static const VerificationMeta _fromStageMeta =
+      const VerificationMeta('fromStage');
+  @override
+  late final GeneratedColumn<String> fromStage = GeneratedColumn<String>(
+      'from_stage', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _toStageMeta =
+      const VerificationMeta('toStage');
+  @override
+  late final GeneratedColumn<String> toStage = GeneratedColumn<String>(
+      'to_stage', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _triggerReasonMeta =
+      const VerificationMeta('triggerReason');
+  @override
+  late final GeneratedColumn<String> triggerReason = GeneratedColumn<String>(
+      'trigger_reason', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contextMeta =
+      const VerificationMeta('context');
+  @override
+  late final GeneratedColumn<String> context = GeneratedColumn<String>(
+      'context', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _confirmedByMeta =
+      const VerificationMeta('confirmedBy');
+  @override
+  late final GeneratedColumn<String> confirmedBy = GeneratedColumn<String>(
+      'confirmed_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _triggeredAtMeta =
+      const VerificationMeta('triggeredAt');
+  @override
+  late final GeneratedColumn<int> triggeredAt = GeneratedColumn<int>(
+      'triggered_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        avatarId,
+        fromStage,
+        toStage,
+        triggerReason,
+        context,
+        confirmedBy,
+        triggeredAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'evolution_history_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<EvolutionHistory> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('avatar_id')) {
+      context.handle(_avatarIdMeta,
+          avatarId.isAcceptableOrUnknown(data['avatar_id']!, _avatarIdMeta));
+    } else if (isInserting) {
+      context.missing(_avatarIdMeta);
+    }
+    if (data.containsKey('from_stage')) {
+      context.handle(_fromStageMeta,
+          fromStage.isAcceptableOrUnknown(data['from_stage']!, _fromStageMeta));
+    } else if (isInserting) {
+      context.missing(_fromStageMeta);
+    }
+    if (data.containsKey('to_stage')) {
+      context.handle(_toStageMeta,
+          toStage.isAcceptableOrUnknown(data['to_stage']!, _toStageMeta));
+    } else if (isInserting) {
+      context.missing(_toStageMeta);
+    }
+    if (data.containsKey('trigger_reason')) {
+      context.handle(
+          _triggerReasonMeta,
+          triggerReason.isAcceptableOrUnknown(
+              data['trigger_reason']!, _triggerReasonMeta));
+    } else if (isInserting) {
+      context.missing(_triggerReasonMeta);
+    }
+    if (data.containsKey('context')) {
+      context.handle(_contextMeta,
+          this.context.isAcceptableOrUnknown(data['context']!, _contextMeta));
+    }
+    if (data.containsKey('confirmed_by')) {
+      context.handle(
+          _confirmedByMeta,
+          confirmedBy.isAcceptableOrUnknown(
+              data['confirmed_by']!, _confirmedByMeta));
+    } else if (isInserting) {
+      context.missing(_confirmedByMeta);
+    }
+    if (data.containsKey('triggered_at')) {
+      context.handle(
+          _triggeredAtMeta,
+          triggeredAt.isAcceptableOrUnknown(
+              data['triggered_at']!, _triggeredAtMeta));
+    } else if (isInserting) {
+      context.missing(_triggeredAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EvolutionHistory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EvolutionHistory(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      avatarId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar_id'])!,
+      fromStage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}from_stage'])!,
+      toStage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}to_stage'])!,
+      triggerReason: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}trigger_reason'])!,
+      context: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}context']),
+      confirmedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}confirmed_by'])!,
+      triggeredAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}triggered_at'])!,
+    );
+  }
+
+  @override
+  $EvolutionHistoryTableTable createAlias(String alias) {
+    return $EvolutionHistoryTableTable(attachedDatabase, alias);
+  }
+}
+
+class EvolutionHistory extends DataClass
+    implements Insertable<EvolutionHistory> {
+  final String id;
+  final String avatarId;
+  final String fromStage;
+  final String toStage;
+  final String triggerReason;
+  final String? context;
+  final String confirmedBy;
+  final int triggeredAt;
+  const EvolutionHistory(
+      {required this.id,
+      required this.avatarId,
+      required this.fromStage,
+      required this.toStage,
+      required this.triggerReason,
+      this.context,
+      required this.confirmedBy,
+      required this.triggeredAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['avatar_id'] = Variable<String>(avatarId);
+    map['from_stage'] = Variable<String>(fromStage);
+    map['to_stage'] = Variable<String>(toStage);
+    map['trigger_reason'] = Variable<String>(triggerReason);
+    if (!nullToAbsent || context != null) {
+      map['context'] = Variable<String>(context);
+    }
+    map['confirmed_by'] = Variable<String>(confirmedBy);
+    map['triggered_at'] = Variable<int>(triggeredAt);
+    return map;
+  }
+
+  EvolutionHistoryTableCompanion toCompanion(bool nullToAbsent) {
+    return EvolutionHistoryTableCompanion(
+      id: Value(id),
+      avatarId: Value(avatarId),
+      fromStage: Value(fromStage),
+      toStage: Value(toStage),
+      triggerReason: Value(triggerReason),
+      context: context == null && nullToAbsent
+          ? const Value.absent()
+          : Value(context),
+      confirmedBy: Value(confirmedBy),
+      triggeredAt: Value(triggeredAt),
+    );
+  }
+
+  factory EvolutionHistory.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EvolutionHistory(
+      id: serializer.fromJson<String>(json['id']),
+      avatarId: serializer.fromJson<String>(json['avatarId']),
+      fromStage: serializer.fromJson<String>(json['fromStage']),
+      toStage: serializer.fromJson<String>(json['toStage']),
+      triggerReason: serializer.fromJson<String>(json['triggerReason']),
+      context: serializer.fromJson<String?>(json['context']),
+      confirmedBy: serializer.fromJson<String>(json['confirmedBy']),
+      triggeredAt: serializer.fromJson<int>(json['triggeredAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'avatarId': serializer.toJson<String>(avatarId),
+      'fromStage': serializer.toJson<String>(fromStage),
+      'toStage': serializer.toJson<String>(toStage),
+      'triggerReason': serializer.toJson<String>(triggerReason),
+      'context': serializer.toJson<String?>(context),
+      'confirmedBy': serializer.toJson<String>(confirmedBy),
+      'triggeredAt': serializer.toJson<int>(triggeredAt),
+    };
+  }
+
+  EvolutionHistory copyWith(
+          {String? id,
+          String? avatarId,
+          String? fromStage,
+          String? toStage,
+          String? triggerReason,
+          Value<String?> context = const Value.absent(),
+          String? confirmedBy,
+          int? triggeredAt}) =>
+      EvolutionHistory(
+        id: id ?? this.id,
+        avatarId: avatarId ?? this.avatarId,
+        fromStage: fromStage ?? this.fromStage,
+        toStage: toStage ?? this.toStage,
+        triggerReason: triggerReason ?? this.triggerReason,
+        context: context.present ? context.value : this.context,
+        confirmedBy: confirmedBy ?? this.confirmedBy,
+        triggeredAt: triggeredAt ?? this.triggeredAt,
+      );
+  EvolutionHistory copyWithCompanion(EvolutionHistoryTableCompanion data) {
+    return EvolutionHistory(
+      id: data.id.present ? data.id.value : this.id,
+      avatarId: data.avatarId.present ? data.avatarId.value : this.avatarId,
+      fromStage: data.fromStage.present ? data.fromStage.value : this.fromStage,
+      toStage: data.toStage.present ? data.toStage.value : this.toStage,
+      triggerReason: data.triggerReason.present
+          ? data.triggerReason.value
+          : this.triggerReason,
+      context: data.context.present ? data.context.value : this.context,
+      confirmedBy:
+          data.confirmedBy.present ? data.confirmedBy.value : this.confirmedBy,
+      triggeredAt:
+          data.triggeredAt.present ? data.triggeredAt.value : this.triggeredAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EvolutionHistory(')
+          ..write('id: $id, ')
+          ..write('avatarId: $avatarId, ')
+          ..write('fromStage: $fromStage, ')
+          ..write('toStage: $toStage, ')
+          ..write('triggerReason: $triggerReason, ')
+          ..write('context: $context, ')
+          ..write('confirmedBy: $confirmedBy, ')
+          ..write('triggeredAt: $triggeredAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, avatarId, fromStage, toStage,
+      triggerReason, context, confirmedBy, triggeredAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EvolutionHistory &&
+          other.id == this.id &&
+          other.avatarId == this.avatarId &&
+          other.fromStage == this.fromStage &&
+          other.toStage == this.toStage &&
+          other.triggerReason == this.triggerReason &&
+          other.context == this.context &&
+          other.confirmedBy == this.confirmedBy &&
+          other.triggeredAt == this.triggeredAt);
+}
+
+class EvolutionHistoryTableCompanion extends UpdateCompanion<EvolutionHistory> {
+  final Value<String> id;
+  final Value<String> avatarId;
+  final Value<String> fromStage;
+  final Value<String> toStage;
+  final Value<String> triggerReason;
+  final Value<String?> context;
+  final Value<String> confirmedBy;
+  final Value<int> triggeredAt;
+  final Value<int> rowid;
+  const EvolutionHistoryTableCompanion({
+    this.id = const Value.absent(),
+    this.avatarId = const Value.absent(),
+    this.fromStage = const Value.absent(),
+    this.toStage = const Value.absent(),
+    this.triggerReason = const Value.absent(),
+    this.context = const Value.absent(),
+    this.confirmedBy = const Value.absent(),
+    this.triggeredAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EvolutionHistoryTableCompanion.insert({
+    required String id,
+    required String avatarId,
+    required String fromStage,
+    required String toStage,
+    required String triggerReason,
+    this.context = const Value.absent(),
+    required String confirmedBy,
+    required int triggeredAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        avatarId = Value(avatarId),
+        fromStage = Value(fromStage),
+        toStage = Value(toStage),
+        triggerReason = Value(triggerReason),
+        confirmedBy = Value(confirmedBy),
+        triggeredAt = Value(triggeredAt);
+  static Insertable<EvolutionHistory> custom({
+    Expression<String>? id,
+    Expression<String>? avatarId,
+    Expression<String>? fromStage,
+    Expression<String>? toStage,
+    Expression<String>? triggerReason,
+    Expression<String>? context,
+    Expression<String>? confirmedBy,
+    Expression<int>? triggeredAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (avatarId != null) 'avatar_id': avatarId,
+      if (fromStage != null) 'from_stage': fromStage,
+      if (toStage != null) 'to_stage': toStage,
+      if (triggerReason != null) 'trigger_reason': triggerReason,
+      if (context != null) 'context': context,
+      if (confirmedBy != null) 'confirmed_by': confirmedBy,
+      if (triggeredAt != null) 'triggered_at': triggeredAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EvolutionHistoryTableCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? avatarId,
+      Value<String>? fromStage,
+      Value<String>? toStage,
+      Value<String>? triggerReason,
+      Value<String?>? context,
+      Value<String>? confirmedBy,
+      Value<int>? triggeredAt,
+      Value<int>? rowid}) {
+    return EvolutionHistoryTableCompanion(
+      id: id ?? this.id,
+      avatarId: avatarId ?? this.avatarId,
+      fromStage: fromStage ?? this.fromStage,
+      toStage: toStage ?? this.toStage,
+      triggerReason: triggerReason ?? this.triggerReason,
+      context: context ?? this.context,
+      confirmedBy: confirmedBy ?? this.confirmedBy,
+      triggeredAt: triggeredAt ?? this.triggeredAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (avatarId.present) {
+      map['avatar_id'] = Variable<String>(avatarId.value);
+    }
+    if (fromStage.present) {
+      map['from_stage'] = Variable<String>(fromStage.value);
+    }
+    if (toStage.present) {
+      map['to_stage'] = Variable<String>(toStage.value);
+    }
+    if (triggerReason.present) {
+      map['trigger_reason'] = Variable<String>(triggerReason.value);
+    }
+    if (context.present) {
+      map['context'] = Variable<String>(context.value);
+    }
+    if (confirmedBy.present) {
+      map['confirmed_by'] = Variable<String>(confirmedBy.value);
+    }
+    if (triggeredAt.present) {
+      map['triggered_at'] = Variable<int>(triggeredAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EvolutionHistoryTableCompanion(')
+          ..write('id: $id, ')
+          ..write('avatarId: $avatarId, ')
+          ..write('fromStage: $fromStage, ')
+          ..write('toStage: $toStage, ')
+          ..write('triggerReason: $triggerReason, ')
+          ..write('context: $context, ')
+          ..write('confirmedBy: $confirmedBy, ')
+          ..write('triggeredAt: $triggeredAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ConversationDepthMetricsTable extends ConversationDepthMetrics
+    with TableInfo<$ConversationDepthMetricsTable, ConversationDepthMetric> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConversationDepthMetricsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _conversationIdMeta =
+      const VerificationMeta('conversationId');
+  @override
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+      'conversation_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES conversations (id)'));
+  static const VerificationMeta _complexityScoreMeta =
+      const VerificationMeta('complexityScore');
+  @override
+  late final GeneratedColumn<double> complexityScore = GeneratedColumn<double>(
+      'complexity_score', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _emotionalDepthMeta =
+      const VerificationMeta('emotionalDepth');
+  @override
+  late final GeneratedColumn<double> emotionalDepth = GeneratedColumn<double>(
+      'emotional_depth', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _noveltyScoreMeta =
+      const VerificationMeta('noveltyScore');
+  @override
+  late final GeneratedColumn<double> noveltyScore = GeneratedColumn<double>(
+      'novelty_score', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<int> timestamp = GeneratedColumn<int>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        conversationId,
+        complexityScore,
+        emotionalDepth,
+        noveltyScore,
+        timestamp
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'conversation_depth_metrics';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ConversationDepthMetric> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+          _conversationIdMeta,
+          conversationId.isAcceptableOrUnknown(
+              data['conversation_id']!, _conversationIdMeta));
+    } else if (isInserting) {
+      context.missing(_conversationIdMeta);
+    }
+    if (data.containsKey('complexity_score')) {
+      context.handle(
+          _complexityScoreMeta,
+          complexityScore.isAcceptableOrUnknown(
+              data['complexity_score']!, _complexityScoreMeta));
+    } else if (isInserting) {
+      context.missing(_complexityScoreMeta);
+    }
+    if (data.containsKey('emotional_depth')) {
+      context.handle(
+          _emotionalDepthMeta,
+          emotionalDepth.isAcceptableOrUnknown(
+              data['emotional_depth']!, _emotionalDepthMeta));
+    } else if (isInserting) {
+      context.missing(_emotionalDepthMeta);
+    }
+    if (data.containsKey('novelty_score')) {
+      context.handle(
+          _noveltyScoreMeta,
+          noveltyScore.isAcceptableOrUnknown(
+              data['novelty_score']!, _noveltyScoreMeta));
+    } else if (isInserting) {
+      context.missing(_noveltyScoreMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ConversationDepthMetric map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConversationDepthMetric(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      conversationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}conversation_id'])!,
+      complexityScore: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}complexity_score'])!,
+      emotionalDepth: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}emotional_depth'])!,
+      noveltyScore: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}novelty_score'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}timestamp'])!,
+    );
+  }
+
+  @override
+  $ConversationDepthMetricsTable createAlias(String alias) {
+    return $ConversationDepthMetricsTable(attachedDatabase, alias);
+  }
+}
+
+class ConversationDepthMetric extends DataClass
+    implements Insertable<ConversationDepthMetric> {
+  final String id;
+  final String conversationId;
+  final double complexityScore;
+  final double emotionalDepth;
+  final double noveltyScore;
+  final int timestamp;
+  const ConversationDepthMetric(
+      {required this.id,
+      required this.conversationId,
+      required this.complexityScore,
+      required this.emotionalDepth,
+      required this.noveltyScore,
+      required this.timestamp});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['conversation_id'] = Variable<String>(conversationId);
+    map['complexity_score'] = Variable<double>(complexityScore);
+    map['emotional_depth'] = Variable<double>(emotionalDepth);
+    map['novelty_score'] = Variable<double>(noveltyScore);
+    map['timestamp'] = Variable<int>(timestamp);
+    return map;
+  }
+
+  ConversationDepthMetricsCompanion toCompanion(bool nullToAbsent) {
+    return ConversationDepthMetricsCompanion(
+      id: Value(id),
+      conversationId: Value(conversationId),
+      complexityScore: Value(complexityScore),
+      emotionalDepth: Value(emotionalDepth),
+      noveltyScore: Value(noveltyScore),
+      timestamp: Value(timestamp),
+    );
+  }
+
+  factory ConversationDepthMetric.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConversationDepthMetric(
+      id: serializer.fromJson<String>(json['id']),
+      conversationId: serializer.fromJson<String>(json['conversationId']),
+      complexityScore: serializer.fromJson<double>(json['complexityScore']),
+      emotionalDepth: serializer.fromJson<double>(json['emotionalDepth']),
+      noveltyScore: serializer.fromJson<double>(json['noveltyScore']),
+      timestamp: serializer.fromJson<int>(json['timestamp']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'conversationId': serializer.toJson<String>(conversationId),
+      'complexityScore': serializer.toJson<double>(complexityScore),
+      'emotionalDepth': serializer.toJson<double>(emotionalDepth),
+      'noveltyScore': serializer.toJson<double>(noveltyScore),
+      'timestamp': serializer.toJson<int>(timestamp),
+    };
+  }
+
+  ConversationDepthMetric copyWith(
+          {String? id,
+          String? conversationId,
+          double? complexityScore,
+          double? emotionalDepth,
+          double? noveltyScore,
+          int? timestamp}) =>
+      ConversationDepthMetric(
+        id: id ?? this.id,
+        conversationId: conversationId ?? this.conversationId,
+        complexityScore: complexityScore ?? this.complexityScore,
+        emotionalDepth: emotionalDepth ?? this.emotionalDepth,
+        noveltyScore: noveltyScore ?? this.noveltyScore,
+        timestamp: timestamp ?? this.timestamp,
+      );
+  ConversationDepthMetric copyWithCompanion(
+      ConversationDepthMetricsCompanion data) {
+    return ConversationDepthMetric(
+      id: data.id.present ? data.id.value : this.id,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      complexityScore: data.complexityScore.present
+          ? data.complexityScore.value
+          : this.complexityScore,
+      emotionalDepth: data.emotionalDepth.present
+          ? data.emotionalDepth.value
+          : this.emotionalDepth,
+      noveltyScore: data.noveltyScore.present
+          ? data.noveltyScore.value
+          : this.noveltyScore,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConversationDepthMetric(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('complexityScore: $complexityScore, ')
+          ..write('emotionalDepth: $emotionalDepth, ')
+          ..write('noveltyScore: $noveltyScore, ')
+          ..write('timestamp: $timestamp')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, conversationId, complexityScore,
+      emotionalDepth, noveltyScore, timestamp);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConversationDepthMetric &&
+          other.id == this.id &&
+          other.conversationId == this.conversationId &&
+          other.complexityScore == this.complexityScore &&
+          other.emotionalDepth == this.emotionalDepth &&
+          other.noveltyScore == this.noveltyScore &&
+          other.timestamp == this.timestamp);
+}
+
+class ConversationDepthMetricsCompanion
+    extends UpdateCompanion<ConversationDepthMetric> {
+  final Value<String> id;
+  final Value<String> conversationId;
+  final Value<double> complexityScore;
+  final Value<double> emotionalDepth;
+  final Value<double> noveltyScore;
+  final Value<int> timestamp;
+  final Value<int> rowid;
+  const ConversationDepthMetricsCompanion({
+    this.id = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.complexityScore = const Value.absent(),
+    this.emotionalDepth = const Value.absent(),
+    this.noveltyScore = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ConversationDepthMetricsCompanion.insert({
+    required String id,
+    required String conversationId,
+    required double complexityScore,
+    required double emotionalDepth,
+    required double noveltyScore,
+    required int timestamp,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        conversationId = Value(conversationId),
+        complexityScore = Value(complexityScore),
+        emotionalDepth = Value(emotionalDepth),
+        noveltyScore = Value(noveltyScore),
+        timestamp = Value(timestamp);
+  static Insertable<ConversationDepthMetric> custom({
+    Expression<String>? id,
+    Expression<String>? conversationId,
+    Expression<double>? complexityScore,
+    Expression<double>? emotionalDepth,
+    Expression<double>? noveltyScore,
+    Expression<int>? timestamp,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (complexityScore != null) 'complexity_score': complexityScore,
+      if (emotionalDepth != null) 'emotional_depth': emotionalDepth,
+      if (noveltyScore != null) 'novelty_score': noveltyScore,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ConversationDepthMetricsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? conversationId,
+      Value<double>? complexityScore,
+      Value<double>? emotionalDepth,
+      Value<double>? noveltyScore,
+      Value<int>? timestamp,
+      Value<int>? rowid}) {
+    return ConversationDepthMetricsCompanion(
+      id: id ?? this.id,
+      conversationId: conversationId ?? this.conversationId,
+      complexityScore: complexityScore ?? this.complexityScore,
+      emotionalDepth: emotionalDepth ?? this.emotionalDepth,
+      noveltyScore: noveltyScore ?? this.noveltyScore,
+      timestamp: timestamp ?? this.timestamp,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (complexityScore.present) {
+      map['complexity_score'] = Variable<double>(complexityScore.value);
+    }
+    if (emotionalDepth.present) {
+      map['emotional_depth'] = Variable<double>(emotionalDepth.value);
+    }
+    if (noveltyScore.present) {
+      map['novelty_score'] = Variable<double>(noveltyScore.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<int>(timestamp.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConversationDepthMetricsCompanion(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('complexityScore: $complexityScore, ')
+          ..write('emotionalDepth: $emotionalDepth, ')
+          ..write('noveltyScore: $noveltyScore, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalBrain extends GeneratedDatabase {
   _$LocalBrain(QueryExecutor e) : super(e);
   $LocalBrainManager get managers => $LocalBrainManager(this);
@@ -7070,6 +8839,7 @@ abstract class _$LocalBrain extends GeneratedDatabase {
   late final $FileIndexTable fileIndex = $FileIndexTable(this);
   late final $FileContentCacheTable fileContentCache =
       $FileContentCacheTable(this);
+  late final $LlmProvidersTable llmProviders = $LlmProvidersTable(this);
   late final $ModelCapacityTable modelCapacity = $ModelCapacityTable(this);
   late final $LlmRequestsTable llmRequests = $LlmRequestsTable(this);
   late final $AvatarProfilesTable avatarProfiles = $AvatarProfilesTable(this);
@@ -7081,6 +8851,12 @@ abstract class _$LocalBrain extends GeneratedDatabase {
   late final $ActionHistoryEntriesTable actionHistoryEntries =
       $ActionHistoryEntriesTable(this);
   late final $MacrosTable macros = $MacrosTable(this);
+  late final $AvatarPersonalityProfilesTable avatarPersonalityProfiles =
+      $AvatarPersonalityProfilesTable(this);
+  late final $EvolutionHistoryTableTable evolutionHistoryTable =
+      $EvolutionHistoryTableTable(this);
+  late final $ConversationDepthMetricsTable conversationDepthMetrics =
+      $ConversationDepthMetricsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7095,6 +8871,7 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         syncQueue,
         fileIndex,
         fileContentCache,
+        llmProviders,
         modelCapacity,
         llmRequests,
         avatarProfiles,
@@ -7102,7 +8879,10 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         avatarMemoryEntries,
         clipboardHistory,
         actionHistoryEntries,
-        macros
+        macros,
+        avatarPersonalityProfiles,
+        evolutionHistoryTable,
+        conversationDepthMetrics
       ];
 }
 
@@ -7410,6 +9190,26 @@ final class $$ConversationsTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$ConversationDepthMetricsTable,
+      List<ConversationDepthMetric>> _conversationDepthMetricsRefsTable(
+          _$LocalBrain db) =>
+      MultiTypedResultKey.fromTable(db.conversationDepthMetrics,
+          aliasName: $_aliasNameGenerator(
+              db.conversations.id, db.conversationDepthMetrics.conversationId));
+
+  $$ConversationDepthMetricsTableProcessedTableManager
+      get conversationDepthMetricsRefs {
+    final manager = $$ConversationDepthMetricsTableTableManager(
+            $_db, $_db.conversationDepthMetrics)
+        .filter(
+            (f) => f.conversationId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_conversationDepthMetricsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ConversationsTableFilterComposer
@@ -7474,6 +9274,29 @@ class $$ConversationsTableFilterComposer
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
+    return f(composer);
+  }
+
+  Expression<bool> conversationDepthMetricsRefs(
+      Expression<bool> Function($$ConversationDepthMetricsTableFilterComposer f)
+          f) {
+    final $$ConversationDepthMetricsTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.conversationDepthMetrics,
+            getReferencedColumn: (t) => t.conversationId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConversationDepthMetricsTableFilterComposer(
+                  $db: $db,
+                  $table: $db.conversationDepthMetrics,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
@@ -7587,6 +9410,30 @@ class $$ConversationsTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> conversationDepthMetricsRefs<T extends Object>(
+      Expression<T> Function(
+              $$ConversationDepthMetricsTableAnnotationComposer a)
+          f) {
+    final $$ConversationDepthMetricsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.conversationDepthMetrics,
+            getReferencedColumn: (t) => t.conversationId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConversationDepthMetricsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.conversationDepthMetrics,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$ConversationsTableTableManager extends RootTableManager<
@@ -7600,7 +9447,8 @@ class $$ConversationsTableTableManager extends RootTableManager<
     $$ConversationsTableUpdateCompanionBuilder,
     (Conversation, $$ConversationsTableReferences),
     Conversation,
-    PrefetchHooks Function({bool userId, bool messagesRefs})> {
+    PrefetchHooks Function(
+        {bool userId, bool messagesRefs, bool conversationDepthMetricsRefs})> {
   $$ConversationsTableTableManager(_$LocalBrain db, $ConversationsTable table)
       : super(TableManagerState(
           db: db,
@@ -7653,10 +9501,16 @@ class $$ConversationsTableTableManager extends RootTableManager<
                     $$ConversationsTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({userId = false, messagesRefs = false}) {
+          prefetchHooksCallback: (
+              {userId = false,
+              messagesRefs = false,
+              conversationDepthMetricsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (messagesRefs) db.messages],
+              explicitlyWatchedTables: [
+                if (messagesRefs) db.messages,
+                if (conversationDepthMetricsRefs) db.conversationDepthMetrics
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -7697,6 +9551,19 @@ class $$ConversationsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.conversationId == item.id),
+                        typedResults: items),
+                  if (conversationDepthMetricsRefs)
+                    await $_getPrefetchedData<Conversation, $ConversationsTable,
+                            ConversationDepthMetric>(
+                        currentTable: table,
+                        referencedTable: $$ConversationsTableReferences
+                            ._conversationDepthMetricsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ConversationsTableReferences(db, table, p0)
+                                .conversationDepthMetricsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.conversationId == item.id),
                         typedResults: items)
                 ];
               },
@@ -7716,7 +9583,8 @@ typedef $$ConversationsTableProcessedTableManager = ProcessedTableManager<
     $$ConversationsTableUpdateCompanionBuilder,
     (Conversation, $$ConversationsTableReferences),
     Conversation,
-    PrefetchHooks Function({bool userId, bool messagesRefs})>;
+    PrefetchHooks Function(
+        {bool userId, bool messagesRefs, bool conversationDepthMetricsRefs})>;
 typedef $$MessagesTableCreateCompanionBuilder = MessagesCompanion Function({
   Value<int> id,
   required String conversationId,
@@ -9371,6 +11239,254 @@ typedef $$FileContentCacheTableProcessedTableManager = ProcessedTableManager<
     (FileContentCacheData, $$FileContentCacheTableReferences),
     FileContentCacheData,
     PrefetchHooks Function({bool filePath})>;
+typedef $$LlmProvidersTableCreateCompanionBuilder = LlmProvidersCompanion
+    Function({
+  required String id,
+  required String name,
+  required String type,
+  required String url,
+  Value<bool> isLocal,
+  Value<bool> isDefault,
+  Value<String?> version,
+  Value<String?> config,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+typedef $$LlmProvidersTableUpdateCompanionBuilder = LlmProvidersCompanion
+    Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String> type,
+  Value<String> url,
+  Value<bool> isLocal,
+  Value<bool> isDefault,
+  Value<String?> version,
+  Value<String?> config,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$LlmProvidersTableFilterComposer
+    extends Composer<_$LocalBrain, $LlmProvidersTable> {
+  $$LlmProvidersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isLocal => $composableBuilder(
+      column: $table.isLocal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDefault => $composableBuilder(
+      column: $table.isDefault, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get config => $composableBuilder(
+      column: $table.config, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$LlmProvidersTableOrderingComposer
+    extends Composer<_$LocalBrain, $LlmProvidersTable> {
+  $$LlmProvidersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isLocal => $composableBuilder(
+      column: $table.isLocal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDefault => $composableBuilder(
+      column: $table.isDefault, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get version => $composableBuilder(
+      column: $table.version, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get config => $composableBuilder(
+      column: $table.config, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LlmProvidersTableAnnotationComposer
+    extends Composer<_$LocalBrain, $LlmProvidersTable> {
+  $$LlmProvidersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<bool> get isLocal =>
+      $composableBuilder(column: $table.isLocal, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDefault =>
+      $composableBuilder(column: $table.isDefault, builder: (column) => column);
+
+  GeneratedColumn<String> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get config =>
+      $composableBuilder(column: $table.config, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$LlmProvidersTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $LlmProvidersTable,
+    LlmProvider,
+    $$LlmProvidersTableFilterComposer,
+    $$LlmProvidersTableOrderingComposer,
+    $$LlmProvidersTableAnnotationComposer,
+    $$LlmProvidersTableCreateCompanionBuilder,
+    $$LlmProvidersTableUpdateCompanionBuilder,
+    (
+      LlmProvider,
+      BaseReferences<_$LocalBrain, $LlmProvidersTable, LlmProvider>
+    ),
+    LlmProvider,
+    PrefetchHooks Function()> {
+  $$LlmProvidersTableTableManager(_$LocalBrain db, $LlmProvidersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LlmProvidersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LlmProvidersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LlmProvidersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<bool> isLocal = const Value.absent(),
+            Value<bool> isDefault = const Value.absent(),
+            Value<String?> version = const Value.absent(),
+            Value<String?> config = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LlmProvidersCompanion(
+            id: id,
+            name: name,
+            type: type,
+            url: url,
+            isLocal: isLocal,
+            isDefault: isDefault,
+            version: version,
+            config: config,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            required String type,
+            required String url,
+            Value<bool> isLocal = const Value.absent(),
+            Value<bool> isDefault = const Value.absent(),
+            Value<String?> version = const Value.absent(),
+            Value<String?> config = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LlmProvidersCompanion.insert(
+            id: id,
+            name: name,
+            type: type,
+            url: url,
+            isLocal: isLocal,
+            isDefault: isDefault,
+            version: version,
+            config: config,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LlmProvidersTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $LlmProvidersTable,
+    LlmProvider,
+    $$LlmProvidersTableFilterComposer,
+    $$LlmProvidersTableOrderingComposer,
+    $$LlmProvidersTableAnnotationComposer,
+    $$LlmProvidersTableCreateCompanionBuilder,
+    $$LlmProvidersTableUpdateCompanionBuilder,
+    (
+      LlmProvider,
+      BaseReferences<_$LocalBrain, $LlmProvidersTable, LlmProvider>
+    ),
+    LlmProvider,
+    PrefetchHooks Function()>;
 typedef $$ModelCapacityTableCreateCompanionBuilder = ModelCapacityCompanion
     Function({
   required String modelId,
@@ -11750,6 +13866,964 @@ typedef $$MacrosTableProcessedTableManager = ProcessedTableManager<
     (Macro, BaseReferences<_$LocalBrain, $MacrosTable, Macro>),
     Macro,
     PrefetchHooks Function()>;
+typedef $$AvatarPersonalityProfilesTableCreateCompanionBuilder
+    = AvatarPersonalityProfilesCompanion Function({
+  Value<String> id,
+  Value<String> agentName,
+  required String personalityTraits,
+  Value<String> evolutionStage,
+  Value<int> conversationCount,
+  Value<double> depthScore,
+  Value<int?> createdAt,
+  Value<int?> updatedAt,
+  Value<int> rowid,
+});
+typedef $$AvatarPersonalityProfilesTableUpdateCompanionBuilder
+    = AvatarPersonalityProfilesCompanion Function({
+  Value<String> id,
+  Value<String> agentName,
+  Value<String> personalityTraits,
+  Value<String> evolutionStage,
+  Value<int> conversationCount,
+  Value<double> depthScore,
+  Value<int?> createdAt,
+  Value<int?> updatedAt,
+  Value<int> rowid,
+});
+
+final class $$AvatarPersonalityProfilesTableReferences extends BaseReferences<
+    _$LocalBrain, $AvatarPersonalityProfilesTable, AvatarPersonalityProfile> {
+  $$AvatarPersonalityProfilesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$EvolutionHistoryTableTable,
+      List<EvolutionHistory>> _evolutionHistoryTableRefsTable(
+          _$LocalBrain db) =>
+      MultiTypedResultKey.fromTable(db.evolutionHistoryTable,
+          aliasName: $_aliasNameGenerator(db.avatarPersonalityProfiles.id,
+              db.evolutionHistoryTable.avatarId));
+
+  $$EvolutionHistoryTableTableProcessedTableManager
+      get evolutionHistoryTableRefs {
+    final manager = $$EvolutionHistoryTableTableTableManager(
+            $_db, $_db.evolutionHistoryTable)
+        .filter((f) => f.avatarId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_evolutionHistoryTableRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$AvatarPersonalityProfilesTableFilterComposer
+    extends Composer<_$LocalBrain, $AvatarPersonalityProfilesTable> {
+  $$AvatarPersonalityProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get agentName => $composableBuilder(
+      column: $table.agentName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get personalityTraits => $composableBuilder(
+      column: $table.personalityTraits,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get evolutionStage => $composableBuilder(
+      column: $table.evolutionStage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get conversationCount => $composableBuilder(
+      column: $table.conversationCount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get depthScore => $composableBuilder(
+      column: $table.depthScore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> evolutionHistoryTableRefs(
+      Expression<bool> Function($$EvolutionHistoryTableTableFilterComposer f)
+          f) {
+    final $$EvolutionHistoryTableTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.evolutionHistoryTable,
+            getReferencedColumn: (t) => t.avatarId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$EvolutionHistoryTableTableFilterComposer(
+                  $db: $db,
+                  $table: $db.evolutionHistoryTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$AvatarPersonalityProfilesTableOrderingComposer
+    extends Composer<_$LocalBrain, $AvatarPersonalityProfilesTable> {
+  $$AvatarPersonalityProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get agentName => $composableBuilder(
+      column: $table.agentName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get personalityTraits => $composableBuilder(
+      column: $table.personalityTraits,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get evolutionStage => $composableBuilder(
+      column: $table.evolutionStage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get conversationCount => $composableBuilder(
+      column: $table.conversationCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get depthScore => $composableBuilder(
+      column: $table.depthScore, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AvatarPersonalityProfilesTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AvatarPersonalityProfilesTable> {
+  $$AvatarPersonalityProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get agentName =>
+      $composableBuilder(column: $table.agentName, builder: (column) => column);
+
+  GeneratedColumn<String> get personalityTraits => $composableBuilder(
+      column: $table.personalityTraits, builder: (column) => column);
+
+  GeneratedColumn<String> get evolutionStage => $composableBuilder(
+      column: $table.evolutionStage, builder: (column) => column);
+
+  GeneratedColumn<int> get conversationCount => $composableBuilder(
+      column: $table.conversationCount, builder: (column) => column);
+
+  GeneratedColumn<double> get depthScore => $composableBuilder(
+      column: $table.depthScore, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> evolutionHistoryTableRefs<T extends Object>(
+      Expression<T> Function($$EvolutionHistoryTableTableAnnotationComposer a)
+          f) {
+    final $$EvolutionHistoryTableTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.evolutionHistoryTable,
+            getReferencedColumn: (t) => t.avatarId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$EvolutionHistoryTableTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.evolutionHistoryTable,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$AvatarPersonalityProfilesTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AvatarPersonalityProfilesTable,
+    AvatarPersonalityProfile,
+    $$AvatarPersonalityProfilesTableFilterComposer,
+    $$AvatarPersonalityProfilesTableOrderingComposer,
+    $$AvatarPersonalityProfilesTableAnnotationComposer,
+    $$AvatarPersonalityProfilesTableCreateCompanionBuilder,
+    $$AvatarPersonalityProfilesTableUpdateCompanionBuilder,
+    (AvatarPersonalityProfile, $$AvatarPersonalityProfilesTableReferences),
+    AvatarPersonalityProfile,
+    PrefetchHooks Function({bool evolutionHistoryTableRefs})> {
+  $$AvatarPersonalityProfilesTableTableManager(
+      _$LocalBrain db, $AvatarPersonalityProfilesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AvatarPersonalityProfilesTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AvatarPersonalityProfilesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AvatarPersonalityProfilesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> agentName = const Value.absent(),
+            Value<String> personalityTraits = const Value.absent(),
+            Value<String> evolutionStage = const Value.absent(),
+            Value<int> conversationCount = const Value.absent(),
+            Value<double> depthScore = const Value.absent(),
+            Value<int?> createdAt = const Value.absent(),
+            Value<int?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AvatarPersonalityProfilesCompanion(
+            id: id,
+            agentName: agentName,
+            personalityTraits: personalityTraits,
+            evolutionStage: evolutionStage,
+            conversationCount: conversationCount,
+            depthScore: depthScore,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> agentName = const Value.absent(),
+            required String personalityTraits,
+            Value<String> evolutionStage = const Value.absent(),
+            Value<int> conversationCount = const Value.absent(),
+            Value<double> depthScore = const Value.absent(),
+            Value<int?> createdAt = const Value.absent(),
+            Value<int?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AvatarPersonalityProfilesCompanion.insert(
+            id: id,
+            agentName: agentName,
+            personalityTraits: personalityTraits,
+            evolutionStage: evolutionStage,
+            conversationCount: conversationCount,
+            depthScore: depthScore,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AvatarPersonalityProfilesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({evolutionHistoryTableRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (evolutionHistoryTableRefs) db.evolutionHistoryTable
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (evolutionHistoryTableRefs)
+                    await $_getPrefetchedData<AvatarPersonalityProfile,
+                            $AvatarPersonalityProfilesTable, EvolutionHistory>(
+                        currentTable: table,
+                        referencedTable:
+                            $$AvatarPersonalityProfilesTableReferences
+                                ._evolutionHistoryTableRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AvatarPersonalityProfilesTableReferences(
+                                    db, table, p0)
+                                .evolutionHistoryTableRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.avatarId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AvatarPersonalityProfilesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalBrain,
+        $AvatarPersonalityProfilesTable,
+        AvatarPersonalityProfile,
+        $$AvatarPersonalityProfilesTableFilterComposer,
+        $$AvatarPersonalityProfilesTableOrderingComposer,
+        $$AvatarPersonalityProfilesTableAnnotationComposer,
+        $$AvatarPersonalityProfilesTableCreateCompanionBuilder,
+        $$AvatarPersonalityProfilesTableUpdateCompanionBuilder,
+        (AvatarPersonalityProfile, $$AvatarPersonalityProfilesTableReferences),
+        AvatarPersonalityProfile,
+        PrefetchHooks Function({bool evolutionHistoryTableRefs})>;
+typedef $$EvolutionHistoryTableTableCreateCompanionBuilder
+    = EvolutionHistoryTableCompanion Function({
+  required String id,
+  required String avatarId,
+  required String fromStage,
+  required String toStage,
+  required String triggerReason,
+  Value<String?> context,
+  required String confirmedBy,
+  required int triggeredAt,
+  Value<int> rowid,
+});
+typedef $$EvolutionHistoryTableTableUpdateCompanionBuilder
+    = EvolutionHistoryTableCompanion Function({
+  Value<String> id,
+  Value<String> avatarId,
+  Value<String> fromStage,
+  Value<String> toStage,
+  Value<String> triggerReason,
+  Value<String?> context,
+  Value<String> confirmedBy,
+  Value<int> triggeredAt,
+  Value<int> rowid,
+});
+
+final class $$EvolutionHistoryTableTableReferences extends BaseReferences<
+    _$LocalBrain, $EvolutionHistoryTableTable, EvolutionHistory> {
+  $$EvolutionHistoryTableTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $AvatarPersonalityProfilesTable _avatarIdTable(_$LocalBrain db) =>
+      db.avatarPersonalityProfiles.createAlias($_aliasNameGenerator(
+          db.evolutionHistoryTable.avatarId, db.avatarPersonalityProfiles.id));
+
+  $$AvatarPersonalityProfilesTableProcessedTableManager get avatarId {
+    final $_column = $_itemColumn<String>('avatar_id')!;
+
+    final manager = $$AvatarPersonalityProfilesTableTableManager(
+            $_db, $_db.avatarPersonalityProfiles)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_avatarIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$EvolutionHistoryTableTableFilterComposer
+    extends Composer<_$LocalBrain, $EvolutionHistoryTableTable> {
+  $$EvolutionHistoryTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fromStage => $composableBuilder(
+      column: $table.fromStage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get toStage => $composableBuilder(
+      column: $table.toStage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get triggerReason => $composableBuilder(
+      column: $table.triggerReason, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get context => $composableBuilder(
+      column: $table.context, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get confirmedBy => $composableBuilder(
+      column: $table.confirmedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get triggeredAt => $composableBuilder(
+      column: $table.triggeredAt, builder: (column) => ColumnFilters(column));
+
+  $$AvatarPersonalityProfilesTableFilterComposer get avatarId {
+    final $$AvatarPersonalityProfilesTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.avatarId,
+            referencedTable: $db.avatarPersonalityProfiles,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$AvatarPersonalityProfilesTableFilterComposer(
+                  $db: $db,
+                  $table: $db.avatarPersonalityProfiles,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$EvolutionHistoryTableTableOrderingComposer
+    extends Composer<_$LocalBrain, $EvolutionHistoryTableTable> {
+  $$EvolutionHistoryTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fromStage => $composableBuilder(
+      column: $table.fromStage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get toStage => $composableBuilder(
+      column: $table.toStage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get triggerReason => $composableBuilder(
+      column: $table.triggerReason,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get context => $composableBuilder(
+      column: $table.context, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get confirmedBy => $composableBuilder(
+      column: $table.confirmedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get triggeredAt => $composableBuilder(
+      column: $table.triggeredAt, builder: (column) => ColumnOrderings(column));
+
+  $$AvatarPersonalityProfilesTableOrderingComposer get avatarId {
+    final $$AvatarPersonalityProfilesTableOrderingComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.avatarId,
+            referencedTable: $db.avatarPersonalityProfiles,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$AvatarPersonalityProfilesTableOrderingComposer(
+                  $db: $db,
+                  $table: $db.avatarPersonalityProfiles,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$EvolutionHistoryTableTableAnnotationComposer
+    extends Composer<_$LocalBrain, $EvolutionHistoryTableTable> {
+  $$EvolutionHistoryTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fromStage =>
+      $composableBuilder(column: $table.fromStage, builder: (column) => column);
+
+  GeneratedColumn<String> get toStage =>
+      $composableBuilder(column: $table.toStage, builder: (column) => column);
+
+  GeneratedColumn<String> get triggerReason => $composableBuilder(
+      column: $table.triggerReason, builder: (column) => column);
+
+  GeneratedColumn<String> get context =>
+      $composableBuilder(column: $table.context, builder: (column) => column);
+
+  GeneratedColumn<String> get confirmedBy => $composableBuilder(
+      column: $table.confirmedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get triggeredAt => $composableBuilder(
+      column: $table.triggeredAt, builder: (column) => column);
+
+  $$AvatarPersonalityProfilesTableAnnotationComposer get avatarId {
+    final $$AvatarPersonalityProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.avatarId,
+            referencedTable: $db.avatarPersonalityProfiles,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$AvatarPersonalityProfilesTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.avatarPersonalityProfiles,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$EvolutionHistoryTableTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $EvolutionHistoryTableTable,
+    EvolutionHistory,
+    $$EvolutionHistoryTableTableFilterComposer,
+    $$EvolutionHistoryTableTableOrderingComposer,
+    $$EvolutionHistoryTableTableAnnotationComposer,
+    $$EvolutionHistoryTableTableCreateCompanionBuilder,
+    $$EvolutionHistoryTableTableUpdateCompanionBuilder,
+    (EvolutionHistory, $$EvolutionHistoryTableTableReferences),
+    EvolutionHistory,
+    PrefetchHooks Function({bool avatarId})> {
+  $$EvolutionHistoryTableTableTableManager(
+      _$LocalBrain db, $EvolutionHistoryTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EvolutionHistoryTableTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EvolutionHistoryTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EvolutionHistoryTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> avatarId = const Value.absent(),
+            Value<String> fromStage = const Value.absent(),
+            Value<String> toStage = const Value.absent(),
+            Value<String> triggerReason = const Value.absent(),
+            Value<String?> context = const Value.absent(),
+            Value<String> confirmedBy = const Value.absent(),
+            Value<int> triggeredAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              EvolutionHistoryTableCompanion(
+            id: id,
+            avatarId: avatarId,
+            fromStage: fromStage,
+            toStage: toStage,
+            triggerReason: triggerReason,
+            context: context,
+            confirmedBy: confirmedBy,
+            triggeredAt: triggeredAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String avatarId,
+            required String fromStage,
+            required String toStage,
+            required String triggerReason,
+            Value<String?> context = const Value.absent(),
+            required String confirmedBy,
+            required int triggeredAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              EvolutionHistoryTableCompanion.insert(
+            id: id,
+            avatarId: avatarId,
+            fromStage: fromStage,
+            toStage: toStage,
+            triggerReason: triggerReason,
+            context: context,
+            confirmedBy: confirmedBy,
+            triggeredAt: triggeredAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$EvolutionHistoryTableTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({avatarId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (avatarId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.avatarId,
+                    referencedTable: $$EvolutionHistoryTableTableReferences
+                        ._avatarIdTable(db),
+                    referencedColumn: $$EvolutionHistoryTableTableReferences
+                        ._avatarIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$EvolutionHistoryTableTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalBrain,
+        $EvolutionHistoryTableTable,
+        EvolutionHistory,
+        $$EvolutionHistoryTableTableFilterComposer,
+        $$EvolutionHistoryTableTableOrderingComposer,
+        $$EvolutionHistoryTableTableAnnotationComposer,
+        $$EvolutionHistoryTableTableCreateCompanionBuilder,
+        $$EvolutionHistoryTableTableUpdateCompanionBuilder,
+        (EvolutionHistory, $$EvolutionHistoryTableTableReferences),
+        EvolutionHistory,
+        PrefetchHooks Function({bool avatarId})>;
+typedef $$ConversationDepthMetricsTableCreateCompanionBuilder
+    = ConversationDepthMetricsCompanion Function({
+  required String id,
+  required String conversationId,
+  required double complexityScore,
+  required double emotionalDepth,
+  required double noveltyScore,
+  required int timestamp,
+  Value<int> rowid,
+});
+typedef $$ConversationDepthMetricsTableUpdateCompanionBuilder
+    = ConversationDepthMetricsCompanion Function({
+  Value<String> id,
+  Value<String> conversationId,
+  Value<double> complexityScore,
+  Value<double> emotionalDepth,
+  Value<double> noveltyScore,
+  Value<int> timestamp,
+  Value<int> rowid,
+});
+
+final class $$ConversationDepthMetricsTableReferences extends BaseReferences<
+    _$LocalBrain, $ConversationDepthMetricsTable, ConversationDepthMetric> {
+  $$ConversationDepthMetricsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ConversationsTable _conversationIdTable(_$LocalBrain db) =>
+      db.conversations.createAlias($_aliasNameGenerator(
+          db.conversationDepthMetrics.conversationId, db.conversations.id));
+
+  $$ConversationsTableProcessedTableManager get conversationId {
+    final $_column = $_itemColumn<String>('conversation_id')!;
+
+    final manager = $$ConversationsTableTableManager($_db, $_db.conversations)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_conversationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ConversationDepthMetricsTableFilterComposer
+    extends Composer<_$LocalBrain, $ConversationDepthMetricsTable> {
+  $$ConversationDepthMetricsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get complexityScore => $composableBuilder(
+      column: $table.complexityScore,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get emotionalDepth => $composableBuilder(
+      column: $table.emotionalDepth,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get noveltyScore => $composableBuilder(
+      column: $table.noveltyScore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  $$ConversationsTableFilterComposer get conversationId {
+    final $$ConversationsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.conversationId,
+        referencedTable: $db.conversations,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationsTableFilterComposer(
+              $db: $db,
+              $table: $db.conversations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConversationDepthMetricsTableOrderingComposer
+    extends Composer<_$LocalBrain, $ConversationDepthMetricsTable> {
+  $$ConversationDepthMetricsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get complexityScore => $composableBuilder(
+      column: $table.complexityScore,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get emotionalDepth => $composableBuilder(
+      column: $table.emotionalDepth,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get noveltyScore => $composableBuilder(
+      column: $table.noveltyScore,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  $$ConversationsTableOrderingComposer get conversationId {
+    final $$ConversationsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.conversationId,
+        referencedTable: $db.conversations,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationsTableOrderingComposer(
+              $db: $db,
+              $table: $db.conversations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConversationDepthMetricsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $ConversationDepthMetricsTable> {
+  $$ConversationDepthMetricsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get complexityScore => $composableBuilder(
+      column: $table.complexityScore, builder: (column) => column);
+
+  GeneratedColumn<double> get emotionalDepth => $composableBuilder(
+      column: $table.emotionalDepth, builder: (column) => column);
+
+  GeneratedColumn<double> get noveltyScore => $composableBuilder(
+      column: $table.noveltyScore, builder: (column) => column);
+
+  GeneratedColumn<int> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  $$ConversationsTableAnnotationComposer get conversationId {
+    final $$ConversationsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.conversationId,
+        referencedTable: $db.conversations,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.conversations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConversationDepthMetricsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $ConversationDepthMetricsTable,
+    ConversationDepthMetric,
+    $$ConversationDepthMetricsTableFilterComposer,
+    $$ConversationDepthMetricsTableOrderingComposer,
+    $$ConversationDepthMetricsTableAnnotationComposer,
+    $$ConversationDepthMetricsTableCreateCompanionBuilder,
+    $$ConversationDepthMetricsTableUpdateCompanionBuilder,
+    (ConversationDepthMetric, $$ConversationDepthMetricsTableReferences),
+    ConversationDepthMetric,
+    PrefetchHooks Function({bool conversationId})> {
+  $$ConversationDepthMetricsTableTableManager(
+      _$LocalBrain db, $ConversationDepthMetricsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ConversationDepthMetricsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConversationDepthMetricsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConversationDepthMetricsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> conversationId = const Value.absent(),
+            Value<double> complexityScore = const Value.absent(),
+            Value<double> emotionalDepth = const Value.absent(),
+            Value<double> noveltyScore = const Value.absent(),
+            Value<int> timestamp = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ConversationDepthMetricsCompanion(
+            id: id,
+            conversationId: conversationId,
+            complexityScore: complexityScore,
+            emotionalDepth: emotionalDepth,
+            noveltyScore: noveltyScore,
+            timestamp: timestamp,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String conversationId,
+            required double complexityScore,
+            required double emotionalDepth,
+            required double noveltyScore,
+            required int timestamp,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ConversationDepthMetricsCompanion.insert(
+            id: id,
+            conversationId: conversationId,
+            complexityScore: complexityScore,
+            emotionalDepth: emotionalDepth,
+            noveltyScore: noveltyScore,
+            timestamp: timestamp,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ConversationDepthMetricsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({conversationId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (conversationId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.conversationId,
+                    referencedTable: $$ConversationDepthMetricsTableReferences
+                        ._conversationIdTable(db),
+                    referencedColumn: $$ConversationDepthMetricsTableReferences
+                        ._conversationIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ConversationDepthMetricsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalBrain,
+        $ConversationDepthMetricsTable,
+        ConversationDepthMetric,
+        $$ConversationDepthMetricsTableFilterComposer,
+        $$ConversationDepthMetricsTableOrderingComposer,
+        $$ConversationDepthMetricsTableAnnotationComposer,
+        $$ConversationDepthMetricsTableCreateCompanionBuilder,
+        $$ConversationDepthMetricsTableUpdateCompanionBuilder,
+        (ConversationDepthMetric, $$ConversationDepthMetricsTableReferences),
+        ConversationDepthMetric,
+        PrefetchHooks Function({bool conversationId})>;
 
 class $LocalBrainManager {
   final _$LocalBrain _db;
@@ -11772,6 +14846,8 @@ class $LocalBrainManager {
       $$FileIndexTableTableManager(_db, _db.fileIndex);
   $$FileContentCacheTableTableManager get fileContentCache =>
       $$FileContentCacheTableTableManager(_db, _db.fileContentCache);
+  $$LlmProvidersTableTableManager get llmProviders =>
+      $$LlmProvidersTableTableManager(_db, _db.llmProviders);
   $$ModelCapacityTableTableManager get modelCapacity =>
       $$ModelCapacityTableTableManager(_db, _db.modelCapacity);
   $$LlmRequestsTableTableManager get llmRequests =>
@@ -11788,4 +14864,12 @@ class $LocalBrainManager {
       $$ActionHistoryEntriesTableTableManager(_db, _db.actionHistoryEntries);
   $$MacrosTableTableManager get macros =>
       $$MacrosTableTableManager(_db, _db.macros);
+  $$AvatarPersonalityProfilesTableTableManager get avatarPersonalityProfiles =>
+      $$AvatarPersonalityProfilesTableTableManager(
+          _db, _db.avatarPersonalityProfiles);
+  $$EvolutionHistoryTableTableTableManager get evolutionHistoryTable =>
+      $$EvolutionHistoryTableTableTableManager(_db, _db.evolutionHistoryTable);
+  $$ConversationDepthMetricsTableTableManager get conversationDepthMetrics =>
+      $$ConversationDepthMetricsTableTableManager(
+          _db, _db.conversationDepthMetrics);
 }
