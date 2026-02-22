@@ -119,7 +119,7 @@ The app is organized around five pillars. See `docs/development/IMPLEMENTATION_P
 |--------|--------|-----------|
 | 1. Chat | ✅ Core existing | `streaming_chat_service.dart`, `home_layout.dart` |
 | 2. OpenClaw Manager | ✅ Core existing | `connection_manager_service.dart`, `agent_status_service.dart` |
-| 3. Evolving Avatar | 🔲 Basic only | `avatar_widget.dart` (planned: `personality_engine.dart`, `evolution_tracker.dart`) |
+| 3. Evolving Avatar | ✅ Phase 1 Complete | `avatar_widget.dart`, `personality_engine.dart`, `evolution_tracker.dart` |
 | 4. Desktop Control | 🔲 Partial | `gui_automation_service.dart` (planned: window management, clipboard) |
 | 5. Vision | 🔲 Partial | `gui_automation_service.dart` (planned: camera, OCR) |
 
@@ -233,9 +233,71 @@ The evolving avatar (Pillar 3) is managed through:
 - **AvatarWidget** (`lib/features/avatar/avatar_widget.dart`): Visual 2D/3D character renderer with state-based reactions (idle/thinking/working/error/happy)
 - **BrainInsightWidget** (`lib/components/brain_insight_widget.dart`): Personality/memory visualization
 
+**Implemented services** (lib/services/avatar/):
+- `personality_engine.dart` - Trait management and evolution validation
+- `evolution_tracker.dart` - Conversation depth analysis and evolution pattern detection
+
+**Avatar Personality Engine:**
+The personality engine manages the avatar's evolving personality based on conversation patterns:
+
+```dart
+// Get current avatar state
+final profile = await personalityEngine.getPersonality();
+print('${profile.agentName} - Stage: ${profile.evolutionStage}');
+
+// Update personality traits
+final newTraits = PersonalityTraits(
+  formality: 0.7,
+  humor: 0.6,
+  enthusiasm: 0.8,
+  empathy: 0.9,
+);
+await personalityEngine.updatePersonality(newTraits);
+
+// Request evolution (requires sufficient conversation depth)
+final decision = await personalityEngine.validateEvolutionRequest(
+  'knowledge_seeker',
+  'User has demonstrated consistent deep learning',
+);
+if (decision.approved) {
+  print('Evolved to ${decision.newStage}');
+}
+```
+
+**Evolution Stages:**
+1. **curious_explorer** (initial) - Default stage for new avatars
+2. **knowledge_seeker** - Unlocked after 5+ deep conversations with avg novelty > 0.5
+3. **wise_companion** - Further evolution stages
+4. **enlightened_guide** - Highest evolution stage
+
+**Evolution Criteria:**
+- At least 5 deep conversations (complexity score > 0.7)
+- Average novelty score > 0.5 across all conversations
+- Collaborative approval between user and AI
+
+**Personality Traits:**
+- **formality** (0.0-1.0): How formal the avatar communicates
+- **humor** (0.0-1.0): Frequency and intensity of humor
+- **enthusiasm** (0.0-1.0): Energy and excitement levels
+- **empathy** (0.0-1.0): Emotional understanding and support
+
+**Evolution API Endpoints** (Router Server):
+```bash
+# Get current avatar state
+curl http://localhost:1337/avatar/state
+
+# Update personality traits
+curl -X POST http://localhost:1337/avatar/traits \
+  -H "Content-Type: application/json" \
+  -d '{"traits": {"formality": 0.7, "humor": 0.6, "enthusiasm": 0.8, "empathy": 0.9}}'
+
+# Request evolution
+curl -X POST http://localhost:1337/avatar/evolution/request \
+  -H "Content-Type: application/json" \
+  -d '{"stage": "knowledge_seeker", "reason": "User learning journey complete"}'
+```
+
 **Planned services** (lib/services/avatar/):
-- `personality_engine.dart` - Trait management
-- `evolution_tracker.dart` - XP/level/achievements
 - `memory_service.dart` - Conversation embeddings
 - `achievement_service.dart` - Unlockables
 
