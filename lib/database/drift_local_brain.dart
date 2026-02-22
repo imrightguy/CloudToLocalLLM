@@ -1104,7 +1104,7 @@ class LocalBrain extends _$LocalBrain {
   // Avatar profile operations
 
   /// Get avatar personality profile
-  Future<AvatarPersonalityProfile> getAvatarPersonalityProfile() async {
+  Future<AvatarPersonalityProfile> getAvatarProfile() async {
     final profiles = await select(avatarPersonalityProfiles).get();
     if (profiles.isEmpty) {
       // Create default profile
@@ -1126,7 +1126,7 @@ class LocalBrain extends _$LocalBrain {
   }
 
   /// Update avatar personality traits
-  Future<void> updateAvatarPersonalityTraits(Map<String, double> traits) async {
+  Future<void> updateAvatarTraits(Map<String, double> traits) async {
     final json = jsonEncode(traits);
     final now = DateTime.now().millisecondsSinceEpoch;
     await (update(avatarPersonalityProfiles)
