@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
 
 /// Represents the current expression/state of the agent.
 enum AgentState {
@@ -16,11 +17,13 @@ enum AgentState {
 class AgentAvatar extends StatefulWidget {
   final AgentState state;
   final double size;
+  final PersonalityTraits? personality;
 
   const AgentAvatar({
     super.key,
     required this.state,
     this.size = 150,
+    this.personality,
   });
 
   @override
@@ -52,39 +55,160 @@ class _AgentAvatarState extends State<AgentAvatar>
     super.dispose();
   }
 
+  Color _getPersonalityColor(PersonalityTraits? traits) {
+    if (traits == null) {
+      final theme = Theme.of(context);
+      return theme.primaryColor;
+    }
+
+    // Hue from empathy (blue 220° → warm 180°)
+    final hue = 220 - (traits.empathy * 40);
+
+    // Saturation from enthusiasm (muted 0.5 → vibrant 1.0)
+    final saturation = 0.5 + (traits.enthusiasm * 0.5);
+
+    // Lightness from humor (darker 0.4 → brighter 0.6)
+    final lightness = 0.4 + (traits.humor * 0.2);
+
+    return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
+  }
+
+  Duration _getPulseDuration(PersonalityTraits? traits) {
+    if (traits == null) {
+      return const Duration(seconds: 2);
+    }
+
+    // Enthusiasm controls speed (1.0s → 0.2s)
+    final speedMillis = (1000 - (traits.enthusiasm * 800)).round();
+    return Duration(milliseconds: speedMillis);
+  }
+
+  double _getBounceScale(PersonalityTraits? traits) {
+    if (traits == null) {
+      return 1.0;
+    }
+
+    // Humor controls bounce (1.0 → 1.2)
+    return 1.0 + (traits.humor * 0.2);
+  }
+
+  String _getEmojiForState(AgentState state, PersonalityTraits? traits) {
+    if (traits == null) {
+      return '🦞'; // Default
+    }
+
+    // Trait-based emoji selection
+    if (traits.humor > 0.7) {
+      switch (state) {
+        case AgentState.idle:
+          return '😜';
+        case AgentState.thinking:
+          return '🤪';
+        case AgentState.working:
+          return '⚡';
+        case AgentState.error:
+          return '💥';
+        case AgentState.happy:
+          return '🎉';
+      }
+    }
+
+    if (traits.empathy > 0.8) {
+      switch (state) {
+        case AgentState.idle:
+          return '🤗';
+        case AgentState.thinking:
+          return '💭';
+        case AgentState.working:
+          return '💪';
+        case AgentState.error:
+          return '😢';
+        case AgentState.happy:
+          return '🥰';
+      }
+    }
+
+    if (traits.formality > 0.7) {
+      switch (state) {
+        case AgentState.idle:
+          return '🎩';
+        case AgentState.thinking:
+          return '🧐';
+        case AgentState.working:
+          return '📊';
+        case AgentState.error:
+          return '⚠️';
+        case AgentState.happy:
+          return '✅';
+      }
+    }
+
+    if (traits.enthusiasm > 0.7) {
+      switch (state) {
+        case AgentState.idle:
+          return '🌟';
+        case AgentState.thinking:
+          return '💡';
+        case AgentState.working:
+          return '🚀';
+        case AgentState.error:
+          return '😵';
+        case AgentState.happy:
+          return '🎊';
+      }
+    }
+
+    // Default emoji set
+    switch (state) {
+      case AgentState.idle:
+        return '🦞';
+      case AgentState.thinking:
+        return '🤔';
+      case AgentState.working:
+        return '⚡';
+      case AgentState.error:
+        return '💢';
+      case AgentState.happy:
+        return '✨';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // Use personality for dynamic properties
+    final baseColor = _getPersonalityColor(widget.personality);
+    final pulseDuration = _getPulseDuration(widget.personality);
+    final bounceScale = _getBounceScale(widget.personality);
 
-    // Switch visual properties based on state
-    Color baseColor;
+    // Update controller duration based on personality
+    if (_controller.duration != pulseDuration) {
+      _controller.duration = pulseDuration;
+    }
+
+    // Switch emoji based on state (use new method)
     String emoji;
     double scale = 1.0;
     bool isPulsing = false;
 
     switch (widget.state) {
       case AgentState.idle:
-        baseColor = theme.primaryColor;
-        emoji = '🦞';
+        emoji = _getEmojiForState(widget.state, widget.personality);
+        isPulsing = false;
         break;
       case AgentState.thinking:
-        baseColor = Colors.amber;
-        emoji = '🤔';
+        emoji = _getEmojiForState(widget.state, widget.personality);
         isPulsing = true;
         break;
       case AgentState.working:
-        baseColor = Colors.blue;
-        emoji = '⚡';
+        emoji = _getEmojiForState(widget.state, widget.personality);
         isPulsing = true;
         break;
       case AgentState.error:
-        baseColor = Colors.red;
-        emoji = '💢';
+        emoji = _getEmojiForState(widget.state, widget.personality);
         break;
       case AgentState.happy:
-        baseColor = Colors.green;
-        emoji = '✨';
-        scale = 1.2;
+        emoji = _getEmojiForState(widget.state, widget.personality);
+        scale = _getBounceScale(widget.personality);
         break;
     }
 
@@ -95,8 +219,8 @@ class _AgentAvatarState extends State<AgentAvatar>
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 500),
-          width: widget.size * pulse * scale,
-          height: widget.size * pulse * scale,
+          width: widget.size * pulse * scale * bounceScale,
+          height: widget.size * pulse * scale * bounceScale,
           decoration: BoxDecoration(
             color: baseColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
