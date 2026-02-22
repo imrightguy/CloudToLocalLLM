@@ -8,12 +8,17 @@ import 'package:shelf_router/shelf_router.dart';
 import 'providers/base_provider.dart';
 import 'rate_limit_manager.dart';
 import 'model_tiers.dart';
+import 'avatar/personality_engine.dart';
+import 'avatar/evolution_tracker.dart';
+import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
 
 /// Local HTTP Server that mimics OpenAI API and routes to providers
 class RouterServer {
   final int port;
   final RateLimitManager rateLimitManager;
   final Map<String, LlmProvider> providers;
+  final PersonalityEngine? personalityEngine;
+  final EvolutionTracker? evolutionTracker;
 
   HttpServer? _server;
 
@@ -21,6 +26,8 @@ class RouterServer {
     this.port = 1337,
     required this.rateLimitManager,
     required this.providers,
+    this.personalityEngine,
+    this.evolutionTracker,
   });
 
   /// Start the server
@@ -35,6 +42,13 @@ class RouterServer {
 
     // GET /health
     router.get('/health', (Request request) => Response.ok('OK'));
+
+    // Avatar Evolution API endpoints
+    if (personalityEngine != null) {
+      router.get('/avatar/state', _handleGetAvatarState);
+      router.post('/avatar/traits', _handleUpdateTraits);
+      router.post('/avatar/evolution/request', _handleEvolutionRequest);
+    }
 
     final handler =
         const Pipeline().addMiddleware(logRequests()).addHandler(router.call);
@@ -144,6 +158,97 @@ class RouterServer {
       );
     } finally {
       await rateLimitManager.endRequest(modelId);
+    }
+  }
+
+  /// GET /avatar/state - Returns the current avatar personality state
+  Future<Response> _handleGetAvatarState(Request request) async {
+    if (personalityEngine == null) {
+      return Response.notFound('Personality engine not available');
+    }
+
+    try {
+      final profile = await personalityEngine!.getPersonality();
+      return Response.ok(
+        jsonEncode({
+          'agent_name': profile.agentName,
+          'traits': profile.traits.toMap(),
+          'evolution_stage': profile.evolutionStage,
+          'conversation_count': profile.conversationCount,
+          'depth_score': profile.depthScore,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  /// POST /avatar/traits - Updates avatar personality traits
+  Future<Response> _handleUpdateTraits(Request request) async {
+    if (personalityEngine == null) {
+      return Response.notFound('Personality engine not available');
+    }
+
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      if (!data.containsKey('traits')) {
+        return Response.badRequest(body: 'Missing "traits" field');
+      }
+
+      final traitsData = data['traits'] as Map<String, dynamic>;
+      final traits = PersonalityTraits.fromMap(
+        traitsData.map((k, v) => MapEntry(k, (v as num).toDouble())),
+      );
+
+      await personalityEngine!.updatePersonality(traits);
+
+      return Response.ok(
+        jsonEncode({'status': 'success', 'traits': traits.toMap()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.badRequest(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  /// POST /avatar/evolution/request - Requests an avatar evolution
+  Future<Response> _handleEvolutionRequest(Request request) async {
+    if (personalityEngine == null) {
+      return Response.notFound('Personality engine not available');
+    }
+
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      if (!data.containsKey('stage')) {
+        return Response.badRequest(body: 'Missing "stage" field');
+      }
+
+      final requestedStage = data['stage'] as String;
+      final reason = data['reason'] as String? ?? 'User request';
+
+      final decision = await personalityEngine!.validateEvolutionRequest(
+        requestedStage,
+        reason,
+      );
+
+      final statusCode = decision.approved ? 200 : 400;
+
+      return Response(
+        statusCode,
+        body: jsonEncode({
+          'approved': decision.approved,
+          if (decision.newStage != null) 'new_stage': decision.newStage,
+          if (decision.reason != null) 'reason': decision.reason,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.badRequest(body: 'Error: ${e.toString()}');
     }
   }
 }
