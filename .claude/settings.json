@@ -16,13 +16,17 @@
       "Bash(find:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+      "Bash(git diff:*)",
       "Bash(git push)",
       "Bash(gh pr list:*)",
       "Bash(flutter format:*)",
       "Bash(flutter analyze:*)",
+      "Bash(flutter test:*)",
       "Bash(cd:*)",
       "Bash(npm run format:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run test:unit:*)"
     ]
   },
   "hooks": {
@@ -32,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\" 2>&1 | head -5; fi"
           }
         ]
       },
@@ -41,7 +45,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\"; fi"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter format \"$CLAUDE_TOOL_FILE_PATH\" 2>&1 | head -5; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == lib/**/*.dart ]]; then flutter analyze --no-fatal-infos \"$CLAUDE_TOOL_FILE_PATH\" 2>&1 | head -10; fi"
           }
         ]
       },
@@ -50,7 +63,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format 2>&1 | head -5; fi"
           }
         ]
       },
@@ -59,7 +72,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format; fi"
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == services/api-backend/**/*.js ]]; then cd services/api-backend && npm run format 2>&1 | head -5; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_FILE_PATH\" == test/**/*.dart ]]; then flutter test \"$CLAUDE_TOOL_FILE_PATH\" --reporter expanded 2>&1 | tail -20; fi"
           }
         ]
       }
@@ -71,6 +93,15 @@
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-sensitive-files.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash(git commit:*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if git diff --cached --name-only | grep -E '(lib/(auth|payment|tunnel|database|ssh)|services/api-backend/(auth|payment|tunnel|database))'; then echo '⚠️  Security-sensitive files changed. Consider running /security-reviewer before committing.'; fi"
           }
         ]
       }
