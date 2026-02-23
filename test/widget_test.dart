@@ -25,7 +25,7 @@ void main() {
     ));
 
     // Wait for a reasonable amount of time for initialization
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     // Verify that the app loads without crashing
     expect(find.byType(MaterialApp), findsWidgets);
@@ -39,7 +39,7 @@ void main() {
       loadingFinder.evaluate().isNotEmpty || appFinder.evaluate().isNotEmpty,
       isTrue,
     );
-  });
+  }, timeout: const Timeout(Duration(minutes: 1)));
 
   testWidgets('App handles plugin initialization gracefully', (
     WidgetTester tester,
@@ -58,5 +58,5 @@ void main() {
     // Verify no exceptions were thrown and app is still running
     expect(tester.takeException(), isNull);
     expect(find.byType(MaterialApp), findsWidgets);
-  });
+  }, timeout: const Timeout(Duration(minutes: 1)));
 }

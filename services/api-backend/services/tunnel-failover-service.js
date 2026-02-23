@@ -615,4 +615,34 @@ export class TunnelFailoverService {
       throw error;
     }
   }
+
+  /**
+   * Cleanup resources - stop all recovery intervals and clear state
+   *
+   * Call this when shutting down the service to prevent memory leaks
+   */
+  cleanup() {
+    try {
+      // Stop all recovery check intervals
+      for (const [endpointId, interval] of this.recoveryIntervals.entries()) {
+        clearInterval(interval);
+        logger.debug('[TunnelFailoverService] Stopping recovery checks during cleanup', {
+          endpointId,
+        });
+      }
+
+      // Clear all state
+      this.recoveryIntervals.clear();
+      this.endpointStates.clear();
+
+      logger.info('[TunnelFailoverService] Cleanup completed', {
+        intervalsCleared: this.recoveryIntervals.size,
+        statesCleared: this.endpointStates.size,
+      });
+    } catch (error) {
+      logger.error('[TunnelFailoverService] Error during cleanup', {
+        error: error.message,
+      });
+    }
+  }
 }
