@@ -95,7 +95,8 @@
     "gauge": "npm:are-we-there-yet@^5.0.0",
     "are-we-there-yet": "^5.0.0",
     "google-p12-pem": "npm:gcp-metadata@^6.1.0",
-    "test-exclude": "^7.0.1"
+    "test-exclude": "^7.0.1",
+    "minimatch": "^10.2.1"
   },
   "keywords": [
     "zoidbot",
