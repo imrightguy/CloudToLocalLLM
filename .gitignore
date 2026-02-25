@@ -206,3 +206,4 @@ debug_apps_cleaned.json
 apps.json
 
 debug_artifacts/
+node_modules

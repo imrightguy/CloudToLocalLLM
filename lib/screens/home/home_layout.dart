@@ -20,6 +20,9 @@ import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
 import '../../services/google_workspace_service.dart';
+import '../../features/avatar/avatar_widget.dart';
+import '../../services/avatar/avatar_state_service.dart';
+import '../../di/locator.dart' as di;
 
 /// Main layout for the chat interface - single channel direct communication.
 class HomeLayout extends StatefulWidget {
@@ -157,6 +160,48 @@ class _CloseSidebarIntent extends Intent {
   const _CloseSidebarIntent();
 }
 
+/// Small avatar widget displayed in the header bar.
+/// Shows personality-driven emoji and navigates to avatar settings on tap.
+class _AvatarHeaderWidget extends StatelessWidget {
+  const _AvatarHeaderWidget({required this.iconColor});
+
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    AvatarStateService? avatarService;
+    try {
+      avatarService = di.serviceLocator<AvatarStateService>();
+    } catch (e) {
+      // Avatar service not registered, show fallback
+      debugPrint('[HomeLayout] AvatarStateService not available: $e');
+    }
+
+    if (avatarService == null) {
+      return const SizedBox.shrink();
+    }
+
+    return ListenableBuilder(
+      listenable: avatarService,
+      builder: (context, child) {
+        return Tooltip(
+          message:
+              '${avatarService!.agentName} (${avatarService.evolutionStage})',
+          child: InkWell(
+            onTap: () => context.go('/settings/avatar'),
+            borderRadius: BorderRadius.circular(20),
+            child: AgentAvatar(
+              state: AgentState.idle,
+              size: 32,
+              personality: avatarService.traits,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _HeaderBar extends StatelessWidget {
   const _HeaderBar({
     required this.isCompact,
@@ -200,6 +245,8 @@ class _HeaderBar extends StatelessWidget {
               ),
             ],
           ),
+          SizedBox(width: spacing.m),
+          _AvatarHeaderWidget(iconColor: iconColor),
           const Spacer(),
           IconButton(
             icon: const Icon(Icons.smart_toy, color: Colors.white),

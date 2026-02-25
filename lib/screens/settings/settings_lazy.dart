@@ -62,6 +62,14 @@ final settingsRoutes = [
     },
   ),
   GoRoute(
+    path: '/settings/avatar',
+    name: 'avatar-settings',
+    builder: (context, state) {
+      debugPrint('[Router] Building UnifiedSettingsScreen (avatar)');
+      return const UnifiedSettingsScreen(initialCategory: 'avatar');
+    },
+  ),
+  GoRoute(
     path: '/settings/desktop/files',
     name: 'desktop-file-operations',
     builder: (context, state) {
