@@ -1,7 +1,7 @@
 #!/bin/bash
-# Zoidbot Development Environment Setup Script
-# This script installs all required tools and dependencies for Zoidbot development
-# on Manjaro Linux with all green checkmarks in flutter doctor (except VSCode)
+# CloudToLocalLLM Development Environment Setup Script
+# This script installs all required tools and dependencies for CloudToLocalLLM development
+# on CachyOS / Manjaro Linux with all green checkmarks in flutter doctor (except VSCode)
 
 set -e  # Exit on any error
 
@@ -45,8 +45,8 @@ check_command() {
     fi
 }
 
-REPO_ROOT="/data/dev/Zoidbot"
-log_info "Starting Zoidbot development environment setup..."
+REPO_ROOT="/data/dev/CloudToLocalLLM"
+log_info "Starting CloudToLocalLLM development environment setup..."
 log_info "Target directory: $REPO_ROOT"
 
 # Ensure repository ownership
@@ -214,9 +214,50 @@ cat > "$HOME/.config/opencode/mcp/memory.json" << 'EOF'
 {
   "command": "mcp-memory",
   "args": []
-}
 EOF
 check_command "MCP tools configured"
+
+# Phase 18.5: Configure MCP tools for Antigravity
+log_info "Phase 18.5: Configuring MCP tools for Antigravity..."
+mkdir -p "$HOME/.gemini/antigravity"
+
+cat > "$HOME/.gemini/antigravity/mcp_config.json" << 'EOF'
+{
+  "mcpServers": {
+    "dart-mcp-server": {
+      "command": "dart",
+      "args": [
+        "mcp-server"
+      ],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    }
+  }
+}
+EOF
+check_command "Antigravity MCP tools configured"
+
 
 # Phase 19: Configure Git
 log_info "Phase 19: Configuring Git (Christopher Maltais)..."
