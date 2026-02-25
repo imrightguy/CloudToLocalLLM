@@ -67,6 +67,14 @@ class ConnectionManagerService extends ChangeNotifier {
   CloudStreamingService? _cloudStreamingService;
   List<String> _availableModels = [];
   WebSocketChannel? _wsChannel;
+  final _messageController = StreamController<Map<String, dynamic>>.broadcast();
+
+  /// Stream of all incoming WebSocket messages
+  Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
+
+  /// Access to the current WebSocket channel
+  WebSocketChannel? get wsChannel => _wsChannel;
+
   bool _isConnected = false;
   GatewayHealthStatus _healthStatus = GatewayHealthStatus.unknown;
   String? _lastError;
@@ -346,13 +354,15 @@ class ConnectionManagerService extends ChangeNotifier {
           if (!handshakeReceived) {
             try {
               final msg = jsonDecode(data as String);
-              
+
               // Step 1: Handle connect.challenge event
-              if (msg['type'] == 'event' && msg['event'] == 'connect.challenge') {
+              if (msg['type'] == 'event' &&
+                  msg['event'] == 'connect.challenge') {
                 final payload = msg['payload'] as Map<String, dynamic>?;
                 challengeNonce = payload?['nonce'] as String?;
-                debugPrint('[ConnectionManager] Received challenge nonce: ${challengeNonce?.substring(0, 8)}...');
-                
+                debugPrint(
+                    '[ConnectionManager] Received challenge nonce: ${challengeNonce?.substring(0, 8)}...');
+
                 // Now send the connect request with device identity
                 _sendConnectWithDeviceIdentity(
                   id: id,
@@ -440,7 +450,7 @@ class ConnectionManagerService extends ChangeNotifier {
     required DeviceIdentityService deviceIdentity,
   }) async {
     final token = _gatewayToken ?? await _authService.getAccessToken() ?? '';
-    
+
     // Build device auth if we have a nonce
     Map<String, dynamic>? deviceAuth;
     if (nonce != null) {
@@ -483,12 +493,16 @@ class ConnectionManagerService extends ChangeNotifier {
       }
     };
 
-    debugPrint('[ConnectionManager] Sending connect request with device identity');
+    debugPrint(
+        '[ConnectionManager] Sending connect request with device identity');
     _wsChannel?.sink.add(jsonEncode(connectRequest));
   }
 
   void _handleWebSocketMessage(String data) {
     final msg = jsonDecode(data);
+
+    // Broadcast message to all listeners
+    _messageController.add(msg);
 
     // Handle method responses (non-chat requests like sessions_list)
     if (msg['type'] == 'res' && msg['id'] != null) {
@@ -598,12 +612,13 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   /// Wait for a method response (non-chat requests)
-  Future<Map<String, dynamic>?> _waitForMethodResponse(String id, Duration timeout) async {
+  Future<Map<String, dynamic>?> _waitForMethodResponse(
+      String id, Duration timeout) async {
     final completer = Completer<Map<String, dynamic>?>();
-    
+
     // Store special completer for method responses
     _methodResponseCompleters[id] = completer;
-    
+
     try {
       return await completer.future.timeout(timeout);
     } finally {
@@ -612,7 +627,8 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   // Completers for method responses (non-chat)
-  final _methodResponseCompleters = <String, Completer<Map<String, dynamic>?>>{};
+  final _methodResponseCompleters =
+      <String, Completer<Map<String, dynamic>?>>{};
 
   /// Get list of active sessions from OpenClaw Gateway
   Future<List<AgentSessionInfo>> getSessionsList() async {
@@ -794,6 +810,14 @@ class ConnectionManagerService extends ChangeNotifier {
       ).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
+        // Robust JSON check
+        final contentType = response.headers['content-type'] ?? '';
+        if (!contentType.contains('application/json') &&
+            !response.body.trim().startsWith('{')) {
+          throw FormatException(
+              'Expected JSON response, but received: ${contentType.isEmpty ? "unknown type" : contentType}');
+        }
+
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         _providerConfig = OpenClawProviderConfig.fromJson(jsonData);
         _availableProviders = _providerConfig!.providers.values.toList();
@@ -812,11 +836,16 @@ class ConnectionManagerService extends ChangeNotifier {
       } else {
         debugPrint(
             '[ConnectionManager] Failed to fetch config: ${response.statusCode}');
+        // If status is not 200, it might be an HTML error page from a proxy
         unawaited(_loadConfigFromFile());
         return false;
       }
     } catch (e) {
       debugPrint('[ConnectionManager] Error fetching provider config: $e');
+      if (e is FormatException) {
+        debugPrint(
+            '[ConnectionManager] Likely received HTML instead of JSON from gateway');
+      }
       // Fallback to reading config file directly
       return await _loadConfigFromFile();
     }

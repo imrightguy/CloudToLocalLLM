@@ -92,45 +92,65 @@ class _HomeLayoutState extends State<HomeLayout> {
     final platformService = context.read<PlatformDetectionService>();
     final spacing = AppTheme.spacingOf(context);
 
-    final body = Stack(
+    final body = Row(
       children: [
-        const Positioned.fill(child: AnimatedBackground()),
-        Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + spacing.s,
-                left: spacing.m,
-                right: spacing.m,
-              ),
-              child: GlassContainer(
-                borderRadius: 24,
-                blur: 10,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 64),
-                  child: _HeaderBar(
-                    isCompact: widget.isCompact,
+        if (!widget.isCompact)
+          _Sidebar(
+            onNavigate: (route) => context.go(route),
+          ),
+        Expanded(
+          child: Stack(
+            children: [
+              const Positioned.fill(child: AnimatedBackground()),
+              Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + spacing.s,
+                      left: spacing.m,
+                      right: spacing.m,
+                    ),
+                    child: GlassContainer(
+                      borderRadius: 24,
+                      blur: 10,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 64),
+                        child: _HeaderBar(
+                          isCompact: widget.isCompact,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: _ChatPane(
+                      isCompact: widget.isCompact,
+                      scrollController: widget.scrollController,
+                      onSendMessage: widget.onSendMessage,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Expanded(
-              child: _ChatPane(
-                isCompact: widget.isCompact,
-                scrollController: widget.scrollController,
-                onSendMessage: widget.onSendMessage,
-              ),
-            ),
-          ],
+              if (kIsWeb) const Positioned.fill(child: _WebDownloadOverlay()),
+              if (kIsWeb) const TunnelStatusButton(),
+            ],
+          ),
         ),
-        if (kIsWeb) const Positioned.fill(child: _WebDownloadOverlay()),
-        if (kIsWeb) const TunnelStatusButton(),
       ],
     );
 
     // Wrap with keyboard shortcuts on desktop
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      drawer: widget.isCompact
+          ? Drawer(
+              child: _Sidebar(
+                onNavigate: (route) {
+                  Navigator.pop(context);
+                  context.go(route);
+                },
+              ),
+            )
+          : null,
       body: platformService.isDesktop
           ? Shortcuts(
               shortcuts: _shortcuts,
@@ -193,7 +213,7 @@ class _AvatarHeaderWidget extends StatelessWidget {
           message:
               '${avatarService!.agentName} (${avatarService.evolutionStage})',
           child: InkWell(
-            onTap: () => context.go('/settings/avatar'),
+            onTap: () => context.push('/dashboard'),
             borderRadius: BorderRadius.circular(20),
             child: AgentAvatar(
               state: AgentState.idle,
@@ -226,6 +246,11 @@ class _HeaderBar extends StatelessWidget {
       padding: EdgeInsets.all(spacing.m),
       child: Row(
         children: [
+          if (isCompact)
+            IconButton(
+              icon: Icon(Icons.menu, color: iconColor),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -279,7 +304,7 @@ class _UserMenu extends StatelessWidget {
                 break;
               case 'settings':
                 if (context.mounted) {
-                  context.push('/settings');
+                  await context.push('/settings');
                 }
                 break;
               case 'logout':
@@ -627,6 +652,128 @@ class _NewConversationButton extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _Sidebar extends StatelessWidget {
+  const _Sidebar({required this.onNavigate});
+
+  final void Function(String route) onNavigate;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final spacing = AppTheme.spacingOf(context);
+    final location = GoRouterState.of(context).matchedLocation;
+
+    return Container(
+      width: 260,
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundCard.withValues(alpha: 0.8),
+        border: Border(
+          right: BorderSide(
+            color: theme.dividerColor.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(spacing.l),
+            child: Row(
+              children: [
+                const AppLogo.small(),
+                SizedBox(width: spacing.s),
+                Text(
+                  'OpenClaw',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _SidebarItem(
+            icon: Icons.chat_bubble_outline,
+            label: 'Chat',
+            isSelected: location == '/' || location == '/chat',
+            onTap: () => onNavigate('/'),
+          ),
+          _SidebarItem(
+            icon: Icons.dashboard_outlined,
+            label: 'Dashboard',
+            isSelected: location == '/dashboard',
+            onTap: () => onNavigate('/dashboard'),
+          ),
+          _SidebarItem(
+            icon: Icons.smart_toy_outlined,
+            label: 'Agent Monitor',
+            isSelected: location == '/agents',
+            onTap: () => onNavigate('/agents'),
+          ),
+          const Spacer(),
+          const Divider(height: 1),
+          _SidebarItem(
+            icon: Icons.settings_outlined,
+            label: 'Settings',
+            isSelected: location.startsWith('/settings'),
+            onTap: () => onNavigate('/settings'),
+          ),
+          SizedBox(height: spacing.m),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarItem extends StatelessWidget {
+  const _SidebarItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final spacing = AppTheme.spacingOf(context);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: spacing.m,
+        vertical: spacing.xs,
+      ),
+      child: ListTile(
+        onTap: onTap,
+        dense: true,
+        selected: isSelected,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
+        ),
+        selectedTileColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+        leading: Icon(
+          icon,
+          color: isSelected ? AppTheme.primaryColor : Colors.grey[400],
+          size: 20,
+        ),
+        title: Text(
+          label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: isSelected ? AppTheme.primaryColor : Colors.grey[300],
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
     );
   }
 }

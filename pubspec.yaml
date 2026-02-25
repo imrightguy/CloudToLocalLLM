@@ -113,6 +113,8 @@ dev_dependencies:
 
   flutter_test:
     sdk: flutter
+  flutter_driver:
+    sdk: flutter
   integration_test:
     sdk: flutter
   flutter_native_splash: ^2.4.1

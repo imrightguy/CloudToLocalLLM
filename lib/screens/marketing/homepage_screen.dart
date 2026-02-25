@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:provider/provider.dart';
-import '../../services/platform_detection_service.dart';
-import '../../services/platform_adapter.dart';
 import '../../config/theme_config.dart';
 
 /// Marketing homepage screen - web-only
@@ -126,58 +123,65 @@ class HomepageScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 12,
-                        offset: const Offset(0, 2),
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Center(
                     child: Text(
-                      'LLM',
+                      '🦞',
                       style: TextStyle(
-                        fontSize: isMobile ? 20 : 24,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeConfig.primaryColor,
+                        fontSize: isMobile ? 32 : 40,
                       ),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: isMobile ? 16 : 20),
+              SizedBox(height: isMobile ? 16 : 24),
 
               // Title with proper typography
-              Text(
-                'CloudToLocalLLM',
-                style: theme.textTheme.displayLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: titleFontSize,
-                  letterSpacing: 1,
-                  shadows: [
-                    Shadow(
-                      color: ThemeConfig.secondaryColor.withValues(alpha: 0.27),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'CloudToLocalLLM\n',
+                      style: theme.textTheme.displayLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: titleFontSize,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'OpenClaw Agent Manager',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: const Color(0xFFe0d7ff),
+                        fontWeight: FontWeight.w300,
+                        fontSize: subtitleFontSize * 1.2,
+                        letterSpacing: 2,
+                      ),
                     ),
                   ],
                 ),
-                textAlign: TextAlign.center,
               ),
-              SizedBox(height: isMobile ? 8 : 12),
+              SizedBox(height: isMobile ? 16 : 24),
 
               // Subtitle with responsive sizing
-              Padding(
+              Container(
+                constraints: const BoxConstraints(maxWidth: 700),
                 padding: EdgeInsets.symmetric(
                   horizontal: isMobile ? 8.0 : 0.0,
                 ),
                 child: Text(
-                  'Run powerful Large Language Models locally with cloud-based management',
+                  'Your private AI companion. Manage OpenClaw, watch your avatar evolve, control your desktop with vision. Privacy-first, locally-powered agent.',
                   style: theme.textTheme.titleLarge?.copyWith(
-                    color: const Color(0xFFe0d7ff),
-                    fontWeight: FontWeight.w500,
-                    fontSize: subtitleFontSize,
-                    height: 1.4,
+                    color: const Color(0xFFf0edff).withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w400,
+                    fontSize: subtitleFontSize * 0.9,
+                    height: 1.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -197,14 +201,13 @@ class HomepageScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // Use theme colors instead of hardcoded values
     final backgroundColor = isDark
         ? ThemeConfig.darkBackgroundMain
         : ThemeConfig.lightBackgroundMain;
 
-    final verticalPadding = isMobile ? 24.0 : 32.0;
-    final horizontalPadding = isMobile ? 16.0 : 24.0;
-    final cardSpacing = isMobile ? 24.0 : 40.0;
+    final verticalPadding = isMobile ? 40.0 : 64.0;
+    final horizontalPadding = isMobile ? 20.0 : 40.0;
+    final sectionSpacing = isMobile ? 48.0 : 80.0;
 
     return Container(
       color: backgroundColor,
@@ -214,200 +217,354 @@ class HomepageScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildInfoCard(context, isMobile: isMobile),
-          SizedBox(height: cardSpacing),
+          _buildPillarsGrid(context, isMobile: isMobile, isTablet: isTablet),
+          SizedBox(height: sectionSpacing),
+          _buildHeroCTA(context, isMobile: isMobile),
+          SizedBox(height: sectionSpacing),
+          _buildQuickInstall(context, isMobile: isMobile),
+          SizedBox(height: sectionSpacing / 2),
           _buildWebAppCard(context, isMobile: isMobile),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, {required bool isMobile}) {
-    return _buildCard(
-      context,
-      isMobile: isMobile,
-      title: 'What is CloudToLocalLLM?',
-      description:
-          'CloudToLocalLLM is an innovative platform that lets you run AI language models on your own computer while managing them through a simple cloud interface.',
-      features: ['Run Models Locally', 'Cloud Management', 'Cost Effective'],
-    );
-  }
+  Widget _buildQuickInstall(BuildContext context, {required bool isMobile}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  Widget _buildWebAppCard(BuildContext context, {required bool isMobile}) {
-    final platformService = Provider.of<PlatformDetectionService>(context);
-    final platformAdapter = PlatformAdapter(platformService);
-
-    return _buildCard(
-      context,
-      isMobile: isMobile,
-      title: 'Web Application',
-      description:
-          'Access CloudToLocalLLM through your web browser with cloud streaming',
-      child: SizedBox(
-        width: double.infinity,
-        child: Column(
-          children: [
-            SizedBox(height: isMobile ? 16 : 24),
-            // Use platform-appropriate button with minimum touch target size
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: isMobile ? 200 : 220,
-                minHeight: 44, // Minimum touch target for mobile
-              ),
-              child: Semantics(
-                button: true,
-                label: 'Launch web application',
-                child: platformAdapter.buildButton(
-                  onPressed: () async {
-                    // Redirect to app subdomain instead of local route
-                    if (kIsWeb) {
-                      // Use url_launcher to navigate to app subdomain
-                      final uri =
-                          Uri.parse('https://app.cloudtolocalllm.online');
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri, webOnlyWindowName: '_self');
-                      }
-                    } else {
-                      // For desktop, use local routing with push to preserve stack
-                      if (context.mounted) {
-                        await Navigator.of(context).pushNamed('/chat');
-                      }
-                    }
-                  },
-                  isPrimary: true,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: isMobile ? 12 : 14,
-                      horizontal: isMobile ? 20 : 28,
-                    ),
-                    child: Text(
-                      'Launch Web App',
-                      style: TextStyle(
-                        fontSize: isMobile ? 16 : 17,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 900),
+      padding: EdgeInsets.all(isMobile ? 24 : 40),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF15151a) : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bolt, color: Colors.amber),
+              const SizedBox(width: 8),
+              Text(
+                'Quick Install',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Install CloudToLocalLLM and OpenClaw Gateway with a single command.',
+            style: TextStyle(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 32),
+          _buildInstallCode(
+            context,
+            'Linux / macOS (Bash)',
+            'curl -fsSL https://cloudtolocalllm.online/install.sh | bash',
+            isMobile,
+          ),
+          const SizedBox(height: 24),
+          _buildInstallCode(
+            context,
+            'Windows (PowerShell)',
+            'iwr -useb https://cloudtolocalllm.online/install.ps1 | iex',
+            isMobile,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCard(
+  Widget _buildInstallCode(
+    BuildContext context,
+    String label,
+    String code,
+    bool isMobile,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.black : Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? Colors.white10 : Colors.black12,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  code,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.copy, size: 18),
+                onPressed: () {
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   const SnackBar(content: Text('Copied to clipboard')),
+                  // );
+                },
+                tooltip: 'Copy to clipboard',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPillarsGrid(
     BuildContext context, {
     required bool isMobile,
-    required String title,
-    required String description,
-    List<String>? features,
-    Widget? child,
+    required bool isTablet,
   }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final pillars = [
+      {
+        'icon': '💬',
+        'title': 'Unified Chat',
+        'desc': 'Multi-model support with streaming and deep history.',
+      },
+      {
+        'icon': '🔌',
+        'title': 'OpenClaw Manager',
+        'desc': 'Start, stop, and monitor your local gateway lifecycle.',
+      },
+      {
+        'icon': '🎨',
+        'title': 'Evolving Avatar',
+        'desc': 'Visual companion that grows in personality over time.',
+      },
+      {
+        'icon': '💻',
+        'title': 'Desktop Control',
+        'desc': 'Automate launches, windows, and system integration.',
+      },
+      {
+        'icon': '👁️',
+        'title': 'Vivid Vision',
+        'desc': 'Screen analysis and OCR powered by local intelligence.',
+      },
+    ];
 
-    // Use theme colors
-    final cardColor = isDark
-        ? ThemeConfig.darkBackgroundCard
-        : ThemeConfig.lightBackgroundCard;
-    final borderColor = isDark
-        ? ThemeConfig.secondaryColor.withValues(alpha: 0.27)
-        : ThemeConfig.lightBorderColor;
-    final titleColor = ThemeConfig.primaryColor;
-    final textColor =
-        isDark ? ThemeConfig.darkTextColorLight : ThemeConfig.lightTextColor;
-    final featureColor =
-        isDark ? ThemeConfig.darkTextColor : ThemeConfig.lightTextColorDark;
+    return Column(
+      children: [
+        Text(
+          'Core Pillars',
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: ThemeConfig.primaryColor,
+              ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Built for privacy, powered by locality.',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.6),
+              ),
+        ),
+        const SizedBox(height: 48),
+        Wrap(
+          spacing: 24,
+          runSpacing: 24,
+          alignment: WrapAlignment.center,
+          children: pillars
+              .map((p) => _buildPillarCard(context, p, isMobile))
+              .toList(),
+        ),
+      ],
+    );
+  }
 
-    // Responsive sizing
-    final maxWidth = isMobile ? double.infinity : 480.0;
-    final cardPadding = isMobile ? 24.0 : 32.0;
-    final titleFontSize = isMobile ? 18.0 : 20.0;
-    final bodyFontSize = isMobile ? 14.0 : 16.0;
+  Widget _buildPillarCard(
+      BuildContext context, Map<String, String> pillar, bool isMobile) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      constraints: BoxConstraints(maxWidth: maxWidth),
+      width: isMobile ? double.infinity : 300,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(ThemeConfig.borderRadiusM),
+        color: isDark ? const Color(0xFF1e1e24) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: borderColor,
-          width: 1.5,
+          color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.4)
-                : Colors.black.withValues(alpha: 0.1),
-            blurRadius: 24,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: EdgeInsets.all(cardPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Card title with semantic heading
-          Semantics(
-            header: true,
-            child: Text(
-              title,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: titleColor,
-                fontWeight: FontWeight.bold,
-                fontSize: titleFontSize,
-                letterSpacing: 0.5,
-              ),
+          Text(pillar['icon']!, style: const TextStyle(fontSize: 32)),
+          const SizedBox(height: 16),
+          Text(
+            pillar['title']!,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: isMobile ? 8 : 12),
+          const SizedBox(height: 8),
           Text(
-            description,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: textColor,
-              fontSize: bodyFontSize,
+            pillar['desc']!,
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.7),
               height: 1.5,
             ),
           ),
-          if (features != null) ...[
-            SizedBox(height: isMobile ? 16 : 20),
-            // Feature list with semantic structure
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: features
-                  .map(
-                    (feature) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '• ',
-                            style: TextStyle(
-                              color: featureColor,
-                              fontSize: bodyFontSize,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              feature,
-                              style: TextStyle(
-                                color: featureColor,
-                                fontSize: bodyFontSize,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroCTA(BuildContext context, {required bool isMobile}) {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 900),
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        color: ThemeConfig.primaryColor,
+        borderRadius: BorderRadius.circular(32),
+        image: DecorationImage(
+          image: const AssetImage('assets/images/lobster_avatar.png'),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            ThemeConfig.primaryColor.withValues(alpha: 0.8),
+            BlendMode.srcOver,
+          ),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'Ready to take back your privacy?',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-          if (child != null) child,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Join the early access and start your journey with a local AI that truly belongs to you.',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () async {
+              final uri = Uri.parse(
+                  'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: ThemeConfig.primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: const Text(
+              'Download Latest Release',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWebAppCard(BuildContext context, {required bool isMobile}) {
+    return Container(
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 800),
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'Access via Web',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Prefer the browser? Access the full agent dashboard through our high-performance web stream.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.7),
+            ),
+          ),
+          const SizedBox(height: 24),
+          OutlinedButton(
+            onPressed: () async {
+              final uri = Uri.parse('https://app.cloudtolocalllm.online');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, webOnlyWindowName: '_self');
+              }
+            },
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Launch Web App'),
+          ),
         ],
       ),
     );
@@ -423,8 +580,25 @@ class HomepageScreen extends StatelessWidget {
 
     return Container(
       color: backgroundColor,
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 16),
-      child: const SizedBox.shrink(),
+      padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 16),
+      child: Column(
+        children: [
+          const Text('🦞', style: TextStyle(fontSize: 48)),
+          const SizedBox(height: 16),
+          Text(
+            'CloudToLocalLLM',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: ThemeConfig.primaryColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '© 2025-2026 CloudToLocalLLM. Licensed under MIT.',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

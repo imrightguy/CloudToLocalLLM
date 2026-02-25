@@ -35,9 +35,23 @@ _OpenClaw Agent Manager — privacy-first local AI with claws._ 🦞</div>
 - **[OpenClaw Gateway](https://github.com/openclaw/openclaw):** The primary engine for all LLM, Vision, and Agent tasks. Runs on `localhost:18789`.
 - **[NVIDIA Drivers](https://www.nvidia.com/drivers):** Required for GPU acceleration (RTX 30/40 series recommended).
 
-## 📥 Download & Install
+### One-Line Installer (Recommended)
 
-### Windows & Linux
+Quickly install CloudToLocalLLM and OpenClaw Gateway with a single command:
+
+**Linux / macOS:**
+```bash
+curl -fsSL https://cloudtolocalllm.online/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+iwr -useb https://cloudtolocalllm.online/install.ps1 | iex
+```
+
+### Manual Installation
+
+#### Windows & Linux
 
 1.  Go to the **[Latest Releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest)** page.
 2.  Download the installer or executable (`.exe` for Windows, `.AppImage` for Linux).

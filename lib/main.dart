@@ -31,6 +31,7 @@ import 'package:cloudtolocalllm/services/agent_status_service.dart';
 import 'package:cloudtolocalllm/services/rate_limit_manager.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
+import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 import 'web_plugins_stub.dart'
     if (dart.library.html) 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cloudtolocalllm/widgets/tray_initializer.dart';
@@ -264,9 +265,11 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
       // Add agent-related services
       _addProviderIfAvailable<AgentLifecycleService>(
           providersList, 'AgentLifecycleService');
+      _addProviderIfAvailable<GatewayControlService>(
+          providersList, 'GatewayControlService');
       _addProviderIfAvailableNoChangeNotifier<AgentStatusService>(
           providersList, 'AgentStatusService');
-      _addProviderIfAvailableNoChangeNotifier<ConnectionManagerService>(
+      _addProviderIfAvailable<ConnectionManagerService>(
           providersList, 'ConnectionManagerService');
       _addProviderIfAvailableNoChangeNotifier<RateLimitManager>(
           providersList, 'RateLimitManager');

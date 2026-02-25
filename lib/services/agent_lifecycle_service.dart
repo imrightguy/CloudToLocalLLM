@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -162,6 +163,9 @@ class AgentLifecycleService extends ChangeNotifier {
     required ConnectionManagerService connectionManager,
   }) : _connectionManager = connectionManager {
     _connectionManager.addListener(_onConnectionChanged);
+
+    // Listen for WebSocket messages
+    _connectionManager.messageStream.listen(handleGatewayMessage);
   }
 
   /// Get all known agents
@@ -441,18 +445,22 @@ class AgentLifecycleService extends ChangeNotifier {
 
   /// Send request to OpenClaw Gateway via WebSocket
   void _sendToGateway(Map<String, dynamic> request) {
-    // For now, we'll need to access the WebSocket channel from ConnectionManager
-    // This is a placeholder - the actual implementation needs ConnectionManager to expose the channel
-    // or provide a method to send agent commands
     debugPrint('[AgentLifecycle] Sending request: ${request['method']}');
-    debugPrint(
-        '[AgentLifecycle] ⚠ WebSocket access not yet implemented - need to integrate with ConnectionManager');
 
-    // Future enhancement: Use ConnectionManagerService's WebSocket for agent commands.
-    // This will require ConnectionManager to either:
-    // 1. Expose the WebSocket channel
-    // 2. Provide a sendCommand method
-    // 3. Handle agent commands internally
+    try {
+      final jsonRequest = jsonEncode(request);
+      final wsChannel = _connectionManager
+          .wsChannel; // I need to expose this or add a send method
+
+      if (wsChannel != null) {
+        wsChannel.sink.add(jsonRequest);
+      } else {
+        debugPrint(
+            '[AgentLifecycle] ✗ Cannot send request: WebSocket not connected');
+      }
+    } catch (e) {
+      debugPrint('[AgentLifecycle] ✗ Error encoding/sending request: $e');
+    }
   }
 
   /// Handle incoming WebSocket messages from OpenClaw Gateway
