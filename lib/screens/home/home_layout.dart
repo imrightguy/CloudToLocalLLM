@@ -669,7 +669,7 @@ class _EmptyConversationState extends StatelessWidget {
                 ),
                 SizedBox(height: spacing.m),
                 Text(
-                  'Start a new conversation to begin chatting with your local LLM',
+                  'Direct channel to OpenClaw',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: textColorLight,
                       ),
@@ -681,7 +681,7 @@ class _EmptyConversationState extends StatelessWidget {
                     return ElevatedButton.icon(
                       onPressed: () => chatService.createConversation(),
                       icon: const Icon(Icons.add),
-                      label: const Text('Start New Conversation'),
+                      label: const Text('Start Channel'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.primaryColor,
                         foregroundColor: Colors.white,
@@ -689,7 +689,6 @@ class _EmptyConversationState extends StatelessWidget {
                           horizontal: spacing.l,
                           vertical: spacing.m,
                         ),
-                        // Ensure minimum touch target size
                         minimumSize: const Size(44, 44),
                       ),
                     );
