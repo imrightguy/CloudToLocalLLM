@@ -279,7 +279,7 @@ class _UserMenu extends StatelessWidget {
                 break;
               case 'settings':
                 if (context.mounted) {
-                  context.go('/settings');
+                  context.push('/settings');
                 }
                 break;
               case 'logout':

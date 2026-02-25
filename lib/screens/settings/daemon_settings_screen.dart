@@ -160,7 +160,8 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
         elevation: 0,
         leading: platformAdapter.buildBackButton(
           context,
-          onPressed: () => context.go('/settings'),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go('/settings'),
         ),
       ),
       body: SingleChildScrollView(
