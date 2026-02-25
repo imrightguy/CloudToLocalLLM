@@ -2,7 +2,7 @@
 
 ## Overview
 
-The streaming-proxy service is a Node.js application that provides WebSocket connection management, SSH tunneling, rate limiting, circuit breaking, and authentication for the Zoidbot system.
+The streaming-proxy service is a Node.js application that provides WebSocket connection management, SSH tunneling, rate limiting, circuit breaking, and authentication for the CloudToLocalLLM system.
 
 ## Architecture
 
@@ -87,10 +87,10 @@ Add streaming-proxy build and deployment to `.github/workflows/deploy-aks.yml`:
 
 ```yaml
 env:
-  REGISTRY: zoidbot
-  API_IMAGE: zoidbot/zoidbot-api
-  WEB_IMAGE: zoidbot/zoidbot-web
-  STREAMING_PROXY_IMAGE: ghcr.io/zoidbot-online/zoidbot/streaming  # Add this
+  REGISTRY: CloudToLocalLLM
+  API_IMAGE: CloudToLocalLLM/cloudtolocalllm-api
+  WEB_IMAGE: CloudToLocalLLM/cloudtolocalllm-web
+  STREAMING_PROXY_IMAGE: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming  # Add this
 
 jobs:
   deploy:
@@ -113,13 +113,13 @@ jobs:
         COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
         kubectl set image deployment/streaming-proxy \
           streaming-proxy=${{ env.STREAMING_PROXY_IMAGE }}:$COMMIT_SHA \
-          -n zoidbot
+          -n CloudToLocalLLM
 
     - name: Wait for rollout to complete
       run: |
-        kubectl rollout status deployment/api-backend -n zoidbot --timeout=300s
-        kubectl rollout status deployment/web -n zoidbot --timeout=300s
-        kubectl rollout status deployment/streaming-proxy -n zoidbot --timeout=300s  # Add this
+        kubectl rollout status deployment/api-backend -n CloudToLocalLLM --timeout=300s
+        kubectl rollout status deployment/web -n CloudToLocalLLM --timeout=300s
+        kubectl rollout status deployment/streaming-proxy -n CloudToLocalLLM --timeout=300s  # Add this
 ```
 
 #### 2. Create Kubernetes Deployment
@@ -131,7 +131,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: streaming-proxy
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   replicas: 2
   selector:
@@ -144,7 +144,7 @@ spec:
     spec:
       containers:
       - name: streaming-proxy
-        image: ghcr.io/zoidbot-online/zoidbot/streaming:latest
+        image: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming:latest
         ports:
         - containerPort: 3001
           name: websocket
@@ -156,17 +156,17 @@ spec:
         - name: SUPABASE_AUTH_DOMAIN
           valueFrom:
             secretKeyRef:
-              name: zoidbot-secrets
+              name: CloudToLocalLLM-secrets
               key: auth0-domain
         - name: SUPABASE_AUTH_AUDIENCE
           valueFrom:
             secretKeyRef:
-              name: zoidbot-secrets
+              name: CloudToLocalLLM-secrets
               key: auth0-audience
         - name: SUPABASE_AUTH_ISSUER
           valueFrom:
             secretKeyRef:
-              name: zoidbot-secrets
+              name: CloudToLocalLLM-secrets
               key: auth0-issuer
         - name: PING_INTERVAL
           value: "30000"
@@ -204,7 +204,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: streaming-proxy
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   selector:
     app: streaming-proxy
@@ -223,15 +223,15 @@ Update `k8s/ingress-nginx.yaml` to include streaming-proxy routes:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: zoidbot-ingress
-  namespace: zoidbot
+  name: CloudToLocalLLM-ingress
+  namespace: CloudToLocalLLM
   annotations:
     # ... existing annotations ...
     nginx.ingress.kubernetes.io/websocket-services: "streaming-proxy"
 spec:
   rules:
   # ... existing rules ...
-  - host: ws.zoidbot.online
+  - host: ws.cloudtolocalllm.online
     http:
       paths:
       - path: /
@@ -291,7 +291,7 @@ Required environment variables for streaming-proxy:
 ```bash
 # Auth0 Configuration
 SUPABASE_AUTH_DOMAIN=your-domain.auth0.com
-SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.com
+SUPABASE_AUTH_AUDIENCE=https://api.CloudToLocalLLM.com
 SUPABASE_AUTH_ISSUER=https://your-domain.auth0.com/
 
 # WebSocket Configuration
@@ -332,12 +332,12 @@ Add to `k8s/secrets.yaml`:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: zoidbot-secrets
-  namespace: zoidbot
+  name: CloudToLocalLLM-secrets
+  namespace: CloudToLocalLLM
 type: Opaque
 stringData:
   auth0-domain: "your-domain.auth0.com"
-  auth0-audience: "https://api.zoidbot.com"
+  auth0-audience: "https://api.CloudToLocalLLM.com"
   auth0-issuer: "https://your-domain.auth0.com/"
 ```
 
@@ -353,13 +353,13 @@ npm install
 ### 2. Build Docker Image Locally (Optional)
 
 ```bash
-docker build -f services/streaming-proxy/Dockerfile.prod -t ghcr.io/zoidbot-online/zoidbot/streaming:latest .
+docker build -f services/streaming-proxy/Dockerfile.prod -t ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming:latest .
 ```
 
 ### 3. Push to Docker Hub (Optional)
 
 ```bash
-docker push ghcr.io/zoidbot-online/zoidbot/streaming:latest
+docker push ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming:latest
 ```
 
 ### 4. Deploy to Kubernetes
@@ -369,9 +369,9 @@ docker push ghcr.io/zoidbot-online/zoidbot/streaming:latest
 kubectl apply -f k8s/streaming-proxy-deployment.yaml
 
 # Verify deployment
-kubectl get pods -n zoidbot
-kubectl get svc -n zoidbot
-kubectl logs -f deployment/streaming-proxy -n zoidbot
+kubectl get pods -n CloudToLocalLLM
+kubectl get svc -n CloudToLocalLLM
+kubectl logs -f deployment/streaming-proxy -n CloudToLocalLLM
 ```
 
 ### 5. Update Ingress
@@ -384,7 +384,7 @@ kubectl apply -f k8s/ingress-nginx.yaml
 
 ```bash
 # Test WebSocket connection
-wscat -c "wss://ws.zoidbot.online?token=YOUR_JWT_TOKEN"
+wscat -c "wss://ws.cloudtolocalllm.online?token=YOUR_JWT_TOKEN"
 ```
 
 ## Monitoring
@@ -392,27 +392,27 @@ wscat -c "wss://ws.zoidbot.online?token=YOUR_JWT_TOKEN"
 ### Health Check
 
 ```bash
-curl https://ws.zoidbot.online/health
+curl https://ws.cloudtolocalllm.online/health
 ```
 
 ### Logs
 
 ```bash
 # View logs
-kubectl logs -f deployment/streaming-proxy -n zoidbot
+kubectl logs -f deployment/streaming-proxy -n CloudToLocalLLM
 
 # View logs for specific pod
-kubectl logs -f streaming-proxy-xxxxx-xxxxx -n zoidbot
+kubectl logs -f streaming-proxy-xxxxx-xxxxx -n CloudToLocalLLM
 ```
 
 ### Metrics
 
 ```bash
 # Get pod metrics
-kubectl top pods -n zoidbot
+kubectl top pods -n CloudToLocalLLM
 
 # Get deployment status
-kubectl get deployment streaming-proxy -n zoidbot
+kubectl get deployment streaming-proxy -n CloudToLocalLLM
 ```
 
 ## Scaling
@@ -420,7 +420,7 @@ kubectl get deployment streaming-proxy -n zoidbot
 ### Manual Scaling
 
 ```bash
-kubectl scale deployment streaming-proxy --replicas=3 -n zoidbot
+kubectl scale deployment streaming-proxy --replicas=3 -n CloudToLocalLLM
 ```
 
 ### Auto-scaling (HPA)
@@ -430,7 +430,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: streaming-proxy-hpa
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -459,35 +459,35 @@ spec:
 
 ```bash
 # Check pod status
-kubectl describe pod streaming-proxy-xxxxx -n zoidbot
+kubectl describe pod streaming-proxy-xxxxx -n CloudToLocalLLM
 
 # Check logs
-kubectl logs streaming-proxy-xxxxx -n zoidbot
+kubectl logs streaming-proxy-xxxxx -n CloudToLocalLLM
 ```
 
 ### Issue: WebSocket connection fails
 
 ```bash
 # Check service
-kubectl get svc streaming-proxy -n zoidbot
+kubectl get svc streaming-proxy -n CloudToLocalLLM
 
 # Check ingress
-kubectl get ingress -n zoidbot
+kubectl get ingress -n CloudToLocalLLM
 
 # Test from inside cluster
 kubectl run -it --rm debug --image=alpine --restart=Never -- sh
 apk add curl
-curl http://streaming-proxy.zoidbot.svc.cluster.local:3001/health
+curl http://streaming-proxy.CloudToLocalLLM.svc.cluster.local:3001/health
 ```
 
 ### Issue: Authentication fails
 
 ```bash
 # Check secrets
-kubectl get secret zoidbot-secrets -n zoidbot -o yaml
+kubectl get secret CloudToLocalLLM-secrets -n CloudToLocalLLM -o yaml
 
 # Verify Auth0 configuration
-kubectl exec -it streaming-proxy-xxxxx -n zoidbot -- env | grep SUPABASE_AUTH
+kubectl exec -it streaming-proxy-xxxxx -n CloudToLocalLLM -- env | grep SUPABASE_AUTH
 ```
 
 ## Summary

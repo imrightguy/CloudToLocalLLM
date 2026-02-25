@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: zoidbot
+  name: CloudToLocalLLM
   labels:
-    app.kubernetes.io/name: zoidbot
+    app.kubernetes.io/name: CloudToLocalLLM
 

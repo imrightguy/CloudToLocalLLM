@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../capacity_gauge.dart';
 import '../../services/connection_manager_service.dart';
 import 'settings_category_widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// OpenClaw Gateway settings category
 class OpenClawGatewayCategory extends SettingsCategoryContentWidget {
@@ -35,34 +34,9 @@ class _OpenClawGatewayCategoryContent extends StatefulWidget {
 
 class _OpenClawGatewayCategoryContentState
     extends State<_OpenClawGatewayCategoryContent> {
-  final TextEditingController _passwordController = TextEditingController();
   bool _isTestingConnection = false;
   String? _connectionStatus;
   bool? _connectionSuccess;
-  bool _isLoadingConfig = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadGatewayConfig();
-  }
-
-  Future<void> _loadGatewayConfig() async {
-    setState(() => _isLoadingConfig = true);
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final insecureAuth = prefs.getBool('openclaw_insecure_auth') ?? false;
-      // Note: This setting would require gateway restart to take effect
-    } finally {
-      setState(() => _isLoadingConfig = false);
-    }
-  }
-
-  @override
-  void dispose() {
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   Future<void> _testConnection() async {
     setState(() {
@@ -73,10 +47,11 @@ class _OpenClawGatewayCategoryContentState
 
     try {
       final connectionManager = context.read<ConnectionManagerService>();
-      await connectionManager
-          .setGatewayPassword(_passwordController.text.trim());
 
-      // Test the connection
+      // Load gateway token if not already loaded
+      await connectionManager.loadGatewayToken();
+
+      // Test connection
       await connectionManager.testConnection();
 
       if (mounted) {
@@ -102,25 +77,12 @@ class _OpenClawGatewayCategoryContentState
     }
   }
 
-  Future<void> _clearPassword() async {
-    final connectionManager = context.read<ConnectionManagerService>();
-    await connectionManager.setGatewayPassword(null);
-    _passwordController.clear();
-    if (mounted) {
-      setState(() {
-        _connectionStatus = null;
-        _connectionSuccess = null;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ConnectionManagerService>(
       builder: (context, connectionManager, child) {
-        final currentPassword = connectionManager.gatewayPassword;
-        final hasPassword =
-            currentPassword != null && currentPassword.isNotEmpty;
+        final currentToken = connectionManager.gatewayToken;
+        final hasToken = currentToken != null && currentToken.isNotEmpty;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,24 +102,58 @@ class _OpenClawGatewayCategoryContentState
             ),
             const SizedBox(height: 24),
 
-            // Password Configuration Section
+            // Token Status Section
             Text(
-              'Gateway Password',
+              'Gateway Token',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Enter your OpenClaw Gateway password',
-                hintText: 'Set in ~/.openclaw/openclaw.json',
-                border: OutlineInputBorder(),
-                helperText: 'Required for chat functionality',
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: hasToken ? Colors.green.shade50 : Colors.orange.shade50,
+                border: Border.all(
+                  color:
+                      hasToken ? Colors.green.shade200 : Colors.orange.shade200,
+                ),
+                borderRadius: BorderRadius.circular(8),
               ),
-              obscureText: true,
-              maxLines: 1,
+              child: Row(
+                children: [
+                  Icon(
+                    hasToken ? Icons.check_circle : Icons.info_outline,
+                    color: hasToken ? Colors.green : Colors.orange,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          hasToken ? 'Token Detected' : 'Token Not Found',
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          hasToken
+                              ? 'OpenClaw Gateway token was auto-detected from your config files'
+                              : 'Run: openclaw gateway token to generate and save the token',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey.shade700,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -188,19 +184,7 @@ class _OpenClawGatewayCategoryContentState
             Row(
               children: [
                 ElevatedButton.icon(
-                  onPressed: _isTestingConnection
-                      ? null
-                      : () {
-                          if (_passwordController.text.trim().isEmpty) {
-                            setState(() {
-                              _connectionStatus =
-                                  'Please enter a password first';
-                              _connectionSuccess = false;
-                            });
-                            return;
-                          }
-                          _testConnection();
-                        },
+                  onPressed: _isTestingConnection ? null : _testConnection,
                   icon: _isTestingConnection
                       ? const SizedBox(
                           width: 16,
@@ -211,13 +195,6 @@ class _OpenClawGatewayCategoryContentState
                   label: Text(
                       _isTestingConnection ? 'Testing...' : 'Test Connection'),
                 ),
-                const SizedBox(width: 16),
-                if (hasPassword)
-                  TextButton.icon(
-                    onPressed: _clearPassword,
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Clear Password'),
-                  ),
               ],
             ),
             const SizedBox(height: 32),
@@ -258,7 +235,7 @@ class _OpenClawGatewayCategoryContentState
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'About Password Authentication',
+                          'About Token Authentication',
                           style:
                               Theme.of(context).textTheme.titleSmall?.copyWith(
                                     color: Colors.blue.shade900,
@@ -270,14 +247,14 @@ class _OpenClawGatewayCategoryContentState
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'The password is set in your OpenClaw Gateway configuration file.',
+                    'The OpenClaw Gateway uses token-based authentication for local connections.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.blue.shade900,
                         ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'To set or change the password, run:',
+                    'To generate a new token, run:',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.blue.shade900,
                           fontWeight: FontWeight.bold,
@@ -291,8 +268,7 @@ class _OpenClawGatewayCategoryContentState
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      'openclaw config gateway.auth.mode=password\n'
-                      'openclaw config gateway.auth.password=YOUR_PASSWORD',
+                      'openclaw gateway token',
                       style: TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 12,
@@ -302,7 +278,32 @@ class _OpenClawGatewayCategoryContentState
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Then restart the gateway for changes to take effect.',
+                    'The token is automatically detected from:',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.blue.shade900,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '~/.config/openclaw/config.yaml\n'
+                      '~/.openclaw/config.yaml\n'
+                      '~/.config/openclaw-gateway/config.yaml',
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'No manual configuration needed - the app will auto-detect your token.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.blue.shade900,
                         ),

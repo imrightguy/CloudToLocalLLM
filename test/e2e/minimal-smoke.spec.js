@@ -1,4 +1,4 @@
-// Minimal E2E Smoke Test for Zoidbot
+// Minimal E2E Smoke Test for CloudToLocalLLM
 // Verifies essential application functionality for post-deployment validation.
 
 import { test, expect } from '@playwright/test';
@@ -14,7 +14,7 @@ test.describe('Minimal E2E Smoke Test', () => {
     await page.waitForLoadState('networkidle');
 
     // Check for the correct page title
-    await expect(page).toHaveTitle(/Zoidbot/);
+    await expect(page).toHaveTitle(/CloudToLocalLLM/);
 
     // Verify that the main application container is visible
     const mainContent = page.locator('main, #root, .app');

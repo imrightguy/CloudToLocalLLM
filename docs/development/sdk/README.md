@@ -1,25 +1,25 @@
-# Zoidbot SDK
+# CloudToLocalLLM SDK
 
-Official JavaScript/TypeScript SDK for the Zoidbot API.
+Official JavaScript/TypeScript SDK for the CloudToLocalLLM API.
 
 ## Installation
 
 ### npm
 
 ```bash
-npm install @zoidbot/sdk
+npm install @CloudToLocalLLM/sdk
 ```
 
 ### yarn
 
 ```bash
-yarn add @zoidbot/sdk
+yarn add @CloudToLocalLLM/sdk
 ```
 
 ### pnpm
 
 ```bash
-pnpm add @zoidbot/sdk
+pnpm add @CloudToLocalLLM/sdk
 ```
 
 ## Quick Start
@@ -27,11 +27,11 @@ pnpm add @zoidbot/sdk
 ### Basic Usage
 
 ```typescript
-import { ZoidbotClient } from '@zoidbot/sdk';
+import { CloudToLocalLLMClient } from '@CloudToLocalLLM/sdk';
 
 // Initialize the client
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
   apiVersion: 'v2',
 });
 
@@ -396,8 +396,8 @@ interface SDKConfig {
 ### Example Configuration
 
 ```typescript
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
   apiVersion: 'v2',
   timeout: 60000,
   retryAttempts: 5,
@@ -463,10 +463,10 @@ console.log(response.pagination.pages);  // Total pages
 The SDK is fully typed with TypeScript:
 
 ```typescript
-import { ZoidbotClient, Tunnel, User } from '@zoidbot/sdk';
+import { CloudToLocalLLMClient, Tunnel, User } from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
 });
 
 // Types are automatically inferred
@@ -479,10 +479,10 @@ const tunnel: Tunnel = await client.getTunnel('tunnel-id');
 ### Complete Authentication Flow
 
 ```typescript
-import { ZoidbotClient } from '@zoidbot/sdk';
+import { CloudToLocalLLMClient } from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
 });
 
 // After OAuth login
@@ -565,9 +565,9 @@ console.log(`Total deliveries: ${deliveries.pagination.total}`);
 
 For issues, questions, or contributions, visit:
 
-- GitHub: https://github.com/Zoidbot/zoidbot
-- Documentation: https://zoidbot.online/docs
-- API Docs: https://api.zoidbot.online/api/docs
+- GitHub: https://github.com/CloudToLocalLLM/CloudToLocalLLM
+- Documentation: https://cloudtolocalllm.online/docs
+- API Docs: https://api.cloudtolocalllm.online/api/docs
 
 ## License
 

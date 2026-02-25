@@ -292,7 +292,7 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
           SizedBox(height: AppTheme.spacingM),
           _buildSwitchTile(
             'Enable System Tray',
-            'Show Zoidbot icon in system tray',
+            'Show CloudToLocalLLM icon in system tray',
             _enableSystemTray,
             (value) => setState(() => _enableSystemTray = value),
           ),

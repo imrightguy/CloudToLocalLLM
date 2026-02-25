@@ -2,15 +2,15 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 data:
   prometheus.yml: |
     global:
       scrape_interval: 15s
       evaluation_interval: 15s
       external_labels:
-        cluster: zoidbot-aks
-        namespace: zoidbot
+        cluster: CloudToLocalLLM-aks
+        namespace: CloudToLocalLLM
 
     rule_files:
       - /etc/prometheus/argocd-alerts.yml
@@ -57,8 +57,8 @@ data:
           module: [http_2xx]
         static_configs:
           - targets:
-            - https://api.zoidbot.online/health
-            - https://app.zoidbot.online/
+            - https://api.cloudtolocalllm.online/health
+            - https://app.cloudtolocalllm.online/
         relabel_configs:
           - source_labels: [__address__]
             target_label: __param_target

@@ -16,7 +16,7 @@
 # - ⚠️ Chinese CA - may have trust/accessibility issues
 #
 # Prerequisites:
-# 1. Azure DNS zone: zoidbot.online
+# 1. Azure DNS zone: cloudtolocalllm.online
 # 2. Service Principal with DNS Zone Contributor role on the DNS zone
 # 3. Kubernetes secret: azure-dns-config (already exists from main setup)
 
@@ -28,7 +28,7 @@ spec:
   acme:
     # HiCA ACME server
     server: https://acme.hi.cn/directory
-    email: admin@zoidbot.online
+    email: admin@cloudtolocalllm.online
 
     privateKeySecretRef:
       name: hica-prod-key
@@ -45,6 +45,6 @@ spec:
               key: client-secret
             subscriptionID: <AZURE_SUBSCRIPTION_ID>  # Replace in workflow or manually
             tenantID: <AZURE_TENANT_ID>  # Replace in workflow or manually
-            resourceGroupName: zoidbot-rg
-            hostedZoneName: zoidbot.online
+            resourceGroupName: CloudToLocalLLM-rg
+            hostedZoneName: cloudtolocalllm.online
             environment: AzurePublicCloud

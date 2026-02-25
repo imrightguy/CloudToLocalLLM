@@ -241,7 +241,7 @@ The Flutter app runs an embedded HTTP server on **port 1337** that provides an O
 
 ### Local Database (Drift/SQLite)
 
-**File**: `~/.local/share/zoidbot/local_brain.db` (Linux)
+**File**: `~/.local/share/CloudToLocalLLM/local_brain.db` (Linux)
 
 **Tables**:
 - `conversations` - Chat history

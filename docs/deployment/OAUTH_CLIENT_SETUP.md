@@ -1,4 +1,4 @@
-# Google OAuth Client Setup for Zoidbot
+# Google OAuth Client Setup for CloudToLocalLLM
 
 This guide helps you set up Google OAuth Client IDs to fix the "401: invalid_client" error.
 
@@ -18,7 +18,7 @@ This indicates that the Google OAuth Client ID in your configuration is invalid 
 ### Step 1: Access Google Cloud Console
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Select your project: `zoidbot-468303`
+2. Select your project: `CloudToLocalLLM-468303`
 3. Navigate to **APIs & Services** > **Credentials**
 
 ### Step 2: Create OAuth 2.0 Client IDs
@@ -30,14 +30,14 @@ You need to create separate client IDs for different platforms:
 1. Click **+ CREATE CREDENTIALS** > **OAuth client ID**
 2. Select **Web application**
 3. Configure:
-   - **Name**: `Zoidbot Web Client`
+   - **Name**: `CloudToLocalLLM Web Client`
    - **Authorized JavaScript origins**:
-     - `https://app.zoidbot.online`
-     - `https://zoidbot.online`
+     - `https://app.cloudtolocalllm.online`
+     - `https://cloudtolocalllm.online`
      - `http://localhost:3000` (for development)
    - **Authorized redirect URIs**:
-     - `https://app.zoidbot.online/callback`
-     - `https://app.zoidbot.online`
+     - `https://app.cloudtolocalllm.online/callback`
+     - `https://app.cloudtolocalllm.online`
      - `http://localhost:3000/callback` (for development)
 
 #### For Desktop Application (Flutter Desktop)
@@ -45,7 +45,7 @@ You need to create separate client IDs for different platforms:
 1. Click **+ CREATE CREDENTIALS** > **OAuth client ID**
 2. Select **Desktop application**
 3. Configure:
-   - **Name**: `Zoidbot Desktop Client`
+   - **Name**: `CloudToLocalLLM Desktop Client`
    - No additional configuration needed for desktop apps
 
 #### For Mobile Application (if needed)

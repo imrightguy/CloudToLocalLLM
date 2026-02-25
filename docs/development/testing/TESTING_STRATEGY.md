@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the strategy to improve test coverage and reliability for the Zoidbot project. Currently, the project lacks comprehensive E2E tests and has minimal backend unit test coverage.
+This document outlines the strategy to improve test coverage and reliability for the CloudToLocalLLM project. Currently, the project lacks comprehensive E2E tests and has minimal backend unit test coverage.
 
 ## Goals
 

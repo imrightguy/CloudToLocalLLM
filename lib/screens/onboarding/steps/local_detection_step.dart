@@ -246,7 +246,8 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: provider.isAvailable
                                 ? Colors.green.shade100
@@ -254,7 +255,9 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            provider.isAvailable ? 'Available' : 'Check Connection',
+                            provider.isAvailable
+                                ? 'Available'
+                                : 'Check Connection',
                             style: TextStyle(
                               color: provider.isAvailable
                                   ? Colors.green.shade900
@@ -268,9 +271,10 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
                           const SizedBox(width: 12),
                           Text(
                             'v${provider.version}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey.shade600,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey.shade600,
+                                    ),
                           ),
                         ],
                       ],

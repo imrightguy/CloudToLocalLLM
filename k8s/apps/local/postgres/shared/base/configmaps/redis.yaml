@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-tunnel-state-config
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 data:
   redis.conf: |
     # Redis configuration for tunnel state storage

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of database backup and recovery procedures for the Zoidbot API backend. The system provides comprehensive backup management, integrity verification, and recovery capabilities.
+This document describes the implementation of database backup and recovery procedures for the CloudToLocalLLM API backend. The system provides comprehensive backup management, integrity verification, and recovery capabilities.
 
 ## Requirements
 
@@ -264,7 +264,7 @@ MAX_BACKUPS=10
 # Database connection
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=zoidbot
+DB_NAME=CloudToLocalLLM
 DB_USER=postgres
 DB_PASSWORD=password
 ```

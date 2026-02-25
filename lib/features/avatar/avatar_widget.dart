@@ -10,7 +10,7 @@ enum AgentState {
   happy,
 }
 
-/// An expressive avatar for Zoidbot that reacts to the agent's state.
+/// An expressive avatar for CloudToLocalLLM that reacts to the agent's state.
 ///
 /// Currently uses a reactive placeholder.
 /// Recommended final implementation: Rive (.riv) for state-driven vector animations.

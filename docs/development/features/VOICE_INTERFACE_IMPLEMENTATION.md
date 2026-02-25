@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of a voice interface for Zoidbot, enabling speech-to-text (STT), text-to-speech (TTS), and voice-driven conversations with LLMs.
+This document describes the implementation of a voice interface for CloudToLocalLLM, enabling speech-to-text (STT), text-to-speech (TTS), and voice-driven conversations with LLMs.
 
 **Validates: Requirements TBD**
 

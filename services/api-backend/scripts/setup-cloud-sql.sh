@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Cloud SQL PostgreSQL Setup Script for Zoidbot
+# Cloud SQL PostgreSQL Setup Script for CloudToLocalLLM
 # Run this script to create and configure the PostgreSQL instance
 
 set -e
 
 # Configuration
-PROJECT_ID="zoidbot-468303"
-INSTANCE_NAME="zoidbot-db"
+PROJECT_ID="CloudToLocalLLM-468303"
+INSTANCE_NAME="CloudToLocalLLM-db"
 REGION="us-central1"  # Change to your preferred region
-DATABASE_NAME="zoidbot"
+DATABASE_NAME="CloudToLocalLLM"
 DB_USER="appuser"
 TIER="db-f1-micro"  # Start small, can upgrade later
 
-echo " Setting up Cloud SQL PostgreSQL instance for Zoidbot..."
+echo " Setting up Cloud SQL PostgreSQL instance for CloudToLocalLLM..."
 
 # Set the project
 gcloud config set project $PROJECT_ID
@@ -74,7 +74,7 @@ echo "  3. Deploy your updated backend with PostgreSQL support"
 
 # Save configuration to file for reference
 cat > cloud-sql-config.env << EOF
-# Cloud SQL Configuration for Zoidbot
+# Cloud SQL Configuration for CloudToLocalLLM
 # Generated on $(date)
 
 DB_TYPE=postgresql

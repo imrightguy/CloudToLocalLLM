@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: alertmanager-config
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 data:
   alertmanager.yml: |
     global:
@@ -12,7 +12,7 @@ data:
       # unless using a startup script or sidecar. Using placeholders.
       slack_api_url: 'http://placeholder-slack-webhook'
       smtp_smarthost: 'localhost:25'
-      smtp_from: 'alerts@zoidbot.online'
+      smtp_from: 'alerts@cloudtolocalllm.online'
     
     # Alert routing configuration
     route:
@@ -68,8 +68,8 @@ data:
                 text: 'View Runbook'
                 url: '{{ (index .Alerts 0).Annotations.runbook_url }}'
         email_configs:
-          - to: 'oncall@zoidbot.online'
-            from: 'alerts@zoidbot.online'
+          - to: 'oncall@cloudtolocalllm.online'
+            from: 'alerts@cloudtolocalllm.online'
             smarthost: '${SMTP_HOST}:${SMTP_PORT}'
             auth_username: '${SMTP_USERNAME}'
             auth_password: '${SMTP_PASSWORD}'
@@ -126,7 +126,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: alertmanager
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: alertmanager
 spec:
@@ -142,7 +142,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: alertmanager
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: alertmanager
 spec:
@@ -169,36 +169,36 @@ spec:
           args:
             - '--config.file=/etc/alertmanager/alertmanager.yml'
             - '--storage.path=/alertmanager'
-            - '--web.external-url=http://alertmanager.zoidbot.online'
+            - '--web.external-url=http://alertmanager.cloudtolocalllm.online'
           env:
             - name: SLACK_WEBHOOK_URL
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: slack-webhook-url
                   optional: true
             - name: SMTP_HOST
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: smtp-host
                   optional: true
             - name: SMTP_PORT
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: smtp-port
                   optional: true
             - name: SMTP_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: smtp-username
                   optional: true
             - name: SMTP_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: smtp-password
                   optional: true
           volumeMounts:

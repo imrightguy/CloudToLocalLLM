@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot VPS Deployment Script - Enhanced Version
+# CloudToLocalLLM VPS Deployment Script - Enhanced Version
 # Deploy the latest changes to the VPS with automated error handling
 # Version: 3.6.4 - Fully Automated Deployment
 
@@ -36,9 +36,9 @@ log_step() {
 }
 
 # Configuration
-PROJECT_DIR="/opt/zoidbot"
+PROJECT_DIR="/opt/CloudToLocalLLM"
 COMPOSE_FILE="docker-compose.multi.yml"
-BACKUP_DIR="/opt/zoidbot/backups"
+BACKUP_DIR="/opt/CloudToLocalLLM/backups"
 MAX_RETRIES=3
 RETRY_DELAY=5
 
@@ -149,9 +149,9 @@ cleanup_all_containers() {
         docker-compose -f "$COMPOSE_FILE" down --timeout 30 --remove-orphans 2>/dev/null || true
     fi
 
-    # Stop all Zoidbot related containers
-    log_info "Stopping all Zoidbot containers..."
-    local containers_to_stop=$(docker ps -a --format "{{.Names}}" | grep -E "(zoidbot|cloudllm)" || true)
+    # Stop all CloudToLocalLLM related containers
+    log_info "Stopping all CloudToLocalLLM containers..."
+    local containers_to_stop=$(docker ps -a --format "{{.Names}}" | grep -E "(CloudToLocalLLM|cloudllm)" || true)
     if [[ -n "$containers_to_stop" ]]; then
         echo "$containers_to_stop" | while IFS= read -r container; do
             if [[ -n "$container" ]]; then
@@ -336,13 +336,13 @@ verify_deployment() {
     while [[ $attempt -le $max_attempts ]]; do
         log_info "Testing HTTPS endpoint (attempt $attempt/$max_attempts)..."
 
-        if curl -I -s -f --max-time 10 https://app.zoidbot.online >/dev/null 2>&1; then
+        if curl -I -s -f --max-time 10 https://app.cloudtolocalllm.online >/dev/null 2>&1; then
             log_success "HTTPS endpoint is accessible"
             break
         elif [[ $attempt -eq $max_attempts ]]; then
             log_error "HTTPS endpoint is not accessible after $max_attempts attempts"
             # Show more details for debugging
-            curl -I -v https://app.zoidbot.online 2>&1 | head -10 || true
+            curl -I -v https://app.cloudtolocalllm.online 2>&1 | head -10 || true
             return 1
         else
             log_info "HTTPS endpoint not ready, waiting 10 seconds..."
@@ -353,7 +353,7 @@ verify_deployment() {
 
     # Test main app page
     log_info "Testing main application page..."
-    if curl -s --max-time 10 https://app.zoidbot.online/ | grep -q "Zoidbot\|flutter\|main.dart.js" 2>/dev/null; then
+    if curl -s --max-time 10 https://app.cloudtolocalllm.online/ | grep -q "CloudToLocalLLM\|flutter\|main.dart.js" 2>/dev/null; then
         log_success "Main application page is loading correctly"
     else
         log_warning "Main application page may not be loading correctly"
@@ -362,7 +362,7 @@ verify_deployment() {
 
     # Test version endpoint
     log_info "Testing version information..."
-    if curl -s --max-time 10 https://app.zoidbot.online/assets/version.json 2>/dev/null | grep -q "3.6.4" 2>/dev/null; then
+    if curl -s --max-time 10 https://app.cloudtolocalllm.online/assets/version.json 2>/dev/null | grep -q "3.6.4" 2>/dev/null; then
         log_success "Version 3.6.4 is deployed correctly"
     else
         log_warning "Version information not accessible or incorrect"
@@ -384,10 +384,10 @@ show_summary() {
     docker-compose -f "$COMPOSE_FILE" ps
     echo
     echo "Available Endpoints:"
-    echo "  - Homepage: https://zoidbot.online"
-    echo "  - Web App: https://app.zoidbot.online"
-    echo "  - Downloads: https://zoidbot.online/downloads.html"
-    echo "  - Debian Package: https://zoidbot.online/dist/debian/zoidbot_2.1.1_amd64.deb"
+    echo "  - Homepage: https://cloudtolocalllm.online"
+    echo "  - Web App: https://app.cloudtolocalllm.online"
+    echo "  - Downloads: https://cloudtolocalllm.online/downloads.html"
+    echo "  - Debian Package: https://cloudtolocalllm.online/dist/debian/cloudtolocalllm_2.1.1_amd64.deb"
     echo
     echo "Logs:"
     echo "  docker-compose -f $COMPOSE_FILE logs -f"
@@ -396,9 +396,9 @@ show_summary() {
 
 # Main deployment function
 main() {
-    log_step "Starting Zoidbot VPS deployment v3.6.4..."
+    log_step "Starting CloudToLocalLLM VPS deployment v3.6.4..."
     echo "================================================================"
-    echo "Zoidbot Automated VPS Deployment"
+    echo "CloudToLocalLLM Automated VPS Deployment"
     echo "Version: 3.6.4 - Enhanced with automated error handling"
     echo "Time: $(date)"
     echo "================================================================"
@@ -433,21 +433,21 @@ main() {
 
     echo
     echo "================================================================"
-    log_success "Zoidbot v3.6.4 deployment completed successfully!"
+    log_success "CloudToLocalLLM v3.6.4 deployment completed successfully!"
     echo "================================================================"
 }
 
 # Handle command line arguments
 case "${1:-}" in
     "--help"|"-h")
-        echo "Zoidbot VPS Deployment Script"
+        echo "CloudToLocalLLM VPS Deployment Script"
         echo
         echo "Usage: $0 [options]"
         echo
         echo "Options:"
         echo "  --help, -h    Show this help message"
         echo
-        echo "This script deploys the latest Zoidbot changes to the VPS."
+        echo "This script deploys the latest CloudToLocalLLM changes to the VPS."
         echo "It should be run as the cloudllm user on the VPS."
         exit 0
         ;;

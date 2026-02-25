@@ -8,7 +8,7 @@
 
 ## Implementation Overview
 
-API versioning has been successfully integrated into the Zoidbot API backend with URL-based versioning strategy supporting multiple API versions with backward compatibility.
+API versioning has been successfully integrated into the CloudToLocalLLM API backend with URL-based versioning strategy supporting multiple API versions with backward compatibility.
 
 ## Components Implemented
 
@@ -101,9 +101,9 @@ API versioning has been successfully integrated into the Zoidbot API backend wit
 
 **Supported Servers:**
 
-- `https://api.zoidbot.online/v2` - Production v2
-- `https://api.zoidbot.online/v1` - Production v1 (deprecated)
-- `https://api.zoidbot.online` - Production default
+- `https://api.cloudtolocalllm.online/v2` - Production v2
+- `https://api.cloudtolocalllm.online/v1` - Production v1 (deprecated)
+- `https://api.cloudtolocalllm.online` - Production default
 - `http://localhost:8080/v2` - Development v2
 - `http://localhost:8080/v1` - Development v1
 - `http://localhost:8080` - Development default
@@ -185,27 +185,27 @@ Warning: 299 - "API version v1 is deprecated. Migrate to v2 before 2025-01-01"
 ### Get Version Information
 
 ```bash
-curl https://api.zoidbot.online/api/versions
+curl https://api.cloudtolocalllm.online/api/versions
 ```
 
 ### Use v2 Explicitly
 
 ```bash
-curl https://api.zoidbot.online/v2/users/me \
+curl https://api.cloudtolocalllm.online/v2/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Use v1 (Deprecated)
 
 ```bash
-curl https://api.zoidbot.online/v1/users/me \
+curl https://api.cloudtolocalllm.online/v1/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Use Default (v2)
 
 ```bash
-curl https://api.zoidbot.online/users/me \
+curl https://api.cloudtolocalllm.online/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

@@ -26,7 +26,7 @@ class ConnectionMethodCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: selected
-              ? Theme.of(context).primaryColor.withOpacity(0.1)
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -62,9 +62,8 @@ class ConnectionMethodCard extends StatelessWidget {
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: selected
-                              ? Theme.of(context).primaryColor
-                              : null,
+                          color:
+                              selected ? Theme.of(context).primaryColor : null,
                         ),
                   ),
                   const SizedBox(height: 4),

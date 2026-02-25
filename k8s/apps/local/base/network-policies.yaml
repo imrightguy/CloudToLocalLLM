@@ -1,10 +1,10 @@
 ---
-# Default deny all ingress traffic in zoidbot namespace
+# Default deny all ingress traffic in CloudToLocalLLM namespace
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: network-policy
     policy: default-deny
@@ -14,12 +14,12 @@ spec:
     - Ingress
 
 ---
-# Default deny all egress traffic in zoidbot namespace
+# Default deny all egress traffic in CloudToLocalLLM namespace
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-egress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: network-policy
     policy: default-deny
@@ -34,7 +34,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-dns-egress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: network-policy
     policy: allow-dns
@@ -58,7 +58,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-web-app-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: web-app
     policy: allow-ingress
@@ -84,7 +84,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-api-backend-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: api-backend
     policy: allow-ingress
@@ -110,7 +110,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-web-to-api
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: web-app
     policy: allow-egress
@@ -144,7 +144,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-api-to-postgres
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: api-backend
     policy: allow-egress
@@ -178,7 +178,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-postgres-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: postgres
     policy: allow-ingress
@@ -204,7 +204,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-streaming-proxy-to-api
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: streaming-proxy
     policy: allow-egress
@@ -238,7 +238,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-streaming-proxy-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: streaming-proxy
     policy: allow-ingress

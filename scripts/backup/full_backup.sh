@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Full Backup Script
+# CloudToLocalLLM Full Backup Script
 # Creates comprehensive backups of application data, configuration files,
 # and system settings with verification and retention management
 
@@ -11,12 +11,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # VPS configuration
-VPS_HOST="zoidbot.online"
+VPS_HOST="cloudtolocalllm.online"
 VPS_USER="cloudllm"
-VPS_PROJECT_DIR="/opt/zoidbot"
+VPS_PROJECT_DIR="/opt/CloudToLocalLLM"
 
 # Backup configuration
-BACKUP_BASE_DIR="/var/backups/zoidbot"
+BACKUP_BASE_DIR="/var/backups/CloudToLocalLLM"
 BACKUP_RETENTION_DAYS=30
 COMPRESSION_LEVEL=6
 
@@ -51,14 +51,14 @@ log_step() {
 
 # Create backup log entry
 log_backup() {
-    local log_file="/var/log/zoidbot/backup.log"
+    local log_file="/var/log/CloudToLocalLLM/backup.log"
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     echo "[$timestamp] BACKUP: $1" >> "$log_file" 2>/dev/null || true
 }
 
 # Check if running on VPS or locally
 is_vps_environment() {
-    [[ "$(hostname)" == *"zoidbot"* ]] || [[ -f "/opt/zoidbot/docker-compose.yml" ]]
+    [[ "$(hostname)" == *"CloudToLocalLLM"* ]] || [[ -f "/opt/CloudToLocalLLM/docker-compose.yml" ]]
 }
 
 # Execute command on VPS or locally
@@ -97,8 +97,8 @@ backup_application() {
     log_step 2 "Backing up application files..."
     
     # Backup main application directory
-    log_info "Backing up Zoidbot application..."
-    execute_command "cd $VPS_PROJECT_DIR && tar -czf $backup_dir/application/zoidbot_app.tar.gz \
+    log_info "Backing up CloudToLocalLLM application..."
+    execute_command "cd $VPS_PROJECT_DIR && tar -czf $backup_dir/application/cloudtolocalllm_app.tar.gz \
         --exclude='*.log' \
         --exclude='node_modules' \
         --exclude='.git' \
@@ -115,7 +115,7 @@ backup_application() {
     
     # Backup Docker images (optional)
     log_info "Backing up Docker images..."
-    execute_command "docker save \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep zoidbot) | gzip > $backup_dir/application/docker_images.tar.gz 2>/dev/null || true"
+    execute_command "docker save \$(docker images --format '{{.Repository}}:{{.Tag}}' | grep CloudToLocalLLM) | gzip > $backup_dir/application/docker_images.tar.gz 2>/dev/null || true"
     
     log_success "Application backup completed"
     log_backup "Application files backed up"
@@ -131,7 +131,7 @@ backup_configuration() {
     local config_files=(
         "/etc/nginx/"
         "/etc/ssl/"
-        "/etc/systemd/system/zoidbot*"
+        "/etc/systemd/system/CloudToLocalLLM*"
         "/etc/docker/"
         "/etc/crontab"
         "/etc/hosts"
@@ -168,9 +168,9 @@ backup_logs() {
     log_step 4 "Backing up log files..."
     
     # Application logs
-    if execute_command "test -d /var/log/zoidbot"; then
+    if execute_command "test -d /var/log/CloudToLocalLLM"; then
         log_info "Backing up application logs..."
-        execute_command "tar -czf $backup_dir/logs/application_logs.tar.gz /var/log/zoidbot/ 2>/dev/null || true"
+        execute_command "tar -czf $backup_dir/logs/application_logs.tar.gz /var/log/CloudToLocalLLM/ 2>/dev/null || true"
     fi
     
     # System logs (recent only)
@@ -240,7 +240,7 @@ create_backup_manifest() {
     local manifest_file="$backup_dir/BACKUP_MANIFEST.txt"
     
     execute_command "cat > $manifest_file << EOF
-Zoidbot Full Backup Manifest
+CloudToLocalLLM Full Backup Manifest
 ====================================
 
 Backup Date: $backup_date
@@ -361,7 +361,7 @@ generate_backup_report() {
     local status="$3"
     
     echo
-    echo "=== Zoidbot Full Backup Report ==="
+    echo "=== CloudToLocalLLM Full Backup Report ==="
     echo "Date: $backup_date"
     echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "Status: $status"
@@ -401,12 +401,12 @@ generate_backup_report() {
 main() {
     local backup_date=$(date +%Y%m%d_%H%M%S)
     
-    log_info "Starting Zoidbot full backup..."
+    log_info "Starting CloudToLocalLLM full backup..."
     log_backup "Full backup started"
     echo
     
     # Create log directory if it doesn't exist
-    execute_command "mkdir -p /var/log/zoidbot" 2>/dev/null || true
+    execute_command "mkdir -p /var/log/CloudToLocalLLM" 2>/dev/null || true
     execute_command "mkdir -p $BACKUP_BASE_DIR" 2>/dev/null || true
     
     # Create backup directory
@@ -454,7 +454,7 @@ main() {
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "Zoidbot Full Backup Script"
+        echo "CloudToLocalLLM Full Backup Script"
         echo
         echo "Usage: $0 [options]"
         echo

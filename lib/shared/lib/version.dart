@@ -1,12 +1,12 @@
-/// Zoidbot Shared Version Management
+/// CloudToLocalLLM Shared Version Management
 ///
 /// Provides version constants and compatibility checks across all applications
 library;
 
 import 'package:package_info_plus/package_info_plus.dart';
 
-/// Version constants for all Zoidbot components
-class ZoidbotVersions {
+/// Version constants for all CloudToLocalLLM components
+class CloudToLocalLLMVersions {
   // Main application version
   static const String mainAppVersion = '4.3.0';
   static const int mainAppBuildNumber = 202511062338;
@@ -35,7 +35,7 @@ class VersionCompatibility {
   static bool isSharedLibraryCompatible(String appVersion) {
     final appMajor = _getMajorVersion(appVersion);
     final sharedMajor = _getMajorVersion(
-      ZoidbotVersions.sharedLibraryVersion,
+      CloudToLocalLLMVersions.sharedLibraryVersion,
     );
 
     // Major versions must match for compatibility
@@ -46,7 +46,7 @@ class VersionCompatibility {
   static bool isTrayDaemonCompatible(String appVersion) {
     final appMajor = _getMajorVersion(appVersion);
     final trayMajor = _getMajorVersion(
-      ZoidbotVersions.trayDaemonVersion,
+      CloudToLocalLLMVersions.trayDaemonVersion,
     );
 
     // For now, require exact major version match
@@ -72,14 +72,14 @@ class VersionCompatibility {
       'shared_library_compatible': isSharedLibraryCompatible(currentVersion),
       'tray_daemon_compatible': isTrayDaemonCompatible(currentVersion),
       'versions': {
-        'main_app': ZoidbotVersions.mainAppVersion,
-        'tunnel_manager': ZoidbotVersions.tunnelManagerVersion,
-        'shared_library': ZoidbotVersions.sharedLibraryVersion,
-        'tray_daemon': ZoidbotVersions.trayDaemonVersion,
+        'main_app': CloudToLocalLLMVersions.mainAppVersion,
+        'tunnel_manager': CloudToLocalLLMVersions.tunnelManagerVersion,
+        'shared_library': CloudToLocalLLMVersions.sharedLibraryVersion,
+        'tray_daemon': CloudToLocalLLMVersions.trayDaemonVersion,
       },
       'build_info': {
-        'timestamp': ZoidbotVersions.buildTimestamp,
-        'git_commit': ZoidbotVersions.gitCommitHash,
+        'timestamp': CloudToLocalLLMVersions.buildTimestamp,
+        'git_commit': CloudToLocalLLMVersions.gitCommitHash,
       },
     };
   }
@@ -103,6 +103,6 @@ class VersionDisplay {
 
   /// Get version with build timestamp for tooltips
   static String getDetailedVersion(String version, int buildNumber) {
-    return '$version+$buildNumber (${ZoidbotVersions.buildTimestamp})';
+    return '$version+$buildNumber (${CloudToLocalLLMVersions.buildTimestamp})';
   }
 }

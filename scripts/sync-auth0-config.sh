@@ -50,8 +50,8 @@ echo "Active Tenant: $TENANT_DOMAIN"
 echo "Searching for application credentials..."
 APP_LIST_JSON=$(auth0 apps list --json --no-input --no-color 2>/dev/null)
 
-# Strategy: 1. Zoidbot, 2. Default App, 3. First available
-APP_JSON=$(echo "$APP_LIST_JSON" | jq -c '.[] | select(.name | contains("Zoidbot"))' 2>/dev/null | head -n 1 || true)
+# Strategy: 1. CloudToLocalLLM, 2. Default App, 3. First available
+APP_JSON=$(echo "$APP_LIST_JSON" | jq -c '.[] | select(.name | contains("CloudToLocalLLM"))' 2>/dev/null | head -n 1 || true)
 
 if [ -z "$APP_JSON" ] || [ "$APP_JSON" == "null" ] || [ "$APP_JSON" == "" ]; then
     APP_JSON=$(echo "$APP_LIST_JSON" | jq -c '.[] | select(.name == "Default App")' 2>/dev/null | head -n 1 || true)
@@ -81,7 +81,7 @@ if [ -z "$CLIENT_SECRET" ] || [ "$CLIENT_SECRET" == "null" ]; then
 fi
 
 AUTH0_ISSUER_URL="https://$TENANT_DOMAIN/"
-AUTH0_AUDIENCE="https://api.zoidbot.online"
+AUTH0_AUDIENCE="https://api.cloudtolocalllm.online"
 
 # 3. Update GitHub Secrets (Programmatic Injection Only)
 echo "Updating GitHub Repository Secrets..."

@@ -9,13 +9,13 @@
 ### Frontend (web/auth0-bridge.js)
 
 ```javascript
-const AUTH0_AUDIENCE = 'https://api.zoidbot.online';
+const AUTH0_AUDIENCE = 'https://api.cloudtolocalllm.online';
 ```
 
 ### Backend (services/api-backend/middleware/auth.js)
 
 ```javascript
-const DEFAULT_JWT_AUDIENCE = 'https://api.zoidbot.online';
+const DEFAULT_JWT_AUDIENCE = 'https://api.cloudtolocalllm.online';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || DEFAULT_JWT_AUDIENCE;
 ```
 
@@ -26,7 +26,7 @@ User Login
     ↓
 Auth0 OAuth Flow (web/auth0-bridge.js)
     ↓
-Auth0 Issues Token with Audience: https://api.zoidbot.online
+Auth0 Issues Token with Audience: https://api.cloudtolocalllm.online
     ↓
 Frontend Stores Token (flutter_secure_storage)
     ↓
@@ -87,10 +87,10 @@ Backend Verifies Audience Matches
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `AUTH0_AUDIENCE` | `https://api.zoidbot.online` | Expected token audience |
+| `AUTH0_AUDIENCE` | `https://api.cloudtolocalllm.online` | Expected token audience |
 | `AUTH0_JWKS_URI` | `https://dev-vivn1fcgzi0c2czy.us.auth0.com/.well-known/jwks.json` | JWKS endpoint for token validation |
 | `SUPABASE_JWT_SECRET` | (required) | Secret for HS256 token validation |
-| `JWT_AUDIENCE` | `https://api.zoidbot.online` | Alias for AUTH0_AUDIENCE |
+| `JWT_AUDIENCE` | `https://api.cloudtolocalllm.online` | Alias for AUTH0_AUDIENCE |
 
 ## Debugging
 
@@ -123,7 +123,7 @@ console.log(decoded);
 
 // Check audience claim
 console.log('Audience:', decoded.aud);
-console.log('Expected:', 'https://api.zoidbot.online');
+console.log('Expected:', 'https://api.cloudtolocalllm.online');
 ```
 
 ### Test Backend Token Validation
@@ -133,7 +133,7 @@ console.log('Expected:', 'https://api.zoidbot.online');
 ```bash
 # Get token from browser first, then:
 curl -H "Authorization: Bearer <token>" \
-  https://api.zoidbot.online/user/tier
+  https://api.cloudtolocalllm.online/user/tier
 ```
 
 ## Deployment

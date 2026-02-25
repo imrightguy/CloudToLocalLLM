@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-cloudflared-egress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   podSelector:
     matchLabels:
@@ -18,7 +18,7 @@ spec:
       ports:
         - protocol: UDP
           port: 53
-    # Allow communication to services in zoidbot
+    # Allow communication to services in CloudToLocalLLM
     - to:
         - podSelector:
             matchLabels:

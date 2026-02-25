@@ -1,6 +1,6 @@
 # Service Lifecycle & Dependency Graph
 
-Zoidbot now uses a centralized service locator (`lib/di/locator.dart`) to ensure that all long–lived `ChangeNotifier` instances are constructed once during bootstrap and disposed in a predictable order.
+CloudToLocalLLM now uses a centralized service locator (`lib/di/locator.dart`) to ensure that all long–lived `ChangeNotifier` instances are constructed once during bootstrap and disposed in a predictable order.
 
 ## Boot Sequence
 

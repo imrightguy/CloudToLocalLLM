@@ -1,8 +1,8 @@
-# Zoidbot Size Optimization Guide
+# CloudToLocalLLM Size Optimization Guide
 
 ## Overview
 
-This document outlines the size optimization strategies implemented for Zoidbot portable builds to ensure efficient distribution and reduced download sizes.
+This document outlines the size optimization strategies implemented for CloudToLocalLLM portable builds to ensure efficient distribution and reduced download sizes.
 
 ## Current Size Analysis
 
@@ -49,7 +49,7 @@ This document outlines the size optimization strategies implemented for Zoidbot 
 
 #### Deployment Script
 
-- **File**: `scripts/powershell/Deploy-Zoidbot.ps1`
+- **File**: `scripts/powershell/Deploy-CloudToLocalLLM.ps1`
 - **Change**: Added size optimization flags to Windows build command
 - **Command**: `flutter build windows --release --tree-shake-icons --split-debug-info=build/debug-info`
 
@@ -144,7 +144,7 @@ The deployment script includes validation to ensure:
 
 To test the optimizations:
 
-1. Run the deployment script: `.\scripts\powershell\Deploy-Zoidbot.ps1`
+1. Run the deployment script: `.\scripts\powershell\Deploy-CloudToLocalLLM.ps1`
 2. Check the portable ZIP size in `dist/windows/`
 3. Verify debug info is in `build/debug-info/` (excluded from ZIP)
 4. Confirm git commits include build-time injected files

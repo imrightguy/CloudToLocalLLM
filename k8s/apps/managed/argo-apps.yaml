@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: zoidbot-services
+  name: CloudToLocalLLM-services
   namespace: argocd
 spec:
   generators:
@@ -25,16 +25,16 @@ spec:
             path: k8s/apps/managed/ingress-cloudflared
   template:
     metadata:
-      name: "zoidbot-{{name}}"
+      name: "CloudToLocalLLM-{{name}}"
     spec:
       project: default
       source:
-        repoURL: https://github.com/Zoidbot-online/Zoidbot
+        repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
         targetRevision: main
         path: "{{path}}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: zoidbot
+        namespace: CloudToLocalLLM
       syncPolicy:
         automated:
           prune: true

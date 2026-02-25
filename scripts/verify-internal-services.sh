@@ -1,5 +1,5 @@
 #!/bin/bash
-# Internal service verification script for Zoidbot
+# Internal service verification script for CloudToLocalLLM
 # This script should be run from within the cluster or a pod with network access.
 
 RED='\033[0;31m'
@@ -7,10 +7,10 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 SERVICES=(
-  "api-backend.zoidbot.svc.cluster.local:8080/health"
-  "web.zoidbot.svc.cluster.local:8080/health"
-  "streaming-proxy.zoidbot.svc.cluster.local:3001/health"
-  "grafana.zoidbot.svc.cluster.local:3000/api/health"
+  "api-backend.CloudToLocalLLM.svc.cluster.local:8080/health"
+  "web.CloudToLocalLLM.svc.cluster.local:8080/health"
+  "streaming-proxy.CloudToLocalLLM.svc.cluster.local:3001/health"
+  "grafana.CloudToLocalLLM.svc.cluster.local:3000/api/health"
 )
 
 echo "Starting internal service verification..."

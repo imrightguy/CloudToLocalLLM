@@ -2,14 +2,14 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: deploy-job
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:
       serviceAccountName: deployer-sa
       containers:
         - name: deployer
-          image: ghcr.io/zoidbot-online/zoidbot/deployer:latest
+          image: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/deployer:latest
           command: ["/bin/bash", "-c"]
           args:
             - |

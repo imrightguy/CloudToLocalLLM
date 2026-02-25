@@ -151,12 +151,12 @@ class _DownloadTestScreenState extends State<DownloadTestScreen> {
                     const SizedBox(height: 12),
                     _buildManualLink(
                       'GitHub Releases Page',
-                      'https://github.com/Zoidbot-online/Zoidbot/releases',
+                      'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases',
                       Icons.open_in_new,
                     ),
                     _buildManualLink(
                       'Latest Release (Direct)',
-                      'https://github.com/Zoidbot-online/Zoidbot/releases/latest',
+                      'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest',
                       Icons.download,
                     ),
                   ],

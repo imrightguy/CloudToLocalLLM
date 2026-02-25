@@ -1,4 +1,4 @@
-# Zoidbot Docker Compose Deployment Guide
+# CloudToLocalLLM Docker Compose Deployment Guide
 
 **⚠️ DEVELOPMENT/TESTING ONLY**: This Docker Compose deployment is suitable for development, testing, and small-scale deployments. For production use, **Kubernetes deployment is strongly recommended**.
 
@@ -6,7 +6,7 @@ See [Deployment Overview](DEPLOYMENT/DEPLOYMENT_OVERVIEW.md) for all deployment 
 
 ## Overview
 
-This guide will help you deploy Zoidbot using Docker Compose with a complete stack including:
+This guide will help you deploy CloudToLocalLLM using Docker Compose with a complete stack including:
 
 - **Web Application** (Flutter + Nginx)
 - **API Backend** (Node.js with WebSocket tunnel support)
@@ -42,8 +42,8 @@ Before deployment, configure your DNS with A records for:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/Zoidbot.git
-cd Zoidbot
+git clone https://github.com/yourusername/CloudToLocalLLM.git
+cd CloudToLocalLLM
 ```
 
 ### 2. Run the Deployment Script
@@ -86,7 +86,7 @@ DOMAIN=yourdomain.com
 SSL_EMAIL=admin@yourdomain.com
 
 # Database Configuration
-POSTGRES_DB=zoidbot
+POSTGRES_DB=CloudToLocalLLM
 POSTGRES_USER=appuser
 POSTGRES_PASSWORD=your_secure_password_here
 
@@ -175,14 +175,14 @@ Nginx (Port 80/443)
 
 ### Web Application
 
-- **Container**: `zoidbot-web`
+- **Container**: `CloudToLocalLLM-web`
 - **Technology**: Flutter (built to static files) + Nginx
 - **Port**: 8080 (internal)
 - **Health Check**: HTTP GET /health
 
 ### API Backend
 
-- **Container**: `zoidbot-api-backend`
+- **Container**: `cloudtolocalllm-api-backend`
 - **Technology**: Node.js Express
 - **Port**: 3000 (internal)
 - **Features**:
@@ -195,15 +195,15 @@ Nginx (Port 80/443)
 
 ### PostgreSQL Database
 
-- **Container**: `zoidbot-postgres`
+- **Container**: `CloudToLocalLLM-postgres`
 - **Version**: PostgreSQL 16 Alpine
 - **Port**: 5432 (internal only)
-- **Data**: Persisted in Docker volume `zoidbot_postgres_data`
+- **Data**: Persisted in Docker volume `cloudtolocalllm_postgres_data`
 - **Schema**: Auto-initialized from `services/api-backend/database/schema.pg.sql`
 
 ### Nginx Reverse Proxy
 
-- **Container**: `zoidbot-nginx`
+- **Container**: `CloudToLocalLLM-nginx`
 - **Ports**: 80 (HTTP), 443 (HTTPS)
 - **Features**:
   - SSL/TLS termination
@@ -215,7 +215,7 @@ Nginx (Port 80/443)
 
 ### Certbot
 
-- **Container**: `zoidbot-certbot`
+- **Container**: `CloudToLocalLLM-certbot`
 - **Function**: Automatic SSL certificate renewal
 - **Schedule**: Checks for renewal every 12 hours
 
@@ -229,7 +229,7 @@ Nginx (Port 80/443)
 ### Connection Steps
 
 1. Start your local Ollama instance
-2. Launch the Zoidbot desktop app
+2. Launch the CloudToLocalLLM desktop app
 3. Sign in with your Auth0 credentials
 4. Desktop app will connect to: `wss://api.yourdomain.com/ws/tunnel`
 5. WebSocket tunnel established
@@ -287,11 +287,11 @@ docker compose -f docker-compose.production.yml up -d
 ```bash
 # Backup PostgreSQL database
 docker compose -f docker-compose.production.yml exec postgres \
-  pg_dump -U appuser zoidbot > backup_$(date +%Y%m%d).sql
+  pg_dump -U appuser CloudToLocalLLM > backup_$(date +%Y%m%d).sql
 
 # Restore from backup
 docker compose -f docker-compose.production.yml exec -T postgres \
-  psql -U appuser zoidbot < backup_20240101.sql
+  psql -U appuser CloudToLocalLLM < backup_20240101.sql
 ```
 
 ### SSL Certificate Renewal
@@ -352,7 +352,7 @@ docker compose -f docker-compose.production.yml run --rm certbot renew --dry-run
 ```bash
 # Access PostgreSQL shell
 docker compose -f docker-compose.production.yml exec postgres \
-  psql -U appuser -d zoidbot
+  psql -U appuser -d CloudToLocalLLM
 
 # Check database tables
 \dt
@@ -444,6 +444,6 @@ For production deployments, **Kubernetes is recommended** over Docker Compose:
 
 For issues or questions:
 
-- GitHub Issues: https://github.com/yourusername/Zoidbot/issues
-- Documentation: https://docs.zoidbot.online
-- Email: support@zoidbot.online
+- GitHub Issues: https://github.com/yourusername/CloudToLocalLLM/issues
+- Documentation: https://docs.cloudtolocalllm.online
+- Email: support@cloudtolocalllm.online

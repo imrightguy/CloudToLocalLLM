@@ -1,5 +1,5 @@
 /**
- * Authentication Audit Logging Service for Zoidbot API Backend
+ * Authentication Audit Logging Service for CloudToLocalLLM API Backend
  *
  * Provides comprehensive logging of all authentication attempts, successes, and failures
  * with full context including IP address, user agent, and timestamp.

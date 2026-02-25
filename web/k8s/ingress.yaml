@@ -2,11 +2,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: web-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   annotations:
     kubernetes.io/ingress.class: "gce"
-    kubernetes.io/ingress.global-static-ip-name: "zoidbot-static-ip"
-    networking.gke.io/managed-certificates: "zoidbot-certificate"
+    kubernetes.io/ingress.global-static-ip-name: "CloudToLocalLLM-static-ip"
+    networking.gke.io/managed-certificates: "CloudToLocalLLM-certificate"
 spec:
   rules:
   - host: cloudtolocalllm.online

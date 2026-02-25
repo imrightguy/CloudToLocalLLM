@@ -1,6 +1,6 @@
-# Zoidbot Deployment Overview
+# CloudToLocalLLM Deployment Overview
 
-This document provides a comprehensive overview of deployment options and strategies for Zoidbot.
+This document provides a comprehensive overview of deployment options and strategies for CloudToLocalLLM.
 
 ## 📋 Table of Contents
 
@@ -17,7 +17,7 @@ This document provides a comprehensive overview of deployment options and strate
 
 ### 🚀 Kubernetes Deployment (Recommended)
 
-Deploy the full Zoidbot stack to **Kubernetes** using Dockerfiles and Kubernetes manifests. Works with:
+Deploy the full CloudToLocalLLM stack to **Kubernetes** using Dockerfiles and Kubernetes manifests. Works with:
 
 - **Managed Kubernetes**: DigitalOcean Kubernetes (DOKS), Google GKE, AWS EKS, Azure AKS
 - **Self-Hosted Kubernetes**: On-premises or your own infrastructure
@@ -25,12 +25,12 @@ Deploy the full Zoidbot stack to **Kubernetes** using Dockerfiles and Kubernetes
 ```bash
 # Build and push Docker images to your container registry
 docker build -f config/docker/Dockerfile.web \
-  -t your-registry.com/ghcr.io/zoidbot-online/zoidbot/web:latest .
-docker push your-registry.com/ghcr.io/zoidbot-online/zoidbot/web:latest
+  -t your-registry.com/ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/web:latest .
+docker push your-registry.com/ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/web:latest
 
 docker build -f services/api-backend/Dockerfile.prod \
-  -t your-registry.com/zoidbot/api:latest .
-docker push your-registry.com/zoidbot/api:latest
+  -t your-registry.com/CloudToLocalLLM/api:latest .
+docker push your-registry.com/CloudToLocalLLM/api:latest
 
 # Deploy to Kubernetes (any cluster)
 kubectl apply -f k8s/
@@ -67,7 +67,7 @@ The legacy single-container deployment is deprecated and no longer supported. Pl
 
 ## Multi-Container Architecture
 
-Zoidbot features a modern multi-container architecture that provides:
+CloudToLocalLLM features a modern multi-container architecture that provides:
 
 ### 🏗️ **Architecture Benefits**
 
@@ -90,7 +90,7 @@ For detailed information, see [System Architecture](../ARCHITECTURE/SYSTEM_ARCHI
 
 ## Dockerfile-Based Deployment
 
-Zoidbot uses **Dockerfiles** for building container images, which are then deployed to **Kubernetes** (managed or self-hosted).
+CloudToLocalLLM uses **Dockerfiles** for building container images, which are then deployed to **Kubernetes** (managed or self-hosted).
 
 ### 🐳 **Dockerfiles**
 
@@ -99,7 +99,7 @@ Zoidbot uses **Dockerfiles** for building container images, which are then deplo
 Builds the Flutter web application as a static site served by Nginx.
 
 ```bash
-docker build -f config/docker/Dockerfile.web -t zoidbot-web:latest .
+docker build -f config/docker/Dockerfile.web -t CloudToLocalLLM-web:latest .
 ```
 
 #### `services/api-backend/Dockerfile.prod`
@@ -107,7 +107,7 @@ docker build -f config/docker/Dockerfile.web -t zoidbot-web:latest .
 Builds the Node.js API backend service.
 
 ```bash
-docker build -f services/api-backend/Dockerfile.prod -t zoidbot-api:latest .
+docker build -f services/api-backend/Dockerfile.prod -t cloudtolocalllm-api:latest .
 ```
 
 ### ☸️ **Kubernetes Deployment**
@@ -145,7 +145,7 @@ For detailed deployment instructions, see:
 
 ### 🎯 Strict Deployment Policy
 
-Zoidbot enforces a **zero-tolerance deployment policy** for production:
+CloudToLocalLLM enforces a **zero-tolerance deployment policy** for production:
 
 - ✅ **Success**: Zero warnings AND zero errors required
 - ❌ **Failure**: Any warning condition triggers automatic rollback
@@ -166,7 +166,7 @@ See [Strict Deployment Policy](STRICT_DEPLOYMENT_POLICY.md) for complete details
 
 ## Versioning Strategy
 
-Zoidbot uses a granular build numbering system:
+CloudToLocalLLM uses a granular build numbering system:
 
 - **Format**: `v<major>.<minor>.<patch>+<build>` (e.g., `v3.13.0+202507262156`)
 - **`major.minor.patch`**: Semantic versioning for core application
@@ -211,4 +211,4 @@ For detailed information, see [Versioning Strategy](VERSIONING_STRATEGY.md).
 
 ---
 
-*For questions about deployment, please see our [troubleshooting guide](deployment-troubleshooting.md) or [open an issue](https://github.com/Zoidbot-online/Zoidbot/issues).*
+*For questions about deployment, please see our [troubleshooting guide](deployment-troubleshooting.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*

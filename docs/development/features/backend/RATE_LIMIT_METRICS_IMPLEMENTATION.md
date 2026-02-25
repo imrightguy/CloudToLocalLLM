@@ -226,7 +226,7 @@ Add to Prometheus `prometheus.yml`:
 
 ```yaml
 scrape_configs:
-  - job_name: 'zoidbot-api'
+  - job_name: 'cloudtolocalllm-api'
     static_configs:
       - targets: ['localhost:8080']
     metrics_path: '/metrics'

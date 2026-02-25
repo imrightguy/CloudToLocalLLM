@@ -94,7 +94,7 @@ EOF
   # Create personality.md template
   cat > "$SKILL_DIR/personality.md" << 'EOF'
 ---
-agent_name: Zoidbot
+agent_name: CloudToLocalLLM
 formality: 0.5
 humor: 0.5
 enthusiasm: 0.5
@@ -105,7 +105,7 @@ depth_score: 0.0
 last_updated: 2025-02-22T00:00:00Z
 ---
 
-# Zoidbot Personality
+# CloudToLocalLLM Personality
 
 ## Traits
 - Formality: 50%

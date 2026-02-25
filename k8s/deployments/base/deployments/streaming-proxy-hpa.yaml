@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: streaming-proxy-hpa
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: streaming-proxy
 spec:

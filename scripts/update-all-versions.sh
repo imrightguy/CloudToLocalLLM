@@ -135,7 +135,7 @@ fi
 # 13. Update .env.production.template
 echo "13. Updating .env.production.template..."
 if [ -f "config/.env.production.template" ]; then
-    sed -i "s/Zoidbot v[0-9]\+\.[0-9]\+\.[0-9]\+/Zoidbot v${NEW_VERSION}/g" config/.env.production.template
+    sed -i "s/CloudToLocalLLM v[0-9]\+\.[0-9]\+\.[0-9]\+/CloudToLocalLLM v${NEW_VERSION}/g" config/.env.production.template
     sed -i "s/APP_VERSION=[0-9]\+\.[0-9]\+\.[0-9]\+/APP_VERSION=${NEW_VERSION}/g" config/.env.production.template
 fi
 

@@ -4,8 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// Service for managing GitHub releases and downloads
 class GitHubReleaseService {
-  static const String _repoOwner = 'Zoidbot-online';
-  static const String _repoName = 'Zoidbot';
+  static const String _repoOwner = 'CloudToLocalLLM-online';
+  static const String _repoName = 'CloudToLocalLLM';
   static const String _baseApiUrl = 'https://api.github.com/repos';
 
   /// Get the latest release information

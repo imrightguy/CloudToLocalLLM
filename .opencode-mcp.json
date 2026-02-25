@@ -1,16 +1,49 @@
 {
   "mcpServers": {
     "sequentialthinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-sequential-thinking",
+      "args": [],
+      "description": "Multi-step problem-solving and planning for complex implementations"
     },
     "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
+      "command": "/home/rightguy/.npm-global/bin/context7-mcp",
+      "args": [],
+      "description": "Library documentation and knowledge base retrieval for Flutter, Node.js, Auth0"
     },
     "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"]
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-memory",
+      "args": [],
+      "description": "Knowledge graph memory store for project decisions and architectural notes"
+    },
+    "knowledge-graph": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-knowledge-graph",
+      "args": [],
+      "description": "Local knowledge graph for persistent memory across sessions"
+    },
+    "puppeteer": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-puppeteer",
+      "args": [],
+      "description": "Browser automation for E2E testing, web scraping, and screenshots"
+    },
+    "pdf": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-pdf-server",
+      "args": [],
+      "description": "PDF document processing for extracting text and analyzing documentation"
+    },
+    "filesystem": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-filesystem",
+      "args": ["/run/media/rightguy/data_storage/dev/CloudToLocalLLM"],
+      "description": "Filesystem operations for reading, writing, and searching files"
+    },
+    "github": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-github",
+      "args": [],
+      "description": "GitHub API for PRs, issues, workflows (requires GITHUB_TOKEN env var)"
+    },
+    "brave-search": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-brave-search",
+      "args": [],
+      "description": "Web search for documentation lookup (requires BRAVE_API_KEY env var)"
     }
   }
 }

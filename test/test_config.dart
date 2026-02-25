@@ -1,4 +1,4 @@
-// Test configuration for Zoidbot
+// Test configuration for CloudToLocalLLM
 // Provides mock implementations and test setup utilities
 
 import 'package:flutter/services.dart';
@@ -85,8 +85,8 @@ class TestConfig {
         switch (methodCall.method) {
           case 'getAll':
             return {
-              'appName': 'Zoidbot',
-              'packageName': 'com.zoidbot.app',
+              'appName': 'CloudToLocalLLM',
+              'packageName': 'online.cloudtolocalllm.app',
               'version': '3.6.1',
               'buildNumber': '202506192205',
               'buildSignature': '',
@@ -222,7 +222,8 @@ class TestConfig {
 
       // Clear all mock handlers to prevent state leakage between tests
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(const MethodChannel('window_manager'), null);
+          .setMockMethodCallHandler(
+              const MethodChannel('window_manager'), null);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(const MethodChannel('tray_manager'), null);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

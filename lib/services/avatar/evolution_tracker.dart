@@ -25,39 +25,205 @@ class EvolutionTracker {
 
   // Technical terms for complexity detection
   static const Set<String> _technicalTerms = {
-    'api', 'rest', 'http', 'https', 'json', 'xml', 'sql', 'nosql',
-    'database', 'algorithm', 'function', 'variable', 'class', 'method',
-    'interface', 'async', 'await', 'promise', 'callback', 'array', 'object',
-    'string', 'integer', 'boolean', 'float', 'double', 'null', 'undefined',
-    'react', 'vue', 'angular', 'flutter', 'dart', 'javascript', 'typescript',
-    'python', 'java', 'rust', 'go', 'cpp', 'c++', 'html', 'css', 'docker',
-    'kubernetes', 'git', 'github', 'gitlab', 'ci/cd', 'devops', 'cloud',
-    'aws', 'azure', 'gcp', 'serverless', 'microservices', 'monolith',
-    'frontend', 'backend', 'fullstack', 'ui', 'ux', 'debug', 'compile',
-    'runtime', 'middleware', 'framework', 'library', 'package', 'module',
-    'import', 'export', 'component', 'state', 'props', 'hook', 'context',
-    'redux', 'mobx', 'router', 'navigation', 'authentication', 'authorization',
-    'oauth', 'jwt', 'session', 'cookie', 'cache', 'redis', 'mongodb', 'mysql',
-    'postgresql', 'sqlite', 'orm', 'prisma', 'sequelize', 'migration',
-    'deployment', 'testing', 'unit', 'integration', 'e2e', 'tdd', 'bdd',
-    'agile', 'scrum', 'kanban', 'code', 'review', 'refactor', 'pattern',
-    'architecture', 'design', 'system', 'network', 'protocol', 'tcp', 'udp',
-    'ip', 'dns', 'ssl', 'tls', 'ssh', 'ftp', 'smtp', 'websocket', 'graphql',
+    'api',
+    'rest',
+    'http',
+    'https',
+    'json',
+    'xml',
+    'sql',
+    'nosql',
+    'database',
+    'algorithm',
+    'function',
+    'variable',
+    'class',
+    'method',
+    'interface',
+    'async',
+    'await',
+    'promise',
+    'callback',
+    'array',
+    'object',
+    'string',
+    'integer',
+    'boolean',
+    'float',
+    'double',
+    'null',
+    'undefined',
+    'react',
+    'vue',
+    'angular',
+    'flutter',
+    'dart',
+    'javascript',
+    'typescript',
+    'python',
+    'java',
+    'rust',
+    'go',
+    'cpp',
+    'c++',
+    'html',
+    'css',
+    'docker',
+    'kubernetes',
+    'git',
+    'github',
+    'gitlab',
+    'ci/cd',
+    'devops',
+    'cloud',
+    'aws',
+    'azure',
+    'gcp',
+    'serverless',
+    'microservices',
+    'monolith',
+    'frontend',
+    'backend',
+    'fullstack',
+    'ui',
+    'ux',
+    'debug',
+    'compile',
+    'runtime',
+    'middleware',
+    'framework',
+    'library',
+    'package',
+    'module',
+    'import',
+    'export',
+    'component',
+    'state',
+    'props',
+    'hook',
+    'context',
+    'redux',
+    'mobx',
+    'router',
+    'navigation',
+    'authentication',
+    'authorization',
+    'oauth',
+    'jwt',
+    'session',
+    'cookie',
+    'cache',
+    'redis',
+    'mongodb',
+    'mysql',
+    'postgresql',
+    'sqlite',
+    'orm',
+    'prisma',
+    'sequelize',
+    'migration',
+    'deployment',
+    'testing',
+    'unit',
+    'integration',
+    'e2e',
+    'tdd',
+    'bdd',
+    'agile',
+    'scrum',
+    'kanban',
+    'code',
+    'review',
+    'refactor',
+    'pattern',
+    'architecture',
+    'design',
+    'system',
+    'network',
+    'protocol',
+    'tcp',
+    'udp',
+    'ip',
+    'dns',
+    'ssl',
+    'tls',
+    'ssh',
+    'ftp',
+    'smtp',
+    'websocket',
+    'graphql',
   };
 
   // Empathetic words for emotional depth detection
   static const Set<String> _empatheticWords = {
-    'understand', 'understanding', 'feel', 'feeling', 'sorry', 'apologize',
-    'empathy', 'sympathy', 'compassion', 'care', 'caring', 'support',
-    'appreciate', 'thankful', 'listen', 'listening', 'hear',
-    'validate', 'acknowledge', 'recognize', 'respect', 'honour', 'accept',
-    'emotional', 'emotion', 'sad', 'happy', 'joy', 'excited', 'worried',
-    'anxious', 'stressed', 'overwhelmed', 'confident', 'proud', 'disappointed',
-    'frustrated', 'confused', 'uncertain', 'hopeful', 'blessed',
-    'loved', 'cared', 'valued', 'understood', 'heard', 'supported', 'helped',
-    'comfort', 'comfortable', 'safe', 'secure', 'trust', 'believe', 'hope',
-    'wish', 'dream', 'desire', 'passion', 'purpose', 'meaning', 'connection',
-    'relationship', 'friend', 'family', 'love', 'kindness', 'generous',
+    'understand',
+    'understanding',
+    'feel',
+    'feeling',
+    'sorry',
+    'apologize',
+    'empathy',
+    'sympathy',
+    'compassion',
+    'care',
+    'caring',
+    'support',
+    'appreciate',
+    'thankful',
+    'listen',
+    'listening',
+    'hear',
+    'validate',
+    'acknowledge',
+    'recognize',
+    'respect',
+    'honour',
+    'accept',
+    'emotional',
+    'emotion',
+    'sad',
+    'happy',
+    'joy',
+    'excited',
+    'worried',
+    'anxious',
+    'stressed',
+    'overwhelmed',
+    'confident',
+    'proud',
+    'disappointed',
+    'frustrated',
+    'confused',
+    'uncertain',
+    'hopeful',
+    'blessed',
+    'loved',
+    'cared',
+    'valued',
+    'understood',
+    'heard',
+    'supported',
+    'helped',
+    'comfort',
+    'comfortable',
+    'safe',
+    'secure',
+    'trust',
+    'believe',
+    'hope',
+    'wish',
+    'dream',
+    'desire',
+    'passion',
+    'purpose',
+    'meaning',
+    'connection',
+    'relationship',
+    'friend',
+    'family',
+    'love',
+    'kindness',
+    'generous',
   };
 
   EvolutionTracker({required LocalBrain database}) : _database = database;
@@ -94,10 +260,9 @@ class EvolutionTracker {
     int factors = 0;
 
     // Factor 1: Average message length (0-1, normalized at 500 chars)
-    final avgLength = messages
-            .map((m) => m.content.length)
-            .reduce((a, b) => a + b) /
-        messages.length;
+    final avgLength =
+        messages.map((m) => m.content.length).reduce((a, b) => a + b) /
+            messages.length;
     score += (avgLength / 500).clamp(0.0, 1.0);
     factors++;
 
@@ -118,7 +283,8 @@ class EvolutionTracker {
     factors++;
 
     // Factor 4: Technical terms (normalized at 5 terms)
-    final technicalCount = words.where((w) => _technicalTerms.contains(w)).length;
+    final technicalCount =
+        words.where((w) => _technicalTerms.contains(w)).length;
     score += (technicalCount / 5).clamp(0.0, 1.0);
     factors++;
 
@@ -145,17 +311,45 @@ class EvolutionTracker {
     factors++;
 
     // Factor 2: First-person pronouns indicate personal sharing
-    final firstPersonCount = words.where((w) =>
-        w == 'i' || w == 'my' || w == 'me' || w == 'myself' || w == 'our' || w == 'we').length;
+    final firstPersonCount = words
+        .where((w) =>
+            w == 'i' ||
+            w == 'my' ||
+            w == 'me' ||
+            w == 'myself' ||
+            w == 'our' ||
+            w == 'we')
+        .length;
     score += (firstPersonCount / 10).clamp(0.0, 1.0);
     factors++;
 
     // Factor 3: Emotional words
     final emotionalWords = [
-      'feel', 'feeling', 'felt', 'emotional', 'emotion', 'sad', 'happy',
-      'excited', 'worried', 'anxious', 'stressed', 'overwhelmed', 'confident',
-      'proud', 'disappointed', 'frustrated', 'confused', 'hopeful', 'grateful',
-      'loved', 'cared', 'blessed', 'joy', 'passion', 'desire',
+      'feel',
+      'feeling',
+      'felt',
+      'emotional',
+      'emotion',
+      'sad',
+      'happy',
+      'excited',
+      'worried',
+      'anxious',
+      'stressed',
+      'overwhelmed',
+      'confident',
+      'proud',
+      'disappointed',
+      'frustrated',
+      'confused',
+      'hopeful',
+      'grateful',
+      'loved',
+      'cared',
+      'blessed',
+      'joy',
+      'passion',
+      'desire',
     ];
     final emotionalCount = words.where(emotionalWords.contains).length;
     score += (emotionalCount / 5).clamp(0.0, 1.0);
@@ -178,7 +372,8 @@ class EvolutionTracker {
 
     // Novelty is high when we have many unique words relative to message count
     // This indicates diverse topics and new information
-    final ratio = uniqueWords.length / (messages.length * 10); // Expect ~10 unique words per message
+    final ratio = uniqueWords.length /
+        (messages.length * 10); // Expect ~10 unique words per message
 
     // Normalize: 0.5 is average, 1.0+ is excellent
     return (ratio * 2).clamp(0.0, 1.0);
@@ -198,10 +393,9 @@ class EvolutionTracker {
     if (deepConversations < 5) return false;
 
     // Calculate average novelty
-    final avgNovelty = metrics
-            .map((m) => m.noveltyScore)
-            .reduce((a, b) => a + b) /
-        metrics.length;
+    final avgNovelty =
+        metrics.map((m) => m.noveltyScore).reduce((a, b) => a + b) /
+            metrics.length;
 
     return avgNovelty > 0.5;
   }

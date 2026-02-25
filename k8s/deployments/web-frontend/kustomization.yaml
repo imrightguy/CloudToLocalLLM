@@ -8,7 +8,7 @@ patches:
       kind: Deployment
       metadata:
         name: web
-        namespace: zoidbot
+        namespace: CloudToLocalLLM
       spec:
         replicas: 1
         template:

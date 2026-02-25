@@ -76,7 +76,7 @@ Generate revenue report for a specified date range with optional tier breakdown.
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/reports/revenue?startDate=2025-01-01&endDate=2025-01-31&groupBy=true" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/reports/revenue?startDate=2025-01-01&endDate=2025-01-31&groupBy=true" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -174,7 +174,7 @@ Generate subscription metrics including MRR, churn rate, and retention metrics.
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/reports/subscriptions?startDate=2025-01-01&endDate=2025-01-31" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/reports/subscriptions?startDate=2025-01-01&endDate=2025-01-31" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -245,7 +245,7 @@ uuid-2,2025-01-16T14:20:00Z,user2@example.com,jane_smith,100.00,USD,succeeded,ca
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/reports/export?type=revenue&format=csv&startDate=2025-01-01&endDate=2025-01-31" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/reports/export?type=revenue&format=csv&startDate=2025-01-01&endDate=2025-01-31" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -o revenue_report.csv
 ```
@@ -380,7 +380,7 @@ All export operations are logged in the admin audit log with:
 // Revenue report
 async function getRevenueReport(startDate: string, endDate: string) {
   const response = await fetch(
-    `https://api.zoidbot.online/api/admin/reports/revenue?startDate=${startDate}&endDate=${endDate}&groupBy=true`,
+    `https://api.cloudtolocalllm.online/api/admin/reports/revenue?startDate=${startDate}&endDate=${endDate}&groupBy=true`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -403,7 +403,7 @@ async function exportReport(
   endDate: string
 ) {
   const response = await fetch(
-    `https://api.zoidbot.online/api/admin/reports/export?type=${type}&format=${format}&startDate=${startDate}&endDate=${endDate}`,
+    `https://api.cloudtolocalllm.online/api/admin/reports/export?type=${type}&format=${format}&startDate=${startDate}&endDate=${endDate}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -435,7 +435,7 @@ def get_subscription_metrics(token, days=30):
     start_date = end_date - timedelta(days=days)
 
     response = requests.get(
-        'https://api.zoidbot.online/api/admin/reports/subscriptions',
+        'https://api.cloudtolocalllm.online/api/admin/reports/subscriptions',
         params={
             'startDate': start_date.isoformat(),
             'endDate': end_date.isoformat(),
@@ -449,7 +449,7 @@ def get_subscription_metrics(token, days=30):
 
 def export_revenue_report(token, start_date, end_date):
     response = requests.get(
-        'https://api.zoidbot.online/api/admin/reports/export',
+        'https://api.cloudtolocalllm.online/api/admin/reports/export',
         params={
             'type': 'revenue',
             'format': 'csv',

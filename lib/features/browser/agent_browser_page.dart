@@ -3,6 +3,7 @@
 /// A prototype browser page for agent web interactions.
 /// Note: flutter_inappwebview is not currently included in dependencies.
 /// This is a stub implementation.
+library;
 
 import 'package:flutter/material.dart';
 
@@ -15,13 +16,13 @@ class AgentBrowserPage extends StatefulWidget {
 
 class _AgentBrowserPageState extends State<AgentBrowserPage> {
   final TextEditingController urlController =
-      TextEditingController(text: "https://www.google.com");
+      TextEditingController(text: 'https://www.google.com');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Agent Browser (Stub)"),
+        title: const Text('Agent Browser (Stub)'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -45,7 +46,7 @@ class _AgentBrowserPageState extends State<AgentBrowserPage> {
                   child: TextField(
                     controller: urlController,
                     decoration: const InputDecoration(
-                      hintText: "Enter URL",
+                      hintText: 'Enter URL',
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       border: OutlineInputBorder(),
@@ -100,19 +101,6 @@ class _AgentBrowserPageState extends State<AgentBrowserPage> {
         ],
       ),
     );
-  }
-
-  void _loadUrl(String urlString) {
-    // Stub - no-op
-  }
-
-  Future<void> _captureStatus() async {
-    // Stub - no-op
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Capture functionality not available')),
-      );
-    }
   }
 
   @override

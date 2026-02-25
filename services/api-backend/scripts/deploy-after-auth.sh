@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Zoidbot Deployment Script (Post-Authentication)
+# CloudToLocalLLM Deployment Script (Post-Authentication)
 # Run this after: gcloud auth login
 
 set -e
 
-PROJECT_ID="zoidbot-468303"
-INSTANCE_NAME="zoidbot-db"
+PROJECT_ID="CloudToLocalLLM-468303"
+INSTANCE_NAME="CloudToLocalLLM-db"
 REGION="us-central1"
-SERVICE_NAME="zoidbot-api"
+SERVICE_NAME="cloudtolocalllm-api"
 
-echo " Zoidbot Deployment (Post-Authentication)"
+echo " CloudToLocalLLM Deployment (Post-Authentication)"
 echo "=================================================="
 
 # Verify authentication

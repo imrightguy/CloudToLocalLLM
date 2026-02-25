@@ -13,7 +13,7 @@ set -euo pipefail
 
 # Configuration
 # Update these if your repo or branch differs
-GITHUB_REPO="Zoidbot-online/Zoidbot"
+GITHUB_REPO="CloudToLocalLLM-online/CloudToLocalLLM"
 BRANCH="main"
 CREDENTIAL_NAME="github-actions-main"
 

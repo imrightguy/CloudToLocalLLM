@@ -1,5 +1,5 @@
 /// Dashboard Service - Stub Implementation
-/// This service requires the zoidbot package which is not available.
+/// This service requires the CloudToLocalLLM package which is not available.
 library;
 
 class Agent {

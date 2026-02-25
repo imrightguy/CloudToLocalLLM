@@ -1,4 +1,4 @@
-/// Agent List Item - Stub Implementation
+// Agent List Item - Stub Implementation
 
 import 'package:flutter/material.dart';
 

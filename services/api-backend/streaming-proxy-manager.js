@@ -7,7 +7,7 @@ import { getUserTier, shouldUseDirectTunnel } from './middleware/tier-check.js';
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-const namespace = process.env.K8S_NAMESPACE || 'zoidbot';
+const namespace = process.env.K8S_NAMESPACE || 'CloudToLocalLLM';
 
 // Logger for proxy management
 const logger = winston.createLogger({
@@ -118,8 +118,8 @@ export class StreamingProxyManager {
           namespace: namespace,
           labels: {
             app: 'streaming-proxy',
-            'zoidbot.user': userId,
-            'zoidbot.type': 'streaming-proxy',
+            'CloudToLocalLLM.user': userId,
+            'CloudToLocalLLM.type': 'streaming-proxy',
           },
         },
         spec: {
@@ -127,7 +127,7 @@ export class StreamingProxyManager {
             {
               name: 'proxy',
               image:
-                'ghcr.io/zoidbot-online/zoidbot/streaming:latest',
+                'ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming:latest',
               env: [
                 { name: 'USER_ID', value: userId },
                 { name: 'PROXY_ID', value: proxyId },

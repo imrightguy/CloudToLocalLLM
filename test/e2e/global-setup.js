@@ -1,5 +1,5 @@
 /**
- * Zoidbot v10.1.147 Global Test Setup
+ * CloudToLocalLLM v10.1.147 Global Test Setup
  * Prepares environment for authentication loop analysis
  */
 
@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function globalSetup(config) {
-  console.log(' Zoidbot v10.1.147 Authentication Loop Analysis Setup');
+  console.log(' CloudToLocalLLM v10.1.147 Authentication Loop Analysis Setup');
   console.log('================================================================');
 
   // Create test results directory

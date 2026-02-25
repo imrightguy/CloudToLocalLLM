@@ -76,7 +76,7 @@ final tunnelService = TunnelService();
 
 try {
   await tunnelService.connect(
-    serverUrl: 'wss://proxy.zoidbot.online',
+    serverUrl: 'wss://proxy.cloudtolocalllm.online',
     authToken: authToken,
     config: TunnelConfig.stableNetwork(),
   );
@@ -654,7 +654,7 @@ final tunnelService = TunnelService();
 
 try {
   await tunnelService.connect(
-    serverUrl: 'wss://proxy.zoidbot.online',
+    serverUrl: 'wss://proxy.cloudtolocalllm.online',
     authToken: jwtToken,
     config: TunnelConfig.stableNetwork(),
   );

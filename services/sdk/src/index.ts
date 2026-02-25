@@ -1,14 +1,14 @@
 /**
- * Zoidbot SDK
+ * CloudToLocalLLM SDK
  *
- * Official JavaScript/TypeScript SDK for Zoidbot API
+ * Official JavaScript/TypeScript SDK for CloudToLocalLLM API
  *
  * Requirements: 12.6
  */
 
-export { ZoidbotClient } from './client';
+export { CloudToLocalLLMClient } from './client';
 export * from './types';
 
 // Default export
-import { ZoidbotClient } from './client';
-export default ZoidbotClient;
+import { CloudToLocalLLMClient } from './client';
+export default CloudToLocalLLMClient;

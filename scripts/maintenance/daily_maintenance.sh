@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Daily Maintenance Script
+# CloudToLocalLLM Daily Maintenance Script
 # Performs daily maintenance tasks including log rotation, database cleanup,
 # cache management, and health checks for optimal system performance
 
@@ -11,9 +11,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # VPS configuration
-VPS_HOST="zoidbot.online"
+VPS_HOST="cloudtolocalllm.online"
 VPS_USER="cloudllm"
-VPS_PROJECT_DIR="/opt/zoidbot"
+VPS_PROJECT_DIR="/opt/CloudToLocalLLM"
 
 # Maintenance configuration
 LOG_RETENTION_DAYS=7
@@ -52,14 +52,14 @@ log_step() {
 
 # Create maintenance log entry
 log_maintenance() {
-    local log_file="/var/log/zoidbot/maintenance.log"
+    local log_file="/var/log/CloudToLocalLLM/maintenance.log"
     local timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     echo "[$timestamp] DAILY_MAINTENANCE: $1" >> "$log_file" 2>/dev/null || true
 }
 
 # Check if running on VPS or locally
 is_vps_environment() {
-    [[ "$(hostname)" == *"zoidbot"* ]] || [[ -f "/opt/zoidbot/docker-compose.yml" ]]
+    [[ "$(hostname)" == *"CloudToLocalLLM"* ]] || [[ -f "/opt/CloudToLocalLLM/docker-compose.yml" ]]
 }
 
 # Execute command on VPS or locally
@@ -78,7 +78,7 @@ rotate_logs() {
     log_step 1 "Rotating application logs..."
     
     local log_dirs=(
-        "/var/log/zoidbot"
+        "/var/log/CloudToLocalLLM"
         "/var/log/nginx"
         "$VPS_PROJECT_DIR/logs"
     )
@@ -170,7 +170,7 @@ database_maintenance() {
         
         # Example database maintenance commands (adjust based on actual database)
         # execute_command "docker exec $db_container mysql -e 'OPTIMIZE TABLE sessions;' 2>/dev/null || true"
-        # execute_command "docker exec $db_container pg_dump -c zoidbot > /tmp/db_backup_$(date +%Y%m%d).sql 2>/dev/null || true"
+        # execute_command "docker exec $db_container pg_dump -c CloudToLocalLLM > /tmp/db_backup_$(date +%Y%m%d).sql 2>/dev/null || true"
         
         log_success "Database maintenance completed"
     else
@@ -263,8 +263,8 @@ check_application_endpoints() {
     log_step 8 "Checking application endpoints..."
     
     local endpoints=(
-        "http://zoidbot.online"
-        "http://app.zoidbot.online"
+        "http://cloudtolocalllm.online"
+        "http://app.cloudtolocalllm.online"
     )
     
     local failed_endpoints=()
@@ -293,7 +293,7 @@ generate_maintenance_report() {
     local status="$1"
     
     echo
-    echo "=== Zoidbot Daily Maintenance Report ==="
+    echo "=== CloudToLocalLLM Daily Maintenance Report ==="
     echo "Date: $(date -u +%Y-%m-%d)"
     echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "Status: $status"
@@ -325,14 +325,14 @@ generate_maintenance_report() {
 
 # Main execution function
 main() {
-    log_info "Starting Zoidbot daily maintenance..."
+    log_info "Starting CloudToLocalLLM daily maintenance..."
     log_maintenance "Daily maintenance started"
     echo
     
     local maintenance_status="COMPLETED"
     
     # Create log directory if it doesn't exist
-    execute_command "mkdir -p /var/log/zoidbot" 2>/dev/null || true
+    execute_command "mkdir -p /var/log/CloudToLocalLLM" 2>/dev/null || true
     
     # Execute maintenance tasks
     rotate_logs || maintenance_status="ISSUES"
@@ -376,7 +376,7 @@ main() {
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "Zoidbot Daily Maintenance Script"
+        echo "CloudToLocalLLM Daily Maintenance Script"
         echo
         echo "Usage: $0 [options]"
         echo

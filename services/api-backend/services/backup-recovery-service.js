@@ -108,7 +108,7 @@ export class BackupRecoveryService {
       checksum: null,
       verified: false,
       error: null,
-      database: process.env.DB_NAME || 'zoidbot',
+      database: process.env.DB_NAME || 'CloudToLocalLLM',
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT || '5432',
     };
@@ -255,7 +255,7 @@ export class BackupRecoveryService {
       endTime: null,
       duration: null,
       error: null,
-      database: process.env.DB_NAME || 'zoidbot',
+      database: process.env.DB_NAME || 'CloudToLocalLLM',
       pointInTime: options.pointInTime || null,
     };
 
@@ -412,7 +412,7 @@ export class BackupRecoveryService {
   _buildDumpCommand(backupFile) {
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || '5432';
-    const database = process.env.DB_NAME || 'zoidbot';
+    const database = process.env.DB_NAME || 'CloudToLocalLLM';
     const user = process.env.DB_USER;
     const password = process.env.DB_PASSWORD;
 
@@ -436,7 +436,7 @@ export class BackupRecoveryService {
   _buildRestoreCommand(backupFile) {
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || '5432';
-    const database = process.env.DB_NAME || 'zoidbot';
+    const database = process.env.DB_NAME || 'CloudToLocalLLM';
     const user = process.env.DB_USER;
     const password = process.env.DB_PASSWORD;
 

@@ -1,6 +1,6 @@
 # Tunnel Enhancement Implementation
 
-This directory contains the enhanced SSH WebSocket tunnel implementation for Zoidbot.
+This directory contains the enhanced SSH WebSocket tunnel implementation for CloudToLocalLLM.
 
 ## Structure
 
@@ -304,7 +304,7 @@ final metricsCollector = serviceLocator.get<MetricsCollector>();
 
 // Connect to tunnel
 await tunnelService.connect(
-  serverUrl: 'wss://api.zoidbot.online/tunnel',
+  serverUrl: 'wss://api.cloudtolocalllm.online/tunnel',
   authToken: accessToken,
   config: TunnelConfig.stableNetwork(),
 );

@@ -274,7 +274,7 @@ class DocumentationScreen extends StatelessWidget {
             icon: Icons.code,
             title: 'GitHub Repository',
             description: 'View source code, issues, and contribute',
-            url: 'https://github.com/Zoidbot/Zoidbot',
+            url: 'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM',
             textColor: textColor,
             bodyFontSize: bodyFontSize,
             verticalSpacing: verticalSpacing,
@@ -289,7 +289,8 @@ class DocumentationScreen extends StatelessWidget {
             icon: Icons.new_releases,
             title: 'Release Notes',
             description: 'Latest updates and changelog',
-            url: 'https://github.com/Zoidbot/Zoidbot/releases',
+            url:
+                'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases',
             textColor: textColor,
             bodyFontSize: bodyFontSize,
             verticalSpacing: verticalSpacing,

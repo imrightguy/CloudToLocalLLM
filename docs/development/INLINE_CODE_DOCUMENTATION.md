@@ -442,7 +442,7 @@ class TunnelService extends ChangeNotifier {
 /// ```dart
 /// try {
 ///   await tunnelService.connect(
-///     serverUrl: 'wss://proxy.zoidbot.online',
+///     serverUrl: 'wss://proxy.cloudtolocalllm.online',
 ///     authToken: authToken,
 ///     config: TunnelConfig.stableNetwork(),
 ///   );

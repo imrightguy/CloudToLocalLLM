@@ -7,10 +7,10 @@ set -e
 # - Ubuntu 24.04 LTS
 # - Cloud-init for Docker installation
 
-RESOURCE_GROUP="zoidbot-rg"
+RESOURCE_GROUP="CloudToLocalLLM-rg"
 LOCATION="centralus"
 VM_LOCATION="centralus"
-VM_NAME="zoidbot-swarm"
+VM_NAME="CloudToLocalLLM-swarm"
 VM_SIZE="Standard_D2as_v4"
 ADMIN_USERNAME="azureuser"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"

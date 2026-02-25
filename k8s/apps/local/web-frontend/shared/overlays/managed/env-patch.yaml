@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-backend
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:

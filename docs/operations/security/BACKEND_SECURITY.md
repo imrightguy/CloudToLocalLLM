@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide documents the security enhancements and best practices for the Zoidbot API backend. It covers input sanitization, CORS configuration, and HTTPS enforcement.
+This guide documents the security enhancements and best practices for the CloudToLocalLLM API backend. It covers input sanitization, CORS configuration, and HTTPS enforcement.
 
 ---
 
@@ -36,8 +36,8 @@ Strict whitelist-based CORS with no wildcards. Supports standard, admin, and web
 
 **Allowed Origins (Production):**
 
-- `https://app.zoidbot.online`
-- `https://admin.zoidbot.online`
+- `https://app.cloudtolocalllm.online`
+- `https://admin.cloudtolocalllm.online`
 
 ### 3. HTTPS Enforcement
 

@@ -11,6 +11,7 @@ import '../models/settings_category.dart';
 import '../widgets/settings/settings_category_list.dart';
 import '../widgets/settings/general_settings_category.dart';
 import '../widgets/settings/agent_status_settings_category.dart';
+import '../widgets/settings/avatar_settings_category.dart';
 import '../widgets/settings/import_export_settings_category.dart';
 import '../widgets/settings/account_settings_category.dart';
 import '../widgets/settings/privacy_settings_category.dart';
@@ -183,6 +184,26 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
         contentBuilder: (context) => AgentStatusSettingsCategory(
           categoryId: SettingsCategoryIds.agentStatus,
           isActive: _activeCategory == SettingsCategoryIds.agentStatus,
+        ),
+      ),
+      BaseSettingsCategory(
+        id: SettingsCategoryIds.avatar,
+        title: SettingsCategoryMetadata.getTitle(
+          SettingsCategoryIds.avatar,
+        ),
+        icon: SettingsCategoryMetadata.getIcon(
+          SettingsCategoryIds.avatar,
+        ),
+        description: SettingsCategoryMetadata.getDescription(
+          SettingsCategoryIds.avatar,
+        ),
+        priority: SettingsCategoryMetadata.getPriority(
+          SettingsCategoryIds.avatar,
+        ),
+        isVisible: true,
+        contentBuilder: (context) => AvatarSettingsCategory(
+          categoryId: SettingsCategoryIds.avatar,
+          isActive: _activeCategory == SettingsCategoryIds.avatar,
         ),
       ),
       BaseSettingsCategory(

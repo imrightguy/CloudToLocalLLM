@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of the admin user search and listing functionality for the Zoidbot API backend. This feature allows administrators to search, filter, and manage users through a comprehensive set of endpoints.
+This document describes the implementation of the admin user search and listing functionality for the CloudToLocalLLM API backend. This feature allows administrators to search, filter, and manage users through a comprehensive set of endpoints.
 
 ## Requirement Coverage
 

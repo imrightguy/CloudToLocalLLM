@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
+      "command": "/home/rightguy/.npm-global/bin/context7-mcp",
+      "args": [],
       "env": {
         "DEFAULT_MINIMUM_TOKENS": ""
       },
@@ -10,8 +10,8 @@
       "disabled": true
     },
     "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-memory",
+      "args": [],
       "alwaysAllow": [
         "create_entities",
         "create_relations",
@@ -25,17 +25,16 @@
       ]
     },
     "sequentialthinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-sequential-thinking",
+      "args": [],
       "alwaysAllow": ["sequentialthinking"],
       "disabled": false
     },
     "zai-vision": {
-      "command": "npx",
-      "args": ["-y", "@z_ai/mcp-server"],
-      "env": {
-        "Z_AI_API_KEY": "${Z_AI_API_KEY}",
-        "Z_AI_MODE": "ZAI"
+      "type": "sse",
+      "url": "https://api.z.ai/api/mcp/zai-vision/mcp",
+      "headers": {
+        "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
       "alwaysAllow": [
         "ui_to_artifact",
@@ -50,7 +49,7 @@
       ]
     },
     "web-reader": {
-      "type": "streamable-http",
+      "type": "sse",
       "url": "https://api.z.ai/api/mcp/web_reader/mcp",
       "headers": {
         "Authorization": "Bearer ${Z_AI_API_KEY}"
@@ -58,7 +57,7 @@
       "alwaysAllow": ["webReader"]
     },
     "web-search-prime": {
-      "type": "streamable-http",
+      "type": "sse",
       "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
       "headers": {
         "Authorization": "Bearer ${Z_AI_API_KEY}"
@@ -66,7 +65,7 @@
       "alwaysAllow": ["webSearchPrime"]
     },
     "zread": {
-      "type": "streamable-http",
+      "type": "sse",
       "url": "https://api.z.ai/api/mcp/zread/mcp",
       "headers": {
         "Authorization": "Bearer ${Z_AI_API_KEY}"

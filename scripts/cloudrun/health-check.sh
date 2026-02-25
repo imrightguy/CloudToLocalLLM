@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot - Google Cloud Run Health Check Script
+# CloudToLocalLLM - Google Cloud Run Health Check Script
 # This script monitors the health and performance of deployed Cloud Run services
 #
 # Usage: ./health-check.sh [OPTIONS]
@@ -29,7 +29,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Service names
-SERVICES=("zoidbot-web" "zoidbot-api" "zoidbot-streaming")
+SERVICES=("CloudToLocalLLM-web" "cloudtolocalllm-api" "CloudToLocalLLM-streaming")
 
 # Logging functions
 log_info() {
@@ -55,7 +55,7 @@ log_header() {
 # Help function
 show_help() {
     cat << EOF
-Zoidbot - Google Cloud Run Health Check Script
+CloudToLocalLLM - Google Cloud Run Health Check Script
 
 USAGE:
     $0 [OPTIONS]
@@ -246,7 +246,7 @@ check_service_health() {
 output_table() {
     local results=("$@")
     
-    log_header "=== Zoidbot Health Check Results ==="
+    log_header "=== CloudToLocalLLM Health Check Results ==="
     echo
     printf "%-25s %-12s %-15s %-12s %-15s\n" "Service" "Status" "HTTP Code" "Response Time" "Health"
     echo "────────────────────────────────────────────────────────────────────────────────────"

@@ -350,13 +350,13 @@ describe('End-to-End Deployment Verification', () => {
     verifier = new DeploymentVerifier(k8sClient, dnsResolver, httpClient);
 
     // Setup DNS records
-    dnsResolver.setRecord('zoidbot.online', '10.0.1.100');
-    dnsResolver.setRecord('app.zoidbot.online', '10.0.1.101');
-    dnsResolver.setRecord('api.zoidbot.online', '10.0.1.102');
+    dnsResolver.setRecord('cloudtolocalllm.online', '10.0.1.100');
+    dnsResolver.setRecord('app.cloudtolocalllm.online', '10.0.1.101');
+    dnsResolver.setRecord('api.cloudtolocalllm.online', '10.0.1.102');
 
     // Setup health endpoints
-    httpClient.setEndpoint('https://api.zoidbot.online/health', { status: 200, body: 'ok' });
-    httpClient.setEndpoint('https://app.zoidbot.online/health', { status: 200, body: 'ok' });
+    httpClient.setEndpoint('https://api.cloudtolocalllm.online/health', { status: 200, body: 'ok' });
+    httpClient.setEndpoint('https://app.cloudtolocalllm.online/health', { status: 200, body: 'ok' });
   });
 
   beforeEach(() => {
@@ -366,13 +366,13 @@ describe('End-to-End Deployment Verification', () => {
   describe('Complete Deployment Flow', () => {
     it('should successfully deploy application and verify accessibility', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
         services: ['web-service'],
-        domains: ['zoidbot.online', 'app.zoidbot.online'],
-        healthEndpoints: ['https://api.zoidbot.online/health'],
+        domains: ['cloudtolocalllm.online', 'app.cloudtolocalllm.online'],
+        healthEndpoints: ['https://api.cloudtolocalllm.online/health'],
       };
 
       // Simulate deployment flow
@@ -401,9 +401,9 @@ describe('End-to-End Deployment Verification', () => {
           async (config) => {
             const fullConfig = {
               ...config,
-              image: 'zoidbot/zoidbot-web:latest',
-              domains: ['zoidbot.online', 'app.zoidbot.online'],
-              healthEndpoints: ['https://api.zoidbot.online/health'],
+              image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+              domains: ['cloudtolocalllm.online', 'app.cloudtolocalllm.online'],
+              healthEndpoints: ['https://api.cloudtolocalllm.online/health'],
             };
 
             // Simulate deployment
@@ -422,13 +422,13 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify health checks pass after deployment', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'api-backend',
-        image: 'zoidbot/zoidbot-api:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-api:latest',
         replicas: 2,
         healthEndpoints: [
-          'https://api.zoidbot.online/health',
-          'https://app.zoidbot.online/health',
+          'https://api.cloudtolocalllm.online/health',
+          'https://app.cloudtolocalllm.online/health',
         ],
       };
 
@@ -444,9 +444,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify no errors in logs after deployment', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
       };
 
@@ -461,15 +461,15 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should handle deployment failures gracefully', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'failing-app',
-        image: 'zoidbot/failing-image:latest',
+        image: 'CloudToLocalLLM/failing-image:latest',
         replicas: 2,
-        domains: ['zoidbot.online'],
+        domains: ['cloudtolocalllm.online'],
       };
 
       // Don't set up DNS record for this domain
-      dnsResolver.records.delete('zoidbot.online');
+      dnsResolver.records.delete('cloudtolocalllm.online');
 
       // Simulate deployment
       const deploymentResult = await verifier.simulateDeploymentFlow(config);
@@ -483,9 +483,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify deployment timeline is sequential', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
       };
 
@@ -512,7 +512,7 @@ describe('End-to-End Deployment Verification', () => {
           async (config) => {
             const fullConfig = {
               ...config,
-              image: 'zoidbot/zoidbot-web:latest',
+              image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
               replicas: config.replicaCount,
             };
 
@@ -532,9 +532,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify services are created and accessible', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
         services: ['web-service', 'api-service'],
       };
@@ -550,11 +550,11 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify ingress is configured for domains', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
-        domains: ['zoidbot.online', 'app.zoidbot.online'],
+        domains: ['cloudtolocalllm.online', 'app.cloudtolocalllm.online'],
       };
 
       // Simulate deployment
@@ -568,9 +568,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify deployment is idempotent', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
       };
 
@@ -595,9 +595,9 @@ describe('End-to-End Deployment Verification', () => {
             k8sClient.reset();
 
             const config = {
-              namespace: 'zoidbot',
+              namespace: 'CloudToLocalLLM',
               deploymentName: `web-app-${replicaCount}`,
-              image: 'zoidbot/zoidbot-web:latest',
+              image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
               replicas: replicaCount,
             };
 
@@ -616,14 +616,14 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should verify deployment with different image versions', async () => {
       const imageVersions = [
-        'zoidbot/zoidbot-web:latest',
-        'zoidbot/zoidbot-web:v1.0.0',
-        'zoidbot/zoidbot-web:sha-abc123',
+        'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        'CloudToLocalLLM/cloudtolocalllm-web:v1.0.0',
+        'CloudToLocalLLM/cloudtolocalllm-web:sha-abc123',
       ];
 
       for (const image of imageVersions) {
         const config = {
-          namespace: 'zoidbot',
+          namespace: 'CloudToLocalLLM',
           deploymentName: 'web-app',
           image,
           replicas: 2,
@@ -635,13 +635,13 @@ describe('End-to-End Deployment Verification', () => {
     });
 
     it('should verify deployment across multiple namespaces', async () => {
-      const namespaces = ['zoidbot', 'staging', 'production'];
+      const namespaces = ['CloudToLocalLLM', 'staging', 'production'];
 
       for (const namespace of namespaces) {
         const config = {
           namespace,
           deploymentName: 'web-app',
-          image: 'zoidbot/zoidbot-web:latest',
+          image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
           replicas: 2,
         };
 
@@ -657,9 +657,9 @@ describe('End-to-End Deployment Verification', () => {
       k8sClient.clearEvents();
 
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
       };
 
@@ -683,9 +683,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should handle deployment with no replicas', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app-no-replicas',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 0,
       };
 
@@ -698,9 +698,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should handle deployment with missing DNS records', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
         domains: ['nonexistent.example.com'],
       };
@@ -715,9 +715,9 @@ describe('End-to-End Deployment Verification', () => {
 
     it('should handle deployment with unreachable health endpoints', async () => {
       const config = {
-        namespace: 'zoidbot',
+        namespace: 'CloudToLocalLLM',
         deploymentName: 'web-app',
-        image: 'zoidbot/zoidbot-web:latest',
+        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
         replicas: 2,
         healthEndpoints: ['https://unreachable.example.com/health'],
       };

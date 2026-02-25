@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the comprehensive implementation plan for integrating Cloudflare API capabilities into the Zoidbot infrastructure, enabling automated tunnel diagnostics, DNS management, and dynamic subdomain updates for enhanced DevOps operations.
+This document outlines the comprehensive implementation plan for integrating Cloudflare API capabilities into the CloudToLocalLLM infrastructure, enabling automated tunnel diagnostics, DNS management, and dynamic subdomain updates for enhanced DevOps operations.
 
 ## Current State Analysis
 
@@ -29,8 +29,8 @@ This document outlines the comprehensive implementation plan for integrating Clo
 ```bash
 # Create Kubernetes secret for Cloudflare API credentials
 kubectl create secret generic cloudflare-api-credentials \
-  --namespace=zoidbot \
-  --from-literal=email=cmaltais@zoidbot.online \
+  --namespace=CloudToLocalLLM \
+  --from-literal=email=cmaltais@cloudtolocalllm.online \
   --from-literal=api-key=abc12d491e2bc24a60e9e276be8d5b1af62bf \
   --from-literal=origin-ca=v1.0-480cad9ef0df63ec95db4bef-cdaf75ed44dcc34cab97d21f9609c8616e1343c60fbec022bd0d5d4bd33b6c872b79db387f6833c667f1c1399ef50afbc6f01fccbdfcfd68e11298d8fa15965037a99d8be8791e7aba
 ```
@@ -78,7 +78,7 @@ cf_api_call() {
 
 1. Access Cloudflare Dashboard: https://dash.cloudflare.com/
 2. Navigate: Zero Trust → Networks → Tunnels
-3. Locate tunnel: `zoidbot-aks` (ID: 62da6c19-947b-4bf6-acad-100a73de4e0d)
+3. Locate tunnel: `CloudToLocalLLM-aks` (ID: 62da6c19-947b-4bf6-acad-100a73de4e0d)
 4. Edit configuration to change ArgoCD service from:
    - `https://argocd-server.argocd.svc.cluster.local:443`
    - To: `http://argocd-server.argocd.svc.cluster.local:80`
@@ -92,13 +92,13 @@ validate_tunnel_config() {
     log_info "Validating tunnel configuration..."
 
     # Check ArgoCD service configuration
-    if kubectl logs -n zoidbot deploy/cloudflared | grep -q "443"; then
+    if kubectl logs -n CloudToLocalLLM deploy/cloudflared | grep -q "443"; then
         log_error "ArgoCD still configured for HTTPS/443"
         return 1
     fi
 
     # Test connectivity
-    if curl -s --max-time 10 https://argocd.zoidbot.online/ > /dev/null; then
+    if curl -s --max-time 10 https://argocd.cloudtolocalllm.online/ > /dev/null; then
         log_success "ArgoCD connectivity verified"
     else
         log_error "ArgoCD connectivity test failed"
@@ -133,11 +133,11 @@ create_dns_record() {
 
 #### 3.2 Subdomain Management for Services
 
-- **ArgoCD**: `argocd.zoidbot.online`
-- **Grafana**: `grafana.zoidbot.online`
-- **API Backend**: `api.zoidbot.online`
-- **Web Frontend**: `app.zoidbot.online`
-- **Root Domain**: `zoidbot.online`
+- **ArgoCD**: `argocd.cloudtolocalllm.online`
+- **Grafana**: `grafana.cloudtolocalllm.online`
+- **API Backend**: `api.cloudtolocalllm.online`
+- **Web Frontend**: `app.cloudtolocalllm.online`
+- **Root Domain**: `cloudtolocalllm.online`
 
 #### 3.3 DNS Health Monitoring
 
@@ -145,11 +145,11 @@ create_dns_record() {
 # Monitor DNS propagation and health
 monitor_dns_health() {
     local domains=(
-        "argocd.zoidbot.online"
-        "grafana.zoidbot.online"
-        "api.zoidbot.online"
-        "app.zoidbot.online"
-        "zoidbot.online"
+        "argocd.cloudtolocalllm.online"
+        "grafana.cloudtolocalllm.online"
+        "api.cloudtolocalllm.online"
+        "app.cloudtolocalllm.online"
+        "cloudtolocalllm.online"
     )
 
     for domain in "${domains[@]}"; do
@@ -171,11 +171,11 @@ test_external_access() {
 
     # Test each subdomain
     declare -A services=(
-        ["https://argocd.zoidbot.online/"]="ArgoCD"
-        ["https://grafana.zoidbot.online/"]="Grafana"
-        ["https://api.zoidbot.online/health"]="API Backend"
-        ["https://app.zoidbot.online/"]="Web Frontend"
-        ["https://zoidbot.online/"]="Root Domain"
+        ["https://argocd.cloudtolocalllm.online/"]="ArgoCD"
+        ["https://grafana.cloudtolocalllm.online/"]="Grafana"
+        ["https://api.cloudtolocalllm.online/health"]="API Backend"
+        ["https://app.cloudtolocalllm.online/"]="Web Frontend"
+        ["https://cloudtolocalllm.online/"]="Root Domain"
     )
 
     local success_count=0
@@ -212,7 +212,7 @@ test_internal_connectivity() {
 
     # Test ArgoCD server directly
     kubectl run curl-test --image=curlimages/curl \
-        -n zoidbot --rm -it -- \
+        -n CloudToLocalLLM --rm -it -- \
         curl -v http://argocd-server.argocd.svc.cluster.local:80/healthz
 }
 ```
@@ -290,13 +290,13 @@ remediate_tunnel_issues() {
     log_info "Attempting automated remediation..."
 
     # Check tunnel pod status
-    local running_pods=$(kubectl get pods -n zoidbot \
+    local running_pods=$(kubectl get pods -n CloudToLocalLLM \
         -l app=cloudflared --field-selector=status.phase=Running \
         --no-headers | wc -l)
 
     if [ "$running_pods" -eq 0 ]; then
         log_warning "No tunnel pods running, restarting deployment..."
-        kubectl rollout restart deployment/cloudflared -n zoidbot
+        kubectl rollout restart deployment/cloudflared -n CloudToLocalLLM
         sleep 30
     fi
 
@@ -365,7 +365,7 @@ remediate_tunnel_issues() {
 
 ## Conclusion
 
-This implementation plan provides a comprehensive roadmap for integrating Cloudflare API capabilities into the Zoidbot infrastructure. By addressing the current tunnel configuration issues and implementing automated DNS management, we can achieve:
+This implementation plan provides a comprehensive roadmap for integrating Cloudflare API capabilities into the CloudToLocalLLM infrastructure. By addressing the current tunnel configuration issues and implementing automated DNS management, we can achieve:
 
 1. **100% Domain Accessibility**: All subdomains fully functional
 2. **Automated Operations**: Reduced manual intervention and faster MTTR

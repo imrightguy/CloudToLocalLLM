@@ -10,12 +10,12 @@
    - **Impact**: Enables high availability and proper authentication
 
 2. **k8s/apps/local/api-backend/shared/overlays/local/ingress.yaml**
-   - ✅ Changed host from PLACEHOLDER_DOMAIN to zoidbot.online (line 11)
+   - ✅ Changed host from PLACEHOLDER_DOMAIN to cloudtolocalllm.online (line 11)
    - ✅ Added TLS annotations (lines 7-10)
    - **Impact**: Fixes DNS resolution and enables HTTPS
 
 3. **k8s/apps/local/web-frontend/shared/overlays/local/ingress.yaml**
-   - ✅ Changed host from PLACEHOLDER_DOMAIN to zoidbot.online (line 11)
+   - ✅ Changed host from PLACEHOLDER_DOMAIN to cloudtolocalllm.online (line 11)
    - ✅ Added TLS annotations (lines 7-10)
    - **Impact**: Fixes DNS resolution and enables HTTPS
 
@@ -86,11 +86,11 @@ kubectl get pods -n argocd
 ### Step 2: Check Ingress Configuration
 
 ```bash
-kubectl get ingress -n zoidbot
-kubectl describe svc -n zoidbot
+kubectl get ingress -n CloudToLocalLLM
+kubectl describe svc -n CloudToLocalLLM
 ```
 
-**Expected**: Ingress shows zoidbot.online with TLS annotations
+**Expected**: Ingress shows cloudtolocalllm.online with TLS annotations
 
 ### Step 3: Run Automated Tests
 
@@ -110,8 +110,8 @@ kubectl describe svc -n zoidbot
 
 ### Step 5: Test Application
 
-- Access `https://zoidbot.online` in browser
-- Verify API endpoints: `https://zoidbot.online/api/health`
+- Access `https://cloudtolocalllm.online` in browser
+- Verify API endpoints: `https://cloudtolocalllm.online/api/health`
 - Check TLS certificate validity
 
 ## Rollback Procedures
@@ -141,7 +141,7 @@ The 502 Bad Gateway errors were caused by:
 ✅ **All ArgoCD pods in "Running" state** (3 replicas)
 ✅ **No 502 errors in access logs**
 ✅ **All applications synced and healthy**
-✅ **Ingress properly routes traffic to zoidbot.online**
+✅ **Ingress properly routes traffic to cloudtolocalllm.online**
 ✅ **TLS connections working correctly**
 ✅ **All automated tests passing**
 

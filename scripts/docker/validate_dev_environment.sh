@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Docker Development Environment Validator
+# CloudToLocalLLM Docker Development Environment Validator
 # Validates Docker images, Flutter configuration, and development environment setup
 # Ensures all components are properly configured for development and deployment
 
@@ -195,7 +195,7 @@ check_docker_images() {
     done
     
     # Check if project images exist
-    local project_images=("zoidbot-webapp" "zoidbot-api")
+    local project_images=("CloudToLocalLLM-webapp" "cloudtolocalllm-api")
     
     for image in "${project_images[@]}"; do
         if docker image inspect "$image" >/dev/null 2>&1; then
@@ -216,10 +216,10 @@ test_docker_networking() {
     # Check if Docker networks exist
     local networks=$(docker network ls --format '{{.Name}}')
     
-    if echo "$networks" | grep -q "zoidbot"; then
-        log_success "Zoidbot Docker network exists"
+    if echo "$networks" | grep -q "CloudToLocalLLM"; then
+        log_success "CloudToLocalLLM Docker network exists"
     else
-        log_info "Zoidbot Docker network not found (will be created when needed)"
+        log_info "CloudToLocalLLM Docker network not found (will be created when needed)"
     fi
     
     # Test basic networking
@@ -309,7 +309,7 @@ generate_validation_report() {
     local overall_status="$1"
     
     echo
-    echo "=== Zoidbot Development Environment Validation Report ==="
+    echo "=== CloudToLocalLLM Development Environment Validation Report ==="
     echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "Project Root: $PROJECT_ROOT"
     echo "Overall Status: $overall_status"
@@ -344,7 +344,7 @@ generate_validation_report() {
 
 # Main execution function
 main() {
-    log_info "Starting Zoidbot development environment validation..."
+    log_info "Starting CloudToLocalLLM development environment validation..."
     echo
     
     local validation_passed=true
@@ -392,7 +392,7 @@ main() {
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "Zoidbot Docker Development Environment Validator"
+        echo "CloudToLocalLLM Docker Development Environment Validator"
         echo
         echo "Usage: $0 [options]"
         echo
@@ -412,7 +412,7 @@ case "${1:-}" in
         echo "Requirements:"
         echo "  - Docker and Docker Compose installed"
         echo "  - Flutter SDK installed and in PATH"
-        echo "  - Valid Zoidbot project structure"
+        echo "  - Valid CloudToLocalLLM project structure"
         echo
         exit 0
         ;;

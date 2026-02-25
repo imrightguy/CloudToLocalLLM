@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Zoidbot project uses semantic versioning for all Docker images. The **web deployment is the source of truth** for the application version.
+The CloudToLocalLLM project uses semantic versioning for all Docker images. The **web deployment is the source of truth** for the application version.
 
 ## Version Format
 
@@ -120,9 +120,9 @@ metadata:
 Images are stored with multiple tags:
 
 ```
-ghcr.io/zoidbot-online/zoidbot/web:latest
-ghcr.io/zoidbot-online/zoidbot/web:latest
-ghcr.io/zoidbot-online/zoidbot/web:latest
+ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/web:latest
+ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/web:latest
+ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/web:latest
 ```
 
 ## Release Process
@@ -140,10 +140,10 @@ To rollback to a previous version:
 
 ```bash
 # List available versions
-az acr repository show-tags --name imrightguyzoidbot --repository web --orderby time_desc
+az acr repository show-tags --name imrightguycloudtolocalllm --repository web --orderby time_desc
 
 # Update deployment to use specific version
-kubectl set image deployment/web web=ghcr.io/zoidbot-online/zoidbot/web:latest -n zoidbot
+kubectl set image deployment/web web=ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/web:latest -n CloudToLocalLLM
 ```
 
 ## Benefits

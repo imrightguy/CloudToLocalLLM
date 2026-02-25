@@ -7,7 +7,7 @@ import 'theme_extensions.dart';
 /// This class now delegates to ThemeConfig for unified theme management.
 /// Use ThemeConfig directly for new implementations.
 class AppTheme {
-  // Color scheme matching Zoidbot lobster branding
+  // Color scheme matching CloudToLocalLLM lobster branding
   static const Color primaryColor = Color(
     0xFFFF0000,
   ); // Lobster red

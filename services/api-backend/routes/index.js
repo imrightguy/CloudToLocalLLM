@@ -93,7 +93,7 @@ export function setupRoutes(
         deepLinking: true,
       },
       customCss: '.swagger-ui .topbar { display: none }',
-      customSiteTitle: 'Zoidbot API Documentation',
+      customSiteTitle: 'CloudToLocalLLM API Documentation',
     }),
   );
 
@@ -115,7 +115,7 @@ export function setupRoutes(
         deepLinking: true,
       },
       customCss: '.swagger-ui .topbar { display: none }',
-      customSiteTitle: 'Zoidbot API Documentation',
+      customSiteTitle: 'CloudToLocalLLM API Documentation',
     }),
   );
 
@@ -227,7 +227,7 @@ export function setupRoutes(
         res.status(503).json({
           status: 'unhealthy',
           timestamp: new Date().toISOString(),
-          service: 'zoidbot-api',
+          service: 'cloudtolocalllm-api',
           error: 'Health check failed',
           message: error.message,
         });

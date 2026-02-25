@@ -224,7 +224,7 @@ class _PlatformTroubleshootingSectionState
   /// Opens the support link in the default browser
   Future<void> _openSupportLink() async {
     const supportUrl =
-        'https://github.com/Zoidbot-online/Zoidbot/issues/new?template=setup_issue.md&labels=setup,help-wanted';
+        'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues/new?template=setup_issue.md&labels=setup,help-wanted';
 
     try {
       final uri = Uri.parse(supportUrl);

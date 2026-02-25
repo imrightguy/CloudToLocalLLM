@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   replicas: 2
   strategy:
@@ -52,7 +52,7 @@ spec:
           mountPath: /config
       containers:
       - name: web
-        image: gcr.io/zoidbot-468303/web:latest
+        image: gcr.io/cloudtolocalllm-468303/web:latest
         ports:
         - containerPort: 8080
         env:

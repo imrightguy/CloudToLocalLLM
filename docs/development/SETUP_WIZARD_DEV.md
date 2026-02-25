@@ -236,9 +236,9 @@ class SetupConfig {
       case Environment.development:
         return 'http://localhost:8080';
       case Environment.staging:
-        return 'https://staging.zoidbot.online';
+        return 'https://staging.cloudtolocalllm.online';
       case Environment.production:
-        return 'https://zoidbot.online';
+        return 'https://cloudtolocalllm.online';
     }
   }
 }
@@ -333,7 +333,7 @@ Ensure Docker environment supports user containers:
 # docker-compose.yml additions
 services:
   streaming-proxy-template:
-    image: ghcr.io/zoidbot-online/zoidbot/streaming:latest
+    image: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming:latest
     deploy:
       replicas: 0  # Template only, scaled per user
     environment:

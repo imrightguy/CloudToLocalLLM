@@ -3,7 +3,7 @@
 -- NOTE: The main POSTGRES_USER is created automatically by PostgreSQL from environment variables
 
 -- Connect to the database
-\c zoidbot
+\c CloudToLocalLLM
 
 -- Grant all privileges on all current and future tables to the main user
 -- The main user (from POSTGRES_USER env var) already exists and has ownership
@@ -18,7 +18,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO :POSTGRES_US
 
 -- Create additional application user if needed (uncomment and modify as required)
 -- CREATE USER appuser WITH PASSWORD 'CHANGE_THIS_PASSWORD';
--- GRANT CONNECT ON DATABASE zoidbot TO appuser;
+-- GRANT CONNECT ON DATABASE CloudToLocalLLM TO appuser;
 -- GRANT USAGE ON SCHEMA public TO appuser;
 -- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO appuser;
 -- ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO appuser;

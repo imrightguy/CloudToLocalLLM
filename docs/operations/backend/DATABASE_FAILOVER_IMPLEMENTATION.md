@@ -217,7 +217,7 @@ FAILOVER_HEALTH_CHECK_INTERVAL=10000
 # Primary database
 DB_HOST=primary.example.com
 DB_PORT=5432
-DB_NAME=zoidbot
+DB_NAME=CloudToLocalLLM
 DB_USER=postgres
 DB_PASSWORD=password
 DB_SSL=true
@@ -234,7 +234,7 @@ const standbyConfigs = [
   {
     host: 'standby1.example.com',
     port: 5432,
-    database: 'zoidbot',
+    database: 'CloudToLocalLLM',
     user: 'postgres',
     password: 'password',
     ssl: { rejectUnauthorized: false },
@@ -242,7 +242,7 @@ const standbyConfigs = [
   {
     host: 'standby2.example.com',
     port: 5432,
-    database: 'zoidbot',
+    database: 'CloudToLocalLLM',
     user: 'postgres',
     password: 'password',
     ssl: { rejectUnauthorized: false },
@@ -339,7 +339,7 @@ data:
   FAILOVER_HEALTH_CHECK_INTERVAL: "10000"
   DB_HOST: "postgres-primary.default.svc.cluster.local"
   DB_PORT: "5432"
-  DB_NAME: "zoidbot"
+  DB_NAME: "CloudToLocalLLM"
   DB_USER: "postgres"
   DB_SSL: "true"
 ---
@@ -359,7 +359,7 @@ spec:
     spec:
       containers:
       - name: api-backend
-        image: ghcr.io/zoidbot-online/zoidbot/api:latest
+        image: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/api:latest
         ports:
         - containerPort: 8080
         envFrom:
@@ -442,7 +442,7 @@ groups:
 
 **Resolution:**
 
-1. Check primary database is running: `psql -h primary.example.com -U postgres -d zoidbot -c "SELECT 1"`
+1. Check primary database is running: `psql -h primary.example.com -U postgres -d CloudToLocalLLM -c "SELECT 1"`
 2. Check network connectivity: `ping primary.example.com`
 3. Check database logs for errors
 4. Verify database credentials are correct
@@ -459,7 +459,7 @@ groups:
 
 1. Check standby database is running
 2. Verify standby has replication enabled
-3. Check standby health: `psql -h standby.example.com -U postgres -d zoidbot -c "SELECT 1"`
+3. Check standby health: `psql -h standby.example.com -U postgres -d CloudToLocalLLM -c "SELECT 1"`
 4. Check replication status on primary
 5. Verify standby has caught up with primary
 

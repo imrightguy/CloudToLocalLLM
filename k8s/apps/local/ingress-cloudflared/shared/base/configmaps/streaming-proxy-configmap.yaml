@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: streaming-proxy-config
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   labels:
     app: streaming-proxy
 data:
@@ -12,7 +12,7 @@ data:
   LOG_LEVEL: "info"
 
   # API Backend URL (internal cluster service)
-  API_BACKEND_URL: "http://api-backend.zoidbot.svc.cluster.local:8080"
+  API_BACKEND_URL: "http://api-backend.CloudToLocalLLM.svc.cluster.local:8080"
 
   # Health check port (same as main port for simplicity)
   HEALTH_PORT: "3001"

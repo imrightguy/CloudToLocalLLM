@@ -114,90 +114,19 @@
   },
   "mcpServers": {
     "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-context7"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/context7-mcp",
+      "args": [],
       "description": "Library documentation and knowledge base retrieval for Flutter, Node.js, Auth0"
     },
     "sequentialthinking": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-sequential-thinking",
+      "args": [],
       "description": "Multi-step problem-solving and planning tool for complex implementations"
     },
     "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-memory",
+      "args": [],
       "description": "Persistent knowledge store for project decisions, architectural notes, and ongoing work"
-    },
-    "fetch": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-fetch"
-      ],
-      "description": "HTTP requests for APIs, web content, and external services"
-    },
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/mnt/data/dev/CloudToLocalLLM"
-      ],
-      "description": "Structured file system operations for reading, writing, and searching files"
-    },
-    "shell": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-shell",
-        "bash"
-      ],
-      "description": "Command execution with structured interface and output capture"
-    },
-    "git": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-git",
-        "/mnt/data/dev/CloudToLocalLLM"
-      ],
-      "description": "Git operations for version control, commits, branches, and history"
-    },
-    "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      },
-      "description": "GitHub API operations for PRs, issues, workflows, and releases"
-    },
-    "postgres": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://appuser:changeme@localhost:5432/zoidbot"
-      ],
-      "description": "PostgreSQL database operations for migrations, queries, and schema management",
-      "env": {
-        "POSTGRES_HOST": "localhost",
-        "POSTGRES_PORT": "5432",
-        "POSTGRES_DB": "zoidbot",
-        "POSTGRES_USER": "${POSTGRES_USER:-appuser}",
-        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD:-changeme}"
-      }
     },
     "sentry": {
       "command": "npx",
@@ -208,23 +137,9 @@
       ],
       "description": "Sentry error tracking and issue analysis with OAuth authentication"
     },
-    "brave-search": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-brave-search"
-      ],
-      "env": {
-        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
-      },
-      "description": "Web search for documentation lookup, troubleshooting, and research"
-    },
     "puppeteer": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-puppeteer"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-puppeteer",
+      "args": [],
       "description": "Browser automation for end-to-end testing and web scraping"
     }
   }

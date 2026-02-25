@@ -1,6 +1,6 @@
 # Resource Management Guide
 
-This document defines the resource management strategy for the Zoidbot API Backend.
+This document defines the resource management strategy for the CloudToLocalLLM API Backend.
 
 ## Resource Categories
 

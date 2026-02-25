@@ -1,4 +1,4 @@
-// Zoidbot v10.1.147 Authentication Loop Analysis Test
+// CloudToLocalLLM v10.1.147 Authentication Loop Analysis Test
 // Comprehensive E2E test to analyze and verify the login loop race condition fix
 
 import { test, expect } from '@playwright/test';
@@ -30,7 +30,7 @@ let testReport = {
   timings: {},
 };
 
-test.describe('Zoidbot v10.1.147 Authentication Loop Analysis', () => {
+test.describe('CloudToLocalLLM v10.1.147 Authentication Loop Analysis', () => {
   let page;
   let context;
 

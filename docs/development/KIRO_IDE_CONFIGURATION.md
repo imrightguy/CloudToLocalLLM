@@ -2,7 +2,7 @@
 
 ## Overview
 
-Zoidbot includes specialized configuration for Kiro IDE, providing custom AI assistant modes, MCP (Model Context Protocol) tool integration, and development workflow automation. This guide covers the setup and usage of Kiro IDE features for enhanced development productivity.
+CloudToLocalLLM includes specialized configuration for Kiro IDE, providing custom AI assistant modes, MCP (Model Context Protocol) tool integration, and development workflow automation. This guide covers the setup and usage of Kiro IDE features for enhanced development productivity.
 
 ## Custom AI Assistant Modes
 
@@ -209,7 +209,7 @@ The project integrates with Gemini CLI for AI-powered development assistance:
 
    ```javascript
    // Navigate to deployed app
-   playwright_navigate({ url: "https://app.zoidbot.online" })
+   playwright_navigate({ url: "https://app.cloudtolocalllm.online" })
    
    // Take screenshot for verification
    playwright_screenshot({ name: "homepage-test" })
@@ -297,7 +297,7 @@ customModes:
 3. **Test Individually**: Test each component separately
 4. **Restart IDE**: Reload Kiro to apply configuration changes
 
-## Integration with Zoidbot
+## Integration with CloudToLocalLLM
 
 ### CI/CD Integration
 
@@ -310,7 +310,7 @@ Custom modes and MCP tools integrate with the project's AI-powered CI/CD system:
 
 ### Development Productivity
 
-The Kiro IDE configuration enhances Zoidbot development through:
+The Kiro IDE configuration enhances CloudToLocalLLM development through:
 
 - **Specialized AI Assistance**: Task-specific AI modes for different development phases
 - **Automated Workflows**: Hooks for common development tasks
@@ -347,6 +347,6 @@ To contribute to Kiro IDE configuration:
 
 ## Conclusion
 
-The Kiro IDE configuration provides a powerful development environment tailored for Zoidbot development. By leveraging custom AI modes, MCP tool integration, and automated workflows, developers can achieve higher productivity and code quality while maintaining focus on their specific tasks.
+The Kiro IDE configuration provides a powerful development environment tailored for CloudToLocalLLM development. By leveraging custom AI modes, MCP tool integration, and automated workflows, developers can achieve higher productivity and code quality while maintaining focus on their specific tasks.
 
 For questions or issues with Kiro IDE configuration, refer to the project's GitHub issues or discussions.

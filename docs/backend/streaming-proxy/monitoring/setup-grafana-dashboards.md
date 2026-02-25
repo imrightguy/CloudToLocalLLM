@@ -8,7 +8,7 @@ This document provides step-by-step instructions for implementing production mon
 
 Before starting, ensure:
 
-1. Grafana instance is running at `https://grafana.zoidbot.online`
+1. Grafana instance is running at `https://grafana.cloudtolocalllm.online`
 2. Prometheus datasource is configured in Grafana
 3. Loki datasource is configured in Grafana (for log analysis)
 4. Grafana API key is available: [Configure in environment variables]
@@ -210,7 +210,7 @@ console.log(`Dashboard created: ${dashboard.url}`);
 
 ### Expected Output
 
-- Dashboard URL: `https://grafana.zoidbot.online/d/tunnel-health`
+- Dashboard URL: `https://grafana.cloudtolocalllm.online/d/tunnel-health`
 - Refresh interval: 30 seconds
 - Time range: Last 6 hours (configurable)
 

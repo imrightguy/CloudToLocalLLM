@@ -1,5 +1,5 @@
 /**
- * User Activity Tracking Service for Zoidbot API Backend
+ * User Activity Tracking Service for CloudToLocalLLM API Backend
  *
  * Provides comprehensive logging of user operations, usage metrics tracking,
  * and activity audit logs for analytics and compliance purposes.

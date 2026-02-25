@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-CERT_DIR="/etc/letsencrypt/live/zoidbot.online"
+CERT_DIR="/etc/letsencrypt/live/cloudtolocalllm.online"
 FALLBACK_CERT="/etc/nginx/ssl/selfsigned.crt"
 FALLBACK_KEY="/etc/nginx/ssl/selfsigned.key"
 
@@ -26,7 +26,7 @@ else
   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout "$FALLBACK_KEY" \
     -out "$FALLBACK_CERT" \
-    -subj "/CN=zoidbot.online" \
+    -subj "/CN=cloudtolocalllm.online" \
     2>/dev/null || echo "[entrypoint] Self-signed cert generation failed, continuing..."
 
   # Create Let's Encrypt directory structure and link self-signed certs

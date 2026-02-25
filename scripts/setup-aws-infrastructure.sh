@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# AWS Infrastructure Setup Script for Zoidbot
+# AWS Infrastructure Setup Script for CloudToLocalLLM
 #
-# This script creates all required AWS infrastructure for the Zoidbot EKS deployment:
+# This script creates all required AWS infrastructure for the CloudToLocalLLM EKS deployment:
 # - VPC with public and private subnets
 # - EKS cluster with t3.small nodes
 # - IAM roles for EKS and GitHub Actions
@@ -14,7 +14,7 @@
 #
 # Options:
 #   --region REGION           AWS region (default: us-east-1)
-#   --cluster-name NAME       EKS cluster name (default: zoidbot-eks)
+#   --cluster-name NAME       EKS cluster name (default: cloudtolocalllm-eks)
 #   --node-count NUMBER       Desired node count (default: 2)
 #   --non-interactive         Run without prompts
 #   --skip-secrets            Skip secrets setup
@@ -30,7 +30,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 AWS_REGION="${AWS_REGION:-us-east-1}"
-CLUSTER_NAME="${CLUSTER_NAME:-zoidbot-eks}"
+CLUSTER_NAME="${CLUSTER_NAME:-cloudtolocalllm-eks}"
 NODE_COUNT="${NODE_COUNT:-2}"
 NON_INTERACTIVE="false"
 SKIP_SECRETS="false"
@@ -347,7 +347,7 @@ generate_config_file() {
 {
   "AWS_REGION": "$AWS_REGION",
   "CLUSTER_NAME": "$CLUSTER_NAME",
-  "AWS_SECRETS_MANAGER_SECRET_ID": "zoidbot/production",
+  "AWS_SECRETS_MANAGER_SECRET_ID": "CloudToLocalLLM/production",
   "EKS_CLUSTER_ENDPOINT": "$cluster_endpoint",
   "EKS_CLUSTER_ARN": "$cluster_arn",
   "GITHUB_ACTIONS_ROLE_ARN": "$github_role_arn",
@@ -360,7 +360,7 @@ EOF
 }
 
 main() {
-    log_section "AWS Infrastructure Setup for Zoidbot"
+    log_section "AWS Infrastructure Setup for CloudToLocalLLM"
     log_info "Region: $AWS_REGION | Cluster: $CLUSTER_NAME | Nodes: $NODE_COUNT"
 
     if [[ "$NON_INTERACTIVE" != "true" ]]; then
@@ -409,7 +409,7 @@ main() {
     echo "Useful commands:"
     echo "  • View cluster: kubectl cluster-info"
     echo "  • List nodes: kubectl get nodes"
-    echo "  • View pods: kubectl get pods -n zoidbot"
+    echo "  • View pods: kubectl get pods -n CloudToLocalLLM"
     echo ""
 
     if [[ "$SKIP_SECRETS" != "true" ]]; then

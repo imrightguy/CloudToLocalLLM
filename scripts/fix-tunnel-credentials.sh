@@ -17,7 +17,7 @@ fi
 echo "✅ Retrieved tunnel token"
 
 # Add after line 17
-NAMESPACE="${NAMESPACE:-zoidbot}"
+NAMESPACE="${NAMESPACE:-CloudToLocalLLM}"
 echo "✅ Using namespace: $NAMESPACE"
 
 # Debug: Check kubectl configuration

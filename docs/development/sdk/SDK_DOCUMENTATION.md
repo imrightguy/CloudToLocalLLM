@@ -1,8 +1,8 @@
-# Zoidbot SDK Documentation
+# CloudToLocalLLM SDK Documentation
 
 ## Overview
 
-The Zoidbot SDK is an official JavaScript/TypeScript client library for the Zoidbot API. It provides a simple, type-safe interface for interacting with all API endpoints.
+The CloudToLocalLLM SDK is an official JavaScript/TypeScript client library for the CloudToLocalLLM API. It provides a simple, type-safe interface for interacting with all API endpoints.
 
 **Requirements: 12.6**
 
@@ -24,19 +24,19 @@ The Zoidbot SDK is an official JavaScript/TypeScript client library for the Zoid
 ### npm
 
 ```bash
-npm install @zoidbot/sdk
+npm install @CloudToLocalLLM/sdk
 ```
 
 ### yarn
 
 ```bash
-yarn add @zoidbot/sdk
+yarn add @CloudToLocalLLM/sdk
 ```
 
 ### pnpm
 
 ```bash
-pnpm add @zoidbot/sdk
+pnpm add @CloudToLocalLLM/sdk
 ```
 
 ## Quick Start
@@ -44,10 +44,10 @@ pnpm add @zoidbot/sdk
 ### Basic Setup
 
 ```typescript
-import { ZoidbotClient } from '@zoidbot/sdk';
+import { CloudToLocalLLMClient } from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
   apiVersion: 'v2',
 });
 
@@ -393,8 +393,8 @@ interface SDKConfig {
 ### Example Configuration
 
 ```typescript
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
   apiVersion: 'v2',
   timeout: 60000,
   retryAttempts: 5,
@@ -460,14 +460,14 @@ Full TypeScript support with comprehensive types:
 
 ```typescript
 import {
-  ZoidbotClient,
+  CloudToLocalLLMClient,
   Tunnel,
   User,
   Webhook,
-} from '@zoidbot/sdk';
+} from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
 });
 
 // Types are automatically inferred
@@ -481,10 +481,10 @@ const webhook: Webhook = await client.getWebhook('webhook-id');
 ### Complete Authentication Flow
 
 ```typescript
-import { ZoidbotClient } from '@zoidbot/sdk';
+import { CloudToLocalLLMClient } from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
 });
 
 // After OAuth login
@@ -567,9 +567,9 @@ console.log(`Total deliveries: ${deliveries.pagination.total}`);
 
 For issues, questions, or contributions:
 
-- GitHub: https://github.com/Zoidbot/zoidbot
-- Documentation: https://zoidbot.online/docs
-- API Docs: https://api.zoidbot.online/api/docs
+- GitHub: https://github.com/CloudToLocalLLM/CloudToLocalLLM
+- Documentation: https://cloudtolocalllm.online/docs
+- API Docs: https://api.cloudtolocalllm.online/api/docs
 
 ## License
 

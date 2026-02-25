@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Full Release Script (WSL Orchestration)
+# CloudToLocalLLM Full Release Script (WSL Orchestration)
 # Builds Windows and Linux assets and creates GitHub release
 
 set -e
@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 REPO_OWNER="imrightguy"
-REPO_NAME="Zoidbot"
+REPO_NAME="CloudToLocalLLM"
 
 # Functions
 print_status() {
@@ -114,7 +114,7 @@ create_github_release() {
 
 # Main function
 main() {
-    print_status "Zoidbot Full Release Orchestration (WSL)"
+    print_status "CloudToLocalLLM Full Release Orchestration (WSL)"
     print_status "================================================="
 
     # Change to project root

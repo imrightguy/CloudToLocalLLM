@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.zoidbot.Zoidbot</id>
+  <id>com.CloudToLocalLLM.CloudToLocalLLM</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
-  <name>Zoidbot</name>
+  <name>CloudToLocalLLM</name>
   <summary>Bridge cloud-based AI services with local AI models</summary>
   
   <description>
     <p>
-      Zoidbot is a cross-platform application that bridges cloud-based AI services 
+      CloudToLocalLLM is a cross-platform application that bridges cloud-based AI services 
       with local AI models, providing a hybrid AI architecture with privacy-first design.
     </p>
     <p>
@@ -22,23 +22,23 @@
     </ul>
   </description>
   
-  <launchable type="desktop-id">com.zoidbot.Zoidbot.desktop</launchable>
+  <launchable type="desktop-id">com.CloudToLocalLLM.CloudToLocalLLM.desktop</launchable>
   
   <screenshots>
     <screenshot type="default">
       <caption>Main application window</caption>
-      <image>https://raw.githubusercontent.com/Zoidbot-online/Zoidbot/main/docs/app_screenshots/main-window.png</image>
+      <image>https://raw.githubusercontent.com/CloudToLocalLLM-online/CloudToLocalLLM/main/docs/app_screenshots/main-window.png</image>
     </screenshot>
   </screenshots>
   
-  <url type="homepage">https://github.com/Zoidbot-online/Zoidbot</url>
-  <url type="bugtracker">https://github.com/Zoidbot-online/Zoidbot/issues</url>
-  <url type="help">https://github.com/Zoidbot-online/Zoidbot/blob/main/README.md</url>
+  <url type="homepage">https://github.com/CloudToLocalLLM-online/CloudToLocalLLM</url>
+  <url type="bugtracker">https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues</url>
+  <url type="help">https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/blob/main/README.md</url>
   
-  <developer_name>Zoidbot Contributors</developer_name>
+  <developer_name>CloudToLocalLLM Contributors</developer_name>
   
   <provides>
-    <binary>zoidbot</binary>
+    <binary>CloudToLocalLLM</binary>
   </provides>
   
   <releases>

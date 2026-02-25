@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Unified Package Build Script
+# CloudToLocalLLM Unified Package Build Script
 # Builds all package formats with unified version management
 
 set -euo pipefail
@@ -139,7 +139,7 @@ build_flutter_linux() {
         log_success "Flutter Linux build completed"
 
         # Verify build artifacts
-        if [[ -f "$PROJECT_ROOT/build/linux/x64/release/bundle/zoidbot" ]]; then
+        if [[ -f "$PROJECT_ROOT/build/linux/x64/release/bundle/CloudToLocalLLM" ]]; then
             log_success "Flutter Linux build artifacts verified"
         else
             log_error "Flutter Linux build artifacts not found"
@@ -188,9 +188,9 @@ validate_packages() {
     local validation_errors=0
 
     # Check Debian package
-    if [[ -f "$dist_dir/zoidbot-${version}-amd64.deb" ]]; then
-        log_success "Debian package found: zoidbot-${version}-amd64.deb"
-        if [[ -f "$dist_dir/zoidbot-${version}-amd64.deb.sha256" ]]; then
+    if [[ -f "$dist_dir/cloudtolocalllm-${version}-amd64.deb" ]]; then
+        log_success "Debian package found: CloudToLocalLLM-${version}-amd64.deb"
+        if [[ -f "$dist_dir/cloudtolocalllm-${version}-amd64.deb.sha256" ]]; then
             log_success "Debian package checksum found"
         else
             log_error "Debian package checksum missing"
@@ -201,9 +201,9 @@ validate_packages() {
     fi
 
     # Check AppImage package
-    if [[ -f "$dist_dir/zoidbot-${version}-x86_64.AppImage" ]]; then
-        log_success "AppImage package found: zoidbot-${version}-x86_64.AppImage"
-        if [[ -f "$dist_dir/zoidbot-${version}-x86_64.AppImage.sha256" ]]; then
+    if [[ -f "$dist_dir/cloudtolocalllm-${version}-x86_64.AppImage" ]]; then
+        log_success "AppImage package found: CloudToLocalLLM-${version}-x86_64.AppImage"
+        if [[ -f "$dist_dir/cloudtolocalllm-${version}-x86_64.AppImage.sha256" ]]; then
             log_success "AppImage package checksum found"
         else
             log_error "AppImage package checksum missing"
@@ -232,7 +232,7 @@ generate_summary() {
     local dist_dir="$PROJECT_ROOT/dist/linux"
 
     echo
-    echo "=== Zoidbot Build Summary ==="
+    echo "=== CloudToLocalLLM Build Summary ==="
     echo "Semantic Version: $version"
     echo "Full Version: $full_version"
     echo "Build Number: $build_number"
@@ -241,14 +241,14 @@ generate_summary() {
     echo "Generated Packages:"
 
     # List all generated packages with sizes
-    if [[ -f "$dist_dir/zoidbot-${version}-amd64.deb" ]]; then
-        local size=$(du -h "$dist_dir/zoidbot-${version}-amd64.deb" | cut -f1)
-        echo "  Debian: zoidbot-${version}-amd64.deb ($size)"
+    if [[ -f "$dist_dir/cloudtolocalllm-${version}-amd64.deb" ]]; then
+        local size=$(du -h "$dist_dir/cloudtolocalllm-${version}-amd64.deb" | cut -f1)
+        echo "  Debian: CloudToLocalLLM-${version}-amd64.deb ($size)"
     fi
 
-    if [[ -f "$dist_dir/zoidbot-${version}-x86_64.AppImage" ]]; then
-        local size=$(du -h "$dist_dir/zoidbot-${version}-x86_64.AppImage" | cut -f1)
-        echo "  AppImage: zoidbot-${version}-x86_64.AppImage ($size)"
+    if [[ -f "$dist_dir/cloudtolocalllm-${version}-x86_64.AppImage" ]]; then
+        local size=$(du -h "$dist_dir/cloudtolocalllm-${version}-x86_64.AppImage" | cut -f1)
+        echo "  AppImage: CloudToLocalLLM-${version}-x86_64.AppImage ($size)"
     fi
 
     echo
@@ -278,7 +278,7 @@ main() {
                 shift 2
                 ;;
             --help|-h)
-                echo "Zoidbot Unified Package Build Script"
+                echo "CloudToLocalLLM Unified Package Build Script"
                 echo
                 echo "Usage: $0 [options]"
                 echo
@@ -297,7 +297,7 @@ main() {
         esac
     done
     
-    log_info "Starting Zoidbot unified package build..."
+    log_info "Starting CloudToLocalLLM unified package build..."
     
     # Increment version if requested
     if [[ -n "$increment_type" ]] && [[ "$skip_version_increment" == false ]]; then

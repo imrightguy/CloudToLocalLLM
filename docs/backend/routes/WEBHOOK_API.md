@@ -27,7 +27,7 @@ Raw JSON webhook event from Stripe
 **Example Request:**
 
 ```bash
-curl -X POST https://api.zoidbot.online/api/webhooks/stripe \
+curl -X POST https://api.cloudtolocalllm.online/api/webhooks/stripe \
   -H "stripe-signature: t=1234567890,v1=signature_here" \
   -H "Content-Type: application/json" \
   -d '{
@@ -459,7 +459,7 @@ ORDER BY updated_at DESC;
 
 1. Verify webhook endpoint in Stripe dashboard
 2. Check webhook URL is correct
-3. Verify server is accessible: `curl https://api.zoidbot.online/api/webhooks/stripe`
+3. Verify server is accessible: `curl https://api.cloudtolocalllm.online/api/webhooks/stripe`
 4. Check firewall rules allow Stripe IPs
 
 ### Signature Verification Fails

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../config/theme.dart';
-import '../config/app_config.dart';
 import '../services/auth_service.dart';
 import '../services/theme_provider.dart';
-import '../services/platform_detection_service.dart';
 import '../services/platform_adapter.dart';
+import '../services/platform_detection_service.dart';
 
 // Conditional import for debug panel - only import on web platform
 import '../widgets/auth_debug_panel.dart'
@@ -158,7 +157,6 @@ class _LoginScreenState extends State<LoginScreen> {
         isMobile ? double.infinity : (isTablet ? 500.0 : 450.0);
 
     // Platform-appropriate typography (Requirement 7.5)
-    final welcomeFontSize = isMobile ? 16.0 : 18.0;
     final titleFontSize = isMobile ? 24.0 : 28.0;
     final descriptionFontSize = isMobile ? 14.0 : 16.0;
 
@@ -242,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // App name with theme-aware colors (Requirement 7.1, 7.5)
                           Text(
-                            'I\'m Zoidbot, your AI assistant.',
+                            'I\'m CloudToLocalLLM, your AI assistant.',
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color:
                                   colorScheme.onSurface.withValues(alpha: 0.8),

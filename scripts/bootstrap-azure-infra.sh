@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Bootstrap Azure infrastructure for Zoidbot.
+# Bootstrap Azure infrastructure for CloudToLocalLLM.
 # Can be run locally (after `az login`) or from GitHub Actions (after azure/login@v2).
 #
 # Usage (positional args take precedence over env vars):

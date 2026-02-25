@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot AUR Package Local Test Script
+# CloudToLocalLLM AUR Package Local Test Script
 # This script simulates the AUR installation process using local build artifacts.
 
 set -e
@@ -29,9 +29,9 @@ flutter build linux --release
 log_info "Packaging Linux bundle..."
 mkdir -p "$DIST_DIR"
 STAGING_DIR=$(mktemp -d)
-mkdir -p "$STAGING_DIR/zoidbot"
-cp -r "$PROJECT_ROOT/build/linux/x64/release/bundle/"* "$STAGING_DIR/zoidbot/"
-tar -czf "$DIST_DIR/Zoidbot-Linux-x64.tar.gz" -C "$STAGING_DIR" zoidbot
+mkdir -p "$STAGING_DIR/CloudToLocalLLM"
+cp -r "$PROJECT_ROOT/build/linux/x64/release/bundle/"* "$STAGING_DIR/CloudToLocalLLM/"
+tar -czf "$DIST_DIR/CloudToLocalLLM-Linux-x64.tar.gz" -C "$STAGING_DIR" CloudToLocalLLM
 rm -rf "$STAGING_DIR"
 cd "$PROJECT_ROOT"
 
@@ -43,15 +43,15 @@ cp "$PROJECT_ROOT/build-tools/packaging/aur/PKGBUILD" "$AUR_TEST_DIR/"
 
 # 4. Modify PKGBUILD for local testing
 VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)
-CHECKSUM=$(sha256sum "$DIST_DIR/Zoidbot-Linux-x64.tar.gz" | cut -d' ' -f1)
+CHECKSUM=$(sha256sum "$DIST_DIR/CloudToLocalLLM-Linux-x64.tar.gz" | cut -d' ' -f1)
 
 log_info "Updating PKGBUILD with local version ($VERSION) and checksum..."
 sed -i "s/pkgver=VERSION/pkgver=$VERSION/" "$AUR_TEST_DIR/PKGBUILD"
-sed -i "s|source=(.*)|source=(\"local://Zoidbot-Linux-x64.tar.gz\")|" "$AUR_TEST_DIR/PKGBUILD"
+sed -i "s|source=(.*)|source=(\"local://CloudToLocalLLM-Linux-x64.tar.gz\")|" "$AUR_TEST_DIR/PKGBUILD"
 sed -i "s/sha256sums=(.*)/sha256sums=('$CHECKSUM')/" "$AUR_TEST_DIR/PKGBUILD"
 
 # Link the local tarball so makepkg can find it
-ln -sf "$DIST_DIR/Zoidbot-Linux-x64.tar.gz" "$AUR_TEST_DIR/Zoidbot-Linux-x64.tar.gz"
+ln -sf "$DIST_DIR/CloudToLocalLLM-Linux-x64.tar.gz" "$AUR_TEST_DIR/CloudToLocalLLM-Linux-x64.tar.gz"
 
 # 5. Build and install the package
 log_info "Running makepkg -si..."
@@ -66,4 +66,4 @@ sed -i "s|source=(\"local://|source=(\"|" "$AUR_TEST_DIR/PKGBUILD"
 makepkg -si --noconfirm
 
 log_success "AUR package installed successfully!"
-log_info "You can now run the app using: zoidbot"
+log_info "You can now run the app using: CloudToLocalLLM"

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../services/platform_detection_service.dart';
@@ -46,7 +45,7 @@ class HomepageScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, {required bool isMobile}) {
-    // Welcome message with Zoidbot persona
+    // Welcome message with CloudToLocalLLM persona
     final theme = Theme.of(context);
 
     // Responsive sizing
@@ -82,7 +81,7 @@ class HomepageScreen extends StatelessWidget {
               label: 'Login to application',
               child: TextButton(
                 onPressed: () async {
-                  final uri = Uri.parse('https://app.zoidbot.online');
+                  final uri = Uri.parse('https://app.cloudtolocalllm.online');
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(uri, webOnlyWindowName: '_self');
                   }
@@ -114,7 +113,7 @@ class HomepageScreen extends StatelessWidget {
             children: [
               // Logo with semantic label for accessibility
               Semantics(
-                label: 'Zoidbot Logo',
+                label: 'CloudToLocalLLM Logo',
                 child: Container(
                   width: logoSize,
                   height: logoSize,
@@ -149,7 +148,7 @@ class HomepageScreen extends StatelessWidget {
 
               // Title with proper typography
               Text(
-                'Zoidbot',
+                'CloudToLocalLLM',
                 style: theme.textTheme.displayLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -227,9 +226,9 @@ class HomepageScreen extends StatelessWidget {
     return _buildCard(
       context,
       isMobile: isMobile,
-      title: 'What is Zoidbot?',
+      title: 'What is CloudToLocalLLM?',
       description:
-          'Zoidbot is an innovative platform that lets you run AI language models on your own computer while managing them through a simple cloud interface.',
+          'CloudToLocalLLM is an innovative platform that lets you run AI language models on your own computer while managing them through a simple cloud interface.',
       features: ['Run Models Locally', 'Cloud Management', 'Cost Effective'],
     );
   }
@@ -243,7 +242,7 @@ class HomepageScreen extends StatelessWidget {
       isMobile: isMobile,
       title: 'Web Application',
       description:
-          'Access Zoidbot through your web browser with cloud streaming',
+          'Access CloudToLocalLLM through your web browser with cloud streaming',
       child: SizedBox(
         width: double.infinity,
         child: Column(
@@ -263,14 +262,15 @@ class HomepageScreen extends StatelessWidget {
                     // Redirect to app subdomain instead of local route
                     if (kIsWeb) {
                       // Use url_launcher to navigate to app subdomain
-                      final uri = Uri.parse('https://app.zoidbot.online');
+                      final uri =
+                          Uri.parse('https://app.cloudtolocalllm.online');
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(uri, webOnlyWindowName: '_self');
                       }
                     } else {
                       // For desktop, use local routing with push to preserve stack
                       if (context.mounted) {
-                        Navigator.of(context).pushNamed('/chat');
+                        await Navigator.of(context).pushNamed('/chat');
                       }
                     }
                   },

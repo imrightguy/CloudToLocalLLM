@@ -44,7 +44,7 @@ Lists definition names (classes, functions, methods) in source code files.
 
 Performs a regex search across files.
 
-* **Demonstration:** Searched for "Zoidbot" in `README.md`, returning all occurrences with context.
+* **Demonstration:** Searched for "CloudToLocalLLM" in `README.md`, returning all occurrences with context.
 
 ## MCP Tool Demonstrations
 
@@ -52,8 +52,8 @@ Performs a regex search across files.
 
 This MCP server provides tools for interacting with a knowledge graph.
 
-* **`create_entities`**: Created entities like "Cline" and "Zoidbot".
-* **`create_relations`**: Created a "is working on" relation between "Cline" and "Zoidbot".
+* **`create_entities`**: Created entities like "Cline" and "CloudToLocalLLM".
+* **`create_relations`**: Created a "is working on" relation between "Cline" and "CloudToLocalLLM".
 * **`read_graph`**: Read the current state of the knowledge graph, confirming the created entities and relations.
 
 ### `github.com/upstash/context7-mcp`

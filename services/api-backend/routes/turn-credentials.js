@@ -25,7 +25,7 @@ router.get('/credentials', authenticateJWT, (req, res) => {
   try {
     // Get TURN credentials from environment variables
     // These should be set securely in production (e.g., Kubernetes secrets)
-    const turnUsername = process.env.TURN_USERNAME || 'zoidbot';
+    const turnUsername = process.env.TURN_USERNAME || 'CloudToLocalLLM';
     const turnCredential =
       process.env.TURN_CREDENTIAL || process.env.TURN_PASSWORD || '';
     const turnUrls = process.env.TURN_URLS

@@ -46,24 +46,30 @@ class ConnectionMethodStep extends StatelessWidget {
                     icon: Icons.computer,
                     title: 'Local on this computer',
                     description: 'OpenClaw Gateway running on this computer',
-                    selected: wizard.state.selectedMethod == ConnectionMethod.local,
-                    onTap: () => wizard.selectConnectionMethod(ConnectionMethod.local),
+                    selected:
+                        wizard.state.selectedMethod == ConnectionMethod.local,
+                    onTap: () =>
+                        wizard.selectConnectionMethod(ConnectionMethod.local),
                   ),
                   const SizedBox(height: 16),
                   ConnectionMethodCard(
                     icon: Icons.lan,
                     title: 'Remote via Tailscale',
                     description: 'OpenClaw Gateway on your tailnet or VPS',
-                    selected: wizard.state.selectedMethod == ConnectionMethod.tailscale,
-                    onTap: () => wizard.selectConnectionMethod(ConnectionMethod.tailscale),
+                    selected: wizard.state.selectedMethod ==
+                        ConnectionMethod.tailscale,
+                    onTap: () => wizard
+                        .selectConnectionMethod(ConnectionMethod.tailscale),
                   ),
                   const SizedBox(height: 16),
                   ConnectionMethodCard(
                     icon: Icons.link,
                     title: 'Custom remote URL',
                     description: 'SSH tunnel, VPN, or custom URL',
-                    selected: wizard.state.selectedMethod == ConnectionMethod.custom,
-                    onTap: () => wizard.selectConnectionMethod(ConnectionMethod.custom),
+                    selected:
+                        wizard.state.selectedMethod == ConnectionMethod.custom,
+                    onTap: () =>
+                        wizard.selectConnectionMethod(ConnectionMethod.custom),
                   ),
                 ],
               ),

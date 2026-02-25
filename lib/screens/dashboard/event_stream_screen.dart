@@ -1,4 +1,5 @@
 /// Event Stream Screen - Stub Implementation
+library;
 
 import 'package:flutter/material.dart';
 

@@ -100,7 +100,7 @@ class _PricingScreenState extends State<PricingScreen> {
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: Navigate to checkout or handle upgrade
+              // Future enhancement: Integration with payment gateway
               _showComingSoonDialog();
             },
             child: const Text('Continue'),

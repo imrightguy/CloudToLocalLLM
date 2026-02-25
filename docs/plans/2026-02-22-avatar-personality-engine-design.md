@@ -272,7 +272,7 @@ Located in OpenClaw skills directory (not CloudToLocalLLM app data):
 
 ```markdown
 ---
-agent_name: Zoidbot
+agent_name: CloudToLocalLLM
 formality: 0.7
 humor: 0.4
 enthusiasm: 0.8
@@ -283,7 +283,7 @@ depth_score: 0.65
 last_updated: 2026-02-22T10:30:00Z
 ---
 
-# Zoidbot Personality
+# CloudToLocalLLM Personality
 
 ## Evolution History
 - **Base → Stage 1** (2026-02-15): Self-reflection after 20 meaningful conversations
@@ -298,7 +298,7 @@ last_updated: 2026-02-22T10:30:00Z
 ### memory.md
 
 ```markdown
-# Zoidbot Memory Log
+# CloudToLocalLLM Memory Log
 
 ## 2026-02-22
 ### Conversation: Phase 2 Implementation
@@ -315,7 +315,7 @@ last_updated: 2026-02-22T10:30:00Z
 ### context.md
 
 ```markdown
-# Zoidbot Context Awareness
+# CloudToLocalLLM Context Awareness
 
 ## User Patterns
 - Prefers formal explanations for technical topics

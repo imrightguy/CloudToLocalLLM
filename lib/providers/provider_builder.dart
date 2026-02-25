@@ -94,18 +94,6 @@ class ProviderBuilder {
     }
   }
 
-  void _addProviderIfRegistered<T extends ChangeNotifier>(
-      List<SingleChildWidget> providers) {
-    try {
-      if (di.serviceLocator.isRegistered<T>()) {
-        final service = di.serviceLocator.get<T>();
-        providers.add(ChangeNotifierProvider<T>.value(value: service));
-      }
-    } catch (e) {
-      debugPrint('[Providers] Error adding provider $T: $e');
-    }
-  }
-
   void _addProviderIfRegisteredNoChangeNotifier<T extends Object>(
       List<SingleChildWidget> providers) {
     try {

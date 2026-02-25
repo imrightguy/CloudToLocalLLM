@@ -9,7 +9,7 @@ The GitHub Actions workflows were failing due to inconsistent usage of the `kilo
 1. **CLI Flag Mismatch:** The `main-orchestrator.yml`, `ai-review.yml`, `ai-triage.yml`, and `ai-task.yml` workflows were calling `gemini` with flags that `scripts/gemini-cli.cjs` interpreted as part of the prompt text.
 2. **Inconsistent Tooling:** `ai-triage.yml` and `ai-task.yml` were missing the step to symlink the local `scripts/gemini-cli.cjs` to `/usr/local/bin/gemini`, potentially relying on a different system-installed tool with different output behavior.
 3. **Brittle Parsing:** The workflows used fragile `sed` and `jq` logic that failed when the output format didn't match the expectation (e.g., missing `.response` wrapper or presence of Markdown code blocks).
-4. **Azure OIDC Risk:** (Observation) The recent repository rename might cause Azure OIDC login failures if the Federated Credentials in Azure AD were not updated to match the new repository path (`Zoidbot-online/Zoidbot`).
+4. **Azure OIDC Risk:** (Observation) The recent repository rename might cause Azure OIDC login failures if the Federated Credentials in Azure AD were not updated to match the new repository path (`CloudToLocalLLM-online/CloudToLocalLLM`).
 
 ## Applied Fixes
 
@@ -33,5 +33,5 @@ The GitHub Actions workflows were failing due to inconsistent usage of the `kilo
 
 ## Remaining Actions (User Required)
 
-- **Azure OIDC:** Verify that Azure Federated Credentials are updated for the new repository name `Zoidbot-online/Zoidbot`.
+- **Azure OIDC:** Verify that Azure Federated Credentials are updated for the new repository name `CloudToLocalLLM-online/CloudToLocalLLM`.
 - **Secrets:** Ensure `KILOCODE_TOKEN` and `PAT_TOKEN` are set in GitHub Secrets.

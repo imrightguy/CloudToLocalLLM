@@ -76,9 +76,9 @@ Comprehensive test refactor initiated with proper mock services, test utilities,
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zoidbot/screens/[screen_path]/[screen_name].dart';
-import 'package:zoidbot/services/theme_provider.dart';
-import 'package:zoidbot/services/platform_detection_service.dart';
+import 'package:CloudToLocalLLM/screens/[screen_path]/[screen_name].dart';
+import 'package:CloudToLocalLLM/services/theme_provider.dart';
+import 'package:CloudToLocalLLM/services/platform_detection_service.dart';
 import '../helpers/mock_services.dart';
 import '../helpers/test_app_wrapper.dart';
 import '../helpers/test_utilities.dart';

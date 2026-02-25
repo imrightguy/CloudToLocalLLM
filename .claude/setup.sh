@@ -5,12 +5,12 @@
 
 set -e
 
-PROJECT_ROOT="/mnt/data/dev/Zoidbot"
+PROJECT_ROOT="/mnt/data/dev/CloudToLocalLLM"
 SHELLRC="$HOME/.bashrc"
 SOURCE_LINE="source $PROJECT_ROOT/claude_code_dev_env.sh"
 
 echo "======================================================================"
-echo "Zoidbot - Claude Code Development Environment Setup"
+echo "CloudToLocalLLM - Claude Code Development Environment Setup"
 echo "======================================================================"
 echo ""
 
@@ -20,7 +20,7 @@ if grep -q "$SOURCE_LINE" "$SHELLRC" 2>/dev/null; then
 else
     echo "Adding development aliases to ~/.bashrc..."
     echo "" >> "$SHELLRC"
-    echo "# Zoidbot development environment" >> "$SHELLRC"
+    echo "# CloudToLocalLLM development environment" >> "$SHELLRC"
     echo "$SOURCE_LINE" >> "$SHELLRC"
     echo "✓ Added to ~/.bashrc"
 fi

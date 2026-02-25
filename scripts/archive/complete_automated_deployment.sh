@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Complete Automated Deployment Script v3.5.5+
+# CloudToLocalLLM Complete Automated Deployment Script v3.5.5+
 # Implements the six-phase deployment workflow with full automation
 # Zero manual operations principle with comprehensive error handling
 # Enhanced with robust network operations and timeout handling
@@ -73,7 +73,7 @@ log_phase() {
 # Usage information
 show_usage() {
     cat << EOF
-Zoidbot Complete Automated Deployment Script
+CloudToLocalLLM Complete Automated Deployment Script
 
 USAGE:
     $0 [OPTIONS]
@@ -207,7 +207,7 @@ phase1_preflight_validation() {
     fi
 
     # Test SSH connection to VPS with retry logic
-    if ! test_ssh_connectivity "ubuntu@zoidbot.online" 15 5; then
+    if ! test_ssh_connectivity "ubuntu@cloudtolocalllm.online" 15 5; then
         log_error "SSH connectivity to VPS failed after multiple attempts"
         log_error "Please check VPS status and SSH key configuration"
         exit 2
@@ -361,7 +361,7 @@ phase3_multiplatform_build() {
 
     # Verify unified package exists or build it with timestamp injection
     local current_semantic_version=$(grep '^version:' pubspec.yaml | sed 's/version: *\([0-9.]*\).*/\1/')
-    local package_file="dist/zoidbot-${current_semantic_version}-x86_64.tar.gz"
+    local package_file="dist/cloudtolocalllm-${current_semantic_version}-x86_64.tar.gz"
 
     if [[ ! -f "$package_file" ]]; then
         log "Unified package not found - building with timestamp injection..."
@@ -525,7 +525,7 @@ phase4_distribution_execution() {
     log_success "✓ Version files contain proper release version: $current_version"
 
     # Validate distribution files exist and are committed
-    local package_file="dist/zoidbot-${semantic_version}-x86_64.tar.gz"
+    local package_file="dist/cloudtolocalllm-${semantic_version}-x86_64.tar.gz"
     local checksum_file="${package_file}.sha256"
 
     if ! git ls-files --error-unmatch "$package_file" &> /dev/null; then
@@ -624,7 +624,7 @@ phase4_distribution_execution() {
             fi
         else
             log_error "Invalid remote URL format: $current_remote"
-            log_error "Expected SSH format: git@github.com:Zoidbot-online/Zoidbot.git"
+            log_error "Expected SSH format: git@github.com:CloudToLocalLLM-online/CloudToLocalLLM.git"
             exit 4
         fi
 
@@ -646,7 +646,7 @@ phase4_distribution_execution() {
         # Verify GitHub raw URL accessibility with retry logic
         log_verbose "Verifying GitHub raw URL accessibility..."
         local semantic_version=$(echo "$current_version" | cut -d'+' -f1)
-        local github_url="https://raw.githubusercontent.com/Zoidbot-online/Zoidbot/master/dist/zoidbot-${semantic_version}-x86_64.tar.gz"
+        local github_url="https://raw.githubusercontent.com/CloudToLocalLLM-online/CloudToLocalLLM/master/dist/cloudtolocalllm-${semantic_version}-x86_64.tar.gz"
         local max_attempts=5
         local attempt=1
         local github_accessible=false
@@ -673,7 +673,7 @@ phase4_distribution_execution() {
 
         # Verify checksum consistency between local and GitHub files
         log_verbose "Verifying checksum consistency between local and GitHub files..."
-        local local_sha256=$(cat "dist/zoidbot-${current_version}-x86_64.tar.gz.sha256" 2>/dev/null | cut -d' ' -f1 || echo "")
+        local local_sha256=$(cat "dist/cloudtolocalllm-${current_version}-x86_64.tar.gz.sha256" 2>/dev/null | cut -d' ' -f1 || echo "")
         if [[ -n "$local_sha256" ]]; then
             local github_sha256=$(curl -s "$github_url" | sha256sum | cut -d' ' -f1)
             if [[ "$local_sha256" == "$github_sha256" ]]; then
@@ -705,16 +705,16 @@ phase4_distribution_execution() {
     fi
 
     log_verbose "Deploying to VPS with enhanced error handling..."
-    local vps_deploy_cmd="cd /opt/zoidbot && git stash && git pull origin master && ./scripts/deploy/update_and_deploy.sh $vps_flags"
+    local vps_deploy_cmd="cd /opt/CloudToLocalLLM && git stash && git pull origin master && ./scripts/deploy/update_and_deploy.sh $vps_flags"
 
-    if ! ssh_execute "cloudllm@zoidbot.online" "$vps_deploy_cmd" 300 3; then
+    if ! ssh_execute "cloudllm@cloudtolocalllm.online" "$vps_deploy_cmd" 300 3; then
         log_error "VPS deployment failed after multiple attempts"
         log_error "Attempting recovery with force reset..."
 
         # Try recovery with force reset
-        local recovery_cmd="cd /opt/zoidbot && git reset --hard HEAD && git clean -fd && git pull origin master && ./scripts/deploy/update_and_deploy.sh $vps_flags"
+        local recovery_cmd="cd /opt/CloudToLocalLLM && git reset --hard HEAD && git clean -fd && git pull origin master && ./scripts/deploy/update_and_deploy.sh $vps_flags"
 
-        if ! ssh_execute "cloudllm@zoidbot.online" "$recovery_cmd" 300 1; then
+        if ! ssh_execute "cloudllm@cloudtolocalllm.online" "$recovery_cmd" 300 1; then
             log_error "VPS deployment recovery failed"
             exit 4
         fi
@@ -741,14 +741,14 @@ phase5_comprehensive_verification() {
 
     # Test API backend health first
     log_verbose "Testing API backend health..."
-    if ! wait_for_service "https://app.zoidbot.online/api/health" 120 10; then
+    if ! wait_for_service "https://app.cloudtolocalllm.online/api/health" 120 10; then
         log_error "API backend failed to become healthy"
         exit 5
     fi
 
     # Test web platform with enhanced error handling
     log_verbose "Testing web platform accessibility..."
-    if ! wait_for_service "https://app.zoidbot.online" 120 10; then
+    if ! wait_for_service "https://app.cloudtolocalllm.online" 120 10; then
         log_error "Web platform failed to become accessible"
         exit 5
     fi
@@ -761,7 +761,7 @@ phase5_comprehensive_verification() {
 
     # Retrieve version information from endpoint
     local version_json
-    if version_json=$(curl_with_retry "https://app.zoidbot.online/version.json" --max-retries 5); then
+    if version_json=$(curl_with_retry "https://app.cloudtolocalllm.online/version.json" --max-retries 5); then
         local deployed_version=$(echo "$version_json" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
         local deployed_build_number=$(echo "$version_json" | grep -o '"build_number":"[^"]*"' | cut -d'"' -f4)
         local deployed_build_date=$(echo "$version_json" | grep -o '"build_date":"[^"]*"' | cut -d'"' -f4)
@@ -831,7 +831,7 @@ phase6_operational_readiness() {
     local deployed_build_number="${deployed_version#*+}"
 
     echo ""
-    echo -e "${GREEN}🎉 Zoidbot v${deployed_version} Deployment Completed Successfully!${NC}"
+    echo -e "${GREEN}🎉 CloudToLocalLLM v${deployed_version} Deployment Completed Successfully!${NC}"
     echo -e "${GREEN}================================================================${NC}"
     echo ""
     echo -e "${BLUE}📋 Deployment Summary:${NC}"
@@ -857,10 +857,10 @@ phase6_operational_readiness() {
     fi
 
     echo "  ✅ Git-based Distribution: Repository as single source of truth"
-    echo "  ✅ Static Download: https://zoidbot.online/zoidbot-${deployed_semantic_version}-x86_64.tar.gz"
-    echo "  ✅ Web Platform: https://app.zoidbot.online"
-    echo "  ✅ API Backend: https://app.zoidbot.online/api/health"
-    echo "  ✅ Tunnel Server: wss://app.zoidbot.online/ws/bridge"
+    echo "  ✅ Static Download: https://cloudtolocalllm.online/cloudtolocalllm-${deployed_semantic_version}-x86_64.tar.gz"
+    echo "  ✅ Web Platform: https://app.cloudtolocalllm.online"
+    echo "  ✅ API Backend: https://app.cloudtolocalllm.online/api/health"
+    echo "  ✅ Tunnel Server: wss://app.cloudtolocalllm.online/ws/bridge"
     echo ""
     echo -e "${BLUE}📋 Build Timestamp Correlation:${NC}"
 
@@ -906,9 +906,9 @@ phase6_operational_readiness() {
 main() {
     # Header
     local target_version=$(grep '^version:' pubspec.yaml | sed 's/version: *\([0-9.+]*\).*/\1/')
-    echo -e "${BLUE}Zoidbot Complete Automated Deployment v${target_version%+*}+${NC}"
+    echo -e "${BLUE}CloudToLocalLLM Complete Automated Deployment v${target_version%+*}+${NC}"
     echo -e "${BLUE}======================================================${NC}"
-    echo "Target: Zoidbot v${target_version} Production Deployment"
+    echo "Target: CloudToLocalLLM v${target_version} Production Deployment"
     echo "Strategy: Six-Phase Automated Workflow"
     echo "Distribution: Static Download + VPS"
     echo ""
@@ -960,7 +960,7 @@ cleanup_on_error() {
 
     # Cleanup any temporary files
     if declare -F cleanup_temp_files &> /dev/null; then
-        cleanup_temp_files "/tmp/zoidbot-deploy-*"
+        cleanup_temp_files "/tmp/cloudtolocalllm-deploy-*"
     fi
 
     exit $exit_code

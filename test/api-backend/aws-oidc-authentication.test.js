@@ -16,7 +16,7 @@ import { describe, test, expect } from '@jest/globals';
 const GITHUB_OIDC_PROVIDER = 'token.actions.githubusercontent.com';
 const AWS_ACCOUNT_ID = '422017356244';
 const AWS_REGION = 'us-east-1';
-const GITHUB_REPO = 'zoidbot/zoidbot';
+const GITHUB_REPO = 'CloudToLocalLLM/CloudToLocalLLM';
 const GITHUB_BRANCH = 'main';
 
 /**
@@ -34,7 +34,7 @@ function generateGitHubOIDCToken(options = {}) {
     jti: options.jti || crypto.randomUUID(),
     actor: options.actor || 'github-actions',
     repository: options.repository || GITHUB_REPO,
-    repository_owner: options.repositoryOwner || 'zoidbot',
+    repository_owner: options.repositoryOwner || 'CloudToLocalLLM',
     run_id: options.runId || crypto.randomInt(1000000, 9999999).toString(),
     run_number: options.runNumber || crypto.randomInt(1, 1000).toString(),
     ref: options.ref || `refs/heads/${GITHUB_BRANCH}`,
@@ -286,7 +286,7 @@ describe('AWS OIDC Authentication - Property Tests', () => {
       const decoded = jwt.decode(token);
 
       expect(decoded.repository).toBe(GITHUB_REPO);
-      expect(decoded.repository_owner).toBe('zoidbot');
+      expect(decoded.repository_owner).toBe('CloudToLocalLLM');
     });
 
     test('should include workflow information in token', () => {

@@ -18,7 +18,16 @@ class _TailscaleDiscoveryStepState extends State<TailscaleDiscoveryStep> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SetupWizardService>().discoverTailscaleDevices();
+      final wizard = context.read<SetupWizardService>();
+      debugPrint('[TailscaleDiscoveryStep] initState - selectedMethod: ${wizard.state.selectedMethod}');
+      
+      // Only discover if this step is actually shown (tailscale method selected)
+      if (wizard.state.selectedMethod == ConnectionMethod.tailscale) {
+        debugPrint('[TailscaleDiscoveryStep] Starting Tailscale discovery');
+        wizard.discoverTailscaleDevices();
+      } else {
+        debugPrint('[TailscaleDiscoveryStep] Skipping discovery - method is ${wizard.state.selectedMethod}');
+      }
     });
   }
 
@@ -134,8 +143,11 @@ class _TailscaleDiscoveryStepState extends State<TailscaleDiscoveryStep> {
     );
   }
 
-  Widget _buildDeviceCard(BuildContext context, TailscaleDevice device, SetupWizardService wizard) {
-    final isSelected = wizard.state.selectedProvider?.url.contains(device.primaryIP ?? '') ?? false;
+  Widget _buildDeviceCard(
+      BuildContext context, TailscaleDevice device, SetupWizardService wizard) {
+    final isSelected =
+        wizard.state.selectedProvider?.url.contains(device.primaryIP ?? '') ??
+            false;
 
     return InkWell(
       onTap: () {
@@ -153,7 +165,7 @@ class _TailscaleDiscoveryStepState extends State<TailscaleDiscoveryStep> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? Theme.of(context).primaryColor.withOpacity(0.1)
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(

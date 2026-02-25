@@ -4,11 +4,11 @@
  * Demonstrates how to create, manage, and test webhooks
  */
 
-import { ZoidbotClient } from '../src/index';
+import { CloudToLocalLLMClient } from '../src/index';
 
 async function main() {
-  const client = new ZoidbotClient({
-    baseURL: 'https://api.zoidbot.online',
+  const client = new CloudToLocalLLMClient({
+    baseURL: 'https://api.cloudtolocalllm.online',
     apiVersion: 'v2',
   });
 

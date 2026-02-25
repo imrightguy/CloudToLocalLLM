@@ -1,8 +1,8 @@
-# Zoidbot Timestamp-Based Build Numbers v3.5.5+
+# CloudToLocalLLM Timestamp-Based Build Numbers v3.5.5+
 
 ## Overview
 
-Zoidbot uses timestamp-based build numbers in YYYYMMDDHHMM format to represent the actual build creation time. This ensures that build numbers are unique, chronologically ordered, and meaningful for tracking deployment history.
+CloudToLocalLLM uses timestamp-based build numbers in YYYYMMDDHHMM format to represent the actual build creation time. This ensures that build numbers are unique, chronologically ordered, and meaningful for tracking deployment history.
 
 ## Build Number Format
 
@@ -45,7 +45,7 @@ generate_build_number() {
 #### `increment_build_number()`
 
 ```bash
-# Always generates new timestamp for Zoidbot v3.5.5+
+# Always generates new timestamp for CloudToLocalLLM v3.5.5+
 increment_build_number() {
     generate_build_number
 }
@@ -273,4 +273,4 @@ If deployment fails due to version issues:
 2. Check all version synchronization points
 3. Ensure build number reflects actual build time
 
-This timestamp-based versioning system provides Zoidbot with robust, meaningful, and chronologically ordered build identification that integrates seamlessly with the automated deployment workflow.
+This timestamp-based versioning system provides CloudToLocalLLM with robust, meaningful, and chronologically ordered build identification that integrates seamlessly with the automated deployment workflow.

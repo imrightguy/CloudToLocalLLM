@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/welcome_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/connection_method_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/local_detection_step.dart';
+import 'package:cloudtolocalllm/screens/onboarding/steps/gateway_password_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/tailscale_discovery_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/remote_connection_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/connection_test_step.dart';
@@ -20,6 +22,8 @@ class SetupWizardScreen extends StatefulWidget {
 
 class _SetupWizardScreenState extends State<SetupWizardScreen> {
   final PageController _pageController = PageController();
+  int _lastStep = 0;
+  ConnectionMethod? _lastMethod;
 
   @override
   void dispose() {
@@ -27,26 +31,66 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
     super.dispose();
   }
 
+  /// Get total steps based on connection method
+  int _getTotalSteps(ConnectionMethod? method) {
+    return _buildSteps(method).length;
+  }
+  
+  /// Check if step list changed (method changed)
+  bool _stepListChanged(ConnectionMethod? method) {
+    return _lastMethod != method;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SetupWizardService>(
       builder: (context, wizard, child) {
+        final method = wizard.state.selectedMethod;
+        final totalSteps = _getTotalSteps(method);
+        final currentStep = wizard.state.currentStep;
+        
+        // Handle method change - need to rebuild PageView with correct initial page
+        if (_stepListChanged(method)) {
+          _lastMethod = method;
+          _lastStep = currentStep;
+          // Don't animate on method change, just jump to current step
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_pageController.hasClients && currentStep < totalSteps) {
+              _pageController.jumpToPage(currentStep);
+            }
+          });
+        }
+        // Listen for step changes and animate page
+        else if (currentStep != _lastStep) {
+          _lastStep = currentStep;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_pageController.hasClients && currentStep < totalSteps) {
+              _pageController.animateToPage(
+                currentStep,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            }
+          });
+        }
+
         return Scaffold(
           body: SafeArea(
             child: Column(
               children: [
-                _buildProgressIndicator(wizard.state.currentStep),
+                _buildProgressIndicator(currentStep, totalSteps),
                 Expanded(
                   child: PageView(
+                    key: ValueKey('pageview_$method'), // Rebuild when method changes
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     onPageChanged: (index) {
                       wizard.goToStep(index);
                     },
-                    children: _buildSteps(),
+                    children: _buildSteps(method),
                   ),
                 ),
-                _buildNavigationButtons(wizard),
+                _buildNavigationButtons(wizard, totalSteps),
               ],
             ),
           ),
@@ -55,8 +99,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
     );
   }
 
-  Widget _buildProgressIndicator(int currentStep) {
-    const totalSteps = 5;
+  Widget _buildProgressIndicator(int currentStep, int totalSteps) {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -90,22 +133,38 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
     );
   }
 
-  List<Widget> _buildSteps() {
-    return [
-      const WelcomeStep(),
-      const ConnectionMethodStep(),
-      const LocalDetectionStep(),
-      const TailscaleDiscoveryStep(),
-      const RemoteConnectionStep(),
-      const ConnectionTestStep(),
-      const CompletionStep(),
+  List<Widget> _buildSteps(ConnectionMethod? method) {
+    // Build only the steps that should be shown based on connection method
+    final steps = <Widget>[
+      const WelcomeStep(),           // 0 - Always shown
+      const ConnectionMethodStep(),  // 1 - Always shown
+      const LocalDetectionStep(),    // 2 - Always shown
+      const GatewayPasswordStep(),   // 3 - Always shown
     ];
+    
+    // Step 4: TailscaleDiscoveryStep - only for tailscale method
+    if (method == ConnectionMethod.tailscale) {
+      steps.add(const TailscaleDiscoveryStep());
+    }
+    
+    // Step 5: RemoteConnectionStep - only for custom method
+    if (method == ConnectionMethod.custom) {
+      steps.add(const RemoteConnectionStep());
+    }
+    
+    // Remaining steps - always shown
+    steps.addAll([
+      const ConnectionTestStep(),    // 6 (or 5 if skipping)
+      const CompletionStep(),        // 7 (or 6 if skipping)
+    ]);
+    
+    return steps;
   }
 
-  Widget _buildNavigationButtons(SetupWizardService wizard) {
+  Widget _buildNavigationButtons(SetupWizardService wizard, int totalSteps) {
     final currentStep = wizard.state.currentStep;
     final isFirstStep = currentStep == 0;
-    final isLastStep = currentStep == _buildSteps().length - 1;
+    final isLastStep = currentStep == totalSteps - 1;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -124,10 +183,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
               child: OutlinedButton(
                 onPressed: () {
                   wizard.previousStep();
-                  _pageController.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
+                  // PageController animation handled by state change listener in build()
                 },
                 child: const Text('Back'),
               ),
@@ -137,17 +193,40 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
             child: FilledButton(
               onPressed: wizard.state.isLoading
                   ? null
-                  : () {
+                  : () async {
+                      debugPrint('[NavButton] Clicked. isLastStep: $isLastStep, currentStep: $currentStep, totalSteps: $totalSteps');
+                      
                       if (isLastStep) {
-                        // Complete setup - handled by CompletionStep
+                        // Complete the setup
+                        debugPrint('[NavButton] Calling completeSetup...');
+                        final success = await wizard.completeSetup();
+                        debugPrint('[NavButton] completeSetup result: $success');
+                        
+                        if (!success) {
+                          // Show error and stay on this step
+                          debugPrint('[NavButton] Setup failed: ${wizard.state.errorMessage}');
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(wizard.state.errorMessage ?? 'Setup failed'),
+                                backgroundColor: Colors.red,
+                                duration: const Duration(seconds: 5),
+                              ),
+                            );
+                          }
+                          return;
+                        }
+                        
+                        // Navigate to home on success
+                        debugPrint('[NavButton] Setup complete, navigating to home');
+                        if (mounted) {
+                          context.go('/');
+                        }
                         return;
                       }
 
                       wizard.nextStep();
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
+                      // PageController animation handled by state change listener in build()
                     },
               child: Text(
                 isLastStep

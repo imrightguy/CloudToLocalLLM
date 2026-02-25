@@ -1,9 +1,9 @@
-# Zoidbot Scripts Documentation
+# CloudToLocalLLM Scripts Documentation
 
 **Version**: 3.6.9  
 **Last Updated**: 2025-06-24
 
-This directory contains all automation scripts for Zoidbot development, deployment, and maintenance.
+This directory contains all automation scripts for CloudToLocalLLM development, deployment, and maintenance.
 
 ## 📁 Directory Structure
 
@@ -42,7 +42,7 @@ This directory contains all automation scripts for Zoidbot development, deployme
 
 - **BuildEnvironmentUtilities.ps1** - Build environment utilities
 - **Create-UnifiedPackages.ps1** - Unified package creation
-- **Fix-ZoidbotEnvironment.ps1** - Environment fixes
+- **Fix-CloudToLocalLLMEnvironment.ps1** - Environment fixes
 - **build_time_version_injector.ps1** - PowerShell version injector
 - **fix_line_endings.ps1** - Fixes line endings for bash scripts
 - **flutter-setup.ps1** - Flutter development setup

@@ -1,8 +1,8 @@
-# Zoidbot Release Notes
+# CloudToLocalLLM Release Notes
 
 ## 📋 Overview
 
-This document consolidates all release information, version history, and release management processes for Zoidbot into a single authoritative reference.
+This document consolidates all release information, version history, and release management processes for CloudToLocalLLM into a single authoritative reference.
 
 ---
 
@@ -75,9 +75,9 @@ The most significant architectural improvement since the project's inception, fe
 
 **New Components**:
 
-- **Enhanced Tray Daemon** (`zoidbot-enhanced-tray`): Independent Python daemon
+- **Enhanced Tray Daemon** (`CloudToLocalLLM-enhanced-tray`): Independent Python daemon
 - **Connection Broker**: Universal connection management service
-- **Settings Application** (`zoidbot-settings`): Dedicated configuration interface
+- **Settings Application** (`CloudToLocalLLM-settings`): Dedicated configuration interface
 - **Health Monitor**: Continuous connection health monitoring
 - **Token Manager**: Secure authentication token handling
 

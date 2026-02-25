@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/agent_provider.dart';
 import '../../services/agent_lifecycle_service.dart';
 
 /// Agent List View - Shows all available agents with their status
@@ -27,57 +26,6 @@ class _AgentListViewState extends State<AgentListView> {
       await service.refreshAgents();
     } catch (e) {
       debugPrint('[AgentListView] Failed to load agents: $e');
-    }
-  }
-
-  Color _getStatusColor(AgentLifecycleState state) {
-    switch (state) {
-      case AgentLifecycleState.idle:
-        return Colors.grey;
-      case AgentLifecycleState.starting:
-        return Colors.orange;
-      case AgentLifecycleState.running:
-        return Colors.green;
-      case AgentLifecycleState.stopping:
-        return Colors.orange.shade300;
-      case AgentLifecycleState.error:
-        return Colors.red;
-      case AgentLifecycleState.offline:
-        return Colors.grey.shade400;
-    }
-  }
-
-  IconData _getStatusIcon(AgentLifecycleState state) {
-    switch (state) {
-      case AgentLifecycleState.idle:
-        return Icons.pause_circle_outline;
-      case AgentLifecycleState.starting:
-        return Icons.play_circle_outline;
-      case AgentLifecycleState.running:
-        return Icons.play_circle_filled;
-      case AgentLifecycleState.stopping:
-        return Icons.stop_circle;
-      case AgentLifecycleState.error:
-        return Icons.error_outline;
-      case AgentLifecycleState.offline:
-        return Icons.cloud_off;
-    }
-  }
-
-  String _getStatusText(AgentLifecycleState state) {
-    switch (state) {
-      case AgentLifecycleState.idle:
-        return 'Idle';
-      case AgentLifecycleState.starting:
-        return 'Starting...';
-      case AgentLifecycleState.running:
-        return 'Running';
-      case AgentLifecycleState.stopping:
-        return 'Stopping...';
-      case AgentLifecycleState.error:
-        return 'Error';
-      case AgentLifecycleState.offline:
-        return 'Offline';
     }
   }
 
@@ -269,7 +217,7 @@ class _AgentListTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: statusColor.withOpacity(0.2),
+          backgroundColor: statusColor.withValues(alpha: 0.2),
           child: Icon(statusIcon, color: statusColor),
         ),
         title: Text(
@@ -293,7 +241,7 @@ class _AgentListTile extends StatelessWidget {
             statusText,
             style: TextStyle(color: statusColor),
           ),
-          backgroundColor: statusColor.withOpacity(0.1),
+          backgroundColor: statusColor.withValues(alpha: 0.1),
         ),
         isThreeLine: agent.activity != null || agent.errorMessage != null,
         onTap: () {

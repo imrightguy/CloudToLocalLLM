@@ -253,7 +253,7 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
               ),
               _buildStatusRow(
                 'Endpoint',
-                'api.zoidbot.online',
+                'api.cloudtolocalllm.online',
                 AppTheme.textColorLight,
               ),
               _buildStatusRow(

@@ -107,7 +107,7 @@ void main() {
         final filename = service.generateExportFilename();
 
         // Assert
-        expect(filename, startsWith('zoidbot-settings-'));
+        expect(filename, startsWith('CloudToLocalLLM-settings-'));
         expect(filename, endsWith('.json'));
       });
     });

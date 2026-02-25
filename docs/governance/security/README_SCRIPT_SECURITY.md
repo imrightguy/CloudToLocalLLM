@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document details the comprehensive security improvements implemented in the Zoidbot README.md update scripts to eliminate file corruption risks and security vulnerabilities.
+This document details the comprehensive security improvements implemented in the CloudToLocalLLM README.md update scripts to eliminate file corruption risks and security vulnerabilities.
 
 ## Security Vulnerabilities Addressed
 

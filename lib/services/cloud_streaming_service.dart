@@ -27,7 +27,7 @@ class _SharedWebSocket {
 
   String? _authToken;
   String? _gatewayToken; // OpenClaw Gateway token for local connections
-  
+
   // Completer for waiting for the challenge nonce
   Completer<String?>? _challengeCompleter;
 
@@ -85,7 +85,8 @@ class _SharedWebSocket {
         '☁ [_SharedWebSocket] _gatewayToken: ${_gatewayToken != null ? "SET (${_gatewayToken!.substring(0, 8)}...)" : "NULL"}');
 
     // Validate token for local connections
-    if (isLocalConnection && (_gatewayToken == null || _gatewayToken!.isEmpty)) {
+    if (isLocalConnection &&
+        (_gatewayToken == null || _gatewayToken!.isEmpty)) {
       throw Exception(
           'OpenClaw Gateway token not configured. Please run: openclaw gateway token');
     }
@@ -94,19 +95,22 @@ class _SharedWebSocket {
     _channel!.stream.listen(
       (data) {
         final msg = jsonDecode(data.toString());
-        
+
         // Handle connect.challenge event directly
         if (msg['type'] == 'event' && msg['event'] == 'connect.challenge') {
           final payload = msg['payload'] as Map<String, dynamic>?;
           final nonce = payload?['nonce'] as String?;
-          debugPrint('☁ [_SharedWebSocket] Received challenge, nonce: ${nonce?.substring(0, 8)}...');
-          if (_challengeCompleter != null && !_challengeCompleter!.isCompleted) {
+          debugPrint(
+              '☁ [_SharedWebSocket] Received challenge, nonce: ${nonce?.substring(0, 8)}...');
+          if (_challengeCompleter != null &&
+              !_challengeCompleter!.isCompleted) {
             _challengeCompleter!.complete(nonce);
           }
         }
-        
+
         _messageController.add(msg);
-        debugPrint('☁ [_SharedWebSocket] Received: ${jsonEncode(msg).substring(0, (jsonEncode(msg).length > 200 ? 200 : jsonEncode(msg).length))}...');
+        debugPrint(
+            '☁ [_SharedWebSocket] Received: ${jsonEncode(msg).substring(0, (jsonEncode(msg).length > 200 ? 200 : jsonEncode(msg).length))}...');
       },
       onError: (e) {
         debugPrint('☁ [_SharedWebSocket] Error: $e');
@@ -131,7 +135,8 @@ class _SharedWebSocket {
     try {
       nonce = await _challengeCompleter!.future.timeout(Duration(seconds: 10));
     } catch (e) {
-      debugPrint('☁ [_SharedWebSocket] No challenge received, proceeding without device identity: $e');
+      debugPrint(
+          '☁ [_SharedWebSocket] No challenge received, proceeding without device identity: $e');
       // If no challenge is received, the gateway might not require device identity
       // Fall back to legacy handshake
       await _sendLegacyHandshake(isLocalConnection);
@@ -139,7 +144,8 @@ class _SharedWebSocket {
     }
 
     if (nonce == null) {
-      debugPrint('☁ [_SharedWebSocket] No nonce in challenge, falling back to legacy handshake');
+      debugPrint(
+          '☁ [_SharedWebSocket] No nonce in challenge, falling back to legacy handshake');
       await _sendLegacyHandshake(isLocalConnection);
       return;
     }
@@ -155,7 +161,8 @@ class _SharedWebSocket {
       nonce: nonce,
     );
 
-    debugPrint('☁ [_SharedWebSocket] Built device auth: deviceId=${deviceAuth.deviceId.substring(0, 8)}...');
+    debugPrint(
+        '☁ [_SharedWebSocket] Built device auth: deviceId=${deviceAuth.deviceId.substring(0, 8)}...');
 
     // Step 3: Send connect request with device identity
     final handshake = {
@@ -183,7 +190,8 @@ class _SharedWebSocket {
       }
     };
 
-    debugPrint('☁ [_SharedWebSocket] Sending handshake with device identity...');
+    debugPrint(
+        '☁ [_SharedWebSocket] Sending handshake with device identity...');
     _channel!.sink.add(jsonEncode(handshake));
 
     // Step 4: Wait for hello-ok response
@@ -232,7 +240,8 @@ class _SharedWebSocket {
           final error = msg['error'] as Map<String, dynamic>?;
           final errorCode = error?['code'] as String?;
           final errorMessage = error?['message'] ?? 'Handshake failed';
-          debugPrint('☁ [_SharedWebSocket] Handshake error: $errorCode - $errorMessage');
+          debugPrint(
+              '☁ [_SharedWebSocket] Handshake error: $errorCode - $errorMessage');
           throw Exception(errorMessage);
         }
 
@@ -244,8 +253,9 @@ class _SharedWebSocket {
           final auth = msg['payload']?['auth'] as Map<String, dynamic>?;
           final deviceToken = auth?['deviceToken'] as String?;
           if (deviceToken != null) {
-            debugPrint('☁ [_SharedWebSocket] Received device token: ${deviceToken.substring(0, 8)}...');
-            // TODO: Store device token for future connections
+            debugPrint(
+                '☁ [_SharedWebSocket] Received device token: ${deviceToken.substring(0, 8)}...');
+            // Future enhancement: Store device token for future connections
           }
 
           _isConnected = true;

@@ -233,7 +233,7 @@ class PlatformDetectionService extends ChangeNotifier {
           description:
               'Recommended for most users. Includes automatic updates and system integration.',
           downloadUrl:
-              'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/Zoidbot-Windows-${AppConfig.appVersion}-Setup.exe',
+              'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-Windows-${AppConfig.appVersion}-Setup.exe',
           fileSize: '~10 MB',
           installationType: 'exe',
           isRecommended: true,
@@ -246,7 +246,7 @@ class PlatformDetectionService extends ChangeNotifier {
           name: 'Portable ZIP',
           description: 'No installation required. Extract and run directly.',
           downloadUrl:
-              'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-${AppConfig.appVersion}-portable.zip',
+              'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-${AppConfig.appVersion}-portable.zip',
           fileSize: '~12 MB',
           installationType: 'zip',
           requirements: ['Windows 10 or later'],
@@ -273,7 +273,8 @@ class PlatformDetectionService extends ChangeNotifier {
         ),
         InstallationStep(
           title: 'Launch the application',
-          description: 'Find Zoidbot in your Start menu or desktop shortcut.',
+          description:
+              'Find CloudToLocalLLM in your Start menu or desktop shortcut.',
           applicableTypes: ['msi'],
           order: 2,
         ),
@@ -287,7 +288,7 @@ class PlatformDetectionService extends ChangeNotifier {
         InstallationStep(
           title: 'Run the executable',
           description:
-              'Navigate to the extracted folder and double-click zoidbot.exe.',
+              'Navigate to the extracted folder and double-click CloudToLocalLLM.exe.',
           applicableTypes: ['zip'],
           order: 1,
           troubleshootingTips: [
@@ -323,7 +324,7 @@ class PlatformDetectionService extends ChangeNotifier {
           description:
               'Portable application that runs on any Linux distribution. No installation required.',
           downloadUrl:
-              'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-${AppConfig.appVersion}-x86_64.AppImage',
+              'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-${AppConfig.appVersion}-x86_64.AppImage',
           fileSize: '~48 MB',
           installationType: 'appimage',
           isRecommended: true,
@@ -334,7 +335,7 @@ class PlatformDetectionService extends ChangeNotifier {
           description:
               'Native package for Ubuntu, Debian, and derivatives with proper dependency management.',
           downloadUrl:
-              'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot_${AppConfig.appVersion}_amd64.deb',
+              'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm_${AppConfig.appVersion}_amd64.deb',
           fileSize: '~44 MB',
           installationType: 'deb',
           requirements: [
@@ -346,7 +347,7 @@ class PlatformDetectionService extends ChangeNotifier {
           name: 'Arch Linux (AUR)',
           description:
               'Pre-built binary package for Arch Linux and derivatives.',
-          downloadUrl: 'https://aur.archlinux.org/packages/zoidbot',
+          downloadUrl: 'https://aur.archlinux.org/packages/CloudToLocalLLM',
           fileSize: '~42 MB',
           installationType: 'aur',
           requirements: [
@@ -366,7 +367,7 @@ class PlatformDetectionService extends ChangeNotifier {
           title: 'Make executable',
           description: 'Open terminal and make the AppImage executable.',
           commands: [
-            'chmod +x zoidbot-${AppConfig.appVersion}-x86_64.AppImage',
+            'chmod +x CloudToLocalLLM-${AppConfig.appVersion}-x86_64.AppImage',
           ],
           applicableTypes: ['appimage'],
           order: 1,
@@ -375,7 +376,7 @@ class PlatformDetectionService extends ChangeNotifier {
           title: 'Run the application',
           description: 'Double-click the AppImage or run it from terminal.',
           commands: [
-            './zoidbot-${AppConfig.appVersion}-x86_64.AppImage',
+            './cloudtolocalllm-${AppConfig.appVersion}-x86_64.AppImage',
           ],
           applicableTypes: ['appimage'],
           order: 2,
@@ -394,7 +395,7 @@ class PlatformDetectionService extends ChangeNotifier {
           title: 'Install package',
           description: 'Install using dpkg or your package manager.',
           commands: [
-            'sudo dpkg -i zoidbot_${AppConfig.appVersion}_amd64.deb',
+            'sudo dpkg -i cloudtolocalllm_${AppConfig.appVersion}_amd64.deb',
             'sudo apt-get install -f  # Fix dependencies if needed',
           ],
           applicableTypes: ['deb'],
@@ -404,9 +405,9 @@ class PlatformDetectionService extends ChangeNotifier {
           title: 'Install from AUR',
           description: 'Use your preferred AUR helper to install.',
           commands: [
-            'yay -S zoidbot',
-            '# Or: paru -S zoidbot',
-            '# Or: pamac install zoidbot',
+            'yay -S CloudToLocalLLM',
+            '# Or: paru -S CloudToLocalLLM',
+            '# Or: pamac install CloudToLocalLLM',
           ],
           applicableTypes: ['aur'],
           order: 0,
@@ -441,7 +442,7 @@ class PlatformDetectionService extends ChangeNotifier {
           description:
               'Standard macOS installer with drag-and-drop installation.',
           downloadUrl:
-              'https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-${AppConfig.appVersion}-macos.dmg',
+              'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-${AppConfig.appVersion}-macos.dmg',
           fileSize: '~50 MB',
           installationType: 'dmg',
           isRecommended: true,
@@ -466,14 +467,14 @@ class PlatformDetectionService extends ChangeNotifier {
         ),
         InstallationStep(
           title: 'Install the application',
-          description: 'Drag Zoidbot to your Applications folder.',
+          description: 'Drag CloudToLocalLLM to your Applications folder.',
           applicableTypes: ['dmg'],
           order: 2,
         ),
         InstallationStep(
           title: 'Launch the application',
           description:
-              'Find Zoidbot in your Applications folder and launch it.',
+              'Find CloudToLocalLLM in your Applications folder and launch it.',
           applicableTypes: ['dmg'],
           order: 3,
           troubleshootingTips: [
@@ -486,7 +487,7 @@ class PlatformDetectionService extends ChangeNotifier {
         'gatekeeper_blocked':
             'If Gatekeeper blocks the app, go to System Preferences > Security & Privacy > General and click "Open Anyway".',
         'quarantine_attribute':
-            'Remove quarantine attribute: xattr -d com.apple.quarantine /Applications/Zoidbot.app',
+            'Remove quarantine attribute: xattr -d com.apple.quarantine /Applications/CloudToLocalLLM.app',
         'permission_denied':
             'Ensure you have permission to write to Applications folder.',
       },

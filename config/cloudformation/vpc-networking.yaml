@@ -42,7 +42,7 @@ Resources:
       EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: zoidbot-vpc
+          Value: cloudtolocalllm-vpc
         - Key: Environment
           Value: production
 
@@ -52,7 +52,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: zoidbot-igw
+          Value: CloudToLocalLLM-igw
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -70,7 +70,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: zoidbot-public-subnet-1
+          Value: CloudToLocalLLM-public-subnet-1
         - Key: Type
           Value: Public
 
@@ -83,7 +83,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: zoidbot-public-subnet-2
+          Value: CloudToLocalLLM-public-subnet-2
         - Key: Type
           Value: Public
 
@@ -96,7 +96,7 @@ Resources:
       AvailabilityZone: !Select [0, !GetAZs '']
       Tags:
         - Key: Name
-          Value: zoidbot-private-subnet-1
+          Value: CloudToLocalLLM-private-subnet-1
         - Key: Type
           Value: Private
 
@@ -108,7 +108,7 @@ Resources:
       AvailabilityZone: !Select [1, !GetAZs '']
       Tags:
         - Key: Name
-          Value: zoidbot-private-subnet-2
+          Value: CloudToLocalLLM-private-subnet-2
         - Key: Type
           Value: Private
 
@@ -120,7 +120,7 @@ Resources:
       AvailabilityZone: !Select [2, !GetAZs '']
       Tags:
         - Key: Name
-          Value: zoidbot-private-subnet-3
+          Value: CloudToLocalLLM-private-subnet-3
         - Key: Type
           Value: Private
 
@@ -132,7 +132,7 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: zoidbot-nat-eip-1
+          Value: CloudToLocalLLM-nat-eip-1
 
   NATGatewayEIP2:
     Type: AWS::EC2::EIP
@@ -141,7 +141,7 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: zoidbot-nat-eip-2
+          Value: CloudToLocalLLM-nat-eip-2
 
   # NAT Gateways
   NATGateway1:
@@ -151,7 +151,7 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       Tags:
         - Key: Name
-          Value: zoidbot-nat-gateway-1
+          Value: CloudToLocalLLM-nat-gateway-1
 
   NATGateway2:
     Type: AWS::EC2::NatGateway
@@ -160,7 +160,7 @@ Resources:
       SubnetId: !Ref PublicSubnet2
       Tags:
         - Key: Name
-          Value: zoidbot-nat-gateway-2
+          Value: CloudToLocalLLM-nat-gateway-2
 
   # Public Route Table
   PublicRouteTable:
@@ -169,7 +169,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: zoidbot-public-rt
+          Value: CloudToLocalLLM-public-rt
 
   PublicRoute:
     Type: AWS::EC2::Route
@@ -198,7 +198,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: zoidbot-private-rt-1
+          Value: CloudToLocalLLM-private-rt-1
 
   PrivateRoute1:
     Type: AWS::EC2::Route
@@ -219,7 +219,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: zoidbot-private-rt-2
+          Value: CloudToLocalLLM-private-rt-2
 
   PrivateRoute2:
     Type: AWS::EC2::Route
@@ -263,7 +263,7 @@ Resources:
           Description: All outbound traffic
       Tags:
         - Key: Name
-          Value: zoidbot-eks-sg
+          Value: cloudtolocalllm-eks-sg
 
   # Security Group for Nodes
   NodeSecurityGroup:
@@ -288,7 +288,7 @@ Resources:
           Description: All outbound traffic
       Tags:
         - Key: Name
-          Value: zoidbot-node-sg
+          Value: CloudToLocalLLM-node-sg
 
   # Allow nodes to communicate with each other
   NodeIngressFromNode:
@@ -304,58 +304,58 @@ Outputs:
     Description: VPC ID
     Value: !Ref VPC
     Export:
-      Name: zoidbot-vpc-id
+      Name: cloudtolocalllm-vpc-id
 
   PrivateSubnet1Id:
     Description: Private Subnet 1 ID
     Value: !Ref PrivateSubnet1
     Export:
-      Name: zoidbot-private-subnet-1-id
+      Name: CloudToLocalLLM-private-subnet-1-id
 
   PrivateSubnet2Id:
     Description: Private Subnet 2 ID
     Value: !Ref PrivateSubnet2
     Export:
-      Name: zoidbot-private-subnet-2-id
+      Name: CloudToLocalLLM-private-subnet-2-id
 
   PrivateSubnet3Id:
     Description: Private Subnet 3 ID
     Value: !Ref PrivateSubnet3
     Export:
-      Name: zoidbot-private-subnet-3-id
+      Name: CloudToLocalLLM-private-subnet-3-id
 
   PublicSubnet1Id:
     Description: Public Subnet 1 ID
     Value: !Ref PublicSubnet1
     Export:
-      Name: zoidbot-public-subnet-1-id
+      Name: CloudToLocalLLM-public-subnet-1-id
 
   PublicSubnet2Id:
     Description: Public Subnet 2 ID
     Value: !Ref PublicSubnet2
     Export:
-      Name: zoidbot-public-subnet-2-id
+      Name: CloudToLocalLLM-public-subnet-2-id
 
   EKSSecurityGroupId:
     Description: EKS Security Group ID
     Value: !Ref EKSSecurityGroup
     Export:
-      Name: zoidbot-eks-sg-id
+      Name: cloudtolocalllm-eks-sg-id
 
   NodeSecurityGroupId:
     Description: Node Security Group ID
     Value: !Ref NodeSecurityGroup
     Export:
-      Name: zoidbot-node-sg-id
+      Name: CloudToLocalLLM-node-sg-id
 
   PrivateSubnetIds:
     Description: Comma-separated list of private subnet IDs
     Value: !Join [',', [!Ref PrivateSubnet1, !Ref PrivateSubnet2, !Ref PrivateSubnet3]]
     Export:
-      Name: zoidbot-private-subnet-ids
+      Name: CloudToLocalLLM-private-subnet-ids
 
   PublicSubnetIds:
     Description: Comma-separated list of public subnet IDs
     Value: !Join [',', [!Ref PublicSubnet1, !Ref PublicSubnet2]]
     Export:
-      Name: zoidbot-public-subnet-ids
+      Name: CloudToLocalLLM-public-subnet-ids

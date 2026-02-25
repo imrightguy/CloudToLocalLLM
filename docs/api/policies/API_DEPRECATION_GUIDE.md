@@ -2,7 +2,7 @@
 
 ## Overview
 
-Zoidbot API implements a structured deprecation process to ensure smooth transitions between API versions. This guide explains how deprecation works, how to identify deprecated endpoints, and how to migrate to newer versions.
+CloudToLocalLLM API implements a structured deprecation process to ensure smooth transitions between API versions. This guide explains how deprecation works, how to identify deprecated endpoints, and how to migrate to newer versions.
 
 **Requirements: 12.5**
 
@@ -62,7 +62,7 @@ Deprecated endpoints include deprecation information in the response:
 ### Get Deprecation Status
 
 ```bash
-curl https://api.zoidbot.online/api/deprecation/status
+curl https://api.cloudtolocalllm.online/api/deprecation/status
 ```
 
 Response:
@@ -90,7 +90,7 @@ Response:
 ### Get List of Deprecated Endpoints
 
 ```bash
-curl https://api.zoidbot.online/api/deprecation/deprecated
+curl https://api.cloudtolocalllm.online/api/deprecation/deprecated
 ```
 
 Response:
@@ -124,7 +124,7 @@ Response:
 ### Get Endpoint Deprecation Info
 
 ```bash
-curl "https://api.zoidbot.online/api/deprecation/endpoint-info?path=/v1/users"
+curl "https://api.cloudtolocalllm.online/api/deprecation/endpoint-info?path=/v1/users"
 ```
 
 Response:
@@ -147,7 +147,7 @@ Response:
 ### Get Migration Guide
 
 ```bash
-curl https://api.zoidbot.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
+curl https://api.cloudtolocalllm.online/api/deprecation/migration-guide/MIGRATION_V1_TO_V2
 ```
 
 Response:
@@ -155,14 +155,14 @@ Response:
 ```json
 {
   "title": "Migrating from API v1 to v2",
-  "description": "Complete guide for migrating from Zoidbot API v1 to v2",
+  "description": "Complete guide for migrating from CloudToLocalLLM API v1 to v2",
   "steps": [
     {
       "step": 1,
       "title": "Update Base URL",
       "description": "Change your API base URL from /v1 to /v2",
-      "before": "https://api.zoidbot.online/v1/users",
-      "after": "https://api.zoidbot.online/v2/users"
+      "before": "https://api.cloudtolocalllm.online/v1/users",
+      "after": "https://api.cloudtolocalllm.online/v2/users"
     },
     {
       "step": 2,
@@ -183,15 +183,15 @@ Response:
       "title": "Test Thoroughly",
       "description": "Test all API endpoints with v2 before deploying to production",
       "resources": [
-        "https://docs.zoidbot.online/api/v2",
-        "https://api.zoidbot.online/api/docs"
+        "https://docs.cloudtolocalllm.online/api/v2",
+        "https://api.cloudtolocalllm.online/api/docs"
       ]
     }
   ],
   "resources": {
-    "documentation": "https://docs.zoidbot.online/api/migration",
-    "apiDocs": "https://api.zoidbot.online/api/docs",
-    "support": "support@zoidbot.online"
+    "documentation": "https://docs.cloudtolocalllm.online/api/migration",
+    "apiDocs": "https://api.cloudtolocalllm.online/api/docs",
+    "support": "support@cloudtolocalllm.online"
   },
   "timeline": {
     "deprecatedAt": "2024-01-01",
@@ -210,13 +210,13 @@ Change your API base URL from v1 to v2:
 **Before (v1):**
 
 ```javascript
-const baseURL = 'https://api.zoidbot.online/v1';
+const baseURL = 'https://api.cloudtolocalllm.online/v1';
 ```
 
 **After (v2):**
 
 ```javascript
-const baseURL = 'https://api.zoidbot.online/v2';
+const baseURL = 'https://api.cloudtolocalllm.online/v2';
 ```
 
 ### Step 2: Update Response Parsing
@@ -291,15 +291,15 @@ Test all API endpoints with v2 before deploying to production:
 ```bash
 # Test user endpoint
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  https://api.zoidbot.online/v2/users/me
+  https://api.cloudtolocalllm.online/v2/users/me
 
 # Test tunnels endpoint
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  https://api.zoidbot.online/v2/tunnels
+  https://api.cloudtolocalllm.online/v2/tunnels
 
 # Test admin endpoint
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  https://api.zoidbot.online/v2/admin/users
+  https://api.cloudtolocalllm.online/v2/admin/users
 ```
 
 ## Sunset Endpoints
@@ -347,10 +347,10 @@ When v3 is released:
 
 For questions about API deprecation or migration help:
 
-- **Email**: support@zoidbot.online
-- **Documentation**: https://docs.zoidbot.online
-- **API Docs**: https://api.zoidbot.online/api/docs
-- **GitHub Issues**: https://github.com/ghcr.io/zoidbot-online/zoidbot/api/issues
+- **Email**: support@cloudtolocalllm.online
+- **Documentation**: https://docs.cloudtolocalllm.online
+- **API Docs**: https://api.cloudtolocalllm.online/api/docs
+- **GitHub Issues**: https://github.com/ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/api/issues
 
 ## Implementation Details
 

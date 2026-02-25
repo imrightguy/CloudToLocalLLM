@@ -8,7 +8,7 @@ CloudToLocalLLM is an OpenClaw Agent Manager — a privacy-first desktop AI comp
 
 1. **Chat**: Unified chat interface with streaming responses, conversation persistence, multi-model support
 2. **OpenClaw Gateway Management**: Start, stop, monitor OpenClaw Gateway (localhost:18789), health monitoring
-3. **Evolving Avatar**: Visual character (Zoidbot) with personality engine, evolution tracker, memory system
+3. **Evolving Avatar**: Visual character (CloudToLocalLLM) with personality engine, evolution tracker, memory system
 4. **Desktop Control**: GUI automation, window management, file operations, clipboard, command execution
 5. **Vision**: Screen capture/analysis, camera input, OCR, continuous monitoring
 
@@ -158,7 +158,7 @@ The Flutter app uses a layered service architecture with dependency injection:
   - Additional routes: `behavior-warnings-routes.js`, `context-usage-routes.js`, `models-routes.js`, `subagent-registry-routes.js`
 - **postgres**: PostgreSQL database configuration and migrations
 - **sdk**: TypeScript SDK for third-party integrations
-- **streaming-proxy**: WebSocket proxy for real-time LLM communication (zoidbot-tunnel-container)
+- **streaming-proxy**: WebSocket proxy for real-time LLM communication (CloudToLocalLLM-tunnel-container)
 - **tailscale-relay**: Tailscale tunnel relay service for secure remote access
 
 ### Chat Interface (Pillar 1)
@@ -227,7 +227,7 @@ The Flutter app exposes an OpenAI-compatible HTTP server (port 1337) for routing
 
 Router endpoints: `GET /v1/models`, `POST /v1/chat/completions`, `GET /health`
 
-### Avatar System (Zoidbot)
+### Avatar System (CloudToLocalLLM)
 
 The evolving avatar (Pillar 3) is managed through:
 - **AvatarWidget** (`lib/features/avatar/avatar_widget.dart`): Visual 2D/3D character renderer with state-based reactions (idle/thinking/working/error/happy)
@@ -451,8 +451,8 @@ The application uses comprehensive observability stack:
 Use `kIsWeb` from Flutter Foundation to detect web platform. For desktop-specific code, use conditional imports:
 
 ```dart
-import 'package:zoidbot/services/some_service.dart'
-    if (dart.library.html) 'package:zoidbot/services/some_service_web.dart';
+import 'package:CloudToLocalLLM/services/some_service.dart'
+    if (dart.library.html) 'package:CloudToLocalLLM/services/some_service_web.dart';
 ```
 
 ### Error Handling
@@ -555,7 +555,7 @@ See `.claude/SETUP_SUMMARY.md` for complete automation documentation.
 - Docker deployment options available in `docker-compose.yml`
 - CI/CD via GitHub Actions (see `.github/workflows/`)
 - Claude Code automations documented in `.claude/SETUP_SUMMARY.md`
-- **Note**: "Zoidbot" is the name of the avatar/bot character; the application is "CloudToLocalLLM"
+- **Note**: "CloudToLocalLLM" is the name of the avatar/bot character; the application is "CloudToLocalLLM"
 
 ### Debugging
 

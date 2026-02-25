@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloudtolocalllm/screens/admin/admin_center_screen.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
-import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/platform_adapter.dart';
 import '../helpers/mock_services.dart';
 import '../helpers/test_app_wrapper.dart';

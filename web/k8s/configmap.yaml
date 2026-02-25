@@ -2,8 +2,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: web-config
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 data:
-  API_BASE_URL: "https://api.zoidbot.online"
-  STREAMING_BASE_URL: "https://streaming.zoidbot.online"
+  API_BASE_URL: "https://api.cloudtolocalllm.online"
+  STREAMING_BASE_URL: "https://streaming.cloudtolocalllm.online"
 

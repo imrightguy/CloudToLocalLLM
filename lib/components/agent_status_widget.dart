@@ -3,14 +3,14 @@ import '../services/agent_status_service.dart';
 
 /// Widget for displaying agent status with real-time updates
 class AgentStatusWidget extends StatefulWidget {
-  final AgentStatusService service;
+  final AgentStatusService? service;
   final bool showDetails;
   final double? width;
   final double? height;
 
   const AgentStatusWidget({
     super.key,
-    required this.service,
+    this.service,
     this.showDetails = true,
     this.width,
     this.height,
@@ -28,10 +28,17 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
   @override
   void initState() {
     super.initState();
-    _agents = widget.service.currentStatuses;
+    
+    if (widget.service == null) {
+      _error = 'Agent status service not available';
+      _isLoading = false;
+      return;
+    }
+    
+    _agents = widget.service!.currentStatuses;
     if (_agents.isNotEmpty) _isLoading = false;
 
-    widget.service.statusStream.listen((agents) {
+    widget.service!.statusStream.listen((agents) {
       if (mounted) {
         setState(() {
           _agents = agents;
@@ -40,7 +47,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
       }
     });
 
-    widget.service.errorStream.listen((error) {
+    widget.service!.errorStream.listen((error) {
       if (mounted) {
         setState(() {
           _error = error;
@@ -162,7 +169,7 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
                   _isLoading = true;
                   _error = null;
                 });
-                widget.service.startPolling();
+                widget.service?.startPolling();
               },
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),

@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.zoidbot.tray</string>
+    <string>com.CloudToLocalLLM.tray</string>
     
     <key>ProgramArguments</key>
     <array>
-        <string>/Applications/Zoidbot.app/Contents/MacOS/zoidbot-tray</string>
+        <string>/Applications/CloudToLocalLLM.app/Contents/MacOS/cloudtolocalllm-tray</string>
     </array>
     
     <key>RunAtLoad</key>
@@ -28,10 +28,10 @@
     <string>Aqua</string>
     
     <key>StandardOutPath</key>
-    <string>/tmp/zoidbot-tray.log</string>
+    <string>/tmp/cloudtolocalllm-tray.log</string>
     
     <key>StandardErrorPath</key>
-    <string>/tmp/zoidbot-tray.error.log</string>
+    <string>/tmp/cloudtolocalllm-tray.error.log</string>
     
     <key>EnvironmentVariables</key>
     <dict>

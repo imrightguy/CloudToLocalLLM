@@ -29,7 +29,7 @@ class StreamingChatService extends ChangeNotifier {
 
   List<Conversation> _conversations = [];
   Conversation? _currentConversation;
-  String? _selectedModel = null;
+  String? _selectedModel;
   bool _isLoading = false;
   bool _isStreaming = false;
 
@@ -99,7 +99,7 @@ class StreamingChatService extends ChangeNotifier {
 
       if (loadedConversations.isNotEmpty) {
         _conversations = loadedConversations;
-        // Don't auto-select on startup to show Zoidbot Ready screen
+        // Don't auto-select on startup to show CloudToLocalLLM Ready screen
         _currentConversation = null;
         appLogger.info(
           '[StreamingChat] Loaded ${_conversations.length} conversations from storage',
@@ -139,11 +139,11 @@ class StreamingChatService extends ChangeNotifier {
 
     final welcomeMessage = Message.system(
       content:
-          'Welcome to Zoidbot! I\'m ready to help you with any questions or tasks. What would you like to talk about?',
+          'Welcome to CloudToLocalLLM! I\'m ready to help you with any questions or tasks. What would you like to talk about?',
     );
 
     _conversations = [sampleConversation.addMessage(welcomeMessage)];
-    // Don't auto-select to show Zoidbot Ready screen
+    // Don't auto-select to show CloudToLocalLLM Ready screen
     _currentConversation = null;
 
     // Save the welcome conversation

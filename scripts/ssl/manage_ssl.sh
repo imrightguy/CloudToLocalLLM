@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script manages the issuance and renewal of SSL certificates using Certbot
-# Obtains a cert for zoidbot.online via HTTP (webroot) validation,
-# and a wildcard cert for *.zoidbot.online via DNS validation.
+# Obtains a cert for cloudtolocalllm.online via HTTP (webroot) validation,
+# and a wildcard cert for *.cloudtolocalllm.online via DNS validation.
 # It is designed to be run as a non-root user with permissions to certbot directories.
 
 # --- IMPORTANT PERMISSIONS NOTE ---
@@ -17,8 +17,8 @@ set -euo pipefail # Exit on error, unset variable, or pipe failure
 
 # --- Configuration ---
 EMAIL="christopher.maltais@gmail.com" # Email for Let's Encrypt account
-DOMAIN_NAME="zoidbot.online"    # The domain to issue the certificate for
-PROJECT_DIR="/opt/zoidbot"    # Absolute path to your project's root on the host machine
+DOMAIN_NAME="cloudtolocalllm.online"    # The domain to issue the certificate for
+PROJECT_DIR="/opt/CloudToLocalLLM"    # Absolute path to your project's root on the host machine
 
 # Certbot related paths
 CERTBOT_CONFIG_SUBDIR="certbot/conf"
@@ -164,8 +164,8 @@ main() {
 
     # Reload nginx to apply the new certificates
     echo "Reloading nginx to apply the new certificates..."
-    sed -i 's|ssl_certificate /etc/nginx/ssl/default.pem;|ssl_certificate /etc/letsencrypt/live/zoidbot.online/fullchain.pem;|g' /opt/zoidbot/config/nginx/nginx-webapp-internal.conf
-    sed -i 's|ssl_certificate_key /etc/nginx/ssl/default.key;|ssl_certificate_key /etc/letsencrypt/live/zoidbot.online/privkey.pem;|g' /opt/zoidbot/config/nginx/nginx-webapp-internal.conf
+    sed -i 's|ssl_certificate /etc/nginx/ssl/default.pem;|ssl_certificate /etc/letsencrypt/live/cloudtolocalllm.online/fullchain.pem;|g' /opt/CloudToLocalLLM/config/nginx/nginx-webapp-internal.conf
+    sed -i 's|ssl_certificate_key /etc/nginx/ssl/default.key;|ssl_certificate_key /etc/letsencrypt/live/cloudtolocalllm.online/privkey.pem;|g' /opt/CloudToLocalLLM/config/nginx/nginx-webapp-internal.conf
     docker compose restart webapp
     echo "Nginx reloaded successfully."
 }

@@ -1,8 +1,8 @@
-# Zoidbot Release Workflow
+# CloudToLocalLLM Release Workflow
 
 ## Overview
 
-This document provides the complete, tested workflow for creating Zoidbot releases. Follow these steps exactly to ensure successful releases with all assets properly uploaded.
+This document provides the complete, tested workflow for creating CloudToLocalLLM releases. Follow these steps exactly to ensure successful releases with all assets properly uploaded.
 
 ## Prerequisites
 
@@ -87,7 +87,7 @@ git status
 2. **Verify Build Output**:
 
    ```powershell
-   Get-ChildItem dist\windows\zoidbot-*.zip*
+   Get-ChildItem dist\windows\CloudToLocalLLM-*.zip*
    # Should show both .zip and .sha256 files
    ```
 
@@ -97,16 +97,16 @@ git status
 
    ```bash
    # Create draft release
-   gh release create v3.8.0 --draft --title "Zoidbot v3.8.0 - [Feature Name]" --notes-file release-notes.md
+   gh release create v3.8.0 --draft --title "CloudToLocalLLM v3.8.0 - [Feature Name]" --notes-file release-notes.md
    
    # Or create release directly
-   gh release create v3.8.0 --title "Zoidbot v3.8.0 - [Feature Name]" --notes "Release notes here"
+   gh release create v3.8.0 --title "CloudToLocalLLM v3.8.0 - [Feature Name]" --notes "Release notes here"
    ```
 
 2. **Get Release ID** (if using API):
 
    ```bash
-   gh api repos/Zoidbot-online/Zoidbot/releases/latest | jq '.id'
+   gh api repos/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest | jq '.id'
    ```
 
 ### Step 5: Upload Assets to GitHub Release
@@ -129,8 +129,8 @@ git status
 
 ```bash
 # Upload specific files
-gh release upload v3.8.0 dist/windows/zoidbot-3.8.0-portable.zip
-gh release upload v3.8.0 dist/windows/zoidbot-3.8.0-portable.zip.sha256
+gh release upload v3.8.0 dist/windows/cloudtolocalllm-3.8.0-portable.zip
+gh release upload v3.8.0 dist/windows/cloudtolocalllm-3.8.0-portable.zip.sha256
 ```
 
 ### Step 6: Commit and Push Changes
@@ -157,13 +157,13 @@ gh release upload v3.8.0 dist/windows/zoidbot-3.8.0-portable.zip.sha256
 1. **Deploy via SSH from Windows PowerShell**:
 
    ```powershell
-   ssh cloudllm@zoidbot.online "cd /opt/zoidbot && git pull origin master && flutter build web --release && docker-compose -f docker-compose.multi.yml down && docker-compose -f docker-compose.multi.yml up -d"
+   ssh cloudllm@cloudtolocalllm.online "cd /opt/CloudToLocalLLM && git pull origin master && flutter build web --release && docker-compose -f docker-compose.multi.yml down && docker-compose -f docker-compose.multi.yml up -d"
    ```
 
 2. **Verify Deployment**:
 
    ```powershell
-   curl -s https://app.zoidbot.online/version.json
+   curl -s https://app.cloudtolocalllm.online/version.json
    # Should show new version number
    ```
 
@@ -176,7 +176,7 @@ gh release upload v3.8.0 dist/windows/zoidbot-3.8.0-portable.zip.sha256
    - [ ] Version tags correct
 
 2. **Verify VPS Deployment**:
-   - [ ] Application accessible at zoidbot.online
+   - [ ] Application accessible at cloudtolocalllm.online
    - [ ] Version number updated
    - [ ] New features functional
 
@@ -218,7 +218,7 @@ flutter pub get
 
 ```bash
 # Check VPS status and retry
-wsl -d Ubuntu-24.04 -- ssh cloudllm@zoidbot.online "docker ps"
+wsl -d Ubuntu-24.04 -- ssh cloudllm@cloudtolocalllm.online "docker ps"
 # Retry deployment commands individually
 ```
 
@@ -238,7 +238,7 @@ gh release edit v3.8.0 --prerelease
 
 ```bash
 # Revert to previous version
-wsl -d Ubuntu-24.04 -- ssh cloudllm@zoidbot.online "cd /opt/zoidbot && git reset --hard HEAD~1 && flutter build web --release && docker-compose -f docker-compose.multi.yml restart"
+wsl -d Ubuntu-24.04 -- ssh cloudllm@cloudtolocalllm.online "cd /opt/CloudToLocalLLM && git reset --hard HEAD~1 && flutter build web --release && docker-compose -f docker-compose.multi.yml restart"
 ```
 
 ## Quality Checklist

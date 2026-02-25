@@ -147,7 +147,7 @@ All admin management operations are logged with the following metadata:
 ### Assign support admin role
 
 ```bash
-curl -X POST https://api.zoidbot.online/api/admin/admins \
+curl -X POST https://api.cloudtolocalllm.online/api/admin/admins \
   -H "Authorization: Bearer TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","role":"support_admin"}'

@@ -1,5 +1,5 @@
 /**
- * Middleware Pipeline Configuration for Zoidbot API Backend
+ * Middleware Pipeline Configuration for CloudToLocalLLM API Backend
  *
  * Defines the correct order of middleware for the Express application.
  * The order is critical for proper request handling and security.

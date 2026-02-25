@@ -1,6 +1,6 @@
 # Versioning Documentation
 
-This directory contains version management and build process documentation for Zoidbot.
+This directory contains version management and build process documentation for CloudToLocalLLM.
 
 ## 📚 Contents
 
@@ -24,7 +24,7 @@ This directory contains version management and build process documentation for Z
 
 ### Version Scheme
 
-Zoidbot uses semantic versioning (SemVer) with the following format:
+CloudToLocalLLM uses semantic versioning (SemVer) with the following format:
 
 ```
 MAJOR.MINOR.PATCH+BUILD_NUMBER

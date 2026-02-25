@@ -245,12 +245,12 @@ All endpoints require:
 {
   "success": true,
   "data": {
-    "domain": "zoidbot.online",
+    "domain": "cloudtolocalllm.online",
     "recommendations": {
       "mx": [
         {
           "type": "MX",
-          "name": "zoidbot.online",
+          "name": "cloudtolocalllm.online",
           "value": "5 gmail-smtp-in.l.google.com",
           "priority": 5,
           "ttl": 3600,
@@ -258,7 +258,7 @@ All endpoints require:
         },
         {
           "type": "MX",
-          "name": "zoidbot.online",
+          "name": "cloudtolocalllm.online",
           "value": "10 alt1.gmail-smtp-in.l.google.com",
           "priority": 10,
           "ttl": 3600,
@@ -266,7 +266,7 @@ All endpoints require:
         },
         {
           "type": "MX",
-          "name": "zoidbot.online",
+          "name": "cloudtolocalllm.online",
           "value": "20 alt2.gmail-smtp-in.l.google.com",
           "priority": 20,
           "ttl": 3600,
@@ -275,15 +275,15 @@ All endpoints require:
       ],
       "spf": {
         "type": "TXT",
-        "name": "zoidbot.online",
+        "name": "cloudtolocalllm.online",
         "value": "v=spf1 include:_spf.google.com ~all",
         "ttl": 3600,
         "description": "SPF record for Google Workspace"
       },
       "dmarc": {
         "type": "TXT",
-        "name": "_dmarc.zoidbot.online",
-        "value": "v=DMARC1; p=quarantine; rua=mailto:postmaster@zoidbot.online",
+        "name": "_dmarc.cloudtolocalllm.online",
+        "value": "v=DMARC1; p=quarantine; rua=mailto:postmaster@cloudtolocalllm.online",
         "ttl": 3600,
         "description": "DMARC policy record"
       }
@@ -312,7 +312,7 @@ All endpoints require:
 
 ```json
 {
-  "domain": "zoidbot.online",
+  "domain": "cloudtolocalllm.online",
   "recordTypes": ["mx", "spf", "dmarc"]
 }
 ```
@@ -328,12 +328,12 @@ All endpoints require:
 {
   "success": true,
   "data": {
-    "domain": "zoidbot.online",
+    "domain": "cloudtolocalllm.online",
     "createdRecords": [
       {
         "id": "uuid",
         "recordType": "MX",
-        "name": "zoidbot.online",
+        "name": "cloudtolocalllm.online",
         "value": "5 gmail-smtp-in.l.google.com",
         "ttl": 3600,
         "priority": 5
@@ -341,7 +341,7 @@ All endpoints require:
       {
         "id": "uuid",
         "recordType": "MX",
-        "name": "zoidbot.online",
+        "name": "cloudtolocalllm.online",
         "value": "10 alt1.gmail-smtp-in.l.google.com",
         "ttl": 3600,
         "priority": 10
@@ -349,7 +349,7 @@ All endpoints require:
       {
         "id": "uuid",
         "recordType": "MX",
-        "name": "zoidbot.online",
+        "name": "cloudtolocalllm.online",
         "value": "20 alt2.gmail-smtp-in.l.google.com",
         "ttl": 3600,
         "priority": 20
@@ -357,15 +357,15 @@ All endpoints require:
       {
         "id": "uuid",
         "recordType": "TXT",
-        "name": "zoidbot.online",
+        "name": "cloudtolocalllm.online",
         "value": "v=spf1 include:_spf.google.com ~all",
         "ttl": 3600
       },
       {
         "id": "uuid",
         "recordType": "TXT",
-        "name": "_dmarc.zoidbot.online",
-        "value": "v=DMARC1; p=quarantine; rua=mailto:postmaster@zoidbot.online",
+        "name": "_dmarc.cloudtolocalllm.online",
+        "value": "v=DMARC1; p=quarantine; rua=mailto:postmaster@cloudtolocalllm.online",
         "ttl": 3600
       }
     ],
@@ -489,7 +489,7 @@ CREATE TABLE dns_records (
 ### Create MX Record
 
 ```bash
-curl -X POST https://api.zoidbot.online/api/admin/dns/records \
+curl -X POST https://api.cloudtolocalllm.online/api/admin/dns/records \
   -H "Authorization: Bearer <JWT_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -504,18 +504,18 @@ curl -X POST https://api.zoidbot.online/api/admin/dns/records \
 ### List All DNS Records
 
 ```bash
-curl -X GET https://api.zoidbot.online/api/admin/dns/records \
+curl -X GET https://api.cloudtolocalllm.online/api/admin/dns/records \
   -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 
 ### Setup Google Workspace DNS
 
 ```bash
-curl -X POST https://api.zoidbot.online/api/admin/dns/setup-google \
+curl -X POST https://api.cloudtolocalllm.online/api/admin/dns/setup-google \
   -H "Authorization: Bearer <JWT_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
-    "domain": "zoidbot.online",
+    "domain": "cloudtolocalllm.online",
     "recordTypes": ["mx", "spf", "dmarc"]
   }'
 ```

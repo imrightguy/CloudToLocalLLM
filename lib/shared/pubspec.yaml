@@ -1,5 +1,5 @@
-name: zoidbot_shared
-description: Shared libraries and utilities for Zoidbot applications
+name: cloudtolocalllm_shared
+description: Shared libraries and utilities for CloudToLocalLLM applications
 publish_to: none
 version: 4.3.0+202511062338
 

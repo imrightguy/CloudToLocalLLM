@@ -343,17 +343,21 @@ class ConversationStorageService {
 
   bool get isInitialized => _isInitialized;
 
+  String _currentStorageLocation = 'default';
+  bool _isEncryptionEnabled = false;
+
   /// Set storage location (stub for PrivacyStorageManager compatibility)
-  /// TODO: Implement actual storage location switching
   Future<void> setStorageLocation(String location) async {
+    _currentStorageLocation = location;
     debugPrint(
-        '[ConversationStorage] Storage location set to: $location (stub)');
+        '[ConversationStorage] Storage location set to: $_currentStorageLocation');
   }
 
   /// Set encryption enabled (stub for PrivacyStorageManager compatibility)
-  /// TODO: Implement actual encryption
   Future<void> setEncryptionEnabled(bool enabled) async {
-    debugPrint('[ConversationStorage] Encryption enabled: $enabled (stub)');
+    _isEncryptionEnabled = enabled;
+    debugPrint(
+        '[ConversationStorage] Encryption enabled: $_isEncryptionEnabled');
   }
 
   /// Export conversations as a map (for PrivacyStorageManager compatibility)

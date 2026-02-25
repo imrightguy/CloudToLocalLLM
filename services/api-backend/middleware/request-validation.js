@@ -1,5 +1,5 @@
 /**
- * Request Validation Middleware for Zoidbot API Backend
+ * Request Validation Middleware for CloudToLocalLLM API Backend
  *
  * Implements request format validation and basic security checks
  * before processing by route handlers.

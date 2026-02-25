@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot Certificate Status Check Script
+# CloudToLocalLLM Certificate Status Check Script
 # This script checks the status of Let's Encrypt certificates
 
 set -euo pipefail
@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOMAIN="zoidbot.online"
+DOMAIN="cloudtolocalllm.online"
 CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
 
 # Function to print colored output
@@ -90,7 +90,7 @@ check_cert_domains() {
 test_https_connectivity() {
     echo_color "$BLUE" "Testing HTTPS connectivity..."
     
-    local test_domains=("zoidbot.online" "app.zoidbot.online")
+    local test_domains=("cloudtolocalllm.online" "app.cloudtolocalllm.online")
     
     for domain in "${test_domains[@]}"; do
         if curl -s --max-time 10 "https://$domain" > /dev/null 2>&1; then
@@ -142,14 +142,14 @@ show_cert_details() {
 
 # Main function
 main() {
-    echo_color "$BLUE" "Zoidbot Certificate Status Check"
+    echo_color "$BLUE" "CloudToLocalLLM Certificate Status Check"
     echo_color "$BLUE" "======================================="
     echo ""
     
     local overall_status=0
     
     # Check if webapp container is running
-    if ! docker compose ps | grep -q "zoidbot-webapp.*Up"; then
+    if ! docker compose ps | grep -q "CloudToLocalLLM-webapp.*Up"; then
         echo_color "$RED" "✗ Webapp container is not running"
         echo_color "$YELLOW" "Please start the webapp container first: docker compose up -d webapp"
         exit 1

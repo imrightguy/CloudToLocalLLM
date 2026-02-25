@@ -12,7 +12,7 @@ export const userTierHandler = [
         features: features,
         upgradeUrl:
           process.env.UPGRADE_URL ||
-          'https://app.zoidbot.online/upgrade',
+          'https://app.cloudtolocalllm.online/upgrade',
         timestamp: new Date().toISOString(),
       });
     } catch (error) {

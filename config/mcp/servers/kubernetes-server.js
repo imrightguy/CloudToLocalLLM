@@ -11,7 +11,7 @@ const execAsync = promisify(exec);
 
 class KubernetesMCPServer {
   constructor() {
-    this.namespace = process.env.KUBERNETES_NAMESPACE || 'zoidbot';
+    this.namespace = process.env.KUBERNETES_NAMESPACE || 'CloudToLocalLLM';
   }
 
   /**

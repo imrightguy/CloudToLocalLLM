@@ -1,4 +1,5 @@
 import 'dart:io' show exit;
+import 'dart:ui' show Size;
 import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 import '../utils/logger.dart';
@@ -22,6 +23,19 @@ class WindowManagerService {
       // Initialize window_manager if not on web
       if (!kIsWeb) {
         await windowManager.ensureInitialized();
+
+        // Set minimum window size to prevent too small windows
+        await windowManager.setMinimumSize(Size(1200, 800));
+
+        // Check current window size and set initial if too small
+        final size = await windowManager.getSize();
+        if (size.width < 1200 || size.height < 800) {
+          await windowManager.setSize(Size(1400, 900));
+          await windowManager.center();
+          appLogger
+              .info('[WindowManager] Window resized to 1400x900 and centered');
+        }
+
         await windowManager.setPreventClose(true);
         _isInitialized = true;
         appLogger.info('[WindowManager] Window manager service initialized');

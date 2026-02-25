@@ -4,7 +4,7 @@
 ///
 /// Usage:
 /// ```dart
-/// import 'package:zoidbot/widgets/admin_components.dart';
+/// import 'package:CloudToLocalLLM/widgets/admin_components.dart';
 /// ```
 ///
 /// This gives you access to:

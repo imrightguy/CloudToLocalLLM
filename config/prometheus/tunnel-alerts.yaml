@@ -12,7 +12,7 @@ groups:
         annotations:
           summary: "High error rate detected in tunnel service"
           description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%) for the last 5 minutes"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # High latency alert
       - alert: TunnelHighLatency
@@ -24,7 +24,7 @@ groups:
         annotations:
           summary: "High latency detected in tunnel requests"
           description: "95th percentile latency is {{ $value | humanizeDuration }}ms (threshold: 200ms)"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # Connection storm alert
       - alert: TunnelConnectionStorm
@@ -36,7 +36,7 @@ groups:
         annotations:
           summary: "Connection storm detected in tunnel service"
           description: "{{ $value }} new connections in the last minute (threshold: 1000)"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # Circuit breaker open alert
       - alert: TunnelCircuitBreakerOpen
@@ -48,7 +48,7 @@ groups:
         annotations:
           summary: "Circuit breaker is open in tunnel service"
           description: "Circuit breaker for {{ $labels.service }} has been open for more than 5 minutes"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # Queue nearly full alert
       - alert: TunnelQueueNearlyFull
@@ -60,7 +60,7 @@ groups:
         annotations:
           summary: "Tunnel request queue is nearly full"
           description: "Queue fill percentage is {{ $value | humanizePercentage }} (threshold: 90%) for user {{ $labels.user_id }}"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # High active connections alert
       - alert: TunnelHighActiveConnections
@@ -72,7 +72,7 @@ groups:
         annotations:
           summary: "High number of active tunnel connections"
           description: "{{ $value }} active connections (threshold: 500) for tier {{ $labels.user_tier }}"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # Rate limit violations alert
       - alert: TunnelRateLimitViolations
@@ -84,7 +84,7 @@ groups:
         annotations:
           summary: "High rate limit violations in tunnel service"
           description: "{{ $value }} rate limit violations in the last 5 minutes"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"
       
       # Service unavailable alert
       - alert: TunnelServiceUnavailable
@@ -96,4 +96,4 @@ groups:
         annotations:
           summary: "Tunnel service is unavailable"
           description: "Streaming proxy service has been down for more than 2 minutes"
-          runbook_url: "https://docs.zoidbot.online/operations/tunnel-troubleshooting"
+          runbook_url: "https://docs.cloudtolocalllm.online/operations/tunnel-troubleshooting"

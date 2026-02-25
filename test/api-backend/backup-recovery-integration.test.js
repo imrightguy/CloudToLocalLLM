@@ -79,7 +79,7 @@ app.post('/backup/create', mockAuthMiddleware, mockAdminMiddleware, async (req, 
       checksum,
       verified: false,
       error: null,
-      database: 'zoidbot',
+      database: 'CloudToLocalLLM',
       host: 'localhost',
       port: '5432',
       filePath: backupFile,
@@ -181,7 +181,7 @@ app.post('/backup/:backupId/restore', mockAuthMiddleware, mockAdminMiddleware, a
       endTime: new Date().toISOString(),
       duration: 1000,
       error: null,
-      database: 'zoidbot',
+      database: 'CloudToLocalLLM',
       pointInTime: null,
     };
 

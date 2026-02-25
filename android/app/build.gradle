@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.zoidbot.app"
+    namespace "online.cloudtolocalllm.app"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -48,7 +48,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.zoidbot.app"
+        applicationId "online.cloudtolocalllm.app"
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
         try {

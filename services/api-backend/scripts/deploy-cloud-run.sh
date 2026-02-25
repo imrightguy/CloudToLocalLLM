@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Cloud Run Deployment Script with PostgreSQL Configuration
-# This script deploys the Zoidbot API backend with PostgreSQL support
+# This script deploys the CloudToLocalLLM API backend with PostgreSQL support
 
 set -e
 
 # Configuration
-PROJECT_ID="zoidbot-468303"
-SERVICE_NAME="zoidbot-api"
+PROJECT_ID="CloudToLocalLLM-468303"
+SERVICE_NAME="cloudtolocalllm-api"
 REGION="us-central1"
 IMAGE_NAME="gcr.io/$PROJECT_ID/$SERVICE_NAME"
 
@@ -20,7 +20,7 @@ else
     exit 1
 fi
 
-echo " Deploying Zoidbot API Backend to Cloud Run with PostgreSQL..."
+echo " Deploying CloudToLocalLLM API Backend to Cloud Run with PostgreSQL..."
 
 # Set the project
 gcloud config set project $PROJECT_ID

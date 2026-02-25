@@ -457,7 +457,7 @@ SELECT
   NOW() - INTERVAL '30 days'
 FROM payment_transactions pt
 JOIN users u ON pt.user_id = u.id
-LEFT JOIN users admin_u ON admin_u.email = 'cmaltais@zoidbot.online'
+LEFT JOIN users admin_u ON admin_u.email = 'cmaltais@cloudtolocalllm.online'
 WHERE u.email = 'test.canceled@example.com'
   AND pt.stripe_payment_intent_id LIKE 'pi_test_refunded_%'
 ON CONFLICT (stripe_refund_id) DO NOTHING;
@@ -465,13 +465,13 @@ ON CONFLICT (stripe_refund_id) DO NOTHING;
 -- ============================================================================
 -- ADMIN ROLES
 -- ============================================================================
--- Insert admin role for cmaltais@zoidbot.online (Super Admin)
+-- Insert admin role for cmaltais@cloudtolocalllm.online (Super Admin)
 -- This is also done in the migration, but we ensure it here as well
 
 INSERT INTO admin_roles (user_id, role, is_active, granted_at)
 SELECT id, 'super_admin', true, NOW() - INTERVAL '180 days'
 FROM users
-WHERE email = 'cmaltais@zoidbot.online'
+WHERE email = 'cmaltais@cloudtolocalllm.online'
 ON CONFLICT (user_id, role) DO UPDATE SET is_active = true;
 
 -- Insert test support admin
@@ -490,7 +490,7 @@ SELECT
 FROM users u
 CROSS JOIN users admin_u
 WHERE u.email = 'test.support@example.com'
-  AND admin_u.email = 'cmaltais@zoidbot.online'
+  AND admin_u.email = 'cmaltais@cloudtolocalllm.online'
 ON CONFLICT (user_id, role) DO UPDATE SET is_active = true;
 
 -- Insert test finance admin
@@ -509,7 +509,7 @@ SELECT
 FROM users u
 CROSS JOIN users admin_u
 WHERE u.email = 'test.finance@example.com'
-  AND admin_u.email = 'cmaltais@zoidbot.online'
+  AND admin_u.email = 'cmaltais@cloudtolocalllm.online'
 ON CONFLICT (user_id, role) DO UPDATE SET is_active = true;
 
 -- ============================================================================
@@ -549,7 +549,7 @@ FROM users u
 JOIN subscriptions s ON s.user_id = u.id
 CROSS JOIN users admin_u
 WHERE u.email = 'test.premium@example.com'
-  AND admin_u.email = 'cmaltais@zoidbot.online';
+  AND admin_u.email = 'cmaltais@cloudtolocalllm.online';
 
 -- Refund processed log
 INSERT INTO admin_audit_logs (
@@ -585,7 +585,7 @@ JOIN payment_transactions pt ON pt.user_id = u.id
 CROSS JOIN users admin_u
 WHERE u.email = 'test.canceled@example.com'
   AND pt.stripe_payment_intent_id LIKE 'pi_test_refunded_%'
-  AND admin_u.email = 'cmaltais@zoidbot.online';
+  AND admin_u.email = 'cmaltais@cloudtolocalllm.online';
 
 -- Admin role granted log
 INSERT INTO admin_audit_logs (
@@ -617,7 +617,7 @@ SELECT
 FROM users support_u
 CROSS JOIN users admin_u
 WHERE support_u.email = 'test.support@example.com'
-  AND admin_u.email = 'cmaltais@zoidbot.online';
+  AND admin_u.email = 'cmaltais@cloudtolocalllm.online';
 
 -- ============================================================================
 -- SEED DATA COMPLETE

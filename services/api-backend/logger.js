@@ -1,5 +1,5 @@
 /**
- * Centralized Logger for Zoidbot API Backend
+ * Centralized Logger for CloudToLocalLLM API Backend
  *
  * Provides structured logging with different levels and formats
  * for development and production environments.
@@ -91,7 +91,7 @@ const logger = winston.createLogger({
   level: LOG_LEVEL,
   format: productionFormat,
   defaultMeta: {
-    service: 'zoidbot-api',
+    service: 'cloudtolocalllm-api',
     version: process.env.npm_package_version || '1.0.0',
     environment: NODE_ENV,
   },

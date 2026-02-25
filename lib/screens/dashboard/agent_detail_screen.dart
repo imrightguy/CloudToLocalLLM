@@ -1,4 +1,5 @@
 /// Agent Detail Screen - Shows detailed information about a specific agent
+library;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

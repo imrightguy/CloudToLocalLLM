@@ -2,11 +2,11 @@
 
 ## ✅ What's Been Configured
 
-Your Zoidbot project is now fully configured for DigitalOcean Kubernetes deployment with:
+Your CloudToLocalLLM project is now fully configured for DigitalOcean Kubernetes deployment with:
 
 ### Infrastructure
 
-- ✅ Kubernetes manifests updated for `zoidbot.online`
+- ✅ Kubernetes manifests updated for `cloudtolocalllm.online`
 - ✅ Ingress configured for all subdomains
 - ✅ SSL/TLS auto-provisioning with cert-manager
 - ✅ Load Balancer routing
@@ -37,19 +37,19 @@ After deployment, you'll need these **4 A records** pointing to your Load Balanc
 ┌─────────────────────────────────┬──────┬─────────────────────┐
 │ Hostname                        │ Type │ Value               │
 ├─────────────────────────────────┼──────┼─────────────────────┤
-│ zoidbot.online          │  A   │ <LOAD_BALANCER_IP>  │
-│ app.zoidbot.online      │  A   │ <LOAD_BALANCER_IP>  │
-│ api.zoidbot.online      │  A   │ <LOAD_BALANCER_IP>  │
-│ auth.zoidbot.online     │  A   │ <LOAD_BALANCER_IP>  │
+│ cloudtolocalllm.online          │  A   │ <LOAD_BALANCER_IP>  │
+│ app.cloudtolocalllm.online      │  A   │ <LOAD_BALANCER_IP>  │
+│ api.cloudtolocalllm.online      │  A   │ <LOAD_BALANCER_IP>  │
+│ auth.cloudtolocalllm.online     │  A   │ <LOAD_BALANCER_IP>  │
 └─────────────────────────────────┴──────┴─────────────────────┘
 ```
 
 ### What Each Subdomain Does
 
-- **zoidbot.online** → Main website/web app
-- **app.zoidbot.online** → Web application interface
-- **api.zoidbot.online** → API backend
-- **auth.zoidbot.online** → Authentication server (SuperTokens - future)
+- **cloudtolocalllm.online** → Main website/web app
+- **app.cloudtolocalllm.online** → Web application interface
+- **api.cloudtolocalllm.online** → API backend
+- **auth.cloudtolocalllm.online** → Authentication server (SuperTokens - future)
 
 ---
 
@@ -78,7 +78,7 @@ chmod +x setup-dns.sh
 The script will:
 
 1. Get your Load Balancer IP automatically
-2. Create DNS zone for `zoidbot.online`
+2. Create DNS zone for `cloudtolocalllm.online`
 3. Create all 4 A records
 4. Display next steps
 
@@ -90,16 +90,16 @@ LB_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{
 echo "Load Balancer IP: $LB_IP"
 
 # 2. Create DNS zone
-doctl compute domain create zoidbot.online --ip-address $LB_IP
+doctl compute domain create cloudtolocalllm.online --ip-address $LB_IP
 
 # 3. Create subdomain records
-doctl compute domain records create zoidbot.online \
+doctl compute domain records create cloudtolocalllm.online \
   --record-type A --record-name app --record-data $LB_IP --record-ttl 300
 
-doctl compute domain records create zoidbot.online \
+doctl compute domain records create cloudtolocalllm.online \
   --record-type A --record-name api --record-data $LB_IP --record-ttl 300
 
-doctl compute domain records create zoidbot.online \
+doctl compute domain records create cloudtolocalllm.online \
   --record-type A --record-name auth --record-data $LB_IP --record-ttl 300
 ```
 
@@ -199,7 +199,7 @@ Wait 5-15 minutes for:
 Check status:
 
 ```bash
-kubectl get certificate -n zoidbot
+kubectl get certificate -n CloudToLocalLLM
 ```
 
 Should show: `READY=True`
@@ -208,13 +208,13 @@ Should show: `READY=True`
 
 ```bash
 # Check pods
-kubectl get pods -n zoidbot
+kubectl get pods -n CloudToLocalLLM
 
 # Test web app
-curl -I https://zoidbot.online
+curl -I https://cloudtolocalllm.online
 
 # Test API
-curl https://api.zoidbot.online/health
+curl https://api.cloudtolocalllm.online/health
 ```
 
 ---
@@ -301,21 +301,21 @@ All documentation is organized and ready:
 **Pods not starting?**
 
 ```bash
-kubectl describe pod <pod-name> -n zoidbot
-kubectl logs <pod-name> -n zoidbot
+kubectl describe pod <pod-name> -n CloudToLocalLLM
+kubectl logs <pod-name> -n CloudToLocalLLM
 ```
 
 **SSL certificate issues?**
 
 ```bash
-kubectl describe certificate -n zoidbot zoidbot-tls
+kubectl describe certificate -n CloudToLocalLLM CloudToLocalLLM-tls
 kubectl logs -n cert-manager -l app=cert-manager -f
 ```
 
 **DNS not resolving?**
 
 ```bash
-dig zoidbot.online +short
+dig cloudtolocalllm.online +short
 # Check: https://dnschecker.org
 ```
 
@@ -361,8 +361,8 @@ dig zoidbot.online +short
 6. **Test your deployment**
 
    ```bash
-   curl https://zoidbot.online
-   curl https://api.zoidbot.online/health
+   curl https://cloudtolocalllm.online
+   curl https://api.cloudtolocalllm.online/health
    ```
 
 ### Short Term (This Week)
@@ -383,7 +383,7 @@ dig zoidbot.online +short
 
 ## 🎉 You're Ready to Deploy
 
-Everything is configured and ready. Your Zoidbot deployment to DigitalOcean Kubernetes is just a few commands away!
+Everything is configured and ready. Your CloudToLocalLLM deployment to DigitalOcean Kubernetes is just a few commands away!
 
 **Start here:**
 

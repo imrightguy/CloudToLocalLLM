@@ -41,8 +41,8 @@
 
 3. **Test the deployed app**:
    ```bash
-   curl https://app.zoidbot.online/health
-   curl https://app.zoidbot.online/debug/assets
+   curl https://app.cloudtolocalllm.online/health
+   curl https://app.cloudtolocalllm.online/debug/assets
    ```
 
 ## Common Issues and Solutions

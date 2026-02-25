@@ -4,7 +4,7 @@ import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
 /// Completion Step
-/// Shows success message and completes setup
+/// Shows success message after setup is complete
 class CompletionStep extends StatefulWidget {
   const CompletionStep({super.key});
 
@@ -13,31 +13,6 @@ class CompletionStep extends StatefulWidget {
 }
 
 class _CompletionStepState extends State<CompletionStep> {
-  @override
-  void initState() {
-    super.initState();
-    // Auto-complete when this step is shown
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _completeSetup();
-    });
-  }
-
-  Future<void> _completeSetup() async {
-    final wizard = context.read<SetupWizardService>();
-    final success = await wizard.completeSetup();
-    if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(wizard.state.errorMessage ?? 'Failed to complete setup'),
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: _completeSetup,
-          ),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SetupWizardService>(
@@ -114,7 +89,8 @@ class _CompletionStepState extends State<CompletionStep> {
                       ),
                       const SizedBox(height: 12),
                       _buildConfigRow('Provider', provider.name),
-                      _buildConfigRow('Type', _getProviderTypeLabel(provider.type)),
+                      _buildConfigRow(
+                          'Type', _getProviderTypeLabel(provider.type)),
                       _buildConfigRow('URL', provider.url),
                       _buildConfigRow(
                         'Location',
@@ -139,7 +115,8 @@ class _CompletionStepState extends State<CompletionStep> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.rocket_launch, color: Colors.blue.shade700),
+                          Icon(Icons.rocket_launch,
+                              color: Colors.blue.shade700),
                           const SizedBox(width: 8),
                           Text(
                             'Ready to start chatting!',
@@ -152,7 +129,7 @@ class _CompletionStepState extends State<CompletionStep> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Click "Complete" below to enter the main application.',
+                        'Your setup is complete. You can start chatting now!',
                         style: TextStyle(color: Colors.blue.shade900),
                       ),
                     ],

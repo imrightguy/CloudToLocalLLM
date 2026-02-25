@@ -193,7 +193,7 @@ describe('RBAC Middleware', () => {
       const req = {
         user: {
           sub: 'user123',
-          'https://zoidbot.com/user_metadata': {
+          'https://CloudToLocalLLM.com/user_metadata': {
             role: 'super_admin',
           },
         },
@@ -211,7 +211,7 @@ describe('RBAC Middleware', () => {
       const req = {
         user: {
           sub: 'user123',
-          'https://zoidbot.com/tier': 'premium',
+          'https://CloudToLocalLLM.com/tier': 'premium',
         },
       };
       const res = {};
@@ -253,7 +253,7 @@ describe('RBAC Middleware', () => {
       const req = {
         user: {
           sub: 'user123',
-          'https://zoidbot.online/roles': [ROLES.SUPPORT_ADMIN],
+          'https://cloudtolocalllm.online/roles': [ROLES.SUPPORT_ADMIN],
         },
       };
       const res = {};

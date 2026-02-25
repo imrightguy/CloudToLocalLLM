@@ -7,29 +7,29 @@ metadata:
     app.kubernetes.io/name: api-backend
     app.kubernetes.io/instance: api-backend
     app.kubernetes.io/component: application
-    app.kubernetes.io/part-of: zoidbot
+    app.kubernetes.io/part-of: CloudToLocalLLM
     app.kubernetes.io/managed-by: argocd
     environment: production
     tier: application
-    zoidbot.com/app-tier: application
-    zoidbot.com/app-type: api
-    zoidbot.com/app-environment: production
+    CloudToLocalLLM.com/app-tier: application
+    CloudToLocalLLM.com/app-type: api
+    CloudToLocalLLM.com/app-environment: production
   annotations:
     argocd.argoproj.io/sync-wave: "10"
     argocd.argoproj.io/sync-options: Replace=true
     argocd.argoproj.io/compare-options: IgnoreExtraneous
     argocd.argoproj.io/refresh: "true"
-    zoidbot.com/description: API Backend service for Zoidbot
-    zoidbot.com/purpose: REST API and backend services
+    CloudToLocalLLM.com/description: API Backend service for CloudToLocalLLM
+    CloudToLocalLLM.com/purpose: REST API and backend services
 spec:
   project: default
   source:
-    repoURL: https://github.com/Zoidbot-online/Zoidbot
+    repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
     targetRevision: main
     path: k8s/apps/local/api-backend/shared/base
   destination:
     server: https://kubernetes.default.svc
-    namespace: zoidbot
+    namespace: CloudToLocalLLM
   syncPolicy:
     automated:
       prune: true

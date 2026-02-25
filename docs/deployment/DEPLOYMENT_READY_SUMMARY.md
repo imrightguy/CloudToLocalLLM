@@ -1,10 +1,10 @@
-# 🎉 Zoidbot - Docker Compose Deployment Guide
+# 🎉 CloudToLocalLLM - Docker Compose Deployment Guide
 
 ## Summary
 
 **Note**: For production, **Kubernetes deployment is recommended**. Docker Compose is suitable for development, testing, or small deployments.
 
-This guide covers deploying Zoidbot using Docker Compose for development/testing purposes.
+This guide covers deploying CloudToLocalLLM using Docker Compose for development/testing purposes.
 
 ## ✅ What's Been Implemented
 
@@ -64,8 +64,8 @@ services/api-backend/package.json  # Moved ws to dependencies
 ### One-Command Deployment
 
 ```bash
-git clone https://github.com/yourusername/Zoidbot.git
-cd Zoidbot
+git clone https://github.com/yourusername/CloudToLocalLLM.git
+cd CloudToLocalLLM
 chmod +x deploy.sh
 ./deploy.sh
 ```
@@ -175,11 +175,11 @@ The script will:
 docker compose -f docker-compose.production.yml ps
 
 # Should show:
-# zoidbot-postgres    (healthy)
-# zoidbot-api-backend (healthy)
-# zoidbot-web         (healthy)
-# zoidbot-nginx       (healthy)
-# zoidbot-certbot     (running)
+# CloudToLocalLLM-postgres    (healthy)
+# cloudtolocalllm-api-backend (healthy)
+# CloudToLocalLLM-web         (healthy)
+# CloudToLocalLLM-nginx       (healthy)
+# CloudToLocalLLM-certbot     (running)
 ```
 
 ### 3. Test Endpoints
@@ -205,7 +205,7 @@ curl -X POST https://api.yourdomain.com/api/bridge/register \
 
 ### 4. Launch Windows Desktop App
 
-1. Start the Zoidbot Windows app
+1. Start the CloudToLocalLLM Windows app
 2. Sign in with Auth0 credentials
 3. App should show "Connected" status in system tray
 4. Check server logs for connection:
@@ -248,7 +248,7 @@ docker stats
 ```bash
 # Access PostgreSQL
 docker compose -f docker-compose.production.yml exec postgres \
-  psql -U appuser -d zoidbot
+  psql -U appuser -d CloudToLocalLLM
 
 # Check active connections
 SELECT * FROM bridge_connections;
@@ -338,7 +338,7 @@ docker compose -f docker-compose.production.yml logs postgres
 
 # Verify connection from API backend
 docker compose -f docker-compose.production.yml exec api-backend \
-  node -e "const pg = require('pg'); const client = new pg.Client({host:'postgres',user:'appuser',password:'$POSTGRES_PASSWORD',database:'zoidbot'}); client.connect().then(() => console.log('Connected')).catch(console.error);"
+  node -e "const pg = require('pg'); const client = new pg.Client({host:'postgres',user:'appuser',password:'$POSTGRES_PASSWORD',database:'CloudToLocalLLM'}); client.connect().then(() => console.log('Connected')).catch(console.error);"
 ```
 
 ## 📚 Documentation Reference
@@ -376,4 +376,4 @@ Everything is configured and ready to deploy. The tunnel system uses HTTP pollin
 
 **Questions or issues?** Check the troubleshooting section or review the detailed guides in the docs folder.
 
-**Ready to deploy?** Run `./deploy.sh` and let's get Zoidbot running! 🚀
+**Ready to deploy?** Run `./deploy.sh` and let's get CloudToLocalLLM running! 🚀

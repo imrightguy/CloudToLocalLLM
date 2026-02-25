@@ -1,7 +1,7 @@
 {
-    "name": "zoidbot-aks",
+    "name": "CloudToLocalLLM-aks",
     "location": "centralus",
-    "resourceGroup": "zoidbot-rg",
+    "resourceGroup": "CloudToLocalLLM-rg",
     "kubernetesVersion": "1.29",
     "nodePools": [
         {

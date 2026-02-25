@@ -43,7 +43,7 @@ The Payment Management API provides secure administrative endpoints for managing
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/payments/transactions?page=1&limit=50&status=succeeded&sortBy=amount&sortOrder=desc" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/payments/transactions?page=1&limit=50&status=succeeded&sortBy=amount&sortOrder=desc" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
@@ -132,7 +132,7 @@ curl -X GET "https://api.zoidbot.online/api/admin/payments/transactions?page=1&l
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/payments/transactions/550e8400-e29b-41d4-a716-446655440000" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/payments/transactions/550e8400-e29b-41d4-a716-446655440000" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
@@ -256,7 +256,7 @@ curl -X GET "https://api.zoidbot.online/api/admin/payments/transactions/550e8400
 **Example Request:**
 
 ```bash
-curl -X POST "https://api.zoidbot.online/api/admin/payments/refunds" \
+curl -X POST "https://api.cloudtolocalllm.online/api/admin/payments/refunds" \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -344,7 +344,7 @@ curl -X POST "https://api.zoidbot.online/api/admin/payments/refunds" \
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/payments/methods/660e8400-e29b-41d4-a716-446655440001" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/payments/methods/660e8400-e29b-41d4-a716-446655440001" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
@@ -461,4 +461,4 @@ For API support or questions:
 
 - Documentation: `/docs/API/`
 - Issues: GitHub Issues
-- Email: support@zoidbot.online
+- Email: support@cloudtolocalllm.online

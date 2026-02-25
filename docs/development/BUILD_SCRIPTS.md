@@ -1,8 +1,8 @@
-# Zoidbot Build Scripts Guide
+# CloudToLocalLLM Build Scripts Guide
 
 ## Overview
 
-This guide explains the different build scripts available in Zoidbot and when to use each one for creating release packages.
+This guide explains the different build scripts available in CloudToLocalLLM and when to use each one for creating release packages.
 
 ## Build Scripts Comparison
 
@@ -31,7 +31,7 @@ This guide explains the different build scripts available in Zoidbot and when to
 .\Build-GitHubReleaseAssets-Simple.ps1 -Clean
 ```
 
-**Output**: `dist/windows/zoidbot-{version}-portable.zip`
+**Output**: `dist/windows/cloudtolocalllm-{version}-portable.zip`
 
 ### 2. Create-UnifiedPackages.ps1 ⚠️ **INCOMPLETE**
 
@@ -61,7 +61,7 @@ This guide explains the different build scripts available in Zoidbot and when to
 
 - **Status**: Fully implemented and tested
 - **Size**: ~13MB (includes Flutter web build and all dependencies)
-- **Installation**: Extract and run `zoidbot.exe`
+- **Installation**: Extract and run `CloudToLocalLLM.exe`
 - **Advantages**: No installation required, portable, works on all Windows versions
 - **Recommended for**: All users, especially those who prefer portable applications
 
@@ -114,7 +114,7 @@ To implement MSI and NSIS packages in the future:
 
 1. Install WiX Toolset v3 or v4
 2. Create WiX configuration files:
-   - `installer/windows/Zoidbot.wxs` (main installer definition)
+   - `installer/windows/CloudToLocalLLM.wxs` (main installer definition)
    - `installer/windows/Components.wxs` (file components)
 3. Integrate MSI build into `Create-UnifiedPackages.ps1`
 4. Add MSI-specific features (registry entries, start menu shortcuts, etc.)
@@ -123,7 +123,7 @@ To implement MSI and NSIS packages in the future:
 
 1. Install NSIS compiler
 2. Create NSIS installer script:
-   - `installer/windows/Zoidbot.nsi`
+   - `installer/windows/CloudToLocalLLM.nsi`
 3. Integrate NSIS build into `Create-UnifiedPackages.ps1`
 4. Add NSIS-specific features (uninstaller, registry cleanup, etc.)
 

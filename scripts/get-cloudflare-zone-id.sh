@@ -9,7 +9,7 @@ if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
     exit 1
 fi
 
-DOMAIN="${1:-zoidbot.online}"
+DOMAIN="${1:-cloudtolocalllm.online}"
 
 echo "Fetching Zone ID for domain: $DOMAIN"
 echo ""

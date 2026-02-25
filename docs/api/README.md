@@ -1,6 +1,6 @@
 # API Documentation
 
-This directory contains comprehensive API documentation for Zoidbot services.
+This directory contains comprehensive API documentation for CloudToLocalLLM services.
 
 ## 📚 Contents
 

@@ -21,7 +21,7 @@ export function createVersionedHealthCheck(version) {
     const baseResponse = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      service: 'zoidbot-api',
+      service: 'cloudtolocalllm-api',
     };
 
     if (version === 'v1') {

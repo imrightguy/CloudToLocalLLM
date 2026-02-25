@@ -2,7 +2,7 @@
 
 ## Overview
 
-The First-Time Setup Wizard is a comprehensive onboarding experience that guides new Zoidbot users through downloading, installing, and configuring the desktop client needed to connect to their local LLM. This feature replaces the previous homepage download card with a more guided and user-friendly approach.
+The First-Time Setup Wizard is a comprehensive onboarding experience that guides new CloudToLocalLLM users through downloading, installing, and configuring the desktop client needed to connect to their local LLM. This feature replaces the previous homepage download card with a more guided and user-friendly approach.
 
 ## Table of Contents
 
@@ -131,7 +131,7 @@ sequenceDiagram
 ### Setup Flow Overview
 
 1. **Welcome & Overview** (30 seconds)
-   - Introduction to Zoidbot
+   - Introduction to CloudToLocalLLM
    - Explanation of why desktop client is needed
    - Overview of setup process
 
@@ -432,4 +432,4 @@ For issues related to the setup wizard:
 
 ---
 
-The First-Time Setup Wizard represents a significant improvement in user onboarding for Zoidbot, providing a guided, secure, and user-friendly way to get started with local LLM access through the web interface.
+The First-Time Setup Wizard represents a significant improvement in user onboarding for CloudToLocalLLM, providing a guided, secure, and user-friendly way to get started with local LLM access through the web interface.

@@ -4,6 +4,7 @@ library;
 /// Manages local LLM provider configurations with Drift database persistence
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 import 'package:cloudtolocalllm/di/locator.dart';
 import 'package:cloudtolocalllm/database/local_brain.dart';
@@ -36,11 +37,14 @@ class ProviderConfigurationManager {
   Future<void> _ensureProvidersTableExists(LocalBrain db) async {
     try {
       // Try to query the table - if it fails, create it
-      await db.customSelect(
-        'SELECT COUNT(*) FROM llm_providers',
-      ).get();
+      await db
+          .customSelect(
+            'SELECT COUNT(*) FROM llm_providers',
+          )
+          .get();
     } catch (e) {
-      debugPrint('[ProviderConfig] llm_providers table does not exist, creating it...');
+      debugPrint(
+          '[ProviderConfig] llm_providers table does not exist, creating it...');
       await db.customUpdate('''
         CREATE TABLE IF NOT EXISTS llm_providers (
           id TEXT NOT NULL PRIMARY KEY,
@@ -65,9 +69,11 @@ class ProviderConfigurationManager {
       final db = serviceLocator<LocalBrain>();
 
       // Use custom query since LlmProviders table might not be in generated code yet
-      final results = await db.customSelect(
-        'SELECT id, name, type, url, is_local, is_default, version FROM llm_providers',
-      ).get();
+      final results = await db
+          .customSelect(
+            'SELECT id, name, type, url, is_local, is_default, version FROM llm_providers',
+          )
+          .get();
 
       return results.map((row) {
         return ProviderInfo(
@@ -104,9 +110,11 @@ class ProviderConfigurationManager {
   Future<bool> hasAnyProviders() async {
     try {
       final db = serviceLocator<LocalBrain>();
-      final results = await db.customSelect(
-        'SELECT COUNT(*) as count FROM llm_providers',
-      ).get();
+      final results = await db
+          .customSelect(
+            'SELECT COUNT(*) as count FROM llm_providers',
+          )
+          .get();
       return results.first.read<int>('count') > 0;
     } catch (e) {
       debugPrint('[ProviderConfig] Error checking providers: $e');
@@ -145,7 +153,15 @@ class ProviderConfigurationManager {
              is_default = excluded.is_default,
              version = excluded.version,
              updated_at = datetime('now')''',
-        variables: [Variable(id), Variable(name), Variable(type.name), Variable(isLocal ? 1 : 0), Variable(shouldBeDefault ? 1 : 0), Variable(version)],
+        variables: [
+          Variable(id),
+          Variable(name),
+          Variable(type.name),
+          Variable(url),
+          Variable(isLocal ? 1 : 0),
+          Variable(shouldBeDefault ? 1 : 0),
+          Variable(version)
+        ],
       );
 
       // If this should be default, ensure no other providers are marked as default
@@ -246,16 +262,22 @@ class ProviderConfigurationManager {
     try {
       final db = serviceLocator<LocalBrain>();
 
-      final results = await db.customSelect(
-        'SELECT id FROM llm_providers WHERE is_default = 1 LIMIT 1',
-      ).get();
+      final results = await db
+          .customSelect(
+            'SELECT id FROM llm_providers WHERE is_default = 1 LIMIT 1',
+          )
+          .get();
 
       if (results.isEmpty) {
         // If no default, return the first provider
-        final allResults = await db.customSelect(
-          'SELECT id FROM llm_providers LIMIT 1',
-        ).get();
-        return allResults.isNotEmpty ? allResults.first.read<String>('id') : null;
+        final allResults = await db
+            .customSelect(
+              'SELECT id FROM llm_providers LIMIT 1',
+            )
+            .get();
+        return allResults.isNotEmpty
+            ? allResults.first.read<String>('id')
+            : null;
       }
 
       return results.first.read<String>('id');
@@ -282,6 +304,47 @@ class ProviderConfigurationManager {
       debugPrint('[ProviderConfig] Removed provider: $providerId');
     } catch (e) {
       debugPrint('[ProviderConfig] Error removing provider: $e');
+      rethrow;
+    }
+  }
+
+  /// Clear all provider configurations (for testing/reset)
+  Future<void> clearAllProviders() async {
+    try {
+      final db = serviceLocator<LocalBrain>();
+      await db.customUpdate('DELETE FROM llm_providers');
+      debugPrint('[ProviderConfig] Cleared all providers');
+    } catch (e) {
+      debugPrint('[ProviderConfig] Error clearing providers: $e');
+      rethrow;
+    }
+  }
+
+  /// Clear all user data including providers, passwords, and setup status
+  Future<void> clearAllUserData() async {
+    try {
+      final secureStorage = const FlutterSecureStorage();
+
+      // Clear all providers from database
+      await clearAllProviders();
+
+      // Clear gateway password
+      await secureStorage.delete(key: 'openclaw_gateway_password');
+      debugPrint(
+          '[ProviderConfig] Cleared gateway password from secure storage');
+
+      // Clear setup status (if we have access to it)
+      try {
+        await secureStorage.delete(key: 'cloudtolocalllm_setup_status');
+        await secureStorage.delete(key: 'cloudtolocalllm_setup_progress');
+        debugPrint('[ProviderConfig] Cleared setup status');
+      } catch (e) {
+        debugPrint('[ProviderConfig] Note: Could not clear setup status: $e');
+      }
+
+      debugPrint('[ProviderConfig] Cleared all user data successfully');
+    } catch (e) {
+      debugPrint('[ProviderConfig] Error clearing user data: $e');
       rethrow;
     }
   }

@@ -68,7 +68,7 @@ The Audit Log API provides secure administrative endpoints for viewing and expor
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/audit/export?startDate=2025-01-01&endDate=2025-01-31" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/audit/export?startDate=2025-01-01&endDate=2025-01-31" \
   -H "Authorization: Bearer <jwt_token>" \
   -o audit-logs.csv
 ```

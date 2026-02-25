@@ -1,6 +1,6 @@
 # Build Troubleshooting Guide
 
-This guide helps you diagnose and fix common issues with Zoidbot builds using GitHub Actions.
+This guide helps you diagnose and fix common issues with CloudToLocalLLM builds using GitHub Actions.
 
 ## Table of Contents
 
@@ -129,7 +129,7 @@ This guide helps you diagnose and fix common issues with Zoidbot builds using Gi
 **Solutions:**
 
 1. **Verify Inno Setup script exists**:
-   - Check `build-tools/installers/windows/Zoidbot_Simple.iss` exists
+   - Check `build-tools/installers/windows/CloudToLocalLLM_Simple.iss` exists
    - Validate script syntax locally with Inno Setup
 
 2. **Check installation paths**:
@@ -640,7 +640,7 @@ If you exceed free tier, consider:
 
    ```bash
    # Check SHA256 checksum
-   sha256sum -c zoidbot-*-arm64-v8a.apk.sha256
+   sha256sum -c CloudToLocalLLM-*-arm64-v8a.apk.sha256
    ```
 
 5. **Check available storage**:
@@ -651,7 +651,7 @@ If you exceed free tier, consider:
 
    ```bash
    # If upgrading, uninstall old version first
-   adb uninstall com.zoidbot.Zoidbot
+   adb uninstall com.CloudToLocalLLM.CloudToLocalLLM
    ```
 
 ### Issue: APK Installs but Crashes on Launch
@@ -668,7 +668,7 @@ If you exceed free tier, consider:
 
    ```bash
    # View crash logs
-   adb logcat | grep -E "AndroidRuntime|Zoidbot"
+   adb logcat | grep -E "AndroidRuntime|CloudToLocalLLM"
    ```
 
 2. **Verify permissions**:
@@ -684,7 +684,7 @@ If you exceed free tier, consider:
 
    ```bash
    # Clear app data and cache
-   adb shell pm clear com.zoidbot.Zoidbot
+   adb shell pm clear com.CloudToLocalLLM.CloudToLocalLLM
    ```
 
 ### Issue: Gradle Build Timeout
@@ -792,7 +792,7 @@ When reporting build issues, include:
 
 **Where to report:**
 
-- GitHub Issues: https://github.com/Zoidbot-online/Zoidbot/issues
+- GitHub Issues: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues
 - Include label: `ci/cd` or `build`
 
 ### Additional Resources

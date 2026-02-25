@@ -1,6 +1,6 @@
-# Zoidbot PowerShell Testing Framework
+# CloudToLocalLLM PowerShell Testing Framework
 
-This directory contains comprehensive unit and integration tests for the Zoidbot automated deployment workflow PowerShell scripts.
+This directory contains comprehensive unit and integration tests for the CloudToLocalLLM automated deployment workflow PowerShell scripts.
 
 ## Overview
 
@@ -19,7 +19,7 @@ tests/powershell/
 ├── README.md                           # This documentation
 ├── Run-Tests.ps1                       # Main test runner script
 ├── TestConfig.ps1                      # Centralized test configuration
-├── Deploy-Zoidbot.Tests.ps1    # Unit tests for main deployment script
+├── Deploy-CloudToLocalLLM.Tests.ps1    # Unit tests for main deployment script
 ├── BuildEnvironmentUtilities.Tests.ps1 # Unit tests for utility functions
 ├── Mocks/
 │   └── WSLMocks.ps1                    # Mock objects for WSL and external dependencies
@@ -73,7 +73,7 @@ Run all tests with default settings:
 #### Run Specific Test File
 
 ```powershell
-.\Run-Tests.ps1 -TestFile "Deploy-Zoidbot.Tests.ps1"
+.\Run-Tests.ps1 -TestFile "Deploy-CloudToLocalLLM.Tests.ps1"
 ```
 
 #### Run Tests with Code Coverage
@@ -118,7 +118,7 @@ Run all tests with default settings:
 
 ### Unit Tests
 
-#### Deploy-Zoidbot.Tests.ps1
+#### Deploy-CloudToLocalLLM.Tests.ps1
 
 Tests for the main deployment orchestration script:
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive input validation and injection prevention for the Zoidbot API Backend.
+Comprehensive input validation and injection prevention for the CloudToLocalLLM API Backend.
 
 ## Key Files
 

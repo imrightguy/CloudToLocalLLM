@@ -1,6 +1,6 @@
-# Zoidbot Comprehensive Testing Guide
+# CloudToLocalLLM Comprehensive Testing Guide
 
-This guide covers all testing components in the Zoidbot project, including setup, execution, and integration with the CI/CD pipeline.
+This guide covers all testing components in the CloudToLocalLLM project, including setup, execution, and integration with the CI/CD pipeline.
 
 ## 📁 Test Directory Structure
 
@@ -22,7 +22,7 @@ test/
 │   ├── CI-TestRunner.ps1             # CI-optimized test runner
 │   ├── Run-Tests.ps1                 # Standard test runner
 │   ├── TestConfig.ps1                # Test configuration
-│   ├── Deploy-Zoidbot.Tests.ps1
+│   ├── Deploy-CloudToLocalLLM.Tests.ps1
 │   ├── BuildEnvironmentUtilities.Tests.ps1
 │   ├── Mocks/                        # Mock implementations
 │   └── Integration/                  # Integration tests
@@ -292,11 +292,11 @@ npx playwright install --with-deps
 
 ---
 
-**Note**: This testing infrastructure ensures Zoidbot maintains high quality and reliability through comprehensive automated validation at every level of the application stack.
+**Note**: This testing infrastructure ensures CloudToLocalLLM maintains high quality and reliability through comprehensive automated validation at every level of the application stack.
 
-# LLM Testing Guide for Zoidbot
+# LLM Testing Guide for CloudToLocalLLM
 
-This guide provides comprehensive documentation for testing patterns, utilities, and best practices for the LLM integration components in Zoidbot.
+This guide provides comprehensive documentation for testing patterns, utilities, and best practices for the LLM integration components in CloudToLocalLLM.
 
 ## Testing Architecture
 

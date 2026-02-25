@@ -169,7 +169,7 @@ The alert triggering service can be integrated with:
 
 - `ALERT_EMAIL_ENABLED` - Enable email alerts (default: false)
 - `ALERT_EMAIL_TO` - Email recipient
-- `ALERT_EMAIL_FROM` - Email sender (default: alerts@zoidbot.online)
+- `ALERT_EMAIL_FROM` - Email sender (default: alerts@cloudtolocalllm.online)
 - `ALERT_EMAIL_SMTP_HOST` - SMTP host (default: smtp.gmail.com)
 - `ALERT_EMAIL_SMTP_PORT` - SMTP port (default: 587)
 - `ALERT_EMAIL_SMTP_USER` - SMTP username

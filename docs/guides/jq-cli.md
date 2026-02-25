@@ -3,7 +3,7 @@ name: "jq-cli-guide"
 displayName: "jq CLI Guide"
 description: "Complete guide for using jq command-line JSON processor with common workflows, filters, and troubleshooting tips."
 keywords: ["jq", "json", "cli", "filter", "parse"]
-author: "Zoidbot Team"
+author: "CloudToLocalLLM Team"
 ---
 
 # jq CLI Guide

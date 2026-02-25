@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-backend
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:
@@ -20,7 +20,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: streaming-proxy
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:
@@ -56,7 +56,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cloudflared
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:
@@ -74,7 +74,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:
@@ -92,7 +92,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis-tunnel-state
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   template:
     spec:

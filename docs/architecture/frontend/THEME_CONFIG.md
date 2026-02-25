@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `ThemeConfig` class provides a centralized, unified theme configuration system for the Zoidbot application. It supports Light, Dark, and System themes with platform-specific variations and comprehensive validation.
+The `ThemeConfig` class provides a centralized, unified theme configuration system for the CloudToLocalLLM application. It supports Light, Dark, and System themes with platform-specific variations and comprehensive validation.
 
 ## Features
 

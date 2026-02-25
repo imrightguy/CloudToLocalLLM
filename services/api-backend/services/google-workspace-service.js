@@ -33,7 +33,7 @@ class GoogleWorkspaceService {
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
     const redirectUri =
       process.env.GOOGLE_REDIRECT_URI ||
-      'https://api.zoidbot.online/admin/email/oauth/callback';
+      'https://api.cloudtolocalllm.online/admin/email/oauth/callback';
 
     if (!clientId || !clientSecret) {
       throw new Error('Google OAuth credentials not configured');

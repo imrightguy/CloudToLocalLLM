@@ -1,5 +1,5 @@
 /**
- * Authentication Middleware for Zoidbot API Backend
+ * Authentication Middleware for CloudToLocalLLM API Backend
  *
  * Provides JWT authentication and authorization for API endpoints
  * with user ID extraction utilities.
@@ -17,7 +17,7 @@ import { AuthService } from '../auth/auth-service.js';
 const AUTH0_DOMAIN =
   process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com';
 const AUTH0_AUDIENCE =
-  process.env.AUTH0_AUDIENCE || 'https://api.zoidbot.online';
+  process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online';
 
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
@@ -334,9 +334,9 @@ export function requireAdmin(req, res, next) {
     }
 
     const userMetadata =
-      user['https://zoidbot.com/user_metadata'] || {};
-    const appMetadata = user['https://zoidbot.com/app_metadata'] || {};
-    const userRoles = user['https://zoidbot.online/roles'] || [];
+      user['https://CloudToLocalLLM.com/user_metadata'] || {};
+    const appMetadata = user['https://CloudToLocalLLM.com/app_metadata'] || {};
+    const userRoles = user['https://cloudtolocalllm.online/roles'] || [];
     const userScopes = user.scope ? user.scope.split(' ') : [];
 
     const hasAdminRole =

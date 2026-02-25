@@ -92,7 +92,7 @@ class PremiumSettingsCategory extends StatelessWidget {
                         builder: (context) => AlertDialog(
                           title: const Text('Contact Sales'),
                           content: const Text(
-                              'Please email sales@zoidbot.com to discuss enterprise options.'),
+                              'Please email sales@CloudToLocalLLM.com to discuss enterprise options.'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),

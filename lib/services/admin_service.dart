@@ -4,7 +4,7 @@ import '../config/app_config.dart';
 import '../models/admin_role_model.dart';
 import 'auth_service.dart';
 
-/// Comprehensive administrative service for Zoidbot
+/// Comprehensive administrative service for CloudToLocalLLM
 ///
 /// Provides secure administrative functionality including:
 ///

@@ -9,7 +9,7 @@
 #
 # Prerequisites:
 # 1. Cloudflare account with API token
-# 2. Cloudflare DNS zone: zoidbot.online
+# 2. Cloudflare DNS zone: cloudtolocalllm.online
 # 3. Cloudflare API token with DNS:Edit permissions
 # 4. Kubernetes secret: cloudflare-api-token (created in workflow)
 
@@ -21,7 +21,7 @@ spec:
   acme:
     # Let's Encrypt Staging (for testing)
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: admin@zoidbot.online
+    email: admin@cloudtolocalllm.online
     
     privateKeySecretRef:
       name: cloudflare-dns-staging-key
@@ -44,7 +44,7 @@ spec:
   acme:
     # Let's Encrypt Production
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: admin@zoidbot.online
+    email: admin@cloudtolocalllm.online
     
     privateKeySecretRef:
       name: cloudflare-dns-prod-key

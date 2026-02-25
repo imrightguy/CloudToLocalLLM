@@ -170,7 +170,7 @@ cd services/api-backend
 npm run db:stats
 
 # Check query plans
-psql -d zoidbot -c "EXPLAIN ANALYZE SELECT * FROM conversations;"
+psql -d cloudtolocalllm -c "EXPLAIN ANALYZE SELECT * FROM conversations;"
 ```
 
 ## Related Files

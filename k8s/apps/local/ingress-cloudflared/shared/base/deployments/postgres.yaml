@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   annotations:
     argocd.argoproj.io/sync-wave: "1"
   labels:
@@ -38,22 +38,22 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: zoidbot-config
+                  name: CloudToLocalLLM-config
                   key: DB_NAME
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: postgres-user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: postgres-password
             - name: APP_USER_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: postgres-password
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata

@@ -145,8 +145,8 @@ class AuthService extends ChangeNotifier {
     if (user == null) return 'Your AI Assistant';
     if (user.email == 'christopher.maltais@gmail.com' ||
         user.email == 'chokesmaster@gmail.com' ||
-        user.email == 'dev@zoidbot.online') {
-      return 'Zoidbot';
+        user.email == 'dev@cloudtolocalllm.online') {
+      return 'CloudToLocalLLM';
     }
     return '${user.name ?? 'Your'}\'s Assistant';
   }

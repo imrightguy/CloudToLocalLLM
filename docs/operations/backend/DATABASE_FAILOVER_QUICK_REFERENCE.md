@@ -53,7 +53,7 @@ FAILOVER_HEALTH_CHECK_INTERVAL=10000
 # Primary database configuration
 DB_HOST=primary.example.com
 DB_PORT=5432
-DB_NAME=zoidbot
+DB_NAME=CloudToLocalLLM
 DB_USER=postgres
 DB_PASSWORD=password
 DB_SSL=true
@@ -76,7 +76,7 @@ import {
 const primaryConfig = {
   host: 'primary.example.com',
   port: 5432,
-  database: 'zoidbot',
+  database: 'CloudToLocalLLM',
   user: 'postgres',
   password: 'password',
 };
@@ -85,14 +85,14 @@ const standbyConfigs = [
   {
     host: 'standby1.example.com',
     port: 5432,
-    database: 'zoidbot',
+    database: 'CloudToLocalLLM',
     user: 'postgres',
     password: 'password',
   },
   {
     host: 'standby2.example.com',
     port: 5432,
-    database: 'zoidbot',
+    database: 'CloudToLocalLLM',
     user: 'postgres',
     password: 'password',
   },
@@ -186,7 +186,7 @@ Returns current failover status and health information.
     "primary": {
       "host": "primary.example.com",
       "port": 5432,
-      "database": "zoidbot",
+      "database": "CloudToLocalLLM",
       "healthy": true,
       "lastHealthCheck": "2024-01-19T10:30:00Z",
       "failureCount": 0,
@@ -197,7 +197,7 @@ Returns current failover status and health information.
       "standby_0": {
         "host": "standby1.example.com",
         "port": 5432,
-        "database": "zoidbot",
+        "database": "CloudToLocalLLM",
         "healthy": true,
         "lastHealthCheck": "2024-01-19T10:30:00Z",
         "failureCount": 0,
@@ -248,7 +248,7 @@ Returns detailed health information for all database instances.
     "primary": {
       "host": "primary.example.com",
       "port": 5432,
-      "database": "zoidbot",
+      "database": "CloudToLocalLLM",
       "healthy": true,
       "lastHealthCheck": "2024-01-19T10:30:00Z",
       "failureCount": 0,
@@ -261,7 +261,7 @@ Returns detailed health information for all database instances.
         "name": "standby_0",
         "host": "standby1.example.com",
         "port": 5432,
-        "database": "zoidbot",
+        "database": "CloudToLocalLLM",
         "healthy": true,
         "lastHealthCheck": "2024-01-19T10:30:00Z",
         "failureCount": 0,
@@ -365,7 +365,7 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_DB
-          value: zoidbot
+          value: CloudToLocalLLM
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
@@ -412,7 +412,7 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_DB
-          value: zoidbot
+          value: CloudToLocalLLM
         - name: PGUSER
           valueFrom:
             secretKeyRef:

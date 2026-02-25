@@ -327,7 +327,7 @@ router.post(
 
       // Check admin permission
       const userRole =
-        req.user?.['https://zoidbot.online/role'] || 'user';
+        req.user?.['https://cloudtolocalllm.online/role'] || 'user';
       if (userRole !== 'admin') {
         return res.status(403).json({
           error: 'FORBIDDEN',

@@ -1,5 +1,5 @@
 /**
- * Administrative Data Flush Service for Zoidbot
+ * Administrative Data Flush Service for CloudToLocalLLM
  *
  * Provides secure administrative functionality to completely clear all user data
  * when needed for maintenance, testing, or emergency scenarios.
@@ -19,7 +19,7 @@ import logger from './logger.js';
 
 /**
  * Administrative Data Flush Service
- * Handles secure clearing of all user data across the Zoidbot system
+ * Handles secure clearing of all user data across the CloudToLocalLLM system
  */
 export class AdminDataFlushService {
   constructor(dockerInstance = null) {
@@ -69,7 +69,7 @@ export class AdminDataFlushService {
     };
 
     try {
-      // Note: Zoidbot uses zero-storage design
+      // Note: CloudToLocalLLM uses zero-storage design
       // Authentication tokens are stored client-side only
       // Server-side: Clear any cached JWT validation data
 
@@ -116,7 +116,7 @@ export class AdminDataFlushService {
     };
 
     try {
-      // Note: Zoidbot stores conversations client-side in SQLite
+      // Note: CloudToLocalLLM stores conversations client-side in SQLite
       // Server-side: Clear any cached conversation metadata or temporary data
 
       if (targetUserId) {
@@ -162,7 +162,7 @@ export class AdminDataFlushService {
     };
 
     try {
-      // Note: Zoidbot stores preferences client-side
+      // Note: CloudToLocalLLM stores preferences client-side
       // Server-side: Clear any cached preference data
 
       if (targetUserId) {
@@ -245,19 +245,19 @@ export class AdminDataFlushService {
     };
 
     try {
-      // Get all Zoidbot containers
+      // Get all CloudToLocalLLM containers
       const containers =
         (await this.docker.listContainers({
           all: true,
           filters: {
-            label: ['zoidbot.type'],
+            label: ['CloudToLocalLLM.type'],
           },
         })) || [];
 
       // Filter containers by user if specified
       const targetContainers = containers.filter((container) => {
         const userLabel =
-          container.Labels && container.Labels['zoidbot.user'];
+          container.Labels && container.Labels['CloudToLocalLLM.user'];
         return targetUserId ? userLabel === targetUserId : true;
       });
 
@@ -272,7 +272,7 @@ export class AdminDataFlushService {
               ? containerInfo.Names[0]
               : 'unknown',
             user: containerInfo.Labels
-              ? containerInfo.Labels['zoidbot.user']
+              ? containerInfo.Labels['CloudToLocalLLM.user']
               : 'unknown',
           });
 
@@ -292,18 +292,18 @@ export class AdminDataFlushService {
         }
       }
 
-      // Get all Zoidbot networks
+      // Get all CloudToLocalLLM networks
       const networks =
         (await this.docker.listNetworks({
           filters: {
-            label: ['zoidbot.type=user-network'],
+            label: ['CloudToLocalLLM.type=user-network'],
           },
         })) || [];
 
       // Filter networks by user if specified
       const targetNetworks = networks.filter((network) => {
         const userLabel =
-          network.Labels && network.Labels['zoidbot.user'];
+          network.Labels && network.Labels['CloudToLocalLLM.user'];
         return targetUserId ? userLabel === targetUserId : true;
       });
 
@@ -315,7 +315,7 @@ export class AdminDataFlushService {
           logger.info(' [AdminFlush] Removing network', {
             networkId: networkInfo.Id,
             networkName: networkInfo.Name,
-            user: networkInfo.Labels['zoidbot.user'],
+            user: networkInfo.Labels['CloudToLocalLLM.user'],
           });
 
           await network.remove();
@@ -480,22 +480,22 @@ export class AdminDataFlushService {
       const containers = await this.docker.listContainers({
         all: true,
         filters: {
-          label: ['zoidbot.type'],
+          label: ['CloudToLocalLLM.type'],
         },
       });
 
       const networks = await this.docker.listNetworks({
         filters: {
-          label: ['zoidbot.type=user-network'],
+          label: ['CloudToLocalLLM.type=user-network'],
         },
       });
 
       const userContainers = containers.filter(
-        (c) => c.Labels['zoidbot.type'] === 'streaming-proxy',
+        (c) => c.Labels['CloudToLocalLLM.type'] === 'streaming-proxy',
       );
 
       const activeUsers = new Set(
-        userContainers.map((c) => c.Labels['zoidbot.user']),
+        userContainers.map((c) => c.Labels['CloudToLocalLLM.user']),
       ).size;
 
       return {

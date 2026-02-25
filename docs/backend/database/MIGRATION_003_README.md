@@ -295,7 +295,7 @@ Ensure PostgreSQL is running and environment variables are set:
 ```bash
 export PGHOST=localhost
 export PGPORT=5432
-export PGDATABASE=zoidbot
+export PGDATABASE=CloudToLocalLLM
 export PGUSER=postgres
 export PGPASSWORD=yourpassword
 ```

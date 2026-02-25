@@ -286,7 +286,7 @@ The bridge can be tested using Playwright or similar tools:
 
 ```javascript
 // Example Playwright test
-await page.goto('https://app.zoidbot.online');
+await page.goto('https://app.cloudtolocalllm.online');
 await page.click('#login-button');
 await page.waitForURL('**/auth0.com/**');
 // Complete Auth0 login flow

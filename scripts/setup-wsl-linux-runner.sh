@@ -17,7 +17,7 @@ echo -e "${CYAN}========================================${NC}"
 echo ""
 
 # Configuration
-GITHUB_REPO="https://github.com/Zoidbot-online/Zoidbot"
+GITHUB_REPO="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM"
 RUNNER_LABELS="linux,self-hosted,wsl"
 # Get hostname, fallback if command not available
 if command -v hostname &> /dev/null; then

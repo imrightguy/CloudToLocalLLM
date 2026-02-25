@@ -18,9 +18,9 @@ class _RemoteConnectionStepState extends State<RemoteConnectionStep> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill if user already entered a URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final wizard = context.read<SetupWizardService>();
+      // Pre-fill if user already entered a URL
       if (wizard.state.customUrl != null) {
         _urlController.text = wizard.state.customUrl!;
       }
@@ -94,28 +94,23 @@ class _RemoteConnectionStepState extends State<RemoteConnectionStep> {
                     const SizedBox(height: 16),
 
                     // Connection type selector (optional enhancement)
-                    InputDecorator(
+                    DropdownButtonFormField<String>(
+                      initialValue: 'direct',
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Connection Type',
                       ),
-                      child: Row(
-                        children: [
-                          Radio<String>(
-                            value: 'direct',
-                            groupValue: 'direct',
-                            onChanged: (value) {},
-                          ),
-                          const Text('Direct HTTP/HTTPS'),
-                          const SizedBox(width: 16),
-                          Radio<String>(
-                            value: 'ssh',
-                            groupValue: 'direct',
-                            onChanged: (value) {},
-                          ),
-                          const Text('SSH Tunnel'),
-                        ],
-                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'direct',
+                          child: Text('Direct HTTP/HTTPS'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'ssh',
+                          child: Text('SSH Tunnel'),
+                        ),
+                      ],
+                      onChanged: (value) {},
                     ),
                   ],
                 ),
@@ -135,7 +130,8 @@ class _RemoteConnectionStepState extends State<RemoteConnectionStep> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.lightbulb_outline, color: Colors.blue.shade700),
+                        Icon(Icons.lightbulb_outline,
+                            color: Colors.blue.shade700),
                         const SizedBox(width: 8),
                         Text(
                           'Example URLs:',

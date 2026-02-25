@@ -1,4 +1,4 @@
-// Simple auth logger for Zoidbot
+// Simple auth logger for CloudToLocalLLM
 import 'package:flutter/foundation.dart';
 
 class AuthLogger {

@@ -5,9 +5,9 @@
 
 set -e
 
-RESOURCE_GROUP="zoidbot-rg"
-KEY_VAULT_NAME="zoidbot-kv"
-DOMAIN="zoidbot.online"
+RESOURCE_GROUP="CloudToLocalLLM-rg"
+KEY_VAULT_NAME="CloudToLocalLLM-kv"
+DOMAIN="cloudtolocalllm.online"
 SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID}"
 
 echo "ðŸ” Setting up Azure Key Vault for SSL certificate management..."

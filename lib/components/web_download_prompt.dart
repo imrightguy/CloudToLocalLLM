@@ -124,7 +124,7 @@ class _WebDownloadPromptState extends State<WebDownloadPrompt> {
                     children: [
                       // Main message
                       Text(
-                        'To use Zoidbot with your local AI models, you need to download and install the desktop application.',
+                        'To use CloudToLocalLLM with your local AI models, you need to download and install the desktop application.',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: AppTheme.textColor,
                               height: 1.5,

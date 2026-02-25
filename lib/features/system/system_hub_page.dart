@@ -1,5 +1,6 @@
 /// System Hub Page - Stub Implementation
-/// This page is not available as the zoidbot package dependencies are missing.
+/// This page is not available as the CloudToLocalLLM package dependencies are missing.
+library;
 
 import 'package:flutter/material.dart';
 

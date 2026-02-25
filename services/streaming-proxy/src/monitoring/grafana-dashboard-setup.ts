@@ -5,7 +5,7 @@
  * monitoring dashboards for the SSH WebSocket tunnel system.
  * 
  * Requirements:
- * - Grafana instance running at https://grafana.zoidbot.online
+ * - Grafana instance running at https://grafana.cloudtolocalllm.online
  * - Prometheus datasource configured in Grafana
  * - Grafana API key with admin permissions
  * - MCP Grafana server configured with GRAFANA_URL and GRAFANA_API_KEY
@@ -13,7 +13,7 @@
  * Usage:
  * 1. Ensure Prometheus datasource is available in Grafana
  * 2. Run this setup to create dashboards and alerts
- * 3. Access dashboards at https://grafana.zoidbot.online/d/{dashboardUid}
+ * 3. Access dashboards at https://grafana.cloudtolocalllm.online/d/{dashboardUid}
  */
 
 /**
@@ -349,7 +349,7 @@ export const GRAFANA_DASHBOARD_SETUP_GUIDE = `
 This guide explains how to set up production monitoring dashboards for the SSH WebSocket tunnel system using Grafana MCP tools.
 
 ## Prerequisites
-1. Grafana instance running at https://grafana.zoidbot.online
+1. Grafana instance running at https://grafana.cloudtolocalllm.online
 2. Prometheus datasource configured in Grafana
 3. Loki datasource configured in Grafana (optional, for log analysis)
 4. Grafana API key with admin permissions

@@ -3,10 +3,10 @@ set -e
 
 # Configuration
 REPO_OWNER="imrightguy"
-REPO_NAME="Zoidbot"
+REPO_NAME="CloudToLocalLLM"
 ENV_FILE=".env.auth0"
 
-echo "Setting up Auth0 authentication for Zoidbot..."
+echo "Setting up Auth0 authentication for CloudToLocalLLM..."
 echo ""
 
 # Prompt for Auth0 configuration
@@ -18,8 +18,8 @@ if [[ -z "$AUTH0_CLIENT_ID" ]]; then echo "Error: Auth0 Client ID is required." 
 
 read -p "Enter your Auth0 Client Secret (optional for SPA): " AUTH0_CLIENT_SECRET
 
-read -p "Enter your Auth0 Audience (default: https://api.zoidbot.online): " AUTH0_AUDIENCE
-AUTH0_AUDIENCE=${AUTH0_AUDIENCE:-https://api.zoidbot.online}
+read -p "Enter your Auth0 Audience (default: https://api.cloudtolocalllm.online): " AUTH0_AUDIENCE
+AUTH0_AUDIENCE=${AUTH0_AUDIENCE:-https://api.cloudtolocalllm.online}
 
 # Construct Issuer URL
 AUTH0_ISSUER_URL="https://$AUTH0_DOMAIN/"

@@ -1,6 +1,6 @@
 # Configuration and UI Components Guide
 
-This guide provides comprehensive documentation for the enhanced configuration management and UI components in Zoidbot.
+This guide provides comprehensive documentation for the enhanced configuration management and UI components in CloudToLocalLLM.
 
 ## Provider Configuration Management
 

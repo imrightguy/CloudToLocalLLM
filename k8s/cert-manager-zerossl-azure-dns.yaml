@@ -15,7 +15,7 @@
 #    - Key ID
 #    - Key Secret
 # 4. Create Kubernetes secret: kubectl create secret generic zerossl-eab-secret --from-literal=key-secret=<EAB_KEY_SECRET> -n cert-manager
-# 5. Azure DNS zone: zoidbot.online
+# 5. Azure DNS zone: cloudtolocalllm.online
 # 6. Service Principal with DNS Zone Contributor role on the DNS zone
 # 7. Kubernetes secret: azure-dns-config (already exists from main setup)
 
@@ -27,7 +27,7 @@ spec:
   acme:
     # ZeroSSL ACME server (DV90 = Domain Validated, 90-day certificates)
     server: https://acme.zerossl.com/v2/DV90
-    email: admin@zoidbot.online
+    email: admin@cloudtolocalllm.online
     
     # External Account Binding (EAB) required by ZeroSSL for automation
     # Get these credentials from ZeroSSL dashboard after creating ACME account
@@ -53,7 +53,7 @@ spec:
               key: client-secret
             subscriptionID: <AZURE_SUBSCRIPTION_ID>  # Replace in workflow or manually
             tenantID: <AZURE_TENANT_ID>  # Replace in workflow or manually
-            resourceGroupName: zoidbot-rg
-            hostedZoneName: zoidbot.online
+            resourceGroupName: CloudToLocalLLM-rg
+            hostedZoneName: cloudtolocalllm.online
             environment: AzurePublicCloud
 

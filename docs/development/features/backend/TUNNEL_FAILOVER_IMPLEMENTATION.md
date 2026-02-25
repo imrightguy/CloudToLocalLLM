@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of tunnel failover and multiple endpoint support for the Zoidbot API backend. The system provides automatic failover with priority-based and weighted load balancing across multiple tunnel endpoints.
+This document describes the implementation of tunnel failover and multiple endpoint support for the CloudToLocalLLM API backend. The system provides automatic failover with priority-based and weighted load balancing across multiple tunnel endpoints.
 
 **Validates: Requirements 4.4**
 

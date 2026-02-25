@@ -1,5 +1,5 @@
 /**
- * Request Logging Middleware for Zoidbot API Backend
+ * Request Logging Middleware for CloudToLocalLLM API Backend
  *
  * Implements structured request/response logging with correlation IDs
  * for request tracing across distributed systems.

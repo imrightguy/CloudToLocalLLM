@@ -5,7 +5,7 @@
 ### 1. Categorize an Error
 
 ```dart
-import 'package:zoidbot/services/tunnel/error_handling.dart';
+import 'package:CloudToLocalLLM/services/tunnel/error_handling.dart';
 
 try {
   // Your operation
@@ -27,10 +27,10 @@ try {
 ### 2. Run Diagnostics
 
 ```dart
-import 'package:zoidbot/services/tunnel/error_handling.dart';
+import 'package:CloudToLocalLLM/services/tunnel/error_handling.dart';
 
 final testSuite = DiagnosticTestSuite(
-  serverHost: 'api.zoidbot.online',
+  serverHost: 'api.cloudtolocalllm.online',
   serverPort: 443,
   authToken: userToken,
 );
@@ -51,7 +51,7 @@ print('Health: $score/100 ($status)');
 ### 3. Attempt Error Recovery
 
 ```dart
-import 'package:zoidbot/services/tunnel/error_handling.dart';
+import 'package:CloudToLocalLLM/services/tunnel/error_handling.dart';
 
 final strategy = ErrorRecoveryStrategy(
   reconnectionManager: reconnectionManager,
@@ -340,4 +340,4 @@ class DiagnosticWidget extends StatelessWidget {
 - Full documentation: `ERROR_HANDLING_IMPLEMENTATION.md`
 - Usage examples: `examples/error_handling_example.dart`
 - Task summary: `TASK_5_SUMMARY.md`
-- Error codes: `https://docs.zoidbot.com/errors/{code}`
+- Error codes: `https://docs.CloudToLocalLLM.com/errors/{code}`

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Assessment of whether Grafana is required for Zoidbot operations.
+Assessment of whether Grafana is required for CloudToLocalLLM operations.
 
 ## Decision
 

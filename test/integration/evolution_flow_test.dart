@@ -38,17 +38,32 @@ void main() {
         ];
 
         // Test complexity calculation directly
-        final allText = technicalMessages.map((m) => m.content.toLowerCase()).join(' ');
-        final words = allText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+        final allText =
+            technicalMessages.map((m) => m.content.toLowerCase()).join(' ');
+        final words =
+            allText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
         // Check for technical terms
         final technicalTerms = {
-          'async', 'await', 'flutter', 'error', 'handling', 'try', 'catch',
-          'future', 'promises', 'callbacks', 'package', 'utilities',
-          'streamqueue', 'coordinating', 'managing', 'streams'
+          'async',
+          'await',
+          'flutter',
+          'error',
+          'handling',
+          'try',
+          'catch',
+          'future',
+          'promises',
+          'callbacks',
+          'package',
+          'utilities',
+          'streamqueue',
+          'coordinating',
+          'managing',
+          'streams'
         };
 
-        final technicalCount = words.where((w) => technicalTerms.contains(w)).length;
+        final technicalCount = words.where(technicalTerms.contains).length;
 
         // Should detect technical terms
         expect(technicalCount, greaterThan(3));
@@ -81,17 +96,28 @@ void main() {
         ];
 
         // Test emotional depth calculation directly
-        final allText = emotionalMessages.map((m) => m.content.toLowerCase()).join(' ');
-        final words = allText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+        final allText =
+            emotionalMessages.map((m) => m.content.toLowerCase()).join(' ');
+        final words =
+            allText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
         // Check for empathetic words
         final empatheticWords = {
-          'understand', 'understanding', 'feel', 'feeling', 'hear',
-          'appreciate', 'supported', 'valid', 'emotional', 'stress',
-          'listening', 'caring'
+          'understand',
+          'understanding',
+          'feel',
+          'feeling',
+          'hear',
+          'appreciate',
+          'supported',
+          'valid',
+          'emotional',
+          'stress',
+          'listening',
+          'caring'
         };
 
-        final empatheticCount = words.where((w) => empatheticWords.contains(w)).length;
+        final empatheticCount = words.where(empatheticWords.contains).length;
 
         // Should detect empathetic language
         expect(empatheticCount, greaterThan(3));
@@ -112,7 +138,8 @@ void main() {
         ];
 
         final allText = topics.join(' ').toLowerCase();
-        final words = allText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+        final words =
+            allText.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
         final uniqueWords = words.toSet();
 
         // Novelty is high when we have many unique words

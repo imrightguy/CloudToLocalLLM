@@ -2,15 +2,15 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: coturn-config
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 data:
   turnserver.conf: |
     listening-port=3478
     tls-listening-port=5349
     listening-ip=0.0.0.0
     external-ip=$(EXTERNAL_IP)
-    realm=zoidbot.online
-    server-name=zoidbot.online
+    realm=cloudtolocalllm.online
+    server-name=cloudtolocalllm.online
     no-cli
     no-tls
     no-dtls
@@ -23,17 +23,17 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: coturn-secret
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 type: Opaque
 stringData:
-  TURN_USER: "zoidbot"
+  TURN_USER: "CloudToLocalLLM"
   TURN_PASSWORD: OJWuZ2stPibhCFMS7gAkQBKeUnw614mG
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: coturn
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   replicas: 1
   selector:
@@ -84,7 +84,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: coturn
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   type: LoadBalancer
   selector:

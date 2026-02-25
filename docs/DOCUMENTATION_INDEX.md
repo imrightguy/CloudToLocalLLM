@@ -119,7 +119,7 @@
 ## Documentation TODO
 
 ### P0 (Critical)
-- [x] Fix "Zoidbot" branding in SYSTEM_ARCHITECTURE.md
+- [x] Fix "CloudToLocalLLM" branding in SYSTEM_ARCHITECTURE.md
 - [x] Update all docs to use "CloudToLocalLLM" consistently
 - [x] Create Avatar System architecture doc
 - [x] Create Desktop Control architecture doc

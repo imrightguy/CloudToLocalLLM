@@ -1,5 +1,5 @@
 /**
- * Zoidbot SDK Type Definitions
+ * CloudToLocalLLM SDK Type Definitions
  *
  * Comprehensive type definitions for all API endpoints and data models
  * Generated from OpenAPI specification

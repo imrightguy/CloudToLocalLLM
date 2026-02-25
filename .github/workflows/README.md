@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains all CI/CD workflows for Zoidbot.
+This directory contains all CI/CD workflows for CloudToLocalLLM.
 
 ## Current Workflow Overview
 
@@ -20,7 +20,7 @@ This directory contains all CI/CD workflows for Zoidbot.
       - Outputs component list and version info
 
    2. **build_base** - Base Docker images
-      - Builds `zoidbot-base:latest` and `zoidbot-build:latest`
+      - Builds `cloudtolocalllm-base:latest` and `CloudToLocalLLM-build:latest`
       - Provides common build environment
 
    3. **deploy_secrets** - Cluster secrets management
@@ -28,7 +28,7 @@ This directory contains all CI/CD workflows for Zoidbot.
       - Uses Azure credentials for authentication
 
    4. **build_api** - API Backend
-      - Builds `zoidbot-api:latest`
+      - Builds `cloudtolocalllm-api:latest`
       - Runs `npm test` for API validation
 
    5. **build_web** - Web Frontend

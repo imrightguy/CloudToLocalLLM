@@ -2,14 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: streaming-proxy-ingress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   annotations:
     kubernetes.io/ingress.class: "gce"
-    kubernetes.io/ingress.global-static-ip-name: "zoidbot-static-ip"
-    networking.gke.io/managed-certificates: "zoidbot-certificate"
+    kubernetes.io/ingress.global-static-ip-name: "CloudToLocalLLM-static-ip"
+    networking.gke.io/managed-certificates: "CloudToLocalLLM-certificate"
 spec:
   rules:
-  - host: streaming.zoidbot.online
+  - host: streaming.cloudtolocalllm.online
     http:
       paths:
       - path: /*

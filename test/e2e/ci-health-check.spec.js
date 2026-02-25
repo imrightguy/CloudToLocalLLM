@@ -1,4 +1,4 @@
-// CI/CD Health Check Test for Zoidbot
+// CI/CD Health Check Test for CloudToLocalLLM
 // Validates basic application functionality in CI environment
 
 import { test, expect } from '@playwright/test';
@@ -9,7 +9,7 @@ test.describe('CI Health Check', () => {
   test.beforeEach(async ({ page }) => {
     // Set up test environment
     await page.setExtraHTTPHeaders({
-      'User-Agent': 'Zoidbot-CI-Test/1.0'
+      'User-Agent': 'CloudToLocalLLM-CI-Test/1.0'
     });
   });
 
@@ -21,7 +21,7 @@ test.describe('CI Health Check', () => {
     await page.waitForLoadState('networkidle');
 
     // Check that the page title is correct
-    await expect(page).toHaveTitle(/Zoidbot/);
+    await expect(page).toHaveTitle(/CloudToLocalLLM/);
 
     // Verify main content is visible
     const mainContent = page.locator('main, #root, .app');

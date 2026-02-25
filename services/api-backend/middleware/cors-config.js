@@ -16,11 +16,11 @@ import cors from 'cors';
  * No wildcards allowed for security
  */
 const ALLOWED_ORIGINS = [
-  'https://app.zoidbot.online',
-  'https://zoidbot.online',
-  'https://docs.zoidbot.online',
-  'https://admin.zoidbot.online',
-  'https://api.zoidbot.online',
+  'https://app.cloudtolocalllm.online',
+  'https://cloudtolocalllm.online',
+  'https://docs.cloudtolocalllm.online',
+  'https://admin.cloudtolocalllm.online',
+  'https://api.cloudtolocalllm.online',
   // Development origins
   ...(process.env.NODE_ENV === 'development'
     ? [
@@ -60,9 +60,9 @@ function corsOriginValidator(origin, callback) {
 
   // Explicitly allow main domains to ensure they work regardless of array config
   if (
-    origin === 'https://app.zoidbot.online' ||
-    origin === 'https://api.zoidbot.online' ||
-    origin === 'https://zoidbot.online'
+    origin === 'https://app.cloudtolocalllm.online' ||
+    origin === 'https://api.cloudtolocalllm.online' ||
+    origin === 'https://cloudtolocalllm.online'
   ) {
     return callback(null, true);
   }
@@ -119,8 +119,8 @@ export const adminCorsOptions = {
 
     // Only allow admin domain and development origins
     const adminOrigins = [
-      'https://admin.zoidbot.online',
-      'https://app.zoidbot.online', // Admin center accessed from main app
+      'https://admin.cloudtolocalllm.online',
+      'https://app.cloudtolocalllm.online', // Admin center accessed from main app
       ...(process.env.NODE_ENV === 'development'
         ? [
             'http://localhost:3000',

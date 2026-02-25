@@ -1,6 +1,6 @@
-# Zoidbot Building Guide
+# CloudToLocalLLM Building Guide
 
-This document provides comprehensive instructions for building Zoidbot client applications across different platforms.
+This document provides comprehensive instructions for building CloudToLocalLLM client applications across different platforms.
 
 ## 📋 Table of Contents
 
@@ -99,8 +99,8 @@ sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
 
 ```bash
 # Make executable and run
-chmod +x Zoidbot-*.AppImage
-./Zoidbot-*.AppImage
+chmod +x CloudToLocalLLM-*.AppImage
+./CloudToLocalLLM-*.AppImage
 ```
 
 **Note**: Debian (.deb) packages have been discontinued in favor of AppImage for better cross-distribution compatibility.
@@ -343,10 +343,10 @@ cp -r build/web/* /var/www/html/
 
 ```bash
 # Build web container
-docker build -f docker/Dockerfile.web -t zoidbot-web .
+docker build -f docker/Dockerfile.web -t CloudToLocalLLM-web .
 
 # Run web container
-docker run -p 80:80 zoidbot-web
+docker run -p 80:80 CloudToLocalLLM-web
 ```
 
 ---
@@ -469,4 +469,4 @@ flutter doctor -v
 
 ---
 
-*For build issues or questions, please check our [troubleshooting guide](../USER_DOCUMENTATION/USER_TROUBLESHOOTING_GUIDE.md) or [open an issue](https://github.com/Zoidbot-online/Zoidbot/issues).*
+*For build issues or questions, please check our [troubleshooting guide](../USER_DOCUMENTATION/USER_TROUBLESHOOTING_GUIDE.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*

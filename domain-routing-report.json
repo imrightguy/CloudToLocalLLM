@@ -8,11 +8,11 @@
     "success_rate": 31
   },
   "domains_tested": [
-  "zoidbot.online",
-  "app.zoidbot.online",
-  "api.zoidbot.online",
-  "argocd.zoidbot.online",
-  "grafana.zoidbot.online"
+  "cloudtolocalllm.online",
+  "app.cloudtolocalllm.online",
+  "api.cloudtolocalllm.online",
+  "argocd.cloudtolocalllm.online",
+  "grafana.cloudtolocalllm.online"
 ],
   "services_tested": [
   "web:8080",

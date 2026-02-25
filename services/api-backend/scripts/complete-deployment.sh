@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Complete Zoidbot Deployment Script
+# Complete CloudToLocalLLM Deployment Script
 # This script performs the full deployment after authentication is complete
 
 set -e
 
 # Configuration
-PROJECT_ID="zoidbot-468303"
-INSTANCE_NAME="zoidbot-db"
+PROJECT_ID="CloudToLocalLLM-468303"
+INSTANCE_NAME="CloudToLocalLLM-db"
 REGION="us-central1"
-SERVICE_NAME="zoidbot-api"
-DATABASE_NAME="zoidbot"
+SERVICE_NAME="cloudtolocalllm-api"
+DATABASE_NAME="CloudToLocalLLM"
 DB_USER="appuser"
 
-echo " Zoidbot Complete Deployment Script"
+echo " CloudToLocalLLM Complete Deployment Script"
 echo "=============================================="
 echo ""
 
@@ -74,7 +74,7 @@ else
     
     # Save configuration
     cat > cloud-sql-config.env << EOF
-# Cloud SQL Configuration for Zoidbot
+# Cloud SQL Configuration for CloudToLocalLLM
 # Generated on $(date)
 
 DB_TYPE=postgresql

@@ -26,7 +26,7 @@ describe('Direct Proxy Integration Tests', () => {
     mockAuth = (req, res, next) => {
       req.user = {
         sub: 'jwt|test-user-123',
-        'https://zoidbot.com/user_metadata': { tier: 'free' }
+        'https://CloudToLocalLLM.com/user_metadata': { tier: 'free' }
       };
       next();
     };
@@ -238,7 +238,7 @@ describe('Direct Proxy Integration Tests', () => {
       app.use('/premium-test', (req, res, next) => {
         req.user = {
           sub: 'jwt|premium-user-123',
-          'https://zoidbot.com/user_metadata': { tier: 'premium' }
+          'https://CloudToLocalLLM.com/user_metadata': { tier: 'premium' }
         };
         next();
       });

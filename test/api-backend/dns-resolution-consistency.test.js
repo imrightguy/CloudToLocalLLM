@@ -21,10 +21,10 @@ const reverse = promisify(dns.reverse);
 
 // Configuration
 const CLOUDFLARE_DOMAINS = [
-  'zoidbot.online',
-  'app.zoidbot.online',
-  'api.zoidbot.online',
-  'auth.zoidbot.online',
+  'cloudtolocalllm.online',
+  'app.cloudtolocalllm.online',
+  'api.cloudtolocalllm.online',
+  'auth.cloudtolocalllm.online',
 ];
 
 const AWS_NLB_REGION = 'us-east-1';
@@ -32,10 +32,10 @@ const AWS_ACCOUNT_ID = '422017356244';
 
 // Mock AWS NLB IP addresses (in real scenario, these would be actual IPs)
 const MOCK_NLB_IPS = {
-  'zoidbot.online': '10.0.1.100',
-  'app.zoidbot.online': '10.0.1.101',
-  'api.zoidbot.online': '10.0.1.102',
-  'auth.zoidbot.online': '10.0.1.103',
+  'cloudtolocalllm.online': '10.0.1.100',
+  'app.cloudtolocalllm.online': '10.0.1.101',
+  'api.cloudtolocalllm.online': '10.0.1.102',
+  'auth.cloudtolocalllm.online': '10.0.1.103',
 };
 
 /**
@@ -319,28 +319,28 @@ describe('DNS Resolution Consistency - Property Tests', () => {
     });
 
     test('should resolve main domain to correct IP', async () => {
-      const domain = 'zoidbot.online';
+      const domain = 'cloudtolocalllm.online';
       const ip = await resolver.resolve(domain);
 
       expect(ip).toBe(MOCK_NLB_IPS[domain]);
     });
 
     test('should resolve app subdomain to correct IP', async () => {
-      const domain = 'app.zoidbot.online';
+      const domain = 'app.cloudtolocalllm.online';
       const ip = await resolver.resolve(domain);
 
       expect(ip).toBe(MOCK_NLB_IPS[domain]);
     });
 
     test('should resolve api subdomain to correct IP', async () => {
-      const domain = 'api.zoidbot.online';
+      const domain = 'api.cloudtolocalllm.online';
       const ip = await resolver.resolve(domain);
 
       expect(ip).toBe(MOCK_NLB_IPS[domain]);
     });
 
     test('should resolve auth subdomain to correct IP', async () => {
-      const domain = 'auth.zoidbot.online';
+      const domain = 'auth.cloudtolocalllm.online';
       const ip = await resolver.resolve(domain);
 
       expect(ip).toBe(MOCK_NLB_IPS[domain]);
@@ -461,7 +461,7 @@ describe('DNS Resolution Consistency - Property Tests', () => {
     });
 
     test('should verify DNS resolution for load balancer endpoint', async () => {
-      const domain = 'app.zoidbot.online';
+      const domain = 'app.cloudtolocalllm.online';
       const ip = await resolver.resolve(domain);
 
       // Should resolve to valid AWS NLB IP
@@ -484,9 +484,9 @@ describe('DNS Resolution Consistency - Property Tests', () => {
 
     test('should validate DNS resolution for all application endpoints', async () => {
       const endpoints = [
-        { domain: 'zoidbot.online', service: 'web' },
-        { domain: 'app.zoidbot.online', service: 'web' },
-        { domain: 'api.zoidbot.online', service: 'api-backend' },
+        { domain: 'cloudtolocalllm.online', service: 'web' },
+        { domain: 'app.cloudtolocalllm.online', service: 'web' },
+        { domain: 'api.cloudtolocalllm.online', service: 'api-backend' },
       ];
 
       for (const endpoint of endpoints) {
@@ -516,10 +516,10 @@ describe('DNS Resolution Consistency - Property Tests', () => {
 
     test('should handle DNS queries for all subdomains', async () => {
       const subdomains = [
-        'zoidbot.online',
-        'app.zoidbot.online',
-        'api.zoidbot.online',
-        'auth.zoidbot.online',
+        'cloudtolocalllm.online',
+        'app.cloudtolocalllm.online',
+        'api.cloudtolocalllm.online',
+        'auth.cloudtolocalllm.online',
       ];
 
       for (const subdomain of subdomains) {

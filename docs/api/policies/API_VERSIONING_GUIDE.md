@@ -2,7 +2,7 @@
 
 ## Overview
 
-Zoidbot API implements URL-based versioning to support multiple API versions simultaneously while maintaining backward compatibility. This guide explains how versioning works and how to migrate between versions.
+CloudToLocalLLM API implements URL-based versioning to support multiple API versions simultaneously while maintaining backward compatibility. This guide explains how versioning works and how to migrate between versions.
 
 **Requirements: 12.4**
 
@@ -33,11 +33,11 @@ Use v2 for all new integrations. This is the recommended version.
 
 ```bash
 # Using explicit v2 prefix
-curl https://api.zoidbot.online/v2/users/me \
+curl https://api.cloudtolocalllm.online/v2/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Using default (also v2)
-curl https://api.zoidbot.online/users/me \
+curl https://api.cloudtolocalllm.online/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -47,7 +47,7 @@ v1 is deprecated and will be removed on 2025-01-01. Migrate to v2 as soon as pos
 
 ```bash
 # Using v1 (deprecated)
-curl https://api.zoidbot.online/v1/users/me \
+curl https://api.cloudtolocalllm.online/v1/users/me \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -133,19 +133,19 @@ Warning: 299 - "API version v1 is deprecated. Migrate to v2 before 2025-01-01"
 Change your API base URL from:
 
 ```
-https://api.zoidbot.online/v1
+https://api.cloudtolocalllm.online/v1
 ```
 
 To:
 
 ```
-https://api.zoidbot.online/v2
+https://api.cloudtolocalllm.online/v2
 ```
 
 Or simply use:
 
 ```
-https://api.zoidbot.online
+https://api.cloudtolocalllm.online
 ```
 
 ### Step 2: Update Response Parsing
@@ -203,8 +203,8 @@ If you don't specify a version in the URL, the API automatically uses v2:
 
 ```bash
 # These are equivalent
-curl https://api.zoidbot.online/users/me
-curl https://api.zoidbot.online/v2/users/me
+curl https://api.cloudtolocalllm.online/users/me
+curl https://api.cloudtolocalllm.online/v2/users/me
 ```
 
 ### Version-Specific Behavior
@@ -219,7 +219,7 @@ Some endpoints may have different behavior in different versions:
 Get information about all supported API versions:
 
 ```bash
-curl https://api.zoidbot.online/api/versions
+curl https://api.cloudtolocalllm.online/api/versions
 ```
 
 Response:
@@ -263,9 +263,9 @@ Response:
 
 For questions about API versioning or migration help, contact:
 
-- Email: support@zoidbot.online
-- Documentation: https://docs.zoidbot.online
-- GitHub Issues: https://github.com/ghcr.io/zoidbot-online/zoidbot/api/issues
+- Email: support@cloudtolocalllm.online
+- Documentation: https://docs.cloudtolocalllm.online
+- GitHub Issues: https://github.com/ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/api/issues
 
 ## Implementation Details
 

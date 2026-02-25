@@ -1,4 +1,4 @@
-# Zoidbot Docker Development Environment
+# CloudToLocalLLM Docker Development Environment
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ docker compose -f docker-compose.dev.yml exec flutter bash
 flutter-health
 ```
 
-### 3. Develop Zoidbot
+### 3. Develop CloudToLocalLLM
 
 ```bash
 # Get dependencies
@@ -70,7 +70,7 @@ flutter test
 
 ## Updated Package Support
 
-The Docker environment fully supports Zoidbot v3.5.0+ with updated packages:
+The Docker environment fully supports CloudToLocalLLM v3.5.0+ with updated packages:
 
 - ✅ `tray_manager: ^0.5.0` - System tray functionality
 - ✅ `connectivity_plus: ^6.1.4` - Network connectivity monitoring  
@@ -134,7 +134,7 @@ docker run -it --rm \
   -v $(pwd):/workspace \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -e DISPLAY=$DISPLAY \
-  zoidbot:dev
+  CloudToLocalLLM:dev
 ```
 
 ### macOS
@@ -200,7 +200,7 @@ This will:
 - ✅ Build the Docker image
 - ✅ Test Flutter configuration
 - ✅ Verify system dependencies
-- ✅ Test Zoidbot build
+- ✅ Test CloudToLocalLLM build
 - ✅ Validate Docker Compose setup
 - ✅ Generate validation report
 
@@ -236,7 +236,7 @@ This will:
 ## Documentation
 
 - [Complete Docker Development Guide](docs/DOCKER_DEVELOPMENT.md)
-- [Zoidbot Architecture](docs/ARCHITECTURE/)
+- [CloudToLocalLLM Architecture](docs/ARCHITECTURE/)
 - [Development Workflow](docs/DEVELOPMENT/)
 
 ## Support

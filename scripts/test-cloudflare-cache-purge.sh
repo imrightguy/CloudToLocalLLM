@@ -33,8 +33,8 @@ echo "Testing Cloudflare Cache Purge"
 echo "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
 echo ""
 
-# Get Zone ID for zoidbot.online
-DOMAIN="zoidbot.online"
+# Get Zone ID for cloudtolocalllm.online
+DOMAIN="cloudtolocalllm.online"
 echo "Step 1: Fetching Zone ID for: $DOMAIN"
 
 ZONE_RESPONSE=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$DOMAIN" \
@@ -64,9 +64,9 @@ RESPONSE=$(curl -s -X POST \
 echo ""
 if echo "$RESPONSE" | grep -q '"success": true'; then
     echo "âœ… Cache purged successfully for all domains:"
-    echo "   - zoidbot.online"
-    echo "   - app.zoidbot.online"
-    echo "   - api.zoidbot.online"
+    echo "   - cloudtolocalllm.online"
+    echo "   - app.cloudtolocalllm.online"
+    echo "   - api.cloudtolocalllm.online"
     echo ""
     echo "âœ… Test PASSED! The credentials work."
 else

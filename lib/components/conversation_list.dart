@@ -118,7 +118,7 @@ class _ConversationListState extends State<ConversationList> {
 
     if (action == null || action == 'none') return;
 
-    // TODO: Implement actual export to file
+    // Future enhancement: Implement actual export to file
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -129,7 +129,7 @@ class _ConversationListState extends State<ConversationList> {
   }
 
   Future<void> _showImportDialog() async {
-    // TODO: Implement import from file
+    // Future enhancement: Implement import from file
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

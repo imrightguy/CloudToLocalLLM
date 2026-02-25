@@ -6,7 +6,7 @@ user-invocable: true
 
 # Avatar Evolution Development
 
-Streamline avatar (Zoidbot) evolution feature development with personality trait templates, conversation depth analysis scripts, and stage transition validation.
+Streamline avatar (CloudToLocalLLM) evolution feature development with personality trait templates, conversation depth analysis scripts, and stage transition validation.
 
 ## Context
 

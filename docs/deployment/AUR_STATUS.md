@@ -1,4 +1,4 @@
-# Zoidbot AUR Status Documentation
+# CloudToLocalLLM AUR Status Documentation
 
 **Status**: TEMPORARILY REMOVED - AUR REINTEGRATION PLANNED  
 **Version**: v3.10.3  
@@ -6,7 +6,7 @@
 
 ## 📋 Overview
 
-AUR (Arch User Repository) support for Zoidbot has been temporarily removed from the v3.10.3 Unified Flutter-Native Architecture. This document outlines the removal decision, affected components, and planned reintegration timeline.
+AUR (Arch User Repository) support for CloudToLocalLLM has been temporarily removed from the v3.10.3 Unified Flutter-Native Architecture. This document outlines the removal decision, affected components, and planned reintegration timeline.
 
 ## 🚫 Temporarily Removed Components
 
@@ -88,29 +88,29 @@ AUR (Arch User Repository) support for Zoidbot has been temporarily removed from
 
 ```bash
 # Download latest AppImage
-wget https://github.com/Zoidbot-online/Zoidbot/releases/latest/download/zoidbot-4.0.78-x86_64.AppImage
+wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm-4.0.78-x86_64.AppImage
 
 # Make executable and run
-chmod +x zoidbot-4.0.78-x86_64.AppImage
-./zoidbot-4.0.78-x86_64.AppImage
+chmod +x CloudToLocalLLM-4.0.78-x86_64.AppImage
+./cloudtolocalllm-4.0.78-x86_64.AppImage
 
 # Optional: Install to system (creates desktop entry)
-./zoidbot-4.0.78-x86_64.AppImage --appimage-extract-and-run --install
+./cloudtolocalllm-4.0.78-x86_64.AppImage --appimage-extract-and-run --install
 ```
 
 ### Option 2: Source Compilation
 
 ```bash
 # Clone repository
-git clone https://github.com/Zoidbot-online/Zoidbot.git
-cd Zoidbot
+git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
+cd CloudToLocalLLM
 
 # Build using unified package script
 ./scripts/build_unified_package.sh
 
 # Install manually
-sudo cp -r dist/zoidbot-3.10.3 /usr/share/zoidbot
-sudo ln -sf /usr/share/zoidbot/bin/* /usr/bin/
+sudo cp -r dist/cloudtolocalllm-3.10.3 /usr/share/CloudToLocalLLM
+sudo ln -sf /usr/share/CloudToLocalLLM/bin/* /usr/bin/
 ```
 
 ### Option 3: PowerShell Build (Advanced)

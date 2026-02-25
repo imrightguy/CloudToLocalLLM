@@ -349,7 +349,7 @@ class _MinimalAuthService extends ChangeNotifier implements AuthService {
   Future<void> updateDisplayName(String name) async {}
 
   @override
-  String get assistantName => 'Zoidbot';
+  String get assistantName => 'CloudToLocalLLM';
 
   @override
   bool get isWeb => kIsWeb;

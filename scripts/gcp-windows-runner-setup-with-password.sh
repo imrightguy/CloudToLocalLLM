@@ -3,14 +3,14 @@
 # This script automates the creation of a GitHub Actions self-hosted runner on a GCP Windows VM.
 
 # --- Configuration Variables ---
-GCP_PROJECT_ID="zoidbot-468303"
+GCP_PROJECT_ID="CloudToLocalLLM-468303"
 GCP_REGION="us-central1"
 GCP_ZONE="us-central1-a"
 VM_NAME="github-runner-windows-$(date +%s)"
 MACHINE_TYPE="e2-medium"
 IMAGE_FAMILY="windows-2019"
 IMAGE_PROJECT="windows-cloud"
-GITHUB_RUNNER_ORG_URL="https://github.com/Zoidbot-online/Zoidbot"
+GITHUB_RUNNER_ORG_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM"
 GITHUB_RUNNER_TOKEN="BOBH5XEA7XJPPTNW2CYI7F3IUR2RG"
 NEW_USER="gemini"
 NEW_PASSWORD=$(openssl rand -base64 12)

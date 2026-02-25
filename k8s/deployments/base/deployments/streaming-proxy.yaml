@@ -2,14 +2,14 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: streaming-proxy-sa
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: streaming-proxy-role
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 rules:
   - apiGroups: [""]
     resources: ["configmaps", "secrets"]
@@ -20,7 +20,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: streaming-proxy-rolebinding
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -28,14 +28,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: streaming-proxy-sa
-    namespace: zoidbot
+    namespace: CloudToLocalLLM
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: streaming-proxy
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   annotations:
     argocd.argoproj.io/sync-wave: "15"
   labels:
@@ -76,7 +76,7 @@ spec:
             ]
       containers:
         - name: streaming-proxy
-          image: ghcr.io/zoidbot-online/zoidbot/streaming:latest
+          image: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/streaming:latest
           imagePullPolicy: Always
           ports:
             - name: http

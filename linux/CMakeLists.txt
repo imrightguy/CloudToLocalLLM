@@ -4,10 +4,10 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "zoidbot")
+set(BINARY_NAME "cloudtolocalllm")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "online.zoidbot.app")
+set(APPLICATION_ID "online.cloudtolocalllm.app")
 
 # Add preprocessor definitions for the application ID globally
 # This ensures all targets, including plugins, have access to APPLICATION_ID
@@ -55,7 +55,7 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_definitions(${TARGET} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
 endfunction()
 
-# Zoidbot v3.3.1+ - Unified Flutter-native architecture with integrated system tray
+# CloudToLocalLLM v10.1+ - Unified Flutter-native architecture with integrated system tray
 # Deprecation warnings are suppressed to allow tray_manager functionality on older systems
 
 # Flutter library and tool build rules.

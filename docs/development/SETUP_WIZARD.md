@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive information for developers working on the first-time setup wizard feature. The wizard is a critical component that guides new users through downloading, installing, and configuring the Zoidbot desktop client.
+This guide provides comprehensive information for developers working on the first-time setup wizard feature. The wizard is a critical component that guides new users through downloading, installing, and configuring the CloudToLocalLLM desktop client.
 
 ## Architecture Overview
 
@@ -300,7 +300,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Step 1: Welcome
-      expect(find.text('Welcome to Zoidbot'), findsOneWidget);
+      expect(find.text('Welcome to CloudToLocalLLM'), findsOneWidget);
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
 
@@ -330,7 +330,7 @@ void main() {
       try {
         // Navigate through complete setup flow
         await driver.tap(find.text('Get Started'));
-        await driver.waitFor(find.text('Welcome to Zoidbot'));
+        await driver.waitFor(find.text('Welcome to CloudToLocalLLM'));
         
         // Test each step with real API calls
         await _testContainerCreation(driver);
@@ -499,12 +499,12 @@ class SetupFeatureFlags {
 class SetupConfig {
   static const String containerApiUrl = String.fromEnvironment(
     'CONTAINER_API_URL',
-    defaultValue: 'https://zoidbot.online/api',
+    defaultValue: 'https://cloudtolocalllm.online/api',
   );
   
   static const String downloadBaseUrl = String.fromEnvironment(
     'DOWNLOAD_BASE_URL',
-    defaultValue: 'https://github.com/Zoidbot/releases',
+    defaultValue: 'https://github.com/CloudToLocalLLM/releases',
   );
   
   static const int containerCreationTimeoutSeconds = int.fromEnvironment(
@@ -640,8 +640,8 @@ DOWNLOAD_TRACKING_ENABLED=true
 VALIDATION_TESTS_ENABLED=true
 
 # API Configuration
-CONTAINER_API_URL=https://zoidbot.online/api
-DOWNLOAD_BASE_URL=https://github.com/Zoidbot/releases
+CONTAINER_API_URL=https://cloudtolocalllm.online/api
+DOWNLOAD_BASE_URL=https://github.com/CloudToLocalLLM/releases
 SETUP_API_TIMEOUT=120
 
 # Feature Flags
@@ -697,7 +697,7 @@ class SetupInputValidator {
     try {
       final uri = Uri.parse(url);
       return uri.isScheme('https') && 
-             (uri.host == 'github.com' || uri.host == 'zoidbot.online');
+             (uri.host == 'github.com' || uri.host == 'cloudtolocalllm.online');
     } catch (e) {
       return false;
     }

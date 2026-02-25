@@ -474,7 +474,7 @@ class AdminCenterService extends ChangeNotifier {
         '/admin/email/test',
         data: {
           'recipientEmail': recipientEmail,
-          'subject': 'Test Email from Zoidbot',
+          'subject': 'Test Email from CloudToLocalLLM',
         },
       );
       _setError(null);

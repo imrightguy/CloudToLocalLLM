@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Zoidbot deployment workflow now automatically updates all relevant documentation files when versions are changed, ensuring consistency across all documentation and eliminating manual update errors.
+The CloudToLocalLLM deployment workflow now automatically updates all relevant documentation files when versions are changed, ensuring consistency across all documentation and eliminating manual update errors.
 
 ## Implementation Details
 
@@ -19,7 +19,7 @@ Both version manager scripts (`scripts/powershell/version_manager.ps1` and `scri
 **Windows Development Environment:**
 
 - Primary script: `scripts/powershell/version_manager.ps1`
-- Used by: `scripts/powershell/Deploy-Zoidbot.ps1`
+- Used by: `scripts/powershell/Deploy-CloudToLocalLLM.ps1`
 - Context: Local development and version management on Windows systems
 
 **Linux Development Environment:**
@@ -112,7 +112,7 @@ The version incrementing is performed **AFTER** deployment verification to give 
 
 ```powershell
 # 1. Deploy current version
-./scripts/powershell/Deploy-Zoidbot.ps1 -SkipVersionUpdate
+./scripts/powershell/Deploy-CloudToLocalLLM.ps1 -SkipVersionUpdate
 
 # 2. Verify deployment success
 # (manual verification or automated tests)

@@ -5,14 +5,14 @@
 ### Using v2 (Current)
 
 ```bash
-curl https://api.zoidbot.online/v2/users/me
-curl https://api.zoidbot.online/users/me  # defaults to v2
+curl https://api.cloudtolocalllm.online/v2/users/me
+curl https://api.cloudtolocalllm.online/users/me  # defaults to v2
 ```
 
 ### Using v1 (Deprecated)
 
 ```bash
-curl https://api.zoidbot.online/v1/users/me
+curl https://api.cloudtolocalllm.online/v1/users/me
 ```
 
 ## Version Information
@@ -163,6 +163,6 @@ mountVersionedRoutes(app, '/users', {
 
 ## Support
 
-- Documentation: https://docs.zoidbot.online
+- Documentation: https://docs.cloudtolocalllm.online
 - Migration Guide: See API_VERSIONING_GUIDE.md
-- Issues: https://github.com/ghcr.io/zoidbot-online/zoidbot/api/issues
+- Issues: https://github.com/ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/api/issues

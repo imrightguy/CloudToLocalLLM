@@ -21,7 +21,8 @@ class OpenClawProvider {
   });
 
   /// Create from JSON configuration
-  factory OpenClawProvider.fromJson(Map<String, dynamic> json, String providerId) {
+  factory OpenClawProvider.fromJson(
+      Map<String, dynamic> json, String providerId) {
     final models = <OpenClawModel>[];
     if (json.containsKey('models')) {
       final modelsList = json['models'] as List<dynamic>;
@@ -66,10 +67,11 @@ class OpenClawProvider {
   OpenClawModel? get defaultModel {
     if (models.isEmpty) return null;
     // Prefer models with "pro" or "plus" in name, otherwise first
-    final preferred = models.where((m) =>
-      m.name.toLowerCase().contains('pro') ||
-      m.name.toLowerCase().contains('plus')
-    ).firstOrNull;
+    final preferred = models
+        .where((m) =>
+            m.name.toLowerCase().contains('pro') ||
+            m.name.toLowerCase().contains('plus'))
+        .firstOrNull;
     return preferred ?? models.first;
   }
 

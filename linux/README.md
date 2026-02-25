@@ -4,11 +4,11 @@ This directory contains files required for Linux desktop integration and Flatpak
 
 ## Files
 
-### com.zoidbot.Zoidbot.desktop
+### com.CloudToLocalLLM.CloudToLocalLLM.desktop
 Desktop entry file that provides application menu integration on Linux systems.
 
 **Purpose**: 
-- Adds Zoidbot to application menus
+- Adds CloudToLocalLLM to application menus
 - Defines application name, icon, and categories
 - Specifies how to launch the application
 
@@ -16,7 +16,7 @@ Desktop entry file that provides application menu integration on Linux systems.
 
 **Specification**: [Desktop Entry Specification](https://specifications.freedesktop.org/desktop-entry-spec/latest/)
 
-### com.zoidbot.Zoidbot.metainfo.xml
+### com.CloudToLocalLLM.CloudToLocalLLM.metainfo.xml
 AppStream metadata file that provides information for software centers.
 
 **Purpose**:
@@ -30,7 +30,7 @@ AppStream metadata file that provides information for software centers.
 
 ## Usage
 
-These files are automatically included when building the Flatpak package using the manifest at `com.zoidbot.Zoidbot.yml`.
+These files are automatically included when building the Flatpak package using the manifest at `com.CloudToLocalLLM.CloudToLocalLLM.yml`.
 
 ## Testing Desktop Integration
 
@@ -38,16 +38,16 @@ After installing the Flatpak, you can verify desktop integration:
 
 ```bash
 # Check if desktop file is installed
-flatpak run --command=ls com.zoidbot.Zoidbot /app/share/applications/
+flatpak run --command=ls com.CloudToLocalLLM.CloudToLocalLLM /app/share/applications/
 
 # Check if metadata is installed
-flatpak run --command=ls com.zoidbot.Zoidbot /app/share/metainfo/
+flatpak run --command=ls com.CloudToLocalLLM.CloudToLocalLLM /app/share/metainfo/
 
 # Validate desktop file
-desktop-file-validate linux/com.zoidbot.Zoidbot.desktop
+desktop-file-validate linux/com.CloudToLocalLLM.CloudToLocalLLM.desktop
 
 # Validate AppStream metadata
-appstreamcli validate linux/com.zoidbot.Zoidbot.metainfo.xml
+appstreamcli validate linux/com.CloudToLocalLLM.CloudToLocalLLM.metainfo.xml
 ```
 
 ## Updating

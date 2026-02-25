@@ -37,11 +37,11 @@ Retry-After: 60                 # Seconds to wait (if rate limited)
 ```bash
 # Get your user tier
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/users/me
+  https://api.cloudtolocalllm.online/v2/users/me
 
 # Get rate limit metrics
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/summary
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/summary
 ```
 
 ## Implement Retry Logic
@@ -83,15 +83,15 @@ async function makeRequest(url, maxRetries = 3) {
 ```bash
 # Top violators
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/top-violators?limit=10
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/top-violators?limit=10
 
 # Top violating IPs
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/top-ips?limit=10
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/top-ips?limit=10
 
 # Dashboard data
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/dashboard-data
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/dashboard-data
 ```
 
 ## Upgrade Your Tier
@@ -101,7 +101,7 @@ curl -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"tier": "premium"}' \
-  https://api.zoidbot.online/v2/users/me/tier/upgrade
+  https://api.cloudtolocalllm.online/v2/users/me/tier/upgrade
 ```
 
 ## Rate Limit Types

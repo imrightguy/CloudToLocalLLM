@@ -28,7 +28,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   host: process.env.PGHOST || 'localhost',
   port: parseInt(process.env.PGPORT || '5432'),
-  database: process.env.PGDATABASE || 'zoidbot',
+  database: process.env.PGDATABASE || 'CloudToLocalLLM',
   user: process.env.PGUSER || 'postgres',
   password: process.env.PGPASSWORD,
   ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false,
@@ -109,7 +109,7 @@ async function cleanSeedData() {
       // Delete in reverse order of dependencies
       console.log('  Deleting admin audit logs...');
       await client.query(`DELETE FROM admin_audit_logs WHERE admin_user_id IN (
-        SELECT id FROM users WHERE email LIKE 'test.%@example.com' OR email = 'cmaltais@zoidbot.online'
+        SELECT id FROM users WHERE email LIKE 'test.%@example.com' OR email = 'cmaltais@cloudtolocalllm.online'
       )`);
 
       console.log('  Deleting admin roles...');

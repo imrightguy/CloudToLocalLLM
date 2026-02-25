@@ -366,7 +366,7 @@ router.post(
       const pool = getPool();
       initializeServices(pool);
 
-      const { recipientEmail, subject = 'Test Email from Zoidbot' } =
+      const { recipientEmail, subject = 'Test Email from CloudToLocalLLM' } =
         req.body;
 
       if (!recipientEmail) {
@@ -399,7 +399,7 @@ router.post(
       const htmlBody = `
       <html>
         <body style="font-family: Arial, sans-serif;">
-          <h2>Test Email from Zoidbot</h2>
+          <h2>Test Email from CloudToLocalLLM</h2>
           <p>This is a test email to verify your email configuration is working correctly.</p>
           <p><strong>Configuration Details:</strong></p>
           <ul>

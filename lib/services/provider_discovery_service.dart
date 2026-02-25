@@ -19,7 +19,7 @@ class ProviderDiscoveryService {
     final List<Future<ProviderInfo?>> scans = [
       _scanOpenClawGateway(),
       _scanLMStudio(),
-      _scanOllama(),
+      // Ollama is handled by the LLM router, not as a separate provider
     ];
 
     try {
@@ -41,20 +41,19 @@ class ProviderDiscoveryService {
   Future<ProviderInfo?> _scanOpenClawGateway() async {
     const host = '127.0.0.1';
     const port = 18789;
-    final url = Uri.parse('http://$host:$port/health');
+    final baseUrl = 'http://$host:$port';
+    final healthUrl = Uri.parse('$baseUrl/health');
 
     try {
-      final response = await http
-          .get(url)
-          .timeout(_scanTimeout);
+      final response = await http.get(healthUrl).timeout(_scanTimeout);
 
       if (response.statusCode == 200) {
-        debugPrint('[ProviderDiscovery] Found OpenClaw Gateway at $url');
+        debugPrint('[ProviderDiscovery] Found OpenClaw Gateway at $baseUrl');
         return ProviderInfo(
           id: 'openclaw_discovered',
           type: ProviderType.openclaw,
           name: 'OpenClaw Gateway',
-          url: url.toString(),
+          url: baseUrl,
           isLocal: true,
           isAvailable: true,
           version: _extractVersion(response.body),
@@ -74,9 +73,7 @@ class ProviderDiscoveryService {
     final url = Uri.parse('http://$host:$port/v1/models');
 
     try {
-      final response = await http
-          .get(url)
-          .timeout(_scanTimeout);
+      final response = await http.get(url).timeout(_scanTimeout);
 
       if (response.statusCode == 200) {
         debugPrint('[ProviderDiscovery] Found LM Studio at $url');
@@ -95,43 +92,11 @@ class ProviderDiscoveryService {
     return null;
   }
 
-  /// Scan for Ollama on localhost:11434
-  Future<ProviderInfo?> _scanOllama() async {
-    const host = '127.0.0.1';
-    const port = 11434;
-    final url = Uri.parse('http://$host:$port/api/tags');
-
-    try {
-      final response = await http
-          .get(url)
-          .timeout(_scanTimeout);
-
-      if (response.statusCode == 200) {
-        debugPrint('[ProviderDiscovery] Found Ollama at $url');
-        return ProviderInfo(
-          id: 'ollama_discovered',
-          type: ProviderType.ollama,
-          name: 'Ollama',
-          url: url.toString(),
-          isLocal: true,
-          isAvailable: true,
-        );
-      }
-    } catch (e) {
-      debugPrint('[ProviderDiscovery] Ollama not available: $e');
-    }
-    return null;
-  }
-
   /// Test connectivity to a specific URL
   Future<ConnectionTestResult> testConnection(String url) async {
     try {
       final uri = Uri.parse(url);
-      final response = await http
-          .get(uri)
-          .timeout(const Duration(seconds: 5));
-
-      final latency = DateTime.now();
+      final response = await http.get(uri).timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         return ConnectionTestResult(
@@ -159,7 +124,8 @@ class ProviderDiscoveryService {
 
   /// Start periodic scanning for new providers
   Timer? _scanTimer;
-  void startPeriodicScanning({Duration interval = const Duration(seconds: 30)}) {
+  void startPeriodicScanning(
+      {Duration interval = const Duration(seconds: 30)}) {
     _scanTimer?.cancel();
     _scanTimer = Timer.periodic(interval, (_) {
       scanForProviders();
@@ -193,11 +159,13 @@ class ProviderDiscoveryService {
         final output = result.stdout.toString();
         return _parseTailscaleStatus(output);
       } else {
-        debugPrint('[ProviderDiscovery] Tailscale not available or not authenticated');
+        debugPrint(
+            '[ProviderDiscovery] Tailscale not available or not authenticated');
         return [];
       }
     } catch (e) {
-      debugPrint('[ProviderDiscovery] Failed to discover Tailscale devices: $e');
+      debugPrint(
+          '[ProviderDiscovery] Failed to discover Tailscale devices: $e');
       return [];
     }
   }
@@ -211,10 +179,21 @@ class ProviderDiscoveryService {
         final peers = data['Peer'] as Map;
         peers.forEach((key, peer) {
           if (peer is Map) {
+            final ips = _extractIPs(peer);
+
+            // Filter out localhost devices to prevent duplicates
+            // when the same machine is both localhost and on tailnet
+            if (ips.any((ip) =>
+                ip == '127.0.0.1' || ip == '::1' || ip == 'localhost')) {
+              debugPrint(
+                  '[ProviderDiscovery] Skipping localhost Tailscale device: ${peer['HostName']}');
+              return;
+            }
+
             final device = TailscaleDevice(
               name: peer['HostName']?.toString() ?? key.toString(),
               hostname: peer['DNSName']?.toString() ?? '',
-              ips: _extractIPs(peer),
+              ips: ips,
               isOnline: peer['Online'] == true,
             );
             devices.add(device);
@@ -222,7 +201,8 @@ class ProviderDiscoveryService {
         });
       }
 
-      debugPrint('[ProviderDiscovery] Found ${devices.length} Tailscale devices');
+      debugPrint(
+          '[ProviderDiscovery] Found ${devices.length} Tailscale devices');
       return devices;
     } catch (e) {
       debugPrint('[ProviderDiscovery] Failed to parse Tailscale status: $e');

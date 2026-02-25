@@ -107,6 +107,7 @@ class SettingsCategoryIds {
   static const String adminCenter = 'admin_center';
   static const String about = 'about';
   static const String agentStatus = 'agent_status';
+  static const String avatar = 'avatar';
 }
 
 /// Settings category visibility rules based on platform and user role
@@ -214,6 +215,8 @@ class SettingsCategoryMetadata {
         return 100; // Show at the bottom
       case SettingsCategoryIds.agentStatus:
         return 5; // Show near the top
+      case SettingsCategoryIds.avatar:
+        return 10; // Show after Agent Status
       default:
         return 999;
     }
@@ -246,6 +249,8 @@ class SettingsCategoryMetadata {
         return Icons.info_outline;
       case SettingsCategoryIds.agentStatus:
         return Icons.smart_toy;
+      case SettingsCategoryIds.avatar:
+        return Icons.psychology;
       default:
         return Icons.settings;
     }
@@ -278,6 +283,8 @@ class SettingsCategoryMetadata {
         return 'About';
       case SettingsCategoryIds.agentStatus:
         return 'Agent Status';
+      case SettingsCategoryIds.avatar:
+        return 'Avatar';
       default:
         return 'Settings';
     }
@@ -310,6 +317,8 @@ class SettingsCategoryMetadata {
         return 'Version information and system details';
       case SettingsCategoryIds.agentStatus:
         return 'View agent status and activity';
+      case SettingsCategoryIds.avatar:
+        return 'Customize your avatar personality and evolution';
       default:
         return '';
     }

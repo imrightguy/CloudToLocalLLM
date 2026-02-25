@@ -188,8 +188,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             agents.where((a) => a.state == AgentLifecycleState.running).length;
         final idleCount =
             agents.where((a) => a.state == AgentLifecycleState.idle).length;
-        const errorCount =
-            0; // agents.where((a) => a.state == AgentLifecycleState.error).length;
 
         return Card(
           child: Padding(
@@ -563,9 +561,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [

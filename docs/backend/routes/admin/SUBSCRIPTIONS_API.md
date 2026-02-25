@@ -41,7 +41,7 @@ The Subscription Management API provides secure administrative endpoints for man
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/subscriptions?page=1&limit=50&tier=premium&includeUpcoming=true" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/subscriptions?page=1&limit=50&tier=premium&includeUpcoming=true" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
@@ -122,7 +122,7 @@ curl -X GET "https://api.zoidbot.online/api/admin/subscriptions?page=1&limit=50&
 **Example Request:**
 
 ```bash
-curl -X GET "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000" \
+curl -X GET "https://api.cloudtolocalllm.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000" \
   -H "Authorization: Bearer <jwt_token>"
 ```
 
@@ -238,7 +238,7 @@ curl -X GET "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-41
 **Example Request:**
 
 ```bash
-curl -X PATCH "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000" \
+curl -X PATCH "https://api.cloudtolocalllm.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000" \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -341,7 +341,7 @@ curl -X PATCH "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-
 **Example Request (End of Period):**
 
 ```bash
-curl -X POST "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000/cancel" \
+curl -X POST "https://api.cloudtolocalllm.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000/cancel" \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -374,7 +374,7 @@ curl -X POST "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-4
 **Example Request (Immediate):**
 
 ```bash
-curl -X POST "https://api.zoidbot.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000/cancel" \
+curl -X POST "https://api.cloudtolocalllm.online/api/admin/subscriptions/550e8400-e29b-41d4-a716-446655440000/cancel" \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -506,4 +506,4 @@ For API support or questions:
 
 - Documentation: `/docs/API/`
 - Issues: GitHub Issues
-- Email: support@zoidbot.online
+- Email: support@cloudtolocalllm.online

@@ -1,14 +1,14 @@
 /**
- * Zoidbot SDK Client Tests
+ * CloudToLocalLLM SDK Client Tests
  * 
  * Tests for the main SDK client functionality
  */
 
-import { ZoidbotClient } from '../src/client';
+import { CloudToLocalLLMClient } from '../src/client';
 import { SDKConfig } from '../src/types';
 
-describe('ZoidbotClient', () => {
-  let client: ZoidbotClient;
+describe('CloudToLocalLLMClient', () => {
+  let client: CloudToLocalLLMClient;
   const mockConfig: SDKConfig = {
     baseURL: 'http://localhost:8080',
     apiVersion: 'v2',
@@ -16,19 +16,19 @@ describe('ZoidbotClient', () => {
   };
 
   beforeEach(() => {
-    client = new ZoidbotClient(mockConfig);
+    client = new CloudToLocalLLMClient(mockConfig);
   });
 
   describe('Initialization', () => {
     it('should create a client with default configuration', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
       });
       expect(testClient).toBeDefined();
     });
 
     it('should create a client with custom configuration', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
         apiVersion: 'v1',
         timeout: 10000,
@@ -64,14 +64,14 @@ describe('ZoidbotClient', () => {
 
   describe('Configuration', () => {
     it('should use default API version v2', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
       });
       expect(testClient).toBeDefined();
     });
 
     it('should support API version v1', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
         apiVersion: 'v1',
       });
@@ -79,14 +79,14 @@ describe('ZoidbotClient', () => {
     });
 
     it('should use default timeout of 30000ms', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
       });
       expect(testClient).toBeDefined();
     });
 
     it('should use custom timeout', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
         timeout: 60000,
       });
@@ -97,14 +97,14 @@ describe('ZoidbotClient', () => {
   describe('Error Handling', () => {
     it('should handle missing baseURL', () => {
       expect(() => {
-        new ZoidbotClient({
+        new CloudToLocalLLMClient({
           baseURL: '',
         });
       }).not.toThrow();
     });
 
     it('should handle invalid configuration gracefully', () => {
-      const testClient = new ZoidbotClient({
+      const testClient = new CloudToLocalLLMClient({
         baseURL: 'http://localhost:8080',
         timeout: -1, // Invalid timeout
       });

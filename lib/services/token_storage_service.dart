@@ -8,6 +8,8 @@ class TokenStorageService {
   static final _secureStorage = const FlutterSecureStorage();
   static encrypt.Encrypter? _encrypter;
   static encrypt.IV? _iv;
+  static bool _secureStorageAvailable = true;
+  static final Map<String, String> _memoryFallback = {};
   SessionStorageService? _sessionStorage;
 
   Future<void> init() async {
@@ -23,16 +25,26 @@ class TokenStorageService {
   }
 
   Future<void> _initEncryption() async {
-    String? keyStr = await _secureStorage.read(key: 'auth_encryption_key');
-    if (keyStr == null) {
-      final key = encrypt.Key.fromSecureRandom(32);
-      keyStr = key.base64;
-      await _secureStorage.write(key: 'auth_encryption_key', value: keyStr);
-    }
+    try {
+      String? keyStr = await _secureStorage.read(key: 'auth_encryption_key');
+      if (keyStr == null) {
+        final key = encrypt.Key.fromSecureRandom(32);
+        keyStr = key.base64;
+        await _secureStorage.write(key: 'auth_encryption_key', value: keyStr);
+      }
 
-    final key = encrypt.Key.fromBase64(keyStr);
-    _encrypter = encrypt.Encrypter(encrypt.AES(key));
-    _iv = encrypt.IV.fromLength(16); // Static IV for simplicity in this context
+      final key = encrypt.Key.fromBase64(keyStr);
+      _encrypter = encrypt.Encrypter(encrypt.AES(key));
+      _iv = encrypt.IV.fromLength(16); // Static IV for simplicity in this context
+      _secureStorageAvailable = true;
+    } catch (e) {
+      debugPrint('[TokenStorageService] Secure storage unavailable, using in-memory fallback: $e');
+      // Generate in-memory encryption key as fallback
+      final key = encrypt.Key.fromSecureRandom(32);
+      _encrypter = encrypt.Encrypter(encrypt.AES(key));
+      _iv = encrypt.IV.fromLength(16);
+      _secureStorageAvailable = false;
+    }
   }
 
   Future<void> saveToken(String key, String value) async {
@@ -54,11 +66,18 @@ class TokenStorageService {
 
     if (_encrypter == null) await init();
 
+    // Use memory fallback if secure storage unavailable
+    if (!_secureStorageAvailable) {
+      _memoryFallback['token_$key'] = value;
+      return;
+    }
+
     try {
       final encrypted = _encrypter!.encrypt(value, iv: _iv);
       await _secureStorage.write(key: 'token_$key', value: encrypted.base64);
     } catch (e) {
-      debugPrint('[TokenStorageService] Failed to write to secure storage: $e');
+      debugPrint('[TokenStorageService] Failed to write to secure storage, using memory fallback: $e');
+      _memoryFallback['token_$key'] = value;
     }
   }
 
@@ -73,6 +92,11 @@ class TokenStorageService {
 
     if (_encrypter == null) await init();
 
+    // Use memory fallback if secure storage unavailable
+    if (!_secureStorageAvailable) {
+      return _memoryFallback['token_$key'];
+    }
+
     try {
       final encryptedStr = await _secureStorage.read(key: 'token_$key');
       if (encryptedStr == null) return null;
@@ -80,7 +104,7 @@ class TokenStorageService {
       return _encrypter!.decrypt64(encryptedStr, iv: _iv);
     } catch (e) {
       debugPrint('[TokenStorageService] Decryption failed for key: $key - $e');
-      return null;
+      return _memoryFallback['token_$key'];
     }
   }
 

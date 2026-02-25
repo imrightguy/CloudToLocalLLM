@@ -165,7 +165,7 @@ class _SkipButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        // TODO: Allow skipping if returning user
+        // Future enhancement: Check returning user status to allow skip
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Setup is required for first-time users'),

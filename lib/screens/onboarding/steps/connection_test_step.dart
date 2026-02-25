@@ -25,8 +25,9 @@ class _ConnectionTestStepState extends State<ConnectionTestStep> {
   }
 
   Future<void> _runTest(SetupWizardService wizard) async {
-    final url = wizard.state.selectedProvider?.url ??
-        wizard.state.customUrl ??
+    // Prioritize customUrl over discovered provider URL
+    final url = wizard.state.customUrl ??
+        wizard.state.selectedProvider?.url ??
         'http://127.0.0.1:18789';
     await wizard.testConnection(url);
   }
@@ -114,7 +115,8 @@ class _ConnectionTestStepState extends State<ConnectionTestStep> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.red.shade700, size: 20),
+                  Icon(Icons.info_outline,
+                      color: Colors.red.shade700, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

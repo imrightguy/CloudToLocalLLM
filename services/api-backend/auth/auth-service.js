@@ -1,5 +1,5 @@
 /**
- * @fileoverview Authentication Service for Zoidbot Tunnel
+ * @fileoverview Authentication Service for CloudToLocalLLM Tunnel
  * Handles JWT JWT validation, session management, and role-based access control
  */
 
@@ -20,7 +20,7 @@ export class AuthService {
         process.env.AUTH0_JWKS_URI ||
         `https://${process.env.AUTH0_DOMAIN || 'dev-vivn1fcgzi0c2czy.us.auth0.com'}/.well-known/jwks.json`,
       AUTH0_AUDIENCE:
-        process.env.AUTH0_AUDIENCE || 'https://api.zoidbot.online',
+        process.env.AUTH0_AUDIENCE || 'https://api.cloudtolocalllm.online',
       SESSION_TIMEOUT: parseInt(process.env.SESSION_TIMEOUT) || 3600000, // 1 hour
       MAX_SESSIONS_PER_USER: parseInt(process.env.MAX_SESSIONS_PER_USER) || 5,
       ...config,

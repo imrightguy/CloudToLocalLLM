@@ -197,7 +197,7 @@ app.use('/api/tunnel', createUserContextMiddleware(jwtMiddleware, contextManager
 ```bash
 # Required
 SUPABASE_AUTH_DOMAIN=your-tenant.auth0.com
-SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.com
+SUPABASE_AUTH_AUDIENCE=https://api.CloudToLocalLLM.com
 
 # Optional
 SUPABASE_AUTH_ISSUER=https://your-tenant.auth0.com/

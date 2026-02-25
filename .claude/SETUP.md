@@ -52,12 +52,12 @@ sudo usermod -aG docker $USER  # Add user to docker group
 
 Add to your `~/.bashrc`:
 ```bash
-source /mnt/data/dev/Zoidbot/claude_code_dev_env.sh
+source /mnt/data/dev/CloudToLocalLLM/claude_code_dev_env.sh
 ```
 
 Or create a symlink:
 ```bash
-ln -s /mnt/data/dev/Zoidbot/claude_code_dev_env.sh ~/.claude_code_env.sh
+ln -s /mnt/data/dev/CloudToLocalLLM/claude_code_dev_env.sh ~/.claude_code_env.sh
 echo 'source ~/.claude_code_env.sh' >> ~/.bashrc
 ```
 
@@ -186,10 +186,10 @@ sudo usermod -aG docker $USER
 # Verify file is sourced
 echo $CLOUD_TO_LOCAL_LLM_ROOT
 
-# Should output: /mnt/data/dev/Zoidbot
+# Should output: /mnt/data/dev/CloudToLocalLLM
 
 # If empty, manually source
-source /mnt/data/dev/Zoidbot/claude_code_dev_env.sh
+source /mnt/data/dev/CloudToLocalLLM/claude_code_dev_env.sh
 ```
 
 ## Development Workflow

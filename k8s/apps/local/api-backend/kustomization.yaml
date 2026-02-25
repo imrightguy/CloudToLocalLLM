@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ./shared/base/api-backend
 images:
-  - name: ghcr.io/zoidbot-online/zoidbot/api
+  - name: ghcr.io/cloudtolocalllm-online/CloudToLocalLLM/api
     newTag: main-1ebf1f7843b7278fc86964ccca37b9268a244160-api-backend
 patches:
   - patch: |-
@@ -11,7 +11,7 @@ patches:
       kind: Deployment
       metadata:
         name: api-backend
-        namespace: zoidbot
+        namespace: CloudToLocalLLM
       spec:
         template:
           spec:
@@ -33,7 +33,7 @@ patches:
       kind: Deployment
       metadata:
         name: api-backend
-        namespace: zoidbot
+        namespace: CloudToLocalLLM
       spec:
         replicas: 1
         template:

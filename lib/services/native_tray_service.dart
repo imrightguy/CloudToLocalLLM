@@ -128,9 +128,15 @@ class NativeTrayService with TrayListener {
 
   /// Get tray icon path based on connection status
   String _getTrayIconPath(TrayConnectionStatus status) {
-    // For now, use the existing app icon for all status
-    // TODO: Create status-specific tray icons (connected/disconnected/connecting)
-    return 'assets/images/app_icon.png';
+    switch (status) {
+      case TrayConnectionStatus.allConnected:
+        return 'assets/images/tray_connected.png';
+      case TrayConnectionStatus.partiallyConnected:
+      case TrayConnectionStatus.connecting:
+        return 'assets/images/tray_connecting.png';
+      case TrayConnectionStatus.disconnected:
+        return 'assets/images/tray_disconnected.png';
+    }
   }
 
   /// Update tray menu based on current status

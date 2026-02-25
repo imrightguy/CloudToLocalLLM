@@ -2,7 +2,7 @@
 
 ## Overview
 
-Zoidbot implements tier-based rate limiting to ensure fair resource allocation and protect the service from abuse. Each tier has different rate limits tailored to different use cases.
+CloudToLocalLLM implements tier-based rate limiting to ensure fair resource allocation and protect the service from abuse. Each tier has different rate limits tailored to different use cases.
 
 **Requirement:** 12.7 - THE API SHALL implement API rate limit documentation
 
@@ -61,7 +61,7 @@ curl -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"tier": "premium"}' \
-  https://api.zoidbot.online/v2/users/me/tier/upgrade
+  https://api.cloudtolocalllm.online/v2/users/me/tier/upgrade
 ```
 
 ## Premium Tier
@@ -134,8 +134,8 @@ Premium users get exemption for health check endpoints:
 
 ```bash
 # These don't count against rate limit for Premium users
-curl https://api.zoidbot.online/health
-curl https://api.zoidbot.online/v2/health
+curl https://api.cloudtolocalllm.online/health
+curl https://api.cloudtolocalllm.online/v2/health
 ```
 
 ### Upgrade Triggers
@@ -214,10 +214,10 @@ Enterprise users get exemption for admin endpoints:
 ```bash
 # These don't count against rate limit for Enterprise users
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/admin/users
+  https://api.cloudtolocalllm.online/v2/admin/users
 
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/admin/subscriptions
+  https://api.cloudtolocalllm.online/v2/admin/subscriptions
 ```
 
 ## Service-to-Service Communication
@@ -235,7 +235,7 @@ Service-to-service communication using API keys has higher limits:
 
 ```bash
 curl -H "X-API-Key: $API_KEY" \
-  https://api.zoidbot.online/v2/tunnels
+  https://api.cloudtolocalllm.online/v2/tunnels
 ```
 
 ### When to Use
@@ -252,7 +252,7 @@ curl -H "X-API-Key: $API_KEY" \
 ```bash
 # Check your current usage
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/summary
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/summary
 ```
 
 ### Premium Tier Monitoring
@@ -260,7 +260,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```bash
 # Same endpoint, but with higher limits
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/summary
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/summary
 ```
 
 ### Enterprise Tier Monitoring
@@ -268,19 +268,19 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```bash
 # Same endpoint, plus access to admin metrics
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/summary
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/summary
 
 # Admin: View top violators
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/top-violators
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/top-violators
 
 # Admin: View top violating IPs
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/top-ips
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/top-ips
 
 # Admin: View dashboard data
 curl -H "Authorization: Bearer $TOKEN" \
-  https://api.zoidbot.online/v2/rate-limit-metrics/dashboard-data
+  https://api.cloudtolocalllm.online/v2/rate-limit-metrics/dashboard-data
 ```
 
 ## Tier Comparison Table
@@ -398,7 +398,7 @@ async function enterpriseUserStrategy() {
 
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
-     https://api.zoidbot.online/v2/users/me
+     https://api.cloudtolocalllm.online/v2/users/me
    ```
 
 2. Upgrade to desired tier:
@@ -408,14 +408,14 @@ async function enterpriseUserStrategy() {
      -H "Authorization: Bearer $TOKEN" \
      -H "Content-Type: application/json" \
      -d '{"tier": "premium"}' \
-     https://api.zoidbot.online/v2/users/me/tier/upgrade
+     https://api.cloudtolocalllm.online/v2/users/me/tier/upgrade
    ```
 
 3. Verify upgrade:
 
    ```bash
    curl -H "Authorization: Bearer $TOKEN" \
-     https://api.zoidbot.online/v2/users/me
+     https://api.cloudtolocalllm.online/v2/users/me
    ```
 
 ### Effective Immediately

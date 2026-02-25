@@ -105,7 +105,7 @@ class TunnelHttpClient {
         method: options.method || 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'Zoidbot-Container/1.0',
+          'User-Agent': 'CloudToLocalLLM-Container/1.0',
           ...options.headers,
         },
         timeout: 30000,

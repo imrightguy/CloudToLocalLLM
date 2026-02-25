@@ -2,7 +2,7 @@
 
 ## Issue Description
 
-The system tray icon in Zoidbot was not responding to right-click events on Windows, preventing users from accessing the context menu with options like "Show", "Hide", "Settings", and "Quit".
+The system tray icon in CloudToLocalLLM was not responding to right-click events on Windows, preventing users from accessing the context menu with options like "Show", "Hide", "Settings", and "Quit".
 
 ## Root Cause
 
@@ -83,8 +83,8 @@ flutter test test/services/native_tray_service_test.dart
    - Minimize the application to system tray
    - Right-click on the tray icon
    - Verify that the context menu appears with all expected options:
-     - Show Zoidbot
-     - Hide Zoidbot
+     - Show CloudToLocalLLM
+     - Hide CloudToLocalLLM
      - Local Ollama: [status]
      - Cloud Proxy: [status]
      - Settings

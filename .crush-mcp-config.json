@@ -1,96 +1,34 @@
 {
   "mcpServers": {
     "sequentialthinking": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-sequential-thinking",
+      "args": [],
       "description": "Multi-step problem-solving and planning tool for complex implementations"
     },
     "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-memory",
+      "args": [],
       "description": "Persistent knowledge store with graph-based memory for project decisions, architectural notes, and ongoing work"
     },
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/mnt/data/dev/CloudToLocalLLM"
-      ],
-      "description": "Structured file system operations for reading, writing, and searching files in the project directory"
-    },
-    "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      },
-      "description": "GitHub API operations for PRs, issues, workflows, and releases"
-    },
-    "postgres": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://appuser:changeme@localhost:5432/zoidbot"
-      ],
-      "description": "PostgreSQL database operations for migrations, queries, and schema management",
-      "env": {
-        "POSTGRES_HOST": "localhost",
-        "POSTGRES_PORT": "5432",
-        "POSTGRES_DB": "zoidbot",
-        "POSTGRES_USER": "${POSTGRES_USER:-appuser}",
-        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD:-changeme}"
-      }
-    },
     "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/context7-mcp",
+      "args": [],
       "description": "Library documentation and knowledge base retrieval for Flutter, Node.js, Auth0, and other technologies"
     },
     "pdf": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-pdf"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-pdf-server",
+      "args": [],
       "description": "PDF document processing for extracting text and analyzing documentation"
     },
     "puppeteer": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-puppeteer"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-puppeteer",
+      "args": [],
       "description": "Browser automation for end-to-end testing, web scraping, and UI testing"
     },
     "local-knowledge-graph": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@itseasy21/mcp-knowledge-graph"
-      ],
+      "command": "/home/rightguy/.npm-global/bin/mcp-knowledge-graph",
+      "args": [],
       "description": "Local knowledge graph for persistent memory across sessions"
-    },
-    "personal-kg": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@tomschell/personal-kg-mcp"
-      ],
-      "description": "Personal Knowledge Graph for maintaining development decisions, progress, insights, and questions"
     }
   }
 }

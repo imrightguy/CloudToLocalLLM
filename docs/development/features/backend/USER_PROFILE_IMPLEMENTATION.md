@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document summarizes the implementation of user profile endpoints for the Zoidbot API backend. These endpoints enable users to manage their profiles, preferences, and avatars.
+This document summarizes the implementation of user profile endpoints for the CloudToLocalLLM API backend. These endpoints enable users to manage their profiles, preferences, and avatars.
 
 ## Implemented Features
 

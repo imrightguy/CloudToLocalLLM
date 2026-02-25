@@ -2,7 +2,7 @@
 
 ## Overview
 
-Centralized PostgreSQL connection pool with health monitoring for the Zoidbot Admin Center backend.
+Centralized PostgreSQL connection pool with health monitoring for the CloudToLocalLLM Admin Center backend.
 
 ## Usage
 
@@ -41,7 +41,7 @@ const result = await pool.query('SELECT * FROM users');
 # Database Connection
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=zoidbot
+DB_NAME=CloudToLocalLLM
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 DB_SSL=false

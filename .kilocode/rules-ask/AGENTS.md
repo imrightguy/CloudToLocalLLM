@@ -4,7 +4,7 @@ This file provides guidance for answering questions about this codebase.
 
 ## Project Context
 
-- **Project Name**: CloudToLocalLLM (codename: Zoidbot)
+- **Project Name**: CloudToLocalLLM (codename: CloudToLocalLLM)
 - **Vision**: OpenClaw Agent Manager with evolving avatar, desktop control, and vision
 
 > See [SPEC.md](../../SPEC.md) for the complete specification.

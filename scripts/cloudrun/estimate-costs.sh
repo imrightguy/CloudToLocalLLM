@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Zoidbot - Google Cloud Run Cost Estimation Script
-# This script helps estimate monthly costs for running Zoidbot on Google Cloud Run
+# CloudToLocalLLM - Google Cloud Run Cost Estimation Script
+# This script helps estimate monthly costs for running CloudToLocalLLM on Google Cloud Run
 #
 # Usage: ./estimate-costs.sh [OPTIONS]
 
@@ -78,7 +78,7 @@ log_header() {
 # Help function
 show_help() {
     cat << EOF
-Zoidbot - Google Cloud Run Cost Estimation Script
+CloudToLocalLLM - Google Cloud Run Cost Estimation Script
 
 USAGE:
     $0 [OPTIONS]
@@ -206,7 +206,7 @@ calculate_service_cost() {
 
 # Calculate total costs
 calculate_total_costs() {
-    log_header "=== Zoidbot - Google Cloud Run Cost Estimation ==="
+    log_header "=== CloudToLocalLLM - Google Cloud Run Cost Estimation ==="
     echo
     
     log_info "Estimation Parameters:"

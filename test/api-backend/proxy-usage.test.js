@@ -29,7 +29,7 @@ describe('Proxy Usage Tracking', () => {
   beforeAll(async () => {
     // Initialize database connection
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://localhost/zoidbot_test',
+      connectionString: process.env.DATABASE_URL || 'postgresql://localhost/cloudtolocalllm_test',
     });
 
     proxyUsageService = new ProxyUsageService();

@@ -14,7 +14,7 @@ export const logAggregationConfig = {
     enabled: process.env.LOKI_ENABLED === 'true',
     url: process.env.LOKI_URL || 'http://localhost:3100',
     labels: {
-      service: 'zoidbot-api',
+      service: 'cloudtolocalllm-api',
       environment: process.env.NODE_ENV || 'development',
       version: process.env.npm_package_version || '1.0.0',
     },
@@ -26,8 +26,8 @@ export const logAggregationConfig = {
   elk: {
     enabled: process.env.ELK_ENABLED === 'true',
     hosts: (process.env.ELK_HOSTS || 'localhost:9200').split(','),
-    index: process.env.ELK_INDEX || 'zoidbot-api',
-    indexPattern: process.env.ELK_INDEX_PATTERN || 'zoidbot-api-%DATE%',
+    index: process.env.ELK_INDEX || 'cloudtolocalllm-api',
+    indexPattern: process.env.ELK_INDEX_PATTERN || 'cloudtolocalllm-api-%DATE%',
     batchSize: parseInt(process.env.ELK_BATCH_SIZE || '100', 10),
     batchTimeout: parseInt(process.env.ELK_BATCH_TIMEOUT || '5000', 10),
   },

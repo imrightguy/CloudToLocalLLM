@@ -448,8 +448,8 @@ class AgentLifecycleService extends ChangeNotifier {
     debugPrint(
         '[AgentLifecycle] ⚠ WebSocket access not yet implemented - need to integrate with ConnectionManager');
 
-    // TODO: Integrate with ConnectionManagerService's WebSocket
-    // For now, this will require ConnectionManager to either:
+    // Future enhancement: Use ConnectionManagerService's WebSocket for agent commands.
+    // This will require ConnectionManager to either:
     // 1. Expose the WebSocket channel
     // 2. Provide a sendCommand method
     // 3. Handle agent commands internally

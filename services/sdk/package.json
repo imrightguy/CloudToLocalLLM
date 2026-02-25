@@ -1,7 +1,7 @@
 {
-  "name": "@zoidbot/sdk",
+  "name": "@CloudToLocalLLM/sdk",
   "version": "2.0.0",
-  "description": "Official JavaScript/TypeScript SDK for Zoidbot API",
+  "description": "Official JavaScript/TypeScript SDK for CloudToLocalLLM API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -29,13 +29,13 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "zoidbot",
+    "CloudToLocalLLM",
     "sdk",
     "api",
     "typescript",
     "javascript"
   ],
-  "author": "Zoidbot Team",
+  "author": "CloudToLocalLLM Team",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.0",
@@ -57,10 +57,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Zoidbot/zoidbot.git"
+    "url": "https://github.com/CloudToLocalLLM/CloudToLocalLLM.git"
   },
   "bugs": {
-    "url": "https://github.com/Zoidbot/zoidbot/issues"
+    "url": "https://github.com/CloudToLocalLLM/CloudToLocalLLM/issues"
   },
-  "homepage": "https://zoidbot.online"
+  "homepage": "https://cloudtolocalllm.online"
 }

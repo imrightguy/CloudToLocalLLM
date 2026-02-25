@@ -1,6 +1,6 @@
 # Settings Screens
 
-This directory contains the settings-related screens for Zoidbot.
+This directory contains the settings-related screens for CloudToLocalLLM.
 
 ## Structure
 

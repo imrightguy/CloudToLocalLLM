@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_setup_status.dart';
 import '../services/auth_service.dart';
 import '../services/desktop_client_detection_service.dart';
@@ -28,18 +29,46 @@ class InMemorySetupStatusStorage implements SetupStatusStorage {
 
 /// Secure storage implementation for production
 class SecureSetupStatusStorage implements SetupStatusStorage {
-  // Note: This would use flutter_secure_storage in a real implementation
-  // For now, we'll use in-memory storage to avoid dependency issues
-  final Map<String, String> _storage = {};
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   @override
-  Future<String?> read(String key) async => _storage[key];
+  Future<String?> read(String key) async {
+    try {
+      return await _secureStorage.read(key: key);
+    } catch (e) {
+      debugPrint('[SecureSetupStatusStorage] Error reading key $key: $e');
+      return null;
+    }
+  }
 
   @override
-  Future<void> write(String key, String value) async => _storage[key] = value;
+  Future<void> write(String key, String value) async {
+    try {
+      await _secureStorage.write(key: key, value: value);
+    } catch (e) {
+      debugPrint('[SecureSetupStatusStorage] Error writing key $key: $e');
+    }
+  }
 
   @override
-  Future<void> delete(String key) async => _storage.remove(key);
+  Future<void> delete(String key) async {
+    try {
+      await _secureStorage.delete(key: key);
+    } catch (e) {
+      debugPrint('[SecureSetupStatusStorage] Error deleting key $key: $e');
+    }
+  }
+
+  /// Clear all setup data (for testing/reset)
+  Future<void> clearAll() async {
+    try {
+      await _secureStorage.delete(key: 'cloudtolocalllm_setup_status');
+      await _secureStorage.delete(key: 'cloudtolocalllm_setup_progress');
+      debugPrint('[SecureSetupStatusStorage] Cleared all setup data');
+    } catch (e) {
+      debugPrint('[SecureSetupStatusStorage] Error clearing data: $e');
+    }
+  }
 }
 
 /// Service for tracking user setup completion status and progress
@@ -50,8 +79,8 @@ class SecureSetupStatusStorage implements SetupStatusStorage {
 /// - Setup progress persistence and recovery
 /// - Integration with authentication and client detection services
 class SetupStatusService extends ChangeNotifier {
-  static const String _setupStatusKey = 'zoidbot_setup_status';
-  static const String _setupProgressKey = 'zoidbot_setup_progress';
+  static const String _setupStatusKey = 'cloudtolocalllm_setup_status';
+  static const String _setupProgressKey = 'cloudtolocalllm_setup_progress';
 
   final SetupStatusStorage _storage;
   final AuthService _authService;
@@ -171,6 +200,23 @@ class SetupStatusService extends ChangeNotifier {
     } catch (e) {
       debugPrint(' [SetupStatus] Error checking desktop connection: $e');
       return false;
+    }
+  }
+
+  /// Clear all setup data (for testing/reset)
+  Future<void> clearAllSetupData() async {
+    try {
+      final secureStorage = _storage;
+      if (secureStorage is SecureSetupStatusStorage) {
+        await secureStorage.clearAll();
+      }
+      _currentStatus = null;
+      _setupProgress.clear();
+      _isInitialized = false;
+      debugPrint(' [SetupStatus] Cleared all setup data');
+      notifyListeners();
+    } catch (e) {
+      debugPrint(' [SetupStatus] Error clearing setup data: $e');
     }
   }
 

@@ -1,7 +1,7 @@
 # Voice Interface Quick Reference
 
 ## Overview
-Voice interface for Zoidbot: Speech-to-Text (STT) and Text-to-Speech (TTS) integration.
+Voice interface for CloudToLocalLLM: Speech-to-Text (STT) and Text-to-Speech (TTS) integration.
 
 ## Installation
 

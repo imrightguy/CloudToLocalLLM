@@ -1,6 +1,6 @@
-# Zoidbot Installation Guide
+# CloudToLocalLLM Installation Guide
 
-This directory contains platform-specific installation guides for Zoidbot.
+This directory contains platform-specific installation guides for CloudToLocalLLM.
 
 ## 📋 Quick Navigation
 
@@ -22,7 +22,7 @@ This directory contains platform-specific installation guides for Zoidbot.
 
 ### 🐧 **Linux Users**
 
-Zoidbot supports multiple Linux installation methods:
+CloudToLocalLLM supports multiple Linux installation methods:
 
 - **DEB Package** (Ubuntu/Debian) - Recommended for most users
 - **AppImage** - Universal Linux package, works everywhere
@@ -54,11 +54,11 @@ macOS support is coming soon!
 
 ## 📋 Prerequisites
 
-Before installing Zoidbot, you'll need:
+Before installing CloudToLocalLLM, you'll need:
 
 ### 🧠 **Ollama (Required)**
 
-Zoidbot requires Ollama to run local AI models:
+CloudToLocalLLM requires Ollama to run local AI models:
 
 1. **Install Ollama**: Visit [ollama.ai](https://ollama.ai/) and follow installation instructions
 2. **Download a model**: `ollama pull llama3.2` (or your preferred model)
@@ -80,20 +80,20 @@ Zoidbot requires Ollama to run local AI models:
 - Install Ollama and download AI models
 - Ensure system meets requirements
 
-### 2. **Install Zoidbot**
+### 2. **Install CloudToLocalLLM**
 
 - Choose your platform-specific installation method
 - Follow the detailed guide for your operating system
 
 ### 3. **First Time Setup**
 
-- Launch Zoidbot (appears in system tray)
+- Launch CloudToLocalLLM (appears in system tray)
 - Complete the setup wizard
 - Connect to your local Ollama instance
 
 ### 4. **Access Web Interface**
 
-- Visit [app.zoidbot.online](https://app.zoidbot.online)
+- Visit [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
 - Sign in with your account
 - Start chatting with your local AI models!
 
@@ -115,18 +115,18 @@ Zoidbot requires Ollama to run local AI models:
 ### 📚 **Documentation**
 
 - **** - Common installation issues
-- **[User Guide](../USER_DOCUMENTATION/USER_GUIDE.md)** - How to use Zoidbot
+- **[User Guide](../USER_DOCUMENTATION/USER_GUIDE.md)** - How to use CloudToLocalLLM
 - **[FAQ](../USER_DOCUMENTATION/SETUP_TROUBLESHOOTING_FAQ.md)** - Frequently asked questions
 
 ### 💬 **Support**
 
-- **[GitHub Issues](https://github.com/Zoidbot-online/Zoidbot/issues)** - Report bugs or ask questions
-- **[Discussions](https://github.com/Zoidbot-online/Zoidbot/discussions)** - Community support
+- **[GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)** - Report bugs or ask questions
+- **[Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)** - Community support
 - **[User Troubleshooting](../USER_DOCUMENTATION/USER_TROUBLESHOOTING_GUIDE.md)** - Self-help guide
 
 ---
 
-## 🔄 Updating Zoidbot
+## 🔄 Updating CloudToLocalLLM
 
 ### **Automatic Updates**
 
@@ -135,7 +135,7 @@ Zoidbot requires Ollama to run local AI models:
 
 ### **Manual Updates**
 
-- Download latest version from [releases](https://github.com/Zoidbot-online/Zoidbot/releases)
+- Download latest version from [releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
 - Follow the same installation process
 - Your settings and data will be preserved
 
@@ -147,10 +147,10 @@ Zoidbot requires Ollama to run local AI models:
 
 ```bash
 # Ubuntu/Debian
-sudo apt remove zoidbot
+sudo apt remove CloudToLocalLLM
 
 # Arch Linux (when available)
-sudo pacman -R zoidbot
+sudo pacman -R CloudToLocalLLM
 ```
 
 ### **Windows**
@@ -165,4 +165,4 @@ sudo pacman -R zoidbot
 
 ---
 
-*Choose your platform above to get started with Zoidbot!*
+*Choose your platform above to get started with CloudToLocalLLM!*

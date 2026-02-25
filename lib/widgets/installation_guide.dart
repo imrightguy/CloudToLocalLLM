@@ -515,7 +515,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
             const SizedBox(height: 8),
             Text(
               _installationValidated
-                  ? 'Your Zoidbot installation has been validated and is ready to use.'
+                  ? 'Your CloudToLocalLLM installation has been validated and is ready to use.'
                   : 'Click "Validate Installation" to verify your installation is working correctly.',
             ),
             if (_validationError != null) ...[
@@ -652,7 +652,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
   }
 
   void _openDocumentation() async {
-    const documentationUrl = 'https://docs.zoidbot.online/installation';
+    const documentationUrl = 'https://docs.cloudtolocalllm.online/installation';
     try {
       final uri = Uri.parse(documentationUrl);
       if (await canLaunchUrl(uri)) {
@@ -662,7 +662,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'Could not open documentation. Please visit docs.zoidbot.online',
+                'Could not open documentation. Please visit docs.cloudtolocalllm.online',
               ),
               duration: Duration(seconds: 3),
             ),
@@ -846,7 +846,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
   /// Open troubleshooting guide
   void _openTroubleshootingGuide() async {
     const troubleshootingUrl =
-        'https://docs.zoidbot.online/troubleshooting/installation';
+        'https://docs.cloudtolocalllm.online/troubleshooting/installation';
     try {
       final uri = Uri.parse(troubleshootingUrl);
       if (await canLaunchUrl(uri)) {
@@ -856,7 +856,7 @@ class _InstallationGuideState extends State<InstallationGuide> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'Could not open troubleshooting guide. Please visit docs.zoidbot.online',
+                'Could not open troubleshooting guide. Please visit docs.cloudtolocalllm.online',
               ),
               duration: Duration(seconds: 3),
             ),

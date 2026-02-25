@@ -44,7 +44,8 @@ class TestAppWrapper extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: theme),
         if (platformService != null)
-          ChangeNotifierProvider<PlatformDetectionService>.value(value: platformService!),
+          ChangeNotifierProvider<PlatformDetectionService>.value(
+              value: platformService!),
         if (platformAdapter != null)
           Provider<PlatformAdapter>.value(value: platformAdapter!),
         if (authService != null)

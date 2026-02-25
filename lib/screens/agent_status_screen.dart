@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../services/agent_status_service.dart';
 import '../../components/agent_status_widget.dart';
 import '../../components/app_logo.dart';
+import 'package:get_it/get_it.dart';
 
 /// Screen for monitoring OpenClaw agent status in real-time
 class AgentStatusScreen extends StatefulWidget {
@@ -13,18 +14,24 @@ class AgentStatusScreen extends StatefulWidget {
 }
 
 class _AgentStatusScreenState extends State<AgentStatusScreen> {
-  late final AgentStatusService _statusService;
+  AgentStatusService? _statusService;
 
   @override
   void initState() {
     super.initState();
-    _statusService = AgentStatusService();
-    _statusService.startPolling();
+    // Use singleton from service locator if available
+    try {
+      _statusService = GetIt.instance.get<AgentStatusService>();
+      _statusService!.startPolling();
+    } catch (e) {
+      debugPrint('[AgentStatusScreen] AgentStatusService not available: $e');
+    }
   }
 
   @override
   void dispose() {
-    _statusService.dispose();
+    // Don't dispose the singleton - just stop polling
+    _statusService?.stopPolling();
     super.dispose();
   }
 
@@ -82,7 +89,7 @@ class _AgentStatusScreenState extends State<AgentStatusScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Zoidbot Agent Monitor',
+                    'CloudToLocalLLM Agent Monitor',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

@@ -227,7 +227,7 @@ Created comprehensive documentation:
 # Set environment variables
 export PGHOST=localhost
 export PGPORT=5432
-export PGDATABASE=zoidbot
+export PGDATABASE=CloudToLocalLLM
 export PGUSER=postgres
 export PGPASSWORD=yourpassword
 ```

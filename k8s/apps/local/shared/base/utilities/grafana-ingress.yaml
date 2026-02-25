@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: grafana
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-staging-dns
     nginx.ingress.kubernetes.io/auth-type: basic
@@ -12,10 +12,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - grafana.zoidbot.online
+        - grafana.cloudtolocalllm.online
       secretName: grafana-tls
   rules:
-    - host: grafana.zoidbot.online
+    - host: grafana.cloudtolocalllm.online
       http:
         paths:
           - path: /

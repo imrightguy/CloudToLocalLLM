@@ -4,6 +4,8 @@ import 'dart:io' show Platform, Directory;
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 
+import 'package:cloudtolocalllm/config/app_config.dart';
+
 import 'package:cloudtolocalllm/services/admin_data_flush_service.dart';
 import 'package:cloudtolocalllm/services/admin_service.dart';
 import 'package:cloudtolocalllm/services/app_initialization_service.dart';
@@ -51,11 +53,14 @@ import 'package:cloudtolocalllm/services/providers/moonshot_adapter.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 import 'package:cloudtolocalllm/services/agent_status_service.dart';
 import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
+import 'package:cloudtolocalllm/services/desktop_control/clipboard_service.dart';
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
 import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
+import 'package:cloudtolocalllm/services/avatar/avatar_state_service.dart';
+import 'package:cloudtolocalllm/services/avatar/markdown_sync_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -125,16 +130,34 @@ Future<void> setupCoreServices() async {
   serviceLocator.registerSingleton<LocalBrain>(localBrain);
 
   // Avatar Personality Engine - Manages avatar personality traits and evolution
-  final markdownPath = _getOpenClawSkillsPath();
   final personalityEngine = PersonalityEngine(
     database: localBrain,
-    markdownPath: markdownPath,
   );
-  serviceLocator.registerLazySingleton<PersonalityEngine>(() => personalityEngine);
+  serviceLocator
+      .registerLazySingleton<PersonalityEngine>(() => personalityEngine);
 
   // Avatar Evolution Tracker - Tracks conversation depth and evolution patterns
   final evolutionTracker = EvolutionTracker(database: localBrain);
-  serviceLocator.registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
+  serviceLocator
+      .registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
+
+  // Markdown Sync Service - Backup avatar data to markdown files
+  final markdownSyncService = MarkdownSyncService(
+    database: localBrain,
+    markdownPath: _getOpenClawSkillsPath(),
+  );
+  serviceLocator
+      .registerLazySingleton<MarkdownSyncService>(() => markdownSyncService);
+
+  // Avatar State Service - Centralized avatar state management
+  final avatarStateService = AvatarStateService(
+    database: localBrain,
+    personalityEngine: personalityEngine,
+    evolutionTracker: evolutionTracker,
+    markdownSyncService: markdownSyncService,
+  );
+  serviceLocator
+      .registerLazySingleton<AvatarStateService>(() => avatarStateService);
 
   // Brain Sync Service - Synchronizes local thoughts with cloud backbone
   final brainSyncService = BrainSyncService(localBrain);
@@ -159,6 +182,8 @@ Future<void> setupCoreServices() async {
       'moonshot':
           MoonshotAdapter(apiKey: const String.fromEnvironment('KIMI_API_KEY')),
     },
+    personalityEngine: personalityEngine,
+    evolutionTracker: evolutionTracker,
   );
   serviceLocator.registerSingleton<RouterServer>(routerServer);
 
@@ -474,11 +499,16 @@ Future<void> setupAuthenticatedServices() async {
     // LangChain Prompt Service is already initialized in constructor
 
     // Initialize Provider Discovery Service and auto-configure discovered providers
-    debugPrint('[ServiceLocator] Initializing ProviderDiscoveryService...');
-    await _initializeProviderDiscoveryAndAutoConfig(
-      providerDiscoveryService,
-      serviceLocator.get<ProviderConfigurationManager>(),
-    );
+    // Skip if forcing setup wizard for testing
+    if (!AppConfig.forceSetupWizard) {
+      debugPrint('[ServiceLocator] Initializing ProviderDiscoveryService...');
+      await _initializeProviderDiscoveryAndAutoConfig(
+        providerDiscoveryService,
+        serviceLocator.get<ProviderConfigurationManager>(),
+      );
+    } else {
+      debugPrint('[ServiceLocator] Skipping provider discovery (force setup wizard mode)');
+    }
 
     // Tunnel configuration manager - requires SharedPreferences
     debugPrint('[ServiceLocator] Initializing TunnelConfigManager...');
@@ -534,7 +564,8 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<LLMProviderManager>(llmProviderManager);
 
     // Connection Manager - requires authentication for tunnel/cloud connections
-    final settingsPreferenceService = serviceLocator<SettingsPreferenceService>();
+    final settingsPreferenceService =
+        serviceLocator<SettingsPreferenceService>();
     final connectionManager = ConnectionManagerService(
       tunnelService: tunnelService,
       authService: authService,
@@ -595,10 +626,13 @@ Future<void> setupAuthenticatedServices() async {
       unifiedConnectionService,
     );
 
-    // Agent Status Service - monitors OpenClaw Gateway agent status
+    // Agent Status Service - monitors OpenClaw Gateway agent status via WebSocket
     debugPrint('[ServiceLocator] Initializing AgentStatusService...');
     final localBrain = serviceLocator.get<LocalBrain>();
-    final agentStatusService = AgentStatusService(db: localBrain);
+    final agentStatusService = AgentStatusService(
+      connectionManager: connectionManager,
+      db: localBrain,
+    );
     serviceLocator.registerSingleton<AgentStatusService>(agentStatusService);
 
     // Agent Lifecycle Service - manages agent start/stop/restart operations
@@ -608,6 +642,17 @@ Future<void> setupAuthenticatedServices() async {
     );
     serviceLocator
         .registerSingleton<AgentLifecycleService>(agentLifecycleService);
+
+    // Clipboard Service - Desktop clipboard operations and history
+    debugPrint('[ServiceLocator] Initializing ClipboardService...');
+    final clipboardService = ClipboardService();
+    try {
+      await clipboardService.initialize(localBrain);
+    } catch (e) {
+      debugPrint(
+          '[ServiceLocator] Warning: ClipboardService initialization failed: $e');
+    }
+    serviceLocator.registerSingleton<ClipboardService>(clipboardService);
 
     // Admin services - require authentication and admin privileges
     final adminService = AdminService(authService: authService);

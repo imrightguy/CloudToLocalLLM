@@ -12,15 +12,15 @@ spec:
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: stripe-live-secret-key
             - name: STRIPE_PUBLISHABLE_KEY
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: stripe-live-publishable-key
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: zoidbot-secrets
+                  name: CloudToLocalLLM-secrets
                   key: stripe-live-webhook-secret

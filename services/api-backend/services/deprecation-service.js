@@ -63,14 +63,14 @@ export const MIGRATION_GUIDES = {
   MIGRATION_V1_TO_V2: {
     title: 'Migrating from API v1 to v2',
     description:
-      'Complete guide for migrating from Zoidbot API v1 to v2',
+      'Complete guide for migrating from CloudToLocalLLM API v1 to v2',
     steps: [
       {
         step: 1,
         title: 'Update Base URL',
         description: 'Change your API base URL from /v1 to /v2',
-        before: 'https://api.zoidbot.online/v1/users',
-        after: 'https://api.zoidbot.online/v2/users',
+        before: 'https://api.cloudtolocalllm.online/v1/users',
+        after: 'https://api.cloudtolocalllm.online/v2/users',
       },
       {
         step: 2,
@@ -101,15 +101,15 @@ const email = data.user.email;`,
         description:
           'Test all API endpoints with v2 before deploying to production',
         resources: [
-          'https://docs.zoidbot.online/api/v2',
-          'https://api.zoidbot.online/api/docs',
+          'https://docs.cloudtolocalllm.online/api/v2',
+          'https://api.cloudtolocalllm.online/api/docs',
         ],
       },
     ],
     resources: {
-      documentation: 'https://docs.zoidbot.online/api/migration',
-      apiDocs: 'https://api.zoidbot.online/api/docs',
-      support: 'support@zoidbot.online',
+      documentation: 'https://docs.cloudtolocalllm.online/api/migration',
+      apiDocs: 'https://api.cloudtolocalllm.online/api/docs',
+      support: 'support@cloudtolocalllm.online',
     },
     timeline: {
       deprecatedAt: '2024-01-01',

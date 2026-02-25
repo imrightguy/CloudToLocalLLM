@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Zoidbot - Subdomain Configuration Script
+# CloudToLocalLLM - Subdomain Configuration Script
 # This script configures all subdomains and updates service configurations
 # for production deployment with custom domains
 
@@ -67,7 +67,7 @@ check_domain_mappings() {
     log_header "=== Checking Domain Mappings ==="
     
     local domains=("$APP_DOMAIN" "$API_DOMAIN" "$STREAMING_DOMAIN")
-    local services=("zoidbot-web" "zoidbot-api" "zoidbot-streaming")
+    local services=("CloudToLocalLLM-web" "cloudtolocalllm-api" "CloudToLocalLLM-streaming")
     
     for i in "${!domains[@]}"; do
         local domain="${domains[$i]}"
@@ -94,14 +94,14 @@ update_service_cors() {
     local cors_origins="https://$MAIN_DOMAIN,https://$APP_DOMAIN,https://$API_DOMAIN,https://$STREAMING_DOMAIN"
     
     log_info "Updating API service CORS..."
-    gcloud run services update zoidbot-api \
+    gcloud run services update cloudtolocalllm-api \
         --platform=managed \
         --region=us-east4 \
         --set-env-vars="CORS_ORIGINS=$cors_origins" \
         --quiet
     
     log_info "Updating streaming service configuration..."
-    gcloud run services update zoidbot-streaming \
+    gcloud run services update CloudToLocalLLM-streaming \
         --platform=managed \
         --region=us-east4 \
         --set-env-vars="OLLAMA_BASE_URL=https://$API_DOMAIN" \
@@ -117,20 +117,20 @@ generate_dns_records() {
     local dns_file="$PROJECT_ROOT/config/cloudrun/dns-records.txt"
     
     cat > "$dns_file" << EOF
-# Zoidbot DNS Records Configuration
+# CloudToLocalLLM DNS Records Configuration
 # Add these CNAME records to your domain registrar
 
 # Main domain (redirects to app)
-zoidbot.online.     CNAME   ghs.googlehosted.com.
+cloudtolocalllm.online.     CNAME   ghs.googlehosted.com.
 
 # Application frontend
-app.zoidbot.online.     CNAME   ghs.googlehosted.com.
+app.cloudtolocalllm.online.     CNAME   ghs.googlehosted.com.
 
 # API backend
-api.zoidbot.online.     CNAME   ghs.googlehosted.com.
+api.cloudtolocalllm.online.     CNAME   ghs.googlehosted.com.
 
 # Streaming service
-streaming.zoidbot.online.     CNAME   ghs.googlehosted.com.
+streaming.cloudtolocalllm.online.     CNAME   ghs.googlehosted.com.
 
 # Instructions:
 # 1. Log into your domain registrar's DNS management panel
@@ -149,10 +149,10 @@ EOF
     echo "┌─────────────────────────────────────┬──────┬─────────────────────────┐"
     echo "│ Name                                │ Type │ Value                   │"
     echo "├─────────────────────────────────────┼──────┼─────────────────────────┤"
-    echo "│ zoidbot.online              │ CNAME│ ghs.googlehosted.com.   │"
-    echo "│ app.zoidbot.online          │ CNAME│ ghs.googlehosted.com.   │"
-    echo "│ api.zoidbot.online          │ CNAME│ ghs.googlehosted.com.   │"
-    echo "│ streaming.zoidbot.online    │ CNAME│ ghs.googlehosted.com.   │"
+    echo "│ cloudtolocalllm.online              │ CNAME│ ghs.googlehosted.com.   │"
+    echo "│ app.cloudtolocalllm.online          │ CNAME│ ghs.googlehosted.com.   │"
+    echo "│ api.cloudtolocalllm.online          │ CNAME│ ghs.googlehosted.com.   │"
+    echo "│ streaming.cloudtolocalllm.online    │ CNAME│ ghs.googlehosted.com.   │"
     echo "└─────────────────────────────────────┴──────┴─────────────────────────┘"
 }
 
@@ -185,7 +185,7 @@ create_web_config() {
     local web_config_file="$PROJECT_ROOT/web/subdomain-config.js"
     
     cat > "$web_config_file" << EOF
-// Zoidbot - Production Subdomain Configuration
+// CloudToLocalLLM - Production Subdomain Configuration
 // This file configures the Flutter web app to use production subdomains
 
 window.cloudToLocalLLMConfig = {
@@ -238,7 +238,7 @@ window.cloudToLocalLLMConfig = {
   }
 };
 
-console.log('Zoidbot: Production subdomain configuration loaded');
+console.log('CloudToLocalLLM: Production subdomain configuration loaded');
 console.log('API URL:', window.cloudToLocalLLMConfig.services.api.baseUrl);
 console.log('Streaming URL:', window.cloudToLocalLLMConfig.services.streaming.baseUrl);
 EOF
@@ -248,8 +248,8 @@ EOF
 
 # Main function
 main() {
-    log_header "=== Zoidbot Subdomain Configuration ==="
-    log_info "Configuring production subdomains for Zoidbot..."
+    log_header "=== CloudToLocalLLM Subdomain Configuration ==="
+    log_info "Configuring production subdomains for CloudToLocalLLM..."
     
     load_config
     check_domain_mappings

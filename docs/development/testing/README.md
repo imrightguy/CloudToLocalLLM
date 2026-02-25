@@ -1,6 +1,6 @@
 # Testing Documentation
 
-This directory contains comprehensive testing documentation for Zoidbot.
+This directory contains comprehensive testing documentation for CloudToLocalLLM.
 
 ## 📚 Contents
 

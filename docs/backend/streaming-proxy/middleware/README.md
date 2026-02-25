@@ -298,7 +298,7 @@ app.listen(PORT, () => {
 ```bash
 # Auth0 Configuration
 SUPABASE_AUTH_DOMAIN=your-tenant.auth0.com
-SUPABASE_AUTH_AUDIENCE=https://api.zoidbot.com
+SUPABASE_AUTH_AUDIENCE=https://api.CloudToLocalLLM.com
 SUPABASE_AUTH_ISSUER=https://your-tenant.auth0.com/
 
 # Server Configuration
@@ -309,16 +309,16 @@ LOG_LEVEL=info
 ### Auth0 Setup
 
 1. Create an API in Auth0 dashboard
-2. Configure the audience (e.g., `https://api.zoidbot.com`)
+2. Configure the audience (e.g., `https://api.CloudToLocalLLM.com`)
 3. Add custom claims to tokens:
-   - `https://zoidbot.com/tier` - User tier (free/premium/enterprise)
-   - `https://zoidbot.com/permissions` - Array of permissions
+   - `https://CloudToLocalLLM.com/tier` - User tier (free/premium/enterprise)
+   - `https://CloudToLocalLLM.com/permissions` - Array of permissions
 
 Example Auth0 Rule:
 
 ```javascript
 function addCustomClaims(user, context, callback) {
-  const namespace = 'https://zoidbot.com/';
+  const namespace = 'https://CloudToLocalLLM.com/';
   
   context.accessToken[namespace + 'tier'] = user.app_metadata?.tier || 'free';
   context.accessToken[namespace + 'permissions'] = user.app_metadata?.permissions || [];

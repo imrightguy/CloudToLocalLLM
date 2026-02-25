@@ -15,7 +15,6 @@ enum GatewayState {
 class GatewayControlService extends ChangeNotifier {
   GatewayState _state = GatewayState.unknown;
   String? _errorMessage;
-  Process? _process;
   DateTime? _startedAt;
   Timer? _healthCheckTimer;
   final SettingsPreferenceService _settings;

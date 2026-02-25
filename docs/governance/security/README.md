@@ -1,6 +1,6 @@
 # Security Documentation
 
-This directory contains security policies, procedures, and audit reports for Zoidbot.
+This directory contains security policies, procedures, and audit reports for CloudToLocalLLM.
 
 ## 📚 Contents
 
@@ -23,7 +23,7 @@ This directory contains security policies, procedures, and audit reports for Zoi
 
 ### Security Principles
 
-Zoidbot follows security-first design principles:
+CloudToLocalLLM follows security-first design principles:
 
 1. **Privacy by Design** - Sensitive data stays local when possible
 2. **Zero Trust Architecture** - Verify all connections and requests

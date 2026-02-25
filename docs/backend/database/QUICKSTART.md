@@ -6,19 +6,19 @@ Quick reference for setting up the Admin Center database schema and test data.
 
 1. PostgreSQL 12+ installed and running
 2. Node.js 18+ installed
-3. Database created: `zoidbot`
+3. Database created: `CloudToLocalLLM`
 4. Environment variables configured
 
 ## Environment Setup
 
 ```bash
 # Option 1: Using DATABASE_URL
-export DATABASE_URL="postgresql://postgres:password@localhost:5432/zoidbot"
+export DATABASE_URL="postgresql://postgres:password@localhost:5432/CloudToLocalLLM"
 
 # Option 2: Using individual variables
 export PGHOST=localhost
 export PGPORT=5432
-export PGDATABASE=zoidbot
+export PGDATABASE=CloudToLocalLLM
 export PGUSER=postgres
 export PGPASSWORD=yourpassword
 
@@ -30,14 +30,14 @@ export NODE_ENV=development
 
 ```bash
 # 1. Navigate to the project root
-cd /path/to/Zoidbot
+cd /path/to/CloudToLocalLLM
 
 # 2. Install dependencies (if not already done)
 cd services/api-backend
 npm install
 
 # 3. Apply base schema (if not already applied)
-psql -h localhost -U postgres -d zoidbot -f database/schema.pg.sql
+psql -h localhost -U postgres -d CloudToLocalLLM -f database/schema.pg.sql
 
 # 4. Apply admin center migration
 node database/migrations/run-migration.js up 001
@@ -78,29 +78,29 @@ node database/seeds/run-seed.js clean
 
 ```bash
 # Apply migration manually
-psql -h localhost -U postgres -d zoidbot -f database/migrations/001_admin_center_schema.sql
+psql -h localhost -U postgres -d CloudToLocalLLM -f database/migrations/001_admin_center_schema.sql
 
 # Apply seed data manually
-psql -h localhost -U postgres -d zoidbot -f database/seeds/001_admin_center_dev_data.sql
+psql -h localhost -U postgres -d CloudToLocalLLM -f database/seeds/001_admin_center_dev_data.sql
 
 # Rollback migration manually
-psql -h localhost -U postgres -d zoidbot -f database/migrations/001_admin_center_schema_rollback.sql
+psql -h localhost -U postgres -d CloudToLocalLLM -f database/migrations/001_admin_center_schema_rollback.sql
 ```
 
 ## Verification Queries
 
 ```bash
 # Check tables exist
-psql -h localhost -U postgres -d zoidbot -c "\dt"
+psql -h localhost -U postgres -d CloudToLocalLLM -c "\dt"
 
 # Check admin center tables
-psql -h localhost -U postgres -d zoidbot -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('subscriptions', 'payment_transactions', 'payment_methods', 'refunds', 'admin_roles', 'admin_audit_logs');"
+psql -h localhost -U postgres -d CloudToLocalLLM -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('subscriptions', 'payment_transactions', 'payment_methods', 'refunds', 'admin_roles', 'admin_audit_logs');"
 
 # Check test data
-psql -h localhost -U postgres -d zoidbot -c "SELECT COUNT(*) as test_users FROM users WHERE email LIKE 'test.%@example.com';"
+psql -h localhost -U postgres -d CloudToLocalLLM -c "SELECT COUNT(*) as test_users FROM users WHERE email LIKE 'test.%@example.com';"
 
 # Check admin roles
-psql -h localhost -U postgres -d zoidbot -c "SELECT u.email, ar.role, ar.is_active FROM admin_roles ar JOIN users u ON ar.user_id = u.id;"
+psql -h localhost -U postgres -d CloudToLocalLLM -c "SELECT u.email, ar.role, ar.is_active FROM admin_roles ar JOIN users u ON ar.user_id = u.id;"
 ```
 
 ## Reset Database (Development)

@@ -47,12 +47,12 @@ const DEFAULT_CONFIG = {
   // WebSocket security
   websocketOriginCheck: true,
   allowedOrigins: [
-    'https://app.zoidbot.online',
-    'https://zoidbot.online',
-    'https://docs.zoidbot.online',
-    'https://app.zoidbot.online',
-    'https://zoidbot.online',
-    'https://docs.zoidbot.online',
+    'https://app.cloudtolocalllm.online',
+    'https://cloudtolocalllm.online',
+    'https://docs.cloudtolocalllm.online',
+    'https://app.cloudtolocalllm.online',
+    'https://cloudtolocalllm.online',
+    'https://docs.cloudtolocalllm.online',
   ],
 
   // Rate limiting for security events

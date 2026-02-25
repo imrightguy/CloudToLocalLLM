@@ -1,8 +1,8 @@
-# Zoidbot Strict Deployment Policy
+# CloudToLocalLLM Strict Deployment Policy
 
 ## Overview
 
-Zoidbot implements a **zero-tolerance deployment policy** where any warning or error condition results in deployment failure. This ensures that only the highest quality deployments reach production. Git version control provides rollback capabilities when needed.
+CloudToLocalLLM implements a **zero-tolerance deployment policy** where any warning or error condition results in deployment failure. This ensures that only the highest quality deployments reach production. Git version control provides rollback capabilities when needed.
 
 ## Strict Success Criteria
 
@@ -120,7 +120,7 @@ Any of the following conditions will trigger immediate deployment failure:
 
 ### Overview
 
-Zoidbot uses Git version control as the primary backup and rollback mechanism, eliminating the need for separate backup systems during deployment.
+CloudToLocalLLM uses Git version control as the primary backup and rollback mechanism, eliminating the need for separate backup systems during deployment.
 
 ### Benefits
 
@@ -171,9 +171,9 @@ If a deployment fails or issues are discovered:
 
 ### Default Settings
 
-- **VPS Host**: zoidbot.online
+- **VPS Host**: cloudtolocalllm.online
 - **VPS User**: cloudllm
-- **Project Directory**: /opt/zoidbot
+- **Project Directory**: /opt/CloudToLocalLLM
 - **Resource Thresholds**: 90% for disk and memory
 - **HTTP Requirements**: 200 responses only
 - **SSL Requirements**: Valid certificates mandatory
@@ -239,6 +239,6 @@ The strict policy is enforced by default but can be understood through:
 
 ## Conclusion
 
-The strict deployment policy ensures Zoidbot maintains the highest production quality standards. By requiring zero warnings and zero errors, we guarantee that every production deployment is stable, secure, and fully functional.
+The strict deployment policy ensures CloudToLocalLLM maintains the highest production quality standards. By requiring zero warnings and zero errors, we guarantee that every production deployment is stable, secure, and fully functional.
 
 This policy prioritizes reliability over speed, ensuring users always experience a high-quality, properly functioning application.

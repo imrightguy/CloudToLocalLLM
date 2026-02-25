@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of webhook-specific rate limiting for the Zoidbot API backend. The system enforces configurable rate limits on webhook deliveries to prevent abuse and ensure fair resource usage.
+This document describes the implementation of webhook-specific rate limiting for the CloudToLocalLLM API backend. The system enforces configurable rate limits on webhook deliveries to prevent abuse and ensure fair resource usage.
 
 ## Requirements Addressed
 

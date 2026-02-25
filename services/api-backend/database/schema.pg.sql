@@ -1,4 +1,4 @@
--- PostgreSQL Schema for Zoidbot
+-- PostgreSQL Schema for CloudToLocalLLM
 -- This is the PostgreSQL-optimized version of schema.sql
 
 -- Enable required extensions

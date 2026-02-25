@@ -37,7 +37,7 @@ service:
 # Authentication: the password will be set via --set auth.password in CI
 auth:
   username: appuser
-  database: zoidbot
+  database: CloudToLocalLLM
   # existingSecret: postgres-auth (optional)
 
 # Disable network exposure: no LB, no Ingress

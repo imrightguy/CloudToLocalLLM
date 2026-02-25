@@ -42,129 +42,134 @@ void main() {
       verify(mockDb.addConversationDepthMetrics(argThat(
         isA<db.ConversationDepthMetricsCompanion>()
             .having((m) => m.conversationId.value, 'conversationId', 'conv1')
-            .having((m) => m.complexityScore.value, 'complexityScore', greaterThan(0.0))
-            .having((m) => m.emotionalDepth.value, 'emotionalDepth', greaterThanOrEqualTo(0.0))
-            .having((m) => m.noveltyScore.value, 'noveltyScore', greaterThan(0.0)),
+            .having((m) => m.complexityScore.value, 'complexityScore',
+                greaterThan(0.0))
+            .having((m) => m.emotionalDepth.value, 'emotionalDepth',
+                greaterThanOrEqualTo(0.0))
+            .having(
+                (m) => m.noveltyScore.value, 'noveltyScore', greaterThan(0.0)),
       ))).called(1);
     });
 
     test('hasEvolutionPatterns returns true with sufficient depth', () async {
       when(mockDb.getDepthMetrics()).thenAnswer((_) async => [
-        db.ConversationDepthMetric(
-          id: '1',
-          conversationId: 'conv1',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.6,
-          timestamp: 1000,
-        ),
-        db.ConversationDepthMetric(
-          id: '2',
-          conversationId: 'conv2',
-          complexityScore: 0.75,
-          emotionalDepth: 0.8,
-          noveltyScore: 0.7,
-          timestamp: 2000,
-        ),
-        db.ConversationDepthMetric(
-          id: '3',
-          conversationId: 'conv3',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.6,
-          timestamp: 3000,
-        ),
-        db.ConversationDepthMetric(
-          id: '4',
-          conversationId: 'conv4',
-          complexityScore: 0.75,
-          emotionalDepth: 0.8,
-          noveltyScore: 0.7,
-          timestamp: 4000,
-        ),
-        db.ConversationDepthMetric(
-          id: '5',
-          conversationId: 'conv5',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.6,
-          timestamp: 5000,
-        ),
-      ]);
+            db.ConversationDepthMetric(
+              id: '1',
+              conversationId: 'conv1',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.6,
+              timestamp: 1000,
+            ),
+            db.ConversationDepthMetric(
+              id: '2',
+              conversationId: 'conv2',
+              complexityScore: 0.75,
+              emotionalDepth: 0.8,
+              noveltyScore: 0.7,
+              timestamp: 2000,
+            ),
+            db.ConversationDepthMetric(
+              id: '3',
+              conversationId: 'conv3',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.6,
+              timestamp: 3000,
+            ),
+            db.ConversationDepthMetric(
+              id: '4',
+              conversationId: 'conv4',
+              complexityScore: 0.75,
+              emotionalDepth: 0.8,
+              noveltyScore: 0.7,
+              timestamp: 4000,
+            ),
+            db.ConversationDepthMetric(
+              id: '5',
+              conversationId: 'conv5',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.6,
+              timestamp: 5000,
+            ),
+          ]);
 
       final result = await tracker.hasEvolutionPatterns();
 
       expect(result, isTrue);
     });
 
-    test('hasEvolutionPatterns returns false with insufficient depth', () async {
+    test('hasEvolutionPatterns returns false with insufficient depth',
+        () async {
       when(mockDb.getDepthMetrics()).thenAnswer((_) async => [
-        db.ConversationDepthMetric(
-          id: '1',
-          conversationId: 'conv1',
-          complexityScore: 0.3,
-          emotionalDepth: 0.2,
-          noveltyScore: 0.3,
-          timestamp: 1000,
-        ),
-        db.ConversationDepthMetric(
-          id: '2',
-          conversationId: 'conv2',
-          complexityScore: 0.4,
-          emotionalDepth: 0.3,
-          noveltyScore: 0.2,
-          timestamp: 2000,
-        ),
-      ]);
+            db.ConversationDepthMetric(
+              id: '1',
+              conversationId: 'conv1',
+              complexityScore: 0.3,
+              emotionalDepth: 0.2,
+              noveltyScore: 0.3,
+              timestamp: 1000,
+            ),
+            db.ConversationDepthMetric(
+              id: '2',
+              conversationId: 'conv2',
+              complexityScore: 0.4,
+              emotionalDepth: 0.3,
+              noveltyScore: 0.2,
+              timestamp: 2000,
+            ),
+          ]);
 
       final result = await tracker.hasEvolutionPatterns();
 
       expect(result, isFalse);
     });
 
-    test('hasEvolutionPatterns returns false with low average novelty', () async {
+    test('hasEvolutionPatterns returns false with low average novelty',
+        () async {
       when(mockDb.getDepthMetrics()).thenAnswer((_) async => [
-        db.ConversationDepthMetric(
-          id: '1',
-          conversationId: 'conv1',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.3,
-          timestamp: 1000,
-        ),
-        db.ConversationDepthMetric(
-          id: '2',
-          conversationId: 'conv2',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.3,
-          timestamp: 2000,
-        ),
-        db.ConversationDepthMetric(
-          id: '3',
-          conversationId: 'conv3',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.4,
-          timestamp: 3000,
-        ),
-        db.ConversationDepthMetric(
-          id: '4',
-          conversationId: 'conv4',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.3,
-          timestamp: 4000,
-        ),
-        db.ConversationDepthMetric(
-          id: '5',
-          conversationId: 'conv5',
-          complexityScore: 0.8,
-          emotionalDepth: 0.7,
-          noveltyScore: 0.3,
-          timestamp: 5000,
-        ),
-      ]);
+            db.ConversationDepthMetric(
+              id: '1',
+              conversationId: 'conv1',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.3,
+              timestamp: 1000,
+            ),
+            db.ConversationDepthMetric(
+              id: '2',
+              conversationId: 'conv2',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.3,
+              timestamp: 2000,
+            ),
+            db.ConversationDepthMetric(
+              id: '3',
+              conversationId: 'conv3',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.4,
+              timestamp: 3000,
+            ),
+            db.ConversationDepthMetric(
+              id: '4',
+              conversationId: 'conv4',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.3,
+              timestamp: 4000,
+            ),
+            db.ConversationDepthMetric(
+              id: '5',
+              conversationId: 'conv5',
+              complexityScore: 0.8,
+              emotionalDepth: 0.7,
+              noveltyScore: 0.3,
+              timestamp: 5000,
+            ),
+          ]);
 
       final result = await tracker.hasEvolutionPatterns();
 
@@ -187,14 +192,17 @@ void main() {
         id: 'conv2',
         title: 'Long',
         messages: [
-          msg.Message.user(content: 'Can you explain how machine learning works in detail?'),
+          msg.Message.user(
+              content: 'Can you explain how machine learning works in detail?'),
           msg.Message.assistant(
-            content: 'Machine learning is a subset of artificial intelligence that focuses on building systems that can learn from and make decisions based on data.',
+            content:
+                'Machine learning is a subset of artificial intelligence that focuses on building systems that can learn from and make decisions based on data.',
             model: 'glm-4',
           ),
           msg.Message.user(content: 'What about neural networks?'),
           msg.Message.assistant(
-            content: 'Neural networks are computing systems inspired by biological neural networks that constitute animal brains.',
+            content:
+                'Neural networks are computing systems inspired by biological neural networks that constitute animal brains.',
             model: 'glm-4',
           ),
         ],
@@ -202,8 +210,10 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      final shortScore = await tracker.calculateComplexity(shortConversation.messages);
-      final longScore = await tracker.calculateComplexity(longConversation.messages);
+      final shortScore =
+          await tracker.calculateComplexity(shortConversation.messages);
+      final longScore =
+          await tracker.calculateComplexity(longConversation.messages);
 
       expect(longScore, greaterThan(shortScore));
     });
@@ -215,7 +225,8 @@ void main() {
         messages: [
           msg.Message.user(content: 'How do I implement a REST API?'),
           msg.Message.assistant(
-            content: 'You can use Express.js with TypeScript to build a RESTful API with proper HTTP methods.',
+            content:
+                'You can use Express.js with TypeScript to build a RESTful API with proper HTTP methods.',
             model: 'glm-4',
           ),
         ],
@@ -223,7 +234,8 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      final score = await tracker.calculateComplexity(technicalConversation.messages);
+      final score =
+          await tracker.calculateComplexity(technicalConversation.messages);
 
       expect(score, greaterThan(0.3));
     });
@@ -235,7 +247,8 @@ void main() {
         messages: [
           msg.Message.user(content: 'I feel really sad today.'),
           msg.Message.assistant(
-            content: 'I understand how you feel. It is okay to feel sad sometimes. I am here for you.',
+            content:
+                'I understand how you feel. It is okay to feel sad sometimes. I am here for you.',
             model: 'glm-4',
           ),
         ],
@@ -243,7 +256,8 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      final score = await tracker.calculateEmotionalDepth(empatheticConversation.messages);
+      final score = await tracker
+          .calculateEmotionalDepth(empatheticConversation.messages);
 
       expect(score, greaterThan(0.3));
     });
@@ -255,12 +269,14 @@ void main() {
         messages: [
           msg.Message.user(content: 'Tell me about quantum physics.'),
           msg.Message.assistant(
-            content: 'Quantum physics explores the behavior of matter and energy at atomic scales.',
+            content:
+                'Quantum physics explores the behavior of matter and energy at atomic scales.',
             model: 'glm-4',
           ),
           msg.Message.user(content: 'What about machine learning?'),
           msg.Message.assistant(
-            content: 'Machine learning algorithms can recognize patterns in data.',
+            content:
+                'Machine learning algorithms can recognize patterns in data.',
             model: 'glm-4',
           ),
         ],
@@ -281,8 +297,10 @@ void main() {
         updatedAt: DateTime.now(),
       );
 
-      final diverseScore = await tracker.calculateNovelty(diverseConversation.messages);
-      final repetitiveScore = await tracker.calculateNovelty(repetitiveConversation.messages);
+      final diverseScore =
+          await tracker.calculateNovelty(diverseConversation.messages);
+      final repetitiveScore =
+          await tracker.calculateNovelty(repetitiveConversation.messages);
 
       expect(diverseScore, greaterThan(repetitiveScore));
     });

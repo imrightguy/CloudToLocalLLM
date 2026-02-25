@@ -343,7 +343,7 @@ router.get('/tier/check/:feature', authenticateJWT, validateSchema(featureCheckS
         message: getUpgradeMessage(userTier, feature),
         upgradeUrl:
           process.env.UPGRADE_URL ||
-          'https://app.zoidbot.online/upgrade',
+          'https://app.cloudtolocalllm.online/upgrade',
       };
     }
 

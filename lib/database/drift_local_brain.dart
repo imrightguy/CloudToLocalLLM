@@ -140,12 +140,14 @@ class FileContentCache extends Table {
 class LlmProviders extends Table {
   TextColumn get id => text()(); // Unique provider ID (e.g., "openclaw_local")
   TextColumn get name => text()(); // Display name (e.g., "OpenClaw Gateway")
-  TextColumn get type => text()(); // Provider type: openclaw, lmstudio, ollama, openai_compatible
+  TextColumn get type =>
+      text()(); // Provider type: openclaw, lmstudio, ollama, openai_compatible
   TextColumn get url => text()(); // Full URL (e.g., "http://localhost:18789")
   BoolColumn get isLocal => boolean().withDefault(const Constant(true))();
-  BoolColumn get isDefault =>
-      boolean().withDefault(const Constant(false))(); // Whether this is the default provider
-  TextColumn get version => text().nullable()(); // Provider version (if available)
+  BoolColumn get isDefault => boolean().withDefault(
+      const Constant(false))(); // Whether this is the default provider
+  TextColumn get version =>
+      text().nullable()(); // Provider version (if available)
   TextColumn get config =>
       text().nullable()(); // Additional config as JSON (headers, timeout, etc.)
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -301,7 +303,8 @@ class Macros extends Table {
 class AvatarPersonalityProfiles extends Table {
   TextColumn get id => text().withDefault(const Constant('default'))();
   TextColumn get agentName => text().withDefault(const Constant('Agent'))();
-  TextColumn get personalityTraits => text()(); // JSON: {formality, humor, enthusiasm, empathy}
+  TextColumn get personalityTraits =>
+      text()(); // JSON: {formality, humor, enthusiasm, empathy}
   TextColumn get evolutionStage => text().withDefault(const Constant('base'))();
   IntColumn get conversationCount => integer().withDefault(const Constant(0))();
   RealColumn get depthScore => real().withDefault(const Constant(0.0))();
@@ -316,10 +319,12 @@ class AvatarPersonalityProfiles extends Table {
 @DataClassName('EvolutionHistory')
 class EvolutionHistoryTable extends Table {
   TextColumn get id => text()();
-  TextColumn get avatarId => text().references(AvatarPersonalityProfiles, #id)();
+  TextColumn get avatarId =>
+      text().references(AvatarPersonalityProfiles, #id)();
   TextColumn get fromStage => text()();
   TextColumn get toStage => text()();
-  TextColumn get triggerReason => text()(); // 'conversation_depth', 'pattern_recognition', 'self_reflection'
+  TextColumn get triggerReason =>
+      text()(); // 'conversation_depth', 'pattern_recognition', 'self_reflection'
   TextColumn get context => text().nullable()(); // What triggered it
   TextColumn get confirmedBy => text()(); // 'agent', 'app', 'collaborative'
   IntColumn get triggeredAt => integer()();
@@ -333,7 +338,8 @@ class EvolutionHistoryTable extends Table {
 class ConversationDepthMetrics extends Table {
   TextColumn get id => text()();
   TextColumn get conversationId => text().references(Conversations, #id)();
-  RealColumn get complexityScore => real()(); // 0-1: topic diversity, length, reasoning
+  RealColumn get complexityScore =>
+      real()(); // 0-1: topic diversity, length, reasoning
   RealColumn get emotionalDepth => real()(); // 0-1: empathy, personal sharing
   RealColumn get noveltyScore => real()(); // 0-1: new topics vs repeated
   IntColumn get timestamp => integer()();
@@ -1056,7 +1062,8 @@ class LocalBrain extends _$LocalBrain {
         .join(', ');
 
     final valueList = data.values.toList();
-    final placeholders = List.generate(valueList.length, (i) => '?$i').join(', ');
+    final placeholders =
+        List.generate(valueList.length, (i) => '?$i').join(', ');
 
     return customUpdate(
       'INSERT INTO llm_providers ($keys) VALUES ($placeholders) '
@@ -1213,7 +1220,7 @@ class LocalBrain extends _$LocalBrain {
 
   /// Add conversation depth metrics
   Future<void> addConversationDepthMetrics(
-          ConversationDepthMetricsCompanion metric) async {
+      ConversationDepthMetricsCompanion metric) async {
     await into(conversationDepthMetrics).insert(metric);
   }
 

@@ -8,7 +8,7 @@ patches:
       kind: StatefulSet
       metadata:
         name: postgres
-        namespace: zoidbot
+        namespace: CloudToLocalLLM
       spec:
         volumeClaimTemplates:
         - metadata:

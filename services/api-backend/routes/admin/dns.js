@@ -491,7 +491,7 @@ router.get(
       initializeService(pool);
 
       const domain =
-        req.query.domain || process.env.DOMAIN || 'zoidbot.online';
+        req.query.domain || process.env.DOMAIN || 'cloudtolocalllm.online';
 
       // Get recommended records
       const recommendedRecords =
@@ -563,7 +563,7 @@ router.post(
       initializeService(pool);
 
       const domain =
-        req.body.domain || process.env.DOMAIN || 'zoidbot.online';
+        req.body.domain || process.env.DOMAIN || 'cloudtolocalllm.online';
       const recordTypes = req.body.recordTypes || ['mx', 'spf', 'dmarc'];
 
       // Get recommended records

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Zoidbot uses an innovative **unified AI-powered CI/CD system** that consolidates analysis, building, and deployment into a single intelligent workflow. This system leverages **Kilocode CLI** with **xAI Grok-Code-Fast-1** to make intelligent decisions about when and where to deploy changes, eliminating the complexity of orchestrated workflows while maintaining sophisticated deployment logic.
+CloudToLocalLLM uses an innovative **unified AI-powered CI/CD system** that consolidates analysis, building, and deployment into a single intelligent workflow. This system leverages **Kilocode CLI** with **xAI Grok-Code-Fast-1** to make intelligent decisions about when and where to deploy changes, eliminating the complexity of orchestrated workflows while maintaining sophisticated deployment logic.
 
 ## Architecture
 
@@ -383,8 +383,8 @@ echo $KILOCODE_TOKEN
 
 The project currently runs on Azure AKS with plans for future AWS migration:
 
-1. **Azure AKS Production**: Current deployment target `zoidbot-aks`
-2. **Azure Container Registry**: Images stored in `ghcr.io/zoidbot-online/zoidbot`
+1. **Azure AKS Production**: Current deployment target `CloudToLocalLLM-aks`
+2. **Azure Container Registry**: Images stored in `ghcr.io/cloudtolocalllm-online/CloudToLocalLLM`
 3. **Service Principal Auth**: Azure authentication via GitHub secrets
 4. **Future AWS Migration**: CloudFormation templates prepared for eventual migration
 
@@ -392,7 +392,7 @@ The project currently runs on Azure AKS with plans for future AWS migration:
 
 ### From Orchestrator to Unified System
 
-Zoidbot has successfully migrated from a complex orchestrator-based system to a streamlined unified workflow:
+CloudToLocalLLM has successfully migrated from a complex orchestrator-based system to a streamlined unified workflow:
 
 **Previous System** (`version-and-distribute.yml` + `deploy-aks.yml`) - **DISABLED**:
 
@@ -433,4 +433,4 @@ The unified AI-powered CI/CD system represents a significant advancement in depl
 - **Better Visibility**: Complete deployment status in one workflow run
 - **Safety and Reliability**: Conservative approach ensures critical updates are never missed
 
-This system enables Zoidbot to maintain rapid development velocity while ensuring reliable, consistent deployments to Azure AKS with significantly reduced complexity. The platform-agnostic design allows for future deployment to AWS EKS or other Kubernetes platforms when needed.
+This system enables CloudToLocalLLM to maintain rapid development velocity while ensuring reliable, consistent deployments to Azure AKS with significantly reduced complexity. The platform-agnostic design allows for future deployment to AWS EKS or other Kubernetes platforms when needed.

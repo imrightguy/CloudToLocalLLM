@@ -380,7 +380,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Zoidbot Performance",
+  "title": "CloudToLocalLLM Performance",
   "uid": "llm-perf",
   "version": 1,
   "weekStart": ""

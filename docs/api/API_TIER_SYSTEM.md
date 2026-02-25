@@ -1,8 +1,8 @@
-# Zoidbot Tier-Based API Documentation
+# CloudToLocalLLM Tier-Based API Documentation
 
 ## Overview
 
-The Zoidbot API now supports a tier-based architecture that provides different levels of functionality based on user subscription levels. This document outlines the tier system, available endpoints, and usage patterns.
+The CloudToLocalLLM API now supports a tier-based architecture that provides different levels of functionality based on user subscription levels. This document outlines the tier system, available endpoints, and usage patterns.
 
 ## User Tiers
 
@@ -34,9 +34,9 @@ All API endpoints require authentication via Auth0 JWT tokens. User tier informa
 
 ```javascript
 // Tier information locations (in priority order)
-user['https://zoidbot.com/user_metadata'].tier
-user['https://zoidbot.com/app_metadata'].tier
-user['https://zoidbot.com/user_metadata'].subscription
+user['https://CloudToLocalLLM.com/user_metadata'].tier
+user['https://CloudToLocalLLM.com/app_metadata'].tier
+user['https://CloudToLocalLLM.com/user_metadata'].subscription
 ```
 
 ## API Endpoints
@@ -60,7 +60,7 @@ Get current user's tier information and available features.
     "maxConnections": 1,
     "maxModels": 5
   },
-  "upgradeUrl": "https://app.zoidbot.online/upgrade"
+  "upgradeUrl": "https://app.cloudtolocalllm.online/upgrade"
 }
 ```
 
@@ -123,7 +123,7 @@ Content-Type: application/json
 {
   "error": "Desktop client not connected",
   "code": "DESKTOP_CLIENT_DISCONNECTED",
-  "message": "Please ensure your Zoidbot desktop client is running and connected.",
+  "message": "Please ensure your CloudToLocalLLM desktop client is running and connected.",
   "requestId": "dp-1642234567890-abc123"
 }
 
@@ -171,7 +171,7 @@ Start container-based proxy for premium/enterprise users.
     "status": "running",
     "createdAt": "2024-01-15T10:30:00.000Z",
     "directTunnel": false,
-    "endpoint": "https://api.zoidbot.online/proxy/auth0|user123",
+    "endpoint": "https://api.cloudtolocalllm.online/proxy/auth0|user123",
     "userTier": "premium"
   }
 }
@@ -198,7 +198,7 @@ Container-based proxy with advanced features (premium/enterprise only).
   "code": "ERROR_CODE",
   "message": "User-friendly message",
   "userTier": "free",
-  "upgradeUrl": "https://app.zoidbot.online/upgrade",
+  "upgradeUrl": "https://app.cloudtolocalllm.online/upgrade",
   "requestId": "unique-request-id"
 }
 ```

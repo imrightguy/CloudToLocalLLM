@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Zoidbot-online/Zoidbot
+    repoURL: https://github.com/CloudToLocalLLM-online/CloudToLocalLLM
     targetRevision: main
     path: k8s/bootstrap
     directory:

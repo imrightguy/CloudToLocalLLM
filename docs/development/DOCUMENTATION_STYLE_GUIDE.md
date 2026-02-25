@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide ensures consistent formatting and style across all Zoidbot documentation.
+This guide ensures consistent formatting and style across all CloudToLocalLLM documentation.
 
 ## File Naming Conventions
 
@@ -151,4 +151,4 @@ Before publishing documentation:
 - Follow established patterns in existing docs
 - Maintain consistent terminology across documents
 
-This style guide ensures Zoidbot documentation remains professional, accessible, and maintainable.
+This style guide ensures CloudToLocalLLM documentation remains professional, accessible, and maintainable.

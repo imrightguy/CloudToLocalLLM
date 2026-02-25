@@ -8,7 +8,7 @@ set -e
 
 # Configuration
 AWS_ACCOUNT_ID="422017356244"
-GITHUB_REPO="zoidbot/zoidbot"
+GITHUB_REPO="CloudToLocalLLM/CloudToLocalLLM"
 OIDC_PROVIDER_URL="token.actions.githubusercontent.com"
 OIDC_AUDIENCE="sts.amazonaws.com"
 

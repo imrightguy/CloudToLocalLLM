@@ -28,11 +28,11 @@ This document outlines the remediation measures implemented to stabilize the Git
 
 | Domain/Subdomain | Status | issue | Resolution |
 |------------------|--------|-------|------------|
-| `https://zoidbot.online/` | ✅ Pending | 530 Error | Config updated, requires Dashboard sync |
-| `https://app.zoidbot.online/` | ✅ Pending | 530 Error | Config updated, requires Dashboard sync |
-| `https://api.zoidbot.online/` | ✅ Pending | 530 Error | Config updated, requires Dashboard sync |
-| `https://argocd.zoidbot.online/` | ❌ Removed | - | Service decommissioned |
-| `https://grafana.zoidbot.online/` | ✅ Working | - | - |
+| `https://cloudtolocalllm.online/` | ✅ Pending | 530 Error | Config updated, requires Dashboard sync |
+| `https://app.cloudtolocalllm.online/` | ✅ Pending | 530 Error | Config updated, requires Dashboard sync |
+| `https://api.cloudtolocalllm.online/` | ✅ Pending | 530 Error | Config updated, requires Dashboard sync |
+| `https://argocd.cloudtolocalllm.online/` | ❌ Removed | - | Service decommissioned |
+| `https://grafana.cloudtolocalllm.online/` | ✅ Working | - | - |
 
 ## 📋 Remediation Plan (Completed Actions)
 

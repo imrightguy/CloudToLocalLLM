@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the implementation of tunnel status webhooks for the Zoidbot API backend. Webhooks enable real-time notifications when tunnel status changes, supporting integration with external systems.
+This document describes the implementation of tunnel status webhooks for the CloudToLocalLLM API backend. Webhooks enable real-time notifications when tunnel status changes, supporting integration with external systems.
 
 **Validates: Requirements 4.10, 10.1, 10.2, 10.3, 10.4**
 

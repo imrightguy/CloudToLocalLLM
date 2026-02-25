@@ -1,18 +1,18 @@
-# Zoidbot SDK - Quick Start Guide
+# CloudToLocalLLM SDK - Quick Start Guide
 
 ## Installation
 
 ```bash
-npm install @zoidbot/sdk
+npm install @CloudToLocalLLM/sdk
 ```
 
 ## Basic Setup
 
 ```typescript
-import { ZoidbotClient } from '@zoidbot/sdk';
+import { CloudToLocalLLMClient } from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
   apiVersion: 'v2',
 });
 
@@ -129,8 +129,8 @@ try {
 ## Configuration Options
 
 ```typescript
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',  // Required
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',  // Required
   apiVersion: 'v2',                               // Optional: 'v1' or 'v2'
   timeout: 30000,                                 // Optional: milliseconds
   retryAttempts: 3,                               // Optional: number of retries
@@ -145,14 +145,14 @@ const client = new ZoidbotClient({
 
 ```typescript
 import {
-  ZoidbotClient,
+  CloudToLocalLLMClient,
   Tunnel,
   User,
   Webhook,
-} from '@zoidbot/sdk';
+} from '@CloudToLocalLLM/sdk';
 
-const client = new ZoidbotClient({
-  baseURL: 'https://api.zoidbot.online',
+const client = new CloudToLocalLLMClient({
+  baseURL: 'https://api.cloudtolocalllm.online',
 });
 
 const user: User = await client.getCurrentUser();
@@ -192,6 +192,6 @@ await client.logout();
 
 ## Support
 
-- GitHub: https://github.com/Zoidbot/zoidbot
-- Documentation: https://zoidbot.online/docs
-- API Docs: https://api.zoidbot.online/api/docs
+- GitHub: https://github.com/CloudToLocalLLM/CloudToLocalLLM
+- Documentation: https://cloudtolocalllm.online/docs
+- API Docs: https://api.cloudtolocalllm.online/api/docs

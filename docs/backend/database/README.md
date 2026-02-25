@@ -35,7 +35,7 @@ Creates the core admin center tables:
    # OR
    export PGHOST=localhost
    export PGPORT=5432
-   export PGDATABASE=zoidbot
+   export PGDATABASE=CloudToLocalLLM
    export PGUSER=postgres
    export PGPASSWORD=yourpassword
    ```
@@ -74,13 +74,13 @@ You can also run migrations manually using `psql`:
 #### Apply Migration
 
 ```bash
-psql -h localhost -U postgres -d zoidbot -f services/api-backend/database/migrations/001_admin_center_schema.sql
+psql -h localhost -U postgres -d CloudToLocalLLM -f services/api-backend/database/migrations/001_admin_center_schema.sql
 ```
 
 #### Rollback Migration
 
 ```bash
-psql -h localhost -U postgres -d zoidbot -f services/api-backend/database/migrations/001_admin_center_schema_rollback.sql
+psql -h localhost -U postgres -d CloudToLocalLLM -f services/api-backend/database/migrations/001_admin_center_schema_rollback.sql
 ```
 
 ## Migration Tracking

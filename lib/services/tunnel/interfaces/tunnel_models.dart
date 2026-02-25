@@ -303,7 +303,7 @@ class TunnelError implements Exception {
 
   /// Get documentation URL
   String get documentationUrl {
-    return 'https://docs.zoidbot.com/errors/$code';
+    return 'https://docs.CloudToLocalLLM.com/errors/$code';
   }
 
   /// Generate user-friendly message based on category and code

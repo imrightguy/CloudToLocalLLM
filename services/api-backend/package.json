@@ -1,7 +1,7 @@
 {
-  "name": "zoidbot-api-backend",
+  "name": "cloudtolocalllm-api-backend",
   "version": "10.1.187",
-  "description": "Zoidbot API Backend for Bridge Communication",
+  "description": "CloudToLocalLLM API Backend for Bridge Communication",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -99,13 +99,13 @@
     "minimatch": "^10.2.1"
   },
   "keywords": [
-    "zoidbot",
+    "CloudToLocalLLM",
     "api",
     "bridge",
     "websocket",
     "ollama",
     "trigger-ci"
   ],
-  "author": "Zoidbot Team",
+  "author": "CloudToLocalLLM Team",
   "license": "MIT"
 }

@@ -4,12 +4,12 @@
  * Demonstrates basic SDK usage for authentication and user management
  */
 
-import { ZoidbotClient } from '../src/index';
+import { CloudToLocalLLMClient } from '../src/index';
 
 async function main() {
   // Initialize the client
-  const client = new ZoidbotClient({
-    baseURL: 'https://api.zoidbot.online',
+  const client = new CloudToLocalLLMClient({
+    baseURL: 'https://api.cloudtolocalllm.online',
     apiVersion: 'v2',
   });
 

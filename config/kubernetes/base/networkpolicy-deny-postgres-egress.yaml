@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: postgres-deny-egress
-  namespace: zoidbot
+  namespace: CloudToLocalLLM
 spec:
   podSelector:
     matchLabels:

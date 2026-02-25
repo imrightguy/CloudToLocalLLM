@@ -1,5 +1,5 @@
 #!/bin/bash
-# Zoidbot ArgoCD Deployment Standard Operating Procedure
+# CloudToLocalLLM ArgoCD Deployment Standard Operating Procedure
 # Comprehensive deployment workflow with validation and monitoring
 # Usage: ./deployment-sop.sh <environment> <application> [options]
 
@@ -15,7 +15,7 @@ SKIP_MONITORING=false
 
 # ArgoCD Configuration
 ARGOCD_NAMESPACE="argocd"
-CLOUDTOLOCLLM_NAMESPACE="zoidbot"
+CLOUDTOLOCLLM_NAMESPACE="CloudToLocalLLM"
 LOG_FILE="/var/log/deployment-sop.log"
 DATE=$(date '+%Y-%m-%d %H:%M:%S')
 
@@ -134,7 +134,7 @@ run_pre_deployment_validation() {
     local pod_count=$(kubectl get pods -n $CLOUDTOLOCLLM_NAMESPACE --no-headers | wc -l)
     
     log "Cluster nodes: $node_count"
-    log "Zoidbot pods: $pod_count"
+    log "CloudToLocalLLM pods: $pod_count"
     
     if [ $node_count -eq 0 ]; then
         error "No nodes available in cluster"
@@ -169,7 +169,7 @@ pause_critical_applications() {
     local critical_apps=("api-backend" "web-frontend")
     
     for app in "${critical_apps[@]}"; do
-        local full_app_name="zoidbot-$app"
+        local full_app_name="CloudToLocalLLM-$app"
         
         if argocd app get $full_app_name &> /dev/null; then
             log "Pausing application: $full_app_name"
@@ -185,7 +185,7 @@ pause_critical_applications() {
 deploy_application() {
     log "=== Deploying Application ==="
     
-    local full_app_name="zoidbot-$APPLICATION"
+    local full_app_name="CloudToLocalLLM-$APPLICATION"
     
     if ! argocd app get $full_app_name &> /dev/null; then
         error "Application $full_app_name not found"
@@ -228,7 +228,7 @@ deploy_application() {
 verify_deployment() {
     log "=== Verifying Deployment ==="
     
-    local full_app_name="zoidbot-$APPLICATION"
+    local full_app_name="CloudToLocalLLM-$APPLICATION"
     
     # Get application status
     local app_status=$(argocd app get $full_app_name --output json | jq -r '.status.sync.status')
@@ -264,7 +264,7 @@ resume_applications() {
     local critical_apps=("api-backend" "web-frontend")
     
     for app in "${critical_apps[@]}"; do
-        local full_app_name="zoidbot-$app"
+        local full_app_name="CloudToLocalLLM-$app"
         
         if argocd app get $full_app_name &> /dev/null; then
             log "Resuming application: $full_app_name"
@@ -302,7 +302,7 @@ start_monitoring() {
         log "Monitoring minute $i/5..."
         
         # Check application status
-        local full_app_name="zoidbot-$APPLICATION"
+        local full_app_name="CloudToLocalLLM-$APPLICATION"
         local app_status=$(argocd app get $full_app_name --output json | jq -r '.status.sync.status' 2>/dev/null || echo "Unknown")
         local app_health=$(argocd app get $full_app_name --output json | jq -r '.status.health.status' 2>/dev/null || echo "Unknown")
         
@@ -335,7 +335,7 @@ generate_deployment_report() {
   "applications": $(argocd app list --output json),
   "cluster_info": {
     "nodes": $(kubectl get nodes --no-headers | wc -l),
-    "zoidbot_pods": $(kubectl get pods -n $CLOUDTOLOCLLM_NAMESPACE --no-headers | wc -l)
+    "cloudtolocalllm_pods": $(kubectl get pods -n $CLOUDTOLOCLLM_NAMESPACE --no-headers | wc -l)
   }
 }
 EOF
@@ -353,7 +353,7 @@ handle_deployment_failure() {
     # Attempt rollback if backup exists
     if [ -f "./scripts/rollback-argocd-app.sh" ]; then
         log "Attempting rollback..."
-        ./scripts/rollback-argocd-app.sh -a "zoidbot-$APPLICATION" --emergency
+        ./scripts/rollback-argocd-app.sh -a "CloudToLocalLLM-$APPLICATION" --emergency
     fi
     
     exit 1
@@ -373,7 +373,7 @@ display_summary() {
 
 # Main execution function
 main() {
-    log "=== Zoidbot ArgoCD Deployment SOP Started ==="
+    log "=== CloudToLocalLLM ArgoCD Deployment SOP Started ==="
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -422,7 +422,7 @@ main() {
     done
     
     # Initialize log file
-    echo "=== Zoidbot ArgoCD Deployment SOP Started at $DATE ===" > $LOG_FILE
+    echo "=== CloudToLocalLLM ArgoCD Deployment SOP Started at $DATE ===" > $LOG_FILE
     
     # Validate required parameters
     if [ -z "$ENVIRONMENT" ] || [ -z "$APPLICATION" ]; then

@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: zoidbot
+namespace: CloudToLocalLLM
 
 resources:
   - ../../base
@@ -13,7 +13,7 @@ patches:
   - path: configmap-patch.yaml
     target:
       kind: ConfigMap
-      name: zoidbot-config
+      name: CloudToLocalLLM-config
   - path: web-deployment-patch.yaml
     target:
       kind: Deployment
@@ -35,5 +35,5 @@ labels:
 
 # Common annotations
 commonAnnotations:
-  environment.zoidbot.online/type: production
-  environment.zoidbot.online/cost-optimized: "false"
+  environment.cloudtolocalllm.online/type: production
+  environment.cloudtolocalllm.online/cost-optimized: "false"

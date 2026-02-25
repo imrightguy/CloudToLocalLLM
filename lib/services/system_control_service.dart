@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:process_run/shell.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:local_notifier/local_notifier.dart';
 import '../utils/logger.dart';
 
@@ -36,7 +37,7 @@ class SystemControlService {
         title: title,
         body: body,
       );
-      notification.show();
+      unawaited(notification.show());
     } catch (e) {
       appLogger.error('[SystemControl] Failed to show notification', error: e);
     }
@@ -101,7 +102,7 @@ class SystemControlService {
     if (kIsWeb || !Platform.isLinux) return null;
 
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final path = '/tmp/zoidbot_screenshot_$timestamp.png';
+    final path = '/tmp/cloudtolocalllm_screenshot_$timestamp.png';
 
     try {
       // Try gnome-screenshot first, then scrot
