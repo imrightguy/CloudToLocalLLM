@@ -15,27 +15,22 @@ import '../../components/message_input.dart' as msg_input;
 import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
-import '../../components/conversation_list.dart';
 import '../../widgets/chat/model_selector.dart';
 import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
 import '../../services/google_workspace_service.dart';
 
-/// Main layout for the chat interface, handling responsiveness and sidebar toggle.
+/// Main layout for the chat interface - single channel direct communication.
 class HomeLayout extends StatefulWidget {
   const HomeLayout({
     super.key,
     required this.isCompact,
-    required this.isSidebarCollapsed,
-    required this.onSidebarToggle,
     required this.scrollController,
     required this.onSendMessage,
   });
 
   final bool isCompact;
-  final bool isSidebarCollapsed;
-  final VoidCallback onSidebarToggle;
   final ScrollController scrollController;
   final void Function(StreamingChatService service, String message)
       onSendMessage;
@@ -119,24 +114,10 @@ class _HomeLayoutState extends State<HomeLayout> {
               ),
             ),
             Expanded(
-              child: Row(
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    width: showSidebar ? (widget.isCompact ? 260 : 300) : 0,
-                    child: showSidebar
-                        ? const _SidebarPane()
-                        : const SizedBox.shrink(),
-                  ),
-                  Expanded(
-                    child: _ChatPane(
-                      isCompact: widget.isCompact,
-                      scrollController: widget.scrollController,
-                      onSendMessage: widget.onSendMessage,
-                    ),
-                  ),
-                ],
+              child: _ChatPane(
+                isCompact: widget.isCompact,
+                scrollController: widget.scrollController,
+                onSendMessage: widget.onSendMessage,
               ),
             ),
           ],
@@ -469,48 +450,6 @@ class _UserMenu extends StatelessWidget {
                   : const Icon(Icons.cloud_off, size: 16, color: Colors.white),
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _SidebarPane extends StatelessWidget {
-  const _SidebarPane();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<StreamingChatService>(
-      builder: (context, chatService, child) {
-        return Column(
-          children: [
-            Expanded(
-              child: ConversationList(
-                conversations: chatService.conversations,
-                selectedConversation: chatService.currentConversation,
-                onConversationSelected: (conversationId) {
-                  final conversation = chatService.conversations.firstWhere(
-                    (c) => c.id == conversationId,
-                  );
-                  chatService.selectConversation(conversation);
-                },
-                onConversationDeleted: (conversationId) {
-                  final conversation = chatService.conversations.firstWhere(
-                    (c) => c.id == conversationId,
-                  );
-                  chatService.deleteConversation(conversation);
-                },
-                onConversationRenamed: (conversationId, newTitle) {
-                  final conversation = chatService.conversations.firstWhere(
-                    (c) => c.id == conversationId,
-                  );
-                  chatService.updateConversationTitle(conversation, newTitle);
-                },
-                onNewConversation: () => chatService.createConversation(),
-                isCollapsed: false,
-              ),
-            ),
-          ],
         );
       },
     );
