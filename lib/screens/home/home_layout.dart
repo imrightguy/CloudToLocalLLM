@@ -452,10 +452,17 @@ class _ChatPaneState extends State<_ChatPane> {
   @override
   void initState() {
     super.initState();
-    // Fetch provider config on initialization
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchProviderConfig();
+      _ensureChannelExists();
     });
+  }
+
+  void _ensureChannelExists() {
+    final chatService = context.read<StreamingChatService>();
+    if (chatService.currentConversation == null) {
+      chatService.createConversation();
+    }
   }
 
   Future<void> _fetchProviderConfig() async {
@@ -500,10 +507,6 @@ class _ChatPaneState extends State<_ChatPane> {
             chatService.selectedModel ??
             (availableModels.isNotEmpty ? availableModels.first : null);
 
-        if (conversation == null) {
-          return const _EmptyConversationState();
-        }
-
         return Container(
           color: theme.scaffoldBackgroundColor,
           child: Column(
@@ -514,10 +517,12 @@ class _ChatPaneState extends State<_ChatPane> {
                 onModelChanged: _onModelChanged,
               ),
               Expanded(
-                child: _MessageList(
-                  conversation: conversation,
-                  controller: widget.scrollController,
-                ),
+                child: conversation != null
+                    ? _MessageList(
+                        conversation: conversation,
+                        controller: widget.scrollController,
+                      )
+                    : const Center(child: CircularProgressIndicator()),
               ),
               Container(
                 padding: EdgeInsets.only(
@@ -530,7 +535,7 @@ class _ChatPaneState extends State<_ChatPane> {
                   onSendMessage: (message) =>
                       widget.onSendMessage(chatService, message),
                   isLoading: chatService.isLoading,
-                  placeholder: 'Type your message...',
+                  placeholder: 'Message OpenClaw...',
                 ),
               ),
             ],
@@ -633,73 +638,6 @@ class _MessageList extends StatelessWidget {
     if (lastUserMessage != null && lastUserMessage.isNotEmpty) {
       chatService.sendMessage(lastUserMessage);
     }
-  }
-}
-
-class _EmptyConversationState extends StatelessWidget {
-  const _EmptyConversationState();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTheme.spacingOf(context);
-    final textColor = theme.colorScheme.onSurface;
-    final textColorLight = theme.colorScheme.onSurface.withValues(alpha: 0.6);
-
-    return Column(
-      children: [
-        Expanded(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.chat_bubble_outline,
-                  size: 64,
-                  color: textColorLight,
-                ),
-                SizedBox(height: spacing.l),
-                Text(
-                  'Welcome to CloudToLocalLLM',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: spacing.m),
-                Text(
-                  'Direct channel to OpenClaw',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: textColorLight,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: spacing.xl),
-                Consumer<StreamingChatService>(
-                  builder: (context, chatService, child) {
-                    return ElevatedButton.icon(
-                      onPressed: () => chatService.createConversation(),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Start Channel'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: spacing.l,
-                          vertical: spacing.m,
-                        ),
-                        minimumSize: const Size(44, 44),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
 
