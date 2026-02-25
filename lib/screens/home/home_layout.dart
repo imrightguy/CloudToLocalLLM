@@ -76,9 +76,6 @@ class _HomeLayoutState extends State<HomeLayout> {
   }
 
   void _handleCloseSidebar() {
-    if (widget.isCompact && !widget.isSidebarCollapsed) {
-      widget.onSidebarToggle();
-    }
     return;
   }
 
@@ -87,9 +84,7 @@ class _HomeLayoutState extends State<HomeLayout> {
     final themeProvider = context.watch<ThemeProvider>();
     final platformService = context.read<PlatformDetectionService>();
     final theme = Theme.of(context);
-    final showSidebar = !widget.isSidebarCollapsed;
 
-    // Apply keyboard shortcuts on desktop platforms
     final body = Stack(
       children: [
         Column(
@@ -109,8 +104,6 @@ class _HomeLayoutState extends State<HomeLayout> {
               ),
               child: _HeaderBar(
                 isCompact: widget.isCompact,
-                isSidebarCollapsed: widget.isSidebarCollapsed,
-                onSidebarToggle: widget.onSidebarToggle,
               ),
             ),
             Expanded(
@@ -142,7 +135,7 @@ class _HomeLayoutState extends State<HomeLayout> {
               ),
             )
           : body,
-      floatingActionButton: widget.isCompact && widget.isSidebarCollapsed
+      floatingActionButton: widget.isCompact
           ? _NewConversationButton(
               minTouchTarget: widget.isCompact ? 44.0 : 32.0,
             )
@@ -167,13 +160,9 @@ class _CloseSidebarIntent extends Intent {
 class _HeaderBar extends StatelessWidget {
   const _HeaderBar({
     required this.isCompact,
-    required this.isSidebarCollapsed,
-    required this.onSidebarToggle,
   });
 
   final bool isCompact;
-  final bool isSidebarCollapsed;
-  final VoidCallback onSidebarToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -190,19 +179,6 @@ class _HeaderBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (isCompact)
-                IconButton(
-                  onPressed: onSidebarToggle,
-                  icon: Icon(
-                    isSidebarCollapsed ? Icons.menu : Icons.close,
-                    color: iconColor,
-                  ),
-                  // Ensure minimum touch target size on mobile
-                  constraints: BoxConstraints(
-                    minWidth: isCompact ? 44.0 : 32.0,
-                    minHeight: isCompact ? 44.0 : 32.0,
-                  ),
-                ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

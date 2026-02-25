@@ -19,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
-  bool? _compactSidebarPreference;
   bool _initializedWithContext = false;
   StreamingChatService? _chatService;
 
@@ -83,20 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
         return LayoutBuilder(
           builder: (context, constraints) {
             final isCompact = constraints.maxWidth < AppConfig.mobileBreakpoint;
-            final isSidebarCollapsed =
-                isCompact ? (_compactSidebarPreference ?? true) : false;
 
             return HomeLayout(
               isCompact: isCompact,
-              isSidebarCollapsed: isSidebarCollapsed,
-              onSidebarToggle: () {
-                if (!isCompact) {
-                  return;
-                }
-                setState(() {
-                  _compactSidebarPreference = !isSidebarCollapsed;
-                });
-              },
               scrollController: _scrollController,
               onSendMessage: _handleSendMessage,
             );
