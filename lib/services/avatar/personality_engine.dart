@@ -89,7 +89,12 @@ class PersonalityEngine {
   }
 
   bool _isValidStage(String stage) {
-    const validStages = ['base', 'stage1', 'stage2', 'final'];
+    const validStages = [
+      'curious_explorer',
+      'knowledge_seeker',
+      'wise_companion',
+      'enlightened_guide'
+    ];
     return validStages.contains(stage);
   }
 }

@@ -13,7 +13,7 @@ export interface PersonalityProfile {
   humor: number;
   enthusiasm: number;
   empathy: number;
-  evolution_stage: 'base' | 'stage1' | 'stage2' | 'final';
+  evolution_stage: 'curious_explorer' | 'knowledge_seeker' | 'wise_companion' | 'enlightened_guide';
   created_at: string;
   updated_at: string;
 }

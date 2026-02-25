@@ -38,7 +38,8 @@ class AvatarStateService extends ChangeNotifier {
   bool get isReady => _currentProfile != null && !_isLoading;
 
   /// Returns the current evolution stage
-  String get evolutionStage => _currentProfile?.evolutionStage ?? 'base';
+  String get evolutionStage =>
+      _currentProfile?.evolutionStage ?? 'curious_explorer';
 
   /// Returns the agent name
   String get agentName => _currentProfile?.agentName ?? 'Agent';

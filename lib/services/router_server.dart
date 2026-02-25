@@ -49,6 +49,8 @@ class RouterServer {
       router.get('/avatar/state', _handleGetAvatarState);
       router.post('/avatar/traits', _handleUpdateTraits);
       router.post('/avatar/evolution/request', _handleEvolutionRequest);
+      router.post(
+          '/api/evolution', _handleEvolutionRequest); // Harmonized endpoint
     }
 
     final handler =

@@ -75,6 +75,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     required this.warning,
     required this.danger,
     required this.info,
+    required this.glassBackground,
+    required this.glassBorder,
   });
 
   final Color primary;
@@ -90,6 +92,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
   final Color warning;
   final Color danger;
   final Color info;
+  final Color glassBackground;
+  final Color glassBorder;
 
   static const AppColorsTheme dark = AppColorsTheme(
     primary: Color(0xFFa777e3),
@@ -105,6 +109,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     warning: Color(0xFFffa726),
     danger: Color(0xFFff5252),
     info: Color(0xFF2196f3),
+    glassBackground: Color(0x33FFFFFF),
+    glassBorder: Color(0x4DFFFFFF),
   );
 
   static const AppColorsTheme light = AppColorsTheme(
@@ -121,6 +127,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     warning: Color(0xFFF57C00),
     danger: Color(0xFFD32F2F),
     info: Color(0xFF1976D2),
+    glassBackground: Color(0x66FFFFFF),
+    glassBorder: Color(0x80FFFFFF),
   );
 
   @override
@@ -138,6 +146,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
     Color? warning,
     Color? danger,
     Color? info,
+    Color? glassBackground,
+    Color? glassBorder,
   }) {
     return AppColorsTheme(
       primary: primary ?? this.primary,
@@ -153,6 +163,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
       warning: warning ?? this.warning,
       danger: danger ?? this.danger,
       info: info ?? this.info,
+      glassBackground: glassBackground ?? this.glassBackground,
+      glassBorder: glassBorder ?? this.glassBorder,
     );
   }
 
@@ -173,6 +185,8 @@ class AppColorsTheme extends ThemeExtension<AppColorsTheme> {
       warning: Color.lerp(warning, other.warning, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
       info: Color.lerp(info, other.info, t)!,
+      glassBackground: Color.lerp(glassBackground, other.glassBackground, t)!,
+      glassBorder: Color.lerp(glassBorder, other.glassBorder, t)!,
     );
   }
 }

@@ -39,6 +39,8 @@ class ThemeConfig {
   static const Color darkTextColor = Color(0xFFf1f1f1);
   static const Color darkTextColorLight = Color(0xFFb0b0b0);
   static const Color darkBorderColor = Color(0xFF1E1E1E);
+  static const Color darkGlassBackground = Color(0x33FFFFFF);
+  static const Color darkGlassBorder = Color(0x26FFFFFF);
 
   // Light Mode Colors
   static const Color lightBackgroundMain = Colors.white;
@@ -48,6 +50,8 @@ class ThemeConfig {
   static const Color lightTextColorLight = Color(0xFF6F7B8A);
   static const Color lightTextColorDark = Color(0xFF263238);
   static const Color lightBorderColor = Color(0xFFE0E0E0);
+  static const Color lightGlassBackground = Color(0x66FFFFFF);
+  static const Color lightGlassBorder = Color(0x4DFFFFFF);
 
   // Status Colors (same for both themes)
   static const Color successColor = Color(0xFF4caf50);
@@ -330,7 +334,23 @@ class ThemeConfig {
       colorScheme: colorScheme,
       extensions: const [
         AppSpacingTheme.standard,
-        AppColorsTheme.dark,
+        AppColorsTheme(
+          primary: primaryColor,
+          secondary: secondaryColor,
+          accent: accentColor,
+          backgroundMain: darkBackgroundMain,
+          backgroundCard: darkBackgroundCard,
+          backgroundLight: Colors.black, // Placeholder for dark light bg
+          textColor: darkTextColor,
+          textColorLight: darkTextColorLight,
+          textColorDark: Colors.white,
+          success: successColor,
+          warning: warningColor,
+          danger: dangerColor,
+          info: infoColor,
+          glassBackground: darkGlassBackground,
+          glassBorder: darkGlassBorder,
+        ),
       ],
       scaffoldBackgroundColor: darkBackgroundMain,
       fontFamily: null,
@@ -369,7 +389,23 @@ class ThemeConfig {
       colorScheme: colorScheme,
       extensions: const [
         AppSpacingTheme.standard,
-        AppColorsTheme.light,
+        AppColorsTheme(
+          primary: primaryColor,
+          secondary: secondaryColor,
+          accent: accentColor,
+          backgroundMain: lightBackgroundMain,
+          backgroundCard: lightBackgroundCard,
+          backgroundLight: lightBackgroundLight,
+          textColor: lightTextColor,
+          textColorLight: lightTextColorLight,
+          textColorDark: lightTextColorDark,
+          success: successColor,
+          warning: warningColor,
+          danger: dangerColor,
+          info: infoColor,
+          glassBackground: lightGlassBackground,
+          glassBorder: lightGlassBorder,
+        ),
       ],
       scaffoldBackgroundColor: lightBackgroundMain,
       fontFamily: null,

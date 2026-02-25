@@ -19,10 +19,14 @@ import '../../widgets/chat/model_selector.dart';
 import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
-import '../../services/google_workspace_service.dart';
+
 import '../../features/avatar/avatar_widget.dart';
 import '../../services/avatar/avatar_state_service.dart';
 import '../../di/locator.dart' as di;
+
+import '../../components/glass_container.dart';
+import '../../components/welcome_screen.dart';
+import '../../components/animated_background.dart';
 
 /// Main layout for the chat interface - single channel direct communication.
 class HomeLayout extends StatefulWidget {
@@ -84,29 +88,30 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = context.watch<ThemeProvider>();
-    final platformService = context.read<PlatformDetectionService>();
     final theme = Theme.of(context);
+    final platformService = context.read<PlatformDetectionService>();
+    final spacing = AppTheme.spacingOf(context);
 
     final body = Stack(
       children: [
+        const Positioned.fill(child: AnimatedBackground()),
         Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: themeProvider.isDarkMode
-                    ? LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          theme.primaryColor,
-                          theme.primaryColor.withValues(alpha: 0.8),
-                        ],
-                      )
-                    : AppTheme.headerGradient,
+            Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + spacing.s,
+                left: spacing.m,
+                right: spacing.m,
               ),
-              child: _HeaderBar(
-                isCompact: widget.isCompact,
+              child: GlassContainer(
+                borderRadius: 24,
+                blur: 10,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 64),
+                  child: _HeaderBar(
+                    isCompact: widget.isCompact,
+                  ),
+                ),
               ),
             ),
             Expanded(
@@ -248,123 +253,7 @@ class _HeaderBar extends StatelessWidget {
           SizedBox(width: spacing.m),
           _AvatarHeaderWidget(iconColor: iconColor),
           const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.smart_toy, color: Colors.white),
-            tooltip: 'GUI Automation',
-            onPressed: () => context.go('/gui-automation'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.dashboard, color: Colors.white),
-            tooltip: 'Admin Dashboard',
-            onPressed: () => context.go('/admin-center'),
-          ),
-          SizedBox(width: spacing.m),
-          const _EmailStatusIndicator(),
-          SizedBox(width: spacing.m),
           const _UserMenu(),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmailStatusIndicator extends StatelessWidget {
-  const _EmailStatusIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<GoogleWorkspaceService>(
-      builder: (context, workspaceService, child) {
-        final isConnected = workspaceService.connectedAccounts.isNotEmpty;
-        final isLoading = workspaceService.isLoading;
-
-        if (isLoading) {
-          return const SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          );
-        }
-
-        return IconButton(
-          icon: Icon(
-            isConnected ? Icons.workspace_premium : Icons.mail_outline,
-            color: isConnected ? Colors.greenAccent : Colors.white70,
-          ),
-          tooltip: isConnected ? 'Check Workspace' : 'Connect Google Workspace',
-          onPressed: () async {
-            if (!isConnected) {
-              await workspaceService.connectAccount();
-            } else {
-              final email = workspaceService.connectedAccounts.first;
-              final messages = await workspaceService.getUnreadMessages(email);
-              final events = await workspaceService.getTodayEvents(email);
-              if (context.mounted) {
-                _showWorkspacePopup(context, messages, events);
-              }
-            }
-          },
-        );
-      },
-    );
-  }
-
-  void _showWorkspacePopup(BuildContext context,
-      List<Map<String, dynamic>> messages, List<Map<String, dynamic>> events) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Google Workspace'),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Upcoming Events',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const Divider(),
-                if (events.isEmpty)
-                  const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text('No events for today'))
-                else
-                  ...events.map((e) => ListTile(
-                        title: Text(e['summary']),
-                        subtitle: Text('${e['start']} - ${e['end']}'),
-                        leading: const Icon(Icons.calendar_today, size: 20),
-                      )),
-                const SizedBox(height: 20),
-                const Text('Unread Emails',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const Divider(),
-                if (messages.isEmpty)
-                  const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text('No unread messages'))
-                else
-                  ...messages.map((m) => ListTile(
-                        title: Text(m['subject'],
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        subtitle: Text('${m['from']} • ${m['date']}'),
-                        isThreeLine: true,
-                        leading: const Icon(Icons.email, size: 20),
-                      )),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
         ],
       ),
     );
@@ -543,8 +432,6 @@ class _ChatPaneState extends State<_ChatPane> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Consumer2<StreamingChatService, ConnectionManagerService>(
       builder: (context, chatService, connectionManager, child) {
         final conversation = chatService.currentConversation;
@@ -555,7 +442,7 @@ class _ChatPaneState extends State<_ChatPane> {
             (availableModels.isNotEmpty ? availableModels.first : null);
 
         return Container(
-          color: theme.scaffoldBackgroundColor,
+          color: Colors.transparent,
           child: Column(
             children: [
               _ChatHeader(
@@ -564,20 +451,23 @@ class _ChatPaneState extends State<_ChatPane> {
                 onModelChanged: _onModelChanged,
               ),
               Expanded(
-                child: conversation != null
+                child: conversation != null && conversation.messages.isNotEmpty
                     ? _MessageList(
                         conversation: conversation,
                         controller: widget.scrollController,
                       )
-                    : const Center(child: CircularProgressIndicator()),
+                    : WelcomeScreen(
+                        onNewChat: () => chatService.createConversation(),
+                      ),
               ),
-              Container(
-                padding: EdgeInsets.only(
+              GlassContainer(
+                margin: EdgeInsets.only(
                   bottom: widget.isCompact ? spacing.m : spacing.l,
                   left: spacing.m,
                   right: spacing.m,
                 ),
-                color: theme.scaffoldBackgroundColor,
+                borderRadius: 24,
+                blur: 20,
                 child: msg_input.MessageInput(
                   onSendMessage: (message) =>
                       widget.onSendMessage(chatService, message),

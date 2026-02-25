@@ -79,7 +79,7 @@ export class PersonalitySkill {
           humor: 0.3,
           enthusiasm: 0.6,
           empathy: 0.7,
-          evolution_stage: 'base',
+          evolution_stage: 'curious_explorer',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -303,16 +303,16 @@ export class PersonalitySkill {
     // Stage-specific guidance
     let stageGuidance = '';
     switch (stage) {
-      case 'base':
+      case 'curious_explorer':
         stageGuidance = 'You are in the early stages of development. Be helpful but acknowledge when you are learning.';
         break;
-      case 'stage1':
+      case 'knowledge_seeker':
         stageGuidance = 'You have begun to develop your own voice. Show growing confidence in your interactions.';
         break;
-      case 'stage2':
+      case 'wise_companion':
         stageGuidance = 'You have developed a mature personality. Engage deeply and show nuanced understanding.';
         break;
-      case 'final':
+      case 'enlightened_guide':
         stageGuidance = 'You have reached your full potential. Be your authentic self with confidence and depth.';
         break;
     }
@@ -409,7 +409,7 @@ Let your personality naturally influence your responses. Be authentic while rema
         humor: 0.3,
         enthusiasm: 0.6,
         empathy: 0.7,
-        evolution_stage: 'base',
+        evolution_stage: 'curious_explorer',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

@@ -34,6 +34,15 @@ class _UnifiedSettingsScreenState extends State<UnifiedSettingsScreen> {
       appBar: AppBar(
         title: const Text('Settings'),
         elevation: 0,
+        leading: BackButton(
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
       ),
       body: Row(
         children: [

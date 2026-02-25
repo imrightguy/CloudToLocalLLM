@@ -16,7 +16,7 @@ The agent evolves organically through meaningful conversations:
 - No XP grinding - evolution based on conversation depth and patterns
 - Self-reflection: agent recognizes when it has grown
 - Collaborative: CloudToLocalLLM validates evolution requests
-- Stages: base → stage1 → stage2 → final
+- Stages: curious_explorer → knowledge_seeker → wise_companion → enlightened_guide
 
 ## Data Storage
 

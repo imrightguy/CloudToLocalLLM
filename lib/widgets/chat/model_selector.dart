@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../config/theme_extensions.dart';
 
 /// Reusable widget for selecting LLM models from a dropdown.
 class ModelSelector extends StatelessWidget {
@@ -85,31 +86,47 @@ class ModelSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.extension<AppColorsTheme>()!;
 
     return Row(
       children: [
-        Icon(Icons.smart_toy, color: theme.primaryColor, size: 20),
-        const SizedBox(width: 8),
+        Icon(Icons.auto_awesome_outlined, color: colors.primary, size: 20),
+        const SizedBox(width: 12),
         Expanded(
           child: availableModels.isEmpty
               ? Text(
                   'No providers available',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
+                    color: colors.danger,
                   ),
                 )
               : DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedModel,
-                    hint: const Text('Select provider'),
+                    dropdownColor: colors.backgroundCard,
+                    borderRadius: BorderRadius.circular(16),
+                    icon: Icon(Icons.keyboard_arrow_down,
+                        color: colors.textColorLight, size: 18),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.textColor,
+                    ),
+                    hint: Text(
+                      'Select provider',
+                      style: TextStyle(color: colors.textColorLight),
+                    ),
                     isExpanded: true,
                     items: availableModels.map((model) {
                       return DropdownMenuItem(
                         value: model,
                         child: Row(
                           children: [
-                            Icon(_getProviderIcon(model), size: 16),
-                            const SizedBox(width: 8),
+                            Icon(
+                              _getProviderIcon(model),
+                              size: 18,
+                              color: colors.primary.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
                                 _getModelDisplayName(model),
@@ -126,12 +143,10 @@ class ModelSelector extends StatelessWidget {
         ),
         if (availableModels.isNotEmpty)
           IconButton(
-            icon: const Icon(Icons.refresh, size: 18),
+            icon: Icon(Icons.refresh_rounded,
+                size: 18, color: colors.textColorLight),
             tooltip: 'Refresh providers',
-            onPressed: () {
-              // Trigger model refresh via connection manager
-              // This will be handled by the parent component
-            },
+            onPressed: () {},
           ),
       ],
     );
@@ -144,17 +159,17 @@ class ModelSelector extends StatelessWidget {
     final provider = parts[0].toLowerCase();
     switch (provider) {
       case 'zhipu':
-        return Icons.psychology; // GLM
+        return Icons.psychology_outlined; // GLM
       case 'google':
-        return Icons.search; // Gemini
+        return Icons.radar_outlined; // Gemini
       case 'moonshot':
-        return Icons.nights_stay; // Kimi (moon)
+        return Icons.nights_stay_outlined; // Kimi (moon)
       case 'openai':
         return Icons.auto_awesome; // GPT
       case 'anthropic':
         return Icons.chat_bubble_outline; // Claude
       default:
-        return Icons.smart_toy;
+        return Icons.smart_toy_outlined;
     }
   }
 }
