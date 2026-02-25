@@ -34,8 +34,12 @@ class AppConfig {
   );
 
   // Development mode settings
-  static const bool enableDevMode = true; // Set to false for production
+  static const bool enableDevMode = false; // Set to false for production
   static const String devModeUser = 'dev@cloudtolocalllm.online';
+
+  // Testing mode settings
+  static const bool forceSetupWizard =
+      false; // Set to true to always show setup wizard
 
   // API Configuration
   static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';
@@ -77,7 +81,9 @@ class AppConfig {
   static Future<String> getGatewayUrl() async {
     final settingsService = SettingsPreferenceService();
     final configuredUrl = await settingsService.getGatewayUrl();
-    return (configuredUrl?.isNotEmpty ?? false) ? configuredUrl! : defaultGatewayUrl;
+    return (configuredUrl?.isNotEmpty ?? false)
+        ? configuredUrl!
+        : defaultGatewayUrl;
   }
 
   /// Get gateway URL synchronously (for use during initialization)
