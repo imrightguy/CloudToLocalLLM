@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../config/app_config.dart';
 import '../services/auth_service.dart';
 import '../di/locator.dart';
 import '../services/onboarding/setup_wizard_service.dart';
@@ -86,19 +87,24 @@ class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
   }
 
   Future<void> _checkSetupNeeded() async {
+    if (!AppConfig.forceSetupWizard) {
+      debugPrint('[Router] Setup wizard disabled, skipping check');
+      return;
+    }
+
     try {
       final setupWizardService = serviceLocator<SetupWizardService>();
       final shouldShow = await setupWizardService.shouldShowWizard();
 
       if (shouldShow && mounted) {
-        debugPrint('[Router] No providers configured, redirecting to setup wizard');
+        debugPrint(
+            '[Router] No providers configured, redirecting to setup wizard');
         if (mounted) {
           context.go('/setup');
         }
       }
     } catch (e) {
       debugPrint('[Router] Error checking setup status: $e');
-      // On error, show home screen anyway
     }
   }
 
