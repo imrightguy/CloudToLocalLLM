@@ -50,6 +50,8 @@ import { JWTValidationMiddleware } from './middleware/jwt-validation-middleware'
 import { Auth0JWTValidator } from './middleware/auth0-validator';
 import { AuthAuditLogger } from './middleware/auth-audit-logger';
 import { loadAuthConfig, validateAuthConfig } from './middleware/auth-config';
+import { createAdminAuthMiddleware } from './middleware/admin-auth.middleware';
+import { HTTP_STATUS, TIME_MS, WEBSOCKET_CLOSE_CODES } from './utils/http-constants';
 
 // ... (tracing and config initialization code)
 
@@ -68,6 +70,11 @@ const auth0Validator = new Auth0JWTValidator(
 // Authentication middleware - Requirement 26.2: Connect AuthMiddleware to all protected endpoints
 const authMiddleware = new JWTValidationMiddleware(auth0Validator);
 const authAuditLogger = new AuthAuditLogger();
+
+const requireAdminAuth = createAdminAuthMiddleware({
+  authMiddleware,
+  authAuditLogger,
+});
 
 // Create Express app
 const app = express();
@@ -118,7 +125,7 @@ app.get('/api/tunnel/health', async (req: Request, res: Response) => {
   try {
     const healthCheck = await healthChecker.performHealthCheck();
     
-    const statusCode = healthCheck.status === 'healthy' ? 200 : 503;
+    const statusCode = healthCheck.status === 'healthy' ? HTTP_STATUS.OK : HTTP_STATUS.SERVICE_UNAVAILABLE;
     
     res.status(statusCode).json({
       status: healthCheck.status,
@@ -138,94 +145,13 @@ app.get('/api/tunnel/health', async (req: Request, res: Response) => {
     logger.error('Health check failed', {
       error: error instanceof Error ? error.message : String(error),
     });
-    res.status(503).json({
+    res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
       status: 'unhealthy',
       error: 'Health check failed',
       timestamp: new Date().toISOString(),
     });
   }
 });
-
-/**
- * Admin authentication middleware for diagnostics endpoint
- * Checks for admin permissions in JWT token
- */
-async function requireAdminAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    // Extract token from Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Missing or invalid authorization header',
-        timestamp: new Date().toISOString(),
-      });
-      return;
-    }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Validate token and get user context
-    const validation = await authMiddleware.validateToken(token);
-    if (!validation.valid || !validation.userId) {
-      res.status(401).json({
-        error: 'Unauthorized',
-        message: validation.error || 'Invalid token',
-        timestamp: new Date().toISOString(),
-      });
-      return;
-    }
-
-    // Get user context to check permissions
-    const userContext = await authMiddleware.getUserContext(token);
-    
-    // Check for admin permissions
-    // Admin permissions can be: 'view_system_metrics', 'admin', or '*' (all permissions)
-    const hasAdminPermission = userContext.permissions.some(perm => 
-      perm === 'view_system_metrics' || 
-      perm === 'admin' || 
-      perm === '*' ||
-      perm.includes('admin')
-    );
-
-    if (!hasAdminPermission) {
-      logger.warn('Diagnostics access denied', {
-        userId: userContext.userId,
-        permissions: userContext.permissions,
-      });
-      res.status(403).json({
-        error: 'Forbidden',
-        message: 'Admin permissions required to access diagnostics',
-        timestamp: new Date().toISOString(),
-      });
-      return;
-    }
-
-    // Log successful admin access
-    const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
-    authAuditLogger.logAuthSuccess(
-      userContext.userId,
-      clientIp,
-      {
-        endpoint: '/api/tunnel/diagnostics',
-        method: 'GET',
-        permissions: userContext.permissions,
-      }
-    );
-
-    // Attach user context to request for use in route handler
-    (req as any).user = userContext;
-    next();
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error('Admin auth check failed', { error: errorMessage });
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to verify admin permissions',
-      timestamp: new Date().toISOString(),
-    });
-  }
-}
 
 /**
  * Diagnostics endpoint
@@ -238,11 +164,11 @@ app.get('/api/tunnel/diagnostics', requireAdminAuth, async (req: Request, res: R
   try {
     const diagnostics = await healthChecker.performDiagnostics();
     
-    res.status(200).json(diagnostics);
+    res.status(HTTP_STATUS.OK).json(diagnostics);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Diagnostics failed', { error: errorMessage });
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       error: 'Diagnostics failed',
       message: errorMessage,
       timestamp: new Date().toISOString(),
@@ -261,11 +187,11 @@ app.get('/api/tunnel/metrics', async (req: Request, res: Response) => {
     const prometheusMetrics = await metricsCollector.exportPrometheusFormat();
     
     res.setHeader('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
-    res.status(200).send(prometheusMetrics);
+    res.status(HTTP_STATUS.OK).send(prometheusMetrics);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error exporting Prometheus metrics', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to export metrics' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to export metrics' });
   }
 });
 
@@ -278,11 +204,11 @@ app.get('/api/tunnel/metrics/json', (req: Request, res: Response) => {
     const window = req.query.window ? parseInt(req.query.window as string, 10) : undefined;
     const metrics = metricsCollector.getServerMetrics(window);
     
-    res.status(200).json(metrics);
+    res.status(HTTP_STATUS.OK).json(metrics);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error exporting JSON metrics', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to export metrics' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to export metrics' });
   }
 });
 
@@ -295,11 +221,11 @@ app.get('/api/tunnel/metrics/user/:userId', (req: Request, res: Response) => {
     const { userId } = req.params;
     const userMetrics = metricsCollector.getUserMetrics(userId);
     
-    res.status(200).json(userMetrics);
+    res.status(HTTP_STATUS.OK).json(userMetrics);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error getting user metrics', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to get user metrics' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to get user metrics' });
   }
 });
 
@@ -312,7 +238,7 @@ app.get('/api/tunnel/circuit-breakers', (req: Request, res: Response) => {
     const metrics = circuitBreakerMetrics.getAllMetrics();
     const summary = circuitBreakerMetrics.getSummary();
     
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       summary,
       circuitBreakers: metrics,
       timestamp: new Date().toISOString(),
@@ -320,7 +246,7 @@ app.get('/api/tunnel/circuit-breakers', (req: Request, res: Response) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error getting circuit breaker metrics', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to get circuit breaker metrics' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to get circuit breaker metrics' });
   }
 });
 
@@ -335,17 +261,17 @@ app.get('/api/tunnel/metrics/history', (req: Request, res: Response) => {
   try {
     // Parse window parameter
     const windowParam = (req.query.window as string) || '1h';
-    let windowMs = 3600000; // 1 hour default
+    let windowMs = TIME_MS.ONE_HOUR;
     
     switch (windowParam) {
       case '1h':
-        windowMs = 3600000;
+        windowMs = TIME_MS.ONE_HOUR;
         break;
       case '24h':
-        windowMs = 86400000;
+        windowMs = TIME_MS.ONE_DAY;
         break;
       case '7d':
-        windowMs = 604800000;
+        windowMs = TIME_MS.ONE_WEEK;
         break;
       default: {
         // Try to parse as milliseconds
@@ -362,7 +288,7 @@ app.get('/api/tunnel/metrics/history', (req: Request, res: Response) => {
     const aggregation = aggregationParam as 'raw' | 'hourly' | 'daily';
     
     if (!['raw', 'hourly', 'daily'].includes(aggregation)) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: 'Invalid aggregation level. Must be one of: raw, hourly, daily',
       });
     }
@@ -371,7 +297,7 @@ app.get('/api/tunnel/metrics/history', (req: Request, res: Response) => {
     const metrics = metricsCollector.getHistoricalMetrics(windowMs, aggregation);
     const statistics = metricsCollector.getHistoricalStatistics(windowMs, aggregation);
     
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       window: windowParam,
       windowMs,
       aggregation,
@@ -383,7 +309,7 @@ app.get('/api/tunnel/metrics/history', (req: Request, res: Response) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error getting historical metrics', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to get historical metrics' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to get historical metrics' });
   }
 });
 
@@ -397,7 +323,7 @@ app.get('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
     const manager = getLogLevelManager();
     const currentLevel = manager.getLogLevel();
     
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       level: currentLevel,
       validLevels: manager.getValidLogLevels(),
       timestamp: new Date().toISOString(),
@@ -405,7 +331,7 @@ app.get('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error getting log level', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to get log level' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to get log level' });
   }
 });
 
@@ -416,13 +342,10 @@ app.get('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
  */
 app.put('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
   try {
-    // Admin auth check can be added later with proper auth middleware
-    // In production, this should require admin authentication
-    
     const { level } = req.body;
     
     if (!level || typeof level !== 'string') {
-      return res.status(400).json({ error: 'Missing or invalid level parameter' });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Missing or invalid level parameter' });
     }
 
     const { getLogLevelManager } = await import('./utils/log-level-manager.js');
@@ -430,7 +353,7 @@ app.put('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
 
     // Validate log level
     if (!manager.isValidLogLevel(level)) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: `Invalid log level: ${level}`,
         validLevels: manager.getValidLogLevels(),
       });
@@ -444,7 +367,7 @@ app.put('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       level: manager.getLogLevel(),
       message: `Log level changed to ${level}`,
       timestamp: new Date().toISOString(),
@@ -452,7 +375,7 @@ app.put('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error setting log level', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to set log level' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to set log level' });
   }
 });
 
@@ -465,20 +388,17 @@ app.put('/api/tunnel/config/log-level', async (req: Request, res: Response) => {
  */
 app.get('/api/tunnel/config', (req: Request, res: Response) => {
   try {
-    // Authentication check can be added here when auth middleware is ready
-    // For now, configuration is available to all (can be restricted later)
-    
     const manager = getConfigManager();
     const config = manager.getConfig();
     
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       config,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error getting configuration', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to get configuration' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to get configuration' });
   }
 });
 
@@ -495,26 +415,23 @@ app.get('/api/tunnel/config', (req: Request, res: Response) => {
  */
 app.put('/api/tunnel/config', (req: Request, res: Response) => {
   try {
-    // Authentication check can be added here when auth middleware is ready
-    // For now, configuration updates are available to all (can be restricted later)
-    
     const manager = getConfigManager();
     const updates = req.body;
     
     if (!updates || typeof updates !== 'object') {
-      return res.status(400).json({ error: 'Request body must be a valid configuration object' });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: 'Request body must be a valid configuration object' });
     }
     
     const result = manager.updateConfig(updates);
     
     if (!result.success) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: result.error,
         timestamp: new Date().toISOString(),
       });
     }
     
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       message: 'Configuration updated successfully',
       config: result.config,
       timestamp: new Date().toISOString(),
@@ -522,7 +439,7 @@ app.put('/api/tunnel/config', (req: Request, res: Response) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error updating configuration', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to update configuration' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to update configuration' });
   }
 });
 
@@ -535,15 +452,12 @@ app.put('/api/tunnel/config', (req: Request, res: Response) => {
  */
 app.post('/api/tunnel/config/reset', (req: Request, res: Response) => {
   try {
-    // Authentication check can be added here when auth middleware is ready
-    // For now, reset is available to all (can be restricted later)
-    
     const manager = getConfigManager();
     const config = manager.resetConfig();
     
     logger.info('Configuration reset to original values');
     
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       message: 'Configuration reset to original values',
       config,
       timestamp: new Date().toISOString(),
@@ -551,7 +465,7 @@ app.post('/api/tunnel/config/reset', (req: Request, res: Response) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Error resetting configuration', { error: errorMessage });
-    res.status(500).json({ error: 'Failed to reset configuration' });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Failed to reset configuration' });
   }
 });
 
@@ -559,7 +473,7 @@ app.post('/api/tunnel/config/reset', (req: Request, res: Response) => {
  * 404 handler
  */
 app.use((req: Request, res: Response) => {
-  res.status(404).json({ error: 'Not found' });
+  res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Not found' });
 });
 
 /**
@@ -568,7 +482,7 @@ app.use((req: Request, res: Response) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   logger.error('Unhandled error', { error: err.message });
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
 });
 
 // WebSocket connection handler
@@ -585,7 +499,7 @@ wss.on('connection', async (ws, req) => {
       clientIp,
       error: error instanceof Error ? error.message : String(error),
     });
-    ws.close(1011, 'Internal server error');
+    ws.close(WEBSOCKET_CLOSE_CODES.INTERNAL_ERROR, 'Internal server error');
   }
 });
 
@@ -610,7 +524,7 @@ const shutdown = async() => {
       if (client.readyState === 1) { // OPEN
         try {
           // Close with code 1001 "Going Away"
-          client.close(1001, 'Server shutting down');
+          client.close(WEBSOCKET_CLOSE_CODES.GOING_AWAY, 'Server shutting down');
         } catch (error) {
           logger.error('Error closing client connection', {
             error: error instanceof Error ? error.message : String(error),
@@ -633,7 +547,7 @@ const shutdown = async() => {
         timestamp: new Date().toISOString(),
       });
       process.exit(1);
-    }, 30000);
+    }, TIME_MS.SHUTDOWN_TIMEOUT);
   } catch (error) {
     logger.error('Error during shutdown', {
       error: error instanceof Error ? error.message : String(error),
