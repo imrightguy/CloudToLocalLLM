@@ -128,30 +128,9 @@ class NativeTrayService with TrayListener {
 
   /// Get tray icon path based on connection status
   String _getTrayIconPath(TrayConnectionStatus status) {
-    // Use appropriate icon based on platform and status
-    final String iconName;
-    switch (status) {
-      case TrayConnectionStatus.allConnected:
-        iconName = 'tray_connected';
-        break;
-      case TrayConnectionStatus.partiallyConnected:
-        iconName = 'tray_partial';
-        break;
-      case TrayConnectionStatus.connecting:
-        iconName = 'tray_connecting';
-        break;
-      case TrayConnectionStatus.disconnected:
-        iconName = 'tray_disconnected';
-        break;
-    }
-
-    if (Platform.isWindows) {
-      return 'assets/icons/$iconName.ico';
-    } else if (Platform.isMacOS) {
-      return 'assets/icons/$iconName.png';
-    } else {
-      return 'assets/icons/$iconName.png';
-    }
+    // For now, use the existing app icon for all status
+    // TODO: Create status-specific tray icons (connected/disconnected/connecting)
+    return 'assets/images/app_icon.png';
   }
 
   /// Update tray menu based on current status
@@ -192,8 +171,15 @@ class NativeTrayService with TrayListener {
       );
 
       await trayManager.setContextMenu(menu);
-      await trayManager
-          .setToolTip('CloudToLocalLLM - ${_getStatusLabel(status)}');
+
+      // setToolTip not implemented on Linux, wrap in try-catch
+      try {
+        await trayManager
+            .setToolTip('CloudToLocalLLM - ${_getStatusLabel(status)}');
+      } catch (e) {
+        // setToolTip not supported on this platform, ignore
+        appLogger.debug('[NativeTray] setToolTip not supported: $e');
+      }
     } catch (e) {
       appLogger.error('[NativeTray] Failed to update tray menu', error: e);
     }
