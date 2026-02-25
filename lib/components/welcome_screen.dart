@@ -3,8 +3,13 @@ import '../config/theme_extensions.dart';
 
 class WelcomeScreen extends StatelessWidget {
   final VoidCallback onNewChat;
+  final Function(String) onAction;
 
-  const WelcomeScreen({super.key, required this.onNewChat});
+  const WelcomeScreen({
+    super.key,
+    required this.onNewChat,
+    required this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,19 +70,20 @@ class WelcomeScreen extends StatelessWidget {
                 _QuickAction(
                   icon: Icons.lightbulb_outline,
                   label: 'Explain Code',
-                  onTap: () {}, // TODO: Implement suggestions
+                  onTap: () => onAction('Explain how this code works: '),
                 ),
                 const SizedBox(width: 16),
                 _QuickAction(
                   icon: Icons.edit_note,
                   label: 'Write Story',
-                  onTap: () {},
+                  onTap: () => onAction('Write a short story about '),
                 ),
                 const SizedBox(width: 16),
                 _QuickAction(
                   icon: Icons.science_outlined,
                   label: 'Research',
-                  onTap: () {},
+                  onTap: () =>
+                      onAction('Research and summarize information about '),
                 ),
               ],
             ),

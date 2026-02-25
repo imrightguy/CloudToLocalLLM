@@ -458,6 +458,8 @@ class _ChatPaneState extends State<_ChatPane> {
                       )
                     : WelcomeScreen(
                         onNewChat: () => chatService.createConversation(),
+                        onAction: (message) =>
+                            widget.onSendMessage(chatService, message),
                       ),
               ),
               GlassContainer(
