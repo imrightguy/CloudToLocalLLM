@@ -9,7 +9,24 @@ class PersonalityTraits {
     required this.humor,
     required this.enthusiasm,
     required this.empathy,
-  });
+  }) {
+    _validate();
+  }
+
+  void _validate() {
+    _assertRange('formality', formality);
+    _assertRange('humor', humor);
+    _assertRange('enthusiasm', enthusiasm);
+    _assertRange('empathy', empathy);
+  }
+
+  static void _assertRange(String name, double value) {
+    if (value < 0.0 || value > 1.0) {
+      throw ArgumentError('$name must be between 0.0 and 1.0, got $value');
+    }
+  }
+
+  static double _clamp(double value) => value.clamp(0.0, 1.0);
 
   Map<String, double> toMap() => {
         'formality': formality,
@@ -18,11 +35,12 @@ class PersonalityTraits {
         'empathy': empathy,
       };
 
-  factory PersonalityTraits.fromMap(Map<String, double> map) => PersonalityTraits(
-        formality: map['formality'] ?? 0.5,
-        humor: map['humor'] ?? 0.5,
-        enthusiasm: map['enthusiasm'] ?? 0.5,
-        empathy: map['empathy'] ?? 0.5,
+  factory PersonalityTraits.fromMap(Map<String, double> map) =>
+      PersonalityTraits(
+        formality: _clamp(map['formality'] ?? 0.5),
+        humor: _clamp(map['humor'] ?? 0.5),
+        enthusiasm: _clamp(map['enthusiasm'] ?? 0.5),
+        empathy: _clamp(map['empathy'] ?? 0.5),
       );
 
   String toJson() => toMap().toString();

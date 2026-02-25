@@ -11,6 +11,7 @@ import 'model_tiers.dart';
 import 'avatar/personality_engine.dart';
 import 'avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
+import 'package:cloudtolocalllm/utils/http_constants.dart';
 
 /// Local HTTP Server that mimics OpenAI API and routes to providers
 class RouterServer {
@@ -236,7 +237,8 @@ class RouterServer {
         reason,
       );
 
-      final statusCode = decision.approved ? 200 : 400;
+      final statusCode =
+          decision.approved ? HttpStatus.ok : HttpStatus.badRequest;
 
       return Response(
         statusCode,
