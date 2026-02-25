@@ -2,7 +2,36 @@
 
 **CloudToLocalLLM** is an OpenClaw Agent Manager — a privacy-first desktop AI companion organized around five core pillars.
 
-> **Last Updated**: 2026-02-20 | **Overall Progress**: ~50% complete | **Estimated Timeline**: 8 weeks
+> **Last Updated**: 2026-02-25 | **Overall Progress**: ~55% complete | **Estimated Timeline**: 8 weeks
+
+---
+
+## Recent Updates
+
+### 2026-02-25: WebSocket Device Identity Authentication
+
+**Status**: ✅ Complete
+
+Implemented device identity authentication for OpenClaw Gateway WebSocket connections:
+
+- **DeviceIdentityService** (`lib/services/device_identity_service.dart`)
+  - ED25519 keypair generation and persistence
+  - Device auth payload signing with challenge nonces
+  - Signature format: `v2|publicKey|clientId|clientMode|role|scopes|timestamp|token|nonce`
+
+- **ConnectionManagerService** updates:
+  - WebSocket handshake with device identity signature
+  - Challenge-response flow (`connect.challenge` event)
+  - `sessions.list` method (dot notation) for agent status polling
+  - Added `operator.admin` scope for admin operations
+
+- **AgentStatusService** updates:
+  - Switched from HTTP `/status.json` to WebSocket `sessions.list` polling
+  - Proper response handling via `_methodResponseCompleters`
+
+- **Singleton Pattern Fix** (`main_privacy_enhanced.dart`):
+  - Fixed duplicate service instances by using `di.serviceLocator<T>()` instead of `new Service()`
+  - Ensures single WebSocket connection per app instance
 
 ---
 
@@ -11,8 +40,8 @@
 | Pillar | Status | Progress | Next Step |
 |--------|--------|----------|-----------|
 | **Setup Wizard** | ✅ Complete | 100% | None |
-| **Chat** | ✅ Phase 1 Complete | 85% | Multi-model attachments |
-| **OpenClaw Manager** | ✅ Phase 1 Complete | 85% | Advanced metrics |
+| **Chat** | ✅ Phase 1 Complete | 90% | Multi-model attachments |
+| **OpenClaw Manager** | ✅ Phase 1 Complete | 90% | Advanced metrics |
 | **Evolving Avatar** | 🟡 Design Complete | 20% | Implementing personality engine |
 | **Desktop Control** | 🟡 Partial | 40% | Window management |
 | **Vision** | 🟡 Partial | 30% | Region capture + OCR |

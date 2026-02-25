@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import '../database/local_brain.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
-import '../config/app_config.dart';
+import 'connection_manager_service.dart';
 
 /// Agent status data model
 class AgentStatus {
@@ -24,6 +22,17 @@ class AgentStatus {
     this.lastUpdate,
   });
 
+  factory AgentStatus.fromSessionInfo(AgentSessionInfo session) {
+    return AgentStatus(
+      id: session.sessionId,
+      name: session.key.split(':').last,
+      status: session.abortedLastRun == true ? 'error' : 'active',
+      activity:
+          'Model: ${session.model ?? 'unknown'} (${session.inputTokens ?? 0} in, ${session.outputTokens ?? 0} out)',
+      lastUpdate: session.updatedAt?.toIso8601String(),
+    );
+  }
+
   factory AgentStatus.fromJson(Map<String, dynamic> json) {
     return AgentStatus(
       id: json['sessionId'] ?? '',
@@ -36,12 +45,12 @@ class AgentStatus {
   }
 }
 
-/// Service for polling agent status from OpenClaw
+/// Service for polling agent status from OpenClaw via WebSocket
 class AgentStatusService {
   final Logger _logger = Logger();
-  final String _statusUrl;
   final Duration _pollInterval;
   final LocalBrain? _db;
+  final ConnectionManagerService? _connectionManager;
   Timer? _pollTimer;
   int _consecutiveErrors = 0;
   static const _uuid = Uuid();
@@ -54,16 +63,16 @@ class AgentStatusService {
 
   /// Create a new agent status service
   ///
-  /// [statusUrl] URL to poll for agent status (default: uses AppConfig.defaultGatewayUrl)
+  /// [connectionManager] Connection manager for WebSocket communication
   /// [pollInterval] How often to poll (default: 2 seconds)
   AgentStatusService({
-    String? statusUrl,
+    ConnectionManagerService? connectionManager,
     Duration? pollInterval,
     LocalBrain? db,
-  })  : _statusUrl = statusUrl ?? '${AppConfig.defaultGatewayUrl}/status.json',
+  })  : _connectionManager = connectionManager,
         _pollInterval = pollInterval ?? const Duration(seconds: 2),
         _db = db {
-    debugPrint('[AgentStatusService] Initialized with URL: $_statusUrl');
+    debugPrint('[AgentStatusService] Initialized with WebSocket polling');
   }
 
   /// Stream of agent status updates
@@ -82,7 +91,7 @@ class AgentStatusService {
       return;
     }
 
-    _logger.i('Starting agent status polling: $_statusUrl');
+    _logger.i('Starting agent status polling via WebSocket');
     _scheduleNextPoll();
   }
 
@@ -109,73 +118,70 @@ class AgentStatusService {
     _logger.i('Stopped agent status polling');
   }
 
-  /// Poll status from the server
+  /// Poll status from the server via WebSocket
   Future<void> _poll() async {
     try {
-      final response = await http
-          .get(Uri.parse(_statusUrl))
-          .timeout(const Duration(seconds: 5));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data is Map<String, dynamic> && data.containsKey('sessions')) {
-          final sessions = data['sessions'] as List<dynamic>;
-          final statuses = sessions
-              .map((e) => AgentStatus.fromJson(e as Map<String, dynamic>))
-              .toList();
-          _cachedStatuses = statuses;
-          _statusController.add(statuses);
-          _errorController.add(null); // Clear error
-          _consecutiveErrors = 0; // Reset on success
-          _logger.d('Polled agent status: ${statuses.length} sessions');
-
-          // Save to Local Brain
-          if (_db != null) {
-            for (final agent in statuses) {
-              await _db.upsertAgent(AgentsCompanion(
-                id: Value(agent.id),
-                name: Value(agent.name),
-                agentId: Value(agent.id),
-                type: const Value('custom'),
-                status: Value(agent.status),
-                activity: Value(agent.activity),
-                lastUpdate: Value(agent.lastUpdate != null
-                    ? DateTime.tryParse(agent.lastUpdate!)
-                    : null),
-                updatedAt: Value(DateTime.now()),
-              ));
-
-              await _db.addAgentEvent(AgentEventsCompanion(
-                id: Value(_uuid.v4()),
-                agentId: Value(agent.id),
-                eventType: const Value('status_update'),
-                eventData: Value(jsonEncode({
-                  'status': agent.status,
-                  'activity': agent.activity,
-                  'lastUpdate': agent.lastUpdate,
-                })),
-                timestamp: Value(DateTime.now()),
-                synced: const Value(true),
-              ));
-            }
-            _logger.d('Saved ${statuses.length} agents to LocalBrain');
-          }
-        } else {
-          _consecutiveErrors++;
-          _errorController.add('Invalid data from server');
-          _logger.w('Invalid status data received');
-        }
-      } else {
+      if (_connectionManager == null) {
         _consecutiveErrors++;
-        final error = 'Server returned ${response.statusCode}';
-        _errorController.add(error);
-        _logger.w('Failed to poll agent status: ${response.statusCode}');
-        debugPrint('[AgentStatusService] ⚠ $error');
+        _errorController.add('Connection manager not available');
+        _logger.w('Connection manager not available');
+        return;
+      }
+
+      if (!_connectionManager.isConnected) {
+        _consecutiveErrors++;
+        _errorController.add('WebSocket not connected');
+        _logger.w('WebSocket not connected');
+        return;
+      }
+
+      // Get sessions list via WebSocket
+      final sessions = await _connectionManager.getSessionsList();
+      
+      final statuses = sessions
+          .map(AgentStatus.fromSessionInfo)
+          .toList();
+      
+      _cachedStatuses = statuses;
+      _statusController.add(statuses);
+      _errorController.add(null); // Clear error
+      _consecutiveErrors = 0; // Reset on success
+      _logger.d('Polled agent status: ${statuses.length} sessions');
+
+      // Save to Local Brain
+      if (_db != null) {
+        for (final agent in statuses) {
+          await _db.upsertAgent(AgentsCompanion(
+            id: Value(agent.id),
+            name: Value(agent.name),
+            agentId: Value(agent.id),
+            type: const Value('custom'),
+            status: Value(agent.status),
+            activity: Value(agent.activity),
+            lastUpdate: Value(agent.lastUpdate != null
+                ? DateTime.tryParse(agent.lastUpdate!)
+                : null),
+            updatedAt: Value(DateTime.now()),
+          ));
+
+          await _db.addAgentEvent(AgentEventsCompanion(
+            id: Value(_uuid.v4()),
+            agentId: Value(agent.id),
+            eventType: const Value('status_update'),
+            eventData: Value(_encodeEventData({
+              'status': agent.status,
+              'activity': agent.activity,
+              'lastUpdate': agent.lastUpdate,
+            })),
+            timestamp: Value(DateTime.now()),
+            synced: const Value(true),
+          ));
+        }
+        _logger.d('Saved ${statuses.length} agents to LocalBrain');
       }
     } catch (e, stack) {
       _consecutiveErrors++;
-      final error = 'Connection error: $e';
+      final error = 'WebSocket error: $e';
       _errorController.add(error);
       _logger.e('Error polling agent status: $e');
       debugPrint('[AgentStatusService] ✗ $error');
@@ -186,6 +192,16 @@ class AgentStatusService {
         _scheduleNextPoll();
       }
     }
+  }
+
+  String _encodeEventData(Map<String, dynamic> data) {
+    // Simple JSON encode without dart:convert to avoid import issues
+    final parts = <String>[];
+    data.forEach((key, value) {
+      final encodedValue = value != null ? '"$value"' : 'null';
+      parts.add('"$key":$encodedValue');
+    });
+    return '{${parts.join(',')}}';
   }
 
   /// Dispose resources

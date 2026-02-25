@@ -14,7 +14,6 @@ import 'services/streaming_proxy_service.dart';
 import 'services/unified_connection_service.dart';
 import 'services/tunnel_service.dart';
 import 'services/connection_manager_service.dart';
-import 'services/settings_preference_service.dart';
 import 'services/streaming_chat_service.dart';
 import 'services/native_tray_service.dart';
 import 'services/window_manager_service.dart';
@@ -26,7 +25,7 @@ import 'services/admin_data_flush_service.dart';
 import 'services/conversation_storage_service.dart';
 import 'services/privacy_storage_manager.dart';
 import 'services/platform_service_manager.dart';
-import 'di/locator.dart';
+import 'di/locator.dart' as di;
 import 'services/onboarding/setup_wizard_service.dart';
 import 'widgets/window_listener_widget.dart';
 
@@ -279,63 +278,41 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
           },
         ),
 
-        ChangeNotifierProxyProvider<AuthService, TunnelService>(
-          create: (context) =>
-              TunnelService(authService: context.read<AuthService>()),
-          update: (context, authService, previous) =>
-              previous ?? TunnelService(authService: authService),
+        // Tunnel service - use singleton from GetIt
+        ChangeNotifierProvider(
+          create: (context) => di.serviceLocator<TunnelService>(),
         ),
 
-        // Connection manager service
+        // Connection manager service - use singleton from GetIt
         ChangeNotifierProvider(
           create: (context) {
-            final connectionManager = ConnectionManagerService(
-              tunnelService: context.read<TunnelService>(),
-              authService: context.read<AuthService>(),
-              settings: context.read<SettingsPreferenceService>(),
-            );
+            final connectionManager = di.serviceLocator<ConnectionManagerService>();
             connectionManager.initialize();
             return connectionManager;
           },
         ),
 
-        // Streaming chat service
+        // Streaming chat service - use singleton from GetIt
         ChangeNotifierProvider(
-          create: (context) {
-            final connectionManager = context.read<ConnectionManagerService>();
-            final authService = context.read<AuthService>();
-            return StreamingChatService(connectionManager, authService);
-          },
+          create: (context) => di.serviceLocator<StreamingChatService>(),
         ),
 
-        // Unified connection service
+        // Unified connection service - use singleton from GetIt
         ChangeNotifierProvider(
-          create: (context) {
-            final unifiedService = UnifiedConnectionService();
-            final connectionManager = context.read<ConnectionManagerService>();
-            unifiedService.setConnectionManager(connectionManager);
-            unifiedService.initialize();
-            return unifiedService;
-          },
+          create: (context) => di.serviceLocator<UnifiedConnectionService>(),
         ),
 
-        // Admin services
+        // Admin services - use singletons from GetIt
         ChangeNotifierProvider(
-          create: (context) {
-            final authService = context.read<AuthService>();
-            return AdminService(authService: authService);
-          },
+          create: (context) => di.serviceLocator<AdminService>(),
         ),
         ChangeNotifierProvider(
-          create: (context) {
-            final authService = context.read<AuthService>();
-            return AdminDataFlushService(authService: authService);
-          },
+          create: (context) => di.serviceLocator<AdminDataFlushService>(),
         ),
 
         // Setup wizard service - uses services from locator
         ChangeNotifierProvider(
-          create: (context) => serviceLocator<SetupWizardService>(),
+          create: (context) => di.serviceLocator<SetupWizardService>(),
         ),
       ],
       child: MaterialApp(

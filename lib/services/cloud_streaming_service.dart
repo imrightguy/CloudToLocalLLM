@@ -9,6 +9,14 @@ import '../config/app_config.dart';
 import '../models/streaming_message.dart';
 import 'streaming_service.dart';
 import 'auth_service.dart';
+import 'device_identity_service.dart';
+
+// Platform detection - web doesn't have dart:io
+String get _platformName {
+  if (kIsWeb) return 'web';
+  // ignore: avoid_web_libraries_in_flutter
+  return 'desktop';
+}
 
 /// Shared WebSocket connection for streaming
 class _SharedWebSocket {
@@ -19,14 +27,15 @@ class _SharedWebSocket {
 
   String? _authToken;
   String? _gatewayToken; // OpenClaw Gateway token for local connections
-  String? _gatewayPassword; // OpenClaw Gateway password for local connections
+  
+  // Completer for waiting for the challenge nonce
+  Completer<String?>? _challengeCompleter;
 
   Stream<Map<String, dynamic>> get messages => _messageController.stream;
   bool get isConnected => _isConnected;
 
   static _SharedWebSocket get instance {
-    _instance ??= _instance = _SharedWebSocket._();
-    return _instance!;
+    return _instance ??= _SharedWebSocket._();
   }
 
   _SharedWebSocket._();
@@ -34,11 +43,12 @@ class _SharedWebSocket {
   /// Set the OpenClaw Gateway token
   void setGatewayToken(String? token) {
     _gatewayToken = token;
-  }
-
-  /// Set the OpenClaw Gateway password
-  void setGatewayPassword(String? password) {
-    _gatewayPassword = password;
+    if (token != null && token.isNotEmpty) {
+      debugPrint(
+          '☁ [_SharedWebSocket] Gateway token set: YES (${token.substring(0, 8)}...)');
+    } else {
+      debugPrint('☁ [_SharedWebSocket] Gateway token set: NO');
+    }
   }
 
   Future<void> connect(String baseUrl, {String? authToken}) async {
@@ -50,105 +60,201 @@ class _SharedWebSocket {
         .replaceFirst('http://', 'ws://')
         .replaceFirst('https://', 'wss://');
 
+    debugPrint('☁ [_SharedWebSocket] Connecting to: $wsUrl');
+
+    // Initialize device identity before connecting
+    final deviceIdentity = DeviceIdentityService.instance;
+    await deviceIdentity.initialize();
+    debugPrint('☁ [_SharedWebSocket] Device ID: ${deviceIdentity.deviceId}');
+
+    // Create completer for challenge before connecting
+    _challengeCompleter = Completer<String?>();
+
     _channel = WebSocketChannel.connect(Uri.parse('$wsUrl/'));
     await _channel!.ready;
-
-    // Listen and broadcast messages
-    _channel!.stream.listen(
-      (data) {
-        final msg = jsonDecode(data.toString());
-        _messageController.add(msg);
-      },
-      onError: (e) {
-        debugPrint('☁ [_SharedWebSocket] Error: $e');
-        _isConnected = false;
-      },
-      onDone: () {
-        debugPrint('☁ [_SharedWebSocket] Connection closed');
-        _isConnected = false;
-      },
-    );
 
     // Check if this is a local connection
     final isLocalConnection = wsUrl.contains('127.0.0.1') ||
         wsUrl.contains('localhost') ||
         wsUrl.contains('::1');
 
-    // Build handshake request
-    final Map<String, dynamic> handshake;
+    debugPrint('☁ [_SharedWebSocket] isLocalConnection: $isLocalConnection');
+    debugPrint(
+        '☁ [_SharedWebSocket] _authToken: ${_authToken != null ? "SET" : "NULL"}');
+    debugPrint(
+        '☁ [_SharedWebSocket] _gatewayToken: ${_gatewayToken != null ? "SET (${_gatewayToken!.substring(0, 8)}...)" : "NULL"}');
 
-    if (!isLocalConnection && _authToken != null && _authToken!.isNotEmpty) {
-      // Cloud connection with OAuth
-      handshake = {
-        'type': 'req',
-        'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
-        'method': 'connect',
-        'params': {
-          'minProtocol': 3,
-          'maxProtocol': 3,
-          'client': {
-            'id': 'cli',
-            'version': '10.1.187',
-            'platform': 'linux',
-            'mode': 'cli'
-          },
-          'role': 'operator',
-          'scopes': ['operator.read', 'operator.write'],
-          'caps': [],
-          'auth': {'token': _authToken},
-          'locale': 'en-US',
-          'userAgent': 'CloudToLocalLLM/10.1.187',
-        }
-      };
-    } else {
-      // Local connection with gateway password from secure storage
-      if (_gatewayPassword == null || _gatewayPassword!.isEmpty) {
-        throw Exception(
-            'OpenClaw Gateway password not configured. Please add it in Settings > OpenClaw Gateway.');
-      }
-
-      handshake = {
-        'type': 'req',
-        'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
-        'method': 'connect',
-        'params': {
-          'minProtocol': 3,
-          'maxProtocol': 3,
-          'client': {
-            'id': 'cli',
-            'version': '10.1.187',
-            'platform': 'linux',
-            'mode': 'cli'
-          },
-          'role': 'operator',
-          'scopes': ['operator.read', 'operator.write'],
-          'caps': [],
-          'auth': {'password': _gatewayPassword},
-          'locale': 'en-US',
-          'userAgent': 'CloudToLocalLLM/10.1.187',
-        }
-      };
+    // Validate token for local connections
+    if (isLocalConnection && (_gatewayToken == null || _gatewayToken!.isEmpty)) {
+      throw Exception(
+          'OpenClaw Gateway token not configured. Please run: openclaw gateway token');
     }
 
-    debugPrint(
-        '☁ [_SharedWebSocket] Handshake: ${isLocalConnection ? "local" : "cloud"}');
+    // Listen and broadcast messages, handling challenge in listener
+    _channel!.stream.listen(
+      (data) {
+        final msg = jsonDecode(data.toString());
+        
+        // Handle connect.challenge event directly
+        if (msg['type'] == 'event' && msg['event'] == 'connect.challenge') {
+          final payload = msg['payload'] as Map<String, dynamic>?;
+          final nonce = payload?['nonce'] as String?;
+          debugPrint('☁ [_SharedWebSocket] Received challenge, nonce: ${nonce?.substring(0, 8)}...');
+          if (_challengeCompleter != null && !_challengeCompleter!.isCompleted) {
+            _challengeCompleter!.complete(nonce);
+          }
+        }
+        
+        _messageController.add(msg);
+        debugPrint('☁ [_SharedWebSocket] Received: ${jsonEncode(msg).substring(0, (jsonEncode(msg).length > 200 ? 200 : jsonEncode(msg).length))}...');
+      },
+      onError: (e) {
+        debugPrint('☁ [_SharedWebSocket] Error: $e');
+        _isConnected = false;
+        if (_challengeCompleter != null && !_challengeCompleter!.isCompleted) {
+          _challengeCompleter!.completeError(e);
+        }
+      },
+      onDone: () {
+        debugPrint('☁ [_SharedWebSocket] Connection closed');
+        _isConnected = false;
+        if (_challengeCompleter != null && !_challengeCompleter!.isCompleted) {
+          _challengeCompleter!.completeError('Connection closed');
+        }
+      },
+    );
+
+    // Step 1: Wait for connect.challenge event with timeout
+    debugPrint('☁ [_SharedWebSocket] Waiting for connect.challenge...');
+
+    String? nonce;
+    try {
+      nonce = await _challengeCompleter!.future.timeout(Duration(seconds: 10));
+    } catch (e) {
+      debugPrint('☁ [_SharedWebSocket] No challenge received, proceeding without device identity: $e');
+      // If no challenge is received, the gateway might not require device identity
+      // Fall back to legacy handshake
+      await _sendLegacyHandshake(isLocalConnection);
+      return;
+    }
+
+    if (nonce == null) {
+      debugPrint('☁ [_SharedWebSocket] No nonce in challenge, falling back to legacy handshake');
+      await _sendLegacyHandshake(isLocalConnection);
+      return;
+    }
+
+    // Step 2: Build device auth with the nonce
+    // Use 'cli' for both clientId and clientMode to match OpenClaw's expected values
+    final deviceAuth = await deviceIdentity.buildDeviceAuth(
+      clientId: 'cli',
+      clientMode: 'cli',
+      role: 'operator',
+      scopes: ['operator.read', 'operator.write', 'operator.admin'],
+      token: isLocalConnection ? _gatewayToken : _authToken,
+      nonce: nonce,
+    );
+
+    debugPrint('☁ [_SharedWebSocket] Built device auth: deviceId=${deviceAuth.deviceId.substring(0, 8)}...');
+
+    // Step 3: Send connect request with device identity
+    final handshake = {
+      'type': 'req',
+      'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cli',
+          'version': '10.1.200',
+          'platform': _platformName,
+          'mode': 'cli',
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write', 'operator.admin'],
+        'caps': [],
+        'auth': {
+          'token': isLocalConnection ? _gatewayToken : _authToken,
+        },
+        'device': deviceAuth.toJson(),
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.200',
+      }
+    };
+
+    debugPrint('☁ [_SharedWebSocket] Sending handshake with device identity...');
     _channel!.sink.add(jsonEncode(handshake));
-    // Don't set _isConnected until handshake completes
 
-    debugPrint('☁ [_SharedWebSocket] Handshake sent, waiting for hello-ok');
+    // Step 4: Wait for hello-ok response
+    await _waitForHelloOk();
+  }
 
-    // Wait for hello-ok response
+  /// Send legacy handshake without device identity (for older gateways)
+  Future<void> _sendLegacyHandshake(bool isLocalConnection) async {
+    final handshake = {
+      'type': 'req',
+      'id': 'connect-${DateTime.now().millisecondsSinceEpoch}',
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cli',
+          'version': '10.1.200',
+          'platform': _platformName,
+          'mode': 'cli',
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write', 'operator.admin'],
+        'caps': [],
+        'auth': {'token': isLocalConnection ? _gatewayToken : _authToken},
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.200',
+      }
+    };
+
+    debugPrint('☁ [_SharedWebSocket] Sending legacy handshake...');
+    _channel!.sink.add(jsonEncode(handshake));
+
+    await _waitForHelloOk();
+  }
+
+  /// Wait for hello-ok response
+  Future<void> _waitForHelloOk() async {
+    debugPrint('☁ [_SharedWebSocket] Waiting for hello-ok...');
+
     try {
       await for (final msg
           in _messageController.stream.timeout(Duration(seconds: 10))) {
+        // Check for error response
+        if (msg['type'] == 'res' && msg['ok'] == false) {
+          final error = msg['error'] as Map<String, dynamic>?;
+          final errorCode = error?['code'] as String?;
+          final errorMessage = error?['message'] ?? 'Handshake failed';
+          debugPrint('☁ [_SharedWebSocket] Handshake error: $errorCode - $errorMessage');
+          throw Exception(errorMessage);
+        }
+
+        // Check for hello-ok
         if (msg['type'] == 'res' && msg['payload']?['type'] == 'hello-ok') {
-          debugPrint('☁ [_SharedWebSocket] Handshake complete');
+          debugPrint('☁ [_SharedWebSocket] Handshake complete!');
+
+          // Check for device token in response
+          final auth = msg['payload']?['auth'] as Map<String, dynamic>?;
+          final deviceToken = auth?['deviceToken'] as String?;
+          if (deviceToken != null) {
+            debugPrint('☁ [_SharedWebSocket] Received device token: ${deviceToken.substring(0, 8)}...');
+            // TODO: Store device token for future connections
+          }
+
           _isConnected = true;
           break;
         }
       }
     } catch (e) {
       debugPrint('☁ [_SharedWebSocket] Handshake timeout/error: $e');
+      rethrow;
     }
   }
 
@@ -222,16 +328,8 @@ class CloudStreamingService extends StreamingService {
     try {
       final stopwatch = Stopwatch()..start();
 
-      // Test basic connectivity first
-      // final headers = await _getHeaders();
-      // final response = await _dio.get(
-      //   '/models',
-      //   options: Options(headers: headers),
-      // );
-
       stopwatch.stop();
 
-      // if (response.statusCode == 200) {
       _connection = StreamingConnection.connected(_baseUrl).copyWith(
         latency: Duration(milliseconds: stopwatch.elapsedMilliseconds),
       );
@@ -246,12 +344,6 @@ class CloudStreamingService extends StreamingService {
         '☁ [CloudStreaming] Connected to OpenClaw Gateway '
         '(${stopwatch.elapsedMilliseconds}ms)',
       );
-      // } else {
-      //   throw StreamingException(
-      //     'Failed to connect: HTTP ${response.statusCode}',
-      //     code: 'HTTP_ERROR',
-      //   );
-      // }
     } catch (e) {
       _connection = StreamingConnection.error(
         'Connection failed: $e',
@@ -497,11 +589,6 @@ class CloudStreamingService extends StreamingService {
         );
       }
     });
-  }
-
-  /// Set the OpenClaw Gateway password
-  void setGatewayPassword(String? password) {
-    _SharedWebSocket.instance.setGatewayPassword(password);
   }
 
   /// Set the OpenClaw Gateway token

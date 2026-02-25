@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'tunnel_service.dart';
 import 'streaming_service.dart';
 import 'cloud_streaming_service.dart';
+import 'device_identity_service.dart';
 import 'auth_service.dart';
 import 'settings_preference_service.dart';
 import '../models/llm_communication_error.dart';
@@ -18,6 +19,41 @@ import 'package:http/http.dart' as http;
 enum ConnectionType { none, local, cloud }
 
 enum GatewayHealthStatus { unknown, healthy, unhealthy, connecting, error }
+
+/// Session info from OpenClaw Gateway
+class AgentSessionInfo {
+  final String sessionId;
+  final String key;
+  final String? model;
+  final int? inputTokens;
+  final int? outputTokens;
+  final DateTime? updatedAt;
+  final bool? abortedLastRun;
+
+  AgentSessionInfo({
+    required this.sessionId,
+    required this.key,
+    this.model,
+    this.inputTokens,
+    this.outputTokens,
+    this.updatedAt,
+    this.abortedLastRun,
+  });
+
+  factory AgentSessionInfo.fromJson(Map<String, dynamic> json) {
+    return AgentSessionInfo(
+      sessionId: json['sessionId'] as String? ?? '',
+      key: json['key'] as String? ?? '',
+      model: json['model'] as String?,
+      inputTokens: json['inputTokens'] as int?,
+      outputTokens: json['outputTokens'] as int?,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'].toString())
+          : null,
+      abortedLastRun: json['abortedLastRun'] as bool?,
+    );
+  }
+}
 
 /// Connection Manager Service - manages connections to LLM providers
 /// Standardized on OpenClaw Gateway as the sole provider.
@@ -37,10 +73,10 @@ class ConnectionManagerService extends ChangeNotifier {
   DateTime? _lastSuccessfulConnection;
   final _responseCompleters = <String, Completer<String>>{};
   final _runIdToCompleter = <String, String>{}; // runId -> requestId mapping
-  String? _gatewayPassword;
-  static const String _gatewayPasswordKey = 'openclaw_gateway_password';
+  String? _gatewayToken;
+  static const String _gatewayTokenKey = 'openclaw_gateway_token';
 
-  String? get gatewayPassword => _gatewayPassword;
+  String? get gatewayToken => _gatewayToken;
 
   String? _configuredGatewayUrl;
 
@@ -61,7 +97,8 @@ class ConnectionManagerService extends ChangeNotifier {
     final url = await _settings.getGatewayUrl();
     if (url?.isNotEmpty ?? false) {
       _configuredGatewayUrl = url;
-      appLogger.info('[ConnectionManager] Using configured gateway URL: $_configuredGatewayUrl');
+      appLogger.info(
+          '[ConnectionManager] Using configured gateway URL: $_configuredGatewayUrl');
     }
   }
 
@@ -70,7 +107,8 @@ class ConnectionManagerService extends ChangeNotifier {
     await _loadGatewayUrl();
     // Reset streaming service to use new URL on next connection
     _cloudStreamingService = null;
-    appLogger.info('[ConnectionManager] Gateway URL reloaded: $_configuredGatewayUrl');
+    appLogger.info(
+        '[ConnectionManager] Gateway URL reloaded: $_configuredGatewayUrl');
     notifyListeners();
   }
 
@@ -86,44 +124,63 @@ class ConnectionManagerService extends ChangeNotifier {
   String? get selectedModel => _selectedModel;
   List<String> get availableModels => _availableModels;
 
-  /// Set the OpenClaw Gateway password/token
-  Future<void> setGatewayPassword(String? password) async {
-    _gatewayPassword = password;
-    if (password != null && password.isNotEmpty) {
-      await _secureStorage.write(key: _gatewayPasswordKey, value: password);
-      debugPrint(
-          '[ConnectionManager] Saved gateway password to secure storage');
+  /// Set the OpenClaw Gateway token
+  Future<void> setGatewayToken(String? token) async {
+    _gatewayToken = token;
+    if (token != null && token.isNotEmpty) {
+      await _secureStorage.write(key: _gatewayTokenKey, value: token);
+      debugPrint('[ConnectionManager] Saved gateway token to secure storage');
+      // Update streaming service if it exists
+      _cloudStreamingService?.setGatewayToken(token);
     } else {
-      await _secureStorage.delete(key: _gatewayPasswordKey);
+      await _secureStorage.delete(key: _gatewayTokenKey);
       debugPrint(
-          '[ConnectionManager] Removed gateway password from secure storage');
+          '[ConnectionManager] Removed gateway token from secure storage');
+      // Update streaming service if it exists
+      _cloudStreamingService?.setGatewayToken(null);
     }
     notifyListeners();
   }
 
-  /// Load gateway password from secure storage or auto-detect from OpenClaw
-  Future<void> loadGatewayPassword() async {
-    // Try auto-detect first
+  /// Load gateway token from OpenClaw config or secure storage
+  Future<void> loadGatewayToken() async {
+    debugPrint('[ConnectionManager] Loading gateway token...');
+
+    // Try auto-detect from OpenClaw config first
     final detectedToken = await _autoDetectGatewayToken();
     if (detectedToken != null && detectedToken.isNotEmpty) {
-      _gatewayPassword = detectedToken;
-      await _secureStorage.write(
-          key: _gatewayPasswordKey, value: detectedToken);
-      debugPrint('[ConnectionManager] Auto-detected gateway token');
+      _gatewayToken = detectedToken;
+      debugPrint(
+          '[ConnectionManager] ✓ Auto-detected gateway token: ${detectedToken.substring(0, 8)}...');
+      // Update streaming service if it exists
+      if (_cloudStreamingService != null) {
+        _cloudStreamingService!.setGatewayToken(detectedToken);
+        debugPrint('[ConnectionManager] ✓ Set token on streaming service');
+      }
       return;
     }
 
     // Fall back to secure storage
     try {
-      final password = await _secureStorage.read(key: _gatewayPasswordKey);
-      if (password != null && password.isNotEmpty) {
-        _gatewayPassword = password;
+      final token = await _secureStorage.read(key: _gatewayTokenKey);
+      if (token != null && token.isNotEmpty) {
+        _gatewayToken = token;
         debugPrint(
-            '[ConnectionManager] Loaded gateway password from secure storage');
+            '[ConnectionManager] ✓ Loaded gateway token from secure storage: ${token.substring(0, 8)}...');
+        // Update streaming service if it exists
+        if (_cloudStreamingService != null) {
+          _cloudStreamingService!.setGatewayToken(token);
+          debugPrint('[ConnectionManager] ✓ Set token on streaming service');
+        }
+      } else {
+        debugPrint('[ConnectionManager] No token found in secure storage');
       }
     } catch (e) {
-      debugPrint('[ConnectionManager] Failed to load gateway password: $e');
+      debugPrint('[ConnectionManager] Failed to load gateway token: $e');
     }
+
+    debugPrint(
+        '[ConnectionManager] Gateway token is ${_gatewayToken != null ? "SET" : "NULL"}');
   }
 
   /// Auto-detect gateway token from OpenClaw config files
@@ -180,10 +237,20 @@ class ConnectionManagerService extends ChangeNotifier {
     switch (connectionType) {
       case ConnectionType.local:
         final gatewayUrl = _configuredGatewayUrl ?? AppConfig.defaultGatewayUrl;
-        _cloudStreamingService ??= CloudStreamingService(
-          baseUrl: gatewayUrl,
-          authService: _authService,
-        );
+        if (_cloudStreamingService == null) {
+          debugPrint(
+              '[ConnectionManager] Creating new CloudStreamingService...');
+          _cloudStreamingService = CloudStreamingService(
+            baseUrl: gatewayUrl,
+            authService: _authService,
+          );
+        }
+
+        // Ensure gateway token is set on the service
+        debugPrint(
+            '[ConnectionManager] Setting gateway token on streaming service...');
+        _cloudStreamingService!.setGatewayToken(_gatewayToken);
+        debugPrint('[ConnectionManager] ✓ Token set on streaming service');
         return _cloudStreamingService;
       case ConnectionType.cloud:
         _cloudStreamingService ??= CloudStreamingService(
@@ -264,44 +331,37 @@ class ConnectionManagerService extends ChangeNotifier {
         },
       );
 
-      // Send handshake request
-      final token = await _authService.getAccessToken() ?? '';
-      final id = DateTime.now().millisecondsSinceEpoch.toString();
-
-      final connectRequest = {
-        'type': 'req',
-        'id': id,
-        'method': 'connect',
-        'params': {
-          'minProtocol': 3,
-          'maxProtocol': 3,
-          'client': {
-            'id': 'cli',
-            'version': '10.1.187',
-            'platform': 'linux',
-            'mode': 'cli'
-          },
-          'role': 'operator',
-          'scopes': ['operator.read', 'operator.write'],
-          'auth': {'token': token},
-          'locale': 'en-US',
-          'userAgent': 'CloudToLocalLLM/10.1.187',
-        }
-      };
-
-      _wsChannel?.sink.add(jsonEncode(connectRequest));
+      // Initialize device identity service
+      final deviceIdentity = DeviceIdentityService.instance;
+      await deviceIdentity.initialize();
 
       // Set up stream listener with handshake completion tracking
       final completer = Completer<void>();
       bool handshakeReceived = false;
+      String? challengeNonce;
+      final id = DateTime.now().millisecondsSinceEpoch.toString();
 
       _wsChannel!.stream.listen(
         (data) {
           if (!handshakeReceived) {
-            // Handle handshake response
             try {
               final msg = jsonDecode(data as String);
-              if (msg['type'] == 'res' && msg['id'] == id) {
+              
+              // Step 1: Handle connect.challenge event
+              if (msg['type'] == 'event' && msg['event'] == 'connect.challenge') {
+                final payload = msg['payload'] as Map<String, dynamic>?;
+                challengeNonce = payload?['nonce'] as String?;
+                debugPrint('[ConnectionManager] Received challenge nonce: ${challengeNonce?.substring(0, 8)}...');
+                
+                // Now send the connect request with device identity
+                _sendConnectWithDeviceIdentity(
+                  id: id,
+                  nonce: challengeNonce,
+                  deviceIdentity: deviceIdentity,
+                );
+              }
+              // Step 2: Handle handshake response
+              else if (msg['type'] == 'res' && msg['id'] == id) {
                 if (msg['payload']?['type'] == 'hello-ok') {
                   debugPrint('[ConnectionManager] ✓ Handshake successful');
                   handshakeReceived = true;
@@ -351,9 +411,9 @@ class ConnectionManagerService extends ChangeNotifier {
 
       // Wait for handshake to complete with timeout
       await completer.future.timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 15),
         onTimeout: () =>
-            throw TimeoutException('Handshake timed out after 10 seconds'),
+            throw TimeoutException('Handshake timed out after 15 seconds'),
       );
 
       debugPrint(
@@ -373,8 +433,77 @@ class ConnectionManagerService extends ChangeNotifier {
     }
   }
 
+  /// Send connect request with device identity
+  Future<void> _sendConnectWithDeviceIdentity({
+    required String id,
+    required String? nonce,
+    required DeviceIdentityService deviceIdentity,
+  }) async {
+    final token = _gatewayToken ?? await _authService.getAccessToken() ?? '';
+    
+    // Build device auth if we have a nonce
+    Map<String, dynamic>? deviceAuth;
+    if (nonce != null) {
+      try {
+        final auth = await deviceIdentity.buildDeviceAuth(
+          clientId: 'cli',
+          clientMode: 'cli',
+          role: 'operator',
+          scopes: ['operator.read', 'operator.write', 'operator.admin'],
+          token: token,
+          nonce: nonce,
+        );
+        deviceAuth = auth.toJson();
+        debugPrint('[ConnectionManager] Built device auth with signature');
+      } catch (e) {
+        debugPrint('[ConnectionManager] Failed to build device auth: $e');
+      }
+    }
+
+    final connectRequest = {
+      'type': 'req',
+      'id': id,
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cli',
+          'version': '10.1.187',
+          'platform': Platform.operatingSystem,
+          'mode': 'cli'
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write', 'operator.admin'],
+        'caps': [],
+        'auth': {'token': token},
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.187',
+        if (deviceAuth != null) 'device': deviceAuth,
+      }
+    };
+
+    debugPrint('[ConnectionManager] Sending connect request with device identity');
+    _wsChannel?.sink.add(jsonEncode(connectRequest));
+  }
+
   void _handleWebSocketMessage(String data) {
     final msg = jsonDecode(data);
+
+    // Handle method responses (non-chat requests like sessions_list)
+    if (msg['type'] == 'res' && msg['id'] != null) {
+      final methodCompleter = _methodResponseCompleters[msg['id']];
+      if (methodCompleter != null && !methodCompleter.isCompleted) {
+        if (msg['ok'] == true) {
+          methodCompleter.complete(msg['payload'] as Map<String, dynamic>?);
+        } else {
+          methodCompleter.completeError(
+            Exception(msg['error']?['message'] ?? 'Request failed'),
+          );
+        }
+        return;
+      }
+    }
 
     // Handle chat response (acknowledgment with runId)
     if (msg['type'] == 'res' && msg['id'] != null) {
@@ -433,8 +562,81 @@ class ConnectionManagerService extends ChangeNotifier {
     }
   }
 
+  /// Send a WebSocket request and wait for response
+  /// Returns the payload if successful, throws on error
+  Future<Map<String, dynamic>?> sendWebSocketRequest({
+    required String method,
+    Map<String, dynamic>? params,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    if (!_isConnected) {
+      await _connectWebSocket();
+    }
+
+    if (!_isConnected) {
+      throw Exception('WebSocket not connected');
+    }
+
+    final id = 'req-${DateTime.now().millisecondsSinceEpoch}';
+
+    final request = {
+      'type': 'req',
+      'id': id,
+      'method': method,
+      if (params != null) 'params': params,
+    };
+
+    _wsChannel?.sink.add(jsonEncode(request));
+
+    try {
+      // Wait for response with custom handling for non-chat requests
+      return await _waitForMethodResponse(id, timeout);
+    } catch (e) {
+      _methodResponseCompleters.remove(id);
+      rethrow;
+    }
+  }
+
+  /// Wait for a method response (non-chat requests)
+  Future<Map<String, dynamic>?> _waitForMethodResponse(String id, Duration timeout) async {
+    final completer = Completer<Map<String, dynamic>?>();
+    
+    // Store special completer for method responses
+    _methodResponseCompleters[id] = completer;
+    
+    try {
+      return await completer.future.timeout(timeout);
+    } finally {
+      _methodResponseCompleters.remove(id);
+    }
+  }
+
+  // Completers for method responses (non-chat)
+  final _methodResponseCompleters = <String, Completer<Map<String, dynamic>?>>{};
+
+  /// Get list of active sessions from OpenClaw Gateway
+  Future<List<AgentSessionInfo>> getSessionsList() async {
+    try {
+      final response = await sendWebSocketRequest(
+        method: 'sessions.list',
+        params: {},
+        timeout: const Duration(seconds: 5),
+      );
+
+      if (response == null) return [];
+
+      final sessions = response['sessions'] as List<dynamic>? ?? [];
+      return sessions
+          .map((s) => AgentSessionInfo.fromJson(s as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('[ConnectionManager] Failed to get sessions list: $e');
+      return [];
+    }
+  }
+
   Future<void> initialize() async {
-    await loadGatewayPassword();
+    await loadGatewayToken();
     await testConnection();
     if (_authService.isAuthenticated.value) {
       try {
@@ -579,14 +781,15 @@ class ConnectionManagerService extends ChangeNotifier {
       final gatewayUrl = _configuredGatewayUrl ?? AppConfig.defaultGatewayUrl;
       final configUrl = '$gatewayUrl/api/v1/config';
 
-      debugPrint('[ConnectionManager] Fetching provider config from $configUrl');
+      debugPrint(
+          '[ConnectionManager] Fetching provider config from $configUrl');
 
       final response = await http.get(
         Uri.parse(configUrl),
         headers: {
           'Accept': 'application/json',
-          if (_gatewayPassword != null && _gatewayPassword!.isNotEmpty)
-            'Authorization': 'Bearer $_gatewayPassword',
+          if (_gatewayToken != null && _gatewayToken!.isNotEmpty)
+            'Authorization': 'Bearer $_gatewayToken',
         },
       ).timeout(const Duration(seconds: 5));
 
@@ -599,13 +802,16 @@ class ConnectionManagerService extends ChangeNotifier {
         // Update available models list for backward compatibility
         _updateAvailableModelsList();
 
-        debugPrint('[ConnectionManager] Loaded ${_availableProviders.length} providers');
-        debugPrint('[ConnectionManager] Active provider: $_activeProviderModelId');
+        debugPrint(
+            '[ConnectionManager] Loaded ${_availableProviders.length} providers');
+        debugPrint(
+            '[ConnectionManager] Active provider: $_activeProviderModelId');
 
         notifyListeners();
         return true;
       } else {
-        debugPrint('[ConnectionManager] Failed to fetch config: ${response.statusCode}');
+        debugPrint(
+            '[ConnectionManager] Failed to fetch config: ${response.statusCode}');
         unawaited(_loadConfigFromFile());
         return false;
       }
@@ -635,7 +841,8 @@ class ConnectionManagerService extends ChangeNotifier {
 
       _updateAvailableModelsList();
 
-      debugPrint('[ConnectionManager] Loaded config from file: ${_availableProviders.length} providers');
+      debugPrint(
+          '[ConnectionManager] Loaded config from file: ${_availableProviders.length} providers');
       notifyListeners();
       return true;
     } catch (e) {
@@ -663,26 +870,30 @@ class ConnectionManagerService extends ChangeNotifier {
 
       debugPrint('[ConnectionManager] Setting provider to: $providerModelId');
 
-      final response = await http.post(
-        Uri.parse(providerUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (_gatewayPassword != null && _gatewayPassword!.isNotEmpty)
-            'Authorization': 'Bearer $_gatewayPassword',
-        },
-        body: jsonEncode({'provider': providerModelId}),
-      ).timeout(const Duration(seconds: 5));
+      final response = await http
+          .post(
+            Uri.parse(providerUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              if (_gatewayToken != null && _gatewayToken!.isNotEmpty)
+                'Authorization': 'Bearer $_gatewayToken',
+            },
+            body: jsonEncode({'provider': providerModelId}),
+          )
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200 || response.statusCode == 202) {
         _activeProviderModelId = providerModelId;
         _selectedModel = providerModelId;
 
-        debugPrint('[ConnectionManager] ✓ Provider changed to: $providerModelId');
+        debugPrint(
+            '[ConnectionManager] ✓ Provider changed to: $providerModelId');
         notifyListeners();
         return true;
       } else {
-        debugPrint('[ConnectionManager] ✗ Failed to set provider: ${response.statusCode}');
+        debugPrint(
+            '[ConnectionManager] ✗ Failed to set provider: ${response.statusCode}');
         debugPrint('[ConnectionManager] Response: ${response.body}');
         return false;
       }
