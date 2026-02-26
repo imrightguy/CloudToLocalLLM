@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # PostgreSQL Database
   postgres:
-    image: ghcr.io/zoidbot-online/zoidbot/postgres:${DOCKER_TAG}
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/postgres:${DOCKER_TAG}
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-zoidbot}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -58,7 +58,7 @@ services:
 
   # API Backend
   api-backend:
-    image: ghcr.io/zoidbot-online/zoidbot/api:${DOCKER_TAG}
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/api:${DOCKER_TAG}
     user: "1001:1001"
     environment:
       NODE_ENV: production
@@ -107,7 +107,7 @@ services:
 
   # Streaming Proxy
   streaming-proxy:
-    image: ghcr.io/zoidbot-online/zoidbot/streaming:${DOCKER_TAG}
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/streaming:${DOCKER_TAG}
     user: "1001:1001"
     environment:
       NODE_ENV: production
@@ -136,7 +136,7 @@ services:
 
   # Web Frontend (Nginx serving Flutter)
   web:
-    image: ghcr.io/zoidbot-online/zoidbot/web:${DOCKER_TAG}
+    image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:${DOCKER_TAG}
     user: "1001:1001"
     networks:
       zoidbot_net:
