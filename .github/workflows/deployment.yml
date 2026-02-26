@@ -150,59 +150,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Google Auth for GAR
-        uses: google-github-actions/auth@v3
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
-      - name: Login to Google Artifact Registry
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev
-
       - uses: subosito/flutter-action@v2
-        if: needs.ai_change_analysis.outputs.web_needs_build == 'true'
         with:
           channel: "stable"
 
-      - name: Build and Push
+      - name: Build Unified Cloudron Image
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          GAR_REPO=us-central1-docker.pkg.dev/cloudtolocalllm/cloudtolocalllm-images
-
-          if [ "${{ needs.ai_change_analysis.outputs.api_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/api:latest -t ghcr.io/${REPO_LOWER}/api:${VERSION} -t ${GAR_REPO}/api:${VERSION} -t ${GAR_REPO}/api:latest services/api-backend
-            docker push ghcr.io/${REPO_LOWER}/api:latest
-            docker push ghcr.io/${REPO_LOWER}/api:${VERSION}
-            docker push ${GAR_REPO}/api:${VERSION}
-            docker push ${GAR_REPO}/api:latest
-          fi
-
-          if [ "${{ needs.ai_change_analysis.outputs.web_needs_build }}" == "true" ]; then
-            flutter pub get
-            flutter build web --release --no-tree-shake-icons
-            docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ${GAR_REPO}/web:${VERSION} -t ${GAR_REPO}/web:latest -f config/docker/Dockerfile.web .
-            docker push ghcr.io/${REPO_LOWER}/web:latest
-            docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
-            docker push ${GAR_REPO}/web:${VERSION}
-            docker push ${GAR_REPO}/web:latest
-          fi
-
-          if [ "${{ needs.ai_change_analysis.outputs.postgres_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/postgres:latest -t ghcr.io/${REPO_LOWER}/postgres:${VERSION} -t ${GAR_REPO}/postgres:${VERSION} -t ${GAR_REPO}/postgres:latest -f config/docker/Dockerfile.postgres .
-            docker push ghcr.io/${REPO_LOWER}/postgres:latest
-            docker push ghcr.io/${REPO_LOWER}/postgres:${VERSION}
-            docker push ${GAR_REPO}/postgres:${VERSION}
-            docker push ${GAR_REPO}/postgres:latest
-          fi
-
-          if [ "${{ needs.ai_change_analysis.outputs.streaming_needs_build }}" == "true" ]; then
-            docker build -t ghcr.io/${REPO_LOWER}/streaming:latest -t ghcr.io/${REPO_LOWER}/streaming:${VERSION} -t ${GAR_REPO}/streaming:${VERSION} -t ${GAR_REPO}/streaming:latest -f config/docker/Dockerfile.streaming-proxy .
-            docker push ghcr.io/${REPO_LOWER}/streaming:latest
-            docker push ghcr.io/${REPO_LOWER}/streaming:${VERSION}
-            docker push ${GAR_REPO}/streaming:${VERSION}
-            docker push ${GAR_REPO}/streaming:latest
-          fi
+          
+          echo "Building Web Frontend..."
+          flutter pub get
+          flutter build web --release --no-tree-shake-icons
+          
+          echo "Building Unified Cloudron Image..."
+          docker build -t ghcr.io/${REPO_LOWER}/cloudron:latest -t ghcr.io/${REPO_LOWER}/cloudron:${VERSION} -f config/cloudron/Dockerfile .
+          docker push ghcr.io/${REPO_LOWER}/cloudron:latest
+          docker push ghcr.io/${REPO_LOWER}/cloudron:${VERSION}
 
   build_desktop_apps:
     needs: [ai_change_analysis, run_tests]
@@ -341,46 +305,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install and Configure CloudCLI
-        run: |
-          wget https://github.com/cloudwm/cli/releases/latest/download/cloudcli-linux-amd64
-          chmod +x cloudcli-linux-amd64
-          sudo mv cloudcli-linux-amd64 /usr/local/bin/cloudcli
-          
-      - name: Discover Kamatera Server IP
-        id: kamatera
-        run: |
-          echo "Querying CloudCLI for Server Information..."
-          cloudcli --api-clientid ${{ secrets.KAMATERA_API_CLIENTID }} --api-secret ${{ secrets.KAMATERA_API_SECRET }} server info --name CloudToLocalLLM --format json > server.json
-          SERVER_IP=$(jq -r '.[0].networks[] | select(.network | startswith("wan")).ips[0]' server.json)
-          echo "Discovered IP: $SERVER_IP"
-          echo "SERVER_IP=$SERVER_IP" >> $GITHUB_OUTPUT
-
-      - name: Copy docker-stack.yml to Server
-        uses: appleboy/scp-action@v0.1.7
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ steps.kamatera.outputs.SERVER_IP }}
-          username: root
-          key: ${{ secrets.KAMATERA_SSH_PRIVATE_KEY }}
-          source: "docker-stack.yml"
-          target: "/opt/cloudtolocalllm"
+          node-version: '20'
 
-      - name: Deploy Docker Swarm Stack
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ steps.kamatera.outputs.SERVER_IP }}
-          username: root
-          key: ${{ secrets.KAMATERA_SSH_PRIVATE_KEY }}
-          script: |
-            export DOCKER_TAG=${{ needs.ai_change_analysis.outputs.new_version }}
-            export CLOUDFLARE_TUNNEL_TOKEN=${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            export JWT_SECRET=${{ secrets.JWT_SECRET }}
-            export AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}
-            export AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}
-            export CLOUDFLARE_API_KEY=${{ secrets.CLOUDFLARE_API_KEY }}
-            export INFRASTRUCTURE_API_KEY=${{ secrets.INFRASTRUCTURE_API_KEY }}
-            
-            cd /opt/cloudtolocalllm
-            echo "Deploying Swarm Stack..."
-            docker stack deploy -c docker-stack.yml cloudtolocalllm --with-registry-auth
+      - name: Install Cloudron CLI
+        run: npm install -g cloudron
+
+      - name: Deploy to Cloudron
+        run: |
+          REPO_LOWER=${GITHUB_REPOSITORY,,}
+          IMAGE="ghcr.io/${REPO_LOWER}/cloudron:latest"
+          echo "Deploying $IMAGE to Cloudron App: ${{ secrets.CLOUDRON_APP_DOMAIN }}"
+          cloudron update --server ${{ secrets.CLOUDRON_SERVER }} --token ${{ secrets.CLOUDRON_TOKEN }} --app ${{ secrets.CLOUDRON_APP_DOMAIN }} --image $IMAGE

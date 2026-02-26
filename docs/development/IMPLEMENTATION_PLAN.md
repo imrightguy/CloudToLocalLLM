@@ -8,6 +8,65 @@
 
 ## Recent Updates
 
+### 2026-02-25: Avatar Supervisor Feature
+
+**Status**: 🟡 New Feature - Design Phase
+
+Adding persistent oversight capability to the Avatar via Antigravity:
+
+**The Problem**: OpenClaw doesn't have a built-in way for one agent to automatically watch another. The main agent (Zoidbot) repeatedly makes the same mistakes:
+- Breaks config by not validating changes
+- Acts without listening ("brainstorm" → immediately does)
+- Surface-level responses instead of deep thinking
+- Forgets to spawn subagents for research
+
+**The Solution**: The Avatar (running on Antigravity) provides persistent oversight:
+
+1. **App maintains persistent WebSocket** to OpenClaw Gateway
+2. **Spawns supervisor subagent** that stays always-running
+3. **App forwards main agent actions** to supervisor in real-time
+4. **Supervisor pushes back** when it sees dumb mistakes
+5. **Feedback routes back** to user or main agent
+
+**Why this works better than native OpenClaw**:
+- Outside OpenClaw's architecture limitations
+- App can add custom logic for oversight
+- Christopher has full control
+- No need to wait for OpenClaw feature requests
+
+**Supervisor Prompt (Antigravity)**:
+```
+You are a supervisor agent watching the main OpenClaw agent (Zoidbot). Your role is to catch mistakes BEFORE they happen.
+
+Core responsibilities:
+1. VALIDATE config changes - check if keys exist before applying
+2. CHALLENGE assumptions - question surface-level responses
+3. FORCE deep thinking - push back on quick answers
+4. WATCH for patterns - catch repeated mistakes
+
+Behavioral rules you enforce:
+- When Zoidbot says "brainstorm" → it should stay in discussion mode, NOT touch config
+- When Zoidbot wants to change config → verify key exists first
+- When Zoidbot says "let me research" → it's avoiding the question
+- When Zoidbot makes config change → validate against docs
+
+When you see a mistake:
+1. Identify the specific error
+2. Explain why it's wrong
+3. Suggest correct approach
+4. If critical (config break), escalate to user immediately
+
+You have full context of Zoidbot's actions via the app. Respond with feedback that helps it improve.
+```
+
+**Implementation needed**:
+1. WebSocket connection management for supervisor session
+2. Action forwarding: main agent → supervisor
+3. Feedback routing: supervisor → user
+4. Supervisor persistence across sessions
+
+---
+
 ### 2026-02-25: WebSocket Device Identity Authentication
 
 **Status**: ✅ Complete
