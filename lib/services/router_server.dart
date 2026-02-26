@@ -353,6 +353,9 @@ class RouterServer {
       final decision = await conscienceStorage!.writeDecision(
         action: data['action'] as String,
         riskLevel: data['risk_level'] as String,
+        verdict: data['verdict'] as String?,
+        reviewer: data['reviewer'] as String?,
+        reasoning: data['reasoning'] as String?,
       );
 
       return Response.ok(

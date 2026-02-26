@@ -39,7 +39,7 @@ class AppConfig {
 
   // Testing mode settings
   static const bool forceSetupWizard =
-      false; // Set to true to always show setup wizard
+      true; // Set to true to always show setup wizard
 
   // API Configuration
   static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';

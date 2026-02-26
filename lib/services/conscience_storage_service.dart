@@ -66,16 +66,23 @@ class ConscienceStorageService {
   Future<Map<String, dynamic>> writeDecision({
     required String action,
     required String riskLevel,
+    String? verdict,
+    String? reviewer,
+    String? reasoning,
   }) async {
     final id = _uuid.v4();
     final now = DateTime.now();
+    final status = verdict != null ? 'reviewed' : 'pending';
 
     await _database.insertDecision(ConscienceDecisionsCompanion.insert(
       id: id,
       timestamp: Value(now),
       action: action,
       riskLevel: riskLevel,
-      status: const Value('pending'),
+      verdict: Value(verdict),
+      reviewer: Value(reviewer),
+      reasoning: Value(reasoning),
+      status: Value(status),
     ));
 
     return {
@@ -83,10 +90,10 @@ class ConscienceStorageService {
       'timestamp': now.toIso8601String(),
       'action': action,
       'risk_level': riskLevel,
-      'verdict': null,
-      'reviewer': null,
-      'reasoning': null,
-      'status': 'pending',
+      'verdict': verdict,
+      'reviewer': reviewer,
+      'reasoning': reasoning,
+      'status': status,
     };
   }
 
