@@ -8,6 +8,60 @@
 
 ## Recent Updates
 
+### 2026-02-26: Conscience System (Multi-Agent Cross-Checking)
+
+**Status**: 🟡 New Feature - Planning Complete, Ready for Implementation
+
+A multi-agent system inspired by Grok 4.20 that cross-checks decisions before acting. Prevents the main agent from breaking config, rushing actions, or ignoring context.
+
+**Architecture:**
+
+| Component | Role |
+|-----------|------|
+| **Coordinator** | Supervisor cron in OpenClaw, reads/writes storage, spawns agents, decides verdicts |
+| **Zoidbot** | Front agent, talks to user, executes, posts intentions |
+| **Benjamin** | Reviewer, validates, checks past failures, returns APPROVED/QUESTION/HOLD |
+| **Harper** | Researcher, gathers context, searches, summarizes |
+
+**Storage Strategy (OpenClaw = source of truth):**
+
+- **App available** → Drift/SQLite via CloudToLocalLLM API (fast, indexed queries)
+- **App down** → Files (AGENT-THOUGHTS.md, CONSCIENCE.md) - always works
+- **Sync** → Files sync to DB when app comes back online
+
+**Risk Categories:**
+
+| Action | Review Required |
+|--------|-----------------|
+| Config edits | ✅ Yes - post to CONSCIENCE.md, wait |
+| External sends | ✅ Yes |
+| Deletions | ✅ Yes |
+| Reading files | ❌ No |
+| Git commits | ❌ No |
+
+**Implementation Phases:**
+
+| Phase | What | Time |
+|-------|------|------|
+| **1** | Storage layer - files + API to app's Drift DB | 4h |
+| **2** | Spawn Benjamin/Harper on demand, parallel execution | 6h |
+| **3** | Persistent agent identities with roles | 4h |
+| **4** | Coordinator intelligence - consensus, conflict resolution | 6h |
+
+**Key Files:**
+- `AGENT-THOUGHTS.md` - shared board where all agents post thoughts
+- `CONSCIENCE.md` - risky action tracking with APPROVED/QUESTION/HOLD
+- `memory/openclaw-app-architecture.md` - philosophy doc
+- `memory/conscience-project-plan.md` - full plan
+- `memory/conscience-phases.md` - detailed phases
+
+**Philosophy:**
+- OpenClaw works standalone (always functional)
+- CloudToLocalLLM app expands capability (fast DB, UI, sync)
+- Users understand the stack (learn OpenClaw first, then add app)
+
+---
+
 ### 2026-02-25: Avatar Supervisor Feature
 
 **Status**: 🟡 New Feature - Design Phase
