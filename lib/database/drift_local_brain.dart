@@ -295,6 +295,47 @@ class Macros extends Table {
 }
 
 // ============================================================================
+// CONSCIENCE SYSTEM TABLES (Phase 1 - Storage Layer)
+// ============================================================================
+
+/// Table for storing agent thoughts - shared board where all agents post intentions
+@DataClassName('AgentThought')
+class AgentThoughts extends Table {
+  TextColumn get id => text()();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get channel => text()
+      .withDefault(const Constant('general'))(); // general, review, research
+  TextColumn get agent => text()(); // zoidbot, benjamin, harper
+  TextColumn get thoughtType =>
+      text()(); // intention, observation, question, summary
+  TextColumn get content => text()(); // The actual thought text
+  TextColumn get metadata =>
+      text().nullable()(); // JSON: {related_thought_id, tags, confidence}
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Table for storing conscience decisions - risky action tracking
+@DataClassName('ConscienceDecision')
+class ConscienceDecisions extends Table {
+  TextColumn get id => text()();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get action => text()(); // What action was proposed
+  TextColumn get riskLevel => text()(); // low, medium, high, critical
+  TextColumn get verdict =>
+      text().nullable()(); // APPROVED, QUESTION, HOLD, DENIED
+  TextColumn get reviewer =>
+      text().nullable()(); // benjamin, harper, or null if pending
+  TextColumn get reasoning => text().nullable()(); // Why the verdict was given
+  TextColumn get status => text()
+      .withDefault(const Constant('pending'))(); // pending, reviewed, resolved
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// ============================================================================
 // AVATAR PERSONALITY ENGINE TABLES
 // ============================================================================
 
@@ -375,12 +416,14 @@ class ConversationDepthMetrics extends Table {
   AvatarPersonalityProfiles,
   EvolutionHistoryTable,
   ConversationDepthMetrics,
+  AgentThoughts,
+  ConscienceDecisions,
 ])
 class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -419,6 +462,11 @@ class LocalBrain extends _$LocalBrain {
             await m.createTable(evolutionHistoryTable);
             await m.createTable(conversationDepthMetrics);
             await _createDefaultAvatarPersonalityProfile();
+          }
+          if (from < 6) {
+            // Add Conscience System tables for Phase 1
+            await m.createTable(agentThoughts);
+            await m.createTable(conscienceDecisions);
           }
         },
       );
@@ -1239,4 +1287,136 @@ class LocalBrain extends _$LocalBrain {
           ..where((tbl) => tbl.conversationId.equals(conversationId)))
         .get();
   }
+
+  // ==========================================================================
+  // CONSCIENCE SYSTEM DAO (Phase 1 - Storage Layer)
+  // ==========================================================================
+
+  // Agent Thoughts DAO
+
+  /// Insert a new agent thought
+  Future<void> insertThought(AgentThoughtsCompanion entry) =>
+      into(agentThoughts).insert(entry);
+
+  /// Get thoughts by agent
+  Future<List<AgentThought>> getThoughtsByAgent(String agent,
+      {int limit = 50}) async {
+    return await (select(agentThoughts)
+          ..where((tbl) => tbl.agent.equals(agent))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Get thoughts by channel
+  Future<List<AgentThought>> getThoughtsByChannel(String channel,
+      {int limit = 50}) async {
+    return await (select(agentThoughts)
+          ..where((tbl) => tbl.channel.equals(channel))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Get recent thoughts
+  Future<List<AgentThought>> getRecentThoughts({int limit = 50}) async {
+    return await (select(agentThoughts)
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Get thoughts by type
+  Future<List<AgentThought>> getThoughtsByType(String thoughtType,
+      {int limit = 50}) async {
+    return await (select(agentThoughts)
+          ..where((tbl) => tbl.thoughtType.equals(thoughtType))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  // Conscience Decisions DAO
+
+  /// Insert a new decision
+  Future<void> insertDecision(ConscienceDecisionsCompanion entry) =>
+      into(conscienceDecisions).insert(entry);
+
+  /// Get pending decisions
+  Future<List<ConscienceDecision>> getPendingDecisions({int limit = 50}) async {
+    return await (select(conscienceDecisions)
+          ..where((tbl) => tbl.status.equals('pending'))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Get decisions by status
+  Future<List<ConscienceDecision>> getDecisionsByStatus(String status,
+      {int limit = 50}) async {
+    return await (select(conscienceDecisions)
+          ..where((tbl) => tbl.status.equals(status))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Get decisions by risk level
+  Future<List<ConscienceDecision>> getDecisionsByRiskLevel(String riskLevel,
+      {int limit = 50}) async {
+    return await (select(conscienceDecisions)
+          ..where((tbl) => tbl.riskLevel.equals(riskLevel))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Get all decisions
+  Future<List<ConscienceDecision>> getAllDecisions({int limit = 50}) async {
+    return await (select(conscienceDecisions)
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Update decision verdict
+  Future<void> updateDecisionVerdict(
+      String id, String verdict, String reviewer, String reasoning) async {
+    await (update(conscienceDecisions)..where((tbl) => tbl.id.equals(id)))
+        .write(ConscienceDecisionsCompanion(
+      verdict: Value(verdict),
+      reviewer: Value(reviewer),
+      reasoning: Value(reasoning),
+      status: Value('reviewed'),
+    ));
+  }
+
+  /// Get decision by ID
+  Future<ConscienceDecision?> getDecisionById(String id) =>
+      (select(conscienceDecisions)..where((tbl) => tbl.id.equals(id)))
+          .getSingleOrNull();
 }

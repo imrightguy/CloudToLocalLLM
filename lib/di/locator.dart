@@ -61,6 +61,7 @@ import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
 import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/services/avatar/avatar_state_service.dart';
 import 'package:cloudtolocalllm/services/avatar/markdown_sync_service.dart';
+import 'package:cloudtolocalllm/services/conscience_storage_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -172,6 +173,13 @@ Future<void> setupCoreServices() async {
   final rateLimitManager = RateLimitManager(localBrain);
   serviceLocator.registerSingleton<RateLimitManager>(rateLimitManager);
 
+  // Conscience Storage Service (Phase 1 - Storage Layer)
+  final conscienceStorageService = ConscienceStorageService(
+    database: localBrain,
+  );
+  serviceLocator
+      .registerSingleton<ConscienceStorageService>(conscienceStorageService);
+
   final routerServer = RouterServer(
     rateLimitManager: rateLimitManager,
     providers: {
@@ -184,6 +192,7 @@ Future<void> setupCoreServices() async {
     },
     personalityEngine: personalityEngine,
     evolutionTracker: evolutionTracker,
+    conscienceStorage: conscienceStorageService,
   );
   serviceLocator.registerSingleton<RouterServer>(routerServer);
 
@@ -507,7 +516,8 @@ Future<void> setupAuthenticatedServices() async {
         serviceLocator.get<ProviderConfigurationManager>(),
       );
     } else {
-      debugPrint('[ServiceLocator] Skipping provider discovery (force setup wizard mode)');
+      debugPrint(
+          '[ServiceLocator] Skipping provider discovery (force setup wizard mode)');
     }
 
     // Tunnel configuration manager - requires SharedPreferences

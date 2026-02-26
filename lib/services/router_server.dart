@@ -10,6 +10,7 @@ import 'rate_limit_manager.dart';
 import 'model_tiers.dart';
 import 'avatar/personality_engine.dart';
 import 'avatar/evolution_tracker.dart';
+import 'conscience_storage_service.dart';
 import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
 import 'package:cloudtolocalllm/utils/http_constants.dart';
 
@@ -20,6 +21,7 @@ class RouterServer {
   final Map<String, LlmProvider> providers;
   final PersonalityEngine? personalityEngine;
   final EvolutionTracker? evolutionTracker;
+  final ConscienceStorageService? conscienceStorage;
 
   HttpServer? _server;
 
@@ -29,6 +31,7 @@ class RouterServer {
     required this.providers,
     this.personalityEngine,
     this.evolutionTracker,
+    this.conscienceStorage,
   });
 
   /// Start the server
@@ -51,6 +54,15 @@ class RouterServer {
       router.post('/avatar/evolution/request', _handleEvolutionRequest);
       router.post(
           '/api/evolution', _handleEvolutionRequest); // Harmonized endpoint
+    }
+
+    // Conscience System API endpoints (Phase 1 - Storage Layer)
+    if (conscienceStorage != null) {
+      router.post('/api/conscience/thoughts', _handleWriteThought);
+      router.get('/api/conscience/thoughts', _handleGetThoughts);
+      router.post('/api/conscience/decisions', _handleWriteDecision);
+      router.get('/api/conscience/decisions', _handleGetDecisions);
+      router.put('/api/conscience/decisions/verdict', _handleSubmitVerdict);
     }
 
     final handler =
@@ -253,6 +265,164 @@ class RouterServer {
       );
     } catch (e) {
       return Response.badRequest(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  // ==========================================================================
+  // CONSCIENCE SYSTEM API HANDLERS (Phase 1 - Storage Layer)
+  // ==========================================================================
+
+  /// POST /api/conscience/thoughts - Write a thought
+  Future<Response> _handleWriteThought(Request request) async {
+    if (conscienceStorage == null) {
+      return Response.notFound('Conscience storage not available');
+    }
+
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      if (!data.containsKey('agent') ||
+          !data.containsKey('thought_type') ||
+          !data.containsKey('content')) {
+        return Response.badRequest(
+            body: 'Missing required fields: agent, thought_type, content');
+      }
+
+      final thought = await conscienceStorage!.writeThought(
+        agent: data['agent'] as String,
+        thoughtType: data['thought_type'] as String,
+        content: data['content'] as String,
+        channel: data['channel'] as String? ?? 'general',
+        metadata: data['metadata'] as Map<String, dynamic>? ?? {},
+      );
+
+      return Response.ok(
+        jsonEncode({'status': 'success', 'thought': thought}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  /// GET /api/conscience/thoughts - Read thoughts
+  Future<Response> _handleGetThoughts(Request request) async {
+    if (conscienceStorage == null) {
+      return Response.notFound('Conscience storage not available');
+    }
+
+    try {
+      final agent = request.url.queryParameters['agent'];
+      final channel = request.url.queryParameters['channel'];
+      final thoughtType = request.url.queryParameters['thought_type'];
+      final limit =
+          int.tryParse(request.url.queryParameters['limit'] ?? '50') ?? 50;
+
+      final thoughts = await conscienceStorage!.getThoughts(
+        agent: agent,
+        channel: channel,
+        thoughtType: thoughtType,
+        limit: limit,
+      );
+
+      return Response.ok(
+        jsonEncode({'thoughts': thoughts}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  /// POST /api/conscience/decisions - Submit a decision for review
+  Future<Response> _handleWriteDecision(Request request) async {
+    if (conscienceStorage == null) {
+      return Response.notFound('Conscience storage not available');
+    }
+
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      if (!data.containsKey('action') || !data.containsKey('risk_level')) {
+        return Response.badRequest(
+            body: 'Missing required fields: action, risk_level');
+      }
+
+      final decision = await conscienceStorage!.writeDecision(
+        action: data['action'] as String,
+        riskLevel: data['risk_level'] as String,
+      );
+
+      return Response.ok(
+        jsonEncode({'status': 'success', 'decision': decision}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  /// GET /api/conscience/decisions - Get decisions
+  Future<Response> _handleGetDecisions(Request request) async {
+    if (conscienceStorage == null) {
+      return Response.notFound('Conscience storage not available');
+    }
+
+    try {
+      final status = request.url.queryParameters['status'];
+      final riskLevel = request.url.queryParameters['risk_level'];
+      final limit =
+          int.tryParse(request.url.queryParameters['limit'] ?? '50') ?? 50;
+
+      final decisions = await conscienceStorage!.getDecisions(
+        status: status,
+        riskLevel: riskLevel,
+        limit: limit,
+      );
+
+      return Response.ok(
+        jsonEncode({'decisions': decisions}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(body: 'Error: ${e.toString()}');
+    }
+  }
+
+  /// PUT /api/conscience/decisions/verdict - Submit a verdict
+  Future<Response> _handleSubmitVerdict(Request request) async {
+    if (conscienceStorage == null) {
+      return Response.notFound('Conscience storage not available');
+    }
+
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+
+      if (!data.containsKey('decision_id') ||
+          !data.containsKey('verdict') ||
+          !data.containsKey('reviewer') ||
+          !data.containsKey('reasoning')) {
+        return Response.badRequest(
+            body: 'Missing required fields: '
+                'decision_id, verdict, reviewer, reasoning');
+      }
+
+      final decision = await conscienceStorage!.submitDecisionVerdict(
+        decisionId: data['decision_id'] as String,
+        verdict: data['verdict'] as String,
+        reviewer: data['reviewer'] as String,
+        reasoning: data['reasoning'] as String,
+      );
+
+      return Response.ok(
+        jsonEncode({'status': 'success', 'decision': decision}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(body: 'Error: ${e.toString()}');
     }
   }
 }

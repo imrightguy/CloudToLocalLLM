@@ -8826,6 +8826,812 @@ class ConversationDepthMetricsCompanion
   }
 }
 
+class $AgentThoughtsTable extends AgentThoughts
+    with TableInfo<$AgentThoughtsTable, AgentThought> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgentThoughtsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _channelMeta =
+      const VerificationMeta('channel');
+  @override
+  late final GeneratedColumn<String> channel = GeneratedColumn<String>(
+      'channel', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('general'));
+  static const VerificationMeta _agentMeta = const VerificationMeta('agent');
+  @override
+  late final GeneratedColumn<String> agent = GeneratedColumn<String>(
+      'agent', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _thoughtTypeMeta =
+      const VerificationMeta('thoughtType');
+  @override
+  late final GeneratedColumn<String> thoughtType = GeneratedColumn<String>(
+      'thought_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _metadataMeta =
+      const VerificationMeta('metadata');
+  @override
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+      'metadata', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, timestamp, channel, agent, thoughtType, content, metadata];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agent_thoughts';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgentThought> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('channel')) {
+      context.handle(_channelMeta,
+          channel.isAcceptableOrUnknown(data['channel']!, _channelMeta));
+    }
+    if (data.containsKey('agent')) {
+      context.handle(
+          _agentMeta, agent.isAcceptableOrUnknown(data['agent']!, _agentMeta));
+    } else if (isInserting) {
+      context.missing(_agentMeta);
+    }
+    if (data.containsKey('thought_type')) {
+      context.handle(
+          _thoughtTypeMeta,
+          thoughtType.isAcceptableOrUnknown(
+              data['thought_type']!, _thoughtTypeMeta));
+    } else if (isInserting) {
+      context.missing(_thoughtTypeMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('metadata')) {
+      context.handle(_metadataMeta,
+          metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgentThought map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgentThought(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      channel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}channel'])!,
+      agent: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}agent'])!,
+      thoughtType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}thought_type'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      metadata: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}metadata']),
+    );
+  }
+
+  @override
+  $AgentThoughtsTable createAlias(String alias) {
+    return $AgentThoughtsTable(attachedDatabase, alias);
+  }
+}
+
+class AgentThought extends DataClass implements Insertable<AgentThought> {
+  final String id;
+  final DateTime timestamp;
+  final String channel;
+  final String agent;
+  final String thoughtType;
+  final String content;
+  final String? metadata;
+  const AgentThought(
+      {required this.id,
+      required this.timestamp,
+      required this.channel,
+      required this.agent,
+      required this.thoughtType,
+      required this.content,
+      this.metadata});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['channel'] = Variable<String>(channel);
+    map['agent'] = Variable<String>(agent);
+    map['thought_type'] = Variable<String>(thoughtType);
+    map['content'] = Variable<String>(content);
+    if (!nullToAbsent || metadata != null) {
+      map['metadata'] = Variable<String>(metadata);
+    }
+    return map;
+  }
+
+  AgentThoughtsCompanion toCompanion(bool nullToAbsent) {
+    return AgentThoughtsCompanion(
+      id: Value(id),
+      timestamp: Value(timestamp),
+      channel: Value(channel),
+      agent: Value(agent),
+      thoughtType: Value(thoughtType),
+      content: Value(content),
+      metadata: metadata == null && nullToAbsent
+          ? const Value.absent()
+          : Value(metadata),
+    );
+  }
+
+  factory AgentThought.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgentThought(
+      id: serializer.fromJson<String>(json['id']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      channel: serializer.fromJson<String>(json['channel']),
+      agent: serializer.fromJson<String>(json['agent']),
+      thoughtType: serializer.fromJson<String>(json['thoughtType']),
+      content: serializer.fromJson<String>(json['content']),
+      metadata: serializer.fromJson<String?>(json['metadata']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'channel': serializer.toJson<String>(channel),
+      'agent': serializer.toJson<String>(agent),
+      'thoughtType': serializer.toJson<String>(thoughtType),
+      'content': serializer.toJson<String>(content),
+      'metadata': serializer.toJson<String?>(metadata),
+    };
+  }
+
+  AgentThought copyWith(
+          {String? id,
+          DateTime? timestamp,
+          String? channel,
+          String? agent,
+          String? thoughtType,
+          String? content,
+          Value<String?> metadata = const Value.absent()}) =>
+      AgentThought(
+        id: id ?? this.id,
+        timestamp: timestamp ?? this.timestamp,
+        channel: channel ?? this.channel,
+        agent: agent ?? this.agent,
+        thoughtType: thoughtType ?? this.thoughtType,
+        content: content ?? this.content,
+        metadata: metadata.present ? metadata.value : this.metadata,
+      );
+  AgentThought copyWithCompanion(AgentThoughtsCompanion data) {
+    return AgentThought(
+      id: data.id.present ? data.id.value : this.id,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      channel: data.channel.present ? data.channel.value : this.channel,
+      agent: data.agent.present ? data.agent.value : this.agent,
+      thoughtType:
+          data.thoughtType.present ? data.thoughtType.value : this.thoughtType,
+      content: data.content.present ? data.content.value : this.content,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentThought(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('channel: $channel, ')
+          ..write('agent: $agent, ')
+          ..write('thoughtType: $thoughtType, ')
+          ..write('content: $content, ')
+          ..write('metadata: $metadata')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, timestamp, channel, agent, thoughtType, content, metadata);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgentThought &&
+          other.id == this.id &&
+          other.timestamp == this.timestamp &&
+          other.channel == this.channel &&
+          other.agent == this.agent &&
+          other.thoughtType == this.thoughtType &&
+          other.content == this.content &&
+          other.metadata == this.metadata);
+}
+
+class AgentThoughtsCompanion extends UpdateCompanion<AgentThought> {
+  final Value<String> id;
+  final Value<DateTime> timestamp;
+  final Value<String> channel;
+  final Value<String> agent;
+  final Value<String> thoughtType;
+  final Value<String> content;
+  final Value<String?> metadata;
+  final Value<int> rowid;
+  const AgentThoughtsCompanion({
+    this.id = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.channel = const Value.absent(),
+    this.agent = const Value.absent(),
+    this.thoughtType = const Value.absent(),
+    this.content = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AgentThoughtsCompanion.insert({
+    required String id,
+    this.timestamp = const Value.absent(),
+    this.channel = const Value.absent(),
+    required String agent,
+    required String thoughtType,
+    required String content,
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        agent = Value(agent),
+        thoughtType = Value(thoughtType),
+        content = Value(content);
+  static Insertable<AgentThought> custom({
+    Expression<String>? id,
+    Expression<DateTime>? timestamp,
+    Expression<String>? channel,
+    Expression<String>? agent,
+    Expression<String>? thoughtType,
+    Expression<String>? content,
+    Expression<String>? metadata,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (channel != null) 'channel': channel,
+      if (agent != null) 'agent': agent,
+      if (thoughtType != null) 'thought_type': thoughtType,
+      if (content != null) 'content': content,
+      if (metadata != null) 'metadata': metadata,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AgentThoughtsCompanion copyWith(
+      {Value<String>? id,
+      Value<DateTime>? timestamp,
+      Value<String>? channel,
+      Value<String>? agent,
+      Value<String>? thoughtType,
+      Value<String>? content,
+      Value<String?>? metadata,
+      Value<int>? rowid}) {
+    return AgentThoughtsCompanion(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      channel: channel ?? this.channel,
+      agent: agent ?? this.agent,
+      thoughtType: thoughtType ?? this.thoughtType,
+      content: content ?? this.content,
+      metadata: metadata ?? this.metadata,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (channel.present) {
+      map['channel'] = Variable<String>(channel.value);
+    }
+    if (agent.present) {
+      map['agent'] = Variable<String>(agent.value);
+    }
+    if (thoughtType.present) {
+      map['thought_type'] = Variable<String>(thoughtType.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgentThoughtsCompanion(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('channel: $channel, ')
+          ..write('agent: $agent, ')
+          ..write('thoughtType: $thoughtType, ')
+          ..write('content: $content, ')
+          ..write('metadata: $metadata, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ConscienceDecisionsTable extends ConscienceDecisions
+    with TableInfo<$ConscienceDecisionsTable, ConscienceDecision> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConscienceDecisionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+      'action', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _riskLevelMeta =
+      const VerificationMeta('riskLevel');
+  @override
+  late final GeneratedColumn<String> riskLevel = GeneratedColumn<String>(
+      'risk_level', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _verdictMeta =
+      const VerificationMeta('verdict');
+  @override
+  late final GeneratedColumn<String> verdict = GeneratedColumn<String>(
+      'verdict', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _reviewerMeta =
+      const VerificationMeta('reviewer');
+  @override
+  late final GeneratedColumn<String> reviewer = GeneratedColumn<String>(
+      'reviewer', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _reasoningMeta =
+      const VerificationMeta('reasoning');
+  @override
+  late final GeneratedColumn<String> reasoning = GeneratedColumn<String>(
+      'reasoning', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('pending'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, timestamp, action, riskLevel, verdict, reviewer, reasoning, status];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'conscience_decisions';
+  @override
+  VerificationContext validateIntegrity(Insertable<ConscienceDecision> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('action')) {
+      context.handle(_actionMeta,
+          action.isAcceptableOrUnknown(data['action']!, _actionMeta));
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    if (data.containsKey('risk_level')) {
+      context.handle(_riskLevelMeta,
+          riskLevel.isAcceptableOrUnknown(data['risk_level']!, _riskLevelMeta));
+    } else if (isInserting) {
+      context.missing(_riskLevelMeta);
+    }
+    if (data.containsKey('verdict')) {
+      context.handle(_verdictMeta,
+          verdict.isAcceptableOrUnknown(data['verdict']!, _verdictMeta));
+    }
+    if (data.containsKey('reviewer')) {
+      context.handle(_reviewerMeta,
+          reviewer.isAcceptableOrUnknown(data['reviewer']!, _reviewerMeta));
+    }
+    if (data.containsKey('reasoning')) {
+      context.handle(_reasoningMeta,
+          reasoning.isAcceptableOrUnknown(data['reasoning']!, _reasoningMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ConscienceDecision map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConscienceDecision(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      action: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}action'])!,
+      riskLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}risk_level'])!,
+      verdict: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}verdict']),
+      reviewer: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reviewer']),
+      reasoning: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reasoning']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+    );
+  }
+
+  @override
+  $ConscienceDecisionsTable createAlias(String alias) {
+    return $ConscienceDecisionsTable(attachedDatabase, alias);
+  }
+}
+
+class ConscienceDecision extends DataClass
+    implements Insertable<ConscienceDecision> {
+  final String id;
+  final DateTime timestamp;
+  final String action;
+  final String riskLevel;
+  final String? verdict;
+  final String? reviewer;
+  final String? reasoning;
+  final String status;
+  const ConscienceDecision(
+      {required this.id,
+      required this.timestamp,
+      required this.action,
+      required this.riskLevel,
+      this.verdict,
+      this.reviewer,
+      this.reasoning,
+      required this.status});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['action'] = Variable<String>(action);
+    map['risk_level'] = Variable<String>(riskLevel);
+    if (!nullToAbsent || verdict != null) {
+      map['verdict'] = Variable<String>(verdict);
+    }
+    if (!nullToAbsent || reviewer != null) {
+      map['reviewer'] = Variable<String>(reviewer);
+    }
+    if (!nullToAbsent || reasoning != null) {
+      map['reasoning'] = Variable<String>(reasoning);
+    }
+    map['status'] = Variable<String>(status);
+    return map;
+  }
+
+  ConscienceDecisionsCompanion toCompanion(bool nullToAbsent) {
+    return ConscienceDecisionsCompanion(
+      id: Value(id),
+      timestamp: Value(timestamp),
+      action: Value(action),
+      riskLevel: Value(riskLevel),
+      verdict: verdict == null && nullToAbsent
+          ? const Value.absent()
+          : Value(verdict),
+      reviewer: reviewer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reviewer),
+      reasoning: reasoning == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasoning),
+      status: Value(status),
+    );
+  }
+
+  factory ConscienceDecision.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConscienceDecision(
+      id: serializer.fromJson<String>(json['id']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      action: serializer.fromJson<String>(json['action']),
+      riskLevel: serializer.fromJson<String>(json['riskLevel']),
+      verdict: serializer.fromJson<String?>(json['verdict']),
+      reviewer: serializer.fromJson<String?>(json['reviewer']),
+      reasoning: serializer.fromJson<String?>(json['reasoning']),
+      status: serializer.fromJson<String>(json['status']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'action': serializer.toJson<String>(action),
+      'riskLevel': serializer.toJson<String>(riskLevel),
+      'verdict': serializer.toJson<String?>(verdict),
+      'reviewer': serializer.toJson<String?>(reviewer),
+      'reasoning': serializer.toJson<String?>(reasoning),
+      'status': serializer.toJson<String>(status),
+    };
+  }
+
+  ConscienceDecision copyWith(
+          {String? id,
+          DateTime? timestamp,
+          String? action,
+          String? riskLevel,
+          Value<String?> verdict = const Value.absent(),
+          Value<String?> reviewer = const Value.absent(),
+          Value<String?> reasoning = const Value.absent(),
+          String? status}) =>
+      ConscienceDecision(
+        id: id ?? this.id,
+        timestamp: timestamp ?? this.timestamp,
+        action: action ?? this.action,
+        riskLevel: riskLevel ?? this.riskLevel,
+        verdict: verdict.present ? verdict.value : this.verdict,
+        reviewer: reviewer.present ? reviewer.value : this.reviewer,
+        reasoning: reasoning.present ? reasoning.value : this.reasoning,
+        status: status ?? this.status,
+      );
+  ConscienceDecision copyWithCompanion(ConscienceDecisionsCompanion data) {
+    return ConscienceDecision(
+      id: data.id.present ? data.id.value : this.id,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      action: data.action.present ? data.action.value : this.action,
+      riskLevel: data.riskLevel.present ? data.riskLevel.value : this.riskLevel,
+      verdict: data.verdict.present ? data.verdict.value : this.verdict,
+      reviewer: data.reviewer.present ? data.reviewer.value : this.reviewer,
+      reasoning: data.reasoning.present ? data.reasoning.value : this.reasoning,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConscienceDecision(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('action: $action, ')
+          ..write('riskLevel: $riskLevel, ')
+          ..write('verdict: $verdict, ')
+          ..write('reviewer: $reviewer, ')
+          ..write('reasoning: $reasoning, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, timestamp, action, riskLevel, verdict, reviewer, reasoning, status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConscienceDecision &&
+          other.id == this.id &&
+          other.timestamp == this.timestamp &&
+          other.action == this.action &&
+          other.riskLevel == this.riskLevel &&
+          other.verdict == this.verdict &&
+          other.reviewer == this.reviewer &&
+          other.reasoning == this.reasoning &&
+          other.status == this.status);
+}
+
+class ConscienceDecisionsCompanion extends UpdateCompanion<ConscienceDecision> {
+  final Value<String> id;
+  final Value<DateTime> timestamp;
+  final Value<String> action;
+  final Value<String> riskLevel;
+  final Value<String?> verdict;
+  final Value<String?> reviewer;
+  final Value<String?> reasoning;
+  final Value<String> status;
+  final Value<int> rowid;
+  const ConscienceDecisionsCompanion({
+    this.id = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.action = const Value.absent(),
+    this.riskLevel = const Value.absent(),
+    this.verdict = const Value.absent(),
+    this.reviewer = const Value.absent(),
+    this.reasoning = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ConscienceDecisionsCompanion.insert({
+    required String id,
+    this.timestamp = const Value.absent(),
+    required String action,
+    required String riskLevel,
+    this.verdict = const Value.absent(),
+    this.reviewer = const Value.absent(),
+    this.reasoning = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        action = Value(action),
+        riskLevel = Value(riskLevel);
+  static Insertable<ConscienceDecision> custom({
+    Expression<String>? id,
+    Expression<DateTime>? timestamp,
+    Expression<String>? action,
+    Expression<String>? riskLevel,
+    Expression<String>? verdict,
+    Expression<String>? reviewer,
+    Expression<String>? reasoning,
+    Expression<String>? status,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (action != null) 'action': action,
+      if (riskLevel != null) 'risk_level': riskLevel,
+      if (verdict != null) 'verdict': verdict,
+      if (reviewer != null) 'reviewer': reviewer,
+      if (reasoning != null) 'reasoning': reasoning,
+      if (status != null) 'status': status,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ConscienceDecisionsCompanion copyWith(
+      {Value<String>? id,
+      Value<DateTime>? timestamp,
+      Value<String>? action,
+      Value<String>? riskLevel,
+      Value<String?>? verdict,
+      Value<String?>? reviewer,
+      Value<String?>? reasoning,
+      Value<String>? status,
+      Value<int>? rowid}) {
+    return ConscienceDecisionsCompanion(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      action: action ?? this.action,
+      riskLevel: riskLevel ?? this.riskLevel,
+      verdict: verdict ?? this.verdict,
+      reviewer: reviewer ?? this.reviewer,
+      reasoning: reasoning ?? this.reasoning,
+      status: status ?? this.status,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    if (riskLevel.present) {
+      map['risk_level'] = Variable<String>(riskLevel.value);
+    }
+    if (verdict.present) {
+      map['verdict'] = Variable<String>(verdict.value);
+    }
+    if (reviewer.present) {
+      map['reviewer'] = Variable<String>(reviewer.value);
+    }
+    if (reasoning.present) {
+      map['reasoning'] = Variable<String>(reasoning.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConscienceDecisionsCompanion(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('action: $action, ')
+          ..write('riskLevel: $riskLevel, ')
+          ..write('verdict: $verdict, ')
+          ..write('reviewer: $reviewer, ')
+          ..write('reasoning: $reasoning, ')
+          ..write('status: $status, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalBrain extends GeneratedDatabase {
   _$LocalBrain(QueryExecutor e) : super(e);
   $LocalBrainManager get managers => $LocalBrainManager(this);
@@ -8857,6 +9663,9 @@ abstract class _$LocalBrain extends GeneratedDatabase {
       $EvolutionHistoryTableTable(this);
   late final $ConversationDepthMetricsTable conversationDepthMetrics =
       $ConversationDepthMetricsTable(this);
+  late final $AgentThoughtsTable agentThoughts = $AgentThoughtsTable(this);
+  late final $ConscienceDecisionsTable conscienceDecisions =
+      $ConscienceDecisionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8882,7 +9691,9 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         macros,
         avatarPersonalityProfiles,
         evolutionHistoryTable,
-        conversationDepthMetrics
+        conversationDepthMetrics,
+        agentThoughts,
+        conscienceDecisions
       ];
 }
 
@@ -14824,6 +15635,432 @@ typedef $$ConversationDepthMetricsTableProcessedTableManager
         (ConversationDepthMetric, $$ConversationDepthMetricsTableReferences),
         ConversationDepthMetric,
         PrefetchHooks Function({bool conversationId})>;
+typedef $$AgentThoughtsTableCreateCompanionBuilder = AgentThoughtsCompanion
+    Function({
+  required String id,
+  Value<DateTime> timestamp,
+  Value<String> channel,
+  required String agent,
+  required String thoughtType,
+  required String content,
+  Value<String?> metadata,
+  Value<int> rowid,
+});
+typedef $$AgentThoughtsTableUpdateCompanionBuilder = AgentThoughtsCompanion
+    Function({
+  Value<String> id,
+  Value<DateTime> timestamp,
+  Value<String> channel,
+  Value<String> agent,
+  Value<String> thoughtType,
+  Value<String> content,
+  Value<String?> metadata,
+  Value<int> rowid,
+});
+
+class $$AgentThoughtsTableFilterComposer
+    extends Composer<_$LocalBrain, $AgentThoughtsTable> {
+  $$AgentThoughtsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get channel => $composableBuilder(
+      column: $table.channel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get agent => $composableBuilder(
+      column: $table.agent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get thoughtType => $composableBuilder(
+      column: $table.thoughtType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get metadata => $composableBuilder(
+      column: $table.metadata, builder: (column) => ColumnFilters(column));
+}
+
+class $$AgentThoughtsTableOrderingComposer
+    extends Composer<_$LocalBrain, $AgentThoughtsTable> {
+  $$AgentThoughtsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get channel => $composableBuilder(
+      column: $table.channel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get agent => $composableBuilder(
+      column: $table.agent, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get thoughtType => $composableBuilder(
+      column: $table.thoughtType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get metadata => $composableBuilder(
+      column: $table.metadata, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgentThoughtsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $AgentThoughtsTable> {
+  $$AgentThoughtsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get channel =>
+      $composableBuilder(column: $table.channel, builder: (column) => column);
+
+  GeneratedColumn<String> get agent =>
+      $composableBuilder(column: $table.agent, builder: (column) => column);
+
+  GeneratedColumn<String> get thoughtType => $composableBuilder(
+      column: $table.thoughtType, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+}
+
+class $$AgentThoughtsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $AgentThoughtsTable,
+    AgentThought,
+    $$AgentThoughtsTableFilterComposer,
+    $$AgentThoughtsTableOrderingComposer,
+    $$AgentThoughtsTableAnnotationComposer,
+    $$AgentThoughtsTableCreateCompanionBuilder,
+    $$AgentThoughtsTableUpdateCompanionBuilder,
+    (
+      AgentThought,
+      BaseReferences<_$LocalBrain, $AgentThoughtsTable, AgentThought>
+    ),
+    AgentThought,
+    PrefetchHooks Function()> {
+  $$AgentThoughtsTableTableManager(_$LocalBrain db, $AgentThoughtsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgentThoughtsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgentThoughtsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgentThoughtsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String> channel = const Value.absent(),
+            Value<String> agent = const Value.absent(),
+            Value<String> thoughtType = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<String?> metadata = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentThoughtsCompanion(
+            id: id,
+            timestamp: timestamp,
+            channel: channel,
+            agent: agent,
+            thoughtType: thoughtType,
+            content: content,
+            metadata: metadata,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String> channel = const Value.absent(),
+            required String agent,
+            required String thoughtType,
+            required String content,
+            Value<String?> metadata = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              AgentThoughtsCompanion.insert(
+            id: id,
+            timestamp: timestamp,
+            channel: channel,
+            agent: agent,
+            thoughtType: thoughtType,
+            content: content,
+            metadata: metadata,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$AgentThoughtsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $AgentThoughtsTable,
+    AgentThought,
+    $$AgentThoughtsTableFilterComposer,
+    $$AgentThoughtsTableOrderingComposer,
+    $$AgentThoughtsTableAnnotationComposer,
+    $$AgentThoughtsTableCreateCompanionBuilder,
+    $$AgentThoughtsTableUpdateCompanionBuilder,
+    (
+      AgentThought,
+      BaseReferences<_$LocalBrain, $AgentThoughtsTable, AgentThought>
+    ),
+    AgentThought,
+    PrefetchHooks Function()>;
+typedef $$ConscienceDecisionsTableCreateCompanionBuilder
+    = ConscienceDecisionsCompanion Function({
+  required String id,
+  Value<DateTime> timestamp,
+  required String action,
+  required String riskLevel,
+  Value<String?> verdict,
+  Value<String?> reviewer,
+  Value<String?> reasoning,
+  Value<String> status,
+  Value<int> rowid,
+});
+typedef $$ConscienceDecisionsTableUpdateCompanionBuilder
+    = ConscienceDecisionsCompanion Function({
+  Value<String> id,
+  Value<DateTime> timestamp,
+  Value<String> action,
+  Value<String> riskLevel,
+  Value<String?> verdict,
+  Value<String?> reviewer,
+  Value<String?> reasoning,
+  Value<String> status,
+  Value<int> rowid,
+});
+
+class $$ConscienceDecisionsTableFilterComposer
+    extends Composer<_$LocalBrain, $ConscienceDecisionsTable> {
+  $$ConscienceDecisionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get riskLevel => $composableBuilder(
+      column: $table.riskLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get verdict => $composableBuilder(
+      column: $table.verdict, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get reviewer => $composableBuilder(
+      column: $table.reviewer, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get reasoning => $composableBuilder(
+      column: $table.reasoning, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+}
+
+class $$ConscienceDecisionsTableOrderingComposer
+    extends Composer<_$LocalBrain, $ConscienceDecisionsTable> {
+  $$ConscienceDecisionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get action => $composableBuilder(
+      column: $table.action, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get riskLevel => $composableBuilder(
+      column: $table.riskLevel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get verdict => $composableBuilder(
+      column: $table.verdict, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get reviewer => $composableBuilder(
+      column: $table.reviewer, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get reasoning => $composableBuilder(
+      column: $table.reasoning, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ConscienceDecisionsTableAnnotationComposer
+    extends Composer<_$LocalBrain, $ConscienceDecisionsTable> {
+  $$ConscienceDecisionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  GeneratedColumn<String> get riskLevel =>
+      $composableBuilder(column: $table.riskLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get verdict =>
+      $composableBuilder(column: $table.verdict, builder: (column) => column);
+
+  GeneratedColumn<String> get reviewer =>
+      $composableBuilder(column: $table.reviewer, builder: (column) => column);
+
+  GeneratedColumn<String> get reasoning =>
+      $composableBuilder(column: $table.reasoning, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+}
+
+class $$ConscienceDecisionsTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $ConscienceDecisionsTable,
+    ConscienceDecision,
+    $$ConscienceDecisionsTableFilterComposer,
+    $$ConscienceDecisionsTableOrderingComposer,
+    $$ConscienceDecisionsTableAnnotationComposer,
+    $$ConscienceDecisionsTableCreateCompanionBuilder,
+    $$ConscienceDecisionsTableUpdateCompanionBuilder,
+    (
+      ConscienceDecision,
+      BaseReferences<_$LocalBrain, $ConscienceDecisionsTable,
+          ConscienceDecision>
+    ),
+    ConscienceDecision,
+    PrefetchHooks Function()> {
+  $$ConscienceDecisionsTableTableManager(
+      _$LocalBrain db, $ConscienceDecisionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ConscienceDecisionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConscienceDecisionsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConscienceDecisionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String> action = const Value.absent(),
+            Value<String> riskLevel = const Value.absent(),
+            Value<String?> verdict = const Value.absent(),
+            Value<String?> reviewer = const Value.absent(),
+            Value<String?> reasoning = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ConscienceDecisionsCompanion(
+            id: id,
+            timestamp: timestamp,
+            action: action,
+            riskLevel: riskLevel,
+            verdict: verdict,
+            reviewer: reviewer,
+            reasoning: reasoning,
+            status: status,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<DateTime> timestamp = const Value.absent(),
+            required String action,
+            required String riskLevel,
+            Value<String?> verdict = const Value.absent(),
+            Value<String?> reviewer = const Value.absent(),
+            Value<String?> reasoning = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ConscienceDecisionsCompanion.insert(
+            id: id,
+            timestamp: timestamp,
+            action: action,
+            riskLevel: riskLevel,
+            verdict: verdict,
+            reviewer: reviewer,
+            reasoning: reasoning,
+            status: status,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ConscienceDecisionsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalBrain,
+    $ConscienceDecisionsTable,
+    ConscienceDecision,
+    $$ConscienceDecisionsTableFilterComposer,
+    $$ConscienceDecisionsTableOrderingComposer,
+    $$ConscienceDecisionsTableAnnotationComposer,
+    $$ConscienceDecisionsTableCreateCompanionBuilder,
+    $$ConscienceDecisionsTableUpdateCompanionBuilder,
+    (
+      ConscienceDecision,
+      BaseReferences<_$LocalBrain, $ConscienceDecisionsTable,
+          ConscienceDecision>
+    ),
+    ConscienceDecision,
+    PrefetchHooks Function()>;
 
 class $LocalBrainManager {
   final _$LocalBrain _db;
@@ -14872,4 +16109,8 @@ class $LocalBrainManager {
   $$ConversationDepthMetricsTableTableManager get conversationDepthMetrics =>
       $$ConversationDepthMetricsTableTableManager(
           _db, _db.conversationDepthMetrics);
+  $$AgentThoughtsTableTableManager get agentThoughts =>
+      $$AgentThoughtsTableTableManager(_db, _db.agentThoughts);
+  $$ConscienceDecisionsTableTableManager get conscienceDecisions =>
+      $$ConscienceDecisionsTableTableManager(_db, _db.conscienceDecisions);
 }
