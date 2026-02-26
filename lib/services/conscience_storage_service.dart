@@ -60,7 +60,7 @@ class ConscienceStorageService {
       thoughts = await _database.getRecentThoughts(limit: limit);
     }
 
-    return thoughts.map((t) => _thoughtToMap(t)).toList();
+    return thoughts.map(_thoughtToMap).toList();
   }
 
   Future<Map<String, dynamic>> writeDecision({
@@ -123,7 +123,7 @@ class ConscienceStorageService {
       decisions = await _database.getAllDecisions(limit: limit);
     }
 
-    return decisions.map((d) => _decisionToMap(d)).toList();
+    return decisions.map(_decisionToMap).toList();
   }
 
   Map<String, dynamic> _thoughtToMap(AgentThought thought) {
