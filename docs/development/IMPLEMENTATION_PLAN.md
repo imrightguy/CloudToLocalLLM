@@ -12,7 +12,7 @@
 
 **Status**: 🟡 New Feature - Design Phase
 
-Adding persistent oversight capability to the Avatar via Antigravity:
+Adding persistent oversight capability to the Avatar via **Antigravity IDE** (not the Flutter app):
 
 **The Problem**: OpenClaw doesn't have a built-in way for one agent to automatically watch another. The main agent (Zoidbot) repeatedly makes the same mistakes:
 - Breaks config by not validating changes
@@ -20,21 +20,20 @@ Adding persistent oversight capability to the Avatar via Antigravity:
 - Surface-level responses instead of deep thinking
 - Forgets to spawn subagents for research
 
-**The Solution**: The Avatar (running on Antigravity) provides persistent oversight:
+**The Solution**: Use Antigravity IDE as the supervisor - it has persistent agent capabilities that OpenClaw lacks:
 
-1. **App maintains persistent WebSocket** to OpenClaw Gateway
-2. **Spawns supervisor subagent** that stays always-running
-3. **App forwards main agent actions** to supervisor in real-time
-4. **Supervisor pushes back** when it sees dumb mistakes
-5. **Feedback routes back** to user or main agent
+1. **Antigravity maintains persistent agent session** watching Zoidbot
+2. **Forwards Zoidbot's actions** to the supervisor in real-time
+3. **Supervisor pushes back** when it sees dumb mistakes
+4. **Feedback routes back** to Christopher
 
-**Why this works better than native OpenClaw**:
-- Outside OpenClaw's architecture limitations
-- App can add custom logic for oversight
-- Christopher has full control
-- No need to wait for OpenClaw feature requests
+**Why Antigravity**:
+- Already has persistent agent sessions
+- Can run alongside OpenClaw
+- Christopher controls it directly
+- No need to build this in Flutter app
 
-**Supervisor Prompt (Antigravity)**:
+**Supervisor Prompt (for Antigravity)**:
 ```
 You are a supervisor agent watching the main OpenClaw agent (Zoidbot). Your role is to catch mistakes BEFORE they happen.
 
@@ -56,14 +55,10 @@ When you see a mistake:
 3. Suggest correct approach
 4. If critical (config break), escalate to user immediately
 
-You have full context of Zoidbot's actions via the app. Respond with feedback that helps it improve.
+You have full context of Zoidbot's actions. Respond with feedback that helps it improve.
 ```
 
-**Implementation needed**:
-1. WebSocket connection management for supervisor session
-2. Action forwarding: main agent → supervisor
-3. Feedback routing: supervisor → user
-4. Supervisor persistence across sessions
+**Note**: This is NOT a CloudToLocalLLM app feature - it's a prompt/config for Antigravity IDE. The Flutter app doesn't need to implement this.
 
 ---
 
@@ -101,7 +96,7 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 | **Setup Wizard** | ✅ Complete | 100% | None |
 | **Chat** | ✅ Phase 1 Complete | 90% | Multi-model attachments |
 | **OpenClaw Manager** | ✅ Phase 1 Complete | 90% | Advanced metrics |
-| **Evolving Avatar** | 🟡 Design Complete | 20% | Implementing personality engine |
+| **Evolving Avatar** | 🟡 Supervisor Feature Added | 30% | Implementing personality + supervisor |
 | **Desktop Control** | 🟡 Partial | 40% | Window management |
 | **Vision** | 🟡 Partial | 30% | Region capture + OCR |
 
