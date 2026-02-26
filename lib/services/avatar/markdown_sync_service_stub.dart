@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 
 class MarkdownSyncService {
   Future<void> syncPersonality(dynamic profile) async {
-    debugPrint('[MarkdownSync] syncPersonality called (stub - web not supported)');
+    debugPrint(
+        '[MarkdownSync] syncPersonality called (stub - web not supported)');
   }
 
   Future<void> syncMemory() async {
@@ -18,7 +19,8 @@ class MarkdownSyncService {
   }
 
   Future<dynamic> loadPersonalityFromMarkdown() async {
-    debugPrint('[MarkdownSync] loadPersonalityFromMarkdown called (stub - web not supported)');
+    debugPrint(
+        '[MarkdownSync] loadPersonalityFromMarkdown called (stub - web not supported)');
     return null;
   }
 }

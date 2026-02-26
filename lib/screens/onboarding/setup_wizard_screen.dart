@@ -35,7 +35,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
   int _getTotalSteps(ConnectionMethod? method) {
     return _buildSteps(method).length;
   }
-  
+
   /// Check if step list changed (method changed)
   bool _stepListChanged(ConnectionMethod? method) {
     return _lastMethod != method;
@@ -48,7 +48,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
         final method = wizard.state.selectedMethod;
         final totalSteps = _getTotalSteps(method);
         final currentStep = wizard.state.currentStep;
-        
+
         // Handle method change - need to rebuild PageView with correct initial page
         if (_stepListChanged(method)) {
           _lastMethod = method;
@@ -81,7 +81,8 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
                 _buildProgressIndicator(currentStep, totalSteps),
                 Expanded(
                   child: PageView(
-                    key: ValueKey('pageview_$method'), // Rebuild when method changes
+                    key: ValueKey(
+                        'pageview_$method'), // Rebuild when method changes
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     onPageChanged: (index) {
@@ -136,28 +137,28 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
   List<Widget> _buildSteps(ConnectionMethod? method) {
     // Build only the steps that should be shown based on connection method
     final steps = <Widget>[
-      const WelcomeStep(),           // 0 - Always shown
-      const ConnectionMethodStep(),  // 1 - Always shown
-      const LocalDetectionStep(),    // 2 - Always shown
-      const GatewayPasswordStep(),   // 3 - Always shown
+      const WelcomeStep(), // 0 - Always shown
+      const ConnectionMethodStep(), // 1 - Always shown
+      const LocalDetectionStep(), // 2 - Always shown
+      const GatewayPasswordStep(), // 3 - Always shown
     ];
-    
+
     // Step 4: TailscaleDiscoveryStep - only for tailscale method
     if (method == ConnectionMethod.tailscale) {
       steps.add(const TailscaleDiscoveryStep());
     }
-    
+
     // Step 5: RemoteConnectionStep - only for custom method
     if (method == ConnectionMethod.custom) {
       steps.add(const RemoteConnectionStep());
     }
-    
+
     // Remaining steps - always shown
     steps.addAll([
-      const ConnectionTestStep(),    // 6 (or 5 if skipping)
-      const CompletionStep(),        // 7 (or 6 if skipping)
+      const ConnectionTestStep(), // 6 (or 5 if skipping)
+      const CompletionStep(), // 7 (or 6 if skipping)
     ]);
-    
+
     return steps;
   }
 
@@ -194,21 +195,25 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
               onPressed: wizard.state.isLoading
                   ? null
                   : () async {
-                      debugPrint('[NavButton] Clicked. isLastStep: $isLastStep, currentStep: $currentStep, totalSteps: $totalSteps');
-                      
+                      debugPrint(
+                          '[NavButton] Clicked. isLastStep: $isLastStep, currentStep: $currentStep, totalSteps: $totalSteps');
+
                       if (isLastStep) {
                         // Complete the setup
                         debugPrint('[NavButton] Calling completeSetup...');
                         final success = await wizard.completeSetup();
-                        debugPrint('[NavButton] completeSetup result: $success');
-                        
+                        debugPrint(
+                            '[NavButton] completeSetup result: $success');
+
                         if (!success) {
                           // Show error and stay on this step
-                          debugPrint('[NavButton] Setup failed: ${wizard.state.errorMessage}');
+                          debugPrint(
+                              '[NavButton] Setup failed: ${wizard.state.errorMessage}');
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(wizard.state.errorMessage ?? 'Setup failed'),
+                                content: Text(wizard.state.errorMessage ??
+                                    'Setup failed'),
                                 backgroundColor: Colors.red,
                                 duration: const Duration(seconds: 5),
                               ),
@@ -216,9 +221,10 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
                           }
                           return;
                         }
-                        
+
                         // Navigate to home on success
-                        debugPrint('[NavButton] Setup complete, navigating to home');
+                        debugPrint(
+                            '[NavButton] Setup complete, navigating to home');
                         if (mounted) {
                           context.go('/');
                         }

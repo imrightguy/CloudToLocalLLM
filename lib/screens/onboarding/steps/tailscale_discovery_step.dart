@@ -19,14 +19,16 @@ class _TailscaleDiscoveryStepState extends State<TailscaleDiscoveryStep> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final wizard = context.read<SetupWizardService>();
-      debugPrint('[TailscaleDiscoveryStep] initState - selectedMethod: ${wizard.state.selectedMethod}');
-      
+      debugPrint(
+          '[TailscaleDiscoveryStep] initState - selectedMethod: ${wizard.state.selectedMethod}');
+
       // Only discover if this step is actually shown (tailscale method selected)
       if (wizard.state.selectedMethod == ConnectionMethod.tailscale) {
         debugPrint('[TailscaleDiscoveryStep] Starting Tailscale discovery');
         wizard.discoverTailscaleDevices();
       } else {
-        debugPrint('[TailscaleDiscoveryStep] Skipping discovery - method is ${wizard.state.selectedMethod}');
+        debugPrint(
+            '[TailscaleDiscoveryStep] Skipping discovery - method is ${wizard.state.selectedMethod}');
       }
     });
   }

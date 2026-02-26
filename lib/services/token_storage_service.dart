@@ -35,10 +35,12 @@ class TokenStorageService {
 
       final key = encrypt.Key.fromBase64(keyStr);
       _encrypter = encrypt.Encrypter(encrypt.AES(key));
-      _iv = encrypt.IV.fromLength(16); // Static IV for simplicity in this context
+      _iv =
+          encrypt.IV.fromLength(16); // Static IV for simplicity in this context
       _secureStorageAvailable = true;
     } catch (e) {
-      debugPrint('[TokenStorageService] Secure storage unavailable, using in-memory fallback: $e');
+      debugPrint(
+          '[TokenStorageService] Secure storage unavailable, using in-memory fallback: $e');
       // Generate in-memory encryption key as fallback
       final key = encrypt.Key.fromSecureRandom(32);
       _encrypter = encrypt.Encrypter(encrypt.AES(key));
@@ -76,7 +78,8 @@ class TokenStorageService {
       final encrypted = _encrypter!.encrypt(value, iv: _iv);
       await _secureStorage.write(key: 'token_$key', value: encrypted.base64);
     } catch (e) {
-      debugPrint('[TokenStorageService] Failed to write to secure storage, using memory fallback: $e');
+      debugPrint(
+          '[TokenStorageService] Failed to write to secure storage, using memory fallback: $e');
       _memoryFallback['token_$key'] = value;
     }
   }

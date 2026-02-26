@@ -58,7 +58,8 @@ class _GatewayPasswordStepState extends State<GatewayPasswordStep> {
           wizard.setGatewayPassword(token);
           _detectionMessage = 'Token detected from OpenClaw config!';
         } else {
-          _detectionMessage = 'Could not auto-detect token. Please enter it manually.';
+          _detectionMessage =
+              'Could not auto-detect token. Please enter it manually.';
         }
       });
     }
@@ -135,7 +136,8 @@ class _GatewayPasswordStepState extends State<GatewayPasswordStep> {
                                 ? Icons.visibility_off
                                 : Icons.visibility,
                           ),
-                          tooltip: _obscurePassword ? 'Show token' : 'Hide token',
+                          tooltip:
+                              _obscurePassword ? 'Show token' : 'Hide token',
                           onPressed: () {
                             setState(() {
                               _obscurePassword = !_obscurePassword;
@@ -144,7 +146,8 @@ class _GatewayPasswordStepState extends State<GatewayPasswordStep> {
                         ),
                       ],
                     ),
-                    helperText: 'Get token: openclaw config get gateway.auth.token',
+                    helperText:
+                        'Get token: openclaw config get gateway.auth.token',
                     border: const OutlineInputBorder(),
                   ),
                   maxLines: 1,
@@ -155,24 +158,25 @@ class _GatewayPasswordStepState extends State<GatewayPasswordStep> {
                 if (!kIsWeb) ...[
                   ElevatedButton.icon(
                     onPressed: _isDetecting ? null : _autoDetectToken,
-                    icon: _isDetecting 
+                    icon: _isDetecting
                         ? const SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.search),
-                    label: Text(_isDetecting ? 'Detecting...' : 'Auto-detect Token'),
+                    label: Text(
+                        _isDetecting ? 'Detecting...' : 'Auto-detect Token'),
                   ),
                   if (_detectionMessage != null) ...[
                     const SizedBox(height: 8),
                     Text(
                       _detectionMessage!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: _detectionMessage!.contains('Could not')
-                            ? Colors.orange
-                            : Colors.green,
-                      ),
+                            color: _detectionMessage!.contains('Could not')
+                                ? Colors.orange
+                                : Colors.green,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -218,7 +222,8 @@ class _GatewayPasswordStepState extends State<GatewayPasswordStep> {
                   onPressed: () async {
                     final messenger = ScaffoldMessenger.of(context);
                     await Clipboard.setData(
-                      const ClipboardData(text: 'openclaw config get gateway.auth.token'),
+                      const ClipboardData(
+                          text: 'openclaw config get gateway.auth.token'),
                     );
                     if (mounted) {
                       messenger.showSnackBar(

@@ -286,7 +286,8 @@ class _CloudToLocalLLMPrivacyAppState extends State<CloudToLocalLLMPrivacyApp> {
         // Connection manager service - use singleton from GetIt
         ChangeNotifierProvider(
           create: (context) {
-            final connectionManager = di.serviceLocator<ConnectionManagerService>();
+            final connectionManager =
+                di.serviceLocator<ConnectionManagerService>();
             connectionManager.initialize();
             return connectionManager;
           },

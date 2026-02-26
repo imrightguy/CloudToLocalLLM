@@ -28,13 +28,13 @@ class _AgentStatusWidgetState extends State<AgentStatusWidget> {
   @override
   void initState() {
     super.initState();
-    
+
     if (widget.service == null) {
       _error = 'Agent status service not available';
       _isLoading = false;
       return;
     }
-    
+
     _agents = widget.service!.currentStatuses;
     if (_agents.isNotEmpty) _isLoading = false;
 

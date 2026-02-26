@@ -154,10 +154,12 @@ class DeviceIdentityService {
       keyPair: _keyPair!,
     );
 
-    final signatureBase64Url = _base64UrlEncode(Uint8List.fromList(signature.bytes));
+    final signatureBase64Url =
+        _base64UrlEncode(Uint8List.fromList(signature.bytes));
     final publicKeyBase64 = await publicKeyBase64Url;
 
-    debugPrint('🔐 [DeviceIdentity] Signature: ${signatureBase64Url.substring(0, 20)}...');
+    debugPrint(
+        '🔐 [DeviceIdentity] Signature: ${signatureBase64Url.substring(0, 20)}...');
 
     return DeviceAuth(
       deviceId: _deviceId!,

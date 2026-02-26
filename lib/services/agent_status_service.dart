@@ -137,11 +137,9 @@ class AgentStatusService {
 
       // Get sessions list via WebSocket
       final sessions = await _connectionManager.getSessionsList();
-      
-      final statuses = sessions
-          .map(AgentStatus.fromSessionInfo)
-          .toList();
-      
+
+      final statuses = sessions.map(AgentStatus.fromSessionInfo).toList();
+
       _cachedStatuses = statuses;
       _statusController.add(statuses);
       _errorController.add(null); // Clear error
