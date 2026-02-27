@@ -196,13 +196,13 @@ jobs:
           jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\" | .build_date = \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
 
       - name: Download Linux Bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-bundle
           path: build/linux/x64/release/bundle
 
       - name: Download Windows Bundle
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: windows-bundle
           path: build/windows/x64/runner/Release
