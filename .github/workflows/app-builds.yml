@@ -45,7 +45,7 @@ jobs:
           flutter build linux --release
 
       - name: Upload Linux Bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-bundle
           path: build/linux/x64/release/bundle/
@@ -75,7 +75,7 @@ jobs:
           flutter build windows --release
 
       - name: Upload Windows Bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-bundle
           path: build/windows/x64/runner/Release/
