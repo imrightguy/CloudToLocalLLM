@@ -8,10 +8,19 @@ import 'pricing_screen.dart';
 import '../avatar/avatar_customization_screen.dart';
 import '../desktop/file_operations_screen.dart';
 
+// Individual category screens
+import 'general_settings_screen.dart';
+import 'appearance_settings_screen.dart';
+import 'connection_settings_screen.dart';
+import 'avatar_settings_screen.dart';
+import 'desktop_settings_screen.dart';
+import 'about_settings_screen.dart';
+
 // This file contains the route configuration for the settings screens,
 // which will be lazy-loaded to improve initial application performance.
 
 final settingsRoutes = [
+  // Main settings route - redirects to general
   GoRoute(
     path: '/settings',
     name: 'settings',
@@ -20,6 +29,81 @@ final settingsRoutes = [
       child: const UnifiedSettingsScreen(),
     ),
   ),
+
+  // Settings category routes
+  GoRoute(
+    path: '/settings/general',
+    name: 'settings-general',
+    pageBuilder: (context, state) {
+      debugPrint('[Router] Building GeneralSettingsScreen');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const GeneralSettingsScreen(),
+      );
+    },
+  ),
+
+  GoRoute(
+    path: '/settings/appearance',
+    name: 'settings-appearance',
+    pageBuilder: (context, state) {
+      debugPrint('[Router] Building AppearanceSettingsScreen');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AppearanceSettingsScreen(),
+      );
+    },
+  ),
+
+  GoRoute(
+    path: '/settings/connection',
+    name: 'settings-connection',
+    pageBuilder: (context, state) {
+      debugPrint('[Router] Building ConnectionSettingsScreen');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const ConnectionSettingsScreen(),
+      );
+    },
+  ),
+
+  GoRoute(
+    path: '/settings/avatar',
+    name: 'settings-avatar',
+    pageBuilder: (context, state) {
+      debugPrint('[Router] Building AvatarSettingsScreen');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AvatarSettingsScreen(),
+      );
+    },
+  ),
+
+  GoRoute(
+    path: '/settings/desktop',
+    name: 'settings-desktop',
+    pageBuilder: (context, state) {
+      debugPrint('[Router] Building DesktopSettingsScreen');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const DesktopSettingsScreen(),
+      );
+    },
+  ),
+
+  GoRoute(
+    path: '/settings/about',
+    name: 'settings-about',
+    pageBuilder: (context, state) {
+      debugPrint('[Router] Building AboutSettingsScreen');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AboutSettingsScreen(),
+      );
+    },
+  ),
+
+  // Legacy/sub-page routes (existing)
   GoRoute(
     path: '/settings/downloads',
     name: 'settings-downloads',
@@ -28,6 +112,7 @@ final settingsRoutes = [
       child: const UnifiedSettingsScreen(initialCategory: 'downloads'),
     ),
   ),
+
   GoRoute(
     path: '/settings/tunnel',
     name: 'tunnel-settings',
@@ -36,6 +121,7 @@ final settingsRoutes = [
       child: const UnifiedSettingsScreen(initialCategory: 'tunnel-connection'),
     ),
   ),
+
   GoRoute(
     path: '/settings/daemon',
     name: 'daemon-settings',
@@ -47,6 +133,7 @@ final settingsRoutes = [
       );
     },
   ),
+
   GoRoute(
     path: '/settings/connection-status',
     name: 'connection-status',
@@ -58,6 +145,7 @@ final settingsRoutes = [
       );
     },
   ),
+
   GoRoute(
     path: '/upgrade',
     name: 'pricing',
@@ -69,6 +157,7 @@ final settingsRoutes = [
       );
     },
   ),
+
   GoRoute(
     path: '/settings/avatar/customization',
     name: 'avatar-customization',
@@ -80,17 +169,7 @@ final settingsRoutes = [
       );
     },
   ),
-  GoRoute(
-    path: '/settings/avatar',
-    name: 'avatar-settings',
-    pageBuilder: (context, state) {
-      debugPrint('[Router] Building UnifiedSettingsScreen (avatar)');
-      return MaterialPage(
-        key: state.pageKey,
-        child: const UnifiedSettingsScreen(initialCategory: 'avatar'),
-      );
-    },
-  ),
+
   GoRoute(
     path: '/settings/desktop/files',
     name: 'desktop-file-operations',

@@ -1,3 +1,4 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -205,7 +206,7 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
           _buildStatusRow('Connection', 'Checking...', Colors.blue),
           _buildStatusRow(
             'URL',
-            'http://localhost:18789',
+            AppConfig.gatewayUrl,
             AppTheme.textColorLight,
           ),
           _buildStatusRow(
