@@ -62,6 +62,10 @@ import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/services/avatar/avatar_state_service.dart';
 import 'package:cloudtolocalllm/services/avatar/markdown_sync_service.dart';
 import 'package:cloudtolocalllm/services/conscience_storage_service.dart';
+import 'package:cloudtolocalllm/services/vision/vision_service.dart';
+import 'package:cloudtolocalllm/services/vision/region_capture_service.dart';
+import 'package:cloudtolocalllm/services/vision/camera_capture_service.dart';
+import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -684,6 +688,24 @@ Future<void> setupAuthenticatedServices() async {
     );
     serviceLocator
         .registerSingleton<GoogleWorkspaceService>(googleWorkspaceService);
+
+    // Vision services - screen capture, camera input, and OCR
+    debugPrint('[ServiceLocator] Initializing Vision services...');
+    final mainVisionService = MainVisionService();
+    serviceLocator
+        .registerLazySingleton<MainVisionService>(() => mainVisionService);
+
+    final regionCaptureService = RegionCaptureService();
+    serviceLocator
+        .registerLazySingleton<RegionCaptureService>(() => regionCaptureService);
+
+    final cameraCaptureService = CameraCaptureService();
+    serviceLocator
+        .registerLazySingleton<CameraCaptureService>(() => cameraCaptureService);
+
+    final ocrEngineService = OcrEngineService();
+    serviceLocator
+        .registerLazySingleton<OcrEngineService>(() => ocrEngineService);
 
     debugPrint(
         '[ServiceLocator] Authenticated services registered successfully');
