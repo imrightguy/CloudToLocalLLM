@@ -34,7 +34,8 @@ class CaptureResult {
   }
 
   @override
-  int get hashCode => path.hashCode ^ width.hashCode ^ height.hashCode ^ timestamp.hashCode;
+  int get hashCode =>
+      path.hashCode ^ width.hashCode ^ height.hashCode ^ timestamp.hashCode;
 }
 
 /// Service for capturing specific regions of the screen
@@ -108,7 +109,8 @@ class RegionCaptureService {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final path = '${directory.path}/capture_$timestamp.png';
 
-      debugPrint('[RegionCapture] Capturing region: x=$x, y=$y, w=$width, h=$height');
+      debugPrint(
+          '[RegionCapture] Capturing region: x=$x, y=$y, w=$width, h=$height');
 
       final result = await _channel.invokeMethod('captureRegion', {
         'x': x,
