@@ -66,6 +66,7 @@ import 'package:cloudtolocalllm/services/vision/vision_service.dart';
 import 'package:cloudtolocalllm/services/vision/region_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/camera_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
+import 'package:cloudtolocalllm/services/desktop_control/window_manager_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -706,6 +707,12 @@ Future<void> setupAuthenticatedServices() async {
     final ocrEngineService = OcrEngineService();
     serviceLocator
         .registerLazySingleton<OcrEngineService>(() => ocrEngineService);
+
+    // Desktop control services - window management
+    debugPrint('[ServiceLocator] Initializing Desktop Control services...');
+    final windowManagerService = WindowManagerService();
+    serviceLocator
+        .registerLazySingleton<WindowManagerService>(() => windowManagerService);
 
     debugPrint(
         '[ServiceLocator] Authenticated services registered successfully');
