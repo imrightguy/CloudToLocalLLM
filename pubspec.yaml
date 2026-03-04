@@ -102,6 +102,10 @@ dependencies:
   local_notifier: ^0.1.6
   flutter_colorpicker: ^1.1.0
 
+  # Vision System - Camera and Permissions
+  camera: ^0.10.5
+  permission_handler: ^11.0.0
+
 dev_dependencies:
   sentry_dart_plugin: ^3.2.0
   flutter_lints: ^6.0.0
