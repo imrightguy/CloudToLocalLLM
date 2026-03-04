@@ -1087,58 +1087,103 @@ git commit -m "feat(desktop): add window management service"
 Add to `lib/database/drift_local_brain.dart`:
 
 ```dart
-// Add this table after existing avatar tables
+// Add this table after ConversationDepthMetrics
 
 @DataClassName('ConversationMemory')
 class ConversationMemories extends Table {
   TextColumn get id => text()();
   TextColumn get conversationId => text().references(Conversations, #id)();
-  TextColumn get content => text()();
-  RealColumn get embedding => text()(); // Stored as JSON array
-  DateTimeColumn get timestamp => dateTime()();
-  TextColumn get summary => text().nullable()();
+  TextColumn get content => text()(); // Original text content
+  TextColumn get embedding => text()(); // Vector embedding as JSON array
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get summary => text().nullable()(); // Optional summary
 
   @override
   Set<Column> get primaryKey => {id};
 }
+```
 
-// Update LocalBrain class
+**Step 2: Update @DriftDatabase annotation**
+
+Add `ConversationMemories` to the tables list in `@DriftDatabase`.
+
+**Step 3: Update schema version**
+
+```dart
 @override
-Set<Table> get registeredTables => {
-  // ... existing tables
-  conversationMemories,
-};
+int get schemaVersion => 7; // Increment from 6
+```
 
-// Add DAO methods
-Future<List<ConversationMemory>> getMemoriesForConversation(String conversationId) {
-  return (select(conversationMemories)
-        ..where((tbl) => tbl.conversationId.equals(conversationId))
-        ..orderBy([(m) => OrderingTerm.asc(m.timestamp)]))
-      .get();
-}
+**Step 4: Add migration for version 7**
 
-Future<void> insertMemory(ConversationMemoriesCompanion memory) async {
-  into(conversationMemories).insert(memory);
-}
-
-Future<List<ConversationMemory>> searchMemoriesByEmbedding(String queryEmbedding, {int limit = 10}) {
-  // This would require vector similarity search
-  // For now, return recent memories
-  return (select(conversationMemories)
-        ..orderBy([(m) => OrderingTerm.desc(m.timestamp)])
-        ..limit(limit))
-      .get();
+```dart
+if (from < 7) {
+  // Add Avatar Memory System with vector embeddings for Phase 3
+  await m.createTable(conversationMemories);
 }
 ```
 
-**Step 2: Run migration**
+**Step 5: Add DAO methods**
+
+```dart
+// ==========================================================================
+// CONVERSATION MEMORY DAO (Avatar Memory System with Vector Embeddings)
+// ==========================================================================
+
+/// Get all memories for a specific conversation
+Future<List<ConversationMemory>> getMemoriesForConversation(
+    String conversationId) =>
+    (select(conversationMemories)
+          ..where((t) => t.conversationId.equals(conversationId))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ]))
+        .get();
+
+/// Insert a new memory with embedding
+Future<void> insertMemory(ConversationMemoriesCompanion memory) =>
+    into(conversationMemories).insert(memory);
+
+/// Search memories by content (text search for now)
+/// TODO: Implement proper vector similarity search with cosine distance
+Future<List<ConversationMemory>> searchMemoriesByContent(
+    String searchTerm) async {
+  final allMemories = await select(conversationMemories).get();
+  final searchTermLower = searchTerm.toLowerCase();
+
+  return allMemories
+      .where((memory) =>
+          memory.content.toLowerCase().contains(searchTermLower) ||
+          (memory.summary?.toLowerCase().contains(searchTermLower) ?? false))
+      .toList();
+}
+
+/// Delete memories for a specific conversation
+Future<int> deleteMemoriesForConversation(String conversationId) =>
+    (delete(conversationMemories)
+          ..where((t) => t.conversationId.equals(conversationId)))
+        .go();
+
+/// Get recent memories across all conversations
+Future<List<ConversationMemory>> getRecentMemories({int limit = 50}) =>
+    (select(conversationMemories)
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+          ])
+          ..limit(limit))
+        .get();
+```
+
+**Step 6: Run migration**
 
 ```bash
 # This will trigger auto-migration on next app launch
 flutter run -d linux
 ```
 
-**Step 3: Commit**
+**Step 7: Commit**
 
 ```bash
 git add lib/database/drift_local_brain.dart
