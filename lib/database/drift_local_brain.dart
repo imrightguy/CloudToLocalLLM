@@ -389,6 +389,20 @@ class ConversationDepthMetrics extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Conversation memories with vector embeddings for semantic search
+@DataClassName('ConversationMemory')
+class ConversationMemories extends Table {
+  TextColumn get id => text()();
+  TextColumn get conversationId => text().references(Conversations, #id)();
+  TextColumn get content => text()(); // Original text content
+  TextColumn get embedding => text()(); // Vector embedding as JSON array
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get summary => text().nullable()(); // Optional summary of content
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ============================================================================
 // DATABASE CLASS
 // ============================================================================
@@ -416,6 +430,7 @@ class ConversationDepthMetrics extends Table {
   AvatarPersonalityProfiles,
   EvolutionHistoryTable,
   ConversationDepthMetrics,
+  ConversationMemories,
   AgentThoughts,
   ConscienceDecisions,
 ])
@@ -423,7 +438,7 @@ class LocalBrain extends _$LocalBrain {
   LocalBrain() : super(openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -467,6 +482,10 @@ class LocalBrain extends _$LocalBrain {
             // Add Conscience System tables for Phase 1
             await m.createTable(agentThoughts);
             await m.createTable(conscienceDecisions);
+          }
+          if (from < 7) {
+            // Add Avatar Memory System with vector embeddings for Phase 3
+            await m.createTable(conversationMemories);
           }
         },
       );
@@ -999,6 +1018,57 @@ class LocalBrain extends _$LocalBrain {
       (delete(avatarMemoryEntries)
             ..where((t) => t.timestamp.isSmallerThanValue(cutoff)))
           .go();
+
+  // ==========================================================================
+  // CONVERSATION MEMORY DAO (Avatar Memory System with Vector Embeddings)
+  // ==========================================================================
+
+  /// Get all memories for a specific conversation
+  Future<List<ConversationMemory>> getMemoriesForConversation(
+      String conversationId) =>
+      (select(conversationMemories)
+            ..where((t) => t.conversationId.equals(conversationId))
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ]))
+          .get();
+
+  /// Insert a new memory with embedding
+  Future<void> insertMemory(ConversationMemoriesCompanion memory) =>
+      into(conversationMemories).insert(memory);
+
+  /// Search memories by embedding similarity (simple text search for now)
+  /// TODO: Implement proper vector similarity search with cosine distance
+  Future<List<ConversationMemory>> searchMemoriesByContent(
+      String searchTerm) async {
+    // Simple text-based search for now
+    // Future enhancement: Use vector similarity with the embedding field
+    final allMemories = await select(conversationMemories).get();
+    final searchTermLower = searchTerm.toLowerCase();
+
+    return allMemories
+        .where((memory) =>
+            memory.content.toLowerCase().contains(searchTermLower) ||
+            (memory.summary?.toLowerCase().contains(searchTermLower) ?? false))
+        .toList();
+  }
+
+  /// Delete memories for a specific conversation
+  Future<int> deleteMemoriesForConversation(String conversationId) =>
+      (delete(conversationMemories)
+            ..where((t) => t.conversationId.equals(conversationId)))
+          .go();
+
+  /// Get recent memories across all conversations
+  Future<List<ConversationMemory>> getRecentMemories({int limit = 50}) =>
+      (select(conversationMemories)
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ])
+            ..limit(limit))
+          .get();
 
   // ==========================================================================
   // DESKTOP CONTROL DAO
