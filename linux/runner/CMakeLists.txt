@@ -27,8 +27,8 @@ target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
 # X11 libraries for Vision and Desktop Control
 target_link_libraries(${BINARY_NAME} PRIVATE X11)
 target_link_libraries(${BINARY_NAME} PRIVATE Xext)
-target_link_libraries(${BINARY_NAME} PRIVATE X11-xcb)
-target_link_libraries(${BINARY_NAME} PRIVATE Xcb)
+target_link_libraries(${BINARY_NAME} PRIVATE Xtst)
+target_link_libraries(${BINARY_NAME} PRIVATE xcb)
 target_link_libraries(${BINARY_NAME} PRIVATE Imlib2)
 
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")

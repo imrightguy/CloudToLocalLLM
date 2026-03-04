@@ -502,18 +502,12 @@ static FlValue* close_window(FlValue* args) {
 // ========================================================================
 
 static void platform_channels_method_call_handler(FlMethodChannel* channel,
-                                                   FlValue* method_call,
-                                                   FlMethodResponse* response) {
-    const gchar* method = fl_value_get_string(method_call);
-    FlValue* args = nullptr;
+                                                   FlMethodCall* method_call,
+                                                   gpointer user_data) {
+    const gchar* method = fl_method_call_get_name(method_call);
+    FlValue* args = fl_method_call_get_args(method_call);
 
-    // Get arguments from method call (second element of the list)
-    if (fl_value_get_type(method_call) == FL_VALUE_TYPE_LIST) {
-        if (fl_value_get_length(method_call) > 1) {
-            args = fl_value_get_list_value(method_call, 1);
-        }
-    }
-
+    g_autoptr(FlMethodResponse) response = nullptr;
     FlValue* result = nullptr;
 
     // GUI AUTOMATION CHANNEL
@@ -544,38 +538,46 @@ static void platform_channels_method_call_handler(FlMethodChannel* channel,
 
     // Unknown method
     else {
-        fl_method_response_not_implemented(response);
+        response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+        fl_method_call_respond(method_call, response, nullptr);
         return;
     }
 
     if (result) {
         g_autoptr(FlValue) response_data = result;
-        fl_method_response_success(response, response_data);
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(response_data));
     } else {
-        fl_method_response_success(response, fl_value_new_null());
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_null()));
     }
+
+    fl_method_call_respond(method_call, response, nullptr);
 }
 
 void register_platform_channels(FlEngine* engine) {
+    // Create standard method codec
+    g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+
     // Register GUI Automation channel
     g_autoptr(FlMethodChannel) gui_automation_channel =
         fl_method_channel_new(fl_engine_get_binary_messenger(engine),
                               "cloudtolocallm/gui_automation",
-                              FL_MESSAGE_CODEC_TYPE_STANDARD);
+                              FL_METHOD_CODEC(codec));
 
-    fl_method_channel_set_method_call_handler(gui_automation_channel,
-                                               platform_channels_method_call_handler,
-                                               nullptr,
-                                               nullptr);
+    fl_method_channel_set_method_call_handler(
+        gui_automation_channel,
+        platform_channels_method_call_handler,
+        nullptr,
+        nullptr);
 
     // Register Window Manager channel
     g_autoptr(FlMethodChannel) window_manager_channel =
         fl_method_channel_new(fl_engine_get_binary_messenger(engine),
                               "cloudtolocallm/window_manager",
-                              FL_MESSAGE_CODEC_TYPE_STANDARD);
+                              FL_METHOD_CODEC(codec));
 
-    fl_method_channel_set_method_call_handler(window_manager_channel,
-                                               platform_channels_method_call_handler,
-                                               nullptr,
-                                               nullptr);
+    fl_method_channel_set_method_call_handler(
+        window_manager_channel,
+        platform_channels_method_call_handler,
+        nullptr,
+        nullptr);
 }
