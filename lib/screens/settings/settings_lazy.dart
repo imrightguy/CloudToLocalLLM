@@ -15,66 +15,91 @@ final settingsRoutes = [
   GoRoute(
     path: '/settings',
     name: 'settings',
-    builder: (context, state) => const UnifiedSettingsScreen(),
+    pageBuilder: (context, state) => MaterialPage(
+      key: state.pageKey,
+      child: const UnifiedSettingsScreen(),
+    ),
   ),
   GoRoute(
     path: '/settings/downloads',
     name: 'settings-downloads',
-    builder: (context, state) =>
-        const UnifiedSettingsScreen(initialCategory: 'downloads'),
+    pageBuilder: (context, state) => MaterialPage(
+      key: state.pageKey,
+      child: const UnifiedSettingsScreen(initialCategory: 'downloads'),
+    ),
   ),
   GoRoute(
     path: '/settings/tunnel',
     name: 'tunnel-settings',
-    builder: (context, state) =>
-        const UnifiedSettingsScreen(initialCategory: 'tunnel-connection'),
+    pageBuilder: (context, state) => MaterialPage(
+      key: state.pageKey,
+      child: const UnifiedSettingsScreen(initialCategory: 'tunnel-connection'),
+    ),
   ),
   GoRoute(
     path: '/settings/daemon',
     name: 'daemon-settings',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building DaemonSettingsScreen');
-      return const DaemonSettingsScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const DaemonSettingsScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/settings/connection-status',
     name: 'connection-status',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building ConnectionStatusScreen');
-      return const ConnectionStatusScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const ConnectionStatusScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/upgrade',
     name: 'pricing',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building PricingScreen');
-      return const PricingScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const PricingScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/settings/avatar/customization',
     name: 'avatar-customization',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building AvatarCustomizationScreen');
-      return const AvatarCustomizationScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AvatarCustomizationScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/settings/avatar',
     name: 'avatar-settings',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building UnifiedSettingsScreen (avatar)');
-      return const UnifiedSettingsScreen(initialCategory: 'avatar');
+      return MaterialPage(
+        key: state.pageKey,
+        child: const UnifiedSettingsScreen(initialCategory: 'avatar'),
+      );
     },
   ),
   GoRoute(
     path: '/settings/desktop/files',
     name: 'desktop-file-operations',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building FileOperationsScreen');
-      return const FileOperationsScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const FileOperationsScreen(),
+      );
     },
   ),
 ];

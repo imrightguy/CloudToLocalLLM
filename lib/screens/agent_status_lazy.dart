@@ -9,17 +9,23 @@ final agentStatusRoutes = [
   GoRoute(
     path: '/agent-status',
     name: 'agent-status',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building AgentStatusScreen');
-      return const AgentStatusScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AgentStatusScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/brain-insights',
     name: 'brain-insights',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building BrainInsightsScreen');
-      return const BrainInsightsScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const BrainInsightsScreen(),
+      );
     },
   ),
 ];

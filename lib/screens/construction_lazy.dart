@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'construction_screen.dart';
 
@@ -6,6 +7,9 @@ final constructionRoutes = [
   GoRoute(
     path: '/construction',
     name: 'construction',
-    builder: (context, state) => const ConstructionScreen(),
+    pageBuilder: (context, state) => MaterialPage(
+      key: state.pageKey,
+      child: const ConstructionScreen(),
+    ),
   ),
 ];

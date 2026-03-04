@@ -1,4 +1,5 @@
 // Lazy loader for GUI Automation screen
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'gui_automation_screen.dart';
@@ -9,8 +10,11 @@ List<RouteBase> get guiAutomationRoutes {
     GoRoute(
       path: '/gui-automation',
       name: 'gui-automation',
-      builder: (context, state) {
-        return const GuiAutomationScreen();
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const GuiAutomationScreen(),
+        );
       },
     ),
   ];

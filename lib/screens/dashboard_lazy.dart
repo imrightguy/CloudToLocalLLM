@@ -10,26 +10,35 @@ final dashboardRoutes = [
   GoRoute(
     path: '/dashboard',
     name: 'dashboard',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building DashboardScreen');
-      return const DashboardScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const DashboardScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/agents',
     name: 'agents',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building AgentListView');
-      return const AgentListView();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AgentListView(),
+      );
     },
   ),
   GoRoute(
     path: '/agents/:id',
     name: 'agent-detail',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       final agentId = state.pathParameters['id'] ?? '';
       debugPrint('[Router] Building AgentDetailScreen for: $agentId');
-      return AgentDetailScreen(agentId: agentId);
+      return MaterialPage(
+        key: state.pageKey,
+        child: AgentDetailScreen(agentId: agentId),
+      );
     },
   ),
 ];

@@ -11,17 +11,23 @@ final adminRoutes = [
   GoRoute(
     path: '/admin/data-flush',
     name: 'admin-data-flush',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building AdminDataFlushScreen');
-      return const AdminDataFlushScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AdminDataFlushScreen(),
+      );
     },
   ),
   GoRoute(
     path: '/admin-center',
     name: 'admin-center',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       debugPrint('[Router] Building AdminCenterScreen');
-      return const AdminCenterScreen();
+      return MaterialPage(
+        key: state.pageKey,
+        child: const AdminCenterScreen(),
+      );
     },
   ),
 ];

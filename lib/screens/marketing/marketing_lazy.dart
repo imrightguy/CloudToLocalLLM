@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'download_screen.dart';
@@ -15,26 +16,38 @@ final marketingRoutes = [
   GoRoute(
     path: '/download',
     name: 'download',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       // Only available on web platform
       if (kIsWeb) {
-        return const DownloadScreen();
+        return MaterialPage(
+          key: state.pageKey,
+          child: const DownloadScreen(),
+        );
       } else {
         // Redirect desktop users to main app
-        return const HomeScreen();
+        return MaterialPage(
+          key: state.pageKey,
+          child: const HomeScreen(),
+        );
       }
     },
   ),
   GoRoute(
     path: '/docs',
     name: 'docs',
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       // Only available on web platform
       if (kIsWeb) {
-        return const DocumentationScreen();
+        return MaterialPage(
+          key: state.pageKey,
+          child: const DocumentationScreen(),
+        );
       } else {
         // Redirect desktop users to main app
-        return const HomeScreen();
+        return MaterialPage(
+          key: state.pageKey,
+          child: const HomeScreen(),
+        );
       }
     },
   ),

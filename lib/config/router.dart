@@ -149,35 +149,47 @@ class AppRouter {
         GoRoute(
           path: '/',
           name: 'home',
-          builder: (context, state) {
-            debugPrint('[Router] Home builder triggered');
+          pageBuilder: (context, state) {
+            debugPrint('[Router] Home pageBuilder triggered');
 
             // Failsafe for callback params
             if (kIsWeb &&
                 (_hasCallbackParameters(state.uri) ||
                     _hasCallbackParameters(Uri.base))) {
               debugPrint(
-                  '[Router] Failsafe: Redirecting to CallbackScreen in builder');
+                  '[Router] Failsafe: Redirecting to CallbackScreen in pageBuilder');
               final params = state.uri.queryParameters.isNotEmpty
                   ? state.uri.queryParameters
                   : Uri.base.queryParameters;
-              return CallbackScreen(queryParams: params);
+              return MaterialPage(
+                key: state.pageKey,
+                child: CallbackScreen(queryParams: params),
+              );
             }
 
             final isAuthenticated = authService.isAuthenticated.value;
 
             if (isAuthenticated || !kIsWeb) {
               // Show home screen first, then check if setup is needed
-              return _HomeWithSetupCheck(
-                isAuthenticated: isAuthenticated,
+              return MaterialPage(
+                key: state.pageKey,
+                child: _HomeWithSetupCheck(
+                  isAuthenticated: isAuthenticated,
+                ),
               );
             }
 
             if (kIsWeb && !_isAppSubdomain()) {
-              return const marketing_lazy.HomepageScreen();
+              return MaterialPage(
+                key: state.pageKey,
+                child: const marketing_lazy.HomepageScreen(),
+              );
             }
 
-            return const LoginScreen();
+            return MaterialPage(
+              key: state.pageKey,
+              child: const LoginScreen(),
+            );
           },
         ),
 
@@ -185,24 +197,33 @@ class AppRouter {
         GoRoute(
           path: '/setup',
           name: 'setup',
-          builder: (context, state) => const SetupWizardScreen(),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const SetupWizardScreen(),
+          ),
         ),
 
         // Protected Chat route
         GoRoute(
           path: '/chat',
           name: 'chat',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             if (!authService.isAuthenticated.value && kIsWeb) {
               debugPrint(
                   '[Router] /chat requested but not authenticated, going to /login');
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) context.go('/login');
               });
-              return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()));
+              return MaterialPage(
+                key: state.pageKey,
+                child: Scaffold(
+                    body: Center(child: CircularProgressIndicator())),
+              );
             }
-            return const HomeScreen();
+            return MaterialPage(
+              key: state.pageKey,
+              child: const HomeScreen(),
+            );
           },
         ),
 
@@ -218,25 +239,34 @@ class AppRouter {
         GoRoute(
           path: '/login',
           name: 'login',
-          builder: (context, state) => const LoginScreen(),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const LoginScreen(),
+          ),
         ),
 
         GoRoute(
           path: '/callback',
           name: 'callback',
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             if (!kIsWeb) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (context.mounted) context.go('/login');
               });
-              return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()));
+              return MaterialPage(
+                key: state.pageKey,
+                child: Scaffold(
+                    body: Center(child: CircularProgressIndicator())),
+              );
             }
 
             final params = state.uri.queryParameters.isNotEmpty
                 ? state.uri.queryParameters
                 : Uri.base.queryParameters;
-            return CallbackScreen(queryParams: params);
+            return MaterialPage(
+              key: state.pageKey,
+              child: CallbackScreen(queryParams: params),
+            );
           },
         ),
       ],
