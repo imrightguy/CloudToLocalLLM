@@ -700,7 +700,7 @@ class _Sidebar extends StatelessWidget {
           _SidebarItem(
             icon: Icons.chat_bubble_outline,
             label: 'Chat',
-            isSelected: location == '/' || location == '/chat',
+            isSelected: location == '/',
             onTap: () => onNavigate('/'),
           ),
           _SidebarItem(

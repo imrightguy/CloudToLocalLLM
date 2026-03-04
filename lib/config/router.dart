@@ -203,30 +203,6 @@ class AppRouter {
           ),
         ),
 
-        // Protected Chat route
-        GoRoute(
-          path: '/chat',
-          name: 'chat',
-          pageBuilder: (context, state) {
-            if (!authService.isAuthenticated.value && kIsWeb) {
-              debugPrint(
-                  '[Router] /chat requested but not authenticated, going to /login');
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted) context.go('/login');
-              });
-              return MaterialPage(
-                key: state.pageKey,
-                child: Scaffold(
-                    body: Center(child: CircularProgressIndicator())),
-              );
-            }
-            return MaterialPage(
-              key: state.pageKey,
-              child: const HomeScreen(),
-            );
-          },
-        ),
-
         // Marketing & Other routes
         ...marketing_lazy.marketingRoutes,
         ...settings_lazy.settingsRoutes,
