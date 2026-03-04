@@ -9,6 +9,7 @@ project(runner LANGUAGES CXX)
 add_executable(${BINARY_NAME}
   "main.cc"
   "my_application.cc"
+  "platform_channels.cc"
   "${FLUTTER_MANAGED_DIR}/generated_plugin_registrant.cc"
 )
 
@@ -22,5 +23,12 @@ apply_standard_settings(${BINARY_NAME})
 # Add dependency libraries. Add any application-specific dependencies here.
 target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
+
+# X11 libraries for Vision and Desktop Control
+target_link_libraries(${BINARY_NAME} PRIVATE X11)
+target_link_libraries(${BINARY_NAME} PRIVATE Xext)
+target_link_libraries(${BINARY_NAME} PRIVATE X11-xcb)
+target_link_libraries(${BINARY_NAME} PRIVATE Xcb)
+target_link_libraries(${BINARY_NAME} PRIVATE Imlib2)
 
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
