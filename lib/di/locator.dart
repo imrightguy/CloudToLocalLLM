@@ -61,6 +61,7 @@ import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
 import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/services/avatar/avatar_state_service.dart';
 import 'package:cloudtolocalllm/services/avatar/markdown_sync_service.dart';
+import 'package:cloudtolocalllm/services/avatar/memory_service.dart';
 import 'package:cloudtolocalllm/services/conscience_storage_service.dart';
 import 'package:cloudtolocalllm/services/vision/vision_service.dart';
 import 'package:cloudtolocalllm/services/vision/region_capture_service.dart';
@@ -146,6 +147,11 @@ Future<void> setupCoreServices() async {
   final evolutionTracker = EvolutionTracker(database: localBrain);
   serviceLocator
       .registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
+
+  // Avatar Memory Service - Manages long-term memory with vector embeddings
+  final memoryService = MemoryService(database: localBrain);
+  serviceLocator
+      .registerLazySingleton<MemoryService>(() => memoryService);
 
   // Markdown Sync Service - Backup avatar data to markdown files
   final markdownSyncService = MarkdownSyncService(
