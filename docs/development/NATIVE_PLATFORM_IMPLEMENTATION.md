@@ -1,7 +1,7 @@
 # Native Platform Implementation Status
 
 > **Last Updated**: 2026-03-04
-> **Status**: ✅ Linux Build Fixed - API Verified, Build Succeeds
+> **Status**: ✅ Linux Implementation Verified - Build + Channels Working
 
 ---
 
@@ -113,7 +113,9 @@ target_link_libraries(${BINARY_NAME} PRIVATE Imlib2)
 ## Testing Checklist
 
 ### Linux
-- [x] Build compiles without errors (API compatibility)
+- [x] Build compiles without errors (debug + release)
+- [x] Channel registration verified (names match Flutter services)
+- [x] X11 libraries linked correctly (X11, Xtst, xcb)
 - [ ] Screenshot captures to file correctly
 - [ ] Window list returns all visible windows
 - [ ] Focus window brings target to front
