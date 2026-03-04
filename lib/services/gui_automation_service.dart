@@ -1,4 +1,6 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -7,11 +9,14 @@ import 'package:path_provider/path_provider.dart';
 /// GUI Automation Service
 /// Screenshots → Vision Model → Actions
 class GuiAutomationService extends ChangeNotifier {
+  static const MethodChannel _channel =
+      MethodChannel('cloudtolocallm/gui_automation');
+
   bool _isInitialized = false;
   bool _isProcessing = false;
   String _status = 'Ready';
   String _lastResult = '';
-  String _modelEndpoint = 'http://localhost:18789'; // OpenClaw Gateway endpoint
+  String _modelEndpoint = AppConfig.gatewayUrl; // OpenClaw Gateway endpoint
 
   bool get isInitialized => _isInitialized;
   bool get isProcessing => _isProcessing;
@@ -49,16 +54,26 @@ class GuiAutomationService extends ChangeNotifier {
       final path =
           '${directory.path}/gui_automation_${DateTime.now().millisecondsSinceEpoch}.png';
 
-      // Call native method to take screenshot
-      // This would use a Flutter method channel to native code
-      // For now, placeholder implementation
+      debugPrint('[GuiAutomation] Taking screenshot to $path');
 
-      _status = 'Screenshot saved';
-      notifyListeners();
+      // Call native method to take screenshot via platform channel
+      final result =
+          await _channel.invokeMethod('takeScreenshot', {'path': path});
 
-      return path;
+      if (result == true && File(path).existsSync()) {
+        _status = 'Screenshot saved';
+        debugPrint('[GuiAutomation] Screenshot saved to $path');
+        notifyListeners();
+        return path;
+      } else {
+        _status = 'Screenshot failed or file not created';
+        debugPrint('[GuiAutomation] Screenshot failed or file not created');
+        notifyListeners();
+        return null;
+      }
     } catch (e) {
       _status = 'Screenshot failed: $e';
+      debugPrint('[GuiAutomation] Screenshot failed: $e');
       notifyListeners();
       return null;
     }
@@ -128,19 +143,21 @@ class GuiAutomationService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Parse action and execute using native code
-      // Supported actions: click(x,y), type(text), scroll(direction), keypress(key)
+      debugPrint('[GuiAutomation] Executing action: $action');
 
-      // Example: "click(100,200)" -> click at coordinates
-      // Example: "type(hello)" -> type text
-      // Example: "scroll(down)" -> scroll down
+      // Supported actions: click(x,y), type(text), scroll(direction), keypress(key)
+      await _channel.invokeMethod('executeAction', {
+        'action': action,
+      });
 
       _status = 'Action completed';
+      debugPrint('[GuiAutomation] Action completed: $action');
       notifyListeners();
 
       return 'Executed: $action';
     } catch (e) {
       _status = 'Action failed: $e';
+      debugPrint('[GuiAutomation] Action failed: $e');
       notifyListeners();
       return 'Error: $e';
     }
