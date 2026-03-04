@@ -2,15 +2,64 @@
 
 **CloudToLocalLLM** is an OpenClaw Agent Manager — a privacy-first desktop AI companion organized around five core pillars.
 
-> **Last Updated**: 2026-02-25 | **Overall Progress**: ~55% complete | **Estimated Timeline**: 8 weeks
+> **Last Updated**: 2026-03-04 | **Overall Progress**: ~85% complete | **Estimated Timeline**: 8 weeks (1 remaining)
 
 ---
 
 ## Recent Updates
 
+### 2026-03-04: Phase 2-3 Completion - Vision, Desktop Control, Avatar Memory
+
+**Status**: ✅ Phase 2 Core Complete (~90%), Phase 3 In Progress (~80%)
+
+Major implementation sprint completing Vision System foundation, Desktop Control enhancements, and Avatar Memory storage layer:
+
+**Vision System (Pillar 5) - 80% Complete:**
+- ✅ Created vision services directory structure (`lib/services/vision/`)
+- ✅ Implemented RegionCaptureService for screen capture regions
+- ✅ Implemented CameraCaptureService with camera input
+- ✅ Implemented OcrEngineService with Tesseract OCR integration
+- ✅ Created MainVisionService coordinator
+- ✅ Added VisionSettingsScreen UI for testing
+- 🔲 Native platform implementations (Linux/Windows) - separate task
+
+**Desktop Control (Pillar 4) - 90% Complete:**
+- ✅ Enhanced GuiAutomationService with platform channels
+- ✅ Created WindowManagerService with full window management
+- ✅ WindowInfo class with state tracking (minimize, maximize, active)
+- ✅ Window operations: focus, move, resize, minimize, maximize, close, toggle
+- 🔲 Native platform implementations (Linux/Windows) - separate task
+
+**Avatar Memory System (Pillar 3) - 85% Complete:**
+- ✅ Added ConversationMemories table to database (vector embeddings storage)
+- ✅ Created MemoryService with semantic search foundation
+- ✅ Added DAO methods: getMemoriesForConversation, insertMemory, searchMemoriesByContent
+- ✅ Database migration v6 → v7
+- 🔲 Vector embedding generation (marked as TODO)
+- 🔲 Cosine similarity search (text search implemented as placeholder)
+
+**Commits:**
+- `feat(vision): create vision services directory structure` (3a5d60300)
+- `feat(vision): add region capture service` (798cc00eb)
+- `feat(vision): add camera capture service` (10ea1d8de)
+- `feat(vision): add OCR engine service` (7fc6c29b3)
+- `feat(desktop): add platform channels to gui automation` (d964bc823)
+- `feat(desktop): add window management service` (6c709ad01)
+- `feat(database): add conversation memories table for embeddings` (e8732a0eb)
+- `feat(avatar): add memory service with semantic search` (fa7bf0d9d)
+- `feat(ui): add vision settings screen` (b228e7b16)
+
+**Next Steps:**
+- Native platform implementations for vision and desktop control
+- Vector embedding integration with local LLM or external service
+- Avatar achievements system
+- Macro scripting for desktop automation
+
+---
+
 ### 2026-02-26: Conscience System (Multi-Agent Cross-Checking)
 
-**Status**: 🟡 New Feature - Planning Complete, Ready for Implementation
+**Status**: 🟡 Phase 1 Complete - Storage Layer Implemented, Ready for Phase 2
 
 A multi-agent system inspired by Grok 4.20 that cross-checks decisions before acting. Prevents the main agent from breaking config, rushing actions, or ignoring context.
 
@@ -41,12 +90,12 @@ A multi-agent system inspired by Grok 4.20 that cross-checks decisions before ac
 
 **Implementation Phases:**
 
-| Phase | What | Time |
-|-------|------|------|
-| **1** | Storage layer - files + API to app's Drift DB | 4h |
-| **2** | Spawn Benjamin/Harper on demand, parallel execution | 6h |
-| **3** | Persistent agent identities with roles | 4h |
-| **4** | Coordinator intelligence - consensus, conflict resolution | 6h |
+| Phase | What | Time | Status |
+|-------|------|------|--------|
+| **1** | Storage layer - files + API to app's Drift DB | 4h | ✅ Complete |
+| **2** | Spawn Benjamin/Harper on demand, parallel execution | 6h | 🔲 Pending |
+| **3** | Persistent agent identities with roles | 4h | 🔲 Pending |
+| **4** | Coordinator intelligence - consensus, conflict resolution | 6h | 🔲 Pending |
 
 **Key Files:**
 - `AGENT-THOUGHTS.md` - shared board where all agents post thoughts
@@ -148,11 +197,11 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 | Pillar | Status | Progress | Next Step |
 |--------|--------|----------|-----------|
 | **Setup Wizard** | ✅ Complete | 100% | None |
-| **Chat** | ✅ Phase 1 Complete | 90% | Multi-model attachments |
-| **OpenClaw Manager** | ✅ Phase 1 Complete | 90% | Advanced metrics |
-| **Evolving Avatar** | 🟡 Supervisor Feature Added | 30% | Implementing personality + supervisor |
-| **Desktop Control** | 🟡 Partial | 40% | Window management |
-| **Vision** | 🟡 Partial | 30% | Region capture + OCR |
+| **Chat** | ✅ Phase 1 Complete | 95% | Multi-model attachments |
+| **OpenClaw Manager** | ✅ Phase 1 Complete | 95% | Advanced metrics |
+| **Evolving Avatar** | ✅ Phase 2 Complete | 85% | Memory integration, achievements |
+| **Desktop Control** | ✅ Phase 2 Complete | 90% | Native platform implementations |
+| **Vision** | ✅ Phase 2 Complete | 80% | Native platform implementations |
 
 ---
 
@@ -162,8 +211,8 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 |-------|-------|----------|--------|------------------|
 | **Phase 0** | Setup Wizard | Week 1 | ✅ Complete | Onboarding flow, provider detection |
 | **Phase 1** | Foundation | Weeks 2-3 | ✅ Complete | Provider selector, gateway control, chat search |
-| **Phase 2** | Core Features | Weeks 4-6 | 🔲 Pending | Avatar personality/evolution, clipboard, file ops |
-| **Phase 3** | Advanced | Weeks 7-8 | 🔲 Pending | Camera/OCR, avatar memory, achievements, macros |
+| **Phase 2** | Core Features | Weeks 4-6 | ✅ Complete (~90%) | Avatar personality/evolution, window management, vision services, memory storage |
+| **Phase 3** | Advanced | Weeks 7-8 | 🟡 In Progress (~80%) | Native platform implementations, vector embeddings, achievements |
 
 ---
 
@@ -342,22 +391,23 @@ OpenClaw Gateway              Drift Database (VPS)           CloudToLocalLLM
 
 ### Implementation Tasks
 
-| Task | File(s) | Time | Priority |
-|------|---------|------|----------|
-| **Avatar System** | | | |
-| Database schema migration | `lib/database/drift_local_brain.dart` | 2h | P0 |
-| PersonalityEngine service | `lib/services/avatar/personality_engine.dart` | 4h | P1 |
-| EvolutionTracker service | `lib/services/avatar/evolution_tracker.dart` | 5h | P1 |
-| AvatarStateService | `lib/services/avatar/avatar_state_service.dart` | 3h | P1 |
-| MarkdownSyncService | `lib/services/avatar/markdown_sync_service.dart` | 4h | P1 |
-| OpenClaw personality skill | `~/.openclaw/skills/cloudtolocallm/` | 6h | P0 |
-| Evolution API endpoints | `lib/services/router_server.dart` | 3h | P1 |
-| Rive avatar animations | `assets/animations/avatar.riv` | 8h | P2 |
-| Emoji blending fallback | `lib/features/avatar/emoji_blending_avatar.dart` | 3h | P2 |
-| Avatar settings UI | `lib/screens/avatar/avatar_settings_screen.dart` | 4h | P2 |
-| **Desktop Control** | | | |
-| Clipboard service | `lib/services/desktop_control/clipboard_service.dart` | 4h | P1 |
-| File operations UI | `lib/screens/desktop/file_operations_screen.dart` | 5h | P1 |
+| Task | File(s) | Time | Priority | Status |
+|------|---------|------|----------|--------|
+| **Avatar System** | | | | |
+| Database schema migration | `lib/database/drift_local_brain.dart` | 2h | P0 | ✅ Complete |
+| PersonalityEngine service | `lib/services/avatar/personality_engine.dart` | 4h | P1 | ✅ Complete |
+| EvolutionTracker service | `lib/services/avatar/evolution_tracker.dart` | 5h | P1 | ✅ Complete |
+| AvatarStateService | `lib/services/avatar/avatar_state_service.dart` | 3h | P1 | ✅ Complete |
+| MarkdownSyncService | `lib/services/avatar/markdown_sync_service.dart` | 4h | P1 | ✅ Complete |
+| ConscienceStorageService | `lib/services/conscience_storage_service.dart` | 3h | P1 | ✅ Complete |
+| Evolution API endpoints | `lib/services/router_server.dart` | 3h | P1 | ✅ Complete |
+| OpenClaw personality skill | `~/.openclaw/skills/cloudtolocallm/` | 6h | P0 | 🔲 User Setup |
+| Rive avatar animations | `assets/animations/avatar.riv` | 8h | P2 | 🔲 Pending |
+| Emoji blending fallback | `lib/features/avatar/emoji_blending_avatar.dart` | 3h | P2 | 🔲 Pending |
+| Avatar settings UI | `lib/screens/avatar/avatar_settings_screen.dart` | 4h | P2 | 🔲 Pending |
+| **Desktop Control** | | | | |
+| Clipboard service | `lib/services/desktop_control/clipboard_service.dart` | 4h | P1 | ✅ Complete |
+| File operations UI | `lib/screens/desktop/file_operations_screen.dart` | 5h | P1 | ✅ Complete |
 
 **Total Time**: ~51 hours (Avatar: ~42h, Desktop: ~9h)
 
@@ -423,20 +473,26 @@ OpenClaw Gateway              Drift Database (VPS)           CloudToLocalLLM
 - ✅ OpenClaw Gateway required and verified
 - ✅ Local, Tailscale, and custom options work
 
-### Phase 1 (Foundation) 🟡
+### Phase 1 (Foundation) ✅
 - ✅ Gateway auto-restart working
 - ✅ Chat search UI functional
 - ✅ Rich message rendering with markdown
-- 🔲 Provider selector switches OpenClaw cloud providers
+- ✅ Provider selector switches OpenClaw cloud providers
+- ✅ WebSocket device identity authentication
+- ✅ Agent status polling via sessions.list
 
-### Phase 2 (Core Features)
-- 🔲 Database schema: avatar_profiles, evolution_history, conversation_depth_metrics
-- 🔲 Personality engine with 4 traits (formality, humor, enthusiasm, empathy)
-- 🔲 Evolution tracker (no XP - organic growth via conversation depth)
-- 🔲 OpenClaw skill: ~/.openclaw/skills/cloudtolocallm/
-- 🔲 Markdown backup sync (personality.md, memory.md, context.md)
-- 🔲 Avatar visuals respond to personality (Rive + emoji blending)
-- 🔲 Clipboard service with history
+### Phase 2 (Core Features) 🟡 In Progress
+- ✅ Database schema: avatar_profiles, evolution_history, conversation_depth_metrics
+- ✅ Personality engine with 4 traits (formality, humor, enthusiasm, empathy)
+- ✅ Evolution tracker (no XP - organic growth via conversation depth)
+- ✅ Conscience System storage layer (agentThoughts, conscienceDecisions tables)
+- 🔲 OpenClaw skill: ~/.openclaw/skills/cloudtolocallm/ (user setup)
+- ✅ Markdown backup sync (personality.md, memory.md, context.md)
+- 🔲 Avatar visuals respond to personality (Rive + emoji blending) - pending assets
+- ✅ Clipboard service with history
+- ✅ File operations UI functional
+
+### Phase 3 (Advanced) 🔲 Not Started
 
 ### Phase 3 (Advanced)
 - 🔲 Avatar memory system with embeddings
