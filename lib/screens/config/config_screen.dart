@@ -247,8 +247,9 @@ class _ConfigScreenState extends State<ConfigScreen>
                   hint: 'e.g., proxy.example.com'),
               _field('Proxy Port', '$_proxyPort', (v) {
                 final p = int.tryParse(v);
-                if (p != null && p > 0 && p < 65536)
+                if (p != null && p > 0 && p < 65536) {
                   setState(() => _proxyPort = p);
+                }
               }, numeric: true),
             ],
           ],
@@ -311,8 +312,9 @@ class _ConfigScreenState extends State<ConfigScreen>
                   subtitle: 'Require fingerprint/auth to open app'),
             _field('Session Timeout (min)', '$_sessionTimeoutMinutes', (v) {
               final t = int.tryParse(v);
-              if (t != null && t > 0)
+              if (t != null && t > 0) {
                 setState(() => _sessionTimeoutMinutes = t);
+              }
             }, numeric: true, hint: 'Auto-lock after inactivity'),
             _switch('Remember Authentication Tokens', _rememberTokens,
                 (v) => setState(() => _rememberTokens = v)),
@@ -346,8 +348,9 @@ class _ConfigScreenState extends State<ConfigScreen>
           children: [
             _field('Max Conversation History', '$_maxConversationHistory', (v) {
               final h = int.tryParse(v);
-              if (h != null && h >= 0)
+              if (h != null && h >= 0) {
                 setState(() => _maxConversationHistory = h);
+              }
             },
                 numeric: true,
                 hint: 'Maximum number of conversations to store locally'),

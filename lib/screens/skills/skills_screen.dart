@@ -402,7 +402,7 @@ class _SkillsScreenState extends State<SkillsScreen>
                 ],
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 32),
           Text(
             'Top Performing Skills',

@@ -589,22 +589,24 @@ class _LogsScreenState extends State<LogsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Filter by Source'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _availableSources.map((source) {
-            return RadioListTile<String>(
-              title: Text(source),
-              value: source,
-              groupValue: _selectedSource,
-              onChanged: (value) {
-                setState(() {
-                  _selectedSource = value;
-                  _applyFilters();
-                });
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
+        content: RadioGroup<String>(
+          groupValue: _selectedSource,
+          onChanged: (value) {
+            setState(() {
+              _selectedSource = value;
+              _applyFilters();
+            });
+            Navigator.pop(context);
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _availableSources.map((source) {
+              return RadioListTile<String>(
+                title: Text(source),
+                value: source,
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(

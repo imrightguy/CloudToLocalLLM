@@ -49,7 +49,7 @@ class AppearanceSettingsScreen extends StatelessWidget {
                           themeProvider.isDarkMode ? 'Dark' : 'Light',
                         ),
                       ),
-                      ButtonBar(
+                      OverflowBar(
                         children: [
                           TextButton(
                             onPressed: () => themeProvider.setThemeMode(ThemeMode.light),
