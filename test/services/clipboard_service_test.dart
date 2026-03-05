@@ -318,7 +318,7 @@ void main() {
     });
 
     test('should handle control characters', () async {
-      const controlChars = 'Start\0Middle\1End';
+      const controlChars = 'Start\x00Middle\x01End';
 
       await Clipboard.setData(const ClipboardData(text: controlChars));
       final result = await service.getClipboardContent();

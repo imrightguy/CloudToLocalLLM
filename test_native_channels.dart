@@ -22,7 +22,7 @@ void main() async {
       final file = File('/tmp/native_test_screenshot.ppm');
       if (await file.exists()) {
         final size = await file.length();
-        print('  File created: ${size} bytes');
+        print('  File created: $size bytes');
       }
     }
   } catch (e) {
