@@ -61,6 +61,9 @@ import '../screens/nodes/nodes_screen.dart';
 // Debug screen
 import '../screens/debug/debug_screen.dart';
 
+// Config screen
+import '../screens/config/config_screen.dart';
+
 // Placeholder screens - to be implemented in subsequent tasks
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -393,10 +396,7 @@ class AppRouter {
                   path: '/config',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Config',
-                      route: '/config',
-                    ),
+                    child: const ConfigScreen(),
                   ),
                 ),
               ],
