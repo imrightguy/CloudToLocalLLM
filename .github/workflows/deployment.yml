@@ -328,23 +328,49 @@ jobs:
 
   deploy:
     needs: [ai_change_analysis, build_images]
-    if: always() && needs.ai_change_analysis.outputs.components != '' && needs.build_images.result == 'success'
+    if: always() && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Deploy to Docker Swarm
+        uses: appleboy/ssh-action@master
         with:
-          node-version: '20'
+          host: ${{ secrets.SWARM_HOST }}
+          username: ${{ secrets.SWARM_USER }}
+          key: ${{ secrets.SWARM_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
 
-      - name: Install Cloudron CLI
-        run: npm install -g cloudron
+            REPO_LOWER=${GITHUB_REPOSITORY,,}
+            VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+            IMAGE="ghcr.io/${REPO_LOWER}/cloudron:${VERSION}"
+            LATEST_IMAGE="ghcr.io/${REPO_LOWER}/cloudron:latest"
 
-      - name: Deploy to Cloudron
-        run: |
-          REPO_LOWER=${GITHUB_REPOSITORY,,}
-          IMAGE="ghcr.io/${REPO_LOWER}/cloudron:latest"
-          echo "Deploying $IMAGE to Cloudron App: ${{ secrets.CLOUDRON_APP_DOMAIN }}"
-          cloudron update --server ${{ secrets.CLOUDRON_SERVER }} --token ${{ secrets.CLOUDRON_TOKEN }} --app ${{ secrets.CLOUDRON_APP_DOMAIN }} --image $IMAGE
+            echo "Deploying web version ${VERSION} to Docker Swarm..."
+            echo "Image: ${IMAGE}"
+
+            # Pull the new image
+            docker pull ${IMAGE}
+
+            # Update the web service in Docker Swarm
+            if docker service ls | grep -q "cloudtolocalllm_web"; then
+              echo "Updating existing web service..."
+              docker service update cloudtolocalllm_web --image ${IMAGE}
+            else
+              echo "Creating new web service..."
+              docker service create \
+                --name cloudtolocalllm_web \
+                --publish published=80,target=8080,mode=host \
+                --replicas 2 \
+                ${IMAGE}
+            fi
+
+            # Clean up old images
+            docker image prune -af --filter "until=24h"
+
+            echo "✓ Deployment complete!"
+            echo "Service: cloudtolocalllm_web"
+            echo "Version: ${VERSION}"
