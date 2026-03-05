@@ -31,11 +31,11 @@ RUN cd /app/code/streaming-proxy && npm ci --omit=dev
 COPY services/streaming-proxy /app/code/streaming-proxy
 
 # ---- 3. Web Frontend ----
-# For the unified container, we assume the web flutter build was done previously in the CI 
-# and the output is copied here. If not, it can be served dynamically. We will copy build/web.
+# For the unified container, we assume the web flutter build was done previously in the CI
+# and the output is copied here. Flutter build web creates build/web/ in the repository root.
 RUN mkdir -p /app/code/web
-# In CI, we will copy 'build/web' into 'web/build/web' context.
-COPY web/build/web /app/code/web
+# Copy Flutter web build output (created by 'flutter build web' in repo root)
+COPY build/web /app/code/web
 
 # ---- 4. Configuration ----
 
