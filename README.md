@@ -61,7 +61,14 @@ Install CloudToLocalLLM on Linux with a single command:
 curl -fsSL https://cloudtolocalllm.online/install.sh | bash
 ```
 
-This installs the AppImage to `~/.local/share/cloudtolocalllm`, creates desktop entries, and sets up the background update daemon.
+This automatically:
+- Downloads the latest AppImage for your system
+- Installs to `~/.local/share/cloudtolocalllm` (or `/opt/cloudtolocalllm` with `--system`)
+- Creates desktop entries and menu shortcuts
+- Sets up the **background update daemon** for automatic updates
+- Configures the systemd timer for update checks
+
+> **New:** The installer now includes an intelligent update daemon that automatically keeps CloudToLocalLLM up-to-date. Patch updates are installed silently, while minor/major updates prompt for your approval.
 
 #### Installation Options
 
@@ -144,57 +151,85 @@ update-desktop-database ~/.local/share/applications
 
 #### Auto-Updates
 
-CloudToLocalLLM includes an intelligent background update daemon that keeps your installation current with minimal disruption:
+> **✨ Fully Implemented:** CloudToLocalLLM now includes an intelligent background update daemon that keeps your installation current with minimal disruption.
+
+The update daemon is **automatically installed** with the one-line installer and runs as a systemd user service.
 
 **Update Schedule:**
 - Checks for updates every **6 hours** (configurable)
 - Runs in the background as a systemd user service
 - Minimal resource usage - wakes only to check for updates
 
-**Update Behavior:**
+**Smart Update Behavior:**
 
-| Update Type | Description | Action |
-|-------------|-------------|--------|
-| **Patch** (e.g., 10.1.200 → 10.1.201) | Bug fixes, security patches | Auto-installed silently |
-| **Minor** (e.g., 10.1.200 → 10.2.0) | New features, improvements | Prompts for approval |
-| **Major** (e.g., 10.1.200 → 11.0.0) | Breaking changes, major features | Prompts for approval |
+| Update Type | Example | Action |
+|-------------|---------|--------|
+| **Patch** | `10.1.200 → 10.1.201` | Auto-installed silently |
+| **Minor** | `10.1.200 → 10.2.0` | Desktop notification prompt |
+| **Major** | `10.1.200 → 11.0.0` | Desktop notification prompt |
 
 **How It Works:**
-1. The update daemon queries GitHub Releases API for new versions
-2. Compares current version with latest release
-3. For patch updates: downloads and installs automatically in the background
-4. For minor/major updates: sends a desktop notification prompting you to update
+1. The update daemon (`cloudtolocalllm-updated`) queries GitHub Releases API
+2. Compares current version with latest release using semantic versioning
+3. **Patch updates**: Downloads and installs automatically in the background
+4. **Minor/Major updates**: Sends desktop notification (via `notify-send`) for approval
 5. Updates are applied on next app restart (no interruption to active sessions)
 
 **Manual Update Checks:**
-You can check for updates at any time from within the app:
-1. Open the **Config** screen (gear icon in sidebar)
-2. Go to the **System** tab
-3. Click **Check Now** in the Software Updates section
-4. If an update is available, you'll see download/install options
+Check for updates anytime from within the app:
+1. Open **Config** screen (gear icon in sidebar)
+2. Go to **System** tab
+3. Click **Check Now** in Software Updates section
+4. Available updates show download/install options
 
-**Disable Auto-Updates:**
-To disable the update daemon:
+**Manage Update Daemon:**
 
 ```bash
-# Stop and disable the timer
+# Check status
+systemctl --user status cloudtolocalllm-updated.timer
+
+# View logs
+journalctl --user -u cloudtolocalllm-updated.service -f
+
+# Disable auto-updates
 systemctl --user stop cloudtolocalllm-updated.timer
 systemctl --user disable cloudtolocalllm-updated.timer
 
-# Or uninstall the daemon
-rm ~/.local/share/cloudtolocalllm/cloudtolocalllm-updated
+# Re-enable auto-updates
+systemctl --user start cloudtolocalllm-updated.timer
+systemctl --user enable cloudtolocalllm-updated.timer
 ```
 
-**Update Logs:**
-View update daemon activity:
+**Update State Location:**
+```bash
+~/.config/cloudtolocalllm/update-state.json
+```
+
+### Docker Deployment
+
+For production deployments or self-hosted setups, CloudToLocalLLM includes a complete Docker Compose stack with:
+
+- **API Backend** (Express.js) - REST API with Auth0 JWT
+- **Streaming Proxy** - WebSocket proxy for real-time LLM streaming
+- **Redis** - Rate limiting cache
+- **Traefik** - Reverse proxy with automatic SSL (Let's Encrypt)
+- **Prometheus** - Metrics collection
+- **Grafana** - Monitoring dashboards
+
+**Quick Start:**
 
 ```bash
-# View update logs
-journalctl --user -u cloudtolocalllm-updated.service
+# Clone and configure
+git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git
+cd CloudToLocalLLM
+cp docker-compose.env.example .env
+# Edit .env with your configuration
 
-# View state file
-cat ~/.config/cloudtolocalllm/update-state.json
+# Deploy to Docker Swarm
+docker stack deploy -c docker-compose.prod.yml cloudtolocalllm
 ```
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete deployment guide, including LXC container setup and production configuration.
 
 ### Web Version
 
