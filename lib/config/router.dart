@@ -49,6 +49,9 @@ import '../screens/instances/instances_screen.dart';
 // Sessions screen
 import '../screens/sessions/sessions_screen.dart';
 
+// Agents screen
+import '../screens/agents/agents_screen.dart';
+
 // Placeholder screens - to be implemented in subsequent tasks
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -345,10 +348,7 @@ class AppRouter {
                   path: '/agents',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Agents',
-                      route: '/agents',
-                    ),
+                    child: const AgentsScreen(),
                   ),
                 ),
               ],
