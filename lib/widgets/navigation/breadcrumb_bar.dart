@@ -244,6 +244,10 @@ class AutoBreadcrumbBar extends StatelessWidget {
       BreadcrumbItem(label: 'Home', route: '/'),
       const BreadcrumbItem(label: 'Dashboard'),
     ],
+    '/overview': [
+      BreadcrumbItem(label: 'Home', route: '/'),
+      const BreadcrumbItem(label: 'Overview'),
+    ],
     '/agents': [
       BreadcrumbItem(label: 'Home', route: '/'),
       const BreadcrumbItem(label: 'Agents'),

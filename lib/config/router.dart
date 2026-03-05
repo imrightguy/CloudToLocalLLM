@@ -34,6 +34,9 @@ import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
 // Construction screen (lazy-loaded)
 import '../screens/construction_lazy.dart' as construction_lazy;
 
+// Overview screen
+import '../screens/dashboard/overview_screen.dart';
+
 // Placeholder screens - to be implemented in subsequent tasks
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -250,10 +253,7 @@ class AppRouter {
                   path: '/overview',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Overview',
-                      route: '/overview',
-                    ),
+                    child: const OverviewScreen(),
                   ),
                 ),
               ],
