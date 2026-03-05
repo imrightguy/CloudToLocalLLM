@@ -261,8 +261,8 @@ class _SessionsScreenState extends State<SessionsScreen>
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface.withValues(
-                  alpha: 0.6,
-                ),
+                      alpha: 0.6,
+                    ),
               ),
             ),
           ),
@@ -429,25 +429,49 @@ class _SessionsTable extends StatelessWidget {
               ),
               child: const Row(
                 children: [
-                  Expanded(flex: 2, child: Text('Type', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 3, child: Text('User/Agent', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 2, child: Text('Started', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 2, child: Text('Duration', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 1, child: Text('Messages', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 1, child: Text('Tokens', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 2, child: Text('Status', style: TextStyle(fontWeight: FontWeight.w600))),
-                  Expanded(flex: 2, child: Text('Actions', style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 2,
+                      child: Text('Type',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 3,
+                      child: Text('User/Agent',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 2,
+                      child: Text('Started',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 2,
+                      child: Text('Duration',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 1,
+                      child: Text('Messages',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 1,
+                      child: Text('Tokens',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 2,
+                      child: Text('Status',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
+                  Expanded(
+                      flex: 2,
+                      child: Text('Actions',
+                          style: TextStyle(fontWeight: FontWeight.w600))),
                 ],
               ),
             ),
             // Table rows
             ...sessions.map((session) => _SessionRow(
-              session: session,
-              formatDuration: formatDuration,
-              formatStartTime: formatStartTime,
-              viewDetails: viewDetails,
-              terminateSession: terminateSession,
-            )),
+                  session: session,
+                  formatDuration: formatDuration,
+                  formatStartTime: formatStartTime,
+                  viewDetails: viewDetails,
+                  terminateSession: terminateSession,
+                )),
           ],
         ),
       ),
