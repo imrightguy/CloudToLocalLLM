@@ -95,33 +95,14 @@ class _HomeLayoutState extends State<HomeLayout> {
 
     final body = Row(
       children: [
-        if (!widget.isCompact)
-          _Sidebar(
-            onNavigate: (route) => context.go(route),
-          ),
+        // Old sidebar removed - OpenClawNavigationShell now provides WebUI sidebar
         Expanded(
           child: Stack(
             children: [
               const Positioned.fill(child: AnimatedBackground()),
               Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + spacing.s,
-                      left: spacing.m,
-                      right: spacing.m,
-                    ),
-                    child: GlassContainer(
-                      borderRadius: 24,
-                      blur: 10,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 64),
-                        child: _HeaderBar(
-                          isCompact: widget.isCompact,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Old header removed - OpenClawNavigationShell now provides top banner
                   Expanded(
                     child: _ChatPane(
                       isCompact: widget.isCompact,
