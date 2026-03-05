@@ -19,7 +19,7 @@ dependencies:
 
   # UI and Navigation
   cupertino_icons: ^1.0.8
-  go_router: ^17.0.0
+  go_router: ^17.1.0
 
   # Authentication
   provider: ^6.1.2
