@@ -22,7 +22,7 @@ class OpenClawNavigationShell extends StatefulWidget {
 
 class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
   bool _sidebarCollapsed = false;
-  bool _focusMode = false;
+  final bool _focusMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -358,7 +358,6 @@ class _ThemeButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onPressed,
-    super.key,
   });
 
   @override
