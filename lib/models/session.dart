@@ -38,19 +38,4 @@ class SessionData {
 
   /// Calculates the duration of this session
   Duration get duration => DateTime.now().difference(startTime);
-
-  /// Creates a SessionData from JSON data
-  ///
-  /// TODO: Replace with actual API integration
-  factory SessionData.fromJson(Map<String, dynamic> json) {
-    return SessionData(
-      id: json['id'] as String,
-      type: json['type'] as String,
-      userOrAgent: json['userOrAgent'] as String,
-      startTime: DateTime.parse(json['startTime'] as String),
-      tokenUsage: json['tokenUsage'] as int? ?? 0,
-      messageCount: json['messageCount'] as int? ?? 0,
-      status: json['status'] as String,
-    );
-  }
 }
