@@ -51,7 +51,7 @@ dependencies:
   rxdart: ^0.28.0
 
   # Google APIs for Local Integration
-  googleapis: ^13.1.0
+  googleapis: ^16.0.0
   googleapis_auth: ^1.6.0
   google_sign_in: ^6.2.1
 
