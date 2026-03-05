@@ -38,20 +38,32 @@ class ModelInstanceState {
   /// Create instance from JSON
   factory ModelInstanceState.fromJson(Map<String, dynamic> json) {
     return ModelInstanceState(
-      provider: json['provider'] as String,
-      model: json['model'] as String,
-      status: json['status'] as String,
-      activeRequests: json['activeRequests'] as int,
-      maxConcurrent: json['maxConcurrent'] as int,
-      tier: json['tier'] as String,
-      rateLimited: json['rateLimited'] as bool,
+      provider: json['provider'] as String? ?? '',
+      model: json['model'] as String? ?? '',
+      status: json['status'] as String? ?? 'unknown',
+      activeRequests: json['activeRequests'] as int? ?? 0,
+      maxConcurrent: json['maxConcurrent'] as int? ?? 1,
+      tier: json['tier'] as String? ?? 'medium',
+      rateLimited: json['rateLimited'] as bool? ?? false,
     );
   }
 
   /// Create instance from JSON string
   factory ModelInstanceState.fromJsonString(String jsonString) {
-    final json = jsonDecode(jsonString) as Map<String, dynamic>;
-    return ModelInstanceState.fromJson(json);
+    try {
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      return ModelInstanceState.fromJson(json);
+    } catch (e) {
+      return ModelInstanceState(
+        provider: '',
+        model: '',
+        status: 'error',
+        activeRequests: 0,
+        maxConcurrent: 1,
+        tier: 'medium',
+        rateLimited: false,
+      );
+    }
   }
 }
 
@@ -83,9 +95,9 @@ class GatewayInstanceState {
   /// Create instance from JSON
   factory GatewayInstanceState.fromJson(Map<String, dynamic> json) {
     return GatewayInstanceState(
-      status: json['status'] as String,
+      status: json['status'] as String? ?? 'unknown',
       startedAt: json['startedAt'] != null
-          ? DateTime.parse(json['startedAt'] as String)
+          ? DateTime.tryParse(json['startedAt'] as String)
           : null,
       errorMessage: json['errorMessage'] as String?,
       pid: json['pid'] as int?,
@@ -95,8 +107,15 @@ class GatewayInstanceState {
 
   /// Create instance from JSON string
   factory GatewayInstanceState.fromJsonString(String jsonString) {
-    final json = jsonDecode(jsonString) as Map<String, dynamic>;
-    return GatewayInstanceState.fromJson(json);
+    try {
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      return GatewayInstanceState.fromJson(json);
+    } catch (e) {
+      return GatewayInstanceState(
+        status: 'error',
+        errorMessage: 'Failed to parse gateway state',
+      );
+    }
   }
 
   /// Get uptime duration based on startedAt

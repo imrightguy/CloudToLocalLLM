@@ -95,12 +95,12 @@ class _InstancesScreenState extends State<InstancesScreen> {
     final serviceState = await _gatewayService.getStatus();
 
     _gatewayState = GatewayInstanceState(
-      status: serviceState['state'] as String,
+      status: serviceState['state'] as String? ?? 'unknown',
       startedAt: serviceState['startedAt'] != null
-          ? DateTime.parse(serviceState['startedAt'] as String)
+          ? DateTime.tryParse(serviceState['startedAt'] as String)
           : null,
       errorMessage: serviceState['errorMessage'] as String?,
-      port: 18789, // Default gateway port
+      port: serviceState['port'] as int?,
     );
 
     if (mounted) {
@@ -568,7 +568,9 @@ class _ModelInstanceCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      instance.provider.substring(0, 1).toUpperCase(),
+                      instance.provider.isNotEmpty
+                          ? instance.provider.substring(0, 1).toUpperCase()
+                          : '?',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.bold,
@@ -618,13 +620,15 @@ class _ModelInstanceCard extends StatelessWidget {
                   child: _StatItem(
                     icon: Icons.sync,
                     label: 'Requests',
-                    value: '${instance.activeRequests}/${instance.maxConcurrent}',
+                    value:
+                        '${instance.activeRequests}/${instance.maxConcurrent}',
                   ),
                 ),
 
                 // Tier badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _getTierColor(instance.tier, theme)
                         .withValues(alpha: 0.1),
