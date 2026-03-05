@@ -244,17 +244,14 @@ install_daemon() {
 
     log_info "Installing update daemon..."
 
-    # Get the script directory (where installer-template.sh is located)
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-    # Copy daemon script
-    cp "${script_dir}/update-daemon/cloudtolocalllm-updated" "${install_dir}/"
+    # Extract embedded files from base64
+    echo "$EMBEDDED_UPDATED" | base64 -d > "${install_dir}/cloudtolocalllm-updated"
     chmod +x "${install_dir}/cloudtolocalllm-updated"
 
     if [ "$system_wide" = true ]; then
         # System-wide installation
-        cp "${script_dir}/update-daemon/cloudtolocalllm-updated.service" /etc/systemd/system/
-        cp "${script_dir}/update-daemon/cloudtolocalllm-updated.timer" /etc/systemd/system/
+        echo "$EMBEDDED_UPDATED_SERVICE" | base64 -d > /etc/systemd/system/cloudtolocalllm-updated.service
+        echo "$EMBEDDED_UPDATED_TIMER" | base64 -d > /etc/systemd/system/cloudtolocalllm-updated.timer
 
         systemctl daemon-reload
         systemctl enable cloudtolocalllm-updated.timer
@@ -264,11 +261,9 @@ install_daemon() {
         local user_service_dir="$HOME/.config/systemd/user"
         mkdir -p "$user_service_dir"
 
-        # Adapt service file for user installation
-        # Note: systemd's %h specifier already resolves to the home directory,
-        # but we keep it for clarity and future compatibility
-        sed "s|%h|%h|g" "${script_dir}/update-daemon/cloudtolocalllm-updated.service" > "$user_service_dir/cloudtolocalllm-updated.service"
-        sed "s|%h|%h|g" "${script_dir}/update-daemon/cloudtolocalllm-updated.timer" > "$user_service_dir/cloudtolocalllm-updated.timer"
+        # Extract and adapt service file for user installation
+        echo "$EMBEDDED_UPDATED_SERVICE" | base64 -d | sed "s|%h|%h|g" > "$user_service_dir/cloudtolocalllm-updated.service"
+        echo "$EMBEDDED_UPDATED_TIMER" | base64 -d | sed "s|%h|%h|g" > "$user_service_dir/cloudtolocalllm-updated.timer"
 
         systemctl --user daemon-reload
         systemctl --user enable cloudtolocalllm-updated.timer

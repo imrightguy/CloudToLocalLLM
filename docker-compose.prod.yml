@@ -1,0 +1,244 @@
+# CloudToLocalLLM Production Docker Compose Stack
+# Deploy with: docker stack deploy -c docker-compose.prod.yml cloudtolocalllm
+#
+# Services:
+# - api-backend: Express.js REST API with Auth0 JWT (port 8080)
+# - streaming-proxy: WebSocket proxy for LLM streaming (port 3001)
+# - redis: Rate limiting cache (optional, can use in-memory)
+# - traefik: Reverse proxy with SSL and routing
+
+version: '3.8'
+
+services:
+  # API Backend - Express.js REST API
+  api-backend:
+    image: cloudtolocalllm/api-backend:latest
+    build:
+      context: ./services/api-backend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=production
+      - OTLP_ENDPOINT=http://jaeger:4318
+      # Use SQLite for local deployment (no PostgreSQL)
+      - DB_TYPE=sqlite
+      - DB_PATH=/data/cloudtolocalllm.db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - api-data:/data
+      - /etc/cloudtolocalllm:/etc/cloudtolocalllm:ro
+    networks:
+      - backend
+      - frontend
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.cloudtolocalllm.online`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
+
+  # Streaming Proxy - WebSocket proxy for LLM streaming
+  streaming-proxy:
+    image: cloudtolocalllm/streaming-proxy:latest
+    build:
+      context: ./services/streaming-proxy
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - API_BACKEND_URL=http://api-backend:8080
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENVIRONMENT=production
+      - OTLP_ENDPOINT=http://jaeger:4318
+      - JWT_SECRET=${JWT_SECRET}
+      - WS_HEARTBEAT_INTERVAL=30000
+    networks:
+      - backend
+      - frontend
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.streaming.rule=Host(`stream.cloudtolocalllm.online`)"
+      - "traefik.http.routers.streaming.entrypoints=websecure"
+      - "traefik.http.routers.streaming.tls=true"
+      - "traefik.http.routers.streaming.tls.certresolver=letsencrypt"
+      - "traefik.http.services.streaming.loadbalancer.server.port=3001"
+
+  # Redis - Rate limiting and session storage
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Traefik - Reverse proxy with SSL
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=INFO"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-letsencrypt:/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - backend
+      - frontend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.cloudtolocalllm.online`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  # Grafana - Metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://grafana.cloudtolocalllm.online
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.cloudtolocalllm.online`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+networks:
+  backend:
+    driver: overlay
+    attachable: true
+  frontend:
+    driver: overlay
+    attachable: true
+
+volumes:
+  api-data:
+  redis-data:
+  traefik-letsencrypt:
+  prometheus-data:
+  grafana-data:

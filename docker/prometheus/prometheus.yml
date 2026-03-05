@@ -1,0 +1,53 @@
+# Prometheus configuration for CloudToLocalLLM
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'cloudtolocalllm-prod'
+    environment: 'production'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Rule files
+rule_files:
+  # - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # API Backend metrics
+  - job_name: 'api-backend'
+    static_configs:
+      - targets: ['api-backend:8080']
+        labels:
+          service: 'api-backend'
+          component: 'backend'
+
+  # Streaming Proxy metrics
+  - job_name: 'streaming-proxy'
+    static_configs:
+      - targets: ['streaming-proxy:3001']
+        labels:
+          service: 'streaming-proxy'
+          component: 'proxy'
+
+  # Traefik metrics
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8080']
+        labels:
+          service: 'traefik'
+          component: 'reverse-proxy'
+
+  # Redis metrics (if redis_exporter is added)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+
+  # Node Exporter (for system metrics)
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
