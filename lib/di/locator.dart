@@ -69,6 +69,7 @@ import 'package:cloudtolocalllm/services/vision/camera_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
 import 'package:cloudtolocalllm/services/desktop_control/window_manager_service.dart';
 import 'package:cloudtolocalllm/services/popout/popout_manager.dart';
+import 'package:cloudtolocalllm/services/auto_update_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -365,6 +366,10 @@ Future<void> setupCoreServices() async {
   );
 
   // Don't initialize yet - wait for auth token
+
+  // Auto Update Service - manages application auto-updates for Linux
+  final autoUpdateService = AutoUpdateService();
+  serviceLocator.registerLazySingleton<AutoUpdateService>(() => autoUpdateService);
 
   debugPrint('[ServiceLocator] Core services registered successfully');
 

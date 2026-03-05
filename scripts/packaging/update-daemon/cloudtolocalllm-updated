@@ -1,0 +1,239 @@
+#!/bin/bash
+# CloudToLocalLLM Update Daemon
+# Background service that checks for updates and handles installation
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATE_DIR="$HOME/.config/cloudtolocalllm"
+STATE_FILE="$STATE_DIR/update-state.json"
+SOCKET_PATH="/tmp/cloudtolocalllm-updated.sock"
+PID_FILE="/tmp/cloudtolocalllm-updated.pid"
+
+INSTALL_DIR=""
+CURRENT_VERSION=""
+
+# Logging
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$STATE_DIR/updater.log"
+}
+
+# Ensure state directory exists
+mkdir -p "$STATE_DIR"
+
+# Load state from JSON
+load_state() {
+    if [ ! -f "$STATE_FILE" ]; then
+        cat > "$STATE_FILE" << EOF
+{
+  "current_version": "",
+  "last_check": null,
+  "last_update": null,
+  "update_channel": "stable",
+  "auto_install_minor": false,
+  "auto_install_patch": true,
+  "update_check_interval_hours": 6
+}
+EOF
+    fi
+
+    # Parse with jq or basic grep fallback
+    if command -v jq &> /dev/null; then
+        CURRENT_VERSION=$(jq -r '.current_version' "$STATE_FILE")
+    else
+        CURRENT_VERSION=$(grep 'current_version' "$STATE_FILE" | cut -d'"' -f4)
+    fi
+}
+
+# Save state
+save_state() {
+    local key="$1"
+    local value="$2"
+
+    if command -v jq &> /dev/null; then
+        jq ".${key} = \"${value}\"" "$STATE_FILE" > "${STATE_FILE}.tmp"
+        mv "${STATE_FILE}.tmp" "$STATE_FILE"
+    fi
+}
+
+# Compare semantic versions
+# Returns: 0=equal, 1=greater, 2=lesser
+compare_versions() {
+    local v1="$1"
+    local v2="$2"
+
+    if [ "$v1" = "$v2" ]; then
+        return 0
+    fi
+
+    # Split by dots
+    IFS='.' read -r v1_major v1_minor v1_patch <<< "$v1"
+    IFS='.' read -r v2_major v2_minor v2_patch <<< "$v2"
+
+    # Compare major
+    if [ "$v1_major" -gt "$v2_major" ]; then
+        return 1
+    elif [ "$v1_major" -lt "$v2_major" ]; then
+        return 2
+    fi
+
+    # Compare minor
+    if [ "$v1_minor" -gt "$v2_minor" ]; then
+        return 1
+    elif [ "$v1_minor" -lt "$v2_minor" ]; then
+        return 2
+    fi
+
+    # Compare patch
+    if [ "$v1_patch" -gt "$v2_patch" ]; then
+        return 1
+    elif [ "$v1_patch" -lt "$v2_patch" ]; then
+        return 2
+    fi
+
+    return 0
+}
+
+# Determine if update should be auto-installed
+should_auto_install() {
+    local current="$1"
+    local latest="$2"
+
+    IFS='.' read -r c_major c_minor c_patch <<< "$current"
+    IFS='.' read -r l_major l_minor l_patch <<< "$latest"
+
+    # Major version change - never auto-install
+    if [ "$c_major" != "$l_major" ]; then
+        echo "major"
+        return 1
+    fi
+
+    # Minor version change - prompt
+    if [ "$c_minor" != "$l_minor" ]; then
+        echo "minor"
+        return 1
+    fi
+
+    # Patch version change - auto-install
+    if [ "$c_patch" != "$l_patch" ]; then
+        echo "patch"
+        return 0
+    fi
+
+    return 1
+}
+
+# Check for updates from GitHub
+check_for_updates() {
+    log "Checking for updates..."
+
+    local api_url="https://api.github.com/repos/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest"
+    local latest_version=""
+
+    if command -v curl &> /dev/null; then
+        latest_version=$(curl -s "$api_url" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
+    else
+        log "curl not available, skipping check"
+        return
+    fi
+
+    if [ -z "$latest_version" ]; then
+        log "Failed to get latest version"
+        return
+    fi
+
+    save_state "last_check" "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+    compare_versions "$latest_version" "$CURRENT_VERSION"
+    local result=$?
+
+    if [ $result -eq 1 ]; then
+        log "Update available: $CURRENT_VERSION → $latest_version"
+
+        local update_type=$(should_auto_install "$CURRENT_VERSION" "$latest_version")
+
+        if [ "$update_type" = "patch" ]; then
+            log "Patch update, auto-installing..."
+            download_update "$latest_version"
+        else
+            log "${update_type} update available, notifying user..."
+            notify_user "$latest_version" "$update_type"
+        fi
+    else
+        log "Already up to date"
+    fi
+}
+
+# Download update (stub for future implementation)
+download_update() {
+    local version="$1"
+    log "Downloading update $version..."
+
+    # TODO: Implement download logic
+    # - Download AppImage from GitHub releases
+    # - Verify checksum
+    # - Save to cache directory
+
+    log "Download complete (stub)"
+}
+
+# Install update (stub for future implementation)
+install_update() {
+    local version="$1"
+    log "Installing update $version..."
+
+    # TODO: Implement installation logic
+    # - Stop running application
+    # - Replace old AppImage with new one
+    # - Update current_version in state
+    # - Restart application
+
+    save_state "last_update" "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+    save_state "current_version" "$version"
+
+    log "Installation complete (stub)"
+}
+
+# Notify user about update (stub for future implementation)
+notify_user() {
+    local version="$1"
+    local update_type="$2"
+    log "Notifying user about $update_type update to $version..."
+
+    # TODO: Implement notification logic
+    # - Send desktop notification
+    # - Update state file for UI to pick up
+    # - Optional: write to socket for real-time notification
+
+    if command -v notify-send &> /dev/null; then
+        notify-send "CloudToLocalLLM Update Available" \
+                    "Version $version is ready to install ($update_type update)"
+    fi
+}
+
+# Main entry point
+main() {
+    local command="${1:-check}"
+
+    case "$command" in
+        check)
+            load_state
+            check_for_updates
+            ;;
+        download)
+            load_state
+            download_update "$2"
+            ;;
+        install)
+            load_state
+            install_update "$2"
+            ;;
+        *)
+            echo "Usage: $0 {check|download|install} [version]"
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function
+main "$@"

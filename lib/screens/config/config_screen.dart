@@ -5,10 +5,13 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../widgets/common/card_section.dart';
 import '../../widgets/common/error_state.dart';
 import '../../widgets/common/loading_skeleton.dart';
 import '../../widgets/common/refreshable_screen.dart';
+import '../../services/auto_update_service.dart';
 
 /// Configuration screen with tabbed organization for better UX.
 /// TODO: Integrate with SettingsPreferenceService, ConnectionManagerService
@@ -197,11 +200,16 @@ class _ConfigScreenState extends State<ConfigScreen>
         CardSection(
           title: 'LLM Provider',
           children: [
-            _dropdown('Primary Provider',
+            _dropdown(
+                'Primary Provider',
                 ['OpenClaw Gateway', 'LM Studio', 'Ollama', 'Custom API'],
-                _selectedProvider, (v) => setState(() => _selectedProvider = v!)),
-            _dropdown('Model Tier', ['Critical', 'High', 'Medium', 'Unlimited'],
-                _selectedModelTier, (v) => setState(() => _selectedModelTier = v!)),
+                _selectedProvider,
+                (v) => setState(() => _selectedProvider = v!)),
+            _dropdown(
+                'Model Tier',
+                ['Critical', 'High', 'Medium', 'Unlimited'],
+                _selectedModelTier,
+                (v) => setState(() => _selectedModelTier = v!)),
           ],
         ),
         const SizedBox(height: 16),
@@ -234,11 +242,13 @@ class _ConfigScreenState extends State<ConfigScreen>
             _switch('Use Proxy Server', _useProxy,
                 (v) => setState(() => _useProxy = v)),
             if (_useProxy) ...[
-              _field('Proxy Host', _proxyHost, (v) => setState(() => _proxyHost = v),
+              _field('Proxy Host', _proxyHost,
+                  (v) => setState(() => _proxyHost = v),
                   hint: 'e.g., proxy.example.com'),
               _field('Proxy Port', '$_proxyPort', (v) {
                 final p = int.tryParse(v);
-                if (p != null && p > 0 && p < 65536) setState(() => _proxyPort = p);
+                if (p != null && p > 0 && p < 65536)
+                  setState(() => _proxyPort = p);
               }, numeric: true),
             ],
           ],
@@ -268,10 +278,13 @@ class _ConfigScreenState extends State<ConfigScreen>
         CardSection(
           title: 'Appearance',
           children: [
-            _dropdown('Theme', ['System', 'Light', 'Dark'],
-                _selectedTheme, (v) => setState(() => _selectedTheme = v!)),
-            _dropdown('Language', ['English', 'Spanish', 'French', 'German'],
-                _selectedLanguage, (v) => setState(() => _selectedLanguage = v!)),
+            _dropdown('Theme', ['System', 'Light', 'Dark'], _selectedTheme,
+                (v) => setState(() => _selectedTheme = v!)),
+            _dropdown(
+                'Language',
+                ['English', 'Spanish', 'French', 'German'],
+                _selectedLanguage,
+                (v) => setState(() => _selectedLanguage = v!)),
           ],
         ),
         const SizedBox(height: 16),
@@ -298,7 +311,8 @@ class _ConfigScreenState extends State<ConfigScreen>
                   subtitle: 'Require fingerprint/auth to open app'),
             _field('Session Timeout (min)', '$_sessionTimeoutMinutes', (v) {
               final t = int.tryParse(v);
-              if (t != null && t > 0) setState(() => _sessionTimeoutMinutes = t);
+              if (t != null && t > 0)
+                setState(() => _sessionTimeoutMinutes = t);
             }, numeric: true, hint: 'Auto-lock after inactivity'),
             _switch('Remember Authentication Tokens', _rememberTokens,
                 (v) => setState(() => _rememberTokens = v)),
@@ -308,8 +322,8 @@ class _ConfigScreenState extends State<ConfigScreen>
         CardSection(
           title: 'Developer Options',
           children: [
-            _switch('Debug Mode', _debugMode,
-                (v) => setState(() => _debugMode = v),
+            _switch(
+                'Debug Mode', _debugMode, (v) => setState(() => _debugMode = v),
                 subtitle: 'Enable additional debugging information'),
             _switch('Verbose Logging', _verboseLogging,
                 (v) => setState(() => _verboseLogging = v),
@@ -332,8 +346,11 @@ class _ConfigScreenState extends State<ConfigScreen>
           children: [
             _field('Max Conversation History', '$_maxConversationHistory', (v) {
               final h = int.tryParse(v);
-              if (h != null && h >= 0) setState(() => _maxConversationHistory = h);
-            }, numeric: true, hint: 'Maximum number of conversations to store locally'),
+              if (h != null && h >= 0)
+                setState(() => _maxConversationHistory = h);
+            },
+                numeric: true,
+                hint: 'Maximum number of conversations to store locally'),
             _switch('Auto-cleanup Old Data', _autoCleanup,
                 (v) => setState(() => _autoCleanup = v)),
           ],
@@ -372,7 +389,8 @@ class _ConfigScreenState extends State<ConfigScreen>
           title: 'Application',
           children: [
             _readOnly('Version', '$_appVersion (build $_buildNumber)'),
-            _readOnly('Platform', '${Platform.operatingSystem} ${Platform.operatingSystemVersion}'),
+            _readOnly('Platform',
+                '${Platform.operatingSystem} ${Platform.operatingSystemVersion}'),
             _readOnly('Dart Version', Platform.version.split(' ').first),
           ],
         ),
@@ -387,6 +405,207 @@ class _ConfigScreenState extends State<ConfigScreen>
           ],
         ),
         const SizedBox(height: 16),
+        CardSection(
+          title: 'Software Updates',
+          children: [
+            Consumer<AutoUpdateService>(
+              builder: (context, updateService, child) {
+                final status = updateService.status;
+                final updateInfo = updateService.updateInfo;
+
+                if (status == UpdateStatus.checking) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Checking for updates...'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (status == UpdateStatus.downloading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Downloading update...'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (status == UpdateStatus.installing) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Installing update...'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (status == UpdateStatus.updateAvailable &&
+                    updateInfo != null) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.new_releases,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Update Available: ${updateInfo.latestVersion}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Current version: ${updateInfo.currentVersion}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _getUpdateTypeLabel(updateInfo.type),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () => updateService.downloadUpdate(),
+                              icon: const Icon(Icons.download, size: 18),
+                              label: const Text('Download Update'),
+                            ),
+                            TextButton.icon(
+                              onPressed: () =>
+                                  _showChangelogDialog(context, updateInfo),
+                              icon: const Icon(Icons.description, size: 18),
+                              label: const Text('View Changelog'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (status == UpdateStatus.downloaded) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Update Ready to Install',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.green,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => updateService.installUpdate(),
+                          icon: const Icon(Icons.restart_alt, size: 18),
+                          label: const Text('Install & Restart'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Up to date',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                      TextButton.icon(
+                        onPressed: () => updateService.checkForUpdates(),
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: const Text('Check Now'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -396,17 +615,22 @@ class _ConfigScreenState extends State<ConfigScreen>
               alignment: WrapAlignment.center,
               children: [
                 OutlinedButton.icon(
-                  onPressed: () => _showSnackBar('Reset to defaults - coming soon', isError: true),
+                  onPressed: () => _showSnackBar(
+                      'Reset to defaults - coming soon',
+                      isError: true),
                   icon: const Icon(Icons.restore),
                   label: const Text('Reset to Defaults'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => _showSnackBar('Configuration exported to clipboard', isError: false),
+                  onPressed: () => _showSnackBar(
+                      'Configuration exported to clipboard',
+                      isError: false),
                   icon: const Icon(Icons.download),
                   label: const Text('Export'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => _showSnackBar('Import not yet implemented', isError: true),
+                  onPressed: () => _showSnackBar('Import not yet implemented',
+                      isError: true),
                   icon: const Icon(Icons.upload),
                   label: const Text('Import'),
                 ),
@@ -423,7 +647,8 @@ class _ConfigScreenState extends State<ConfigScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Cache'),
-        content: Text('Clear all cached data? ($_cacheSizeMB MB will be freed)'),
+        content:
+            Text('Clear all cached data? ($_cacheSizeMB MB will be freed)'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -442,7 +667,8 @@ class _ConfigScreenState extends State<ConfigScreen>
     }
   }
 
-  Widget _dropdown(String label, List<String> items, String value, ValueChanged<String?> onChanged) {
+  Widget _dropdown(String label, List<String> items, String value,
+      ValueChanged<String?> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: DropdownButtonFormField<String>(
@@ -450,9 +676,12 @@ class _ConfigScreenState extends State<ConfigScreen>
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         ),
-        items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
+        items: items
+            .map((i) => DropdownMenuItem(value: i, child: Text(i)))
+            .toList(),
         onChanged: onChanged,
       ),
     );
@@ -468,7 +697,8 @@ class _ConfigScreenState extends State<ConfigScreen>
           labelText: label,
           border: const OutlineInputBorder(),
           hintText: hint,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         ),
         keyboardType: numeric ? TextInputType.number : null,
         onChanged: onChanged,
@@ -476,12 +706,15 @@ class _ConfigScreenState extends State<ConfigScreen>
     );
   }
 
-  Widget _switch(String label, bool value, ValueChanged<bool> onChanged, {String? subtitle}) {
+  Widget _switch(String label, bool value, ValueChanged<bool> onChanged,
+      {String? subtitle}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: SwitchListTile(
         title: Text(label),
-        subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(fontSize: 12)) : null,
+        subtitle: subtitle != null
+            ? Text(subtitle, style: const TextStyle(fontSize: 12))
+            : null,
         value: value,
         onChanged: onChanged,
         contentPadding: EdgeInsets.zero,
@@ -498,10 +731,54 @@ class _ConfigScreenState extends State<ConfigScreen>
           labelText: label,
           border: const OutlineInputBorder(),
           filled: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         ),
         enabled: false,
         style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+      ),
+    );
+  }
+
+  String _getUpdateTypeLabel(UpdateType type) {
+    switch (type) {
+      case UpdateType.major:
+        return 'Major version - may include breaking changes';
+      case UpdateType.minor:
+        return 'Minor version - new features and improvements';
+      case UpdateType.patch:
+        return 'Patch version - bug fixes and security updates';
+      case UpdateType.none:
+        return '';
+    }
+  }
+
+  void _showChangelogDialog(BuildContext context, UpdateInfo info) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('What\'s New in ${info.latestVersion}'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (info.changelog != null && info.changelog!.isNotEmpty)
+                  MarkdownBody(data: info.changelog!)
+                else
+                  const Text('No changelog available'),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
