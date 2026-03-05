@@ -20,7 +20,7 @@ void main() {
         'path': '/tmp/e2e_screenshot.ppm',
       });
 
-      print('Screenshot result: $result');
+      debugPrint('Screenshot result: $result');
       expect(result, isTrue);
     });
 
@@ -32,7 +32,7 @@ void main() {
 
       final result = await windowChannel.invokeMethod('getWindows');
 
-      print('Windows result: $result');
+      debugPrint('Windows result: $result');
       expect(result, isA<List>());
       expect((result as List).isNotEmpty, isTrue);
     });
@@ -47,7 +47,7 @@ void main() {
         'action': 'keypress(space)',
       });
 
-      print('Keypress result: $result');
+      debugPrint('Keypress result: $result');
       expect(result, contains('successfully'));
     });
   });
