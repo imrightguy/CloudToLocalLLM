@@ -236,3 +236,44 @@ update_desktop_database() {
         gtk-update-icon-cache ~/.local/share/icons 2>/dev/null || true
     fi
 }
+
+# Install and enable update daemon
+install_daemon() {
+    local install_dir="$1"
+    local system_wide="$2"
+
+    log_info "Installing update daemon..."
+
+    # Get the script directory (where installer-template.sh is located)
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    # Copy daemon script
+    cp "${script_dir}/update-daemon/cloudtolocalllm-updated" "${install_dir}/"
+    chmod +x "${install_dir}/cloudtolocalllm-updated"
+
+    if [ "$system_wide" = true ]; then
+        # System-wide installation
+        cp "${script_dir}/update-daemon/cloudtolocalllm-updated.service" /etc/systemd/system/
+        cp "${script_dir}/update-daemon/cloudtolocalllm-updated.timer" /etc/systemd/system/
+
+        systemctl daemon-reload
+        systemctl enable cloudtolocalllm-updated.timer
+        systemctl start cloudtolocalllm-updated.timer
+    else
+        # User installation
+        local user_service_dir="$HOME/.config/systemd/user"
+        mkdir -p "$user_service_dir"
+
+        # Adapt service file for user installation
+        # Note: systemd's %h specifier already resolves to the home directory,
+        # but we keep it for clarity and future compatibility
+        sed "s|%h|%h|g" "${script_dir}/update-daemon/cloudtolocalllm-updated.service" > "$user_service_dir/cloudtolocalllm-updated.service"
+        sed "s|%h|%h|g" "${script_dir}/update-daemon/cloudtolocalllm-updated.timer" > "$user_service_dir/cloudtolocalllm-updated.timer"
+
+        systemctl --user daemon-reload
+        systemctl --user enable cloudtolocalllm-updated.timer
+        systemctl --user start cloudtolocalllm-updated.timer
+    fi
+
+    log_success "Update daemon installed and enabled"
+}

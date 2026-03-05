@@ -232,6 +232,11 @@ jobs:
           chmod +x scripts/packaging/update_aur_pkgbuild.sh
           ./scripts/packaging/update_aur_pkgbuild.sh
 
+      - name: Generate Installer Script
+        run: |
+          chmod +x scripts/packaging/build_installer.sh
+          ./scripts/packaging/build_installer.sh
+
       - name: Package Windows Distribution
         run: |
           mkdir -p dist/windows
@@ -245,7 +250,31 @@ jobs:
           artifacts: "dist/linux/*,dist/windows/*,dist/aur/*"
           tag: "v${{ needs.ai_change_analysis.outputs.new_version }}"
           name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
-          body: "Automated desktop builds for v${{ needs.ai_change_analysis.outputs.new_version }}\n\nIncludes:\n- Universal Linux AppImage\n- Debian/Ubuntu .deb package\n- Standard Linux bundle (.tar.gz)\n- Arch Linux AUR package files\n- Windows Portable ZIP"
+          body: |
+            ## Quick Install
+
+            ```bash
+            curl -fsSL https://cloudtolocalllm.online/install.sh | bash
+            ```
+
+            ## Downloads
+
+            ### Linux
+            - **AppImage** (Recommended): `CloudToLocalLLM-x86_64.AppImage`
+            - **Debian/Ubuntu**: `.deb` package
+            - **Portable**: `.tar.gz` bundle
+            - **Arch Linux**: AUR package files in `dist/aur/`
+
+            ### Windows
+            - Portable ZIP: `CloudToLocalLLM-Windows-x64.zip`
+
+            ## What's New
+
+            See the changelog for details.
+
+            ---
+
+            Automated desktop builds for v${{ needs.ai_change_analysis.outputs.new_version }}
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
 

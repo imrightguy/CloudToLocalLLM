@@ -1,0 +1,24 @@
+[Unit]
+Description=CloudToLocalLLM Update Daemon
+Documentation=https://cloudtolocalllm.online
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/cloudtolocalllm/cloudtolocalllm-updated check
+WorkingDirectory=%h/.local/share/cloudtolocalllm
+
+# Nice scheduling
+Nice=10
+IOSchedulingClass=2
+IOSchedulingPriority=7
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=%h/.config/cloudtolocalllm %h/.local/share/cloudtolocalllm/cache
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=CloudToLocalLLM Update Checker
+Documentation=https://cloudtolocalllm.online
+Requires=cloudtolocalllm-updated.service
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=6h
+AccuracySec=1h
+
+[Install]
+WantedBy=timers.target
