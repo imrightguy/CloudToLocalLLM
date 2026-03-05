@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import 'download_screen.dart';
 import 'documentation_screen.dart';
-import '../home_screen.dart';
 
 // Re-export HomepageScreen for use in router.dart's home route
 export 'homepage_screen.dart';
@@ -24,10 +23,23 @@ final marketingRoutes = [
           child: const DownloadScreen(),
         );
       } else {
-        // Redirect desktop users to main app
+        // Desktop users should use the desktop app
         return MaterialPage(
           key: state.pageKey,
-          child: const HomeScreen(),
+          child: Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.desktop_windows, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Desktop App Required', style: Theme.of(context).textTheme.headlineSmall),
+                  SizedBox(height: 8),
+                  Text('Please use the CloudToLocalLLM desktop application for the best experience.', textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+          ),
         );
       }
     },
@@ -43,10 +55,23 @@ final marketingRoutes = [
           child: const DocumentationScreen(),
         );
       } else {
-        // Redirect desktop users to main app
+        // Desktop users should use the desktop app
         return MaterialPage(
           key: state.pageKey,
-          child: const HomeScreen(),
+          child: Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.desktop_windows, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Desktop App Required', style: Theme.of(context).textTheme.headlineSmall),
+                  SizedBox(height: 8),
+                  Text('Please use the CloudToLocalLLM desktop application for the best experience.', textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+          ),
         );
       }
     },

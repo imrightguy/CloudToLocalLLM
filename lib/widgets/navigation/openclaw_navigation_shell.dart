@@ -24,10 +24,6 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
   bool _sidebarCollapsed = false;
   bool _focusMode = false;
 
-  void _goBranch(int index) {
-    widget.navigationShell.goBranch(index);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
