@@ -118,7 +118,7 @@ dev_dependencies:
 
   # Code Generation for Database
   drift_dev: ^2.20.0
-  build_runner: ^2.4.11
+  build_runner: ^2.12.2
   mockito: ^5.4.4
 
   flutter_test:
