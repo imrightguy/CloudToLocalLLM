@@ -68,6 +68,7 @@ import 'package:cloudtolocalllm/services/vision/region_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/camera_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
 import 'package:cloudtolocalllm/services/desktop_control/window_manager_service.dart';
+import 'package:cloudtolocalllm/services/popout/popout_manager.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -725,6 +726,11 @@ Future<void> setupAuthenticatedServices() async {
     final windowManagerService = WindowManagerService();
     serviceLocator
         .registerLazySingleton<WindowManagerService>(() => windowManagerService);
+
+    // Pop-out window manager - manages pop-out window state for Gateway sections
+    debugPrint('[ServiceLocator] Initializing PopOutManager...');
+    final popOutManager = PopOutManager();
+    serviceLocator.registerSingleton<PopOutManager>(popOutManager);
 
     debugPrint(
         '[ServiceLocator] Authenticated services registered successfully');
