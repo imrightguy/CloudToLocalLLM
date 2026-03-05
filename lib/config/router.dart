@@ -58,6 +58,9 @@ import '../screens/skills/skills_screen.dart';
 // Nodes screen
 import '../screens/nodes/nodes_screen.dart';
 
+// Cron Jobs screen
+import '../screens/cron/cron_jobs_screen.dart';
+
 // Debug screen
 import '../screens/debug/debug_screen.dart';
 
@@ -345,10 +348,7 @@ class AppRouter {
                   path: '/cron',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Cron Jobs',
-                      route: '/cron',
-                    ),
+                    child: const CronJobsScreen(),
                   ),
                 ),
               ],
