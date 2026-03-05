@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/database/drift_local_brain.dart' as db;
 import 'package:cloudtolocalllm/models/message.dart';
-import 'package:cloudtolocalllm/models/conversation.dart';
 
 @GenerateMocks([db.LocalBrain])
 import 'evolution_tracker_test.mocks.dart';

@@ -127,10 +127,12 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
 
                           if (mounted) {
                             // Navigate to setup wizard
+                            if (!context.mounted) return;
                             context.go('/setup');
                           }
                         } catch (e) {
                           if (mounted) {
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Failed to clear setup data: $e'),

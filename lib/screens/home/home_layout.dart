@@ -4,11 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import '../../config/app_config.dart';
 import '../../config/theme.dart';
 import '../../models/chat_model.dart';
 import '../../services/streaming_chat_service.dart';
-import '../../services/theme_provider.dart';
 import '../../services/platform_detection_service.dart';
 import '../../components/message_bubble.dart';
 import '../../components/message_input.dart' as msg_input;
@@ -17,13 +15,8 @@ import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../widgets/chat/model_selector.dart';
 import '../../widgets/chat/chat_control_bar.dart';
-import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
-
-import '../../features/avatar/avatar_widget.dart';
-import '../../services/avatar/avatar_state_service.dart';
-import '../../di/locator.dart' as di;
 
 import '../../components/glass_container.dart';
 import '../../components/welcome_screen.dart';
@@ -91,7 +84,6 @@ class _HomeLayoutState extends State<HomeLayout> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final platformService = context.read<PlatformDetectionService>();
-    final spacing = AppTheme.spacingOf(context);
 
     final body = Row(
       children: [
@@ -165,214 +157,6 @@ class _FocusSearchIntent extends Intent {
 
 class _CloseSidebarIntent extends Intent {
   const _CloseSidebarIntent();
-}
-
-/// Small avatar widget displayed in the header bar.
-/// Shows personality-driven emoji and navigates to avatar settings on tap.
-class _AvatarHeaderWidget extends StatelessWidget {
-  const _AvatarHeaderWidget({required this.iconColor});
-
-  final Color iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    AvatarStateService? avatarService;
-    try {
-      avatarService = di.serviceLocator<AvatarStateService>();
-    } catch (e) {
-      // Avatar service not registered, show fallback
-      debugPrint('[HomeLayout] AvatarStateService not available: $e');
-    }
-
-    if (avatarService == null) {
-      return const SizedBox.shrink();
-    }
-
-    return ListenableBuilder(
-      listenable: avatarService,
-      builder: (context, child) {
-        return Tooltip(
-          message:
-              '${avatarService!.agentName} (${avatarService.evolutionStage})',
-          child: InkWell(
-            onTap: () => context.push('/dashboard'),
-            borderRadius: BorderRadius.circular(20),
-            child: AgentAvatar(
-              state: AgentState.idle,
-              size: 32,
-              personality: avatarService.traits,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _HeaderBar extends StatelessWidget {
-  const _HeaderBar({
-    required this.isCompact,
-  });
-
-  final bool isCompact;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final themeProvider = context.watch<ThemeProvider>();
-    final spacing = AppTheme.spacingOf(context);
-    final iconColor =
-        themeProvider.isDarkMode ? theme.colorScheme.onPrimary : Colors.white;
-
-    return Padding(
-      padding: EdgeInsets.all(spacing.m),
-      child: Row(
-        children: [
-          if (isCompact)
-            IconButton(
-              icon: Icon(Icons.menu, color: iconColor),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const AppLogo.small(
-                    backgroundColor: Colors.white,
-                    textColor: Color(0xFF6e8efb),
-                    borderColor: Color(0xFFa777e3),
-                  ),
-                  SizedBox(width: spacing.s),
-                  Text(
-                    AppConfig.appName,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: iconColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(width: spacing.m),
-          _AvatarHeaderWidget(iconColor: iconColor),
-          const Spacer(),
-          const _UserMenu(),
-        ],
-      ),
-    );
-  }
-}
-
-class _UserMenu extends StatelessWidget {
-  const _UserMenu();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, authService, child) {
-        final spacing = AppTheme.spacingOf(context);
-        final user = authService.currentUser;
-        return PopupMenuButton<String>(
-          onSelected: (value) async {
-            switch (value) {
-              case 'login':
-                if (context.mounted) {
-                  context.go('/login');
-                }
-                break;
-              case 'settings':
-                if (context.mounted) {
-                  await context.push('/settings');
-                }
-                break;
-              case 'logout':
-                await authService.logout();
-                if (context.mounted) {
-                  context.go('/login');
-                }
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            if (!authService.isAuthenticated.value)
-              PopupMenuItem(
-                value: 'login',
-                child: Row(
-                  children: [
-                    const Icon(Icons.cloud_queue, size: 18),
-                    SizedBox(width: spacing.s),
-                    const Text('Connect Cloud Relay'),
-                  ],
-                ),
-              ),
-            PopupMenuItem(
-              value: 'settings',
-              child: Row(
-                children: [
-                  const Icon(Icons.settings, size: 18),
-                  SizedBox(width: spacing.s),
-                  const Text('Settings'),
-                ],
-              ),
-            ),
-            const PopupMenuDivider(),
-            if (authService.isAuthenticated.value)
-              PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout, size: 18),
-                    SizedBox(width: spacing.s),
-                    const Text('Sign Out'),
-                  ],
-                ),
-              ),
-          ],
-          elevation: 8,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusM),
-          ),
-          color: AppTheme.backgroundCard,
-          shadowColor: AppTheme.primaryColor.withValues(alpha: 0.3),
-          position: PopupMenuPosition.under,
-          offset: const Offset(0, 8),
-          child: Container(
-            padding: EdgeInsets.all(spacing.xs),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: authService.isAuthenticated.value
-                    ? Colors.green.withValues(alpha: 0.5)
-                    : Colors.white.withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: authService.isAuthenticated.value
-                  ? AppTheme.primaryColor
-                  : Colors.grey[700],
-              child: authService.isAuthenticated.value
-                  ? Text(
-                      user?.initials ?? '?',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : const Icon(Icons.cloud_off, size: 16, color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 class _ChatPane extends StatefulWidget {
