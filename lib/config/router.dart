@@ -55,6 +55,9 @@ import '../screens/agents/agents_screen.dart';
 // Skills screen
 import '../screens/skills/skills_screen.dart';
 
+// Nodes screen
+import '../screens/nodes/nodes_screen.dart';
+
 // Placeholder screens - to be implemented in subsequent tasks
 class PlaceholderScreen extends StatelessWidget {
   final String title;
@@ -375,10 +378,7 @@ class AppRouter {
                   path: '/nodes',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Nodes',
-                      route: '/nodes',
-                    ),
+                    child: const NodesScreen(),
                   ),
                 ),
               ],
