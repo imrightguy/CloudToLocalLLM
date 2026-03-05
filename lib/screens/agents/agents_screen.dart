@@ -18,7 +18,6 @@ import '../../widgets/navigation/popout_button.dart';
 class Agent {
   final String id;
   final String name;
-  final String model;
   final String description;
   final AgentStatus status;
   final int taskCount;
@@ -28,7 +27,6 @@ class Agent {
   const Agent({
     required this.id,
     required this.name,
-    required this.model,
     required this.description,
     required this.status,
     this.taskCount = 0,
@@ -107,11 +105,11 @@ class _AgentsScreenState extends State<AgentsScreen>
       await Future.delayed(const Duration(milliseconds: 300));
 
       // Mock agents data
+      // TODO: Load from SubagentRegistryService to get real agent data
       _agents = [
         Agent(
           id: 'code-reviewer',
           name: 'Code Review Agent',
-          model: 'claude-3-opus',
           description: 'Analyzes pull requests for bugs, security issues, and best practices',
           status: AgentStatus.online,
           taskCount: 234,
@@ -121,7 +119,6 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'file-scanner',
           name: 'File Scanner Agent',
-          model: 'claude-3-sonnet',
           description: 'Scans directories for specific file patterns and security risks',
           status: AgentStatus.busy,
           taskCount: 567,
@@ -131,7 +128,6 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'doc-summarizer',
           name: 'Document Summarizer Agent',
-          model: 'claude-3-haiku',
           description: 'Creates concise summaries of long documents and articles',
           status: AgentStatus.online,
           taskCount: 891,
@@ -141,7 +137,6 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'data-analyzer',
           name: 'Data Analysis Agent',
-          model: 'claude-3-opus',
           description: 'Performs statistical analysis and generates insights from datasets',
           status: AgentStatus.offline,
           taskCount: 123,
@@ -151,7 +146,6 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'backup-automation',
           name: 'Backup Automation Agent',
-          model: 'claude-3-sonnet',
           description: 'Automates backup tasks and verifies data integrity',
           status: AgentStatus.online,
           taskCount: 456,
@@ -161,7 +155,6 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'security-inspector',
           name: 'Security Inspector Agent',
-          model: 'claude-3-opus',
           description: 'Performs security audits and vulnerability scans',
           status: AgentStatus.error,
           taskCount: 12,
@@ -358,15 +351,7 @@ class _AgentsScreenState extends State<AgentsScreen>
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        agent.model,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontFamily: 'monospace',
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         agent.description,
                         style: theme.textTheme.bodySmall?.copyWith(
