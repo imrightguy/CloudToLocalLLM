@@ -85,48 +85,4 @@ class PopOutWindow {
           : null,
     );
   }
-
-  /// Create a copy with updated values
-  PopOutWindow copyWith({
-    String? id,
-    String? sectionName,
-    int? branchIndex,
-    bool? isVisible,
-    Offset? position,
-    Size? size,
-    bool clearPosition = false,
-    bool clearSize = false,
-  }) {
-    return PopOutWindow(
-      id: id ?? this.id,
-      sectionName: sectionName ?? this.sectionName,
-      branchIndex: branchIndex ?? this.branchIndex,
-      isVisible: isVisible ?? this.isVisible,
-      position: clearPosition ? null : (position ?? this.position),
-      size: clearSize ? null : (size ?? this.size),
-    );
-  }
-
-  @override
-  String toString() {
-    return 'PopOutWindow(id: $id, sectionName: $sectionName, '
-        'branchIndex: $branchIndex, isVisible: $isVisible, '
-        'position: $position, size: $size)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is PopOutWindow &&
-        other.id == id &&
-        other.sectionName == sectionName &&
-        other.branchIndex == branchIndex &&
-        other.isVisible == isVisible;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(id, sectionName, branchIndex, isVisible);
-  }
 }
