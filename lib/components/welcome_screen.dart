@@ -20,9 +20,10 @@ class WelcomeScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         constraints: const BoxConstraints(maxWidth: 600),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             // Logo or Icon with Glow
             Container(
               padding: const EdgeInsets.all(24),
@@ -88,6 +89,7 @@ class WelcomeScreen extends StatelessWidget {
               ],
             ),
           ],
+        ),
         ),
       ),
     );
