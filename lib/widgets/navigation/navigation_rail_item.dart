@@ -3,15 +3,17 @@ import 'package:go_router/go_router.dart';
 
 class OpenClawNavItem extends StatelessWidget {
   final String title;
-  final String route;
+  final int branchIndex;
   final IconData icon;
   final bool selected;
   final bool collapsed;
+  final StatefulNavigationShell navigationShell;
 
   const OpenClawNavItem({
     required this.title,
-    required this.route,
+    required this.branchIndex,
     required this.icon,
+    required this.navigationShell,
     this.selected = false,
     this.collapsed = false,
     super.key,
@@ -26,7 +28,7 @@ class OpenClawNavItem extends StatelessWidget {
         selected: selected,
         button: true,
         child: InkWell(
-          onTap: () => context.go(route),
+          onTap: () => navigationShell.goBranch(branchIndex),
           child: Container(
             padding: collapsed
                 ? const EdgeInsets.symmetric(horizontal: 12, vertical: 12)
