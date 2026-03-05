@@ -185,6 +185,14 @@ class AgentLifecycleService extends ChangeNotifier {
       _connectionManager.isConnected && _connectionManager.isGatewayHealthy();
 
   void _onConnectionChanged() {
+    // Auto-refresh agents when connection becomes ready
+    if (isReady) {
+      debugPrint('[AgentLifecycle] Connection ready, refreshing agents...');
+      listAgents().catchError((e) {
+        debugPrint('[AgentLifecycle] Failed to auto-refresh agents: $e');
+        return <AgentInfo>[];
+      });
+    }
     notifyListeners();
   }
 

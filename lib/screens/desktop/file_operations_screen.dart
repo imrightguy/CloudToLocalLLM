@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloudtolocalllm/widgets/navigation/breadcrumb_bar.dart';
 
 /// Screen for file operations (browse, copy, move, delete files)
 ///
@@ -520,6 +521,7 @@ class _FileOperationsScreenState extends State<FileOperationsScreen> {
       ),
       body: Column(
         children: [
+          const AutoBreadcrumbBar(),
           // Path bar
           _buildPathBar(),
 

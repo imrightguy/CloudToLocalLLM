@@ -84,5 +84,4 @@ class MainVisionService extends ChangeNotifier implements VisionService {
 
     debugPrint('[VisionService] Disposal complete');
   }
-
 }

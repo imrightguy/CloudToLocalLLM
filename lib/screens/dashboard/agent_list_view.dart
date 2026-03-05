@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../services/agent_lifecycle_service.dart';
 
@@ -32,6 +33,18 @@ class _AgentListViewState extends State<AgentListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Agents'),
+        leading: BackButton(
+          onPressed: () {
+            if (GoRouter.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.go('/dashboard');
+            }
+          },
+        ),
+      ),
       body: Consumer<AgentLifecycleService>(
         builder: (context, service, child) {
           if (service.isLoading && service.agents.isEmpty) {
@@ -329,6 +342,15 @@ class _AgentDetailScreenState extends State<_AgentDetailScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(currentAgent.name),
+            leading: BackButton(
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/agents');
+                }
+              },
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh),

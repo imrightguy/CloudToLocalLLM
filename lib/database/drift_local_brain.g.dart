@@ -8826,6 +8826,362 @@ class ConversationDepthMetricsCompanion
   }
 }
 
+class $ConversationMemoriesTable extends ConversationMemories
+    with TableInfo<$ConversationMemoriesTable, ConversationMemory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ConversationMemoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _conversationIdMeta =
+      const VerificationMeta('conversationId');
+  @override
+  late final GeneratedColumn<String> conversationId = GeneratedColumn<String>(
+      'conversation_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES conversations (id)'));
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _embeddingMeta =
+      const VerificationMeta('embedding');
+  @override
+  late final GeneratedColumn<String> embedding = GeneratedColumn<String>(
+      'embedding', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _summaryMeta =
+      const VerificationMeta('summary');
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+      'summary', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, conversationId, content, embedding, timestamp, summary];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'conversation_memories';
+  @override
+  VerificationContext validateIntegrity(Insertable<ConversationMemory> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('conversation_id')) {
+      context.handle(
+          _conversationIdMeta,
+          conversationId.isAcceptableOrUnknown(
+              data['conversation_id']!, _conversationIdMeta));
+    } else if (isInserting) {
+      context.missing(_conversationIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('embedding')) {
+      context.handle(_embeddingMeta,
+          embedding.isAcceptableOrUnknown(data['embedding']!, _embeddingMeta));
+    } else if (isInserting) {
+      context.missing(_embeddingMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('summary')) {
+      context.handle(_summaryMeta,
+          summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ConversationMemory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ConversationMemory(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      conversationId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}conversation_id'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      embedding: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}embedding'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      summary: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}summary']),
+    );
+  }
+
+  @override
+  $ConversationMemoriesTable createAlias(String alias) {
+    return $ConversationMemoriesTable(attachedDatabase, alias);
+  }
+}
+
+class ConversationMemory extends DataClass
+    implements Insertable<ConversationMemory> {
+  final String id;
+  final String conversationId;
+  final String content;
+  final String embedding;
+  final DateTime timestamp;
+  final String? summary;
+  const ConversationMemory(
+      {required this.id,
+      required this.conversationId,
+      required this.content,
+      required this.embedding,
+      required this.timestamp,
+      this.summary});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['conversation_id'] = Variable<String>(conversationId);
+    map['content'] = Variable<String>(content);
+    map['embedding'] = Variable<String>(embedding);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || summary != null) {
+      map['summary'] = Variable<String>(summary);
+    }
+    return map;
+  }
+
+  ConversationMemoriesCompanion toCompanion(bool nullToAbsent) {
+    return ConversationMemoriesCompanion(
+      id: Value(id),
+      conversationId: Value(conversationId),
+      content: Value(content),
+      embedding: Value(embedding),
+      timestamp: Value(timestamp),
+      summary: summary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(summary),
+    );
+  }
+
+  factory ConversationMemory.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ConversationMemory(
+      id: serializer.fromJson<String>(json['id']),
+      conversationId: serializer.fromJson<String>(json['conversationId']),
+      content: serializer.fromJson<String>(json['content']),
+      embedding: serializer.fromJson<String>(json['embedding']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      summary: serializer.fromJson<String?>(json['summary']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'conversationId': serializer.toJson<String>(conversationId),
+      'content': serializer.toJson<String>(content),
+      'embedding': serializer.toJson<String>(embedding),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'summary': serializer.toJson<String?>(summary),
+    };
+  }
+
+  ConversationMemory copyWith(
+          {String? id,
+          String? conversationId,
+          String? content,
+          String? embedding,
+          DateTime? timestamp,
+          Value<String?> summary = const Value.absent()}) =>
+      ConversationMemory(
+        id: id ?? this.id,
+        conversationId: conversationId ?? this.conversationId,
+        content: content ?? this.content,
+        embedding: embedding ?? this.embedding,
+        timestamp: timestamp ?? this.timestamp,
+        summary: summary.present ? summary.value : this.summary,
+      );
+  ConversationMemory copyWithCompanion(ConversationMemoriesCompanion data) {
+    return ConversationMemory(
+      id: data.id.present ? data.id.value : this.id,
+      conversationId: data.conversationId.present
+          ? data.conversationId.value
+          : this.conversationId,
+      content: data.content.present ? data.content.value : this.content,
+      embedding: data.embedding.present ? data.embedding.value : this.embedding,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      summary: data.summary.present ? data.summary.value : this.summary,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConversationMemory(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('content: $content, ')
+          ..write('embedding: $embedding, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('summary: $summary')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, conversationId, content, embedding, timestamp, summary);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ConversationMemory &&
+          other.id == this.id &&
+          other.conversationId == this.conversationId &&
+          other.content == this.content &&
+          other.embedding == this.embedding &&
+          other.timestamp == this.timestamp &&
+          other.summary == this.summary);
+}
+
+class ConversationMemoriesCompanion
+    extends UpdateCompanion<ConversationMemory> {
+  final Value<String> id;
+  final Value<String> conversationId;
+  final Value<String> content;
+  final Value<String> embedding;
+  final Value<DateTime> timestamp;
+  final Value<String?> summary;
+  final Value<int> rowid;
+  const ConversationMemoriesCompanion({
+    this.id = const Value.absent(),
+    this.conversationId = const Value.absent(),
+    this.content = const Value.absent(),
+    this.embedding = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ConversationMemoriesCompanion.insert({
+    required String id,
+    required String conversationId,
+    required String content,
+    required String embedding,
+    this.timestamp = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        conversationId = Value(conversationId),
+        content = Value(content),
+        embedding = Value(embedding);
+  static Insertable<ConversationMemory> custom({
+    Expression<String>? id,
+    Expression<String>? conversationId,
+    Expression<String>? content,
+    Expression<String>? embedding,
+    Expression<DateTime>? timestamp,
+    Expression<String>? summary,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (conversationId != null) 'conversation_id': conversationId,
+      if (content != null) 'content': content,
+      if (embedding != null) 'embedding': embedding,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (summary != null) 'summary': summary,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ConversationMemoriesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? conversationId,
+      Value<String>? content,
+      Value<String>? embedding,
+      Value<DateTime>? timestamp,
+      Value<String?>? summary,
+      Value<int>? rowid}) {
+    return ConversationMemoriesCompanion(
+      id: id ?? this.id,
+      conversationId: conversationId ?? this.conversationId,
+      content: content ?? this.content,
+      embedding: embedding ?? this.embedding,
+      timestamp: timestamp ?? this.timestamp,
+      summary: summary ?? this.summary,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (conversationId.present) {
+      map['conversation_id'] = Variable<String>(conversationId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (embedding.present) {
+      map['embedding'] = Variable<String>(embedding.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ConversationMemoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('conversationId: $conversationId, ')
+          ..write('content: $content, ')
+          ..write('embedding: $embedding, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('summary: $summary, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AgentThoughtsTable extends AgentThoughts
     with TableInfo<$AgentThoughtsTable, AgentThought> {
   @override
@@ -9663,6 +10019,8 @@ abstract class _$LocalBrain extends GeneratedDatabase {
       $EvolutionHistoryTableTable(this);
   late final $ConversationDepthMetricsTable conversationDepthMetrics =
       $ConversationDepthMetricsTable(this);
+  late final $ConversationMemoriesTable conversationMemories =
+      $ConversationMemoriesTable(this);
   late final $AgentThoughtsTable agentThoughts = $AgentThoughtsTable(this);
   late final $ConscienceDecisionsTable conscienceDecisions =
       $ConscienceDecisionsTable(this);
@@ -9692,6 +10050,7 @@ abstract class _$LocalBrain extends GeneratedDatabase {
         avatarPersonalityProfiles,
         evolutionHistoryTable,
         conversationDepthMetrics,
+        conversationMemories,
         agentThoughts,
         conscienceDecisions
       ];
@@ -10021,6 +10380,26 @@ final class $$ConversationsTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$ConversationMemoriesTable,
+      List<ConversationMemory>> _conversationMemoriesRefsTable(
+          _$LocalBrain db) =>
+      MultiTypedResultKey.fromTable(db.conversationMemories,
+          aliasName: $_aliasNameGenerator(
+              db.conversations.id, db.conversationMemories.conversationId));
+
+  $$ConversationMemoriesTableProcessedTableManager
+      get conversationMemoriesRefs {
+    final manager = $$ConversationMemoriesTableTableManager(
+            $_db, $_db.conversationMemories)
+        .filter(
+            (f) => f.conversationId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_conversationMemoriesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ConversationsTableFilterComposer
@@ -10108,6 +10487,28 @@ class $$ConversationsTableFilterComposer
                   $removeJoinBuilderFromRootComposer:
                       $removeJoinBuilderFromRootComposer,
                 ));
+    return f(composer);
+  }
+
+  Expression<bool> conversationMemoriesRefs(
+      Expression<bool> Function($$ConversationMemoriesTableFilterComposer f)
+          f) {
+    final $$ConversationMemoriesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.conversationMemories,
+        getReferencedColumn: (t) => t.conversationId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationMemoriesTableFilterComposer(
+              $db: $db,
+              $table: $db.conversationMemories,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -10245,6 +10646,29 @@ class $$ConversationsTableAnnotationComposer
                 ));
     return f(composer);
   }
+
+  Expression<T> conversationMemoriesRefs<T extends Object>(
+      Expression<T> Function($$ConversationMemoriesTableAnnotationComposer a)
+          f) {
+    final $$ConversationMemoriesTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.conversationMemories,
+            getReferencedColumn: (t) => t.conversationId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ConversationMemoriesTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.conversationMemories,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$ConversationsTableTableManager extends RootTableManager<
@@ -10259,7 +10683,10 @@ class $$ConversationsTableTableManager extends RootTableManager<
     (Conversation, $$ConversationsTableReferences),
     Conversation,
     PrefetchHooks Function(
-        {bool userId, bool messagesRefs, bool conversationDepthMetricsRefs})> {
+        {bool userId,
+        bool messagesRefs,
+        bool conversationDepthMetricsRefs,
+        bool conversationMemoriesRefs})> {
   $$ConversationsTableTableManager(_$LocalBrain db, $ConversationsTable table)
       : super(TableManagerState(
           db: db,
@@ -10315,12 +10742,14 @@ class $$ConversationsTableTableManager extends RootTableManager<
           prefetchHooksCallback: (
               {userId = false,
               messagesRefs = false,
-              conversationDepthMetricsRefs = false}) {
+              conversationDepthMetricsRefs = false,
+              conversationMemoriesRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (messagesRefs) db.messages,
-                if (conversationDepthMetricsRefs) db.conversationDepthMetrics
+                if (conversationDepthMetricsRefs) db.conversationDepthMetrics,
+                if (conversationMemoriesRefs) db.conversationMemories
               ],
               addJoins: <
                   T extends TableManagerState<
@@ -10375,6 +10804,19 @@ class $$ConversationsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.conversationId == item.id),
+                        typedResults: items),
+                  if (conversationMemoriesRefs)
+                    await $_getPrefetchedData<Conversation, $ConversationsTable,
+                            ConversationMemory>(
+                        currentTable: table,
+                        referencedTable: $$ConversationsTableReferences
+                            ._conversationMemoriesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ConversationsTableReferences(db, table, p0)
+                                .conversationMemoriesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.conversationId == item.id),
                         typedResults: items)
                 ];
               },
@@ -10395,7 +10837,10 @@ typedef $$ConversationsTableProcessedTableManager = ProcessedTableManager<
     (Conversation, $$ConversationsTableReferences),
     Conversation,
     PrefetchHooks Function(
-        {bool userId, bool messagesRefs, bool conversationDepthMetricsRefs})>;
+        {bool userId,
+        bool messagesRefs,
+        bool conversationDepthMetricsRefs,
+        bool conversationMemoriesRefs})>;
 typedef $$MessagesTableCreateCompanionBuilder = MessagesCompanion Function({
   Value<int> id,
   required String conversationId,
@@ -15635,6 +16080,302 @@ typedef $$ConversationDepthMetricsTableProcessedTableManager
         (ConversationDepthMetric, $$ConversationDepthMetricsTableReferences),
         ConversationDepthMetric,
         PrefetchHooks Function({bool conversationId})>;
+typedef $$ConversationMemoriesTableCreateCompanionBuilder
+    = ConversationMemoriesCompanion Function({
+  required String id,
+  required String conversationId,
+  required String content,
+  required String embedding,
+  Value<DateTime> timestamp,
+  Value<String?> summary,
+  Value<int> rowid,
+});
+typedef $$ConversationMemoriesTableUpdateCompanionBuilder
+    = ConversationMemoriesCompanion Function({
+  Value<String> id,
+  Value<String> conversationId,
+  Value<String> content,
+  Value<String> embedding,
+  Value<DateTime> timestamp,
+  Value<String?> summary,
+  Value<int> rowid,
+});
+
+final class $$ConversationMemoriesTableReferences extends BaseReferences<
+    _$LocalBrain, $ConversationMemoriesTable, ConversationMemory> {
+  $$ConversationMemoriesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ConversationsTable _conversationIdTable(_$LocalBrain db) =>
+      db.conversations.createAlias($_aliasNameGenerator(
+          db.conversationMemories.conversationId, db.conversations.id));
+
+  $$ConversationsTableProcessedTableManager get conversationId {
+    final $_column = $_itemColumn<String>('conversation_id')!;
+
+    final manager = $$ConversationsTableTableManager($_db, $_db.conversations)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_conversationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ConversationMemoriesTableFilterComposer
+    extends Composer<_$LocalBrain, $ConversationMemoriesTable> {
+  $$ConversationMemoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get embedding => $composableBuilder(
+      column: $table.embedding, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnFilters(column));
+
+  $$ConversationsTableFilterComposer get conversationId {
+    final $$ConversationsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.conversationId,
+        referencedTable: $db.conversations,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationsTableFilterComposer(
+              $db: $db,
+              $table: $db.conversations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConversationMemoriesTableOrderingComposer
+    extends Composer<_$LocalBrain, $ConversationMemoriesTable> {
+  $$ConversationMemoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get embedding => $composableBuilder(
+      column: $table.embedding, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnOrderings(column));
+
+  $$ConversationsTableOrderingComposer get conversationId {
+    final $$ConversationsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.conversationId,
+        referencedTable: $db.conversations,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationsTableOrderingComposer(
+              $db: $db,
+              $table: $db.conversations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConversationMemoriesTableAnnotationComposer
+    extends Composer<_$LocalBrain, $ConversationMemoriesTable> {
+  $$ConversationMemoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get embedding =>
+      $composableBuilder(column: $table.embedding, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  $$ConversationsTableAnnotationComposer get conversationId {
+    final $$ConversationsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.conversationId,
+        referencedTable: $db.conversations,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ConversationsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.conversations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ConversationMemoriesTableTableManager extends RootTableManager<
+    _$LocalBrain,
+    $ConversationMemoriesTable,
+    ConversationMemory,
+    $$ConversationMemoriesTableFilterComposer,
+    $$ConversationMemoriesTableOrderingComposer,
+    $$ConversationMemoriesTableAnnotationComposer,
+    $$ConversationMemoriesTableCreateCompanionBuilder,
+    $$ConversationMemoriesTableUpdateCompanionBuilder,
+    (ConversationMemory, $$ConversationMemoriesTableReferences),
+    ConversationMemory,
+    PrefetchHooks Function({bool conversationId})> {
+  $$ConversationMemoriesTableTableManager(
+      _$LocalBrain db, $ConversationMemoriesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ConversationMemoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ConversationMemoriesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ConversationMemoriesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> conversationId = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<String> embedding = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> summary = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ConversationMemoriesCompanion(
+            id: id,
+            conversationId: conversationId,
+            content: content,
+            embedding: embedding,
+            timestamp: timestamp,
+            summary: summary,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String conversationId,
+            required String content,
+            required String embedding,
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<String?> summary = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ConversationMemoriesCompanion.insert(
+            id: id,
+            conversationId: conversationId,
+            content: content,
+            embedding: embedding,
+            timestamp: timestamp,
+            summary: summary,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ConversationMemoriesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({conversationId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (conversationId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.conversationId,
+                    referencedTable: $$ConversationMemoriesTableReferences
+                        ._conversationIdTable(db),
+                    referencedColumn: $$ConversationMemoriesTableReferences
+                        ._conversationIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ConversationMemoriesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalBrain,
+        $ConversationMemoriesTable,
+        ConversationMemory,
+        $$ConversationMemoriesTableFilterComposer,
+        $$ConversationMemoriesTableOrderingComposer,
+        $$ConversationMemoriesTableAnnotationComposer,
+        $$ConversationMemoriesTableCreateCompanionBuilder,
+        $$ConversationMemoriesTableUpdateCompanionBuilder,
+        (ConversationMemory, $$ConversationMemoriesTableReferences),
+        ConversationMemory,
+        PrefetchHooks Function({bool conversationId})>;
 typedef $$AgentThoughtsTableCreateCompanionBuilder = AgentThoughtsCompanion
     Function({
   required String id,
@@ -16109,6 +16850,8 @@ class $LocalBrainManager {
   $$ConversationDepthMetricsTableTableManager get conversationDepthMetrics =>
       $$ConversationDepthMetricsTableTableManager(
           _db, _db.conversationDepthMetrics);
+  $$ConversationMemoriesTableTableManager get conversationMemories =>
+      $$ConversationMemoriesTableTableManager(_db, _db.conversationMemories);
   $$AgentThoughtsTableTableManager get agentThoughts =>
       $$AgentThoughtsTableTableManager(_db, _db.agentThoughts);
   $$ConscienceDecisionsTableTableManager get conscienceDecisions =>

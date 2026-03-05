@@ -38,9 +38,9 @@ class AppConfig {
   static const String devModeUser = 'dev@cloudtolocalllm.online';
 
   // Testing mode settings
-  static const bool forceSetupWizard =
-      true; // Set to true to always show setup wizard
-
+  static const bool forceSetupWizard = false; // Set to true only for testing new setup flow
+  // Gateway Connection Options
+  static const bool skipDeviceIdentity = true; // Use token-only auth, skip device pairing
   // API Configuration
   static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';
   static const Duration apiTimeout = Duration(seconds: 30);
@@ -68,27 +68,97 @@ class AppConfig {
   static const bool showTierInformation = true;
   static const bool enableDirectTunnelMode = true;
 
-  // OpenClaw Gateway Configuration (Primary LLM Provider)
-  static const String defaultGatewayHost = '127.0.0.1';
-  static const int defaultGatewayPort = 18789;
-  static const String defaultGatewayUrl = 'http://127.0.0.1:18789';
+  // ==========================================================================
+  // Gateway Configuration (Runtime Configurable)
+  // ==========================================================================
+  //
+  // Architecture:
+  // 1. Defaults defined here (compile-time)
+  // 2. Environment variables override at startup (container/deployment)
+  // 3. SharedPreferences override at runtime (user config)
+  // 4. All code reads from getters, never from constants directly
+  //
+  // Environment Variables:
+  // - OPENCLAW_GATEWAY_HOST (e.g., "127.0.0.1", "100.78.133.50")
+  // - OPENCLAW_GATEWAY_PORT (e.g., "18789")
+  // - OPENCLAW_GATEWAY_URL (full URL, overrides host/port if set)
+
+  // Default values (compile-time fallbacks)
+  static const String _defaultGatewayHost = '127.0.0.1';
+  static const int _defaultGatewayPort = 18789;
   static const Duration gatewayTimeout = Duration(seconds: 60);
 
+  // Runtime values (initialized from env vars or defaults)
+  static String _runtimeGatewayHost = String.fromEnvironment(
+    'OPENCLAW_GATEWAY_HOST',
+    defaultValue: _defaultGatewayHost,
+  );
+  static int _runtimeGatewayPort = int.tryParse(
+        const String.fromEnvironment('OPENCLAW_GATEWAY_PORT', defaultValue: '18789'),
+      ) ??
+      _defaultGatewayPort;
+  static String? _runtimeGatewayUrl = String.fromEnvironment(
+    'OPENCLAW_GATEWAY_URL',
+    defaultValue: '',
+  ).isNotEmpty
+      ? const String.fromEnvironment('OPENCLAW_GATEWAY_URL')
+      : null;
+
+  // Getters for gateway configuration
+  /// Default gateway host (compile-time constant)
+  static String get defaultGatewayHost => _defaultGatewayHost;
+
+  /// Default gateway port (compile-time constant)
+  static int get defaultGatewayPort => _defaultGatewayPort;
+
+  /// Default gateway URL (compile-time constant)
+  static String get defaultGatewayUrl =>
+      'http://$_defaultGatewayHost:$_defaultGatewayPort';
+
+  /// Runtime gateway host (from env var or default)
+  static String get gatewayHost => _runtimeGatewayHost;
+
+  /// Runtime gateway port (from env var or default)
+  static int get gatewayPort => _runtimeGatewayPort;
+
+  /// Runtime gateway URL (from env var, SharedPreferences, or default)
+  /// Note: For sync contexts, this returns the env/default URL.
+  /// For async contexts with SharedPreferences, use getGatewayUrl() instead.
+  static String get gatewayUrl =>
+      _runtimeGatewayUrl ?? 'http://$_runtimeGatewayHost:$_runtimeGatewayPort';
+
+  /// Update runtime gateway configuration (call at startup or from settings)
+  static void setGatewayConfig({String? host, int? port, String? url}) {
+    if (host != null) _runtimeGatewayHost = host;
+    if (port != null) _runtimeGatewayPort = port;
+    if (url != null) _runtimeGatewayUrl = url;
+    debugPrint(
+        '[AppConfig] Gateway config updated: host=\$host, port=\$port, url=\$url');
+  }
+
+  /// Reset gateway config to defaults
+  static void resetGatewayConfig() {
+    _runtimeGatewayHost = _defaultGatewayHost;
+    _runtimeGatewayPort = _defaultGatewayPort;
+    _runtimeGatewayUrl = null;
+  }
+
   /// Get the actual gateway URL to use
-  /// This reads from settings preference if configured, otherwise returns default
+  /// This reads from settings preference if configured, otherwise returns runtime URL
   /// Note: This is async and requires SettingsPreferenceService
-  /// For sync contexts, use getGatewayUrlSync() instead
+  /// For sync contexts, use gatewayUrl getter instead
   static Future<String> getGatewayUrl() async {
     final settingsService = SettingsPreferenceService();
     final configuredUrl = await settingsService.getGatewayUrl();
     return (configuredUrl?.isNotEmpty ?? false)
         ? configuredUrl!
-        : defaultGatewayUrl;
+        : gatewayUrl; // Use runtime URL, not hardcoded default
   }
 
   /// Get gateway URL synchronously (for use during initialization)
-  /// Returns default URL since preferences require async loading
-  static String getGatewayUrlSync() => defaultGatewayUrl;
+  /// Returns runtime URL (env var or default)
+  static String getGatewayUrlSync() => gatewayUrl;
+
 
   // Cloud Relay Configuration (via OpenClaw)
   static const String cloudGatewayUrl = '$apiBaseUrl/v1';

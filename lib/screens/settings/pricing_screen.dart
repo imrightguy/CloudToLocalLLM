@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../di/locator.dart' as di;
 import '../../services/enhanced_user_tier_service.dart';
+import '../../widgets/navigation/breadcrumb_bar.dart';
 
 /// Pricing and Upgrade Screen
 /// Displays subscription plans and handles upgrade/downgrade flow
@@ -204,11 +205,15 @@ class _PricingScreenState extends State<PricingScreen> {
               context.canPop() ? context.pop() : context.go('/settings'),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Column(
+        children: [
+          const AutoBreadcrumbBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             // Header
             Center(
               child: Column(
@@ -282,7 +287,10 @@ class _PricingScreenState extends State<PricingScreen> {
                 ),
               ),
           ],
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

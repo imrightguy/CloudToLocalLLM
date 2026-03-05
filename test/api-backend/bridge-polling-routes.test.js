@@ -13,40 +13,8 @@ import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 
-// Mock the auth middleware before importing routes
-jest.mock('../../services/api-backend/middleware/composite-auth.js', () => ({
-  authenticateComposite: [
-    (req, res, next) => {
-      const authHeader = req.headers.authorization;
-      const token = authHeader?.replace('Bearer ', '');
-
-      // Accept valid-token for successful auth
-      // Also accept tokens starting with 'valid-' for testing multiple requests
-      if (token === 'valid-token' || token?.startsWith('valid-')) {
-        req.user = { sub: 'test-user-id' };
-        req.userId = 'test-user-id';
-        return next();
-      }
-
-      // Reject invalid-token
-      if (token === 'invalid-token') {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-
-      // No auth header
-      return res.status(401).json({ error: 'Unauthorized' });
-    },
-  ],
-}));
-
-jest.mock('../../services/api-backend/middleware/tier-check.js', () => ({
-  addTierInfo: (req, res, next) => {
-    req.userTier = 'free';
-    next();
-  },
-}));
-
-// Import after mocks are defined
+// Auth bypassed via BYPASS_AUTH=true env var (ESM mocking limitations)
+// Import routes directly
 import bridgePollingRoutes from '../../services/api-backend/routes/bridge-polling-routes.js';
 
 describe('Bridge Polling Routes', () => {

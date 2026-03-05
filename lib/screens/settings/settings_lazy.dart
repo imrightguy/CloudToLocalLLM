@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'unified_settings_screen.dart';
 import 'daemon_settings_screen.dart';
 import 'connection_status_screen.dart';
 import 'pricing_screen.dart';
@@ -18,19 +17,13 @@ import 'about_settings_screen.dart';
 
 // This file contains the route configuration for the settings screens,
 // which will be lazy-loaded to improve initial application performance.
+//
+// NOTE: The main /settings route that used UnifiedSettingsScreen has been removed.
+// Settings navigation is now integrated into the sidebar (Config, Debug, Logs branches).
+// These routes remain for deep linking and direct access to specific settings categories.
 
 final settingsRoutes = [
-  // Main settings route - redirects to general
-  GoRoute(
-    path: '/settings',
-    name: 'settings',
-    pageBuilder: (context, state) => MaterialPage(
-      key: state.pageKey,
-      child: const UnifiedSettingsScreen(),
-    ),
-  ),
-
-  // Settings category routes
+  // Settings category routes (for deep linking)
   GoRoute(
     path: '/settings/general',
     name: 'settings-general',
@@ -101,25 +94,6 @@ final settingsRoutes = [
         child: const AboutSettingsScreen(),
       );
     },
-  ),
-
-  // Legacy/sub-page routes (existing)
-  GoRoute(
-    path: '/settings/downloads',
-    name: 'settings-downloads',
-    pageBuilder: (context, state) => MaterialPage(
-      key: state.pageKey,
-      child: const UnifiedSettingsScreen(initialCategory: 'downloads'),
-    ),
-  ),
-
-  GoRoute(
-    path: '/settings/tunnel',
-    name: 'tunnel-settings',
-    pageBuilder: (context, state) => MaterialPage(
-      key: state.pageKey,
-      child: const UnifiedSettingsScreen(initialCategory: 'tunnel-connection'),
-    ),
   ),
 
   GoRoute(

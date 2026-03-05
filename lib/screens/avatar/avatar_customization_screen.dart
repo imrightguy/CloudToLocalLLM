@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloudtolocalllm/features/avatar/avatar_widget.dart';
 import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
+import 'package:cloudtolocalllm/widgets/navigation/breadcrumb_bar.dart';
 
 /// Screen for customizing avatar visual appearance
 /// Allows users to customize avatar type, color, size, and effects
@@ -186,6 +188,9 @@ class _AvatarCustomizationScreenState extends State<AvatarCustomizationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Avatar Customization'),
+        leading: BackButton(
+          onPressed: () => context.go('/settings/avatar'),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -194,11 +199,15 @@ class _AvatarCustomizationScreenState extends State<AvatarCustomizationScreen> {
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: Column(
+        children: [
+          const AutoBreadcrumbBar(),
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
             // Preview Section
             _buildPreviewSection(colorScheme),
 
@@ -234,7 +243,10 @@ class _AvatarCustomizationScreenState extends State<AvatarCustomizationScreen> {
               ),
             ),
           ],
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

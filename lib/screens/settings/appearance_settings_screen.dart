@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
 import '../../../services/theme_provider.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/navigation/breadcrumb_bar.dart';
 
 /// Appearance Settings Screen - Theme and visual customization
 class AppearanceSettingsScreen extends StatelessWidget {
@@ -20,61 +21,64 @@ class AppearanceSettingsScreen extends StatelessWidget {
         elevation: 0,
         leading: BackButton(
           onPressed: () {
-            if (GoRouter.of(context).canPop()) {
-              context.pop();
-            } else {
-              context.go('/settings');
-            }
+            context.go('/');
           },
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(spacing.l),
+      body: Column(
         children: [
-          Text('Appearance Settings',
-              style: theme.textTheme.headlineMedium),
-          const SizedBox(height: 16),
-          const Text('Customize the look and feel of the application.'),
-          const SizedBox(height: 32),
-
-          // Theme Mode
-          Card(
-            child: Column(
+          const AutoBreadcrumbBar(),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.all(spacing.l),
               children: [
-                ListTile(
-                  leading: const Icon(Icons.light_mode),
-                  title: const Text('Theme Mode'),
-                  subtitle: Text(
-                    themeProvider.isDarkMode ? 'Dark' : 'Light',
+                Text('Appearance Settings',
+                    style: theme.textTheme.headlineMedium),
+                const SizedBox(height: 16),
+                const Text('Customize the look and feel of the application.'),
+                const SizedBox(height: 32),
+
+                // Theme Mode
+                Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.light_mode),
+                        title: const Text('Theme Mode'),
+                        subtitle: Text(
+                          themeProvider.isDarkMode ? 'Dark' : 'Light',
+                        ),
+                      ),
+                      ButtonBar(
+                        children: [
+                          TextButton(
+                            onPressed: () => themeProvider.setThemeMode(ThemeMode.light),
+                            child: const Text('Light'),
+                          ),
+                          TextButton(
+                            onPressed: () => themeProvider.setThemeMode(ThemeMode.dark),
+                            child: const Text('Dark'),
+                          ),
+                          TextButton(
+                            onPressed: () => themeProvider.setThemeMode(ThemeMode.system),
+                            child: const Text('System'),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                ButtonBar(
-                  children: [
-                    TextButton(
-                      onPressed: () => themeProvider.setThemeMode(ThemeMode.light),
-                      child: const Text('Light'),
-                    ),
-                    TextButton(
-                      onPressed: () => themeProvider.setThemeMode(ThemeMode.dark),
-                      child: const Text('Dark'),
-                    ),
-                    TextButton(
-                      onPressed: () => themeProvider.setThemeMode(ThemeMode.system),
-                      child: const Text('System'),
-                    ),
-                  ],
+                const SizedBox(height: 8),
+
+                // Accent Color
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.color_lens),
+                    title: const Text('Accent Color'),
+                    subtitle: const Text('Coming soon'),
+                  ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Accent Color
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.color_lens),
-              title: const Text('Accent Color'),
-              subtitle: const Text('Coming soon'),
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -39,7 +40,7 @@ class ProviderDiscoveryService {
 
   /// Scan for OpenClaw Gateway on localhost:18789
   Future<ProviderInfo?> _scanOpenClawGateway() async {
-    const host = '127.0.0.1';
+    final host = AppConfig.gatewayHost;
     const port = 18789;
     final baseUrl = 'http://$host:$port';
     final healthUrl = Uri.parse('$baseUrl/health');
@@ -68,7 +69,7 @@ class ProviderDiscoveryService {
 
   /// Scan for LM Studio on localhost:1234
   Future<ProviderInfo?> _scanLMStudio() async {
-    const host = '127.0.0.1';
+    const host = '127.0.0.1'; // LM Studio default - intentionally hardcoded
     const port = 1234;
     final url = Uri.parse('http://$host:$port/v1/models');
 

@@ -1,3 +1,4 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -15,7 +16,7 @@ class SubagentRegistryService {
   SubagentRegistryService({
     String? apiBaseUrl,
     http.Client? client,
-  })  : _apiBaseUrl = apiBaseUrl ?? 'http://127.0.0.1:8080',
+  })  : _apiBaseUrl = apiBaseUrl ?? AppConfig.adminServerUrl,
         _client = client ?? http.Client();
 
   /// List all subagents (optionally filtered by status or agentId)

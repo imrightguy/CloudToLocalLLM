@@ -343,6 +343,8 @@ class ConnectionManagerService extends ChangeNotifier {
       final deviceIdentity = DeviceIdentityService.instance;
       await deviceIdentity.initialize();
 
+      // Check if we should skip device identity (token-only auth)
+      final skipDeviceIdentity = AppConfig.skipDeviceIdentity;
       // Set up stream listener with handshake completion tracking
       final completer = Completer<void>();
       bool handshakeReceived = false;
@@ -363,12 +365,19 @@ class ConnectionManagerService extends ChangeNotifier {
                 debugPrint(
                     '[ConnectionManager] Received challenge nonce: ${challengeNonce?.substring(0, 8)}...');
 
-                // Now send the connect request with device identity
-                _sendConnectWithDeviceIdentity(
-                  id: id,
-                  nonce: challengeNonce,
-                  deviceIdentity: deviceIdentity,
-                );
+                // Send connect request - with or without device identity
+                if (skipDeviceIdentity) {
+                  debugPrint('[ConnectionManager] Skipping device identity, using token-only auth');
+                  _sendConnectWithoutDeviceIdentity(
+                    id: id,
+                  );
+                } else {
+                  _sendConnectWithDeviceIdentity(
+                    id: id,
+                    nonce: challengeNonce,
+                    deviceIdentity: deviceIdentity,
+                  );
+                }
               }
               // Step 2: Handle handshake response
               else if (msg['type'] == 'res' && msg['id'] == id) {
@@ -441,6 +450,37 @@ class ConnectionManagerService extends ChangeNotifier {
       notifyListeners();
       rethrow;
     }
+  }
+
+
+  /// Send connect request without device identity (token-only auth)
+  Future<void> _sendConnectWithoutDeviceIdentity({required String id}) async {
+    final token = _gatewayToken ?? await _authService.getAccessToken() ?? '';
+
+    final connectRequest = {
+      'type': 'req',
+      'id': id,
+      'method': 'connect',
+      'params': {
+        'minProtocol': 3,
+        'maxProtocol': 3,
+        'client': {
+          'id': 'cli',
+          'version': '10.1.187',
+          'platform': Platform.operatingSystem,
+          'mode': 'cli'
+        },
+        'role': 'operator',
+        'scopes': ['operator.read', 'operator.write', 'operator.admin'],
+        'caps': [],
+        'auth': {'token': token},
+        'locale': 'en-US',
+        'userAgent': 'CloudToLocalLLM/10.1.187',
+      }
+    };
+
+    debugPrint('[ConnectionManager] Sending connect request (token-only auth)');
+    _wsChannel?.sink.add(jsonEncode(connectRequest));
   }
 
   /// Send connect request with device identity

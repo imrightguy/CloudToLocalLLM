@@ -17,6 +17,14 @@ export const authenticateComposite = [
 
   // 3. Verify that at least one method succeeded
   (req, res, next) => {
+    // Test bypass: allows tests to skip auth when BYPASS_AUTH=true
+    if (process.env.NODE_ENV === 'test' && process.env.BYPASS_AUTH === 'true') {
+      req.user = { sub: 'test-user-id' };
+      req.userId = 'test-user-id';
+      req.userTier = 'free';
+      return next();
+    }
+
     // optionalAuth sets req.user
     // optionalApiKeyAuth sets req.apiKey (and req.userId)
 

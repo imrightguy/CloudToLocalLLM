@@ -1,3 +1,4 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
@@ -61,7 +62,7 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Scanning localhost:18789',
+          'Scanning ${AppConfig.gatewayUrl}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey.shade600,
               ),

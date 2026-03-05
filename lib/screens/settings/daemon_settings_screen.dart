@@ -5,7 +5,7 @@ import '../../config/theme.dart';
 import '../../components/modern_card.dart';
 import '../../components/gradient_button.dart';
 import '../../services/unified_connection_service.dart';
-
+import '../../widgets/navigation/breadcrumb_bar.dart';
 import '../../services/platform_adapter.dart';
 
 /// System Tray Daemon Settings Screen
@@ -160,15 +160,18 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
         elevation: 0,
         leading: platformAdapter.buildBackButton(
           context,
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/settings'),
+          onPressed: () => context.go('/settings/connection'),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isMobile ? 12.0 : AppTheme.spacingL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Column(
+        children: [
+          const AutoBreadcrumbBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(isMobile ? 12.0 : AppTheme.spacingL),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             // Header
             Text(
               'System Tray Configuration',
@@ -205,7 +208,10 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
             // Actions
             _buildActions(),
           ],
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

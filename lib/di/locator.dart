@@ -601,6 +601,12 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator
         .registerSingleton<ConnectionManagerService>(connectionManager);
 
+    // Wire up GatewayControlService with ConnectionManagerService now that both exist
+    debugPrint('[ServiceLocator] Wiring GatewayControlService with ConnectionManagerService...');
+    final gatewayControlService = serviceLocator.get<GatewayControlService>();
+    gatewayControlService.setConnectionManager(connectionManager);
+    debugPrint('[ServiceLocator] ✓ GatewayControlService now listens to connection changes');
+
     // LangChain RAG service - requires connection manager
     final langchainRagService = LangChainRAGService();
     try {

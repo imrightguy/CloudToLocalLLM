@@ -1,3 +1,4 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
@@ -28,7 +29,7 @@ class _ConnectionTestStepState extends State<ConnectionTestStep> {
     // Prioritize customUrl over discovered provider URL
     final url = wizard.state.customUrl ??
         wizard.state.selectedProvider?.url ??
-        'http://127.0.0.1:18789';
+        AppConfig.gatewayUrl;
     await wizard.testConnection(url);
   }
 

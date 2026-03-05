@@ -8,7 +8,7 @@ import '../../components/modern_card.dart';
 import '../../components/gradient_button.dart';
 import '../../services/unified_connection_service.dart';
 import '../../services/auth_service.dart';
-
+import '../../widgets/navigation/breadcrumb_bar.dart';
 import '../../services/platform_adapter.dart';
 
 /// Connection Status Screen
@@ -80,7 +80,7 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
         elevation: 0,
         leading: platformAdapter.buildBackButton(
           context,
-          onPressed: () => context.go('/settings'),
+          onPressed: () => context.go('/settings/connection'),
         ),
         actions: [
           IconButton(
@@ -95,11 +95,15 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(isMobile ? 12.0 : AppTheme.spacingL),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Column(
+        children: [
+          const AutoBreadcrumbBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(isMobile ? 12.0 : AppTheme.spacingL),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             // Header
             Text(
               'System Connection Status',
@@ -145,7 +149,10 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
             // Network Status
             _buildNetworkStatus(),
           ],
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

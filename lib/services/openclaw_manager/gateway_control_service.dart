@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:cloudtolocalllm/services/settings_preference_service.dart';
+import 'package:cloudtolocalllm/services/connection_manager_service.dart';
 
 enum GatewayState {
   unknown,
@@ -21,9 +22,33 @@ class GatewayControlService extends ChangeNotifier {
   bool _autoRestartEnabled = true;
   int _restartAttempts = 0;
   static const int _maxRestartAttempts = 5;
+  ConnectionManagerService? _connectionManager;
 
-  GatewayControlService(this._settings) {
+  GatewayControlService(this._settings, [this._connectionManager]) {
     _loadAutoRestartSetting();
+
+    // Listen to connection changes if connection manager is provided
+    if (_connectionManager != null) {
+      _connectionManager!.addListener(_onConnectionChanged);
+    }
+  }
+
+  void setConnectionManager(ConnectionManagerService connectionManager) {
+    if (_connectionManager != null) {
+      _connectionManager!.removeListener(_onConnectionChanged);
+    }
+    _connectionManager = connectionManager;
+    _connectionManager!.addListener(_onConnectionChanged);
+  }
+
+  void _onConnectionChanged() {
+    // Auto-check status when WebSocket connects
+    if (_connectionManager!.isConnected && _connectionManager!.isGatewayHealthy()) {
+      debugPrint('[GatewayControl] WebSocket connected, checking gateway status...');
+      checkStatus().catchError((e) {
+        debugPrint('[GatewayControl] Failed to auto-check status: $e');
+      });
+    }
   }
 
   GatewayState get state => _state;
@@ -199,6 +224,9 @@ class GatewayControlService extends ChangeNotifier {
   @override
   void dispose() {
     _healthCheckTimer?.cancel();
+    if (_connectionManager != null) {
+      _connectionManager!.removeListener(_onConnectionChanged);
+    }
     super.dispose();
   }
 }

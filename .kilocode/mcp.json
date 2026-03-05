@@ -46,7 +46,8 @@
         "image_analysis",
         "video_analysis",
         "analyze_image"
-      ]
+      ],
+      "disabled": false
     },
     "web-reader": {
       "type": "sse",
@@ -54,7 +55,8 @@
       "headers": {
         "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
-      "alwaysAllow": ["webReader"]
+      "alwaysAllow": ["webReader"],
+      "disabled": false
     },
     "web-search-prime": {
       "type": "sse",
@@ -62,7 +64,8 @@
       "headers": {
         "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
-      "alwaysAllow": ["webSearchPrime"]
+      "alwaysAllow": ["webSearchPrime"],
+      "disabled": false
     },
     "zread": {
       "type": "sse",
@@ -70,7 +73,8 @@
       "headers": {
         "Authorization": "Bearer ${Z_AI_API_KEY}"
       },
-      "alwaysAllow": ["search_doc", "get_repo_structure", "read_file"]
+      "alwaysAllow": ["search_doc", "get_repo_structure", "read_file"],
+      "disabled": false
     }
   }
 }

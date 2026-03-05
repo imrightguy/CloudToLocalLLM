@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/agent_lifecycle_service.dart';
@@ -98,6 +99,15 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Agent Details'),
+              leading: BackButton(
+                onPressed: () {
+                  if (GoRouter.of(context).canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/agents');
+                  }
+                },
+              ),
             ),
             body: Center(
               child: Column(
@@ -122,6 +132,15 @@ class _AgentDetailScreenState extends State<AgentDetailScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(agent.name),
+            leading: BackButton(
+              onPressed: () {
+                if (GoRouter.of(context).canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/agents');
+                }
+              },
+            ),
             actions: [
               IconButton(
                 icon: _isLoading

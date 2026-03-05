@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
+import 'package:cloudtolocalllm/utils/logger.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/welcome_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/connection_method_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/local_detection_step.dart';
@@ -24,6 +25,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
   final PageController _pageController = PageController();
   int _lastStep = 0;
   ConnectionMethod? _lastMethod;
+  String? _lastErrorSnackbarMessage;
 
   @override
   void dispose() {
@@ -162,6 +164,25 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
     return steps;
   }
 
+  void _showCompletionError(String message) {
+    if (!mounted) return;
+
+    if (_lastErrorSnackbarMessage == message) {
+      return;
+    }
+
+    _lastErrorSnackbarMessage = message;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
   Widget _buildNavigationButtons(SetupWizardService wizard, int totalSteps) {
     final currentStep = wizard.state.currentStep;
     final isFirstStep = currentStep == 0;
@@ -195,36 +216,23 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
               onPressed: wizard.state.isLoading
                   ? null
                   : () async {
-                      debugPrint(
-                          '[NavButton] Clicked. isLastStep: $isLastStep, currentStep: $currentStep, totalSteps: $totalSteps');
-
                       if (isLastStep) {
-                        // Complete the setup
-                        debugPrint('[NavButton] Calling completeSetup...');
+                        _lastErrorSnackbarMessage = null;
                         final success = await wizard.completeSetup();
-                        debugPrint(
-                            '[NavButton] completeSetup result: $success');
 
                         if (!success) {
-                          // Show error and stay on this step
-                          debugPrint(
-                              '[NavButton] Setup failed: ${wizard.state.errorMessage}');
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(wizard.state.errorMessage ??
-                                    'Setup failed'),
-                                backgroundColor: Colors.red,
-                                duration: const Duration(seconds: 5),
-                              ),
-                            );
-                          }
+                          final message = wizard.state.errorMessage ??
+                              'Setup could not be completed right now. Please try again.';
+                          _showCompletionError(message);
+                          appLogger.warning(
+                            '[SetupWizard] Setup completion failed at final step: $message',
+                          );
                           return;
                         }
 
+                        _lastErrorSnackbarMessage = null;
+
                         // Navigate to home on success
-                        debugPrint(
-                            '[NavButton] Setup complete, navigating to home');
                         if (mounted) {
                           context.go('/');
                         }

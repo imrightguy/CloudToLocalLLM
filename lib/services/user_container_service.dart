@@ -1,7 +1,7 @@
+import 'package:cloudtolocalllm/config/app_config.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import '../config/app_config.dart';
 import '../models/container_creation_result.dart';
 import 'auth_service.dart';
 
@@ -51,7 +51,7 @@ class UserContainerService extends ChangeNotifier {
   /// Get the default base URL based on environment
   static String _getDefaultBaseUrl() {
     if (kDebugMode) {
-      return 'http://localhost:8080';
+      return AppConfig.adminServerUrl;
     } else {
       return AppConfig.apiBaseUrl;
     }
