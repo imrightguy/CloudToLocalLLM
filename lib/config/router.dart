@@ -40,6 +40,9 @@ import '../screens/dashboard/overview_screen.dart';
 // Channels screen
 import '../screens/channels/channels_screen.dart';
 
+// Usage screen
+import '../screens/usage/usage_screen.dart';
+
 // Instances screen
 import '../screens/instances/instances_screen.dart';
 
@@ -315,10 +318,7 @@ class AppRouter {
                   path: '/usage',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Usage',
-                      route: '/usage',
-                    ),
+                    child: const UsageScreen(),
                   ),
                 ),
               ],
