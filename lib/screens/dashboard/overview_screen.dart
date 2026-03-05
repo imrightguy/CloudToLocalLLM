@@ -23,7 +23,6 @@ class _OverviewScreenState extends State<OverviewScreen> {
   Future<void> _loadData() async {
     final connService = context.read<ConnectionManagerService>();
     await connService.testConnection();
-    setState(() {});
   }
 
   @override
@@ -46,11 +45,10 @@ class _OverviewScreenState extends State<OverviewScreen> {
                   Text(
                     'Gateway status, entry points, and a fast health read.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                    ),
+                          color: Colors.grey,
+                        ),
                   ),
                   const SizedBox(height: 24),
-
                   Consumer<ConnectionManagerService>(
                     builder: (context, connService, child) {
                       final gatewayStatus = connService.getGatewayStatus();
@@ -91,7 +89,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   'Sessions',
-                                  gatewayStatus['sessions']?.toString() ?? 'n/a',
+                                  gatewayStatus['sessions']?.toString() ??
+                                      'n/a',
                                   'Recent session keys tracked by the gateway',
                                   Icons.history,
                                 ),
@@ -123,8 +122,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
         Text(
           description,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey,
-          ),
+                color: Colors.grey,
+              ),
         ),
         const SizedBox(height: 16),
         child,
@@ -141,12 +140,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
           children: [
             _buildFormField(
               'WebSocket URL',
-              connService.getGatewayStatus()['endpoint'] ?? 'ws://127.0.0.1:18789',
+              connService.getGatewayStatus()['endpoint'] ??
+                  'ws://127.0.0.1:18789',
             ),
             const SizedBox(height: 16),
             _buildFormField(
               'Gateway Token',
-              connService.gatewayToken?.substring(0, 16) ?? 'Not set',
+              connService.gatewayToken != null && connService.gatewayToken!.length >= 16
+                  ? '${connService.gatewayToken!.substring(0, 16)}...'
+                  : 'Not set',
             ),
             const SizedBox(height: 16),
             _buildFormField(
@@ -176,9 +178,11 @@ class _OverviewScreenState extends State<OverviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSnapshotRow('Status', gatewayStatus['healthStatus']?.toString() ?? 'Unknown'),
+            _buildSnapshotRow('Status',
+                gatewayStatus['healthStatus']?.toString() ?? 'Unknown'),
             _buildSnapshotRow('Uptime', gatewayStatus['uptime'] ?? 'n/a'),
-            _buildSnapshotRow('Last Channels Refresh', gatewayStatus['lastRefresh'] ?? 'n/a'),
+            _buildSnapshotRow(
+                'Last Channels Refresh', gatewayStatus['lastRefresh'] ?? 'n/a'),
           ],
         ),
       ),
@@ -194,12 +198,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 4),
-        TextField(
-          controller: TextEditingController(text: value),
-          readOnly: true,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            isDense: true,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            value,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
       ],
@@ -219,15 +226,16 @@ class _OverviewScreenState extends State<OverviewScreen> {
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey,
-            ),
+                  color: Colors.grey,
+                ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, String subtitle, IconData icon) {
+  Widget _buildStatCard(
+      String title, String value, String subtitle, IconData icon) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -236,7 +244,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
           children: [
             Row(
               children: [
-                Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+                Icon(icon,
+                    size: 20, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -250,15 +259,15 @@ class _OverviewScreenState extends State<OverviewScreen> {
             Text(
               value,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey,
-              ),
+                    color: Colors.grey,
+                  ),
             ),
           ],
         ),
