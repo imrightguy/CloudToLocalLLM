@@ -153,7 +153,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: DropdownButtonFormField<String>(
-        value: value,
+        initialValue: value,
         decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
         items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
         onChanged: onChanged,
