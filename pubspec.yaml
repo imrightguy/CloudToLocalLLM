@@ -13,13 +13,13 @@ dependencies:
   shelf: ^1.4.1
   shelf_router: ^1.1.4
 
-  sentry_flutter: ^9.13.0
+  sentry_flutter: ^9.14.0
   flutter:
     sdk: flutter
 
   # UI and Navigation
   cupertino_icons: ^1.0.8
-  go_router: ^17.0.0
+  go_router: ^17.1.0
 
   # Authentication
   provider: ^6.1.2
@@ -28,7 +28,7 @@ dependencies:
   shared_preferences: ^2.5.4
 
   # Database - Local Brain
-  drift: ^2.20.0
+  drift: ^2.32.0
   sqlite3_flutter_libs: ^0.5.24
 
   # Vector math for embeddings
@@ -45,20 +45,20 @@ dependencies:
   web_socket_channel: ^3.0.3
 
   # Enhanced HTTP handling for streaming
-  dio: ^5.9.1
+  dio: ^5.9.2
 
   # Real-time event handling
   rxdart: ^0.28.0
 
   # Google APIs for Local Integration
-  googleapis: ^13.1.0
+  googleapis: ^16.0.0
   googleapis_auth: ^1.6.0
-  google_sign_in: ^6.2.1
+  google_sign_in: ^6.3.0
 
   # System Integration - Flutter plugins for window management and secure storage
   window_manager: ^0.5.1
 
-  flutter_secure_storage: ^9.2.2
+  flutter_secure_storage: ^10.0.0
   mutex: ^3.0.1
   path_provider: ^2.1.5
   path: ^1.9.0
@@ -67,7 +67,7 @@ dependencies:
   tray_manager: ^0.5.2
 
   # UUID generation
-  uuid: ^4.5.2
+  uuid: ^4.5.3
 
   # Encryption for local storage
   encrypt: ^5.0.3
@@ -83,7 +83,7 @@ dependencies:
   langchain: ^0.8.0+1
   langchain_ollama: ^0.4.1
   langchain_community: ^0.4.0+1
-  get_it: ^9.0.5
+  get_it: ^9.2.1
   logger: ^2.6.2
 
   # Discord integration
@@ -98,27 +98,27 @@ dependencies:
   web: ^1.0.0
   app_links: ^7.0.0
 
-  meta: any
+  meta: ^1.17.0
   package_info_plus: ^9.0.0
-  process_run: ^1.3.0
+  process_run: ^1.3.1
   device_info_plus: ^12.3.0
   local_notifier: ^0.1.6
   flutter_colorpicker: ^1.1.0
 
   # Vision System - Camera and Permissions
-  camera: ^0.10.5
-  permission_handler: ^11.0.0
+  camera: ^0.12.0
+  permission_handler: ^12.0.1
 
   # Vision System - OCR
-  tesseract_ocr: ^0.4.0
+  tesseract_ocr: ^0.5.0
 
 dev_dependencies:
-  sentry_dart_plugin: ^3.2.0
+  sentry_dart_plugin: ^3.2.1
   flutter_lints: ^6.0.0
 
   # Code Generation for Database
-  drift_dev: ^2.20.0
-  build_runner: ^2.4.11
+  drift_dev: ^2.32.0
+  build_runner: ^2.12.2
   mockito: ^5.4.4
 
   flutter_test:
