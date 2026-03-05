@@ -16,6 +16,7 @@ import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../widgets/chat/model_selector.dart';
+import '../../widgets/chat/chat_control_bar.dart';
 import '../../services/auth_service.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
@@ -410,6 +411,11 @@ class _ChatPane extends StatefulWidget {
 }
 
 class _ChatPaneState extends State<_ChatPane> {
+  bool _showThinking = true;
+  bool _focusMode = false;
+  bool _showCronSessions = true;
+  String _currentSession = 'main';
+
   @override
   void initState() {
     super.initState();
@@ -417,6 +423,10 @@ class _ChatPaneState extends State<_ChatPane> {
       _fetchProviderConfig();
       _ensureChannelExists();
     });
+  }
+
+  Future<void> _loadData() async {
+    await _fetchProviderConfig();
   }
 
   void _ensureChannelExists() {
@@ -465,43 +475,63 @@ class _ChatPaneState extends State<_ChatPane> {
         final activeModel = connectionManager.activeProviderModelId ??
             chatService.selectedModel ??
             (availableModels.isNotEmpty ? availableModels.first : null);
+        final isConnected = connectionManager.isConnected;
 
-        return Container(
-          color: Colors.transparent,
-          child: Column(
-            children: [
+        final chatContent = Column(
+          children: [
+            if (!_focusMode)
               _ChatHeader(
                 selectedModel: activeModel,
                 availableModels: availableModels,
                 onModelChanged: _onModelChanged,
               ),
-              Expanded(
-                child: conversation != null && conversation.messages.isNotEmpty
-                    ? _MessageList(
-                        conversation: conversation,
-                        controller: widget.scrollController,
-                      )
-                    : WelcomeScreen(
-                        onNewChat: () => chatService.createConversation(),
-                        onAction: (message) =>
-                            widget.onSendMessage(chatService, message),
-                      ),
+            Expanded(
+              child: conversation != null && conversation.messages.isNotEmpty
+                  ? _MessageList(
+                      conversation: conversation,
+                      controller: widget.scrollController,
+                    )
+                  : WelcomeScreen(
+                      onNewChat: () => chatService.createConversation(),
+                      onAction: (message) =>
+                          widget.onSendMessage(chatService, message),
+                    ),
+            ),
+            GlassContainer(
+              margin: EdgeInsets.only(
+                bottom: widget.isCompact ? spacing.m : spacing.l,
+                left: spacing.m,
+                right: spacing.m,
               ),
-              GlassContainer(
-                margin: EdgeInsets.only(
-                  bottom: widget.isCompact ? spacing.m : spacing.l,
-                  left: spacing.m,
-                  right: spacing.m,
-                ),
-                borderRadius: 24,
-                blur: 20,
-                child: msg_input.MessageInput(
-                  onSendMessage: (message) =>
-                      widget.onSendMessage(chatService, message),
-                  isLoading: chatService.isLoading,
-                  placeholder: 'Message OpenClaw...',
-                ),
+              borderRadius: 24,
+              blur: 20,
+              child: msg_input.MessageInput(
+                onSendMessage: (message) =>
+                    widget.onSendMessage(chatService, message),
+                isLoading: chatService.isLoading,
+                placeholder: 'Message OpenClaw...',
               ),
+            ),
+          ],
+        );
+
+        return Container(
+          color: Colors.transparent,
+          child: Column(
+            children: [
+              ChatControlBar(
+                currentSession: _currentSession,
+                isConnected: isConnected,
+                onSessionChanged: (session) => setState(() => _currentSession = session),
+                onRefresh: _loadData,
+                onThinkingToggle: (value) => setState(() => _showThinking = value),
+                onFocusModeToggle: (value) => setState(() => _focusMode = value),
+                onCronSessionsToggle: (value) => setState(() => _showCronSessions = value),
+                showThinking: _showThinking,
+                focusMode: _focusMode,
+                showCronSessions: _showCronSessions,
+              ),
+              Expanded(child: chatContent),
             ],
           ),
         );
