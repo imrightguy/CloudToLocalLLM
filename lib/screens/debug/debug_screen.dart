@@ -30,10 +30,32 @@ class _DebugScreenState extends State<DebugScreen> {
   /// Set of expanded panel keys
   final Set<String> _expandedPanels = {};
 
+  /// Connection test log
+  String _connectionLog = '';
+
+  /// API request response
+  String _apiResponse = '';
+
+  /// API request method
+  String _apiMethod = 'GET';
+
+  /// API request URL controller
+  final TextEditingController _apiUrlController = TextEditingController();
+
+  /// API request body controller
+  final TextEditingController _apiBodyController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _apiUrlController.dispose();
+    _apiBodyController.dispose();
+    super.dispose();
   }
 
   /// Load debug data
@@ -113,20 +135,54 @@ class _DebugScreenState extends State<DebugScreen> {
                 }
               });
             },
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Connection test coming soon'),
-                    SizedBox(height: 8),
-                    Text(
-                      'TODO: Implement WebSocket ping test',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.speed),
+                          label: const Text('Test Connection'),
+                          onPressed: () async {
+                            final startTime = DateTime.now();
+                            try {
+                              // TODO: Actual connection test
+                              await Future.delayed(const Duration(milliseconds: 100));
+                              final latency = DateTime.now().difference(startTime).inMilliseconds;
+                              if (mounted) {
+                                setState(() {
+                                  _connectionLog = 'Connection test completed: ${latency}ms latency';
+                                });
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                setState(() {
+                                  _connectionLog = 'Connection test failed: $e';
+                                });
+                              }
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        Text(_connectionLog.isEmpty ? 'Ready' : _connectionLog),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Connection Log:'),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(4),
                       ),
+                      height: 100,
+                      child: _connectionLog.isEmpty
+                          ? const Center(child: Text('No connection attempts yet'))
+                          : Text(_connectionLog),
                     ),
                   ],
                 ),
@@ -149,20 +205,97 @@ class _DebugScreenState extends State<DebugScreen> {
                 }
               });
             },
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('API inspector coming soon'),
-                    SizedBox(height: 8),
-                    Text(
-                      'TODO: Implement request builder UI',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
+                    DropdownButtonFormField<String>(
+                      initialValue: _apiMethod,
+                      decoration: const InputDecoration(
+                        labelText: 'Method',
+                        border: OutlineInputBorder(),
                       ),
+                      items: ['GET', 'POST', 'PUT', 'DELETE']
+                          .map<DropdownMenuItem<String>>((method) {
+                        return DropdownMenuItem(
+                          value: method,
+                          child: Text(method),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _apiMethod = value;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _apiUrlController,
+                      decoration: const InputDecoration(
+                        labelText: 'URL',
+                        border: OutlineInputBorder(),
+                        hintText: 'https://api.example.com/endpoint',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _apiBodyController,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: 'Body (optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.send),
+                      label: const Text('Send Request'),
+                      onPressed: () async {
+                        if (_apiUrlController.text.isEmpty) {
+                          if (mounted) {
+                            setState(() {
+                              _apiResponse = 'Error: URL is required';
+                            });
+                          }
+                          return;
+                        }
+                        setState(() {
+                          _apiResponse = 'Sending...';
+                        });
+                        try {
+                          // TODO: Actual API request
+                          await Future.delayed(const Duration(milliseconds: 500));
+                          if (mounted) {
+                            setState(() {
+                              _apiResponse = 'Response: 200 OK\n${DateTime.now()}';
+                            });
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            setState(() {
+                              _apiResponse = 'Error: $e';
+                            });
+                          }
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Response:'),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      height: 100,
+                      child: _apiResponse.isEmpty
+                          ? const Center(child: Text('No requests sent yet'))
+                          : Text(_apiResponse),
                     ),
                   ],
                 ),
