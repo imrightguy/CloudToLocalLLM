@@ -4,11 +4,13 @@ class SidebarSection extends StatefulWidget {
   final String title;
   final List<Widget> destinations;
   final bool initiallyExpanded;
+  final bool collapsed;
 
   const SidebarSection({
     required this.title,
     required this.destinations,
     this.initiallyExpanded = true,
+    this.collapsed = false,
     super.key,
   });
 
@@ -27,6 +29,19 @@ class _SidebarSectionState extends State<SidebarSection> {
 
   @override
   Widget build(BuildContext context) {
+    // When collapsed, just show destinations without title
+    if (widget.collapsed) {
+      return Column(
+        children: widget.destinations.map((dest) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: dest,
+          );
+        }).toList(),
+      );
+    }
+
+    // Normal mode: show title with expand/collapse
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

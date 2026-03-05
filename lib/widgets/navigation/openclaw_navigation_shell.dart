@@ -127,10 +127,12 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
       children: [
         // Chat section
         SidebarSection(
+          collapsed: _sidebarCollapsed,
           title: 'Chat',
           initiallyExpanded: true,
           destinations: [
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Chat',
               route: '/chat',
               icon: Icons.chat_bubble_outline,
@@ -141,40 +143,47 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
 
         // Control section
         SidebarSection(
+          collapsed: _sidebarCollapsed,
           title: 'Control',
           initiallyExpanded: true,
           destinations: [
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Overview',
               route: '/overview',
               icon: Icons.dashboard_outlined,
               selected: widget.navigationShell.currentIndex == 1,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Channels',
               route: '/channels',
               icon: Icons.cable_outlined,
               selected: widget.navigationShell.currentIndex == 2,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Instances',
               route: '/instances',
               icon: Icons.devices_outlined,
               selected: widget.navigationShell.currentIndex == 3,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Sessions',
               route: '/sessions',
               icon: Icons.history_outlined,
               selected: widget.navigationShell.currentIndex == 4,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Usage',
               route: '/usage',
               icon: Icons.analytics_outlined,
               selected: widget.navigationShell.currentIndex == 5,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Cron Jobs',
               route: '/cron',
               icon: Icons.schedule_outlined,
@@ -185,22 +194,26 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
 
         // Agent section
         SidebarSection(
+          collapsed: _sidebarCollapsed,
           title: 'Agent',
           initiallyExpanded: true,
           destinations: [
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Agents',
               route: '/agents',
               icon: Icons.smart_toy_outlined,
               selected: widget.navigationShell.currentIndex == 7,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Skills',
               route: '/skills',
               icon: Icons.extension_outlined,
               selected: widget.navigationShell.currentIndex == 8,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Nodes',
               route: '/nodes',
               icon: Icons.hub_outlined,
@@ -211,22 +224,26 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
 
         // Settings section
         SidebarSection(
+          collapsed: _sidebarCollapsed,
           title: 'Settings',
           initiallyExpanded: true,
           destinations: [
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Config',
               route: '/config',
               icon: Icons.settings_outlined,
               selected: widget.navigationShell.currentIndex == 10,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Debug',
               route: '/debug',
               icon: Icons.bug_report_outlined,
               selected: widget.navigationShell.currentIndex == 11,
             ),
             OpenClawNavItem(
+              collapsed: _sidebarCollapsed,
               title: 'Logs',
               route: '/logs',
               icon: Icons.list_alt_outlined,

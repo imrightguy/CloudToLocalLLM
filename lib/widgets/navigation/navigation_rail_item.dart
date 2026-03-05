@@ -6,12 +6,14 @@ class OpenClawNavItem extends StatelessWidget {
   final String route;
   final IconData icon;
   final bool selected;
+  final bool collapsed;
 
   const OpenClawNavItem({
     required this.title,
     required this.route,
     required this.icon,
     this.selected = false,
+    this.collapsed = false,
     super.key,
   });
 
@@ -26,33 +28,43 @@ class OpenClawNavItem extends StatelessWidget {
         child: InkWell(
           onTap: () => context.go(route),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: collapsed
+                ? const EdgeInsets.symmetric(horizontal: 12, vertical: 12)
+                : const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: selected
                   ? Theme.of(context).colorScheme.primaryContainer
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: selected
-                      ? Theme.of(context).colorScheme.onPrimaryContainer
-                      : Theme.of(context).colorScheme.onSurface,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            child: collapsed
+                ? Icon(
+                    icon,
+                    size: 20,
                     color: selected
                         ? Theme.of(context).colorScheme.onPrimaryContainer
                         : Theme.of(context).colorScheme.onSurface,
+                  )
+                : Row(
+                    children: [
+                      Icon(
+                        icon,
+                        size: 20,
+                        color: selected
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: selected
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
