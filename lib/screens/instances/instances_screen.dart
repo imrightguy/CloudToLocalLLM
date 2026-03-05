@@ -94,13 +94,27 @@ class _InstancesScreenState extends State<InstancesScreen> {
   Future<void> _updateGatewayState() async {
     final serviceState = await _gatewayService.getStatus();
 
+    // Safely parse startedAt - handle both String and DateTime types
+    DateTime? parseStartedAt(dynamic value) {
+      if (value == null) return null;
+      if (value is DateTime) return value;
+      if (value is String) return DateTime.tryParse(value);
+      return null;
+    }
+
+    // Safely parse port - handle both int and String types
+    int? parsePort(dynamic value) {
+      if (value == null) return null;
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value);
+      return null;
+    }
+
     _gatewayState = GatewayInstanceState(
-      status: serviceState['state'] as String? ?? 'unknown',
-      startedAt: serviceState['startedAt'] != null
-          ? DateTime.tryParse(serviceState['startedAt'] as String)
-          : null,
-      errorMessage: serviceState['errorMessage'] as String?,
-      port: serviceState['port'] as int?,
+      status: serviceState['state']?.toString() ?? 'unknown',
+      startedAt: parseStartedAt(serviceState['startedAt']),
+      errorMessage: serviceState['errorMessage']?.toString(),
+      port: parsePort(serviceState['port']),
     );
 
     if (mounted) {
