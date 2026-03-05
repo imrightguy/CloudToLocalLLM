@@ -130,12 +130,12 @@ class NativeTrayService with TrayListener {
   String _getTrayIconPath(TrayConnectionStatus status) {
     switch (status) {
       case TrayConnectionStatus.allConnected:
-        return 'assets/images/tray_connected.png';
+        return 'assets/images/tray_icon_connected.png';
       case TrayConnectionStatus.partiallyConnected:
       case TrayConnectionStatus.connecting:
-        return 'assets/images/tray_connecting.png';
+        return 'assets/images/tray_icon_connecting.png';
       case TrayConnectionStatus.disconnected:
-        return 'assets/images/tray_disconnected.png';
+        return 'assets/images/tray_icon_disconnected.png';
     }
   }
 

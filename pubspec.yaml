@@ -136,9 +136,26 @@ flutter_native_splash:
   color_dark: "#181a20"
   image_dark: assets/images/lobster_avatar.png
 
-  web: true
+flutter_launcher_icons:
   android: true
   ios: true
+  web:
+    generate: true
+  image_path: assets/images/app_icon.png
+  icon_size: 48 # min for Android
+  adaptive_icon_background: "#181a20"
+  adaptive_icon_foreground: assets/images/app_icon.png
+  windows:
+    generate: true
+    image_path: assets/images/app_icon.png
+    icon_size: 48 # min for Windows
+  macos:
+    generate: true
+    image_path: assets/images/app_icon.png
+  linux:
+    generate: true
+    image_path: assets/images/app_icon.png
+    icon_size: 48 # min for Linux
 
 # Removed web package override - using dart:js_interop instead
 
