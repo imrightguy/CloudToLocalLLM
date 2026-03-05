@@ -61,6 +61,9 @@ import '../screens/nodes/nodes_screen.dart';
 // Cron Jobs screen
 import '../screens/cron/cron_jobs_screen.dart';
 
+// Logs screen
+import '../screens/logs/logs_screen.dart';
+
 // Debug screen
 import '../screens/debug/debug_screen.dart';
 
@@ -420,10 +423,7 @@ class AppRouter {
                   path: '/logs',
                   pageBuilder: (context, state) => MaterialPage(
                     key: state.pageKey,
-                    child: const PlaceholderScreen(
-                      title: 'Logs',
-                      route: '/logs',
-                    ),
+                    child: const LogsScreen(),
                   ),
                 ),
               ],
