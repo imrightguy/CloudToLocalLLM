@@ -519,18 +519,19 @@ class _ChatPaneState extends State<_ChatPane> {
           color: Colors.transparent,
           child: Column(
             children: [
-              ChatControlBar(
-                currentSession: _currentSession,
-                isConnected: isConnected,
-                onSessionChanged: (session) => setState(() => _currentSession = session),
-                onRefresh: _loadData,
-                onThinkingToggle: (value) => setState(() => _showThinking = value),
-                onFocusModeToggle: (value) => setState(() => _focusMode = value),
-                onCronSessionsToggle: (value) => setState(() => _showCronSessions = value),
-                showThinking: _showThinking,
-                focusMode: _focusMode,
-                showCronSessions: _showCronSessions,
-              ),
+              if (!_focusMode)
+                ChatControlBar(
+                  currentSession: _currentSession,
+                  isConnected: isConnected,
+                  onSessionChanged: (session) => setState(() => _currentSession = session),
+                  onRefresh: _loadData,
+                  onThinkingToggle: (value) => setState(() => _showThinking = value),
+                  onFocusModeToggle: (value) => setState(() => _focusMode = value),
+                  onCronSessionsToggle: (value) => setState(() => _showCronSessions = value),
+                  showThinking: _showThinking,
+                  focusMode: _focusMode,
+                  showCronSessions: _showCronSessions,
+                ),
               Expanded(child: chatContent),
             ],
           ),
