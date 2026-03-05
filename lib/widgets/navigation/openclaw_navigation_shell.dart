@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'sidebar_section.dart';
 import 'navigation_rail_item.dart';
@@ -94,7 +95,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          Image.asset('assets/images/openclaw_logo.png', width: 32, height: 32, errorBuilder: (ctx, err, stack) => const Icon(Icons.smart_toy, size: 32)),
+          Image.asset('assets/images/openclaw_logo.png', width: 32, height: 32, errorBuilder: (ctx, _, __) => const Icon(Icons.smart_toy, size: 32)),
           const SizedBox(width: 12),
           if (!_sidebarCollapsed)
             Expanded(
@@ -244,11 +245,33 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
   Widget _buildResourcesSection() {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: OpenClawNavItem(
-        title: 'Docs',
-        route: 'https://docs.openclaw.ai',
-        icon: Icons.menu_book_outlined,
-        selected: false,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => launchUrl(Uri.parse('https://docs.openclaw.ai'), mode: LaunchMode.externalApplication),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.menu_book_outlined,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Docs',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -283,13 +306,15 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isHealthy ? Colors.green : Colors.red,
+                  color: isHealthy
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.error,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   isHealthy ? 'Healthy' : 'Offline',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
               ),
