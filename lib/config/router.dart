@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_config.dart';
 import '../services/auth_service.dart';
+import '../services/streaming_chat_service.dart';
 import '../di/locator.dart';
 import '../services/onboarding/setup_wizard_service.dart';
 
-import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/callback_screen.dart';
 import '../screens/onboarding/setup_wizard_screen.dart';
+import '../screens/home/home_layout.dart';
+import '../widgets/navigation/openclaw_navigation_shell.dart';
 
 // Settings screens are lazy-loaded
 import '../screens/settings/settings_lazy.dart' as settings_lazy;
@@ -31,6 +33,70 @@ import '../screens/marketing/marketing_lazy.dart' as marketing_lazy;
 
 // Construction screen (lazy-loaded)
 import '../screens/construction_lazy.dart' as construction_lazy;
+
+// Placeholder screens - to be implemented in subsequent tasks
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
+  final String route;
+
+  const PlaceholderScreen({required this.title, required this.route, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.construction, size: 64, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 16),
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 8),
+            Text('Route: $route', style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 24),
+            Text(
+              'This screen will be implemented in a subsequent task.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Wrapper widget that provides HomeLayout with its required dependencies
+class _HomeLayoutWrapper extends StatefulWidget {
+  const _HomeLayoutWrapper();
+
+  @override
+  State<_HomeLayoutWrapper> createState() => _HomeLayoutWrapperState();
+}
+
+class _HomeLayoutWrapperState extends State<_HomeLayoutWrapper> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _handleSendMessage(StreamingChatService service, String message) {
+    service.sendMessage(message);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HomeLayout(
+      isCompact: false,
+      scrollController: _scrollController,
+      onSendMessage: _handleSendMessage,
+    );
+  }
+}
 
 /// Utility function to get the current hostname in web environment
 String _getCurrentHostname() {
@@ -69,10 +135,10 @@ bool _hasCallbackParameters(Uri uri) {
 /// Wrapper widget that checks if setup wizard is needed
 /// and redirects to /setup if no providers are configured
 class _HomeWithSetupCheck extends StatefulWidget {
-  final bool isAuthenticated;
+  final Widget child;
 
   const _HomeWithSetupCheck({
-    required this.isAuthenticated,
+    required this.child,
   });
 
   @override
@@ -110,7 +176,7 @@ class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
 
   @override
   Widget build(BuildContext context) {
-    return const HomeScreen();
+    return widget.child;
   }
 }
 
@@ -139,61 +205,15 @@ class AppRouter {
     }
     debugPrint('[Router] Initial location: $initialLocation');
 
+    final rootNavigatorKey = navigatorKey ?? GlobalKey<NavigatorState>();
+
     return GoRouter(
-      navigatorKey: navigatorKey,
+      navigatorKey: rootNavigatorKey,
       initialLocation: initialLocation,
       debugLogDiagnostics: true,
       refreshListenable: authService,
       routes: [
-        // Home route
-        GoRoute(
-          path: '/',
-          name: 'home',
-          pageBuilder: (context, state) {
-            debugPrint('[Router] Home pageBuilder triggered');
-
-            // Failsafe for callback params
-            if (kIsWeb &&
-                (_hasCallbackParameters(state.uri) ||
-                    _hasCallbackParameters(Uri.base))) {
-              debugPrint(
-                  '[Router] Failsafe: Redirecting to CallbackScreen in pageBuilder');
-              final params = state.uri.queryParameters.isNotEmpty
-                  ? state.uri.queryParameters
-                  : Uri.base.queryParameters;
-              return MaterialPage(
-                key: state.pageKey,
-                child: CallbackScreen(queryParams: params),
-              );
-            }
-
-            final isAuthenticated = authService.isAuthenticated.value;
-
-            if (isAuthenticated || !kIsWeb) {
-              // Show home screen first, then check if setup is needed
-              return MaterialPage(
-                key: state.pageKey,
-                child: _HomeWithSetupCheck(
-                  isAuthenticated: isAuthenticated,
-                ),
-              );
-            }
-
-            if (kIsWeb && !_isAppSubdomain()) {
-              return MaterialPage(
-                key: state.pageKey,
-                child: const marketing_lazy.HomepageScreen(),
-              );
-            }
-
-            return MaterialPage(
-              key: state.pageKey,
-              child: const LoginScreen(),
-            );
-          },
-        ),
-
-        // Setup Wizard route
+        // Setup Wizard route (must be before shell route)
         GoRoute(
           path: '/setup',
           name: 'setup',
@@ -203,15 +223,210 @@ class AppRouter {
           ),
         ),
 
-        // Marketing & Other routes
-        ...marketing_lazy.marketingRoutes,
-        ...settings_lazy.settingsRoutes,
-        ...admin_lazy.adminRoutes,
-        ...agent_status_lazy.agentStatusRoutes,
-        ...dashboard_lazy.dashboardRoutes,
-        ...gui_automation_lazy.guiAutomationRoutes,
-        ...construction_lazy.constructionRoutes,
+        // Main app with StatefulShellRoute for indexed navigation
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return _HomeWithSetupCheck(
+              child: OpenClawNavigationShell(navigationShell: navigationShell),
+            );
+          },
+          branches: [
+            // Chat (branch index 0)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/chat',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const _HomeLayoutWrapper(),
+                  ),
+                ),
+              ],
+            ),
+            // Overview (branch index 1)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/overview',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Overview',
+                      route: '/overview',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Channels (branch index 2)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/channels',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Channels',
+                      route: '/channels',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Instances (branch index 3)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/instances',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Instances',
+                      route: '/instances',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Sessions (branch index 4)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/sessions',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Sessions',
+                      route: '/sessions',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Usage (branch index 5)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/usage',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Usage',
+                      route: '/usage',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Cron Jobs (branch index 6)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/cron',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Cron Jobs',
+                      route: '/cron',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Agents (branch index 7)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/agents',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Agents',
+                      route: '/agents',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Skills (branch index 8)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/skills',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Skills',
+                      route: '/skills',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Nodes (branch index 9)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/nodes',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Nodes',
+                      route: '/nodes',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Config (branch index 10)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/config',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Config',
+                      route: '/config',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Debug (branch index 11)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/debug',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Debug',
+                      route: '/debug',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Logs (branch index 12)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/logs',
+                  pageBuilder: (context, state) => MaterialPage(
+                    key: state.pageKey,
+                    child: const PlaceholderScreen(
+                      title: 'Logs',
+                      route: '/logs',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
 
+        // Login route
         GoRoute(
           path: '/login',
           name: 'login',
@@ -221,6 +436,7 @@ class AppRouter {
           ),
         ),
 
+        // Callback route
         GoRoute(
           path: '/callback',
           name: 'callback',
@@ -245,15 +461,39 @@ class AppRouter {
             );
           },
         ),
+
+        // Marketing & Other routes
+        ...marketing_lazy.marketingRoutes,
+        ...settings_lazy.settingsRoutes,
+        ...admin_lazy.adminRoutes,
+        ...agent_status_lazy.agentStatusRoutes,
+        ...dashboard_lazy.dashboardRoutes,
+        ...gui_automation_lazy.guiAutomationRoutes,
+        ...construction_lazy.constructionRoutes,
       ],
       redirect: (context, state) {
         debugPrint('[Router] Redirect check: ${state.matchedLocation}');
 
         final isAuthenticated = authService.isAuthenticated.value;
         final isAuthLoading = authService.isLoading.value;
-        final isLoggingIn = state.matchedLocation == '/login';
-        final isCallback = state.matchedLocation == '/callback';
+        final location = state.matchedLocation;
+        final isLoggingIn = location == '/login';
+        final isCallback = location == '/callback';
+        final isSetup = location == '/setup';
         final isAppSubdomain = _isAppSubdomain();
+        final isShellRoute = location.startsWith('/chat') ||
+            location.startsWith('/overview') ||
+            location.startsWith('/channels') ||
+            location.startsWith('/instances') ||
+            location.startsWith('/sessions') ||
+            location.startsWith('/usage') ||
+            location.startsWith('/cron') ||
+            location.startsWith('/agents') ||
+            location.startsWith('/skills') ||
+            location.startsWith('/nodes') ||
+            location.startsWith('/config') ||
+            location.startsWith('/debug') ||
+            location.startsWith('/logs');
 
         // 1. Handle auth callbacks first
         final hasCallbackParams = _hasCallbackParameters(state.uri) ||
@@ -266,30 +506,44 @@ class AppRouter {
           return Uri(path: '/callback', queryParameters: params).toString();
         }
 
-        // 2. While auth is loading, don't redirect unless necessary (e.g. away from callback if it's not a callback)
-        if (isAuthLoading && !isCallback) return null;
+        // 2. While auth is loading, don't redirect unless necessary
+        if (isAuthLoading && !isCallback && !isSetup) return null;
 
         // 3. Marketing domain access
         if (kIsWeb && !isAppSubdomain) {
+          if (location == '/') return null; // Show marketing homepage
           if (isLoggingIn) return '/'; // Don't show login on marketing domain
           return null; // Allow all other routes (homepage, docs, etc.)
         }
 
-        // 4. Authenticated state
-        if (isAuthenticated) {
-          if (isLoggingIn) return '/'; // Already logged in, go home
-          return null; // Allow access
+        // 4. Handle root route redirect
+        if (location == '/') {
+          if (isAuthenticated || !kIsWeb) {
+            // Redirect to chat as default home
+            return '/chat';
+          }
+          return null; // Let marketing/home logic handle it
         }
 
-        // 5. Unauthenticated state on App domain or Desktop
-        if (isLoggingIn || isCallback || !kIsWeb) {
+        // 5. Authenticated state
+        if (isAuthenticated) {
+          if (isLoggingIn) return '/chat'; // Already logged in, go to chat
+          return null; // Allow access to all routes
+        }
+
+        // 6. Unauthenticated state on App domain or Desktop
+        if (isLoggingIn || isCallback || isSetup || !kIsWeb) {
           return null; // Allow these (Desktop is always allowed)
         }
 
-        // Redirect all other protected routes to login
-        debugPrint(
-            '[Router] Protected route ${state.matchedLocation} accessed, redirecting to login');
-        return '/login';
+        // 7. Redirect protected shell routes to login
+        if (isShellRoute) {
+          debugPrint(
+              '[Router] Protected route $location accessed, redirecting to login');
+          return '/login';
+        }
+
+        return null; // Allow all other routes
       },
       errorBuilder: (context, state) => Scaffold(
         body: Center(
