@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 enum StatusType {
   healthy,
   error,
-  warning,
   active,
   idle,
   running,
@@ -67,11 +66,6 @@ class StatusBadge extends StatelessWidget {
         return _StatusConfig(
           color: Colors.red,
           icon: Icons.error,
-        );
-      case StatusType.warning:
-        return _StatusConfig(
-          color: Colors.orange,
-          icon: Icons.warning,
         );
       case StatusType.idle:
         return _StatusConfig(

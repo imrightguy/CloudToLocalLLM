@@ -46,6 +46,9 @@ class _RefreshableScreenState extends State<RefreshableScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final errorColor = theme.colorScheme.error;
+
     final childWithError = _error != null
         ? Column(
             children: [
@@ -53,12 +56,12 @@ class _RefreshableScreenState extends State<RefreshableScreen> {
               if (_error != null)
                 Container(
                   padding: const EdgeInsets.all(16),
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: errorColor.withValues(alpha: 0.1),
                   child: Row(
                     children: [
-                      const Icon(Icons.error, color: Colors.red, size: 20),
+                      Icon(Icons.error, color: errorColor, size: 20),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(_error!, style: const TextStyle(color: Colors.red))),
+                      Expanded(child: Text(_error!, style: TextStyle(color: errorColor))),
                       IconButton(
                         icon: const Icon(Icons.close, size: 20),
                         onPressed: () => setState(() => _error = null),
@@ -77,7 +80,9 @@ class _RefreshableScreenState extends State<RefreshableScreen> {
           Positioned(
             top: 8,
             right: 8,
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: theme.colorScheme.primary,
+            ),
           ),
       ],
     );
@@ -85,6 +90,7 @@ class _RefreshableScreenState extends State<RefreshableScreen> {
     if (widget.onRefresh != null) {
       return RefreshIndicator(
         onRefresh: _handleRefresh,
+        color: theme.colorScheme.primary,
         child: content,
       );
     }
