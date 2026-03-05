@@ -136,3 +136,35 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Install desktop file
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/online.zoidbot.Zoidbot.desktop"
+  DESTINATION "share/applications"
+  RENAME "cloudtolocalllm.desktop"
+  COMPONENT Runtime)
+
+# Install icons to standard icon theme locations
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/zoidbot-16.png"
+  DESTINATION "share/icons/hicolor/16x16/apps"
+  RENAME "zoidbot.png"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/zoidbot-32.png"
+  DESTINATION "share/icons/hicolor/32x32/apps"
+  RENAME "zoidbot.png"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/zoidbot-48.png"
+  DESTINATION "share/icons/hicolor/48x48/apps"
+  RENAME "zoidbot.png"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/zoidbot-64.png"
+  DESTINATION "share/icons/hicolor/64x64/apps"
+  RENAME "zoidbot.png"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/icons/zoidbot-128.png"
+  DESTINATION "share/icons/hicolor/128x128/apps"
+  RENAME "zoidbot.png"
+  COMPONENT Runtime)
