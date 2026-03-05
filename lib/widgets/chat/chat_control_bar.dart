@@ -44,10 +44,12 @@ class ChatControlBar extends StatelessWidget {
       child: Row(
         children: [
           // Session selector
-          SessionSelector(
-            currentSession: currentSession,
-            onSessionChanged: onSessionChanged,
-            enabled: isConnected,
+          Expanded(
+            child: SessionSelector(
+              currentSession: currentSession,
+              onSessionChanged: onSessionChanged,
+              enabled: isConnected,
+            ),
           ),
           const SizedBox(width: 16),
 
