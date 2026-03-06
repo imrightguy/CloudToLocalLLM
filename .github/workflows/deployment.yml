@@ -357,13 +357,30 @@ jobs:
             # Update the web service in Docker Swarm
             if docker service ls | grep -q "cloudtolocalllm_web"; then
               echo "Updating existing web service..."
-              docker service update cloudtolocalllm_web --image ${IMAGE}
+              docker service update cloudtolocalllm_web \
+                --image ${IMAGE} \
+                --security-opt no-new-privileges \
+                --cap-drop ALL \
+                --cap-add CHOWN \
+                --cap-add DAC_OVERRIDE \
+                --cap-add FOWNER \
+                --cap-add NET_BIND_SERVICE \
+                --cap-add SETUID \
+                --cap-add SETGID
             else
               echo "Creating new web service..."
               docker service create \
                 --name cloudtolocalllm_web \
                 --publish published=80,target=8080,mode=host \
                 --replicas 2 \
+                --security-opt no-new-privileges \
+                --cap-drop ALL \
+                --cap-add CHOWN \
+                --cap-add DAC_OVERRIDE \
+                --cap-add FOWNER \
+                --cap-add NET_BIND_SERVICE \
+                --cap-add SETUID \
+                --cap-add SETGID \
                 ${IMAGE}
             fi
 
