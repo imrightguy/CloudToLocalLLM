@@ -3,10 +3,10 @@ set -e
 
 echo "==> CloudToLocalLLM Docker Swarm Start Script <=="
 
-# Map environment variables (Cloudron or direct)
-# For Docker Swarm deployment, these may not be set
-export DATABASE_URL=${DATABASE_URL:-${CLOUDRON_POSTGRESQL_URL:-}}
-export REDIS_URL=${REDIS_URL:-${CLOUDRON_REDIS_URL:-}}
+# Map environment variables for Docker Swarm deployment
+# These can be set as Docker Swarm service config or environment variables
+export DATABASE_URL=${DATABASE_URL:-}
+export REDIS_URL=${REDIS_URL:-}
 
 # App initialization like DB migrations
 echo "==> Running database migrations..."

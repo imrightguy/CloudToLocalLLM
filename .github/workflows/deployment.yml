@@ -154,7 +154,7 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Build Unified Cloudron Image
+      - name: Build Docker Swarm Web Image
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
@@ -164,7 +164,7 @@ jobs:
           flutter build web --release --no-tree-shake-icons
           
           echo "Building Docker Swarm Web Image..."
-          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/cloudron/Dockerfile .
+          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/swarm/Dockerfile .
           docker push ghcr.io/${REPO_LOWER}/web:latest
           docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
 
