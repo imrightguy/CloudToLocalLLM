@@ -343,7 +343,7 @@ jobs:
           script: |
             set -e
 
-            REPO_LOWER=${GITHUB_REPOSITORY,,}
+            REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
             VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
             IMAGE="ghcr.io/${REPO_LOWER}/cloudron:${VERSION}"
             LATEST_IMAGE="ghcr.io/${REPO_LOWER}/cloudron:latest"
