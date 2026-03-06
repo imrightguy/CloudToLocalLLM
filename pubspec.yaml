@@ -90,7 +90,7 @@ dependencies:
   nyxx: ^6.8.1
 
   # Rich message rendering
-  flutter_markdown: ^0.6.0
+  flutter_markdown: ^0.7.7+1
   flutter_highlight: ^0.7.0
   cached_network_image: ^3.3.0
 
