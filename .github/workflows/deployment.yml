@@ -163,10 +163,10 @@ jobs:
           flutter pub get
           flutter build web --release --no-tree-shake-icons
           
-          echo "Building Unified Cloudron Image..."
-          docker build -t ghcr.io/${REPO_LOWER}/cloudron:latest -t ghcr.io/${REPO_LOWER}/cloudron:${VERSION} -f config/cloudron/Dockerfile .
-          docker push ghcr.io/${REPO_LOWER}/cloudron:latest
-          docker push ghcr.io/${REPO_LOWER}/cloudron:${VERSION}
+          echo "Building Docker Swarm Web Image..."
+          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/cloudron/Dockerfile .
+          docker push ghcr.io/${REPO_LOWER}/web:latest
+          docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
 
   build_desktop_apps:
     needs: [ai_change_analysis, run_tests]
@@ -345,8 +345,8 @@ jobs:
 
             REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
             VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-            IMAGE="ghcr.io/${REPO_LOWER}/cloudron:${VERSION}"
-            LATEST_IMAGE="ghcr.io/${REPO_LOWER}/cloudron:latest"
+            IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}"
+            LATEST_IMAGE="ghcr.io/${REPO_LOWER}/web:latest"
 
             echo "Deploying web version ${VERSION} to Docker Swarm..."
             echo "Image: ${IMAGE}"
