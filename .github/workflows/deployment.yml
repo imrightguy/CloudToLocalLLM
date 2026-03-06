@@ -351,6 +351,9 @@ jobs:
             echo "Deploying web version ${VERSION} to Docker Swarm..."
             echo "Image: ${IMAGE}"
 
+            # Login to GHCR (token needs to be passed explicitly for SSH context)
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             # Pull the new image
             docker pull ${IMAGE}
 
