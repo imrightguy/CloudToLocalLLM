@@ -366,7 +366,7 @@ jobs:
               docker service create \
                 --name cloudtolocalllm_web \
                 --publish published=80,target=8080,mode=host \
-                --replicas 2 \
+                --replicas 1 \
                 ${IMAGE}
             fi
 
