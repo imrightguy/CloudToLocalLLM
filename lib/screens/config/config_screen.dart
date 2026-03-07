@@ -89,13 +89,27 @@ class _ConfigScreenState extends State<ConfigScreen>
 
   Future<void> _loadSystemInfo() async {
     try {
-      _appPath = Directory.current.path;
-      final home = Platform.environment['HOME'] ?? '~';
+      _appPath = kIsWeb ? '/' : Directory.current.path;
+      final home = _getHomeDirectory() ?? '~';
       _configPath = '$home/.config/cloudtolocalllm';
       _dataPath = '$home/.local/share/cloudtolocalllm';
       if (mounted) setState(() {});
     } catch (e) {
       debugPrint('Error loading system info: $e');
+    }
+  }
+
+  String? _getHomeDirectory() {
+    if (kIsWeb) {
+      return null;
+    }
+
+    try {
+      return Platform.environment['HOME'] ??
+          Platform.environment['USERPROFILE'];
+    } catch (e) {
+      debugPrint('Error reading home directory from environment: $e');
+      return null;
     }
   }
 

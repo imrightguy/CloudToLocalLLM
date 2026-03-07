@@ -507,8 +507,7 @@ class SetupWizardService extends ChangeNotifier {
 
     try {
       // Try to find OpenClaw config file
-      final homeDir =
-          Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+      final homeDir = _getHomeDirectory();
       if (homeDir == null) {
         debugPrint('[SetupWizard] Could not determine home directory');
         return null;
@@ -546,10 +545,22 @@ class SetupWizardService extends ChangeNotifier {
   /// Get OpenClaw config file path for display
   String getOpenClawConfigPath() {
     if (kIsWeb) return '';
-    final homeDir = Platform.environment['HOME'] ??
-        Platform.environment['USERPROFILE'] ??
-        '~';
+    final homeDir = _getHomeDirectory() ?? '~';
     return '$homeDir/.openclaw/openclaw.json';
+  }
+
+  String? _getHomeDirectory() {
+    if (kIsWeb) {
+      return null;
+    }
+
+    try {
+      return Platform.environment['HOME'] ??
+          Platform.environment['USERPROFILE'];
+    } catch (e) {
+      debugPrint('[SetupWizard] Failed to read environment: $e');
+      return null;
+    }
   }
 
   /// Run openclaw CLI command to get token (fallback method)

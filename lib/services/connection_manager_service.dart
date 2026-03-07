@@ -194,8 +194,7 @@ class ConnectionManagerService extends ChangeNotifier {
   /// Auto-detect gateway token from OpenClaw config files
   Future<String?> _autoDetectGatewayToken() async {
     try {
-      final home =
-          Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+      final home = _getHomeDirectory();
       if (home == null) return null;
 
       final configPaths = [
@@ -367,7 +366,8 @@ class ConnectionManagerService extends ChangeNotifier {
 
                 // Send connect request - with or without device identity
                 if (skipDeviceIdentity) {
-                  debugPrint('[ConnectionManager] Skipping device identity, using token-only auth');
+                  debugPrint(
+                      '[ConnectionManager] Skipping device identity, using token-only auth');
                   _sendConnectWithoutDeviceIdentity(
                     id: id,
                   );
@@ -451,7 +451,6 @@ class ConnectionManagerService extends ChangeNotifier {
       rethrow;
     }
   }
-
 
   /// Send connect request without device identity (token-only auth)
   Future<void> _sendConnectWithoutDeviceIdentity({required String id}) async {
@@ -894,7 +893,7 @@ class ConnectionManagerService extends ChangeNotifier {
   /// Load OpenClaw config from file (fallback method)
   Future<bool> _loadConfigFromFile() async {
     try {
-      final homeDir = Platform.environment['HOME'];
+      final homeDir = _getHomeDirectory();
       if (homeDir == null) return false;
 
       final configFile = File('$homeDir/.openclaw/openclaw.json');
@@ -917,6 +916,20 @@ class ConnectionManagerService extends ChangeNotifier {
     } catch (e) {
       debugPrint('[ConnectionManager] Error loading config from file: $e');
       return false;
+    }
+  }
+
+  String? _getHomeDirectory() {
+    if (kIsWeb) {
+      return null;
+    }
+
+    try {
+      return Platform.environment['HOME'] ??
+          Platform.environment['USERPROFILE'];
+    } catch (e) {
+      debugPrint('[ConnectionManager] Failed to read environment: $e');
+      return null;
     }
   }
 
