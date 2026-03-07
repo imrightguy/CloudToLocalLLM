@@ -426,3 +426,38 @@ jobs:
             echo "✓ Deployment complete!"
             echo "Deployment: cloudtolocalllm/web"
             echo "Version: ${VERSION}"
+
+      - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
+          CLOUDFLARE_DNS_API_TOKEN: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN }}
+          CLOUDFLARE_TUNNEL_API_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_API_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          CF_TOKEN="${CLOUDFLARE_CACHE_PURGE_TOKEN:-}"
+          if [ -z "$CF_TOKEN" ]; then
+            CF_TOKEN="${CLOUDFLARE_DNS_API_TOKEN:-}"
+          fi
+          if [ -z "$CF_TOKEN" ]; then
+            CF_TOKEN="${CLOUDFLARE_TUNNEL_API_TOKEN:-}"
+          fi
+
+          if [ -z "${CLOUDFLARE_ZONE_ID:-}" ]; then
+            echo "CLOUDFLARE_ZONE_ID is required for cache purge"
+            exit 1
+          fi
+
+          if [ -z "$CF_TOKEN" ]; then
+            echo "No Cloudflare API token available for cache purge"
+            exit 1
+          fi
+
+          RESPONSE=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+
+          echo "$RESPONSE"
+          python -c 'import json, sys; r=json.loads(sys.argv[1]); ok=r.get("success", False); print("Cloudflare cache purge succeeded" if ok else "Cloudflare cache purge failed: {}".format(r.get("errors", []))); sys.exit(0 if ok else 1)' "$RESPONSE"
