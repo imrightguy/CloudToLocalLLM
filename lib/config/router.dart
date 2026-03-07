@@ -165,6 +165,13 @@ bool _isAppSubdomain() {
   return isApp;
 }
 
+bool _isMarketingPath(String location) {
+  return location == '/' ||
+      location == '/index.html' ||
+      location == '/download' ||
+      location == '/docs';
+}
+
 /// Helper to check for Auth0 callback parameters
 bool _hasCallbackParameters(Uri uri) {
   return uri.queryParameters.containsKey('code') ||
@@ -516,9 +523,11 @@ class AppRouter {
 
         // 3. Marketing domain access
         if (kIsWeb && !isAppSubdomain) {
-          if (location == '/') return null; // Show marketing homepage
-          if (isLoggingIn) return '/'; // Don't show login on marketing domain
-          return null; // Allow all other routes (homepage, docs, etc.)
+          if (_isMarketingPath(location)) {
+            return null;
+          }
+          // Keep non-app host constrained to marketing pages.
+          return '/';
         }
 
         // 4. Handle root route redirect

@@ -97,6 +97,12 @@ class LogBufferService {
 
     try {
       final url = window.location.href;
+      final host = Uri.tryParse(url)?.host.toLowerCase() ?? '';
+      if (host.isNotEmpty && host != 'app.cloudtolocalllm.online') {
+        // Marketing/non-app hosts should never depend on API availability.
+        return;
+      }
+
       final userAgent = window.navigator.userAgent;
       final payload = <String, dynamic>{
         'timestamp': entry['timestamp'],
