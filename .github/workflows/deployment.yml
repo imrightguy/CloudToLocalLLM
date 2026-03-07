@@ -352,17 +352,88 @@ jobs:
             echo "Image: ${IMAGE}"
             echo "Target CTID: ${CTID}"
 
-            DEPLOY_SCRIPT='set -e
-              IMAGE="'"${IMAGE}"'"
+            if command -v pct >/dev/null 2>&1; then
+              echo "Detected Proxmox host, deploying via pct exec"
+              pct exec ${CTID} -- bash -lc '
+                set -e
+                IMAGE="'"${IMAGE}"'"
 
+                # Login if explicit GHCR credentials are available.
+                if [ -n "'"${{ secrets.GHCR_TOKEN }}"'" ] && [ -n "'"${{ secrets.GHCR_USERNAME }}"'" ]; then
+                  kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+                  kubectl -n cloudtolocalllm delete secret regcred --ignore-not-found
+                  kubectl -n cloudtolocalllm create secret docker-registry regcred \
+                    --docker-server=ghcr.io \
+                    --docker-username="'"${{ secrets.GHCR_USERNAME }}"'" \
+                    --docker-password="'"${{ secrets.GHCR_TOKEN }}"'"
+                fi
+
+                kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+
+                cat <<EOF | kubectl apply -f -
+                apiVersion: apps/v1
+                kind: Deployment
+                metadata:
+                  name: web
+                  namespace: cloudtolocalllm
+                spec:
+                  replicas: 2
+                  selector:
+                    matchLabels:
+                      app: web
+                  template:
+                    metadata:
+                      labels:
+                        app: web
+                    spec:
+                      imagePullSecrets:
+                        - name: regcred
+                      containers:
+                        - name: web
+                          image: ${IMAGE}
+                          imagePullPolicy: Always
+                          ports:
+                            - containerPort: 8080
+                          readinessProbe:
+                            httpGet:
+                              path: /health
+                              port: 8080
+                            initialDelaySeconds: 10
+                            periodSeconds: 5
+                          livenessProbe:
+                            httpGet:
+                              path: /health
+                              port: 8080
+                            initialDelaySeconds: 20
+                            periodSeconds: 10
+                ---
+                apiVersion: v1
+                kind: Service
+                metadata:
+                  name: web
+                  namespace: cloudtolocalllm
+                spec:
+                  selector:
+                    app: web
+                  ports:
+                    - protocol: TCP
+                      port: 8080
+                      targetPort: 8080
+                EOF
+
+                kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
+                kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
+              '
+            else
+              echo "pct not found, assuming direct Kubernetes host"
               # Login if explicit GHCR credentials are available.
-              if [ -n "'"${{ secrets.GHCR_TOKEN }}"'" ] && [ -n "'"${{ secrets.GHCR_USERNAME }}"'" ]; then
+              if [ -n "${{ secrets.GHCR_TOKEN }}" ] && [ -n "${{ secrets.GHCR_USERNAME }}" ]; then
                 kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
                 kubectl -n cloudtolocalllm delete secret regcred --ignore-not-found
                 kubectl -n cloudtolocalllm create secret docker-registry regcred \
                   --docker-server=ghcr.io \
-                  --docker-username="'"${{ secrets.GHCR_USERNAME }}"'" \
-                  --docker-password="'"${{ secrets.GHCR_TOKEN }}"'"
+                  --docker-username="${{ secrets.GHCR_USERNAME }}" \
+                  --docker-password="${{ secrets.GHCR_TOKEN }}"
               fi
 
               kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
@@ -419,14 +490,7 @@ jobs:
               EOF
 
               kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
-              kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web'
-
-            if command -v pct >/dev/null 2>&1; then
-              echo "Detected Proxmox host, deploying via pct exec"
-              pct exec ${CTID} -- bash -lc "$DEPLOY_SCRIPT"
-            else
-              echo "pct not found, assuming direct Kubernetes host"
-              bash -lc "$DEPLOY_SCRIPT"
+              kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
             fi
 
             echo "✓ Deployment complete!"
