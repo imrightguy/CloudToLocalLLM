@@ -370,56 +370,13 @@ jobs:
 
                 kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
 
-                cat <<EOF | kubectl apply -f -
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: web
-                  namespace: cloudtolocalllm
-                spec:
-                  replicas: 2
-                  selector:
-                    matchLabels:
-                      app: web
-                  template:
-                    metadata:
-                      labels:
-                        app: web
-                    spec:
-                      imagePullSecrets:
-                        - name: regcred
-                      containers:
-                        - name: web
-                          image: ${IMAGE}
-                          imagePullPolicy: Always
-                          ports:
-                            - containerPort: 8080
-                          readinessProbe:
-                            httpGet:
-                              path: /health
-                              port: 8080
-                            initialDelaySeconds: 10
-                            periodSeconds: 5
-                          livenessProbe:
-                            httpGet:
-                              path: /health
-                              port: 8080
-                            initialDelaySeconds: 20
-                            periodSeconds: 10
-                ---
-                apiVersion: v1
-                kind: Service
-                metadata:
-                  name: web
-                  namespace: cloudtolocalllm
-                spec:
-                  selector:
-                    app: web
-                  ports:
-                    - protocol: TCP
-                      port: 8080
-                      targetPort: 8080
-                EOF
+                kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
+                  kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
+                kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
+                kubectl -n cloudtolocalllm scale deployment/web --replicas=2
+
+                kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
+                  kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
 
                 kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
                 kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
@@ -438,56 +395,13 @@ jobs:
 
               kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
 
-              cat <<EOF | kubectl apply -f -
-              apiVersion: apps/v1
-              kind: Deployment
-              metadata:
-                name: web
-                namespace: cloudtolocalllm
-              spec:
-                replicas: 2
-                selector:
-                  matchLabels:
-                    app: web
-                template:
-                  metadata:
-                    labels:
-                      app: web
-                  spec:
-                    imagePullSecrets:
-                      - name: regcred
-                    containers:
-                      - name: web
-                        image: ${IMAGE}
-                        imagePullPolicy: Always
-                        ports:
-                          - containerPort: 8080
-                        readinessProbe:
-                          httpGet:
-                            path: /health
-                            port: 8080
-                          initialDelaySeconds: 10
-                          periodSeconds: 5
-                        livenessProbe:
-                          httpGet:
-                            path: /health
-                            port: 8080
-                          initialDelaySeconds: 20
-                          periodSeconds: 10
-              ---
-              apiVersion: v1
-              kind: Service
-              metadata:
-                name: web
-                namespace: cloudtolocalllm
-              spec:
-                selector:
-                  app: web
-                ports:
-                  - protocol: TCP
-                    port: 8080
-                    targetPort: 8080
-              EOF
+              kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
+                kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
+              kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
+              kubectl -n cloudtolocalllm scale deployment/web --replicas=2
+
+              kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
+                kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
 
               kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
               kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
