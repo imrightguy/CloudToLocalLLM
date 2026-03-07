@@ -66,7 +66,7 @@ jobs:
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
 
@@ -154,17 +154,17 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Build Docker Swarm Web Image
+      - name: Build Kubernetes Web Image
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          
+
           echo "Building Web Frontend..."
           flutter pub get
           flutter build web --release --no-tree-shake-icons
-          
-          echo "Building Docker Swarm Web Image..."
-          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/swarm/Dockerfile .
+
+          echo "Building Kubernetes Web Image..."
+          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/docker/Dockerfile.web .
           docker push ghcr.io/${REPO_LOWER}/web:latest
           docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
 
@@ -188,10 +188,10 @@ jobs:
         run: |
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
           echo "Updating version to $VERSION"
-          
+
           # Update pubspec.yaml
           sed -i "s/^version: .*/version: $VERSION+${{ github.run_number }}/" pubspec.yaml
-          
+
           # Update assets/version.json
           jq ".version = \"$VERSION\" | .build_number = \"${{ github.run_number }}\" | .build_date = \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"" assets/version.json > assets/version.json.tmp && mv assets/version.json.tmp assets/version.json
 
@@ -212,7 +212,7 @@ jobs:
           # Install FUSE for AppImage build
           sudo apt-get update
           sudo apt-get install -y libfuse2
-          
+
           mkdir -p dist/linux
           # Create standard bundle tarball with a top-level directory
           STAGING_DIR=$(mktemp -d)
@@ -308,7 +308,7 @@ jobs:
           fi
 
           cp -f $GITHUB_WORKSPACE/dist/aur/PKGBUILD .
-          
+
           # Generate .SRCINFO using docker
           docker run --rm -v $(pwd):/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
 
@@ -334,45 +334,95 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Docker Swarm
+      - name: Deploy Web to Kubernetes (k3s CT)
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SWARM_HOST }}
-          username: ${{ secrets.SWARM_USER }}
-          key: ${{ secrets.SWARM_SSH_KEY }}
+          host: ${{ secrets.K8S_HOST || secrets.SWARM_HOST }}
+          username: ${{ secrets.K8S_USER || secrets.SWARM_USER }}
+          key: ${{ secrets.K8S_SSH_KEY || secrets.SWARM_SSH_KEY }}
           script: |
             set -e
 
             REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
             VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
             IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}"
-            LATEST_IMAGE="ghcr.io/${REPO_LOWER}/web:latest"
+            CTID="${{ secrets.K8S_CTID || secrets.SWARM_CTID || '201' }}"
 
-            echo "Deploying web version ${VERSION} to Docker Swarm..."
+            echo "Deploying web version ${VERSION} to Kubernetes..."
             echo "Image: ${IMAGE}"
+            echo "Target CTID: ${CTID}"
 
-            # Login to GHCR (token needs to be passed explicitly for SSH context)
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            pct exec ${CTID} -- bash -lc '
+              set -e
+              IMAGE="'"${IMAGE}"'"
 
-            # Pull the new image
-            docker pull ${IMAGE}
+              # Login if explicit GHCR credentials are available.
+              if [ -n "'"${{ secrets.GHCR_TOKEN }}"'" ] && [ -n "'"${{ secrets.GHCR_USERNAME }}"'" ]; then
+                kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
+                kubectl -n cloudtolocalllm delete secret regcred --ignore-not-found
+                kubectl -n cloudtolocalllm create secret docker-registry regcred \
+                  --docker-server=ghcr.io \
+                  --docker-username="'"${{ secrets.GHCR_USERNAME }}"'" \
+                  --docker-password="'"${{ secrets.GHCR_TOKEN }}"'"
+              fi
 
-            # Update the web service in Docker Swarm
-            if docker service ls | grep -q "cloudtolocalllm_web"; then
-              echo "Updating existing web service..."
-              docker service update cloudtolocalllm_web --image ${IMAGE}
-            else
-              echo "Creating new web service..."
-              docker service create \
-                --name cloudtolocalllm_web \
-                --publish published=80,target=8080,mode=host \
-                --replicas 1 \
-                ${IMAGE}
-            fi
+              kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
 
-            # Clean up old images
-            docker image prune -af --filter "until=24h"
+              cat <<EOF | kubectl apply -f -
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: web
+                namespace: cloudtolocalllm
+              spec:
+                replicas: 2
+                selector:
+                  matchLabels:
+                    app: web
+                template:
+                  metadata:
+                    labels:
+                      app: web
+                  spec:
+                    imagePullSecrets:
+                      - name: regcred
+                    containers:
+                      - name: web
+                        image: ${IMAGE}
+                        imagePullPolicy: Always
+                        ports:
+                          - containerPort: 8080
+                        readinessProbe:
+                          httpGet:
+                            path: /health
+                            port: 8080
+                          initialDelaySeconds: 10
+                          periodSeconds: 5
+                        livenessProbe:
+                          httpGet:
+                            path: /health
+                            port: 8080
+                          initialDelaySeconds: 20
+                          periodSeconds: 10
+              ---
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: web
+                namespace: cloudtolocalllm
+              spec:
+                selector:
+                  app: web
+                ports:
+                  - protocol: TCP
+                    port: 8080
+                    targetPort: 8080
+              EOF
+
+              kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
+              kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
+            '
 
             echo "✓ Deployment complete!"
-            echo "Service: cloudtolocalllm_web"
+            echo "Deployment: cloudtolocalllm/web"
             echo "Version: ${VERSION}"

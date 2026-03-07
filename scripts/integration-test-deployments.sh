@@ -403,6 +403,23 @@ test_e2e_deployment() {
     success "End-to-end deployment testing completed"
 }
 
+# Function to verify tunnel-only ingress policy
+test_tunnel_only_ingress_policy() {
+    log "=== Testing Tunnel-Only Ingress Policy ==="
+
+    if [ -f "./scripts/verify-k8s-tunnel-only.sh" ]; then
+        if ./scripts/verify-k8s-tunnel-only.sh; then
+            test_passed "tunnel_only_ingress_policy"
+        else
+            test_failed "tunnel_only_ingress_policy" "Tunnel-only ingress verification failed"
+        fi
+    else
+        test_skipped "tunnel_only_ingress_policy" "scripts/verify-k8s-tunnel-only.sh not found"
+    fi
+
+    success "Tunnel-only ingress policy testing completed"
+}
+
 # Function to test disaster recovery
 test_disaster_recovery() {
     log "=== Testing Disaster Recovery ==="
@@ -457,6 +474,7 @@ run_full_integration_suite() {
     test_concurrent_operations
     test_load_scenarios
     test_e2e_deployment
+    test_tunnel_only_ingress_policy
     test_disaster_recovery
 
     success "Full integration test suite completed"
@@ -527,6 +545,7 @@ main() {
     local run_e2e=false
     local run_failure_recovery=false
     local run_concurrent=false
+    local run_tunnel_only=false
     local generate_report=false
 
     while [[ $# -gt 0 ]]; do
@@ -547,6 +566,10 @@ main() {
                 run_concurrent=true
                 shift
                 ;;
+            --tunnel-only-checks)
+                run_tunnel_only=true
+                shift
+                ;;
             --integration-tests)
                 run_full_suite=true
                 generate_report=true
@@ -563,6 +586,7 @@ main() {
                 echo "  --e2e-deployment          Test end-to-end deployment workflow"
                 echo "  --failure-recovery        Test failure recovery scenarios"
                 echo "  --concurrent-deployments  Test concurrent deployment operations"
+                echo "  --tunnel-only-checks      Verify tunnel-only ingress policy"
                 echo "  --integration-tests       Run all integration tests with report"
                 echo "  --generate-report         Generate detailed test report"
                 echo "  --help                    Show this help message"
@@ -595,6 +619,10 @@ main() {
 
     if [ "$run_concurrent" = true ]; then
         test_concurrent_operations
+    fi
+
+    if [ "$run_tunnel_only" = true ]; then
+        test_tunnel_only_ingress_policy
     fi
 
     # Generate report if requested

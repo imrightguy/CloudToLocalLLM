@@ -43,6 +43,22 @@ This directory contains deployment documentation for CloudToLocalLLM. The projec
 - **Audience**: DevOps engineers
 - **Content**: Quality standards, rollback procedures
 
+### **[K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md](./K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)**
+
+**k3s on Proxmox workflow** - Template-driven Kubernetes deployment.
+
+- **Purpose**: Execute Kubernetes-first deployment on Proxmox
+- **Audience**: DevOps engineers and self-hosting operators
+- **Content**: Template creation, node cloning, GitOps bootstrap, tunnel-only ingress
+
+### **[ARGOCD_PROXMOX_MANAGEMENT_VM.md](./ARGOCD_PROXMOX_MANAGEMENT_VM.md)**
+
+**ArgoCD management isolation** - Dedicated Proxmox VM/LXC runbook.
+
+- **Purpose**: Separate GitOps control plane from app workloads
+- **Audience**: Platform operators
+- **Content**: Sizing, network security, backup/restore, operational checks
+
 ### **[AUR_STATUS.md](./AUR_STATUS.md)**
 
 **AUR package status** - Temporarily removed, reintegration planned.
@@ -81,4 +97,4 @@ This directory contains deployment documentation for CloudToLocalLLM. The projec
 
 ---
 
-*For questions about deployment, see [COMPLETE_DEPLOYMENT_WORKFLOW.md](./COMPLETE_DEPLOYMENT_WORKFLOW.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*
+_For questions about deployment, see [COMPLETE_DEPLOYMENT_WORKFLOW.md](./COMPLETE_DEPLOYMENT_WORKFLOW.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)._

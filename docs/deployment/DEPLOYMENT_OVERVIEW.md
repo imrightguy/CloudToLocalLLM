@@ -51,6 +51,16 @@ kubectl apply -f k8s/
 - Domain name with DNS configuration
 - kubectl configured for your cluster
 
+#### Proxmox + k3s path
+
+For Proxmox-hosted Kubernetes with Cloudflare Tunnel-only ingress:
+
+- [k3s on Proxmox Deployment Workflow](K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)
+- [ArgoCD Proxmox Management VM Runbook](ARGOCD_PROXMOX_MANAGEMENT_VM.md)
+- Template automation scripts:
+  - `scripts/proxmox/create-k3s-template.sh`
+  - `scripts/proxmox/clone-k3s-node.sh`
+
 ### 🏠 Self-Hosting Options
 
 For self-hosted Kubernetes deployments (on-premises or private cloud):
@@ -186,6 +196,8 @@ For detailed information, see [Versioning Strategy](VERSIONING_STRATEGY.md).
 - [Strict Deployment Policy](STRICT_DEPLOYMENT_POLICY.md)
 - [VPS Quality Gates Specification](VPS_QUALITY_GATES_SPECIFICATION.md)
 - [Deployment Testing Guide](DEPLOYMENT_TESTING_GUIDE.md)
+- [k3s on Proxmox Deployment Workflow](K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)
+- [ArgoCD Proxmox Management VM Runbook](ARGOCD_PROXMOX_MANAGEMENT_VM.md)
 
 ### 🔧 **Operations**
 
@@ -211,4 +223,4 @@ For detailed information, see [Versioning Strategy](VERSIONING_STRATEGY.md).
 
 ---
 
-*For questions about deployment, please see our [troubleshooting guide](deployment-troubleshooting.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues).*
+_For questions about deployment, please see our [troubleshooting guide](deployment-troubleshooting.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)._

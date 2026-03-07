@@ -6,6 +6,16 @@
 
 This guide covers deploying CloudToLocalLLM using Docker Compose for development/testing purposes.
 
+## Kubernetes/Proxmox Readiness Addendum
+
+- Primary production direction is Kubernetes-first (`k3s`) on Proxmox.
+- Public ingress is Cloudflare Tunnel-only; no direct public app service exposure.
+- ArgoCD admin route is separated to a dedicated admin tunnel path.
+- Proxmox template automation is available via:
+  - `scripts/proxmox/create-k3s-template.sh`
+  - `scripts/proxmox/clone-k3s-node.sh`
+- Deployment verification now includes `scripts/verify-k8s-tunnel-only.sh` for tunnel policy checks.
+
 ## ✅ What's Been Implemented
 
 ### 1. Docker Compose Production Stack
@@ -278,10 +288,10 @@ To handle more users, edit `docker-compose.production.yml`:
 services:
   api-backend:
     deploy:
-      replicas: 3  # Run 3 instances
+      replicas: 3 # Run 3 instances
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 4G
 ```
 

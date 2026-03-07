@@ -9,7 +9,8 @@ This is the **ONE AND ONLY** deployment document for CloudToLocalLLM. Follow thi
 **Related Documentation:**
 
 - [System Architecture](../ARCHITECTURE/SYSTEM_ARCHITECTURE.md)
--
+- [k3s on Proxmox Deployment Workflow](./K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)
+- [ArgoCD Proxmox Management VM Runbook](./ARGOCD_PROXMOX_MANAGEMENT_VM.md)
 - [Versioning Strategy](./VERSIONING_STRATEGY.md)
 
 ---
@@ -58,6 +59,20 @@ kubectl cluster-info
 ---
 
 ## 📋 **Phase 2: Build Docker Images** (15-20 minutes)
+
+### **Proxmox + k3s Preparation (if self-hosting on Proxmox)**
+
+Use the template-based automation scripts before Kubernetes bootstrap:
+
+```bash
+# Create reusable k3s template VM on Proxmox
+scripts/proxmox/create-k3s-template.sh --help
+
+# Clone control/worker nodes from template
+scripts/proxmox/clone-k3s-node.sh --help
+```
+
+For full sequence, see [k3s on Proxmox Deployment Workflow](./K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md).
 
 ### **Build and Push Images to Container Registry**
 

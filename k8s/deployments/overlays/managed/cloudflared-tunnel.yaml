@@ -92,10 +92,6 @@ data:
       - hostname: api.cloudtolocalllm.online
         service: http://api-backend.CloudToLocalLLM.svc.cluster.local:8080
       
-      # Argo CD UI (Optimized for internal connectivity)
-      - hostname: argocd.cloudtolocalllm.online
-        service: http://argocd-server.argocd.svc.cluster.local:80
-
       # Grafana UI
       - hostname: grafana.cloudtolocalllm.online
         service: http://grafana.CloudToLocalLLM.svc.cluster.local:3000
