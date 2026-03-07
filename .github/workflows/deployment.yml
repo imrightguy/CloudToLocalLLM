@@ -372,6 +372,7 @@ jobs:
 
                 kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
                   kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
+                kubectl -n cloudtolocalllm patch deployment/web --type=json -p='[{"op":"remove","path":"/spec/strategy/rollingUpdate"}]' || true
                 kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"strategy":{"type":"Recreate"}}}'
                 kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
                 kubectl -n cloudtolocalllm scale deployment/web --replicas=1
@@ -398,6 +399,7 @@ jobs:
 
               kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
                 kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
+              kubectl -n cloudtolocalllm patch deployment/web --type=json -p='[{"op":"remove","path":"/spec/strategy/rollingUpdate"}]' || true
               kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"strategy":{"type":"Recreate"}}}'
               kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
               kubectl -n cloudtolocalllm scale deployment/web --replicas=1
