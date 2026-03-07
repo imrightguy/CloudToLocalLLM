@@ -372,13 +372,14 @@ jobs:
 
                 kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
                   kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
+                kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"strategy":{"type":"Recreate"}}}'
                 kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
                 kubectl -n cloudtolocalllm scale deployment/web --replicas=1
 
                 kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
                   kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
 
-                kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
+                kubectl -n cloudtolocalllm rollout status deploy/web --timeout=900s
                 kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
               '
             else
@@ -397,13 +398,14 @@ jobs:
 
               kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
                 kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
+              kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"strategy":{"type":"Recreate"}}}'
               kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
               kubectl -n cloudtolocalllm scale deployment/web --replicas=1
 
               kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
                 kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
 
-              kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
+              kubectl -n cloudtolocalllm rollout status deploy/web --timeout=900s
               kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
             fi
 
@@ -412,6 +414,7 @@ jobs:
             echo "Version: ${VERSION}"
 
       - name: Purge Cloudflare cache
+        if: always()
         env:
           CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
