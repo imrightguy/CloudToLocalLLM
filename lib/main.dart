@@ -77,14 +77,14 @@ void main(List<String> args) async {
 
 void _runAppWithoutSentry() {
   debugPrint('Running app without Sentry');
-  if (!_isMarketingLandingPath()) {
+  if (!_isMarketingHost()) {
     _initializeClientLogBuffer();
   }
   _runAppCommon();
 }
 
 void _runAppCommon() {
-  if (_isMarketingLandingPath()) {
+  if (_isMarketingHost()) {
     debugPrint('[Main] Serving marketing landing shell without app bootstrap');
     runApp(const _MarketingShellApp());
     return;
@@ -133,14 +133,15 @@ void _runAppCommon() {
   debugPrint('[Main] runApp completed');
 }
 
-bool _isMarketingLandingPath() {
+bool _isMarketingHost() {
   if (!kIsWeb) {
     return false;
   }
 
   try {
-    final path = window.location.pathname;
-    return path == '/' || path == '/index.html';
+    final currentUrl = window.location.href;
+    final host = Uri.parse(currentUrl).host.toLowerCase();
+    return host != 'app.cloudtolocalllm.online';
   } catch (_) {
     return false;
   }
