@@ -157,8 +157,14 @@ k8s/secrets.yaml
 # Claude Code MCP configuration (contains tokens)
 .claude/config.json
 
+# Local Claude skill links/imports (machine-specific)
+.claude/skills/
+
 # Generated secrets (DO NOT COMMIT)
 .secrets.json
+
+# Local Kubernetes secret manifests (DO NOT COMMIT)
+k8s/apps/local/api-backend/shared/base/secrets/cloudtolocalllm-secrets.yaml
 
 # Android signing (DO NOT COMMIT)
 android/release-keystore.jks
