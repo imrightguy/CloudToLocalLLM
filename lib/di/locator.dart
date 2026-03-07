@@ -85,8 +85,14 @@ String _getOpenClawSkillsPath() {
     return 'web-skills';
   }
 
+  String? home;
+  try {
+    home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+  } catch (e) {
+    debugPrint('[ServiceLocator] Failed to read home directory: $e');
+  }
+
   // Check common locations for OpenClaw skills directory
-  final home = Platform.environment['HOME'];
   if (home == null) {
     // Fallback to temp directory
     return Directory.systemTemp.path;
