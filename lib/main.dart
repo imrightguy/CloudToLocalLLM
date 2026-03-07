@@ -32,6 +32,7 @@ import 'package:cloudtolocalllm/services/rate_limit_manager.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
+import 'package:cloudtolocalllm/screens/marketing/homepage_screen.dart';
 import 'web_plugins_stub.dart'
     if (dart.library.html) 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cloudtolocalllm/widgets/tray_initializer.dart';
@@ -42,6 +43,8 @@ import 'package:cloudtolocalllm/widgets/window_listener_widget.dart'
 import 'package:cloudtolocalllm/config/navigator_key.dart';
 import 'package:cloudtolocalllm/utils/platform_file_utils.dart'
     if (dart.library.html) 'package:cloudtolocalllm/utils/platform_file_utils_web.dart';
+import 'package:cloudtolocalllm/utils/web_interop_stub.dart'
+    if (dart.library.html) 'package:cloudtolocalllm/utils/web_interop.dart';
 
 // navigatorKey is now imported from config/navigator_key.dart
 
@@ -74,11 +77,19 @@ void main(List<String> args) async {
 
 void _runAppWithoutSentry() {
   debugPrint('Running app without Sentry');
-  _initializeClientLogBuffer();
+  if (!_isMarketingLandingPath()) {
+    _initializeClientLogBuffer();
+  }
   _runAppCommon();
 }
 
 void _runAppCommon() {
+  if (_isMarketingLandingPath()) {
+    debugPrint('[Main] Serving marketing landing shell without app bootstrap');
+    runApp(const _MarketingShellApp());
+    return;
+  }
+
   Future<AppBootstrapData> loadApp() async {
     // Run the main bootstrap process
     try {
@@ -120,6 +131,34 @@ void _runAppCommon() {
     ),
   );
   debugPrint('[Main] runApp completed');
+}
+
+bool _isMarketingLandingPath() {
+  if (!kIsWeb) {
+    return false;
+  }
+
+  try {
+    final path = window.location.pathname;
+    return path == '/' || path == '/index.html';
+  } catch (_) {
+    return false;
+  }
+}
+
+class _MarketingShellApp extends StatelessWidget {
+  const _MarketingShellApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: const HomepageScreen(),
+    );
+  }
 }
 
 void _initializeClientLogBuffer() {
