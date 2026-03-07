@@ -352,8 +352,7 @@ jobs:
             echo "Image: ${IMAGE}"
             echo "Target CTID: ${CTID}"
 
-            pct exec ${CTID} -- bash -lc '
-              set -e
+            DEPLOY_SCRIPT='set -e
               IMAGE="'"${IMAGE}"'"
 
               # Login if explicit GHCR credentials are available.
@@ -420,8 +419,15 @@ jobs:
               EOF
 
               kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
-              kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
-            '
+              kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web'
+
+            if command -v pct >/dev/null 2>&1; then
+              echo "Detected Proxmox host, deploying via pct exec"
+              pct exec ${CTID} -- bash -lc "$DEPLOY_SCRIPT"
+            else
+              echo "pct not found, assuming direct Kubernetes host"
+              bash -lc "$DEPLOY_SCRIPT"
+            fi
 
             echo "✓ Deployment complete!"
             echo "Deployment: cloudtolocalllm/web"
