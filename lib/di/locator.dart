@@ -128,326 +128,398 @@ Future<void> setupCoreServices() async {
   debugPrint('[ServiceLocator] ===== REGISTERING CORE SERVICES START =====');
   debugPrint('[ServiceLocator] Registering core services...');
 
-  // Settings preference service - manages user preferences
-  // Register this early as other services (like AuthProvider) may need it
-  final settingsPreferenceService = SettingsPreferenceService();
-  serviceLocator.registerSingleton<SettingsPreferenceService>(
-    settingsPreferenceService,
-  );
-
-  // Session storage service for PostgreSQL session management
-  final sessionStorageService = SessionStorageService();
-  serviceLocator
-      .registerSingleton<SessionStorageService>(sessionStorageService);
-
-  // Token storage service for encrypted local persistence.
   try {
-    final tokenStorageService = TokenStorageService();
+    // Settings preference service - manages user preferences
+    // Register this early as other services (like AuthProvider) may need it
+    final settingsPreferenceService = SettingsPreferenceService();
+    serviceLocator.registerSingleton<SettingsPreferenceService>(
+      settingsPreferenceService,
+    );
+
+    // Session storage service for PostgreSQL session management
+    final sessionStorageService = SessionStorageService();
+    serviceLocator
+        .registerSingleton<SessionStorageService>(sessionStorageService);
+
+    // Token storage service for encrypted local persistence.
     try {
-      await tokenStorageService.init();
+      final tokenStorageService = TokenStorageService();
+      try {
+        await tokenStorageService.init();
+      } catch (e, stack) {
+        debugPrint('[ServiceLocator] TokenStorageService init failed: $e');
+        debugPrint('[ServiceLocator] TokenStorageService stack: $stack');
+        debugPrint(
+          '[ServiceLocator] Continuing with degraded token storage initialization',
+        );
+      }
+      serviceLocator
+          .registerSingleton<TokenStorageService>(tokenStorageService);
     } catch (e, stack) {
-      debugPrint('[ServiceLocator] TokenStorageService init failed: $e');
-      debugPrint('[ServiceLocator] TokenStorageService stack: $stack');
+      debugPrint('[ServiceLocator] TokenStorageService unavailable: $e');
+      debugPrint('[ServiceLocator] TokenStorageService ctor stack: $stack');
       debugPrint(
-        '[ServiceLocator] Continuing with degraded token storage initialization',
+        '[ServiceLocator] Continuing without TokenStorageService registration',
       );
     }
-    serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
-  } catch (e, stack) {
-    debugPrint('[ServiceLocator] TokenStorageService unavailable: $e');
-    debugPrint('[ServiceLocator] TokenStorageService ctor stack: $stack');
-    debugPrint(
-      '[ServiceLocator] Continuing without TokenStorageService registration',
-    );
-  }
 
-  if (!kIsWeb) {
-    // Desktop-only core graph: LocalBrain, avatar persistence and embedded router.
-    // On web these services rely on native filesystem/runtime assumptions and can
-    // fail bootstrap before auth services are registered.
-    final localBrain = LocalBrain();
-    serviceLocator.registerSingleton<LocalBrain>(localBrain);
-
-    final personalityEngine = PersonalityEngine(
-      database: localBrain,
-    );
-    serviceLocator
-        .registerLazySingleton<PersonalityEngine>(() => personalityEngine);
-
-    final evolutionTracker = EvolutionTracker(database: localBrain);
-    serviceLocator
-        .registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
-
-    final memoryService = MemoryService(database: localBrain);
-    serviceLocator.registerLazySingleton<MemoryService>(() => memoryService);
-
-    final markdownSyncService = MarkdownSyncService(
-      database: localBrain,
-      markdownPath: _getOpenClawSkillsPath(),
-    );
-    serviceLocator
-        .registerLazySingleton<MarkdownSyncService>(() => markdownSyncService);
-
-    final avatarStateService = AvatarStateService(
-      database: localBrain,
-      personalityEngine: personalityEngine,
-      evolutionTracker: evolutionTracker,
-      markdownSyncService: markdownSyncService,
-    );
-    serviceLocator
-        .registerLazySingleton<AvatarStateService>(() => avatarStateService);
-
-    final brainSyncService = BrainSyncService(localBrain);
-    serviceLocator.registerSingleton<BrainSyncService>(brainSyncService);
-    brainSyncService.startSync();
-
-    final fullContextIndexer = FullContextIndexer(localBrain);
-    serviceLocator.registerSingleton<FullContextIndexer>(fullContextIndexer);
-
-    final rateLimitManager = RateLimitManager(localBrain);
-    serviceLocator.registerSingleton<RateLimitManager>(rateLimitManager);
-
-    final conscienceStorageService = ConscienceStorageService(
-      database: localBrain,
-    );
-    serviceLocator.registerSingleton<ConscienceStorageService>(
-      conscienceStorageService,
-    );
-
-    final routerServer = RouterServer(
-      rateLimitManager: rateLimitManager,
-      providers: {
-        'zhipu':
-            ZhipuAdapter(apiKey: const String.fromEnvironment('GLM_API_KEY')),
-        'google': GoogleAdapter(
-          apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
-        ),
-        'moonshot': MoonshotAdapter(
-          apiKey: const String.fromEnvironment('KIMI_API_KEY'),
-        ),
-      },
-      personalityEngine: personalityEngine,
-      evolutionTracker: evolutionTracker,
-      conscienceStorage: conscienceStorageService,
-    );
-    serviceLocator.registerSingleton<RouterServer>(routerServer);
-
-    // Start the router server in the background.
-    unawaited(routerServer.start());
-  } else {
-    debugPrint(
-      '[ServiceLocator] Skipping desktop-only LocalBrain/router core services on web',
-    );
-  }
-
-  // Authentication Provider - Using platform-specific provider
-  late AuthProvider authProvider;
-
-  try {
-    debugPrint('[Locator] Detecting platform...');
-
-    // Check if we're on web first
-    if (kIsWeb) {
-      debugPrint('[Locator] ✓ Web platform detected, using Auth0AuthProvider');
-      authProvider = Auth0AuthProvider();
-    } else {
-      // Use Auth0AuthProvider for all desktop platforms
-      debugPrint('[Locator] Using Auth0AuthProvider for desktop');
-      authProvider = Auth0AuthProvider();
-    }
-  } catch (e, stack) {
-    debugPrint('[Locator] ERROR during platform detection: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    // Fallback to Auth0 if platform detection fails
-    debugPrint('[Locator] Falling back to Auth0AuthProvider');
-    authProvider = Auth0AuthProvider();
-  }
-
-  debugPrint('[Locator] Selected auth provider: ${authProvider.runtimeType}');
-
-  // Register strictly as AuthProvider interface to enforce abstraction
-  try {
-    debugPrint('[Locator] Registering AuthProvider...');
-    serviceLocator.registerSingleton<AuthProvider>(authProvider);
-    debugPrint('[Locator] ✓ AuthProvider registered successfully');
-  } catch (e, stack) {
-    debugPrint('[Locator] ❌ CRITICAL ERROR registering AuthProvider: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    rethrow;
-  }
-
-  late final AuthService authService;
-  try {
-    debugPrint('[Locator] Registering AuthService...');
-    authService = AuthService(authProvider);
-    serviceLocator.registerSingleton<AuthService>(authService);
-    debugPrint('[Locator] ✓ AuthService registered successfully');
-  } catch (e, stack) {
-    debugPrint('[Locator] ❌ CRITICAL ERROR registering AuthService: $e');
-    debugPrint('[Locator] Stack trace: $stack');
-    rethrow;
-  }
-
-  // Provider discovery - create but don't initialize until auth
-  final providerDiscoveryService = ProviderDiscoveryService();
-  serviceLocator.registerSingleton<ProviderDiscoveryService>(
-    providerDiscoveryService,
-  );
-
-  // LLM Error Handler - lightweight, doesn't require auth
-  final llmErrorHandler = LLMErrorHandler(
-    providerDiscovery: providerDiscoveryService,
-  );
-  serviceLocator.registerSingleton<LLMErrorHandler>(llmErrorHandler);
-
-  // LangChain Prompt Service - create but don't initialize templates until auth
-  final langchainPromptService = LangChainPromptService();
-  serviceLocator.registerSingleton<LangChainPromptService>(
-    langchainPromptService,
-  );
-
-  // Desktop client detection - can check client type without auth
-  final desktopClientDetectionService = DesktopClientDetectionService(
-    authService: authService,
-  );
-  serviceLocator.registerSingleton<DesktopClientDetectionService>(
-    desktopClientDetectionService,
-  );
-
-  // App initialization service - manages initialization order
-  final appInitializationService = AppInitializationService(
-    authService: authService,
-  );
-  serviceLocator.registerSingleton<AppInitializationService>(
-    appInitializationService,
-  );
-
-  // Settings import/export service - handles settings backup/restore
-  final settingsImportExportService = SettingsImportExportService(
-    preferencesService: settingsPreferenceService,
-  );
-  serviceLocator.registerSingleton<SettingsImportExportService>(
-    settingsImportExportService,
-  );
-
-  // Platform detection service - detects current platform and provides platform info
-  final platformDetectionService = PlatformDetectionService();
-  serviceLocator.registerSingleton<PlatformDetectionService>(
-    platformDetectionService,
-  );
-  debugPrint('[ServiceLocator] ✓ PlatformDetectionService registered');
-
-  // Platform adapter - provides platform-appropriate UI components
-  final platformAdapter = PlatformAdapter(platformDetectionService);
-  serviceLocator.registerSingleton<PlatformAdapter>(platformAdapter);
-
-  // Theme provider - manages application theme mode
-  final themeProvider = ThemeProvider();
-  serviceLocator.registerSingleton<ThemeProvider>(themeProvider);
-
-  // Provider configuration manager - manages local LLM provider configurations
-  final providerConfigurationManager = ProviderConfigurationManager();
-  serviceLocator.registerSingleton<ProviderConfigurationManager>(
-    providerConfigurationManager,
-  );
-
-  // URL scheme registration service - registers custom URL schemes for OAuth callbacks (Windows)
-  serviceLocator.registerSingleton<UrlSchemeRegistrationService>(
-    UrlSchemeRegistrationService(),
-  );
-
-  // Gateway control service - manages OpenClaw Gateway lifecycle (start/stop/restart)
-  final gatewayControlService =
-      GatewayControlService(settingsPreferenceService);
-  serviceLocator
-      .registerSingleton<GatewayControlService>(gatewayControlService);
-
-  // Setup status service - tracks first-run and setup completion
-  final setupStatusService = SetupStatusService(
-    authService: authService,
-    clientDetectionService: desktopClientDetectionService,
-  );
-  serviceLocator.registerSingleton<SetupStatusService>(setupStatusService);
-
-  // Setup wizard service - manages the onboarding wizard flow
-  final setupWizardService = SetupWizardService(
-    serviceLocator.get<ProviderDiscoveryService>(),
-    setupStatusService,
-    providerConfigurationManager,
-  );
-  serviceLocator.registerSingleton<SetupWizardService>(setupWizardService);
-
-  // Web download prompt service - can be created but won't do heavy work until auth
-  final webDownloadPromptService = WebDownloadPromptService(
-    authService: authService,
-    clientDetectionService: desktopClientDetectionService,
-  );
-  // Don't initialize yet - wait for auth
-  serviceLocator.registerSingleton<WebDownloadPromptService>(
-    webDownloadPromptService,
-  );
-
-  // Enhanced user tier service - can be created but won't initialize until auth
-  final enhancedUserTierService = EnhancedUserTierService();
-  serviceLocator.registerSingleton<EnhancedUserTierService>(
-    enhancedUserTierService,
-  );
-
-  // Don't initialize yet - wait for auth token
-
-  // Auto Update Service - manages application auto-updates for Linux
-  final autoUpdateService = AutoUpdateService();
-  serviceLocator
-      .registerLazySingleton<AutoUpdateService>(() => autoUpdateService);
-
-  debugPrint('[ServiceLocator] Core services registered successfully');
-
-  // Initialize AuthService last, after all dependencies are registered
-  try {
-    debugPrint('[Locator] Initializing AuthService...');
-    final authService = serviceLocator.get<AuthService>();
-    await authService.init();
-    debugPrint('[Locator] ✓ AuthService initialized successfully');
-
-    // On Desktop, auto-bootstrap authenticated services immediately
-    // This allows local use without mandatory login
     if (!kIsWeb) {
+      // Desktop-only core graph: LocalBrain, avatar persistence and embedded router.
+      // On web these services rely on native filesystem/runtime assumptions and can
+      // fail bootstrap before auth services are registered.
+      final localBrain = LocalBrain();
+      serviceLocator.registerSingleton<LocalBrain>(localBrain);
+
+      final personalityEngine = PersonalityEngine(
+        database: localBrain,
+      );
+      serviceLocator
+          .registerLazySingleton<PersonalityEngine>(() => personalityEngine);
+
+      final evolutionTracker = EvolutionTracker(database: localBrain);
+      serviceLocator
+          .registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
+
+      final memoryService = MemoryService(database: localBrain);
+      serviceLocator.registerLazySingleton<MemoryService>(() => memoryService);
+
+      final markdownSyncService = MarkdownSyncService(
+        database: localBrain,
+        markdownPath: _getOpenClawSkillsPath(),
+      );
+      serviceLocator.registerLazySingleton<MarkdownSyncService>(
+          () => markdownSyncService);
+
+      final avatarStateService = AvatarStateService(
+        database: localBrain,
+        personalityEngine: personalityEngine,
+        evolutionTracker: evolutionTracker,
+        markdownSyncService: markdownSyncService,
+      );
+      serviceLocator
+          .registerLazySingleton<AvatarStateService>(() => avatarStateService);
+
+      final brainSyncService = BrainSyncService(localBrain);
+      serviceLocator.registerSingleton<BrainSyncService>(brainSyncService);
+      brainSyncService.startSync();
+
+      final fullContextIndexer = FullContextIndexer(localBrain);
+      serviceLocator.registerSingleton<FullContextIndexer>(fullContextIndexer);
+
+      final rateLimitManager = RateLimitManager(localBrain);
+      serviceLocator.registerSingleton<RateLimitManager>(rateLimitManager);
+
+      final conscienceStorageService = ConscienceStorageService(
+        database: localBrain,
+      );
+      serviceLocator.registerSingleton<ConscienceStorageService>(
+        conscienceStorageService,
+      );
+
+      final routerServer = RouterServer(
+        rateLimitManager: rateLimitManager,
+        providers: {
+          'zhipu':
+              ZhipuAdapter(apiKey: const String.fromEnvironment('GLM_API_KEY')),
+          'google': GoogleAdapter(
+            apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
+          ),
+          'moonshot': MoonshotAdapter(
+            apiKey: const String.fromEnvironment('KIMI_API_KEY'),
+          ),
+        },
+        personalityEngine: personalityEngine,
+        evolutionTracker: evolutionTracker,
+        conscienceStorage: conscienceStorageService,
+      );
+      serviceLocator.registerSingleton<RouterServer>(routerServer);
+
+      // Start the router server in the background.
+      unawaited(routerServer.start());
+    } else {
       debugPrint(
-          '[Locator] Desktop detected, auto-bootstrapping services for local use...');
-      // Wait for authenticated services to complete initialization
-      // with timeout to prevent blocking forever
-      try {
-        await setupAuthenticatedServices().timeout(
-          const Duration(seconds: 30),
-          onTimeout: () {
-            debugPrint(
-                '[Locator] ⚠ Authenticated services initialization timed out after 30s');
-            // Don't throw - allow app to continue with core services
-          },
-        );
-        debugPrint('[Locator] ✓ Authenticated services initialized');
-      } catch (e, stack) {
-        debugPrint(
-            '[Locator] ⚠ Authenticated services initialization failed: $e');
-        debugPrint('[Locator] Stack trace: $stack');
-        // Don't rethrow - allow app to continue with core services
-      }
+        '[ServiceLocator] Skipping desktop-only LocalBrain/router core services on web',
+      );
     }
+
+    // Authentication Provider - Using platform-specific provider
+    late AuthProvider authProvider;
+
+    try {
+      debugPrint('[Locator] Detecting platform...');
+
+      // Check if we're on web first
+      if (kIsWeb) {
+        debugPrint(
+            '[Locator] ✓ Web platform detected, using Auth0AuthProvider');
+        authProvider = Auth0AuthProvider();
+      } else {
+        // Use Auth0AuthProvider for all desktop platforms
+        debugPrint('[Locator] Using Auth0AuthProvider for desktop');
+        authProvider = Auth0AuthProvider();
+      }
+    } catch (e, stack) {
+      debugPrint('[Locator] ERROR during platform detection: $e');
+      debugPrint('[Locator] Stack trace: $stack');
+      // Fallback to Auth0 if platform detection fails
+      debugPrint('[Locator] Falling back to Auth0AuthProvider');
+      authProvider = Auth0AuthProvider();
+    }
+
+    debugPrint('[Locator] Selected auth provider: ${authProvider.runtimeType}');
+
+    // Register strictly as AuthProvider interface to enforce abstraction
+    try {
+      debugPrint('[Locator] Registering AuthProvider...');
+      serviceLocator.registerSingleton<AuthProvider>(authProvider);
+      debugPrint('[Locator] ✓ AuthProvider registered successfully');
+    } catch (e, stack) {
+      debugPrint('[Locator] ❌ CRITICAL ERROR registering AuthProvider: $e');
+      debugPrint('[Locator] Stack trace: $stack');
+      rethrow;
+    }
+
+    late final AuthService authService;
+    try {
+      debugPrint('[Locator] Registering AuthService...');
+      authService = AuthService(authProvider);
+      serviceLocator.registerSingleton<AuthService>(authService);
+      debugPrint('[Locator] ✓ AuthService registered successfully');
+    } catch (e, stack) {
+      debugPrint('[Locator] ❌ CRITICAL ERROR registering AuthService: $e');
+      debugPrint('[Locator] Stack trace: $stack');
+      rethrow;
+    }
+
+    // Provider discovery - create but don't initialize until auth
+    final providerDiscoveryService = ProviderDiscoveryService();
+    serviceLocator.registerSingleton<ProviderDiscoveryService>(
+      providerDiscoveryService,
+    );
+
+    // LLM Error Handler - lightweight, doesn't require auth
+    final llmErrorHandler = LLMErrorHandler(
+      providerDiscovery: providerDiscoveryService,
+    );
+    serviceLocator.registerSingleton<LLMErrorHandler>(llmErrorHandler);
+
+    // LangChain Prompt Service - create but don't initialize templates until auth
+    final langchainPromptService = LangChainPromptService();
+    serviceLocator.registerSingleton<LangChainPromptService>(
+      langchainPromptService,
+    );
+
+    // Desktop client detection - can check client type without auth
+    final desktopClientDetectionService = DesktopClientDetectionService(
+      authService: authService,
+    );
+    serviceLocator.registerSingleton<DesktopClientDetectionService>(
+      desktopClientDetectionService,
+    );
+
+    // App initialization service - manages initialization order
+    final appInitializationService = AppInitializationService(
+      authService: authService,
+    );
+    serviceLocator.registerSingleton<AppInitializationService>(
+      appInitializationService,
+    );
+
+    // Settings import/export service - handles settings backup/restore
+    final settingsImportExportService = SettingsImportExportService(
+      preferencesService: settingsPreferenceService,
+    );
+    serviceLocator.registerSingleton<SettingsImportExportService>(
+      settingsImportExportService,
+    );
+
+    // Platform detection service - detects current platform and provides platform info
+    final platformDetectionService = PlatformDetectionService();
+    serviceLocator.registerSingleton<PlatformDetectionService>(
+      platformDetectionService,
+    );
+    debugPrint('[ServiceLocator] ✓ PlatformDetectionService registered');
+
+    // Platform adapter - provides platform-appropriate UI components
+    final platformAdapter = PlatformAdapter(platformDetectionService);
+    serviceLocator.registerSingleton<PlatformAdapter>(platformAdapter);
+
+    // Theme provider - manages application theme mode
+    final themeProvider = ThemeProvider();
+    serviceLocator.registerSingleton<ThemeProvider>(themeProvider);
+
+    // Provider configuration manager - manages local LLM provider configurations
+    final providerConfigurationManager = ProviderConfigurationManager();
+    serviceLocator.registerSingleton<ProviderConfigurationManager>(
+      providerConfigurationManager,
+    );
+
+    // URL scheme registration service - registers custom URL schemes for OAuth callbacks (Windows)
+    serviceLocator.registerSingleton<UrlSchemeRegistrationService>(
+      UrlSchemeRegistrationService(),
+    );
+
+    // Gateway control service - manages OpenClaw Gateway lifecycle (start/stop/restart)
+    final gatewayControlService =
+        GatewayControlService(settingsPreferenceService);
+    serviceLocator
+        .registerSingleton<GatewayControlService>(gatewayControlService);
+
+    // Setup status service - tracks first-run and setup completion
+    final setupStatusService = SetupStatusService(
+      authService: authService,
+      clientDetectionService: desktopClientDetectionService,
+    );
+    serviceLocator.registerSingleton<SetupStatusService>(setupStatusService);
+
+    // Setup wizard service - manages the onboarding wizard flow
+    final setupWizardService = SetupWizardService(
+      serviceLocator.get<ProviderDiscoveryService>(),
+      setupStatusService,
+      providerConfigurationManager,
+    );
+    serviceLocator.registerSingleton<SetupWizardService>(setupWizardService);
+
+    // Web download prompt service - can be created but won't do heavy work until auth
+    final webDownloadPromptService = WebDownloadPromptService(
+      authService: authService,
+      clientDetectionService: desktopClientDetectionService,
+    );
+    // Don't initialize yet - wait for auth
+    serviceLocator.registerSingleton<WebDownloadPromptService>(
+      webDownloadPromptService,
+    );
+
+    // Enhanced user tier service - can be created but won't initialize until auth
+    final enhancedUserTierService = EnhancedUserTierService();
+    serviceLocator.registerSingleton<EnhancedUserTierService>(
+      enhancedUserTierService,
+    );
+
+    // Don't initialize yet - wait for auth token
+
+    // Auto Update Service - manages application auto-updates for Linux
+    final autoUpdateService = AutoUpdateService();
+    serviceLocator
+        .registerLazySingleton<AutoUpdateService>(() => autoUpdateService);
+
+    debugPrint('[ServiceLocator] Core services registered successfully');
+
+    // Initialize AuthService last, after all dependencies are registered
+    try {
+      debugPrint('[Locator] Initializing AuthService...');
+      final authService = serviceLocator.get<AuthService>();
+      await authService.init();
+      debugPrint('[Locator] ✓ AuthService initialized successfully');
+
+      // On Desktop, auto-bootstrap authenticated services immediately
+      // This allows local use without mandatory login
+      if (!kIsWeb) {
+        debugPrint(
+            '[Locator] Desktop detected, auto-bootstrapping services for local use...');
+        // Wait for authenticated services to complete initialization
+        // with timeout to prevent blocking forever
+        try {
+          await setupAuthenticatedServices().timeout(
+            const Duration(seconds: 30),
+            onTimeout: () {
+              debugPrint(
+                  '[Locator] ⚠ Authenticated services initialization timed out after 30s');
+              // Don't throw - allow app to continue with core services
+            },
+          );
+          debugPrint('[Locator] ✓ Authenticated services initialized');
+        } catch (e, stack) {
+          debugPrint(
+              '[Locator] ⚠ Authenticated services initialization failed: $e');
+          debugPrint('[Locator] Stack trace: $stack');
+          // Don't rethrow - allow app to continue with core services
+        }
+      }
+    } catch (e, stack) {
+      debugPrint('[Locator] ❌ CRITICAL ERROR initializing AuthService: $e');
+      debugPrint('[Locator] Stack trace: $stack');
+      rethrow;
+    }
+
+    debugPrint('[ServiceLocator] ===== REGISTERING CORE SERVICES END =====');
+
+    // Verify all core services are registered
+    _verifyCoreServicesRegistered();
+
+    // Only mark as registered if we got this far without exceptions
+    _coreServicesRegistered = true;
+    debugPrint(
+        '[ServiceLocator] Core services registration completed successfully');
   } catch (e, stack) {
-    debugPrint('[Locator] ❌ CRITICAL ERROR initializing AuthService: $e');
-    debugPrint('[Locator] Stack trace: $stack');
+    debugPrint('[ServiceLocator] Core services registration failed: $e');
+    debugPrint('[ServiceLocator] Stack trace: $stack');
+
+    if (kIsWeb) {
+      debugPrint(
+        '[ServiceLocator] Attempting web-safe fallback core registration',
+      );
+      await _registerWebFallbackCoreServices();
+      _coreServicesRegistered = true;
+      debugPrint(
+          '[ServiceLocator] Web-safe fallback core registration complete');
+      return;
+    }
+
     rethrow;
   }
+}
 
-  debugPrint('[ServiceLocator] ===== REGISTERING CORE SERVICES END =====');
+Future<void> _registerWebFallbackCoreServices() async {
+  if (!serviceLocator.isRegistered<SettingsPreferenceService>()) {
+    serviceLocator.registerSingleton<SettingsPreferenceService>(
+      SettingsPreferenceService(),
+    );
+  }
 
-  // Verify all core services are registered
-  _verifyCoreServicesRegistered();
+  if (!serviceLocator.isRegistered<SessionStorageService>()) {
+    serviceLocator.registerSingleton<SessionStorageService>(
+      SessionStorageService(),
+    );
+  }
 
-  // Only mark as registered if we got this far without exceptions
-  _coreServicesRegistered = true;
-  debugPrint(
-      '[ServiceLocator] Core services registration completed successfully');
+  if (!serviceLocator.isRegistered<AuthProvider>()) {
+    serviceLocator.registerSingleton<AuthProvider>(Auth0AuthProvider());
+  }
+
+  if (!serviceLocator.isRegistered<AuthService>()) {
+    final authProvider = serviceLocator.get<AuthProvider>();
+    serviceLocator.registerSingleton<AuthService>(AuthService(authProvider));
+  }
+
+  if (!serviceLocator.isRegistered<ThemeProvider>()) {
+    serviceLocator.registerSingleton<ThemeProvider>(ThemeProvider());
+  }
+
+  if (!serviceLocator.isRegistered<ProviderConfigurationManager>()) {
+    serviceLocator.registerSingleton<ProviderConfigurationManager>(
+      ProviderConfigurationManager(),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<DesktopClientDetectionService>()) {
+    serviceLocator.registerSingleton<DesktopClientDetectionService>(
+      DesktopClientDetectionService(
+          authService: serviceLocator.get<AuthService>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<AppInitializationService>()) {
+    serviceLocator.registerSingleton<AppInitializationService>(
+      AppInitializationService(authService: serviceLocator.get<AuthService>()),
+    );
+  }
+
+  try {
+    await serviceLocator.get<AuthService>().init();
+  } catch (e) {
+    debugPrint('[ServiceLocator] Web fallback AuthService init failed: $e');
+  }
 }
 
 /// Verify that all critical core services are registered
