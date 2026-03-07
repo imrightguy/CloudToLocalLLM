@@ -22,7 +22,13 @@ class AppBootstrapper {
       debugPrint('[Bootstrapper] Starting bootstrap process...');
 
       debugPrint('[Bootstrapper] Setting up service locator...');
-      await setupServiceLocator();
+      await setupServiceLocator().timeout(
+        const Duration(seconds: 25),
+        onTimeout: () {
+          debugPrint(
+              '[Bootstrapper] Service locator setup timed out after 25s; continuing with degraded startup');
+        },
+      );
       debugPrint('[Bootstrapper] Service locator setup completed');
 
       debugPrint('[Bootstrapper] Bootstrap completed successfully');

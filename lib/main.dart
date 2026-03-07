@@ -84,7 +84,14 @@ void _runAppCommon() {
     try {
       debugPrint('[Main] Bootstrapper loading...');
       final bootstrapper = AppBootstrapper();
-      final result = await bootstrapper.load();
+      final result = await bootstrapper.load().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          debugPrint(
+              '[Main] Bootstrap timed out after 30s, continuing with degraded startup');
+          return AppBootstrapData(isWeb: kIsWeb, supportsNativeShell: !kIsWeb);
+        },
+      );
       debugPrint('[Main] Bootstrapper loaded');
       return result;
     } catch (e, stack) {
@@ -141,6 +148,7 @@ class CloudToLocalLLMApp extends StatefulWidget {
 
 class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
   bool _authListenerAttached = false;
+  bool _authRetryScheduled = false;
   AuthService? _attachedAuthService;
 
   @override
@@ -322,6 +330,18 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
     if (!di.serviceLocator.isRegistered<AuthService>()) {
       debugPrint(
           '[App] AuthService not registered yet - deferring listener attachment');
+      if (!_authRetryScheduled) {
+        _authRetryScheduled = true;
+        Future<void>.delayed(const Duration(seconds: 2), () {
+          if (!mounted) {
+            return;
+          }
+          _authRetryScheduled = false;
+          setState(() {
+            debugPrint('[App] Retrying provider tree build for AuthService');
+          });
+        });
+      }
       return;
     }
     final authService = di.serviceLocator.get<AuthService>();
@@ -427,6 +447,7 @@ class _AppRouterHost extends StatefulWidget {
 class _AppRouterHostState extends State<_AppRouterHost> {
   GoRouter? _router;
   bool _initialized = false;
+  bool _retryPending = false;
 
   @override
   void initState() {
@@ -439,7 +460,29 @@ class _AppRouterHostState extends State<_AppRouterHost> {
   }
 
   void _initializeRouterWhenReady() async {
-    final authService = context.read<AuthService>();
+    AuthService? authService;
+    try {
+      authService = context.read<AuthService>();
+    } catch (e) {
+      debugPrint('[Router] AuthService not in provider tree yet: $e');
+      if (di.serviceLocator.isRegistered<AuthService>()) {
+        authService = di.serviceLocator.get<AuthService>();
+      }
+    }
+
+    if (authService == null) {
+      if (!_retryPending) {
+        _retryPending = true;
+        Future<void>.delayed(const Duration(seconds: 2), () {
+          _retryPending = false;
+          if (!mounted || _router != null) {
+            return;
+          }
+          _initializeRouterWhenReady();
+        });
+      }
+      return;
+    }
 
     // Skip waiting for bootstrap - initialize router immediately
     debugPrint('[Router] Initializing without waiting for bootstrap');

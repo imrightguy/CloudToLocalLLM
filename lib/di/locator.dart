@@ -80,6 +80,11 @@ bool _isRegisteringAuthenticatedServices = false;
 /// Determines the OpenClaw skills directory path for the current platform.
 /// Checks common locations and creates the directory if it doesn't exist.
 String _getOpenClawSkillsPath() {
+  if (kIsWeb) {
+    // Web has no dart:io environment variables or writable local filesystem.
+    return 'web-skills';
+  }
+
   // Check common locations for OpenClaw skills directory
   final home = Platform.environment['HOME'];
   if (home == null) {
@@ -129,88 +134,105 @@ Future<void> setupCoreServices() async {
   serviceLocator
       .registerSingleton<SessionStorageService>(sessionStorageService);
 
-  // Token storage service for encrypted local persistence (SQLite)
-  final tokenStorageService = TokenStorageService();
-  await tokenStorageService.init();
-  serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
+  // Token storage service for encrypted local persistence.
+  try {
+    final tokenStorageService = TokenStorageService();
+    try {
+      await tokenStorageService.init();
+    } catch (e, stack) {
+      debugPrint('[ServiceLocator] TokenStorageService init failed: $e');
+      debugPrint('[ServiceLocator] TokenStorageService stack: $stack');
+      debugPrint(
+        '[ServiceLocator] Continuing with degraded token storage initialization',
+      );
+    }
+    serviceLocator.registerSingleton<TokenStorageService>(tokenStorageService);
+  } catch (e, stack) {
+    debugPrint('[ServiceLocator] TokenStorageService unavailable: $e');
+    debugPrint('[ServiceLocator] TokenStorageService ctor stack: $stack');
+    debugPrint(
+      '[ServiceLocator] Continuing without TokenStorageService registration',
+    );
+  }
 
-  // Local Brain Database - Main relational engine for durable memory
-  final localBrain = LocalBrain();
-  serviceLocator.registerSingleton<LocalBrain>(localBrain);
+  if (!kIsWeb) {
+    // Desktop-only core graph: LocalBrain, avatar persistence and embedded router.
+    // On web these services rely on native filesystem/runtime assumptions and can
+    // fail bootstrap before auth services are registered.
+    final localBrain = LocalBrain();
+    serviceLocator.registerSingleton<LocalBrain>(localBrain);
 
-  // Avatar Personality Engine - Manages avatar personality traits and evolution
-  final personalityEngine = PersonalityEngine(
-    database: localBrain,
-  );
-  serviceLocator
-      .registerLazySingleton<PersonalityEngine>(() => personalityEngine);
+    final personalityEngine = PersonalityEngine(
+      database: localBrain,
+    );
+    serviceLocator
+        .registerLazySingleton<PersonalityEngine>(() => personalityEngine);
 
-  // Avatar Evolution Tracker - Tracks conversation depth and evolution patterns
-  final evolutionTracker = EvolutionTracker(database: localBrain);
-  serviceLocator
-      .registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
+    final evolutionTracker = EvolutionTracker(database: localBrain);
+    serviceLocator
+        .registerLazySingleton<EvolutionTracker>(() => evolutionTracker);
 
-  // Avatar Memory Service - Manages long-term memory with vector embeddings
-  final memoryService = MemoryService(database: localBrain);
-  serviceLocator
-      .registerLazySingleton<MemoryService>(() => memoryService);
+    final memoryService = MemoryService(database: localBrain);
+    serviceLocator.registerLazySingleton<MemoryService>(() => memoryService);
 
-  // Markdown Sync Service - Backup avatar data to markdown files
-  final markdownSyncService = MarkdownSyncService(
-    database: localBrain,
-    markdownPath: _getOpenClawSkillsPath(),
-  );
-  serviceLocator
-      .registerLazySingleton<MarkdownSyncService>(() => markdownSyncService);
+    final markdownSyncService = MarkdownSyncService(
+      database: localBrain,
+      markdownPath: _getOpenClawSkillsPath(),
+    );
+    serviceLocator
+        .registerLazySingleton<MarkdownSyncService>(() => markdownSyncService);
 
-  // Avatar State Service - Centralized avatar state management
-  final avatarStateService = AvatarStateService(
-    database: localBrain,
-    personalityEngine: personalityEngine,
-    evolutionTracker: evolutionTracker,
-    markdownSyncService: markdownSyncService,
-  );
-  serviceLocator
-      .registerLazySingleton<AvatarStateService>(() => avatarStateService);
+    final avatarStateService = AvatarStateService(
+      database: localBrain,
+      personalityEngine: personalityEngine,
+      evolutionTracker: evolutionTracker,
+      markdownSyncService: markdownSyncService,
+    );
+    serviceLocator
+        .registerLazySingleton<AvatarStateService>(() => avatarStateService);
 
-  // Brain Sync Service - Synchronizes local thoughts with cloud backbone
-  final brainSyncService = BrainSyncService(localBrain);
-  serviceLocator.registerSingleton<BrainSyncService>(brainSyncService);
-  brainSyncService.startSync();
+    final brainSyncService = BrainSyncService(localBrain);
+    serviceLocator.registerSingleton<BrainSyncService>(brainSyncService);
+    brainSyncService.startSync();
 
-  // Full Context Indexer - Manages system-wide file indexing in local brain
-  final fullContextIndexer = FullContextIndexer(localBrain);
-  serviceLocator.registerSingleton<FullContextIndexer>(fullContextIndexer);
+    final fullContextIndexer = FullContextIndexer(localBrain);
+    serviceLocator.registerSingleton<FullContextIndexer>(fullContextIndexer);
 
-  // LLM Router Services
-  final rateLimitManager = RateLimitManager(localBrain);
-  serviceLocator.registerSingleton<RateLimitManager>(rateLimitManager);
+    final rateLimitManager = RateLimitManager(localBrain);
+    serviceLocator.registerSingleton<RateLimitManager>(rateLimitManager);
 
-  // Conscience Storage Service (Phase 1 - Storage Layer)
-  final conscienceStorageService = ConscienceStorageService(
-    database: localBrain,
-  );
-  serviceLocator
-      .registerSingleton<ConscienceStorageService>(conscienceStorageService);
+    final conscienceStorageService = ConscienceStorageService(
+      database: localBrain,
+    );
+    serviceLocator.registerSingleton<ConscienceStorageService>(
+      conscienceStorageService,
+    );
 
-  final routerServer = RouterServer(
-    rateLimitManager: rateLimitManager,
-    providers: {
-      'zhipu':
-          ZhipuAdapter(apiKey: const String.fromEnvironment('GLM_API_KEY')),
-      'google':
-          GoogleAdapter(apiKey: const String.fromEnvironment('GEMINI_API_KEY')),
-      'moonshot':
-          MoonshotAdapter(apiKey: const String.fromEnvironment('KIMI_API_KEY')),
-    },
-    personalityEngine: personalityEngine,
-    evolutionTracker: evolutionTracker,
-    conscienceStorage: conscienceStorageService,
-  );
-  serviceLocator.registerSingleton<RouterServer>(routerServer);
+    final routerServer = RouterServer(
+      rateLimitManager: rateLimitManager,
+      providers: {
+        'zhipu':
+            ZhipuAdapter(apiKey: const String.fromEnvironment('GLM_API_KEY')),
+        'google': GoogleAdapter(
+          apiKey: const String.fromEnvironment('GEMINI_API_KEY'),
+        ),
+        'moonshot': MoonshotAdapter(
+          apiKey: const String.fromEnvironment('KIMI_API_KEY'),
+        ),
+      },
+      personalityEngine: personalityEngine,
+      evolutionTracker: evolutionTracker,
+      conscienceStorage: conscienceStorageService,
+    );
+    serviceLocator.registerSingleton<RouterServer>(routerServer);
 
-  // Start the router server in the background
-  unawaited(routerServer.start());
+    // Start the router server in the background.
+    unawaited(routerServer.start());
+  } else {
+    debugPrint(
+      '[ServiceLocator] Skipping desktop-only LocalBrain/router core services on web',
+    );
+  }
 
   // Authentication Provider - Using platform-specific provider
   late AuthProvider authProvider;
@@ -369,7 +391,8 @@ Future<void> setupCoreServices() async {
 
   // Auto Update Service - manages application auto-updates for Linux
   final autoUpdateService = AutoUpdateService();
-  serviceLocator.registerLazySingleton<AutoUpdateService>(() => autoUpdateService);
+  serviceLocator
+      .registerLazySingleton<AutoUpdateService>(() => autoUpdateService);
 
   debugPrint('[ServiceLocator] Core services registered successfully');
 
@@ -608,10 +631,12 @@ Future<void> setupAuthenticatedServices() async {
         .registerSingleton<ConnectionManagerService>(connectionManager);
 
     // Wire up GatewayControlService with ConnectionManagerService now that both exist
-    debugPrint('[ServiceLocator] Wiring GatewayControlService with ConnectionManagerService...');
+    debugPrint(
+        '[ServiceLocator] Wiring GatewayControlService with ConnectionManagerService...');
     final gatewayControlService = serviceLocator.get<GatewayControlService>();
     gatewayControlService.setConnectionManager(connectionManager);
-    debugPrint('[ServiceLocator] ✓ GatewayControlService now listens to connection changes');
+    debugPrint(
+        '[ServiceLocator] ✓ GatewayControlService now listens to connection changes');
 
     // LangChain RAG service - requires connection manager
     final langchainRagService = LangChainRAGService();
@@ -715,12 +740,12 @@ Future<void> setupAuthenticatedServices() async {
         .registerLazySingleton<MainVisionService>(() => mainVisionService);
 
     final regionCaptureService = RegionCaptureService();
-    serviceLocator
-        .registerLazySingleton<RegionCaptureService>(() => regionCaptureService);
+    serviceLocator.registerLazySingleton<RegionCaptureService>(
+        () => regionCaptureService);
 
     final cameraCaptureService = CameraCaptureService();
-    serviceLocator
-        .registerLazySingleton<CameraCaptureService>(() => cameraCaptureService);
+    serviceLocator.registerLazySingleton<CameraCaptureService>(
+        () => cameraCaptureService);
 
     final ocrEngineService = OcrEngineService();
     serviceLocator
@@ -729,8 +754,8 @@ Future<void> setupAuthenticatedServices() async {
     // Desktop control services - window management
     debugPrint('[ServiceLocator] Initializing Desktop Control services...');
     final windowManagerService = WindowManagerService();
-    serviceLocator
-        .registerLazySingleton<WindowManagerService>(() => windowManagerService);
+    serviceLocator.registerLazySingleton<WindowManagerService>(
+        () => windowManagerService);
 
     // Pop-out window manager - manages pop-out window state for Gateway sections
     debugPrint('[ServiceLocator] Initializing PopOutManager...');
