@@ -374,18 +374,15 @@ jobs:
 
                 kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
 
-                kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
-                  kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
-                kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxUnavailable":"25%","maxSurge":"25%"}}}}'
+                kubectl -n cloudtolocalllm delete deployment web --ignore-not-found
+                kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
                 kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}'
-                kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
                 kubectl -n cloudtolocalllm scale deployment/web --replicas=1
 
                 kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
                   kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
 
-                kubectl -n cloudtolocalllm delete pod -l app=web --force --grace-period=0 || true
-                kubectl -n cloudtolocalllm rollout status deploy/web --timeout=900s
+                kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
                 kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
               '
             else
@@ -402,18 +399,15 @@ jobs:
 
               kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
 
-              kubectl -n cloudtolocalllm get deployment web >/dev/null 2>&1 || \
-                kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
-              kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxUnavailable":"25%","maxSurge":"25%"}}}}'
+              kubectl -n cloudtolocalllm delete deployment web --ignore-not-found
+              kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}
               kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}'
-              kubectl -n cloudtolocalllm set image deployment/web web=${IMAGE}
               kubectl -n cloudtolocalllm scale deployment/web --replicas=1
 
               kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
                 kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
 
-              kubectl -n cloudtolocalllm delete pod -l app=web --force --grace-period=0 || true
-              kubectl -n cloudtolocalllm rollout status deploy/web --timeout=900s
+              kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
               kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
             fi
 
