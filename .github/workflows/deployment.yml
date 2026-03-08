@@ -347,7 +347,7 @@ jobs:
 
             REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
             VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-            IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${GITHUB_RUN_NUMBER}"
+            IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${{ github.run_number }}"
             CTID="${{ secrets.K8S_CTID || secrets.SWARM_CTID || '201' }}"
             GHCR_USER="${{ secrets.GHCR_USERNAME || github.actor }}"
             GHCR_TOKEN="${{ secrets.GHCR_TOKEN || github.token }}"
