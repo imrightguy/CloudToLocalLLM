@@ -158,15 +158,17 @@ jobs:
         run: |
           REPO_LOWER=${GITHUB_REPOSITORY,,}
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+          IMAGE_TAG="${VERSION}-${GITHUB_RUN_NUMBER}"
 
           echo "Building Web Frontend..."
           flutter pub get
           flutter build web --release --no-tree-shake-icons
 
           echo "Building Kubernetes Web Image..."
-          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -f config/docker/Dockerfile.web .
+          docker build -t ghcr.io/${REPO_LOWER}/web:latest -t ghcr.io/${REPO_LOWER}/web:${VERSION} -t ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG} -f config/docker/Dockerfile.web .
           docker push ghcr.io/${REPO_LOWER}/web:latest
           docker push ghcr.io/${REPO_LOWER}/web:${VERSION}
+          docker push ghcr.io/${REPO_LOWER}/web:${IMAGE_TAG}
 
   build_desktop_apps:
     needs: [ai_change_analysis, run_tests]
@@ -345,7 +347,7 @@ jobs:
 
             REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
             VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-            IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}"
+            IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${GITHUB_RUN_NUMBER}"
             CTID="${{ secrets.K8S_CTID || secrets.SWARM_CTID || '201' }}"
             GHCR_USER="${{ secrets.GHCR_USERNAME || github.actor }}"
             GHCR_TOKEN="${{ secrets.GHCR_TOKEN || github.token }}"
