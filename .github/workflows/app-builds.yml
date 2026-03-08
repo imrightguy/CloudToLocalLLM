@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Update Version
         if: inputs.version != ''
         run: |
@@ -32,7 +32,7 @@ jobs:
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++6 libayatana-appindicator3-dev libsecret-1-dev libcurl4-openssl-dev zip
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++6 libayatana-appindicator3-dev libsecret-1-dev libcurl4-openssl-dev libnotify-dev zip
 
       - uses: subosito/flutter-action@v2
         with:
