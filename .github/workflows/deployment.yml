@@ -339,9 +339,9 @@ jobs:
       - name: Deploy Web to Kubernetes (k3s CT)
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.K8S_HOST || secrets.SWARM_HOST }}
-          username: ${{ secrets.K8S_USER || secrets.SWARM_USER }}
-          key: ${{ secrets.K8S_SSH_KEY || secrets.SWARM_SSH_KEY }}
+          host: ${{ secrets.SWARM_HOST || secrets.K8S_HOST }}
+          username: ${{ secrets.SWARM_USER || secrets.K8S_USER }}
+          key: ${{ secrets.SWARM_SSH_KEY || secrets.K8S_SSH_KEY }}
           timeout: 180s
           command_timeout: 20m
           script: |
@@ -350,7 +350,7 @@ jobs:
             REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
             VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
             IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${{ github.run_number }}"
-            CTID="${{ secrets.K8S_CTID || secrets.SWARM_CTID || '201' }}"
+            CTID="${{ secrets.SWARM_CTID || secrets.K8S_CTID || '201' }}"
             GHCR_USER="${{ secrets.GHCR_USERNAME || github.actor }}"
             GHCR_TOKEN="${{ secrets.GHCR_TOKEN || github.token }}"
 
