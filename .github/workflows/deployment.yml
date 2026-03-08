@@ -342,6 +342,8 @@ jobs:
           host: ${{ secrets.K8S_HOST || secrets.SWARM_HOST }}
           username: ${{ secrets.K8S_USER || secrets.SWARM_USER }}
           key: ${{ secrets.K8S_SSH_KEY || secrets.SWARM_SSH_KEY }}
+          timeout: 180s
+          command_timeout: 20m
           script: |
             set -e
 
