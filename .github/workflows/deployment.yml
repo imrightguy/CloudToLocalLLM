@@ -348,6 +348,7 @@ jobs:
           K8S_CTID: ${{ secrets.K8S_CTID }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GH_DEFAULT_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -355,7 +356,7 @@ jobs:
           VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
           IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${{ github.run_number }}"
           GHCR_USER="${GHCR_USERNAME:-${GITHUB_ACTOR}}"
-          GHCR_PASS="${GHCR_TOKEN:-${GITHUB_TOKEN}}"
+          GHCR_PASS="${GHCR_TOKEN:-${GH_DEFAULT_TOKEN}}"
 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
