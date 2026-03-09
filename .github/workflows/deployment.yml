@@ -384,60 +384,8 @@ jobs:
             local attempt
             for attempt in 1 2 3; do
               echo "Deploy attempt ${attempt}/3 via ${label} (${user}@${host})"
-              if ssh -i "$key_file" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=no "$user@$host" \
-                "IMAGE='$IMAGE' CTID='${ctid:-201}' GHCR_USER='$GHCR_USER' GHCR_TOKEN='$GHCR_PASS' bash -s" <<'REMOTE_SCRIPT'
-                set -euo pipefail
-
-                echo "Deploying image: ${IMAGE}"
-                echo "Target CTID: ${CTID}"
-
-                if command -v pct >/dev/null 2>&1; then
-                  echo "Detected Proxmox host, deploying via pct exec"
-                  pct exec "${CTID}" -- bash -lc '
-                    set -euo pipefail
-
-                    kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
-
-                    if [ -n "'""${GHCR_TOKEN}""'" ] && [ -n "'""${GHCR_USER}""'" ]; then
-                      kubectl -n cloudtolocalllm delete secret regcred --ignore-not-found
-                      kubectl -n cloudtolocalllm create secret docker-registry regcred \
-                        --docker-server=ghcr.io \
-                        --docker-username="'""${GHCR_USER}""'" \
-                        --docker-password="'""${GHCR_TOKEN}""'"
-                    fi
-
-                    kubectl -n cloudtolocalllm delete deployment web --ignore-not-found
-                    kubectl -n cloudtolocalllm create deployment web --image="'""${IMAGE}""'"
-                    kubectl -n cloudtolocalllm patch deployment/web --type=merge -p "{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}}"
-                    kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
-                      kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
-                    kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
-                    kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
-                  '
-                else
-                  echo "pct not found, assuming direct Kubernetes host"
-
-                  kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -
-
-                  if [ -n "${GHCR_TOKEN}" ] && [ -n "${GHCR_USER}" ]; then
-                    kubectl -n cloudtolocalllm delete secret regcred --ignore-not-found
-                    kubectl -n cloudtolocalllm create secret docker-registry regcred \
-                      --docker-server=ghcr.io \
-                      --docker-username="${GHCR_USER}" \
-                      --docker-password="${GHCR_TOKEN}"
-                  fi
-
-                  kubectl -n cloudtolocalllm delete deployment web --ignore-not-found
-                  kubectl -n cloudtolocalllm create deployment web --image="${IMAGE}"
-                  kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}'
-                  kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || \
-                    kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
-                  kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
-                  kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
-                fi
-
-                echo "Deployment complete"
-                REMOTE_SCRIPT
+              REMOTE_CMD="set -euo pipefail; echo Deploying image ${IMAGE}; kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -; if command -v pct >/dev/null 2>&1; then pct exec ${ctid:-201} -- bash -lc 'set -euo pipefail; kubectl -n cloudtolocalllm delete deployment web --ignore-not-found; kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p \"{\\\"spec\\\":{\\\"template\\\":{\\\"spec\\\":{\\\"imagePullSecrets\\\":[{\\\"name\\\":\\\"regcred\\\"}]}}}}\"; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web'; else kubectl -n cloudtolocalllm delete deployment web --ignore-not-found; kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}}'; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web; fi"
+              if ssh -i "$key_file" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=no "$user@$host" "$REMOTE_CMD"
               then
                 echo "Deployment succeeded via ${label}"
                 return 0
