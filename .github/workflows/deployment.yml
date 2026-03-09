@@ -346,6 +346,7 @@ jobs:
           K8S_USER: ${{ secrets.K8S_USER }}
           K8S_SSH_KEY: ${{ secrets.K8S_SSH_KEY }}
           K8S_CTID: ${{ secrets.K8S_CTID }}
+          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           GH_DEFAULT_TOKEN: ${{ github.token }}
@@ -358,19 +359,30 @@ jobs:
           GHCR_USER="${GHCR_USERNAME:-${GITHUB_ACTOR}}"
           GHCR_PASS="${GHCR_TOKEN:-${GH_DEFAULT_TOKEN}}"
 
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          echo "Deploying image: ${IMAGE}"
 
-          if [ -n "${SWARM_SSH_KEY:-}" ]; then
-            printf '%s\n' "$SWARM_SSH_KEY" > ~/.ssh/swarm_key
-            chmod 600 ~/.ssh/swarm_key
-          fi
-          if [ -n "${K8S_SSH_KEY:-}" ]; then
-            printf '%s\n' "$K8S_SSH_KEY" > ~/.ssh/k8s_key
-            chmod 600 ~/.ssh/k8s_key
-          fi
+          deploy_via_kubeconfig() {
+            local kubeconfig_base64="$1"
+            if [ -z "$kubeconfig_base64" ]; then
+              return 1
+            fi
+            echo "Deploying via kubeconfig..."
+            echo "$kubeconfig_base64" | base64 -d > /tmp/kubeconfig
+            chmod 600 /tmp/kubeconfig
+            export KUBECONFIG=/tmp/kubeconfig
+            
+            kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true
+            kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true
+            kubectl -n cloudtolocalllm create deployment web --image="${IMAGE}"
+            kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}' || true
+            kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
+            kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
+            kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
+            echo "Deployment via kubeconfig succeeded"
+            return 0
+          }
 
-          run_remote_deploy() {
+          deploy_via_ssh() {
             local label="$1"
             local host="$2"
             local user="$3"
@@ -384,7 +396,7 @@ jobs:
             local attempt
             for attempt in 1 2 3; do
               echo "Deploy attempt ${attempt}/3 via ${label} (${user}@${host})"
-              REMOTE_CMD="set -euo pipefail; echo Deploying image ${IMAGE}; kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f -; if command -v pct >/dev/null 2>&1; then pct exec ${ctid:-201} -- bash -lc 'set -euo pipefail; kubectl -n cloudtolocalllm delete deployment web --ignore-not-found; kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p \"{\\\"spec\\\":{\\\"template\\\":{\\\"spec\\\":{\\\"imagePullSecrets\\\":[{\\\"name\\\":\\\"regcred\\\"}]}}}}\"; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web'; else kubectl -n cloudtolocalllm delete deployment web --ignore-not-found; kubectl -n cloudtolocalllm create deployment web --image=${IMAGE}; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}}'; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web; fi"
+              REMOTE_CMD="set -euo pipefail; kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true; kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true; kubectl -n cloudtolocalllm create deployment web --image='${IMAGE}'; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}' || true; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web"
               if ssh -i "$key_file" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=no "$user@$host" "$REMOTE_CMD"
               then
                 echo "Deployment succeeded via ${label}"
@@ -392,19 +404,39 @@ jobs:
               fi
               sleep 15
             done
-
             return 1
           }
 
-          if run_remote_deploy "SWARM" "${SWARM_HOST:-}" "${SWARM_USER:-}" "$HOME/.ssh/swarm_key" "${SWARM_CTID:-201}"; then
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          if [ -n "${SWARM_SSH_KEY:-}" ]; then
+            printf '%s\n' "$SWARM_SSH_KEY" > ~/.ssh/swarm_key
+            chmod 600 ~/.ssh/swarm_key
+          fi
+          if [ -n "${K8S_SSH_KEY:-}" ]; then
+            printf '%s\n' "$K8S_SSH_KEY" > ~/.ssh/k8s_key
+            chmod 600 ~/.ssh/k8s_key
+          fi
+
+          if deploy_via_kubeconfig "${KUBECONFIG_BASE64:-}"; then
             exit 0
           fi
 
-          if run_remote_deploy "K8S" "${K8S_HOST:-}" "${K8S_USER:-}" "$HOME/.ssh/k8s_key" "${K8S_CTID:-201}"; then
+          if deploy_via_ssh "SWARM" "${SWARM_HOST:-}" "${SWARM_USER:-}" "$HOME/.ssh/swarm_key" "${SWARM_CTID:-201}"; then
+            exit 0
+          fi
+
+          if deploy_via_ssh "K8S" "${K8S_HOST:-}" "${K8S_USER:-}" "$HOME/.ssh/k8s_key" "${K8S_CTID:-201}"; then
             exit 0
           fi
 
           echo "All deployment targets failed"
+          echo ""
+          echo "To configure deployment, add one of the following to GitHub secrets:"
+          echo "  1. KUBECONFIG_BASE64 - Base64-encoded kubeconfig (recommended)"
+          echo "  2. K8S_HOST, K8S_USER, K8S_SSH_KEY - SSH access to k8s cluster"
+          echo "  3. SWARM_HOST, SWARM_USER, SWARM_SSH_KEY - SSH access to Proxmox"
           exit 1
 
       - name: Purge Cloudflare cache
