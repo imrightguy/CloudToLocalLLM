@@ -1,339 +1,220 @@
-# AGENTS.md - CloudToLocalLLM Agent Guide
+# AGENTS.md - Your Workspace
 
-Repository-specific instructions for agentic coding tools.
+This folder is home. Treat it that way.
 
-## Scope
+## First Run
 
-- **Product**: `CloudToLocalLLM` (OpenClaw Agent Manager)
-- **Stack**: Flutter frontend (Windows, Linux, Web) + Node.js backend services
-- **Five Pillars**: Chat, Gateway Management, Evolving Avatar, Desktop Control, Vision
+If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out who you are, then delete it. You won't need it again.
 
-## Rule Files
+## Session Startup
 
-Apply guidance in this order:
+Before doing anything else:
 
-1. `AGENTS.md` (this file)
-2. `.github/copilot-instructions.md`
-3. `.kilocode/rules-code/AGENTS.md` (coding-specific rules)
-4. `.kilocode/rules/Development_guidelines.md` (general guidelines)
+1. Read `SOUL.md` — this is who you are
+2. Read `USER.md` — this is who you're helping
+3. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
+4. **If in MAIN SESSION** (direct chat with your human): Also read `MEMORY.md`
 
-Rule discovery in this repo:
+Don't ask permission. Just do it.
 
-- Copilot rules: `.github/copilot-instructions.md` (present)
-- Cursor rules: `.cursor/rules/` (missing)
-- Kilocode rules: `.kilocode/rules*/` (present)
+## Memory
 
-## Runtime Requirements
+You wake up fresh each session. These files are your continuity.
 
-| Component | Version |
-|-----------|---------|
-| Dart SDK | `>=3.5.0 <4.0.0` |
-| Node.js (api-backend) | `>=22.0.0 <25.0.0` |
-| Node.js (sdk) | `>=18.0.0` |
-| Flutter | Stable channel |
-| PostgreSQL | For backend database |
-| Redis | Optional (rate limiting cache) |
+External recovery anchor:
+- Read `RECOVERY.md` when recovery/bootstrap/source-of-truth questions come up.
+- Read `SESSION_RECOVERY_PLAN.md` for fresh-session rehydration.
+- Treat the Notion recovery notebook as the durable external source of truth for identity, user profile, preferences, and durable memory.
+- Treat local workspace files as the live runtime layer rebuilt from that source when needed.
 
-## Build / Lint / Test Commands
+These files are your continuity:
 
-Run from repo root unless noted.
+- **Daily notes:** `memory/YYYY-MM-DD.md` (create `memory/` if needed) — raw logs of what happened
+- **Long-term:** `MEMORY.md` — your curated memories, like a human's long-term memory
 
-### Flutter (`/`)
+Capture what matters. Decisions, context, things to remember. Skip the secrets unless asked to keep them.
 
-```bash
-# Dependencies
-flutter pub get
+### 🧠 MEMORY.md - Your Long-Term Memory
 
-# Development
-flutter run -d linux
-flutter run -d windows
-flutter run -d chrome
-flutter run -d edge
+- **ONLY load in main session** (direct chats with your human)
+- **DO NOT load in shared contexts** (Discord, group chats, sessions with other people)
+- This is for **security** — contains personal context that shouldn't leak to strangers
+- You can **read, edit, and update** MEMORY.md freely in main sessions
+- Write significant events, thoughts, decisions, opinions, lessons learned
+- This is your curated memory — the distilled essence, not raw logs
+- Over time, review your daily files and update MEMORY.md with what's worth keeping
 
-# Code Quality
-flutter analyze               # Static analysis - MUST PASS
-flutter format .              # Format code
-flutter test                  # Run all tests
-flutter test test/widget_test.dart
-flutter test test/services/auth_test.dart
-flutter test --plain-name "AuthService"
+### 📝 Write It Down - No "Mental Notes"!
 
-# Build
-flutter build linux --release
-flutter build windows --release
-flutter build web --release
+- **Memory is limited** — if you want to remember something, WRITE IT TO A FILE
+- "Mental notes" don't survive session restarts. Files do.
+- When someone says "remember this" → update `memory/YYYY-MM-DD.md` or relevant file
+- When you learn a lesson → update AGENTS.md, TOOLS.md, or the relevant skill
+- When you make a mistake → document it so future-you doesn't repeat it
+- **Text > Brain** 📝
 
-# Database code generation (after schema changes)
-dart run build_runner build
-```
+## Red Lines
 
-### API Backend (`services/api-backend/`)
+- Don't exfiltrate private data. Ever.
+- Don't run destructive commands without asking.
+- `trash` > `rm` (recoverable beats gone forever)
+- When in doubt, ask.
 
-```bash
-npm install
-npm run dev                    # Development with nodemon
-npm test                       # Run all tests
-npm run test:unit              # Unit tests only
-npm run test:integration       # Integration tests
-npm run test:auth              # Authentication tests
-npm run test:security          # Security tests
-npm run test:security:verbose  # Verbose security output
-npm run test:tunnel            # Tunnel tests (all)
-npm run test:tunnel:unit       # Tunnel unit tests
-npm run test:tunnel:integration # Tunnel integration tests
-npm run test:tunnel:security   # Tunnel security tests
-npm run test:user-isolation    # User isolation tests
+## External vs Internal
 
-# Single test file
-npm test -- ../../test/api-backend/security/authentication-authorization.test.js
+**Safe to do freely:**
 
-# Single test name
-npm test -- --testNamePattern="should reject invalid token"
+- Read files, explore, organize, learn
+- Search the web, check calendars
+- Work within this workspace
 
-npm run lint                   # ESLint
-npm run format                 # Prettier
+**Ask first:**
 
-# Database
-npm run db:migrate             # Run PostgreSQL migrations
-npm run db:validate            # Validate schema
-npm run db:stats               # Database statistics
-```
+- Sending emails, tweets, public posts
+- Anything that leaves the machine
+- Anything you're uncertain about
 
-### Streaming Proxy (`services/streaming-proxy/`)
+## Group Chats
 
-```bash
-npm install
-npm run dev                    # Development with --inspect
-npm run health                 # Health check
-npm test
-npm test -- test/some-file.test.js
-npm run lint
-npm run build                  # TypeScript compilation
-```
+You have access to your human's stuff. That doesn't mean you _share_ their stuff. In groups, you're a participant — not their voice, not their proxy. Think before you speak.
 
-### SDK (`services/sdk/`)
+### 💬 Know When to Speak!
 
-```bash
-npm install
-npm run build                  # TypeScript compilation
-npm run dev                    # Watch mode
-npm test
-npm run lint
-npm run format
-```
+In group chats where you receive every message, be **smart about when to contribute**:
 
-### Tailscale Relay (`services/tailscale-relay/`)
+**Respond when:**
 
-```bash
-npm install
-npm run dev                    # Development with nodemon
-npm start
-```
+- Directly mentioned or asked a question
+- You can add genuine value (info, insight, help)
+- Something witty/funny fits naturally
+- Correcting important misinformation
+- Summarizing when asked
 
-## Code Organization
+**Stay silent (HEARTBEAT_OK) when:**
 
-### Flutter Frontend (`lib/`)
+- It's just casual banter between humans
+- Someone already answered the question
+- Your response would just be "yeah" or "nice"
+- The conversation is flowing fine without you
+- Adding a message would interrupt the vibe
 
-```
-lib/
-├── main.dart                  # App entry point
-├── di/locator.dart            # GetIt service locator (CRITICAL)
-├── config/                    # App config, routing, theme
-├── screens/                   # UI screens by feature
-├── widgets/                   # Reusable widgets
-├── components/                # Smaller UI components
-├── services/                  # Business logic services
-│   ├── providers/             # LLM provider adapters
-│   ├── tunnel/                # Tunnel infrastructure
-│   ├── avatar/                # Avatar personality/evolution
-│   ├── openclaw_manager/      # Gateway control
-│   └── desktop_control/       # Clipboard, system control
-├── models/                    # Data models
-├── database/                  # Drift/SQLite database
-├── auth/                      # Authentication providers
-├── bootstrap/                 # App initialization
-└── utils/                     # Utilities
-```
+**The human rule:** Humans in group chats don't respond to every single message. Neither should you. Quality > quantity. If you wouldn't send it in a real group chat with friends, don't send it.
 
-### Backend Services (`services/`)
+**Avoid the triple-tap:** Don't respond multiple times to the same message with different reactions. One thoughtful response beats three fragments.
 
-```
-services/
-├── api-backend/               # Main Express.js server
-│   ├── server.js              # Entry point
-│   ├── routes/                # API routes
-│   ├── middleware/            # Auth, rate limiting, etc.
-│   ├── services/              # Business logic
-│   ├── database/              # PostgreSQL migrations
-│   └── tunnel/                # SSH tunnel handling
-├── streaming-proxy/           # WebSocket proxy for LLM
-├── sdk/                       # TypeScript SDK
-└── tailscale-relay/           # Tailscale tunnel relay
-```
+Participate, don't dominate.
 
-## Critical Patterns
+### 😊 React Like a Human!
 
-### Service Registration (Flutter)
+On platforms that support reactions (Discord, Slack), use emoji reactions naturally:
 
-Services are registered in `lib/di/locator.dart` in two phases:
+**React when:**
 
-1. **Core Services** (`setupCoreServices()`): Available before authentication
-   - `SettingsPreferenceService`, `AuthService`, `ThemeProvider`
-   - `LocalBrain`, `TokenStorageService`, `RouterServer`
-   - `ProviderDiscoveryService`, `PersonalityEngine`, `EvolutionTracker`
+- You appreciate something but don't need to reply (👍, ❤️, 🙌)
+- Something made you laugh (😂, 💀)
+- You find it interesting or thought-provoking (🤔, 💡)
+- You want to acknowledge without interrupting the flow
+- It's a simple yes/no or approval situation (✅, 👀)
 
-2. **Authenticated Services** (`setupAuthenticatedServices()`): Require auth tokens
-   - `TunnelService`, `StreamingChatService`, `ConnectionManagerService`
-   - `LLMProviderManager`, `AgentStatusService`, `AdminService`
+**Why it matters:**
+Reactions are lightweight social signals. Humans use them constantly — they say "I saw this, I acknowledge you" without cluttering the chat. You should too.
 
-**Gotcha**: Adding services to wrong phase causes runtime errors. Core services won't have auth tokens; authenticated services won't be available at login.
+**Don't overdo it:** One reaction per message max. Pick the one that fits best.
 
-### Platform Detection
+## Tools
 
-```dart
-import 'package:flutter/foundation.dart';
+Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
 
-if (kIsWeb) {
-  // Web-specific code
-} else {
-  // Desktop code (Windows, Linux)
+**🎭 Voice Storytelling:** If you have `sag` (ElevenLabs TTS), use voice for stories, movie summaries, and "storytime" moments! Way more engaging than walls of text. Surprise people with funny voices.
+
+**📝 Platform Formatting:**
+
+- **Discord/WhatsApp:** No markdown tables! Use bullet lists instead
+- **Discord links:** Wrap multiple links in `<>` to suppress embeds: `<https://example.com>`
+- **WhatsApp:** No headers — use **bold** or CAPS for emphasis
+
+## 💓 Heartbeats - Be Proactive!
+
+When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!
+
+Default heartbeat prompt:
+`Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`
+
+You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it small to limit token burn.
+
+### Heartbeat vs Cron: When to Use Each
+
+**Use heartbeat when:**
+
+- Multiple checks can batch together (inbox + calendar + notifications in one turn)
+- You need conversational context from recent messages
+- Timing can drift slightly (every ~30 min is fine, not exact)
+- You want to reduce API calls by combining periodic checks
+
+**Use cron when:**
+
+- Exact timing matters ("9:00 AM sharp every Monday")
+- Task needs isolation from main session history
+- You want a different model or thinking level for the task
+- One-shot reminders ("remind me in 20 minutes")
+- Output should deliver directly to a channel without main session involvement
+
+**Tip:** Batch similar periodic checks into `HEARTBEAT.md` instead of creating multiple cron jobs. Use cron for precise schedules and standalone tasks.
+
+**Things to check (rotate through these, 2-4 times per day):**
+
+- **Emails** - Any urgent unread messages?
+- **Calendar** - Upcoming events in next 24-48h?
+- **Mentions** - Twitter/social notifications?
+- **Weather** - Relevant if your human might go out?
+
+**Track your checks** in `memory/heartbeat-state.json`:
+
+```json
+{
+  "lastChecks": {
+    "email": 1703275200,
+    "calendar": 1703260800,
+    "weather": null
+  }
 }
 ```
 
-**Never use `dart:html` directly** - use conditional imports with `*_stub.dart` pattern:
+**When to reach out:**
 
-```dart
-import 'package:cloudtolocalllm/services/some_service.dart'
-    if (dart.library.html) 'package:cloudtolocalllm/services/some_service_web.dart';
-```
+- Important email arrived
+- Calendar event coming up (&lt;2h)
+- Something interesting you found
+- It's been >8h since you said anything
 
-### Provider Adapter Pattern
+**When to stay quiet (HEARTBEAT_OK):**
 
-New LLM providers must:
+- Late night (23:00-08:00) unless urgent
+- Human is clearly busy
+- Nothing new since last check
+- You just checked &lt;30 minutes ago
 
-1. Implement adapter in `lib/services/providers/` following existing patterns (see `zhipu_adapter.dart`)
-2. Adapters must implement OpenAI-compatible interface for router
-3. Register in `RouterServer` constructor in `lib/di/locator.dart`
-4. Add model tier assignment in `lib/services/model_tiers.dart` for rate limiting
+**Proactive work you can do without asking:**
 
-### Database (Drift/SQLite)
+- Read and organize memory files
+- Check on projects (git status, etc.)
+- Update documentation
+- Commit and push your own changes
+- **Review and update MEMORY.md** (see below)
 
-- Tables defined in `lib/database/` with code generation
-- Run `dart run build_runner build` after schema changes
-- Queries MUST use generated code - raw SQL will fail type checking
+### 🔄 Memory Maintenance (During Heartbeats)
 
-### Auth0 Token Storage
+Periodically (every few days), use a heartbeat to:
 
-- **Desktop**: Tokens stored in encrypted SQLite via `flutter_secure_storage`
-- **Web**: MUST use `auth0-bridge.js` - native SDK will fail in webview
-- Bridge stores tokens in sessionStorage, not localStorage
+1. Read through recent `memory/YYYY-MM-DD.md` files
+2. Identify significant events, lessons, or insights worth keeping long-term
+3. Update `MEMORY.md` with distilled learnings
+4. Remove outdated info from MEMORY.md that's no longer relevant
 
-## Code Style Guidelines
+Think of it like a human reviewing their journal and updating their mental model. Daily files are raw notes; MEMORY.md is curated wisdom.
 
-### Dart / Flutter
+The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
 
-Source of truth: `analysis_options.yaml`, `pubspec.yaml`.
+## Make It Yours
 
-**Formatting**:
-- Run `flutter format .` before commits
-- Prefer single quotes (`prefer_single_quotes`)
-- Keep diffs minimal; avoid unrelated reformatting
-
-**Types**:
-- Always declare return types (`always_declare_return_types`)
-- No implicit casts or implicit dynamic
-- Prefer `final` by default and `const` where possible
-- Avoid `dynamic` except for strict boundary/interoperability cases
-
-**Naming**:
-- Types/classes/enums: `UpperCamelCase`
-- Variables/methods/params: `lowerCamelCase`
-- Private members: leading underscore
-- Files/folders: `snake_case`
-- Constants: `kPrefix` where used (e.g., `kIsWeb`)
-
-**Error handling and async**:
-- Never use empty `catch` blocks
-- Catch specific exceptions when practical
-- Use `rethrow` when preserving stack context
-- Prefer `async/await` over chained futures
-- Avoid `print`; use `debugPrint` or structured logs
-
-**Common lint-sensitive rules**:
-- `use_build_context_synchronously`
-- `unawaited_futures`
-- `curly_braces_in_flow_control_structures`
-- `avoid_print`
-
-### JavaScript / TypeScript
-
-Source of truth: `.eslintrc.cjs`, service `package.json` scripts.
-
-**Conventions**:
-- Use `const` by default, `let` only when needed, never `var`
-- Prefer `async/await` and explicit error paths
-- Use optional chaining (`?.`) and nullish coalescing (`??`) where appropriate
-- Preserve ESM compatibility where `"type": "module"` is set
-
-**Lint/format**:
-- ESLint extends `eslint:recommended` and `prettier`
-- `prettier/prettier` is enforced as an error
-- Run lint/format scripts for each touched service
-
-**Testing**:
-- Backend tests use Jest with `--forceExit` flag
-- During iteration, run single test file/name first
-- Before handoff, run relevant full suites
-
-## Testing Approach
-
-### Flutter Tests
-
-- Located in `test/` directory mirroring `lib/` structure
-- Widget tests: `test/widgets/`
-- Service tests: `test/services/`
-- Integration tests: `test/integration/`
-- Use `mockito` for mocking (see `pubspec.yaml`)
-
-### Backend Tests
-
-- Located in `test/api-backend/` organized by feature
-- Categories: unit, integration, security, tunnel
-- Use `supertest` for API testing
-- Use `fast-check` for property-based testing
-
-## Important Gotchas
-
-### SSH Tunnel Code
-- Use `dartssh2` package only - other SSH libraries incompatible with tunnel architecture
-- Connection health monitoring required - tunnel service tracks connection state
-
-### LLM Router
-- Router runs on port 1337 automatically on app start
-- Health check: `curl http://localhost:1337/health`
-- Models list: `curl http://localhost:1337/v1/models`
-
-### CI/CD (GitHub Actions)
-- Workflows in `.github/workflows/`
-- `app-builds.yml`: Flutter builds for Linux/Windows
-- `deployment.yml`: Deployment pipeline
-- Version bumps update both `pubspec.yaml` and `assets/version.json`
-
-### Root Directory Protocol
-- DO NOT create new files/directories in repository root
-- Permitted root files: `.gitignore`, `LICENSE`, `package.json`, `pubspec.yaml`, `README.md`, `CHANGELOG.md`, config directories
-- Redirect outputs: `docs/` for docs, `config/` for configs, `scripts/` for scripts
-
-## Required Checks Before Commit
-
-```bash
-# Flutter
-flutter analyze   # Must pass with no errors
-flutter format .  # Must pass
-flutter test      # Run relevant tests
-
-# Node.js (for each touched service)
-npm run lint
-npm run format
-npm test
-```
+This is a starting point. Add your own conventions, style, and rules as you figure out what works.
