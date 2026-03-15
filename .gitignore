@@ -1,1 +1,81 @@
+# OpenClaw
 .openclaw/
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+build/
+dist/
+out/
+*.tar.gz
+*.tgz
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+flutter_build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Certificates (never commit)
+certbot/
+*.pem
+*.key
+*.crt
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Documentation archives
+docs/archive/
+
+# Deployment generated files
+deploy/
+publish_desktop_releases/
+
+# Sentry native
+.sentry-native/
+
+# Claude Code skills (user-specific)
+.claude/
+
+# Kilocode (user-specific)
+.kilocode/
