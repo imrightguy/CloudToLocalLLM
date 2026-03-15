@@ -10,3 +10,4 @@
 - [ ] **Notion Sync Audit**: Verify all local `IDENTITY.md` and `USER.md` changes are reflected in Notion databases.
 - [x] **Workspace Hygiene**: Auto-cleanup of `.trash` and redundant log files.
 - [x] **Security Maintenance**: Fixed npm vulnerabilities (2026-03-15) - all npm audit issues resolved.
+- [ ] **Git Repository Bloat**: .git is 1.9GB due to historical binary commits (Windows builds, AppImages, kubectl, cloudflared). Recommend BFG Repo-Cleaner or git-filter-repo to purge large files from history. Requires force push.
