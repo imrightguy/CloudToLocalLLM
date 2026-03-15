@@ -1,0 +1,10 @@
+I've reviewed the `himalaya` email configuration and found that the `personal` account is currently set up with placeholder values (e.g., `christopher@example.com` and `YOUR_APP_PASSWORD_HERE`). This configuration is not functional.
+
+To fix your email access, I need your input:
+
+1.  **Please provide your actual Google email address.**
+2.  **Please generate an app password from your Google Account security settings for `himalaya` and provide it to me.**
+
+Once I have this information, I will update the `himalaya` configuration file (`~/.config/himalaya/config.toml`) with the correct details, including the Google IMAP/SMTP servers, and the app password you provide.
+
+Let me know when you have generated the app password and are ready to provide these details.
