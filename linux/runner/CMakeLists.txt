@@ -24,7 +24,21 @@ apply_standard_settings(${BINARY_NAME})
 target_link_libraries(${BINARY_NAME} PRIVATE flutter)
 target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
 
-# X11 libraries for Vision and Desktop Control
+# Wayland and DBus libraries for Wayland support
+pkg_check_modules(WAYLAND REQUIRED wayland-client wayland-cursor)
+target_link_libraries(${BINARY_NAME} PRIVATE ${WAYLAND_LIBRARIES})
+target_include_directories(${BINARY_NAME} PRIVATE ${WAYLAND_INCLUDE_DIRS})
+
+pkg_check_modules(DBUS REQUIRED dbus-1)
+target_link_libraries(${BINARY_NAME} PRIVATE ${DBUS_LIBRARIES})
+target_include_directories(${BINARY_NAME} PRIVATE ${DBUS_INCLUDE_DIRS})
+
+# GLib for DBus integration
+pkg_check_modules(GLIB REQUIRED glib-2.0 gio-2.0 gio-unix-2.0)
+target_link_libraries(${BINARY_NAME} PRIVATE ${GLIB_LIBRARIES})
+target_include_directories(${BINARY_NAME} PRIVATE ${GLIB_INCLUDE_DIRS})
+
+# X11 libraries for X11/XWayland fallback
 target_link_libraries(${BINARY_NAME} PRIVATE X11)
 target_link_libraries(${BINARY_NAME} PRIVATE Xext)
 target_link_libraries(${BINARY_NAME} PRIVATE Xtst)
