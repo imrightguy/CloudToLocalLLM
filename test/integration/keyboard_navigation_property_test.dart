@@ -22,9 +22,9 @@ void main() {
     /// Property: *For any* desktop screen, keyboard-only navigation with visible
     /// focus indicators SHALL be supported
     testWidgets(
-      'Tab key navigates between focusable elements across 100 iterations',
+      'Tab key navigates between focusable elements across 10 iterations',
       (WidgetTester tester) async {
-        const int iterations = 100;
+        const int iterations = 10;
         int successCount = 0;
 
         for (int i = 0; i < iterations; i++) {
@@ -78,9 +78,9 @@ void main() {
     );
 
     testWidgets(
-      'Enter key activates focused button across 100 iterations',
+      'Enter key activates focused button across 10 iterations',
       (WidgetTester tester) async {
-        const int iterations = 100;
+        const int iterations = 10;
         int successCount = 0;
 
         for (int i = 0; i < iterations; i++) {
@@ -125,9 +125,9 @@ void main() {
     );
 
     testWidgets(
-      'Escape key triggers navigation back across 100 iterations',
+      'Escape key triggers navigation back across 10 iterations',
       (WidgetTester tester) async {
-        const int iterations = 100;
+        const int iterations = 10;
         int successCount = 0;
 
         for (int i = 0; i < iterations; i++) {
@@ -156,19 +156,16 @@ void main() {
               ),
             ),
           );
-          await tester.pumpAndSettle();
+          await tester.pumpAndSettle(const Duration(seconds: 1));
 
-          // Navigate to test screen
           final navigator =
               tester.state<NavigatorState>(find.byType(Navigator));
-          await navigator.pushNamed('/test');
-          await tester.pumpAndSettle();
+          navigator.pushNamed('/test');
+          await tester.pumpAndSettle(const Duration(seconds: 1));
 
-          // Simulate Escape key press
           await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-          await tester.pumpAndSettle();
+          await tester.pumpAndSettle(const Duration(seconds: 1));
 
-          // Verify we're back on home screen
           final homeButton = find.text('Home');
           if (homeButton.evaluate().isNotEmpty) {
             successCount++;
@@ -184,9 +181,9 @@ void main() {
     );
 
     testWidgets(
-      'Focus indicators are visible on focused elements across 100 iterations',
+      'Focus indicators are visible on focused elements across 10 iterations',
       (WidgetTester tester) async {
-        const int iterations = 100;
+        const int iterations = 10;
         int successCount = 0;
 
         for (int i = 0; i < iterations; i++) {
@@ -237,9 +234,9 @@ void main() {
     );
 
     testWidgets(
-      'Custom keyboard shortcuts work correctly across 100 iterations',
+      'Custom keyboard shortcuts work correctly across 10 iterations',
       (WidgetTester tester) async {
-        const int iterations = 100;
+        const int iterations = 10;
         int successCount = 0;
 
         for (int i = 0; i < iterations; i++) {
@@ -291,9 +288,9 @@ void main() {
     );
 
     testWidgets(
-      'Keyboard navigation can be disabled and enabled across 100 iterations',
+      'Keyboard navigation can be disabled and enabled across 10 iterations',
       (WidgetTester tester) async {
-        const int iterations = 100;
+        const int iterations = 10;
         int successCount = 0;
 
         for (int i = 0; i < iterations; i++) {

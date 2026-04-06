@@ -33,7 +33,7 @@ class ThemeProvider extends ChangeNotifier {
   final Stopwatch _updateStopwatch = Stopwatch();
 
   ThemeProvider({bool skipLoad = false}) {
-    if (!isFlutterTestEnvironment() && !skipLoad) {
+    if (!skipLoad) {
       _loadThemePreference();
     }
   }
