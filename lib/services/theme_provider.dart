@@ -32,8 +32,8 @@ class ThemeProvider extends ChangeNotifier {
   // Performance tracking
   final Stopwatch _updateStopwatch = Stopwatch();
 
-  ThemeProvider() {
-    if (!isFlutterTestEnvironment()) {
+  ThemeProvider({bool skipLoad = false}) {
+    if (!isFlutterTestEnvironment() && !skipLoad) {
       _loadThemePreference();
     }
   }
@@ -253,10 +253,6 @@ class ThemeProvider extends ChangeNotifier {
   /// Persists within 500ms as per requirements
   /// Implements error recovery as per Requirement 17.3
   Future<void> _saveThemePreference(ThemeMode mode) async {
-    if (isFlutterTestEnvironment()) {
-      return;
-    }
-
     try {
       final prefs = await SharedPreferences.getInstance();
       String themeString;

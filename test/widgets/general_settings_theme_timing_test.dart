@@ -90,10 +90,8 @@ void main() {
       expect(themeProvider.themeMode, equals(ThemeMode.dark));
 
       // Create a new ThemeProvider instance to verify persistence
-      final newThemeProvider = ThemeProvider();
-
-      // Wait for new instance to load
-      await Future.delayed(const Duration(milliseconds: 100));
+      final newThemeProvider = ThemeProvider(skipLoad: true);
+      await newThemeProvider.reloadThemePreference();
 
       // The new instance should load the saved theme
       expect(newThemeProvider.themeMode, equals(ThemeMode.dark));
