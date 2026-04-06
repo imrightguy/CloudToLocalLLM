@@ -7,12 +7,32 @@ void main() {
 
   // Get the singleton instance once for all tests
   late ClipboardService service;
+  String? clipboardText;
 
   setUpAll(() async {
     service = ClipboardService();
 
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (MethodCall call) async {
+      switch (call.method) {
+        case 'Clipboard.setData':
+          final Map<dynamic, dynamic> data = call.arguments as Map<dynamic, dynamic>;
+          clipboardText = data['text'] as String?;
+          return null;
+        case 'Clipboard.getData':
+          return <String, dynamic>{'text': clipboardText};
+        default:
+          return null;
+      }
+    });
+
     // Initialize once at the start
     // We don't close the database to avoid singleton issues
+  });
+
+  tearDownAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, null);
   });
 
   group('ClipboardService Basic Tests', () {

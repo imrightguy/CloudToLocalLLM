@@ -144,12 +144,12 @@ void main() {
       when(mockDb.updateEvolutionStage(any)).thenAnswer((_) async {});
 
       final result = await engine.validateEvolutionRequest(
-        'stage1',
+        'curious_explorer',
         'self_reflection',
       );
 
       expect(result.approved, isTrue);
-      expect(result.newStage, equals('stage1'));
+      expect(result.newStage, equals('curious_explorer'));
     });
 
     test('validateEvolutionRequest denies with insufficient depth', () async {
@@ -165,7 +165,7 @@ void main() {
           ]);
 
       final result = await engine.validateEvolutionRequest(
-        'stage1',
+        'curious_explorer',
         'self_reflection',
       );
 

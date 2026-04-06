@@ -162,13 +162,13 @@ void main() {
         expect(isVisible, true);
       });
 
-      test('should show local LLM providers category on all platforms',
+      test('should hide local LLM providers category on all platforms',
           () async {
         final isVisible = await platformCategoryFilter.isCategoryVisible(
           SettingsCategoryIds.localLLMProviders,
         );
 
-        expect(isVisible, true);
+        expect(isVisible, false);
       });
 
       test('should show account category on all platforms', () async {

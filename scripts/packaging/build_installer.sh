@@ -13,6 +13,8 @@ UPDATE_DAEMON_DIR="$SCRIPT_DIR/update-daemon"
 # Get version from pubspec.yaml
 VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)
 
+mkdir -p "$(dirname "$OUTPUT")"
+
 echo "Generating installer script for v$VERSION..."
 
 # Prepare embedded files as base64

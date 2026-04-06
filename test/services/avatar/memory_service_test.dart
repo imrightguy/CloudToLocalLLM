@@ -8,6 +8,7 @@ void main() {
       // Test that service can be instantiated
       // Note: Cannot test full functionality without native plugins
       final testDatabase = LocalBrain();
+      addTearDown(() async => await testDatabase.close());
       final service = MemoryService(database: testDatabase);
       expect(service, isA<MemoryService>());
       expect(service.isInitialized, false);
@@ -15,6 +16,7 @@ void main() {
 
     test('should throw error when not initialized', () {
       final testDatabase = LocalBrain();
+      addTearDown(() async => await testDatabase.close());
       final service = MemoryService(database: testDatabase);
 
       // Methods should throw StateError when not initialized
@@ -39,6 +41,7 @@ void main() {
 
     test('should have correct service structure', () {
       final testDatabase = LocalBrain();
+      addTearDown(() async => await testDatabase.close());
       final service = MemoryService(database: testDatabase);
 
       // Verify service has expected methods and properties

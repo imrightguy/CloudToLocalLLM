@@ -14,6 +14,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
+import '../utils/test_env.dart';
 
 /// Service for managing application theme mode with unified theme system
 class ThemeProvider extends ChangeNotifier {
@@ -32,7 +33,9 @@ class ThemeProvider extends ChangeNotifier {
   final Stopwatch _updateStopwatch = Stopwatch();
 
   ThemeProvider() {
-    _loadThemePreference();
+    if (!isFlutterTestEnvironment()) {
+      _loadThemePreference();
+    }
   }
 
   /// Get current theme mode
@@ -250,6 +253,10 @@ class ThemeProvider extends ChangeNotifier {
   /// Persists within 500ms as per requirements
   /// Implements error recovery as per Requirement 17.3
   Future<void> _saveThemePreference(ThemeMode mode) async {
+    if (isFlutterTestEnvironment()) {
+      return;
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
       String themeString;

@@ -26,7 +26,9 @@ class _DashboardTabState extends State<DashboardTab> {
   void initState() {
     super.initState();
     _loadMetrics();
-    _startAutoRefresh();
+    if (!const bool.fromEnvironment('FLUTTER_TEST')) {
+      _startAutoRefresh();
+    }
   }
 
   @override

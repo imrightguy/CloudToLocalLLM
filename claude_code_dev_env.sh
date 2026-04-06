@@ -3,14 +3,14 @@
 # CloudToLocalLLM Development Environment Aliases
 # =============================================================================
 # Source this file in your shell:
-#   source /mnt/data/dev/CloudToLocalLLM/claude_code_dev_env.sh
+#   source /mnt/data/projects/CloudToLocalLLM/claude_code_dev_env.sh
 #
 # Or add to ~/.bashrc:
-#   source /mnt/data/dev/CloudToLocalLLM/claude_code_dev_env.sh
+#   source /mnt/data/projects/CloudToLocalLLM/claude_code_dev_env.sh
 # =============================================================================
 
 # Project root
-export CLOUD_TO_LOCAL_LLM_ROOT="/mnt/data/dev/CloudToLocalLLM"
+export CLOUD_TO_LOCAL_LLM_ROOT="/mnt/data/projects/CloudToLocalLLM"
 cd "$CLOUD_TO_LOCAL_LLM_ROOT" 2>/dev/null || true
 
 # =============================================================================
@@ -158,7 +158,7 @@ alias cdweb='cd "$CLOUD_TO_LOCAL_LLM_ROOT/web"'
 # =============================================================================
 
 # To enable these aliases permanently, add this line to your ~/.bashrc:
-#   source /mnt/data/dev/CloudToLocalLLM/claude_code_dev_env.sh
+#   source /mnt/data/projects/CloudToLocalLLM/claude_code_dev_env.sh
 
 # Optional tools to install:
 #   - pgcli:       pip install pgcli           # Better PostgreSQL CLI

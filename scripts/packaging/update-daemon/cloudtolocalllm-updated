@@ -164,46 +164,99 @@ check_for_updates() {
     fi
 }
 
-# Download update (stub for future implementation)
-download_update() {
+INSTALL_DIR="${HOME}/.local/share/cloudtolocalllm"
+DOWNLOAD_DIR="$INSTALL_DIR/cache"
+APPIMAGE_TARGET="$INSTALL_DIR/cloudtolocalllm"
+
+get_release_asset_url() {
     local version="$1"
-    log "Downloading update $version..."
+    local api_url="https://api.github.com/repos/CloudToLocalLLM-online/CloudToLocalLLM/releases/tags/v${version}"
+    local asset_name="cloudtolocalllm-${version}-x86_64.AppImage"
+    local response_file
 
-    # TODO: Implement download logic
-    # - Download AppImage from GitHub releases
-    # - Verify checksum
-    # - Save to cache directory
+    if ! command -v curl &> /dev/null; then
+        return 1
+    fi
 
-    log "Download complete (stub)"
+    response_file="$(mktemp)"
+    if ! curl -fsSL "$api_url" -o "$response_file"; then
+        rm -f "$response_file"
+        return 1
+    fi
+
+    python3 - "$asset_name" "$response_file" <<'PY'
+import json
+import pathlib
+import sys
+
+asset_name = sys.argv[1]
+response_path = pathlib.Path(sys.argv[2])
+release = json.loads(response_path.read_text())
+
+for asset in release.get('assets', []):
+    name = asset.get('name', '')
+    if name == asset_name or (name.endswith('.AppImage') and 'x86_64' in name):
+        print(asset.get('browser_download_url', ''))
+        break
+PY
+    local status=$?
+    rm -f "$response_file"
+    return $status
 }
 
-# Install update (stub for future implementation)
+# Download update to local cache
+download_update() {
+    local version="$1"
+    local url=""
+    local output_file="$DOWNLOAD_DIR/cloudtolocalllm-${version}.AppImage"
+
+    mkdir -p "$DOWNLOAD_DIR"
+    log "Downloading update $version..."
+
+    url="$(get_release_asset_url "$version" || true)"
+    if [ -z "$url" ]; then
+        log "Failed to resolve download URL for version $version"
+        return 1
+    fi
+
+    curl -fL "$url" -o "$output_file"
+    chmod +x "$output_file"
+
+    log "Download complete: $output_file"
+}
+
+# Install update into the local AppImage launcher
 install_update() {
     local version="$1"
+    local cached_file="$DOWNLOAD_DIR/cloudtolocalllm-${version}.AppImage"
+
     log "Installing update $version..."
 
-    # TODO: Implement installation logic
-    # - Stop running application
-    # - Replace old AppImage with new one
-    # - Update current_version in state
-    # - Restart application
+    if [ ! -f "$cached_file" ]; then
+        log "Cached update missing; downloading first"
+        download_update "$version"
+    fi
+
+    if [ ! -f "$cached_file" ]; then
+        log "Install failed: download for $version is unavailable"
+        return 1
+    fi
+
+    mkdir -p "$(dirname "$APPIMAGE_TARGET")"
+    cp "$cached_file" "$APPIMAGE_TARGET"
+    chmod +x "$APPIMAGE_TARGET"
 
     save_state "last_update" "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
     save_state "current_version" "$version"
 
-    log "Installation complete (stub)"
+    log "Installation complete: $APPIMAGE_TARGET"
 }
 
-# Notify user about update (stub for future implementation)
+# Notify user about update
 notify_user() {
     local version="$1"
     local update_type="$2"
     log "Notifying user about $update_type update to $version..."
-
-    # TODO: Implement notification logic
-    # - Send desktop notification
-    # - Update state file for UI to pick up
-    # - Optional: write to socket for real-time notification
 
     if command -v notify-send &> /dev/null; then
         notify-send "CloudToLocalLLM Update Available" \

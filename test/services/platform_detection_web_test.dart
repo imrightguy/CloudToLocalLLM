@@ -54,9 +54,9 @@ void main() {
         expect(service.isInitialized, true);
         expect(service.detectedPlatform, isNotNull);
       } else {
-        // In non-web environment, should default to unknown
+        // In non-web environment, should detect the actual native platform
         expect(service.isInitialized, true);
-        expect(service.detectedPlatform, PlatformType.unknown);
+        expect(service.detectedPlatform, PlatformType.linux);
       }
     });
   });

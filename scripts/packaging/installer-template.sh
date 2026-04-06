@@ -156,14 +156,14 @@ download_appimage() {
     local appimage_name="CloudToLocalLLM-${version}-x86_64.AppImage"
     local download_url="${base_url}/${appimage_name}"
 
-    log_info "Downloading CloudToLocalLLM v${version}..."
+    echo "📦 Downloading CloudToLocalLLM v${version}..." >&2
 
     mkdir -p "$output_dir"
 
     if command -v curl &> /dev/null; then
-        curl -L -o "${output_dir}/${appimage_name}" "$download_url"
+        curl -L -o "${output_dir}/${appimage_name}" "$download_url" >&2
     elif command -v wget &> /dev/null; then
-        wget -O "${output_dir}/${appimage_name}" "$download_url"
+        wget -O "${output_dir}/${appimage_name}" "$download_url" >&2
     else
         log_error "Neither curl nor wget found"
         return 1
@@ -177,7 +177,7 @@ download_appimage() {
         return 1
     fi
 
-    log_success "Downloaded to ${output_dir}/${appimage_name}"
+    echo "✅ Downloaded to ${output_dir}/${appimage_name}" >&2
     echo "${output_dir}/${appimage_name}"
 }
 
@@ -253,9 +253,14 @@ install_daemon() {
         echo "$EMBEDDED_UPDATED_SERVICE" | base64 -d > /etc/systemd/system/cloudtolocalllm-updated.service
         echo "$EMBEDDED_UPDATED_TIMER" | base64 -d > /etc/systemd/system/cloudtolocalllm-updated.timer
 
-        systemctl daemon-reload
-        systemctl enable cloudtolocalllm-updated.timer
-        systemctl start cloudtolocalllm-updated.timer
+        systemctl daemon-reload || true
+        systemctl unmask cloudtolocalllm-updated.service cloudtolocalllm-updated.timer 2>/dev/null || true
+        if ! systemctl enable cloudtolocalllm-updated.timer; then
+            log_warning "Could not enable system update timer; continuing"
+        fi
+        if ! systemctl start cloudtolocalllm-updated.timer; then
+            log_warning "Could not start system update timer; continuing"
+        fi
     else
         # User installation
         local user_service_dir="$HOME/.config/systemd/user"
@@ -265,10 +270,49 @@ install_daemon() {
         echo "$EMBEDDED_UPDATED_SERVICE" | base64 -d | sed "s|%h|%h|g" > "$user_service_dir/cloudtolocalllm-updated.service"
         echo "$EMBEDDED_UPDATED_TIMER" | base64 -d | sed "s|%h|%h|g" > "$user_service_dir/cloudtolocalllm-updated.timer"
 
-        systemctl --user daemon-reload
-        systemctl --user enable cloudtolocalllm-updated.timer
-        systemctl --user start cloudtolocalllm-updated.timer
+        systemctl --user daemon-reload || true
+        systemctl --user unmask cloudtolocalllm-updated.service cloudtolocalllm-updated.timer 2>/dev/null || true
+        if ! systemctl --user enable cloudtolocalllm-updated.timer; then
+            log_warning "Could not enable user update timer; continuing"
+        fi
+        if ! systemctl --user start cloudtolocalllm-updated.timer; then
+            log_warning "Could not start user update timer; continuing"
+        fi
     fi
 
     log_success "Update daemon installed and enabled"
 }
+
+main() {
+    local version="${INSTALL_VERSION}"
+
+    if [ -z "$version" ]; then
+        version="$(detect_latest_version "$INSTALL_CHANNEL")"
+    fi
+
+    if [ -z "$INSTALL_DIR" ]; then
+        INSTALL_DIR="$(setup_install_dir "$SYSTEM_WIDE" "")"
+    else
+        INSTALL_DIR="$(setup_install_dir "$SYSTEM_WIDE" "$INSTALL_DIR")"
+    fi
+
+    local downloaded_appimage
+    downloaded_appimage="$(download_appimage "$version" "$INSTALL_CHANNEL" "$INSTALL_DIR")"
+
+    # Create stable launcher name expected by the desktop file
+    cp "$downloaded_appimage" "$INSTALL_DIR/CloudToLocalLLM"
+    chmod +x "$INSTALL_DIR/CloudToLocalLLM"
+
+    create_desktop_entry "$INSTALL_DIR" "$SYSTEM_WIDE"
+    update_desktop_database
+
+    if [ "$SKIP_DAEMON" != true ]; then
+        install_daemon "$INSTALL_DIR" "$SYSTEM_WIDE"
+    fi
+
+    log_success "CloudToLocalLLM installed successfully"
+    echo "Installed version: $version"
+    echo "Location: $INSTALL_DIR/CloudToLocalLLM"
+}
+
+main "$@"

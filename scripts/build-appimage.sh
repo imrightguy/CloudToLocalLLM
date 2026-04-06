@@ -3,7 +3,7 @@
 
 set -e
 
-PROJECT_DIR="/mnt/data/dev/CloudToLocalLLM"
+PROJECT_DIR="/mnt/data/projects/CloudToLocalLLM"
 BUILD_DIR="$PROJECT_DIR/build/linux/x64/release/bundle"
 APPIMAGE_DIR="/tmp/appimage-build"
 APPIMAGE_OUTPUT="/tmp/CloudToLocalLLM-x86_64.AppImage"

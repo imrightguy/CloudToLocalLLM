@@ -18,7 +18,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=%h/.config/cloudtolocalllm %h/.local/share/cloudtolocalllm/cache
+ReadWritePaths=%h/.config/cloudtolocalllm %h/.local/share/cloudtolocalllm
 
 [Install]
 WantedBy=multi-user.target

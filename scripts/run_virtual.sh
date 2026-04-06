@@ -3,7 +3,7 @@
 # Configuration
 DISPLAY_NUM=99
 RESOLUTION="1920x1080x24"
-APP_PATH="/mnt/data/dev/CloudToLocalLLM/build/linux/x64/debug/bundle/cloudtolocalllm"
+APP_PATH="/mnt/data/projects/CloudToLocalLLM/build/linux/x64/debug/bundle/cloudtolocalllm"
 LOG_FILE="/tmp/app_virtual_display.log"
 PID_FILE="/tmp/app_virtual_display.pid"
 

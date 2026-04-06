@@ -31,12 +31,14 @@ class _EmailMetricsTabState extends State<EmailMetricsTab> {
     super.initState();
     _initializeDateRange();
     _loadMetrics();
-    // Refresh metrics every 30 seconds for real-time updates
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (mounted) {
-        _loadMetrics();
-      }
-    });
+    if (!const bool.fromEnvironment('FLUTTER_TEST')) {
+      // Refresh metrics every 30 seconds for real-time updates
+      _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+        if (mounted) {
+          _loadMetrics();
+        }
+      });
+    }
   }
 
   @override

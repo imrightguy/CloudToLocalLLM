@@ -1038,20 +1038,27 @@ class LocalBrain extends _$LocalBrain {
   Future<void> insertMemory(ConversationMemoriesCompanion memory) =>
       into(conversationMemories).insert(memory);
 
-  /// Search memories by embedding similarity (simple text search for now)
-  /// TODO: Implement proper vector similarity search with cosine distance
+  /// Search memories by content and summary text.
+  ///
+  /// This is a database-backed fallback until vector similarity search is
+  /// implemented. It keeps the search fast and avoids loading every memory into
+  /// Dart just to filter it in memory.
   Future<List<ConversationMemory>> searchMemoriesByContent(
       String searchTerm) async {
-    // Simple text-based search for now
-    // Future enhancement: Use vector similarity with the embedding field
-    final allMemories = await select(conversationMemories).get();
-    final searchTermLower = searchTerm.toLowerCase();
+    final term = searchTerm.trim();
+    if (term.isEmpty) {
+      return getRecentMemories();
+    }
 
-    return allMemories
-        .where((memory) =>
-            memory.content.toLowerCase().contains(searchTermLower) ||
-            (memory.summary?.toLowerCase().contains(searchTermLower) ?? false))
-        .toList();
+    final pattern = '%$term%';
+    final query = select(conversationMemories)
+      ..where((t) => t.content.like(pattern) | t.summary.like(pattern))
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+      ])
+      ..limit(100);
+
+    return query.get();
   }
 
   /// Delete memories for a specific conversation

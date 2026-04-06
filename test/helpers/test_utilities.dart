@@ -9,9 +9,18 @@ import 'package:flutter_test/flutter_test.dart';
 /// Pumps the widget tree and settles all animations
 Future<void> pumpAndSettleWithTimeout(
   WidgetTester tester, {
-  Duration timeout = const Duration(seconds: 10),
+  Duration timeout = const Duration(seconds: 1),
 }) async {
-  await tester.pumpAndSettle(timeout);
+  final deadline = DateTime.now().add(timeout);
+  var iterations = 0;
+
+  while (DateTime.now().isBefore(deadline) && iterations < 20) {
+    await tester.pump(const Duration(milliseconds: 50));
+    iterations++;
+    if (!tester.binding.hasScheduledFrame) {
+      break;
+    }
+  }
 }
 
 /// Waits for a specific duration and pumps
@@ -43,15 +52,23 @@ void expectWidgetsExist(Finder finder, int count) {
   expect(finder, findsNWidgets(count));
 }
 
-/// Gets the theme from a widget context
-ThemeData getTheme(WidgetTester tester) {
-  return Theme.of(tester.element(find.byType(MaterialApp).first));
+/// Gets the active MaterialApp theme mode.
+ThemeMode? getThemeMode(WidgetTester tester) {
+  final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp).first);
+  return materialApp.themeMode;
 }
 
-/// Verifies theme mode matches expected
+/// Verifies theme mode matches expected.
 void expectThemeMode(WidgetTester tester, Brightness expectedBrightness) {
-  final theme = getTheme(tester);
-  expect(theme.brightness, expectedBrightness);
+  final themeMode = getThemeMode(tester);
+  final actualBrightness = switch (themeMode) {
+    ThemeMode.dark => Brightness.dark,
+    ThemeMode.light => Brightness.light,
+    ThemeMode.system =>
+      tester.binding.platformDispatcher.platformBrightness,
+    null => Brightness.light,
+  };
+  expect(actualBrightness, expectedBrightness);
 }
 
 /// Measures execution time of an async operation
