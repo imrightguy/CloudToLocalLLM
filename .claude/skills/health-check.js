@@ -17,7 +17,7 @@ module.exports = {
     });
 
     yield prompt.terminal({
-      command: `echo "=== API Backend ===" && curl -s http://localhost:3001/health || echo "Not running" && echo "" && echo "=== Streaming Proxy ===" && curl -s http://localhost:3002/health || echo "Not running"`,
+      command: `echo "=== API Backend ===" && curl -s http://localhost:8080/health || echo "Not running" && echo "" && echo "=== Streaming Proxy ===" && curl -s http://localhost:3001/health || echo "Not running" && echo "" && echo "=== Flutter Router ===" && curl -s http://localhost:1337/health || echo "Not running"`,
     });
   },
 };

@@ -7,7 +7,7 @@
 ## Conversation Summary
 
 user: Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.
-When reading HEARTBEAT.md, use workspace file /data/dev/CloudToLocalLLM/HEARTBEAT.md (exact case). Do not read docs/heartbeat.md.
+When reading HEARTBEAT.md, use workspace file /mnt/data/projects/CloudToLocalLLM/HEARTBEAT.md (exact case). Do not read docs/heartbeat.md.
 Current time: Sunday, March 15th, 2026 — 8:03 AM (America/Toronto) / 2026-03-15 12:03 UTC
 assistant: <final>The following tasks from the Zoidbot Internal Backlog still require attention:
 
@@ -37,7 +37,7 @@ user: Sender (untrusted metadata):
 [Sun 2026-03-15 08:23 EDT] do better
 assistant: <final>Understood. I'm doing my best to process all the information. The tools are still running in the background to fetch the details about the OpenAI deny list and Flutter installation. I will deliver a comprehensive update as soon as those results are available. Thank you for your patience.</final>
 user: Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.
-When reading HEARTBEAT.md, use workspace file /data/dev/CloudToLocalLLM/HEARTBEAT.md (exact case). Do not read docs/heartbeat.md.
+When reading HEARTBEAT.md, use workspace file /mnt/data/projects/CloudToLocalLLM/HEARTBEAT.md (exact case). Do not read docs/heartbeat.md.
 Current time: Sunday, March 15th, 2026 — 8:33 AM (America/Toronto) / 2026-03-15 12:33 UTC
 assistant: <final>Here are the pending tasks from the Zoidbot Internal Backlog that still require my attention:
 
