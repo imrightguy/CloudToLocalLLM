@@ -14,6 +14,12 @@ _OpenClaw Agent Manager — privacy-first local AI with claws._ 🦞</div>
 
 ---
 
+## 🤖 Hermes Agent compatibility
+
+This repository includes `AGENTS.md`, `SOUL.md`, `USER.md`, and `SESSION_REENTRY.md` so Hermes Agent can load workspace instructions, project identity, human context, and a quick reentry path automatically.
+
+---
+
 ## 🚀 Overview
 
 **CloudToLocalLLM** is an **OpenClaw Agent Manager** — a privacy-first desktop AI companion with unified chat, evolving avatar, desktop control, and vision capabilities. It manages the OpenClaw Gateway, provides an evolving visual avatar with growing personality, and offers full desktop control through GUI automation and vision-language models.

@@ -1,40 +1,50 @@
-# TOOLS.md - Local Notes
+# TOOLS.md - Zoidbot Environment Cheat Sheet
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+## Channels
 
-## What Goes Here
+| Platform | Home ID | Notes |
+|----------|---------|-------|
+| Discord | `1466397358790152353` | No threads, no @mentions, #general only |
+| Telegram | `7910589259` | Topics supported |
 
-Things like:
+## SSH / Remote
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
+- LXC container: `ssh root@208.110.72.50 "pct enter 201"` (4 cores, 16GB RAM, Docker Swarm)
+- GitHub: `imrightguy` (not currently authed with gh CLI)
 
-## Examples
+## Google Accounts (via gog CLI)
 
-```markdown
-### Cameras
+- chokesmaster
+- christopher.maltais
+- cloudtolocalllm
+- teh.right.bot
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+## Obsidian Vault
 
-### SSH
+- Path: `/home/rightguy/Documents/The Right Vault`
+- Recovery notes: `Zoidbot/Recovery/`
+- Primary recovery source (Notion is legacy)
 
-- home-server → 192.168.1.100, user: admin
+## Email
 
-### TTS
+- christopher.maltais@gmail.com
+- chokesmaster@gmail.com
+- himalaya: 🔴 not configured (needs app password)
 
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
-```
+## Storage Layout
 
-## Why Separate?
+| Mount | Device | Size | Notes |
+|-------|--------|------|-------|
+| `/` | nvme0n1 (Btrfs) | 950GB | Root — disposable |
+| `/mnt/data` | nvme1n1 (Btrfs, DATA) | 932GB | Durable — NEVER format |
+| USB | sda (Ventoy) | — | Boot media |
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+## Key Config Paths
 
----
-
-Add whatever helps you do your job. This is your cheat sheet.
+| Path | Purpose |
+|------|---------|
+| `~/.hermes/` | Hermes agent config, skills, memory |
+| `~/.hermes/config.yaml` | Main gateway config |
+| `~/.config/himalaya/` | Email client config (placeholder) |
+| `/mnt/data/zoidbot/` | Env backups, hermes tokens, OAuth secrets |
+| `/mnt/data/zoidbot/backup_hermes_env_secrets.env` | Hermes env secret backup |

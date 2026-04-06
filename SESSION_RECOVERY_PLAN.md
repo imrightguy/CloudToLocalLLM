@@ -2,6 +2,8 @@
 
 Use this when starting a fresh session, after reinstall, or when context feels thin.
 
+If you only need a quick reentry, read `SESSION_REENTRY.md` first.
+
 ## Goal
 
 Recover fast without making Christopher repeat stable facts.
@@ -9,6 +11,7 @@ Recover fast without making Christopher repeat stable facts.
 ## Startup Order
 
 1. Read local startup files:
+   - `AGENTS.md`
    - `SOUL.md`
    - `USER.md`
    - recent daily memory files

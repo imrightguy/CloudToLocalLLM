@@ -2,6 +2,10 @@
 
 This workspace uses **Notion as the external recovery anchor**.
 
+If context is thin or the session is fresh, read `SESSION_REENTRY.md` first.
+
+If you need the deeper recovery flow, read `SESSION_RECOVERY_PLAN.md` after that.
+
 ## Canonical Recovery Source
 
 Primary external source:
@@ -26,9 +30,10 @@ If this workspace is lost, reinstalled, or bootstrapped fresh:
 1. Read the Notion notebook first
 2. Restore `IDENTITY.md`
 3. Restore `USER.md`
-4. Restore behavior/preferences from Notion
-5. Review durable memory and active projects
-6. Rebuild local files from that canonical context
+4. Restore `AGENTS.md` and `SOUL.md`
+5. Restore behavior/preferences from Notion
+6. Review durable memory and active projects
+7. Rebuild local files from that canonical context
 
 ## Sync Direction
 

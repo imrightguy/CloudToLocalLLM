@@ -38,9 +38,9 @@ Curated memory distilled from daily logs and workspace context. Updated periodic
 
 ## Workspace
 
-- **Location:** `/data/dev/CloudToLocalLLM`
+- **Location:** `/mnt/data/projects/CloudToLocalLLM`
 - **Project:** CloudToLocalLLM (Flutter app, K8s deployment)
-- **Git:** Clean, up to date with origin/main
+- **Git:** Working tree has local Hermes-compatibility edits
 - **Hygiene:** Good - regular cleanup of build artifacts
 
 ---
