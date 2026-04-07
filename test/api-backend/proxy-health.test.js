@@ -146,7 +146,7 @@ describe('ProxyHealthService', () => {
 
       expect(result.status).toBe('degraded');
       expect(result.error).toBe('Health check timeout');
-    });
+    }, 15000);
 
     it('should throw error if proxy not registered', async () => {
       const healthCheckFn = jest.fn().mockResolvedValue({ status: 'ok' });

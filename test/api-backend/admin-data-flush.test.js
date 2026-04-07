@@ -1,6 +1,6 @@
 /* global jest */
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { AdminDataFlushService } from '../admin-data-flush-service.js';
+import { AdminDataFlushService } from '../../services/api-backend/admin-data-flush-service.js';
 import Docker from 'dockerode';
 
 // Mock Docker

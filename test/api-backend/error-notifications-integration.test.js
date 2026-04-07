@@ -23,6 +23,7 @@ import {
   createManualErrorNotificationHandler,
 } from '../../services/api-backend/middleware/error-notification-middleware.js';
 import { errorNotificationService } from '../../services/api-backend/services/error-notification-service.js';
+import { ErrorNotificationService } from '../../services/api-backend/services/error-notification-service.js';
 
 describe('Error Notification Middleware Integration', () => {
   let app;
@@ -386,7 +387,7 @@ describe('Error Notification Middleware Integration', () => {
     });
 
     it('should not exceed maximum queue size', async () => {
-      const service = new (require('../../services/api-backend/services/error-notification-service.js').ErrorNotificationService)({
+      const service = new ErrorNotificationService({
         maxNotificationQueueSize: 5,
       });
 
