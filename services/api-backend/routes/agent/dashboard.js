@@ -21,7 +21,7 @@ router.get('/metrics', authenticateJWT, async (req, res) => {
       GROUP BY status
     `;
     const statusResult = await query(statusQuery, [userId]);
-    
+
     const counts = {
       total: 0,
       active: 0,
@@ -45,7 +45,7 @@ router.get('/metrics', authenticateJWT, async (req, res) => {
       GROUP BY event_type
     `;
     const eventsResult = await query(eventsQuery, [userId]);
-    
+
     const eventsSummary = {};
     eventsResult.rows.forEach(row => {
       eventsSummary[row.event_type] = parseInt(row.count);
@@ -72,14 +72,14 @@ router.get('/metrics', authenticateJWT, async (req, res) => {
 router.get('/agents', authenticateJWT, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     const agentsQuery = `
       SELECT * FROM agents
       WHERE user_id = $1 OR user_id IS NULL
       ORDER BY updated_at DESC
     `;
     const result = await query(agentsQuery, [userId]);
-    
+
     res.json({
       success: true,
       data: result.rows
@@ -98,7 +98,7 @@ router.get('/events', authenticateJWT, async (req, res) => {
   try {
     const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     const eventsQuery = `
       SELECT ae.*, a.name as agent_name, a.agent_id as agent_external_id
       FROM agent_events ae
@@ -108,7 +108,7 @@ router.get('/events', authenticateJWT, async (req, res) => {
       LIMIT $2
     `;
     const result = await query(eventsQuery, [userId, limit]);
-    
+
     res.json({
       success: true,
       data: result.rows

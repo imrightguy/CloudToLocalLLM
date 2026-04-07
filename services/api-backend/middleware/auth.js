@@ -123,11 +123,11 @@ export async function syncSession(req, res, next) {
     // Optional: Synchronize session with database
     try {
       let token = req.headers.authorization?.split(' ')[1] || req.auth?.token;
-      
+
       // If req.auth is the result of express-oauth2-jwt-bearer, the token might be in req.auth.token
       // but if it's already a validated payload, we might not have the raw token.
       // However, createOrUpdateSession uses it for hashing.
-      
+
       if (typeof token !== 'string') {
         logger.debug(' [Auth] Raw token not found as string, using placeholder for sync', { tokenType: typeof token });
         token = 'validated-payload-no-raw-token';

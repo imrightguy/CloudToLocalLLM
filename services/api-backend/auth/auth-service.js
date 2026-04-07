@@ -114,7 +114,9 @@ export class AuthService {
       const beforeReplaced = sql.substring(0, offset).replace(/\?/g, (_, o) => {
         const b = sql.substring(0, o);
         const sqc = (b.match(/'/g) || []).filter((_, i) => {
-          if (i > 0 && b[i - 1] === '\\') return false;
+          if (i > 0 && b[i - 1] === '\\') {
+return false;
+}
           return true;
         }).length;
         return sqc % 2 === 0 ? 1 : 0;

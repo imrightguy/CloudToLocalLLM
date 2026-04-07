@@ -33,7 +33,7 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
   ),
   defaultMeta: {
     service: 'tunnel-aware-container',
@@ -44,7 +44,7 @@ const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],
@@ -56,7 +56,9 @@ const logger = winston.createLogger({
  * @returns {Object} Filtered headers
  */
 function filterSensitiveHeaders(headers) {
-  if (!headers) return {};
+  if (!headers) {
+    return {};
+  }
 
   const sensitiveHeaders = [
     'authorization',
@@ -113,7 +115,7 @@ class TunnelHttpClient {
 
       this.requestCount++;
       logger.debug(
-        `Making ${requestOptions.method} request to ${url.toString()}`
+        `Making ${requestOptions.method} request to ${url.toString()}`,
       );
 
       const req = client.request(url, requestOptions, (res) => {
@@ -144,7 +146,7 @@ class TunnelHttpClient {
           } else {
             this.errorCount++;
             logger.warn(
-              `Request failed: ${res.statusCode} ${res.statusMessage}`
+              `Request failed: ${res.statusCode} ${res.statusMessage}`,
             );
             reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
           }
@@ -169,7 +171,7 @@ class TunnelHttpClient {
         req.write(
           typeof options.body === 'string'
             ? options.body
-            : JSON.stringify(options.body)
+            : JSON.stringify(options.body),
         );
       }
 
@@ -216,93 +218,93 @@ let httpClient = null;
 if (OLLAMA_BASE_URL) {
   httpClient = new TunnelHttpClient(OLLAMA_BASE_URL);
   logger.info(
-    `Initialized HTTP client for tunnel endpoint: ${OLLAMA_BASE_URL ? '***REDACTED***' : 'unknown'}`
+    `Initialized HTTP client for tunnel endpoint: ${OLLAMA_BASE_URL ? '***REDACTED***' : 'unknown'}`,
   );
 } else {
   logger.warn('OLLAMA_BASE_URL not configured - tunnel client disabled');
 }
 
 // HTTP server for health checks and tunnel testing
-const server = http.createServer(async (req, res) => {
+const server = http.createServer(async(req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   switch (url.pathname) {
-    case '/health':
+  case '/health':
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        status: 'healthy',
+        userId: USER_ID,
+        proxyId: PROXY_ID,
+        ollamaBaseUrl: OLLAMA_BASE_URL,
+        tunnelConfigured: !!OLLAMA_BASE_URL,
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+      }),
+    );
+    break;
+
+  case '/test-tunnel':
+    if (!httpClient) {
+      res.writeHead(503, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          error: 'Tunnel not configured',
+          message: 'OLLAMA_BASE_URL environment variable not set',
+        }),
+      );
+      return;
+    }
+
+    try {
+      const isConnected = await httpClient.testConnectivity();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(
         JSON.stringify({
-          status: 'healthy',
+          tunnelConnected: isConnected,
+          stats: httpClient.getStats(),
+          timestamp: new Date().toISOString(),
+        }),
+      );
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          error: 'Tunnel test failed',
+          message: error.message,
+          stats: httpClient.getStats(),
+        }),
+      );
+    }
+    break;
+
+  case '/stats':
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        container: {
           userId: USER_ID,
           proxyId: PROXY_ID,
-          ollamaBaseUrl: OLLAMA_BASE_URL,
-          tunnelConfigured: !!OLLAMA_BASE_URL,
           uptime: process.uptime(),
-          timestamp: new Date().toISOString(),
-        })
-      );
-      break;
-
-    case '/test-tunnel':
-      if (!httpClient) {
-        res.writeHead(503, { 'Content-Type': 'application/json' });
-        res.end(
-          JSON.stringify({
-            error: 'Tunnel not configured',
-            message: 'OLLAMA_BASE_URL environment variable not set',
-          })
-        );
-        return;
-      }
-
-      try {
-        const isConnected = await httpClient.testConnectivity();
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(
-          JSON.stringify({
-            tunnelConnected: isConnected,
+          memoryUsage: process.memoryUsage(),
+        },
+        tunnel: httpClient
+          ? {
+            configured: true,
+            baseUrl: OLLAMA_BASE_URL,
             stats: httpClient.getStats(),
-            timestamp: new Date().toISOString(),
-          })
-        );
-      } catch (error) {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(
-          JSON.stringify({
-            error: 'Tunnel test failed',
-            message: error.message,
-            stats: httpClient.getStats(),
-          })
-        );
-      }
-      break;
-
-    case '/stats':
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(
-        JSON.stringify({
-          container: {
-            userId: USER_ID,
-            proxyId: PROXY_ID,
-            uptime: process.uptime(),
-            memoryUsage: process.memoryUsage(),
+          }
+          : {
+            configured: false,
           },
-          tunnel: httpClient
-            ? {
-                configured: true,
-                baseUrl: OLLAMA_BASE_URL,
-                stats: httpClient.getStats(),
-              }
-            : {
-                configured: false,
-              },
-          timestamp: new Date().toISOString(),
-        })
-      );
-      break;
+        timestamp: new Date().toISOString(),
+      }),
+    );
+    break;
 
-    default:
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Not found' }));
+  default:
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not found' }));
   }
 });
 
@@ -321,7 +323,7 @@ process.on('SIGINT', () => {
 });
 
 // Start the container server
-server.listen(PORT, async () => {
+server.listen(PORT, async() => {
   logger.info(`Container server listening on port ${PORT}`, {
     userId: USER_ID,
     proxyId: PROXY_ID,
@@ -332,7 +334,7 @@ server.listen(PORT, async () => {
 
   // Test tunnel connectivity on startup if configured
   if (httpClient) {
-    setTimeout(async () => {
+    setTimeout(async() => {
       try {
         await httpClient.testConnectivity();
         logger.info('Initial tunnel connectivity test completed');
@@ -346,16 +348,16 @@ server.listen(PORT, async () => {
 // Periodic tunnel connectivity check
 if (httpClient) {
   setInterval(
-    async () => {
+    async() => {
       try {
         await httpClient.testConnectivity();
       } catch (error) {
         logger.warn(
           'Periodic tunnel connectivity check failed:',
-          error.message
+          error.message,
         );
       }
     },
-    5 * 60 * 1000
+    5 * 60 * 1000,
   ); // Check every 5 minutes
 }

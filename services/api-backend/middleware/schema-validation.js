@@ -1,8 +1,8 @@
 /**
  * Schema Validation Middleware using Zod
- * 
+ *
  * Provides robust input validation using Zod schemas.
- * 
+ *
  * @fileoverview Zod-based validation middleware
  * @version 1.0.0
  */
@@ -12,7 +12,7 @@ import logger from '../logger.js';
 
 /**
  * Middleware to validate request data against a Zod schema
- * 
+ *
  * @param {Object} schemas - Object containing schemas for body, query, and params
  * @param {z.ZodSchema} [schemas.body] - Schema for req.body
  * @param {z.ZodSchema} [schemas.query] - Schema for req.query
