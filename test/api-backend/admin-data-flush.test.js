@@ -8,20 +8,14 @@ import {
   afterEach,
 } from "@jest/globals";
 import { AdminDataFlushService } from "../../services/api-backend/admin-data-flush-service.js";
-import Docker from "dockerode";
-
-// Mock Docker
-jest.mock("dockerode");
 
 describe("AdminDataFlushService", () => {
   let adminService;
   let mockDocker;
 
   beforeEach(() => {
-    // Reset mocks
     jest.clearAllMocks();
 
-    // Mock Docker instance
     mockDocker = {
       listContainers: jest.fn(),
       listNetworks: jest.fn(),
@@ -30,9 +24,7 @@ describe("AdminDataFlushService", () => {
       createNetwork: jest.fn(),
     };
 
-    Docker.mockImplementation(() => mockDocker);
-
-    adminService = new AdminDataFlushService();
+    adminService = new AdminDataFlushService(mockDocker);
   });
 
   afterEach(() => {
