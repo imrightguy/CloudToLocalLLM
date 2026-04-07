@@ -20,8 +20,15 @@
  * **Validates: Requirements 6.1, 6.2, 6.3**
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
-import fc from 'fast-check';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
+import fc from "fast-check";
 
 /**
  * Simple rate limiter implementation for testing
@@ -67,14 +74,16 @@ class SimpleRateLimiter {
     const burstCutoff = new Date(now.getTime() - this.config.burstWindowMs);
 
     tracker.requests = tracker.requests.filter((t) => t > windowCutoff);
-    tracker.burstRequests = tracker.burstRequests.filter((t) => t > burstCutoff);
+    tracker.burstRequests = tracker.burstRequests.filter(
+      (t) => t > burstCutoff,
+    );
 
     // Check limits
     if (tracker.concurrentRequests >= this.config.maxConcurrentRequests) {
       tracker.blockedRequests++;
       return {
         allowed: false,
-        reason: 'concurrent_limit_exceeded',
+        reason: "concurrent_limit_exceeded",
         retryAfter: Math.ceil(this.config.burstWindowMs / 1000),
       };
     }
@@ -83,7 +92,7 @@ class SimpleRateLimiter {
       tracker.blockedRequests++;
       return {
         allowed: false,
-        reason: 'burst_limit_exceeded',
+        reason: "burst_limit_exceeded",
         retryAfter: Math.ceil(this.config.burstWindowMs / 1000),
       };
     }
@@ -92,7 +101,7 @@ class SimpleRateLimiter {
       tracker.blockedRequests++;
       return {
         allowed: false,
-        reason: 'window_limit_exceeded',
+        reason: "window_limit_exceeded",
         retryAfter: Math.ceil(this.config.windowMs / 1000),
       };
     }
@@ -162,7 +171,7 @@ const userIdArbitrary = fc.stringMatching(/^user-[a-z0-9]{8}$/);
 // Generate request counts within reasonable bounds
 const requestCountArbitrary = fc.integer({ min: 1, max: 200 });
 
-describe('Rate Limiting Properties', () => {
+describe("Rate Limiting Properties", () => {
   let rateLimiter;
 
   beforeEach(() => {
@@ -181,8 +190,8 @@ describe('Rate Limiting Properties', () => {
     }
   });
 
-  describe('Property 1: Per-User Rate Limiting Consistency', () => {
-    it('should allow all requests when under per-user rate limit', () => {
+  describe("Property 1: Per-User Rate Limiting Consistency", () => {
+    it("should allow all requests when under per-user rate limit", () => {
       fc.assert(
         fc.property(
           userIdArbitrary,
@@ -211,7 +220,7 @@ describe('Rate Limiting Properties', () => {
       );
     });
 
-    it('should block requests when exceeding per-user rate limit', () => {
+    it("should block requests when exceeding per-user rate limit", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const maxRequests = rateLimiter.config.maxRequests;
@@ -232,7 +241,7 @@ describe('Rate Limiting Properties', () => {
           // Next request should be allowed (we completed previous ones)
           const nextResult = rateLimiter.checkRateLimit(
             userId,
-            'corr-next',
+            "corr-next",
             null,
           );
 
@@ -242,7 +251,7 @@ describe('Rate Limiting Properties', () => {
       );
     });
 
-    it('should isolate rate limits between different users', () => {
+    it("should isolate rate limits between different users", () => {
       fc.assert(
         fc.property(
           fc.tuple(userIdArbitrary, userIdArbitrary),
@@ -267,7 +276,7 @@ describe('Rate Limiting Properties', () => {
             // User 2 should still be able to make requests
             const user2Result = rateLimiter.checkRateLimit(
               userId2,
-              'corr-u2-1',
+              "corr-u2-1",
               null,
             );
 
@@ -285,14 +294,10 @@ describe('Rate Limiting Properties', () => {
       );
     });
 
-    it('should return correct rate limit headers for allowed requests', () => {
+    it("should return correct rate limit headers for allowed requests", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
-          const result = rateLimiter.checkRateLimit(
-            userId,
-            'corr-1',
-            null,
-          );
+          const result = rateLimiter.checkRateLimit(userId, "corr-1", null);
 
           expect(result.allowed).toBe(true);
           expect(result.limits).toBeDefined();
@@ -304,29 +309,25 @@ describe('Rate Limiting Properties', () => {
       );
     });
 
-    it('should return correct rate limit headers for blocked requests', () => {
+    it("should return correct rate limit headers for blocked requests", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const maxConcurrent = rateLimiter.config.maxConcurrentRequests;
 
           // Fill up the concurrent limit
           for (let i = 0; i < maxConcurrent; i++) {
-            rateLimiter.checkRateLimit(
-              userId,
-              `corr-${i}`,
-              null,
-            );
+            rateLimiter.checkRateLimit(userId, `corr-${i}`, null);
           }
 
           // Next request should be blocked with proper headers
           const result = rateLimiter.checkRateLimit(
             userId,
-            'corr-blocked',
+            "corr-blocked",
             null,
           );
 
           expect(result.allowed).toBe(false);
-          expect(result.reason).toBe('concurrent_limit_exceeded');
+          expect(result.reason).toBe("concurrent_limit_exceeded");
           expect(result.retryAfter).toBeGreaterThan(0);
           // When blocked by concurrent limit, limits object contains concurrent info
           if (result.limits && result.limits.concurrent) {
@@ -339,8 +340,8 @@ describe('Rate Limiting Properties', () => {
     });
   });
 
-  describe('Property 2: Burst Rate Limiting', () => {
-    it('should enforce burst rate limiting separately from window limit', () => {
+  describe("Property 2: Burst Rate Limiting", () => {
+    it("should enforce burst rate limiting separately from window limit", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const maxBurst = rateLimiter.config.maxBurstRequests;
@@ -361,7 +362,7 @@ describe('Rate Limiting Properties', () => {
           // Next burst request should be allowed (we completed previous ones)
           const nextResult = rateLimiter.checkRateLimit(
             userId,
-            'corr-burst-next',
+            "corr-burst-next",
             null,
           );
 
@@ -372,8 +373,8 @@ describe('Rate Limiting Properties', () => {
     });
   });
 
-  describe('Property 3: Concurrent Request Limiting', () => {
-    it('should enforce concurrent request limits', () => {
+  describe("Property 3: Concurrent Request Limiting", () => {
+    it("should enforce concurrent request limits", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const maxConcurrent = rateLimiter.config.maxConcurrentRequests;
@@ -391,37 +392,29 @@ describe('Rate Limiting Properties', () => {
           // Next concurrent request should be blocked
           const blockedResult = rateLimiter.checkRateLimit(
             userId,
-            'corr-concurrent-blocked',
+            "corr-concurrent-blocked",
             null,
           );
 
           expect(blockedResult.allowed).toBe(false);
-          expect(blockedResult.reason).toBe('concurrent_limit_exceeded');
+          expect(blockedResult.reason).toBe("concurrent_limit_exceeded");
         }),
         { numRuns: 20 },
       );
     });
 
-    it('should decrease concurrent count when request completes', () => {
+    it("should decrease concurrent count when request completes", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           // Make a request
-          const result1 = rateLimiter.checkRateLimit(
-            userId,
-            'corr-1',
-            null,
-          );
+          const result1 = rateLimiter.checkRateLimit(userId, "corr-1", null);
           expect(result1.allowed).toBe(true);
 
           // Complete the request
           rateLimiter.completeRequest(userId);
 
           // Should be able to make another request
-          const result2 = rateLimiter.checkRateLimit(
-            userId,
-            'corr-2',
-            null,
-          );
+          const result2 = rateLimiter.checkRateLimit(userId, "corr-2", null);
           expect(result2.allowed).toBe(true);
         }),
         { numRuns: 30 },
@@ -429,48 +422,44 @@ describe('Rate Limiting Properties', () => {
     });
   });
 
-  describe('Property 4: Exemption Bypass', () => {
-    it('should bypass rate limiting for exempt requests', () => {
+  describe("Property 4: Exemption Bypass", () => {
+    it("should bypass rate limiting for exempt requests", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const maxRequests = rateLimiter.config.maxRequests;
 
           // Fill up the rate limit
           for (let i = 0; i < maxRequests; i++) {
-            rateLimiter.checkRateLimit(
-              userId,
-              `corr-${i}`,
-              null,
-            );
+            rateLimiter.checkRateLimit(userId, `corr-${i}`, null);
           }
 
           // Exempt request should still be allowed
           const exemptionResult = {
             exempt: true,
-            ruleId: 'health-check',
-            type: 'health_check',
+            ruleId: "health-check",
+            type: "health_check",
           };
 
           const result = rateLimiter.checkRateLimit(
             userId,
-            'corr-exempt',
+            "corr-exempt",
             exemptionResult,
           );
 
           expect(result.allowed).toBe(true);
           expect(result.exempt).toBe(true);
-          expect(result.exemptionRuleId).toBe('health-check');
+          expect(result.exemptionRuleId).toBe("health-check");
         }),
         { numRuns: 20 },
       );
     });
 
-    it('should not count exempt requests against rate limit', () => {
+    it("should not count exempt requests against rate limit", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const exemptionResult = {
             exempt: true,
-            ruleId: 'health-check',
+            ruleId: "health-check",
           };
 
           // Make exempt requests
@@ -487,7 +476,7 @@ describe('Rate Limiting Properties', () => {
           // Regular requests should still work
           const regularResult = rateLimiter.checkRateLimit(
             userId,
-            'corr-regular',
+            "corr-regular",
             null,
           );
 
@@ -498,8 +487,8 @@ describe('Rate Limiting Properties', () => {
     });
   });
 
-  describe('Property 5: Rate Limit Statistics', () => {
-    it('should track accurate statistics for rate-limited users', () => {
+  describe("Property 5: Rate Limit Statistics", () => {
+    it("should track accurate statistics for rate-limited users", () => {
       fc.assert(
         fc.property(
           userIdArbitrary,
@@ -507,11 +496,7 @@ describe('Rate Limiting Properties', () => {
           (userId, requestCount) => {
             // Make requests
             for (let i = 0; i < requestCount; i++) {
-              rateLimiter.checkRateLimit(
-                userId,
-                `corr-${i}`,
-                null,
-              );
+              rateLimiter.checkRateLimit(userId, `corr-${i}`, null);
               rateLimiter.completeRequest(userId);
             }
 
@@ -527,24 +512,20 @@ describe('Rate Limiting Properties', () => {
       );
     });
 
-    it('should track blocked requests in statistics', () => {
+    it("should track blocked requests in statistics", () => {
       fc.assert(
         fc.property(userIdArbitrary, (userId) => {
           const maxConcurrent = rateLimiter.config.maxConcurrentRequests;
 
           // Fill up the concurrent limit
           for (let i = 0; i < maxConcurrent; i++) {
-            rateLimiter.checkRateLimit(
-              userId,
-              `corr-${i}`,
-              null,
-            );
+            rateLimiter.checkRateLimit(userId, `corr-${i}`, null);
           }
 
           // Try to exceed
           const blockedResult = rateLimiter.checkRateLimit(
             userId,
-            'corr-blocked',
+            "corr-blocked",
             null,
           );
 
@@ -561,11 +542,15 @@ describe('Rate Limiting Properties', () => {
     });
   });
 
-  describe('Property 6: Multiple Users Isolation', () => {
-    it('should maintain independent rate limits for multiple concurrent users', () => {
+  describe("Property 6: Multiple Users Isolation", () => {
+    it("should maintain independent rate limits for multiple concurrent users", () => {
       fc.assert(
         fc.property(
-          fc.array(userIdArbitrary, { minLength: 2, maxLength: 10, uniqueBy: (x) => x }),
+          fc.array(userIdArbitrary, {
+            minLength: 2,
+            maxLength: 10,
+            uniqueBy: (x) => x,
+          }),
           fc.integer({ min: 5, max: 30 }),
           (userIds, requestsPerUser) => {
             // Make requests for all users

@@ -7,8 +7,8 @@
  * Feature: aws-eks-deployment, Task 16.1: End-to-End Deployment Verification
  */
 
-import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
-import fc from 'fast-check';
+import { describe, it, expect, beforeAll, afterAll, jest } from "@jest/globals";
+import fc from "fast-check";
 
 /**
  * Mock Kubernetes Client for testing
@@ -28,7 +28,11 @@ class MockKubernetesClient {
       ...deployment,
       status: { replicas: 0, readyReplicas: 0, updatedReplicas: 0 },
     });
-    this.events.push({ type: 'deployment-created', deployment: key, timestamp: Date.now() });
+    this.events.push({
+      type: "deployment-created",
+      deployment: key,
+      timestamp: Date.now(),
+    });
     return { success: true };
   }
 
@@ -58,9 +62,9 @@ class MockKubernetesClient {
     const key = `${namespace}/${pod.metadata.name}`;
     this.pods.set(key, {
       ...pod,
-      status: { phase: 'Pending', conditions: [] },
+      status: { phase: "Pending", conditions: [] },
     });
-    this.events.push({ type: 'pod-created', pod: key, timestamp: Date.now() });
+    this.events.push({ type: "pod-created", pod: key, timestamp: Date.now() });
     return { success: true };
   }
 
@@ -69,7 +73,12 @@ class MockKubernetesClient {
     const pod = this.pods.get(key);
     if (pod) {
       pod.status = status;
-      this.events.push({ type: 'pod-status-updated', pod: key, status, timestamp: Date.now() });
+      this.events.push({
+        type: "pod-status-updated",
+        pod: key,
+        status,
+        timestamp: Date.now(),
+      });
     }
   }
 
@@ -79,7 +88,11 @@ class MockKubernetesClient {
       ...service,
       status: { loadBalancer: { ingress: [] } },
     });
-    this.events.push({ type: 'service-created', service: key, timestamp: Date.now() });
+    this.events.push({
+      type: "service-created",
+      service: key,
+      timestamp: Date.now(),
+    });
     return { success: true };
   }
 
@@ -89,7 +102,11 @@ class MockKubernetesClient {
       ...ingress,
       status: { loadBalancer: { ingress: [] } },
     });
-    this.events.push({ type: 'ingress-created', ingress: key, timestamp: Date.now() });
+    this.events.push({
+      type: "ingress-created",
+      ingress: key,
+      timestamp: Date.now(),
+    });
     return { success: true };
   }
 
@@ -197,9 +214,12 @@ class DeploymentVerifier {
 
     try {
       // Step 1: Verify deployment exists and is ready
-      const deployment = await this.k8sClient.getDeployment(config.namespace, config.deploymentName);
+      const deployment = await this.k8sClient.getDeployment(
+        config.namespace,
+        config.deploymentName,
+      );
       if (!deployment) {
-        results.errors.push('Deployment not found');
+        results.errors.push("Deployment not found");
         return results;
       }
       results.deployment = deployment;
@@ -213,12 +233,16 @@ class DeploymentVerifier {
         const podStatus = {
           name: pod.metadata.name,
           phase: pod.status.phase,
-          ready: pod.status.conditions?.some(c => c.type === 'Ready' && c.status === 'True'),
+          ready: pod.status.conditions?.some(
+            (c) => c.type === "Ready" && c.status === "True",
+          ),
         };
         results.pods.push(podStatus);
 
-        if (pod.status.phase !== 'Running') {
-          results.errors.push(`Pod ${pod.metadata.name} is not running: ${pod.status.phase}`);
+        if (pod.status.phase !== "Running") {
+          results.errors.push(
+            `Pod ${pod.metadata.name} is not running: ${pod.status.phase}`,
+          );
         }
         if (!podStatus.ready) {
           results.errors.push(`Pod ${pod.metadata.name} is not ready`);
@@ -227,7 +251,10 @@ class DeploymentVerifier {
 
       // Step 3: Verify services are accessible
       for (const serviceName of config.services || []) {
-        const service = await this.k8sClient.getService?.(config.namespace, serviceName);
+        const service = await this.k8sClient.getService?.(
+          config.namespace,
+          serviceName,
+        );
         if (service) {
           results.services.push({
             name: serviceName,
@@ -257,7 +284,9 @@ class DeploymentVerifier {
             healthy: response.status === 200,
           });
           if (response.status !== 200) {
-            results.errors.push(`Health endpoint ${endpoint} returned status ${response.status}`);
+            results.errors.push(
+              `Health endpoint ${endpoint} returned status ${response.status}`,
+            );
           }
         } catch (error) {
           results.health.push({
@@ -281,53 +310,60 @@ class DeploymentVerifier {
 
     try {
       // Step 1: Create deployment
-      timeline.push({ step: 'create-deployment', timestamp: Date.now() });
+      timeline.push({ step: "create-deployment", timestamp: Date.now() });
       const replicaCount = config.replicas !== undefined ? config.replicas : 2;
       await this.k8sClient.createDeployment(config.namespace, {
-        metadata: { name: config.deploymentName, labels: { app: config.deploymentName } },
+        metadata: {
+          name: config.deploymentName,
+          labels: { app: config.deploymentName },
+        },
         spec: { replicas: replicaCount },
       });
 
       // Step 2: Create pods
-      timeline.push({ step: 'create-pods', timestamp: Date.now() });
+      timeline.push({ step: "create-pods", timestamp: Date.now() });
       for (let i = 0; i < replicaCount; i++) {
         await this.k8sClient.createPod(config.namespace, {
           metadata: {
             name: `${config.deploymentName}-pod-${i}`,
             labels: { app: config.deploymentName },
           },
-          spec: { containers: [{ name: 'app', image: config.image }] },
+          spec: { containers: [{ name: "app", image: config.image }] },
         });
       }
 
       // Step 3: Update pod statuses to Running
-      timeline.push({ step: 'pods-running', timestamp: Date.now() });
+      timeline.push({ step: "pods-running", timestamp: Date.now() });
       const pods = await this.k8sClient.listPods(config.namespace, {
         matchLabels: { app: config.deploymentName },
       });
 
       for (const pod of pods) {
-        await this.k8sClient.updatePodStatus(config.namespace, pod.metadata.name, {
-          phase: 'Running',
-          conditions: [
-            { type: 'Ready', status: 'True' },
-            { type: 'Initialized', status: 'True' },
-          ],
-        });
+        await this.k8sClient.updatePodStatus(
+          config.namespace,
+          pod.metadata.name,
+          {
+            phase: "Running",
+            conditions: [
+              { type: "Ready", status: "True" },
+              { type: "Initialized", status: "True" },
+            ],
+          },
+        );
       }
 
       // Step 4: Create service
-      timeline.push({ step: 'create-service', timestamp: Date.now() });
+      timeline.push({ step: "create-service", timestamp: Date.now() });
       await this.k8sClient.createService(config.namespace, {
         metadata: { name: `${config.deploymentName}-service` },
         spec: { selector: { app: config.deploymentName } },
       });
 
       // Step 5: Create ingress
-      timeline.push({ step: 'create-ingress', timestamp: Date.now() });
+      timeline.push({ step: "create-ingress", timestamp: Date.now() });
       await this.k8sClient.createIngress(config.namespace, {
         metadata: { name: `${config.deploymentName}-ingress` },
-        spec: { rules: config.domains?.map(d => ({ host: d })) || [] },
+        spec: { rules: config.domains?.map((d) => ({ host: d })) || [] },
       });
 
       return { success: true, timeline };
@@ -337,7 +373,7 @@ class DeploymentVerifier {
   }
 }
 
-describe('End-to-End Deployment Verification', () => {
+describe("End-to-End Deployment Verification", () => {
   let k8sClient;
   let dnsResolver;
   let httpClient;
@@ -350,29 +386,35 @@ describe('End-to-End Deployment Verification', () => {
     verifier = new DeploymentVerifier(k8sClient, dnsResolver, httpClient);
 
     // Setup DNS records
-    dnsResolver.setRecord('cloudtolocalllm.online', '10.0.1.100');
-    dnsResolver.setRecord('app.cloudtolocalllm.online', '10.0.1.101');
-    dnsResolver.setRecord('api.cloudtolocalllm.online', '10.0.1.102');
+    dnsResolver.setRecord("cloudtolocalllm.online", "10.0.1.100");
+    dnsResolver.setRecord("app.cloudtolocalllm.online", "10.0.1.101");
+    dnsResolver.setRecord("api.cloudtolocalllm.online", "10.0.1.102");
 
     // Setup health endpoints
-    httpClient.setEndpoint('https://api.cloudtolocalllm.online/health', { status: 200, body: 'ok' });
-    httpClient.setEndpoint('https://app.cloudtolocalllm.online/health', { status: 200, body: 'ok' });
+    httpClient.setEndpoint("https://api.cloudtolocalllm.online/health", {
+      status: 200,
+      body: "ok",
+    });
+    httpClient.setEndpoint("https://app.cloudtolocalllm.online/health", {
+      status: 200,
+      body: "ok",
+    });
   });
 
   beforeEach(() => {
     k8sClient.reset();
   });
 
-  describe('Complete Deployment Flow', () => {
-    it('should successfully deploy application and verify accessibility', async () => {
+  describe("Complete Deployment Flow", () => {
+    it("should successfully deploy application and verify accessibility", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
-        services: ['web-service'],
-        domains: ['cloudtolocalllm.online', 'app.cloudtolocalllm.online'],
-        healthEndpoints: ['https://api.cloudtolocalllm.online/health'],
+        services: ["web-service"],
+        domains: ["cloudtolocalllm.online", "app.cloudtolocalllm.online"],
+        healthEndpoints: ["https://api.cloudtolocalllm.online/health"],
       };
 
       // Simulate deployment flow
@@ -384,13 +426,15 @@ describe('End-to-End Deployment Verification', () => {
       const verificationResult = await verifier.verifyDeployment(config);
       expect(verificationResult.errors.length).toBe(0);
       expect(verificationResult.pods.length).toBe(2);
-      expect(verificationResult.pods.every(p => p.phase === 'Running')).toBe(true);
-      expect(verificationResult.pods.every(p => p.ready)).toBe(true);
-      expect(verificationResult.dns.every(d => d.resolved)).toBe(true);
-      expect(verificationResult.health.every(h => h.healthy)).toBe(true);
+      expect(verificationResult.pods.every((p) => p.phase === "Running")).toBe(
+        true,
+      );
+      expect(verificationResult.pods.every((p) => p.ready)).toBe(true);
+      expect(verificationResult.dns.every((d) => d.resolved)).toBe(true);
+      expect(verificationResult.health.every((h) => h.healthy)).toBe(true);
     });
 
-    it('should verify all services are accessible via Cloudflare domains', async () => {
+    it("should verify all services are accessible via Cloudflare domains", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -401,34 +445,38 @@ describe('End-to-End Deployment Verification', () => {
           async (config) => {
             const fullConfig = {
               ...config,
-              image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
-              domains: ['cloudtolocalllm.online', 'app.cloudtolocalllm.online'],
-              healthEndpoints: ['https://api.cloudtolocalllm.online/health'],
+              image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
+              domains: ["cloudtolocalllm.online", "app.cloudtolocalllm.online"],
+              healthEndpoints: ["https://api.cloudtolocalllm.online/health"],
             };
 
             // Simulate deployment
-            const deploymentResult = await verifier.simulateDeploymentFlow(fullConfig);
+            const deploymentResult =
+              await verifier.simulateDeploymentFlow(fullConfig);
             expect(deploymentResult.success).toBe(true);
 
             // Verify DNS resolution for all domains
-            const verificationResult = await verifier.verifyDeployment(fullConfig);
-            expect(verificationResult.dns.length).toBe(fullConfig.domains.length);
-            expect(verificationResult.dns.every(d => d.resolved)).toBe(true);
-          }
+            const verificationResult =
+              await verifier.verifyDeployment(fullConfig);
+            expect(verificationResult.dns.length).toBe(
+              fullConfig.domains.length,
+            );
+            expect(verificationResult.dns.every((d) => d.resolved)).toBe(true);
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
-    it('should verify health checks pass after deployment', async () => {
+    it("should verify health checks pass after deployment", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'api-backend',
-        image: 'CloudToLocalLLM/cloudtolocalllm-api:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "api-backend",
+        image: "CloudToLocalLLM/cloudtolocalllm-api:latest",
         replicas: 2,
         healthEndpoints: [
-          'https://api.cloudtolocalllm.online/health',
-          'https://app.cloudtolocalllm.online/health',
+          "https://api.cloudtolocalllm.online/health",
+          "https://app.cloudtolocalllm.online/health",
         ],
       };
 
@@ -439,14 +487,14 @@ describe('End-to-End Deployment Verification', () => {
       // Verify health checks
       const verificationResult = await verifier.verifyDeployment(config);
       expect(verificationResult.health.length).toBe(2);
-      expect(verificationResult.health.every(h => h.healthy)).toBe(true);
+      expect(verificationResult.health.every((h) => h.healthy)).toBe(true);
     });
 
-    it('should verify no errors in logs after deployment', async () => {
+    it("should verify no errors in logs after deployment", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
       };
 
@@ -459,17 +507,17 @@ describe('End-to-End Deployment Verification', () => {
       expect(verificationResult.errors.length).toBe(0);
     });
 
-    it('should handle deployment failures gracefully', async () => {
+    it("should handle deployment failures gracefully", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'failing-app',
-        image: 'CloudToLocalLLM/failing-image:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "failing-app",
+        image: "CloudToLocalLLM/failing-image:latest",
         replicas: 2,
-        domains: ['cloudtolocalllm.online'],
+        domains: ["cloudtolocalllm.online"],
       };
 
       // Don't set up DNS record for this domain
-      dnsResolver.records.delete('cloudtolocalllm.online');
+      dnsResolver.records.delete("cloudtolocalllm.online");
 
       // Simulate deployment
       const deploymentResult = await verifier.simulateDeploymentFlow(config);
@@ -478,14 +526,14 @@ describe('End-to-End Deployment Verification', () => {
       // Verify deployment detects DNS failure
       const verificationResult = await verifier.verifyDeployment(config);
       expect(verificationResult.errors.length).toBeGreaterThan(0);
-      expect(verificationResult.dns.some(d => !d.resolved)).toBe(true);
+      expect(verificationResult.dns.some((d) => !d.resolved)).toBe(true);
     });
 
-    it('should verify deployment timeline is sequential', async () => {
+    it("should verify deployment timeline is sequential", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
       };
 
@@ -497,11 +545,13 @@ describe('End-to-End Deployment Verification', () => {
 
       // Verify timeline is in order
       for (let i = 1; i < timeline.length; i++) {
-        expect(timeline[i].timestamp).toBeGreaterThanOrEqual(timeline[i - 1].timestamp);
+        expect(timeline[i].timestamp).toBeGreaterThanOrEqual(
+          timeline[i - 1].timestamp,
+        );
       }
     });
 
-    it('should verify all pods reach Running state', async () => {
+    it("should verify all pods reach Running state", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -512,31 +562,35 @@ describe('End-to-End Deployment Verification', () => {
           async (config) => {
             const fullConfig = {
               ...config,
-              image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+              image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
               replicas: config.replicaCount,
             };
 
             // Simulate deployment
-            const deploymentResult = await verifier.simulateDeploymentFlow(fullConfig);
+            const deploymentResult =
+              await verifier.simulateDeploymentFlow(fullConfig);
             expect(deploymentResult.success).toBe(true);
 
             // Verify all pods are running
-            const verificationResult = await verifier.verifyDeployment(fullConfig);
+            const verificationResult =
+              await verifier.verifyDeployment(fullConfig);
             expect(verificationResult.pods.length).toBe(config.replicaCount);
-            expect(verificationResult.pods.every(p => p.phase === 'Running')).toBe(true);
-          }
+            expect(
+              verificationResult.pods.every((p) => p.phase === "Running"),
+            ).toBe(true);
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
-    it('should verify services are created and accessible', async () => {
+    it("should verify services are created and accessible", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
-        services: ['web-service', 'api-service'],
+        services: ["web-service", "api-service"],
       };
 
       // Simulate deployment
@@ -548,13 +602,13 @@ describe('End-to-End Deployment Verification', () => {
       expect(verificationResult.services.length).toBeGreaterThanOrEqual(0);
     });
 
-    it('should verify ingress is configured for domains', async () => {
+    it("should verify ingress is configured for domains", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
-        domains: ['cloudtolocalllm.online', 'app.cloudtolocalllm.online'],
+        domains: ["cloudtolocalllm.online", "app.cloudtolocalllm.online"],
       };
 
       // Simulate deployment
@@ -563,14 +617,14 @@ describe('End-to-End Deployment Verification', () => {
 
       // Verify ingress was created
       const events = k8sClient.getEvents();
-      expect(events.some(e => e.type === 'ingress-created')).toBe(true);
+      expect(events.some((e) => e.type === "ingress-created")).toBe(true);
     });
 
-    it('should verify deployment is idempotent', async () => {
+    it("should verify deployment is idempotent", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
       };
 
@@ -586,7 +640,7 @@ describe('End-to-End Deployment Verification', () => {
       expect(result1.timeline.length).toBe(result2.timeline.length);
     });
 
-    it('should verify deployment with multiple replicas', async () => {
+    it("should verify deployment with multiple replicas", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 1, max: 10 }),
@@ -595,36 +649,37 @@ describe('End-to-End Deployment Verification', () => {
             k8sClient.reset();
 
             const config = {
-              namespace: 'CloudToLocalLLM',
+              namespace: "CloudToLocalLLM",
               deploymentName: `web-app-${replicaCount}`,
-              image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+              image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
               replicas: replicaCount,
             };
 
             // Simulate deployment
-            const deploymentResult = await verifier.simulateDeploymentFlow(config);
+            const deploymentResult =
+              await verifier.simulateDeploymentFlow(config);
             expect(deploymentResult.success).toBe(true);
 
             // Verify correct number of pods
             const verificationResult = await verifier.verifyDeployment(config);
             expect(verificationResult.pods.length).toBe(replicaCount);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
-    it('should verify deployment with different image versions', async () => {
+    it("should verify deployment with different image versions", async () => {
       const imageVersions = [
-        'CloudToLocalLLM/cloudtolocalllm-web:latest',
-        'CloudToLocalLLM/cloudtolocalllm-web:v1.0.0',
-        'CloudToLocalLLM/cloudtolocalllm-web:sha-abc123',
+        "CloudToLocalLLM/cloudtolocalllm-web:latest",
+        "CloudToLocalLLM/cloudtolocalllm-web:v1.0.0",
+        "CloudToLocalLLM/cloudtolocalllm-web:sha-abc123",
       ];
 
       for (const image of imageVersions) {
         const config = {
-          namespace: 'CloudToLocalLLM',
-          deploymentName: 'web-app',
+          namespace: "CloudToLocalLLM",
+          deploymentName: "web-app",
           image,
           replicas: 2,
         };
@@ -634,14 +689,14 @@ describe('End-to-End Deployment Verification', () => {
       }
     });
 
-    it('should verify deployment across multiple namespaces', async () => {
-      const namespaces = ['CloudToLocalLLM', 'staging', 'production'];
+    it("should verify deployment across multiple namespaces", async () => {
+      const namespaces = ["CloudToLocalLLM", "staging", "production"];
 
       for (const namespace of namespaces) {
         const config = {
           namespace,
-          deploymentName: 'web-app',
-          image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+          deploymentName: "web-app",
+          image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
           replicas: 2,
         };
 
@@ -653,13 +708,13 @@ describe('End-to-End Deployment Verification', () => {
       }
     });
 
-    it('should track deployment events in order', async () => {
+    it("should track deployment events in order", async () => {
       k8sClient.clearEvents();
 
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
       };
 
@@ -669,23 +724,23 @@ describe('End-to-End Deployment Verification', () => {
       expect(events.length).toBeGreaterThan(0);
 
       // Verify event order
-      const eventTypes = events.map(e => e.type);
-      expect(eventTypes[0]).toBe('deployment-created');
-      expect(eventTypes.some(t => t === 'pod-created')).toBe(true);
-      expect(eventTypes.some(t => t === 'pod-status-updated')).toBe(true);
+      const eventTypes = events.map((e) => e.type);
+      expect(eventTypes[0]).toBe("deployment-created");
+      expect(eventTypes.some((t) => t === "pod-created")).toBe(true);
+      expect(eventTypes.some((t) => t === "pod-status-updated")).toBe(true);
     });
   });
 
-  describe('Deployment Verification Edge Cases', () => {
+  describe("Deployment Verification Edge Cases", () => {
     beforeEach(() => {
       k8sClient.reset();
     });
 
-    it('should handle deployment with no replicas', async () => {
+    it("should handle deployment with no replicas", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app-no-replicas',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app-no-replicas",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 0,
       };
 
@@ -696,37 +751,37 @@ describe('End-to-End Deployment Verification', () => {
       expect(verificationResult.pods.length).toBe(0);
     });
 
-    it('should handle deployment with missing DNS records', async () => {
+    it("should handle deployment with missing DNS records", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
-        domains: ['nonexistent.example.com'],
+        domains: ["nonexistent.example.com"],
       };
 
       const deploymentResult = await verifier.simulateDeploymentFlow(config);
       expect(deploymentResult.success).toBe(true);
 
       const verificationResult = await verifier.verifyDeployment(config);
-      expect(verificationResult.dns.some(d => !d.resolved)).toBe(true);
+      expect(verificationResult.dns.some((d) => !d.resolved)).toBe(true);
       expect(verificationResult.errors.length).toBeGreaterThan(0);
     });
 
-    it('should handle deployment with unreachable health endpoints', async () => {
+    it("should handle deployment with unreachable health endpoints", async () => {
       const config = {
-        namespace: 'CloudToLocalLLM',
-        deploymentName: 'web-app',
-        image: 'CloudToLocalLLM/cloudtolocalllm-web:latest',
+        namespace: "CloudToLocalLLM",
+        deploymentName: "web-app",
+        image: "CloudToLocalLLM/cloudtolocalllm-web:latest",
         replicas: 2,
-        healthEndpoints: ['https://unreachable.example.com/health'],
+        healthEndpoints: ["https://unreachable.example.com/health"],
       };
 
       const deploymentResult = await verifier.simulateDeploymentFlow(config);
       expect(deploymentResult.success).toBe(true);
 
       const verificationResult = await verifier.verifyDeployment(config);
-      expect(verificationResult.health.some(h => !h.healthy)).toBe(true);
+      expect(verificationResult.health.some((h) => !h.healthy)).toBe(true);
     });
   });
 });

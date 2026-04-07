@@ -15,9 +15,9 @@
  */
 
 import { jest, describe, it, expect } from "@jest/globals";
-import ChangelogService from '../../services/api-backend/services/changelog-service.js';
+import ChangelogService from "../../services/api-backend/services/changelog-service.js";
 
-describe('Property 15: API Documentation Consistency', () => {
+describe("Property 15: API Documentation Consistency", () => {
   const changelogService = new ChangelogService();
 
   /**
@@ -25,7 +25,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain semantic versioning consistency across all versions', () => {
+  it("should maintain semantic versioning consistency across all versions", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -34,7 +34,7 @@ describe('Property 15: API Documentation Consistency', () => {
         expect(entry.version).toMatch(/^\d+\.\d+\.\d+/);
 
         // Extract version parts
-        const parts = entry.version.split('.');
+        const parts = entry.version.split(".");
         expect(parts.length).toBeGreaterThanOrEqual(3);
 
         // Each part should be a valid number
@@ -51,7 +51,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain valid date format consistency', () => {
+  it("should maintain valid date format consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -71,7 +71,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain consistent change format', () => {
+  it("should maintain consistent change format", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -81,7 +81,7 @@ describe('Property 15: API Documentation Consistency', () => {
 
         // Each change should be a string
         entry.changes.forEach((change) => {
-          expect(typeof change).toBe('string');
+          expect(typeof change).toBe("string");
         });
       });
     }
@@ -92,7 +92,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain version ordering consistency', () => {
+  it("should maintain version ordering consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -101,8 +101,8 @@ describe('Property 15: API Documentation Consistency', () => {
         const next = entries[i + 1].version;
 
         // Parse versions
-        const currentParts = current.split('.').map((p) => parseInt(p));
-        const nextParts = next.split('.').map((p) => parseInt(p));
+        const currentParts = current.split(".").map((p) => parseInt(p));
+        const nextParts = next.split(".").map((p) => parseInt(p));
 
         // Current should be >= next (descending order)
         let isGreaterOrEqual = false;
@@ -129,7 +129,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain formatted entry consistency', () => {
+  it("should maintain formatted entry consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -137,13 +137,15 @@ describe('Property 15: API Documentation Consistency', () => {
         const formatted = changelogService.formatChangelogEntry(entry);
 
         // Should have all required fields
-        expect(formatted).toHaveProperty('version');
-        expect(formatted).toHaveProperty('date');
-        expect(formatted).toHaveProperty('changes');
-        expect(formatted).toHaveProperty('changeCount');
+        expect(formatted).toHaveProperty("version");
+        expect(formatted).toHaveProperty("date");
+        expect(formatted).toHaveProperty("changes");
+        expect(formatted).toHaveProperty("changeCount");
 
         // changeCount should match actual changes count
-        const actualCount = entry.changes.filter((c) => c.match(/^-\s+/)).length;
+        const actualCount = entry.changes.filter((c) =>
+          c.match(/^-\s+/),
+        ).length;
         expect(formatted.changeCount).toBe(actualCount);
       });
     }
@@ -154,7 +156,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain changelog validation consistency', () => {
+  it("should maintain changelog validation consistency", () => {
     for (let run = 0; run < 20; run++) {
       const isValid = changelogService.validateChangelogFormat();
 
@@ -165,7 +167,7 @@ describe('Property 15: API Documentation Consistency', () => {
       }
 
       // Validation should be boolean
-      expect(typeof isValid).toBe('boolean');
+      expect(typeof isValid).toBe("boolean");
     }
   });
 
@@ -174,7 +176,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain changelog statistics consistency', () => {
+  it("should maintain changelog statistics consistency", () => {
     for (let run = 0; run < 20; run++) {
       const stats = changelogService.getChangelogStats();
       const entries = changelogService.parseChangelog();
@@ -212,7 +214,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain version retrieval consistency', () => {
+  it("should maintain version retrieval consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -232,11 +234,13 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain pagination consistency', () => {
+  it("should maintain pagination consistency", () => {
     for (let run = 0; run < 20; run++) {
       const allEntries = changelogService.parseChangelog();
       const limit = Math.floor(Math.random() * 10) + 1;
-      const offset = Math.floor(Math.random() * Math.max(1, allEntries.length - limit));
+      const offset = Math.floor(
+        Math.random() * Math.max(1, allEntries.length - limit),
+      );
 
       const result = changelogService.getAllVersions(limit, offset);
 
@@ -262,7 +266,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain release notes consistency', () => {
+  it("should maintain release notes consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 
@@ -275,7 +279,7 @@ describe('Property 15: API Documentation Consistency', () => {
         expect(releaseNotes.date).toBe(entry.date);
 
         // Release notes should contain changes
-        expect(releaseNotes.releaseNotes).toContain(entry.changes.join('\n'));
+        expect(releaseNotes.releaseNotes).toContain(entry.changes.join("\n"));
       });
     }
   });
@@ -285,7 +289,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain latest version consistency', () => {
+  it("should maintain latest version consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
       const latest = changelogService.getLatestVersion();
@@ -305,7 +309,7 @@ describe('Property 15: API Documentation Consistency', () => {
    *
    * Validates: Requirements 12.1, 12.2
    */
-  it('should maintain change uniqueness consistency', () => {
+  it("should maintain change uniqueness consistency", () => {
     for (let run = 0; run < 20; run++) {
       const entries = changelogService.parseChangelog();
 

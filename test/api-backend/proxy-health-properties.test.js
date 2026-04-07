@@ -1,8 +1,14 @@
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 
-
-import fc from 'fast-check';
-import { ProxyHealthService } from '../../services/api-backend/services/proxy-health-service.js';
+import fc from "fast-check";
+import { ProxyHealthService } from "../../services/api-backend/services/proxy-health-service.js";
 
 /**
  * Property-Based Tests for Proxy Health Service
@@ -12,7 +18,7 @@ import { ProxyHealthService } from '../../services/api-backend/services/proxy-he
  * These tests verify that proxy health state transitions are consistent
  * and predictable across all possible inputs and scenarios.
  */
-describe('ProxyHealthService - Property-Based Tests', () => {
+describe("ProxyHealthService - Property-Based Tests", () => {
   let proxyHealthService;
 
   beforeEach(() => {
@@ -28,7 +34,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * For any proxy ID, after registration, the proxy should have unknown status
    * and zero consecutive failures and recovery attempts
    */
-  it('should maintain consistent initial state for all registered proxies', () => {
+  it("should maintain consistent initial state for all registered proxies", () => {
     fc.assert(
       fc.property(fc.string({ minLength: 1, maxLength: 255 }), (proxyId) => {
         proxyHealthService.registerProxy(proxyId, {});
@@ -36,7 +42,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
         const status = proxyHealthService.getProxyHealthStatus(proxyId);
 
         // Invariant: Initial state is always unknown with zero failures
-        expect(status.status).toBe('unknown');
+        expect(status.status).toBe("unknown");
         expect(status.consecutiveFailures).toBe(0);
         expect(status.recoveryAttempts).toBe(0);
       }),
@@ -48,7 +54,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Metrics initialization consistency
    * For any registered proxy, metrics should be initialized with zero values
    */
-  it('should initialize metrics consistently for all proxies', () => {
+  it("should initialize metrics consistently for all proxies", () => {
     fc.assert(
       fc.property(fc.string({ minLength: 1, maxLength: 255 }), (proxyId) => {
         proxyHealthService.registerProxy(proxyId, {});
@@ -69,7 +75,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Unregistration removes all tracking
    * For any registered proxy, after unregistration, it should return unknown status
    */
-  it('should completely remove proxy tracking after unregistration', () => {
+  it("should completely remove proxy tracking after unregistration", () => {
     fc.assert(
       fc.property(fc.string({ minLength: 1, maxLength: 255 }), (proxyId) => {
         proxyHealthService.registerProxy(proxyId, {});
@@ -78,8 +84,8 @@ describe('ProxyHealthService - Property-Based Tests', () => {
         const status = proxyHealthService.getProxyHealthStatus(proxyId);
 
         // Invariant: Unregistered proxy returns unknown status
-        expect(status.status).toBe('unknown');
-        expect(status.message).toBe('Proxy not registered');
+        expect(status.status).toBe("unknown");
+        expect(status.message).toBe("Proxy not registered");
       }),
       { numRuns: 100 },
     );
@@ -89,7 +95,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Recovery attempts are bounded
    * For any proxy, recovery attempts should never exceed max attempts
    */
-  it('should enforce maximum recovery attempts for all proxies', () => {
+  it("should enforce maximum recovery attempts for all proxies", () => {
     fc.assert(
       fc.property(
         fc.string({ minLength: 1, maxLength: 255 }),
@@ -123,7 +129,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Metrics update preserves non-updated fields
    * For any proxy and any partial metrics update, non-updated fields should remain unchanged
    */
-  it('should preserve non-updated metric fields during partial updates', () => {
+  it("should preserve non-updated metric fields during partial updates", () => {
     fc.assert(
       fc.property(
         fc.string({ minLength: 1, maxLength: 255 }),
@@ -157,18 +163,21 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * For any proxy with successful health check, status should be healthy
    * and consecutive failures should be zero
    */
-  it('should consistently mark proxies as healthy on successful checks', async () => {
+  it("should consistently mark proxies as healthy on successful checks", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.string({ minLength: 1, maxLength: 255 }),
         async (proxyId) => {
           proxyHealthService.registerProxy(proxyId, {});
 
-          const healthCheckFn = jest.fn().mockResolvedValue({ status: 'ok' });
-          const result = await proxyHealthService.checkProxyHealth(proxyId, healthCheckFn);
+          const healthCheckFn = jest.fn().mockResolvedValue({ status: "ok" });
+          const result = await proxyHealthService.checkProxyHealth(
+            proxyId,
+            healthCheckFn,
+          );
 
           // Invariant: Successful check results in healthy status
-          expect(result.status).toBe('healthy');
+          expect(result.status).toBe("healthy");
 
           const status = proxyHealthService.getProxyHealthStatus(proxyId);
 
@@ -185,7 +194,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * For any proxy with N consecutive failures, consecutive failure count should equal N
    * (up to the unhealthy threshold)
    */
-  it('should accurately count consecutive failures for all proxies', async () => {
+  it("should accurately count consecutive failures for all proxies", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.string({ minLength: 1, maxLength: 255 }),
@@ -193,7 +202,9 @@ describe('ProxyHealthService - Property-Based Tests', () => {
         async (proxyId, failureCount) => {
           proxyHealthService.registerProxy(proxyId, {});
 
-          const healthCheckFn = jest.fn().mockRejectedValue(new Error('Connection failed'));
+          const healthCheckFn = jest
+            .fn()
+            .mockRejectedValue(new Error("Connection failed"));
 
           for (let i = 0; i < failureCount; i++) {
             await proxyHealthService.checkProxyHealth(proxyId, healthCheckFn);
@@ -213,7 +224,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Status transition from degraded to healthy
    * For any proxy in degraded state, a successful health check should transition to healthy
    */
-  it('should transition from degraded to healthy on successful check', async () => {
+  it("should transition from degraded to healthy on successful check", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.string({ minLength: 1, maxLength: 255 }),
@@ -221,20 +232,30 @@ describe('ProxyHealthService - Property-Based Tests', () => {
           proxyHealthService.registerProxy(proxyId, {});
 
           // Fail once to get degraded status
-          const failingHealthCheck = jest.fn().mockRejectedValue(new Error('Connection failed'));
-          await proxyHealthService.checkProxyHealth(proxyId, failingHealthCheck);
+          const failingHealthCheck = jest
+            .fn()
+            .mockRejectedValue(new Error("Connection failed"));
+          await proxyHealthService.checkProxyHealth(
+            proxyId,
+            failingHealthCheck,
+          );
 
           let status = proxyHealthService.getProxyHealthStatus(proxyId);
-          expect(status.status).toBe('degraded');
+          expect(status.status).toBe("degraded");
 
           // Succeed to transition to healthy
-          const successfulHealthCheck = jest.fn().mockResolvedValue({ status: 'ok' });
-          await proxyHealthService.checkProxyHealth(proxyId, successfulHealthCheck);
+          const successfulHealthCheck = jest
+            .fn()
+            .mockResolvedValue({ status: "ok" });
+          await proxyHealthService.checkProxyHealth(
+            proxyId,
+            successfulHealthCheck,
+          );
 
           status = proxyHealthService.getProxyHealthStatus(proxyId);
 
           // Invariant: Status transitions to healthy
-          expect(status.status).toBe('healthy');
+          expect(status.status).toBe("healthy");
           expect(status.consecutiveFailures).toBe(0);
         },
       ),
@@ -246,7 +267,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Reset clears all failure tracking
    * For any proxy with recovery attempts and failures, reset should clear both
    */
-  it('should completely clear failure tracking on reset', () => {
+  it("should completely clear failure tracking on reset", () => {
     fc.assert(
       fc.property(
         fc.string({ minLength: 1, maxLength: 255 }),
@@ -278,7 +299,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * For any set of registered proxies, getAllProxyHealthStatus should return
    * exactly those proxies with their correct IDs
    */
-  it('should return all and only registered proxies in getAllProxyHealthStatus', () => {
+  it("should return all and only registered proxies in getAllProxyHealthStatus", () => {
     fc.assert(
       fc.property(
         fc.array(fc.string({ minLength: 1, maxLength: 255 }), {
@@ -311,7 +332,7 @@ describe('ProxyHealthService - Property-Based Tests', () => {
    * Property: Configuration values are always positive
    * For any proxy health service, configuration values should be positive integers
    */
-  it('should maintain positive configuration values', () => {
+  it("should maintain positive configuration values", () => {
     const config = proxyHealthService.getConfiguration();
 
     // Invariant: All configuration values are positive

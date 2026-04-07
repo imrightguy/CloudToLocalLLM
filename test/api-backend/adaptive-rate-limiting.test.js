@@ -5,12 +5,19 @@
  * Tests system load monitoring and adaptive rate limit adjustment
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { SystemLoadMonitor } from '../../services/api-backend/services/system-load-monitor.js';
-import { AdaptiveRateLimiter } from '../../services/api-backend/middleware/adaptive-rate-limiter.js';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from "@jest/globals";
+import { SystemLoadMonitor } from "../../services/api-backend/services/system-load-monitor.js";
+import { AdaptiveRateLimiter } from "../../services/api-backend/middleware/adaptive-rate-limiter.js";
 
-describe('Adaptive Rate Limiting', () => {
-  describe('SystemLoadMonitor', () => {
+describe("Adaptive Rate Limiting", () => {
+  describe("SystemLoadMonitor", () => {
     let monitor;
 
     beforeEach(() => {
@@ -26,14 +33,14 @@ describe('Adaptive Rate Limiting', () => {
       }
     });
 
-    it('should initialize with default configuration', () => {
+    it("should initialize with default configuration", () => {
       expect(monitor).toBeDefined();
       expect(monitor.config.sampleIntervalMs).toBe(100);
       expect(monitor.config.historySize).toBe(10);
       expect(monitor.adaptiveMultiplier).toBe(1.0);
     });
 
-    it('should collect system metrics', (done) => {
+    it("should collect system metrics", (done) => {
       setTimeout(() => {
         monitor.collectMetrics();
         const metrics = monitor.getCurrentMetrics();
@@ -46,15 +53,15 @@ describe('Adaptive Rate Limiting', () => {
         expect(metrics.adaptiveMultiplier).toBeDefined();
 
         // Verify metrics are numbers
-        expect(typeof parseFloat(metrics.cpuUsage)).toBe('number');
-        expect(typeof parseFloat(metrics.memoryUsage)).toBe('number');
-        expect(typeof parseFloat(metrics.loadPercentage)).toBe('number');
+        expect(typeof parseFloat(metrics.cpuUsage)).toBe("number");
+        expect(typeof parseFloat(metrics.memoryUsage)).toBe("number");
+        expect(typeof parseFloat(metrics.loadPercentage)).toBe("number");
 
         done();
       }, 150);
     });
 
-    it('should track active requests', () => {
+    it("should track active requests", () => {
       monitor.recordActiveRequest();
       monitor.recordActiveRequest();
       expect(monitor.activeRequests).toBe(2);
@@ -63,7 +70,7 @@ describe('Adaptive Rate Limiting', () => {
       expect(monitor.activeRequests).toBe(1);
     });
 
-    it('should track queued requests', () => {
+    it("should track queued requests", () => {
       monitor.recordQueuedRequest();
       monitor.recordQueuedRequest();
       expect(monitor.queuedRequests).toBe(2);
@@ -72,7 +79,7 @@ describe('Adaptive Rate Limiting', () => {
       expect(monitor.queuedRequests).toBe(1);
     });
 
-    it('should calculate load percentage correctly', (done) => {
+    it("should calculate load percentage correctly", (done) => {
       setTimeout(() => {
         monitor.collectMetrics();
         const load = monitor.currentMetrics.getLoadPercentage();
@@ -84,18 +91,18 @@ describe('Adaptive Rate Limiting', () => {
       }, 150);
     });
 
-    it('should determine load level correctly', (done) => {
+    it("should determine load level correctly", (done) => {
       setTimeout(() => {
         monitor.collectMetrics();
         const level = monitor.currentMetrics.getLoadLevel();
 
-        expect(['low', 'medium', 'high', 'critical']).toContain(level);
+        expect(["low", "medium", "high", "critical"]).toContain(level);
 
         done();
       }, 150);
     });
 
-    it('should maintain metrics history', (done) => {
+    it("should maintain metrics history", (done) => {
       let collectionCount = 0;
 
       const interval = setInterval(() => {
@@ -113,7 +120,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 50);
     });
 
-    it('should calculate average metrics', (done) => {
+    it("should calculate average metrics", (done) => {
       let collectionCount = 0;
 
       const interval = setInterval(() => {
@@ -135,7 +142,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 50);
     });
 
-    it('should provide adaptive limits based on system load', (done) => {
+    it("should provide adaptive limits based on system load", (done) => {
       setTimeout(() => {
         monitor.collectMetrics();
         const limits = monitor.getAdaptiveLimits(1000);
@@ -153,7 +160,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 150);
     });
 
-    it('should provide system status', (done) => {
+    it("should provide system status", (done) => {
       setTimeout(() => {
         monitor.collectMetrics();
         const status = monitor.getSystemStatus();
@@ -172,7 +179,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 150);
     });
 
-    it('should adjust adaptive multiplier based on load', (done) => {
+    it("should adjust adaptive multiplier based on load", (done) => {
       // Simulate high load
       monitor.currentMetrics.cpuUsage = 85;
       monitor.currentMetrics.memoryUsage = 80;
@@ -185,7 +192,7 @@ describe('Adaptive Rate Limiting', () => {
       done();
     });
 
-    it('should not adjust multiplier during cooldown period', (done) => {
+    it("should not adjust multiplier during cooldown period", (done) => {
       monitor.currentMetrics.cpuUsage = 85;
       monitor.currentMetrics.memoryUsage = 80;
 
@@ -205,7 +212,7 @@ describe('Adaptive Rate Limiting', () => {
     });
   });
 
-  describe('AdaptiveRateLimiter', () => {
+  describe("AdaptiveRateLimiter", () => {
     let limiter;
 
     beforeEach(() => {
@@ -224,15 +231,15 @@ describe('Adaptive Rate Limiting', () => {
       }
     });
 
-    it('should initialize with default configuration', () => {
+    it("should initialize with default configuration", () => {
       expect(limiter).toBeDefined();
       expect(limiter.config.baseMaxRequests).toBe(100);
       expect(limiter.config.baseBurstRequests).toBe(20);
       expect(limiter.systemLoadMonitor).toBeDefined();
     });
 
-    it('should allow requests under normal load', () => {
-      const result = limiter.checkRateLimit('user1', 'corr-1', {});
+    it("should allow requests under normal load", () => {
+      const result = limiter.checkRateLimit("user1", "corr-1", {});
 
       expect(result.allowed).toBe(true);
       expect(result.limits).toBeDefined();
@@ -240,30 +247,30 @@ describe('Adaptive Rate Limiting', () => {
       expect(result.limits.burst).toBeDefined();
     });
 
-    it('should track multiple requests for a user', () => {
+    it("should track multiple requests for a user", () => {
       for (let i = 0; i < 5; i++) {
-        const result = limiter.checkRateLimit('user1', `corr-${i}`, {});
+        const result = limiter.checkRateLimit("user1", `corr-${i}`, {});
         expect(result.allowed).toBe(true);
       }
 
-      const stats = limiter.getUserStats('user1');
+      const stats = limiter.getUserStats("user1");
       expect(stats.totalRequests).toBe(5);
     });
 
-    it('should enforce burst rate limit', () => {
+    it("should enforce burst rate limit", () => {
       // Fill up burst limit
       for (let i = 0; i < 20; i++) {
-        const result = limiter.checkRateLimit('user1', `corr-${i}`, {});
+        const result = limiter.checkRateLimit("user1", `corr-${i}`, {});
         expect(result.allowed).toBe(true);
       }
 
       // Next request should be blocked
-      const result = limiter.checkRateLimit('user1', 'corr-burst', {});
+      const result = limiter.checkRateLimit("user1", "corr-burst", {});
       expect(result.allowed).toBe(false);
-      expect(result.reason).toBe('burst_limit_exceeded');
+      expect(result.reason).toBe("burst_limit_exceeded");
     });
 
-    it.skip('should enforce window rate limit', () => {
+    it.skip("should enforce window rate limit", () => {
       // Skipped - boundary condition issue with check-then-add pattern needs investigation
       // The limiter currently allows N-1 requests when baseMaxRequests=N
       // Create a fresh limiter with adaptive adjustment disabled
@@ -287,7 +294,7 @@ describe('Adaptive Rate Limiting', () => {
       fixedLimiter.destroy();
     });
 
-    it('should get adaptive limits', () => {
+    it("should get adaptive limits", () => {
       const limits = limiter.getAdaptiveLimits();
 
       expect(limits.maxRequests).toBeDefined();
@@ -298,7 +305,7 @@ describe('Adaptive Rate Limiting', () => {
       expect(limits.multiplier).toBe(1.0);
     });
 
-    it('should reduce limits under high load', (done) => {
+    it("should reduce limits under high load", (done) => {
       // Simulate high load
       limiter.systemLoadMonitor.currentMetrics.cpuUsage = 85;
       limiter.systemLoadMonitor.currentMetrics.memoryUsage = 80;
@@ -317,7 +324,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 50);
     });
 
-    it('should track active requests', () => {
+    it("should track active requests", () => {
       limiter.recordActiveRequest();
       limiter.recordActiveRequest();
 
@@ -325,17 +332,17 @@ describe('Adaptive Rate Limiting', () => {
       expect(metrics.activeRequests).toBe(2);
     });
 
-    it('should complete requests', () => {
+    it("should complete requests", () => {
       limiter.recordActiveRequest();
       limiter.recordActiveRequest();
 
-      limiter.completeRequest('user1');
+      limiter.completeRequest("user1");
 
       const metrics = limiter.getSystemMetrics();
       expect(metrics.activeRequests).toBe(1);
     });
 
-    it('should get system metrics', (done) => {
+    it("should get system metrics", (done) => {
       setTimeout(() => {
         const metrics = limiter.getSystemMetrics();
 
@@ -349,7 +356,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 150);
     });
 
-    it('should get system status', (done) => {
+    it("should get system status", (done) => {
       setTimeout(() => {
         const status = limiter.getSystemStatus();
 
@@ -364,31 +371,31 @@ describe('Adaptive Rate Limiting', () => {
       }, 150);
     });
 
-    it('should get user statistics', () => {
-      limiter.checkRateLimit('user1', 'corr-1', {});
-      limiter.checkRateLimit('user1', 'corr-2', {});
+    it("should get user statistics", () => {
+      limiter.checkRateLimit("user1", "corr-1", {});
+      limiter.checkRateLimit("user1", "corr-2", {});
 
-      const stats = limiter.getUserStats('user1');
+      const stats = limiter.getUserStats("user1");
 
-      expect(stats.userId).toBe('user1');
+      expect(stats.userId).toBe("user1");
       expect(stats.totalRequests).toBe(2);
     });
 
-    it('should handle multiple users independently', () => {
+    it("should handle multiple users independently", () => {
       for (let i = 0; i < 5; i++) {
-        limiter.checkRateLimit('user1', `corr-1-${i}`, {});
-        limiter.checkRateLimit('user2', `corr-2-${i}`, {});
+        limiter.checkRateLimit("user1", `corr-1-${i}`, {});
+        limiter.checkRateLimit("user2", `corr-2-${i}`, {});
       }
 
-      const stats1 = limiter.getUserStats('user1');
-      const stats2 = limiter.getUserStats('user2');
+      const stats1 = limiter.getUserStats("user1");
+      const stats2 = limiter.getUserStats("user2");
 
       expect(stats1.totalRequests).toBe(5);
       expect(stats2.totalRequests).toBe(5);
     });
 
-    it('should clean up inactive user trackers', (done) => {
-      limiter.checkRateLimit('user1', 'corr-1', {});
+    it("should clean up inactive user trackers", (done) => {
+      limiter.checkRateLimit("user1", "corr-1", {});
 
       expect(limiter.userTrackers.size).toBe(1);
 
@@ -401,7 +408,7 @@ describe('Adaptive Rate Limiting', () => {
       done();
     });
 
-    it('should disable adaptive adjustment when configured', () => {
+    it("should disable adaptive adjustment when configured", () => {
       const noAdaptiveLimiter = new AdaptiveRateLimiter({
         enableAdaptiveAdjustment: false,
         baseMaxRequests: 100,
@@ -417,7 +424,7 @@ describe('Adaptive Rate Limiting', () => {
     });
   });
 
-  describe('Adaptive Rate Limiting Integration', () => {
+  describe("Adaptive Rate Limiting Integration", () => {
     let limiter;
 
     beforeEach(() => {
@@ -436,7 +443,7 @@ describe('Adaptive Rate Limiting', () => {
       }
     });
 
-    it('should adapt limits as system load changes', (done) => {
+    it("should adapt limits as system load changes", (done) => {
       // Get initial limits
       const initialLimits = limiter.getAdaptiveLimits();
       expect(initialLimits.multiplier).toBe(1.0);
@@ -450,22 +457,24 @@ describe('Adaptive Rate Limiting', () => {
         const highLoadLimits = limiter.getAdaptiveLimits();
 
         // Limits should be reduced
-        expect(highLoadLimits.maxRequests).toBeLessThan(initialLimits.maxRequests);
+        expect(highLoadLimits.maxRequests).toBeLessThan(
+          initialLimits.maxRequests,
+        );
         expect(highLoadLimits.multiplier).toBeLessThan(1.0);
 
         done();
       }, 50);
     });
 
-    it('should provide adaptive information in rate limit response', () => {
-      const result = limiter.checkRateLimit('user1', 'corr-1', {});
+    it("should provide adaptive information in rate limit response", () => {
+      const result = limiter.checkRateLimit("user1", "corr-1", {});
 
       expect(result.allowed).toBe(true);
       expect(result.limits.window.adaptive).toBe(true);
       expect(result.limits.window.multiplier).toBeDefined();
     });
 
-    it('should handle critical load scenario', (done) => {
+    it("should handle critical load scenario", (done) => {
       // Simulate critical load with values that exceed 80% threshold
       // Load calculation: CPU*0.4 + Memory*0.4 + Queue*0.2
       // To reach >= 80% with CPU=100 and Memory=100: 100*0.4 + 100*0.4 = 80%
@@ -484,7 +493,7 @@ describe('Adaptive Rate Limiting', () => {
       }, 50);
     });
 
-    it('should handle recovery from high load', (done) => {
+    it("should handle recovery from high load", (done) => {
       // Simulate high load
       limiter.systemLoadMonitor.currentMetrics.cpuUsage = 85;
       limiter.systemLoadMonitor.currentMetrics.memoryUsage = 80;

@@ -9,9 +9,16 @@
  * Requirement 7.9: THE API SHALL support error notifications for critical issues
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import express from 'express';
-import request from 'supertest';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from "@jest/globals";
+import express from "express";
+import request from "supertest";
 import {
   createErrorNotificationMiddleware,
   withErrorNotification,
@@ -21,11 +28,11 @@ import {
   createErrorMetricsHandler,
   createErrorResetHandler,
   createManualErrorNotificationHandler,
-} from '../../services/api-backend/middleware/error-notification-middleware.js';
-import { errorNotificationService } from '../../services/api-backend/services/error-notification-service.js';
-import { ErrorNotificationService } from '../../services/api-backend/services/error-notification-service.js';
+} from "../../services/api-backend/middleware/error-notification-middleware.js";
+import { errorNotificationService } from "../../services/api-backend/services/error-notification-service.js";
+import { ErrorNotificationService } from "../../services/api-backend/services/error-notification-service.js";
 
-describe('Error Notification Middleware Integration', () => {
+describe("Error Notification Middleware Integration", () => {
   let app;
 
   beforeEach(() => {
@@ -44,19 +51,22 @@ describe('Error Notification Middleware Integration', () => {
     errorNotificationService.resetErrorCounts();
   });
 
-  describe('Error Notification Endpoints', () => {
+  describe("Error Notification Endpoints", () => {
     beforeEach(() => {
       // Setup routes
-      app.get('/api/status', createErrorNotificationStatusHandler());
-      app.get('/api/history', createErrorHistoryHandler());
-      app.get('/api/statistics', createErrorStatisticsHandler());
-      app.get('/api/metrics', createErrorMetricsHandler());
-      app.post('/api/reset', createErrorResetHandler());
-      app.post('/api/manual-notification', createManualErrorNotificationHandler());
+      app.get("/api/status", createErrorNotificationStatusHandler());
+      app.get("/api/history", createErrorHistoryHandler());
+      app.get("/api/statistics", createErrorStatisticsHandler());
+      app.get("/api/metrics", createErrorMetricsHandler());
+      app.post("/api/reset", createErrorResetHandler());
+      app.post(
+        "/api/manual-notification",
+        createManualErrorNotificationHandler(),
+      );
     });
 
-    it('should return notification status', async () => {
-      const response = await request(app).get('/api/status');
+    it("should return notification status", async () => {
+      const response = await request(app).get("/api/status");
 
       expect(response.status).toBe(200);
       expect(response.body.enabled).toBeDefined();
@@ -66,66 +76,76 @@ describe('Error Notification Middleware Integration', () => {
       expect(response.body.statistics).toBeDefined();
     });
 
-    it('should return error history', async () => {
+    it("should return error history", async () => {
       // Trigger an error
-      await errorNotificationService.detectAndNotify(new Error('Test error'));
+      await errorNotificationService.detectAndNotify(new Error("Test error"));
 
-      const response = await request(app).get('/api/history');
+      const response = await request(app).get("/api/history");
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBeGreaterThan(0);
       expect(Array.isArray(response.body.errors)).toBe(true);
     });
 
-    it('should filter error history by category', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should filter error history by category", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
       const response = await request(app)
-        .get('/api/history')
-        .query({ category: 'database' });
+        .get("/api/history")
+        .query({ category: "database" });
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBeGreaterThan(0);
     });
 
-    it('should filter error history by severity', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should filter error history by severity", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
       const response = await request(app)
-        .get('/api/history')
-        .query({ severity: 'critical' });
+        .get("/api/history")
+        .query({ severity: "critical" });
 
       expect(response.status).toBe(200);
     });
 
-    it('should limit error history results', async () => {
+    it("should limit error history results", async () => {
       for (let i = 0; i < 10; i++) {
         await errorNotificationService.detectAndNotify(new Error(`Error ${i}`));
       }
 
       const response = await request(app)
-        .get('/api/history')
+        .get("/api/history")
         .query({ limit: 5 });
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBeLessThanOrEqual(5);
     });
 
-    it('should return error statistics', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
-      await errorNotificationService.detectAndNotify(new Error('Authentication error'));
+    it("should return error statistics", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
+      await errorNotificationService.detectAndNotify(
+        new Error("Authentication error"),
+      );
 
-      const response = await request(app).get('/api/statistics');
+      const response = await request(app).get("/api/statistics");
 
       expect(response.status).toBe(200);
       expect(response.body.totalErrors).toBeGreaterThan(0);
       expect(response.body.errorsByCategory).toBeDefined();
     });
 
-    it('should return error metrics', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should return error metrics", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
-      const response = await request(app).get('/api/metrics');
+      const response = await request(app).get("/api/metrics");
 
       expect(response.status).toBe(200);
       expect(response.body.totalErrorsDetected).toBeGreaterThan(0);
@@ -133,87 +153,93 @@ describe('Error Notification Middleware Integration', () => {
       expect(response.body.queueSize).toBeDefined();
     });
 
-    it('should reset error counts', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should reset error counts", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
-      let response = await request(app).get('/api/statistics');
+      let response = await request(app).get("/api/statistics");
       expect(response.body.totalErrors).toBeGreaterThan(0);
 
-      response = await request(app)
-        .post('/api/reset')
-        .send({ type: 'counts' });
+      response = await request(app).post("/api/reset").send({ type: "counts" });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
 
-      response = await request(app).get('/api/statistics');
+      response = await request(app).get("/api/statistics");
       expect(response.body.totalErrors).toBe(0);
     });
 
-    it('should reset error history', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should reset error history", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
-      let response = await request(app).get('/api/history');
+      let response = await request(app).get("/api/history");
       expect(response.body.count).toBeGreaterThan(0);
 
       response = await request(app)
-        .post('/api/reset')
-        .send({ type: 'history' });
+        .post("/api/reset")
+        .send({ type: "history" });
 
       expect(response.status).toBe(200);
 
-      response = await request(app).get('/api/history');
+      response = await request(app).get("/api/history");
       expect(response.body.count).toBe(0);
     });
 
-    it('should reset metrics', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should reset metrics", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
-      let response = await request(app).get('/api/metrics');
+      let response = await request(app).get("/api/metrics");
       expect(response.body.totalErrorsDetected).toBeGreaterThan(0);
 
       response = await request(app)
-        .post('/api/reset')
-        .send({ type: 'metrics' });
+        .post("/api/reset")
+        .send({ type: "metrics" });
 
       expect(response.status).toBe(200);
 
-      response = await request(app).get('/api/metrics');
+      response = await request(app).get("/api/metrics");
       expect(response.body.totalErrorsDetected).toBe(0);
     });
 
-    it('should reset all data', async () => {
-      await errorNotificationService.detectAndNotify(new Error('Database error'));
+    it("should reset all data", async () => {
+      await errorNotificationService.detectAndNotify(
+        new Error("Database error"),
+      );
 
       const response = await request(app)
-        .post('/api/reset')
-        .send({ type: 'all' });
+        .post("/api/reset")
+        .send({ type: "all" });
 
       expect(response.status).toBe(200);
 
-      const historyResponse = await request(app).get('/api/history');
+      const historyResponse = await request(app).get("/api/history");
       expect(historyResponse.body.count).toBe(0);
 
-      const metricsResponse = await request(app).get('/api/metrics');
+      const metricsResponse = await request(app).get("/api/metrics");
       expect(metricsResponse.body.totalErrorsDetected).toBe(0);
     });
 
-    it('should reject invalid reset type', async () => {
+    it("should reject invalid reset type", async () => {
       const response = await request(app)
-        .post('/api/reset')
-        .send({ type: 'invalid' });
+        .post("/api/reset")
+        .send({ type: "invalid" });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBeDefined();
     });
 
-    it('should send manual error notification', async () => {
+    it("should send manual error notification", async () => {
       const response = await request(app)
-        .post('/api/manual-notification')
+        .post("/api/manual-notification")
         .send({
-          message: 'Test error notification',
-          category: 'database',
-          severity: 'critical',
+          message: "Test error notification",
+          category: "database",
+          severity: "critical",
         });
 
       expect(response.status).toBe(200);
@@ -221,9 +247,9 @@ describe('Error Notification Middleware Integration', () => {
       expect(response.body.result).toBeDefined();
     });
 
-    it('should reject manual notification without message', async () => {
+    it("should reject manual notification without message", async () => {
       const response = await request(app)
-        .post('/api/manual-notification')
+        .post("/api/manual-notification")
         .send({});
 
       expect(response.status).toBe(400);
@@ -231,10 +257,10 @@ describe('Error Notification Middleware Integration', () => {
     });
   });
 
-  describe('Error Notification Middleware', () => {
-    it('should detect errors in middleware', async () => {
-      app.get('/api/error', (req, res, next) => {
-        next(new Error('Test error'));
+  describe("Error Notification Middleware", () => {
+    it("should detect errors in middleware", async () => {
+      app.get("/api/error", (req, res, next) => {
+        next(new Error("Test error"));
       });
 
       app.use(createErrorNotificationMiddleware());
@@ -242,7 +268,7 @@ describe('Error Notification Middleware Integration', () => {
         res.status(500).json({ error: error.message });
       });
 
-      const response = await request(app).get('/api/error');
+      const response = await request(app).get("/api/error");
 
       expect(response.status).toBe(500);
 
@@ -251,13 +277,13 @@ describe('Error Notification Middleware Integration', () => {
       expect(history.length).toBeGreaterThan(0);
     });
 
-    it('should include request context in error notification', async () => {
-      app.get('/api/error', (req, res, next) => {
-        next(new Error('Test error'));
+    it("should include request context in error notification", async () => {
+      app.get("/api/error", (req, res, next) => {
+        next(new Error("Test error"));
       });
 
       app.use((req, res, next) => {
-        req.correlationId = 'test-correlation-id';
+        req.correlationId = "test-correlation-id";
         next();
       });
 
@@ -266,7 +292,7 @@ describe('Error Notification Middleware Integration', () => {
         res.status(500).json({ error: error.message });
       });
 
-      await request(app).get('/api/error');
+      await request(app).get("/api/error");
 
       const history = errorNotificationService.getErrorHistory();
       expect(history.length).toBeGreaterThan(0);
@@ -274,20 +300,20 @@ describe('Error Notification Middleware Integration', () => {
     });
   });
 
-  describe('withErrorNotification Wrapper', () => {
-    it('should wrap route handler and catch errors', async () => {
+  describe("withErrorNotification Wrapper", () => {
+    it("should wrap route handler and catch errors", async () => {
       app.get(
-        '/api/test',
+        "/api/test",
         withErrorNotification(async (req, res) => {
-          throw new Error('Handler error');
-        })
+          throw new Error("Handler error");
+        }),
       );
 
       app.use((error, req, res, next) => {
         res.status(500).json({ error: error.message });
       });
 
-      const response = await request(app).get('/api/test');
+      const response = await request(app).get("/api/test");
 
       expect(response.status).toBe(500);
 
@@ -295,30 +321,30 @@ describe('Error Notification Middleware Integration', () => {
       expect(history.length).toBeGreaterThan(0);
     });
 
-    it('should pass successful responses through', async () => {
+    it("should pass successful responses through", async () => {
       app.get(
-        '/api/test',
+        "/api/test",
         withErrorNotification(async (req, res) => {
           res.json({ success: true });
-        })
+        }),
       );
 
-      const response = await request(app).get('/api/test');
+      const response = await request(app).get("/api/test");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
 
-    it('should include request context in wrapped handler errors', async () => {
+    it("should include request context in wrapped handler errors", async () => {
       app.get(
-        '/api/test',
+        "/api/test",
         withErrorNotification(async (req, res) => {
-          throw new Error('Database error');
-        })
+          throw new Error("Database error");
+        }),
       );
 
       app.use((req, res, next) => {
-        req.correlationId = 'test-id';
+        req.correlationId = "test-id";
         next();
       });
 
@@ -326,39 +352,57 @@ describe('Error Notification Middleware Integration', () => {
         res.status(500).json({ error: error.message });
       });
 
-      await request(app).get('/api/test');
+      await request(app).get("/api/test");
 
       const history = errorNotificationService.getErrorHistory();
       expect(history.length).toBeGreaterThan(0);
-      expect(history[0].context.correlationId).toBe('test-id');
+      expect(history[0].context.correlationId).toBe("test-id");
     });
   });
 
-  describe('Error Notification with Multiple Channels', () => {
-    it('should send notifications through multiple channels', async () => {
+  describe("Error Notification with Multiple Channels", () => {
+    it("should send notifications through multiple channels", async () => {
       const handler1 = jest.fn().mockResolvedValue(undefined);
       const handler2 = jest.fn().mockResolvedValue(undefined);
 
-      errorNotificationService.registerNotificationHandler('channel1', handler1);
-      errorNotificationService.registerNotificationHandler('channel2', handler2);
-      errorNotificationService.config.notificationChannels = ['channel1', 'channel2'];
+      errorNotificationService.registerNotificationHandler(
+        "channel1",
+        handler1,
+      );
+      errorNotificationService.registerNotificationHandler(
+        "channel2",
+        handler2,
+      );
+      errorNotificationService.config.notificationChannels = [
+        "channel1",
+        "channel2",
+      ];
 
-      const error = new Error('Database error');
+      const error = new Error("Database error");
       await errorNotificationService.detectAndNotify(error);
 
       expect(handler1).toHaveBeenCalled();
       expect(handler2).toHaveBeenCalled();
     });
 
-    it('should continue sending through other channels if one fails', async () => {
-      const handler1 = jest.fn().mockRejectedValue(new Error('Handler failed'));
+    it("should continue sending through other channels if one fails", async () => {
+      const handler1 = jest.fn().mockRejectedValue(new Error("Handler failed"));
       const handler2 = jest.fn().mockResolvedValue(undefined);
 
-      errorNotificationService.registerNotificationHandler('channel1', handler1);
-      errorNotificationService.registerNotificationHandler('channel2', handler2);
-      errorNotificationService.config.notificationChannels = ['channel1', 'channel2'];
+      errorNotificationService.registerNotificationHandler(
+        "channel1",
+        handler1,
+      );
+      errorNotificationService.registerNotificationHandler(
+        "channel2",
+        handler2,
+      );
+      errorNotificationService.config.notificationChannels = [
+        "channel1",
+        "channel2",
+      ];
 
-      const error = new Error('Database error');
+      const error = new Error("Database error");
       await errorNotificationService.detectAndNotify(error);
 
       expect(handler1).toHaveBeenCalled();
@@ -370,33 +414,37 @@ describe('Error Notification Middleware Integration', () => {
     });
   });
 
-  describe('Error Notification Queue', () => {
-    it('should queue notifications when processing', async () => {
-      const handler = jest.fn().mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 100))
-      );
+  describe("Error Notification Queue", () => {
+    it("should queue notifications when processing", async () => {
+      const handler = jest
+        .fn()
+        .mockImplementation(
+          () => new Promise((resolve) => setTimeout(resolve, 100)),
+        );
 
-      errorNotificationService.registerNotificationHandler('test', handler);
-      errorNotificationService.config.notificationChannels = ['test'];
+      errorNotificationService.registerNotificationHandler("test", handler);
+      errorNotificationService.config.notificationChannels = ["test"];
 
-      const error = new Error('Database error');
+      const error = new Error("Database error");
       await errorNotificationService.detectAndNotify(error);
 
       const status = errorNotificationService.getStatus();
       expect(status.queueSize).toBeGreaterThanOrEqual(0);
     });
 
-    it('should not exceed maximum queue size', async () => {
+    it("should not exceed maximum queue size", async () => {
       const service = new ErrorNotificationService({
         maxNotificationQueueSize: 5,
       });
 
-      const handler = jest.fn().mockImplementation(
-        () => new Promise(resolve => setTimeout(resolve, 1000))
-      );
+      const handler = jest
+        .fn()
+        .mockImplementation(
+          () => new Promise((resolve) => setTimeout(resolve, 1000)),
+        );
 
-      service.registerNotificationHandler('test', handler);
-      service.config.notificationChannels = ['test'];
+      service.registerNotificationHandler("test", handler);
+      service.config.notificationChannels = ["test"];
 
       // Queue multiple notifications
       for (let i = 0; i < 10; i++) {

@@ -23,28 +23,35 @@
  * **Validates: Requirements 9.4**
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
-import fc from 'fast-check';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
+import fc from "fast-check";
 
 /**
  * Transaction isolation levels
  */
 const IsolationLevel = {
-  READ_UNCOMMITTED: 'READ UNCOMMITTED',
-  READ_COMMITTED: 'READ COMMITTED',
-  REPEATABLE_READ: 'REPEATABLE READ',
-  SERIALIZABLE: 'SERIALIZABLE',
+  READ_UNCOMMITTED: "READ UNCOMMITTED",
+  READ_COMMITTED: "READ COMMITTED",
+  REPEATABLE_READ: "REPEATABLE READ",
+  SERIALIZABLE: "SERIALIZABLE",
 };
 
 /**
  * Transaction state enum
  */
 const TransactionState = {
-  IDLE: 'idle',
-  ACTIVE: 'active',
-  COMMITTED: 'committed',
-  ROLLED_BACK: 'rolled_back',
-  FAILED: 'failed',
+  IDLE: "idle",
+  ACTIVE: "active",
+  COMMITTED: "committed",
+  ROLLED_BACK: "rolled_back",
+  FAILED: "failed",
 };
 
 /**
@@ -69,14 +76,14 @@ class MockDatabaseClient {
       const shouldFail = this.options.failurePattern(text, this.queryCount);
       if (shouldFail) {
         this.queryCount++;
-        const error = new Error('Query failed');
-        error.code = '40P01'; // Serialization conflict
+        const error = new Error("Query failed");
+        error.code = "40P01"; // Serialization conflict
         throw error;
       }
     } else if (Math.random() < this.options.failureRate) {
       this.queryCount++;
-      const error = new Error('Query failed');
-      error.code = '40P01';
+      const error = new Error("Query failed");
+      error.code = "40P01";
       throw error;
     }
 
@@ -85,17 +92,17 @@ class MockDatabaseClient {
     this.queryCount++;
 
     // Simulate transaction commands
-    if (text.includes('BEGIN')) {
+    if (text.includes("BEGIN")) {
       this.inTransaction = true;
-    } else if (text.includes('COMMIT')) {
+    } else if (text.includes("COMMIT")) {
       this.inTransaction = false;
-    } else if (text.includes('ROLLBACK')) {
+    } else if (text.includes("ROLLBACK")) {
       this.inTransaction = false;
     }
 
     return {
       rowCount: 1,
-      rows: [{ id: 'test-id', value: 'test-value' }],
+      rows: [{ id: "test-id", value: "test-value" }],
     };
   }
 
@@ -205,7 +212,7 @@ class Transaction {
     }
 
     try {
-      await this.client.query('COMMIT');
+      await this.client.query("COMMIT");
       this.state = TransactionState.COMMITTED;
       this.endTime = Date.now();
     } catch (error) {
@@ -221,7 +228,7 @@ class Transaction {
 
     try {
       if (this.state === TransactionState.ACTIVE) {
-        await this.client.query('ROLLBACK');
+        await this.client.query("ROLLBACK");
       }
 
       this.state = TransactionState.ROLLED_BACK;
@@ -246,7 +253,7 @@ class Transaction {
   }
 }
 
-describe('Database Transaction Properties', () => {
+describe("Database Transaction Properties", () => {
   let mockClient;
 
   beforeEach(() => {
@@ -259,13 +266,13 @@ describe('Database Transaction Properties', () => {
     }
   });
 
-  describe('Property 1: Transaction State Consistency', () => {
+  describe("Property 1: Transaction State Consistency", () => {
     /**
      * Property: For any transaction, the state must always be one of the valid states
      * and transitions must follow the valid state machine:
      * IDLE -> ACTIVE -> (COMMITTED | ROLLED_BACK | FAILED)
      */
-    it('should maintain valid state transitions for all transactions', async () => {
+    it("should maintain valid state transitions for all transactions", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 1, max: 10 }),
@@ -283,7 +290,7 @@ describe('Database Transaction Properties', () => {
             // Execute queries
             for (let i = 0; i < queryCount; i++) {
               const result = await transaction.query(
-                'SELECT * FROM test WHERE id = $1',
+                "SELECT * FROM test WHERE id = $1",
                 [`id-${i}`],
               );
               expect(result).toBeDefined();
@@ -307,7 +314,7 @@ describe('Database Transaction Properties', () => {
      * Property: For any transaction that fails, the state must transition to FAILED
      * and subsequent operations should be rejected
      */
-    it('should transition to FAILED state on query errors', async () => {
+    it("should transition to FAILED state on query errors", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 1, max: 5 }),
@@ -323,7 +330,7 @@ describe('Database Transaction Properties', () => {
             let errorOccurred = false;
             for (let i = 0; i < failAtQuery + 2; i++) {
               try {
-                await transaction.query('SELECT * FROM test WHERE id = $1', [
+                await transaction.query("SELECT * FROM test WHERE id = $1", [
                   `id-${i}`,
                 ]);
               } catch (error) {
@@ -342,12 +349,12 @@ describe('Database Transaction Properties', () => {
     });
   });
 
-  describe('Property 2: Transaction Atomicity', () => {
+  describe("Property 2: Transaction Atomicity", () => {
     /**
      * Property: For any sequence of queries in a transaction, either all succeed
      * and are committed, or all are rolled back. No partial commits should occur.
      */
-    it('should ensure all-or-nothing semantics for transaction queries', async () => {
+    it("should ensure all-or-nothing semantics for transaction queries", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.array(fc.string({ minLength: 1, maxLength: 50 }), {
@@ -364,7 +371,7 @@ describe('Database Transaction Properties', () => {
             const executedQueries = [];
             for (const queryId of queryIds) {
               const result = await transaction.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
               executedQueries.push(queryId);
@@ -389,7 +396,7 @@ describe('Database Transaction Properties', () => {
      * Property: For any transaction that is rolled back, all queries should be
      * undone and the transaction state should reflect the rollback
      */
-    it('should rollback all queries when transaction is rolled back', async () => {
+    it("should rollback all queries when transaction is rolled back", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.array(fc.string({ minLength: 1, maxLength: 50 }), {
@@ -405,7 +412,7 @@ describe('Database Transaction Properties', () => {
             // Execute queries
             for (const queryId of queryIds) {
               await transaction.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
             }
@@ -427,12 +434,12 @@ describe('Database Transaction Properties', () => {
     });
   });
 
-  describe('Property 3: Transaction Isolation', () => {
+  describe("Property 3: Transaction Isolation", () => {
     /**
      * Property: For any two concurrent transactions, they should not interfere
      * with each other. Each transaction should maintain its own query list and state.
      */
-    it('should isolate state between concurrent transactions', async () => {
+    it("should isolate state between concurrent transactions", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.tuple(
@@ -459,7 +466,7 @@ describe('Database Transaction Properties', () => {
             // Execute queries in transaction 1
             for (const queryId of queries1) {
               await transaction1.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
             }
@@ -467,7 +474,7 @@ describe('Database Transaction Properties', () => {
             // Execute queries in transaction 2
             for (const queryId of queries2) {
               await transaction2.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
             }
@@ -493,12 +500,12 @@ describe('Database Transaction Properties', () => {
     });
   });
 
-  describe('Property 4: Savepoint Consistency', () => {
+  describe("Property 4: Savepoint Consistency", () => {
     /**
      * Property: For any savepoint created within a transaction, rolling back to
      * that savepoint should undo only the queries after the savepoint, not before.
      */
-    it('should maintain consistent savepoint state', async () => {
+    it("should maintain consistent savepoint state", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.tuple(
@@ -520,29 +527,29 @@ describe('Database Transaction Properties', () => {
             // Execute queries before savepoint
             for (const queryId of beforeSavepoint) {
               await transaction.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
             }
 
             // Create savepoint
-            await transaction.savepoint('sp1');
+            await transaction.savepoint("sp1");
             const queriesBeforeSavepoint = transaction.queries.length;
 
             // Execute queries after savepoint
             for (const queryId of afterSavepoint) {
               await transaction.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
             }
 
             // Verify savepoint was created
             expect(transaction.savepoints.length).toBe(1);
-            expect(transaction.savepoints[0].name).toBe('sp1');
+            expect(transaction.savepoints[0].name).toBe("sp1");
 
             // Rollback to savepoint
-            await transaction.rollbackToSavepoint('sp1');
+            await transaction.rollbackToSavepoint("sp1");
 
             // Verify queries before savepoint are still tracked
             expect(transaction.queries.length).toBeGreaterThanOrEqual(
@@ -561,12 +568,12 @@ describe('Database Transaction Properties', () => {
     });
   });
 
-  describe('Property 5: Transaction Metadata Accuracy', () => {
+  describe("Property 5: Transaction Metadata Accuracy", () => {
     /**
      * Property: For any transaction, the metadata should accurately reflect
      * the transaction's state, duration, and query count.
      */
-    it('should accurately track transaction metadata', async () => {
+    it("should accurately track transaction metadata", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 1, max: 10 }),
@@ -579,7 +586,7 @@ describe('Database Transaction Properties', () => {
 
             // Execute queries
             for (let i = 0; i < queryCount; i++) {
-              await transaction.query('SELECT * FROM test WHERE id = $1', [
+              await transaction.query("SELECT * FROM test WHERE id = $1", [
                 `id-${i}`,
               ]);
             }
@@ -594,7 +601,9 @@ describe('Database Transaction Properties', () => {
             expect(metadata.state).toBe(TransactionState.COMMITTED);
             expect(metadata.queryCount).toBe(queryCount);
             expect(metadata.duration).toBeGreaterThanOrEqual(0);
-            expect(metadata.duration).toBeLessThanOrEqual(endTime - startTime + 100);
+            expect(metadata.duration).toBeLessThanOrEqual(
+              endTime - startTime + 100,
+            );
             expect(metadata.transactionId).toBeDefined();
             expect(metadata.isolationLevel).toBe(IsolationLevel.READ_COMMITTED);
 
@@ -606,12 +615,12 @@ describe('Database Transaction Properties', () => {
     });
   });
 
-  describe('Property 6: Transaction Durability', () => {
+  describe("Property 6: Transaction Durability", () => {
     /**
      * Property: For any committed transaction, the transaction state should
      * remain COMMITTED and the queries should be permanently recorded.
      */
-    it('should maintain durability of committed transactions', async () => {
+    it("should maintain durability of committed transactions", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.array(fc.string({ minLength: 1, maxLength: 50 }), {
@@ -627,7 +636,7 @@ describe('Database Transaction Properties', () => {
             // Execute queries
             for (const queryId of queryIds) {
               await transaction.query(
-                'INSERT INTO test (id, value) VALUES ($1, $2)',
+                "INSERT INTO test (id, value) VALUES ($1, $2)",
                 [queryId, `value-${queryId}`],
               );
             }
@@ -652,12 +661,12 @@ describe('Database Transaction Properties', () => {
     });
   });
 
-  describe('Property 7: Isolation Level Consistency', () => {
+  describe("Property 7: Isolation Level Consistency", () => {
     /**
      * Property: For any transaction with a specified isolation level,
      * the isolation level should be set correctly and remain consistent.
      */
-    it('should maintain consistent isolation levels', async () => {
+    it("should maintain consistent isolation levels", async () => {
       const isolationLevels = [
         IsolationLevel.READ_UNCOMMITTED,
         IsolationLevel.READ_COMMITTED,
@@ -678,7 +687,7 @@ describe('Database Transaction Properties', () => {
             await transaction.begin();
 
             // Execute a query
-            await transaction.query('SELECT * FROM test', []);
+            await transaction.query("SELECT * FROM test", []);
 
             // Verify isolation level remains consistent
             expect(transaction.isolationLevel).toBe(isolationLevel);

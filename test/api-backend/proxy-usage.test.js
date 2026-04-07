@@ -15,12 +15,20 @@
  * Validates: Requirements 5.9
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
-import { Pool } from 'pg';
-import ProxyUsageService from '../../services/api-backend/services/proxy-usage-service.js';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "@jest/globals";
+import { Pool } from "pg";
+import ProxyUsageService from "../../services/api-backend/services/proxy-usage-service.js";
+import { v4 as uuidv4 } from "uuid";
 
-describe('Proxy Usage Tracking', () => {
+describe("Proxy Usage Tracking", () => {
   let pool;
   let proxyUsageService;
   let testUserId;
@@ -29,7 +37,9 @@ describe('Proxy Usage Tracking', () => {
   beforeAll(async () => {
     // Initialize database connection
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL || 'postgresql://localhost/cloudtolocalllm_test',
+      connectionString:
+        process.env.DATABASE_URL ||
+        "postgresql://localhost/cloudtolocalllm_test",
     });
 
     proxyUsageService = new ProxyUsageService();
@@ -40,7 +50,13 @@ describe('Proxy Usage Tracking', () => {
       `INSERT INTO users (id, email, jwt_id, tier, is_active)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING id`,
-      [uuidv4(), 'test-proxy-usage@example.com', 'jwt|test-proxy-usage', 'premium', true],
+      [
+        uuidv4(),
+        "test-proxy-usage@example.com",
+        "jwt|test-proxy-usage",
+        "premium",
+        true,
+      ],
     );
     testUserId = userResult.rows[0].id;
 
@@ -49,99 +65,114 @@ describe('Proxy Usage Tracking', () => {
     await pool.query(
       `INSERT INTO proxy_health_status (proxy_id, user_id, status, last_health_check)
        VALUES ($1, $2, $3, $4)`,
-      [testProxyId, testUserId, 'healthy', new Date()],
+      [testProxyId, testUserId, "healthy", new Date()],
     );
   });
 
   afterAll(async () => {
     // Cleanup
-    await pool.query('DELETE FROM proxy_usage_events WHERE user_id = $1', [testUserId]);
-    await pool.query('DELETE FROM proxy_usage_metrics WHERE user_id = $1', [testUserId]);
-    await pool.query('DELETE FROM proxy_usage_aggregation WHERE user_id = $1', [testUserId]);
-    await pool.query('DELETE FROM proxy_usage_summary WHERE user_id = $1', [testUserId]);
-    await pool.query('DELETE FROM proxy_health_status WHERE proxy_id = $1', [testProxyId]);
-    await pool.query('DELETE FROM users WHERE id = $1', [testUserId]);
+    await pool.query("DELETE FROM proxy_usage_events WHERE user_id = $1", [
+      testUserId,
+    ]);
+    await pool.query("DELETE FROM proxy_usage_metrics WHERE user_id = $1", [
+      testUserId,
+    ]);
+    await pool.query("DELETE FROM proxy_usage_aggregation WHERE user_id = $1", [
+      testUserId,
+    ]);
+    await pool.query("DELETE FROM proxy_usage_summary WHERE user_id = $1", [
+      testUserId,
+    ]);
+    await pool.query("DELETE FROM proxy_health_status WHERE proxy_id = $1", [
+      testProxyId,
+    ]);
+    await pool.query("DELETE FROM users WHERE id = $1", [testUserId]);
     await pool.end();
   });
 
-  describe('Record Usage Events', () => {
-    it('should record a connection_start event', async () => {
+  describe("Record Usage Events", () => {
+    it("should record a connection_start event", async () => {
       const event = await proxyUsageService.recordUsageEvent(
         testProxyId,
         testUserId,
-        'connection_start',
+        "connection_start",
         {
-          connectionId: 'conn-123',
-          ipAddress: '192.168.1.1',
+          connectionId: "conn-123",
+          ipAddress: "192.168.1.1",
         },
       );
 
       expect(event).toBeDefined();
       expect(event.proxy_id).toBe(testProxyId);
       expect(event.user_id).toBe(testUserId);
-      expect(event.event_type).toBe('connection_start');
-      expect(event.connection_id).toBe('conn-123');
+      expect(event.event_type).toBe("connection_start");
+      expect(event.connection_id).toBe("conn-123");
     });
 
-    it('should record a data_transfer event', async () => {
+    it("should record a data_transfer event", async () => {
       const event = await proxyUsageService.recordUsageEvent(
         testProxyId,
         testUserId,
-        'data_transfer',
+        "data_transfer",
         {
-          connectionId: 'conn-123',
+          connectionId: "conn-123",
           dataBytes: 1024,
         },
       );
 
       expect(event).toBeDefined();
-      expect(event.event_type).toBe('data_transfer');
+      expect(event.event_type).toBe("data_transfer");
       expect(event.data_bytes).toBe(1024);
     });
 
-    it('should record a connection_end event', async () => {
+    it("should record a connection_end event", async () => {
       const event = await proxyUsageService.recordUsageEvent(
         testProxyId,
         testUserId,
-        'connection_end',
+        "connection_end",
         {
-          connectionId: 'conn-123',
+          connectionId: "conn-123",
           durationSeconds: 60,
         },
       );
 
       expect(event).toBeDefined();
-      expect(event.event_type).toBe('connection_end');
+      expect(event.event_type).toBe("connection_end");
       expect(event.duration_seconds).toBe(60);
     });
 
-    it('should record an error event', async () => {
+    it("should record an error event", async () => {
       const event = await proxyUsageService.recordUsageEvent(
         testProxyId,
         testUserId,
-        'error',
+        "error",
         {
-          connectionId: 'conn-123',
-          errorMessage: 'Connection timeout',
+          connectionId: "conn-123",
+          errorMessage: "Connection timeout",
         },
       );
 
       expect(event).toBeDefined();
-      expect(event.event_type).toBe('error');
-      expect(event.error_message).toBe('Connection timeout');
+      expect(event.event_type).toBe("error");
+      expect(event.error_message).toBe("Connection timeout");
     });
 
-    it('should reject invalid event types', async () => {
+    it("should reject invalid event types", async () => {
       await expect(
-        proxyUsageService.recordUsageEvent(testProxyId, testUserId, 'invalid_type', {}),
-      ).rejects.toThrow('Invalid event type');
+        proxyUsageService.recordUsageEvent(
+          testProxyId,
+          testUserId,
+          "invalid_type",
+          {},
+        ),
+      ).rejects.toThrow("Invalid event type");
     });
   });
 
-  describe('Get Usage Metrics', () => {
+  describe("Get Usage Metrics", () => {
     beforeEach(async () => {
       // Insert test metrics
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       await pool.query(
         `INSERT INTO proxy_usage_metrics 
          (proxy_id, user_id, date, connection_count, data_transferred_bytes, 
@@ -160,9 +191,13 @@ describe('Proxy Usage Tracking', () => {
       );
     });
 
-    it('should get usage metrics for a specific date', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const metrics = await proxyUsageService.getProxyUsageMetrics(testProxyId, testUserId, today);
+    it("should get usage metrics for a specific date", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const metrics = await proxyUsageService.getProxyUsageMetrics(
+        testProxyId,
+        testUserId,
+        today,
+      );
 
       expect(metrics).toBeDefined();
       expect(metrics.proxyId).toBe(testProxyId);
@@ -176,18 +211,26 @@ describe('Proxy Usage Tracking', () => {
       expect(metrics.successCount).toBe(98);
     });
 
-    it('should return zero metrics for non-existent date', async () => {
-      const futureDate = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-      const metrics = await proxyUsageService.getProxyUsageMetrics(testProxyId, testUserId, futureDate);
+    it("should return zero metrics for non-existent date", async () => {
+      const futureDate = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
+      const metrics = await proxyUsageService.getProxyUsageMetrics(
+        testProxyId,
+        testUserId,
+        futureDate,
+      );
 
       expect(metrics).toBeDefined();
       expect(metrics.connectionCount).toBe(0);
       expect(metrics.dataTransferredBytes).toBe(0);
     });
 
-    it('should get usage metrics for a date range', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should get usage metrics for a date range", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const metrics = await proxyUsageService.getProxyUsageMetricsRange(
         testProxyId,
@@ -201,19 +244,25 @@ describe('Proxy Usage Tracking', () => {
       expect(metrics[0].proxyId).toBe(testProxyId);
     });
 
-    it('should reject unauthorized access', async () => {
+    it("should reject unauthorized access", async () => {
       const otherUserId = uuidv4();
       await expect(
-        proxyUsageService.getProxyUsageMetrics(testProxyId, otherUserId, '2024-01-01'),
-      ).rejects.toThrow('Proxy not found');
+        proxyUsageService.getProxyUsageMetrics(
+          testProxyId,
+          otherUserId,
+          "2024-01-01",
+        ),
+      ).rejects.toThrow("Proxy not found");
     });
   });
 
-  describe('Usage Aggregation', () => {
+  describe("Usage Aggregation", () => {
     beforeEach(async () => {
       // Insert test metrics for aggregation
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
+      const yesterday = new Date(Date.now() - 86400000)
+        .toISOString()
+        .split("T")[0];
 
       await pool.query(
         `INSERT INTO proxy_usage_metrics 
@@ -246,63 +295,91 @@ describe('Proxy Usage Tracking', () => {
            average_connection_duration_seconds = $8,
            error_count = $9,
            success_count = $10`,
-        [testProxyId, testUserId, yesterday, 80, 4194304, 2097152, 8, 25, 1, 79],
+        [
+          testProxyId,
+          testUserId,
+          yesterday,
+          80,
+          4194304,
+          2097152,
+          8,
+          25,
+          1,
+          79,
+        ],
       );
     });
 
-    it('should aggregate user usage for a period', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should aggregate user usage for a period", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const aggregation = await proxyUsageService.aggregateUserUsage(
         testUserId,
-        'premium',
+        "premium",
         today,
         tomorrow,
       );
 
       expect(aggregation).toBeDefined();
       expect(aggregation.user_id).toBe(testUserId);
-      expect(aggregation.user_tier).toBe('premium');
+      expect(aggregation.user_tier).toBe("premium");
       expect(aggregation.total_connections).toBeGreaterThan(0);
       expect(aggregation.total_data_transferred_bytes).toBeGreaterThan(0);
     });
 
-    it('should get user usage aggregation', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should get user usage aggregation", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       // First aggregate
-      await proxyUsageService.aggregateUserUsage(testUserId, 'premium', today, tomorrow);
+      await proxyUsageService.aggregateUserUsage(
+        testUserId,
+        "premium",
+        today,
+        tomorrow,
+      );
 
       // Then retrieve
       const aggregation = await proxyUsageService.getUserUsageAggregation(
         testUserId,
-        'premium',
+        "premium",
         today,
         tomorrow,
       );
 
       expect(aggregation).toBeDefined();
       expect(aggregation.userId).toBe(testUserId);
-      expect(aggregation.userTier).toBe('premium');
+      expect(aggregation.userTier).toBe("premium");
     });
 
-    it('should return zero aggregation for user with no proxies', async () => {
+    it("should return zero aggregation for user with no proxies", async () => {
       const otherUserId = uuidv4();
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       // Create user without proxies
       await pool.query(
         `INSERT INTO users (id, email, jwt_id, tier, is_active)
          VALUES ($1, $2, $3, $4, $5)`,
-        [otherUserId, 'test-no-proxy@example.com', 'jwt|test-no-proxy', 'free', true],
+        [
+          otherUserId,
+          "test-no-proxy@example.com",
+          "jwt|test-no-proxy",
+          "free",
+          true,
+        ],
       );
 
       const aggregation = await proxyUsageService.aggregateUserUsage(
         otherUserId,
-        'free',
+        "free",
         today,
         tomorrow,
       );
@@ -311,14 +388,14 @@ describe('Proxy Usage Tracking', () => {
       expect(aggregation.total_connections).toBe(0);
 
       // Cleanup
-      await pool.query('DELETE FROM users WHERE id = $1', [otherUserId]);
+      await pool.query("DELETE FROM users WHERE id = $1", [otherUserId]);
     });
   });
 
-  describe('Usage Reports', () => {
+  describe("Usage Reports", () => {
     beforeEach(async () => {
       // Insert test metrics for reporting
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       await pool.query(
         `INSERT INTO proxy_usage_metrics 
          (proxy_id, user_id, date, connection_count, data_transferred_bytes, 
@@ -337,62 +414,68 @@ describe('Proxy Usage Tracking', () => {
       );
     });
 
-    it('should generate usage report grouped by day', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should generate usage report grouped by day", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const report = await proxyUsageService.getUserUsageReport(testUserId, {
         startDate: today,
         endDate: tomorrow,
-        groupBy: 'day',
+        groupBy: "day",
       });
 
       expect(report).toBeDefined();
       expect(report.userId).toBe(testUserId);
-      expect(report.groupBy).toBe('day');
+      expect(report.groupBy).toBe("day");
       expect(Array.isArray(report.data)).toBe(true);
     });
 
-    it('should generate usage report grouped by proxy', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should generate usage report grouped by proxy", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const report = await proxyUsageService.getUserUsageReport(testUserId, {
         startDate: today,
         endDate: tomorrow,
-        groupBy: 'proxy',
+        groupBy: "proxy",
       });
 
       expect(report).toBeDefined();
       expect(report.userId).toBe(testUserId);
-      expect(report.groupBy).toBe('proxy');
+      expect(report.groupBy).toBe("proxy");
       expect(Array.isArray(report.data)).toBe(true);
     });
 
-    it('should reject invalid groupBy parameter', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should reject invalid groupBy parameter", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       await expect(
         proxyUsageService.getUserUsageReport(testUserId, {
           startDate: today,
           endDate: tomorrow,
-          groupBy: 'invalid',
+          groupBy: "invalid",
         }),
       ).rejects.toThrow('groupBy must be either "day" or "proxy"');
     });
 
-    it('should require startDate and endDate', async () => {
+    it("should require startDate and endDate", async () => {
       await expect(
         proxyUsageService.getUserUsageReport(testUserId, {}),
-      ).rejects.toThrow('startDate and endDate are required');
+      ).rejects.toThrow("startDate and endDate are required");
     });
   });
 
-  describe('Billing Summary', () => {
+  describe("Billing Summary", () => {
     beforeEach(async () => {
       // Insert test metrics for billing
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       await pool.query(
         `INSERT INTO proxy_usage_metrics 
          (proxy_id, user_id, date, connection_count, data_transferred_bytes, 
@@ -407,59 +490,78 @@ describe('Proxy Usage Tracking', () => {
            average_connection_duration_seconds = $8,
            error_count = $9,
            success_count = $10`,
-        [testProxyId, testUserId, today, 100, 5368709120, 2684354560, 10, 30, 2, 98],
+        [
+          testProxyId,
+          testUserId,
+          today,
+          100,
+          5368709120,
+          2684354560,
+          10,
+          30,
+          2,
+          98,
+        ],
       );
     });
 
-    it('should calculate billing for free tier', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should calculate billing for free tier", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const billing = await proxyUsageService.getBillingSummary(
         testUserId,
-        'free',
+        "free",
         today,
         tomorrow,
       );
 
       expect(billing).toBeDefined();
-      expect(billing.userTier).toBe('free');
+      expect(billing.userTier).toBe("free");
       expect(billing.billing.amount).toBe(0);
       expect(billing.billing.breakdown.baseCharge).toBe(0);
     });
 
-    it('should calculate billing for premium tier', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should calculate billing for premium tier", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const billing = await proxyUsageService.getBillingSummary(
         testUserId,
-        'premium',
+        "premium",
         today,
         tomorrow,
       );
 
       expect(billing).toBeDefined();
-      expect(billing.userTier).toBe('premium');
+      expect(billing.userTier).toBe("premium");
       expect(billing.billing.amount).toBeGreaterThan(0);
       expect(billing.billing.breakdown.baseCharge).toBe(10);
       expect(billing.billing.breakdown.dataTransferCharge).toBeGreaterThan(0);
     });
 
-    it('should calculate billing for enterprise tier', async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    it("should calculate billing for enterprise tier", async () => {
+      const today = new Date().toISOString().split("T")[0];
+      const tomorrow = new Date(Date.now() + 86400000)
+        .toISOString()
+        .split("T")[0];
 
       const billing = await proxyUsageService.getBillingSummary(
         testUserId,
-        'enterprise',
+        "enterprise",
         today,
         tomorrow,
       );
 
       expect(billing).toBeDefined();
-      expect(billing.userTier).toBe('enterprise');
-      expect(billing.billing.breakdown.note).toBe('Custom pricing - contact sales');
+      expect(billing.userTier).toBe("enterprise");
+      expect(billing.billing.breakdown.note).toBe(
+        "Custom pricing - contact sales",
+      );
     });
   });
 });

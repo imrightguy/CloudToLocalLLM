@@ -19,13 +19,21 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
-import { v4 as uuidv4 } from 'uuid';
-import crypto from 'crypto';
-import { TunnelWebhookService } from '../../services/api-backend/services/tunnel-webhook-service.js';
-import { getPool } from '../../services/api-backend/database/db-pool.js';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "@jest/globals";
+import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
+import { TunnelWebhookService } from "../../services/api-backend/services/tunnel-webhook-service.js";
+import { getPool } from "../../services/api-backend/database/db-pool.js";
 
-describe('Tunnel Webhooks', () => {
+describe("Tunnel Webhooks", () => {
   let webhookService;
   let pool;
   let userId;
@@ -40,7 +48,7 @@ describe('Tunnel Webhooks', () => {
     userId = uuidv4();
     await pool.query(
       `INSERT INTO users (id, email, jwt_id, tier) VALUES ($1, $2, $3, $4)`,
-      [userId, `test-${userId}@example.com`, `jwt-${userId}`, 'free'],
+      [userId, `test-${userId}@example.com`, `jwt-${userId}`, "free"],
     );
 
     // Create test tunnel
@@ -51,27 +59,43 @@ describe('Tunnel Webhooks', () => {
       [
         tunnelId,
         userId,
-        'Test Tunnel',
-        'created',
-        JSON.stringify({ maxConnections: 100, timeout: 30000, compression: true }),
-        JSON.stringify({ requestCount: 0, successCount: 0, errorCount: 0, averageLatency: 0 }),
+        "Test Tunnel",
+        "created",
+        JSON.stringify({
+          maxConnections: 100,
+          timeout: 30000,
+          compression: true,
+        }),
+        JSON.stringify({
+          requestCount: 0,
+          successCount: 0,
+          errorCount: 0,
+          averageLatency: 0,
+        }),
       ],
     );
   });
 
   afterAll(async () => {
     // Cleanup
-    await pool.query('DELETE FROM tunnel_webhooks WHERE user_id = $1', [userId]);
-    await pool.query('DELETE FROM tunnels WHERE id = $1', [tunnelId]);
-    await pool.query('DELETE FROM users WHERE id = $1', [userId]);
+    await pool.query("DELETE FROM tunnel_webhooks WHERE user_id = $1", [
+      userId,
+    ]);
+    await pool.query("DELETE FROM tunnels WHERE id = $1", [tunnelId]);
+    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
   });
 
-  describe('Webhook Registration', () => {
-    it('should register a webhook for tunnel events', async () => {
-      const url = 'https://example.com/webhook';
-      const events = ['tunnel.status_changed'];
+  describe("Webhook Registration", () => {
+    it("should register a webhook for tunnel events", async () => {
+      const url = "https://example.com/webhook";
+      const events = ["tunnel.status_changed"];
 
-      const webhook = await webhookService.registerWebhook(userId, tunnelId, url, events);
+      const webhook = await webhookService.registerWebhook(
+        userId,
+        tunnelId,
+        url,
+        events,
+      );
 
       expect(webhook).toBeDefined();
       expect(webhook.user_id).toBe(userId);
@@ -82,45 +106,54 @@ describe('Tunnel Webhooks', () => {
       expect(webhook.is_active).toBe(true);
     });
 
-    it('should reject invalid webhook URL', async () => {
-      const invalidUrl = 'not-a-url';
+    it("should reject invalid webhook URL", async () => {
+      const invalidUrl = "not-a-url";
 
       await expect(
-        webhookService.registerWebhook(userId, tunnelId, invalidUrl, ['tunnel.status_changed']),
-      ).rejects.toThrow('Invalid webhook URL format');
+        webhookService.registerWebhook(userId, tunnelId, invalidUrl, [
+          "tunnel.status_changed",
+        ]),
+      ).rejects.toThrow("Invalid webhook URL format");
     });
 
-    it('should reject empty events array', async () => {
-      const url = 'https://example.com/webhook';
+    it("should reject empty events array", async () => {
+      const url = "https://example.com/webhook";
 
-      await expect(webhookService.registerWebhook(userId, tunnelId, url, [])).rejects.toThrow(
-        'At least one event must be specified',
-      );
+      await expect(
+        webhookService.registerWebhook(userId, tunnelId, url, []),
+      ).rejects.toThrow("At least one event must be specified");
     });
 
-    it('should reject invalid event type', async () => {
-      const url = 'https://example.com/webhook';
-      const invalidEvents = ['invalid.event'];
+    it("should reject invalid event type", async () => {
+      const url = "https://example.com/webhook";
+      const invalidEvents = ["invalid.event"];
 
       await expect(
         webhookService.registerWebhook(userId, tunnelId, url, invalidEvents),
-      ).rejects.toThrow('Invalid event type');
+      ).rejects.toThrow("Invalid event type");
     });
 
-    it('should reject non-existent tunnel', async () => {
-      const url = 'https://example.com/webhook';
+    it("should reject non-existent tunnel", async () => {
+      const url = "https://example.com/webhook";
       const nonExistentTunnelId = uuidv4();
 
       await expect(
-        webhookService.registerWebhook(userId, nonExistentTunnelId, url, ['tunnel.status_changed']),
-      ).rejects.toThrow('Tunnel not found');
+        webhookService.registerWebhook(userId, nonExistentTunnelId, url, [
+          "tunnel.status_changed",
+        ]),
+      ).rejects.toThrow("Tunnel not found");
     });
 
-    it('should allow registering webhook for all user tunnels', async () => {
-      const url = 'https://example.com/webhook-all';
-      const events = ['tunnel.status_changed'];
+    it("should allow registering webhook for all user tunnels", async () => {
+      const url = "https://example.com/webhook-all";
+      const events = ["tunnel.status_changed"];
 
-      const webhook = await webhookService.registerWebhook(userId, null, url, events);
+      const webhook = await webhookService.registerWebhook(
+        userId,
+        null,
+        url,
+        events,
+      );
 
       expect(webhook).toBeDefined();
       expect(webhook.tunnel_id).toBeNull();
@@ -128,20 +161,20 @@ describe('Tunnel Webhooks', () => {
     });
   });
 
-  describe('Webhook Management', () => {
+  describe("Webhook Management", () => {
     let webhookId;
 
     beforeEach(async () => {
       const webhook = await webhookService.registerWebhook(
         userId,
         tunnelId,
-        'https://example.com/webhook',
-        ['tunnel.status_changed'],
+        "https://example.com/webhook",
+        ["tunnel.status_changed"],
       );
       webhookId = webhook.id;
     });
 
-    it('should retrieve webhook by ID', async () => {
+    it("should retrieve webhook by ID", async () => {
       const webhook = await webhookService.getWebhookById(webhookId, userId);
 
       expect(webhook).toBeDefined();
@@ -149,15 +182,15 @@ describe('Tunnel Webhooks', () => {
       expect(webhook.user_id).toBe(userId);
     });
 
-    it('should reject unauthorized webhook access', async () => {
+    it("should reject unauthorized webhook access", async () => {
       const otherUserId = uuidv4();
 
-      await expect(webhookService.getWebhookById(webhookId, otherUserId)).rejects.toThrow(
-        'Webhook not found',
-      );
+      await expect(
+        webhookService.getWebhookById(webhookId, otherUserId),
+      ).rejects.toThrow("Webhook not found");
     });
 
-    it('should list webhooks for user', async () => {
+    it("should list webhooks for user", async () => {
       const webhooks = await webhookService.listWebhooks(userId, tunnelId);
 
       expect(Array.isArray(webhooks)).toBe(true);
@@ -165,9 +198,9 @@ describe('Tunnel Webhooks', () => {
       expect(webhooks.some((w) => w.id === webhookId)).toBe(true);
     });
 
-    it('should update webhook', async () => {
-      const newUrl = 'https://example.com/webhook-updated';
-      const newEvents = ['tunnel.status_changed', 'tunnel.created'];
+    it("should update webhook", async () => {
+      const newUrl = "https://example.com/webhook-updated";
+      const newEvents = ["tunnel.status_changed", "tunnel.created"];
 
       const updated = await webhookService.updateWebhook(webhookId, userId, {
         url: newUrl,
@@ -178,7 +211,7 @@ describe('Tunnel Webhooks', () => {
       expect(updated.events).toEqual(newEvents);
     });
 
-    it('should deactivate webhook', async () => {
+    it("should deactivate webhook", async () => {
       const updated = await webhookService.updateWebhook(webhookId, userId, {
         is_active: false,
       });
@@ -186,135 +219,156 @@ describe('Tunnel Webhooks', () => {
       expect(updated.is_active).toBe(false);
     });
 
-    it('should delete webhook', async () => {
+    it("should delete webhook", async () => {
       await webhookService.deleteWebhook(webhookId, userId);
 
-      await expect(webhookService.getWebhookById(webhookId, userId)).rejects.toThrow(
-        'Webhook not found',
-      );
+      await expect(
+        webhookService.getWebhookById(webhookId, userId),
+      ).rejects.toThrow("Webhook not found");
     });
   });
 
-  describe('Webhook Events', () => {
+  describe("Webhook Events", () => {
     let webhookId;
 
     beforeEach(async () => {
       const webhook = await webhookService.registerWebhook(
         userId,
         tunnelId,
-        'https://example.com/webhook',
-        ['tunnel.status_changed'],
+        "https://example.com/webhook",
+        ["tunnel.status_changed"],
       );
       webhookId = webhook.id;
     });
 
-    it('should trigger webhook event for tunnel status change', async () => {
+    it("should trigger webhook event for tunnel status change", async () => {
       const eventData = {
         tunnelId,
-        oldStatus: 'created',
-        newStatus: 'connecting',
+        oldStatus: "created",
+        newStatus: "connecting",
         timestamp: new Date().toISOString(),
       };
 
-      await webhookService.triggerWebhookEvent(tunnelId, userId, 'tunnel.status_changed', eventData);
+      await webhookService.triggerWebhookEvent(
+        tunnelId,
+        userId,
+        "tunnel.status_changed",
+        eventData,
+      );
 
       // Verify event was logged
       const result = await pool.query(
         `SELECT * FROM tunnel_webhook_events WHERE webhook_id = $1 AND event_type = $2`,
-        [webhookId, 'tunnel.status_changed'],
+        [webhookId, "tunnel.status_changed"],
       );
 
       expect(result.rows.length).toBeGreaterThan(0);
       expect(result.rows[0].event_data).toEqual(eventData);
     });
 
-    it('should not trigger webhook for inactive webhooks', async () => {
+    it("should not trigger webhook for inactive webhooks", async () => {
       // Deactivate webhook
-      await webhookService.updateWebhook(webhookId, userId, { is_active: false });
+      await webhookService.updateWebhook(webhookId, userId, {
+        is_active: false,
+      });
 
       const eventData = {
         tunnelId,
-        oldStatus: 'created',
-        newStatus: 'connecting',
+        oldStatus: "created",
+        newStatus: "connecting",
       };
 
-      await webhookService.triggerWebhookEvent(tunnelId, userId, 'tunnel.status_changed', eventData);
+      await webhookService.triggerWebhookEvent(
+        tunnelId,
+        userId,
+        "tunnel.status_changed",
+        eventData,
+      );
 
       // Verify event was not logged
       const result = await pool.query(
         `SELECT * FROM tunnel_webhook_events WHERE webhook_id = $1 AND event_type = $2`,
-        [webhookId, 'tunnel.status_changed'],
+        [webhookId, "tunnel.status_changed"],
       );
 
       expect(result.rows.length).toBe(0);
     });
 
-    it('should not trigger webhook for unsubscribed events', async () => {
+    it("should not trigger webhook for unsubscribed events", async () => {
       const eventData = {
         tunnelId,
         timestamp: new Date().toISOString(),
       };
 
       // Trigger event that webhook is not subscribed to
-      await webhookService.triggerWebhookEvent(tunnelId, userId, 'tunnel.created', eventData);
+      await webhookService.triggerWebhookEvent(
+        tunnelId,
+        userId,
+        "tunnel.created",
+        eventData,
+      );
 
       // Verify event was not logged
       const result = await pool.query(
         `SELECT * FROM tunnel_webhook_events WHERE webhook_id = $1 AND event_type = $2`,
-        [webhookId, 'tunnel.created'],
+        [webhookId, "tunnel.created"],
       );
 
       expect(result.rows.length).toBe(0);
     });
   });
 
-  describe('Webhook Delivery', () => {
+  describe("Webhook Delivery", () => {
     let webhookId;
 
     beforeEach(async () => {
       const webhook = await webhookService.registerWebhook(
         userId,
         tunnelId,
-        'https://example.com/webhook',
-        ['tunnel.status_changed'],
+        "https://example.com/webhook",
+        ["tunnel.status_changed"],
       );
       webhookId = webhook.id;
     });
 
-    it('should queue webhook delivery', async () => {
+    it("should queue webhook delivery", async () => {
       const eventData = {
         tunnelId,
-        oldStatus: 'created',
-        newStatus: 'connecting',
+        oldStatus: "created",
+        newStatus: "connecting",
       };
 
       await webhookService.queueWebhookDelivery(
         webhookId,
         tunnelId,
         userId,
-        'tunnel.status_changed',
+        "tunnel.status_changed",
         eventData,
       );
 
       // Verify delivery was queued
       const result = await pool.query(
         `SELECT * FROM tunnel_webhook_deliveries WHERE webhook_id = $1 AND status = $2`,
-        [webhookId, 'pending'],
+        [webhookId, "pending"],
       );
 
       expect(result.rows.length).toBeGreaterThan(0);
-      expect(result.rows[0].event_type).toBe('tunnel.status_changed');
+      expect(result.rows[0].event_type).toBe("tunnel.status_changed");
       expect(result.rows[0].payload).toBeDefined();
     });
 
-    it('should get delivery status', async () => {
-      const eventData = { tunnelId, oldStatus: 'created', newStatus: 'connecting' };
+    it("should get delivery status", async () => {
+      const eventData = {
+        tunnelId,
+        oldStatus: "created",
+        newStatus: "connecting",
+      };
 
       await webhookService.queueWebhookDelivery(
         webhookId,
         tunnelId,
         userId,
-        'tunnel.status_changed',
+        "tunnel.status_changed",
         eventData,
       );
 
@@ -323,52 +377,61 @@ describe('Tunnel Webhooks', () => {
         [webhookId],
       );
 
-      const delivery = await webhookService.getDeliveryStatus(deliveries.rows[0].id);
+      const delivery = await webhookService.getDeliveryStatus(
+        deliveries.rows[0].id,
+      );
 
       expect(delivery).toBeDefined();
-      expect(delivery.status).toBe('pending');
+      expect(delivery.status).toBe("pending");
       expect(delivery.attempt_count).toBe(0);
     });
 
-    it('should get delivery history', async () => {
-      const eventData = { tunnelId, oldStatus: 'created', newStatus: 'connecting' };
+    it("should get delivery history", async () => {
+      const eventData = {
+        tunnelId,
+        oldStatus: "created",
+        newStatus: "connecting",
+      };
 
       await webhookService.queueWebhookDelivery(
         webhookId,
         tunnelId,
         userId,
-        'tunnel.status_changed',
+        "tunnel.status_changed",
         eventData,
       );
 
-      const history = await webhookService.getDeliveryHistory(webhookId, userId);
+      const history = await webhookService.getDeliveryHistory(
+        webhookId,
+        userId,
+      );
 
       expect(Array.isArray(history)).toBe(true);
       expect(history.length).toBeGreaterThan(0);
     });
   });
 
-  describe('Webhook Signature Verification', () => {
-    it('should generate valid webhook signature', async () => {
+  describe("Webhook Signature Verification", () => {
+    it("should generate valid webhook signature", async () => {
       const webhook = await webhookService.registerWebhook(
         userId,
         tunnelId,
-        'https://example.com/webhook',
-        ['tunnel.status_changed'],
+        "https://example.com/webhook",
+        ["tunnel.status_changed"],
       );
 
       const payload = {
         id: uuidv4(),
-        event: 'tunnel.status_changed',
+        event: "tunnel.status_changed",
         timestamp: new Date().toISOString(),
-        data: { tunnelId, oldStatus: 'created', newStatus: 'connecting' },
+        data: { tunnelId, oldStatus: "created", newStatus: "connecting" },
       };
 
       const payloadString = JSON.stringify(payload);
       const expectedSignature = crypto
-        .createHmac('sha256', webhook.secret)
+        .createHmac("sha256", webhook.secret)
         .update(payloadString)
-        .digest('hex');
+        .digest("hex");
 
       // Verify signature can be generated
       expect(expectedSignature).toBeDefined();
@@ -376,27 +439,31 @@ describe('Tunnel Webhooks', () => {
     });
   });
 
-  describe('Webhook Retry Logic', () => {
+  describe("Webhook Retry Logic", () => {
     let webhookId;
 
     beforeEach(async () => {
       const webhook = await webhookService.registerWebhook(
         userId,
         tunnelId,
-        'https://example.com/webhook',
-        ['tunnel.status_changed'],
+        "https://example.com/webhook",
+        ["tunnel.status_changed"],
       );
       webhookId = webhook.id;
     });
 
-    it('should schedule retry with exponential backoff', async () => {
-      const eventData = { tunnelId, oldStatus: 'created', newStatus: 'connecting' };
+    it("should schedule retry with exponential backoff", async () => {
+      const eventData = {
+        tunnelId,
+        oldStatus: "created",
+        newStatus: "connecting",
+      };
 
       await webhookService.queueWebhookDelivery(
         webhookId,
         tunnelId,
         userId,
-        'tunnel.status_changed',
+        "tunnel.status_changed",
         eventData,
       );
 
@@ -408,24 +475,28 @@ describe('Tunnel Webhooks', () => {
       const deliveryId = deliveries.rows[0].id;
 
       // Schedule retry
-      await webhookService.scheduleRetry(deliveryId, 0, 500, 'Server error');
+      await webhookService.scheduleRetry(deliveryId, 0, 500, "Server error");
 
       const delivery = await webhookService.getDeliveryStatus(deliveryId);
 
-      expect(delivery.status).toBe('retrying');
+      expect(delivery.status).toBe("retrying");
       expect(delivery.attempt_count).toBe(1);
       expect(delivery.next_retry_at).toBeDefined();
-      expect(delivery.error_message).toBe('Server error');
+      expect(delivery.error_message).toBe("Server error");
     });
 
-    it('should mark delivery as failed after max retries', async () => {
-      const eventData = { tunnelId, oldStatus: 'created', newStatus: 'connecting' };
+    it("should mark delivery as failed after max retries", async () => {
+      const eventData = {
+        tunnelId,
+        oldStatus: "created",
+        newStatus: "connecting",
+      };
 
       await webhookService.queueWebhookDelivery(
         webhookId,
         tunnelId,
         userId,
-        'tunnel.status_changed',
+        "tunnel.status_changed",
         eventData,
       );
 
@@ -438,7 +509,7 @@ describe('Tunnel Webhooks', () => {
 
       // Schedule retries until max is reached
       for (let i = 0; i < 5; i++) {
-        await webhookService.scheduleRetry(deliveryId, i, 500, 'Server error');
+        await webhookService.scheduleRetry(deliveryId, i, 500, "Server error");
       }
 
       // Try to deliver after max retries
@@ -446,7 +517,7 @@ describe('Tunnel Webhooks', () => {
 
       const delivery = await webhookService.getDeliveryStatus(deliveryId);
 
-      expect(delivery.status).toBe('failed');
+      expect(delivery.status).toBe("failed");
     });
   });
 });

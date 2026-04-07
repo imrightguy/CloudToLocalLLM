@@ -12,14 +12,21 @@
  * @fileoverview Rate limit exemptions tests
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 import {
   RateLimitExemptionManager,
   createRateLimitExemptionMiddleware,
-} from '../../services/api-backend/middleware/rate-limit-exemptions.js';
-import { TunnelRateLimiter } from '../../services/api-backend/middleware/rate-limiter.js';
+} from "../../services/api-backend/middleware/rate-limit-exemptions.js";
+import { TunnelRateLimiter } from "../../services/api-backend/middleware/rate-limiter.js";
 
-describe('Rate Limit Exemptions', () => {
+describe("Rate Limit Exemptions", () => {
   let exemptionManager;
   let rateLimiter;
 
@@ -45,107 +52,107 @@ describe('Rate Limit Exemptions', () => {
     }
   });
 
-  describe('Exemption Manager Initialization', () => {
-    it('should initialize with default exemption rules', () => {
+  describe("Exemption Manager Initialization", () => {
+    it("should initialize with default exemption rules", () => {
       const rules = exemptionManager.getRules();
       expect(rules.length).toBeGreaterThan(0);
-      expect(rules.some((r) => r.id === 'health-check')).toBe(true);
-      expect(rules.some((r) => r.id === 'authentication')).toBe(true);
+      expect(rules.some((r) => r.id === "health-check")).toBe(true);
+      expect(rules.some((r) => r.id === "authentication")).toBe(true);
     });
 
-    it('should have health check rule enabled by default', () => {
+    it("should have health check rule enabled by default", () => {
       const rules = exemptionManager.getRules();
-      const healthCheckRule = rules.find((r) => r.id === 'health-check');
+      const healthCheckRule = rules.find((r) => r.id === "health-check");
       expect(healthCheckRule).toBeDefined();
       expect(healthCheckRule.enabled).toBe(true);
     });
 
-    it('should have authentication rule enabled by default', () => {
+    it("should have authentication rule enabled by default", () => {
       const rules = exemptionManager.getRules();
-      const authRule = rules.find((r) => r.id === 'authentication');
+      const authRule = rules.find((r) => r.id === "authentication");
       expect(authRule).toBeDefined();
       expect(authRule.enabled).toBe(true);
     });
   });
 
-  describe('Exemption Rule Matching', () => {
-    it('should exempt health check endpoint', () => {
+  describe("Exemption Rule Matching", () => {
+    it("should exempt health check endpoint", () => {
       const req = {
-        path: '/health',
-        method: 'GET',
-        userId: 'user123',
+        path: "/health",
+        method: "GET",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('health-check');
+      expect(result.ruleId).toBe("health-check");
     });
 
-    it('should exempt /api/health endpoint', () => {
+    it("should exempt /api/health endpoint", () => {
       const req = {
-        path: '/api/health',
-        method: 'GET',
-        userId: 'user123',
+        path: "/api/health",
+        method: "GET",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('health-check');
+      expect(result.ruleId).toBe("health-check");
     });
 
-    it('should exempt /db/health endpoint', () => {
+    it("should exempt /db/health endpoint", () => {
       const req = {
-        path: '/db/health',
-        method: 'GET',
-        userId: 'user123',
+        path: "/db/health",
+        method: "GET",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('health-check');
+      expect(result.ruleId).toBe("health-check");
     });
 
-    it('should exempt authentication login endpoint', () => {
+    it("should exempt authentication login endpoint", () => {
       const req = {
-        path: '/auth/login',
-        method: 'POST',
-        userId: 'user123',
+        path: "/auth/login",
+        method: "POST",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('authentication');
+      expect(result.ruleId).toBe("authentication");
     });
 
-    it('should exempt authentication refresh endpoint', () => {
+    it("should exempt authentication refresh endpoint", () => {
       const req = {
-        path: '/auth/refresh',
-        method: 'POST',
-        userId: 'user123',
+        path: "/auth/refresh",
+        method: "POST",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('authentication');
+      expect(result.ruleId).toBe("authentication");
     });
 
-    it('should exempt authentication logout endpoint', () => {
+    it("should exempt authentication logout endpoint", () => {
       const req = {
-        path: '/auth/logout',
-        method: 'POST',
-        userId: 'user123',
+        path: "/auth/logout",
+        method: "POST",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('authentication');
+      expect(result.ruleId).toBe("authentication");
     });
 
-    it('should not exempt non-matching endpoints', () => {
+    it("should not exempt non-matching endpoints", () => {
       const req = {
-        path: '/api/users/profile',
-        method: 'GET',
-        userId: 'user123',
+        path: "/api/users/profile",
+        method: "GET",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
@@ -153,92 +160,92 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Custom Exemption Rules', () => {
-    it('should add custom exemption rule', () => {
+  describe("Custom Exemption Rules", () => {
+    it("should add custom exemption rule", () => {
       exemptionManager.addRule(
-        'custom-rule',
+        "custom-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/critical',
-        { description: 'Custom critical operation' },
+        (req) => req.path === "/api/critical",
+        { description: "Custom critical operation" },
       );
 
       const rules = exemptionManager.getRules();
-      expect(rules.some((r) => r.id === 'custom-rule')).toBe(true);
+      expect(rules.some((r) => r.id === "custom-rule")).toBe(true);
     });
 
-    it('should match custom exemption rule', () => {
+    it("should match custom exemption rule", () => {
       exemptionManager.addRule(
-        'custom-rule',
+        "custom-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/critical',
-        { description: 'Custom critical operation' },
+        (req) => req.path === "/api/critical",
+        { description: "Custom critical operation" },
       );
 
       const req = {
-        path: '/api/critical',
-        method: 'POST',
-        userId: 'user123',
+        path: "/api/critical",
+        method: "POST",
+        userId: "user123",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('custom-rule');
+      expect(result.ruleId).toBe("custom-rule");
     });
 
-    it('should remove exemption rule', () => {
+    it("should remove exemption rule", () => {
       exemptionManager.addRule(
-        'temp-rule',
+        "temp-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/temp',
+        (req) => req.path === "/api/temp",
       );
 
       let rules = exemptionManager.getRules();
-      expect(rules.some((r) => r.id === 'temp-rule')).toBe(true);
+      expect(rules.some((r) => r.id === "temp-rule")).toBe(true);
 
-      exemptionManager.removeRule('temp-rule');
+      exemptionManager.removeRule("temp-rule");
 
       rules = exemptionManager.getRules();
-      expect(rules.some((r) => r.id === 'temp-rule')).toBe(false);
+      expect(rules.some((r) => r.id === "temp-rule")).toBe(false);
     });
 
-    it('should enable/disable exemption rule', () => {
+    it("should enable/disable exemption rule", () => {
       exemptionManager.addRule(
-        'toggle-rule',
+        "toggle-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/toggle',
+        (req) => req.path === "/api/toggle",
       );
 
-      exemptionManager.disableRule('toggle-rule');
+      exemptionManager.disableRule("toggle-rule");
 
       const req = {
-        path: '/api/toggle',
-        method: 'POST',
-        userId: 'user123',
+        path: "/api/toggle",
+        method: "POST",
+        userId: "user123",
       };
 
       let result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(false);
 
-      exemptionManager.enableRule('toggle-rule');
+      exemptionManager.enableRule("toggle-rule");
 
       result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
     });
   });
 
-  describe('Exemption Quotas', () => {
-    it('should enforce exemption quota per user', () => {
+  describe("Exemption Quotas", () => {
+    it("should enforce exemption quota per user", () => {
       exemptionManager.addRule(
-        'quota-rule',
+        "quota-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/quota-test',
+        (req) => req.path === "/api/quota-test",
         { maxExemptionsPerUser: 3 },
       );
 
       const req = {
-        path: '/api/quota-test',
-        method: 'POST',
-        userId: 'user123',
+        path: "/api/quota-test",
+        method: "POST",
+        userId: "user123",
       };
 
       // First 3 exemptions should succeed
@@ -250,27 +257,27 @@ describe('Rate Limit Exemptions', () => {
       // 4th exemption should fail
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(false);
-      expect(result.reason).toBe('exemption_quota_exceeded');
+      expect(result.reason).toBe("exemption_quota_exceeded");
     });
 
-    it('should track exemption count per user', () => {
+    it("should track exemption count per user", () => {
       exemptionManager.addRule(
-        'count-rule',
+        "count-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/count-test',
+        (req) => req.path === "/api/count-test",
         { maxExemptionsPerUser: 5 },
       );
 
       const req1 = {
-        path: '/api/count-test',
-        method: 'POST',
-        userId: 'user1',
+        path: "/api/count-test",
+        method: "POST",
+        userId: "user1",
       };
 
       const req2 = {
-        path: '/api/count-test',
-        method: 'POST',
-        userId: 'user2',
+        path: "/api/count-test",
+        method: "POST",
+        userId: "user2",
       };
 
       // User 1 uses 2 exemptions
@@ -288,18 +295,18 @@ describe('Rate Limit Exemptions', () => {
       expect(result2.exempt).toBe(true);
     });
 
-    it('should reset exemption count for user', () => {
+    it("should reset exemption count for user", () => {
       exemptionManager.addRule(
-        'reset-rule',
+        "reset-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/reset-test',
+        (req) => req.path === "/api/reset-test",
         { maxExemptionsPerUser: 2 },
       );
 
       const req = {
-        path: '/api/reset-test',
-        method: 'POST',
-        userId: 'user123',
+        path: "/api/reset-test",
+        method: "POST",
+        userId: "user123",
       };
 
       // Use up exemptions
@@ -311,7 +318,7 @@ describe('Rate Limit Exemptions', () => {
       expect(result.exempt).toBe(false);
 
       // Reset
-      exemptionManager.resetUserExemptions('user123');
+      exemptionManager.resetUserExemptions("user123");
 
       // Should work again
       result = exemptionManager.checkExemption(req);
@@ -319,55 +326,55 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Integration with Rate Limiter', () => {
-    it('should bypass rate limiting for exempt requests', () => {
+  describe("Integration with Rate Limiter", () => {
+    it("should bypass rate limiting for exempt requests", () => {
       const exemptionResult = {
         exempt: true,
-        ruleId: 'health-check',
-        type: 'health_check',
+        ruleId: "health-check",
+        type: "health_check",
       };
 
       const result = rateLimiter.checkRateLimit(
-        'user123',
-        'corr-123',
+        "user123",
+        "corr-123",
         exemptionResult,
       );
 
       expect(result.allowed).toBe(true);
       expect(result.exempt).toBe(true);
-      expect(result.exemptionRuleId).toBe('health-check');
+      expect(result.exemptionRuleId).toBe("health-check");
     });
 
-    it('should apply rate limiting for non-exempt requests', () => {
+    it("should apply rate limiting for non-exempt requests", () => {
       const exemptionResult = {
         exempt: false,
-        reason: 'no_matching_exemption',
+        reason: "no_matching_exemption",
       };
 
       // Make a few requests
       const result1 = rateLimiter.checkRateLimit(
-        'user-non-exempt',
-        'corr-1',
+        "user-non-exempt",
+        "corr-1",
         exemptionResult,
       );
       expect(result1.allowed).toBe(true);
 
       const result2 = rateLimiter.checkRateLimit(
-        'user-non-exempt',
-        'corr-2',
+        "user-non-exempt",
+        "corr-2",
         exemptionResult,
       );
       expect(result2.allowed).toBe(true);
 
       // Verify rate limiter is tracking requests
-      const stats = rateLimiter.getUserStats('user-non-exempt');
+      const stats = rateLimiter.getUserStats("user-non-exempt");
       expect(stats.totalRequests).toBeGreaterThan(0);
     });
 
-    it('should not count exempt requests against rate limit', () => {
+    it("should not count exempt requests against rate limit", () => {
       const exemptionResult = {
         exempt: true,
-        ruleId: 'health-check',
+        ruleId: "health-check",
       };
 
       const nonExemptionResult = {
@@ -376,8 +383,8 @@ describe('Rate Limit Exemptions', () => {
 
       // Make exempt requests
       const exemptResult = rateLimiter.checkRateLimit(
-        'user-mixed',
-        'corr-exempt-1',
+        "user-mixed",
+        "corr-exempt-1",
         exemptionResult,
       );
       expect(exemptResult.allowed).toBe(true);
@@ -385,8 +392,8 @@ describe('Rate Limit Exemptions', () => {
 
       // Make non-exempt request
       const nonExemptResult = rateLimiter.checkRateLimit(
-        'user-mixed',
-        'corr-normal-1',
+        "user-mixed",
+        "corr-normal-1",
         nonExemptionResult,
       );
       expect(nonExemptResult.allowed).toBe(true);
@@ -394,28 +401,28 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Exemption Statistics', () => {
-    it('should provide exemption statistics', () => {
+  describe("Exemption Statistics", () => {
+    it("should provide exemption statistics", () => {
       const stats = exemptionManager.getStatistics();
 
-      expect(stats).toHaveProperty('totalRules');
-      expect(stats).toHaveProperty('enabledRules');
-      expect(stats).toHaveProperty('disabledRules');
-      expect(stats).toHaveProperty('rules');
+      expect(stats).toHaveProperty("totalRules");
+      expect(stats).toHaveProperty("enabledRules");
+      expect(stats).toHaveProperty("disabledRules");
+      expect(stats).toHaveProperty("rules");
       expect(Array.isArray(stats.rules)).toBe(true);
     });
 
-    it('should track enabled and disabled rules', () => {
+    it("should track enabled and disabled rules", () => {
       exemptionManager.addRule(
-        'test-rule',
+        "test-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => req.path === '/api/test',
+        (req) => req.path === "/api/test",
       );
 
       let stats = exemptionManager.getStatistics();
       const initialEnabled = stats.enabledRules;
 
-      exemptionManager.disableRule('test-rule');
+      exemptionManager.disableRule("test-rule");
 
       stats = exemptionManager.getStatistics();
       expect(stats.enabledRules).toBe(initialEnabled - 1);
@@ -423,13 +430,13 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Exemption Logging', () => {
-    it('should log exemption checks', () => {
+  describe("Exemption Logging", () => {
+    it("should log exemption checks", () => {
       const req = {
-        path: '/health',
-        method: 'GET',
-        userId: 'user123',
-        correlationId: 'corr-123',
+        path: "/health",
+        method: "GET",
+        userId: "user123",
+        correlationId: "corr-123",
       };
 
       const result = exemptionManager.checkExemption(req);
@@ -437,19 +444,19 @@ describe('Rate Limit Exemptions', () => {
       // Logging is handled internally
     });
 
-    it('should handle exemption validation errors gracefully', () => {
+    it("should handle exemption validation errors gracefully", () => {
       exemptionManager.addRule(
-        'error-rule',
+        "error-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
         (req) => {
-          throw new Error('Matcher error');
+          throw new Error("Matcher error");
         },
       );
 
       const req = {
-        path: '/api/error-test',
-        method: 'POST',
-        userId: 'user123',
+        path: "/api/error-test",
+        method: "POST",
+        userId: "user123",
       };
 
       // Should not throw, should return not exempt
@@ -458,19 +465,19 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Exemption Middleware', () => {
-    it('should create exemption middleware', () => {
+  describe("Exemption Middleware", () => {
+    it("should create exemption middleware", () => {
       const middleware = createRateLimitExemptionMiddleware(exemptionManager);
-      expect(typeof middleware).toBe('function');
+      expect(typeof middleware).toBe("function");
     });
 
-    it('should set exemption result in request', () => {
+    it("should set exemption result in request", () => {
       const middleware = createRateLimitExemptionMiddleware(exemptionManager);
 
       const req = {
-        path: '/health',
-        method: 'GET',
-        userId: 'user123',
+        path: "/health",
+        method: "GET",
+        userId: "user123",
       };
 
       const res = {};
@@ -487,26 +494,26 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Admin Operations Exemption', () => {
-    it('should exempt admin operations for admin users', () => {
+  describe("Admin Operations Exemption", () => {
+    it("should exempt admin operations for admin users", () => {
       const req = {
-        path: '/admin/users',
-        method: 'GET',
-        userId: 'admin123',
-        userRole: 'admin',
+        path: "/admin/users",
+        method: "GET",
+        userId: "admin123",
+        userRole: "admin",
       };
 
       const result = exemptionManager.checkExemption(req);
       expect(result.exempt).toBe(true);
-      expect(result.ruleId).toBe('admin-operations');
+      expect(result.ruleId).toBe("admin-operations");
     });
 
-    it('should not exempt admin operations for non-admin users', () => {
+    it("should not exempt admin operations for non-admin users", () => {
       const req = {
-        path: '/admin/users',
-        method: 'GET',
-        userId: 'user123',
-        userRole: 'user',
+        path: "/admin/users",
+        method: "GET",
+        userId: "user123",
+        userRole: "user",
       };
 
       const result = exemptionManager.checkExemption(req);
@@ -514,32 +521,32 @@ describe('Rate Limit Exemptions', () => {
     });
   });
 
-  describe('Exemption Disabling', () => {
-    it('should respect global exemption disable', () => {
+  describe("Exemption Disabling", () => {
+    it("should respect global exemption disable", () => {
       const manager = new RateLimitExemptionManager({
         enabled: false,
       });
 
       const req = {
-        path: '/health',
-        method: 'GET',
-        userId: 'user123',
+        path: "/health",
+        method: "GET",
+        userId: "user123",
       };
 
       const result = manager.checkExemption(req);
       expect(result.exempt).toBe(false);
-      expect(result.reason).toBe('exemptions_disabled');
+      expect(result.reason).toBe("exemptions_disabled");
     });
 
-    it('should allow re-enabling exemptions', () => {
+    it("should allow re-enabling exemptions", () => {
       const manager = new RateLimitExemptionManager({
         enabled: false,
       });
 
       let req = {
-        path: '/health',
-        method: 'GET',
-        userId: 'user123',
+        path: "/health",
+        method: "GET",
+        userId: "user123",
       };
 
       let result = manager.checkExemption(req);

@@ -7,11 +7,21 @@
  * Requirements: 9.8 (Query Optimization and Caching)
  */
 
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { clearCache, getCacheStats } from '../../services/api-backend/database/cached-query-wrapper.js';
-import { getQueryCache } from '../../services/api-backend/database/query-cache.js';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
+import {
+  clearCache,
+  getCacheStats,
+} from "../../services/api-backend/database/cached-query-wrapper.js";
+import { getQueryCache } from "../../services/api-backend/database/query-cache.js";
 
-describe('Cache Metrics Routes', () => {
+describe("Cache Metrics Routes", () => {
   beforeEach(() => {
     clearCache();
   });
@@ -20,32 +30,32 @@ describe('Cache Metrics Routes', () => {
     clearCache();
   });
 
-  describe('Cache Statistics', () => {
-    it('should return cache statistics', () => {
+  describe("Cache Statistics", () => {
+    it("should return cache statistics", () => {
       const stats = getCacheStats();
 
-      expect(stats).toHaveProperty('size');
-      expect(stats).toHaveProperty('hits');
-      expect(stats).toHaveProperty('misses');
-      expect(stats).toHaveProperty('hitRate');
-      expect(stats).toHaveProperty('invalidations');
-      expect(stats).toHaveProperty('evictions');
+      expect(stats).toHaveProperty("size");
+      expect(stats).toHaveProperty("hits");
+      expect(stats).toHaveProperty("misses");
+      expect(stats).toHaveProperty("hitRate");
+      expect(stats).toHaveProperty("invalidations");
+      expect(stats).toHaveProperty("evictions");
     });
 
-    it('should return correct cache size', () => {
+    it("should return correct cache size", () => {
       const cache = getQueryCache();
-      cache.set('key1', { data: 'test1' });
-      cache.set('key2', { data: 'test2' });
+      cache.set("key1", { data: "test1" });
+      cache.set("key2", { data: "test2" });
 
       const stats = getCacheStats();
       expect(stats.size).toBe(2);
     });
 
-    it('should return correct hit/miss counts', () => {
+    it("should return correct hit/miss counts", () => {
       const cache = getQueryCache();
-      cache.set('key1', { data: 'test1' });
-      cache.get('key1'); // hit
-      cache.get('key2'); // miss
+      cache.set("key1", { data: "test1" });
+      cache.get("key1"); // hit
+      cache.get("key2"); // miss
 
       const stats = getCacheStats();
       expect(stats.hits).toBe(1);
@@ -53,11 +63,11 @@ describe('Cache Metrics Routes', () => {
     });
   });
 
-  describe('Cache Clearing', () => {
-    it('should clear all cache entries', () => {
+  describe("Cache Clearing", () => {
+    it("should clear all cache entries", () => {
       const cache = getQueryCache();
-      cache.set('key1', { data: 'test1' });
-      cache.set('key2', { data: 'test2' });
+      cache.set("key1", { data: "test1" });
+      cache.set("key2", { data: "test2" });
 
       expect(cache.cache.size).toBe(2);
 
@@ -67,39 +77,39 @@ describe('Cache Metrics Routes', () => {
     });
   });
 
-  describe('Cache Invalidation', () => {
-    it('should invalidate by table name', () => {
+  describe("Cache Invalidation", () => {
+    it("should invalidate by table name", () => {
       const cache = getQueryCache();
-      cache.set('key1', { data: 'user1' }, 5000, [], ['USERS']);
-      cache.set('key2', { data: 'user2' }, 5000, [], ['USERS']);
-      cache.set('key3', { data: 'post1' }, 5000, [], ['POSTS']);
+      cache.set("key1", { data: "user1" }, 5000, [], ["USERS"]);
+      cache.set("key2", { data: "user2" }, 5000, [], ["USERS"]);
+      cache.set("key3", { data: "post1" }, 5000, [], ["POSTS"]);
 
-      const count = cache.invalidateByTable('USERS');
+      const count = cache.invalidateByTable("USERS");
 
       expect(count).toBe(2);
-      expect(cache.get('key1')).toBeNull();
-      expect(cache.get('key2')).toBeNull();
-      expect(cache.get('key3')).not.toBeNull();
+      expect(cache.get("key1")).toBeNull();
+      expect(cache.get("key2")).toBeNull();
+      expect(cache.get("key3")).not.toBeNull();
     });
 
-    it('should invalidate by regex pattern', () => {
+    it("should invalidate by regex pattern", () => {
       const cache = getQueryCache();
-      cache.set('query:users:1', { data: 'user1' });
-      cache.set('query:users:2', { data: 'user2' });
-      cache.set('query:posts:1', { data: 'post1' });
+      cache.set("query:users:1", { data: "user1" });
+      cache.set("query:users:2", { data: "user2" });
+      cache.set("query:posts:1", { data: "post1" });
 
       const count = cache.invalidate(/query:users/);
 
       expect(count).toBe(2);
-      expect(cache.get('query:users:1')).toBeNull();
-      expect(cache.get('query:posts:1')).not.toBeNull();
+      expect(cache.get("query:users:1")).toBeNull();
+      expect(cache.get("query:posts:1")).not.toBeNull();
     });
 
-    it('should return invalidated count', () => {
+    it("should return invalidated count", () => {
       const cache = getQueryCache();
-      cache.set('key1', { data: 'test1' });
-      cache.set('key2', { data: 'test2' });
-      cache.set('key3', { data: 'test3' });
+      cache.set("key1", { data: "test1" });
+      cache.set("key2", { data: "test2" });
+      cache.set("key3", { data: "test3" });
 
       const count = cache.invalidate(/key/);
 
@@ -107,12 +117,12 @@ describe('Cache Metrics Routes', () => {
     });
   });
 
-  describe('Metrics Reset', () => {
-    it('should reset cache metrics', () => {
+  describe("Metrics Reset", () => {
+    it("should reset cache metrics", () => {
       const cache = getQueryCache();
-      cache.set('key1', { data: 'test1' });
-      cache.get('key1'); // hit
-      cache.get('key2'); // miss
+      cache.set("key1", { data: "test1" });
+      cache.get("key1"); // hit
+      cache.get("key2"); // miss
 
       expect(cache.metrics.hits).toBeGreaterThan(0);
       expect(cache.metrics.misses).toBeGreaterThan(0);

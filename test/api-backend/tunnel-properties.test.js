@@ -18,12 +18,23 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
-import { TunnelService } from '../../services/api-backend/services/tunnel-service.js';
-import { getPool, initializePool } from '../../services/api-backend/database/db-pool.js';
-import { DatabaseMigratorPG } from '../../services/api-backend/database/migrate-pg.js';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "@jest/globals";
+import { TunnelService } from "../../services/api-backend/services/tunnel-service.js";
+import {
+  getPool,
+  initializePool,
+} from "../../services/api-backend/database/db-pool.js";
+import { DatabaseMigratorPG } from "../../services/api-backend/database/migrate-pg.js";
 
-describe('Tunnel Lifecycle Property-Based Tests', () => {
+describe("Tunnel Lifecycle Property-Based Tests", () => {
   let tunnelService;
   let dbMigrator;
   let pool;
@@ -48,7 +59,7 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
       `INSERT INTO users (jwt_id, email, name)
        VALUES ($1, $2, $3)
        RETURNING id`,
-      ['test-jwt-id-pbt', 'test-pbt@example.com', 'Test User PBT'],
+      ["test-jwt-id-pbt", "test-pbt@example.com", "Test User PBT"],
     );
     testUserId = userResult.rows[0].id;
   });
@@ -62,7 +73,7 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
 
   beforeEach(async () => {
     // Clean up tunnels before each test
-    await pool.query('DELETE FROM tunnels WHERE user_id = $1', [testUserId]);
+    await pool.query("DELETE FROM tunnels WHERE user_id = $1", [testUserId]);
   });
 
   /**
@@ -81,25 +92,36 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
    *
    * Validates: Requirements 4.1, 4.2
    */
-  it('should maintain consistent tunnel state transitions', async () => {
+  it("should maintain consistent tunnel state transitions", async () => {
     // Define valid state transitions
     const validTransitions = {
-      created: ['connecting'],
-      connecting: ['connected', 'error'],
-      connected: ['disconnected'],
-      disconnected: ['connecting'],
-      error: ['connecting'],
+      created: ["connecting"],
+      connecting: ["connected", "error"],
+      connected: ["disconnected"],
+      disconnected: ["connecting"],
+      error: ["connecting"],
     };
 
     // Define valid state transition sequences
     const validSequences = [
-      ['created', 'connecting', 'connected', 'disconnected'],
-      ['created', 'connecting', 'error', 'connecting', 'connected'],
-      ['created', 'connecting', 'connected', 'disconnected', 'connecting', 'connected'],
+      ["created", "connecting", "connected", "disconnected"],
+      ["created", "connecting", "error", "connecting", "connected"],
+      [
+        "created",
+        "connecting",
+        "connected",
+        "disconnected",
+        "connecting",
+        "connected",
+      ],
     ];
 
     // Property: For any valid state sequence, all transitions should succeed
-    for (let sequenceIndex = 0; sequenceIndex < validSequences.length; sequenceIndex++) {
+    for (
+      let sequenceIndex = 0;
+      sequenceIndex < validSequences.length;
+      sequenceIndex++
+    ) {
       const sequence = validSequences[sequenceIndex];
 
       // Create tunnel
@@ -109,11 +131,11 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
           name: `tunnel-${Date.now()}-${Math.random()}`,
           config: {},
         },
-        '127.0.0.1',
-        'test-agent',
+        "127.0.0.1",
+        "test-agent",
       );
 
-      expect(tunnel.status).toBe('created');
+      expect(tunnel.status).toBe("created");
 
       // Execute state transitions
       let currentTunnel = tunnel;
@@ -130,15 +152,18 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
           currentTunnel.id,
           testUserId,
           targetStatus,
-          '127.0.0.1',
-          'test-agent',
+          "127.0.0.1",
+          "test-agent",
         );
 
         // Verify status was updated
         expect(currentTunnel.status).toBe(targetStatus);
 
         // Verify tunnel can be retrieved with new status
-        const retrieved = await tunnelService.getTunnelById(currentTunnel.id, testUserId);
+        const retrieved = await tunnelService.getTunnelById(
+          currentTunnel.id,
+          testUserId,
+        );
         expect(retrieved.status).toBe(targetStatus);
       }
     }
@@ -152,8 +177,14 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
    *
    * Validates: Requirements 4.1, 4.2
    */
-  it('should maintain retrievable tunnel status after transitions', async () => {
-    const validStatuses = ['created', 'connecting', 'connected', 'disconnected', 'error'];
+  it("should maintain retrievable tunnel status after transitions", async () => {
+    const validStatuses = [
+      "created",
+      "connecting",
+      "connected",
+      "disconnected",
+      "error",
+    ];
 
     // Test multiple random transition sequences
     for (let testRun = 0; testRun < 10; testRun++) {
@@ -164,11 +195,11 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
           name: `tunnel-${Date.now()}-${Math.random()}`,
           config: {},
         },
-        '127.0.0.1',
-        'test-agent',
+        "127.0.0.1",
+        "test-agent",
       );
 
-      let currentStatus = 'created';
+      let currentStatus = "created";
       let currentTunnel = tunnel;
 
       // Apply random transitions
@@ -187,8 +218,8 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
             currentTunnel.id,
             testUserId,
             targetStatus,
-            '127.0.0.1',
-            'test-agent',
+            "127.0.0.1",
+            "test-agent",
           );
           currentStatus = targetStatus;
         } catch (error) {
@@ -198,7 +229,10 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
       }
 
       // Verify tunnel is still retrievable with correct status
-      const retrieved = await tunnelService.getTunnelById(currentTunnel.id, testUserId);
+      const retrieved = await tunnelService.getTunnelById(
+        currentTunnel.id,
+        testUserId,
+      );
       expect(retrieved.status).toBe(currentStatus);
       expect(retrieved.id).toBe(currentTunnel.id);
       expect(retrieved.user_id).toBe(testUserId);
@@ -213,8 +247,14 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
    *
    * Validates: Requirements 4.1, 4.2
    */
-  it('should maintain consistent metrics across tunnel states', async () => {
-    const validStatuses = ['created', 'connecting', 'connected', 'disconnected', 'error'];
+  it("should maintain consistent metrics across tunnel states", async () => {
+    const validStatuses = [
+      "created",
+      "connecting",
+      "connected",
+      "disconnected",
+      "error",
+    ];
 
     // Test multiple random metric scenarios
     for (let testRun = 0; testRun < 10; testRun++) {
@@ -225,8 +265,8 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
           name: `tunnel-${Date.now()}-${Math.random()}`,
           config: {},
         },
-        '127.0.0.1',
-        'test-agent',
+        "127.0.0.1",
+        "test-agent",
       );
 
       // Update to random status
@@ -237,8 +277,8 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
           tunnel.id,
           testUserId,
           targetStatus,
-          '127.0.0.1',
-          'test-agent',
+          "127.0.0.1",
+          "test-agent",
         );
       } catch (error) {
         // Invalid transition, skip
@@ -259,12 +299,15 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
       await tunnelService.updateTunnelMetrics(tunnel.id, metrics);
 
       // Retrieve and verify metrics
-      const retrieved = await tunnelService.getTunnelMetrics(tunnel.id, testUserId);
+      const retrieved = await tunnelService.getTunnelMetrics(
+        tunnel.id,
+        testUserId,
+      );
 
       expect(retrieved.requestCount).toBe(metrics.requestCount);
       expect(retrieved.successCount).toBe(metrics.successCount);
       expect(retrieved.errorCount).toBe(metrics.errorCount);
-      expect(typeof retrieved.averageLatency).toBe('number');
+      expect(typeof retrieved.averageLatency).toBe("number");
       expect(retrieved.averageLatency).toBeGreaterThanOrEqual(0);
     }
   });
@@ -277,7 +320,7 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
    *
    * Validates: Requirements 4.1
    */
-  it('should always create tunnels with created status', async () => {
+  it("should always create tunnels with created status", async () => {
     // Test multiple tunnel creations with random config
     for (let testRun = 0; testRun < 10; testRun++) {
       const maxConnections = Math.floor(Math.random() * 1000) + 1;
@@ -293,20 +336,23 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
             compression,
           },
         },
-        '127.0.0.1',
-        'test-agent',
+        "127.0.0.1",
+        "test-agent",
       );
 
       // Verify initial status
-      expect(tunnel.status).toBe('created');
+      expect(tunnel.status).toBe("created");
       expect(tunnel.id).toBeDefined();
       expect(tunnel.user_id).toBe(testUserId);
       expect(tunnel.config.maxConnections).toBe(maxConnections);
       expect(tunnel.config.compression).toBe(compression);
 
       // Verify retrievable
-      const retrieved = await tunnelService.getTunnelById(tunnel.id, testUserId);
-      expect(retrieved.status).toBe('created');
+      const retrieved = await tunnelService.getTunnelById(
+        tunnel.id,
+        testUserId,
+      );
+      expect(retrieved.status).toBe("created");
     }
   });
 
@@ -318,8 +364,14 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
    *
    * Validates: Requirements 4.2
    */
-  it('should handle idempotent status updates', async () => {
-    const validStatuses = ['created', 'connecting', 'connected', 'disconnected', 'error'];
+  it("should handle idempotent status updates", async () => {
+    const validStatuses = [
+      "created",
+      "connecting",
+      "connected",
+      "disconnected",
+      "error",
+    ];
 
     // Test multiple idempotent update scenarios
     for (let testRun = 0; testRun < 10; testRun++) {
@@ -330,8 +382,8 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
           name: `tunnel-${Date.now()}-${Math.random()}`,
           config: {},
         },
-        '127.0.0.1',
-        'test-agent',
+        "127.0.0.1",
+        "test-agent",
       );
 
       const statusIndex = Math.floor(Math.random() * validStatuses.length);
@@ -346,8 +398,8 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
             tunnel.id,
             testUserId,
             targetStatus,
-            '127.0.0.1',
-            'test-agent',
+            "127.0.0.1",
+            "test-agent",
           );
         } catch (error) {
           // Invalid transition, skip
@@ -356,7 +408,10 @@ describe('Tunnel Lifecycle Property-Based Tests', () => {
       }
 
       // Verify final status
-      const retrieved = await tunnelService.getTunnelById(tunnel.id, testUserId);
+      const retrieved = await tunnelService.getTunnelById(
+        tunnel.id,
+        testUserId,
+      );
       expect(retrieved.status).toBe(lastTunnel.status);
     }
   });

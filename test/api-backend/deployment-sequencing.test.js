@@ -14,8 +14,8 @@
  * one at a time, maintaining a predictable order.
  */
 
-import fc from 'fast-check';
-import assert from 'assert';
+import fc from "fast-check";
+import assert from "assert";
 import { jest, describe, test, expect } from "@jest/globals";
 
 /**
@@ -36,7 +36,7 @@ const deploymentEventArbitrary = () => {
     commit: fc.stringMatching(/^[a-f0-9]{40}$/),
     branch: fc.stringMatching(/^[a-z0-9\-_/]+$/),
     actor: fc.stringMatching(/^[a-z0-9\-_]+$/),
-    status: fc.constant('pending'),
+    status: fc.constant("pending"),
   });
 };
 
@@ -57,7 +57,7 @@ class DeploymentQueue {
   enqueue(deployment) {
     this.queue.push({
       ...deployment,
-      status: 'queued',
+      status: "queued",
       queuedAt: Date.now(),
     });
   }
@@ -74,21 +74,21 @@ class DeploymentQueue {
 
     while (this.queue.length > 0) {
       const deployment = this.queue.shift();
-      
+
       try {
         // Simulate deployment processing
         const result = await this.processDeployment(deployment);
-        
+
         this.completed.push({
           ...deployment,
-          status: 'completed',
+          status: "completed",
           completedAt: Date.now(),
           result,
         });
       } catch (error) {
         this.failed.push({
           ...deployment,
-          status: 'failed',
+          status: "failed",
           failedAt: Date.now(),
           error: error.message,
         });
@@ -103,8 +103,8 @@ class DeploymentQueue {
    */
   async processDeployment(deployment) {
     // Simulate some processing time
-    await new Promise(resolve => setTimeout(resolve, 10));
-    
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
     return {
       deploymentId: deployment.id,
       commit: deployment.commit,
@@ -130,7 +130,7 @@ class DeploymentQueue {
    * Get the order of completed deployments
    */
   getCompletionOrder() {
-    return this.completed.map(d => d.id);
+    return this.completed.map((d) => d.id);
   }
 }
 
@@ -199,8 +199,8 @@ class DeploymentLock {
   }
 }
 
-describe('Deployment Sequencing Property Test', () => {
-  it('should process deployments sequentially when multiple are enqueued', async () => {
+describe("Deployment Sequencing Property Test", () => {
+  it("should process deployments sequentially when multiple are enqueued", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 2, maxLength: 10 }),
@@ -208,7 +208,7 @@ describe('Deployment Sequencing Property Test', () => {
           const queue = new DeploymentQueue();
 
           // Enqueue all deployments
-          deployments.forEach(deployment => {
+          deployments.forEach((deployment) => {
             queue.enqueue(deployment);
           });
 
@@ -220,38 +220,38 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             state.completedCount,
             deployments.length,
-            'All deployments should be completed'
+            "All deployments should be completed",
           );
 
           // Verify no deployments failed
           assert.strictEqual(
             state.failedCount,
             0,
-            'No deployments should fail'
+            "No deployments should fail",
           );
 
           // Verify queue is empty
           assert.strictEqual(
             state.queueLength,
             0,
-            'Queue should be empty after processing'
+            "Queue should be empty after processing",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should maintain deployment order (FIFO)', async () => {
+  it("should maintain deployment order (FIFO)", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 3, maxLength: 8 }),
         async (deployments) => {
           const queue = new DeploymentQueue();
-          const originalOrder = deployments.map(d => d.id);
+          const originalOrder = deployments.map((d) => d.id);
 
           // Enqueue all deployments
-          deployments.forEach(deployment => {
+          deployments.forEach((deployment) => {
             queue.enqueue(deployment);
           });
 
@@ -263,15 +263,15 @@ describe('Deployment Sequencing Property Test', () => {
           assert.deepStrictEqual(
             completionOrder,
             originalOrder,
-            'Deployments should be completed in FIFO order'
+            "Deployments should be completed in FIFO order",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should prevent concurrent deployments using a lock', async () => {
+  it("should prevent concurrent deployments using a lock", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 2, maxLength: 5 }),
@@ -282,7 +282,7 @@ describe('Deployment Sequencing Property Test', () => {
           // Simulate concurrent deployment attempts
           const promises = deployments.map(async (deployment) => {
             const acquired = await lock.acquire(deployment.id);
-            
+
             if (acquired) {
               // Record that we acquired the lock
               concurrentAttempts.push({
@@ -291,7 +291,7 @@ describe('Deployment Sequencing Property Test', () => {
               });
 
               // Simulate some work
-              await new Promise(resolve => setTimeout(resolve, 5));
+              await new Promise((resolve) => setTimeout(resolve, 5));
 
               // Release the lock
               lock.release(deployment.id);
@@ -304,22 +304,22 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             concurrentAttempts.length,
             deployments.length,
-            'All deployments should acquire the lock'
+            "All deployments should acquire the lock",
           );
 
           // Verify lock is released
           assert.strictEqual(
             lock.isLocked(),
             false,
-            'Lock should be released after all deployments'
+            "Lock should be released after all deployments",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should not allow concurrent deployments to the same cluster', async () => {
+  it("should not allow concurrent deployments to the same cluster", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 2, maxLength: 5 }),
@@ -331,12 +331,12 @@ describe('Deployment Sequencing Property Test', () => {
           // Simulate concurrent deployment attempts with lock
           const promises = deployments.map(async (deployment) => {
             await lock.acquire(deployment.id);
-            
+
             currentConcurrent++;
             maxConcurrent = Math.max(maxConcurrent, currentConcurrent);
 
             // Simulate deployment work
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 10));
 
             currentConcurrent--;
             lock.release(deployment.id);
@@ -348,15 +348,15 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             maxConcurrent,
             1,
-            'Only one deployment should be active at a time'
+            "Only one deployment should be active at a time",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should queue deployments when one is in progress', async () => {
+  it("should queue deployments when one is in progress", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 2, maxLength: 6 }),
@@ -364,7 +364,7 @@ describe('Deployment Sequencing Property Test', () => {
           const queue = new DeploymentQueue();
 
           // Enqueue all deployments
-          deployments.forEach(deployment => {
+          deployments.forEach((deployment) => {
             queue.enqueue(deployment);
           });
 
@@ -373,7 +373,7 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             state.queueLength,
             deployments.length,
-            'All deployments should be queued initially'
+            "All deployments should be queued initially",
           );
 
           // Process the queue
@@ -384,21 +384,21 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             state.completedCount,
             deployments.length,
-            'All deployments should be completed'
+            "All deployments should be completed",
           );
 
           assert.strictEqual(
             state.queueLength,
             0,
-            'Queue should be empty after processing'
+            "Queue should be empty after processing",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should handle rapid successive deployments sequentially', async () => {
+  it("should handle rapid successive deployments sequentially", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 5, maxLength: 10 }),
@@ -407,7 +407,7 @@ describe('Deployment Sequencing Property Test', () => {
           const processingOrder = [];
 
           // Enqueue deployments rapidly
-          deployments.forEach(deployment => {
+          deployments.forEach((deployment) => {
             queue.enqueue(deployment);
             processingOrder.push(deployment.id);
           });
@@ -420,15 +420,15 @@ describe('Deployment Sequencing Property Test', () => {
           assert.deepStrictEqual(
             completionOrder,
             processingOrder,
-            'Rapid deployments should be processed in order'
+            "Rapid deployments should be processed in order",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   }, 60000);
 
-  it('should track deployment status through the queue', async () => {
+  it("should track deployment status through the queue", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 2, maxLength: 5 }),
@@ -436,7 +436,7 @@ describe('Deployment Sequencing Property Test', () => {
           const queue = new DeploymentQueue();
 
           // Enqueue all deployments
-          deployments.forEach(deployment => {
+          deployments.forEach((deployment) => {
             queue.enqueue(deployment);
           });
 
@@ -445,7 +445,7 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             state.queueLength,
             deployments.length,
-            'All deployments should be queued'
+            "All deployments should be queued",
           );
 
           // Process the queue
@@ -456,23 +456,29 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             state.completedCount,
             deployments.length,
-            'All deployments should be completed'
+            "All deployments should be completed",
           );
 
           // Verify each completed deployment has required fields
-          state.completed.forEach(deployment => {
-            assert(deployment.id, 'Deployment should have id');
-            assert(deployment.status === 'completed', 'Deployment status should be completed');
-            assert(deployment.completedAt, 'Deployment should have completedAt timestamp');
-            assert(deployment.result, 'Deployment should have result');
+          state.completed.forEach((deployment) => {
+            assert(deployment.id, "Deployment should have id");
+            assert(
+              deployment.status === "completed",
+              "Deployment status should be completed",
+            );
+            assert(
+              deployment.completedAt,
+              "Deployment should have completedAt timestamp",
+            );
+            assert(deployment.result, "Deployment should have result");
           });
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should prevent race conditions with concurrent lock attempts', async () => {
+  it("should prevent race conditions with concurrent lock attempts", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 3, maxLength: 8 }),
@@ -483,13 +489,13 @@ describe('Deployment Sequencing Property Test', () => {
           // Simulate concurrent lock attempts
           const promises = deployments.map(async (deployment) => {
             const acquired = await lock.acquire(deployment.id);
-            
+
             if (acquired) {
               lockAcquisitionOrder.push(deployment.id);
-              
+
               // Simulate work
-              await new Promise(resolve => setTimeout(resolve, 5));
-              
+              await new Promise((resolve) => setTimeout(resolve, 5));
+
               lock.release(deployment.id);
             }
           });
@@ -500,7 +506,7 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             lockAcquisitionOrder.length,
             deployments.length,
-            'All deployments should acquire the lock'
+            "All deployments should acquire the lock",
           );
 
           // Verify no duplicate lock holders
@@ -508,15 +514,15 @@ describe('Deployment Sequencing Property Test', () => {
           assert.strictEqual(
             uniqueLockHolders.size,
             lockAcquisitionOrder.length,
-            'Each deployment should acquire lock exactly once'
+            "Each deployment should acquire lock exactly once",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
-  it('should maintain consistent state across sequential deployments', async () => {
+  it("should maintain consistent state across sequential deployments", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(deploymentEventArbitrary(), { minLength: 2, maxLength: 6 }),
@@ -524,7 +530,7 @@ describe('Deployment Sequencing Property Test', () => {
           const queue = new DeploymentQueue();
 
           // Enqueue all deployments
-          deployments.forEach(deployment => {
+          deployments.forEach((deployment) => {
             queue.enqueue(deployment);
           });
 
@@ -533,30 +539,30 @@ describe('Deployment Sequencing Property Test', () => {
 
           // Verify state consistency
           const state = queue.getState();
-          
+
           // Total processed should equal input
           assert.strictEqual(
             state.completedCount + state.failedCount,
             deployments.length,
-            'Total processed deployments should equal input count'
+            "Total processed deployments should equal input count",
           );
 
           // No deployments should remain queued
           assert.strictEqual(
             state.queueLength,
             0,
-            'No deployments should remain in queue'
+            "No deployments should remain in queue",
           );
 
           // Processing should be complete
           assert.strictEqual(
             state.processing,
             false,
-            'Processing should be complete'
+            "Processing should be complete",
           );
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

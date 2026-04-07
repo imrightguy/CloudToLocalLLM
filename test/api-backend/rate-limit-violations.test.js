@@ -19,11 +19,14 @@
  * @version 1.0.0
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { v4 as uuidv4 } from 'uuid';
-import { RateLimitViolationsService, VIOLATION_TYPES } from '../../services/api-backend/services/rate-limit-violations-service.js';
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
+import { v4 as uuidv4 } from "uuid";
+import {
+  RateLimitViolationsService,
+  VIOLATION_TYPES,
+} from "../../services/api-backend/services/rate-limit-violations-service.js";
 
-describe('RateLimitViolationsService', () => {
+describe("RateLimitViolationsService", () => {
   let violationsService;
   let mockPool;
   let testUserId;
@@ -40,11 +43,11 @@ describe('RateLimitViolationsService', () => {
     violationsService.pool = mockPool;
 
     testUserId = uuidv4();
-    testIpAddress = '192.168.1.100';
+    testIpAddress = "192.168.1.100";
   });
 
-  describe('logViolation', () => {
-    it('should log a window limit exceeded violation', async () => {
+  describe("logViolation", () => {
+    it("should log a window limit exceeded violation", async () => {
       const violationId = uuidv4();
       const now = new Date();
 
@@ -54,10 +57,10 @@ describe('RateLimitViolationsService', () => {
             id: violationId,
             user_id: testUserId,
             violation_type: VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
-            endpoint: '/api/tunnels',
-            method: 'GET',
+            endpoint: "/api/tunnels",
+            method: "GET",
             ip_address: testIpAddress,
-            user_agent: 'Mozilla/5.0',
+            user_agent: "Mozilla/5.0",
             violation_context: JSON.stringify({
               windowRequests: 1000,
               maxRequests: 1000,
@@ -71,10 +74,10 @@ describe('RateLimitViolationsService', () => {
       const violation = await violationsService.logViolation({
         userId: testUserId,
         violationType: VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
-        endpoint: '/api/tunnels',
-        method: 'GET',
+        endpoint: "/api/tunnels",
+        method: "GET",
         ipAddress: testIpAddress,
-        userAgent: 'Mozilla/5.0',
+        userAgent: "Mozilla/5.0",
         context: {
           windowRequests: 1000,
           maxRequests: 1000,
@@ -83,13 +86,15 @@ describe('RateLimitViolationsService', () => {
 
       expect(violation).toBeDefined();
       expect(violation.userId).toBe(testUserId);
-      expect(violation.violationType).toBe(VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED);
-      expect(violation.endpoint).toBe('/api/tunnels');
+      expect(violation.violationType).toBe(
+        VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
+      );
+      expect(violation.endpoint).toBe("/api/tunnels");
       expect(violation.ipAddress).toBe(testIpAddress);
       expect(mockPool.query).toHaveBeenCalled();
     });
 
-    it('should log a burst limit exceeded violation', async () => {
+    it("should log a burst limit exceeded violation", async () => {
       const violationId = uuidv4();
       const now = new Date();
 
@@ -99,10 +104,10 @@ describe('RateLimitViolationsService', () => {
             id: violationId,
             user_id: testUserId,
             violation_type: VIOLATION_TYPES.BURST_LIMIT_EXCEEDED,
-            endpoint: '/api/users',
-            method: 'POST',
+            endpoint: "/api/users",
+            method: "POST",
             ip_address: testIpAddress,
-            user_agent: 'Mozilla/5.0',
+            user_agent: "Mozilla/5.0",
             violation_context: JSON.stringify({
               burstRequests: 100,
               maxBurstRequests: 100,
@@ -116,10 +121,10 @@ describe('RateLimitViolationsService', () => {
       const violation = await violationsService.logViolation({
         userId: testUserId,
         violationType: VIOLATION_TYPES.BURST_LIMIT_EXCEEDED,
-        endpoint: '/api/users',
-        method: 'POST',
+        endpoint: "/api/users",
+        method: "POST",
         ipAddress: testIpAddress,
-        userAgent: 'Mozilla/5.0',
+        userAgent: "Mozilla/5.0",
         context: {
           burstRequests: 100,
           maxBurstRequests: 100,
@@ -127,11 +132,13 @@ describe('RateLimitViolationsService', () => {
       });
 
       expect(violation).toBeDefined();
-      expect(violation.violationType).toBe(VIOLATION_TYPES.BURST_LIMIT_EXCEEDED);
-      expect(violation.method).toBe('POST');
+      expect(violation.violationType).toBe(
+        VIOLATION_TYPES.BURST_LIMIT_EXCEEDED,
+      );
+      expect(violation.method).toBe("POST");
     });
 
-    it('should log a concurrent limit exceeded violation', async () => {
+    it("should log a concurrent limit exceeded violation", async () => {
       const violationId = uuidv4();
       const now = new Date();
 
@@ -141,10 +148,10 @@ describe('RateLimitViolationsService', () => {
             id: violationId,
             user_id: testUserId,
             violation_type: VIOLATION_TYPES.CONCURRENT_LIMIT_EXCEEDED,
-            endpoint: '/api/proxy',
-            method: 'PUT',
+            endpoint: "/api/proxy",
+            method: "PUT",
             ip_address: testIpAddress,
-            user_agent: 'Mozilla/5.0',
+            user_agent: "Mozilla/5.0",
             violation_context: JSON.stringify({
               concurrentRequests: 50,
               maxConcurrentRequests: 50,
@@ -158,10 +165,10 @@ describe('RateLimitViolationsService', () => {
       const violation = await violationsService.logViolation({
         userId: testUserId,
         violationType: VIOLATION_TYPES.CONCURRENT_LIMIT_EXCEEDED,
-        endpoint: '/api/proxy',
-        method: 'PUT',
+        endpoint: "/api/proxy",
+        method: "PUT",
         ipAddress: testIpAddress,
-        userAgent: 'Mozilla/5.0',
+        userAgent: "Mozilla/5.0",
         context: {
           concurrentRequests: 50,
           maxConcurrentRequests: 50,
@@ -169,10 +176,12 @@ describe('RateLimitViolationsService', () => {
       });
 
       expect(violation).toBeDefined();
-      expect(violation.violationType).toBe(VIOLATION_TYPES.CONCURRENT_LIMIT_EXCEEDED);
+      expect(violation.violationType).toBe(
+        VIOLATION_TYPES.CONCURRENT_LIMIT_EXCEEDED,
+      );
     });
 
-    it('should handle violations without user ID', async () => {
+    it("should handle violations without user ID", async () => {
       const violationId = uuidv4();
       const now = new Date();
 
@@ -182,10 +191,10 @@ describe('RateLimitViolationsService', () => {
             id: violationId,
             user_id: null,
             violation_type: VIOLATION_TYPES.IP_LIMIT_EXCEEDED,
-            endpoint: '/api/auth',
-            method: 'POST',
+            endpoint: "/api/auth",
+            method: "POST",
             ip_address: testIpAddress,
-            user_agent: 'Mozilla/5.0',
+            user_agent: "Mozilla/5.0",
             violation_context: JSON.stringify({}),
             timestamp: now,
             created_at: now,
@@ -196,10 +205,10 @@ describe('RateLimitViolationsService', () => {
       const violation = await violationsService.logViolation({
         userId: null,
         violationType: VIOLATION_TYPES.IP_LIMIT_EXCEEDED,
-        endpoint: '/api/auth',
-        method: 'POST',
+        endpoint: "/api/auth",
+        method: "POST",
         ipAddress: testIpAddress,
-        userAgent: 'Mozilla/5.0',
+        userAgent: "Mozilla/5.0",
       });
 
       expect(violation).toBeDefined();
@@ -207,18 +216,18 @@ describe('RateLimitViolationsService', () => {
     });
   });
 
-  describe('getUserViolations', () => {
-    it('should retrieve violations for a user', async () => {
+  describe("getUserViolations", () => {
+    it("should retrieve violations for a user", async () => {
       const now = new Date();
       const violations = [
         {
           id: uuidv4(),
           user_id: testUserId,
           violation_type: VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
-          endpoint: '/api/tunnels',
-          method: 'GET',
+          endpoint: "/api/tunnels",
+          method: "GET",
           ip_address: testIpAddress,
-          user_agent: 'Mozilla/5.0',
+          user_agent: "Mozilla/5.0",
           violation_context: JSON.stringify({}),
           timestamp: now,
           created_at: now,
@@ -227,10 +236,10 @@ describe('RateLimitViolationsService', () => {
           id: uuidv4(),
           user_id: testUserId,
           violation_type: VIOLATION_TYPES.BURST_LIMIT_EXCEEDED,
-          endpoint: '/api/users',
-          method: 'POST',
+          endpoint: "/api/users",
+          method: "POST",
           ip_address: testIpAddress,
-          user_agent: 'Mozilla/5.0',
+          user_agent: "Mozilla/5.0",
           violation_context: JSON.stringify({}),
           timestamp: now,
           created_at: now,
@@ -251,7 +260,7 @@ describe('RateLimitViolationsService', () => {
       expect(result[1].userId).toBe(testUserId);
     });
 
-    it('should support pagination', async () => {
+    it("should support pagination", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [],
       });
@@ -263,13 +272,13 @@ describe('RateLimitViolationsService', () => {
 
       expect(mockPool.query).toHaveBeenCalled();
       const query = mockPool.query.mock.calls[0][0];
-      expect(query).toContain('LIMIT');
-      expect(query).toContain('OFFSET');
+      expect(query).toContain("LIMIT");
+      expect(query).toContain("OFFSET");
     });
 
-    it('should filter by time range', async () => {
-      const startTime = new Date('2024-01-01');
-      const endTime = new Date('2024-01-31');
+    it("should filter by time range", async () => {
+      const startTime = new Date("2024-01-01");
+      const endTime = new Date("2024-01-31");
 
       mockPool.query.mockResolvedValueOnce({
         rows: [],
@@ -282,23 +291,23 @@ describe('RateLimitViolationsService', () => {
 
       expect(mockPool.query).toHaveBeenCalled();
       const query = mockPool.query.mock.calls[0][0];
-      expect(query).toContain('timestamp >=');
-      expect(query).toContain('timestamp <=');
+      expect(query).toContain("timestamp >=");
+      expect(query).toContain("timestamp <=");
     });
   });
 
-  describe('getIpViolations', () => {
-    it('should retrieve violations for an IP address', async () => {
+  describe("getIpViolations", () => {
+    it("should retrieve violations for an IP address", async () => {
       const now = new Date();
       const violations = [
         {
           id: uuidv4(),
           user_id: testUserId,
           violation_type: VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
-          endpoint: '/api/tunnels',
-          method: 'GET',
+          endpoint: "/api/tunnels",
+          method: "GET",
           ip_address: testIpAddress,
-          user_agent: 'Mozilla/5.0',
+          user_agent: "Mozilla/5.0",
           violation_context: JSON.stringify({}),
           timestamp: now,
           created_at: now,
@@ -316,8 +325,8 @@ describe('RateLimitViolationsService', () => {
     });
   });
 
-  describe('getUserViolationStats', () => {
-    it('should return statistics for a user with violations', async () => {
+  describe("getUserViolationStats", () => {
+    it("should return statistics for a user with violations", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [
           {
@@ -325,8 +334,8 @@ describe('RateLimitViolationsService', () => {
             violation_types_count: 2,
             unique_ips: 3,
             unique_endpoints: 4,
-            first_violation: new Date('2024-01-01'),
-            last_violation: new Date('2024-01-31'),
+            first_violation: new Date("2024-01-01"),
+            last_violation: new Date("2024-01-31"),
             violations_by_type: {
               window_limit_exceeded: 6,
               burst_limit_exceeded: 4,
@@ -349,7 +358,7 @@ describe('RateLimitViolationsService', () => {
       });
     });
 
-    it('should return zero stats for user with no violations', async () => {
+    it("should return zero stats for user with no violations", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [],
       });
@@ -363,8 +372,8 @@ describe('RateLimitViolationsService', () => {
     });
   });
 
-  describe('getIpViolationStats', () => {
-    it('should return statistics for an IP address', async () => {
+  describe("getIpViolationStats", () => {
+    it("should return statistics for an IP address", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [
           {
@@ -372,8 +381,8 @@ describe('RateLimitViolationsService', () => {
             violation_types_count: 3,
             unique_users: 5,
             unique_endpoints: 6,
-            first_violation: new Date('2024-01-01'),
-            last_violation: new Date('2024-01-31'),
+            first_violation: new Date("2024-01-01"),
+            last_violation: new Date("2024-01-31"),
             violations_by_type: {
               window_limit_exceeded: 8,
               burst_limit_exceeded: 5,
@@ -392,8 +401,8 @@ describe('RateLimitViolationsService', () => {
     });
   });
 
-  describe('getTopViolators', () => {
-    it('should return top violating users', async () => {
+  describe("getTopViolators", () => {
+    it("should return top violating users", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [
           {
@@ -401,21 +410,23 @@ describe('RateLimitViolationsService', () => {
             violation_count: 50,
             violation_types: 3,
             unique_ips: 2,
-            first_violation: new Date('2024-01-01'),
-            last_violation: new Date('2024-01-31'),
+            first_violation: new Date("2024-01-01"),
+            last_violation: new Date("2024-01-31"),
           },
           {
             user_id: uuidv4(),
             violation_count: 30,
             violation_types: 2,
             unique_ips: 1,
-            first_violation: new Date('2024-01-05'),
-            last_violation: new Date('2024-01-30'),
+            first_violation: new Date("2024-01-05"),
+            last_violation: new Date("2024-01-30"),
           },
         ],
       });
 
-      const topViolators = await violationsService.getTopViolators({ limit: 10 });
+      const topViolators = await violationsService.getTopViolators({
+        limit: 10,
+      });
 
       expect(topViolators).toHaveLength(2);
       expect(topViolators[0].violationCount).toBe(50);
@@ -423,25 +434,25 @@ describe('RateLimitViolationsService', () => {
     });
   });
 
-  describe('getTopViolatingIps', () => {
-    it('should return top violating IP addresses', async () => {
+  describe("getTopViolatingIps", () => {
+    it("should return top violating IP addresses", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [
           {
-            ip_address: '192.168.1.100',
+            ip_address: "192.168.1.100",
             violation_count: 100,
             violation_types: 3,
             unique_users: 5,
-            first_violation: new Date('2024-01-01'),
-            last_violation: new Date('2024-01-31'),
+            first_violation: new Date("2024-01-01"),
+            last_violation: new Date("2024-01-31"),
           },
           {
-            ip_address: '192.168.1.101',
+            ip_address: "192.168.1.101",
             violation_count: 75,
             violation_types: 2,
             unique_users: 3,
-            first_violation: new Date('2024-01-05'),
-            last_violation: new Date('2024-01-30'),
+            first_violation: new Date("2024-01-05"),
+            last_violation: new Date("2024-01-30"),
           },
         ],
       });
@@ -454,8 +465,8 @@ describe('RateLimitViolationsService', () => {
     });
   });
 
-  describe('getEndpointViolations', () => {
-    it('should return violations for a specific endpoint', async () => {
+  describe("getEndpointViolations", () => {
+    it("should return violations for a specific endpoint", async () => {
       mockPool.query.mockResolvedValueOnce({
         rows: [
           {
@@ -463,8 +474,8 @@ describe('RateLimitViolationsService', () => {
             unique_users: 5,
             unique_ips: 3,
             violation_types: 2,
-            first_violation: new Date('2024-01-01'),
-            last_violation: new Date('2024-01-31'),
+            first_violation: new Date("2024-01-01"),
+            last_violation: new Date("2024-01-31"),
             violations_by_type: {
               window_limit_exceeded: 15,
               burst_limit_exceeded: 10,
@@ -473,27 +484,28 @@ describe('RateLimitViolationsService', () => {
         ],
       });
 
-      const stats = await violationsService.getEndpointViolations('/api/tunnels');
+      const stats =
+        await violationsService.getEndpointViolations("/api/tunnels");
 
       expect(stats).toBeDefined();
-      expect(stats.endpoint).toBe('/api/tunnels');
+      expect(stats.endpoint).toBe("/api/tunnels");
       expect(stats.violationCount).toBe(25);
       expect(stats.uniqueUsers).toBe(5);
     });
   });
 
-  describe('formatViolation', () => {
-    it('should format violation correctly', () => {
+  describe("formatViolation", () => {
+    it("should format violation correctly", () => {
       const now = new Date();
       const row = {
         id: uuidv4(),
         user_id: testUserId,
         violation_type: VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
-        endpoint: '/api/tunnels',
-        method: 'GET',
+        endpoint: "/api/tunnels",
+        method: "GET",
         ip_address: testIpAddress,
-        user_agent: 'Mozilla/5.0',
-        violation_context: JSON.stringify({ test: 'data' }),
+        user_agent: "Mozilla/5.0",
+        violation_context: JSON.stringify({ test: "data" }),
         timestamp: now,
         created_at: now,
       };
@@ -503,8 +515,10 @@ describe('RateLimitViolationsService', () => {
       expect(formatted).toBeDefined();
       expect(formatted.id).toBe(row.id);
       expect(formatted.userId).toBe(testUserId);
-      expect(formatted.violationType).toBe(VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED);
-      expect(formatted.context).toEqual({ test: 'data' });
+      expect(formatted.violationType).toBe(
+        VIOLATION_TYPES.WINDOW_LIMIT_EXCEEDED,
+      );
+      expect(formatted.context).toEqual({ test: "data" });
     });
   });
 });

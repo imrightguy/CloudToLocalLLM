@@ -25,12 +25,11 @@ import {
   getDefaultTunnelConfig,
   mergeTunnelConfig,
   sanitizeTunnelConfig,
-} from '../../services/api-backend/utils/tunnel-config-validation.js';
+} from "../../services/api-backend/utils/tunnel-config-validation.js";
 
-describe('Tunnel Configuration Management', () => {
-
-  describe('Configuration Validation', () => {
-    it('should validate valid configuration', () => {
+describe("Tunnel Configuration Management", () => {
+  describe("Configuration Validation", () => {
+    it("should validate valid configuration", () => {
       const config = {
         maxConnections: 100,
         timeout: 30000,
@@ -43,18 +42,18 @@ describe('Tunnel Configuration Management', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should reject invalid maxConnections (not integer)', () => {
+    it("should reject invalid maxConnections (not integer)", () => {
       const config = {
-        maxConnections: 'not-a-number',
+        maxConnections: "not-a-number",
       };
 
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('maxConnections must be an integer');
+      expect(result.errors).toContain("maxConnections must be an integer");
     });
 
-    it('should reject maxConnections below minimum (1)', () => {
+    it("should reject maxConnections below minimum (1)", () => {
       const config = {
         maxConnections: 0,
       };
@@ -62,10 +61,12 @@ describe('Tunnel Configuration Management', () => {
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('maxConnections must be between 1 and 10000');
+      expect(result.errors).toContain(
+        "maxConnections must be between 1 and 10000",
+      );
     });
 
-    it('should reject maxConnections above maximum (10000)', () => {
+    it("should reject maxConnections above maximum (10000)", () => {
       const config = {
         maxConnections: 10001,
       };
@@ -73,21 +74,23 @@ describe('Tunnel Configuration Management', () => {
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('maxConnections must be between 1 and 10000');
+      expect(result.errors).toContain(
+        "maxConnections must be between 1 and 10000",
+      );
     });
 
-    it('should reject invalid timeout (not integer)', () => {
+    it("should reject invalid timeout (not integer)", () => {
       const config = {
-        timeout: 'not-a-number',
+        timeout: "not-a-number",
       };
 
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('timeout must be an integer');
+      expect(result.errors).toContain("timeout must be an integer");
     });
 
-    it('should reject timeout below minimum (1000ms)', () => {
+    it("should reject timeout below minimum (1000ms)", () => {
       const config = {
         timeout: 999,
       };
@@ -95,10 +98,12 @@ describe('Tunnel Configuration Management', () => {
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('timeout must be between 1000ms and 300000ms (5 minutes)');
+      expect(result.errors).toContain(
+        "timeout must be between 1000ms and 300000ms (5 minutes)",
+      );
     });
 
-    it('should reject timeout above maximum (300000ms)', () => {
+    it("should reject timeout above maximum (300000ms)", () => {
       const config = {
         timeout: 300001,
       };
@@ -106,21 +111,23 @@ describe('Tunnel Configuration Management', () => {
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('timeout must be between 1000ms and 300000ms (5 minutes)');
+      expect(result.errors).toContain(
+        "timeout must be between 1000ms and 300000ms (5 minutes)",
+      );
     });
 
-    it('should reject invalid compression (not boolean)', () => {
+    it("should reject invalid compression (not boolean)", () => {
       const config = {
-        compression: 'yes',
+        compression: "yes",
       };
 
       const result = validateTunnelConfig(config);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('compression must be a boolean');
+      expect(result.errors).toContain("compression must be a boolean");
     });
 
-    it('should accept partial configuration', () => {
+    it("should accept partial configuration", () => {
       const config = {
         maxConnections: 200,
       };
@@ -131,7 +138,7 @@ describe('Tunnel Configuration Management', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should accept empty configuration', () => {
+    it("should accept empty configuration", () => {
       const config = {};
 
       const result = validateTunnelConfig(config);
@@ -140,16 +147,16 @@ describe('Tunnel Configuration Management', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should reject non-object configuration', () => {
-      const result = validateTunnelConfig('not-an-object');
+    it("should reject non-object configuration", () => {
+      const result = validateTunnelConfig("not-an-object");
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Configuration must be an object');
+      expect(result.errors).toContain("Configuration must be an object");
     });
   });
 
-  describe('Configuration Defaults', () => {
-    it('should return default configuration', () => {
+  describe("Configuration Defaults", () => {
+    it("should return default configuration", () => {
       const defaults = getDefaultTunnelConfig();
 
       expect(defaults.maxConnections).toBe(100);
@@ -157,7 +164,7 @@ describe('Tunnel Configuration Management', () => {
       expect(defaults.compression).toBe(true);
     });
 
-    it('should merge user config with defaults', () => {
+    it("should merge user config with defaults", () => {
       const userConfig = {
         maxConnections: 200,
       };
@@ -169,7 +176,7 @@ describe('Tunnel Configuration Management', () => {
       expect(merged.compression).toBe(true);
     });
 
-    it('should use defaults for null config', () => {
+    it("should use defaults for null config", () => {
       const merged = mergeTunnelConfig(null);
 
       expect(merged.maxConnections).toBe(100);
@@ -177,11 +184,11 @@ describe('Tunnel Configuration Management', () => {
       expect(merged.compression).toBe(true);
     });
 
-    it('should sanitize configuration values', () => {
+    it("should sanitize configuration values", () => {
       const config = {
         maxConnections: 20000, // Above max
         timeout: 500, // Below min
-        compression: 'yes', // Invalid
+        compression: "yes", // Invalid
       };
 
       const sanitized = sanitizeTunnelConfig(config);
@@ -192,10 +199,8 @@ describe('Tunnel Configuration Management', () => {
     });
   });
 
-
-
-  describe('Configuration Boundary Values', () => {
-    it('should accept minimum maxConnections (1)', () => {
+  describe("Configuration Boundary Values", () => {
+    it("should accept minimum maxConnections (1)", () => {
       const config = {
         maxConnections: 1,
       };
@@ -205,7 +210,7 @@ describe('Tunnel Configuration Management', () => {
       expect(result.isValid).toBe(true);
     });
 
-    it('should accept maximum maxConnections (10000)', () => {
+    it("should accept maximum maxConnections (10000)", () => {
       const config = {
         maxConnections: 10000,
       };
@@ -215,7 +220,7 @@ describe('Tunnel Configuration Management', () => {
       expect(result.isValid).toBe(true);
     });
 
-    it('should accept minimum timeout (1000ms)', () => {
+    it("should accept minimum timeout (1000ms)", () => {
       const config = {
         timeout: 1000,
       };
@@ -225,7 +230,7 @@ describe('Tunnel Configuration Management', () => {
       expect(result.isValid).toBe(true);
     });
 
-    it('should accept maximum timeout (300000ms)', () => {
+    it("should accept maximum timeout (300000ms)", () => {
       const config = {
         timeout: 300000,
       };

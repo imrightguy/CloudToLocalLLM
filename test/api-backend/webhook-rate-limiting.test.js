@@ -15,11 +15,19 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
-import { WebhookRateLimiterService } from '../../services/api-backend/services/webhook-rate-limiter.js';
-import { getPool } from '../../services/api-backend/database/db-pool.js';
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "@jest/globals";
+import { WebhookRateLimiterService } from "../../services/api-backend/services/webhook-rate-limiter.js";
+import { getPool } from "../../services/api-backend/database/db-pool.js";
 
-describe('WebhookRateLimiterService', () => {
+describe("WebhookRateLimiterService", () => {
   let service;
   let pool;
   let testWebhookId;
@@ -31,8 +39,8 @@ describe('WebhookRateLimiterService', () => {
     pool = getPool();
 
     // Create test data
-    testWebhookId = 'test-webhook-' + Date.now();
-    testUserId = 'test-user-' + Date.now();
+    testWebhookId = "test-webhook-" + Date.now();
+    testUserId = "test-user-" + Date.now();
 
     // Initialize service
     await service.initialize();
@@ -48,8 +56,8 @@ describe('WebhookRateLimiterService', () => {
     service.rateLimitCache.clear();
   });
 
-  describe('getWebhookRateLimitConfig', () => {
-    it('should return default config when no config exists', async () => {
+  describe("getWebhookRateLimitConfig", () => {
+    it("should return default config when no config exists", async () => {
       const config = await service.getWebhookRateLimitConfig(
         testWebhookId,
         testUserId,
@@ -63,8 +71,8 @@ describe('WebhookRateLimiterService', () => {
     });
   });
 
-  describe('setWebhookRateLimitConfig', () => {
-    it('should create new rate limit config', async () => {
+  describe("setWebhookRateLimitConfig", () => {
+    it("should create new rate limit config", async () => {
       const config = {
         rate_limit_per_minute: 30,
         rate_limit_per_hour: 500,
@@ -84,7 +92,7 @@ describe('WebhookRateLimiterService', () => {
       expect(result.rate_limit_per_day).toBe(5000);
     });
 
-    it('should update existing rate limit config', async () => {
+    it("should update existing rate limit config", async () => {
       const config1 = {
         rate_limit_per_minute: 30,
         rate_limit_per_hour: 500,
@@ -116,7 +124,7 @@ describe('WebhookRateLimiterService', () => {
       expect(result.rate_limit_per_day).toBe(8000);
     });
 
-    it('should invalidate cache after update', async () => {
+    it("should invalidate cache after update", async () => {
       const cacheKey = `${testWebhookId}:${testUserId}`;
 
       // Add to cache
@@ -140,8 +148,8 @@ describe('WebhookRateLimiterService', () => {
     });
   });
 
-  describe('checkRateLimit', () => {
-    it('should allow request when under limit', async () => {
+  describe("checkRateLimit", () => {
+    it("should allow request when under limit", async () => {
       const config = {
         rate_limit_per_minute: 10,
         rate_limit_per_hour: 100,
@@ -158,12 +166,12 @@ describe('WebhookRateLimiterService', () => {
       const result = await service.checkRateLimit(testWebhookId, testUserId);
 
       expect(result.allowed).toBe(true);
-      expect(result.reason).toBe('allowed');
+      expect(result.reason).toBe("allowed");
       expect(result.limits.per_minute.current).toBe(1);
       expect(result.limits.per_minute.max).toBe(10);
     });
 
-    it('should block request when minute limit exceeded', async () => {
+    it("should block request when minute limit exceeded", async () => {
       const config = {
         rate_limit_per_minute: 2,
         rate_limit_per_hour: 100,
@@ -171,8 +179,8 @@ describe('WebhookRateLimiterService', () => {
         is_enabled: true,
       };
 
-      const webhookId = 'test-webhook-minute-' + Date.now();
-      const userId = 'test-user-minute-' + Date.now();
+      const webhookId = "test-webhook-minute-" + Date.now();
+      const userId = "test-user-minute-" + Date.now();
 
       await service.setWebhookRateLimitConfig(webhookId, userId, config);
 
@@ -187,10 +195,10 @@ describe('WebhookRateLimiterService', () => {
       // Third request - should be blocked
       result = await service.checkRateLimit(webhookId, userId);
       expect(result.allowed).toBe(false);
-      expect(result.reason).toBe('minute_limit_exceeded');
+      expect(result.reason).toBe("minute_limit_exceeded");
     });
 
-    it('should block request when hour limit exceeded', async () => {
+    it("should block request when hour limit exceeded", async () => {
       const config = {
         rate_limit_per_minute: 2,
         rate_limit_per_hour: 2,
@@ -198,8 +206,8 @@ describe('WebhookRateLimiterService', () => {
         is_enabled: true,
       };
 
-      const webhookId = 'test-webhook-hour-' + Date.now();
-      const userId = 'test-user-hour-' + Date.now();
+      const webhookId = "test-webhook-hour-" + Date.now();
+      const userId = "test-user-hour-" + Date.now();
 
       await service.setWebhookRateLimitConfig(webhookId, userId, config);
 
@@ -214,10 +222,10 @@ describe('WebhookRateLimiterService', () => {
       // Third request - should be blocked
       result = await service.checkRateLimit(webhookId, userId);
       expect(result.allowed).toBe(false);
-      expect(result.reason).toBe('hour_limit_exceeded');
+      expect(result.reason).toBe("hour_limit_exceeded");
     });
 
-    it('should allow request when rate limiting disabled', async () => {
+    it("should allow request when rate limiting disabled", async () => {
       const config = {
         rate_limit_per_minute: 1,
         rate_limit_per_hour: 1,
@@ -225,8 +233,8 @@ describe('WebhookRateLimiterService', () => {
         is_enabled: false,
       };
 
-      const webhookId = 'test-webhook-disabled-' + Date.now();
-      const userId = 'test-user-disabled-' + Date.now();
+      const webhookId = "test-webhook-disabled-" + Date.now();
+      const userId = "test-user-disabled-" + Date.now();
 
       await service.setWebhookRateLimitConfig(webhookId, userId, config);
 
@@ -234,13 +242,13 @@ describe('WebhookRateLimiterService', () => {
       for (let i = 0; i < 5; i++) {
         const result = await service.checkRateLimit(webhookId, userId);
         expect(result.allowed).toBe(true);
-        expect(result.reason).toBe('rate_limiting_disabled');
+        expect(result.reason).toBe("rate_limiting_disabled");
       }
     });
   });
 
-  describe('validateRateLimitConfig', () => {
-    it('should accept valid config', () => {
+  describe("validateRateLimitConfig", () => {
+    it("should accept valid config", () => {
       const config = {
         rate_limit_per_minute: 60,
         rate_limit_per_hour: 1000,
@@ -252,7 +260,7 @@ describe('WebhookRateLimiterService', () => {
       }).not.toThrow();
     });
 
-    it('should reject negative rate limits', () => {
+    it("should reject negative rate limits", () => {
       const config = {
         rate_limit_per_minute: -1,
         rate_limit_per_hour: 1000,
@@ -264,7 +272,7 @@ describe('WebhookRateLimiterService', () => {
       }).toThrow();
     });
 
-    it('should reject zero rate limits', () => {
+    it("should reject zero rate limits", () => {
       const config = {
         rate_limit_per_minute: 0,
         rate_limit_per_hour: 1000,
@@ -276,7 +284,7 @@ describe('WebhookRateLimiterService', () => {
       }).toThrow();
     });
 
-    it('should reject non-integer rate limits', () => {
+    it("should reject non-integer rate limits", () => {
       const config = {
         rate_limit_per_minute: 60.5,
         rate_limit_per_hour: 1000,
@@ -288,7 +296,7 @@ describe('WebhookRateLimiterService', () => {
       }).toThrow();
     });
 
-    it('should enforce minute <= hour <= day ordering', () => {
+    it("should enforce minute <= hour <= day ordering", () => {
       const config = {
         rate_limit_per_minute: 100,
         rate_limit_per_hour: 50,
@@ -301,10 +309,10 @@ describe('WebhookRateLimiterService', () => {
     });
   });
 
-  describe('getRateLimitStats', () => {
-    it('should return stats for webhook', async () => {
-      const webhookId = 'test-webhook-stats-' + Date.now();
-      const userId = 'test-user-stats-' + Date.now();
+  describe("getRateLimitStats", () => {
+    it("should return stats for webhook", async () => {
+      const webhookId = "test-webhook-stats-" + Date.now();
+      const userId = "test-user-stats-" + Date.now();
 
       const stats = await service.getRateLimitStats(webhookId, userId);
 
@@ -315,10 +323,10 @@ describe('WebhookRateLimiterService', () => {
     });
   });
 
-  describe('cleanupCache', () => {
-    it('should remove expired cache entries', () => {
-      const cacheKey1 = 'webhook1:user1';
-      const cacheKey2 = 'webhook2:user2';
+  describe("cleanupCache", () => {
+    it("should remove expired cache entries", () => {
+      const cacheKey1 = "webhook1:user1";
+      const cacheKey2 = "webhook2:user2";
 
       // Add old entry (older than 1 hour)
       service.rateLimitCache.set(cacheKey1, {
@@ -339,13 +347,13 @@ describe('WebhookRateLimiterService', () => {
     });
   });
 
-  describe('recordDelivery', () => {
-    it('should record delivery without throwing', async () => {
-      const webhookId = 'test-webhook-record-' + Date.now();
-      const userId = 'test-user-record-' + Date.now();
+  describe("recordDelivery", () => {
+    it("should record delivery without throwing", async () => {
+      const webhookId = "test-webhook-record-" + Date.now();
+      const userId = "test-user-record-" + Date.now();
       const deliveryData = {
-        delivery_id: 'delivery-' + Date.now(),
-        status: 'delivered',
+        delivery_id: "delivery-" + Date.now(),
+        status: "delivered",
       };
 
       // Should not throw

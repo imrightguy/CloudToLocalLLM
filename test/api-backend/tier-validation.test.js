@@ -23,84 +23,84 @@ import {
   TIER_FEATURES,
   shouldUseDirectTunnel,
   getUpgradeMessage,
-} from '../../services/api-backend/middleware/tier-check.js';
+} from "../../services/api-backend/middleware/tier-check.js";
 
-describe('User Tier System Validation', () => {
-  describe('getUserTier', () => {
-    it('should return free tier for user without tier metadata', () => {
-      const user = { sub: 'user123' };
+describe("User Tier System Validation", () => {
+  describe("getUserTier", () => {
+    it("should return free tier for user without tier metadata", () => {
+      const user = { sub: "user123" };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should return free tier for null user', () => {
+    it("should return free tier for null user", () => {
       const tier = getUserTier(null);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should extract tier from user metadata', () => {
+    it("should extract tier from user metadata", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'premium',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "premium",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.PREMIUM);
     });
 
-    it('should extract tier from app metadata', () => {
+    it("should extract tier from app metadata", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/app_metadata': {
-          tier: 'enterprise',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/app_metadata": {
+          tier: "enterprise",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.ENTERPRISE);
     });
 
-    it('should normalize tier to lowercase', () => {
+    it("should normalize tier to lowercase", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'PREMIUM',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "PREMIUM",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.PREMIUM);
     });
 
-    it('should handle invalid tier by returning free', () => {
+    it("should handle invalid tier by returning free", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'invalid_tier',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "invalid_tier",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should prioritize user_metadata over app_metadata', () => {
+    it("should prioritize user_metadata over app_metadata", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'premium',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "premium",
         },
-        'https://CloudToLocalLLM.com/app_metadata': {
-          tier: 'enterprise',
+        "https://CloudToLocalLLM.com/app_metadata": {
+          tier: "enterprise",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.PREMIUM);
     });
 
-    it('should handle subscription field as fallback', () => {
+    it("should handle subscription field as fallback", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          subscription: 'premium',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          subscription: "premium",
         },
       };
       const tier = getUserTier(user);
@@ -108,105 +108,105 @@ describe('User Tier System Validation', () => {
     });
   });
 
-  describe('getTierFeatures', () => {
-    it('should return features for free tier', () => {
+  describe("getTierFeatures", () => {
+    it("should return features for free tier", () => {
       const features = getTierFeatures(USER_TIERS.FREE);
       expect(features).toBeDefined();
       expect(features.containerOrchestration).toBe(false);
       expect(features.maxConnections).toBe(1);
     });
 
-    it('should return features for premium tier', () => {
+    it("should return features for premium tier", () => {
       const features = getTierFeatures(USER_TIERS.PREMIUM);
       expect(features).toBeDefined();
       expect(features.containerOrchestration).toBe(true);
       expect(features.maxConnections).toBe(10);
     });
 
-    it('should return features for enterprise tier', () => {
+    it("should return features for enterprise tier", () => {
       const features = getTierFeatures(USER_TIERS.ENTERPRISE);
       expect(features).toBeDefined();
       expect(features.containerOrchestration).toBe(true);
       expect(features.maxConnections).toBe(-1); // unlimited
     });
 
-    it('should return free tier features for invalid tier', () => {
-      const features = getTierFeatures('invalid_tier');
+    it("should return free tier features for invalid tier", () => {
+      const features = getTierFeatures("invalid_tier");
       expect(features).toEqual(getTierFeatures(USER_TIERS.FREE));
     });
 
-    it('should normalize tier name to lowercase', () => {
-      const features1 = getTierFeatures('PREMIUM');
+    it("should normalize tier name to lowercase", () => {
+      const features1 = getTierFeatures("PREMIUM");
       const features2 = getTierFeatures(USER_TIERS.PREMIUM);
       expect(features1).toEqual(features2);
     });
   });
 
-  describe('hasFeature', () => {
-    it('should return true for free tier user with free tier feature', () => {
-      const user = { sub: 'user123' };
-      const hasAccess = hasFeature(user, 'directTunnelOnly');
+  describe("hasFeature", () => {
+    it("should return true for free tier user with free tier feature", () => {
+      const user = { sub: "user123" };
+      const hasAccess = hasFeature(user, "directTunnelOnly");
       expect(hasAccess).toBe(true);
     });
 
-    it('should return false for free tier user without premium feature', () => {
-      const user = { sub: 'user123' };
-      const hasAccess = hasFeature(user, 'containerOrchestration');
+    it("should return false for free tier user without premium feature", () => {
+      const user = { sub: "user123" };
+      const hasAccess = hasFeature(user, "containerOrchestration");
       expect(hasAccess).toBe(false);
     });
 
-    it('should return true for premium tier user with premium feature', () => {
+    it("should return true for premium tier user with premium feature", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'premium',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "premium",
         },
       };
-      const hasAccess = hasFeature(user, 'containerOrchestration');
+      const hasAccess = hasFeature(user, "containerOrchestration");
       expect(hasAccess).toBe(true);
     });
 
-    it('should return true for enterprise tier user with all features', () => {
+    it("should return true for enterprise tier user with all features", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'enterprise',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "enterprise",
         },
       };
-      const hasAccess = hasFeature(user, 'containerOrchestration');
+      const hasAccess = hasFeature(user, "containerOrchestration");
       expect(hasAccess).toBe(true);
     });
 
-    it('should return false for unknown feature', () => {
-      const user = { sub: 'user123' };
-      const hasAccess = hasFeature(user, 'unknown_feature');
+    it("should return false for unknown feature", () => {
+      const user = { sub: "user123" };
+      const hasAccess = hasFeature(user, "unknown_feature");
       expect(hasAccess).toBe(false);
     });
   });
 
-  describe('shouldUseDirectTunnel', () => {
-    it('should return true for free tier users', () => {
-      const user = { sub: 'user123' };
+  describe("shouldUseDirectTunnel", () => {
+    it("should return true for free tier users", () => {
+      const user = { sub: "user123" };
       const shouldUse = shouldUseDirectTunnel(user);
       expect(shouldUse).toBe(true);
     });
 
-    it('should return false for premium tier users', () => {
+    it("should return false for premium tier users", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'premium',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "premium",
         },
       };
       const shouldUse = shouldUseDirectTunnel(user);
       expect(shouldUse).toBe(false);
     });
 
-    it('should return false for enterprise tier users', () => {
+    it("should return false for enterprise tier users", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'enterprise',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "enterprise",
         },
       };
       const shouldUse = shouldUseDirectTunnel(user);
@@ -214,28 +214,38 @@ describe('User Tier System Validation', () => {
     });
   });
 
-  describe('getUpgradeMessage', () => {
-    it('should return upgrade message for free tier', () => {
-      const message = getUpgradeMessage(USER_TIERS.FREE, 'advanced features');
-      expect(message).toContain('Premium');
-      expect(message).toContain('advanced features');
+  describe("getUpgradeMessage", () => {
+    it("should return upgrade message for free tier", () => {
+      const message = getUpgradeMessage(USER_TIERS.FREE, "advanced features");
+      expect(message).toContain("Premium");
+      expect(message).toContain("advanced features");
     });
 
-    it('should return upgrade message for premium tier', () => {
-      const message = getUpgradeMessage(USER_TIERS.PREMIUM, 'advanced features');
-      expect(message).toContain('Enterprise');
-      expect(message).toContain('advanced features');
+    it("should return upgrade message for premium tier", () => {
+      const message = getUpgradeMessage(
+        USER_TIERS.PREMIUM,
+        "advanced features",
+      );
+      expect(message).toContain("Enterprise");
+      expect(message).toContain("advanced features");
     });
 
-    it('should return neutral message for enterprise tier', () => {
-      const message = getUpgradeMessage(USER_TIERS.ENTERPRISE, 'advanced features');
-      expect(message).toContain('current plan');
+    it("should return neutral message for enterprise tier", () => {
+      const message = getUpgradeMessage(
+        USER_TIERS.ENTERPRISE,
+        "advanced features",
+      );
+      expect(message).toContain("current plan");
     });
   });
 
-  describe('Tier Hierarchy Consistency', () => {
-    it('should maintain consistent tier hierarchy', () => {
-      const tierHierarchy = [USER_TIERS.FREE, USER_TIERS.PREMIUM, USER_TIERS.ENTERPRISE];
+  describe("Tier Hierarchy Consistency", () => {
+    it("should maintain consistent tier hierarchy", () => {
+      const tierHierarchy = [
+        USER_TIERS.FREE,
+        USER_TIERS.PREMIUM,
+        USER_TIERS.ENTERPRISE,
+      ];
 
       // Each higher tier should have all features of lower tiers (except directTunnelOnly which is inverse)
       for (let i = 0; i < tierHierarchy.length - 1; i++) {
@@ -248,7 +258,7 @@ describe('User Tier System Validation', () => {
         // Check that higher tier has at least the same features as lower tier
         Object.entries(lowerFeatures).forEach(([feature, enabled]) => {
           // Skip directTunnelOnly as it's inverse (true for free, false for premium/enterprise)
-          if (feature === 'directTunnelOnly') {
+          if (feature === "directTunnelOnly") {
             return;
           }
           if (enabled === true) {
@@ -258,7 +268,7 @@ describe('User Tier System Validation', () => {
       }
     });
 
-    it('should have consistent feature definitions across all tiers', () => {
+    it("should have consistent feature definitions across all tiers", () => {
       const allFeatures = new Set();
 
       Object.values(TIER_FEATURES).forEach((tierFeatures) => {
@@ -276,22 +286,22 @@ describe('User Tier System Validation', () => {
     });
   });
 
-  describe('Feature Access Control', () => {
-    it('should enforce feature access based on tier', () => {
+  describe("Feature Access Control", () => {
+    it("should enforce feature access based on tier", () => {
       const features = [
-        'containerOrchestration',
-        'teamFeatures',
-        'apiAccess',
-        'prioritySupport',
-        'advancedNetworking',
-        'multipleInstances',
+        "containerOrchestration",
+        "teamFeatures",
+        "apiAccess",
+        "prioritySupport",
+        "advancedNetworking",
+        "multipleInstances",
       ];
 
       features.forEach((feature) => {
-        const freeUser = { sub: 'user1' };
+        const freeUser = { sub: "user1" };
         const premiumUser = {
-          sub: 'user2',
-          'https://CloudToLocalLLM.com/user_metadata': { tier: 'premium' },
+          sub: "user2",
+          "https://CloudToLocalLLM.com/user_metadata": { tier: "premium" },
         };
 
         const freeHasAccess = hasFeature(freeUser, feature);
@@ -304,19 +314,21 @@ describe('User Tier System Validation', () => {
       });
     });
 
-    it('should handle connection limits correctly', () => {
+    it("should handle connection limits correctly", () => {
       const freeFeatures = getTierFeatures(USER_TIERS.FREE);
       const premiumFeatures = getTierFeatures(USER_TIERS.PREMIUM);
       const enterpriseFeatures = getTierFeatures(USER_TIERS.ENTERPRISE);
 
       // Free tier has fewer connections than premium
-      expect(freeFeatures.maxConnections).toBeLessThan(premiumFeatures.maxConnections);
+      expect(freeFeatures.maxConnections).toBeLessThan(
+        premiumFeatures.maxConnections,
+      );
       // Premium tier has fewer connections than enterprise (which is unlimited)
       expect(premiumFeatures.maxConnections).toBeGreaterThan(0);
       expect(enterpriseFeatures.maxConnections).toBe(-1); // unlimited
     });
 
-    it('should handle model limits correctly', () => {
+    it("should handle model limits correctly", () => {
       const freeFeatures = getTierFeatures(USER_TIERS.FREE);
       const premiumFeatures = getTierFeatures(USER_TIERS.PREMIUM);
       const enterpriseFeatures = getTierFeatures(USER_TIERS.ENTERPRISE);
@@ -329,50 +341,50 @@ describe('User Tier System Validation', () => {
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle user with empty metadata object', () => {
+  describe("Edge Cases", () => {
+    it("should handle user with empty metadata object", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {},
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {},
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should handle user with null metadata', () => {
+    it("should handle user with null metadata", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': null,
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": null,
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should handle user with whitespace-only tier', () => {
+    it("should handle user with whitespace-only tier", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: '   ',
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "   ",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should handle missing sub field', () => {
+    it("should handle missing sub field", () => {
       const user = {
-        'https://CloudToLocalLLM.com/user_metadata': {
-          tier: 'premium',
+        "https://CloudToLocalLLM.com/user_metadata": {
+          tier: "premium",
         },
       };
       const tier = getUserTier(user);
       expect(tier).toBe(USER_TIERS.FREE);
     });
 
-    it('should handle non-string tier value', () => {
+    it("should handle non-string tier value", () => {
       const user = {
-        sub: 'user123',
-        'https://CloudToLocalLLM.com/user_metadata': {
+        sub: "user123",
+        "https://CloudToLocalLLM.com/user_metadata": {
           tier: 123,
         },
       };
@@ -381,19 +393,28 @@ describe('User Tier System Validation', () => {
     });
   });
 
-  describe('Tier Validation Consistency', () => {
+  describe("Tier Validation Consistency", () => {
     /**
      * Property: For any user, getUserTier should always return a valid tier
      * **Validates: Requirements 2.4**
      */
-    it('should always return a valid tier for any user', () => {
+    it("should always return a valid tier for any user", () => {
       const testUsers = [
         null,
         undefined,
-        { sub: 'user1' },
-        { sub: 'user2', 'https://CloudToLocalLLM.com/user_metadata': { tier: 'premium' } },
-        { sub: 'user3', 'https://CloudToLocalLLM.com/user_metadata': { tier: 'ENTERPRISE' } },
-        { sub: 'user4', 'https://CloudToLocalLLM.com/user_metadata': { tier: 'invalid' } },
+        { sub: "user1" },
+        {
+          sub: "user2",
+          "https://CloudToLocalLLM.com/user_metadata": { tier: "premium" },
+        },
+        {
+          sub: "user3",
+          "https://CloudToLocalLLM.com/user_metadata": { tier: "ENTERPRISE" },
+        },
+        {
+          sub: "user4",
+          "https://CloudToLocalLLM.com/user_metadata": { tier: "invalid" },
+        },
       ];
 
       testUsers.forEach((user) => {
@@ -406,7 +427,7 @@ describe('User Tier System Validation', () => {
      * Property: For any valid tier, getTierFeatures should return a consistent feature set
      * **Validates: Requirements 2.4**
      */
-    it('should return consistent features for each tier', () => {
+    it("should return consistent features for each tier", () => {
       Object.values(USER_TIERS).forEach((tier) => {
         const features1 = getTierFeatures(tier);
         const features2 = getTierFeatures(tier);
@@ -419,21 +440,27 @@ describe('User Tier System Validation', () => {
      * Property: For any user and feature, hasFeature should be consistent with getTierFeatures
      * **Validates: Requirements 2.4**
      */
-    it('should maintain consistency between hasFeature and getTierFeatures', () => {
+    it("should maintain consistency between hasFeature and getTierFeatures", () => {
       const testUsers = [
-        { sub: 'user1' },
-        { sub: 'user2', 'https://CloudToLocalLLM.com/user_metadata': { tier: 'premium' } },
-        { sub: 'user3', 'https://CloudToLocalLLM.com/user_metadata': { tier: 'enterprise' } },
+        { sub: "user1" },
+        {
+          sub: "user2",
+          "https://CloudToLocalLLM.com/user_metadata": { tier: "premium" },
+        },
+        {
+          sub: "user3",
+          "https://CloudToLocalLLM.com/user_metadata": { tier: "enterprise" },
+        },
       ];
 
       const features = [
-        'containerOrchestration',
-        'teamFeatures',
-        'apiAccess',
-        'prioritySupport',
-        'advancedNetworking',
-        'multipleInstances',
-        'directTunnelOnly',
+        "containerOrchestration",
+        "teamFeatures",
+        "apiAccess",
+        "prioritySupport",
+        "advancedNetworking",
+        "multipleInstances",
+        "directTunnelOnly",
       ];
 
       testUsers.forEach((user) => {

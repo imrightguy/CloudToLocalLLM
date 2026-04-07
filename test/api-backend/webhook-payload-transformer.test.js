@@ -19,22 +19,22 @@
  * @version 1.0.0
  */
 
-import WebhookPayloadTransformer from '../../services/api-backend/services/webhook-payload-transformer.js';
+import WebhookPayloadTransformer from "../../services/api-backend/services/webhook-payload-transformer.js";
 
-describe('Webhook Payload Transformer', () => {
+describe("Webhook Payload Transformer", () => {
   let transformer;
 
   beforeAll(() => {
     transformer = new WebhookPayloadTransformer();
   });
 
-  describe('Transformation Configuration Validation', () => {
-    test('should accept valid map transformation configuration', () => {
+  describe("Transformation Configuration Validation", () => {
+    test("should accept valid map transformation configuration", () => {
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          eventType: { source: 'type' },
-          eventData: { source: 'data' },
+          eventType: { source: "type" },
+          eventData: { source: "data" },
         },
       };
 
@@ -43,11 +43,11 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    test('should accept valid filter transformation configuration', () => {
+    test("should accept valid filter transformation configuration", () => {
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'data.status', operator: 'equals', value: 'connected' },
+          { path: "data.status", operator: "equals", value: "connected" },
         ],
       };
 
@@ -56,13 +56,13 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    test('should accept valid enrich transformation configuration', () => {
+    test("should accept valid enrich transformation configuration", () => {
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          timestamp: { type: 'timestamp' },
-          requestId: { type: 'uuid' },
-          environment: { type: 'static', value: 'production' },
+          timestamp: { type: "timestamp" },
+          requestId: { type: "uuid" },
+          environment: { type: "static", value: "production" },
         },
       };
 
@@ -71,10 +71,10 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    test('should accept valid custom transformation configuration', () => {
+    test("should accept valid custom transformation configuration", () => {
       const config = {
-        type: 'custom',
-        script: 'payload => ({ ...payload, transformed: true })',
+        type: "custom",
+        script: "payload => ({ ...payload, transformed: true })",
       };
 
       const result = transformer.validateTransformConfig(config);
@@ -82,22 +82,22 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    test('should accept empty transformation configuration', () => {
+    test("should accept empty transformation configuration", () => {
       const result = transformer.validateTransformConfig(null);
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
 
-    test('should reject invalid transformation type', () => {
-      const config = { type: 'invalid' };
+    test("should reject invalid transformation type", () => {
+      const config = { type: "invalid" };
       const result = transformer.validateTransformConfig(config);
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    test('should reject invalid mapping configuration', () => {
+    test("should reject invalid mapping configuration", () => {
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           field: { source: 123 }, // source should be string
         },
@@ -108,11 +108,11 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    test('should reject invalid filter configuration', () => {
+    test("should reject invalid filter configuration", () => {
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'data.status', operator: 'invalid', value: 'connected' },
+          { path: "data.status", operator: "invalid", value: "connected" },
         ],
       };
 
@@ -121,11 +121,11 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    test('should reject invalid enrichment configuration', () => {
+    test("should reject invalid enrichment configuration", () => {
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          field: { type: 'invalid' },
+          field: { type: "invalid" },
         },
       };
 
@@ -134,10 +134,10 @@ describe('Webhook Payload Transformer', () => {
       expect(result.errors.length).toBeGreaterThan(0);
     });
 
-    test('should reject empty custom script', () => {
+    test("should reject empty custom script", () => {
       const config = {
-        type: 'custom',
-        script: '',
+        type: "custom",
+        script: "",
       };
 
       const result = transformer.validateTransformConfig(config);
@@ -146,101 +146,101 @@ describe('Webhook Payload Transformer', () => {
     });
   });
 
-  describe('Payload Mapping Transformations', () => {
-    test('should map simple properties', () => {
+  describe("Payload Mapping Transformations", () => {
+    test("should map simple properties", () => {
       const payload = {
-        type: 'tunnel.status_changed',
-        data: { status: 'connected' },
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
       };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          eventType: { source: 'type' },
-          status: { source: 'data.status' },
+          eventType: { source: "type" },
+          status: { source: "data.status" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.eventType).toBe('tunnel.status_changed');
-      expect(result.status).toBe('connected');
+      expect(result.eventType).toBe("tunnel.status_changed");
+      expect(result.status).toBe("connected");
     });
 
-    test('should apply uppercase transformation', () => {
-      const payload = { name: 'tunnel' };
+    test("should apply uppercase transformation", () => {
+      const payload = { name: "tunnel" };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           NAME: {
-            source: 'name',
-            transform: { type: 'uppercase' },
+            source: "name",
+            transform: { type: "uppercase" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.NAME).toBe('TUNNEL');
+      expect(result.NAME).toBe("TUNNEL");
     });
 
-    test('should apply lowercase transformation', () => {
-      const payload = { name: 'TUNNEL' };
+    test("should apply lowercase transformation", () => {
+      const payload = { name: "TUNNEL" };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           name: {
-            source: 'name',
-            transform: { type: 'lowercase' },
+            source: "name",
+            transform: { type: "lowercase" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.name).toBe('tunnel');
+      expect(result.name).toBe("tunnel");
     });
 
-    test('should apply trim transformation', () => {
-      const payload = { name: '  tunnel  ' };
+    test("should apply trim transformation", () => {
+      const payload = { name: "  tunnel  " };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           name: {
-            source: 'name',
-            transform: { type: 'trim' },
+            source: "name",
+            transform: { type: "trim" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.name).toBe('tunnel');
+      expect(result.name).toBe("tunnel");
     });
 
-    test('should apply base64 transformation', () => {
-      const payload = { data: 'hello' };
+    test("should apply base64 transformation", () => {
+      const payload = { data: "hello" };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           encoded: {
-            source: 'data',
-            transform: { type: 'base64' },
+            source: "data",
+            transform: { type: "base64" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.encoded).toBe(Buffer.from('hello').toString('base64'));
+      expect(result.encoded).toBe(Buffer.from("hello").toString("base64"));
     });
 
-    test('should handle missing source properties', () => {
-      const payload = { type: 'event' };
+    test("should handle missing source properties", () => {
+      const payload = { type: "event" };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          status: { source: 'data.status' },
+          status: { source: "data.status" },
         },
       };
 
@@ -249,14 +249,17 @@ describe('Webhook Payload Transformer', () => {
     });
   });
 
-  describe('Payload Filtering Transformations', () => {
-    test('should filter payload with equals operator', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected' } };
+  describe("Payload Filtering Transformations", () => {
+    test("should filter payload with equals operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'data.status', operator: 'equals', value: 'connected' },
+          { path: "data.status", operator: "equals", value: "connected" },
         ],
       };
 
@@ -264,13 +267,16 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toEqual(payload);
     });
 
-    test('should filter out payload with non-matching equals operator', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'disconnected' } };
+    test("should filter out payload with non-matching equals operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "disconnected" },
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'data.status', operator: 'equals', value: 'connected' },
+          { path: "data.status", operator: "equals", value: "connected" },
         ],
       };
 
@@ -278,13 +284,16 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toBeNull();
     });
 
-    test('should filter payload with contains operator', () => {
-      const payload = { type: 'tunnel.status_changed', message: 'Connection established' };
+    test("should filter payload with contains operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        message: "Connection established",
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'message', operator: 'contains', value: 'established' },
+          { path: "message", operator: "contains", value: "established" },
         ],
       };
 
@@ -292,13 +301,31 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toEqual(payload);
     });
 
-    test('should filter payload with startsWith operator', () => {
-      const payload = { type: 'tunnel.status_changed', message: 'Error: Connection failed' };
+    test("should filter payload with startsWith operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        message: "Error: Connection failed",
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
+        filters: [{ path: "message", operator: "startsWith", value: "Error" }],
+      };
+
+      const result = transformer.transformPayload(payload, config);
+      expect(result).toEqual(payload);
+    });
+
+    test("should filter payload with endsWith operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        message: "Connection established",
+      };
+
+      const config = {
+        type: "filter",
         filters: [
-          { path: 'message', operator: 'startsWith', value: 'Error' },
+          { path: "message", operator: "endsWith", value: "established" },
         ],
       };
 
@@ -306,13 +333,20 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toEqual(payload);
     });
 
-    test('should filter payload with endsWith operator', () => {
-      const payload = { type: 'tunnel.status_changed', message: 'Connection established' };
+    test("should filter payload with in operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'message', operator: 'endsWith', value: 'established' },
+          {
+            path: "data.status",
+            operator: "in",
+            value: ["connected", "connecting"],
+          },
         ],
       };
 
@@ -320,70 +354,59 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toEqual(payload);
     });
 
-    test('should filter payload with in operator', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected' } };
+    test("should filter payload with regex operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        message: "Error: Connection failed",
+      };
 
       const config = {
-        type: 'filter',
-        filters: [
-          { path: 'data.status', operator: 'in', value: ['connected', 'connecting'] },
-        ],
+        type: "filter",
+        filters: [{ path: "message", operator: "regex", value: "^Error:" }],
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result).toEqual(payload);
     });
 
-    test('should filter payload with regex operator', () => {
-      const payload = { type: 'tunnel.status_changed', message: 'Error: Connection failed' };
+    test("should filter payload with exists operator", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
+      };
 
       const config = {
-        type: 'filter',
-        filters: [
-          { path: 'message', operator: 'regex', value: '^Error:' },
-        ],
+        type: "filter",
+        filters: [{ path: "data.status", operator: "exists" }],
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result).toEqual(payload);
     });
 
-    test('should filter payload with exists operator', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected' } };
+    test("should filter out payload when property does not exist", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'filter',
-        filters: [
-          { path: 'data.status', operator: 'exists' },
-        ],
-      };
-
-      const result = transformer.transformPayload(payload, config);
-      expect(result).toEqual(payload);
-    });
-
-    test('should filter out payload when property does not exist', () => {
-      const payload = { type: 'tunnel.status_changed' };
-
-      const config = {
-        type: 'filter',
-        filters: [
-          { path: 'data.status', operator: 'exists' },
-        ],
+        type: "filter",
+        filters: [{ path: "data.status", operator: "exists" }],
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result).toBeNull();
     });
 
-    test('should apply multiple filters with AND logic', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected', userId: 'user123' } };
+    test("should apply multiple filters with AND logic", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected", userId: "user123" },
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'data.status', operator: 'equals', value: 'connected' },
-          { path: 'data.userId', operator: 'startsWith', value: 'user' },
+          { path: "data.status", operator: "equals", value: "connected" },
+          { path: "data.userId", operator: "startsWith", value: "user" },
         ],
       };
 
@@ -391,14 +414,17 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toEqual(payload);
     });
 
-    test('should filter out payload when any filter fails', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected', userId: 'admin123' } };
+    test("should filter out payload when any filter fails", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected", userId: "admin123" },
+      };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [
-          { path: 'data.status', operator: 'equals', value: 'connected' },
-          { path: 'data.userId', operator: 'startsWith', value: 'user' },
+          { path: "data.status", operator: "equals", value: "connected" },
+          { path: "data.userId", operator: "startsWith", value: "user" },
         ],
       };
 
@@ -407,122 +433,130 @@ describe('Webhook Payload Transformer', () => {
     });
   });
 
-  describe('Payload Enrichment Transformations', () => {
-    test('should enrich payload with static value', () => {
-      const payload = { type: 'tunnel.status_changed' };
+  describe("Payload Enrichment Transformations", () => {
+    test("should enrich payload with static value", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          environment: { type: 'static', value: 'production' },
+          environment: { type: "static", value: "production" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.environment).toBe('production');
-      expect(result.type).toBe('tunnel.status_changed');
+      expect(result.environment).toBe("production");
+      expect(result.type).toBe("tunnel.status_changed");
     });
 
-    test('should enrich payload with timestamp', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should enrich payload with timestamp", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          timestamp: { type: 'timestamp' },
+          timestamp: { type: "timestamp" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result.timestamp).toBeDefined();
-      expect(typeof result.timestamp).toBe('string');
+      expect(typeof result.timestamp).toBe("string");
       expect(new Date(result.timestamp)).toBeInstanceOf(Date);
     });
 
-    test('should enrich payload with UUID', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should enrich payload with UUID", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          requestId: { type: 'uuid' },
+          requestId: { type: "uuid" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result.requestId).toBeDefined();
-      expect(typeof result.requestId).toBe('string');
-      expect(result.requestId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      expect(typeof result.requestId).toBe("string");
+      expect(result.requestId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      );
     });
 
-    test('should enrich payload with multiple enrichments', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should enrich payload with multiple enrichments", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          environment: { type: 'static', value: 'production' },
-          timestamp: { type: 'timestamp' },
-          requestId: { type: 'uuid' },
+          environment: { type: "static", value: "production" },
+          timestamp: { type: "timestamp" },
+          requestId: { type: "uuid" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.environment).toBe('production');
+      expect(result.environment).toBe("production");
       expect(result.timestamp).toBeDefined();
       expect(result.requestId).toBeDefined();
-      expect(result.type).toBe('tunnel.status_changed');
+      expect(result.type).toBe("tunnel.status_changed");
     });
 
-    test('should preserve original payload properties when enriching', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected' } };
+    test("should preserve original payload properties when enriching", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
+      };
 
       const config = {
-        type: 'enrich',
+        type: "enrich",
         enrichments: {
-          environment: { type: 'static', value: 'production' },
+          environment: { type: "static", value: "production" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.type).toBe('tunnel.status_changed');
-      expect(result.data.status).toBe('connected');
-      expect(result.environment).toBe('production');
+      expect(result.type).toBe("tunnel.status_changed");
+      expect(result.data.status).toBe("connected");
+      expect(result.environment).toBe("production");
     });
   });
 
-  describe('Custom Transformation Scripts', () => {
-    test('should apply custom transformation script', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected' } };
+  describe("Custom Transformation Scripts", () => {
+    test("should apply custom transformation script", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
+      };
 
       const config = {
-        type: 'custom',
-        script: 'payload => ({ ...payload, transformed: true })',
+        type: "custom",
+        script: "payload => ({ ...payload, transformed: true })",
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result.transformed).toBe(true);
-      expect(result.type).toBe('tunnel.status_changed');
+      expect(result.type).toBe("tunnel.status_changed");
     });
 
-    test('should handle custom script that modifies payload', () => {
+    test("should handle custom script that modifies payload", () => {
       const payload = { value: 10 };
 
       const config = {
-        type: 'custom',
-        script: 'payload => ({ ...payload, value: payload.value * 2 })',
+        type: "custom",
+        script: "payload => ({ ...payload, value: payload.value * 2 })",
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result.value).toBe(20);
     });
 
-    test('should handle custom script errors gracefully', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should handle custom script errors gracefully", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'custom',
-        script: 'invalid script syntax',
+        type: "custom",
+        script: "invalid script syntax",
       };
 
       const result = transformer.transformPayload(payload, config);
@@ -530,12 +564,12 @@ describe('Webhook Payload Transformer', () => {
     });
   });
 
-  describe('Edge Cases and Error Handling', () => {
-    test('should handle null payload', () => {
+  describe("Edge Cases and Error Handling", () => {
+    test("should handle null payload", () => {
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          field: { source: 'data' },
+          field: { source: "data" },
         },
       };
 
@@ -543,18 +577,18 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toBeNull();
     });
 
-    test('should handle undefined transformation config', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should handle undefined transformation config", () => {
+      const payload = { type: "tunnel.status_changed" };
       const result = transformer.transformPayload(payload, undefined);
       expect(result).toEqual(payload);
     });
 
-    test('should handle nested property paths', () => {
+    test("should handle nested property paths", () => {
       const payload = {
-        type: 'tunnel.status_changed',
+        type: "tunnel.status_changed",
         data: {
           tunnel: {
-            status: 'connected',
+            status: "connected",
             metrics: {
               latency: 50,
             },
@@ -563,9 +597,9 @@ describe('Webhook Payload Transformer', () => {
       };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          latency: { source: 'data.tunnel.metrics.latency' },
+          latency: { source: "data.tunnel.metrics.latency" },
         },
       };
 
@@ -573,13 +607,13 @@ describe('Webhook Payload Transformer', () => {
       expect(result.latency).toBe(50);
     });
 
-    test('should handle deeply nested missing properties', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should handle deeply nested missing properties", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          latency: { source: 'data.tunnel.metrics.latency' },
+          latency: { source: "data.tunnel.metrics.latency" },
         },
       };
 
@@ -587,14 +621,17 @@ describe('Webhook Payload Transformer', () => {
       expect(result.latency).toBeUndefined();
     });
 
-    test('should not mutate original payload', () => {
-      const payload = { type: 'tunnel.status_changed', data: { status: 'connected' } };
+    test("should not mutate original payload", () => {
+      const payload = {
+        type: "tunnel.status_changed",
+        data: { status: "connected" },
+      };
       const originalPayload = JSON.parse(JSON.stringify(payload));
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          eventType: { source: 'type' },
+          eventType: { source: "type" },
         },
       };
 
@@ -602,39 +639,37 @@ describe('Webhook Payload Transformer', () => {
       expect(payload).toEqual(originalPayload);
     });
 
-    test('should handle numeric property values', () => {
+    test("should handle numeric property values", () => {
       const payload = { count: 42 };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
-          countStr: { source: 'count', transform: { type: 'uppercase' } },
+          countStr: { source: "count", transform: { type: "uppercase" } },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.countStr).toBe('42');
+      expect(result.countStr).toBe("42");
     });
 
-    test('should handle boolean property values', () => {
+    test("should handle boolean property values", () => {
       const payload = { active: true };
 
       const config = {
-        type: 'filter',
-        filters: [
-          { path: 'active', operator: 'equals', value: true },
-        ],
+        type: "filter",
+        filters: [{ path: "active", operator: "equals", value: true }],
       };
 
       const result = transformer.transformPayload(payload, config);
       expect(result).toEqual(payload);
     });
 
-    test('should handle empty mappings', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should handle empty mappings", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {},
       };
 
@@ -642,11 +677,11 @@ describe('Webhook Payload Transformer', () => {
       expect(result).toEqual({});
     });
 
-    test('should handle empty filters', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should handle empty filters", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'filter',
+        type: "filter",
         filters: [],
       };
 
@@ -655,25 +690,25 @@ describe('Webhook Payload Transformer', () => {
     });
   });
 
-  describe('Transformation Type Detection', () => {
-    test('should default to map type when not specified', () => {
-      const payload = { name: 'tunnel' };
+  describe("Transformation Type Detection", () => {
+    test("should default to map type when not specified", () => {
+      const payload = { name: "tunnel" };
 
       const config = {
         mappings: {
-          tunnelName: { source: 'name' },
+          tunnelName: { source: "name" },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.tunnelName).toBe('tunnel');
+      expect(result.tunnelName).toBe("tunnel");
     });
 
-    test('should handle unknown transformation type gracefully', () => {
-      const payload = { type: 'tunnel.status_changed' };
+    test("should handle unknown transformation type gracefully", () => {
+      const payload = { type: "tunnel.status_changed" };
 
       const config = {
-        type: 'unknown',
+        type: "unknown",
       };
 
       const result = transformer.transformPayload(payload, config);
@@ -681,68 +716,68 @@ describe('Webhook Payload Transformer', () => {
     });
   });
 
-  describe('Complex Transformation Scenarios', () => {
-    test('should handle map transformation with multiple transforms', () => {
+  describe("Complex Transformation Scenarios", () => {
+    test("should handle map transformation with multiple transforms", () => {
       const payload = {
-        type: 'TUNNEL.STATUS_CHANGED',
-        message: '  Connection established  ',
+        type: "TUNNEL.STATUS_CHANGED",
+        message: "  Connection established  ",
       };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           eventType: {
-            source: 'type',
-            transform: { type: 'lowercase' },
+            source: "type",
+            transform: { type: "lowercase" },
           },
           cleanMessage: {
-            source: 'message',
-            transform: { type: 'trim' },
+            source: "message",
+            transform: { type: "trim" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.eventType).toBe('tunnel.status_changed');
-      expect(result.cleanMessage).toBe('Connection established');
+      expect(result.eventType).toBe("tunnel.status_changed");
+      expect(result.cleanMessage).toBe("Connection established");
     });
 
-    test('should handle JSON parsing transformation', () => {
+    test("should handle JSON parsing transformation", () => {
       const payload = {
         jsonData: '{"status":"connected","latency":50}',
       };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           data: {
-            source: 'jsonData',
-            transform: { type: 'json' },
+            source: "jsonData",
+            transform: { type: "json" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.data).toEqual({ status: 'connected', latency: 50 });
+      expect(result.data).toEqual({ status: "connected", latency: 50 });
     });
 
-    test('should handle invalid JSON gracefully', () => {
+    test("should handle invalid JSON gracefully", () => {
       const payload = {
-        jsonData: 'invalid json',
+        jsonData: "invalid json",
       };
 
       const config = {
-        type: 'map',
+        type: "map",
         mappings: {
           data: {
-            source: 'jsonData',
-            transform: { type: 'json' },
+            source: "jsonData",
+            transform: { type: "json" },
           },
         },
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.data).toBe('invalid json'); // Returns original value on parse error
+      expect(result.data).toBe("invalid json"); // Returns original value on parse error
     });
   });
 });

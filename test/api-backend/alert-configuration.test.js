@@ -10,12 +10,12 @@
  * Requirements: 8.10 (Real-time alerting for critical metrics)
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import AlertConfigurationService, {
   alertConfigService,
-} from '../../services/api-backend/services/alert-configuration-service.js';
+} from "../../services/api-backend/services/alert-configuration-service.js";
 
-describe('Alert Configuration Service', () => {
+describe("Alert Configuration Service", () => {
   let service;
 
   beforeEach(() => {
@@ -23,8 +23,8 @@ describe('Alert Configuration Service', () => {
     service = new AlertConfigurationService();
   });
 
-  describe('Threshold Management', () => {
-    it('should return default thresholds', () => {
+  describe("Threshold Management", () => {
+    it("should return default thresholds", () => {
       const thresholds = service.getThresholds();
 
       expect(thresholds).toBeDefined();
@@ -37,7 +37,7 @@ describe('Alert Configuration Service', () => {
       expect(thresholds.memoryUsage).toBeDefined();
     });
 
-    it('should update thresholds', () => {
+    it("should update thresholds", () => {
       const newThresholds = {
         responseTime: { warning: 300, critical: 800 },
       };
@@ -48,7 +48,7 @@ describe('Alert Configuration Service', () => {
       expect(updated.responseTime.critical).toBe(800);
     });
 
-    it('should validate threshold values', () => {
+    it("should validate threshold values", () => {
       const invalidThresholds = {
         responseTime: { warning: 1000, critical: 500 }, // warning > critical
       };
@@ -58,7 +58,7 @@ describe('Alert Configuration Service', () => {
       }).toThrow();
     });
 
-    it('should reset to default thresholds', () => {
+    it("should reset to default thresholds", () => {
       service.updateThresholds({
         responseTime: { warning: 100, critical: 200 },
       });
@@ -71,17 +71,17 @@ describe('Alert Configuration Service', () => {
     });
   });
 
-  describe('Channel Configuration', () => {
-    it('should return enabled channels', () => {
+  describe("Channel Configuration", () => {
+    it("should return enabled channels", () => {
       const channels = service.getEnabledChannels();
 
       expect(channels).toBeDefined();
-      expect(channels).toHaveProperty('email');
-      expect(channels).toHaveProperty('slack');
-      expect(channels).toHaveProperty('pagerduty');
+      expect(channels).toHaveProperty("email");
+      expect(channels).toHaveProperty("slack");
+      expect(channels).toHaveProperty("pagerduty");
     });
 
-    it('should update enabled channels', () => {
+    it("should update enabled channels", () => {
       const updated = service.updateEnabledChannels({
         email: false,
         slack: true,
@@ -91,153 +91,153 @@ describe('Alert Configuration Service', () => {
       expect(updated.slack).toBe(true);
     });
 
-    it('should ignore unknown channels', () => {
+    it("should ignore unknown channels", () => {
       const updated = service.updateEnabledChannels({
         email: true,
         unknownChannel: true,
       });
 
-      expect(updated).not.toHaveProperty('unknownChannel');
+      expect(updated).not.toHaveProperty("unknownChannel");
       expect(updated.email).toBe(true);
     });
   });
 
-  describe('Threshold Checking', () => {
-    it('should detect critical threshold exceeded', () => {
-      const result = service.checkThreshold('responseTime', 1500);
+  describe("Threshold Checking", () => {
+    it("should detect critical threshold exceeded", () => {
+      const result = service.checkThreshold("responseTime", 1500);
 
       expect(result.shouldAlert).toBe(true);
-      expect(result.severity).toBe('critical');
+      expect(result.severity).toBe("critical");
     });
 
-    it('should detect warning threshold exceeded', () => {
-      const result = service.checkThreshold('responseTime', 750);
+    it("should detect warning threshold exceeded", () => {
+      const result = service.checkThreshold("responseTime", 750);
 
       expect(result.shouldAlert).toBe(true);
-      expect(result.severity).toBe('warning');
+      expect(result.severity).toBe("warning");
     });
 
-    it('should not alert when below threshold', () => {
-      const result = service.checkThreshold('responseTime', 300);
+    it("should not alert when below threshold", () => {
+      const result = service.checkThreshold("responseTime", 300);
 
       expect(result.shouldAlert).toBe(false);
       expect(result.severity).toBeNull();
     });
 
-    it('should handle unknown metrics', () => {
-      const result = service.checkThreshold('unknownMetric', 100);
+    it("should handle unknown metrics", () => {
+      const result = service.checkThreshold("unknownMetric", 100);
 
       expect(result.shouldAlert).toBe(false);
       expect(result.severity).toBeNull();
     });
   });
 
-  describe('Alert Cooldown', () => {
-    it('should not be in cooldown initially', () => {
-      const inCooldown = service.isInCooldown('test_alert');
+  describe("Alert Cooldown", () => {
+    it("should not be in cooldown initially", () => {
+      const inCooldown = service.isInCooldown("test_alert");
 
       expect(inCooldown).toBe(false);
     });
 
-    it('should enter cooldown after recording alert', () => {
-      service.recordAlert('test_alert', {
-        metric: 'responseTime',
-        severity: 'warning',
+    it("should enter cooldown after recording alert", () => {
+      service.recordAlert("test_alert", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      const inCooldown = service.isInCooldown('test_alert');
+      const inCooldown = service.isInCooldown("test_alert");
 
       expect(inCooldown).toBe(true);
     });
 
-    it('should exit cooldown after duration expires', async () => {
+    it("should exit cooldown after duration expires", async () => {
       // Create service with short cooldown for testing
       const testService = new AlertConfigurationService();
       testService.cooldownDuration = 100; // 100ms
 
-      testService.recordAlert('test_alert', {
-        metric: 'responseTime',
-        severity: 'warning',
+      testService.recordAlert("test_alert", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      expect(testService.isInCooldown('test_alert')).toBe(true);
+      expect(testService.isInCooldown("test_alert")).toBe(true);
 
       // Wait for cooldown to expire
       await new Promise((resolve) => setTimeout(resolve, 150));
 
-      expect(testService.isInCooldown('test_alert')).toBe(false);
+      expect(testService.isInCooldown("test_alert")).toBe(false);
     });
   });
 
-  describe('Alert History', () => {
-    it('should record alerts in history', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+  describe("Alert History", () => {
+    it("should record alerts in history", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      service.recordAlert('alert2', {
-        metric: 'errorRate',
-        severity: 'critical',
+      service.recordAlert("alert2", {
+        metric: "errorRate",
+        severity: "critical",
         value: 15,
       });
 
       const history = service.getAlertHistory();
 
       expect(history.length).toBe(2);
-      expect(history[0].key).toBe('alert1');
-      expect(history[1].key).toBe('alert2');
+      expect(history[0].key).toBe("alert1");
+      expect(history[1].key).toBe("alert2");
     });
 
-    it('should filter history by metric', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+    it("should filter history by metric", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      service.recordAlert('alert2', {
-        metric: 'errorRate',
-        severity: 'critical',
+      service.recordAlert("alert2", {
+        metric: "errorRate",
+        severity: "critical",
         value: 15,
       });
 
-      const history = service.getAlertHistory({ metric: 'responseTime' });
+      const history = service.getAlertHistory({ metric: "responseTime" });
 
       expect(history.length).toBe(1);
-      expect(history[0].metric).toBe('responseTime');
+      expect(history[0].metric).toBe("responseTime");
     });
 
-    it('should filter history by severity', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+    it("should filter history by severity", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      service.recordAlert('alert2', {
-        metric: 'errorRate',
-        severity: 'critical',
+      service.recordAlert("alert2", {
+        metric: "errorRate",
+        severity: "critical",
         value: 15,
       });
 
-      const history = service.getAlertHistory({ severity: 'critical' });
+      const history = service.getAlertHistory({ severity: "critical" });
 
       expect(history.length).toBe(1);
-      expect(history[0].severity).toBe('critical');
+      expect(history[0].severity).toBe("critical");
     });
 
-    it('should limit history size', () => {
+    it("should limit history size", () => {
       const testService = new AlertConfigurationService();
       testService.maxHistorySize = 5;
 
       for (let i = 0; i < 10; i++) {
         testService.recordAlert(`alert${i}`, {
-          metric: 'responseTime',
-          severity: 'warning',
+          metric: "responseTime",
+          severity: "warning",
           value: 600,
         });
       }
@@ -248,44 +248,44 @@ describe('Alert Configuration Service', () => {
     });
   });
 
-  describe('Active Alerts', () => {
-    it('should track active alerts', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+  describe("Active Alerts", () => {
+    it("should track active alerts", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
       const activeAlerts = service.getActiveAlerts();
 
       expect(activeAlerts.length).toBe(1);
-      expect(activeAlerts[0].key).toBe('alert1');
+      expect(activeAlerts[0].key).toBe("alert1");
     });
 
-    it('should clear active alerts', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+    it("should clear active alerts", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      service.clearAlert('alert1');
+      service.clearAlert("alert1");
 
       const activeAlerts = service.getActiveAlerts();
 
       expect(activeAlerts.length).toBe(0);
     });
 
-    it('should maintain multiple active alerts', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+    it("should maintain multiple active alerts", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
-      service.recordAlert('alert2', {
-        metric: 'errorRate',
-        severity: 'critical',
+      service.recordAlert("alert2", {
+        metric: "errorRate",
+        severity: "critical",
         value: 15,
       });
 
@@ -295,21 +295,21 @@ describe('Alert Configuration Service', () => {
     });
   });
 
-  describe('Status Reporting', () => {
-    it('should return complete status', () => {
-      service.recordAlert('alert1', {
-        metric: 'responseTime',
-        severity: 'warning',
+  describe("Status Reporting", () => {
+    it("should return complete status", () => {
+      service.recordAlert("alert1", {
+        metric: "responseTime",
+        severity: "warning",
         value: 600,
       });
 
       const status = service.getStatus();
 
-      expect(status).toHaveProperty('thresholds');
-      expect(status).toHaveProperty('enabledChannels');
-      expect(status).toHaveProperty('activeAlerts');
-      expect(status).toHaveProperty('alertHistorySize');
-      expect(status).toHaveProperty('cooldownDuration');
+      expect(status).toHaveProperty("thresholds");
+      expect(status).toHaveProperty("enabledChannels");
+      expect(status).toHaveProperty("activeAlerts");
+      expect(status).toHaveProperty("alertHistorySize");
+      expect(status).toHaveProperty("cooldownDuration");
       expect(status.activeAlerts.length).toBe(1);
     });
   });

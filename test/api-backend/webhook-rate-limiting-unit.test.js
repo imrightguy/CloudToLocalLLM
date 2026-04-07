@@ -30,7 +30,7 @@ class MockWebhookRateLimiterService {
         !Number.isInteger(config.rate_limit_per_minute) ||
         config.rate_limit_per_minute < 1
       ) {
-        throw new Error('rate_limit_per_minute must be a positive integer');
+        throw new Error("rate_limit_per_minute must be a positive integer");
       }
     }
 
@@ -39,7 +39,7 @@ class MockWebhookRateLimiterService {
         !Number.isInteger(config.rate_limit_per_hour) ||
         config.rate_limit_per_hour < 1
       ) {
-        throw new Error('rate_limit_per_hour must be a positive integer');
+        throw new Error("rate_limit_per_hour must be a positive integer");
       }
     }
 
@@ -48,7 +48,7 @@ class MockWebhookRateLimiterService {
         !Number.isInteger(config.rate_limit_per_day) ||
         config.rate_limit_per_day < 1
       ) {
-        throw new Error('rate_limit_per_day must be a positive integer');
+        throw new Error("rate_limit_per_day must be a positive integer");
       }
     }
 
@@ -58,7 +58,7 @@ class MockWebhookRateLimiterService {
       config.rate_limit_per_hour &&
       config.rate_limit_per_minute > config.rate_limit_per_hour
     ) {
-      throw new Error('rate_limit_per_minute must be <= rate_limit_per_hour');
+      throw new Error("rate_limit_per_minute must be <= rate_limit_per_hour");
     }
 
     if (
@@ -66,7 +66,7 @@ class MockWebhookRateLimiterService {
       config.rate_limit_per_day &&
       config.rate_limit_per_hour > config.rate_limit_per_day
     ) {
-      throw new Error('rate_limit_per_hour must be <= rate_limit_per_day');
+      throw new Error("rate_limit_per_hour must be <= rate_limit_per_day");
     }
   }
 
@@ -117,12 +117,12 @@ class MockWebhookRateLimiterService {
     return {
       allowed,
       reason: minuteExceeded
-        ? 'minute_limit_exceeded'
+        ? "minute_limit_exceeded"
         : hourExceeded
-          ? 'hour_limit_exceeded'
+          ? "hour_limit_exceeded"
           : dayExceeded
-            ? 'day_limit_exceeded'
-            : 'allowed',
+            ? "day_limit_exceeded"
+            : "allowed",
       limits: {
         per_minute: { current: minuteCount, max: config.rate_limit_per_minute },
         per_hour: { current: hourCount, max: config.rate_limit_per_hour },
@@ -150,15 +150,15 @@ class MockWebhookRateLimiterService {
   }
 }
 
-describe('WebhookRateLimiterService - Unit Tests', () => {
+describe("WebhookRateLimiterService - Unit Tests", () => {
   let service;
 
   beforeEach(() => {
     service = new MockWebhookRateLimiterService();
   });
 
-  describe('validateRateLimitConfig', () => {
-    it('should accept valid config', () => {
+  describe("validateRateLimitConfig", () => {
+    it("should accept valid config", () => {
       const config = {
         rate_limit_per_minute: 60,
         rate_limit_per_hour: 1000,
@@ -170,7 +170,7 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       }).not.toThrow();
     });
 
-    it('should reject negative rate limits', () => {
+    it("should reject negative rate limits", () => {
       const config = {
         rate_limit_per_minute: -1,
         rate_limit_per_hour: 1000,
@@ -179,10 +179,10 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
 
       expect(() => {
         service.validateRateLimitConfig(config);
-      }).toThrow('rate_limit_per_minute must be a positive integer');
+      }).toThrow("rate_limit_per_minute must be a positive integer");
     });
 
-    it('should reject zero rate limits', () => {
+    it("should reject zero rate limits", () => {
       const config = {
         rate_limit_per_minute: 0,
         rate_limit_per_hour: 1000,
@@ -191,10 +191,10 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
 
       expect(() => {
         service.validateRateLimitConfig(config);
-      }).toThrow('rate_limit_per_minute must be a positive integer');
+      }).toThrow("rate_limit_per_minute must be a positive integer");
     });
 
-    it('should reject non-integer rate limits', () => {
+    it("should reject non-integer rate limits", () => {
       const config = {
         rate_limit_per_minute: 60.5,
         rate_limit_per_hour: 1000,
@@ -203,10 +203,10 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
 
       expect(() => {
         service.validateRateLimitConfig(config);
-      }).toThrow('rate_limit_per_minute must be a positive integer');
+      }).toThrow("rate_limit_per_minute must be a positive integer");
     });
 
-    it('should enforce minute <= hour <= day ordering', () => {
+    it("should enforce minute <= hour <= day ordering", () => {
       const config = {
         rate_limit_per_minute: 100,
         rate_limit_per_hour: 50,
@@ -215,10 +215,10 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
 
       expect(() => {
         service.validateRateLimitConfig(config);
-      }).toThrow('rate_limit_per_minute must be <= rate_limit_per_hour');
+      }).toThrow("rate_limit_per_minute must be <= rate_limit_per_hour");
     });
 
-    it('should enforce hour <= day ordering', () => {
+    it("should enforce hour <= day ordering", () => {
       const config = {
         rate_limit_per_minute: 50,
         rate_limit_per_hour: 1000,
@@ -227,27 +227,31 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
 
       expect(() => {
         service.validateRateLimitConfig(config);
-      }).toThrow('rate_limit_per_hour must be <= rate_limit_per_day');
+      }).toThrow("rate_limit_per_hour must be <= rate_limit_per_day");
     });
   });
 
-  describe('checkRateLimitInMemory', () => {
-    it('should allow request when under limit', () => {
+  describe("checkRateLimitInMemory", () => {
+    it("should allow request when under limit", () => {
       const config = {
         rate_limit_per_minute: 10,
         rate_limit_per_hour: 100,
         rate_limit_per_day: 1000,
       };
 
-      const result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      const result = service.checkRateLimitInMemory(
+        "webhook1",
+        "user1",
+        config,
+      );
 
       expect(result.allowed).toBe(true);
-      expect(result.reason).toBe('allowed');
+      expect(result.reason).toBe("allowed");
       expect(result.limits.per_minute.current).toBe(0); // Count before adding current request
       expect(result.limits.per_minute.max).toBe(10);
     });
 
-    it('should block request when minute limit exceeded', () => {
+    it("should block request when minute limit exceeded", () => {
       const config = {
         rate_limit_per_minute: 2,
         rate_limit_per_hour: 100,
@@ -255,20 +259,20 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       };
 
       // First request
-      let result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      let result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
 
       // Second request
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
 
       // Third request - should be blocked
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(false);
-      expect(result.reason).toBe('minute_limit_exceeded');
+      expect(result.reason).toBe("minute_limit_exceeded");
     });
 
-    it('should block request when hour limit exceeded', () => {
+    it("should block request when hour limit exceeded", () => {
       const config = {
         rate_limit_per_minute: 100,
         rate_limit_per_hour: 2,
@@ -276,20 +280,20 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       };
 
       // First request
-      let result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      let result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
 
       // Second request
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
 
       // Third request - should be blocked
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(false);
-      expect(result.reason).toBe('hour_limit_exceeded');
+      expect(result.reason).toBe("hour_limit_exceeded");
     });
 
-    it('should block request when day limit exceeded', () => {
+    it("should block request when day limit exceeded", () => {
       const config = {
         rate_limit_per_minute: 100,
         rate_limit_per_hour: 100,
@@ -297,20 +301,20 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       };
 
       // First request
-      let result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      let result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
 
       // Second request
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
 
       // Third request - should be blocked
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(false);
-      expect(result.reason).toBe('day_limit_exceeded');
+      expect(result.reason).toBe("day_limit_exceeded");
     });
 
-    it('should track separate limits for different webhooks', () => {
+    it("should track separate limits for different webhooks", () => {
       const config = {
         rate_limit_per_minute: 1,
         rate_limit_per_hour: 100,
@@ -318,23 +322,23 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       };
 
       // First webhook
-      let result1 = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      let result1 = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result1.allowed).toBe(true);
 
       // Second webhook - should also be allowed
-      let result2 = service.checkRateLimitInMemory('webhook2', 'user1', config);
+      let result2 = service.checkRateLimitInMemory("webhook2", "user1", config);
       expect(result2.allowed).toBe(true);
 
       // First webhook again - should be blocked
-      result1 = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result1 = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result1.allowed).toBe(false);
 
       // Second webhook again - should be blocked
-      result2 = service.checkRateLimitInMemory('webhook2', 'user1', config);
+      result2 = service.checkRateLimitInMemory("webhook2", "user1", config);
       expect(result2.allowed).toBe(false);
     });
 
-    it('should track separate limits for different users', () => {
+    it("should track separate limits for different users", () => {
       const config = {
         rate_limit_per_minute: 1,
         rate_limit_per_hour: 100,
@@ -342,27 +346,27 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       };
 
       // First user
-      let result1 = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      let result1 = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result1.allowed).toBe(true);
 
       // Second user - should also be allowed
-      let result2 = service.checkRateLimitInMemory('webhook1', 'user2', config);
+      let result2 = service.checkRateLimitInMemory("webhook1", "user2", config);
       expect(result2.allowed).toBe(true);
 
       // First user again - should be blocked
-      result1 = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result1 = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result1.allowed).toBe(false);
 
       // Second user again - should be blocked
-      result2 = service.checkRateLimitInMemory('webhook1', 'user2', config);
+      result2 = service.checkRateLimitInMemory("webhook1", "user2", config);
       expect(result2.allowed).toBe(false);
     });
   });
 
-  describe('cleanupCache', () => {
-    it('should remove expired cache entries', () => {
-      const cacheKey1 = 'webhook1:user1';
-      const cacheKey2 = 'webhook2:user2';
+  describe("cleanupCache", () => {
+    it("should remove expired cache entries", () => {
+      const cacheKey1 = "webhook1:user1";
+      const cacheKey2 = "webhook2:user2";
 
       // Add old entry (older than 1 hour)
       service.rateLimitCache.set(cacheKey1, {
@@ -383,8 +387,8 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       expect(service.rateLimitCache.has(cacheKey2)).toBe(true);
     });
 
-    it('should not remove recent cache entries', () => {
-      const cacheKey = 'webhook1:user1';
+    it("should not remove recent cache entries", () => {
+      const cacheKey = "webhook1:user1";
 
       service.rateLimitCache.set(cacheKey, {
         deliveries: [],
@@ -398,14 +402,14 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
     });
   });
 
-  describe('Rate Limit Enforcement - Property Tests', () => {
+  describe("Rate Limit Enforcement - Property Tests", () => {
     /**
      * Property: Rate limit enforcement consistency
      * For any webhook and user, the rate limiter should consistently enforce
      * configured limits across all time windows (minute, hour, day)
      * **Validates: Requirements 10.7**
      */
-    it('should enforce rate limits consistently across multiple requests', () => {
+    it("should enforce rate limits consistently across multiple requests", () => {
       const config = {
         rate_limit_per_minute: 5,
         rate_limit_per_hour: 50,
@@ -417,7 +421,11 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
 
       // Make 10 requests
       for (let i = 0; i < 10; i++) {
-        const result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+        const result = service.checkRateLimitInMemory(
+          "webhook1",
+          "user1",
+          config,
+        );
         if (result.allowed) {
           allowedCount++;
         } else {
@@ -436,7 +444,7 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
      * independent and not affect each other
      * **Validates: Requirements 10.7**
      */
-    it('should isolate rate limits between different webhooks', () => {
+    it("should isolate rate limits between different webhooks", () => {
       const config = {
         rate_limit_per_minute: 2,
         rate_limit_per_hour: 100,
@@ -444,19 +452,19 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
       };
 
       // Webhook 1 - make 3 requests
-      let result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      let result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(true);
-      result = service.checkRateLimitInMemory('webhook1', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook1", "user1", config);
       expect(result.allowed).toBe(false); // Blocked
 
       // Webhook 2 - should still allow requests
-      result = service.checkRateLimitInMemory('webhook2', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook2", "user1", config);
       expect(result.allowed).toBe(true);
-      result = service.checkRateLimitInMemory('webhook2', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook2", "user1", config);
       expect(result.allowed).toBe(true);
-      result = service.checkRateLimitInMemory('webhook2', 'user1', config);
+      result = service.checkRateLimitInMemory("webhook2", "user1", config);
       expect(result.allowed).toBe(false); // Blocked
     });
 
@@ -466,7 +474,7 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
      * match the configured limit before blocking begins
      * **Validates: Requirements 10.7**
      */
-    it('should allow exactly the configured number of requests', () => {
+    it("should allow exactly the configured number of requests", () => {
       const limits = [1, 5, 10, 50];
 
       for (const limit of limits) {
@@ -484,7 +492,7 @@ describe('WebhookRateLimiterService - Unit Tests', () => {
         for (let i = 0; i < limit + 5; i++) {
           const result = service.checkRateLimitInMemory(
             `webhook-${limit}`,
-            'user1',
+            "user1",
             config,
           );
           if (result.allowed) {

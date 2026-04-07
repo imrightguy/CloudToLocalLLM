@@ -15,16 +15,16 @@
  */
 
 import { jest, describe, it, expect } from "@jest/globals";
-import AlertTriggeringService from '../../services/api-backend/services/alert-triggering-service.js';
+import AlertTriggeringService from "../../services/api-backend/services/alert-triggering-service.js";
 
-describe('Property 11: Metrics Consistency', () => {
+describe("Property 11: Metrics Consistency", () => {
   /**
    * Property: For any sequence of metric values, the average should be
    * correctly calculated as sum / count
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain average consistency across metric values', () => {
+  it("should maintain average consistency across metric values", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 1;
       const values = Array.from({ length }, () =>
@@ -33,10 +33,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
       const expectedAverage = values.reduce((a, b) => a + b, 0) / values.length;
 
       expect(Math.abs(stats.average - expectedAverage)).toBeLessThan(0.01);
@@ -48,7 +48,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain max consistency across metric values', () => {
+  it("should maintain max consistency across metric values", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 1;
       const values = Array.from({ length }, () =>
@@ -57,10 +57,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
 
       values.forEach((value) => {
         expect(stats.max).toBeGreaterThanOrEqual(value);
@@ -75,7 +75,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain min consistency across metric values', () => {
+  it("should maintain min consistency across metric values", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 1;
       const values = Array.from({ length }, () =>
@@ -84,10 +84,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
 
       values.forEach((value) => {
         expect(stats.min).toBeLessThanOrEqual(value);
@@ -103,7 +103,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain latest value consistency', () => {
+  it("should maintain latest value consistency", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 1;
       const values = Array.from({ length }, () =>
@@ -112,10 +112,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
 
       expect(stats.latest).toBe(values[values.length - 1]);
     }
@@ -127,7 +127,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain count consistency', () => {
+  it("should maintain count consistency", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 1;
       const values = Array.from({ length }, () =>
@@ -136,10 +136,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
 
       expect(stats.count).toBeLessThanOrEqual(values.length);
       expect(stats.count).toBeLessThanOrEqual(service.bufferSize);
@@ -152,7 +152,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain sum consistency (average * count)', () => {
+  it("should maintain sum consistency (average * count)", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 1;
       const values = Array.from({ length }, () =>
@@ -161,10 +161,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
       const expectedSum = values.reduce((a, b) => a + b, 0);
       const calculatedSum = stats.average * stats.count;
 
@@ -178,7 +178,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain monotonic consistency for metric sequences', () => {
+  it("should maintain monotonic consistency for metric sequences", () => {
     for (let run = 0; run < 20; run++) {
       const length1 = Math.floor(Math.random() * 25) + 1;
       const length2 = Math.floor(Math.random() * 25) + 1;
@@ -193,18 +193,18 @@ describe('Property 11: Metrics Consistency', () => {
       const service2 = new AlertTriggeringService();
 
       values1.forEach((value) => {
-        service1.recordMetric('testMetric', value);
+        service1.recordMetric("testMetric", value);
       });
 
       values1.forEach((value) => {
-        service2.recordMetric('testMetric', value);
+        service2.recordMetric("testMetric", value);
       });
       values2.forEach((value) => {
-        service2.recordMetric('testMetric', value);
+        service2.recordMetric("testMetric", value);
       });
 
-      const stats1 = service1.getMetricStats('testMetric');
-      const stats2 = service2.getMetricStats('testMetric');
+      const stats1 = service1.getMetricStats("testMetric");
+      const stats2 = service2.getMetricStats("testMetric");
 
       // Count should increase
       expect(stats2.count).toBeGreaterThanOrEqual(stats1.count);
@@ -223,7 +223,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain consistency for identical metric values', () => {
+  it("should maintain consistency for identical metric values", () => {
     for (let run = 0; run < 20; run++) {
       const value = Math.floor(Math.random() * 10000);
       const count = Math.floor(Math.random() * 50) + 1;
@@ -231,10 +231,10 @@ describe('Property 11: Metrics Consistency', () => {
       const service = new AlertTriggeringService();
 
       for (let i = 0; i < count; i++) {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       }
 
-      const stats = service.getMetricStats('testMetric');
+      const stats = service.getMetricStats("testMetric");
 
       expect(stats.average).toBe(value);
       expect(stats.max).toBe(value);
@@ -249,7 +249,7 @@ describe('Property 11: Metrics Consistency', () => {
    *
    * Validates: Requirements 8.1, 8.2
    */
-  it('should maintain timestamp consistency', () => {
+  it("should maintain timestamp consistency", () => {
     for (let run = 0; run < 20; run++) {
       const length = Math.floor(Math.random() * 50) + 2; // At least 2 values
       const values = Array.from({ length }, () =>
@@ -258,10 +258,10 @@ describe('Property 11: Metrics Consistency', () => {
 
       const service = new AlertTriggeringService();
       values.forEach((value) => {
-        service.recordMetric('testMetric', value);
+        service.recordMetric("testMetric", value);
       });
 
-      const buffer = service.metricsBuffer.get('testMetric');
+      const buffer = service.metricsBuffer.get("testMetric");
 
       for (let i = 1; i < buffer.length; i++) {
         expect(buffer[i].timestamp).toBeGreaterThanOrEqual(

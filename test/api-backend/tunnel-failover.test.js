@@ -25,9 +25,9 @@
  */
 
 import { jest, describe, it, expect, beforeEach } from "@jest/globals";
-import { TunnelFailoverService } from '../../services/api-backend/services/tunnel-failover-service.js';
+import { TunnelFailoverService } from "../../services/api-backend/services/tunnel-failover-service.js";
 
-describe('Tunnel Failover Management - Unit Tests', () => {
+describe("Tunnel Failover Management - Unit Tests", () => {
   let failoverService;
 
   beforeEach(() => {
@@ -37,15 +37,15 @@ describe('Tunnel Failover Management - Unit Tests', () => {
     failoverService.endpointStates.clear();
   });
 
-  describe('Failure Tracking', () => {
-    it('should record endpoint failure', async () => {
-      const endpointId = 'test-endpoint-1';
-      const tunnelId = 'test-tunnel-1';
+  describe("Failure Tracking", () => {
+    it("should record endpoint failure", async () => {
+      const endpointId = "test-endpoint-1";
+      const tunnelId = "test-tunnel-1";
 
       const state = await failoverService.recordEndpointFailure(
         endpointId,
         tunnelId,
-        'Connection timeout',
+        "Connection timeout",
       );
 
       expect(state.failureCount).toBe(1);
@@ -53,23 +53,35 @@ describe('Tunnel Failover Management - Unit Tests', () => {
       expect(state.isUnhealthy).toBe(false);
     });
 
-    it('should increment failure count on multiple failures', async () => {
-      const endpointId = 'test-endpoint-2';
-      const tunnelId = 'test-tunnel-1';
+    it("should increment failure count on multiple failures", async () => {
+      const endpointId = "test-endpoint-2";
+      const tunnelId = "test-tunnel-1";
 
-      await failoverService.recordEndpointFailure(endpointId, tunnelId, 'Error 1');
-      await failoverService.recordEndpointFailure(endpointId, tunnelId, 'Error 2');
+      await failoverService.recordEndpointFailure(
+        endpointId,
+        tunnelId,
+        "Error 1",
+      );
+      await failoverService.recordEndpointFailure(
+        endpointId,
+        tunnelId,
+        "Error 2",
+      );
 
       const state = failoverService.endpointStates.get(endpointId);
       expect(state.failureCount).toBe(2);
     });
 
-    it('should record endpoint success and reduce failure count', async () => {
-      const endpointId = 'test-endpoint-3';
-      const tunnelId = 'test-tunnel-1';
+    it("should record endpoint success and reduce failure count", async () => {
+      const endpointId = "test-endpoint-3";
+      const tunnelId = "test-tunnel-1";
 
       // Record a failure
-      await failoverService.recordEndpointFailure(endpointId, tunnelId, 'Connection timeout');
+      await failoverService.recordEndpointFailure(
+        endpointId,
+        tunnelId,
+        "Connection timeout",
+      );
 
       let state = failoverService.endpointStates.get(endpointId);
       expect(state.failureCount).toBe(1);
@@ -81,8 +93,8 @@ describe('Tunnel Failover Management - Unit Tests', () => {
       expect(state.failureCount).toBe(0);
     });
 
-    it('should not go below zero on success', async () => {
-      const endpointId = 'test-endpoint-4';
+    it("should not go below zero on success", async () => {
+      const endpointId = "test-endpoint-4";
 
       await failoverService.recordEndpointSuccess(endpointId);
 
@@ -92,12 +104,12 @@ describe('Tunnel Failover Management - Unit Tests', () => {
     });
   });
 
-  describe('Weighted Selection Algorithm', () => {
-    it('should perform weighted selection correctly', () => {
+  describe("Weighted Selection Algorithm", () => {
+    it("should perform weighted selection correctly", () => {
       const endpoints = [
-        { id: '1', weight: 1 },
-        { id: '2', weight: 2 },
-        { id: '3', weight: 1 },
+        { id: "1", weight: 1 },
+        { id: "2", weight: 2 },
+        { id: "3", weight: 1 },
       ];
 
       const selections = {};
@@ -108,19 +120,19 @@ describe('Tunnel Failover Management - Unit Tests', () => {
 
       // Endpoint 2 with weight 2 should be selected roughly 50% of the time
       // Endpoints 1 and 3 with weight 1 should be selected roughly 25% each
-      expect(selections['2']).toBeGreaterThan(selections['1']);
-      expect(selections['2']).toBeGreaterThan(selections['3']);
+      expect(selections["2"]).toBeGreaterThan(selections["1"]);
+      expect(selections["2"]).toBeGreaterThan(selections["3"]);
     });
 
-    it('should handle single endpoint', () => {
-      const endpoints = [{ id: '1', weight: 1 }];
+    it("should handle single endpoint", () => {
+      const endpoints = [{ id: "1", weight: 1 }];
 
       const selected = failoverService.weightedSelection(endpoints);
 
-      expect(selected.id).toBe('1');
+      expect(selected.id).toBe("1");
     });
 
-    it('should handle empty endpoint list', () => {
+    it("should handle empty endpoint list", () => {
       const endpoints = [];
 
       const selected = failoverService.weightedSelection(endpoints);
@@ -128,24 +140,20 @@ describe('Tunnel Failover Management - Unit Tests', () => {
       expect(selected).toBeNull();
     });
 
-    it('should handle endpoints without weight property', () => {
-      const endpoints = [
-        { id: '1' },
-        { id: '2' },
-        { id: '3' },
-      ];
+    it("should handle endpoints without weight property", () => {
+      const endpoints = [{ id: "1" }, { id: "2" }, { id: "3" }];
 
       const selected = failoverService.weightedSelection(endpoints);
 
       expect(selected).toBeDefined();
-      expect(['1', '2', '3']).toContain(selected.id);
+      expect(["1", "2", "3"]).toContain(selected.id);
     });
   });
 
-  describe('Recovery Checks', () => {
-    it('should start recovery checks for endpoint', () => {
-      const endpointId = 'test-endpoint-1';
-      const tunnelId = 'test-tunnel-1';
+  describe("Recovery Checks", () => {
+    it("should start recovery checks for endpoint", () => {
+      const endpointId = "test-endpoint-1";
+      const tunnelId = "test-tunnel-1";
 
       failoverService.startRecoveryChecks(endpointId, tunnelId);
 
@@ -154,9 +162,9 @@ describe('Tunnel Failover Management - Unit Tests', () => {
       failoverService.stopRecoveryChecks(endpointId);
     });
 
-    it('should stop recovery checks for endpoint', () => {
-      const endpointId = 'test-endpoint-1';
-      const tunnelId = 'test-tunnel-1';
+    it("should stop recovery checks for endpoint", () => {
+      const endpointId = "test-endpoint-1";
+      const tunnelId = "test-tunnel-1";
 
       failoverService.startRecoveryChecks(endpointId, tunnelId);
       expect(failoverService.recoveryIntervals.has(endpointId)).toBe(true);
@@ -165,9 +173,9 @@ describe('Tunnel Failover Management - Unit Tests', () => {
       expect(failoverService.recoveryIntervals.has(endpointId)).toBe(false);
     });
 
-    it('should not start duplicate recovery checks', () => {
-      const endpointId = 'test-endpoint-1';
-      const tunnelId = 'test-tunnel-1';
+    it("should not start duplicate recovery checks", () => {
+      const endpointId = "test-endpoint-1";
+      const tunnelId = "test-tunnel-1";
 
       failoverService.startRecoveryChecks(endpointId, tunnelId);
       const firstInterval = failoverService.recoveryIntervals.get(endpointId);
@@ -181,14 +189,22 @@ describe('Tunnel Failover Management - Unit Tests', () => {
     });
   });
 
-  describe('Failure Count Reset', () => {
-    it('should reset endpoint failure count', async () => {
-      const endpointId = 'test-endpoint-5';
-      const tunnelId = 'test-tunnel-1';
+  describe("Failure Count Reset", () => {
+    it("should reset endpoint failure count", async () => {
+      const endpointId = "test-endpoint-5";
+      const tunnelId = "test-tunnel-1";
 
       // Record failures
-      await failoverService.recordEndpointFailure(endpointId, tunnelId, 'Error 1');
-      await failoverService.recordEndpointFailure(endpointId, tunnelId, 'Error 2');
+      await failoverService.recordEndpointFailure(
+        endpointId,
+        tunnelId,
+        "Error 1",
+      );
+      await failoverService.recordEndpointFailure(
+        endpointId,
+        tunnelId,
+        "Error 2",
+      );
 
       let state = failoverService.endpointStates.get(endpointId);
       expect(state.failureCount).toBe(2);
@@ -201,15 +217,15 @@ describe('Tunnel Failover Management - Unit Tests', () => {
     });
   });
 
-  describe('Cleanup', () => {
-    it('should cleanup all resources', () => {
-      const endpointId1 = 'test-endpoint-1';
-      const endpointId2 = 'test-endpoint-2';
-      const tunnelId = 'test-tunnel-1';
+  describe("Cleanup", () => {
+    it("should cleanup all resources", () => {
+      const endpointId1 = "test-endpoint-1";
+      const endpointId2 = "test-endpoint-2";
+      const tunnelId = "test-tunnel-1";
 
       failoverService.startRecoveryChecks(endpointId1, tunnelId);
       failoverService.startRecoveryChecks(endpointId2, tunnelId);
-      failoverService.recordEndpointFailure(endpointId1, tunnelId, 'Error');
+      failoverService.recordEndpointFailure(endpointId1, tunnelId, "Error");
 
       expect(failoverService.recoveryIntervals.size).toBe(2);
       expect(failoverService.endpointStates.size).toBe(1);

@@ -1,6 +1,14 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
-import { ProxyScalingService } from '../../services/api-backend/services/proxy-scaling-service.js';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  jest,
+} from "@jest/globals";
+import { ProxyScalingService } from "../../services/api-backend/services/proxy-scaling-service.js";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Property-Based Tests for Proxy Scaling
@@ -8,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
  * Validates: Requirements 5.5
  */
 
-describe('ProxyScalingService', () => {
+describe("ProxyScalingService", () => {
   let scalingService;
   let mockDb;
   const proxyId = uuidv4();
@@ -28,8 +36,8 @@ describe('ProxyScalingService', () => {
     jest.clearAllMocks();
   });
 
-  describe('Scaling Policy Management', () => {
-    it('should create a scaling policy with valid configuration', async () => {
+  describe("Scaling Policy Management", () => {
+    it("should create a scaling policy with valid configuration", async () => {
       const policy = {
         minReplicas: 1,
         maxReplicas: 10,
@@ -64,7 +72,11 @@ describe('ProxyScalingService', () => {
         ],
       });
 
-      const result = await scalingService.createScalingPolicy(proxyId, userId, policy);
+      const result = await scalingService.createScalingPolicy(
+        proxyId,
+        userId,
+        policy,
+      );
 
       expect(result).toBeDefined();
       expect(result.minReplicas).toBe(policy.minReplicas);
@@ -72,7 +84,7 @@ describe('ProxyScalingService', () => {
       expect(result.enabled).toBe(true);
     });
 
-    it('should reject policy with invalid minReplicas', async () => {
+    it("should reject policy with invalid minReplicas", async () => {
       const policy = {
         minReplicas: 0, // Invalid
         maxReplicas: 10,
@@ -85,12 +97,12 @@ describe('ProxyScalingService', () => {
         scaleDownCooldownSeconds: 300,
       };
 
-      await expect(scalingService.createScalingPolicy(proxyId, userId, policy)).rejects.toThrow(
-        'minReplicas must be a positive integer',
-      );
+      await expect(
+        scalingService.createScalingPolicy(proxyId, userId, policy),
+      ).rejects.toThrow("minReplicas must be a positive integer");
     });
 
-    it('should reject policy with maxReplicas less than minReplicas', async () => {
+    it("should reject policy with maxReplicas less than minReplicas", async () => {
       const policy = {
         minReplicas: 10,
         maxReplicas: 5, // Invalid
@@ -103,12 +115,12 @@ describe('ProxyScalingService', () => {
         scaleDownCooldownSeconds: 300,
       };
 
-      await expect(scalingService.createScalingPolicy(proxyId, userId, policy)).rejects.toThrow(
-        'maxReplicas must be >= minReplicas',
-      );
+      await expect(
+        scalingService.createScalingPolicy(proxyId, userId, policy),
+      ).rejects.toThrow("maxReplicas must be >= minReplicas");
     });
 
-    it('should reject policy with invalid CPU percent', async () => {
+    it("should reject policy with invalid CPU percent", async () => {
       const policy = {
         minReplicas: 1,
         maxReplicas: 10,
@@ -121,12 +133,12 @@ describe('ProxyScalingService', () => {
         scaleDownCooldownSeconds: 300,
       };
 
-      await expect(scalingService.createScalingPolicy(proxyId, userId, policy)).rejects.toThrow(
-        'targetCpuPercent must be between 0 and 100',
-      );
+      await expect(
+        scalingService.createScalingPolicy(proxyId, userId, policy),
+      ).rejects.toThrow("targetCpuPercent must be between 0 and 100");
     });
 
-    it('should reject policy with scaleDownThreshold >= scaleUpThreshold', async () => {
+    it("should reject policy with scaleDownThreshold >= scaleUpThreshold", async () => {
       const policy = {
         minReplicas: 1,
         maxReplicas: 10,
@@ -139,14 +151,16 @@ describe('ProxyScalingService', () => {
         scaleDownCooldownSeconds: 300,
       };
 
-      await expect(scalingService.createScalingPolicy(proxyId, userId, policy)).rejects.toThrow(
-        'scaleDownThreshold must be less than scaleUpThreshold',
+      await expect(
+        scalingService.createScalingPolicy(proxyId, userId, policy),
+      ).rejects.toThrow(
+        "scaleDownThreshold must be less than scaleUpThreshold",
       );
     });
   });
 
-  describe('Load Metrics Recording', () => {
-    it('should record load metrics with valid data', async () => {
+  describe("Load Metrics Recording", () => {
+    it("should record load metrics with valid data", async () => {
       const metrics = {
         currentReplicas: 3,
         cpuPercent: 65,
@@ -176,26 +190,30 @@ describe('ProxyScalingService', () => {
         ],
       });
 
-      const result = await scalingService.recordLoadMetrics(proxyId, userId, metrics);
+      const result = await scalingService.recordLoadMetrics(
+        proxyId,
+        userId,
+        metrics,
+      );
 
       expect(result).toBeDefined();
       expect(result.currentReplicas).toBe(metrics.currentReplicas);
       expect(result.loadScore).toBeDefined();
     });
 
-    it('should reject metrics with missing required fields', async () => {
+    it("should reject metrics with missing required fields", async () => {
       const metrics = {
         currentReplicas: 3,
         cpuPercent: 65,
         // Missing other required fields
       };
 
-      await expect(scalingService.recordLoadMetrics(proxyId, userId, metrics)).rejects.toThrow(
-        'Missing required metric',
-      );
+      await expect(
+        scalingService.recordLoadMetrics(proxyId, userId, metrics),
+      ).rejects.toThrow("Missing required metric");
     });
 
-    it('should calculate load score correctly', () => {
+    it("should calculate load score correctly", () => {
       const metrics = {
         cpuPercent: 40,
         memoryPercent: 30,
@@ -210,7 +228,7 @@ describe('ProxyScalingService', () => {
       expect(loadScore).toBeCloseTo(35.1, 1);
     });
 
-    it('should cap load score at 100', () => {
+    it("should cap load score at 100", () => {
       const metrics = {
         cpuPercent: 100,
         memoryPercent: 100,
@@ -224,8 +242,8 @@ describe('ProxyScalingService', () => {
     });
   });
 
-  describe('Scaling Evaluation', () => {
-    it('should return no scaling needed when load is within thresholds', async () => {
+  describe("Scaling Evaluation", () => {
+    it("should return no scaling needed when load is within thresholds", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -272,7 +290,7 @@ describe('ProxyScalingService', () => {
       expect(decision.shouldScale).toBe(false);
     });
 
-    it('should recommend scale up when load exceeds threshold', async () => {
+    it("should recommend scale up when load exceeds threshold", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -317,10 +335,10 @@ describe('ProxyScalingService', () => {
       const decision = await scalingService.evaluateScaling(proxyId, userId);
 
       expect(decision.shouldScale).toBe(true);
-      expect(decision.scalingAction).toBe('scale_up');
+      expect(decision.scalingAction).toBe("scale_up");
     });
 
-    it('should recommend scale down when load is below threshold', async () => {
+    it("should recommend scale down when load is below threshold", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -365,10 +383,10 @@ describe('ProxyScalingService', () => {
       const decision = await scalingService.evaluateScaling(proxyId, userId);
 
       expect(decision.shouldScale).toBe(true);
-      expect(decision.scalingAction).toBe('scale_down');
+      expect(decision.scalingAction).toBe("scale_down");
     });
 
-    it('should respect minimum replicas when scaling down', async () => {
+    it("should respect minimum replicas when scaling down", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -415,7 +433,7 @@ describe('ProxyScalingService', () => {
       expect(decision.shouldScale).toBe(false);
     });
 
-    it('should respect maximum replicas when scaling up', async () => {
+    it("should respect maximum replicas when scaling up", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -463,8 +481,8 @@ describe('ProxyScalingService', () => {
     });
   });
 
-  describe('Scaling Execution', () => {
-    it('should execute scaling with valid parameters', async () => {
+  describe("Scaling Execution", () => {
+    it("should execute scaling with valid parameters", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -490,18 +508,18 @@ describe('ProxyScalingService', () => {
             id: uuidv4(),
             proxy_id: proxyId,
             user_id: userId,
-            event_type: 'scale_up',
+            event_type: "scale_up",
             previous_replicas: 3,
             new_replicas: 5,
-            reason: 'High load detected',
-            triggered_by: 'auto',
+            reason: "High load detected",
+            triggered_by: "auto",
             load_metrics: JSON.stringify({
               cpuPercent: 90,
               memoryPercent: 85,
               requestRate: 1500,
               loadScore: 90,
             }),
-            status: 'in_progress',
+            status: "in_progress",
             error_message: null,
             duration_ms: null,
             created_at: new Date(),
@@ -514,18 +532,18 @@ describe('ProxyScalingService', () => {
         proxyId,
         userId,
         5,
-        'High load detected',
-        'auto',
+        "High load detected",
+        "auto",
       );
 
       expect(result).toBeDefined();
-      expect(result.eventType).toBe('scale_up');
+      expect(result.eventType).toBe("scale_up");
       expect(result.previousReplicas).toBe(3);
       expect(result.newReplicas).toBe(5);
-      expect(result.status).toBe('in_progress');
+      expect(result.status).toBe("in_progress");
     });
 
-    it('should reject scaling with invalid replica count', async () => {
+    it("should reject scaling with invalid replica count", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
@@ -546,42 +564,47 @@ describe('ProxyScalingService', () => {
       });
 
       await expect(
-        scalingService.executeScaling(proxyId, userId, 0, 'Test', 'manual'),
-      ).rejects.toThrow('newReplicaCount must be a positive integer');
+        scalingService.executeScaling(proxyId, userId, 0, "Test", "manual"),
+      ).rejects.toThrow("newReplicaCount must be a positive integer");
     });
   });
 
-  describe('Scaling Event Completion', () => {
-    it('should reject invalid status for scaling event', async () => {
+  describe("Scaling Event Completion", () => {
+    it("should reject invalid status for scaling event", async () => {
       const eventId = uuidv4();
 
       await expect(
-        scalingService.completeScalingEvent(eventId, 'invalid_status', null, 5000),
-      ).rejects.toThrow('status must be completed or failed');
+        scalingService.completeScalingEvent(
+          eventId,
+          "invalid_status",
+          null,
+          5000,
+        ),
+      ).rejects.toThrow("status must be completed or failed");
     });
 
-    it('should reject missing eventId', async () => {
-      await expect(scalingService.completeScalingEvent(null, 'completed', null, 5000)).rejects.toThrow(
-        'eventId is required',
-      );
+    it("should reject missing eventId", async () => {
+      await expect(
+        scalingService.completeScalingEvent(null, "completed", null, 5000),
+      ).rejects.toThrow("eventId is required");
     });
   });
 
-  describe('Scaling History and Summary', () => {
-    it('should retrieve scaling events for a proxy', async () => {
+  describe("Scaling History and Summary", () => {
+    it("should retrieve scaling events for a proxy", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
             id: uuidv4(),
             proxy_id: proxyId,
             user_id: userId,
-            event_type: 'scale_up',
+            event_type: "scale_up",
             previous_replicas: 3,
             new_replicas: 5,
-            reason: 'High load',
-            triggered_by: 'auto',
+            reason: "High load",
+            triggered_by: "auto",
             load_metrics: JSON.stringify({}),
-            status: 'completed',
+            status: "completed",
             error_message: null,
             duration_ms: 5000,
             created_at: new Date(),
@@ -596,20 +619,20 @@ describe('ProxyScalingService', () => {
       expect(events.length).toBeGreaterThan(0);
     });
 
-    it('should retrieve scaling summary', async () => {
+    it("should retrieve scaling summary", async () => {
       mockDb.query.mockResolvedValueOnce({
         rows: [
           {
             id: uuidv4(),
             proxy_id: proxyId,
             user_id: userId,
-            event_type: 'scale_up',
+            event_type: "scale_up",
             previous_replicas: 3,
             new_replicas: 5,
-            reason: 'High load',
-            triggered_by: 'auto',
+            reason: "High load",
+            triggered_by: "auto",
             load_metrics: JSON.stringify({}),
-            status: 'completed',
+            status: "completed",
             error_message: null,
             duration_ms: 5000,
             created_at: new Date(),
@@ -646,23 +669,23 @@ describe('ProxyScalingService', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    it('should throw error when proxyId is missing', async () => {
-      await expect(scalingService.createScalingPolicy(null, userId, {})).rejects.toThrow(
-        'proxyId and userId are required',
-      );
+  describe("Error Handling", () => {
+    it("should throw error when proxyId is missing", async () => {
+      await expect(
+        scalingService.createScalingPolicy(null, userId, {}),
+      ).rejects.toThrow("proxyId and userId are required");
     });
 
-    it('should throw error when userId is missing', async () => {
-      await expect(scalingService.createScalingPolicy(proxyId, null, {})).rejects.toThrow(
-        'proxyId and userId are required',
-      );
+    it("should throw error when userId is missing", async () => {
+      await expect(
+        scalingService.createScalingPolicy(proxyId, null, {}),
+      ).rejects.toThrow("proxyId and userId are required");
     });
 
-    it('should throw error when metrics is not an object', async () => {
-      await expect(scalingService.recordLoadMetrics(proxyId, userId, 'invalid')).rejects.toThrow(
-        'metrics must be an object',
-      );
+    it("should throw error when metrics is not an object", async () => {
+      await expect(
+        scalingService.recordLoadMetrics(proxyId, userId, "invalid"),
+      ).rejects.toThrow("metrics must be an object");
     });
   });
 });

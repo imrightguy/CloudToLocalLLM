@@ -1,7 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  jest,
+} from "@jest/globals";
 
-
-import fc from 'fast-check';
+import fc from "fast-check";
 
 /**
  * Feature: aws-eks-deployment, Property 4: Health Check Verification
@@ -12,7 +18,7 @@ import fc from 'fast-check';
  * deployment is marked as successful.
  */
 
-describe('Property 4: Health Check Verification', () => {
+describe("Property 4: Health Check Verification", () => {
   let mockKubernetesClient;
   let deploymentVerifier;
 
@@ -29,12 +35,15 @@ describe('Property 4: Health Check Verification', () => {
     // Simple deployment verifier that checks pod health
     deploymentVerifier = {
       verifyDeploymentHealth: async (deployment) => {
-        const pods = await mockKubernetesClient.getPods(deployment.namespace, deployment.name);
-        
+        const pods = await mockKubernetesClient.getPods(
+          deployment.namespace,
+          deployment.name,
+        );
+
         if (!pods || pods.length === 0) {
           return {
             healthy: false,
-            reason: 'No pods found',
+            reason: "No pods found",
             pods: [],
           };
         }
@@ -42,8 +51,11 @@ describe('Property 4: Health Check Verification', () => {
         const podStatuses = await Promise.all(
           pods.map(async (pod) => {
             const status = await mockKubernetesClient.getPodStatus(pod.name);
-            const readinessCheck = await mockKubernetesClient.checkReadinessProbe(pod.name);
-            const livenessCheck = await mockKubernetesClient.checkLivenessProbe(pod.name);
+            const readinessCheck =
+              await mockKubernetesClient.checkReadinessProbe(pod.name);
+            const livenessCheck = await mockKubernetesClient.checkLivenessProbe(
+              pod.name,
+            );
 
             return {
               name: pod.name,
@@ -52,17 +64,19 @@ describe('Property 4: Health Check Verification', () => {
               alive: livenessCheck.alive,
               conditions: status.conditions || [],
             };
-          })
+          }),
         );
 
         // All pods must be Running and pass readiness checks
         const allHealthy = podStatuses.every(
-          (pod) => pod.phase === 'Running' && pod.ready && pod.alive
+          (pod) => pod.phase === "Running" && pod.ready && pod.alive,
         );
 
         return {
           healthy: allHealthy,
-          reason: allHealthy ? 'All pods are healthy' : 'Some pods are not healthy',
+          reason: allHealthy
+            ? "All pods are healthy"
+            : "Some pods are not healthy",
           pods: podStatuses,
         };
       },
@@ -73,8 +87,8 @@ describe('Property 4: Health Check Verification', () => {
     jest.clearAllMocks();
   });
 
-  describe('Property: All pods reach Running state after deployment', () => {
-    it('should verify that all pods are in Running state', async () => {
+  describe("Property: All pods reach Running state after deployment", () => {
+    it("should verify that all pods are in Running state", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -84,38 +98,46 @@ describe('Property 4: Health Check Verification', () => {
           }),
           async (deployment) => {
             // Generate mock pods
-            const pods = Array.from({ length: deployment.replicaCount }, (_, i) => ({
-              name: `${deployment.deploymentName}-pod-${i}`,
-              namespace: deployment.namespace,
-            }));
+            const pods = Array.from(
+              { length: deployment.replicaCount },
+              (_, i) => ({
+                name: `${deployment.deploymentName}-pod-${i}`,
+                namespace: deployment.namespace,
+              }),
+            );
 
             // Mock all pods as Running and healthy
             mockKubernetesClient.getPods.mockResolvedValue(pods);
             mockKubernetesClient.getPodStatus.mockResolvedValue({
-              phase: 'Running',
+              phase: "Running",
               conditions: [
-                { type: 'Ready', status: 'True' },
-                { type: 'Initialized', status: 'True' },
+                { type: "Ready", status: "True" },
+                { type: "Initialized", status: "True" },
               ],
             });
-            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({ ready: true });
-            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({ alive: true });
+            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({
+              ready: true,
+            });
+            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({
+              alive: true,
+            });
 
-            const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+            const result =
+              await deploymentVerifier.verifyDeploymentHealth(deployment);
 
             // All pods should be healthy
             expect(result.healthy).toBe(true);
             expect(result.pods).toHaveLength(deployment.replicaCount);
-            expect(result.pods.every((p) => p.phase === 'Running')).toBe(true);
+            expect(result.pods.every((p) => p.phase === "Running")).toBe(true);
             expect(result.pods.every((p) => p.ready)).toBe(true);
             expect(result.pods.every((p) => p.alive)).toBe(true);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
-    it('should fail verification when any pod is not in Running state', async () => {
+    it("should fail verification when any pod is not in Running state", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -130,35 +152,53 @@ describe('Property 4: Health Check Verification', () => {
               return;
             }
 
-            const pods = Array.from({ length: deployment.replicaCount }, (_, i) => ({
-              name: `${deployment.deploymentName}-pod-${i}`,
-              namespace: deployment.namespace,
-            }));
+            const pods = Array.from(
+              { length: deployment.replicaCount },
+              (_, i) => ({
+                name: `${deployment.deploymentName}-pod-${i}`,
+                namespace: deployment.namespace,
+              }),
+            );
 
             mockKubernetesClient.getPods.mockResolvedValue(pods);
-            mockKubernetesClient.getPodStatus.mockImplementation(async (podName) => {
-              const podIndex = parseInt(podName.split('-').pop());
-              const phase = podIndex === deployment.failingPodIndex ? 'Pending' : 'Running';
-              return {
-                phase,
-                conditions: [{ type: 'Ready', status: phase === 'Running' ? 'True' : 'False' }],
-              };
+            mockKubernetesClient.getPodStatus.mockImplementation(
+              async (podName) => {
+                const podIndex = parseInt(podName.split("-").pop());
+                const phase =
+                  podIndex === deployment.failingPodIndex
+                    ? "Pending"
+                    : "Running";
+                return {
+                  phase,
+                  conditions: [
+                    {
+                      type: "Ready",
+                      status: phase === "Running" ? "True" : "False",
+                    },
+                  ],
+                };
+              },
+            );
+            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({
+              ready: true,
             });
-            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({ ready: true });
-            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({ alive: true });
+            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({
+              alive: true,
+            });
 
-            const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+            const result =
+              await deploymentVerifier.verifyDeploymentHealth(deployment);
 
             // Should fail because one pod is not Running
             expect(result.healthy).toBe(false);
-            expect(result.pods.some((p) => p.phase !== 'Running')).toBe(true);
-          }
+            expect(result.pods.some((p) => p.phase !== "Running")).toBe(true);
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
-    it('should fail verification when readiness probe fails', async () => {
+    it("should fail verification when readiness probe fails", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -172,34 +212,42 @@ describe('Property 4: Health Check Verification', () => {
               return;
             }
 
-            const pods = Array.from({ length: deployment.replicaCount }, (_, i) => ({
-              name: `${deployment.deploymentName}-pod-${i}`,
-              namespace: deployment.namespace,
-            }));
+            const pods = Array.from(
+              { length: deployment.replicaCount },
+              (_, i) => ({
+                name: `${deployment.deploymentName}-pod-${i}`,
+                namespace: deployment.namespace,
+              }),
+            );
 
             mockKubernetesClient.getPods.mockResolvedValue(pods);
             mockKubernetesClient.getPodStatus.mockResolvedValue({
-              phase: 'Running',
-              conditions: [{ type: 'Ready', status: 'True' }],
+              phase: "Running",
+              conditions: [{ type: "Ready", status: "True" }],
             });
-            mockKubernetesClient.checkReadinessProbe.mockImplementation(async (podName) => {
-              const podIndex = parseInt(podName.split('-').pop());
-              return { ready: podIndex !== deployment.failingPodIndex };
+            mockKubernetesClient.checkReadinessProbe.mockImplementation(
+              async (podName) => {
+                const podIndex = parseInt(podName.split("-").pop());
+                return { ready: podIndex !== deployment.failingPodIndex };
+              },
+            );
+            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({
+              alive: true,
             });
-            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({ alive: true });
 
-            const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+            const result =
+              await deploymentVerifier.verifyDeploymentHealth(deployment);
 
             // Should fail because one pod's readiness probe failed
             expect(result.healthy).toBe(false);
             expect(result.pods.some((p) => !p.ready)).toBe(true);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
-    it('should fail verification when liveness probe fails', async () => {
+    it("should fail verification when liveness probe fails", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -213,34 +261,42 @@ describe('Property 4: Health Check Verification', () => {
               return;
             }
 
-            const pods = Array.from({ length: deployment.replicaCount }, (_, i) => ({
-              name: `${deployment.deploymentName}-pod-${i}`,
-              namespace: deployment.namespace,
-            }));
+            const pods = Array.from(
+              { length: deployment.replicaCount },
+              (_, i) => ({
+                name: `${deployment.deploymentName}-pod-${i}`,
+                namespace: deployment.namespace,
+              }),
+            );
 
             mockKubernetesClient.getPods.mockResolvedValue(pods);
             mockKubernetesClient.getPodStatus.mockResolvedValue({
-              phase: 'Running',
-              conditions: [{ type: 'Ready', status: 'True' }],
+              phase: "Running",
+              conditions: [{ type: "Ready", status: "True" }],
             });
-            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({ ready: true });
-            mockKubernetesClient.checkLivenessProbe.mockImplementation(async (podName) => {
-              const podIndex = parseInt(podName.split('-').pop());
-              return { alive: podIndex !== deployment.failingPodIndex };
+            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({
+              ready: true,
             });
+            mockKubernetesClient.checkLivenessProbe.mockImplementation(
+              async (podName) => {
+                const podIndex = parseInt(podName.split("-").pop());
+                return { alive: podIndex !== deployment.failingPodIndex };
+              },
+            );
 
-            const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+            const result =
+              await deploymentVerifier.verifyDeploymentHealth(deployment);
 
             // Should fail because one pod's liveness probe failed
             expect(result.healthy).toBe(false);
             expect(result.pods.some((p) => !p.alive)).toBe(true);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
-    it('should fail verification when no pods are found', async () => {
+    it("should fail verification when no pods are found", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -250,20 +306,21 @@ describe('Property 4: Health Check Verification', () => {
           async (deployment) => {
             mockKubernetesClient.getPods.mockResolvedValue([]);
 
-            const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+            const result =
+              await deploymentVerifier.verifyDeploymentHealth(deployment);
 
             expect(result.healthy).toBe(false);
-            expect(result.reason).toBe('No pods found');
+            expect(result.reason).toBe("No pods found");
             expect(result.pods).toHaveLength(0);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
 
-  describe('Property: Pod health status is consistent across multiple checks', () => {
-    it('should return consistent results when checking pod health multiple times', async () => {
+  describe("Property: Pod health status is consistent across multiple checks", () => {
+    it("should return consistent results when checking pod health multiple times", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -273,23 +330,31 @@ describe('Property 4: Health Check Verification', () => {
             checkCount: fc.integer({ min: 2, max: 5 }),
           }),
           async (deployment) => {
-            const pods = Array.from({ length: deployment.replicaCount }, (_, i) => ({
-              name: `${deployment.deploymentName}-pod-${i}`,
-              namespace: deployment.namespace,
-            }));
+            const pods = Array.from(
+              { length: deployment.replicaCount },
+              (_, i) => ({
+                name: `${deployment.deploymentName}-pod-${i}`,
+                namespace: deployment.namespace,
+              }),
+            );
 
             mockKubernetesClient.getPods.mockResolvedValue(pods);
             mockKubernetesClient.getPodStatus.mockResolvedValue({
-              phase: 'Running',
-              conditions: [{ type: 'Ready', status: 'True' }],
+              phase: "Running",
+              conditions: [{ type: "Ready", status: "True" }],
             });
-            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({ ready: true });
-            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({ alive: true });
+            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({
+              ready: true,
+            });
+            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({
+              alive: true,
+            });
 
             // Check health multiple times
             const results = [];
             for (let i = 0; i < deployment.checkCount; i++) {
-              const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+              const result =
+                await deploymentVerifier.verifyDeploymentHealth(deployment);
               results.push(result);
             }
 
@@ -304,15 +369,15 @@ describe('Property 4: Health Check Verification', () => {
                 expect(pod.alive).toBe(firstResult.pods[index].alive);
               });
             });
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
 
-  describe('Property: Deployment verification respects pod count', () => {
-    it('should verify correct number of pods for any replica count', async () => {
+  describe("Property: Deployment verification respects pod count", () => {
+    it("should verify correct number of pods for any replica count", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
@@ -321,26 +386,34 @@ describe('Property 4: Health Check Verification', () => {
             replicaCount: fc.integer({ min: 1, max: 10 }),
           }),
           async (deployment) => {
-            const pods = Array.from({ length: deployment.replicaCount }, (_, i) => ({
-              name: `${deployment.deploymentName}-pod-${i}`,
-              namespace: deployment.namespace,
-            }));
+            const pods = Array.from(
+              { length: deployment.replicaCount },
+              (_, i) => ({
+                name: `${deployment.deploymentName}-pod-${i}`,
+                namespace: deployment.namespace,
+              }),
+            );
 
             mockKubernetesClient.getPods.mockResolvedValue(pods);
             mockKubernetesClient.getPodStatus.mockResolvedValue({
-              phase: 'Running',
-              conditions: [{ type: 'Ready', status: 'True' }],
+              phase: "Running",
+              conditions: [{ type: "Ready", status: "True" }],
             });
-            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({ ready: true });
-            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({ alive: true });
+            mockKubernetesClient.checkReadinessProbe.mockResolvedValue({
+              ready: true,
+            });
+            mockKubernetesClient.checkLivenessProbe.mockResolvedValue({
+              alive: true,
+            });
 
-            const result = await deploymentVerifier.verifyDeploymentHealth(deployment);
+            const result =
+              await deploymentVerifier.verifyDeploymentHealth(deployment);
 
             // Should have exactly the expected number of pods
             expect(result.pods).toHaveLength(deployment.replicaCount);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });

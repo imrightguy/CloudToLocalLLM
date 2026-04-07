@@ -13,33 +13,33 @@ import {
   initializeFailoverManager,
   getFailoverManager,
   closeFailoverManager,
-} from '../../services/api-backend/database/failover-manager.js';
+} from "../../services/api-backend/database/failover-manager.js";
 
-describe('FailoverManager', () => {
+describe("FailoverManager", () => {
   let manager;
 
   const primaryConfig = {
-    host: 'localhost',
+    host: "localhost",
     port: 5432,
-    database: 'test_db',
-    user: 'test_user',
-    password: 'test_password',
+    database: "test_db",
+    user: "test_user",
+    password: "test_password",
   };
 
   const standbyConfigs = [
     {
-      host: 'standby1.example.com',
+      host: "standby1.example.com",
       port: 5432,
-      database: 'test_db',
-      user: 'test_user',
-      password: 'test_password',
+      database: "test_db",
+      user: "test_user",
+      password: "test_password",
     },
     {
-      host: 'standby2.example.com',
+      host: "standby2.example.com",
       port: 5432,
-      database: 'test_db',
-      user: 'test_user',
-      password: 'test_password',
+      database: "test_db",
+      user: "test_user",
+      password: "test_password",
     },
   ];
 
@@ -53,8 +53,8 @@ describe('FailoverManager', () => {
     }
   });
 
-  describe('Initialization', () => {
-    test('should initialize with primary and standby configs', () => {
+  describe("Initialization", () => {
+    test("should initialize with primary and standby configs", () => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
 
@@ -63,7 +63,7 @@ describe('FailoverManager', () => {
       expect(manager.failoverState).toBe(FailoverState.UNKNOWN);
     });
 
-    test('should initialize health status maps', () => {
+    test("should initialize health status maps", () => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
 
@@ -81,14 +81,14 @@ describe('FailoverManager', () => {
       expect(manager.primaryHealthStatus.healthy).toBe(false);
     });
 
-    test('should initialize metrics', () => {
+    test("should initialize metrics", () => {
       expect(manager.metrics.failovers).toBe(0);
       expect(manager.metrics.healthCheckFailures).toBe(0);
       expect(manager.metrics.recoveries).toBe(0);
     });
   });
 
-  describe('Health Status Management', () => {
+  describe("Health Status Management", () => {
     beforeEach(() => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
@@ -104,7 +104,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should mark primary as healthy after successful check', () => {
+    test("should mark primary as healthy after successful check", () => {
       manager.primaryHealthStatus.healthy = true;
       manager.primaryHealthStatus.failureCount = 0;
       manager.primaryHealthStatus.lastHealthCheck = new Date().toISOString();
@@ -113,7 +113,7 @@ describe('FailoverManager', () => {
       expect(manager.primaryHealthStatus.failureCount).toBe(0);
     });
 
-    test('should increment failure count on health check failure', () => {
+    test("should increment failure count on health check failure", () => {
       manager.primaryHealthStatus.failureCount = 1;
 
       expect(manager.primaryHealthStatus.failureCount).toBe(1);
@@ -122,7 +122,7 @@ describe('FailoverManager', () => {
       expect(manager.primaryHealthStatus.failureCount).toBe(2);
     });
 
-    test('should mark primary as unhealthy after 3 failures', () => {
+    test("should mark primary as unhealthy after 3 failures", () => {
       manager.primaryHealthStatus.failureCount = 3;
       manager.primaryHealthStatus.healthy = false;
 
@@ -130,7 +130,7 @@ describe('FailoverManager', () => {
       expect(manager.primaryHealthStatus.failureCount).toBe(3);
     });
 
-    test('should reset failure count when primary recovers', () => {
+    test("should reset failure count when primary recovers", () => {
       manager.primaryHealthStatus.failureCount = 2;
       manager.primaryHealthStatus.healthy = true;
       manager.primaryHealthStatus.failureCount = 0;
@@ -139,7 +139,7 @@ describe('FailoverManager', () => {
       expect(manager.primaryHealthStatus.healthy).toBe(true);
     });
 
-    test('should track standby health status', () => {
+    test("should track standby health status", () => {
       const standbyStatus = manager.standbyHealthStatus.get(0);
       standbyStatus.healthy = true;
       standbyStatus.failureCount = 0;
@@ -150,7 +150,7 @@ describe('FailoverManager', () => {
     });
   });
 
-  describe('Failover State Management', () => {
+  describe("Failover State Management", () => {
     beforeEach(() => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
@@ -166,7 +166,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should be HEALTHY when primary and standbys are healthy', () => {
+    test("should be HEALTHY when primary and standbys are healthy", () => {
       manager.primaryHealthStatus.healthy = true;
 
       const standbyStatus = manager.standbyHealthStatus.get(0);
@@ -177,7 +177,7 @@ describe('FailoverManager', () => {
       expect(manager.failoverState).toBe(FailoverState.HEALTHY);
     });
 
-    test('should be DEGRADED when only primary is healthy', () => {
+    test("should be DEGRADED when only primary is healthy", () => {
       manager.primaryHealthStatus.healthy = true;
 
       for (let i = 0; i < manager.standbyPools.length; i++) {
@@ -190,7 +190,7 @@ describe('FailoverManager', () => {
       expect(manager.failoverState).toBe(FailoverState.DEGRADED);
     });
 
-    test('should be DEGRADED when only standby is healthy', () => {
+    test("should be DEGRADED when only standby is healthy", () => {
       manager.primaryHealthStatus.healthy = false;
 
       const standbyStatus = manager.standbyHealthStatus.get(0);
@@ -201,7 +201,7 @@ describe('FailoverManager', () => {
       expect(manager.failoverState).toBe(FailoverState.DEGRADED);
     });
 
-    test('should be UNKNOWN when no databases are healthy', () => {
+    test("should be UNKNOWN when no databases are healthy", () => {
       manager.primaryHealthStatus.healthy = false;
 
       for (let i = 0; i < manager.standbyPools.length; i++) {
@@ -215,7 +215,7 @@ describe('FailoverManager', () => {
     });
   });
 
-  describe('Failover Status Reporting', () => {
+  describe("Failover Status Reporting", () => {
     beforeEach(() => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
@@ -231,7 +231,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should return complete failover status', () => {
+    test("should return complete failover status", () => {
       manager.primaryHealthStatus.healthy = true;
       manager.primaryHealthStatus.responseTime = 10;
 
@@ -244,7 +244,7 @@ describe('FailoverManager', () => {
       expect(status.failoverCount).toBe(0);
     });
 
-    test('should include primary database information', () => {
+    test("should include primary database information", () => {
       const status = manager.getFailoverStatus();
 
       expect(status.primary.host).toBe(primaryConfig.host);
@@ -252,7 +252,7 @@ describe('FailoverManager', () => {
       expect(status.primary.database).toBe(primaryConfig.database);
     });
 
-    test('should include all standby information', () => {
+    test("should include all standby information", () => {
       const status = manager.getFailoverStatus();
 
       expect(Object.keys(status.standbys).length).toBe(2);
@@ -260,7 +260,7 @@ describe('FailoverManager', () => {
       expect(status.standbys.standby_1).toBeDefined();
     });
 
-    test('should track failover count', () => {
+    test("should track failover count", () => {
       manager.failoverCount = 2;
       manager.lastFailoverTime = new Date().toISOString();
 
@@ -271,7 +271,7 @@ describe('FailoverManager', () => {
     });
   });
 
-  describe('Metrics Collection', () => {
+  describe("Metrics Collection", () => {
     beforeEach(() => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
@@ -287,7 +287,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should return metrics with failover counts', () => {
+    test("should return metrics with failover counts", () => {
       manager.metrics.failovers = 1;
       manager.metrics.recoveries = 1;
       manager.metrics.healthCheckFailures = 2;
@@ -299,14 +299,14 @@ describe('FailoverManager', () => {
       expect(metrics.healthCheckFailures).toBe(2);
     });
 
-    test('should include failover status in metrics', () => {
+    test("should include failover status in metrics", () => {
       const metrics = manager.getMetrics();
 
       expect(metrics.failoverStatus).toBeDefined();
       expect(metrics.state).toBeDefined();
     });
 
-    test('should track state changes', () => {
+    test("should track state changes", () => {
       manager.metrics.lastStateChange = new Date().toISOString();
 
       const metrics = manager.getMetrics();
@@ -315,7 +315,7 @@ describe('FailoverManager', () => {
     });
   });
 
-  describe('Failover Triggering', () => {
+  describe("Failover Triggering", () => {
     beforeEach(() => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
@@ -331,7 +331,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should not trigger failover if primary is healthy', async () => {
+    test("should not trigger failover if primary is healthy", async () => {
       manager.primaryHealthStatus.healthy = true;
 
       await manager.triggerFailoverIfNeeded();
@@ -339,7 +339,7 @@ describe('FailoverManager', () => {
       expect(manager.failoverCount).toBe(0);
     });
 
-    test('should not trigger failover if no healthy standby available', async () => {
+    test("should not trigger failover if no healthy standby available", async () => {
       manager.primaryHealthStatus.healthy = false;
 
       for (let i = 0; i < manager.standbyPools.length; i++) {
@@ -352,7 +352,7 @@ describe('FailoverManager', () => {
       expect(manager.failoverCount).toBe(0);
     });
 
-    test('should increment failover count on successful failover', async () => {
+    test("should increment failover count on successful failover", async () => {
       manager.primaryHealthStatus.healthy = false;
 
       const standbyStatus = manager.standbyHealthStatus.get(0);
@@ -375,7 +375,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should update current primary index on failover', async () => {
+    test("should update current primary index on failover", async () => {
       manager.primaryHealthStatus.healthy = false;
 
       const standbyStatus = manager.standbyHealthStatus.get(1);
@@ -399,7 +399,7 @@ describe('FailoverManager', () => {
     });
   });
 
-  describe('Recovery Tracking', () => {
+  describe("Recovery Tracking", () => {
     beforeEach(() => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
@@ -415,7 +415,7 @@ describe('FailoverManager', () => {
       }
     });
 
-    test('should track recovery when primary comes back online', () => {
+    test("should track recovery when primary comes back online", () => {
       manager.primaryHealthStatus.healthy = false;
       manager.primaryHealthStatus.failureCount = 3;
 
@@ -428,7 +428,7 @@ describe('FailoverManager', () => {
       expect(manager.metrics.recoveries).toBe(1);
     });
 
-    test('should clear downSince when primary recovers', () => {
+    test("should clear downSince when primary recovers", () => {
       manager.primaryHealthStatus.downSince = new Date().toISOString();
 
       // Simulate recovery
@@ -437,7 +437,7 @@ describe('FailoverManager', () => {
       expect(manager.primaryHealthStatus.downSince).toBeNull();
     });
 
-    test('should set downSince when primary goes down', () => {
+    test("should set downSince when primary goes down", () => {
       manager.primaryHealthStatus.failureCount = 1;
       manager.primaryHealthStatus.downSince = new Date().toISOString();
 
@@ -445,8 +445,8 @@ describe('FailoverManager', () => {
     });
   });
 
-  describe('Health Check Interval Management', () => {
-    test('should start health check interval', () => {
+  describe("Health Check Interval Management", () => {
+    test("should start health check interval", () => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
 
@@ -467,7 +467,7 @@ describe('FailoverManager', () => {
       manager.stopHealthChecks();
     });
 
-    test('should stop health check interval', () => {
+    test("should stop health check interval", () => {
       manager.primaryConfig = primaryConfig;
       manager.standbyConfigs = standbyConfigs;
 

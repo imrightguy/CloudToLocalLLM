@@ -1,6 +1,5 @@
 /* global jest */
-import { jest } from '@jest/globals';
-
+import { jest } from "@jest/globals";
 
 /**
 
@@ -14,33 +13,33 @@ import { jest } from '@jest/globals';
  * **Validates: Requirements 8.9**
  */
 
-import express from 'express';
-import request from 'supertest';
+import express from "express";
+import request from "supertest";
 import {
   createLogRoutingMiddleware,
   routeLog,
   flushLogs,
   destroyLogRouting,
   logRouter,
-} from '../../services/api-backend/middleware/log-routing.js';
+} from "../../services/api-backend/middleware/log-routing.js";
 import {
   createStructuredLogEntry,
   logAggregationConfig,
-} from '../../services/api-backend/utils/log-aggregation.js';
+} from "../../services/api-backend/utils/log-aggregation.js";
 
-describe('Log Routing Integration', () => {
+describe("Log Routing Integration", () => {
   let app;
 
   beforeEach(() => {
     app = express();
     app.use(createLogRoutingMiddleware());
 
-    app.get('/test', (req, res) => {
-      res.json({ status: 'ok' });
+    app.get("/test", (req, res) => {
+      res.json({ status: "ok" });
     });
 
-    app.get('/error', (req, res) => {
-      res.status(500).json({ error: 'Internal Server Error' });
+    app.get("/error", (req, res) => {
+      res.status(500).json({ error: "Internal Server Error" });
     });
   });
 
@@ -49,39 +48,39 @@ describe('Log Routing Integration', () => {
     destroyLogRouting();
   });
 
-  describe('Log Routing Middleware', () => {
-    test('should attach log routing middleware to Express app', async () => {
-      const response = await request(app).get('/test');
+  describe("Log Routing Middleware", () => {
+    test("should attach log routing middleware to Express app", async () => {
+      const response = await request(app).get("/test");
 
       expect(response.status).toBe(200);
-      expect(response.body.status).toBe('ok');
+      expect(response.body.status).toBe("ok");
     });
 
-    test('should handle requests without errors', async () => {
-      const response = await request(app).get('/test');
+    test("should handle requests without errors", async () => {
+      const response = await request(app).get("/test");
 
       expect(response.status).toBe(200);
     });
 
-    test('should handle error responses', async () => {
-      const response = await request(app).get('/error');
+    test("should handle error responses", async () => {
+      const response = await request(app).get("/error");
 
       expect(response.status).toBe(500);
     });
   });
 
-  describe('Log Routing with Request Context', () => {
-    test('should route logs with correlation ID from request', () => {
+  describe("Log Routing with Request Context", () => {
+    test("should route logs with correlation ID from request", () => {
       const req = {
         headers: {
-          'x-correlation-id': 'corr-123',
+          "x-correlation-id": "corr-123",
         },
-        userId: 'user-456',
+        userId: "user-456",
       };
 
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       // Should not throw
@@ -90,14 +89,14 @@ describe('Log Routing Integration', () => {
       }).not.toThrow();
 
       // Log entry should be enriched
-      expect(logEntry.correlationId).toBe('corr-123');
-      expect(logEntry.userId).toBe('user-456');
+      expect(logEntry.correlationId).toBe("corr-123");
+      expect(logEntry.userId).toBe("user-456");
     });
 
-    test('should route logs without request context', () => {
+    test("should route logs without request context", () => {
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       // Should not throw
@@ -106,59 +105,59 @@ describe('Log Routing Integration', () => {
       }).not.toThrow();
     });
 
-    test('should preserve existing correlation ID in log entry', () => {
+    test("should preserve existing correlation ID in log entry", () => {
       const req = {
         headers: {
-          'x-correlation-id': 'corr-123',
+          "x-correlation-id": "corr-123",
         },
       };
 
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
-        correlationId: 'corr-existing',
+        level: "info",
+        message: "Test log",
+        correlationId: "corr-existing",
       });
 
       routeLog(logEntry, req);
 
       // Should preserve existing correlation ID
-      expect(logEntry.correlationId).toBe('corr-existing');
+      expect(logEntry.correlationId).toBe("corr-existing");
     });
   });
 
-  describe('Log Router Destination Selection', () => {
-    test('should select appropriate destinations for error logs', () => {
+  describe("Log Router Destination Selection", () => {
+    test("should select appropriate destinations for error logs", () => {
       const router = logRouter;
-      const destinations = router.getDestinations('error');
+      const destinations = router.getDestinations("error");
 
       expect(Array.isArray(destinations)).toBe(true);
       expect(destinations.length).toBeGreaterThan(0);
     });
 
-    test('should select appropriate destinations for info logs', () => {
+    test("should select appropriate destinations for info logs", () => {
       const router = logRouter;
-      const destinations = router.getDestinations('info');
+      const destinations = router.getDestinations("info");
 
       expect(Array.isArray(destinations)).toBe(true);
     });
 
-    test('should select appropriate destinations for warn logs', () => {
+    test("should select appropriate destinations for warn logs", () => {
       const router = logRouter;
-      const destinations = router.getDestinations('warn');
+      const destinations = router.getDestinations("warn");
 
       expect(Array.isArray(destinations)).toBe(true);
     });
 
-    test('should select appropriate destinations for debug logs', () => {
+    test("should select appropriate destinations for debug logs", () => {
       const router = logRouter;
-      const destinations = router.getDestinations('debug');
+      const destinations = router.getDestinations("debug");
 
       expect(Array.isArray(destinations)).toBe(true);
     });
   });
 
-  describe('Log Aggregation Configuration', () => {
-    test('should have valid Loki configuration', () => {
+  describe("Log Aggregation Configuration", () => {
+    test("should have valid Loki configuration", () => {
       expect(logAggregationConfig.loki).toBeDefined();
       expect(logAggregationConfig.loki.url).toBeDefined();
       expect(logAggregationConfig.loki.labels).toBeDefined();
@@ -166,7 +165,7 @@ describe('Log Routing Integration', () => {
       expect(logAggregationConfig.loki.batchTimeout).toBeGreaterThan(0);
     });
 
-    test('should have valid ELK configuration', () => {
+    test("should have valid ELK configuration", () => {
       expect(logAggregationConfig.elk).toBeDefined();
       expect(logAggregationConfig.elk.hosts).toBeDefined();
       expect(logAggregationConfig.elk.index).toBeDefined();
@@ -174,20 +173,20 @@ describe('Log Routing Integration', () => {
       expect(logAggregationConfig.elk.batchTimeout).toBeGreaterThan(0);
     });
 
-    test('should have valid routing configuration', () => {
+    test("should have valid routing configuration", () => {
       expect(logAggregationConfig.routing).toBeDefined();
-      expect(typeof logAggregationConfig.routing.errorToSentry).toBe('boolean');
-      expect(typeof logAggregationConfig.routing.errorToFile).toBe('boolean');
-      expect(typeof logAggregationConfig.routing.warningToFile).toBe('boolean');
-      expect(typeof logAggregationConfig.routing.infoToConsole).toBe('boolean');
+      expect(typeof logAggregationConfig.routing.errorToSentry).toBe("boolean");
+      expect(typeof logAggregationConfig.routing.errorToFile).toBe("boolean");
+      expect(typeof logAggregationConfig.routing.warningToFile).toBe("boolean");
+      expect(typeof logAggregationConfig.routing.infoToConsole).toBe("boolean");
     });
   });
 
-  describe('Log Flushing', () => {
-    test('should flush logs without errors', async () => {
+  describe("Log Flushing", () => {
+    test("should flush logs without errors", async () => {
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       routeLog(logEntry);
@@ -196,11 +195,11 @@ describe('Log Routing Integration', () => {
       await expect(flushLogs()).resolves.toBeUndefined();
     });
 
-    test('should handle multiple log entries', async () => {
+    test("should handle multiple log entries", async () => {
       const logEntries = [
-        createStructuredLogEntry({ level: 'info', message: 'Log 1' }),
-        createStructuredLogEntry({ level: 'warn', message: 'Log 2' }),
-        createStructuredLogEntry({ level: 'error', message: 'Log 3' }),
+        createStructuredLogEntry({ level: "info", message: "Log 1" }),
+        createStructuredLogEntry({ level: "warn", message: "Log 2" }),
+        createStructuredLogEntry({ level: "error", message: "Log 3" }),
       ];
 
       logEntries.forEach((entry) => routeLog(entry));
@@ -210,15 +209,15 @@ describe('Log Routing Integration', () => {
     });
   });
 
-  describe('Log Routing Cleanup', () => {
-    test('should destroy log routing resources', () => {
+  describe("Log Routing Cleanup", () => {
+    test("should destroy log routing resources", () => {
       // Should not throw
       expect(() => {
         destroyLogRouting();
       }).not.toThrow();
     });
 
-    test('should handle multiple destroy calls', () => {
+    test("should handle multiple destroy calls", () => {
       // Should not throw
       expect(() => {
         destroyLogRouting();
@@ -227,59 +226,59 @@ describe('Log Routing Integration', () => {
     });
   });
 
-  describe('Log Entry Enrichment', () => {
-    test('should enrich log entries with request metadata', () => {
+  describe("Log Entry Enrichment", () => {
+    test("should enrich log entries with request metadata", () => {
       const req = {
         headers: {
-          'x-correlation-id': 'corr-123',
-          'user-agent': 'test-agent',
+          "x-correlation-id": "corr-123",
+          "user-agent": "test-agent",
         },
-        userId: 'user-456',
-        id: 'req-789',
-        method: 'GET',
-        url: '/test',
+        userId: "user-456",
+        id: "req-789",
+        method: "GET",
+        url: "/test",
       };
 
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       routeLog(logEntry, req);
 
-      expect(logEntry.correlationId).toBe('corr-123');
-      expect(logEntry.userId).toBe('user-456');
-      expect(logEntry.requestId).toBe('req-789');
+      expect(logEntry.correlationId).toBe("corr-123");
+      expect(logEntry.userId).toBe("user-456");
+      expect(logEntry.requestId).toBe("req-789");
     });
 
-    test('should not overwrite existing enrichment data', () => {
+    test("should not overwrite existing enrichment data", () => {
       const req = {
         headers: {
-          'x-correlation-id': 'corr-new',
+          "x-correlation-id": "corr-new",
         },
-        userId: 'user-new',
+        userId: "user-new",
       };
 
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
-        correlationId: 'corr-existing',
-        userId: 'user-existing',
+        level: "info",
+        message: "Test log",
+        correlationId: "corr-existing",
+        userId: "user-existing",
       });
 
       routeLog(logEntry, req);
 
       // Should preserve existing values
-      expect(logEntry.correlationId).toBe('corr-existing');
-      expect(logEntry.userId).toBe('user-existing');
+      expect(logEntry.correlationId).toBe("corr-existing");
+      expect(logEntry.userId).toBe("user-existing");
     });
   });
 
-  describe('Log Routing Error Handling', () => {
-    test('should handle routing logs with invalid request object', () => {
+  describe("Log Routing Error Handling", () => {
+    test("should handle routing logs with invalid request object", () => {
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       // Should not throw with null request
@@ -293,14 +292,14 @@ describe('Log Routing Integration', () => {
       }).not.toThrow();
     });
 
-    test('should handle routing logs with missing headers', () => {
+    test("should handle routing logs with missing headers", () => {
       const req = {
         // No headers property
       };
 
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       // Should not throw
@@ -309,10 +308,10 @@ describe('Log Routing Integration', () => {
       }).not.toThrow();
     });
 
-    test('should handle routing logs with empty metadata', () => {
+    test("should handle routing logs with empty metadata", () => {
       const logEntry = createStructuredLogEntry({
-        level: 'info',
-        message: 'Test log',
+        level: "info",
+        message: "Test log",
       });
 
       // Should not throw
@@ -322,13 +321,13 @@ describe('Log Routing Integration', () => {
     });
   });
 
-  describe('Log Routing Performance', () => {
-    test('should route logs efficiently', () => {
+  describe("Log Routing Performance", () => {
+    test("should route logs efficiently", () => {
       const startTime = Date.now();
 
       for (let i = 0; i < 100; i++) {
         const logEntry = createStructuredLogEntry({
-          level: 'info',
+          level: "info",
           message: `Test log ${i}`,
         });
         routeLog(logEntry);
@@ -340,14 +339,14 @@ describe('Log Routing Integration', () => {
       expect(duration).toBeLessThan(1000);
     });
 
-    test('should handle concurrent log routing', async () => {
+    test("should handle concurrent log routing", async () => {
       const promises = [];
 
       for (let i = 0; i < 50; i++) {
         promises.push(
           Promise.resolve().then(() => {
             const logEntry = createStructuredLogEntry({
-              level: 'info',
+              level: "info",
               message: `Concurrent log ${i}`,
             });
             routeLog(logEntry);

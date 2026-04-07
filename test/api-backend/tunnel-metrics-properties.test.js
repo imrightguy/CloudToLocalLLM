@@ -23,9 +23,9 @@
  */
 
 import { jest, describe, it, expect, beforeEach } from "@jest/globals";
-import { TunnelHealthService } from '../../services/api-backend/services/tunnel-health-service.js';
+import { TunnelHealthService } from "../../services/api-backend/services/tunnel-health-service.js";
 
-describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
+describe("Tunnel Metrics Aggregation Property-Based Tests", () => {
   let tunnelHealthService;
 
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should maintain mathematical consistency in aggregated metrics', () => {
+  it("should maintain mathematical consistency in aggregated metrics", () => {
     // Test with multiple random request sequences
     for (let testRun = 0; testRun < 50; testRun++) {
       const tunnelId = `tunnel-metrics-${Date.now()}-${Math.random()}`;
@@ -121,7 +121,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should preserve metrics consistency through retrieval', () => {
+  it("should preserve metrics consistency through retrieval", () => {
     // Test with multiple random scenarios
     for (let testRun = 0; testRun < 20; testRun++) {
       const tunnelId = `tunnel-retrieve-${Date.now()}-${Math.random()}`;
@@ -165,7 +165,10 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
         (expectedSuccessCount / requestCount) * 100,
         1,
       );
-      expect(metrics.averageLatency).toBeCloseTo(expectedTotalLatency / requestCount, 0);
+      expect(metrics.averageLatency).toBeCloseTo(
+        expectedTotalLatency / requestCount,
+        0,
+      );
       expect(metrics.minLatency).toBe(expectedMinLatency);
       expect(metrics.maxLatency).toBe(expectedMaxLatency);
     }
@@ -179,7 +182,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should calculate 100% success rate for all successful requests', () => {
+  it("should calculate 100% success rate for all successful requests", () => {
     // Test with multiple scenarios
     for (let testRun = 0; testRun < 20; testRun++) {
       const tunnelId = `tunnel-success-${Date.now()}-${Math.random()}`;
@@ -214,7 +217,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should calculate 0% success rate for all failed requests', () => {
+  it("should calculate 0% success rate for all failed requests", () => {
     // Test with multiple scenarios
     for (let testRun = 0; testRun < 20; testRun++) {
       const tunnelId = `tunnel-failure-${Date.now()}-${Math.random()}`;
@@ -250,7 +253,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should handle single request metrics correctly', () => {
+  it("should handle single request metrics correctly", () => {
     // Test with multiple single request scenarios
     for (let testRun = 0; testRun < 20; testRun++) {
       const tunnelId = `tunnel-single-${Date.now()}-${Math.random()}`;
@@ -286,7 +289,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should return zero metrics for tunnels with no requests', () => {
+  it("should return zero metrics for tunnels with no requests", () => {
     // Test with multiple tunnels
     for (let testRun = 0; testRun < 10; testRun++) {
       const tunnelId = `tunnel-empty-${Date.now()}-${Math.random()}`;
@@ -313,7 +316,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should maintain consistent latency bounds', () => {
+  it("should maintain consistent latency bounds", () => {
     // Test with multiple scenarios
     for (let testRun = 0; testRun < 30; testRun++) {
       const tunnelId = `tunnel-latency-${Date.now()}-${Math.random()}`;
@@ -355,7 +358,7 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
    *
    * Validates: Requirements 4.6
    */
-  it('should accumulate metrics correctly for repeated recordings', () => {
+  it("should accumulate metrics correctly for repeated recordings", () => {
     const tunnelId = `tunnel-accumulate-${Date.now()}-${Math.random()}`;
 
     // Record first batch
@@ -371,7 +374,8 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
       statusCode: 200,
     });
 
-    const metricsAfterFirstBatch = tunnelHealthService.getAggregatedMetrics(tunnelId);
+    const metricsAfterFirstBatch =
+      tunnelHealthService.getAggregatedMetrics(tunnelId);
 
     // Record second batch
     tunnelHealthService.recordRequestMetrics(tunnelId, {
@@ -386,7 +390,8 @@ describe('Tunnel Metrics Aggregation Property-Based Tests', () => {
       statusCode: 200,
     });
 
-    const metricsAfterSecondBatch = tunnelHealthService.getAggregatedMetrics(tunnelId);
+    const metricsAfterSecondBatch =
+      tunnelHealthService.getAggregatedMetrics(tunnelId);
 
     // Verify accumulation
     expect(metricsAfterSecondBatch.requestCount).toBe(
