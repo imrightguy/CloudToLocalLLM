@@ -83,7 +83,7 @@ dependencies:
   nyxx: ^6.8.1
 
   # Rich message rendering
-  flutter_markdown: ^0.6.0
+  flutter_markdown_plus: ^1.0.7
 
   # Web interop for dart:js_interop
   web: ^1.0.0
