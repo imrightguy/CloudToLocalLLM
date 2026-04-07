@@ -60,6 +60,7 @@ class HermesProviderAdapter implements LlmProvider {
 
       String buffer = '';
       await for (final chunk in streamedResponse.stream.transform(utf8.decoder)) {
+        // ignore: use_string_buffers
         buffer += chunk;
         while (buffer.contains('\n\n')) {
           final eventEnd = buffer.indexOf('\n\n');

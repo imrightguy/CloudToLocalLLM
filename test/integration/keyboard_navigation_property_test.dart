@@ -160,7 +160,7 @@ void main() {
 
           final navigator =
               tester.state<NavigatorState>(find.byType(Navigator));
-          navigator.pushNamed('/test');
+          await navigator.pushNamed('/test');
           await tester.pumpAndSettle(const Duration(seconds: 1));
 
           await tester.sendKeyEvent(LogicalKeyboardKey.escape);
