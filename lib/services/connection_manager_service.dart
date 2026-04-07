@@ -15,8 +15,9 @@ import '../models/openclaw_provider.dart';
 import '../utils/logger.dart';
 import '../config/app_config.dart';
 import 'package:http/http.dart' as http;
+import 'hermes/hermes_streaming_service.dart';
 
-enum ConnectionType { none, local, cloud }
+enum ConnectionType { none, local, cloud, hermes }
 
 enum GatewayHealthStatus { unknown, healthy, unhealthy, connecting, error }
 
@@ -65,6 +66,7 @@ class ConnectionManagerService extends ChangeNotifier {
 
   String? _selectedModel;
   CloudStreamingService? _cloudStreamingService;
+  HermesStreamingService? _hermesStreamingService;
   List<String> _availableModels = [];
   WebSocketChannel? _wsChannel;
   final _messageController = StreamController<Map<String, dynamic>>.broadcast();
@@ -235,9 +237,30 @@ class ConnectionManagerService extends ChangeNotifier {
     return null;
   }
 
+  /// Preferred connection type — can be set from settings UI.
+  /// When null, auto-detection runs (currently defaults to local).
+  ConnectionType? _preferredConnectionType;
+
   ConnectionType getBestConnectionType() {
+    if (_preferredConnectionType != null) {
+      // If Hermes is preferred, check if it's reachable
+      if (_preferredConnectionType == ConnectionType.hermes) {
+        return ConnectionType.hermes;
+      }
+      return _preferredConnectionType!;
+    }
     return ConnectionType.local; // Always prefer local OpenClaw Gateway
   }
+
+  /// Set the preferred connection type (from settings UI).
+  void setPreferredConnectionType(ConnectionType type) {
+    _preferredConnectionType = type;
+    debugPrint('[ConnectionManager] Preferred connection type set to: $type');
+    notifyListeners();
+  }
+
+  /// Get the current preferred connection type.
+  ConnectionType? get preferredConnectionType => _preferredConnectionType;
 
   StreamingService? getStreamingService() {
     final connectionType = getBestConnectionType();
@@ -271,6 +294,16 @@ class ConnectionManagerService extends ChangeNotifier {
           });
         }
         return _cloudStreamingService;
+      case ConnectionType.hermes:
+        _hermesStreamingService ??= HermesStreamingService();
+        if (!_hermesStreamingService!.connection.isActive) {
+          _hermesStreamingService!.establishConnection().catchError((e) {
+            appLogger.warning(
+              '[ConnectionManager] Hermes streaming connection failed: $e',
+            );
+          });
+        }
+        return _hermesStreamingService;
       default:
         return null;
     }

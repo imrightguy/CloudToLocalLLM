@@ -24,6 +24,11 @@ class SettingsPreferenceService {
   static const String _gatewayAutoRestartKey = 'settings_gateway_auto_restart';
   static const String _gatewayUrlKey = 'settings_gateway_url';
 
+  // Hermes Settings
+  static const String _hermesEnabledKey = 'settings_hermes_enabled';
+  static const String _hermesUrlKey = 'settings_hermes_url';
+  static const String _hermesApiKeyKey = 'settings_hermes_api_key';
+
   // Mobile Settings
   static const String _biometricAuthKey = 'settings_biometric_auth_enabled';
   static const String _notificationsKey = 'settings_notifications_enabled';
@@ -288,6 +293,51 @@ class SettingsPreferenceService {
       await prefs.remove(_gatewayUrlKey);
     } else {
       await prefs.setString(_gatewayUrlKey, value);
+    }
+  }
+
+  // ==========================================================================
+  // Hermes Agent Settings
+  // ==========================================================================
+
+  /// Whether Hermes Agent backend is enabled
+  Future<bool> isHermesEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_hermesEnabledKey) ?? false;
+  }
+
+  Future<void> setHermesEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hermesEnabledKey, value);
+  }
+
+  /// Hermes API server URL (default: http://127.0.0.1:8642)
+  Future<String?> getHermesUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_hermesUrlKey);
+  }
+
+  Future<void> setHermesUrl(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null || value.isEmpty) {
+      await prefs.remove(_hermesUrlKey);
+    } else {
+      await prefs.setString(_hermesUrlKey, value);
+    }
+  }
+
+  /// Hermes API key (optional — Hermes doesn't require auth by default)
+  Future<String?> getHermesApiKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_hermesApiKeyKey);
+  }
+
+  Future<void> setHermesApiKey(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (value == null || value.isEmpty) {
+      await prefs.remove(_hermesApiKeyKey);
+    } else {
+      await prefs.setString(_hermesApiKeyKey, value);
     }
   }
 }

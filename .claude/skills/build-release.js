@@ -25,7 +25,7 @@ module.exports = {
       "flutter-linux": "flutter build linux --release",
       "flutter-windows": "flutter build windows --release",
       "docker-api": "docker build -f config/docker/Dockerfile.api-backend -t cloudtolocallm-api:latest .",
-      "docker-all": "docker build -f config/docker/Dockerfile.api-backend -t cloudtolocallm-api:latest . && docker build -f config/docker/Dockerfile.streaming-proxy -t cloudtolocallm-proxy:latest . && docker build -f config/docker/Dockerfile.sdk -t cloudtolocallm-sdk:latest .",
+      "docker-all": "docker build -f config/docker/Dockerfile.api-backend -t cloudtolocallm-api:latest . && docker build -f config/docker/Dockerfile.streaming-proxy -t cloudtolocallm-proxy:latest .",
     };
 
     const command = commands[buildType];

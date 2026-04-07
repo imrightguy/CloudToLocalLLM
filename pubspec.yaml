@@ -31,9 +31,6 @@ dependencies:
   drift: ^2.32.0
   sqlite3_flutter_libs: ^0.5.24
 
-  # Vector math for embeddings
-  vector_math: ^2.1.4
-
   # Error tracking
   url_launcher: ^6.3.2
 
@@ -79,10 +76,6 @@ dependencies:
   # SSH tunneling
   dartssh2: ^2.9.0
 
-  # LangChain Integration
-  langchain: ^0.8.0+1
-  langchain_ollama: ^0.4.1
-  langchain_community: ^0.4.0+1
   get_it: ^9.2.1
   logger: ^2.6.2
 
@@ -91,8 +84,6 @@ dependencies:
 
   # Rich message rendering
   flutter_markdown: ^0.6.0
-  flutter_highlight: ^0.7.0
-  cached_network_image: ^3.3.0
 
   # Web interop for dart:js_interop
   web: ^1.0.0
@@ -105,9 +96,8 @@ dependencies:
   local_notifier: ^0.1.6
   flutter_colorpicker: ^1.1.0
 
-  # Vision System - Camera and Permissions
+  # Vision System - Camera
   camera: ^0.12.0
-  permission_handler: ^12.0.1
 
   # Vision System - OCR
   tesseract_ocr: ^0.5.0

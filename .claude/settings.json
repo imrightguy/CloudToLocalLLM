@@ -128,6 +128,21 @@
       "args": [],
       "description": "Persistent knowledge store for project decisions, architectural notes, and ongoing work"
     },
+    "filesystem": {
+      "command": "/home/rightguy/.npm-global/bin/mcp-server-filesystem",
+      "args": ["/mnt/data/projects/CloudToLocalLLM"],
+      "description": "Filesystem operations scoped to project root"
+    },
+    "fetch": {
+      "command": "/home/rightguy/.local/bin/mcp-server-fetch",
+      "args": [],
+      "description": "Web content fetching and conversion for documentation/API lookup"
+    },
+    "git": {
+      "command": "/home/rightguy/.local/bin/mcp-server-git",
+      "args": ["--repository", "/mnt/data/projects/CloudToLocalLLM"],
+      "description": "Git repo operations: blame, diff, log, status, commit history"
+    },
     "sentry": {
       "command": "npx",
       "args": [
@@ -136,11 +151,6 @@
         "https://mcp.sentry.dev/mcp"
       ],
       "description": "Sentry error tracking and issue analysis with OAuth authentication"
-    },
-    "puppeteer": {
-      "command": "/home/rightguy/.npm-global/bin/mcp-server-puppeteer",
-      "args": [],
-      "description": "Browser automation for end-to-end testing and web scraping"
     }
   }
 }

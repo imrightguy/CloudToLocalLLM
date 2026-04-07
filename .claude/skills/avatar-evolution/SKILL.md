@@ -30,7 +30,7 @@ The avatar system (Pillar 3 of CloudToLocalLLM's Five Core Pillars) features an 
 - `lib/services/avatar/personality_engine.dart` - Trait management and evolution validation
 - `lib/services/avatar/evolution_tracker.dart` - Conversation depth analysis
 - `lib/features/avatar/avatar_widget.dart` - Visual avatar renderer
-- `lib/features/avatar/brain_insight_widget.dart` - Personality visualization
+- `lib/components/brain_insight_widget.dart` - Personality visualization
 - Router API: `GET /avatar/state`, `POST /avatar/traits`, `POST /avatar/evolution/request`
 
 ## Quick Start
@@ -362,7 +362,7 @@ echo "Tests complete!"
 
 ### Run Avatar Evolution Tests
 ```bash
-flutter test test/integration/avatar_evolution_flow_test.dart
+flutter test test/integration/evolution_flow_test.dart
 ```
 
 ### Run Personality Engine Tests
@@ -373,11 +373,6 @@ flutter test test/services/avatar/personality_engine_test.dart
 ### Run Evolution Tracker Tests
 ```bash
 flutter test test/services/avatar/evolution_tracker_test.dart
-```
-
-### Run Widget Tests
-```bash
-flutter test test/widgets/avatar_widget_test.dart
 ```
 
 ## Related Files

@@ -50,6 +50,7 @@ import 'package:cloudtolocalllm/services/router_server.dart';
 import 'package:cloudtolocalllm/services/providers/zhipu_adapter.dart';
 import 'package:cloudtolocalllm/services/providers/google_adapter.dart';
 import 'package:cloudtolocalllm/services/providers/moonshot_adapter.dart';
+import 'package:cloudtolocalllm/services/hermes/hermes_streaming_service.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 import 'package:cloudtolocalllm/services/agent_status_service.dart';
 import 'package:cloudtolocalllm/services/agent_lifecycle_service.dart';
@@ -233,6 +234,10 @@ Future<void> setupCoreServices() async {
         conscienceStorage: conscienceStorageService,
       );
       serviceLocator.registerSingleton<RouterServer>(routerServer);
+
+      // Hermes streaming service for direct Hermes API integration
+      final hermesStreamingService = HermesStreamingService();
+      serviceLocator.registerSingleton<HermesStreamingService>(hermesStreamingService);
 
       // Start the router server in the background.
       unawaited(routerServer.start());

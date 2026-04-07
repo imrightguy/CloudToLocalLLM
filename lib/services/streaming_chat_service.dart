@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
+import '../models/agent_event.dart';
 import '../models/conversation.dart';
 import '../models/message.dart';
 import '../models/streaming_message.dart';
 
 import 'streaming_service.dart';
+import 'hermes/hermes_streaming_service.dart';
 
 import 'connection_manager_service.dart';
 import 'conversation_storage_service.dart';
@@ -41,6 +43,12 @@ class StreamingChatService extends ChangeNotifier {
   StreamSubscription<StreamingMessage>? _currentStreamSubscription;
   String _currentStreamingMessageId = '';
 
+  // Agent event state (tool calls, lifecycle)
+  StreamSubscription<AgentEvent>? _agentEventSubscription;
+  final List<ToolCall> _activeToolCalls = [];
+  final List<ToolCall> _completedToolCalls = [];
+  bool _isAgentRunning = false;
+
   // Getters
   List<Conversation> get conversations => List.unmodifiable(_conversations);
   Conversation? get currentConversation => _currentConversation;
@@ -55,6 +63,21 @@ class StreamingChatService extends ChangeNotifier {
   /// Stream of current streaming reasoning for real-time UI updates
   Stream<String> get streamingReasoningStream =>
       _streamingReasoningSubject.stream;
+
+  /// Whether the agent is currently running a tool.
+  bool get isAgentRunning => _isAgentRunning;
+
+  /// Tool calls currently in progress.
+  List<ToolCall> get activeToolCalls => List.unmodifiable(_activeToolCalls);
+
+  /// Tool calls that completed during this streaming session.
+  List<ToolCall> get completedToolCalls => List.unmodifiable(_completedToolCalls);
+
+  /// All tool calls (active + completed) for this streaming session.
+  List<ToolCall> get allToolCalls => [
+        ..._completedToolCalls,
+        ..._activeToolCalls,
+      ];
 
   /// Initialize the service
   void _initializeService() {
@@ -295,6 +318,12 @@ class StreamingChatService extends ChangeNotifier {
       _setStreaming(true);
       _streamingContentSubject.add('');
       _streamingReasoningSubject.add('');
+      _activeToolCalls.clear();
+      _completedToolCalls.clear();
+      _isAgentRunning = false;
+
+      // If the streaming service is Hermes, also listen to agent events
+      _subscribeToAgentEvents(streamingService);
 
       final conversationId = _currentConversation!.id;
       final messageStream = streamingService.streamResponse(
@@ -398,6 +427,7 @@ class StreamingChatService extends ChangeNotifier {
     appLogger.debug('[StreamingChat] Streaming completed');
 
     _setStreaming(false);
+    _isAgentRunning = false;
 
     // Convert streaming message to final assistant message
     final finalContent = _streamingContentSubject.value;
@@ -412,10 +442,17 @@ class StreamingChatService extends ChangeNotifier {
 
     if (finalContent.isNotEmpty || finalReasoning.isNotEmpty) {
       final completeModel = _selectedModel ?? 'default';
+
+      // Build metadata with tool call history
+      final toolCallsMeta = _serializeToolCalls(includeLive: false);
+
       final assistantMessage = Message.assistant(
         content: finalContent,
         reasoning: finalReasoning.isNotEmpty ? finalReasoning : null,
         model: completeModel,
+        metadata: toolCallsMeta.isNotEmpty
+            ? {'tool_calls': toolCallsMeta}
+            : null,
       );
       _addMessageToCurrentConversation(assistantMessage);
 
@@ -426,46 +463,162 @@ class StreamingChatService extends ChangeNotifier {
           .warning('[StreamingChat] Streaming completed with empty content');
     }
 
-    // Clear streaming content
+    // Clear streaming content and agent state
     _streamingContentSubject.add('');
     _streamingReasoningSubject.add('');
     _currentStreamingMessageId = '';
+    _activeToolCalls.clear();
+    _completedToolCalls.clear();
+  }
+
+  /// Subscribe to agent events if the streaming service supports them.
+  void _subscribeToAgentEvents(StreamingService streamingService) {
+    _agentEventSubscription?.cancel();
+    _agentEventSubscription = null;
+
+    if (streamingService is HermesStreamingService) {
+      _agentEventSubscription = streamingService.agentEventStream.listen(
+        _handleAgentEvent,
+        onError: (e) {
+          appLogger.warning('[StreamingChat] Agent event stream error: $e');
+        },
+      );
+    }
+  }
+
+  /// Serialize tool calls to a list of maps for storage/UI.
+  List<Map<String, dynamic>> _serializeToolCalls({bool includeLive = true}) {
+    return allToolCalls.map((tc) {
+      final map = <String, dynamic>{
+        'name': tc.name,
+        'preview': tc.preview,
+        'isCompleted': tc.isCompleted,
+        'isError': tc.isError,
+        'duration': tc.durationSeconds,
+      };
+      if (includeLive) map['emoji'] = tc.emoji;
+      return map;
+    }).toList();
+  }
+
+  /// Handle a structured agent event.
+  void _handleAgentEvent(AgentEvent event) {
+    switch (event) {
+      case AgentToolStarted(:final tool, :final preview):
+        _isAgentRunning = true;
+        final toolCall = ToolCall(
+          name: tool,
+          preview: preview,
+          startedAt: DateTime.now(),
+        );
+        _activeToolCalls.add(toolCall);
+        appLogger.info('[StreamingChat] Tool started: $tool (${preview ?? "..."})');
+        notifyListeners();
+
+      case AgentToolCompleted(:final tool, :final duration, :final isError):
+        // Find the matching active tool call and complete it
+        final index = _activeToolCalls.indexWhere((tc) => tc.name == tool);
+        if (index != -1) {
+          final active = _activeToolCalls.removeAt(index);
+          final completed = active.copyWith(
+            isCompleted: true,
+            isError: isError,
+            durationSeconds: duration,
+          );
+          _completedToolCalls.add(completed);
+        }
+        // If no active tools remain, the agent is back to thinking/responding
+        if (_activeToolCalls.isEmpty) {
+          _isAgentRunning = false;
+        }
+        appLogger.info(
+          '[StreamingChat] Tool completed: $tool (${duration}s, error: $isError)',
+        );
+        notifyListeners();
+
+      case AgentRunCompleted(:final usage):
+        _isAgentRunning = false;
+        if (usage != null) {
+          appLogger.info(
+            '[StreamingChat] Run completed: ${usage['total_tokens']} tokens',
+          );
+        }
+
+      case AgentRunFailed(:final error):
+        _isAgentRunning = false;
+        appLogger.error('[StreamingChat] Run failed: $error');
+
+      case AgentReasoningAvailable():
+        // Reasoning is already handled via the StreamingMessage text pipeline.
+        break;
+
+      case AgentMessageDelta():
+        // Text deltas are already handled via the StreamingMessage text pipeline.
+        break;
+
+      case AgentUnknown(:final eventType):
+        appLogger.debug('[StreamingChat] Unknown agent event: $eventType');
+    }
+
+    // Update the streaming message metadata with tool calls for live UI
+    _updateStreamingMessageWithToolCalls();
+  }
+
+  /// Update the streaming message's metadata with tool calls for live UI.
+  void _updateStreamingMessageWithToolCalls() {
+    final toolCallsMeta = _serializeToolCalls(includeLive: true);
+    if (toolCallsMeta.isEmpty) return;
+
+    _updateMessageInConversation(
+      _currentStreamingMessageId,
+      (msg) => msg.copyWith(
+        metadata: {
+          ...?msg.metadata,
+          'tool_calls': toolCallsMeta,
+          'isAgentRunning': _isAgentRunning,
+        },
+      ),
+    );
+  }
+
+  /// Find a message in the current conversation and update it.
+  /// Returns true if the message was found and updated.
+  bool _updateMessageInConversation(
+    String messageId,
+    Message Function(Message) updater,
+  ) {
+    if (_currentConversation == null || messageId.isEmpty) return false;
+
+    final index =
+        _conversations.indexWhere((c) => c.id == _currentConversation!.id);
+    if (index == -1) return false;
+
+    final conversation = _conversations[index];
+    final msgIndex =
+        conversation.messages.indexWhere((m) => m.id == messageId);
+    if (msgIndex == -1) return false;
+
+    final updatedMessage = updater(conversation.messages[msgIndex]);
+    final updatedMessages = List<Message>.from(conversation.messages);
+    updatedMessages[msgIndex] = updatedMessage;
+
+    final updatedConversation = conversation.copyWith(
+      messages: updatedMessages,
+      updatedAt: DateTime.now(),
+    );
+
+    _conversations[index] = updatedConversation;
+    _currentConversation = updatedConversation;
+    notifyListeners();
+    return true;
   }
 
   /// Update the streaming message content
   void _updateStreamingMessage(String content, String? reasoning) {
-    if (_currentConversation == null || _currentStreamingMessageId.isEmpty) {
-      return;
-    }
-
-    final conversationId = _currentConversation!.id;
-    final index = _conversations.indexWhere((c) => c.id == conversationId);
-
-    if (index != -1) {
-      final conversation = _conversations[index];
-      final messageIndex = conversation.messages.indexWhere(
-        (m) => m.id == _currentStreamingMessageId,
-      );
-
-      if (messageIndex != -1) {
-        final updatedMessage = conversation.messages[messageIndex].copyWith(
-          content: content,
-          reasoning: reasoning,
-        );
-
-        final updatedMessages = List<Message>.from(conversation.messages);
-        updatedMessages[messageIndex] = updatedMessage;
-
-        final updatedConversation = conversation.copyWith(
-          messages: updatedMessages,
-          updatedAt: DateTime.now(),
-        );
-
-        _conversations[index] = updatedConversation;
-        _currentConversation = updatedConversation;
-        notifyListeners();
-      }
-    }
+    _updateMessageInConversation(
+      _currentStreamingMessageId,
+      (msg) => msg.copyWith(content: content, reasoning: reasoning),
+    );
   }
 
   /// Auto-rename the conversation if it's the first message
@@ -595,7 +748,12 @@ class StreamingChatService extends ChangeNotifier {
   void _cancelCurrentStream() {
     _currentStreamSubscription?.cancel();
     _currentStreamSubscription = null;
+    _agentEventSubscription?.cancel();
+    _agentEventSubscription = null;
     _setStreaming(false);
+    _isAgentRunning = false;
+    _activeToolCalls.clear();
+    _completedToolCalls.clear();
     _streamingContentSubject.add('');
     _streamingReasoningSubject.add('');
   }

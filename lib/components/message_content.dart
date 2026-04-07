@@ -15,11 +15,17 @@ class MessageContent extends StatelessWidget {
         message.reasoning != null && message.reasoning!.isNotEmpty;
     final hasContent = message.content.isNotEmpty;
     final hasMarkdown = _hasMarkdown(message.content);
+    final toolCalls = _extractToolCalls();
+    final isAgentRunning = message.metadata?['isAgentRunning'] == true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (hasReasoning) _buildReasoning(context),
+        // Tool calls — show above the response content
+        if (toolCalls.isNotEmpty) _buildToolCalls(context, toolCalls),
+        // Active agent indicator (tool running but no completed text yet)
+        if (isAgentRunning && !hasContent) _buildAgentActivityIndicator(context),
         if (hasContent)
           hasMarkdown
               ? _buildMarkdownContent(context, message.content)
@@ -30,9 +36,19 @@ class MessageContent extends StatelessWidget {
                       .bodyMedium
                       ?.copyWith(color: AppTheme.textColor, height: 1.5),
                 ),
-        if (message.isStreaming && !hasContent) _buildTypingIndicator(context),
+        if (message.isStreaming && !hasContent && !isAgentRunning)
+          _buildTypingIndicator(context),
       ],
     );
+  }
+
+  /// Extract tool call metadata from the message.
+  List<Map<String, dynamic>> _extractToolCalls() {
+    final meta = message.metadata;
+    if (meta == null) return [];
+    final toolCalls = meta['tool_calls'];
+    if (toolCalls is! List) return [];
+    return toolCalls.cast<Map<String, dynamic>>();
   }
 
   bool _hasMarkdown(String content) {
@@ -43,6 +59,159 @@ class MessageContent extends StatelessWidget {
         content.contains('* ') ||
         content.contains('![');
   }
+
+  // ---------------------------------------------------------------------------
+  // Tool calls UI
+  // ---------------------------------------------------------------------------
+
+  Widget _buildToolCalls(
+      BuildContext context, List<Map<String, dynamic>> toolCalls) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 4),
+        ...toolCalls.map((tc) => _buildToolCallCard(context, tc)),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildToolCallCard(BuildContext context, Map<String, dynamic> tc) {
+    final name = tc['name'] as String? ?? 'unknown';
+    final preview = tc['preview'] as String?;
+    final isCompleted = tc['isCompleted'] as bool? ?? false;
+    final isError = tc['isError'] as bool? ?? false;
+    final duration = tc['duration'] as double? ?? 0.0;
+    final emoji = tc['emoji'] as String? ?? '🔧';
+
+    // Color coding
+    Color borderColor;
+    Color backgroundColor;
+    Widget trailing;
+
+    if (isError) {
+      borderColor = AppTheme.dangerColor.withValues(alpha: 0.5);
+      backgroundColor = AppTheme.dangerColor.withValues(alpha: 0.05);
+      trailing = const Icon(Icons.error_outline, size: 14, color: Colors.red);
+    } else if (!isCompleted) {
+      // Still running — pulsing indicator
+      borderColor = AppTheme.primaryColor.withValues(alpha: 0.5);
+      backgroundColor = AppTheme.primaryColor.withValues(alpha: 0.05);
+      trailing = SizedBox(
+        width: 14,
+        height: 14,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+        ),
+      );
+    } else {
+      borderColor = AppTheme.secondaryColor.withValues(alpha: 0.3);
+      backgroundColor = Colors.white.withValues(alpha: 0.03);
+      trailing = const Icon(Icons.check_circle_outline,
+          size: 14, color: Colors.green);
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      name,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textColor,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'monospace',
+                            fontSize: 11,
+                          ),
+                    ),
+                    if (isCompleted && duration > 0) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        '${duration.toStringAsFixed(1)}s',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppTheme.textColorLight,
+                              fontSize: 10,
+                            ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (preview != null && preview.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      preview,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textColorLight,
+                            fontSize: 11,
+                          ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAgentActivityIndicator(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: AppTheme.primaryColor.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Agent working...',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.primaryColor,
+                  fontStyle: FontStyle.italic,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Reasoning
+  // ---------------------------------------------------------------------------
 
   Widget _buildReasoning(BuildContext context) {
     return Container(
@@ -84,6 +253,10 @@ class MessageContent extends StatelessWidget {
       ),
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Markdown content
+  // ---------------------------------------------------------------------------
 
   Widget _buildMarkdownContent(BuildContext context, String content) {
     return MarkdownBody(
@@ -151,6 +324,10 @@ class MessageContent extends StatelessWidget {
       },
     );
   }
+
+  // ---------------------------------------------------------------------------
+  // Image widgets
+  // ---------------------------------------------------------------------------
 
   Widget _buildImageWidget(String url, String? alt) {
     if (url.startsWith('data:image')) {
@@ -282,6 +459,10 @@ class MessageContent extends StatelessWidget {
       );
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Typing indicator
+  // ---------------------------------------------------------------------------
 
   Widget _buildTypingIndicator(BuildContext context) {
     return Row(

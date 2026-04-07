@@ -86,6 +86,12 @@ class AppConfig {
   // Default values (compile-time fallbacks)
   static const String _defaultGatewayHost = '127.0.0.1';
   static const int _defaultGatewayPort = 18789;
+
+  // Hermes Agent API server defaults
+  static const String defaultHermesHost = '127.0.0.1';
+  static const int defaultHermesPort = 8642;
+  static String get defaultHermesUrl =>
+      'http://$defaultHermesHost:$defaultHermesPort';
   static const Duration gatewayTimeout = Duration(seconds: 60);
 
   // Runtime values (initialized from env vars or defaults)

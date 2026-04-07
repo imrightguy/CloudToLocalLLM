@@ -1,281 +1,77 @@
 ---
 name: senior-fullstack
-description: Fullstack development toolkit with project scaffolding for Next.js/FastAPI/MERN/Django stacks and code quality analysis. Use when scaffolding new projects, analyzing codebase quality, or implementing fullstack architecture patterns.
+description: Fullstack development for CloudToLocalLLM — Flutter frontend + Node.js backend services. Use when scaffolding features that span frontend and backend, setting up API endpoints with Flutter integration, or implementing cross-cutting concerns.
 ---
 
-# Senior Fullstack
+# Fullstack Development (Flutter + Node.js)
 
-Fullstack development skill with project scaffolding and code quality analysis tools.
+Patterns for building features that span the Flutter app and Node.js backend services.
 
----
+## Architecture Overview
 
-## Table of Contents
+**Frontend**: Flutter 3.5+ (Dart, Linux/Windows/Web)
+**Backend**: Node.js 22+ (ESM, Express 5 at `services/api-backend/`, Express 4 at `backend/auth/`)
+**Database**: SQLite via Drift (Flutter local), PostgreSQL (backend)
+**Auth**: Auth0 JWT (RS256)
+**Router**: Embedded shelf HTTP server in Flutter on port 1337
 
-- [Trigger Phrases](#trigger-phrases)
-- [Tools](#tools)
-- [Workflows](#workflows)
-- [Reference Guides](#reference-guides)
+## Adding a Full-Stack Feature
 
----
+### 1. Backend API Endpoint
 
-## Trigger Phrases
+Add route in `services/api-backend/routes/` following the pattern in `api-endpoint` skill:
+- Auth0 JWT middleware via `requireAuth`
+- Zod request validation
+- Winston logging
+- Swagger/OpenAPI docs comment
 
-Use this skill when you hear:
-- "scaffold a new project"
-- "create a Next.js app"
-- "set up FastAPI with React"
-- "analyze code quality"
-- "check for security issues in codebase"
-- "what stack should I use"
-- "set up a fullstack project"
-- "generate project boilerplate"
+### 2. Frontend Service
 
----
+Add service in `lib/services/` following the `flutter-service` skill pattern:
+- `ChangeNotifier` for reactive state
+- Register in `lib/di/locator.dart` (core or auth phase)
+- Use `debugPrint` for logging, never `print()`
 
-## Tools
+### 3. Connect Frontend → Backend
 
-### Project Scaffolder
+The Flutter app talks to the backend via:
+- **Direct HTTP**: `http` or `dio` packages to `localhost:8080` (API Backend)
+- **Router**: Embedded shelf server on `localhost:1337` for LLM routing
+- **WebSocket**: Streaming proxy on `localhost:3001` for real-time data
+- **SSH Tunnel**: `lib/services/tunnel/` for remote connections
 
-Generates fullstack project structures with boilerplate code.
+### 4. Database Considerations
 
-**Supported Templates:**
-- `nextjs` - Next.js 14+ with App Router, TypeScript, Tailwind CSS
-- `fastapi-react` - FastAPI backend + React frontend + PostgreSQL
-- `mern` - MongoDB, Express, React, Node.js with TypeScript
-- `django-react` - Django REST Framework + React frontend
+- **Local state**: Add tables to `lib/database/drift_local_brain.dart`, then run `dart run build_runner build --delete-conflicting-outputs`
+- **Server state**: Add migrations to `services/api-backend/database/migrate-pg.js`
 
-**Usage:**
+## Service Boundaries
 
-```bash
-# List available templates
-python scripts/project_scaffolder.py --list-templates
+| What | Where | Port |
+|------|-------|------|
+| REST API | `services/api-backend/` | 8080 |
+| WebSocket proxy | `services/streaming-proxy/` | 3001 |
+| LLM Router | `lib/services/router_server.dart` | 1337 |
+| Auth validation | `backend/auth/` | — |
+| SDK | `services/sdk/` | — |
 
-# Create Next.js project
-python scripts/project_scaffolder.py nextjs my-app
+## Key Conventions
 
-# Create FastAPI + React project
-python scripts/project_scaffolder.py fastapi-react my-api
+- **ESM everywhere** in backend: `import`/`export`, not `require()`
+- **Express 5** in api-backend, **Express 4** in auth backend — different middleware APIs
+- **No `dart:io`** in shared Flutter code — use conditional imports
+- **GetIt DI** — always `di.serviceLocator<T>()`, never instantiate services directly
+- **Tests**: `*_test.dart` in `test/` (Flutter), `*.test.js` in `test/api-backend/` (Jest)
+- **Node tests need** `--experimental-vm-modules` (already in npm scripts)
 
-# Create MERN stack project
-python scripts/project_scaffolder.py mern my-project
-
-# Create Django + React project
-python scripts/project_scaffolder.py django-react my-app
-
-# Specify output directory
-python scripts/project_scaffolder.py nextjs my-app --output ./projects
-
-# JSON output
-python scripts/project_scaffolder.py nextjs my-app --json
-```
-
-**Parameters:**
-
-| Parameter | Description |
-|-----------|-------------|
-| `template` | Template name (nextjs, fastapi-react, mern, django-react) |
-| `project_name` | Name for the new project directory |
-| `--output, -o` | Output directory (default: current directory) |
-| `--list-templates, -l` | List all available templates |
-| `--json` | Output in JSON format |
-
-**Output includes:**
-- Project structure with all necessary files
-- Package configurations (package.json, requirements.txt)
-- TypeScript configuration
-- Docker and docker-compose setup
-- Environment file templates
-- Next steps for running the project
-
----
-
-### Code Quality Analyzer
-
-Analyzes fullstack codebases for quality issues.
-
-**Analysis Categories:**
-- Security vulnerabilities (hardcoded secrets, injection risks)
-- Code complexity metrics (cyclomatic complexity, nesting depth)
-- Dependency health (outdated packages, known CVEs)
-- Test coverage estimation
-- Documentation quality
-
-**Usage:**
-
-```bash
-# Analyze current directory
-python scripts/code_quality_analyzer.py .
-
-# Analyze specific project
-python scripts/code_quality_analyzer.py /path/to/project
-
-# Verbose output with detailed findings
-python scripts/code_quality_analyzer.py . --verbose
-
-# JSON output
-python scripts/code_quality_analyzer.py . --json
-
-# Save report to file
-python scripts/code_quality_analyzer.py . --output report.json
-```
-
-**Parameters:**
-
-| Parameter | Description |
-|-----------|-------------|
-| `project_path` | Path to project directory (default: current directory) |
-| `--verbose, -v` | Show detailed findings |
-| `--json` | Output in JSON format |
-| `--output, -o` | Write report to file |
-
-**Output includes:**
-- Overall score (0-100) with letter grade
-- Security issues by severity (critical, high, medium, low)
-- High complexity files
-- Vulnerable dependencies with CVE references
-- Test coverage estimate
-- Documentation completeness
-- Prioritized recommendations
-
-**Sample Output:**
+## Verification
 
 ```
-============================================================
-CODE QUALITY ANALYSIS REPORT
-============================================================
+# Frontend
+flutter format .
+flutter analyze
+flutter test
 
-Overall Score: 75/100 (Grade: C)
-Files Analyzed: 45
-Total Lines: 12,500
-
---- SECURITY ---
-  Critical: 1
-  High: 2
-  Medium: 5
-
---- COMPLEXITY ---
-  Average Complexity: 8.5
-  High Complexity Files: 3
-
---- RECOMMENDATIONS ---
-1. [P0] SECURITY
-   Issue: Potential hardcoded secret detected
-   Action: Remove or secure sensitive data at line 42
+# Backend
+cd services/api-backend && npm run lint && npm test
 ```
-
----
-
-## Workflows
-
-### Workflow 1: Start New Project
-
-1. Choose appropriate stack based on requirements
-2. Scaffold project structure
-3. Run initial quality check
-4. Set up development environment
-
-```bash
-# 1. Scaffold project
-python scripts/project_scaffolder.py nextjs my-saas-app
-
-# 2. Navigate and install
-cd my-saas-app
-npm install
-
-# 3. Configure environment
-cp .env.example .env.local
-
-# 4. Run quality check
-python ../scripts/code_quality_analyzer.py .
-
-# 5. Start development
-npm run dev
-```
-
-### Workflow 2: Audit Existing Codebase
-
-1. Run code quality analysis
-2. Review security findings
-3. Address critical issues first
-4. Plan improvements
-
-```bash
-# 1. Full analysis
-python scripts/code_quality_analyzer.py /path/to/project --verbose
-
-# 2. Generate detailed report
-python scripts/code_quality_analyzer.py /path/to/project --json --output audit.json
-
-# 3. Address P0 issues immediately
-# 4. Create tickets for P1/P2 issues
-```
-
-### Workflow 3: Stack Selection
-
-Use the tech stack guide to evaluate options:
-
-1. **SEO Required?** → Next.js with SSR
-2. **API-heavy backend?** → Separate FastAPI or NestJS
-3. **Real-time features?** → Add WebSocket layer
-4. **Team expertise** → Match stack to team skills
-
-See `references/tech_stack_guide.md` for detailed comparison.
-
----
-
-## Reference Guides
-
-### Architecture Patterns (`references/architecture_patterns.md`)
-
-- Frontend component architecture (Atomic Design, Container/Presentational)
-- Backend patterns (Clean Architecture, Repository Pattern)
-- API design (REST conventions, GraphQL schema design)
-- Database patterns (connection pooling, transactions, read replicas)
-- Caching strategies (cache-aside, HTTP cache headers)
-- Authentication architecture (JWT + refresh tokens, sessions)
-
-### Development Workflows (`references/development_workflows.md`)
-
-- Local development setup (Docker Compose, environment config)
-- Git workflows (trunk-based, conventional commits)
-- CI/CD pipelines (GitHub Actions examples)
-- Testing strategies (unit, integration, E2E)
-- Code review process (PR templates, checklists)
-- Deployment strategies (blue-green, canary, feature flags)
-- Monitoring and observability (logging, metrics, health checks)
-
-### Tech Stack Guide (`references/tech_stack_guide.md`)
-
-- Frontend frameworks comparison (Next.js, React+Vite, Vue)
-- Backend frameworks (Express, Fastify, NestJS, FastAPI, Django)
-- Database selection (PostgreSQL, MongoDB, Redis)
-- ORMs (Prisma, Drizzle, SQLAlchemy)
-- Authentication solutions (Auth.js, Clerk, custom JWT)
-- Deployment platforms (Vercel, Railway, AWS)
-- Stack recommendations by use case (MVP, SaaS, Enterprise)
-
----
-
-## Quick Reference
-
-### Stack Decision Matrix
-
-| Requirement | Recommendation |
-|-------------|---------------|
-| SEO-critical site | Next.js with SSR |
-| Internal dashboard | React + Vite |
-| API-first backend | FastAPI or Fastify |
-| Enterprise scale | NestJS + PostgreSQL |
-| Rapid prototype | Next.js API routes |
-| Document-heavy data | MongoDB |
-| Complex queries | PostgreSQL |
-
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| N+1 queries | Use DataLoader or eager loading |
-| Slow builds | Check bundle size, lazy load |
-| Auth complexity | Use Auth.js or Clerk |
-| Type errors | Enable strict mode in tsconfig |
-| CORS issues | Configure middleware properly |

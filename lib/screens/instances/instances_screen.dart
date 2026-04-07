@@ -11,6 +11,10 @@ import '../../widgets/common/loading_skeleton.dart';
 import '../../widgets/common/refreshable_screen.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../widgets/navigation/popout_button.dart';
+import '../../services/connection_manager_service.dart';
+import '../../services/hermes/hermes_streaming_service.dart';
+import '../../services/settings_preference_service.dart';
+import '../../config/app_config.dart';
 
 /// Screen displaying gateway process state and model instances
 ///
@@ -345,6 +349,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
               ),
             ],
           ),
+
+          // Hermes Agent Section
+          const _HermesSettingsCard(),
 
           // Model Instances Section
           CardSection(
@@ -735,6 +742,204 @@ class _StatItem extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w600,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Hermes Agent Settings Card
+// =============================================================================
+
+class _HermesSettingsCard extends StatefulWidget {
+  const _HermesSettingsCard();
+
+  @override
+  State<_HermesSettingsCard> createState() => _HermesSettingsCardState();
+}
+
+class _HermesSettingsCardState extends State<_HermesSettingsCard> {
+  final SettingsPreferenceService _settings = SettingsPreferenceService();
+
+  bool _hermesEnabled = false;
+  bool _isLoading = true;
+  bool _isTesting = false;
+  bool? _connectionStatus;
+  String _url = AppConfig.defaultHermesUrl;
+  String _apiKey = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final enabled = await _settings.isHermesEnabled();
+    final url = await _settings.getHermesUrl();
+    final apiKey = await _settings.getHermesApiKey();
+    if (mounted) {
+      setState(() {
+        _hermesEnabled = enabled;
+        _url = url ?? AppConfig.defaultHermesUrl;
+        _apiKey = apiKey ?? '';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _testConnection() async {
+    setState(() => _isTesting = true);
+    try {
+      final service = HermesStreamingService(
+        baseUrl: _url,
+        apiKey: _apiKey.isNotEmpty ? _apiKey : null,
+      );
+      final ok = await service.testConnection();
+      service.dispose();
+      if (mounted) {
+        setState(() {
+          _connectionStatus = ok;
+          _isTesting = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _connectionStatus = false;
+          _isTesting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveAndApply() async {
+    await _settings.setHermesEnabled(_hermesEnabled);
+    await _settings.setHermesUrl(_url);
+    await _settings.setHermesApiKey(_apiKey);
+
+    // Update connection manager
+    try {
+      final connectionManager =
+          di.serviceLocator<ConnectionManagerService>();
+      if (_hermesEnabled) {
+        connectionManager.setPreferredConnectionType(ConnectionType.hermes);
+      } else {
+        connectionManager.setPreferredConnectionType(ConnectionType.local);
+      }
+    } catch (_) {
+      // Connection manager may not be available in all contexts
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_hermesEnabled
+              ? 'Hermes Agent enabled — chat will use Hermes'
+              : 'Switched back to default gateway'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const CardSection(
+        title: '🦞 Hermes Agent',
+        children: [
+          Center(child: CircularProgressIndicator()),
+        ],
+      );
+    }
+
+    return CardSection(
+      title: '🦞 Hermes Agent',
+      subtitle: _hermesEnabled
+          ? 'Active — routing chat through Hermes API server'
+          : 'Disabled — using default OpenClaw gateway',
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Enable toggle
+              SwitchListTile(
+                title: const Text('Enable Hermes Agent'),
+                subtitle: const Text(
+                  'Route chat through Hermes for tool use, file ops, web search, and code execution',
+                ),
+                value: _hermesEnabled,
+                onChanged: (v) => setState(() => _hermesEnabled = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+
+              const SizedBox(height: 16),
+
+              // URL field
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Hermes API URL',
+                  hintText: AppConfig.defaultHermesUrl,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.link),
+                  suffixIcon: _connectionStatus == true
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : _connectionStatus == false
+                          ? const Icon(Icons.error, color: Colors.red)
+                          : null,
+                ),
+                controller: TextEditingController(text: _url),
+                onChanged: (v) => _url = v,
+                enabled: _hermesEnabled,
+              ),
+
+              const SizedBox(height: 12),
+
+              // API key field
+              TextField(
+                decoration: const InputDecoration(
+                  labelText: 'API Key (optional)',
+                  hintText: 'Leave empty for local-only use',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.key),
+                ),
+                controller: TextEditingController(text: _apiKey),
+                onChanged: (v) => _apiKey = v,
+                obscureText: true,
+                enabled: _hermesEnabled,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Action buttons
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _hermesEnabled && !_isTesting
+                        ? _testConnection
+                        : null,
+                    icon: _isTesting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.wifi_find),
+                    label: const Text('Test Connection'),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton.icon(
+                    onPressed: _saveAndApply,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Apply'),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],

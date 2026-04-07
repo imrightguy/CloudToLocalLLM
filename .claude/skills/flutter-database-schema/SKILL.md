@@ -109,7 +109,6 @@ Future<int> delete{{TableSingular}}(int id) =>
 
 Generate code:
 ```bash
-cd /mnt/data/dev/CloudToLocalLLM
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 ```
