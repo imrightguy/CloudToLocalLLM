@@ -163,7 +163,8 @@ class _LogsScreenState extends State<LogsScreen> {
         source: 'Tunnel',
         message: 'SSH tunnel connection failed',
         errorDetails: 'Authentication failed for user tunnel-user',
-        stackTrace: 'at SSHConnection.connect (ssh.dart:245)\nat TunnelService.establish (tunnel_service.dart:89)',
+        stackTrace:
+            'at SSHConnection.connect (ssh.dart:245)\nat TunnelService.establish (tunnel_service.dart:89)',
       ),
       LogEntry(
         id: '5',
@@ -186,7 +187,8 @@ class _LogsScreenState extends State<LogsScreen> {
         source: 'Database',
         message: 'Connection pool exhausted',
         errorDetails: 'No available connections in pool (max: 10)',
-        stackTrace: 'at Pool.acquire (pool.dart:123)\nat Database.query (database.dart:456)',
+        stackTrace:
+            'at Pool.acquire (pool.dart:123)\nat Database.query (database.dart:456)',
       ),
       LogEntry(
         id: '8',
@@ -383,7 +385,8 @@ class _LogsScreenState extends State<LogsScreen> {
                         _applyFilters();
                       });
                     },
-                    selectedColor: _getSeverityColor(severity).withValues(alpha: 0.3),
+                    selectedColor:
+                        _getSeverityColor(severity).withValues(alpha: 0.3),
                     checkmarkColor: _getSeverityColor(severity),
                   );
                 }).toList(),
@@ -413,9 +416,7 @@ class _LogsScreenState extends State<LogsScreen> {
     return Card(
       elevation: 1,
       child: InkWell(
-        onTap: log.hasErrorDetails
-            ? () => _showLogDetails(log)
-            : null,
+        onTap: log.hasErrorDetails ? () => _showLogDetails(log) : null,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -447,7 +448,8 @@ class _LogsScreenState extends State<LogsScreen> {
                           log.formatTimestamp(),
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontFamily: 'monospace',
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -466,7 +468,8 @@ class _LogsScreenState extends State<LogsScreen> {
                         Text(
                           log.source,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.6),
                           ),
                         ),
                       ],
@@ -485,7 +488,8 @@ class _LogsScreenState extends State<LogsScreen> {
                           Icon(
                             Icons.expand_more,
                             size: 16,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.4),
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -523,16 +527,19 @@ class _LogsScreenState extends State<LogsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _detailRow('Timestamp', '${log.formatDate()} ${log.formatTimestamp()}'),
+              _detailRow(
+                  'Timestamp', '${log.formatDate()} ${log.formatTimestamp()}'),
               _detailRow('Severity', log.severityLabel),
               _detailRow('Source', log.source),
               const Divider(),
-              const Text('Message', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Message',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Text(log.message),
               if (log.errorDetails != null) ...[
                 const Divider(),
-                const Text('Error', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Error',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(
                   log.errorDetails!,
@@ -541,14 +548,18 @@ class _LogsScreenState extends State<LogsScreen> {
               ],
               if (log.stackTrace != null) ...[
                 const Divider(),
-                const Text('Stack Trace', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Stack Trace',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(
                   log.stackTrace!,
                   style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 10,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
                   ),
                 ),
               ],

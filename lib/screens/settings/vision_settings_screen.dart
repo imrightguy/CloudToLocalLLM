@@ -163,7 +163,8 @@ class _VisionSettingsScreenState extends State<VisionSettingsScreen> {
                     padding: EdgeInsets.all(16),
                     child: Text(
                       'Test Results',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
@@ -175,8 +176,8 @@ class _VisionSettingsScreenState extends State<VisionSettingsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: _testResults
                               .map((result) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 4),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 4),
                                     child: Text(result),
                                   ))
                               .toList(),
@@ -214,9 +215,7 @@ class _VisionSettingsScreenState extends State<VisionSettingsScreen> {
                     ),
                   ),
                 ElevatedButton(
-                  onPressed: _isInitializing
-                      ? null
-                      : _initializeAllServices,
+                  onPressed: _isInitializing ? null : _initializeAllServices,
                   child: _isInitializing
                       ? const SizedBox(
                           height: 20,

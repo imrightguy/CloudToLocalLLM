@@ -43,8 +43,10 @@ class GatewayControlService extends ChangeNotifier {
 
   void _onConnectionChanged() {
     // Auto-check status when WebSocket connects
-    if (_connectionManager!.isConnected && _connectionManager!.isGatewayHealthy()) {
-      debugPrint('[GatewayControl] WebSocket connected, checking gateway status...');
+    if (_connectionManager!.isConnected &&
+        _connectionManager!.isGatewayHealthy()) {
+      debugPrint(
+          '[GatewayControl] WebSocket connected, checking gateway status...');
       checkStatus().catchError((e) {
         debugPrint('[GatewayControl] Failed to auto-check status: $e');
       });

@@ -172,42 +172,45 @@ class _DaemonSettingsScreenState extends State<DaemonSettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-            // Header
-            Text(
-              'System Tray Configuration',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppTheme.textColor,
-                    fontWeight: FontWeight.bold,
+                  // Header
+                  Text(
+                    'System Tray Configuration',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: AppTheme.textColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-            ),
-            SizedBox(height: AppTheme.spacingS),
-            Text(
-              'Configure the system tray daemon behavior and appearance',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppTheme.textColorLight),
-            ),
-            SizedBox(height: AppTheme.spacingXL),
+                  SizedBox(height: AppTheme.spacingS),
+                  Text(
+                    'Configure the system tray daemon behavior and appearance',
+                    style: Theme.of(
+                      context,
+                    )
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: AppTheme.textColorLight),
+                  ),
+                  SizedBox(height: AppTheme.spacingXL),
 
-            // Real-time Connection Status
-            _buildConnectionStatus(),
-            SizedBox(height: AppTheme.spacingL),
+                  // Real-time Connection Status
+                  _buildConnectionStatus(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // General Settings
-            _buildGeneralSettings(),
-            SizedBox(height: AppTheme.spacingL),
+                  // General Settings
+                  _buildGeneralSettings(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // Appearance Settings
-            _buildAppearanceSettings(),
-            SizedBox(height: AppTheme.spacingL),
+                  // Appearance Settings
+                  _buildAppearanceSettings(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // Connection Settings
-            _buildConnectionSettings(),
-            SizedBox(height: AppTheme.spacingL),
+                  // Connection Settings
+                  _buildConnectionSettings(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // Actions
-            _buildActions(),
-          ],
+                  // Actions
+                  _buildActions(),
+                ],
               ),
             ),
           ),

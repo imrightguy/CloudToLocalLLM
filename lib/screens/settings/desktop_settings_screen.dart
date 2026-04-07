@@ -29,8 +29,7 @@ class DesktopSettingsScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(spacing.l),
               children: [
-                Text('Desktop',
-                    style: theme.textTheme.headlineMedium),
+                Text('Desktop', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 16),
                 const Text('Desktop-specific settings and file operations.'),
                 const SizedBox(height: 32),
@@ -40,7 +39,8 @@ class DesktopSettingsScreen extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.folder),
                     title: const Text('File Operations'),
-                    subtitle: const Text('Manage file operations and permissions'),
+                    subtitle:
+                        const Text('Manage file operations and permissions'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.go('/settings/desktop/files'),
                   ),

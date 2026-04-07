@@ -822,8 +822,7 @@ class _HermesSettingsCardState extends State<_HermesSettingsCard> {
 
     // Update connection manager
     try {
-      final connectionManager =
-          di.serviceLocator<ConnectionManagerService>();
+      final connectionManager = di.serviceLocator<ConnectionManagerService>();
       if (_hermesEnabled) {
         connectionManager.setPreferredConnectionType(ConnectionType.hermes);
       } else {
@@ -919,9 +918,8 @@ class _HermesSettingsCardState extends State<_HermesSettingsCard> {
               Row(
                 children: [
                   OutlinedButton.icon(
-                    onPressed: _hermesEnabled && !_isTesting
-                        ? _testConnection
-                        : null,
+                    onPressed:
+                        _hermesEnabled && !_isTesting ? _testConnection : null,
                     icon: _isTesting
                         ? const SizedBox(
                             width: 16,

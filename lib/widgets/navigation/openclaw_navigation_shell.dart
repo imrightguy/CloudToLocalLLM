@@ -17,7 +17,8 @@ class OpenClawNavigationShell extends StatefulWidget {
   });
 
   @override
-  State<OpenClawNavigationShell> createState() => _OpenClawNavigationShellState();
+  State<OpenClawNavigationShell> createState() =>
+      _OpenClawNavigationShellState();
 }
 
 class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
@@ -58,8 +59,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
                 ),
 
                 // Resources section at bottom
-                if (!_focusMode)
-                  _buildResourcesSection(),
+                if (!_focusMode) _buildResourcesSection(),
               ],
             ),
           ),
@@ -69,10 +69,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
             child: Column(
               children: [
                 // Top banner
-                if (!_focusMode)
-                  _buildTopBanner()
-                else
-                  const SizedBox.shrink(),
+                if (!_focusMode) _buildTopBanner() else const SizedBox.shrink(),
 
                 // Page content
                 Expanded(
@@ -91,7 +88,11 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          Image.asset('assets/images/openclaw_logo.png', width: 32, height: 32, errorBuilder: (ctx, _, __) => const Icon(Icons.smart_toy, size: 32)),
+          Image.asset('assets/images/openclaw_logo.png',
+              width: 32,
+              height: 32,
+              errorBuilder: (ctx, _, __) =>
+                  const Icon(Icons.smart_toy, size: 32)),
           const SizedBox(width: 12),
           if (!_sidebarCollapsed)
             Expanded(
@@ -101,9 +102,9 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
                   Text(
                     'OPENCLAW',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 2,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   Text(
                     'Gateway Dashboard',
@@ -113,8 +114,10 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
               ),
             ),
           IconButton(
-            icon: Icon(_sidebarCollapsed ? Icons.chevron_right : Icons.chevron_left),
-            onPressed: () => setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+            icon: Icon(
+                _sidebarCollapsed ? Icons.chevron_right : Icons.chevron_left),
+            onPressed: () =>
+                setState(() => _sidebarCollapsed = !_sidebarCollapsed),
             tooltip: 'Collapse sidebar',
           ),
         ],
@@ -274,7 +277,8 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => launchUrl(Uri.parse('https://docs.openclaw.ai'), mode: LaunchMode.externalApplication),
+          onTap: () => launchUrl(Uri.parse('https://docs.openclaw.ai'),
+              mode: LaunchMode.externalApplication),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -291,8 +295,8 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
                 Text(
                   'Docs',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                 ),
               ],
             ),
@@ -340,8 +344,8 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
                 child: Text(
                   isHealthy ? 'Healthy' : 'Offline',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                 ),
               ),
               const Spacer(),

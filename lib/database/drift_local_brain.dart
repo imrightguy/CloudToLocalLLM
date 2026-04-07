@@ -1025,7 +1025,7 @@ class LocalBrain extends _$LocalBrain {
 
   /// Get all memories for a specific conversation
   Future<List<ConversationMemory>> getMemoriesForConversation(
-      String conversationId) =>
+          String conversationId) =>
       (select(conversationMemories)
             ..where((t) => t.conversationId.equals(conversationId))
             ..orderBy([

@@ -29,8 +29,7 @@ class AboutSettingsScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(spacing.l),
               children: [
-                Text('About',
-                    style: theme.textTheme.headlineMedium),
+                Text('About', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 16),
                 const Text('CloudToLocalLLM - OpenClaw Agent Manager'),
                 const SizedBox(height: 8),

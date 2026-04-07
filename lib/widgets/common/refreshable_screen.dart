@@ -61,7 +61,9 @@ class _RefreshableScreenState extends State<RefreshableScreen> {
                     children: [
                       Icon(Icons.error, color: errorColor, size: 20),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(_error!, style: TextStyle(color: errorColor))),
+                      Expanded(
+                          child: Text(_error!,
+                              style: TextStyle(color: errorColor))),
                       IconButton(
                         icon: const Icon(Icons.close, size: 20),
                         onPressed: () => setState(() => _error = null),

@@ -25,7 +25,8 @@ class MessageContent extends StatelessWidget {
         // Tool calls — show above the response content
         if (toolCalls.isNotEmpty) _buildToolCalls(context, toolCalls),
         // Active agent indicator (tool running but no completed text yet)
-        if (isAgentRunning && !hasContent) _buildAgentActivityIndicator(context),
+        if (isAgentRunning && !hasContent)
+          _buildAgentActivityIndicator(context),
         if (hasContent)
           hasMarkdown
               ? _buildMarkdownContent(context, message.content)
@@ -108,8 +109,8 @@ class MessageContent extends StatelessWidget {
     } else {
       borderColor = AppTheme.secondaryColor.withValues(alpha: 0.3);
       backgroundColor = Colors.white.withValues(alpha: 0.03);
-      trailing = const Icon(Icons.check_circle_outline,
-          size: 14, color: Colors.green);
+      trailing =
+          const Icon(Icons.check_circle_outline, size: 14, color: Colors.green);
     }
 
     return Container(

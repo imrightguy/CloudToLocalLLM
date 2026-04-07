@@ -83,7 +83,8 @@ class _SkillsScreenState extends State<SkillsScreen>
         Skill(
           id: 'code-reviewer',
           name: 'Code Reviewer',
-          description: 'Analyzes code for bugs, security issues, and best practices',
+          description:
+              'Analyzes code for bugs, security issues, and best practices',
           category: 'Development',
           enabled: true,
           usageCount: 47,
@@ -187,7 +188,8 @@ class _SkillsScreenState extends State<SkillsScreen>
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${skill.name} ${!skill.enabled ? 'enabled' : 'disabled'}'),
+        content:
+            Text('${skill.name} ${!skill.enabled ? 'enabled' : 'disabled'}'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -209,7 +211,8 @@ class _SkillsScreenState extends State<SkillsScreen>
               icon: const Icon(Icons.add),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Register new skill - coming soon')),
+                  const SnackBar(
+                      content: Text('Register new skill - coming soon')),
                 );
               },
               tooltip: 'Register Skill',
@@ -293,14 +296,16 @@ class _SkillsScreenState extends State<SkillsScreen>
                               fontWeight: FontWeight.w600,
                               color: skill.enabled
                                   ? null
-                                  : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                  : theme.colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Chip(
                             label: Text(skill.category),
                             visualDensity: VisualDensity.compact,
-                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                            backgroundColor:
+                                theme.colorScheme.surfaceContainerHighest,
                           ),
                         ],
                       ),
@@ -308,7 +313,8 @@ class _SkillsScreenState extends State<SkillsScreen>
                       Text(
                         skill.description,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -323,12 +329,14 @@ class _SkillsScreenState extends State<SkillsScreen>
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildStat(Icons.play_arrow, skill.usageCount.toString(), 'Uses'),
+                _buildStat(
+                    Icons.play_arrow, skill.usageCount.toString(), 'Uses'),
                 const SizedBox(width: 16),
                 _buildStat(Icons.schedule,
                     '${skill.avgResponseTime.toStringAsFixed(1)}s', 'Avg Time'),
                 const SizedBox(width: 16),
-                _buildStat(Icons.access_time, _formatLastUsed(skill.lastUsed), 'Last Used'),
+                _buildStat(Icons.access_time, _formatLastUsed(skill.lastUsed),
+                    'Last Used'),
               ],
             ),
           ],
@@ -341,7 +349,10 @@ class _SkillsScreenState extends State<SkillsScreen>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+        Icon(icon,
+            size: 14,
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         const SizedBox(width: 4),
         Text(
           value,
@@ -354,7 +365,10 @@ class _SkillsScreenState extends State<SkillsScreen>
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.5),
               ),
         ),
       ],
@@ -383,9 +397,13 @@ class _SkillsScreenState extends State<SkillsScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(entry.key, style: Theme.of(context).textTheme.bodyLarge),
+                      Text(entry.key,
+                          style: Theme.of(context).textTheme.bodyLarge),
                       Text('${entry.value} uses',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                               )),
@@ -394,7 +412,8 @@ class _SkillsScreenState extends State<SkillsScreen>
                   const SizedBox(height: 8),
                   LinearProgressIndicator(
                     value: percentage,
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       Theme.of(context).colorScheme.primary,
                     ),
@@ -416,7 +435,8 @@ class _SkillsScreenState extends State<SkillsScreen>
               .map((skill) => ListTile(
                     leading: Icon(_getCategoryIcon(skill.category)),
                     title: Text(skill.name),
-                    subtitle: Text('${skill.usageCount} uses • ${skill.avgResponseTime}s avg'),
+                    subtitle: Text(
+                        '${skill.usageCount} uses • ${skill.avgResponseTime}s avg'),
                   )),
         ],
       ),
@@ -446,13 +466,15 @@ class _SkillsScreenState extends State<SkillsScreen>
                   const SizedBox(height: 16),
                   SwitchListTile(
                     title: const Text('Auto-disable slow skills'),
-                    subtitle: const Text('Disable skills that take longer than 5 seconds'),
+                    subtitle: const Text(
+                        'Disable skills that take longer than 5 seconds'),
                     value: true,
                     onChanged: (value) {},
                   ),
                   SwitchListTile(
                     title: const Text('Cache skill results'),
-                    subtitle: const Text('Store responses for identical requests'),
+                    subtitle:
+                        const Text('Store responses for identical requests'),
                     value: true,
                     onChanged: (value) {},
                   ),
@@ -484,7 +506,8 @@ class _SkillsScreenState extends State<SkillsScreen>
                   const SizedBox(height: 16),
                   ListTile(
                     title: const Text('Max concurrent skills'),
-                    subtitle: const Text('Maximum skills running simultaneously'),
+                    subtitle:
+                        const Text('Maximum skills running simultaneously'),
                     trailing: const Text('5'),
                     onTap: () {},
                   ),

@@ -31,7 +31,8 @@ class BreadcrumbBar extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: backgroundColor ?? colorScheme.surfaceContainerLow,
       child: Wrap(
         spacing: 4,
@@ -41,7 +42,8 @@ class BreadcrumbBar extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildBreadcrumbs(BuildContext context, ColorScheme colorScheme) {
+  List<Widget> _buildBreadcrumbs(
+      BuildContext context, ColorScheme colorScheme) {
     final List<Widget> widgets = [];
 
     for (int i = 0; i < items.length; i++) {
@@ -144,9 +146,7 @@ class _BreadcrumbChip extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: isActive
-                    ? colorScheme.primary
-                    : colorScheme.onSurface,
+                color: isActive ? colorScheme.primary : colorScheme.onSurface,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
               ),
             ),

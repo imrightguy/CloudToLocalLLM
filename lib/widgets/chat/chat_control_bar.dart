@@ -64,10 +64,13 @@ class ChatControlBar extends StatelessWidget {
           // Toggle thinking output
           IconButton(
             icon: const Icon(Icons.psychology_outlined),
-            onPressed: isConnected ? () => onThinkingToggle(!showThinking) : null,
+            onPressed:
+                isConnected ? () => onThinkingToggle(!showThinking) : null,
             tooltip: 'Toggle assistant thinking/working output',
             style: IconButton.styleFrom(
-              backgroundColor: showThinking ? Theme.of(context).colorScheme.primaryContainer : null,
+              backgroundColor: showThinking
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
             ),
           ),
 
@@ -77,17 +80,23 @@ class ChatControlBar extends StatelessWidget {
             onPressed: isConnected ? () => onFocusModeToggle(!focusMode) : null,
             tooltip: 'Toggle focus mode (hide sidebar + page header)',
             style: IconButton.styleFrom(
-              backgroundColor: focusMode ? Theme.of(context).colorScheme.primaryContainer : null,
+              backgroundColor: focusMode
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
             ),
           ),
 
           // Toggle cron sessions
           IconButton(
             icon: const Icon(Icons.schedule_outlined),
-            onPressed: isConnected ? () => onCronSessionsToggle(!showCronSessions) : null,
+            onPressed: isConnected
+                ? () => onCronSessionsToggle(!showCronSessions)
+                : null,
             tooltip: 'Show cron sessions',
             style: IconButton.styleFrom(
-              backgroundColor: showCronSessions ? Theme.of(context).colorScheme.primaryContainer : null,
+              backgroundColor: showCronSessions
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
             ),
           ),
         ],

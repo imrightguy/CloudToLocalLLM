@@ -54,9 +54,9 @@ class _SidebarSectionState extends State<SidebarSection> {
                 Text(
                   widget.title,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.grey,
-                    letterSpacing: 1.2,
-                  ),
+                        color: Colors.grey,
+                        letterSpacing: 1.2,
+                      ),
                 ),
                 const Spacer(),
                 Icon(
@@ -73,7 +73,8 @@ class _SidebarSectionState extends State<SidebarSection> {
               ? Column(
                   children: widget.destinations.map((dest) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       child: dest,
                     );
                   }).toList(),

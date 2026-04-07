@@ -214,79 +214,83 @@ class _PricingScreenState extends State<PricingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-            // Header
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    'Choose Your Plan',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                  // Header
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Choose Your Plan',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Select the plan that best fits your needs',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey.shade600,
+                        const SizedBox(height: 8),
+                        Text(
+                          'Select the plan that best fits your needs',
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
                         ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Current tier indicator
-            if (_getCurrentTier() != 'free')
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  border: Border.all(color: Colors.green.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.green),
-                    const SizedBox(width: 12),
-                    Text(
-                      'You are currently on the ${_getCurrentTier().capitalize()} plan',
-                      style: TextStyle(color: Colors.green.shade800),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 24),
-
-            // Pricing cards
-            ...plans.map(_buildPricingCard),
-
-            // Error message
-            if (_error != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade300),
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error, color: Colors.red),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _error!,
-                          style: const TextStyle(color: Colors.red),
+                  const SizedBox(height: 32),
+
+                  // Current tier indicator
+                  if (_getCurrentTier() != 'free')
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        border: Border.all(color: Colors.green.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.green),
+                          const SizedBox(width: 12),
+                          Text(
+                            'You are currently on the ${_getCurrentTier().capitalize()} plan',
+                            style: TextStyle(color: Colors.green.shade800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 24),
+
+                  // Pricing cards
+                  ...plans.map(_buildPricingCard),
+
+                  // Error message
+                  if (_error != null)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          border: Border.all(color: Colors.red.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error, color: Colors.red),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
+                    ),
+                ],
               ),
             ),
           ),

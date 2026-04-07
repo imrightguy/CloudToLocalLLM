@@ -45,9 +45,10 @@ class HermesProviderAdapter implements LlmProvider {
     });
 
     try {
-      final httpRequest = http.Request('POST', Uri.parse('$_hermesBaseUrl/v1/chat/completions'))
-        ..headers.addAll(_headers())
-        ..body = body;
+      final httpRequest =
+          http.Request('POST', Uri.parse('$_hermesBaseUrl/v1/chat/completions'))
+            ..headers.addAll(_headers())
+            ..body = body;
 
       final streamedResponse = await _client!.send(httpRequest);
 
@@ -59,7 +60,8 @@ class HermesProviderAdapter implements LlmProvider {
       }
 
       String buffer = '';
-      await for (final chunk in streamedResponse.stream.transform(utf8.decoder)) {
+      await for (final chunk
+          in streamedResponse.stream.transform(utf8.decoder)) {
         // ignore: use_string_buffers
         buffer += chunk;
         while (buffer.contains('\n\n')) {

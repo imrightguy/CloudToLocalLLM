@@ -208,41 +208,41 @@ class _AvatarCustomizationScreenState extends State<AvatarCustomizationScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-            // Preview Section
-            _buildPreviewSection(colorScheme),
+                  // Preview Section
+                  _buildPreviewSection(colorScheme),
 
-            const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-            // Avatar Type Selector
-            _buildAvatarTypeSection(colorScheme),
+                  // Avatar Type Selector
+                  _buildAvatarTypeSection(colorScheme),
 
-            const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-            // Color Picker Section
-            _buildColorSection(colorScheme),
+                  // Color Picker Section
+                  _buildColorSection(colorScheme),
 
-            const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-            // Size Selector
-            _buildSizeSection(colorScheme),
+                  // Size Selector
+                  _buildSizeSection(colorScheme),
 
-            const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-            // Glow Effect Toggle
-            _buildGlowSection(colorScheme),
+                  // Glow Effect Toggle
+                  _buildGlowSection(colorScheme),
 
-            const SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
-            // Save Button
-            FilledButton.icon(
-              onPressed: _saveSettings,
-              icon: const Icon(Icons.save),
-              label: const Text('Save Customization'),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-              ),
-            ),
-          ],
+                  // Save Button
+                  FilledButton.icon(
+                    onPressed: _saveSettings,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Customization'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

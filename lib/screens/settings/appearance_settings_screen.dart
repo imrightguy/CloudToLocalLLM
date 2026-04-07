@@ -52,15 +52,18 @@ class AppearanceSettingsScreen extends StatelessWidget {
                       OverflowBar(
                         children: [
                           TextButton(
-                            onPressed: () => themeProvider.setThemeMode(ThemeMode.light),
+                            onPressed: () =>
+                                themeProvider.setThemeMode(ThemeMode.light),
                             child: const Text('Light'),
                           ),
                           TextButton(
-                            onPressed: () => themeProvider.setThemeMode(ThemeMode.dark),
+                            onPressed: () =>
+                                themeProvider.setThemeMode(ThemeMode.dark),
                             child: const Text('Dark'),
                           ),
                           TextButton(
-                            onPressed: () => themeProvider.setThemeMode(ThemeMode.system),
+                            onPressed: () =>
+                                themeProvider.setThemeMode(ThemeMode.system),
                             child: const Text('System'),
                           ),
                         ],

@@ -34,9 +34,11 @@ class _SessionSelectorState extends State<SessionSelector> {
           child: Text(session),
         );
       }).toList(),
-      onChanged: widget.enabled ? (value) {
-        widget.onSessionChanged(value!);
-      } : null,
+      onChanged: widget.enabled
+          ? (value) {
+              widget.onSessionChanged(value!);
+            }
+          : null,
     );
   }
 }

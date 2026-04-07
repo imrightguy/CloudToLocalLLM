@@ -11,11 +11,11 @@ class ConnectionSettingsScreen extends StatefulWidget {
   const ConnectionSettingsScreen({super.key});
 
   @override
-  State<ConnectionSettingsScreen> createState() => _ConnectionSettingsScreenState();
+  State<ConnectionSettingsScreen> createState() =>
+      _ConnectionSettingsScreenState();
 }
 
 class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -40,8 +40,7 @@ class _ConnectionSettingsScreenState extends State<ConnectionSettingsScreen> {
             child: ListView(
               padding: EdgeInsets.all(spacing.l),
               children: [
-                Text('Connection',
-                    style: theme.textTheme.headlineMedium),
+                Text('Connection', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 16),
                 const Text('Manage tunnel and daemon connections.'),
                 const SizedBox(height: 32),

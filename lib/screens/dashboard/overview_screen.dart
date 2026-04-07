@@ -146,7 +146,8 @@ class _OverviewScreenState extends State<OverviewScreen> {
             const SizedBox(height: 16),
             _buildFormField(
               'Gateway Token',
-              connService.gatewayToken != null && connService.gatewayToken!.length >= 16
+              connService.gatewayToken != null &&
+                      connService.gatewayToken!.length >= 16
                   ? '${connService.gatewayToken!.substring(0, 16)}...'
                   : 'Not set',
             ),

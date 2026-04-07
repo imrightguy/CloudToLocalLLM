@@ -112,7 +112,8 @@ class _CronJobsScreenState extends State<CronJobsScreen> {
         scheduleDescription: 'Weekly (Sundays at 3:00 AM)',
         command: '/usr/local/bin/cleanup-logs.sh',
         status: CronJobStatus.active,
-        nextRun: DateTime(now.year, now.month, now.day + (7 - now.weekday % 7), 3, 0),
+        nextRun: DateTime(
+            now.year, now.month, now.day + (7 - now.weekday % 7), 3, 0),
         lastRun: DateTime(now.year, now.month, now.day - 7, 3, 0),
         lastRunSuccess: true,
         lastRunOutput: 'Cleaned 1.2GB of old logs',
@@ -177,7 +178,8 @@ class _CronJobsScreenState extends State<CronJobsScreen> {
                     ? const EmptyState(
                         icon: Icons.schedule_outlined,
                         title: 'No Cron Jobs',
-                        message: 'Create scheduled tasks to automate maintenance',
+                        message:
+                            'Create scheduled tasks to automate maintenance',
                       )
                     : _buildJobsList(),
       ),
@@ -230,7 +232,8 @@ class _CronJobsScreenState extends State<CronJobsScreen> {
                       Text(
                         job.scheduleDescription,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -283,7 +286,9 @@ class _CronJobsScreenState extends State<CronJobsScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      job.lastRunSuccess ? Icons.check_circle_outline : Icons.error_outline,
+                      job.lastRunSuccess
+                          ? Icons.check_circle_outline
+                          : Icons.error_outline,
                       size: 16,
                       color: job.lastRunSuccess
                           ? theme.colorScheme.primary
@@ -339,11 +344,14 @@ class _CronJobsScreenState extends State<CronJobsScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {String? status}) {
+  Widget _buildInfoRow(IconData icon, String label, String value,
+      {String? status}) {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(icon, size: 16, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+        Icon(icon,
+            size: 16,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
         const SizedBox(width: 8),
         Text(
           '$label: ',

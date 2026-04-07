@@ -110,7 +110,8 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'code-reviewer',
           name: 'Code Review Agent',
-          description: 'Analyzes pull requests for bugs, security issues, and best practices',
+          description:
+              'Analyzes pull requests for bugs, security issues, and best practices',
           status: AgentStatus.online,
           taskCount: 234,
           avgLatency: 2.8,
@@ -119,7 +120,8 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'file-scanner',
           name: 'File Scanner Agent',
-          description: 'Scans directories for specific file patterns and security risks',
+          description:
+              'Scans directories for specific file patterns and security risks',
           status: AgentStatus.busy,
           taskCount: 567,
           avgLatency: 1.9,
@@ -128,7 +130,8 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'doc-summarizer',
           name: 'Document Summarizer Agent',
-          description: 'Creates concise summaries of long documents and articles',
+          description:
+              'Creates concise summaries of long documents and articles',
           status: AgentStatus.online,
           taskCount: 891,
           avgLatency: 0.8,
@@ -137,7 +140,8 @@ class _AgentsScreenState extends State<AgentsScreen>
         Agent(
           id: 'data-analyzer',
           name: 'Data Analysis Agent',
-          description: 'Performs statistical analysis and generates insights from datasets',
+          description:
+              'Performs statistical analysis and generates insights from datasets',
           status: AgentStatus.offline,
           taskCount: 123,
           avgLatency: 2.1,
@@ -317,7 +321,8 @@ class _AgentsScreenState extends State<AgentsScreen>
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: _getStatusColor(agent.status).withValues(alpha: 0.1),
+                  backgroundColor:
+                      _getStatusColor(agent.status).withValues(alpha: 0.1),
                   child: Icon(
                     _getStatusIcon(agent.status),
                     color: _getStatusColor(agent.status),
@@ -355,7 +360,8 @@ class _AgentsScreenState extends State<AgentsScreen>
                       Text(
                         agent.description,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -374,9 +380,11 @@ class _AgentsScreenState extends State<AgentsScreen>
               spacing: 16,
               runSpacing: 8,
               children: [
-                _buildStat(Icons.check_circle, agent.taskCount.toString(), 'Tasks'),
+                _buildStat(
+                    Icons.check_circle, agent.taskCount.toString(), 'Tasks'),
                 _buildStat(Icons.speed, '${agent.avgLatency}s', 'Avg Latency'),
-                _buildStat(Icons.access_time, _formatLastActive(agent.lastActive), 'Last Active'),
+                _buildStat(Icons.access_time,
+                    _formatLastActive(agent.lastActive), 'Last Active'),
               ],
             ),
           ],
@@ -389,7 +397,10 @@ class _AgentsScreenState extends State<AgentsScreen>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+        Icon(icon,
+            size: 14,
+            color:
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         const SizedBox(width: 4),
         Text(
           value,
@@ -402,7 +413,10 @@ class _AgentsScreenState extends State<AgentsScreen>
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.5),
               ),
         ),
       ],
@@ -458,7 +472,8 @@ class _AgentsScreenState extends State<AgentsScreen>
               : ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: _activityFeed.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8),
                   itemBuilder: (context, index) {
                     final event = _activityFeed[index];
                     return _buildActivityCard(event);
@@ -469,7 +484,8 @@ class _AgentsScreenState extends State<AgentsScreen>
     );
   }
 
-  Widget _buildSummaryCard(IconData icon, String title, String value, Color color) {
+  Widget _buildSummaryCard(
+      IconData icon, String title, String value, Color color) {
     return Card(
       child: Container(
         width: 150,
@@ -510,10 +526,12 @@ class _AgentsScreenState extends State<AgentsScreen>
           ),
         ),
         title: Text(event.action),
-        subtitle: Text('${_formatTimestamp(event.timestamp)} • ${event.agentName}'),
+        subtitle:
+            Text('${_formatTimestamp(event.timestamp)} • ${event.agentName}'),
         trailing: event.success
             ? null
-            : Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+            : Icon(Icons.error_outline,
+                color: Theme.of(context).colorScheme.error),
       ),
     );
   }
@@ -541,7 +559,8 @@ class _AgentsScreenState extends State<AgentsScreen>
                   const SizedBox(height: 16),
                   SwitchListTile(
                     title: const Text('Auto-scale agents'),
-                    subtitle: const Text('Automatically add agents based on load'),
+                    subtitle:
+                        const Text('Automatically add agents based on load'),
                     value: true,
                     onChanged: (value) {},
                   ),
@@ -579,13 +598,15 @@ class _AgentsScreenState extends State<AgentsScreen>
                   const SizedBox(height: 16),
                   ListTile(
                     title: const Text('Request timeout'),
-                    subtitle: const Text('Maximum time to wait for agent response'),
+                    subtitle:
+                        const Text('Maximum time to wait for agent response'),
                     trailing: const Text('30s'),
                     onTap: () {},
                   ),
                   ListTile(
                     title: const Text('Queue timeout'),
-                    subtitle: const Text('Maximum time in queue before rejection'),
+                    subtitle:
+                        const Text('Maximum time in queue before rejection'),
                     trailing: const Text('60s'),
                     onTap: () {},
                   ),
@@ -610,11 +631,15 @@ class _AgentsScreenState extends State<AgentsScreen>
               leading: Icon(agent.status == AgentStatus.online
                   ? Icons.pause
                   : Icons.play_arrow),
-              title: Text(agent.status == AgentStatus.online ? 'Pause Agent' : 'Resume Agent'),
+              title: Text(agent.status == AgentStatus.online
+                  ? 'Pause Agent'
+                  : 'Resume Agent'),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${agent.name}: ${agent.status == AgentStatus.online ? 'Paused' : 'Resumed'}')),
+                  SnackBar(
+                      content: Text(
+                          '${agent.name}: ${agent.status == AgentStatus.online ? 'Paused' : 'Resumed'}')),
                 );
               },
             ),
@@ -634,7 +659,8 @@ class _AgentsScreenState extends State<AgentsScreen>
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Agent configuration - coming soon')),
+                  const SnackBar(
+                      content: Text('Agent configuration - coming soon')),
                 );
               },
             ),

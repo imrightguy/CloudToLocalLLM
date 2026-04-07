@@ -81,10 +81,12 @@ class HermesStreamingService extends StreamingService {
   Future<void> establishConnection() async {
     _client ??= http.Client();
     try {
-      final response = await _client!.get(
-        Uri.parse('$_baseUrl/health'),
-        headers: _headers(),
-      ).timeout(const Duration(seconds: 5));
+      final response = await _client!
+          .get(
+            Uri.parse('$_baseUrl/health'),
+            headers: _headers(),
+          )
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         _connection = StreamingConnection.connected(_baseUrl);
@@ -261,8 +263,7 @@ class HermesStreamingService extends StreamingService {
         final errorMsg = StreamingMessage.error(
           id: messageId,
           conversationId: conversationId,
-          error:
-              'Hermes run start failed (${response.statusCode}): $errorBody',
+          error: 'Hermes run start failed (${response.statusCode}): $errorBody',
           sequence: sequence++,
         );
         _messageController.add(errorMsg);
@@ -317,8 +318,8 @@ class HermesStreamingService extends StreamingService {
       )..headers.addAll(_headers());
 
       final streamedResponse = await client.send(request).timeout(
-        const Duration(seconds: 600),
-      );
+            const Duration(seconds: 600),
+          );
 
       if (streamedResponse.statusCode != 200) {
         final errorBody = await streamedResponse.stream.bytesToString();
@@ -526,8 +527,8 @@ class HermesStreamingService extends StreamingService {
         ..body = body;
 
       final streamedResponse = await client.send(request).timeout(
-        const Duration(seconds: 300),
-      );
+            const Duration(seconds: 300),
+          );
 
       if (streamedResponse.statusCode != 200) {
         final errorBody = await streamedResponse.stream.bytesToString();
@@ -566,8 +567,7 @@ class HermesStreamingService extends StreamingService {
               final choices = json['choices'] as List<dynamic>?;
               if (choices == null || choices.isEmpty) continue;
 
-              final delta =
-                  choices[0]['delta'] as Map<String, dynamic>?;
+              final delta = choices[0]['delta'] as Map<String, dynamic>?;
               final content = delta?['content'] as String?;
 
               if (content != null && content.isNotEmpty) {
@@ -758,8 +758,8 @@ class HermesStreamingService extends StreamingService {
     )..headers.addAll(_headers());
 
     final streamedResponse = await client.send(request).timeout(
-      const Duration(seconds: 600),
-    );
+          const Duration(seconds: 600),
+        );
 
     if (streamedResponse.statusCode != 200) {
       yield AgentRunFailed(
@@ -771,8 +771,7 @@ class HermesStreamingService extends StreamingService {
     }
 
     String buffer = '';
-    await for (final chunk
-        in streamedResponse.stream.transform(utf8.decoder)) {
+    await for (final chunk in streamedResponse.stream.transform(utf8.decoder)) {
       // ignore: use_string_buffers
       buffer += chunk;
       while (buffer.contains('\n\n')) {

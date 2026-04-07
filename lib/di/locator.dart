@@ -237,7 +237,8 @@ Future<void> setupCoreServices() async {
 
       // Hermes streaming service for direct Hermes API integration
       final hermesStreamingService = HermesStreamingService();
-      serviceLocator.registerSingleton<HermesStreamingService>(hermesStreamingService);
+      serviceLocator
+          .registerSingleton<HermesStreamingService>(hermesStreamingService);
 
       // Start the router server in the background.
       unawaited(routerServer.start());

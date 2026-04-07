@@ -277,9 +277,7 @@ class AgentRunFailed extends AgentEvent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AgentRunFailed &&
-          other.runId == runId &&
-          other.error == error;
+      other is AgentRunFailed && other.runId == runId && other.error == error;
 
   @override
   int get hashCode => Object.hash(runId, error);

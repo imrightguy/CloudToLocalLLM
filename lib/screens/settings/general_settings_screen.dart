@@ -31,8 +31,7 @@ class GeneralSettingsScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(spacing.l),
               children: [
-                Text('General Settings',
-                    style: theme.textTheme.headlineMedium),
+                Text('General Settings', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 16),
                 const Text('Application preferences and configuration.'),
                 const SizedBox(height: 32),

@@ -71,7 +71,8 @@ class StreamingChatService extends ChangeNotifier {
   List<ToolCall> get activeToolCalls => List.unmodifiable(_activeToolCalls);
 
   /// Tool calls that completed during this streaming session.
-  List<ToolCall> get completedToolCalls => List.unmodifiable(_completedToolCalls);
+  List<ToolCall> get completedToolCalls =>
+      List.unmodifiable(_completedToolCalls);
 
   /// All tool calls (active + completed) for this streaming session.
   List<ToolCall> get allToolCalls => [
@@ -450,9 +451,8 @@ class StreamingChatService extends ChangeNotifier {
         content: finalContent,
         reasoning: finalReasoning.isNotEmpty ? finalReasoning : null,
         model: completeModel,
-        metadata: toolCallsMeta.isNotEmpty
-            ? {'tool_calls': toolCallsMeta}
-            : null,
+        metadata:
+            toolCallsMeta.isNotEmpty ? {'tool_calls': toolCallsMeta} : null,
       );
       _addMessageToCurrentConversation(assistantMessage);
 
@@ -512,7 +512,8 @@ class StreamingChatService extends ChangeNotifier {
           startedAt: DateTime.now(),
         );
         _activeToolCalls.add(toolCall);
-        appLogger.info('[StreamingChat] Tool started: $tool (${preview ?? "..."})');
+        appLogger
+            .info('[StreamingChat] Tool started: $tool (${preview ?? "..."})');
         notifyListeners();
 
       case AgentToolCompleted(:final tool, :final duration, :final isError):
@@ -594,8 +595,7 @@ class StreamingChatService extends ChangeNotifier {
     if (index == -1) return false;
 
     final conversation = _conversations[index];
-    final msgIndex =
-        conversation.messages.indexWhere((m) => m.id == messageId);
+    final msgIndex = conversation.messages.indexWhere((m) => m.id == messageId);
     if (msgIndex == -1) return false;
 
     final updatedMessage = updater(conversation.messages[msgIndex]);

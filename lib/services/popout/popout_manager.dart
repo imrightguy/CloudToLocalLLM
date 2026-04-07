@@ -56,7 +56,8 @@ class PopOutManager extends ChangeNotifier {
     } else {
       // Window is closed, check if enabled
       if (!isSectionPopOutEnabled(sectionName)) {
-        debugPrint('[PopOutManager] Pop-out disabled for section: $sectionName');
+        debugPrint(
+            '[PopOutManager] Pop-out disabled for section: $sectionName');
         return;
       }
 
@@ -99,7 +100,8 @@ class PopOutManager extends ChangeNotifier {
       }
 
       // Restore section enabled states
-      final sectionEnabledJson = json['sectionPopOutEnabled'] as Map<String, dynamic>?;
+      final sectionEnabledJson =
+          json['sectionPopOutEnabled'] as Map<String, dynamic>?;
       if (sectionEnabledJson != null) {
         sectionEnabledJson.forEach((key, value) {
           _sectionPopOutEnabled[key] = value as bool;

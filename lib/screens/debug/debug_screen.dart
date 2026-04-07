@@ -175,9 +175,11 @@ class _DebugScreenState extends State<DebugScreen> {
         buffer.writeln(
           'Health: ${connService.healthStatus.name}',
         );
-        buffer.writeln('Preferred: ${connService.preferredConnectionType?.name ?? "auto"}');
+        buffer.writeln(
+            'Preferred: ${connService.preferredConnectionType?.name ?? "auto"}');
         buffer.writeln('Model: ${connService.selectedModel ?? "none"}');
-        buffer.writeln('Models: ${connService.availableModels.length} available');
+        buffer
+            .writeln('Models: ${connService.availableModels.length} available');
 
         if (connService.lastError != null) {
           buffer.writeln('Last error: ${connService.lastError}');
@@ -243,14 +245,11 @@ class _DebugScreenState extends State<DebugScreen> {
               .timeout(const Duration(seconds: 10));
           break;
         case 'DELETE':
-          response = await http
-              .delete(uri)
-              .timeout(const Duration(seconds: 10));
+          response =
+              await http.delete(uri).timeout(const Duration(seconds: 10));
           break;
         default:
-          response = await http
-              .get(uri)
-              .timeout(const Duration(seconds: 10));
+          response = await http.get(uri).timeout(const Duration(seconds: 10));
       }
 
       final latency = DateTime.now().difference(startTime).inMilliseconds;
@@ -262,8 +261,7 @@ class _DebugScreenState extends State<DebugScreen> {
       String formattedBody;
       try {
         final decoded = jsonDecode(response.body);
-        formattedBody =
-            const JsonEncoder.withIndent('  ').convert(decoded);
+        formattedBody = const JsonEncoder.withIndent('  ').convert(decoded);
         if (formattedBody.length > 3000) {
           formattedBody =
               '${formattedBody.substring(0, 3000)}\n\n... (truncated)';
@@ -446,17 +444,15 @@ class _DebugScreenState extends State<DebugScreen> {
                   label: Text(_isTestingConnection
                       ? 'Testing...'
                       : 'Run Connection Test'),
-                  onPressed:
-                      _isTestingConnection ? null : _testConnection,
+                  onPressed: _isTestingConnection ? null : _testConnection,
                 ),
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   constraints: const BoxConstraints(minHeight: 120),
@@ -477,9 +473,7 @@ class _DebugScreenState extends State<DebugScreen> {
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(
-                                  fontFamily: 'monospace',
-                                  fontSize: 11),
+                              ?.copyWith(fontFamily: 'monospace', fontSize: 11),
                         ),
                 ),
               ],
@@ -583,7 +577,8 @@ class _DebugScreenState extends State<DebugScreen> {
                       isDense: true,
                       hintText: '{"input": "hello", "model": "default"}',
                     ),
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    style:
+                        const TextStyle(fontFamily: 'monospace', fontSize: 12),
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -597,10 +592,9 @@ class _DebugScreenState extends State<DebugScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.send),
-                  label: Text(
-                      _isSendingRequest ? 'Sending...' : 'Send Request'),
-                  onPressed:
-                      _isSendingRequest ? null : _sendApiRequest,
+                  label:
+                      Text(_isSendingRequest ? 'Sending...' : 'Send Request'),
+                  onPressed: _isSendingRequest ? null : _sendApiRequest,
                 ),
                 const SizedBox(height: 12),
 
@@ -609,9 +603,8 @@ class _DebugScreenState extends State<DebugScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   constraints: const BoxConstraints(minHeight: 120),
@@ -625,9 +618,7 @@ class _DebugScreenState extends State<DebugScreen> {
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
-                              ?.copyWith(
-                                  fontFamily: 'monospace',
-                                  fontSize: 11),
+                              ?.copyWith(fontFamily: 'monospace', fontSize: 11),
                         ),
                 ),
               ],
@@ -662,7 +653,8 @@ class _DebugScreenState extends State<DebugScreen> {
               children: [
                 _buildServiceTile(
                   name: 'Connection Manager',
-                  status: connService.isConnected ? 'Connected' : 'Disconnected',
+                  status:
+                      connService.isConnected ? 'Connected' : 'Disconnected',
                   isHealthy: connService.isConnected,
                   details: connService.preferredConnectionType?.name ?? 'auto',
                 ),

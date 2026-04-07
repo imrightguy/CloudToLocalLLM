@@ -38,9 +38,11 @@ class AppConfig {
   static const String devModeUser = 'dev@cloudtolocalllm.online';
 
   // Testing mode settings
-  static const bool forceSetupWizard = false; // Set to true only for testing new setup flow
+  static const bool forceSetupWizard =
+      false; // Set to true only for testing new setup flow
   // Gateway Connection Options
-  static const bool skipDeviceIdentity = true; // Use token-only auth, skip device pairing
+  static const bool skipDeviceIdentity =
+      true; // Use token-only auth, skip device pairing
   // API Configuration
   static const String apiBaseUrl = 'https://api.cloudtolocalllm.online';
   static const Duration apiTimeout = Duration(seconds: 30);
@@ -100,7 +102,8 @@ class AppConfig {
     defaultValue: _defaultGatewayHost,
   );
   static int _runtimeGatewayPort = int.tryParse(
-        const String.fromEnvironment('OPENCLAW_GATEWAY_PORT', defaultValue: '18789'),
+        const String.fromEnvironment('OPENCLAW_GATEWAY_PORT',
+            defaultValue: '18789'),
       ) ??
       _defaultGatewayPort;
   static String? _runtimeGatewayUrl = String.fromEnvironment(
@@ -164,7 +167,6 @@ class AppConfig {
   /// Get gateway URL synchronously (for use during initialization)
   /// Returns runtime URL (env var or default)
   static String getGatewayUrlSync() => gatewayUrl;
-
 
   // Cloud Relay Configuration (via OpenClaw)
   static const String cloudGatewayUrl = '$apiBaseUrl/v1';

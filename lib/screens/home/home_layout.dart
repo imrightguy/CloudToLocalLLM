@@ -288,11 +288,15 @@ class _ChatPaneState extends State<_ChatPane> {
                 ChatControlBar(
                   currentSession: _currentSession,
                   isConnected: isConnected,
-                  onSessionChanged: (session) => setState(() => _currentSession = session),
+                  onSessionChanged: (session) =>
+                      setState(() => _currentSession = session),
                   onRefresh: _loadData,
-                  onThinkingToggle: (value) => setState(() => _showThinking = value),
-                  onFocusModeToggle: (value) => setState(() => _focusMode = value),
-                  onCronSessionsToggle: (value) => setState(() => _showCronSessions = value),
+                  onThinkingToggle: (value) =>
+                      setState(() => _showThinking = value),
+                  onFocusModeToggle: (value) =>
+                      setState(() => _focusMode = value),
+                  onCronSessionsToggle: (value) =>
+                      setState(() => _showCronSessions = value),
                   showThinking: _showThinking,
                   focusMode: _focusMode,
                   showCronSessions: _showCronSessions,

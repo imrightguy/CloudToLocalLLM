@@ -29,8 +29,7 @@ class AvatarSettingsScreen extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.all(spacing.l),
               children: [
-                Text('Avatar',
-                    style: theme.textTheme.headlineMedium),
+                Text('Avatar', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 16),
                 const Text('Configure avatar personality and evolution.'),
                 const SizedBox(height: 32),

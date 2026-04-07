@@ -104,51 +104,57 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-            // Header
-            Text(
-              'System Connection Status',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppTheme.textColor,
-                    fontWeight: FontWeight.bold,
+                  // Header
+                  Text(
+                    'System Connection Status',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: AppTheme.textColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-            ),
-            SizedBox(height: AppTheme.spacingS),
-            Text(
-              'Monitor the status of all system connections and services',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: AppTheme.textColorLight),
-            ),
-            if (_lastRefresh != null) ...[
-              SizedBox(height: AppTheme.spacingS),
-              Text(
-                'Last updated: ${_formatDateTime(_lastRefresh!)}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppTheme.textColorLight),
-              ),
-            ],
-            SizedBox(height: AppTheme.spacingXL),
+                  SizedBox(height: AppTheme.spacingS),
+                  Text(
+                    'Monitor the status of all system connections and services',
+                    style: Theme.of(
+                      context,
+                    )
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: AppTheme.textColorLight),
+                  ),
+                  if (_lastRefresh != null) ...[
+                    SizedBox(height: AppTheme.spacingS),
+                    Text(
+                      'Last updated: ${_formatDateTime(_lastRefresh!)}',
+                      style: Theme.of(
+                        context,
+                      )
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppTheme.textColorLight),
+                    ),
+                  ],
+                  SizedBox(height: AppTheme.spacingXL),
 
-            // Authentication Status
-            _buildAuthenticationStatus(),
-            SizedBox(height: AppTheme.spacingL),
+                  // Authentication Status
+                  _buildAuthenticationStatus(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // OpenClaw Status
-            _buildOpenClawStatus(),
-            SizedBox(height: AppTheme.spacingL),
+                  // OpenClaw Status
+                  _buildOpenClawStatus(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // Cloud Proxy Status
-            _buildCloudProxyStatus(),
-            SizedBox(height: AppTheme.spacingL),
+                  // Cloud Proxy Status
+                  _buildCloudProxyStatus(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // System Tray Status
-            _buildSystemTrayStatus(),
-            SizedBox(height: AppTheme.spacingL),
+                  // System Tray Status
+                  _buildSystemTrayStatus(),
+                  SizedBox(height: AppTheme.spacingL),
 
-            // Network Status
-            _buildNetworkStatus(),
-          ],
+                  // Network Status
+                  _buildNetworkStatus(),
+                ],
               ),
             ),
           ),
