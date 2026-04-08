@@ -39,9 +39,9 @@ const repositoryNameArbitrary = () => {
   // CI-stable repositories
   return fc.constantFrom(
     "cloudtolocalllm-api",
-    "CloudToLocalLLM-web",
-    "CloudToLocalLLM-streaming",
-    "CloudToLocalLLM-postgres",
+    "cloudtolocalllm-web",
+    "cloudtolocalllm-streaming",
+    "cloudtolocalllm-postgres",
   );
 };
 
