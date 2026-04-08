@@ -91,13 +91,21 @@ export function initializePool() {
      */
     const parseTableName = (sql) => {
       const insertMatch = sql.match(/INSERT\s+INTO\s+(\w+)/i);
-      if (insertMatch) return insertMatch[1];
+      if (insertMatch) {
+return insertMatch[1];
+}
       const fromMatch = sql.match(/FROM\s+(\w+)/i);
-      if (fromMatch) return fromMatch[1];
+      if (fromMatch) {
+return fromMatch[1];
+}
       const updateMatch = sql.match(/UPDATE\s+(\w+)/i);
-      if (updateMatch) return updateMatch[1];
+      if (updateMatch) {
+return updateMatch[1];
+}
       const deleteMatch = sql.match(/DELETE\s+FROM\s+(\w+)/i);
-      if (deleteMatch) return deleteMatch[1];
+      if (deleteMatch) {
+return deleteMatch[1];
+}
       return null;
     };
 
@@ -118,13 +126,19 @@ export function initializePool() {
     const parseSelectColumns = (sql) => {
       const match = sql.match(/SELECT\s+(.*?)\s+FROM/i);
       if (match) {
-        if (match[1].trim() === '*') return null; // all columns
+        if (match[1].trim() === '*') {
+return null;
+} // all columns
         return match[1].split(',').map(c => {
           // Handle "col as alias" and table.col patterns
           const aliased = c.match(/(\w+)\s+as\s+(\w+)/i);
-          if (aliased) return { expr: aliased[1].trim(), alias: aliased[2].trim() };
+          if (aliased) {
+return { expr: aliased[1].trim(), alias: aliased[2].trim() };
+}
           const dotted = c.match(/(\w+)\.(\w+)/);
-          if (dotted) return { expr: dotted[2], alias: dotted[2] };
+          if (dotted) {
+return { expr: dotted[2], alias: dotted[2] };
+}
           return { expr: c.trim(), alias: c.trim() };
         });
       }
@@ -136,7 +150,9 @@ export function initializePool() {
      */
     const parseInsertColumns = (sql) => {
       const colMatch = sql.match(/INSERT\s+INTO\s+\w+\s*\(([^)]+)\)/i);
-      if (!colMatch) return null;
+      if (!colMatch) {
+return null;
+}
       return colMatch[1].split(',').map(c => c.trim());
     };
 
@@ -146,8 +162,9 @@ export function initializePool() {
      */
     const parseValuesClause = (sql) => {
       const match = sql.match(/VALUES\s*\(([^)]+)\)/i);
-      if (!match) return null;
-      const parts = [];
+      if (!match) {
+return null;
+}
       let remaining = match[1];
       // Split on commas, respecting parentheses and quotes
       const tokens = [];
@@ -156,14 +173,20 @@ export function initializePool() {
         const ch = remaining[i];
         if (inStr) {
           current += ch;
-          if (ch === strChar) inStr = false;
+          if (ch === strChar) {
+inStr = false;
+}
           continue;
         }
         if (ch === "'" || ch === '"') {
           inStr = true; strChar = ch; current += ch; continue;
         }
-        if (ch === '(') { depth++; current += ch; continue; }
-        if (ch === ')') { depth--; current += ch; continue; }
+        if (ch === '(') {
+ depth++; current += ch; continue;
+}
+        if (ch === ')') {
+ depth--; current += ch; continue;
+}
         if (ch === ',' && depth === 0) {
           tokens.push(current.trim());
           current = '';
@@ -171,20 +194,33 @@ export function initializePool() {
         }
         current += ch;
       }
-      if (current.trim()) tokens.push(current.trim());
+      if (current.trim()) {
+tokens.push(current.trim());
+}
 
       return tokens.map(token => {
         const paramMatch = token.match(/^\$(\d+)$/);
-        if (paramMatch) return { type: 'param', index: parseInt(paramMatch[1]) - 1 };
+        if (paramMatch) {
+return { type: 'param', index: parseInt(paramMatch[1]) - 1 };
+}
         // Handle literal values
         let val = token;
-        if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
-        if (val.toUpperCase() === 'NOW()') val = new Date().toISOString();
-        else if (val.toUpperCase() === 'TRUE') val = true;
-        else if (val.toUpperCase() === 'FALSE') val = false;
-        else if (val.toUpperCase() === 'NULL') val = null;
-        else if (/^-?\d+$/.test(val)) val = parseInt(val, 10);
-        else if (/^-?\d+\.\d+$/.test(val)) val = parseFloat(val);
+        if (val.startsWith("'") && val.endsWith("'")) {
+val = val.slice(1, -1);
+}
+        if (val.toUpperCase() === 'NOW()') {
+val = new Date().toISOString();
+} else if (val.toUpperCase() === 'TRUE') {
+val = true;
+} else if (val.toUpperCase() === 'FALSE') {
+val = false;
+} else if (val.toUpperCase() === 'NULL') {
+val = null;
+} else if (/^-?\d+$/.test(val)) {
+val = parseInt(val, 10);
+} else if (/^-?\d+\.\d+$/.test(val)) {
+val = parseFloat(val);
+}
         return { type: 'literal', value: val };
       });
     };
@@ -196,7 +232,9 @@ export function initializePool() {
     const parseWhereConditions = (sql) => {
       const conditions = [];
       const whereMatch = sql.match(/WHERE\s+(.+?)(?:\s+ORDER|\s+LIMIT|\s+GROUP|\s+OFFSET|\s*;?\s*$)/i);
-      if (!whereMatch) return conditions;
+      if (!whereMatch) {
+return conditions;
+}
       const whereClause = whereMatch[1];
       const regex = /(\w+)\s*=\s*\$(\d+)/g;
       let m;
@@ -220,14 +258,18 @@ export function initializePool() {
       // CREATE TABLE — just acknowledge
       if (/^CREATE\s+/i.test(trimmed)) {
         const table = parseTableName(trimmed);
-        if (table && !mockStore[table]) mockStore[table] = [];
+        if (table && !mockStore[table]) {
+mockStore[table] = [];
+}
         return { rows: [], rowCount: 0 };
       }
 
       // INSERT — store row in mockStore, return requested columns
       if (/^INSERT\s+/i.test(trimmed)) {
         const table = parseTableName(trimmed);
-        if (!mockStore[table]) mockStore[table] = [];
+        if (!mockStore[table]) {
+mockStore[table] = [];
+}
 
         const columns = parseInsertColumns(trimmed);
         const returning = parseReturning(trimmed);
@@ -254,8 +296,12 @@ export function initializePool() {
         }
 
         // Add generated id and created_at if not present
-        if (!row.id) row.id = generateId();
-        if (!row.created_at) row.created_at = new Date().toISOString();
+        if (!row.id) {
+row.id = generateId();
+}
+        if (!row.created_at) {
+row.created_at = new Date().toISOString();
+}
 
         // Add common PostgreSQL-style defaults for columns not in INSERT
         const defaultColumns = {
@@ -269,7 +315,9 @@ export function initializePool() {
           severity: 'info',
         };
         for (const [col, defaultVal] of Object.entries(defaultColumns)) {
-          if (!(col in row)) row[col] = defaultVal;
+          if (!(col in row)) {
+row[col] = defaultVal;
+}
         }
 
         mockStore[table].push(row);
@@ -335,7 +383,7 @@ export function initializePool() {
                 if (typeof parsed === 'object' && parsed !== null) {
                   cloned[key] = parsed;
                 }
-              } catch (_) {
+              } catch {
                 // Not JSON, keep as string
               }
             }
@@ -360,11 +408,15 @@ export function initializePool() {
         const offsetMatch = trimmed.match(/OFFSET\s+\$(\d+)/i);
         if (offsetMatch && offsetMatch[1]) {
           const offsetIdx = parseInt(offsetMatch[1]) - 1;
-          if (offsetIdx < params.length) rows = rows.slice(params[offsetIdx]);
+          if (offsetIdx < params.length) {
+rows = rows.slice(params[offsetIdx]);
+}
         }
         if (limitMatch && limitMatch[1]) {
           const limitIdx = parseInt(limitMatch[1]) - 1;
-          if (limitIdx < params.length) rows = rows.slice(0, params[limitIdx]);
+          if (limitIdx < params.length) {
+rows = rows.slice(0, params[limitIdx]);
+}
         }
 
         return { rows, rowCount: rows.length };
@@ -414,18 +466,27 @@ export function initializePool() {
                 const paramRef = sa.expression.match(/^\$(\d+)$/);
                 if (paramRef) {
                   const idx = parseInt(paramRef[1]) - 1;
-                  if (idx < params.length) row[sa.column] = params[idx];
+                  if (idx < params.length) {
+row[sa.column] = params[idx];
+}
                 } else if (sa.expression.toUpperCase() === 'NOW()') {
                   row[sa.column] = new Date().toISOString();
                 } else {
                   // Try to parse as literal
                   let val = sa.expression;
-                  if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
-                  else if (val.toUpperCase() === 'TRUE') val = true;
-                  else if (val.toUpperCase() === 'FALSE') val = false;
-                  else if (val.toUpperCase() === 'NULL') val = null;
-                  else if (/^-?\d+$/.test(val)) val = parseInt(val, 10);
-                  else if (/^-?\d+\.\d+$/.test(val)) val = parseFloat(val);
+                  if (val.startsWith("'") && val.endsWith("'")) {
+val = val.slice(1, -1);
+} else if (val.toUpperCase() === 'TRUE') {
+val = true;
+} else if (val.toUpperCase() === 'FALSE') {
+val = false;
+} else if (val.toUpperCase() === 'NULL') {
+val = null;
+} else if (/^-?\d+$/.test(val)) {
+val = parseInt(val, 10);
+} else if (/^-?\d+\.\d+$/.test(val)) {
+val = parseFloat(val);
+}
                   row[sa.column] = val;
                 }
               }
