@@ -1,28 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const scheduleController = require('../controllers/schedule.controller');
+const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
 
-// Schedule routes
-router.get('/', asyncHandler(scheduleController.getSchedules));
-router.post('/', asyncHandler(scheduleController.createSchedule));
-router.get('/:id', asyncHandler(scheduleController.getScheduleById));
-router.put('/:id', asyncHandler(scheduleController.updateSchedule));
-router.delete('/:id', asyncHandler(scheduleController.deleteSchedule));
-
-// Schedule search
-router.get('/search', asyncHandler(scheduleController.searchSchedules));
-
-// Schedule bulk operations
-router.post('/bulk', asyncHandler(scheduleController.bulkUpdateSchedules));
-
-// Schedule availability
-router.get('/availability', asyncHandler(scheduleController.checkAvailability));
-
-// Schedule reminders
-router.post('/:id/reminders', asyncHandler(scheduleController.createScheduleReminder));
-
-// Recurring schedule exceptions
-router.post('/:id/exceptions', asyncHandler(scheduleController.addScheduleException));
+router.get('/', authenticateToken, asyncHandler(scheduleController.getSchedules));
+router.post('/', authenticateToken, asyncHandler(scheduleController.createSchedule));
+router.get('/:id', authenticateToken, asyncHandler(scheduleController.getScheduleById));
+router.put('/:id', authenticateToken, asyncHandler(scheduleController.updateSchedule));
+router.delete('/:id', authenticateToken, asyncHandler(scheduleController.deleteSchedule));
+router.get('/employee/:employeeId/availability', authenticateToken, asyncHandler((req, res) => {
+  return scheduleController.getEmployeeAvailability(req, res, req.params.employeeId, req.query.date);
+}));
 
 module.exports = router;

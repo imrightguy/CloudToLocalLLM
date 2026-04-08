@@ -5,32 +5,28 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { errorHandler } = require('./utils/apiResponse');
 const routes = require('./routes');
-const authRoutes = require('./routes/auth.routes');
-const { connect } = require('./database/connection');
+const { connect, closeDatabase } = require('./database/connection');
+const { initTwilio } = require('./services/twilio.service');
+const { startScheduler, stopScheduler } = require('./services/scheduler.service');
+const { startWeeklyReport, stopWeeklyReport } = require('./services/weekly-report.service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    error: {
-      message: 'Too many requests from this IP, please try again later.',
-      code: 'RATE_LIMIT_EXCEEDED'
-    }
-  }
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { success: false, error: { message: 'Too many requests', code: 'RATE_LIMIT_EXCEEDED' } },
 });
 
-// CORS configuration
+// CORS
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  maxAge: 86400
+  maxAge: 86400,
 };
 
 // Middleware
@@ -42,69 +38,61 @@ app.use(limiter);
 
 // Request logging
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
   next();
 });
 
-// Health check endpoint
+// Health check (with DB ping)
 app.get('/health', async (req, res) => {
   try {
-    const health = await connect();
-    res.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      database: health,
-      uptime: process.uptime()
-    });
+    await connect();
+    res.json({ status: 'healthy', timestamp: new Date().toISOString(), uptime: process.uptime() });
   } catch (error) {
-    res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error.message
-    });
+    res.status(503).json({ status: 'unhealthy', timestamp: new Date().toISOString(), error: error.message });
   }
 });
 
-// API routes
+// API routes (includes /api/auth via routes/index.js)
 app.use('/api', routes);
-app.use('/api/auth', authRoutes);
 
-// 404 handler
+// 404
 app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: {
-      message: 'Route not found',
-      code: 'NOT_FOUND'
-    }
-  });
+  res.status(404).json({ success: false, error: { message: 'Route not found', code: 'NOT_FOUND' } });
 });
 
-// Error handling middleware
+// Error handler
 app.use(errorHandler);
 
-// Start server
+// Start
 app.listen(PORT, async () => {
-  console.log(`Server is running on port ${PORT}`);
-  
+  console.log(`🚀 ImmoGestion API on port ${PORT}`);
   try {
     await connect();
-    console.log('Database connected successfully');
+    console.log('✅ Database connected');
   } catch (error) {
-    console.error('Database connection failed:', error);
+    console.error('❌ Database connection failed:', error.message);
     process.exit(1);
   }
+
+  // Initialize Twilio client
+  initTwilio();
+
+  // Start SMS scheduler (cron jobs)
+  startScheduler();
+
+  // Start weekly email report (Sunday 5pm)
+  startWeeklyReport();
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
+const shutdown = async () => {
+  console.log('\n👋 Shutting down...');
+  stopScheduler();
+  stopWeeklyReport();
+  await closeDatabase();
   process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received. Shutting down gracefully...');
-  process.exit(0);
-});
+};
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 module.exports = app;

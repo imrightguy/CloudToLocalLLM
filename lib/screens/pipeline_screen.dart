@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../data/demo_data.dart';
 import '../models.dart';
+import '../services/api_service.dart';
 
 class PipelineScreen extends StatefulWidget {
   const PipelineScreen({super.key});
@@ -10,13 +10,28 @@ class PipelineScreen extends StatefulWidget {
   State<PipelineScreen> createState() => _PipelineScreenState();
 }
 
-class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProviderStateMixin {
+class _PipelineScreenState extends State<PipelineScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<LeadItem> _allLeads = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  static const _stages = [
+    LeadStage.nouveau,
+    LeadStage.contacte,
+    LeadStage.qualifie,
+    LeadStage.visitePlanifiee,
+    LeadStage.offreEnvoyee,
+    LeadStage.negociation,
+    LeadStage.bailSigne,
+  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: _stages.length, vsync: this);
+    _fetchLeads();
   }
 
   @override
@@ -25,8 +40,102 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
     super.dispose();
   }
 
+  Future<void> _fetchLeads() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final response = await ApiService.instance.get('/leads');
+      final data = response['data'] as List<dynamic>;
+      final leads =
+          data.map((e) => LeadItem.fromJson(e as Map<String, dynamic>)).toList();
+      setState(() {
+        _allLeads = leads;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  List<LeadItem> _leadsForStage(LeadStage stage) {
+    return _allLeads.where((lead) => lead.stage == stage).toList();
+  }
+
+  int _countForStage(LeadStage stage) {
+    return _allLeads.where((lead) => lead.stage == stage).length;
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Pipeline'),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF1E293B),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Pipeline'),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF1E293B),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline,
+                  size: 48, color: Color(0xFFEF4444)),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  'Impossible de charger les prospects',
+                  style: const TextStyle(
+                      fontSize: 16, color: Color(0xFF1E293B)),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(
+                      fontSize: 12, color: Color(0xFF64748B)),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _fetchLeads,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Réessayer'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F766E),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pipeline'),
@@ -44,36 +153,30 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
             borderSide: BorderSide(color: Color(0xFF0F766E), width: 3),
             insets: EdgeInsets.symmetric(horizontal: 16),
           ),
-          tabs: const [
-            Tab(text: 'Nouveau'),
-            Tab(text: 'Contacté'),
-            Tab(text: 'Qualifié'),
-            Tab(text: 'Visite'),
-            Tab(text: 'Offre'),
-            Tab(text: 'Négociation'),
-            Tab(text: 'Signé'),
-          ],
+          tabs: _stages.map((stage) {
+            final count = _countForStage(stage);
+            return Tab(
+              text: '${stage.label}$count',
+            );
+          }).toList(),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildPipelineStage(LeadStage.nouveau, 3),
-          _buildPipelineStage(LeadStage.contacte, 5),
-          _buildPipelineStage(LeadStage.qualifie, 4),
-          _buildPipelineStage(LeadStage.visitePlanifiee, 2),
-          _buildPipelineStage(LeadStage.offreEnvoyee, 1),
-          _buildPipelineStage(LeadStage.negociation, 1),
-          _buildPipelineStage(LeadStage.bailSigne, 1),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _fetchLeads,
+        child: TabBarView(
+          controller: _tabController,
+          children: _stages.map((stage) {
+            return _buildPipelineStage(stage);
+          }).toList(),
+        ),
       ),
     );
   }
 
-  Widget _buildPipelineStage(LeadStage stage, int count) {
-    // Filter leads by stage
-    final filteredLeads = leadItems.where((lead) => lead.stage == stage).toList();
-    
+  Widget _buildPipelineStage(LeadStage stage) {
+    final filteredLeads = _leadsForStage(stage);
+    final totalCount = _allLeads.length;
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -133,7 +236,9 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
                   ),
                 ),
                 Text(
-                  '${(count / 24 * 100).toStringAsFixed(1)}%',
+                  totalCount > 0
+                      ? '${(filteredLeads.length / totalCount * 100).toStringAsFixed(1)}%'
+                      : '0%',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -143,25 +248,33 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Leads list
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredLeads.length,
-              itemBuilder: (context, index) {
-                final lead = filteredLeads[index];
-                return _buildLeadCard(lead);
-              },
-            ),
+            child: filteredLeads.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Aucun prospect dans cette étape',
+                      style:
+                          TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredLeads.length,
+                    itemBuilder: (context, index) {
+                      final lead = filteredLeads[index];
+                      return _buildLeadCard(lead);
+                    },
+                  ),
           ),
-          
+
           // Add button
           Container(
             margin: const EdgeInsets.only(top: 16),
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () => _showAddLeadDialog(context, stage),
               icon: const Icon(Icons.add),
               label: const Text('Ajouter un prospect'),
               style: ElevatedButton.styleFrom(
@@ -177,6 +290,129 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
           ),
         ],
       ),
+    );
+  }
+
+  void _showAddLeadDialog(BuildContext context, LeadStage stage) {
+    final fullNameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
+    final budgetController = TextEditingController();
+    final notesController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Ajouter un prospect'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: fullNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nom complet',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Téléphone',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: budgetController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Budget (\$)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: notesController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Notes',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final fullName = fullNameController.text.trim();
+                final email = emailController.text.trim();
+                if (fullName.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Le nom est requis')),
+                  );
+                  return;
+                }
+                Navigator.of(dialogContext).pop();
+                try {
+                  final budgetText = budgetController.text.trim();
+                  final body = <String, dynamic>{
+                    'fullName': fullName,
+                    'email': email,
+                    'phone': phoneController.text.trim(),
+                    'stage': stage.name,
+                    'notes': notesController.text.trim(),
+                  };
+                  if (budgetText.isNotEmpty) {
+                    body['budget'] = int.tryParse(budgetText) ?? 0;
+                  }
+                  await ApiService.instance.post('/leads', body);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Prospect ajouté avec succès'),
+                        backgroundColor: Color(0xFF10B981),
+                      ),
+                    );
+                    _fetchLeads();
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erreur: ${e.toString()}'),
+                        backgroundColor: const Color(0xFFEF4444),
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Ajouter'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -249,15 +485,15 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.email_outlined,
                 size: 16,
-                color: const Color(0xFF64748B),
+                color: Color(0xFF64748B),
               ),
               const SizedBox(width: 4),
               Text(
@@ -268,10 +504,10 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
                 ),
               ),
               const SizedBox(width: 16),
-              Icon(
+              const Icon(
                 Icons.phone_outlined,
                 size: 16,
-                color: const Color(0xFF64748B),
+                color: Color(0xFF64748B),
               ),
               const SizedBox(width: 4),
               Text(
@@ -283,7 +519,7 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               ),
             ],
           ),
-          
+
           if (lead.notes.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
@@ -295,9 +531,9 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               ),
             ),
           ],
-          
+
           const SizedBox(height: 12),
-          
+
           Row(
             children: [
               Text(
@@ -310,22 +546,23 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               const SizedBox(width: 8),
               if (lead.tags.isNotEmpty) ...[
                 ...lead.tags.take(2).expand((tag) => [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE0E7FF),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      tag,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF4338CA),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0E7FF),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          tag,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF4338CA),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                ]),
+                      const SizedBox(width: 4),
+                    ]),
               ],
             ],
           ),

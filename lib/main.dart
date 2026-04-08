@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'services/api_service.dart';
+import 'services/auth_service.dart';
+import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/pipeline_screen.dart';
@@ -18,8 +21,30 @@ void main() {
   runApp(const ImmoGestionApp());
 }
 
-class ImmoGestionApp extends StatelessWidget {
+class ImmoGestionApp extends StatefulWidget {
   const ImmoGestionApp({super.key});
+
+  @override
+  State<ImmoGestionApp> createState() => _ImmoGestionAppState();
+}
+
+class _ImmoGestionAppState extends State<ImmoGestionApp> {
+  /// True once the initial auth check (loading tokens) is complete.
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    await ApiService.instance.init();
+    await AuthNotifier.instance.init();
+    if (mounted) {
+      setState(() => _isInitialized = true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,13 +75,78 @@ class ImmoGestionApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      // Auth gate – show splash while initialising, then branch on login state.
+      home: _isInitialized
+          ? ListenableBuilder(
+              listenable: AuthNotifier.instance,
+              builder: (context, _) {
+                if (AuthNotifier.instance.isLoggedIn) {
+                  return const AuthGate(child: HomeScreen());
+                }
+                return const AuthGate(child: LoginScreen());
+              },
+            )
+          : const _SplashScreen(),
       routes: {
         '/dashboard': (context) => const DashboardScreen(),
         '/pipeline': (context) => const PipelineScreen(),
         '/visits': (context) => const VisitsScreen(),
         '/buildings': (context) => const BuildingsScreen(),
       },
+    );
+  }
+}
+
+/// Lightweight wrapper that re-evaluates auth state so any screen can be
+/// replaced when the user logs out mid-session.
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AuthNotifier.instance,
+      builder: (context, _) {
+        // If user logs out while inside the app, redirect to login.
+        if (!AuthNotifier.instance.isLoggedIn) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+              (route) => false,
+            );
+          });
+        }
+        return child;
+      },
+    );
+  }
+}
+
+/// Simple splash shown while tokens are being loaded from SharedPreferences.
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Color(0xFFF8FAFC),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.apartment_rounded,
+              size: 64,
+              color: Color(0xFF0F766E),
+            ),
+            SizedBox(height: 16),
+            CircularProgressIndicator(color: Color(0xFF0F766E)),
+          ],
+        ),
+      ),
     );
   }
 }
