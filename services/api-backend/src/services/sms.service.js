@@ -27,11 +27,6 @@ const formatDateTime = dateTime => {
   });
 };
 
-const formatTime = dateTime => {
-  const d = new Date(dateTime);
-  return d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
-};
-
 const logSMS = async params => {
   try {
     const { twilioSid, visitId, employeeId, leadId, phoneNumber, direction, messageBody, status, twilioStatus, errorMessage } = params;
@@ -235,7 +230,7 @@ const sendPostVisitSurvey = async visitId => {
       return { success: false, error: 'Visit not found' };
     }
 
-    const { visit, employee, lead, building } = ctx;
+    const { visit: _visit, employee, lead, building } = ctx;
     if (!employee || !lead) {
       return { success: false, error: 'Missing employee or lead for post-visit survey' };
     }
@@ -342,7 +337,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
     }
 
     // Clean phone for matching
-    const cleanedPhone = employeePhone.replace(/[\s\-\(\)\+]/g, '');
+    const cleanedPhone = employeePhone.replace(/[\s\-()+]/g, '');
 
     // Find employee
     const employees = await db
@@ -537,7 +532,7 @@ const handleTenantReply = async (leadPhone, reply) => {
       return { success: false, error: 'Unrecognised reply' };
     }
 
-    const cleanedPhone = leadPhone.replace(/[\s\-\(\)\+]/g, '');
+    const cleanedPhone = leadPhone.replace(/[\s\-()+]/g, '');
 
     // Find lead by phone
     let leads = await db

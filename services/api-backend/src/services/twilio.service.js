@@ -48,7 +48,7 @@ const sendSMS = async (to, body) => {
       return { success: false, error: 'Phone number and message body are required' };
     }
 
-    const cleanedTo = to.replace(/[\s\-\(\)]/g, '');
+    const cleanedTo = to.replace(/[\s\-()]/g, '');
     const from = twilioPhoneNumber;
 
     if (!from) {

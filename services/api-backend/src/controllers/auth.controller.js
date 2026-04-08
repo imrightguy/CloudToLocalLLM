@@ -9,7 +9,7 @@ const { eq, and, ne, sql, desc } = require('drizzle-orm');
 /** Strip passwordHash from a user row */
 const sanitizeUser = user => {
   if (!user) return null;
-  const { passwordHash, ...safe } = user;
+  const { passwordHash: _passwordHash, ...safe } = user;
   return safe;
 };
 

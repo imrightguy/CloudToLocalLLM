@@ -1,9 +1,9 @@
 // ─── Analytics Service — Phase 4 ───
 const { db } = require('../database/connection');
 const {
-  leadsTable, visitsTable, buildingsTable, employeesTable, usersTable,
+  leadsTable, visitsTable, buildingsTable, employeesTable,
 } = require('../database/schema');
-const { sql, eq, and, gte, lte, count, desc } = require('drizzle-orm');
+const { sql, eq, and, gte, count, desc } = require('drizzle-orm');
 
 // ─── Helpers ───
 

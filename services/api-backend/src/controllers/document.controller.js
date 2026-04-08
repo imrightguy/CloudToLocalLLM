@@ -1,6 +1,6 @@
 const { db } = require('../database/connection');
 const { documentsTable, documentsLeadsTable } = require('../database/schema');
-const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
+const { eq, and, desc, ilike, sql } = require('drizzle-orm');
 
 // ─── Upload Document ───
 exports.uploadDocument = async (req, res) => {

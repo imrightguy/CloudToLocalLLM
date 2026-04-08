@@ -6,7 +6,6 @@
  */
 
 const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
-const FB_APP_SECRET = process.env.FB_APP_SECRET;
 
 const botService = require('../services/messenger-bot.service');
 

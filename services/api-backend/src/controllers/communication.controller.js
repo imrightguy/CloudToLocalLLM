@@ -1,6 +1,6 @@
 const { db } = require('../database/connection');
 const { communicationLogsTable, leadsTable, visitsTable, smsLogsTable, employeesTable, unitsTable, buildingsTable } = require('../database/schema');
-const { eq, and, desc, asc, ilike, sql, gte, lte } = require('drizzle-orm');
+const { eq, and, desc, sql, gte } = require('drizzle-orm');
 
 // ─── Log Communication ───
 exports.logCommunication = async (req, res) => {

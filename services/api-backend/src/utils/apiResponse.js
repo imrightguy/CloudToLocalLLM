@@ -33,7 +33,7 @@ const successResponse = ({ data, message = 'Operation successful', metadata = nu
  * @param {number} options.statusCode - HTTP status code
  * @returns {Object} Formatted error response
  */
-const errorResponse = ({ message, code = 'INTERNAL_ERROR', details = null, statusCode = 500 }) => {
+const errorResponse = ({ message, code = 'INTERNAL_ERROR', details = null, statusCode: _statusCode = 500 }) => {
   const response = {
     success: false,
     error: {
@@ -146,7 +146,7 @@ const getPagination = (page = 1, limit = 20) => {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const errorHandler = (error, req, res, next) => {
+const errorHandler = (error, req, res, _next) => {
   console.error('API Error:', error);
 
   // Default error response

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { db } = require('../database/connection');
 const { eq } = require('drizzle-orm');
-const { usersTable, refreshTokensTable } = require('../database/schema');
+const { usersTable } = require('../database/schema');
 
 const authenticateToken = async (req, res, next) => {
   try {

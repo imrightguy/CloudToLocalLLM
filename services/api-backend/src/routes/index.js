@@ -31,7 +31,7 @@ router.use('/webhooks', smsRoutes);
 router.use('/webhooks/facebook', facebookRoutes);
 router.use('/analytics', analyticsRoutes);
 
-router.use((err, req, res, next) => {
+router.use((err, req, res, _next) => {
   setCORSHeaders(res);
   console.error('API Error:', err);
   res.status(500).json({ success: false, error: { message: 'Internal server error', code: 'INTERNAL_ERROR' } });

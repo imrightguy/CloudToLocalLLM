@@ -331,7 +331,7 @@ const handleIncomingMessage = async (senderId, messageText) => {
 
 // ─── Individual State Handlers ───
 
-async function handleNew(senderId, conv, text) {
+async function handleNew(senderId, conv, _text) {
   // Try to fetch FB profile for the user
   try {
     const profile = await fbService.getUserProfile(senderId);
@@ -505,7 +505,7 @@ async function handleBudget(senderId, conv, text) {
   conv.state = STATES.ASKED_BUILDING;
 }
 
-async function handleBuilding(senderId, conv, text) {
+async function handleBuilding(senderId, conv, _text) {
   const lang = conv.data.language;
 
   // Check if user selected a unit from template (postback-style text fallback)
@@ -598,10 +598,10 @@ async function handleSuggestVisit(senderId, conv, text) {
   }
 
   // Create visit in DB
-  let visit = null;
+  let _visit = null;
   if (conv.leadId) {
     try {
-      [visit] = await db
+      [_visit] = await db
         .insert(visitsTable)
         .values({
           unitId: conv.data.unitId,

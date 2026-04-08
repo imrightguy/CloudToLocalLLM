@@ -1,6 +1,6 @@
 const { db } = require('../database/connection');
-const { employeeSchedulesTable, employeesTable } = require('../database/schema');
-const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
+const { employeeSchedulesTable } = require('../database/schema');
+const { eq, and, asc } = require('drizzle-orm');
 
 // ─── Create Schedule ───
 exports.createSchedule = async (req, res) => {

@@ -53,7 +53,7 @@ const handleIncoming = async (req, res) => {
  */
 const handleStatus = async (req, res) => {
   try {
-    const { MessageSid, SmsStatus, ErrorCode, ErrorMessage } = req.body;
+    const { MessageSid, SmsStatus, ErrorMessage } = req.body;
 
     if (!MessageSid) {
       return res.status(400).send('Missing MessageSid');
