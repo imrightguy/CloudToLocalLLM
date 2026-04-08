@@ -19,48 +19,57 @@ import logger from '../logger.js';
 import nodemailer from 'nodemailer';
 import fetch from 'node-fetch';
 
-// Configuration from environment
-const EMAIL_ENABLED = process.env.ALERT_EMAIL_ENABLED === 'true';
-const EMAIL_TO = process.env.ALERT_EMAIL_TO || '';
-const EMAIL_FROM =
-  process.env.ALERT_EMAIL_FROM || 'alerts@cloudtolocalllm.online';
-const EMAIL_SMTP_HOST = process.env.ALERT_EMAIL_SMTP_HOST || 'smtp.gmail.com';
-const EMAIL_SMTP_PORT = parseInt(
-  process.env.ALERT_EMAIL_SMTP_PORT || '587',
-  10,
-);
-const EMAIL_SMTP_USER = process.env.ALERT_EMAIL_SMTP_USER || '';
-const EMAIL_SMTP_PASS = process.env.ALERT_EMAIL_SMTP_PASS || '';
+let _fetch = fetch;
+let _nodemailer = nodemailer;
 
-const SLACK_ENABLED = process.env.ALERT_SLACK_ENABLED === 'true';
-const SLACK_WEBHOOK_URL = process.env.ALERT_SLACK_WEBHOOK_URL || '';
+function _getConfig() {
+  return {
+    emailEnabled: process.env.ALERT_EMAIL_ENABLED === 'true',
+    emailTo: process.env.ALERT_EMAIL_TO || '',
+    emailFrom:
+      process.env.ALERT_EMAIL_FROM || 'alerts@cloudtolocalllm.online',
+    emailSmtpHost: process.env.ALERT_EMAIL_SMTP_HOST || 'smtp.gmail.com',
+    emailSmtpPort: parseInt(process.env.ALERT_EMAIL_SMTP_PORT || '587', 10),
+    emailSmtpUser: process.env.ALERT_EMAIL_SMTP_USER || '',
+    emailSmtpPass: process.env.ALERT_EMAIL_SMTP_PASS || '',
+    slackEnabled: process.env.ALERT_SLACK_ENABLED === 'true',
+    slackWebhookUrl: process.env.ALERT_SLACK_WEBHOOK_URL || '',
+    pagerdutyEnabled: process.env.ALERT_PAGERDUTY_ENABLED === 'true',
+    pagerdutyKey: process.env.ALERT_PAGERDUTY_INTEGRATION_KEY || '',
+  };
+}
 
-const PAGERDUTY_ENABLED = process.env.ALERT_PAGERDUTY_ENABLED === 'true';
-const PAGERDUTY_INTEGRATION_KEY =
-  process.env.ALERT_PAGERDUTY_INTEGRATION_KEY || '';
-
-// Email transporter (lazy initialization)
 let emailTransporter = null;
+let lastSmtpUser = null;
+let lastSmtpPass = null;
 
-/**
- * Initialize email transporter
- */
 function initializeEmailTransporter() {
-  if (!EMAIL_ENABLED || !EMAIL_SMTP_USER || !EMAIL_SMTP_PASS) {
+  const cfg = _getConfig();
+  if (!cfg.emailEnabled || !cfg.emailSmtpUser || !cfg.emailSmtpPass) {
     logger.warn('[Alerting] Email alerts disabled or not configured');
     return null;
   }
 
+  if (
+    emailTransporter &&
+    cfg.emailSmtpUser === lastSmtpUser &&
+    cfg.emailSmtpPass === lastSmtpPass
+  ) {
+    return emailTransporter;
+  }
+
   try {
-    emailTransporter = nodemailer.createTransport({
-      host: EMAIL_SMTP_HOST,
-      port: EMAIL_SMTP_PORT,
-      secure: EMAIL_SMTP_PORT === 465,
+    emailTransporter = _nodemailer.createTransport({
+      host: cfg.emailSmtpHost,
+      port: cfg.emailSmtpPort,
+      secure: cfg.emailSmtpPort === 465,
       auth: {
-        user: EMAIL_SMTP_USER,
-        pass: EMAIL_SMTP_PASS,
+        user: cfg.emailSmtpUser,
+        pass: cfg.emailSmtpPass,
       },
     });
+    lastSmtpUser = cfg.emailSmtpUser;
+    lastSmtpPass = cfg.emailSmtpPass;
     logger.info('[Alerting] Email transporter initialized');
     return emailTransporter;
   } catch (error) {
@@ -71,15 +80,9 @@ function initializeEmailTransporter() {
   }
 }
 
-/**
- * Send email alert
- *
- * @param {string} subject - Alert subject
- * @param {string} message - Alert message
- * @param {Object} metadata - Additional metadata
- */
 async function sendEmailAlert(subject, message, metadata = {}) {
-  if (!EMAIL_ENABLED || !EMAIL_TO) {
+  const cfg = _getConfig();
+  if (!cfg.emailEnabled || !cfg.emailTo) {
     return { success: false, reason: 'Email alerts not configured' };
   }
 
@@ -107,8 +110,8 @@ async function sendEmailAlert(subject, message, metadata = {}) {
     `;
 
     const info = await emailTransporter.sendMail({
-      from: EMAIL_FROM,
-      to: EMAIL_TO,
+      from: cfg.emailFrom,
+      to: cfg.emailTo,
       subject: `[ALERT] ${subject}`,
       text: `${message}\n\nDetails:\n${JSON.stringify(metadata, null, 2)}`,
       html: htmlBody,
@@ -124,15 +127,9 @@ async function sendEmailAlert(subject, message, metadata = {}) {
   }
 }
 
-/**
- * Send Slack alert
- *
- * @param {string} title - Alert title
- * @param {string} message - Alert message
- * @param {Object} metadata - Additional metadata
- */
 async function sendSlackAlert(title, message, metadata = {}) {
-  if (!SLACK_ENABLED || !SLACK_WEBHOOK_URL) {
+  const cfg = _getConfig();
+  if (!cfg.slackEnabled || !cfg.slackWebhookUrl) {
     return { success: false, reason: 'Slack alerts not configured' };
   }
 
@@ -159,7 +156,7 @@ async function sendSlackAlert(title, message, metadata = {}) {
       ],
     };
 
-    const response = await fetch(SLACK_WEBHOOK_URL, {
+    const response = await _fetch(cfg.slackWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -187,21 +184,15 @@ async function sendSlackAlert(title, message, metadata = {}) {
   }
 }
 
-/**
- * Send PagerDuty alert
- *
- * @param {string} summary - Alert summary
- * @param {string} severity - Alert severity (critical, error, warning, info)
- * @param {Object} metadata - Additional metadata
- */
 async function sendPagerDutyAlert(summary, severity = 'error', metadata = {}) {
-  if (!PAGERDUTY_ENABLED || !PAGERDUTY_INTEGRATION_KEY) {
+  const cfg = _getConfig();
+  if (!cfg.pagerdutyEnabled || !cfg.pagerdutyKey) {
     return { success: false, reason: 'PagerDuty alerts not configured' };
   }
 
   try {
     const payload = {
-      routing_key: PAGERDUTY_INTEGRATION_KEY,
+      routing_key: cfg.pagerdutyKey,
       event_action: 'trigger',
       payload: {
         summary: summary,
@@ -211,7 +202,7 @@ async function sendPagerDutyAlert(summary, severity = 'error', metadata = {}) {
       },
     };
 
-    const response = await fetch('https://events.pagerduty.com/v2/enqueue', {
+    const response = await _fetch('https://events.pagerduty.com/v2/enqueue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -242,15 +233,6 @@ async function sendPagerDutyAlert(summary, severity = 'error', metadata = {}) {
   }
 }
 
-/**
- * Send alert to all configured channels
- *
- * @param {string} alertType - Type of alert (e.g., 'database_health_check_failed', 'pool_exhaustion')
- * @param {string} title - Alert title
- * @param {string} message - Alert message
- * @param {Object} metadata - Additional metadata
- * @param {string} severity - Alert severity (for PagerDuty)
- */
 export async function sendAlert(
   alertType,
   title,
@@ -285,23 +267,37 @@ export async function sendAlert(
   return results;
 }
 
-/**
- * Get alerting service status
- */
 export function getAlertingStatus() {
+  const cfg = _getConfig();
   return {
     email: {
-      enabled: EMAIL_ENABLED,
-      configured: !!(EMAIL_TO && EMAIL_SMTP_USER && EMAIL_SMTP_PASS),
-      recipient: EMAIL_TO,
+      enabled: cfg.emailEnabled,
+      configured: !!(cfg.emailTo && cfg.emailSmtpUser && cfg.emailSmtpPass),
+      recipient: cfg.emailTo,
     },
     slack: {
-      enabled: SLACK_ENABLED,
-      configured: !!SLACK_WEBHOOK_URL,
+      enabled: cfg.slackEnabled,
+      configured: !!cfg.slackWebhookUrl,
     },
     pagerduty: {
-      enabled: PAGERDUTY_ENABLED,
-      configured: !!PAGERDUTY_INTEGRATION_KEY,
+      enabled: cfg.pagerdutyEnabled,
+      configured: !!cfg.pagerdutyKey,
     },
   };
+}
+
+export function _testSetFetch(mockFn) {
+  _fetch = mockFn;
+}
+
+export function _testSetNodemailer(mockObj) {
+  _nodemailer = mockObj;
+}
+
+export function _testReset() {
+  _fetch = fetch;
+  _nodemailer = nodemailer;
+  emailTransporter = null;
+  lastSmtpUser = null;
+  lastSmtpPass = null;
 }
