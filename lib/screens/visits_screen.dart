@@ -89,10 +89,6 @@ class _VisitsScreenState extends State<VisitsScreen> {
     return status.toLowerCase() == 'confirmed';
   }
 
-  bool _isPending(String status) {
-    return status.toLowerCase() == 'scheduled';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
