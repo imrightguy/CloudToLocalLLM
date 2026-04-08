@@ -203,9 +203,10 @@ class ApiService {
     });
 
     final data = result['data'] as Map<String, dynamic>;
+    final tokens = data['tokens'] as Map<String, dynamic>;
     await _persistTokens(
-      data['accessToken'] as String?,
-      data['refreshToken'] as String?,
+      tokens['accessToken'] as String?,
+      tokens['refreshToken'] as String?,
     );
     return data['user'] as Map<String, dynamic>;
   }
@@ -229,9 +230,10 @@ class ApiService {
     final result = await post('/auth/register', body);
 
     final data = result['data'] as Map<String, dynamic>;
+    final tokens = data['tokens'] as Map<String, dynamic>;
     await _persistTokens(
-      data['accessToken'] as String?,
-      data['refreshToken'] as String?,
+      tokens['accessToken'] as String?,
+      tokens['refreshToken'] as String?,
     );
     return data['user'] as Map<String, dynamic>;
   }

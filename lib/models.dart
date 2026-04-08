@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 // =============================================================================
 // Enums
 // =============================================================================
+
+/// Converts a snake_case string to camelCase.
+/// e.g. "visite_planifiee" → "visitePlanifiee"
+String _snakeToCamel(String s) {
+  if (!s.contains('_')) return s;
+  final parts = s.split('_');
+  return parts[0] +
+      parts.skip(1).map((p) => p.isEmpty ? '' : p[0].toUpperCase() + p.substring(1)).join();
+}
+
+/// Converts a camelCase string to snake_case.
+/// e.g. "visitePlanifiee" → "visite_planifiee"
+String _camelToSnake(String s) {
+  return s.replaceAllMapped(
+    RegExp(r'[A-Z]'),
+    (m) => '_${m[0]!.toLowerCase()}',
+  );
+}
 
 enum LeadStage {
   nouveau,
@@ -158,18 +178,37 @@ class VisitItem {
   final String notes;
 
   factory VisitItem.fromJson(Map<String, dynamic> json) {
+    // Derive dateLabel from dateTime if available
+    String? derivedDateLabel;
+    if (json['dateTime'] != null) {
+      try {
+        final dt = DateTime.parse(json['dateTime'] as String);
+        derivedDateLabel = DateFormat('dd MMM yyyy', 'fr').format(dt);
+      } catch (_) {
+        derivedDateLabel = null;
+      }
+    }
+
     return VisitItem(
       id: json['id'] as String?,
-      unitLabel: json['unitLabel'] as String? ?? '',
-      buildingName: json['buildingName'] as String? ?? '',
-      dateLabel: json['dateLabel'] as String? ?? '',
+      unitLabel: (json['unit'] is Map<String, dynamic>)
+          ? (json['unit'] as Map<String, dynamic>)['label'] as String? ?? ''
+          : json['unitLabel'] as String? ?? '',
+      buildingName: (json['building'] is Map<String, dynamic>)
+          ? (json['building'] as Map<String, dynamic>)['name'] as String? ?? ''
+          : json['buildingName'] as String? ?? '',
+      dateLabel: derivedDateLabel ?? json['dateLabel'] as String? ?? '',
       dateTime: json['dateTime'] != null
           ? DateTime.parse(json['dateTime'] as String)
           : null,
       status: json['status'] as String? ?? '',
-      agent: json['agent'] as String? ?? '',
+      agent: (json['employee'] is Map<String, dynamic>)
+          ? '${(json['employee'] as Map<String, dynamic>)['firstName'] ?? ''} ${(json['employee'] as Map<String, dynamic>)['lastName'] ?? ''}'.trim()
+          : json['agent'] as String? ?? '',
       notes: json['notes'] as String? ?? '',
-      leadName: json['leadName'] as String?,
+      leadName: (json['lead'] is Map<String, dynamic>)
+          ? (json['lead'] as Map<String, dynamic>)['fullName'] as String?
+          : json['leadName'] as String?,
       tenantConfirmed: json['tenantConfirmed'] as bool? ?? false,
       employeeConfirmed: json['employeeConfirmed'] as bool? ?? false,
     );
@@ -237,10 +276,10 @@ class LeadItem {
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       desiredUnit: json['desiredUnit'] as String? ?? '',
-      budget: (json['budget'] as num?)?.toInt() ?? 0,
+      budget: (json['budgetCents'] as num?)?.toInt() ?? 0,
       source: json['source'] as String? ?? '',
       stage: json['stage'] != null
-          ? LeadStage.fromString(json['stage'] as String)
+          ? LeadStage.fromString(_snakeToCamel(json['stage'] as String))
           : LeadStage.nouveau,
       notes: json['notes'] as String? ?? '',
       tags: (json['tags'] as List<dynamic>?)
@@ -265,9 +304,9 @@ class LeadItem {
         'email': email,
         'phone': phone,
         'desiredUnit': desiredUnit,
-        'budget': budget,
+        'budgetCents': budget,
         'source': source,
-        'stage': stage.name,
+        'stage': _camelToSnake(stage.name),
         'notes': notes,
         'tags': tags,
         'lastContact': lastContact,
@@ -287,6 +326,7 @@ class UnitItem {
     this.id,
     this.buildingId,
     this.amenities,
+    this.squareFeet,
     required this.number,
     required this.type,
     required this.bedrooms,
@@ -300,6 +340,7 @@ class UnitItem {
   final String? id;
   final String? buildingId;
   final List<String>? amenities;
+  final int? squareFeet;
 
   // Display fields
   final String number;
@@ -311,33 +352,46 @@ class UnitItem {
   final String? tenant;
 
   factory UnitItem.fromJson(Map<String, dynamic> json) {
+    // Convert amenities: Map → List of keys (API sends {key: true}), List → as-is, null → empty list
+    List<String>? parsedAmenities;
+    final rawAmenities = json['amenities'];
+    if (rawAmenities is Map) {
+      // API format: {"fridge": true, "stove": true}
+      parsedAmenities = rawAmenities.keys.map((e) => e.toString()).toList();
+    } else if (rawAmenities is List) {
+      parsedAmenities = rawAmenities.map((e) => e.toString()).toList();
+    } else {
+      parsedAmenities = null;
+    }
+
     return UnitItem(
       id: json['id'] as String?,
       buildingId: json['buildingId'] as String?,
-      number: json['number'] as String? ?? '',
-      type: json['type'] as String? ?? '',
+      number: json['label'] as String? ?? '',
+      type: json['description'] as String? ?? '',
       bedrooms: (json['bedrooms'] as num?)?.toInt() ?? 0,
-      rent: (json['rent'] as num?)?.toInt() ?? 0,
+      rent: (json['rentCents'] as num?)?.toInt() ?? 0,
       status: json['status'] as String? ?? '',
       leaseEnd: json['leaseEnd'] as String? ?? '',
       tenant: json['tenant'] as String?,
-      amenities: (json['amenities'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
+      amenities: parsedAmenities,
+      squareFeet: (json['squareFeet'] as num?)?.toInt(),
     );
   }
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         if (buildingId != null) 'buildingId': buildingId,
-        'number': number,
+        'label': number,
         'type': type,
         'bedrooms': bedrooms,
-        'rent': rent,
+        'rentCents': rent,
         'status': status,
         'leaseEnd': leaseEnd,
         'tenant': tenant,
-        if (amenities != null) 'amenities': amenities,
+        if (amenities != null)
+          'amenities': {for (final a in amenities!) a: true},
+        if (squareFeet != null) 'squareFeet': squareFeet,
       };
 }
 

@@ -86,8 +86,10 @@ void main() {
 {
   "success": true,
   "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "rt_abc123",
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+      "refreshToken": "rt_abc123"
+    },
     "user": {
       "id": "user-1",
       "email": "test@example.com",
@@ -100,8 +102,9 @@ void main() {
 
       expect(responseJson['success'], isTrue);
       final data = responseJson['data'] as Map<String, dynamic>;
-      expect(data['accessToken'], isA<String>());
-      expect(data['refreshToken'], isA<String>());
+      final tokens = data['tokens'] as Map<String, dynamic>;
+      expect(tokens['accessToken'], isA<String>());
+      expect(tokens['refreshToken'], isA<String>());
       expect(data['user'], isA<Map<String, dynamic>>());
     });
 
@@ -110,8 +113,10 @@ void main() {
 {
   "success": true,
   "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "rt_xyz789",
+    "tokens": {
+      "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+      "refreshToken": "rt_xyz789"
+    },
     "user": {
       "id": "user-2",
       "email": "new@example.com",

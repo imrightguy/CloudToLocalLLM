@@ -3,7 +3,7 @@ const { db } = require('../database/connection');
 const {
   leadsTable, visitsTable, buildingsTable, employeesTable,
 } = require('../database/schema');
-const { sql, eq, and, gte, count, desc } = require('drizzle-orm');
+const { sql, eq, and, gte, desc } = require('drizzle-orm');
 
 // ─── Helpers ───
 
@@ -59,7 +59,7 @@ async function getPipelineSummary() {
     const results = {};
     for (const stage of stages) {
       const [{ total }] = await db
-        .select({ total: count() })
+        .select({ total: sql`count(*)` })
         .from(leadsTable)
         .where(eq(leadsTable.stage, stage));
       results[stage] = Number(total);
@@ -80,13 +80,13 @@ async function getConversionRates(period = 'week') {
 
     // Total visits in period
     const [{ total }] = await db
-      .select({ total: count() })
+      .select({ total: sql`count(*)` })
       .from(visitsTable)
       .where(gte(visitsTable.createdAt, periodStart));
 
     // Visits that resulted in 'interesse' outcome
     const [{ converted }] = await db
-      .select({ converted: count() })
+      .select({ converted: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -125,26 +125,26 @@ async function getNoShowPatterns(buildingId = null) {
       .select({
         buildingId: visitsTable.buildingId,
         buildingName: buildingsTable.name,
-        count: count(),
+        count: sql`count(*)`,
       })
       .from(visitsTable)
       .leftJoin(buildingsTable, eq(visitsTable.buildingId, buildingsTable.id))
       .where(and(...conditions))
       .groupBy(visitsTable.buildingId, buildingsTable.name)
-      .orderBy(desc(count()));
+      .orderBy(desc(sql`count(*)`));
 
     // Grouped by employee
     const byEmployee = await db
       .select({
         employeeId: visitsTable.employeeId,
         employeeName: sql`CONCAT(${employeesTable.firstName}, ' ', ${employeesTable.lastName})`.as('employee_name'),
-        count: count(),
+        count: sql`count(*)`,
       })
       .from(visitsTable)
       .leftJoin(employeesTable, eq(visitsTable.employeeId, employeesTable.id))
       .where(and(...conditions))
       .groupBy(visitsTable.employeeId, employeesTable.firstName, employeesTable.lastName)
-      .orderBy(desc(count()));
+      .orderBy(desc(sql`count(*)`));
 
     return {
       byBuilding: byBuilding.map(r => ({
@@ -171,12 +171,12 @@ async function getVisitStats(period = 'week') {
     const periodStart = getPeriodStart(period);
 
     const [{ total }] = await db
-      .select({ total: count() })
+      .select({ total: sql`count(*)` })
       .from(visitsTable)
       .where(gte(visitsTable.createdAt, periodStart));
 
     const [{ completed }] = await db
-      .select({ completed: count() })
+      .select({ completed: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -186,7 +186,7 @@ async function getVisitStats(period = 'week') {
       );
 
     const [{ cancelled }] = await db
-      .select({ cancelled: count() })
+      .select({ cancelled: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -196,7 +196,7 @@ async function getVisitStats(period = 'week') {
       );
 
     const [{ noShow }] = await db
-      .select({ noShow: count() })
+      .select({ noShow: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -225,11 +225,11 @@ async function getLeadSourceBreakdown() {
     const rows = await db
       .select({
         source: leadsTable.source,
-        count: count(),
+        count: sql`count(*)`,
       })
       .from(leadsTable)
       .groupBy(leadsTable.source)
-      .orderBy(desc(count()));
+      .orderBy(desc(sql`count(*)`));
 
     return rows.map(r => ({
       source: r.source,
@@ -259,14 +259,14 @@ async function getBuildingPerformance(buildingId) {
 
     // Total visits
     const [{ total }] = await db
-      .select({ total: count() })
+      .select({ total: sql`count(*)` })
       .from(visitsTable)
       .innerJoin(unitsTable, eq(visitsTable.unitId, unitsTable.id))
       .where(eq(unitsTable.buildingId, buildingId));
 
     // Conversions (outcome = 'interesse')
     const [{ conversions }] = await db
-      .select({ conversions: count() })
+      .select({ conversions: sql`count(*)` })
       .from(visitsTable)
       .innerJoin(unitsTable, eq(visitsTable.unitId, unitsTable.id))
       .where(
@@ -324,13 +324,13 @@ async function getWeeklySummary() {
 
     // New leads this week
     const [{ newLeads }] = await db
-      .select({ newLeads: count() })
+      .select({ newLeads: sql`count(*)` })
       .from(leadsTable)
       .where(gte(leadsTable.createdAt, periodStart));
 
     // Visits completed
     const [{ visitsCompleted }] = await db
-      .select({ visitsCompleted: count() })
+      .select({ visitsCompleted: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -341,7 +341,7 @@ async function getWeeklySummary() {
 
     // Conversions (outcome = 'interesse')
     const [{ conversions }] = await db
-      .select({ conversions: count() })
+      .select({ conversions: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -352,7 +352,7 @@ async function getWeeklySummary() {
 
     // No-shows
     const [{ noShows }] = await db
-      .select({ noShows: count() })
+      .select({ noShows: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -363,7 +363,7 @@ async function getWeeklySummary() {
 
     // Hot leads count (current hot leads, not just this week)
     const [{ hotLeads }] = await db
-      .select({ hotLeads: count() })
+      .select({ hotLeads: sql`count(*)` })
       .from(leadsTable)
       .where(eq(leadsTable.stage, 'interesse'));
 
@@ -393,13 +393,13 @@ async function getEmployeePerformance(employeeId) {
 
     // Total visits
     const [{ total }] = await db
-      .select({ total: count() })
+      .select({ total: sql`count(*)` })
       .from(visitsTable)
       .where(eq(visitsTable.employeeId, employeeId));
 
     // Confirmed visits (employee confirmed)
     const [{ confirmed }] = await db
-      .select({ confirmed: count() })
+      .select({ confirmed: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -410,7 +410,7 @@ async function getEmployeePerformance(employeeId) {
 
     // No-show visits
     const [{ noShows }] = await db
-      .select({ noShows: count() })
+      .select({ noShows: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(
@@ -421,7 +421,7 @@ async function getEmployeePerformance(employeeId) {
 
     // Completed visits
     const [{ completed }] = await db
-      .select({ completed: count() })
+      .select({ completed: sql`count(*)` })
       .from(visitsTable)
       .where(
         and(

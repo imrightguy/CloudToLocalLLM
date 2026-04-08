@@ -25,16 +25,30 @@ class ActivityEvent {
   final String? relatedType;
 
   factory ActivityEvent.fromJson(Map<String, dynamic> json) {
+    // Infer relatedType from the type field
+    final eventType = json['type'] as String? ?? '';
+    String? inferredRelatedType;
+    if (eventType.contains('lead')) {
+      inferredRelatedType = 'lead';
+    } else if (eventType.contains('visit')) {
+      inferredRelatedType = 'visit';
+    }
+
     return ActivityEvent(
       id: json['id'] as String?,
-      type: json['type'] as String? ?? 'info',
-      title: json['title'] as String? ?? '',
-      detail: json['detail'] as String? ?? '',
+      type: eventType.isEmpty ? 'info' : eventType,
+      title: (json['title'] as String?) ??
+          json['description'] as String? ??
+          '',
+      detail: (json['detail'] as String?) ??
+          json['description'] as String? ??
+          '',
       timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'] as String)
           : DateTime.now(),
-      relatedId: json['relatedId'] as String?,
-      relatedType: json['relatedType'] as String?,
+      relatedId: json['relatedId'] as String? ??
+          json['leadId'] as String?,
+      relatedType: json['relatedType'] as String? ?? inferredRelatedType,
     );
   }
 

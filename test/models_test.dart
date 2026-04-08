@@ -179,10 +179,10 @@ void main() {
       final unit = UnitItem.fromJson({
         'id': 'u1',
         'buildingId': 'b1',
-        'number': 'A-101',
-        'type': '2 ½',
+        'label': 'A-101',
+        'description': '2 ½',
         'bedrooms': 1,
-        'rent': 850,
+        'rentCents': 850,
         'status': 'occupied',
         'leaseEnd': '2024-12-31',
         'tenant': 'Jean Dupont',
@@ -212,7 +212,7 @@ void main() {
     test('fromJson handles numeric fields as doubles', () {
       final unit = UnitItem.fromJson({
         'bedrooms': 2.0,
-        'rent': 1000.5,
+        'rentCents': 1000.5,
       });
       expect(unit.bedrooms, 2);
       expect(unit.rent, 1000);
@@ -252,8 +252,8 @@ void main() {
       expect(json.containsKey('buildingId'), isFalse);
       // tenant is always included in toJson (no conditional guard)
       expect(json['tenant'], isNull);
-      // amenities is nullable List — toJson includes it as null when not set
-      expect(json['amenities'], isNull);
+      // amenities is omitted when null (converted to Map only if non-null)
+      expect(json.containsKey('amenities'), isFalse);
     });
   });
 
@@ -274,10 +274,10 @@ void main() {
         'properties': {'key': 'value'},
         'units': [
           {
-            'number': 'A-101',
-            'type': '2 ½',
+            'label': 'A-101',
+            'description': '2 ½',
             'bedrooms': 1,
-            'rent': 850,
+            'rentCents': 850,
             'status': 'occupied',
             'leaseEnd': '2024-12-31',
           },
@@ -372,7 +372,7 @@ void main() {
         'email': 'marie@example.com',
         'phone': '514-555-0100',
         'desiredUnit': '2 ½',
-        'budget': 1000,
+        'budgetCents': 1000,
         'source': 'web',
         'stage': 'qualifie',
         'notes': 'Interested',
@@ -410,7 +410,7 @@ void main() {
     });
 
     test('fromJson handles budget as double', () {
-      final lead = LeadItem.fromJson({'budget': 1000.5});
+      final lead = LeadItem.fromJson({'budgetCents': 1000.5});
       expect(lead.budget, 1000);
     });
 
