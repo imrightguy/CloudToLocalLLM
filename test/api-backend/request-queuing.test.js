@@ -38,8 +38,22 @@ describe("RequestQueueService", () => {
   });
 
   afterEach(() => {
-    // Clean up - don't create a new instance, just reset the current one
-    // The beforeEach will create a fresh instance for the next test
+    // Silence all pending promise rejections before clearing queues
+    for (const queueType of ['user', 'ip']) {
+      const queueMap =
+        queueType === 'user'
+          ? queueService.userQueues
+          : queueService.ipQueues;
+      if (!queueMap) continue;
+      for (const [, queue] of queueMap) {
+        for (const entry of queue) {
+          if (!entry.processed) {
+            entry.promise.catch(() => {});
+          }
+        }
+      }
+    }
+    queueService.clearAllQueues();
   });
 
   describe("shouldQueue", () => {
@@ -210,6 +224,9 @@ describe("RequestQueueService", () => {
         method: "POST",
       });
 
+      // Prevent unhandled rejection when removeFromQueue rejects the promise
+      result.promise.catch(() => {});
+
       const removed = queueService.removeFromQueue(
         "user123",
         "user",
@@ -307,9 +324,14 @@ describe("RequestQueueService", () => {
         queueThresholdPercent: 80,
       });
 
-      clearQueueService.queueRequest("user1", "user", { method: "POST" });
-      clearQueueService.queueRequest("user2", "user", { method: "POST" });
-      clearQueueService.queueRequest("192.168.1.1", "ip", { method: "POST" });
+      const r1 = clearQueueService.queueRequest("user1", "user", { method: "POST" });
+      const r2 = clearQueueService.queueRequest("user2", "user", { method: "POST" });
+      const r3 = clearQueueService.queueRequest("192.168.1.1", "ip", { method: "POST" });
+
+      // Prevent unhandled rejections when clearAllQueues rejects all promises
+      r1.promise.catch(() => {});
+      r2.promise.catch(() => {});
+      r3.promise.catch(() => {});
 
       clearQueueService.clearAllQueues();
 
@@ -330,8 +352,10 @@ describe("RequestQueueService", () => {
 
     it("should return degraded status when queue is large", () => {
       // Add 101 requests to trigger degraded status
+      const pending = [];
       for (let i = 0; i < 101; i++) {
-        queueService.queueRequest(`user${i}`, "user", { method: "POST" });
+        const r = queueService.queueRequest(`user${i}`, "user", { method: "POST" });
+        pending.push(r.promise.catch(() => {}));
       }
 
       const health = queueService.getHealthStatus();
@@ -387,6 +411,34 @@ describe("RequestQueueService", () => {
 });
 
 describe("Request Queuing - Property-Based Tests", () => {
+  let pbtInstances = [];
+
+  const createPbtService = (opts) => {
+    const svc = new RequestQueueService(opts);
+    pbtInstances.push(svc);
+    return svc;
+  };
+
+  afterAll(() => {
+    // Drain all PBT service instances to prevent unhandled rejections
+    for (const svc of pbtInstances) {
+      for (const queueType of ['user', 'ip']) {
+        const queueMap =
+          queueType === 'user' ? svc.userQueues : svc.ipQueues;
+        if (!queueMap) continue;
+        for (const [, queue] of queueMap) {
+          for (const entry of queue) {
+            if (!entry.processed) {
+              entry.promise.catch(() => {});
+            }
+          }
+        }
+      }
+      svc.clearAllQueues();
+    }
+    pbtInstances = [];
+  });
+
   /**
    * Feature: api-backend-enhancement, Property 9: Rate limit enforcement consistency
    * Validates: Requirements 6.1, 6.2, 6.3
@@ -395,7 +447,7 @@ describe("Request Queuing - Property-Based Tests", () => {
    * the queue should maintain FIFO order and process requests consistently
    */
   it("should maintain FIFO order for all queued requests", () => {
-    const pbtQueueService = new RequestQueueService({
+    const pbtQueueService = createPbtService({
       maxQueueSize: 1000,
       queueTimeoutMs: 1000,
       queueThresholdPercent: 80,
@@ -425,7 +477,7 @@ describe("Request Queuing - Property-Based Tests", () => {
    */
   it("should never exceed maximum queue size", () => {
     const maxSize = 50;
-    const pbtQueueService = new RequestQueueService({
+    const pbtQueueService = createPbtService({
       maxQueueSize: maxSize,
       queueTimeoutMs: 1000,
       queueThresholdPercent: 80,
@@ -450,7 +502,7 @@ describe("Request Queuing - Property-Based Tests", () => {
    * currentQueuedRequests should equal the actual queue size
    */
   it("should maintain accurate queue statistics", () => {
-    const pbtQueueService = new RequestQueueService({
+    const pbtQueueService = createPbtService({
       maxQueueSize: 100,
       queueTimeoutMs: 1000,
       queueThresholdPercent: 80,
@@ -480,7 +532,7 @@ describe("Request Queuing - Property-Based Tests", () => {
    * Property: For any identifier and queue type, separate queues should be maintained
    */
   it("should maintain separate queues for different identifiers", () => {
-    const pbtQueueService = new RequestQueueService({
+    const pbtQueueService = createPbtService({
       maxQueueSize: 100,
       queueTimeoutMs: 1000,
       queueThresholdPercent: 80,
