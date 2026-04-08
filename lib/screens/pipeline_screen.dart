@@ -88,7 +88,7 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -100,7 +100,7 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _getStageColor(stage).withOpacity(0.1),
+                    color: _getStageColor(stage).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -189,7 +189,7 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -235,7 +235,7 @@ class _PipelineScreenState extends State<PipelineScreen> with SingleTickerProvid
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStageColor(lead.stage).withOpacity(0.1),
+                  color: _getStageColor(lead.stage).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

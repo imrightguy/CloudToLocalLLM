@@ -40,7 +40,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -142,7 +142,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F766E).withOpacity(0.1),
+                          color: Color(0xFF0F766E).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -202,7 +202,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       const Icon(Icons.attach_money, size: 16, color: Color(0xFF10B981)),
                       const SizedBox(width: 4),
                       Text(
-                        '${building.monthlyRevenue}\\$ / mois',
+                        '${building.monthlyRevenue}\$ / mois',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

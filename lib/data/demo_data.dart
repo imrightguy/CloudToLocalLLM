@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../models.dart';
 
 const stats = <StatCard>[

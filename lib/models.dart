@@ -33,7 +33,7 @@ class ActivityItem {
   });
 
   final String title;
-  final String.detail;
+  final String detail;
   final String time;
   final Color color;
 }

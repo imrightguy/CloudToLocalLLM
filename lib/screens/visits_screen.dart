@@ -108,7 +108,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -146,7 +146,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -184,7 +184,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 2),
                         ),
@@ -208,6 +208,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                             fontWeight: FontWeight.bold,
                             color: Color(0xFFF59E0B),
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -254,8 +255,8 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                 height: 40,
                                 decoration: BoxDecoration(
                                   color: visit.status == 'Confirmée'
-                                      ? const Color(0xFF10B981).withOpacity(0.1)
-                                      : const Color(0xFFF59E0B).withOpacity(0.1),
+                                      ? Color((0xFF10B981)).withValues(alpha: 0.1)
+                                      : Color((0xFFF59E0B)).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
@@ -288,8 +289,8 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                           decoration: BoxDecoration(
                                             color: visit.status == 'Confirmée'
-                                                ? const Color(0xFF10B981).withOpacity(0.1)
-                                                : const Color(0xFFF59E0B).withOpacity(0.1),
+                                                ? Color((0xFF10B981)).withValues(alpha: 0.1)
+                                                : Color((0xFFF59E0B)).withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: Text(

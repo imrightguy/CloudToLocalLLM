@@ -37,7 +37,7 @@ class ImmoGestionApp extends StatelessWidget {
           foregroundColor: Color(0xFF1E293B),
           surfaceTintColor: Colors.white,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
