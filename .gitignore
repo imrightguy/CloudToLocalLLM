@@ -63,6 +63,12 @@ tmp/
 temp/
 *.tmp
 *.bak
+*.backup
+*.output.txt
+*test-output*
+*profile-test-output*
+audit_output.json
+package-lock.json.REMOVED.*
 
 # Documentation archives
 docs/archive/
