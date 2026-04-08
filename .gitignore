@@ -79,3 +79,6 @@ publish_desktop_releases/
 
 # Kilocode (user-specific)
 .kilocode/
+
+# Kilo AI (user-specific)
+kilo.json
