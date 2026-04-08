@@ -25,7 +25,7 @@ export const DEPRECATED_ENDPOINTS = {
   '/v1/users': {
     status: DeprecationStatus.DEPRECATED,
     deprecatedAt: '2024-01-01',
-    sunsetAt: '2026-01-01',
+    sunsetAt: '2027-01-01',
     replacedBy: '/v2/users',
     reason: 'API v1 is deprecated. Use v2 for new integrations.',
     migrationGuide: 'MIGRATION_V1_TO_V2',
@@ -33,7 +33,7 @@ export const DEPRECATED_ENDPOINTS = {
   '/v1/tunnels': {
     status: DeprecationStatus.DEPRECATED,
     deprecatedAt: '2024-01-01',
-    sunsetAt: '2026-01-01',
+    sunsetAt: '2027-01-01',
     replacedBy: '/v2/tunnels',
     reason: 'API v1 is deprecated. Use v2 for new integrations.',
     migrationGuide: 'MIGRATION_V1_TO_V2',
@@ -41,7 +41,7 @@ export const DEPRECATED_ENDPOINTS = {
   '/v1/auth': {
     status: DeprecationStatus.DEPRECATED,
     deprecatedAt: '2024-01-01',
-    sunsetAt: '2026-01-01',
+    sunsetAt: '2027-01-01',
     replacedBy: '/v2/auth',
     reason: 'API v1 is deprecated. Use v2 for new integrations.',
     migrationGuide: 'MIGRATION_V1_TO_V2',
@@ -49,7 +49,7 @@ export const DEPRECATED_ENDPOINTS = {
   '/v1/admin': {
     status: DeprecationStatus.DEPRECATED,
     deprecatedAt: '2024-01-01',
-    sunsetAt: '2026-01-01',
+    sunsetAt: '2027-01-01',
     replacedBy: '/v2/admin',
     reason: 'API v1 is deprecated. Use v2 for new integrations.',
     migrationGuide: 'MIGRATION_V1_TO_V2',
@@ -113,8 +113,8 @@ const email = data.user.email;`,
     },
     timeline: {
       deprecatedAt: '2024-01-01',
-      sunsetAt: '2026-01-01',
-      daysUntilSunset: calculateDaysUntilSunset('2026-01-01'),
+      sunsetAt: '2027-01-01',
+      daysUntilSunset: calculateDaysUntilSunset('2027-01-01'),
     },
   },
 };

@@ -98,9 +98,11 @@ describe("ProxyHealthService - Property-Based Tests", () => {
   it("should enforce maximum recovery attempts for all proxies", () => {
     fc.assert(
       fc.property(
-        fc.string({ minLength: 1, maxLength: 255 }),
+        fc.string({ minLength: 1, maxLength: 255 }).filter((s) => s.trim().length > 0),
         fc.integer({ min: 1, max: 10 }),
         (proxyId, attemptCount) => {
+          proxyHealthService.shutdown();
+          proxyHealthService = new ProxyHealthService();
           proxyHealthService.registerProxy(proxyId, {});
 
           let canRecover = true;
@@ -302,12 +304,18 @@ describe("ProxyHealthService - Property-Based Tests", () => {
   it("should return all and only registered proxies in getAllProxyHealthStatus", () => {
     fc.assert(
       fc.property(
-        fc.array(fc.string({ minLength: 1, maxLength: 255 }), {
-          minLength: 1,
-          maxLength: 10,
-          uniqueBy: (id) => id,
-        }),
+        fc.array(
+          fc.string({ minLength: 1, maxLength: 255 }).filter((s) => s.trim().length > 0),
+          {
+            minLength: 1,
+            maxLength: 10,
+            uniqueBy: (id) => id,
+          },
+        ),
         (proxyIds) => {
+          proxyHealthService.shutdown();
+          proxyHealthService = new ProxyHealthService();
+
           // Register all proxies
           proxyIds.forEach((id) => {
             proxyHealthService.registerProxy(id, {});

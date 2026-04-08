@@ -278,7 +278,11 @@ export class ProxyHealthService {
     }
 
     const status = this.proxyHealthStatus.get(proxyId);
-    status.recoveryAttempts += 1;
+    const wasBelowMax = status.recoveryAttempts < this.maxRecoveryAttempts;
+    status.recoveryAttempts = Math.min(
+      status.recoveryAttempts + 1,
+      this.maxRecoveryAttempts,
+    );
 
     this.logger.info(`Recorded recovery attempt for proxy: ${proxyId}`, {
       proxyId,
@@ -286,7 +290,7 @@ export class ProxyHealthService {
       maxAttempts: this.maxRecoveryAttempts,
     });
 
-    return status.recoveryAttempts <= this.maxRecoveryAttempts;
+    return wasBelowMax;
   }
 
   /**

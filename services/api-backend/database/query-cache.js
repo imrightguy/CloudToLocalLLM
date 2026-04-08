@@ -125,10 +125,11 @@ export class QueryCacheService {
     // Register table associations
     if (tables && tables.length > 0) {
       for (const table of tables) {
-        if (!this.tableMap.has(table)) {
-          this.tableMap.set(table, []);
+        const normalizedName = table.toUpperCase();
+        if (!this.tableMap.has(normalizedName)) {
+          this.tableMap.set(normalizedName, []);
         }
-        this.tableMap.get(table).push(key);
+        this.tableMap.get(normalizedName).push(key);
       }
     }
   }

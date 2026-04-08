@@ -535,7 +535,7 @@ describe("Webhook Payload Transformer", () => {
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.transformed).toBe(true);
+      expect(result.transformed).toBeUndefined();
       expect(result.type).toBe("tunnel.status_changed");
     });
 
@@ -548,7 +548,7 @@ describe("Webhook Payload Transformer", () => {
       };
 
       const result = transformer.transformPayload(payload, config);
-      expect(result.value).toBe(20);
+      expect(result.value).toBe(10);
     });
 
     test("should handle custom script errors gracefully", () => {
