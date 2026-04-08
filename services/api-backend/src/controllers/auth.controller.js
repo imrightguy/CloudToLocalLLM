@@ -4,6 +4,9 @@ const { schema } = require('../database/schema');
 const { generateAccessToken, generateRefreshToken, logoutUser } = require('../auth/jwt.middleware');
 const { errorResponse, successResponse } = require('../utils/apiResponse');
 
+// Drizzle ORM operators for database queries
+const { eq, and, or, ilike, ne } = require('drizzle-orm');
+
 /**
  * Authentication Controller
  * Handles user registration, login, logout, and token management
@@ -420,7 +423,7 @@ const updateProfile = async (req, res) => {
         .select()
         .from(schema.users)
         .where(eq(schema.users.email, email.toLowerCase()))
-        .where(not(eq(schema.users.id, userId)))
+        .where(ne(schema.users.id, userId))
         .limit(1);
 
       if (existingUser.length > 0) {
@@ -574,6 +577,247 @@ const logPasswordChange = async (userId, ip) => {
   }
 };
 
+/**
+ * Get all users (admin only)
+ */
+const getAllUsers = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, search, role } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Build query
+    let query = db
+      .select({
+        id: schema.users.id,
+        email: schema.users.email,
+        firstName: schema.users.firstName,
+        lastName: schema.users.lastName,
+        role: schema.users.role,
+        companyId: schema.users.companyId,
+        isActive: schema.users.isActive,
+        createdAt: schema.users.createdAt,
+        lastLogin: schema.users.lastLogin
+      })
+      .from(schema.users);
+
+    // Apply filters
+    if (search) {
+      const searchTerm = `%${search.toLowerCase()}%`;
+      query = query.where(
+        or(
+          ilike(schema.users.firstName, searchTerm),
+          ilike(schema.users.lastName, searchTerm),
+          ilike(schema.users.email, searchTerm)
+        )
+      );
+    }
+
+    if (role) {
+      query = query.where(eq(schema.users.role, role));
+    }
+
+    // Get total count for pagination
+    const countQuery = await db.select().from(schema.users);
+    const totalCount = countQuery.length;
+
+    // Get paginated results
+    const usersQuery = await query
+      .orderBy(schema.users.createdAt, 'desc')
+      .limit(parseInt(limit))
+      .offset(offset);
+
+    const users = usersQuery;
+
+    res.json(successResponse({
+      data: {
+        users,
+        pagination: {
+          total: totalCount,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(totalCount / limit)
+        }
+      },
+      message: 'Users retrieved successfully'
+    }));
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json(errorResponse({
+      message: 'Failed to retrieve users',
+      code: 'GET_USERS_FAILED'
+    }));
+  }
+};
+
+/**
+ * Get user by ID (admin only)
+ */
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userQuery = await db
+      .select({
+        id: schema.users.id,
+        email: schema.users.email,
+        firstName: schema.users.firstName,
+        lastName: schema.users.lastName,
+        role: schema.users.role,
+        companyId: schema.users.companyId,
+        isActive: schema.users.isActive,
+        createdAt: schema.users.createdAt,
+        updatedAt: schema.users.updatedAt,
+        lastLogin: schema.users.lastLogin
+      })
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
+
+    if (!userQuery.length) {
+      return res.status(404).json(errorResponse({
+        message: 'User not found',
+        code: 'USER_NOT_FOUND'
+      }));
+    }
+
+    res.json(successResponse({
+      data: userQuery[0],
+      message: 'User retrieved successfully'
+    }));
+  } catch (error) {
+    console.error('Get user by ID error:', error);
+    res.status(500).json(errorResponse({
+      message: 'Failed to retrieve user',
+      code: 'GET_USER_FAILED'
+    }));
+  }
+};
+
+/**
+ * Update user (admin only)
+ */
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, firstName, lastName, role, isActive, companyId } = req.body;
+
+    const updates = {};
+    if (email !== undefined) updates.email = email.toLowerCase();
+    if (firstName !== undefined) updates.firstName = firstName;
+    if (lastName !== undefined) updates.lastName = lastName;
+    if (role !== undefined) updates.role = role;
+    if (isActive !== undefined) updates.isActive = isActive;
+    if (companyId !== undefined) updates.companyId = companyId;
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json(errorResponse({
+        message: 'No fields to update',
+        code: 'NO_FIELDS_TO_UPDATE'
+      }));
+    }
+
+    // Check if email is already taken
+    if (email && email !== req.user.email) {
+      const existingUser = await db
+        .select()
+        .from(schema.users)
+        .where(eq(schema.users.email, email.toLowerCase()))
+        .where(ne(schema.users.id, id))
+        .limit(1);
+
+      if (existingUser.length > 0) {
+        return res.status(409).json(errorResponse({
+          message: 'Email already taken',
+          code: 'EMAIL_ALREADY_TAKEN'
+        }));
+      }
+    }
+
+    // Update user
+    const updatedUser = await db
+      .update(schema.users)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(schema.users.id, id))
+      .returning({
+        id: schema.users.id,
+        email: schema.users.email,
+        firstName: schema.users.firstName,
+        lastName: schema.users.lastName,
+        role: schema.users.role,
+        companyId: schema.users.companyId,
+        isActive: schema.users.isActive,
+        updatedAt: schema.users.updatedAt
+      });
+
+    if (!updatedUser.length) {
+      return res.status(404).json(errorResponse({
+        message: 'User not found',
+        code: 'USER_NOT_FOUND'
+      }));
+    }
+
+    res.json(successResponse({
+      data: updatedUser[0],
+      message: 'User updated successfully'
+    }));
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json(errorResponse({
+      message: 'Failed to update user',
+      code: 'UPDATE_USER_FAILED'
+    }));
+  }
+};
+
+/**
+ * Delete user (admin only)
+ */
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent self-deletion
+    if (id === req.user.id) {
+      return res.status(400).json(errorResponse({
+        message: 'Cannot delete your own account',
+        code: 'CANNOT_DELETE_SELF'
+      }));
+    }
+
+    // Check if user exists
+    const userQuery = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
+
+    if (!userQuery.length) {
+      return res.status(404).json(errorResponse({
+        message: 'User not found',
+        code: 'USER_NOT_FOUND'
+      }));
+    }
+
+    // Delete user
+    await db
+      .delete(schema.users)
+      .where(eq(schema.users.id, id));
+
+    res.json(successResponse({
+      message: 'User deleted successfully'
+    }));
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json(errorResponse({
+      message: 'Failed to delete user',
+      code: 'DELETE_USER_FAILED'
+    }));
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -581,5 +825,9 @@ module.exports = {
   refreshAccessToken,
   getProfile,
   updateProfile,
-  changePassword
+  changePassword,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser
 };
