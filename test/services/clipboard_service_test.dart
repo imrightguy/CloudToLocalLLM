@@ -13,10 +13,12 @@ void main() {
     service = ClipboardService();
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(SystemChannels.platform, (MethodCall call) async {
+        .setMockMethodCallHandler(SystemChannels.platform,
+            (MethodCall call) async {
       switch (call.method) {
         case 'Clipboard.setData':
-          final Map<dynamic, dynamic> data = call.arguments as Map<dynamic, dynamic>;
+          final Map<dynamic, dynamic> data =
+              call.arguments as Map<dynamic, dynamic>;
           clipboardText = data['text'] as String?;
           return null;
         case 'Clipboard.getData':
@@ -213,7 +215,8 @@ void main() {
 
     test('should handle multi-line large content', () async {
       // Create large multi-line content
-      final largeContent = List.generate(100, (i) => 'Line $i: ${'A' * 100}').join('\n');
+      final largeContent =
+          List.generate(100, (i) => 'Line $i: ${'A' * 100}').join('\n');
 
       await Clipboard.setData(ClipboardData(text: largeContent));
 
@@ -395,7 +398,8 @@ void main() {
     });
 
     test('should handle HTML snippet', () async {
-      const html = '<div class="container"><p>Hello <strong>world</strong></p></div>';
+      const html =
+          '<div class="container"><p>Hello <strong>world</strong></p></div>';
 
       await Clipboard.setData(const ClipboardData(text: html));
       final result = await service.getClipboardContent();

@@ -86,7 +86,8 @@ void main() {
   });
 
   group('Config screen specification', () {
-    testWidgets('Config screen has no PopOutButton', (WidgetTester tester) async {
+    testWidgets('Config screen has no PopOutButton',
+        (WidgetTester tester) async {
       // Per spec: Config section should NOT have pop-out functionality
       await tester.pumpWidget(const MaterialApp(home: ConfigScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));

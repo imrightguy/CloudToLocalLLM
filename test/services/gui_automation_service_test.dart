@@ -10,7 +10,8 @@ void main() {
 
   group('GuiAutomationService', () {
     group('initialize', () {
-      test('should set isInitialized to true on successful health check', () async {
+      test('should set isInitialized to true on successful health check',
+          () async {
         // Note: This test would require mocking http.get for the health check
         // For now, we just verify the service can be created
         expect(service.isInitialized, false);

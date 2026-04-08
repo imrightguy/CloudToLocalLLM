@@ -137,8 +137,8 @@ void main() {
       final conflictDir = File('${tempDir.path}/personality.md');
       await conflictDir.create();
 
-      expect(() async => await service.syncPersonality(profile),
-          returnsNormally);
+      expect(
+          () async => await service.syncPersonality(profile), returnsNormally);
     });
   });
 
@@ -171,7 +171,8 @@ void main() {
         ),
       ];
 
-      when(mockDatabase.getAllAvatarMemoryEntries()).thenAnswer((_) async => memories);
+      when(mockDatabase.getAllAvatarMemoryEntries())
+          .thenAnswer((_) async => memories);
 
       await service.syncMemory();
 
@@ -227,7 +228,8 @@ void main() {
         ),
       ];
 
-      when(mockDatabase.getAllAvatarMemoryEntries()).thenAnswer((_) async => memories);
+      when(mockDatabase.getAllAvatarMemoryEntries())
+          .thenAnswer((_) async => memories);
 
       await service.syncMemory();
 
@@ -240,7 +242,8 @@ void main() {
     });
 
     test('should handle empty memory list', () async {
-      when(mockDatabase.getAllAvatarMemoryEntries()).thenAnswer((_) async => []);
+      when(mockDatabase.getAllAvatarMemoryEntries())
+          .thenAnswer((_) async => []);
 
       await service.syncMemory();
 
@@ -266,7 +269,8 @@ void main() {
         ),
       ];
 
-      when(mockDatabase.getAllAvatarMemoryEntries()).thenAnswer((_) async => memories);
+      when(mockDatabase.getAllAvatarMemoryEntries())
+          .thenAnswer((_) async => memories);
 
       await service.syncMemory();
 
@@ -402,15 +406,17 @@ void main() {
 
       when(mockDatabase.getEvolutionHistory()).thenAnswer((_) async => []);
       when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => []);
-      when(mockDatabase.getAllAvatarMemoryEntries()).thenAnswer((_) async => []);
-      when(mockDatabase.getAvatarProfile()).thenAnswer((_) async => AvatarPersonalityProfile(
-            id: '1',
-            agentName: 'Agent',
-            personalityTraits: '{}',
-            evolutionStage: 'curious_explorer',
-            conversationCount: 0,
-            depthScore: 0.0,
-          ));
+      when(mockDatabase.getAllAvatarMemoryEntries())
+          .thenAnswer((_) async => []);
+      when(mockDatabase.getAvatarProfile())
+          .thenAnswer((_) async => AvatarPersonalityProfile(
+                id: '1',
+                agentName: 'Agent',
+                personalityTraits: '{}',
+                evolutionStage: 'curious_explorer',
+                conversationCount: 0,
+                depthScore: 0.0,
+              ));
 
       await service.syncAll(profile);
 
@@ -537,8 +543,7 @@ invalid_field: value
     });
 
     test('should handle empty directory', () async {
-      expect(() async => await service.clearMarkdownFiles(),
-          returnsNormally);
+      expect(() async => await service.clearMarkdownFiles(), returnsNormally);
     });
 
     test('should handle non-existent directory', () async {
@@ -548,8 +553,8 @@ invalid_field: value
         markdownPath: newDir.path,
       );
 
-      expect(() async => await newService.clearMarkdownFiles(),
-          returnsNormally);
+      expect(
+          () async => await newService.clearMarkdownFiles(), returnsNormally);
     });
   });
 }

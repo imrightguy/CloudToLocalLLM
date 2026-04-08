@@ -55,10 +55,14 @@ void main() {
 
     test('should have correct default traits', () {
       // Check individual traits since PersonalityTraits doesn't override ==
-      expect(service.traits.formality, equals(PersonalityTraits.defaultTraits.formality));
-      expect(service.traits.humor, equals(PersonalityTraits.defaultTraits.humor));
-      expect(service.traits.enthusiasm, equals(PersonalityTraits.defaultTraits.enthusiasm));
-      expect(service.traits.empathy, equals(PersonalityTraits.defaultTraits.empathy));
+      expect(service.traits.formality,
+          equals(PersonalityTraits.defaultTraits.formality));
+      expect(
+          service.traits.humor, equals(PersonalityTraits.defaultTraits.humor));
+      expect(service.traits.enthusiasm,
+          equals(PersonalityTraits.defaultTraits.enthusiasm));
+      expect(service.traits.empathy,
+          equals(PersonalityTraits.defaultTraits.empathy));
     });
 
     test('should have zero conversation count initially', () {
@@ -118,8 +122,7 @@ void main() {
 
     test('should handle load error', () async {
       final testError = Exception('Database error');
-      when(mockPersonalityEngine.getPersonality())
-          .thenThrow(testError);
+      when(mockPersonalityEngine.getPersonality()).thenThrow(testError);
 
       await service.loadProfile();
 
@@ -337,8 +340,7 @@ void main() {
 
       when(mockPersonalityEngine.getPersonality())
           .thenAnswer((_) async => initialProfile);
-      when(mockPersonalityEngine.updateAgentName(newName))
-          .thenThrow(testError);
+      when(mockPersonalityEngine.updateAgentName(newName)).thenThrow(testError);
 
       await service.loadProfile();
 
@@ -370,8 +372,7 @@ void main() {
           .thenAnswer((_) async => initialProfile);
       when(mockPersonalityEngine.validateEvolutionRequest(stage, reason))
           .thenAnswer((_) async => decision);
-      when(mockMarkdownSyncService.syncAll(any))
-          .thenAnswer((_) async {});
+      when(mockMarkdownSyncService.syncAll(any)).thenAnswer((_) async {});
 
       await service.loadProfile();
       final result = await service.requestEvolution(stage, reason);
@@ -379,7 +380,8 @@ void main() {
       expect(result.approved, isTrue);
       expect(result.newStage, equals(stage));
 
-      verify(mockPersonalityEngine.validateEvolutionRequest(stage, reason)).called(1);
+      verify(mockPersonalityEngine.validateEvolutionRequest(stage, reason))
+          .called(1);
     });
 
     test('should sync all data on approved evolution', () async {
@@ -404,8 +406,7 @@ void main() {
           .thenAnswer((_) async => initialProfile);
       when(mockPersonalityEngine.validateEvolutionRequest(stage, reason))
           .thenAnswer((_) async => decision);
-      when(mockMarkdownSyncService.syncAll(any))
-          .thenAnswer((_) async {});
+      when(mockMarkdownSyncService.syncAll(any)).thenAnswer((_) async {});
 
       await service.loadProfile();
       await service.requestEvolution(stage, reason);
@@ -462,8 +463,7 @@ void main() {
 
       await service.loadProfile();
 
-      expect(() => service.requestEvolution(stage, reason),
-          throwsA(testError));
+      expect(() => service.requestEvolution(stage, reason), throwsA(testError));
       expect(service.error, contains('Evolution failed'));
     });
   });
@@ -529,8 +529,7 @@ void main() {
 
       when(mockPersonalityEngine.getPersonality())
           .thenAnswer((_) async => initialProfile);
-      when(mockDatabase.addConversationDepthMetrics(any))
-          .thenThrow(testError);
+      when(mockDatabase.addConversationDepthMetrics(any)).thenThrow(testError);
 
       await service.loadProfile();
       await service.trackConversationDepth('conv-1', 0.8, 0.7, 0.9);
@@ -605,14 +604,16 @@ void main() {
     });
 
     test('should return true when requirements met', () async {
-      final metrics = List.generate(5, (i) => ConversationDepthMetric(
-        id: 'metric-$i',
-        conversationId: 'conv-$i',
-        complexityScore: 0.8,
-        emotionalDepth: 0.7,
-        noveltyScore: 0.9,
-        timestamp: DateTime(2025, 1, 1).millisecondsSinceEpoch,
-      ));
+      final metrics = List.generate(
+          5,
+          (i) => ConversationDepthMetric(
+                id: 'metric-$i',
+                conversationId: 'conv-$i',
+                complexityScore: 0.8,
+                emotionalDepth: 0.7,
+                noveltyScore: 0.9,
+                timestamp: DateTime(2025, 1, 1).millisecondsSinceEpoch,
+              ));
 
       when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => metrics);
 
@@ -626,8 +627,7 @@ void main() {
     test('should clear error state', () async {
       final testError = Exception('Test error');
 
-      when(mockPersonalityEngine.getPersonality())
-          .thenThrow(testError);
+      when(mockPersonalityEngine.getPersonality()).thenThrow(testError);
 
       await service.loadProfile();
       expect(service.error, isNotNull);
@@ -639,8 +639,7 @@ void main() {
     test('should notify listeners when clearing error', () async {
       final testError = Exception('Test error');
 
-      when(mockPersonalityEngine.getPersonality())
-          .thenThrow(testError);
+      when(mockPersonalityEngine.getPersonality()).thenThrow(testError);
 
       await service.loadProfile();
 

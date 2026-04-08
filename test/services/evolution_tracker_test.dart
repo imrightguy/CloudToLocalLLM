@@ -87,7 +87,8 @@ void main() {
           content: 'What is the best approach? How do I start?',
           id: '1',
         ),
-        Message.assistant(content: 'Start with this approach', model: 'test-model', id: '2'),
+        Message.assistant(
+            content: 'Start with this approach', model: 'test-model', id: '2'),
         Message.user(content: 'When should I use it?', id: '3'),
       ];
 
@@ -263,7 +264,8 @@ void main() {
     test('should handle single word messages', () async {
       final messages = <Message>[
         Message.user(content: 'Hi there', id: '1'),
-        Message.assistant(content: 'Hello friend', model: 'test-model', id: '2'),
+        Message.assistant(
+            content: 'Hello friend', model: 'test-model', id: '2'),
       ];
 
       final complexity = await service.calculateComplexity(messages);

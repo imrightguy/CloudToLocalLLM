@@ -30,7 +30,8 @@ void main() {
       final profile = AvatarPersonalityProfile(
         id: '1',
         agentName: 'TestAgent',
-        personalityTraits: '{"formality":0.5,"humor":0.6,"enthusiasm":0.7,"empathy":0.8}',
+        personalityTraits:
+            '{"formality":0.5,"humor":0.6,"enthusiasm":0.7,"empathy":0.8}',
         evolutionStage: 'knowledge_seeker',
         conversationCount: 10,
         depthScore: 0.75,
@@ -52,7 +53,8 @@ void main() {
       final profile = AvatarPersonalityProfile(
         id: '1',
         agentName: 'Agent',
-        personalityTraits: '{"formality":0.8,"humor":0.4,"enthusiasm":0.6,"empathy":0.9}',
+        personalityTraits:
+            '{"formality":0.8,"humor":0.4,"enthusiasm":0.6,"empathy":0.9}',
         evolutionStage: 'curious_explorer',
         conversationCount: 0,
         depthScore: 0.0,
@@ -69,7 +71,8 @@ void main() {
     });
 
     test('should throw StateError on database failure', () async {
-      when(mockDatabase.getAvatarProfile()).thenThrow(Exception('Database error'));
+      when(mockDatabase.getAvatarProfile())
+          .thenThrow(Exception('Database error'));
 
       expect(() => service.getPersonality(), throwsA(isA<StateError>()));
     });
@@ -123,7 +126,8 @@ void main() {
   });
 
   group('PersonalityEngine validateEvolutionRequest', () {
-    test('should approve valid evolution request with sufficient metrics', () async {
+    test('should approve valid evolution request with sufficient metrics',
+        () async {
       const stage = 'knowledge_seeker';
       const reason = 'Ready to evolve';
 
@@ -136,14 +140,16 @@ void main() {
         depthScore: 0.7,
       );
 
-      final metrics = List.generate(5, (i) => ConversationDepthMetric(
-            id: 'metric-$i',
-            conversationId: 'conv-$i',
-            complexityScore: 0.8,
-            emotionalDepth: 0.7,
-            noveltyScore: 0.9,
-            timestamp: DateTime.now().millisecondsSinceEpoch,
-          ));
+      final metrics = List.generate(
+          5,
+          (i) => ConversationDepthMetric(
+                id: 'metric-$i',
+                conversationId: 'conv-$i',
+                complexityScore: 0.8,
+                emotionalDepth: 0.7,
+                noveltyScore: 0.9,
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+              ));
 
       when(mockDatabase.getAvatarProfile()).thenAnswer((_) async => profile);
       when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => metrics);
@@ -186,18 +192,21 @@ void main() {
       verifyNever(mockDatabase.getAvatarProfile());
     });
 
-    test('should reject evolution with insufficient deep conversations', () async {
+    test('should reject evolution with insufficient deep conversations',
+        () async {
       const stage = 'knowledge_seeker';
       const reason = 'Not ready';
 
-      final metrics = List.generate(3, (i) => ConversationDepthMetric(
-            id: 'metric-$i',
-            conversationId: 'conv-$i',
-            complexityScore: 0.8,
-            emotionalDepth: 0.7,
-            noveltyScore: 0.9,
-            timestamp: DateTime.now().millisecondsSinceEpoch,
-          ));
+      final metrics = List.generate(
+          3,
+          (i) => ConversationDepthMetric(
+                id: 'metric-$i',
+                conversationId: 'conv-$i',
+                complexityScore: 0.8,
+                emotionalDepth: 0.7,
+                noveltyScore: 0.9,
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+              ));
 
       when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => metrics);
 
@@ -212,14 +221,16 @@ void main() {
       const stage = 'knowledge_seeker';
       const reason = 'Testing novelty';
 
-      final metrics = List.generate(5, (i) => ConversationDepthMetric(
-            id: 'metric-$i',
-            conversationId: 'conv-$i',
-            complexityScore: 0.8,
-            emotionalDepth: 0.7,
-            noveltyScore: 0.3,
-            timestamp: DateTime.now().millisecondsSinceEpoch,
-          ));
+      final metrics = List.generate(
+          5,
+          (i) => ConversationDepthMetric(
+                id: 'metric-$i',
+                conversationId: 'conv-$i',
+                complexityScore: 0.8,
+                emotionalDepth: 0.7,
+                noveltyScore: 0.3,
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+              ));
 
       when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => metrics);
 
@@ -247,14 +258,16 @@ void main() {
           depthScore: 0.0,
         );
 
-        final metrics = List.generate(5, (i) => ConversationDepthMetric(
-              id: 'metric-$i',
-              conversationId: 'conv-$i',
-              complexityScore: 0.8,
-              emotionalDepth: 0.7,
-              noveltyScore: 0.9,
-              timestamp: DateTime.now().millisecondsSinceEpoch,
-            ));
+        final metrics = List.generate(
+            5,
+            (i) => ConversationDepthMetric(
+                  id: 'metric-$i',
+                  conversationId: 'conv-$i',
+                  complexityScore: 0.8,
+                  emotionalDepth: 0.7,
+                  noveltyScore: 0.9,
+                  timestamp: DateTime.now().millisecondsSinceEpoch,
+                ));
 
         when(mockDatabase.getAvatarProfile()).thenAnswer((_) async => profile);
         when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => metrics);
@@ -287,14 +300,16 @@ void main() {
         depthScore: 0.7,
       );
 
-      final metrics = List.generate(5, (i) => ConversationDepthMetric(
-            id: 'metric-$i',
-            conversationId: 'conv-$i',
-            complexityScore: 0.8,
-            emotionalDepth: 0.7,
-            noveltyScore: 0.9,
-            timestamp: DateTime.now().millisecondsSinceEpoch,
-          ));
+      final metrics = List.generate(
+          5,
+          (i) => ConversationDepthMetric(
+                id: 'metric-$i',
+                conversationId: 'conv-$i',
+                complexityScore: 0.8,
+                emotionalDepth: 0.7,
+                noveltyScore: 0.9,
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+              ));
 
       when(mockDatabase.getAvatarProfile()).thenAnswer((_) async => profile);
       when(mockDatabase.getDepthMetrics()).thenAnswer((_) async => metrics);
@@ -322,9 +337,11 @@ void main() {
       const stage = 'knowledge_seeker';
       const reason = 'Test';
 
-      when(mockDatabase.getDepthMetrics()).thenThrow(Exception('Database error'));
+      when(mockDatabase.getDepthMetrics())
+          .thenThrow(Exception('Database error'));
 
-      expect(() => service.validateEvolutionRequest(stage, reason), throwsA(isA<StateError>()));
+      expect(() => service.validateEvolutionRequest(stage, reason),
+          throwsA(isA<StateError>()));
     });
   });
 }

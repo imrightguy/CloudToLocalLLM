@@ -172,8 +172,7 @@ void main() {
     });
 
     test('getThoughts respects custom limit', () async {
-      when(mockDb.getRecentThoughts(limit: 10))
-          .thenAnswer((_) async => []);
+      when(mockDb.getRecentThoughts(limit: 10)).thenAnswer((_) async => []);
 
       await service.getThoughts(limit: 10);
 
@@ -305,8 +304,7 @@ void main() {
 
       when(mockDb.updateDecisionVerdict(any, any, any, any))
           .thenAnswer((_) async {});
-      when(mockDb.getDecisionById(decisionId))
-          .thenAnswer((_) async => null);
+      when(mockDb.getDecisionById(decisionId)).thenAnswer((_) async => null);
 
       expect(
         () => service.submitDecisionVerdict(
@@ -408,8 +406,7 @@ void main() {
     });
 
     test('getDecisions respects custom limit', () async {
-      when(mockDb.getAllDecisions(limit: 10))
-          .thenAnswer((_) async => []);
+      when(mockDb.getAllDecisions(limit: 10)).thenAnswer((_) async => []);
 
       await service.getDecisions(limit: 10);
 
@@ -419,8 +416,7 @@ void main() {
 
   group('ConscienceStorageService - Edge Cases', () {
     test('handles empty thought list', () async {
-      when(mockDb.getRecentThoughts(limit: 50))
-          .thenAnswer((_) async => []);
+      when(mockDb.getRecentThoughts(limit: 50)).thenAnswer((_) async => []);
 
       final result = await service.getThoughts();
 
@@ -429,8 +425,7 @@ void main() {
     });
 
     test('handles empty decision list', () async {
-      when(mockDb.getAllDecisions(limit: 50))
-          .thenAnswer((_) async => []);
+      when(mockDb.getAllDecisions(limit: 50)).thenAnswer((_) async => []);
 
       final result = await service.getDecisions();
 

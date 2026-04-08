@@ -18,8 +18,10 @@ void main() {
       app.main(const <String>[]);
       await Future.delayed(const Duration(milliseconds: 500));
 
-      guiAutomationChannel = const MethodChannel('cloudtolocallm/gui_automation');
-      windowManagerChannel = const MethodChannel('cloudtolocallm/window_manager');
+      guiAutomationChannel =
+          const MethodChannel('cloudtolocallm/gui_automation');
+      windowManagerChannel =
+          const MethodChannel('cloudtolocallm/window_manager');
     });
 
     test('GUI Automation channel exists', () async {
@@ -33,7 +35,8 @@ void main() {
 
     test('takeScreenshot via native channel', () async {
       try {
-        final result = await guiAutomationChannel.invokeMethod('takeScreenshot', {
+        final result =
+            await guiAutomationChannel.invokeMethod('takeScreenshot', {
           'path': '/tmp/test_screenshot.ppm',
         });
         debugPrint('Screenshot result: $result');
@@ -60,7 +63,8 @@ void main() {
 
     test('executeAction via native channel', () async {
       try {
-        final result = await guiAutomationChannel.invokeMethod('executeAction', {
+        final result =
+            await guiAutomationChannel.invokeMethod('executeAction', {
           'action': 'keypress(space)',
         });
         debugPrint('Action result: $result');

@@ -54,7 +54,8 @@ void expectWidgetsExist(Finder finder, int count) {
 
 /// Gets the active MaterialApp theme mode.
 ThemeMode? getThemeMode(WidgetTester tester) {
-  final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp).first);
+  final materialApp =
+      tester.widget<MaterialApp>(find.byType(MaterialApp).first);
   return materialApp.themeMode;
 }
 
@@ -64,8 +65,7 @@ void expectThemeMode(WidgetTester tester, Brightness expectedBrightness) {
   final actualBrightness = switch (themeMode) {
     ThemeMode.dark => Brightness.dark,
     ThemeMode.light => Brightness.light,
-    ThemeMode.system =>
-      tester.binding.platformDispatcher.platformBrightness,
+    ThemeMode.system => tester.binding.platformDispatcher.platformBrightness,
     null => Brightness.light,
   };
   expect(actualBrightness, expectedBrightness);
