@@ -336,17 +336,17 @@ describe("Error Notification Middleware Integration", () => {
     });
 
     it("should include request context in wrapped handler errors", async () => {
+      app.use((req, res, next) => {
+        req.correlationId = "test-id";
+        next();
+      });
+
       app.get(
         "/api/test",
         withErrorNotification(async (req, res) => {
           throw new Error("Database error");
         }),
       );
-
-      app.use((req, res, next) => {
-        req.correlationId = "test-id";
-        next();
-      });
 
       app.use((error, req, res, next) => {
         res.status(500).json({ error: error.message });
