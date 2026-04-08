@@ -17,6 +17,22 @@ const API_KEY_PREFIX = 'ctll_';
 const API_KEY_LENGTH = 32; // 32 bytes = 256 bits
 const KEY_HASH_ALGORITHM = 'sha256';
 
+function formatApiKeyRow(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    keyPrefix: row.key_prefix,
+    description: row.description,
+    scopes: row.scopes,
+    rateLimit: row.rate_limit,
+    isActive: row.is_active,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    expiresAt: row.expires_at,
+    lastUsedAt: row.last_used_at,
+  };
+}
+
 /**
  * Generate a new API key
  * @param {string} userId - User ID
@@ -200,7 +216,7 @@ export async function listApiKeys(userId) {
       [userId],
     );
 
-    return result.rows;
+    return result.rows.map(formatApiKeyRow);
   } catch (error) {
     logger.error('[APIKey] Failed to list API keys', {
       userId,
@@ -230,7 +246,7 @@ export async function getApiKey(keyId, userId) {
       return null;
     }
 
-    return result.rows[0];
+    return formatApiKeyRow(result.rows[0]);
   } catch (error) {
     logger.error('[APIKey] Failed to get API key', {
       keyId,
@@ -250,15 +266,21 @@ export async function getApiKey(keyId, userId) {
  */
 export async function updateApiKey(keyId, userId, updates) {
   try {
+    const camelToSnake = { rateLimit: 'rate_limit' };
+    const normalizedUpdates = {};
+    for (const [key, value] of Object.entries(updates)) {
+      normalizedUpdates[camelToSnake[key] || key] = value;
+    }
+
     const allowedFields = ['name', 'description', 'scopes', 'rate_limit'];
     const updateFields = [];
     const updateValues = [];
     let paramIndex = 1;
 
     for (const field of allowedFields) {
-      if (field in updates) {
+      if (field in normalizedUpdates) {
         updateFields.push(`${field} = $${paramIndex}`);
-        updateValues.push(updates[field]);
+        updateValues.push(normalizedUpdates[field]);
         paramIndex++;
       }
     }
@@ -288,7 +310,7 @@ export async function updateApiKey(keyId, userId, updates) {
       updates: Object.keys(updates),
     });
 
-    return result.rows[0];
+    return formatApiKeyRow(result.rows[0]);
   } catch (error) {
     logger.error('[APIKey] Failed to update API key', {
       keyId,

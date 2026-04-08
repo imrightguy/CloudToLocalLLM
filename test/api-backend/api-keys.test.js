@@ -262,7 +262,7 @@ describe("API Key Service", () => {
         rateLimit: 2000,
       });
 
-      expect(updated.rate_limit).toBe(2000);
+      expect(updated.rateLimit).toBe(2000);
     });
 
     it("should not allow updating key_hash", async () => {
@@ -332,7 +332,7 @@ describe("API Key Service", () => {
       await revokeApiKey(testKeyId, testUserId);
 
       const key = await getApiKey(testKeyId, testUserId);
-      expect(key.is_active).toBe(false);
+      expect(key.isActive).toBe(false);
     });
 
     it("should make revoked key invalid", async () => {
