@@ -18,7 +18,7 @@ exports.createVisit = async (req, res) => {
     }
 
     const parsedDate = new Date(dateTime);
-    if (isNaN(parsedDate.getTime())) {
+    if (Number.isNaN(parsedDate.getTime())) {
       return res.status(400).json({
         success: false,
         error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
@@ -90,13 +90,13 @@ exports.getVisits = async (req, res) => {
     if (leadId) conditions.push(eq(visitsTable.leadId, leadId));
     if (dateFrom) {
       const from = new Date(dateFrom);
-      if (!isNaN(from.getTime())) {
+      if (!Number.isNaN(from.getTime())) {
         conditions.push(gte(visitsTable.dateTime, from));
       }
     }
     if (dateTo) {
       const to = new Date(dateTo);
-      if (!isNaN(to.getTime())) {
+      if (!Number.isNaN(to.getTime())) {
         // Include the entire end day
         to.setHours(23, 59, 59, 999);
         conditions.push(lte(visitsTable.dateTime, to));
@@ -107,7 +107,7 @@ exports.getVisits = async (req, res) => {
 
     // Count
     const [{ count: total }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: sql`count(*)::int` })
       .from(visitsTable)
       .where(whereClause);
 
@@ -307,7 +307,7 @@ exports.updateVisit = async (req, res) => {
     if (leadId !== undefined) updateData.leadId = leadId;
     if (dateTime !== undefined) {
       const parsed = new Date(dateTime);
-      if (isNaN(parsed.getTime())) {
+      if (Number.isNaN(parsed.getTime())) {
         return res.status(400).json({
           success: false,
           error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
@@ -426,7 +426,7 @@ exports.updateVisitStatus = async (req, res) => {
         return res.status(400).json({
           success: false,
           error: {
-            message: `Invalid outcome. Must be one of: interesse, pas_interesse, no_show, null`,
+            message: 'Invalid outcome. Must be one of: interesse, pas_interesse, no_show, null',
             code: 'VALIDATION_ERROR',
           },
         });

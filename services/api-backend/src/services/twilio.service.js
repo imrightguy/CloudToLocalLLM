@@ -78,7 +78,7 @@ const sendSMS = async (to, body) => {
  * @param {string} body - Raw incoming SMS body
  * @returns {{ action: string|null, raw: string }}
  */
-const handleIncomingMessage = (body) => {
+const handleIncomingMessage = body => {
   try {
     const trimmed = (body || '').trim().toLowerCase();
 

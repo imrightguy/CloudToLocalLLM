@@ -13,14 +13,14 @@ exports.logCommunication = async (req, res) => {
     if (!type || !validTypes.includes(type)) {
       return res.status(400).json({
         success: false,
-        error: { message: `type is required and must be one of: ${validTypes.join(', ')}`, code: 'VALIDATION_ERROR' }
+        error: { message: `type is required and must be one of: ${validTypes.join(', ')}`, code: 'VALIDATION_ERROR' },
       });
     }
 
     if (!direction || !validDirections.includes(direction)) {
       return res.status(400).json({
         success: false,
-        error: { message: `direction is required and must be one of: ${validDirections.join(', ')}`, code: 'VALIDATION_ERROR' }
+        error: { message: `direction is required and must be one of: ${validDirections.join(', ')}`, code: 'VALIDATION_ERROR' },
       });
     }
 
@@ -40,19 +40,19 @@ exports.logCommunication = async (req, res) => {
     res.status(201).json({
       success: true,
       data: log,
-      message: 'Communication logged successfully'
+      message: 'Communication logged successfully',
     });
   } catch (error) {
     console.error('Error logging communication:', error);
     if (error.code === '23503') {
       return res.status(400).json({
         success: false,
-        error: { message: 'Invalid leadId or employeeId', code: 'FOREIGN_KEY_ERROR' }
+        error: { message: 'Invalid leadId or employeeId', code: 'FOREIGN_KEY_ERROR' },
       });
     }
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'COMMUNICATION_LOG_FAILED' }
+      error: { message: 'Internal server error', code: 'COMMUNICATION_LOG_FAILED' },
     });
   }
 };
@@ -95,14 +95,14 @@ exports.getCommunications = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         totalPages,
-        hasMore: parseInt(page) < totalPages
-      }
+        hasMore: parseInt(page) < totalPages,
+      },
     });
   } catch (error) {
     console.error('Error fetching communications:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'COMMUNICATION_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'COMMUNICATION_FETCH_FAILED' },
     });
   }
 };
@@ -120,20 +120,20 @@ exports.getCommunicationLogById = async (req, res) => {
     if (!log) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Communication log not found', code: 'COMMUNICATION_NOT_FOUND' }
+        error: { message: 'Communication log not found', code: 'COMMUNICATION_NOT_FOUND' },
       });
     }
 
     res.json({
       success: true,
       data: log,
-      message: 'Communication log retrieved successfully'
+      message: 'Communication log retrieved successfully',
     });
   } catch (error) {
     console.error('Error fetching communication log:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'COMMUNICATION_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'COMMUNICATION_FETCH_FAILED' },
     });
   }
 };

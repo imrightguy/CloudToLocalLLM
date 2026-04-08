@@ -15,7 +15,7 @@ const { sendSMS, handleIncomingMessage } = require('./twilio.service');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = dateTime => {
   const d = new Date(dateTime);
   return d.toLocaleDateString('fr-CA', {
     weekday: 'long',
@@ -27,12 +27,12 @@ const formatDateTime = (dateTime) => {
   });
 };
 
-const formatTime = (dateTime) => {
+const formatTime = dateTime => {
   const d = new Date(dateTime);
   return d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
 };
 
-const logSMS = async (params) => {
+const logSMS = async params => {
   try {
     const { twilioSid, visitId, employeeId, leadId, phoneNumber, direction, messageBody, status, twilioStatus, errorMessage } = params;
     await db.insert(smsLogsTable).values({
@@ -55,7 +55,7 @@ const logSMS = async (params) => {
 /**
  * Get full visit context (joins employee, lead, unit, building).
  */
-const getVisitContext = async (visitId) => {
+const getVisitContext = async visitId => {
   const rows = await db
     .select({
       visit: visitsTable,
@@ -93,7 +93,7 @@ const tenantMessages = {
 /**
  * Send visit confirmation SMS to the employee.
  */
-const sendVisitConfirmation = async (visitId) => {
+const sendVisitConfirmation = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -134,7 +134,7 @@ const sendVisitConfirmation = async (visitId) => {
  * Send visit confirmation request SMS to the tenant (lead).
  * Checks lead.language for FR/EN.
  */
-const sendTenantConfirmationRequest = async (visitId) => {
+const sendTenantConfirmationRequest = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -176,7 +176,7 @@ const sendTenantConfirmationRequest = async (visitId) => {
  * - If tenant confirmed → positive reminder
  * - If tenant NOT confirmed → warning + call prompt
  */
-const sendMorningOfReminder = async (visitId) => {
+const sendMorningOfReminder = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -227,7 +227,7 @@ const sendMorningOfReminder = async (visitId) => {
 /**
  * Send post-visit survey SMS to the employee.
  */
-const sendPostVisitSurvey = async (visitId) => {
+const sendPostVisitSurvey = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -267,7 +267,7 @@ const sendPostVisitSurvey = async (visitId) => {
 /**
  * Notify Simon (or first admin) that a lead is interested.
  */
-const notifySimonInterested = async (visitId) => {
+const notifySimonInterested = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -351,8 +351,10 @@ const handleEmployeeReply = async (employeePhone, reply) => {
       .where(eq(employeesTable.phone, cleanedPhone))
       .limit(1);
 
-    if (!employees.length) {
-      // Try with +1 prefix
+    let employee;
+    if (employees.length) {
+      employee = employees[0];
+    } else {
       const altPhone = cleanedPhone.startsWith('1') ? `+${cleanedPhone}` : `+1${cleanedPhone}`;
       const altEmployees = await db
         .select()
@@ -371,9 +373,8 @@ const handleEmployeeReply = async (employeePhone, reply) => {
         });
         return { success: false, error: 'Employee not found' };
       }
+      employee = altEmployees[0];
     }
-
-    const employee = employees.length ? employees[0] : altEmployees[0];
 
     // Find the most recent active visit for this employee
     const visits = await db

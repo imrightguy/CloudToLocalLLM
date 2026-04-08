@@ -7,7 +7,7 @@ const { eq, and, ne, sql, desc } = require('drizzle-orm');
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Strip passwordHash from a user row */
-const sanitizeUser = (user) => {
+const sanitizeUser = user => {
   if (!user) return null;
   const { passwordHash, ...safe } = user;
   return safe;
@@ -533,7 +533,7 @@ const getAllUsers = async (req, res) => {
 
     // Count total
     const [{ count }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: sql`count(*)::int` })
       .from(usersTable);
 
     // Fetch page

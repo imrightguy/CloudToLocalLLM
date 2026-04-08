@@ -10,14 +10,14 @@ exports.createSchedule = async (req, res) => {
     if (!employeeId || !buildingId || dayOfWeek === undefined || !startTime || !endTime) {
       return res.status(400).json({
         success: false,
-        error: { message: 'employeeId, buildingId, dayOfWeek, startTime, and endTime are required', code: 'VALIDATION_ERROR' }
+        error: { message: 'employeeId, buildingId, dayOfWeek, startTime, and endTime are required', code: 'VALIDATION_ERROR' },
       });
     }
 
     if (dayOfWeek < 0 || dayOfWeek > 6) {
       return res.status(400).json({
         success: false,
-        error: { message: 'dayOfWeek must be between 0 (Monday) and 6 (Sunday)', code: 'VALIDATION_ERROR' }
+        error: { message: 'dayOfWeek must be between 0 (Monday) and 6 (Sunday)', code: 'VALIDATION_ERROR' },
       });
     }
 
@@ -33,13 +33,13 @@ exports.createSchedule = async (req, res) => {
     res.status(201).json({
       success: true,
       data: schedule,
-      message: 'Schedule created successfully'
+      message: 'Schedule created successfully',
     });
   } catch (error) {
     console.error('Error creating schedule:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'SCHEDULE_CREATION_FAILED' }
+      error: { message: 'Internal server error', code: 'SCHEDULE_CREATION_FAILED' },
     });
   }
 };
@@ -62,13 +62,13 @@ exports.getSchedules = async (req, res) => {
     res.json({
       success: true,
       data: schedules,
-      message: 'Schedules retrieved successfully'
+      message: 'Schedules retrieved successfully',
     });
   } catch (error) {
     console.error('Error fetching schedules:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'SCHEDULE_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'SCHEDULE_FETCH_FAILED' },
     });
   }
 };
@@ -86,20 +86,20 @@ exports.getScheduleById = async (req, res) => {
     if (!schedule) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Schedule not found', code: 'SCHEDULE_NOT_FOUND' }
+        error: { message: 'Schedule not found', code: 'SCHEDULE_NOT_FOUND' },
       });
     }
 
     res.json({
       success: true,
       data: schedule,
-      message: 'Schedule retrieved successfully'
+      message: 'Schedule retrieved successfully',
     });
   } catch (error) {
     console.error('Error fetching schedule:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'SCHEDULE_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'SCHEDULE_FETCH_FAILED' },
     });
   }
 };
@@ -118,7 +118,7 @@ exports.updateSchedule = async (req, res) => {
     if (!existing) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Schedule not found', code: 'SCHEDULE_NOT_FOUND' }
+        error: { message: 'Schedule not found', code: 'SCHEDULE_NOT_FOUND' },
       });
     }
 
@@ -129,7 +129,7 @@ exports.updateSchedule = async (req, res) => {
       if (dayOfWeek < 0 || dayOfWeek > 6) {
         return res.status(400).json({
           success: false,
-          error: { message: 'dayOfWeek must be between 0 (Monday) and 6 (Sunday)', code: 'VALIDATION_ERROR' }
+          error: { message: 'dayOfWeek must be between 0 (Monday) and 6 (Sunday)', code: 'VALIDATION_ERROR' },
         });
       }
       updateData.dayOfWeek = dayOfWeek;
@@ -146,13 +146,13 @@ exports.updateSchedule = async (req, res) => {
     res.json({
       success: true,
       data: updated,
-      message: 'Schedule updated successfully'
+      message: 'Schedule updated successfully',
     });
   } catch (error) {
     console.error('Error updating schedule:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'SCHEDULE_UPDATE_FAILED' }
+      error: { message: 'Internal server error', code: 'SCHEDULE_UPDATE_FAILED' },
     });
   }
 };
@@ -170,7 +170,7 @@ exports.deleteSchedule = async (req, res) => {
     if (!existing) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Schedule not found', code: 'SCHEDULE_NOT_FOUND' }
+        error: { message: 'Schedule not found', code: 'SCHEDULE_NOT_FOUND' },
       });
     }
 
@@ -181,13 +181,13 @@ exports.deleteSchedule = async (req, res) => {
     res.json({
       success: true,
       data: null,
-      message: 'Schedule deleted successfully'
+      message: 'Schedule deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting schedule:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'SCHEDULE_DELETE_FAILED' }
+      error: { message: 'Internal server error', code: 'SCHEDULE_DELETE_FAILED' },
     });
   }
 };
@@ -200,16 +200,16 @@ exports.getEmployeeAvailability = async (req, res) => {
     if (!employeeId || !date) {
       return res.status(400).json({
         success: false,
-        error: { message: 'employeeId and date are required', code: 'VALIDATION_ERROR' }
+        error: { message: 'employeeId and date are required', code: 'VALIDATION_ERROR' },
       });
     }
 
     // Validate date and extract day of week (0=Monday .. 6=Sunday)
     const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
+    if (Number.isNaN(parsedDate.getTime())) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Invalid date format', code: 'VALIDATION_ERROR' }
+        error: { message: 'Invalid date format', code: 'VALIDATION_ERROR' },
       });
     }
 
@@ -223,8 +223,8 @@ exports.getEmployeeAvailability = async (req, res) => {
         and(
           eq(employeeSchedulesTable.employeeId, employeeId),
           eq(employeeSchedulesTable.dayOfWeek, dayOfWeek),
-          eq(employeeSchedulesTable.isActive, true)
-        )
+          eq(employeeSchedulesTable.isActive, true),
+        ),
       )
       .orderBy(asc(employeeSchedulesTable.startTime));
 
@@ -234,15 +234,15 @@ exports.getEmployeeAvailability = async (req, res) => {
         employeeId,
         date,
         dayOfWeek,
-        schedules
+        schedules,
       },
-      message: 'Employee availability retrieved successfully'
+      message: 'Employee availability retrieved successfully',
     });
   } catch (error) {
     console.error('Error fetching employee availability:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'AVAILABILITY_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'AVAILABILITY_FETCH_FAILED' },
     });
   }
 };

@@ -77,7 +77,7 @@ exports.getLeads = async (req, res) => {
     if (buildingId) conditions.push(eq(leadsTable.buildingId, buildingId));
     if (search) {
       conditions.push(
-        ilike(leadsTable.fullName, `%${search}%`)
+        ilike(leadsTable.fullName, `%${search}%`),
       );
     }
 
@@ -85,7 +85,7 @@ exports.getLeads = async (req, res) => {
 
     // Count
     const [{ count: total }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: sql`count(*)::int` })
       .from(leadsTable)
       .where(whereClause);
 

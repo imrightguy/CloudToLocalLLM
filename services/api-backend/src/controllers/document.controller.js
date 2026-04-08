@@ -10,7 +10,7 @@ exports.uploadDocument = async (req, res) => {
     if (!name || !type || !url) {
       return res.status(400).json({
         success: false,
-        error: { message: 'name, type, and url are required', code: 'VALIDATION_ERROR' }
+        error: { message: 'name, type, and url are required', code: 'VALIDATION_ERROR' },
       });
     }
 
@@ -32,13 +32,13 @@ exports.uploadDocument = async (req, res) => {
     res.status(201).json({
       success: true,
       data: document,
-      message: 'Document uploaded successfully'
+      message: 'Document uploaded successfully',
     });
   } catch (error) {
     console.error('Error uploading document:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_UPLOAD_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_UPLOAD_FAILED' },
     });
   }
 };
@@ -82,14 +82,14 @@ exports.getDocuments = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         totalPages,
-        hasMore: parseInt(page) < totalPages
-      }
+        hasMore: parseInt(page) < totalPages,
+      },
     });
   } catch (error) {
     console.error('Error fetching documents:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_FETCH_FAILED' },
     });
   }
 };
@@ -107,7 +107,7 @@ exports.getDocumentById = async (req, res) => {
     if (!document) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' }
+        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' },
       });
     }
 
@@ -121,13 +121,13 @@ exports.getDocumentById = async (req, res) => {
     res.json({
       success: true,
       data: result,
-      message: 'Document retrieved successfully'
+      message: 'Document retrieved successfully',
     });
   } catch (error) {
     console.error('Error fetching document:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_FETCH_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_FETCH_FAILED' },
     });
   }
 };
@@ -146,7 +146,7 @@ exports.updateDocument = async (req, res) => {
     if (!existing) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' }
+        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' },
       });
     }
 
@@ -170,13 +170,13 @@ exports.updateDocument = async (req, res) => {
     res.json({
       success: true,
       data: updated,
-      message: 'Document updated successfully'
+      message: 'Document updated successfully',
     });
   } catch (error) {
     console.error('Error updating document:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_UPDATE_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_UPDATE_FAILED' },
     });
   }
 };
@@ -194,7 +194,7 @@ exports.deleteDocument = async (req, res) => {
     if (!existing) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' }
+        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' },
       });
     }
 
@@ -205,13 +205,13 @@ exports.deleteDocument = async (req, res) => {
     res.json({
       success: true,
       data: null,
-      message: 'Document deleted successfully'
+      message: 'Document deleted successfully',
     });
   } catch (error) {
     console.error('Error deleting document:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_DELETE_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_DELETE_FAILED' },
     });
   }
 };
@@ -229,14 +229,14 @@ exports.approveDocument = async (req, res) => {
     if (!existing) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' }
+        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' },
       });
     }
 
     if (existing.status === 'approved') {
       return res.status(400).json({
         success: false,
-        error: { message: 'Document is already approved', code: 'DOCUMENT_ALREADY_APPROVED' }
+        error: { message: 'Document is already approved', code: 'DOCUMENT_ALREADY_APPROVED' },
       });
     }
 
@@ -248,13 +248,13 @@ exports.approveDocument = async (req, res) => {
     res.json({
       success: true,
       data: approved,
-      message: 'Document approved successfully'
+      message: 'Document approved successfully',
     });
   } catch (error) {
     console.error('Error approving document:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_APPROVAL_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_APPROVAL_FAILED' },
     });
   }
 };
@@ -272,14 +272,14 @@ exports.rejectDocument = async (req, res) => {
     if (!existing) {
       return res.status(404).json({
         success: false,
-        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' }
+        error: { message: 'Document not found', code: 'DOCUMENT_NOT_FOUND' },
       });
     }
 
     if (existing.status === 'rejected') {
       return res.status(400).json({
         success: false,
-        error: { message: 'Document is already rejected', code: 'DOCUMENT_ALREADY_REJECTED' }
+        error: { message: 'Document is already rejected', code: 'DOCUMENT_ALREADY_REJECTED' },
       });
     }
 
@@ -291,13 +291,13 @@ exports.rejectDocument = async (req, res) => {
     res.json({
       success: true,
       data: rejected,
-      message: 'Document rejected successfully'
+      message: 'Document rejected successfully',
     });
   } catch (error) {
     console.error('Error rejecting document:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_REJECTION_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_REJECTION_FAILED' },
     });
   }
 };
@@ -311,13 +311,13 @@ exports.searchDocuments = async (req, res) => {
     if (!q) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Search query "q" is required', code: 'VALIDATION_ERROR' }
+        error: { message: 'Search query "q" is required', code: 'VALIDATION_ERROR' },
       });
     }
 
     const conditions = [
       eq(documentsTable.isActive, true),
-      ilike(documentsTable.name, `%${q}%`)
+      ilike(documentsTable.name, `%${q}%`),
     ];
     if (type) conditions.push(eq(documentsTable.type, type));
     if (category) conditions.push(eq(documentsTable.category, category));
@@ -349,14 +349,14 @@ exports.searchDocuments = async (req, res) => {
         limit: parseInt(limit),
         totalPages,
         hasMore: parseInt(page) < totalPages,
-        query: q
-      }
+        query: q,
+      },
     });
   } catch (error) {
     console.error('Error searching documents:', error);
     res.status(500).json({
       success: false,
-      error: { message: 'Internal server error', code: 'DOCUMENT_SEARCH_FAILED' }
+      error: { message: 'Internal server error', code: 'DOCUMENT_SEARCH_FAILED' },
     });
   }
 };

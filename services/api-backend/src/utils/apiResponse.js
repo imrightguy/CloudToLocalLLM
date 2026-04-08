@@ -14,13 +14,13 @@ const successResponse = ({ data, message = 'Operation successful', metadata = nu
   const response = {
     success: true,
     data,
-    message
+    message,
   };
-  
+
   if (metadata) {
     response.metadata = metadata;
   }
-  
+
   return response;
 };
 
@@ -39,10 +39,10 @@ const errorResponse = ({ message, code = 'INTERNAL_ERROR', details = null, statu
     error: {
       message,
       code,
-      details
-    }
+      details,
+    },
   };
-  
+
   return response;
 };
 
@@ -56,7 +56,7 @@ const errorResponse = ({ message, code = 'INTERNAL_ERROR', details = null, statu
  */
 const generatePaginationMetadata = ({ total, page = 1, limit = 20 }) => {
   const totalPages = Math.ceil(total / limit);
-  
+
   return {
     total,
     page,
@@ -64,7 +64,7 @@ const generatePaginationMetadata = ({ total, page = 1, limit = 20 }) => {
     totalPages,
     hasNext: page < totalPages,
     hasPrev: page > 1,
-    offset: (page - 1) * limit
+    offset: (page - 1) * limit,
   };
 };
 
@@ -77,13 +77,13 @@ const generatePaginationMetadata = ({ total, page = 1, limit = 20 }) => {
 const validateFilters = (req, allowedFilters) => {
   const { filters = {} } = req.query;
   const validFilters = {};
-  
+
   Object.keys(filters).forEach(key => {
     if (allowedFilters.includes(key)) {
       validFilters[key] = filters[key];
     }
   });
-  
+
   return validFilters;
 };
 
@@ -96,14 +96,14 @@ const validateFilters = (req, allowedFilters) => {
  */
 const addSearch = (queryBuilder, search, searchFields) => {
   if (!search) return queryBuilder;
-  
+
   const searchTerm = `%${search.toLowerCase()}%`;
-  const searchConditions = searchFields.map(field => 
-    `LOWER(${field}) LIKE LOWER(${queryBuilder.client ? '?' : '?'})`
-  );
-  
-  return queryBuilder.whereRaw(searchConditions.join(' OR '), 
-    Array(searchConditions.length).fill(searchTerm)
+  const searchConditions = searchFields.map(field =>
+    `LOWER(${field}) LIKE LOWER(${queryBuilder.client ? '?' : '?'})`);
+
+  return queryBuilder.whereRaw(
+    searchConditions.join(' OR '),
+    Array(searchConditions.length).fill(searchTerm),
   );
 };
 
@@ -118,7 +118,7 @@ const addSearch = (queryBuilder, search, searchFields) => {
 const addSort = (queryBuilder, sortBy = 'createdAt', sortOrder = 'asc', allowedSortFields = []) => {
   const validSortField = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
   const validSortOrder = ['asc', 'desc'].includes(sortOrder) ? sortOrder : 'asc';
-  
+
   return queryBuilder.orderBy(validSortField, validSortOrder);
 };
 
@@ -132,10 +132,10 @@ const addSort = (queryBuilder, sortBy = 'createdAt', sortOrder = 'asc', allowedS
 const getPagination = (page = 1, limit = 20) => {
   const validPage = Math.max(1, parseInt(page));
   const validLimit = Math.min(100, Math.max(1, parseInt(limit)));
-  
+
   return {
     offset: (validPage - 1) * validLimit,
-    limit: validLimit
+    limit: validLimit,
   };
 };
 
@@ -148,16 +148,16 @@ const getPagination = (page = 1, limit = 20) => {
  */
 const errorHandler = (error, req, res, next) => {
   console.error('API Error:', error);
-  
+
   // Default error response
   let response = {
     success: false,
     error: {
       message: 'Internal server error',
-      code: 'INTERNAL_ERROR'
-    }
+      code: 'INTERNAL_ERROR',
+    },
   };
-  
+
   // Handle validation errors
   if (error.name === 'ValidationError') {
     response = {
@@ -165,83 +165,83 @@ const errorHandler = (error, req, res, next) => {
       error: {
         message: error.message,
         code: 'VALIDATION_ERROR',
-        details: error.details
-      }
+        details: error.details,
+      },
     };
     return res.status(400).json(response);
   }
-  
+
   // Handle database errors
   if (error.code === '23505') {
     response = {
       success: false,
       error: {
         message: 'Duplicate entry',
-        code: 'DUPLICATE_ENTRY'
-      }
+        code: 'DUPLICATE_ENTRY',
+      },
     };
     return res.status(409).json(response);
   }
-  
+
   if (error.code === '23503') {
     response = {
       success: false,
       error: {
         message: 'Foreign key constraint violation',
-        code: 'FOREIGN_KEY_VIOLATION'
-      }
+        code: 'FOREIGN_KEY_VIOLATION',
+      },
     };
     return res.status(400).json(response);
   }
-  
+
   // Handle authentication errors
   if (error.name === 'UnauthorizedError') {
     response = {
       success: false,
       error: {
         message: 'Unauthorized access',
-        code: 'UNAUTHORIZED'
-      }
+        code: 'UNAUTHORIZED',
+      },
     };
     return res.status(401).json(response);
   }
-  
+
   // Handle not found errors
   if (error.message?.includes('not found')) {
     response = {
       success: false,
       error: {
         message: error.message || 'Resource not found',
-        code: 'NOT_FOUND'
-      }
+        code: 'NOT_FOUND',
+      },
     };
     return res.status(404).json(response);
   }
-  
+
   // Handle file upload errors
   if (error.code === 'LIMIT_FILE_SIZE') {
     response = {
       success: false,
       error: {
         message: 'File size exceeds limit',
-        code: 'FILE_SIZE_EXCEEDED'
-      }
+        code: 'FILE_SIZE_EXCEEDED',
+      },
     };
     return res.status(413).json(response);
   }
-  
+
   // Handle rate limiting
   if (error.message?.includes('too many requests')) {
     response = {
       success: false,
       error: {
         message: 'Too many requests',
-        code: 'RATE_LIMIT_EXCEEDED'
-      }
+        code: 'RATE_LIMIT_EXCEEDED',
+      },
     };
     return res.status(429).json(response);
   }
-  
+
   // Handle other errors
   res.status(error.statusCode || 500).json(response);
 };
@@ -251,7 +251,7 @@ const errorHandler = (error, req, res, next) => {
  * @param {Function} fn - Async function to wrap
  * @returns {Function} Express middleware function
  */
-const asyncHandler = (fn) => {
+const asyncHandler = fn => {
   return (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -266,15 +266,15 @@ const setCacheHeaders = (res, options = {}) => {
   const {
     maxAge = 3600, // 1 hour default
     mustRevalidate = false,
-    private = false
+    isPrivate = false,
   } = options;
-  
+
   res.set('Cache-Control', [
     `max-age=${maxAge}`,
-    private ? 'private' : 'public',
+    isPrivate ? 'private' : 'public',
     mustRevalidate ? 'must-revalidate' : '',
     'no-cache',
-    'no-store'
+    'no-store',
   ].filter(Boolean).join(', '));
 };
 
@@ -289,17 +289,17 @@ const setCORSHeaders = (res, options = {}) => {
     methods = 'GET, POST, PUT, DELETE, PATCH',
     headers = 'Content-Type, Authorization, X-Requested-With',
     credentials = false,
-    maxAge = 86400
+    maxAge = 86400,
   } = options;
-  
+
   res.set('Access-Control-Allow-Origin', origin);
   res.set('Access-Control-Allow-Methods', methods);
   res.set('Access-Control-Allow-Headers', headers);
-  
+
   if (credentials) {
     res.set('Access-Control-Allow-Credentials', 'true');
   }
-  
+
   res.set('Access-Control-Max-Age', maxAge);
 };
 
@@ -314,5 +314,5 @@ module.exports = {
   errorHandler,
   asyncHandler,
   setCacheHeaders,
-  setCORSHeaders
+  setCORSHeaders,
 };

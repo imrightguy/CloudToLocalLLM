@@ -64,7 +64,7 @@ const sendTextMessage = async (senderId, text) => {
  * @returns {Promise<Object>} Facebook API response
  */
 const sendQuickReplies = async (senderId, text, replies) => {
-  const quickReplies = replies.map((r) => ({
+  const quickReplies = replies.map(r => ({
     content_type: 'text',
     title: r.title,
     payload: r.payload,
@@ -107,7 +107,7 @@ const sendGenericTemplate = async (senderId, elements) => {
  * @param {string} senderId - Facebook sender PSID
  * @returns {Promise<{firstName: string, lastName: string, locale: string, profilePic: string}>}
  */
-const getUserProfile = async (senderId) => {
+const getUserProfile = async senderId => {
   if (!FB_PAGE_ACCESS_TOKEN) {
     throw new Error('FB_PAGE_ACCESS_TOKEN is not configured');
   }

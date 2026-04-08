@@ -33,7 +33,7 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-const authorizeRole = (roles) => (req, res, next) => {
+const authorizeRole = roles => (req, res, next) => {
   if (!req.user) return res.status(401).json({ success: false, error: { message: 'Not authenticated', code: 'NOT_AUTHENTICATED' } });
   if (!roles.includes(req.user.role)) return res.status(403).json({ success: false, error: { message: 'Insufficient permissions', code: 'FORBIDDEN' } });
   next();
@@ -52,16 +52,16 @@ const optionalAuth = async (req, res, next) => {
   next();
 };
 
-const generateAccessToken = (user) => jwt.sign(
+const generateAccessToken = user => jwt.sign(
   { userId: user.id, email: user.email, role: user.role },
   process.env.JWT_SECRET,
-  { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+  { expiresIn: process.env.JWT_EXPIRES_IN || '24h' },
 );
 
-const generateRefreshToken = (user) => jwt.sign(
+const generateRefreshToken = user => jwt.sign(
   { userId: user.id, tokenVersion: user.tokenVersion || 1 },
   process.env.JWT_REFRESH_SECRET,
-  { expiresIn: '7d' }
+  { expiresIn: '7d' },
 );
 
 module.exports = { authenticateToken, authorizeRole, optionalAuth, generateAccessToken, generateRefreshToken };

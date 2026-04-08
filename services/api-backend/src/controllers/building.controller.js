@@ -62,7 +62,7 @@ exports.getBuildings = async (req, res) => {
     const conditions = [];
     if (search) {
       conditions.push(
-        ilike(buildingsTable.name, `%${search}%`)
+        ilike(buildingsTable.name, `%${search}%`),
       );
     }
 
@@ -70,7 +70,7 @@ exports.getBuildings = async (req, res) => {
 
     // Count
     const [{ count: total }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: sql`count(*)::int` })
       .from(buildingsTable)
       .where(whereClause);
 
@@ -221,7 +221,7 @@ exports.deleteBuilding = async (req, res) => {
 
     // Check for active units
     const [{ count: unitCount }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: sql`count(*)::int` })
       .from(unitsTable)
       .where(and(eq(unitsTable.buildingId, id), eq(unitsTable.isActive, true)));
 
@@ -343,7 +343,7 @@ exports.getUnits = async (req, res) => {
 
     // Count
     const [{ count: total }] = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: sql`count(*)::int` })
       .from(unitsTable)
       .where(whereClause);
 
@@ -370,7 +370,7 @@ exports.getUnits = async (req, res) => {
       .offset(offset);
 
     // Attach display rent in dollars for each unit
-    const unitsWithRent = units.map((unit) => ({
+    const unitsWithRent = units.map(unit => ({
       ...unit,
       rent: unit.rentCents / 100,
     }));

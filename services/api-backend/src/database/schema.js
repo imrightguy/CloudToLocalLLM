@@ -1,6 +1,6 @@
 const { sql } = require('drizzle-orm');
 const {
-  pgTable, text, integer, timestamp, boolean, jsonb, uuid
+  pgTable, text, integer, timestamp, boolean, jsonb, uuid,
 } = require('drizzle-orm/pg-core');
 
 // ─── Users (app login — Simon + future admins only) ───
@@ -95,7 +95,7 @@ const employeeSchedulesTable = pgTable('employee_schedules', {
   buildingId: uuid('building_id').notNull().references(() => buildingsTable.id, { onDelete: 'cascade' }),
   dayOfWeek: integer('day_of_week').notNull(), // 0=Monday … 6=Sunday
   startTime: text('start_time').notNull(), // "09:00"
-  endTime: text('end_time').notNull(),   // "17:00"
+  endTime: text('end_time').notNull(), // "17:00"
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -199,7 +199,7 @@ const documentsLeadsTable = pgTable('documents_leads', {
   documentId: uuid('document_id').notNull().references(() => documentsTable.id, { onDelete: 'cascade' }),
   leadId: uuid('lead_id').notNull().references(() => leadsTable.id, { onDelete: 'cascade' }),
   assignedAt: timestamp('assigned_at').notNull().defaultNow(),
-}, (table) => ({
+}, table => ({
   pk: { primaryKey: { columns: [table.documentId, table.leadId] } },
 }));
 

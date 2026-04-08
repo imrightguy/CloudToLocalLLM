@@ -1,0 +1,49 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true,
+    "jest": true
+  },
+  "extends": "airbnb-base",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": "off",
+    "no-underscore-dangle": "off",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-param-reassign": ["error", { "props": false }],
+    "max-len": "off",
+    "no-trailing-spaces": "error",
+    "no-multiple-empty-lines": ["error", { "max": 2 }],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "semi": ["error", "always"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "comma-dangle": ["error", "always-multiline"],
+    "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+    "no-await-in-loop": "off",
+    "no-continue": "off",
+    "no-nested-ternary": "off",
+    "consistent-return": "off",
+    "arrow-body-style": "off",
+    "arrow-parens": ["error", "as-needed"],
+    "import/newline-after-import": "off",
+    "import/order": "off",
+    "object-curly-newline": "off",
+    "object-property-newline": "off",
+    "prefer-destructuring": "off",
+    "global-require": "off",
+    "dot-notation": "off",
+    "radix": "off",
+    "no-use-before-define": "off",
+    "implicit-arrow-linebreak": "off",
+    "quote-props": "off",
+    "no-useless-escape": "warn",
+    "space-infix-ops": "error",
+    "no-undef": "error",
+    "no-restricted-globals": ["error", { "name": "isNaN", "message": "Use Number.isNaN instead" }],
+    "eol-last": "error"
+  },
+  "ignorePatterns": ["node_modules/", "dist/", "scripts/"]
+}

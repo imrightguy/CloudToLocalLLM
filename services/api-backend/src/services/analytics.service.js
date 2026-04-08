@@ -147,12 +147,12 @@ async function getNoShowPatterns(buildingId = null) {
       .orderBy(desc(count()));
 
     return {
-      byBuilding: byBuilding.map((r) => ({
+      byBuilding: byBuilding.map(r => ({
         buildingId: r.buildingId,
         buildingName: r.buildingName,
         count: Number(r.count),
       })),
-      byEmployee: byEmployee.map((r) => ({
+      byEmployee: byEmployee.map(r => ({
         employeeId: r.employeeId,
         employeeName: r.employeeName,
         count: Number(r.count),
@@ -231,7 +231,7 @@ async function getLeadSourceBreakdown() {
       .groupBy(leadsTable.source)
       .orderBy(desc(count()));
 
-    return rows.map((r) => ({
+    return rows.map(r => ({
       source: r.source,
       count: Number(r.count),
     }));

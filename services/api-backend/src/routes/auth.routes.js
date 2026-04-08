@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
-const { 
-  authenticateToken, 
-  authorizeRole, 
-  optionalAuth 
+const {
+  authenticateToken,
+  authorizeRole,
+  optionalAuth,
 } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
 

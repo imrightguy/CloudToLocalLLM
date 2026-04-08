@@ -91,7 +91,7 @@ function t(key, lang) {
 function detectLanguage(text) {
   const lower = (text || '').toLowerCase();
   const englishWords = ['hello', 'hi', 'english', 'yes', 'no', 'the', 'i am', 'i\'m', 'move', 'work', 'student', 'budget', 'visit', 'apartment', 'rent', 'pet'];
-  const matchCount = englishWords.filter((w) => lower.includes(w)).length;
+  const matchCount = englishWords.filter(w => lower.includes(w)).length;
   return matchCount >= 2 ? 'en' : 'fr';
 }
 
@@ -101,7 +101,7 @@ function detectLanguage(text) {
 function parseBudget(text) {
   const cleaned = (text || '').replace(/[^0-9.,]/g, '').replace(',', '.');
   const dollars = parseFloat(cleaned);
-  return isNaN(dollars) ? null : Math.round(dollars * 100);
+  return Number.isNaN(dollars) ? null : Math.round(dollars * 100);
 }
 
 /**
@@ -152,7 +152,7 @@ async function getAvailableListings(criteria) {
   if (criteria.occupants) {
     // At least occupants count bedrooms (or null if unspecified)
     conditions.push(
-      sql`(${unitsTable.bedrooms} IS NULL OR ${unitsTable.bedrooms} >= ${criteria.occupants})`
+      sql`(${unitsTable.bedrooms} IS NULL OR ${unitsTable.bedrooms} >= ${criteria.occupants})`,
     );
   }
   if (criteria.buildingId) {
@@ -196,7 +196,7 @@ async function getVisitSlots(buildingId, date) {
     .innerJoin(employeesTable, eq(employeeSchedulesTable.employeeId, employeesTable.id))
     .innerJoin(
       employeeAssignmentsTable,
-      eq(employeeSchedulesTable.employeeId, employeeAssignmentsTable.employeeId)
+      eq(employeeSchedulesTable.employeeId, employeeAssignmentsTable.employeeId),
     )
     .where(
       and(
@@ -204,8 +204,8 @@ async function getVisitSlots(buildingId, date) {
         eq(employeeSchedulesTable.dayOfWeek, dayOfWeek),
         eq(employeeSchedulesTable.isActive, true),
         eq(employeesTable.isActive, true),
-        eq(employeeAssignmentsTable.isActive, true)
-      )
+        eq(employeeAssignmentsTable.isActive, true),
+      ),
     )
     .orderBy(asc(employeeSchedulesTable.startTime))
     .limit(5);
@@ -235,7 +235,7 @@ async function createLeadFromConversation(senderId, conversationData) {
     occupants && `Occupants: ${occupants}`,
     pets && `Animaux: ${pets}`,
     budgetCents && `Budget: $${(budgetCents / 100).toFixed(0)}/mois`,
-    `Source: Facebook Messenger`,
+    'Source: Facebook Messenger',
     `FB PSID: ${senderId}`,
   ]
     .filter(Boolean)
@@ -324,7 +324,7 @@ const handleIncomingMessage = async (senderId, messageText) => {
       senderId,
       lang === 'en'
         ? 'Sorry, something went wrong. Simon will be notified and get back to you.'
-        : 'Désolé, une erreur est survenue. Simon sera informé et vous recontactera.'
+        : 'Désolé, une erreur est survenue. Simon sera informé et vous recontactera.',
     );
   }
 };
@@ -472,7 +472,7 @@ async function handleBudget(senderId, conv, text) {
   }
 
   // Build generic template cards for listings
-  const elements = listings.slice(0, 4).map((l) => {
+  const elements = listings.slice(0, 4).map(l => {
     const rentDollars = (l.unit.rentCents / 100).toFixed(0);
     const subtitleParts = [
       l.building.address,
@@ -499,7 +499,7 @@ async function handleBudget(senderId, conv, text) {
     type: 'fb_messenger',
     direction: 'outbound',
     content: `[Listings] ${listings.length} unit(s) shown`,
-    metadata: { unitIds: listings.map((l) => l.unit.id) },
+    metadata: { unitIds: listings.map(l => l.unit.id) },
   });
 
   conv.state = STATES.ASKED_BUILDING;
@@ -610,7 +610,7 @@ async function handleSuggestVisit(senderId, conv, text) {
           dateTime: visitDateTime,
           durationMinutes: 30,
           status: 'scheduled',
-          notes: `Visit scheduled via Facebook Messenger bot`,
+          notes: 'Visit scheduled via Facebook Messenger bot',
         })
         .returning();
     } catch (err) {

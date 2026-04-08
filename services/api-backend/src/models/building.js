@@ -11,7 +11,7 @@ const buildingSchema = Joi.object({
       'string.max': 'Building name cannot be more than 100 characters long',
       'string.empty': 'Building name is required',
     }),
-    
+
   address: Joi.string()
     .min(5)
     .max(255)
@@ -21,7 +21,7 @@ const buildingSchema = Joi.object({
       'string.max': 'Address cannot be more than 255 characters long',
       'string.empty': 'Address is required',
     }),
-    
+
   totalUnits: Joi.number()
     .integer()
     .min(1)
@@ -33,7 +33,7 @@ const buildingSchema = Joi.object({
       'number.min': 'Total units must be at least 1',
       'number.max': 'Total units cannot be more than 1000',
     }),
-    
+
   occupiedUnits: Joi.number()
     .integer()
     .min(0)
@@ -46,7 +46,7 @@ const buildingSchema = Joi.object({
       'number.min': 'Occupied units cannot be negative',
       'number.max': 'Occupied units cannot exceed total units',
     }),
-    
+
   monthlyRevenue: Joi.number()
     .integer()
     .min(0)
@@ -57,7 +57,7 @@ const buildingSchema = Joi.object({
       'number.integer': 'Monthly revenue must be an integer',
       'number.min': 'Monthly revenue cannot be negative',
     }),
-    
+
   managerId: Joi.string()
     .guid()
     .optional()
@@ -65,7 +65,7 @@ const buildingSchema = Joi.object({
     .messages({
       'string.guid': 'Manager ID must be a valid UUID',
     }),
-    
+
   properties: Joi.object({
     yearBuilt: Joi.number()
       .integer()
@@ -78,7 +78,7 @@ const buildingSchema = Joi.object({
         'number.min': 'Year built must be after 1800',
         'number.max': 'Year built cannot be in the future',
       }),
-      
+
     elevator: Joi.boolean().optional(),
     gym: Joi.boolean().optional(),
     pool: Joi.boolean().optional(),
@@ -86,7 +86,7 @@ const buildingSchema = Joi.object({
     laundry: Joi.boolean().optional(),
     petFriendly: Joi.boolean().optional(),
     security: Joi.boolean().optional(),
-    
+
     description: Joi.string()
       .max(2000)
       .optional()
@@ -94,7 +94,7 @@ const buildingSchema = Joi.object({
       .messages({
         'string.max': 'Description cannot be more than 2000 characters long',
       }),
-      
+
     images: Joi.array()
       .items(Joi.string().uri())
       .max(20)
@@ -103,7 +103,7 @@ const buildingSchema = Joi.object({
         'array.max': 'Cannot have more than 20 images',
         'string.uri': 'Image URLs must be valid URLs',
       }),
-      
+
     amenities: Joi.array()
       .items(Joi.string())
       .max(50)
@@ -112,10 +112,10 @@ const buildingSchema = Joi.object({
         'array.max': 'Cannot have more than 50 amenities',
       }),
   })
-  .default({})
-  .messages({
-    'object.base': 'Properties must be an object',
-  }),
+    .default({})
+    .messages({
+      'object.base': 'Properties must be an object',
+    }),
 });
 
 // Unit validation schema
@@ -126,7 +126,7 @@ const unitSchema = Joi.object({
     .messages({
       'string.guid': 'Building ID must be a valid UUID',
     }),
-    
+
   label: Joi.string()
     .min(2)
     .max(50)
@@ -138,7 +138,7 @@ const unitSchema = Joi.object({
       'string.empty': 'Unit label is required',
       'string.pattern.base': 'Unit label can only contain letters, numbers, spaces, and hyphens',
     }),
-    
+
   rent: Joi.number()
     .integer()
     .min(0)
@@ -150,7 +150,7 @@ const unitSchema = Joi.object({
       'number.min': 'Rent cannot be negative',
       'number.max': 'Rent cannot exceed $100,000 per month',
     }),
-    
+
   status: Joi.string()
     .valid('vacant', 'occupied', 'maintenance')
     .default('vacant')
@@ -158,7 +158,7 @@ const unitSchema = Joi.object({
     .messages({
       'any.only': 'Status must be one of: vacant, occupied, maintenance',
     }),
-    
+
   amenities: Joi.array()
     .items(Joi.string())
     .max(50)
@@ -167,7 +167,7 @@ const unitSchema = Joi.object({
     .messages({
       'array.max': 'Cannot have more than 50 amenities',
     }),
-    
+
   squareFeet: Joi.number()
     .integer()
     .min(100)
@@ -179,7 +179,7 @@ const unitSchema = Joi.object({
       'number.min': 'Square feet must be at least 100',
       'number.max': 'Square feet cannot exceed 10,000',
     }),
-    
+
   bedrooms: Joi.number()
     .integer()
     .min(0)
@@ -191,7 +191,7 @@ const unitSchema = Joi.object({
       'number.min': 'Bedrooms cannot be negative',
       'number.max': 'Bedrooms cannot exceed 10',
     }),
-    
+
   bathrooms: Joi.number()
     .integer()
     .min(0)
@@ -203,7 +203,7 @@ const unitSchema = Joi.object({
       'number.min': 'Bathrooms cannot be negative',
       'number.max': 'Bathrooms cannot exceed 10',
     }),
-    
+
   description: Joi.string()
     .max(2000)
     .optional()
@@ -211,7 +211,7 @@ const unitSchema = Joi.object({
     .messages({
       'string.max': 'Description cannot be more than 2000 characters long',
     }),
-    
+
   features: Joi.object({
     furnished: Joi.boolean().optional(),
     parkingIncluded: Joi.boolean().optional(),
@@ -223,10 +223,10 @@ const unitSchema = Joi.object({
     microwave: Joi.boolean().optional(),
     inUnitLaundry: Joi.boolean().optional(),
   })
-  .default({})
-  .messages({
-    'object.base': 'Features must be an object',
-  }),
+    .default({})
+    .messages({
+      'object.base': 'Features must be an object',
+    }),
 });
 
 // Building update schema (partial building schema)
@@ -239,7 +239,7 @@ const updateBuildingSchema = Joi.object({
       'string.min': 'Building name must be at least 2 characters long',
       'string.max': 'Building name cannot be more than 100 characters long',
     }),
-    
+
   address: Joi.string()
     .min(5)
     .max(255)
@@ -248,7 +248,7 @@ const updateBuildingSchema = Joi.object({
       'string.min': 'Address must be at least 5 characters long',
       'string.max': 'Address cannot be more than 255 characters long',
     }),
-    
+
   totalUnits: Joi.number()
     .integer()
     .min(1)
@@ -260,7 +260,7 @@ const updateBuildingSchema = Joi.object({
       'number.min': 'Total units must be at least 1',
       'number.max': 'Total units cannot be more than 1000',
     }),
-    
+
   occupiedUnits: Joi.number()
     .integer()
     .min(0)
@@ -272,7 +272,7 @@ const updateBuildingSchema = Joi.object({
       'number.min': 'Occupied units cannot be negative',
       'number.max': 'Occupied units cannot exceed total units',
     }),
-    
+
   monthlyRevenue: Joi.number()
     .integer()
     .min(0)
@@ -282,7 +282,7 @@ const updateBuildingSchema = Joi.object({
       'number.integer': 'Monthly revenue must be an integer',
       'number.min': 'Monthly revenue cannot be negative',
     }),
-    
+
   managerId: Joi.string()
     .guid()
     .optional()
@@ -290,7 +290,7 @@ const updateBuildingSchema = Joi.object({
     .messages({
       'string.guid': 'Manager ID must be a valid UUID',
     }),
-    
+
   properties: Joi.object({
     yearBuilt: Joi.number()
       .integer()
@@ -303,7 +303,7 @@ const updateBuildingSchema = Joi.object({
         'number.min': 'Year built must be after 1800',
         'number.max': 'Year built cannot be in the future',
       }),
-      
+
     elevator: Joi.boolean().optional(),
     gym: Joi.boolean().optional(),
     pool: Joi.boolean().optional(),
@@ -311,7 +311,7 @@ const updateBuildingSchema = Joi.object({
     laundry: Joi.boolean().optional(),
     petFriendly: Joi.boolean().optional(),
     security: Joi.boolean().optional(),
-    
+
     description: Joi.string()
       .max(2000)
       .optional()
@@ -319,7 +319,7 @@ const updateBuildingSchema = Joi.object({
       .messages({
         'string.max': 'Description cannot be more than 2000 characters long',
       }),
-      
+
     images: Joi.array()
       .items(Joi.string().uri())
       .max(20)
@@ -328,7 +328,7 @@ const updateBuildingSchema = Joi.object({
         'array.max': 'Cannot have more than 20 images',
         'string.uri': 'Image URLs must be valid URLs',
       }),
-      
+
     amenities: Joi.array()
       .items(Joi.string())
       .max(50)
@@ -337,10 +337,10 @@ const updateBuildingSchema = Joi.object({
         'array.max': 'Cannot have more than 50 amenities',
       }),
   })
-  .optional()
-  .messages({
-    'object.base': 'Properties must be an object',
-  }),
+    .optional()
+    .messages({
+      'object.base': 'Properties must be an object',
+    }),
 });
 
 // Unit update schema
@@ -355,7 +355,7 @@ const updateUnitSchema = Joi.object({
       'string.max': 'Unit label cannot be more than 50 characters long',
       'string.pattern.base': 'Unit label can only contain letters, numbers, spaces, and hyphens',
     }),
-    
+
   rent: Joi.number()
     .integer()
     .min(0)
@@ -367,14 +367,14 @@ const updateUnitSchema = Joi.object({
       'number.min': 'Rent cannot be negative',
       'number.max': 'Rent cannot exceed $100,000 per month',
     }),
-    
+
   status: Joi.string()
     .valid('vacant', 'occupied', 'maintenance')
     .optional()
     .messages({
       'any.only': 'Status must be one of: vacant, occupied, maintenance',
     }),
-    
+
   amenities: Joi.array()
     .items(Joi.string())
     .max(50)
@@ -382,7 +382,7 @@ const updateUnitSchema = Joi.object({
     .messages({
       'array.max': 'Cannot have more than 50 amenities',
     }),
-    
+
   squareFeet: Joi.number()
     .integer()
     .min(100)
@@ -394,7 +394,7 @@ const updateUnitSchema = Joi.object({
       'number.min': 'Square feet must be at least 100',
       'number.max': 'Square feet cannot exceed 10,000',
     }),
-    
+
   bedrooms: Joi.number()
     .integer()
     .min(0)
@@ -406,7 +406,7 @@ const updateUnitSchema = Joi.object({
       'number.min': 'Bedrooms cannot be negative',
       'number.max': 'Bedrooms cannot exceed 10',
     }),
-    
+
   bathrooms: Joi.number()
     .integer()
     .min(0)
@@ -418,7 +418,7 @@ const updateUnitSchema = Joi.object({
       'number.min': 'Bathrooms cannot be negative',
       'number.max': 'Bathrooms cannot exceed 10',
     }),
-    
+
   description: Joi.string()
     .max(2000)
     .optional()
@@ -426,7 +426,7 @@ const updateUnitSchema = Joi.object({
     .messages({
       'string.max': 'Description cannot be more than 2000 characters long',
     }),
-    
+
   features: Joi.object({
     furnished: Joi.boolean().optional(),
     parkingIncluded: Joi.boolean().optional(),
@@ -438,10 +438,10 @@ const updateUnitSchema = Joi.object({
     microwave: Joi.boolean().optional(),
     inUnitLaundry: Joi.boolean().optional(),
   })
-  .optional()
-  .messages({
-    'object.base': 'Features must be an object',
-  }),
+    .optional()
+    .messages({
+      'object.base': 'Features must be an object',
+    }),
 });
 
 module.exports = { buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema };

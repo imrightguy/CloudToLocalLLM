@@ -106,7 +106,7 @@ const handleSchedule = async (req, res) => {
       });
     }
 
-    let results = [];
+    const results = [];
 
     if (action === 'morning_reminder') {
       if (visitId) {
