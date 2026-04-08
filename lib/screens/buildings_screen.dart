@@ -202,7 +202,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       const Icon(Icons.attach_money, size: 16, color: Color(0xFF10B981)),
                       const SizedBox(width: 4),
                       Text(
-                        '${building.monthlyRevenue.toStringAsFixed(0)}\$ / mois',
+                        '${building.monthlyRevenue}\\$ / mois',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

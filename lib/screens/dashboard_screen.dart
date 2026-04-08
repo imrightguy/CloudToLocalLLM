@@ -91,7 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   Container(
                     height: 200,
-                    color: const Color(0xF3F4F6),
+                    color: const Color(0xFFF3F4F6),
                     child: const Center(
                       child: Text(
                         'Graphique des revenus',
@@ -240,7 +240,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
                           Text(
-                            '${building.monthlyRevenue.toStringAsFixed(0)}\$',
+                            '${building.monthlyRevenue}\\$',
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF64748B),

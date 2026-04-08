@@ -1,23 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class VisitItem {
-  const VisitItem({
-    required this.unitLabel,
-    required this.buildingName,
-    required this.dateLabel,
-    required this.status,
-    required this.agent,
-    required this.notes,
-  });
-
-  final String unitLabel;
-  final String buildingName;
-  final String dateLabel;
-  final String status;
-  final String agent;
-  final String notes;
-}
+import '../models.dart';
 
 class VisitsScreen extends StatefulWidget {
   const VisitsScreen({super.key});

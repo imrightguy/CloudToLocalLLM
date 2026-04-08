@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 
 import '../data/demo_data.dart';
 import '../models.dart';
+import 'dashboard_screen.dart';
+import 'pipeline_screen.dart';
+import 'visits_screen.dart';
+import 'buildings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,7 +17,65 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  
+
+  static const List<Widget> _screens = [
+    _HomeTab(),
+    DashboardScreen(),
+    PipelineScreen(),
+    VisitsScreen(),
+    BuildingsScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF0F766E),
+        unselectedItemColor: const Color(0xFF94A3B8),
+        elevation: 0,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            label: 'Tableau',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up),
+            label: 'Pipeline',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_outlined),
+            label: 'Visites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.apartment_outlined),
+            label: 'Immeubles',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Extracted home tab content so it can live inside IndexedStack.
+class _HomeTab extends StatelessWidget {
+  const _HomeTab();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,9 +153,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Quick stats
             Wrap(
               spacing: 12,
@@ -154,9 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }).toList(),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Recent activity
             const Row(
               children: [
@@ -178,9 +240,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -254,41 +316,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF0F766E),
-        unselectedItemColor: const Color(0xFF94A3B8),
-        elevation: 0,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            label: 'Tableau',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.trending_up),
-            label: 'Pipeline',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Visites',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.apartment_outlined),
-            label: 'Immeubles',
-          ),
-        ],
       ),
     );
   }
