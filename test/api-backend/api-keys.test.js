@@ -383,22 +383,10 @@ describe("API Key Routes", () => {
   let app;
   let testUserId;
   let testUserUUID;
+  let mockUserId = "placeholder";
 
   beforeAll(async () => {
-    // Create Express app with routes
-    app = express();
-    app.use(express.json());
-
-    // Mock authenticateJWT middleware
-    app.use((req, res, next) => {
-      req.user = { sub: "test-user-id" };
-      req.userId = "test-user-id";
-      next();
-    });
-
-    app.use("/api-keys", apiKeysRouter);
-
-    // Create test user
+    // Create test user first so mock auth can reference the real UUID
     const userResult = await query(
       `INSERT INTO users (jwt_id, email, name)
        VALUES ($1, $2, $3)
@@ -407,6 +395,20 @@ describe("API Key Routes", () => {
     );
     testUserUUID = userResult.rows[0].id;
     testUserId = testUserUUID.toString();
+    mockUserId = testUserId;
+
+    // Create Express app with routes
+    app = express();
+    app.use(express.json());
+
+    // Mock authenticateJWT middleware — uses real UUID from DB
+    app.use((req, res, next) => {
+      req.user = { sub: mockUserId };
+      req.userId = mockUserId;
+      next();
+    });
+
+    app.use("/api-keys", apiKeysRouter);
   });
 
   afterAll(async () => {
