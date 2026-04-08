@@ -1,3 +1,32 @@
+# Flutter/Dart
 .dart_tool/
 .flutter-plugins-dependencies
-pubspec.lock
+build/
+*.lock
+!pubspec.lock
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Coverage
+coverage/
+
+# Node (services)
+node_modules/
+npm-debug.log*
