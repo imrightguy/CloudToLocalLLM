@@ -1,8 +1,8 @@
-import { sql } from 'drizzle-orm';
-import { pgTable, text, varchar, integer, timestamp, boolean, jsonb, uuid } from 'drizzle-orm/pg-core';
+const { sql } = require('drizzle-orm');
+const { pgTable, text, varchar, integer, timestamp, boolean, jsonb, uuid } = require('drizzle-orm/pg-core');
 
 // Users table
-export const usersTable = pgTable('users', {
+const usersTable = pgTable('users', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
@@ -14,7 +14,7 @@ export const usersTable = pgTable('users', {
 });
 
 // Buildings table
-export const buildingsTable = pgTable('buildings', {
+const buildingsTable = pgTable('buildings', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   name: text('name').notNull(),
   address: text('address').notNull(),
@@ -29,7 +29,7 @@ export const buildingsTable = pgTable('buildings', {
 });
 
 // Units table
-export const unitsTable = pgTable('units', {
+const unitsTable = pgTable('units', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   buildingId: uuid('building_id').notNull().references(() => buildingsTable.id, { onDelete: 'cascade' }),
   label: text('label').notNull(), // e.g., "201 - 3 1/2"
@@ -46,7 +46,7 @@ export const unitsTable = pgTable('units', {
 });
 
 // Agents table
-export const agentsTable = pgTable('agents', {
+const agentsTable = pgTable('agents', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
@@ -58,7 +58,7 @@ export const agentsTable = pgTable('agents', {
 });
 
 // Leads table
-export const leadsTable = pgTable('leads', {
+const leadsTable = pgTable('leads', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   fullName: text('full_name').notNull(),
   email: text('email').notNull(),
@@ -78,7 +78,7 @@ export const leadsTable = pgTable('leads', {
 });
 
 // Visits table
-export const visitsTable = pgTable('visits', {
+const visitsTable = pgTable('visits', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   unitLabel: text('unit_label').notNull(),
   buildingName: text('building_name').notNull(),
@@ -96,7 +96,7 @@ export const visitsTable = pgTable('visits', {
 });
 
 // Documents table
-export const documentsTable = pgTable('documents', {
+const documentsTable = pgTable('documents', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   name: text('name').notNull(),
   type: text('type').notNull(), // lease, application, id, incomeProof, other
@@ -114,7 +114,7 @@ export const documentsTable = pgTable('documents', {
 });
 
 // Documents leads relationship (for many-to-many relationship)
-export const documentsLeadsTable = pgTable('documents_leads', {
+const documentsLeadsTable = pgTable('documents_leads', {
   documentId: uuid('document_id').notNull().references(() => documentsTable.id, { onDelete: 'cascade' }),
   leadId: uuid('lead_id').notNull().references(() => leadsTable.id, { onDelete: 'cascade' }),
   assignedAt: timestamp('assigned_at').notNull().defaultNow(),
@@ -123,7 +123,7 @@ export const documentsLeadsTable = pgTable('documents_leads', {
 });
 
 // Schedules table for recurring events
-export const schedulesTable = pgTable('schedules', {
+const schedulesTable = pgTable('schedules', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   title: text('title').notNull(),
   description: text('description'),
@@ -139,7 +139,7 @@ export const schedulesTable = pgTable('schedules', {
 });
 
 // Communication logs table
-export const communicationLogsTable = pgTable('communication_logs', {
+const communicationLogsTable = pgTable('communication_logs', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   leadId: uuid('lead_id').references(() => leadsTable.id),
   type: text('type').notNull(), // email, sms, phone, fb, email
@@ -153,7 +153,7 @@ export const communicationLogsTable = pgTable('communication_logs', {
 });
 
 // Indexes for better query performance
-export const indexes = {
+const indexes = {
   users_email: sql`CREATE UNIQUE INDEX idx_users_email ON users(email)`,
   buildings_manager: sql`CREATE INDEX idx_buildings_manager ON buildings(manager_id)`,
   units_building: sql`CREATE INDEX idx_units_building ON units(building_id)`,
@@ -165,4 +165,35 @@ export const indexes = {
   documents_type: sql`CREATE INDEX idx_documents_type ON documents(type)`,
   documents_reference: sql`CREATE INDEX idx_documents_reference ON documents(reference_id)`,
   documents_leads: sql`CREATE INDEX idx_documents_leads ON documents_leads(lead_id)`,
+};
+
+
+// Schema object for drizzle ORM convenience
+const schema = {
+  users: usersTable,
+  buildings: buildingsTable,
+  units: unitsTable,
+  agents: agentsTable,
+  leads: leadsTable,
+  visits: visitsTable,
+  documents: documentsTable,
+  documentsLeads: documentsLeadsTable,
+  schedules: schedulesTable,
+  communicationLogs: communicationLogsTable,
+  indexes,
+};
+
+module.exports = {
+  schema,
+  usersTable,
+  buildingsTable,
+  unitsTable,
+  agentsTable,
+  leadsTable,
+  visitsTable,
+  documentsTable,
+  documentsLeadsTable,
+  schedulesTable,
+  communicationLogsTable,
+  indexes,
 };

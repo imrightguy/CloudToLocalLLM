@@ -1,7 +1,7 @@
-import Joi from 'joi';
+const Joi = require('joi');
 
 // Building validation schema
-export const buildingSchema = Joi.object({
+const buildingSchema = Joi.object({
   name: Joi.string()
     .min(2)
     .max(100)
@@ -119,7 +119,7 @@ export const buildingSchema = Joi.object({
 });
 
 // Unit validation schema
-export const unitSchema = Joi.object({
+const unitSchema = Joi.object({
   buildingId: Joi.string()
     .guid()
     .required()
@@ -230,7 +230,7 @@ export const unitSchema = Joi.object({
 });
 
 // Building update schema (partial building schema)
-export const updateBuildingSchema = Joi.object({
+const updateBuildingSchema = Joi.object({
   name: Joi.string()
     .min(2)
     .max(100)
@@ -344,7 +344,7 @@ export const updateBuildingSchema = Joi.object({
 });
 
 // Unit update schema
-export const updateUnitSchema = Joi.object({
+const updateUnitSchema = Joi.object({
   label: Joi.string()
     .min(2)
     .max(50)
@@ -443,3 +443,5 @@ export const updateUnitSchema = Joi.object({
     'object.base': 'Features must be an object',
   }),
 });
+
+module.exports = { buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema };
