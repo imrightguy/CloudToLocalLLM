@@ -28,11 +28,12 @@ describe('Auth Backend', () => {
       });
     });
 
-    it('blocks disallowed origin', async () => {
+    it('strips CORS headers for disallowed origin', async () => {
       const res = await request(app)
         .get('/health')
         .set('Origin', 'https://evil.com');
-      expect(res.status).toBeGreaterThanOrEqual(400);
+      expect(res.status).toBe(200);
+      expect(res.headers['access-control-allow-origin']).toBeUndefined();
     });
   });
 
