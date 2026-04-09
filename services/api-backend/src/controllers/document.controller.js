@@ -1,6 +1,9 @@
 const { db } = require('../database/connection');
 const { documentsTable, documentsLeadsTable } = require('../database/schema');
 const { eq, and, desc, ilike, sql } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'document' });
 
 // ─── Upload Document ───
 exports.uploadDocument = async (req, res) => {
@@ -35,7 +38,7 @@ exports.uploadDocument = async (req, res) => {
       message: 'Document uploaded successfully',
     });
   } catch (error) {
-    console.error('Error uploading document:', error);
+    log.error('Error uploading document', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_UPLOAD_FAILED' },
@@ -86,7 +89,7 @@ exports.getDocuments = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching documents:', error);
+    log.error('Error fetching documents', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_FETCH_FAILED' },
@@ -124,7 +127,7 @@ exports.getDocumentById = async (req, res) => {
       message: 'Document retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching document:', error);
+    log.error('Error fetching document', { error: error.message, documentId: req.params.id });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_FETCH_FAILED' },
@@ -173,7 +176,7 @@ exports.updateDocument = async (req, res) => {
       message: 'Document updated successfully',
     });
   } catch (error) {
-    console.error('Error updating document:', error);
+    log.error('Error updating document', { error: error.message, documentId: req.params.id });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_UPDATE_FAILED' },
@@ -208,7 +211,7 @@ exports.deleteDocument = async (req, res) => {
       message: 'Document deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting document:', error);
+    log.error('Error deleting document', { error: error.message, documentId: req.params.id });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_DELETE_FAILED' },
@@ -251,7 +254,7 @@ exports.approveDocument = async (req, res) => {
       message: 'Document approved successfully',
     });
   } catch (error) {
-    console.error('Error approving document:', error);
+    log.error('Error approving document', { error: error.message, documentId: req.params.id });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_APPROVAL_FAILED' },
@@ -294,7 +297,7 @@ exports.rejectDocument = async (req, res) => {
       message: 'Document rejected successfully',
     });
   } catch (error) {
-    console.error('Error rejecting document:', error);
+    log.error('Error rejecting document', { error: error.message, documentId: req.params.id });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_REJECTION_FAILED' },
@@ -354,7 +357,7 @@ exports.searchDocuments = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error searching documents:', error);
+    log.error('Error searching documents', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'DOCUMENT_SEARCH_FAILED' },
