@@ -66,7 +66,7 @@ app.use(errorHandler);
 
 // Start
 app.listen(PORT, async () => {
-  logger.info(`ImmoGestion API started`, { port: PORT });
+  logger.info('ImmoGestion API started', { port: PORT });
   try {
     await connect();
     logger.info('Database connected');

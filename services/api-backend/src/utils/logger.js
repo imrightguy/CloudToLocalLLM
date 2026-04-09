@@ -28,13 +28,13 @@ function log(level, message, meta) {
 
   switch (level) {
     case 'error':
-      process.stderr.write(formatted + '\n');
+      process.stderr.write(`${formatted}\n`);
       break;
     case 'warn':
-      process.stderr.write(formatted + '\n');
+      process.stderr.write(`${formatted}\n`);
       break;
     default:
-      process.stdout.write(formatted + '\n');
+      process.stdout.write(`${formatted}\n`);
   }
 }
 
