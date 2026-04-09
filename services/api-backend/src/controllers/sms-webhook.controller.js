@@ -1,4 +1,4 @@
-const { handleEmployeeReply, handleTenantReply, sendMorningOfReminder, sendPostVisitSurvey } = require('../services/sms.service');
+const { handleEmployeeReply, handleTenantReply, handleOccupantReply, sendMorningOfReminder, sendPostVisitSurvey } = require('../services/sms.service');
 const { db } = require('../database/connection');
 const { smsLogsTable } = require('../database/schema');
 const { eq } = require('drizzle-orm');
@@ -33,6 +33,15 @@ const handleIncoming = async (req, res) => {
       if (tenantResult.success) {
         console.log(`✅ Tenant reply processed: action=${tenantResult.action}, visit=${tenantResult.visitId}`);
         return res.status(200).type('text/xml').send('<Response></Response>');
+      }
+
+      // If tenant not found, try occupant (current tenant of occupied unit)
+      if (tenantResult.error === 'Lead not found' || tenantResult.error === 'No active visit found') {
+        const occupantResult = await handleOccupantReply(From, Body);
+        if (occupantResult.success) {
+          console.log(`✅ Occupant reply processed: action=${occupantResult.action}, visit=${occupantResult.visitId}`);
+          return res.status(200).type('text/xml').send('<Response></Response>');
+        }
       }
     }
 
