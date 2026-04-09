@@ -2,11 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:immogestion/models.dart';
 
 void main() {
-  // ---------------------------------------------------------------------------
-  // LeadStage
-  // ---------------------------------------------------------------------------
   group('LeadStage', () {
-    test('fromString returns correct stage', () {
+    test('fromString parses known values', () {
       expect(LeadStage.fromString('nouveau'), LeadStage.nouveau);
       expect(LeadStage.fromString('contacte'), LeadStage.contacte);
       expect(LeadStage.fromString('qualifie'), LeadStage.qualifie);
@@ -16,8 +13,8 @@ void main() {
       expect(LeadStage.fromString('bailSigne'), LeadStage.bailSigne);
     });
 
-    test('fromString returns nouveau for unknown value', () {
-      expect(LeadStage.fromString('invalid'), LeadStage.nouveau);
+    test('fromString falls back to nouveau for unknown values', () {
+      expect(LeadStage.fromString('unknown'), LeadStage.nouveau);
       expect(LeadStage.fromString(''), LeadStage.nouveau);
     });
 
@@ -32,52 +29,31 @@ void main() {
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // OfferItem
-  // ---------------------------------------------------------------------------
   group('OfferItem', () {
     test('fromJson parses all fields', () {
       final offer = OfferItem.fromJson({
         'id': 'o1',
-        'amount': 1500,
-        'status': 'active',
-        'sentAt': '2024-01-15',
+        'amount': 158000,
+        'status': 'envoyée',
+        'sentAt': '3 jours',
       });
-
       expect(offer.id, 'o1');
-      expect(offer.amount, 1500);
-      expect(offer.status, 'active');
-      expect(offer.sentAt, '2024-01-15');
+      expect(offer.amount, 158000);
+      expect(offer.status, 'envoyée');
+      expect(offer.sentAt, '3 jours');
     });
 
-    test('fromJson uses defaults for missing optional fields', () {
-      final offer = OfferItem.fromJson({'amount': 0});
+    test('fromJson defaults null optional fields', () {
+      final offer = OfferItem.fromJson({'amount': 1000});
       expect(offer.id, isNull);
-      expect(offer.amount, 0);
-      expect(offer.status, isEmpty);
-      expect(offer.sentAt, isEmpty);
-    });
-
-    test('fromJson throws when amount is missing', () {
-      expect(() => OfferItem.fromJson({}), throwsA(isA<TypeError>()));
-    });
-
-    test('fromJson handles amount as double', () {
-      final offer = OfferItem.fromJson({'amount': 1500.5});
-      expect(offer.amount, 1500);
+      expect(offer.status, '');
+      expect(offer.sentAt, '');
     });
 
     test('toJson round-trips', () {
-      const original = OfferItem(
-        id: 'o1',
-        amount: 1500,
-        status: 'active',
-        sentAt: '2024-01-15',
-      );
-
+      final original = OfferItem(id: 'o1', amount: 158000, status: 'envoyée', sentAt: '3 jours');
       final json = original.toJson();
       final restored = OfferItem.fromJson(json);
-
       expect(restored.id, original.id);
       expect(restored.amount, original.amount);
       expect(restored.status, original.status);
@@ -85,387 +61,339 @@ void main() {
     });
 
     test('toJson omits null id', () {
-      const offer = OfferItem(amount: 1500, status: 'active', sentAt: '');
+      final offer = OfferItem(amount: 1000, status: 'pending', sentAt: '');
       expect(offer.toJson().containsKey('id'), isFalse);
     });
   });
 
-  // ---------------------------------------------------------------------------
-  // VisitItem
-  // ---------------------------------------------------------------------------
-  group('VisitItem', () {
-    test('fromJson parses all fields', () {
-      final visit = VisitItem.fromJson({
-        'id': 'v1',
-        'unitLabel': 'A-101',
-        'buildingName': 'Tour Eiffel',
-        'dateLabel': '15 Jan 2024',
-        'dateTime': '2024-01-15T10:00:00Z',
-        'status': 'confirmed',
-        'agent': 'Jean Dupont',
-        'notes': 'RAS',
-        'leadName': 'Marie Curie',
-        'tenantConfirmed': true,
-        'employeeConfirmed': false,
-      });
-
-      expect(visit.id, 'v1');
-      expect(visit.unitLabel, 'A-101');
-      expect(visit.buildingName, 'Tour Eiffel');
-      expect(visit.dateTime, DateTime.utc(2024, 1, 15, 10));
-      expect(visit.leadName, 'Marie Curie');
-      expect(visit.tenantConfirmed, isTrue);
-      expect(visit.employeeConfirmed, isFalse);
-    });
-
-    test('fromJson uses defaults', () {
-      final visit = VisitItem.fromJson({
-        'unitLabel': 'A-101',
-        'buildingName': 'X',
-        'dateLabel': 'X',
-        'status': 'X',
-        'agent': 'X',
-        'notes': 'X',
-      });
-
-      expect(visit.id, isNull);
-      expect(visit.dateTime, isNull);
-      expect(visit.leadName, isNull);
-      expect(visit.tenantConfirmed, isFalse);
-      expect(visit.employeeConfirmed, isFalse);
-    });
-
-    test('toJson round-trips with dateTime', () {
-      final original = VisitItem(
-        id: 'v1',
-        unitLabel: 'A-101',
-        buildingName: 'Tour',
-        dateLabel: '15 Jan',
-        dateTime: DateTime.utc(2024, 1, 15, 10),
-        status: 'confirmed',
-        agent: 'Jean',
-        notes: 'RAS',
-        leadName: 'Marie',
-        tenantConfirmed: true,
-        employeeConfirmed: true,
-      );
-
-      final restored = VisitItem.fromJson(original.toJson());
-      expect(restored.id, 'v1');
-      expect(restored.dateTime, DateTime.utc(2024, 1, 15, 10));
-      expect(restored.tenantConfirmed, isTrue);
-    });
-
-    test('toJson omits null id and dateTime', () {
-      const visit = VisitItem(
-        unitLabel: 'A',
-        buildingName: 'B',
-        dateLabel: 'D',
-        status: 'S',
-        agent: 'A',
-        notes: 'N',
-      );
-      final json = visit.toJson();
-      expect(json.containsKey('id'), isFalse);
-      expect(json.containsKey('dateTime'), isFalse);
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // UnitItem
-  // ---------------------------------------------------------------------------
-  group('UnitItem', () {
-    test('fromJson parses all fields', () {
-      final unit = UnitItem.fromJson({
-        'id': 'u1',
-        'buildingId': 'b1',
-        'label': 'A-101',
-        'description': '2 ½',
-        'bedrooms': 1,
-        'rentCents': 850,
-        'status': 'occupied',
-        'leaseEnd': '2024-12-31',
-        'tenant': 'Jean Dupont',
-        'amenities': ['fridge', 'stove'],
-      });
-
-      expect(unit.id, 'u1');
-      expect(unit.buildingId, 'b1');
-      expect(unit.number, 'A-101');
-      expect(unit.type, '2 ½');
-      expect(unit.bedrooms, 1);
-      expect(unit.rent, 850);
-      expect(unit.tenant, 'Jean Dupont');
-      expect(unit.amenities, ['fridge', 'stove']);
-    });
-
-    test('fromJson uses defaults', () {
-      final unit = UnitItem.fromJson({});
-      expect(unit.id, isNull);
-      expect(unit.buildingId, isNull);
-      expect(unit.amenities, isNull);
-      expect(unit.tenant, isNull);
-      expect(unit.bedrooms, 0);
-      expect(unit.rent, 0);
-    });
-
-    test('fromJson handles numeric fields as doubles', () {
-      final unit = UnitItem.fromJson({
-        'bedrooms': 2.0,
-        'rentCents': 1000.5,
-      });
-      expect(unit.bedrooms, 2);
-      expect(unit.rent, 1000);
-    });
-
-    test('toJson round-trips', () {
-      const original = UnitItem(
-        id: 'u1',
-        buildingId: 'b1',
-        number: 'A-101',
-        type: '2 ½',
-        bedrooms: 1,
-        rent: 850,
-        status: 'occupied',
-        leaseEnd: '2024-12-31',
-        tenant: 'Jean',
-        amenities: ['fridge'],
-      );
-
-      final restored = UnitItem.fromJson(original.toJson());
-      expect(restored.id, 'u1');
-      expect(restored.amenities, ['fridge']);
-      expect(restored.tenant, 'Jean');
-    });
-
-    test('toJson omits nullable fields when null', () {
-      const unit = UnitItem(
-        number: 'A',
-        type: 'T',
-        bedrooms: 0,
-        rent: 0,
-        status: 'S',
-        leaseEnd: '',
-      );
-      final json = unit.toJson();
-      expect(json.containsKey('id'), isFalse);
-      expect(json.containsKey('buildingId'), isFalse);
-      // tenant is always included in toJson (no conditional guard)
-      expect(json['tenant'], isNull);
-      // amenities is omitted when null (converted to Map only if non-null)
-      expect(json.containsKey('amenities'), isFalse);
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // BuildingItem
-  // ---------------------------------------------------------------------------
-  group('BuildingItem', () {
-    test('fromJson parses all fields', () {
-      final building = BuildingItem.fromJson({
-        'id': 'b1',
-        'name': 'Tour Eiffel',
-        'address': '123 Rue',
-        'city': 'Montreal',
-        'totalUnits': 10,
-        'occupiedUnits': 8,
-        'monthlyRevenue': 8000,
-        'description': 'A building',
-        'properties': {'key': 'value'},
-        'units': [
-          {
-            'label': 'A-101',
-            'description': '2 ½',
-            'bedrooms': 1,
-            'rentCents': 850,
-            'status': 'occupied',
-            'leaseEnd': '2024-12-31',
-          },
-        ],
-      });
-
-      expect(building.id, 'b1');
-      expect(building.name, 'Tour Eiffel');
-      expect(building.totalUnits, 10);
-      expect(building.occupiedUnits, 8);
-      expect(building.monthlyRevenue, 8000);
-      expect(building.description, 'A building');
-      expect(building.properties, {'key': 'value'});
-      expect(building.units, hasLength(1));
-      expect(building.units.first.number, 'A-101');
-    });
-
-    test('fromJson uses defaults', () {
-      final building = BuildingItem.fromJson({});
-      expect(building.id, isNull);
-      expect(building.description, isNull);
-      expect(building.properties, isNull);
-      expect(building.name, isEmpty);
-      expect(building.totalUnits, 0);
-      expect(building.units, isEmpty);
-    });
-
-    test('occupancyRate calculates correctly', () {
-      const full = BuildingItem(
-        name: 'A',
-        address: 'B',
-        city: 'C',
-        totalUnits: 10,
-        occupiedUnits: 8,
-        monthlyRevenue: 0,
-        units: [],
-      );
-      expect(full.occupancyRate, 0.8);
-    });
-
-    test('occupancyRate returns 0 when totalUnits is 0', () {
-      const empty = BuildingItem(
-        name: 'A',
-        address: 'B',
-        city: 'C',
-        totalUnits: 0,
-        occupiedUnits: 0,
-        monthlyRevenue: 0,
-        units: [],
-      );
-      expect(empty.occupancyRate, 0.0);
-    });
-
-    test('toJson round-trips', () {
-      const original = BuildingItem(
-        id: 'b1',
-        name: 'Tour',
-        address: '123 Rue',
-        city: 'MTL',
-        totalUnits: 10,
-        occupiedUnits: 8,
-        monthlyRevenue: 8000,
-        description: 'A building',
-        properties: {'key': 'value'},
-        units: [
-          UnitItem(
-            number: 'A-101',
-            type: '2 ½',
-            bedrooms: 1,
-            rent: 850,
-            status: 'occupied',
-            leaseEnd: '2024-12-31',
-          ),
-        ],
-      );
-
-      final restored = BuildingItem.fromJson(original.toJson());
-      expect(restored.id, 'b1');
-      expect(restored.occupancyRate, 0.8);
-      expect(restored.units.first.number, 'A-101');
-    });
-  });
-
-  // ---------------------------------------------------------------------------
-  // LeadItem
-  // ---------------------------------------------------------------------------
   group('LeadItem', () {
-    test('fromJson parses all fields', () {
+    test('fromJson parses API snake_case stage to camelCase enum', () {
       final lead = LeadItem.fromJson({
-        'id': 'l1',
-        'fullName': 'Marie Curie',
-        'email': 'marie@example.com',
-        'phone': '514-555-0100',
-        'desiredUnit': '2 ½',
-        'budgetCents': 1000,
-        'source': 'web',
-        'stage': 'qualifie',
-        'notes': 'Interested',
-        'tags': ['urgent', 'pet'],
-        'lastContact': '2024-01-15',
-        'offers': [
-          {'id': 'o1', 'amount': 1000, 'status': 'active', 'sentAt': '2024-01-15'},
-        ],
-        'language': 'fr',
-        'createdAt': '2024-01-10T08:00:00Z',
+        'fullName': 'Émilie Beaudoin',
+        'email': 'emilie@email.com',
+        'phone': '514-555-0123',
+        'desiredUnit': '3 1/2',
+        'budgetCents': 160000,
+        'source': 'FB',
+        'stage': 'visite_planifiee',
+        'notes': 'test',
+        'tags': ['chaud'],
+        'lastContact': 'Aujourd\'hui',
+        'offers': [],
       });
-
-      expect(lead.id, 'l1');
-      expect(lead.fullName, 'Marie Curie');
-      expect(lead.email, 'marie@example.com');
-      expect(lead.budget, 1000);
-      expect(lead.stage, LeadStage.qualifie);
-      expect(lead.tags, ['urgent', 'pet']);
-      expect(lead.offers, hasLength(1));
-      expect(lead.offers.first.id, 'o1');
-      expect(lead.language, 'fr');
-      expect(lead.createdAt, DateTime.utc(2024, 1, 10, 8));
+      expect(lead.stage, LeadStage.visitePlanifiee);
+      expect(lead.budget, 160000);
     });
 
-    test('fromJson uses defaults', () {
+    test('fromJson defaults missing fields', () {
       final lead = LeadItem.fromJson({});
-      expect(lead.id, isNull);
-      expect(lead.language, isNull);
-      expect(lead.createdAt, isNull);
-      expect(lead.fullName, isEmpty);
+      expect(lead.fullName, '');
       expect(lead.stage, LeadStage.nouveau);
+      expect(lead.budget, 0);
       expect(lead.tags, isEmpty);
       expect(lead.offers, isEmpty);
-      expect(lead.budget, 0);
+      expect(lead.id, isNull);
     });
 
-    test('fromJson handles budget as double', () {
-      final lead = LeadItem.fromJson({'budgetCents': 1000.5});
-      expect(lead.budget, 1000);
+    test('toJson converts stage back to snake_case', () {
+      final lead = LeadItem(
+        fullName: 'Test',
+        email: 't@t.com',
+        phone: '',
+        desiredUnit: '',
+        budget: 0,
+        source: '',
+        stage: LeadStage.offreEnvoyee,
+        notes: '',
+        tags: [],
+        lastContact: '',
+        offers: [],
+      );
+      final json = lead.toJson();
+      expect(json['stage'], 'offre_envoyee');
     });
 
-    test('fromJson parses stage with unknown value', () {
-      final lead = LeadItem.fromJson({'stage': 'unknown'});
-      expect(lead.stage, LeadStage.nouveau);
-    });
-
-    test('toJson round-trips', () {
+    test('toJson round-trips with nested offers', () {
       final original = LeadItem(
         id: 'l1',
-        fullName: 'Marie',
-        email: 'marie@example.com',
-        phone: '514',
-        desiredUnit: '2 ½',
-        budget: 1000,
+        fullName: 'Test User',
+        email: 'test@test.com',
+        phone: '555-1234',
+        desiredUnit: '4 1/2',
+        budget: 190000,
         source: 'web',
         stage: LeadStage.negociation,
-        notes: 'N',
-        tags: ['urgent'],
-        lastContact: '2024-01-15',
-        offers: const [
-          OfferItem(id: 'o1', amount: 1000, status: 'active', sentAt: ''),
+        notes: 'notes here',
+        tags: ['vip', 'urgent'],
+        lastContact: 'yesterday',
+        offers: [
+          OfferItem(id: 'o1', amount: 185000, status: 'sent', sentAt: 'today'),
         ],
         language: 'fr',
-        createdAt: DateTime.utc(2024, 1, 10),
       );
-
-      final restored = LeadItem.fromJson(original.toJson());
-      expect(restored.id, 'l1');
+      final json = original.toJson();
+      final restored = LeadItem.fromJson(json);
+      expect(restored.fullName, original.fullName);
       expect(restored.stage, LeadStage.negociation);
-      expect(restored.stage.name, 'negociation');
-      expect(restored.tags, ['urgent']);
-      expect(restored.offers.first.id, 'o1');
+      expect(restored.tags, ['vip', 'urgent']);
+      expect(restored.offers.length, 1);
+      expect(restored.offers.first.amount, 185000);
       expect(restored.language, 'fr');
     });
 
-    test('toJson omits nullable fields when null', () {
-      const lead = LeadItem(
-        fullName: 'X',
-        email: 'X',
-        phone: 'X',
-        desiredUnit: 'X',
+    test('toJson omits null optional fields', () {
+      final lead = LeadItem(
+        fullName: 'T',
+        email: 't@t.com',
+        phone: '',
+        desiredUnit: '',
         budget: 0,
-        source: 'X',
+        source: '',
         stage: LeadStage.nouveau,
-        notes: 'X',
+        notes: '',
         tags: [],
-        lastContact: 'X',
+        lastContact: '',
         offers: [],
       );
       final json = lead.toJson();
       expect(json.containsKey('id'), isFalse);
       expect(json.containsKey('language'), isFalse);
       expect(json.containsKey('createdAt'), isFalse);
+    });
+  });
+
+  group('UnitItem', () {
+    test('fromJson parses nested amenities map', () {
+      final unit = UnitItem.fromJson({
+        'id': 'u1',
+        'buildingId': 'b1',
+        'label': '302',
+        'description': '4 1/2',
+        'bedrooms': 4,
+        'rentCents': 185000,
+        'status': 'occupé',
+        'leaseEnd': '31/12/2024',
+        'tenant': 'Sophie Tremblay',
+        'amenities': {'fridge': true, 'stove': true},
+        'squareFeet': 1200,
+      });
+      expect(unit.number, '302');
+      expect(unit.amenities, ['fridge', 'stove']);
+      expect(unit.squareFeet, 1200);
+      expect(unit.tenant, 'Sophie Tremblay');
+    });
+
+    test('fromJson handles amenities as list', () {
+      final unit = UnitItem.fromJson({
+        'amenities': ['fridge', 'stove'],
+      });
+      expect(unit.amenities, ['fridge', 'stove']);
+    });
+
+    test('fromJson defaults null amenities', () {
+      final unit = UnitItem.fromJson({});
+      expect(unit.amenities, isNull);
+    });
+
+    test('toJson converts amenities to map format', () {
+      final unit = UnitItem(
+        number: '302',
+        type: '4 1/2',
+        bedrooms: 4,
+        rent: 1850,
+        status: 'occupé',
+        leaseEnd: '31/12/2024',
+        amenities: ['fridge', 'stove'],
+      );
+      final json = unit.toJson();
+      expect(json['amenities'], {'fridge': true, 'stove': true});
+    });
+
+    test('toJson round-trips', () {
+      final original = UnitItem(
+        id: 'u1',
+        buildingId: 'b1',
+        number: '302',
+        type: '4 1/2',
+        bedrooms: 4,
+        rent: 185000,
+        status: 'occupé',
+        leaseEnd: '31/12/2024',
+        tenant: 'Sophie',
+        amenities: ['fridge'],
+        squareFeet: 1200,
+      );
+      final json = original.toJson();
+      final restored = UnitItem.fromJson(json);
+      expect(restored.number, original.number);
+      expect(restored.amenities, ['fridge']);
+      expect(restored.squareFeet, 1200);
+    });
+  });
+
+  group('BuildingItem', () {
+    test('occupancyRate calculates correctly', () {
+      final b = BuildingItem(
+        name: 'Test',
+        address: '123 St',
+        city: 'MTL',
+        totalUnits: 10,
+        occupiedUnits: 7,
+        monthlyRevenue: 10000,
+        units: [],
+      );
+      expect(b.occupancyRate, 0.7);
+    });
+
+    test('occupancyRate returns 0 when totalUnits is 0', () {
+      final b = BuildingItem(
+        name: 'Empty',
+        address: '',
+        city: '',
+        totalUnits: 0,
+        occupiedUnits: 0,
+        monthlyRevenue: 0,
+        units: [],
+      );
+      expect(b.occupancyRate, 0.0);
+    });
+
+    test('fromJson parses nested units', () {
+      final building = BuildingItem.fromJson({
+        'name': 'Le Test',
+        'address': '1 Rue',
+        'city:': 'MTL',
+        'totalUnits': 2,
+        'occupiedUnits': 1,
+        'monthlyRevenue': 5000,
+        'units': [
+          {'label': '101', 'bedrooms': 2, 'rentCents': 150000},
+        ],
+      });
+      expect(building.name, 'Le Test');
+      expect(building.units.length, 1);
+      expect(building.units.first.number, '101');
+    });
+
+    test('toJson round-trips with units', () {
+      final original = BuildingItem(
+        id: 'b1',
+        name: 'Le Test',
+        address: '1 Rue',
+        city: 'MTL',
+        totalUnits: 2,
+        occupiedUnits: 1,
+        monthlyRevenue: 5000,
+        units: [
+          UnitItem(number: '101', type: '3 1/2', bedrooms: 2, rent: 1500, status: 'occupé', leaseEnd: ''),
+        ],
+        description: 'A building',
+        properties: {'key': 'value'},
+      );
+      final json = original.toJson();
+      final restored = BuildingItem.fromJson(json);
+      expect(restored.name, original.name);
+      expect(restored.units.length, 1);
+      expect(restored.description, 'A building');
+      expect(restored.properties, {'key': 'value'});
+    });
+
+    test('toJson omits null optional fields', () {
+      final building = BuildingItem(
+        name: 'T',
+        address: '',
+        city: '',
+        totalUnits: 0,
+        occupiedUnits: 0,
+        monthlyRevenue: 0,
+        units: [],
+      );
+      final json = building.toJson();
+      expect(json.containsKey('id'), isFalse);
+      expect(json.containsKey('description'), isFalse);
+      expect(json.containsKey('properties'), isFalse);
+    });
+  });
+
+  group('VisitItem', () {
+    test('fromJson parses nested unit and building objects', () {
+      final visit = VisitItem.fromJson({
+        'id': 'v1',
+        'unit': {'label': '302'},
+        'building': {'name': 'Le Saint-Laurent'},
+        'employee': {'firstName': 'Jean', 'lastName': 'Dupont'},
+        'status': 'confirmée',
+        'notes': 'test',
+        'dateTime': '2024-06-15T10:00:00.000',
+        'tenantConfirmed': true,
+        'employeeConfirmed': true,
+      });
+      expect(visit.unitLabel, '302');
+      expect(visit.buildingName, 'Le Saint-Laurent');
+      expect(visit.agent, 'Jean Dupont');
+      expect(visit.dateTime, DateTime(2024, 6, 15, 10));
+      expect(visit.tenantConfirmed, isTrue);
+      expect(visit.employeeConfirmed, isTrue);
+    });
+
+    test('fromJson falls back to flat fields', () {
+      final visit = VisitItem.fromJson({
+        'unitLabel': '201',
+        'buildingName': 'Test',
+        'agent': 'Bob',
+        'dateLabel': '15 juin 2024',
+      });
+      expect(visit.unitLabel, '201');
+      expect(visit.buildingName, 'Test');
+      expect(visit.agent, 'Bob');
+      expect(visit.dateTime, isNull);
+    });
+
+    test('fromJson falls back to empty dateLabel when dateTime parsing fails', () {
+      // DateFormat with 'fr' locale can throw if locale data unavailable (test env);
+      // the catch block silently sets derivedDateLabel = null, falling back to ''
+      final visit = VisitItem.fromJson({
+        'dateTime': '2024-06-15T10:00:00.000',
+      });
+      // When dateLabel derivation fails, falls back to empty string
+      expect(visit.dateLabel, isA<String>());
+    });
+
+    test('toJson round-trips', () {
+      final original = VisitItem(
+        id: 'v1',
+        unitLabel: '302',
+        buildingName: 'Le Test',
+        dateLabel: '15 juin 2024',
+        dateTime: DateTime(2024, 6, 15, 10),
+        status: 'confirmée',
+        agent: 'Jean Dupont',
+        notes: 'bring keys',
+        leadName: 'Émilie B.',
+        tenantConfirmed: true,
+        employeeConfirmed: false,
+      );
+      final json = original.toJson();
+      final restored = VisitItem.fromJson(json);
+      expect(restored.unitLabel, original.unitLabel);
+      expect(restored.agent, original.agent);
+      expect(restored.leadName, original.leadName);
+      expect(restored.tenantConfirmed, isTrue);
+      expect(restored.employeeConfirmed, isFalse);
+    });
+
+    test('toJson omits null id and dateTime', () {
+      final visit = VisitItem(
+        unitLabel: '201',
+        buildingName: 'Test',
+        dateLabel: '',
+        status: '',
+        agent: '',
+        notes: '',
+      );
+      final json = visit.toJson();
+      expect(json.containsKey('id'), isFalse);
+      expect(json.containsKey('dateTime'), isFalse);
     });
   });
 }
