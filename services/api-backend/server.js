@@ -835,7 +835,7 @@ async function gracefulShutdown() {
 }
 
 app.post('/test-hook', (req, res) => {
-  console.log('Received test hook');
+  logger.info('Received test hook');
   res.json({ ok: true });
 });
 

@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import { getPool } from '../database/db-pool.js';
 import dashboardWSManager from '../websocket/dashboard-ws.js';
+import logger from '../logger.js';
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ const verifyWebhookSignature = (req, res, next) => {
     .digest('hex');
 
   if (!signature || signature !== expectedSignature) {
-    console.warn('Invalid OpenClaw webhook signature');
+    logger.warn('Invalid OpenClaw webhook signature');
     // return res.status(401).json({ error: 'Invalid signature' });
     return next(); // Temporarily allow for testing
   }
@@ -29,7 +30,7 @@ const verifyWebhookSignature = (req, res, next) => {
 };
 
 router.post('/', verifyWebhookSignature, async (req, res) => {
-  console.log('Received agent event request');
+  logger.info('Received agent event request');
   const { agent_id, event_type, event_data, correlation_id } = req.body;
   const pool = getPool();
 

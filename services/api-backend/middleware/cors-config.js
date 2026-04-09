@@ -10,6 +10,7 @@
  */
 
 import cors from 'cors';
+import logger from '../logger.js';
 
 /**
  * Allowed origins for CORS
@@ -237,7 +238,7 @@ export function logCorsRequest(req, res, next) {
   const origin = req.headers.origin;
   if (origin) {
     const allowed = isOriginAllowed(origin);
-    console.log(
+    logger.info(
       `CORS Request: ${req.method} ${req.path} from ${origin} - ${allowed ? 'ALLOWED' : 'BLOCKED'}`,
     );
   }
