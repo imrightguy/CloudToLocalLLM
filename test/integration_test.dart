@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +14,17 @@ void main() {
   late String token;
 
   setUpAll(() async {
-    // Direct HTTP calls to live backend — no ApiService wrapper needed in tests.
+    // Skip entire suite if backend is not reachable
+    try {
+      final socket =
+          await Socket.connect('localhost', 3000, timeout: const Duration(seconds: 2));
+      socket.destroy();
+    } catch (_) {
+      throw TestFailure(
+        'Skipping integration tests: backend not reachable on localhost:3000. '
+        'Start it with `node src/server.js` before running these tests.',
+      );
+    }
   });
 
   group('Auth flow', () {
