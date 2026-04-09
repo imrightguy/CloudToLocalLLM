@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import 'lead_detail_screen.dart';
 
 class PipelineScreen extends StatefulWidget {
   const PipelineScreen({super.key});
@@ -265,7 +266,21 @@ class _PipelineScreenState extends State<PipelineScreen>
                     itemCount: filteredLeads.length,
                     itemBuilder: (context, index) {
                       final lead = filteredLeads[index];
-                      return _buildLeadCard(lead);
+                      return GestureDetector(
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => LeadDetailScreen(
+                                lead: lead,
+                                onStageChanged: _fetchLeads,
+                              ),
+                            ),
+                          );
+                          // Refresh after returning (stage may have changed)
+                          _fetchLeads();
+                        },
+                        child: _buildLeadCard(lead),
+                      );
                     },
                   ),
           ),
