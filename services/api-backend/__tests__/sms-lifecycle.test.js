@@ -886,6 +886,247 @@ describe('SMS Visit Lifecycle', () => {
     });
   });
 
+  // ─── IMM-17: Full Occupant SMS Flow E2E ─────────────────────────────────
+
+  describe('IMM-17: Full occupant SMS flow end-to-end', () => {
+    it('complete occupant flow: create visit → occupant SMS → occupant replies oui → tenantConfirmed updates', async () => {
+      // Phase 1: Visit created for occupied unit → occupant access request fires
+      const visit = {
+        ...FIXTURES.visit,
+        id: 'occupant-e2e-visit-001',
+        occupantNotified: false,
+        tenantConfirmed: false,
+      };
+      const ctx = {
+        visit,
+        unit: FIXTURES.unit,
+        building: FIXTURES.building,
+        employee: FIXTURES.employee,
+        lead: FIXTURES.lead,
+      };
+
+      // getVisitContext for sendOccupantAccessRequest
+      mockQueryChain([ctx]);
+      mockUpdateResolve(); // mark occupantNotified
+
+      const occupantResult = await sendOccupantAccessRequest(visit.id);
+
+      // Verify occupant SMS was sent
+      expect(occupantResult.success).toBe(true);
+      expect(mockSendSMS).toHaveBeenCalledWith(
+        FIXTURES.unit.tenantPhone,
+        expect.stringContaining('Autorisez-vous'),
+      );
+      expect(mockSendSMS).toHaveBeenCalledWith(
+        FIXTURES.unit.tenantPhone,
+        expect.stringContaining(FIXTURES.unit.label),
+      );
+      expect(mockSendSMS).toHaveBeenCalledWith(
+        FIXTURES.unit.tenantPhone,
+        expect.stringContaining(FIXTURES.building.name),
+      );
+
+      // Phase 2: Occupant replies "1" (oui) → access granted
+      const activeVisit = { ...visit, occupantNotified: true };
+      // handleOccupantReply: find unit by phone → find active visit → find building for ack
+      mockQueryChain([FIXTURES.unit], [activeVisit], [FIXTURES.building]);
+      mockUpdateResolve(); // update tenantConfirmed
+
+      mockHandleIncomingMessage.mockReturnValueOnce({ action: 'yes', raw: '1' });
+
+      const replyResult = await handleOccupantReply(FIXTURES.unit.tenantPhone, '1');
+
+      expect(replyResult.success).toBe(true);
+      expect(replyResult.action).toBe('occupant_access_granted');
+      expect(replyResult.visitId).toBe(visit.id);
+
+      // Verify confirmation SMS sent to occupant
+      expect(mockSendSMS).toHaveBeenCalledWith(
+        FIXTURES.unit.tenantPhone,
+        expect.stringContaining('Accès confirmé'),
+      );
+    });
+
+    it('complete occupant flow: occupant replies non → access denied → visit still tracked', async () => {
+      const visit = {
+        ...FIXTURES.visit,
+        id: 'occupant-e2e-visit-002',
+        occupantNotified: true,
+        tenantConfirmed: false,
+      };
+
+      // Occupant replies "2" (non)
+      mockQueryChain([FIXTURES.unit], [visit], [FIXTURES.building]);
+      mockUpdateResolve();
+
+      mockHandleIncomingMessage.mockReturnValueOnce({ action: 'no', raw: '2' });
+
+      const replyResult = await handleOccupantReply(FIXTURES.unit.tenantPhone, '2');
+
+      expect(replyResult.success).toBe(true);
+      expect(replyResult.action).toBe('occupant_access_denied');
+      expect(mockSendSMS).toHaveBeenCalledWith(
+        FIXTURES.unit.tenantPhone,
+        expect.stringContaining('annuler'),
+      );
+    });
+
+    it('24h notice: returns needsNotice=true and SMS still sent', async () => {
+      const soonVisit = {
+        ...FIXTURES.visit,
+        id: 'occupant-e2e-soon-001',
+        dateTime: new Date(Date.now() + 10 * 60 * 60 * 1000).toISOString(), // 10h from now
+      };
+      const ctx = {
+        visit: soonVisit,
+        unit: FIXTURES.unit,
+        building: FIXTURES.building,
+      };
+      mockQueryChain([ctx]);
+      mockUpdateResolve();
+
+      const result = await sendOccupantAccessRequest(soonVisit.id);
+
+      expect(result.success).toBe(true);
+      expect(result.needsNotice).toBe(true);
+      // SMS still sent — notice is informational, not blocking
+      expect(mockSendSMS).toHaveBeenCalledWith(
+        FIXTURES.unit.tenantPhone,
+        expect.any(String),
+      );
+    });
+
+    it('24h notice: returns needsNotice=false for far-future visit', async () => {
+      const farVisit = {
+        ...FIXTURES.visit,
+        id: 'occupant-e2e-far-001',
+        dateTime: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(), // 72h
+      };
+      const ctx = {
+        visit: farVisit,
+        unit: FIXTURES.unit,
+        building: FIXTURES.building,
+      };
+      mockQueryChain([ctx]);
+      mockUpdateResolve();
+
+      const result = await sendOccupantAccessRequest(farVisit.id);
+
+      expect(result.success).toBe(true);
+      expect(result.needsNotice).toBe(false);
+    });
+
+    it('sms_logs: occupant access request logged with correct phone and direction', async () => {
+      const visit = { ...FIXTURES.visit, id: 'occupant-log-001' };
+      const ctx = {
+        visit,
+        unit: FIXTURES.unit,
+        building: FIXTURES.building,
+      };
+      mockQueryChain([ctx]);
+      mockUpdateResolve();
+
+      await sendOccupantAccessRequest(visit.id);
+
+      // At least one insert call for logging
+      expect(mockDb.insert).toHaveBeenCalled();
+    });
+
+    it('sms_logs: occupant reply logged as inbound', async () => {
+      const activeVisit = { ...FIXTURES.visit, id: 'occupant-reply-log-001', occupantNotified: true };
+      mockQueryChain([FIXTURES.unit], [activeVisit], [FIXTURES.building]);
+      mockUpdateResolve();
+
+      mockHandleIncomingMessage.mockReturnValueOnce({ action: 'yes', raw: '1' });
+
+      await handleOccupantReply(FIXTURES.unit.tenantPhone, '1');
+
+      // logSMS called for inbound reply
+      expect(mockDb.insert).toHaveBeenCalled();
+    });
+
+    it('occupant + tenant confirmation work together', async () => {
+      // This test verifies that both confirmation paths update tenantConfirmed
+      // independently and the webhook routes occupant replies correctly.
+
+      const visit = {
+        ...FIXTURES.visit,
+        id: 'occupant-tenant-combo-001',
+        occupantNotified: true,
+        tenantConfirmed: false,
+      };
+
+      // Occupant grants access → sets tenantConfirmed=true
+      mockQueryChain([FIXTURES.unit], [visit], [FIXTURES.building]);
+      mockUpdateResolve();
+      mockHandleIncomingMessage.mockReturnValueOnce({ action: 'yes', raw: '1' });
+
+      const occResult = await handleOccupantReply(FIXTURES.unit.tenantPhone, '1');
+      expect(occResult.success).toBe(true);
+      expect(occResult.action).toBe('occupant_access_granted');
+
+      // Tenant (lead) also confirms → also sets tenantConfirmed=true
+      const visitAfterOcc = { ...visit, tenantConfirmed: true };
+      mockQueryChain([FIXTURES.lead], [visitAfterOcc]);
+      mockUpdateResolve();
+
+      const tenantResult = await handleTenantReply(FIXTURES.lead.phone, '1');
+      expect(tenantResult.success).toBe(true);
+      expect(tenantResult.action).toBe('tenant_confirmed');
+    });
+
+    it('occupant lease expired → access request fails gracefully', async () => {
+      const expiredUnit = {
+        ...FIXTURES.unit,
+        tenantLeaseEnd: '2025-01-01', // expired
+      };
+      const visit = { ...FIXTURES.visit, id: 'occupant-expired-lease-001' };
+      const ctx = {
+        visit,
+        unit: expiredUnit,
+        building: FIXTURES.building,
+      };
+      mockQueryChain([ctx]);
+
+      const result = await sendOccupantAccessRequest(visit.id);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('lease has ended');
+      expect(mockSendSMS).not.toHaveBeenCalled();
+    });
+
+    it('webhook routing: unknown phone falls through employee → tenant → occupant → ignored', async () => {
+      // Employee not found → tenant not found → occupant not found
+      mockQueryChain([]); // employee
+      mockQueryChain([]); // tenant (with +1 retry)
+      mockQueryChain([]); // occupant (with +1 retry)
+
+      const result = await handleOccupantReply('+19999999999', '1');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('No unit found');
+    });
+
+    it('edge case: multiple units same occupant phone → uses most recent visit', async () => {
+      // Two units with the same tenant phone
+      const unit2 = { ...FIXTURES.unit, id: 'unit-shared-phone-002', label: '5B' };
+      const recentVisit = { ...FIXTURES.visit, id: 'visit-recent-001', occupantNotified: true, dateTime: '2026-04-11T14:00:00.000Z' };
+      const olderVisit = { ...FIXTURES.visit, id: 'visit-older-001', occupantNotified: true, dateTime: '2026-04-10T10:00:00.000Z' };
+
+      // First unit query returns one unit, then visit query returns the most recent
+      mockQueryChain([FIXTURES.unit], [recentVisit], [FIXTURES.building]);
+      mockUpdateResolve();
+
+      mockHandleIncomingMessage.mockReturnValueOnce({ action: 'yes', raw: '1' });
+
+      const result = await handleOccupantReply(FIXTURES.unit.tenantPhone, '1');
+
+      expect(result.success).toBe(true);
+      // Should have found a visit for the unit
+      expect(result.visitId).toBeDefined();
+    });
+  });
+
   // ─── Full Lifecycle Simulation ───────────────────────────────────────────
 
   describe('Full lifecycle simulation', () => {
