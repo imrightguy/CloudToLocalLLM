@@ -530,7 +530,7 @@ class _HomeTabState extends State<_HomeTab> {
   }) {
     return Container(
       width: (MediaQuery.of(context).size.width - 40) / 2,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -544,38 +544,30 @@ class _HomeTabState extends State<_HomeTab> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 11,
               color: Color(0xFF64748B),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E293B),
             ),
           ),
-          const SizedBox(height: 4),
           Text(
             delta,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 10,
               color: Color(0xFF10B981),
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF64748B),
             ),
           ),
         ],

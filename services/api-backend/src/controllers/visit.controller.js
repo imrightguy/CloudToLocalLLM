@@ -1,7 +1,76 @@
 const { db } = require('../database/connection');
-const { visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable } = require('../database/schema');
+const { visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable } = require('../database/schema');
 const { eq, and, desc, asc, sql, gte, lte } = require('drizzle-orm');
 const { sendOccupantAccessRequest, sendVisitConfirmation, sendTenantConfirmationRequest } = require('../services/sms.service');
+
+/**
+ * Check if a visit time conflicts with an employee's existing visits.
+ * Two visits overlap if their time windows intersect.
+ */
+async function checkVisitConflict(employeeId, dateTime, durationMinutes, excludeVisitId = null) {
+  const visitStart = new Date(dateTime);
+  const visitEnd = new Date(visitStart.getTime() + durationMinutes * 60 * 1000);
+
+  const conditions = [
+    eq(visitsTable.employeeId, employeeId),
+    eq(visitsTable.isActive, true),
+    and(
+      sql`${visitsTable.dateTime} < ${visitEnd}`,
+      sql`${visitsTable.dateTime} + (${visitsTable.durationMinutes} || ' minutes')::interval > ${visitStart}`
+    ),
+    // Exclude cancelled visits
+    sql`${visitsTable.status} != 'cancelled'`,
+  ];
+
+  if (excludeVisitId) {
+    conditions.push(sql`${visitsTable.id} != ${excludeVisitId}`);
+  }
+
+  const conflicts = await db
+    .select({
+      id: visitsTable.id,
+      dateTime: visitsTable.dateTime,
+      durationMinutes: visitsTable.durationMinutes,
+    })
+    .from(visitsTable)
+    .where(and(...conditions))
+    .limit(1);
+
+  return conflicts.length > 0 ? conflicts[0] : null;
+}
+
+/**
+ * Check if an employee has a valid schedule for the given day/time at the building.
+ * Returns null if OK, or an error message string.
+ */
+async function checkScheduleAvailability(employeeId, buildingId, dateTime) {
+  const dayOfWeek = dateTime.getDay(); // 0=Sunday in JS, but schema says 0=Monday
+  const scheduleDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert: JS Sun=0 → 6, Mon=1 → 0, etc.
+
+  const timeHHMM = `${String(dateTime.getHours()).padStart(2, '0')}:${String(dateTime.getMinutes()).padStart(2, '0')}`;
+
+  const schedules = await db
+    .select()
+    .from(employeeSchedulesTable)
+    .where(and(
+      eq(employeeSchedulesTable.employeeId, employeeId),
+      eq(employeeSchedulesTable.buildingId, buildingId),
+      eq(employeeSchedulesTable.dayOfWeek, scheduleDay),
+      eq(employeeSchedulesTable.isActive, true),
+    ))
+    .limit(1);
+
+  if (schedules.length === 0) {
+    return 'Employee has no schedule for this day at this building';
+  }
+
+  const schedule = schedules[0];
+  if (timeHHMM < schedule.startTime || timeHHMM >= schedule.endTime) {
+    return `Visit time ${timeHHMM} is outside employee schedule (${schedule.startTime}–${schedule.endTime})`;
+  }
+
+  return null;
+}
 
 // ─── Create Visit ───
 exports.createVisit = async (req, res) => {
@@ -23,6 +92,43 @@ exports.createVisit = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    // Resolve buildingId from unitId for schedule check
+    const [unit] = await db
+      .select({ buildingId: unitsTable.buildingId })
+      .from(unitsTable)
+      .where(eq(unitsTable.id, unitId))
+      .limit(1);
+
+    if (!unit) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Unit not found', code: 'UNIT_NOT_FOUND' },
+      });
+    }
+
+    // Check employee schedule availability
+    const scheduleError = await checkScheduleAvailability(employeeId, unit.buildingId, parsedDate);
+    if (scheduleError) {
+      return res.status(409).json({
+        success: false,
+        error: { message: scheduleError, code: 'SCHEDULE_CONFLICT' },
+      });
+    }
+
+    // Check for visit time conflicts
+    const duration = durationMinutes || 30;
+    const conflict = await checkVisitConflict(employeeId, parsedDate, duration);
+    if (conflict) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          message: 'Employee already has a visit at this time',
+          code: 'VISIT_CONFLICT',
+          details: { conflictingVisitId: conflict.id, conflictingTime: conflict.dateTime },
+        },
       });
     }
 
@@ -340,6 +446,52 @@ exports.updateVisit = async (req, res) => {
         success: false,
         error: { message: 'Visit not found', code: 'VISIT_NOT_FOUND' },
       });
+    }
+
+    // Conflict checking on time/employee changes
+    const checkDateTime = dateTime ? new Date(dateTime) : existing.dateTime;
+    const checkDuration = durationMinutes !== undefined ? durationMinutes : existing.durationMinutes;
+    const checkEmployee = employeeId !== undefined ? employeeId : existing.employeeId;
+
+    if (dateTime !== undefined && Number.isNaN(checkDateTime.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    // Check schedule if dateTime changed
+    if (dateTime !== undefined) {
+      const unitForSchedule = await db
+        .select({ buildingId: unitsTable.buildingId })
+        .from(unitsTable)
+        .where(eq(unitsTable.id, unitId || existing.unitId))
+        .limit(1);
+
+      if (unitForSchedule.length > 0) {
+        const scheduleErr = await checkScheduleAvailability(checkEmployee, unitForSchedule[0].buildingId, checkDateTime);
+        if (scheduleErr) {
+          return res.status(409).json({
+            success: false,
+            error: { message: scheduleErr, code: 'SCHEDULE_CONFLICT' },
+          });
+        }
+      }
+    }
+
+    // Check visit overlap if dateTime, duration, or employee changed
+    if (dateTime !== undefined || durationMinutes !== undefined || employeeId !== undefined) {
+      const conflict = await checkVisitConflict(checkEmployee, checkDateTime, checkDuration, id);
+      if (conflict) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            message: 'Employee already has a visit at this time',
+            code: 'VISIT_CONFLICT',
+            details: { conflictingVisitId: conflict.id, conflictingTime: conflict.dateTime },
+          },
+        });
+      }
     }
 
     // Build update payload
