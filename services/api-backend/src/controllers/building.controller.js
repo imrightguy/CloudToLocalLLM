@@ -2,6 +2,9 @@ const { db } = require('../database/connection');
 const { buildingsTable, unitsTable } = require('../database/schema');
 const { buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema } = require('../models/building');
 const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'building' });
 
 // ═══════════════════════════════════════════
 //  Building Controllers
@@ -35,7 +38,7 @@ exports.createBuilding = async (req, res) => {
 
     res.status(201).json({ success: true, data: building, message: 'Building created successfully' });
   } catch (error) {
-    console.error('Error creating building:', error);
+    log.error('Error creating building', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'BUILDING_CREATION_FAILED' },
@@ -110,7 +113,7 @@ exports.getBuildings = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching buildings:', error);
+    log.error('Error fetching buildings', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'BUILDING_FETCH_FAILED' },
@@ -138,7 +141,7 @@ exports.getBuildingById = async (req, res) => {
 
     res.json({ success: true, data: building });
   } catch (error) {
-    console.error('Error fetching building:', error);
+    log.error('Error fetching building', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'BUILDING_FETCH_FAILED' },
@@ -193,7 +196,7 @@ exports.updateBuilding = async (req, res) => {
 
     res.json({ success: true, data: updated, message: 'Building updated successfully' });
   } catch (error) {
-    console.error('Error updating building:', error);
+    log.error('Error updating building', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'BUILDING_UPDATE_FAILED' },
@@ -239,7 +242,7 @@ exports.deleteBuilding = async (req, res) => {
 
     res.json({ success: true, data: null, message: 'Building deleted successfully' });
   } catch (error) {
-    console.error('Error deleting building:', error);
+    log.error('Error deleting building', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'BUILDING_DELETE_FAILED' },
@@ -306,7 +309,7 @@ exports.createUnit = async (req, res) => {
 
     res.status(201).json({ success: true, data: unitWithRent, message: 'Unit created successfully' });
   } catch (error) {
-    console.error('Error creating unit:', error);
+    log.error('Error creating unit', { error: error.message });
 
     if (error.code === '23503') {
       return res.status(400).json({
@@ -394,7 +397,7 @@ exports.getUnits = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching units:', error);
+    log.error('Error fetching units', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'UNIT_FETCH_FAILED' },
@@ -429,7 +432,7 @@ exports.getUnitById = async (req, res) => {
 
     res.json({ success: true, data: unitWithRent });
   } catch (error) {
-    console.error('Error fetching unit:', error);
+    log.error('Error fetching unit', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'UNIT_FETCH_FAILED' },
@@ -493,7 +496,7 @@ exports.updateUnit = async (req, res) => {
 
     res.json({ success: true, data: updatedWithRent, message: 'Unit updated successfully' });
   } catch (error) {
-    console.error('Error updating unit:', error);
+    log.error('Error updating unit', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'UNIT_UPDATE_FAILED' },
@@ -526,7 +529,7 @@ exports.deleteUnit = async (req, res) => {
 
     res.json({ success: true, data: null, message: 'Unit deleted successfully' });
   } catch (error) {
-    console.error('Error deleting unit:', error);
+    log.error('Error deleting unit', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'UNIT_DELETE_FAILED' },

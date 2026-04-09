@@ -3,6 +3,9 @@ const { db } = require('../database/connection');
 const { usersTable, refreshTokensTable } = require('../database/schema');
 const { generateAccessToken, generateRefreshToken } = require('../auth/jwt.middleware');
 const { eq, and, ne, sql, desc } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'auth' });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -108,7 +111,7 @@ const register = async (req, res) => {
       message: 'User registered successfully',
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    log.error('Registration error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Registration failed', code: 'REGISTRATION_FAILED' },
@@ -197,7 +200,7 @@ const login = async (req, res) => {
       message: 'Login successful',
     });
   } catch (error) {
-    console.error('Login error:', error);
+    log.error('Login error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Login failed', code: 'LOGIN_FAILED' },
@@ -311,7 +314,7 @@ const refreshAccessToken = async (req, res) => {
       message: 'Token refreshed successfully',
     });
   } catch (error) {
-    console.error('Token refresh error:', error);
+    log.error('Token refresh error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Token refresh failed', code: 'TOKEN_REFRESH_FAILED' },
@@ -340,7 +343,7 @@ const logout = async (req, res) => {
 
     return res.json({ success: true, data: null, message: 'Logged out successfully' });
   } catch (error) {
-    console.error('Logout error:', error);
+    log.error('Logout error', { error: error.message });
     // Always return success on logout so the client can clear tokens
     return res.json({ success: true, data: null, message: 'Logged out successfully' });
   }
@@ -369,7 +372,7 @@ const getProfile = async (req, res) => {
       message: 'Profile retrieved successfully',
     });
   } catch (error) {
-    console.error('Get profile error:', error);
+    log.error('Get profile error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to retrieve profile', code: 'PROFILE_RETRIEVAL_FAILED' },
@@ -437,7 +440,7 @@ const updateProfile = async (req, res) => {
       message: 'Profile updated successfully',
     });
   } catch (error) {
-    console.error('Update profile error:', error);
+    log.error('Update profile error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to update profile', code: 'PROFILE_UPDATE_FAILED' },
@@ -515,7 +518,7 @@ const changePassword = async (req, res) => {
       message: 'Password changed successfully — all other sessions have been invalidated',
     });
   } catch (error) {
-    console.error('Change password error:', error);
+    log.error('Change password error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to change password', code: 'PASSWORD_CHANGE_FAILED' },
@@ -558,7 +561,7 @@ const getAllUsers = async (req, res) => {
       message: 'Users retrieved successfully',
     });
   } catch (error) {
-    console.error('Get all users error:', error);
+    log.error('Get all users error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to retrieve users', code: 'GET_USERS_FAILED' },
@@ -591,7 +594,7 @@ const getUserById = async (req, res) => {
       message: 'User retrieved successfully',
     });
   } catch (error) {
-    console.error('Get user by ID error:', error);
+    log.error('Get user by ID error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to retrieve user', code: 'GET_USER_FAILED' },
@@ -663,7 +666,7 @@ const updateUser = async (req, res) => {
       message: 'User updated successfully',
     });
   } catch (error) {
-    console.error('Update user error:', error);
+    log.error('Update user error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to update user', code: 'UPDATE_USER_FAILED' },
@@ -710,7 +713,7 @@ const deleteUser = async (req, res) => {
       message: 'User deactivated successfully',
     });
   } catch (error) {
-    console.error('Delete user error:', error);
+    log.error('Delete user error', { error: error.message });
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to deactivate user', code: 'DELETE_USER_FAILED' },
