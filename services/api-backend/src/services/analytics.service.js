@@ -457,6 +457,7 @@ async function getEmployeePerformance(employeeId) {
 }
 
 module.exports = {
+  getPeriodStart,
   getHotLeads,
   getPipelineSummary,
   getConversionRates,
