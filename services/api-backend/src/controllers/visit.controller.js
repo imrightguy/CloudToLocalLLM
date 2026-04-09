@@ -1,7 +1,7 @@
 const { db } = require('../database/connection');
 const { visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable } = require('../database/schema');
 const { eq, and, desc, asc, sql, gte, lte } = require('drizzle-orm');
-const { sendOccupantAccessRequest } = require('../services/sms.service');
+const { sendOccupantAccessRequest, sendVisitConfirmation, sendTenantConfirmationRequest } = require('../services/sms.service');
 
 // ─── Create Visit ───
 exports.createVisit = async (req, res) => {
@@ -39,6 +39,21 @@ exports.createVisit = async (req, res) => {
       })
       .returning();
 
+    // Send visit confirmation SMS to employee and lead (skip if cancelled)
+    let confirmationResult = null;
+    const visitStatus = visit.status || 'scheduled';
+    if (visitStatus !== 'cancelled') {
+      try {
+        const employeeConfirmation = await sendVisitConfirmation(visit.id);
+        const tenantConfirmation = await sendTenantConfirmationRequest(visit.id);
+        confirmationResult = { employee: employeeConfirmation, tenant: tenantConfirmation };
+        console.log(`📨 Visit confirmation sent: employee=${employeeConfirmation.success}, tenant=${tenantConfirmation.success}`);
+      } catch (smsErr) {
+        console.error('⚠️  Visit confirmation SMS failed (visit created anyway):', smsErr.message);
+        confirmationResult = { success: false, error: smsErr.message };
+      }
+    }
+
     // Auto-send occupant access request if unit is occupied
     let occupantResult = null;
     try {
@@ -60,6 +75,7 @@ exports.createVisit = async (req, res) => {
     res.status(201).json({
       success: true,
       data: visit,
+      confirmationSMS: confirmationResult,
       occupantSMS: occupantResult,
       message: 'Visit created successfully',
     });
