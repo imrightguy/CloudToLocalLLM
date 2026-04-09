@@ -25,9 +25,7 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
+        return callback(null, false);
       }
       return callback(null, true);
     },
@@ -65,9 +63,25 @@ app.get("/api/protected", checkJwt, (req, res) => {
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
+app.use((err, req, res, _next) => {
+  if (err.name === "UnauthorizedError") {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+  const status = err.status || 500;
+  const message =
+    status === 500 && (process.env.NODE_ENV || "development") !== "development"
+      ? "Internal server error"
+      : err.message;
+  res.status(status).json({ error: message });
+});
+
 module.exports = { app };
 
 if (require.main === module) {
   const port = process.env.PORT || 3000;
-  app.listen(port, () => console.log(`Auth backend on port ${port}`));
+  app.listen(port, () => {
+    if ((process.env.NODE_ENV || "development") !== "production") {
+      console.log(`Auth backend listening on port ${port}`);
+    }
+  });
 }
