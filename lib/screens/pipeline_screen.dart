@@ -101,11 +101,11 @@ class _PipelineScreenState extends State<PipelineScreen>
               const Icon(Icons.error_outline,
                   size: 48, color: Color(0xFFEF4444)),
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   'Impossible de charger les prospects',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 16, color: Color(0xFF1E293B)),
                   textAlign: TextAlign.center,
                 ),
@@ -371,6 +371,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                   return;
                 }
                 Navigator.of(dialogContext).pop();
+                final messenger = ScaffoldMessenger.of(context);
                 try {
                   final budgetText = budgetController.text.trim();
                   final body = <String, dynamic>{
@@ -385,7 +386,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                   }
                   await ApiService.instance.post('/leads', body);
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       const SnackBar(
                         content: Text('Prospect ajouté avec succès'),
                         backgroundColor: Color(0xFF10B981),
@@ -395,7 +396,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                   }
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(
                         content: Text('Erreur: ${e.toString()}'),
                         backgroundColor: const Color(0xFFEF4444),

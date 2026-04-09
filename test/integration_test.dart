@@ -64,12 +64,12 @@ void main() {
       expect(response.statusCode, 200);
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       expect(body['success'], isTrue);
-      expect(body['data'], isA<List>());
+      expect(body['data'], isA<List<dynamic>>());
       expect(body['metadata'], isNotNull);
       expect(body['metadata']['total'], greaterThan(0));
 
       // Parse first building into model
-      final buildings = body['data'] as List;
+      final buildings = body['data'] as List<dynamic>;
       final building = BuildingItem.fromJson(buildings[0] as Map<String, dynamic>);
       expect(building.id, isNotNull);
       expect(building.name, isNotEmpty);
@@ -108,9 +108,9 @@ void main() {
       expect(response.statusCode, 200);
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       expect(body['success'], isTrue);
-      expect(body['data'], isA<List>());
+      expect(body['data'], isA<List<dynamic>>());
 
-      final leads = body['data'] as List;
+      final leads = body['data'] as List<dynamic>;
       if (leads.isNotEmpty) {
         final lead = LeadItem.fromJson(leads[0] as Map<String, dynamic>);
         expect(lead.id, isNotNull);
@@ -158,9 +158,9 @@ void main() {
       expect(response.statusCode, 200);
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       expect(body['success'], isTrue);
-      expect(body['data'], isA<List>());
+      expect(body['data'], isA<List<dynamic>>());
 
-      final visits = body['data'] as List;
+      final visits = body['data'] as List<dynamic>;
       if (visits.isNotEmpty) {
         // Visit model should extract from nested objects
         final visit = VisitItem.fromJson(visits[0] as Map<String, dynamic>);
@@ -186,11 +186,11 @@ void main() {
       expect(body['success'], isTrue);
 
       final data = body['data'] as Map<String, dynamic>;
-      expect(data['pipeline'], isA<Map>());
-      expect(data['weeklyStats'], isA<Map>());
-      expect(data['visitStats'], isA<Map>());
-      expect(data['conversionRates'], isA<Map>());
-      expect(data['leadSources'], isA<List>());
+      expect(data['pipeline'], isA<Map<String, dynamic>>());
+      expect(data['weeklyStats'], isA<Map<String, dynamic>>());
+      expect(data['visitStats'], isA<Map<String, dynamic>>());
+      expect(data['conversionRates'], isA<Map<String, dynamic>>());
+      expect(data['leadSources'], isA<List<dynamic>>());
     });
   });
 
@@ -204,9 +204,9 @@ void main() {
       expect(response.statusCode, 200);
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       expect(body['success'], isTrue);
-      expect(body['data'], isA<List>());
+      expect(body['data'], isA<List<dynamic>>());
 
-      final activities = body['data'] as List;
+      final activities = body['data'] as List<dynamic>;
       if (activities.isNotEmpty) {
         final event = ActivityEvent.fromJson(activities[0] as Map<String, dynamic>);
         expect(event.type, isNotEmpty);

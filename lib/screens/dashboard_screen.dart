@@ -115,11 +115,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger le tableau de bord',
-                style: const TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -171,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color:
-                        Color((0xFF0F766E)).withValues(alpha: 0.1),
+                        const Color((0xFF0F766E)).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -471,7 +471,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Color((0xFF0F766E))
+                            color: const Color((0xFF0F766E))
                                 .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -578,7 +578,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _buildMetricCard(
         title: 'Taux de rotation',
         value: '$rotationRate%',
-        change: '${pipelineCount} dans le pipeline',
+        change: '$pipelineCount dans le pipeline',
         isPositive: true,
         icon: Icons.swap_horiz,
         color: const Color(0xFFF59E0B),

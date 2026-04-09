@@ -120,11 +120,11 @@ class _VisitsScreenState extends State<VisitsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les visites',
-                style: const TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -700,31 +700,43 @@ class _VisitsScreenState extends State<VisitsScreen> {
             ElevatedButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
+                final messenger = ScaffoldMessenger.of(context);
                 try {
                   final dateTime = DateTime.parse(
                     '${dateController.text.trim()}T${timeController.text.trim()}:00',
                   );
-                  await ApiService.instance.post('/visits', {
-                    'unitId': unitIdController.text.trim(),
-                    'leadId': leadIdController.text.trim(),
-                    'employeeId': employeeIdController.text.trim(),
-                    'dateTime': dateTime.toIso8601String(),
-                  });
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Visite créée avec succès'),
-                        backgroundColor: Color(0xFF10B981),
-                      ),
-                    );
-                    _fetchVisits();
+                  try {
+                    await ApiService.instance.post('/visits', {
+                      'unitId': unitIdController.text.trim(),
+                      'leadId': leadIdController.text.trim(),
+                      'employeeId': employeeIdController.text.trim(),
+                      'dateTime': dateTime.toIso8601String(),
+                    });
+                    if (mounted) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Visite créée avec succès'),
+                          backgroundColor: Color(0xFF10B981),
+                        ),
+                      );
+                      _fetchVisits();
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text('Erreur: ${e.toString()}'),
+                          backgroundColor: const Color(0xFFEF4444),
+                        ),
+                      );
+                    }
                   }
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Erreur: ${e.toString()}'),
-                        backgroundColor: const Color(0xFFEF4444),
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Format de date invalide'),
+                        backgroundColor: Color(0xFFEF4444),
                       ),
                     );
                   }

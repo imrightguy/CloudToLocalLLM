@@ -7,24 +7,24 @@ import 'package:immogestion/services/api_service.dart';
 void main() {
   group('ApiException', () {
     test('stores message and optional statusCode', () {
-      final e = ApiException('something failed', statusCode: 404);
+      const e = ApiException('something failed', statusCode: 404);
       expect(e.message, 'something failed');
       expect(e.statusCode, 404);
     });
 
     test('statusCode defaults to null', () {
-      final e = ApiException('oops');
+      const e = ApiException('oops');
       expect(e.statusCode, isNull);
     });
 
     test('toString includes message and statusCode', () {
-      final e = ApiException('not found', statusCode: 404);
+      const e = ApiException('not found', statusCode: 404);
       expect(e.toString(), contains('not found'));
       expect(e.toString(), contains('404'));
     });
 
     test('toString without statusCode omits status', () {
-      final e = ApiException('network error');
+      const e = ApiException('network error');
       expect(e.toString(), contains('network error'));
       expect(e.toString(), contains('null'), reason: 'should show null status');
     });
@@ -60,7 +60,7 @@ void main() {
     test('ApiException message is preserved through throw/catch', () {
       const message = 'Session expirée — veuillez vous reconnecter';
       try {
-        throw ApiException(message);
+        throw const ApiException(message);
       } on ApiException catch (e) {
         expect(e.message, message);
       }

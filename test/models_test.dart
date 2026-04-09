@@ -157,7 +157,7 @@ void main() {
     });
 
     test('toJson omits null id and dateTime', () {
-      final visit = VisitItem(
+      const visit = VisitItem(
         unitLabel: 'A',
         buildingName: 'B',
         dateLabel: 'D',
@@ -219,7 +219,7 @@ void main() {
     });
 
     test('toJson round-trips', () {
-      final original = UnitItem(
+      const original = UnitItem(
         id: 'u1',
         buildingId: 'b1',
         number: 'A-101',
@@ -239,7 +239,7 @@ void main() {
     });
 
     test('toJson omits nullable fields when null', () {
-      final unit = UnitItem(
+      const unit = UnitItem(
         number: 'A',
         type: 'T',
         bedrooms: 0,
@@ -306,33 +306,33 @@ void main() {
     });
 
     test('occupancyRate calculates correctly', () {
-      final full = BuildingItem(
+      const full = BuildingItem(
         name: 'A',
         address: 'B',
         city: 'C',
         totalUnits: 10,
         occupiedUnits: 8,
         monthlyRevenue: 0,
-        units: const [],
+        units: [],
       );
       expect(full.occupancyRate, 0.8);
     });
 
     test('occupancyRate returns 0 when totalUnits is 0', () {
-      final empty = BuildingItem(
+      const empty = BuildingItem(
         name: 'A',
         address: 'B',
         city: 'C',
         totalUnits: 0,
         occupiedUnits: 0,
         monthlyRevenue: 0,
-        units: const [],
+        units: [],
       );
       expect(empty.occupancyRate, 0.0);
     });
 
     test('toJson round-trips', () {
-      final original = BuildingItem(
+      const original = BuildingItem(
         id: 'b1',
         name: 'Tour',
         address: '123 Rue',
@@ -342,7 +342,7 @@ void main() {
         monthlyRevenue: 8000,
         description: 'A building',
         properties: {'key': 'value'},
-        units: const [
+        units: [
           UnitItem(
             number: 'A-101',
             type: '2 ½',
@@ -449,7 +449,7 @@ void main() {
     });
 
     test('toJson omits nullable fields when null', () {
-      final lead = LeadItem(
+      const lead = LeadItem(
         fullName: 'X',
         email: 'X',
         phone: 'X',
@@ -458,9 +458,9 @@ void main() {
         source: 'X',
         stage: LeadStage.nouveau,
         notes: 'X',
-        tags: const [],
+        tags: [],
         lastContact: 'X',
-        offers: const [],
+        offers: [],
       );
       final json = lead.toJson();
       expect(json.containsKey('id'), isFalse);

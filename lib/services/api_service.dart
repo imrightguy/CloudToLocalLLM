@@ -128,7 +128,7 @@ class ApiService {
       }
     } catch (e) {
       if (e is ApiException) rethrow;
-      throw ApiException('Erreur réseau — vérifiez votre connexion');
+      throw const ApiException('Erreur réseau — vérifiez votre connexion');
     }
 
     // Decode JSON once
@@ -150,7 +150,7 @@ class ApiService {
       }
       // Refresh failed – force logout
       await _clearTokens();
-      throw ApiException('Session expirée — veuillez vous reconnecter');
+      throw const ApiException('Session expirée — veuillez vous reconnecter');
     }
 
     // Non-2xx error

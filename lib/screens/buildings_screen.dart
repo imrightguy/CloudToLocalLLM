@@ -96,11 +96,11 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les immeubles',
-                style: const TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -214,9 +214,9 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
             Container(
               height: 120,
               width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE0E7FF),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              decoration: const BoxDecoration(
+                color: Color(0xFFE0E7FF),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: const Center(
                 child: Icon(
@@ -260,7 +260,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Color(0xFF0F766E).withValues(alpha: 0.1),
+                          color: const Color(0xFF0F766E).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(

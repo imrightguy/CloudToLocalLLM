@@ -259,11 +259,11 @@ class _HomeTabState extends State<_HomeTab> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les données',
-                style: const TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -326,7 +326,7 @@ class _HomeTabState extends State<_HomeTab> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Color((0xFF10B981)).withValues(alpha: 0.1),
+                    color: const Color((0xFF10B981)).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
