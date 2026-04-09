@@ -12,6 +12,8 @@ import '../../widgets/common/error_state.dart';
 import '../../widgets/common/loading_skeleton.dart';
 import '../../widgets/common/refreshable_screen.dart';
 import '../../services/auto_update_service.dart';
+import '../../services/settings_preference_service.dart';
+import '../../di/locator.dart';
 
 /// Configuration screen with tabbed organization for better UX.
 /// TODO: Integrate with SettingsPreferenceService, ConnectionManagerService
@@ -73,11 +75,16 @@ class _ConfigScreenState extends State<ConfigScreen>
   String _configPath = '';
   String _dataPath = '';
 
+  // Active Backend
+  BackendType? _activeBackend;
+  final _settingsService = serviceLocator<SettingsPreferenceService>();
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
     _loadSystemInfo();
+    _loadActiveBackend();
     _loadData();
   }
 
@@ -97,6 +104,11 @@ class _ConfigScreenState extends State<ConfigScreen>
     } catch (e) {
       debugPrint('Error loading system info: $e');
     }
+  }
+
+  Future<void> _loadActiveBackend() async {
+    final backend = await _settingsService.getActiveBackend();
+    if (mounted) setState(() => _activeBackend = backend);
   }
 
   String? _getHomeDirectory() {
@@ -211,6 +223,55 @@ class _ConfigScreenState extends State<ConfigScreen>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Active Backend Selector
+        CardSection(
+          title: 'Active Backend',
+          subtitle: _activeBackend != null
+              ? 'Currently using: ${_activeBackend!.name}'
+              : 'No backend selected — choose one below',
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: DropdownButtonFormField<BackendType?>(
+                initialValue: _activeBackend,
+                decoration: InputDecoration(
+                  labelText: 'Gateway Backend',
+                  border: const OutlineInputBorder(),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 16),
+                  helperText: 'Select which gateway backend to use for AI requests',
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text('None (no backend)'),
+                  ),
+                  DropdownMenuItem(
+                    value: BackendType.openclaw,
+                    child: Text('OpenClaw Gateway'),
+                  ),
+                  DropdownMenuItem(
+                    value: BackendType.hermes,
+                    child: Text('Hermes Agent'),
+                  ),
+                ],
+                onChanged: (value) async {
+                  setState(() => _activeBackend = value);
+                  await _settingsService.setActiveBackend(value);
+                  if (mounted) {
+                    _showSnackBar(
+                      value != null
+                          ? 'Active backend set to ${value.name}'
+                          : 'Backend cleared — no active gateway',
+                      isError: false,
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         CardSection(
           title: 'LLM Provider',
           children: [

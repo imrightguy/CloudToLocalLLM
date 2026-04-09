@@ -8,6 +8,8 @@ import '../../components/modern_card.dart';
 import '../../components/gradient_button.dart';
 import '../../services/unified_connection_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/connection_manager_service.dart';
+import '../../services/settings_preference_service.dart';
 import '../../widgets/navigation/breadcrumb_bar.dart';
 import '../../services/platform_adapter.dart';
 
@@ -140,8 +142,12 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
                   _buildAuthenticationStatus(),
                   SizedBox(height: AppTheme.spacingL),
 
-                  // OpenClaw Status
-                  _buildOpenClawStatus(),
+                  // Active Backend
+                  _buildActiveBackendStatus(),
+                  SizedBox(height: AppTheme.spacingL),
+
+                  // Gateway Status
+                  _buildGatewayStatus(),
                   SizedBox(height: AppTheme.spacingL),
 
                   // Cloud Proxy Status
@@ -209,39 +215,110 @@ class _ConnectionStatusScreenState extends State<ConnectionStatusScreen> {
     );
   }
 
-  Widget _buildOpenClawStatus() {
-    return ModernCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('OpenClaw Gateway', Icons.computer, Colors.blue),
-          SizedBox(height: AppTheme.spacingM),
-          _buildStatusRow('Connection', 'Checking...', Colors.blue),
-          _buildStatusRow(
-            'URL',
-            AppConfig.gatewayUrl,
-            AppTheme.textColorLight,
+  Widget _buildActiveBackendStatus() {
+    return Consumer<ConnectionManagerService>(
+      builder: (context, connectionManager, child) {
+        final backend = connectionManager.activeBackend;
+
+        String backendLabel;
+        Color backendColor;
+        String statusText;
+
+        if (backend == BackendType.openclaw) {
+          backendLabel = 'OpenClaw';
+          backendColor = Colors.blue;
+          statusText = connectionManager.isConnected ? 'Active' : 'Disconnected';
+        } else if (backend == BackendType.hermes) {
+          backendLabel = 'Hermes Agent';
+          backendColor = Colors.purple;
+          statusText = connectionManager.isConnected ? 'Active' : 'Disconnected';
+        } else {
+          backendLabel = 'None';
+          backendColor = Colors.grey;
+          statusText = 'No backend selected';
+        }
+
+        return ModernCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader(
+                'Active Backend',
+                Icons.dns,
+                backendColor,
+              ),
+              SizedBox(height: AppTheme.spacingM),
+              _buildStatusRow('Backend', backendLabel, backendColor),
+              _buildStatusRow(
+                'Status',
+                statusText,
+                connectionManager.isConnected ? Colors.green : Colors.orange,
+              ),
+              if (backend != null) ...[
+                SizedBox(height: AppTheme.spacingM),
+                Text(
+                  'Configure backends in Settings > Backend.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textColorLight,
+                      ),
+                ),
+              ],
+            ],
           ),
-          _buildStatusRow(
-            'Platform',
-            kIsWeb ? 'Web (via relay)' : 'Desktop (direct)',
-            AppTheme.textColorLight,
+        );
+      },
+    );
+  }
+
+  Widget _buildGatewayStatus() {
+    return Consumer<ConnectionManagerService>(
+      builder: (context, connectionManager, child) {
+        final backend = connectionManager.activeBackend;
+
+        String gatewayLabel;
+        String gatewayUrl;
+
+        if (backend == BackendType.hermes) {
+          gatewayLabel = 'Hermes Agent';
+          gatewayUrl = AppConfig.defaultHermesUrl;
+        } else {
+          gatewayLabel = 'OpenClaw Gateway';
+          gatewayUrl = AppConfig.gatewayUrl;
+        }
+
+        return ModernCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader(gatewayLabel, Icons.computer, Colors.blue),
+              SizedBox(height: AppTheme.spacingM),
+              _buildStatusRow('Connection', 'Checking...', Colors.blue),
+              _buildStatusRow(
+                'URL',
+                gatewayUrl,
+                AppTheme.textColorLight,
+              ),
+              _buildStatusRow(
+                'Platform',
+                kIsWeb ? 'Web (via relay)' : 'Desktop (direct)',
+                AppTheme.textColorLight,
+              ),
+              SizedBox(height: AppTheme.spacingM),
+              ElevatedButton.icon(
+                onPressed: () {
+                  context.go('/agent-status');
+                },
+                icon: const Icon(Icons.analytics),
+                label: const Text('View Agent Status'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: AppTheme.spacingM),
-          ElevatedButton.icon(
-            onPressed: () {
-              // Navigate to agent status screen
-              context.go('/agent-status');
-            },
-            icon: const Icon(Icons.analytics),
-            label: const Text('View Agent Status'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

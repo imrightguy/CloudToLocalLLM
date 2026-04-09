@@ -7,6 +7,7 @@ library;
 /// Provider type enumeration
 enum ProviderType {
   openclaw,
+  hermes,
   ollama,
   lmStudio,
   openAICompatible,
@@ -543,6 +544,82 @@ class OpenAICompatibleProviderConfiguration implements ProviderConfiguration {
   }
 }
 
+/// Hermes Agent provider configuration
+class HermesProviderConfiguration implements ProviderConfiguration {
+  @override
+  final String providerId;
+
+  @override
+  final String baseUrl;
+
+  @override
+  final Duration timeout;
+
+  final bool enableStreaming;
+
+  @override
+  final Map<String, dynamic> customSettings;
+
+  const HermesProviderConfiguration({
+    required this.providerId,
+    required this.baseUrl,
+    this.timeout = const Duration(seconds: 60),
+    this.enableStreaming = true,
+    this.customSettings = const {},
+  });
+
+  @override
+  String get providerType => 'hermes';
+
+  @override
+  bool isValid() {
+    try {
+      final uri = Uri.parse(baseUrl);
+      if (!uri.hasScheme || !uri.hasAuthority) return false;
+
+      if (timeout.inMilliseconds < 1000) return false;
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'providerId': providerId,
+        'providerType': providerType,
+        'baseUrl': baseUrl,
+        'timeout': timeout.inMilliseconds,
+        'enableStreaming': enableStreaming,
+        'customSettings': customSettings,
+      };
+
+  factory HermesProviderConfiguration.fromJson(Map<String, dynamic> json) {
+    return HermesProviderConfiguration(
+      providerId: json['providerId'] as String,
+      baseUrl: json['baseUrl'] as String,
+      timeout: Duration(milliseconds: json['timeout'] as int? ?? 60000),
+      enableStreaming: json['enableStreaming'] as bool? ?? true,
+      customSettings: json['customSettings'] as Map<String, dynamic>? ?? {},
+    );
+  }
+
+  @override
+  HermesProviderConfiguration copyWith(Map<String, dynamic> updates) {
+    return HermesProviderConfiguration(
+      providerId: updates['providerId'] as String? ?? providerId,
+      baseUrl: updates['baseUrl'] as String? ?? baseUrl,
+      timeout: updates['timeout'] != null
+          ? Duration(milliseconds: updates['timeout'] as int)
+          : timeout,
+      enableStreaming: updates['enableStreaming'] as bool? ?? enableStreaming,
+      customSettings:
+          updates['customSettings'] as Map<String, dynamic>? ?? customSettings,
+    );
+  }
+}
+
 /// Provider configuration validation result
 class ConfigurationValidationResult {
   final bool isValid;
@@ -575,6 +652,8 @@ class ProviderConfigurationFactory {
     final providerType = json['providerType'] as String?;
 
     switch (providerType) {
+      case 'hermes':
+        return HermesProviderConfiguration.fromJson(json);
       case 'ollama':
         return OllamaProviderConfiguration.fromJson(json);
       case 'lmstudio':
@@ -589,6 +668,11 @@ class ProviderConfigurationFactory {
   static ProviderConfiguration createDefault(
       String providerType, String providerId, String baseUrl, int port) {
     switch (providerType) {
+      case 'hermes':
+        return HermesProviderConfiguration(
+          providerId: providerId,
+          baseUrl: baseUrl,
+        );
       case 'ollama':
         return OllamaProviderConfiguration(
           providerId: providerId,
@@ -641,6 +725,15 @@ class ProviderConfigurationFactory {
 
     // Provider-specific validation
     switch (config.providerType) {
+      case 'hermes':
+        final hermesConfig = config as HermesProviderConfiguration;
+        final uri = Uri.parse(hermesConfig.baseUrl);
+        if (uri.port != 8642) {
+          warnings
+              .add('Non-standard Hermes port detected. Default is 8642.');
+        }
+        break;
+
       case 'ollama':
         final ollamaConfig = config as OllamaProviderConfiguration;
         if (ollamaConfig.port != 11434) {

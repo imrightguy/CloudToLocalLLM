@@ -9,6 +9,7 @@ import 'package:cloudtolocalllm/screens/onboarding/steps/local_detection_step.da
 import 'package:cloudtolocalllm/screens/onboarding/steps/gateway_password_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/tailscale_discovery_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/remote_connection_step.dart';
+import 'package:cloudtolocalllm/screens/onboarding/steps/hermes_url_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/connection_test_step.dart';
 import 'package:cloudtolocalllm/screens/onboarding/steps/completion_step.dart';
 
@@ -137,7 +138,18 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
   }
 
   List<Widget> _buildSteps(ConnectionMethod? method) {
-    // Build only the steps that should be shown based on connection method
+    // Hermes has a simplified flow: Welcome → Connection Method → Hermes URL → Connection Test → Completion
+    if (method == ConnectionMethod.hermes) {
+      return <Widget>[
+        const WelcomeStep(),
+        const ConnectionMethodStep(),
+        const HermesUrlStep(),
+        const ConnectionTestStep(),
+        const CompletionStep(),
+      ];
+    }
+
+    // OpenClaw flow
     final steps = <Widget>[
       const WelcomeStep(), // 0 - Always shown
       const ConnectionMethodStep(), // 1 - Always shown
@@ -157,8 +169,8 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
 
     // Remaining steps - always shown
     steps.addAll([
-      const ConnectionTestStep(), // 6 (or 5 if skipping)
-      const CompletionStep(), // 7 (or 6 if skipping)
+      const ConnectionTestStep(),
+      const CompletionStep(),
     ]);
 
     return steps;

@@ -31,7 +31,7 @@ class AboutSettingsScreen extends StatelessWidget {
               children: [
                 Text('About', style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 16),
-                const Text('CloudToLocalLLM - OpenClaw Agent Manager'),
+                const Text('CloudToLocalLLM - AI Agent Manager'),
                 const SizedBox(height: 8),
                 const Text('Version: 1.0.0'),
                 const SizedBox(height: 32),

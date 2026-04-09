@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'connection_manager_service.dart';
+import 'settings_preference_service.dart';
 
 /// Service that provides a unified view of all available AI connections.
 class UnifiedConnectionService extends ChangeNotifier {
@@ -28,16 +29,23 @@ class UnifiedConnectionService extends ChangeNotifier {
   void _updateStatus() {
     if (_connectionManager == null) return;
 
+    final activeBackend = _connectionManager!.activeBackend;
     final isConnected = _connectionManager!.isConnected;
     _isConnected = isConnected;
-    _connectionType = isConnected ? 'openclaw' : 'none';
-    _version = isConnected ? 'OpenClaw Gateway' : null;
     _models = _connectionManager!.availableModels;
 
-    if (!isConnected) {
-      _error = 'OpenClaw Gateway disconnected';
+    if (activeBackend == null) {
+      _connectionType = 'none';
+      _version = null;
+      _error = 'No backend selected';
+    } else if (activeBackend == BackendType.hermes) {
+      _connectionType = 'hermes';
+      _version = isConnected ? 'Hermes Agent' : null;
+      _error = isConnected ? null : 'Hermes Agent disconnected';
     } else {
-      _error = null;
+      _connectionType = 'openclaw';
+      _version = isConnected ? 'OpenClaw Gateway' : null;
+      _error = isConnected ? null : 'OpenClaw Gateway disconnected';
     }
 
     notifyListeners();

@@ -174,6 +174,8 @@ class _CompletionStepState extends State<CompletionStep> {
     switch (type) {
       case ProviderType.openclaw:
         return 'OpenClaw Gateway';
+      case ProviderType.hermes:
+        return 'Hermes Agent';
       case ProviderType.lmStudio:
         return 'LM Studio';
       case ProviderType.ollama:

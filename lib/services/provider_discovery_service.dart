@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 
 /// Provider Discovery Service
 /// Discovers local LLM providers on the network
@@ -20,6 +21,7 @@ class ProviderDiscoveryService {
     final List<Future<ProviderInfo?>> scans = [
       _scanOpenClawGateway(),
       _scanLMStudio(),
+      _scanHermes(),
       // Ollama is handled by the LLM router, not as a separate provider
     ];
 
@@ -89,6 +91,36 @@ class ProviderDiscoveryService {
       }
     } catch (e) {
       debugPrint('[ProviderDiscovery] LM Studio not available: $e');
+    }
+    return null;
+  }
+
+  /// Scan for Hermes Agent on localhost:8642 (or configurable URL)
+  Future<ProviderInfo?> _scanHermes() async {
+    final settings = SettingsPreferenceService();
+    final configuredUrl = await settings.getHermesUrl();
+    final baseUrl = (configuredUrl?.isNotEmpty ?? false)
+        ? configuredUrl!
+        : AppConfig.defaultHermesUrl;
+    final healthUrl = Uri.parse('$baseUrl/health');
+
+    try {
+      final response = await http.get(healthUrl).timeout(_scanTimeout);
+
+      if (response.statusCode == 200) {
+        debugPrint('[ProviderDiscovery] Found Hermes Agent at $baseUrl');
+        return ProviderInfo(
+          id: 'hermes_discovered',
+          type: ProviderType.hermes,
+          name: 'Hermes Agent',
+          url: baseUrl,
+          isLocal: true,
+          isAvailable: true,
+          version: _extractVersion(response.body),
+        );
+      }
+    } catch (e) {
+      debugPrint('[ProviderDiscovery] Hermes Agent not available: $e');
     }
     return null;
   }

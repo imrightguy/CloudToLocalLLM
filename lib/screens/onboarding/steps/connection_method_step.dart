@@ -4,7 +4,7 @@ import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/screens/onboarding/widgets/connection_method_card.dart';
 
 /// Connection Method Selection Step
-/// User selects how they connect to OpenClaw Gateway
+/// User selects how they connect to their backend
 class ConnectionMethodStep extends StatelessWidget {
   const ConnectionMethodStep({super.key});
 
@@ -25,13 +25,13 @@ class ConnectionMethodStep extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'How will you connect to OpenClaw Gateway?',
+                'Choose your backend',
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
-                'Select the option that best describes your setup',
+                'Select the backend you want to connect to',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -43,33 +43,28 @@ class ConnectionMethodStep extends StatelessWidget {
               Column(
                 children: [
                   ConnectionMethodCard(
-                    icon: Icons.computer,
-                    title: 'Local on this computer',
-                    description: 'OpenClaw Gateway running on this computer',
+                    icon: Icons.hub,
+                    title: 'OpenClaw Gateway',
+                    description: 'OpenClaw Gateway running locally or remote',
                     selected:
-                        wizard.state.selectedMethod == ConnectionMethod.local,
+                        wizard.state.selectedMethod == ConnectionMethod.local ||
+                        wizard.state.selectedMethod ==
+                            ConnectionMethod.tailscale ||
+                        wizard.state.selectedMethod ==
+                            ConnectionMethod.custom,
                     onTap: () =>
                         wizard.selectConnectionMethod(ConnectionMethod.local),
                   ),
                   const SizedBox(height: 16),
                   ConnectionMethodCard(
-                    icon: Icons.lan,
-                    title: 'Remote via Tailscale',
-                    description: 'OpenClaw Gateway on your tailnet or VPS',
-                    selected: wizard.state.selectedMethod ==
-                        ConnectionMethod.tailscale,
-                    onTap: () => wizard
-                        .selectConnectionMethod(ConnectionMethod.tailscale),
-                  ),
-                  const SizedBox(height: 16),
-                  ConnectionMethodCard(
-                    icon: Icons.link,
-                    title: 'Custom remote URL',
-                    description: 'SSH tunnel, VPN, or custom URL',
+                    icon: Icons.smart_toy,
+                    title: 'Hermes Agent',
+                    description:
+                        'Hermes Agent running on this computer or remote',
                     selected:
-                        wizard.state.selectedMethod == ConnectionMethod.custom,
+                        wizard.state.selectedMethod == ConnectionMethod.hermes,
                     onTap: () =>
-                        wizard.selectConnectionMethod(ConnectionMethod.custom),
+                        wizard.selectConnectionMethod(ConnectionMethod.hermes),
                   ),
                 ],
               ),
@@ -89,7 +84,7 @@ class ConnectionMethodStep extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Not sure? Choose "Local" if OpenClaw is on this computer.',
+                        'Not sure? Choose "OpenClaw Gateway" if you\'re using the OpenClaw ecosystem.',
                         style: TextStyle(color: Colors.amber.shade900),
                       ),
                     ),

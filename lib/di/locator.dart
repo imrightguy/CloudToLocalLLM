@@ -58,6 +58,7 @@ import 'package:cloudtolocalllm/services/desktop_control/clipboard_service.dart'
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
+import 'package:cloudtolocalllm/services/hermes_manager/hermes_gateway_control_service.dart';
 import 'package:cloudtolocalllm/services/avatar/personality_engine.dart';
 import 'package:cloudtolocalllm/services/avatar/evolution_tracker.dart';
 import 'package:cloudtolocalllm/services/avatar/avatar_state_service.dart';
@@ -370,6 +371,12 @@ Future<void> setupCoreServices() async {
         GatewayControlService(settingsPreferenceService);
     serviceLocator
         .registerSingleton<GatewayControlService>(gatewayControlService);
+
+    // Hermes gateway control service - HTTP-only health monitor for Hermes Agent
+    final hermesGatewayControlService =
+        HermesGatewayControlService(settingsPreferenceService);
+    serviceLocator.registerSingleton<HermesGatewayControlService>(
+        hermesGatewayControlService);
 
     // Setup status service - tracks first-run and setup completion
     final setupStatusService = SetupStatusService(
@@ -891,6 +898,20 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
               baseUrl: providerInfo.baseUrl,
               port: providerInfo.port,
               timeout: const Duration(seconds: 90),
+            );
+            break;
+
+          case ProviderType.hermes:
+            config = HermesProviderConfiguration(
+              providerId: providerId,
+              baseUrl: providerInfo.baseUrl,
+              timeout: const Duration(seconds: 60),
+              enableStreaming: true,
+              customSettings: {
+                'auto_configured': true,
+                'discovered_at': DateTime.now().toIso8601String(),
+                'models': providerInfo.availableModels,
+              },
             );
             break;
 

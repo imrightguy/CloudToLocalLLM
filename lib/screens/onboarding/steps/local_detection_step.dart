@@ -312,6 +312,8 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
     switch (type) {
       case ProviderType.openclaw:
         return Icons.hub;
+      case ProviderType.hermes:
+        return Icons.smart_toy;
       case ProviderType.lmStudio:
         return Icons.science;
       case ProviderType.ollama:

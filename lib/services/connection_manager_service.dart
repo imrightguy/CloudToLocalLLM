@@ -237,19 +237,35 @@ class ConnectionManagerService extends ChangeNotifier {
     return null;
   }
 
+  /// Active backend — provider-agnostic, user must explicitly choose.
+  /// When null, no backend is selected (ConnectionType.none).
+  BackendType? _activeBackend;
+
+  BackendType? get activeBackend => _activeBackend;
+
+  /// Set the active backend type. Pass null to clear (no backend selected).
+  Future<void> setActiveBackend(BackendType? type) async {
+    _activeBackend = type;
+    await _settings.setActiveBackend(type);
+    debugPrint('[ConnectionManager] Active backend set to: ${type?.name ?? 'none'}');
+    notifyListeners();
+  }
+
   /// Preferred connection type — can be set from settings UI.
   /// When null, auto-detection runs (currently defaults to local).
   ConnectionType? _preferredConnectionType;
 
   ConnectionType getBestConnectionType() {
+    if (_activeBackend == null) {
+      return ConnectionType.none;
+    }
+    if (_activeBackend == BackendType.hermes) {
+      return ConnectionType.hermes;
+    }
     if (_preferredConnectionType != null) {
-      // If Hermes is preferred, check if it's reachable
-      if (_preferredConnectionType == ConnectionType.hermes) {
-        return ConnectionType.hermes;
-      }
       return _preferredConnectionType!;
     }
-    return ConnectionType.local; // Always prefer local OpenClaw Gateway
+    return ConnectionType.local;
   }
 
   /// Set the preferred connection type (from settings UI).
@@ -724,13 +740,17 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
+    _activeBackend = await _settings.getActiveBackend();
+    debugPrint('[ConnectionManager] Loaded active backend: ${_activeBackend?.name ?? 'none'}');
     await loadGatewayToken();
-    await testConnection();
-    if (_authService.isAuthenticated.value) {
-      try {
-        await _tunnelService.connect();
-      } catch (e) {
-        debugPrint('[ConnectionManager] Tunnel connection failed: $e');
+    if (_activeBackend != null && _activeBackend != BackendType.hermes) {
+      await testConnection();
+      if (_authService.isAuthenticated.value) {
+        try {
+          await _tunnelService.connect();
+        } catch (e) {
+          debugPrint('[ConnectionManager] Tunnel connection failed: $e');
+        }
       }
     }
     _autoSelectModel();

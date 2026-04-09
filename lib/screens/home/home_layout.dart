@@ -223,7 +223,7 @@ class _ChatPaneState extends State<_ChatPane> {
       // Set active provider in OpenClaw Gateway
       final success = await connectionManager.setActiveProvider(model);
       if (!success) {
-        debugPrint('[HomeLayout] Failed to set provider in OpenClaw Gateway');
+        debugPrint('[HomeLayout] Failed to set active provider in backend');
       }
     } catch (e) {
       debugPrint('[HomeLayout] Error changing model: $e');
@@ -274,7 +274,7 @@ class _ChatPaneState extends State<_ChatPane> {
                 onSendMessage: (message) =>
                     widget.onSendMessage(chatService, message),
                 isLoading: chatService.isLoading,
-                placeholder: 'Message OpenClaw...',
+                placeholder: 'Message AI...',
               ),
             ),
           ],
@@ -488,7 +488,7 @@ class _Sidebar extends StatelessWidget {
                 const AppLogo.small(),
                 SizedBox(width: spacing.s),
                 Text(
-                  'OpenClaw',
+                  'CloudToLocalLLM',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,

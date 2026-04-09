@@ -15,6 +15,7 @@ enum ConnectionMethod {
   local,
   tailscale,
   custom,
+  hermes,
 }
 
 /// Setup wizard state
@@ -28,6 +29,7 @@ class WizardState {
   final String? customUrl;
   final ProviderInfo? selectedProvider;
   final String? gatewayPassword; // OpenClaw Gateway password/token
+  final String? hermesUrl; // Hermes Agent URL
   final bool isLoading;
   final String? errorMessage;
 
@@ -39,6 +41,7 @@ class WizardState {
     this.customUrl,
     this.selectedProvider,
     this.gatewayPassword,
+    this.hermesUrl,
     this.isLoading = false,
     this.errorMessage,
   });
@@ -51,6 +54,7 @@ class WizardState {
     Object? customUrl = _unset,
     Object? selectedProvider = _unset,
     String? gatewayPassword,
+    Object? hermesUrl = _unset,
     bool? isLoading,
     Object? errorMessage = _unset,
   }) {
@@ -65,6 +69,8 @@ class WizardState {
           ? this.selectedProvider
           : selectedProvider as ProviderInfo?,
       gatewayPassword: gatewayPassword ?? this.gatewayPassword,
+      hermesUrl:
+          identical(hermesUrl, _unset) ? this.hermesUrl : hermesUrl as String?,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: identical(errorMessage, _unset)
           ? this.errorMessage
@@ -123,6 +129,7 @@ class SetupWizardService extends ChangeNotifier {
   void selectConnectionMethod(ConnectionMethod method) {
     ProviderInfo? updatedProvider = _state.selectedProvider;
     String? updatedCustomUrl = _state.customUrl;
+    String? updatedHermesUrl = _state.hermesUrl;
 
     if (method != ConnectionMethod.custom) {
       updatedCustomUrl = null;
@@ -131,10 +138,18 @@ class SetupWizardService extends ChangeNotifier {
       }
     }
 
+    if (method != ConnectionMethod.hermes) {
+      updatedHermesUrl = null;
+      if (updatedProvider?.type == ProviderType.hermes) {
+        updatedProvider = null;
+      }
+    }
+
     _state = _state.copyWith(
       selectedMethod: method,
       selectedProvider: updatedProvider,
       customUrl: updatedCustomUrl,
+      hermesUrl: updatedHermesUrl,
       errorMessage: null,
     );
 
@@ -315,6 +330,28 @@ class SetupWizardService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set Hermes Agent URL
+  void setHermesUrl(String url) {
+    final trimmedUrl = url.trim();
+    _state = _state.copyWith(
+      hermesUrl: trimmedUrl,
+      errorMessage: null,
+    );
+
+    // Create/update a Hermes ProviderInfo from the URL
+    final hermesProvider = ProviderInfo(
+      id: 'hermes_wizard',
+      type: ProviderType.hermes,
+      name: 'Hermes Agent',
+      url: trimmedUrl.isNotEmpty ? trimmedUrl : AppConfig.defaultHermesUrl,
+      isLocal: true,
+      isAvailable: false,
+    );
+    _state = _state.copyWith(selectedProvider: hermesProvider);
+
+    notifyListeners();
+  }
+
   /// Complete setup and save configuration
   Future<bool> completeSetup() async {
     final validationError = _validateCompleteSetupInput();
@@ -328,10 +365,13 @@ class SetupWizardService extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final method = _state.selectedMethod;
       // Use custom URL if provided, otherwise use provider's discovered URL
       final customUrl = _state.customUrl?.trim();
-      final providerUrl =
-          (_shouldUseCustomUrl() && customUrl != null && customUrl.isNotEmpty)
+      final hermesUrl = _state.hermesUrl?.trim();
+      final providerUrl = (method == ConnectionMethod.hermes && hermesUrl != null && hermesUrl.isNotEmpty)
+          ? hermesUrl
+          : (_shouldUseCustomUrl() && customUrl != null && customUrl.isNotEmpty)
               ? customUrl
               : _state.selectedProvider!.url;
 
@@ -407,7 +447,12 @@ class SetupWizardService extends ChangeNotifier {
   }
 
   int _getTotalSteps() {
-    // Base steps: Welcome, Connection Method, Detection, Password, Test, Complete = 6
+    // Hermes flow: Welcome, Connection Method, Hermes URL, Test, Complete = 5
+    if (_state.selectedMethod == ConnectionMethod.hermes) {
+      return 5;
+    }
+
+    // OpenClaw steps: Welcome, Connection Method, Detection, Password, Test, Complete = 6
     // Optional: Tailscale (1), Remote (1)
     int steps = 6;
     if (_state.selectedMethod == ConnectionMethod.tailscale) {
@@ -433,6 +478,21 @@ class SetupWizardService extends ChangeNotifier {
   String? _validateCompleteSetupInput() {
     if (_state.selectedProvider == null) {
       return 'Select a provider before completing setup.';
+    }
+
+    // Hermes-specific validation
+    if (_state.selectedMethod == ConnectionMethod.hermes) {
+      final hermesUrl = _state.hermesUrl?.trim() ?? '';
+      if (hermesUrl.isEmpty) {
+        return 'Enter a Hermes Agent URL.';
+      }
+      final uri = Uri.tryParse(hermesUrl);
+      if (uri == null ||
+          (uri.scheme != 'http' && uri.scheme != 'https') ||
+          uri.host.isEmpty) {
+        return 'Enter a valid Hermes URL that starts with http:// or https://.';
+      }
+      return null;
     }
 
     if (_shouldUseCustomUrl()) {

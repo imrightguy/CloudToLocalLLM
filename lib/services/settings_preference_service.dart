@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+enum BackendType { openclaw, hermes }
+
 class SettingsPreferenceService {
   static const String _proModeKey = 'settings_pro_mode';
   static const String _themeKey = 'settings_theme';
@@ -23,6 +25,9 @@ class SettingsPreferenceService {
   static const String _windowHeightKey = 'settings_window_height';
   static const String _gatewayAutoRestartKey = 'settings_gateway_auto_restart';
   static const String _gatewayUrlKey = 'settings_gateway_url';
+
+  // Active Backend
+  static const String _activeBackendKey = 'settings_active_backend';
 
   // Hermes Settings
   static const String _hermesEnabledKey = 'settings_hermes_enabled';
@@ -293,6 +298,31 @@ class SettingsPreferenceService {
       await prefs.remove(_gatewayUrlKey);
     } else {
       await prefs.setString(_gatewayUrlKey, value);
+    }
+  }
+
+  // ==========================================================================
+  // Active Backend Selection
+  // ==========================================================================
+
+  /// Get the active backend type. Returns null if no backend is selected.
+  Future<BackendType?> getActiveBackend() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_activeBackendKey);
+    if (value == null) return null;
+    return BackendType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => BackendType.openclaw,
+    );
+  }
+
+  /// Set the active backend type. Pass null to clear (no backend selected).
+  Future<void> setActiveBackend(BackendType? type) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (type == null) {
+      await prefs.remove(_activeBackendKey);
+    } else {
+      await prefs.setString(_activeBackendKey, type.name);
     }
   }
 
