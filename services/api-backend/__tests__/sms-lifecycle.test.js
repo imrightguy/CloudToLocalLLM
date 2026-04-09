@@ -136,35 +136,47 @@ const FIXTURES = {
 // ─── Helper: build chain-returning mock ─────────────────────────────────────────
 
 /**
- * Make the query builder chain return `rows` when `.limit()` is called.
- * Each call to `.select().from().where().leftJoin()...limit()` returns rows.
+ * Create a fresh select query chain that returns `rows` from .limit().
  */
-function mockQueryChain(rows) {
-  const chain = {
-    select: jest.fn().mockReturnValue(chain),
-    from: jest.fn().mockReturnValue(chain),
-    leftJoin: jest.fn().mockReturnValue(chain),
-    where: jest.fn().mockReturnValue(chain),
-    and: jest.fn().mockReturnValue(chain),
-    orderBy: jest.fn().mockReturnValue(chain),
-    limit: jest.fn().mockResolvedValue(rows),
-  };
+function makeSelectChain(rows) {
+  const chain = {};
+  chain.select = jest.fn().mockReturnValue(chain);
+  chain.from = jest.fn().mockReturnValue(chain);
+  chain.leftJoin = jest.fn().mockReturnValue(chain);
+  chain.where = jest.fn().mockReturnValue(chain);
+  chain.and = jest.fn().mockReturnValue(chain);
+  chain.orderBy = jest.fn().mockReturnValue(chain);
+  chain.limit = jest.fn().mockResolvedValue(rows);
+  return chain;
+}
 
-  // Wire the top-level mockDb methods to return the chain
-  mockDb.select.mockReturnValue(chain);
-  mockDb.from.mockReturnValue(chain);
-  mockDb.update.mockReturnValue(chain);
+/**
+ * Create a fresh update chain that resolves .set().where().
+ */
+function makeUpdateChain() {
+  const chain = {};
+  chain.set = jest.fn().mockReturnValue(chain);
+  chain.where = jest.fn().mockResolvedValue(undefined);
+  return chain;
+}
 
-  // For .where(eq(...)) → should return chain
-  // For .set({...}).where(...) → should resolve
-  mockDb.set.mockReturnValue(chain);
-  chain.where.mockReturnValue(chain);
+/**
+ * Stack multiple mock implementations for db.select() so sequential
+ * calls return different rows. This handles functions that make multiple
+ * DB queries (e.g. handleEmployeeReply: find employee, find visit, etc.)
+ */
+function mockQueryChain(...rowsArrays) {
+  const chains = rowsArrays.map(rows => makeSelectChain(rows));
+  mockDb.select.mockImplementation(() => chains.shift() || makeSelectChain([]));
+
+  // Also wire db.update() to resolve (most functions that query also update)
+  mockDb.update.mockImplementation(() => makeUpdateChain());
 
   // For .where(and(...)) → return chain
   const { and: realAnd } = jest.requireActual('drizzle-orm');
   mockDb.and.mockImplementation((...args) => realAnd(...args));
 
-  return chain;
+  return chains;
 }
 
 /**
@@ -179,13 +191,8 @@ function mockInsertResolve() {
 }
 
 function mockUpdateResolve() {
-  const updateChain = {
-    set: jest.fn().mockReturnValue({
-      where: jest.fn().mockResolvedValue(undefined),
-    }),
-  };
-  mockDb.update.mockReturnValue(updateChain);
-  return updateChain;
+  mockDb.update.mockImplementation(() => makeUpdateChain());
+  return mockDb.update;
 }
 
 // ─── Reset before each test ────────────────────────────────────────────────────
@@ -361,11 +368,9 @@ describe('SMS Visit Lifecycle', () => {
 
   describe('Step 3: handleTenantReply', () => {
     it('sets tenantConfirmed=true when tenant replies oui/1', async () => {
-      // First query: find lead by phone
-      const leadQuery = mockQueryChain([FIXTURES.lead]);
-      // Second query: find active visit for lead
+      // First query: find lead by phone; second: find active visit for lead
+      mockQueryChain([FIXTURES.lead], [FIXTURES.visit]);
       mockUpdateResolve();
-      const visitQuery = mockQueryChain([FIXTURES.visit]);
 
       const result = await handleTenantReply(FIXTURES.lead.phone, '1');
 
@@ -375,9 +380,8 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('sets tenantConfirmed=false when tenant replies non/2', async () => {
-      mockQueryChain([FIXTURES.lead]);
+      mockQueryChain([FIXTURES.lead], [FIXTURES.visit]);
       mockUpdateResolve();
-      mockQueryChain([FIXTURES.visit]);
 
       mockHandleIncomingMessage.mockReturnValueOnce({ action: 'no', raw: '2' });
 
@@ -406,8 +410,8 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('returns error when no active visit for lead', async () => {
-      mockQueryChain([FIXTURES.lead]); // lead found
-      mockQueryChain([]); // no active visit
+      // Lead found, but no active visit — both select calls in one chain
+      mockQueryChain([FIXTURES.lead], []);
 
       const result = await handleTenantReply(FIXTURES.lead.phone, '1');
       expect(result.success).toBe(false);
@@ -415,9 +419,8 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('logs inbound SMS for every tenant reply', async () => {
-      mockQueryChain([FIXTURES.lead]);
+      mockQueryChain([FIXTURES.lead], [FIXTURES.visit]);
       mockUpdateResolve();
-      mockQueryChain([FIXTURES.visit]);
 
       await handleTenantReply(FIXTURES.lead.phone, '1');
 
@@ -560,16 +563,7 @@ describe('SMS Visit Lifecycle', () => {
 
   describe('Step 6: handleEmployeeReply — post-visit outcomes', () => {
     it('marks visit interested and notifies Simon when employee replies 1/interested', async () => {
-      // First: find employee by phone
-      mockQueryChain([FIXTURES.employee]);
-      // Then: find active visit
       const activeVisit = { ...FIXTURES.visit, status: 'confirmed' };
-      mockQueryChain([activeVisit]);
-      // Then: update visit (interested)
-      mockUpdateResolve();
-      // Then: update lead stage
-      mockUpdateResolve();
-      // Then: get visit context for Simon notification
       const ctx = {
         visit: activeVisit,
         employee: FIXTURES.employee,
@@ -577,9 +571,10 @@ describe('SMS Visit Lifecycle', () => {
         unit: FIXTURES.unit,
         building: FIXTURES.building,
       };
-      mockQueryChain([ctx]);
-      // Then: find admin user
-      mockQueryChain([FIXTURES.adminUser]);
+      // Service flow: find employee → find visit → (update visit) → (update lead) → getVisitContext → find admin
+      mockQueryChain([FIXTURES.employee], [activeVisit], [ctx], [FIXTURES.adminUser]);
+      mockUpdateResolve(); // update visit
+      mockUpdateResolve(); // update lead stage
 
       mockHandleIncomingMessage.mockReturnValueOnce({ action: 'interested', raw: '1' });
 
@@ -590,9 +585,9 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('marks visit not interested when employee replies 2/pas interesse', async () => {
-      mockQueryChain([FIXTURES.employee]);
       const activeVisit = { ...FIXTURES.visit, status: 'confirmed' };
-      mockQueryChain([activeVisit]);
+      // find employee → find visit
+      mockQueryChain([FIXTURES.employee], [activeVisit]);
       mockUpdateResolve(); // update visit
       mockUpdateResolve(); // update lead
 
@@ -605,9 +600,9 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('marks visit no_show when employee replies 3/absent', async () => {
-      mockQueryChain([FIXTURES.employee]);
       const activeVisit = { ...FIXTURES.visit, status: 'confirmed' };
-      mockQueryChain([activeVisit]);
+      // find employee → find visit
+      mockQueryChain([FIXTURES.employee], [activeVisit]);
       mockUpdateResolve(); // update visit
       mockUpdateResolve(); // update lead
 
@@ -626,10 +621,6 @@ describe('SMS Visit Lifecycle', () => {
     it('confirms visit and triggers tenant confirmation when employee replies oui', async () => {
       const scheduledVisit = { ...FIXTURES.visit, status: 'scheduled' };
 
-      mockQueryChain([FIXTURES.employee]); // find employee
-      mockQueryChain([scheduledVisit]); // find visit
-      mockUpdateResolve(); // update visit status
-      // sendTenantConfirmationRequest internally calls getVisitContext
       const ctx = {
         visit: scheduledVisit,
         employee: FIXTURES.employee,
@@ -637,7 +628,9 @@ describe('SMS Visit Lifecycle', () => {
         unit: FIXTURES.unit,
         building: FIXTURES.building,
       };
-      mockQueryChain([ctx]); // getVisitContext for tenant SMS
+      // find employee → find visit → getVisitContext (for sendTenantConfirmationRequest inside handler)
+      mockQueryChain([FIXTURES.employee], [scheduledVisit], [ctx]);
+      mockUpdateResolve(); // update visit status
       mockInsertResolve(); // logSMS for tenant confirmation
 
       const result = await handleEmployeeReply(FIXTURES.employee.phone, '1');
@@ -654,8 +647,8 @@ describe('SMS Visit Lifecycle', () => {
     it('cancels visit when employee replies non to scheduled visit', async () => {
       const scheduledVisit = { ...FIXTURES.visit, status: 'scheduled' };
 
-      mockQueryChain([FIXTURES.employee]);
-      mockQueryChain([scheduledVisit]);
+      // find employee → find visit
+      mockQueryChain([FIXTURES.employee], [scheduledVisit]);
       mockUpdateResolve(); // cancel visit
 
       mockHandleIncomingMessage.mockReturnValueOnce({ action: 'no', raw: '2' });
@@ -674,8 +667,8 @@ describe('SMS Visit Lifecycle', () => {
         tenantConfirmed: false,
       };
 
-      mockQueryChain([FIXTURES.employee]);
-      mockQueryChain([confirmedVisit]);
+      // find employee → find visit
+      mockQueryChain([FIXTURES.employee], [confirmedVisit]);
       // logSMS inbound
       mockInsertResolve();
 
@@ -758,14 +751,10 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('handles occupant reply oui — grants access', async () => {
-      // Find unit by tenant phone
-      mockQueryChain([FIXTURES.unit]);
-      // Find active visit for unit
       const activeVisit = { ...FIXTURES.visit, occupantNotified: true };
-      mockQueryChain([activeVisit]);
+      // find unit by tenant phone → find active visit → find building for ack
+      mockQueryChain([FIXTURES.unit], [activeVisit], [FIXTURES.building]);
       mockUpdateResolve(); // update tenantConfirmed
-      // Find building for ack message
-      mockQueryChain([FIXTURES.building]);
 
       mockHandleIncomingMessage.mockReturnValueOnce({ action: 'yes', raw: '1' });
 
@@ -781,9 +770,9 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('handles occupant reply non — denies access', async () => {
-      mockQueryChain([FIXTURES.unit]);
       const activeVisit = { ...FIXTURES.visit, occupantNotified: true };
-      mockQueryChain([activeVisit]);
+      // find unit → find visit → find building (for denial message)
+      mockQueryChain([FIXTURES.unit], [activeVisit], [FIXTURES.building]);
       mockUpdateResolve();
 
       mockHandleIncomingMessage.mockReturnValueOnce({ action: 'no', raw: '2' });
@@ -839,8 +828,8 @@ describe('SMS Visit Lifecycle', () => {
         unit: FIXTURES.unit,
         building: FIXTURES.building,
       };
-      mockQueryChain([ctx]);
-      mockQueryChain([FIXTURES.adminUser]); // find admin
+      // getVisitContext → find admin user
+      mockQueryChain([ctx], [FIXTURES.adminUser]);
 
       const result = await notifySimonInterested(FIXTURES.visit.id);
 
@@ -862,8 +851,8 @@ describe('SMS Visit Lifecycle', () => {
         unit: FIXTURES.unit,
         building: FIXTURES.building,
       };
-      mockQueryChain([ctx]);
-      mockQueryChain([{ ...FIXTURES.adminUser, phone: null }]); // admin with no phone
+      // getVisitContext → find admin (no phone)
+      mockQueryChain([ctx], [{ ...FIXTURES.adminUser, phone: null }]);
 
       const result = await notifySimonInterested(FIXTURES.visit.id);
       expect(result.success).toBe(false);
@@ -925,11 +914,9 @@ describe('SMS Visit Lifecycle', () => {
       expect(tenantResult.success).toBe(true);
 
       // Step 3: Employee confirms (replies "1") → visit status → confirmed
-      mockQueryChain([FIXTURES.employee]); // find employee
-      mockQueryChain([visit]); // find active visit
+      // Service: find employee → find visit → getVisitContext (for sendTenantConfirmationRequest)
+      mockQueryChain([FIXTURES.employee], [visit], [ctx]);
       mockUpdateResolve(); // update visit
-      // Tenant confirmation triggered inside handleEmployeeReply
-      mockQueryChain([ctx]); // getVisitContext for sendTenantConfirmationRequest
       mockInsertResolve(); // logSMS
 
       const empConfirm = await handleEmployeeReply(FIXTURES.employee.phone, '1');
@@ -937,8 +924,8 @@ describe('SMS Visit Lifecycle', () => {
       expect(empConfirm.action).toBe('visit_confirmed');
 
       // Step 4: Tenant confirms attendance (replies "1")
-      mockQueryChain([FIXTURES.lead]); // find lead
-      mockQueryChain([visit]); // find active visit
+      // Service: find lead → find active visit
+      mockQueryChain([FIXTURES.lead], [visit]);
       mockUpdateResolve(); // update tenantConfirmed
 
       const tenantConfirm = await handleTenantReply(FIXTURES.lead.phone, '1');
@@ -959,12 +946,10 @@ describe('SMS Visit Lifecycle', () => {
       expect(surveyResult.success).toBe(true);
 
       // Step 7: Employee reports tenant is interested (replies "1")
-      mockQueryChain([FIXTURES.employee]); // find employee
-      mockQueryChain([confirmedVisit]); // find visit
+      // Service: find employee → find visit → (update visit) → (update lead) → getVisitContext → find admin
+      mockQueryChain([FIXTURES.employee], [confirmedVisit], [ctx], [FIXTURES.adminUser]);
       mockUpdateResolve(); // update visit outcome
       mockUpdateResolve(); // update lead stage
-      mockQueryChain([ctx]); // getVisitContext for Simon notification
-      mockQueryChain([FIXTURES.adminUser]); // find admin
 
       mockHandleIncomingMessage.mockReturnValueOnce({ action: 'interested', raw: '1' });
 
