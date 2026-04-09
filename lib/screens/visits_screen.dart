@@ -629,128 +629,331 @@ class _VisitsScreenState extends State<VisitsScreen> {
   }
 
   void _showCreateVisitDialog(BuildContext context) {
-    // We would need to fetch units, leads, and employees for a real form.
-    // For now, provide basic fields with free-text inputs.
-    final unitIdController = TextEditingController();
-    final leadIdController = TextEditingController();
-    final employeeIdController = TextEditingController();
-    final dateController = TextEditingController(
-      text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    );
-    final timeController = TextEditingController(
-      text: DateFormat('HH:mm').format(DateTime.now().add(const Duration(hours: 1))),
-    );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const _CreateVisitScreen(),
+        fullscreenDialog: true,
+      ),
+    ).then((_) {
+      if (mounted) _fetchVisits();
+    });
+  }
+}
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Nouvelle visite'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: unitIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'ID Unité',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: leadIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'ID Prospect',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: employeeIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'ID Employé',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: dateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Date (YYYY-MM-DD)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: timeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Heure (HH:mm)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
+// =============================================================================
+// Create Visit — full-screen dialog with dropdown pickers
+// =============================================================================
+
+class _CreateVisitScreen extends StatefulWidget {
+  const _CreateVisitScreen();
+
+  @override
+  State<_CreateVisitScreen> createState() => _CreateVisitScreenState();
+}
+
+class _CreateVisitScreenState extends State<_CreateVisitScreen> {
+  bool _isLoading = true;
+  String? _error;
+
+  // Fetched options
+  List<UnitItem> _units = [];
+  List<LeadItem> _leads = [];
+  List<Map<String, dynamic>> _employees = [];
+
+  // Selected values
+  String? _selectedUnitId;
+  String? _selectedLeadId;
+  String? _selectedEmployeeId;
+  DateTime _selectedDate = DateTime.now().add(const Duration(hours: 1));
+  TimeOfDay _selectedTime = TimeOfDay.now().replacing(
+    hour: DateTime.now().add(const Duration(hours: 1)).hour,
+  );
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchOptions();
+  }
+
+  Future<void> _fetchOptions() async {
+    try {
+      final results = await Future.wait([
+        ApiService.instance.get('/buildings/units?limit=100'),
+        ApiService.instance.get('/leads?limit=100'),
+        ApiService.instance.get('/employees?limit=100'),
+      ]);
+
+      setState(() {
+        _units = (results[0]['data'] as List<dynamic>?)
+                ?.map((e) => UnitItem.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [];
+        _leads = (results[1]['data'] as List<dynamic>?)
+                ?.map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [];
+        _employees = (results[2]['data'] as List<dynamic>?)
+                ?.cast<Map<String, dynamic>>()
+                .toList() ??
+            [];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _unitLabel(UnitItem u) => '${u.number} — ${u.type} (${u.bedrooms}ch, ${u.rent}\$)';
+
+  String _leadLabel(LeadItem l) => '${l.fullName} (${l.stage.label})';
+
+  String _employeeLabel(Map<String, dynamic> e) {
+    final first = e['firstName'] as String? ?? '';
+    final last = e['lastName'] as String? ?? '';
+    return '$first $last'.trim();
+  }
+
+  Future<void> _submit() async {
+    if (_selectedUnitId == null ||
+        _selectedLeadId == null ||
+        _selectedEmployeeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez remplir tous les champs'),
+          backgroundColor: Color(0xFFF59E0B),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final dt = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _selectedTime.hour,
+        _selectedTime.minute,
+      );
+
+      await ApiService.instance.post('/visits', {
+        'unitId': _selectedUnitId,
+        'leadId': _selectedLeadId,
+        'employeeId': _selectedEmployeeId,
+        'dateTime': dt.toIso8601String(),
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Visite créée avec succès'),
+            backgroundColor: Color(0xFF10B981),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Annuler'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                final messenger = ScaffoldMessenger.of(context);
-                try {
-                  final dateTime = DateTime.parse(
-                    '${dateController.text.trim()}T${timeController.text.trim()}:00',
-                  );
-                  try {
-                    await ApiService.instance.post('/visits', {
-                      'unitId': unitIdController.text.trim(),
-                      'leadId': leadIdController.text.trim(),
-                      'employeeId': employeeIdController.text.trim(),
-                      'dateTime': dateTime.toIso8601String(),
-                    });
-                    if (mounted) {
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Visite créée avec succès'),
-                          backgroundColor: Color(0xFF10B981),
-                        ),
-                      );
-                      _fetchVisits();
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text('Erreur: ${e.toString()}'),
-                          backgroundColor: const Color(0xFFEF4444),
-                        ),
-                      );
-                    }
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('Format de date invalide'),
-                        backgroundColor: Color(0xFFEF4444),
-                      ),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Créer'),
-            ),
-          ],
         );
-      },
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Nouvelle visite'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1E293B),
+        elevation: 0,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.error_outline,
+                            size: 48, color: Color(0xFFEF4444)),
+                        const SizedBox(height: 16),
+                        Text(_error!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Color(0xFF64748B))),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _fetchOptions,
+                          child: const Text('Réessayer'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Unit picker
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedUnitId,
+                        decoration: const InputDecoration(
+                          labelText: 'Unité',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.door_front_door_outlined),
+                        ),
+                        items: _units.map((u) {
+                          return DropdownMenuItem(
+                            value: u.id,
+                            child: Text(_unitLabel(u),
+                                overflow: TextOverflow.ellipsis),
+                          );
+                        }).toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedUnitId = v),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Lead picker
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedLeadId,
+                        decoration: const InputDecoration(
+                          labelText: 'Prospect',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.person_outline),
+                        ),
+                        items: _leads.map((l) {
+                          return DropdownMenuItem(
+                            value: l.id,
+                            child: Text(_leadLabel(l),
+                                overflow: TextOverflow.ellipsis),
+                          );
+                        }).toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedLeadId = v),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Employee picker
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedEmployeeId,
+                        decoration: const InputDecoration(
+                          labelText: 'Employé',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.badge_outlined),
+                        ),
+                        items: _employees.map((e) {
+                          return DropdownMenuItem(
+                            value: e['id'] as String?,
+                            child: Text(_employeeLabel(e),
+                                overflow: TextOverflow.ellipsis),
+                          );
+                        }).toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedEmployeeId = v),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Date picker
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now()
+                                .add(const Duration(days: 90)),
+                          );
+                          if (picked != null) {
+                            setState(() => _selectedDate = picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Date',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.calendar_today_outlined),
+                          ),
+                          child: Text(
+                            DateFormat('d MMMM yyyy', 'fr_CA')
+                                .format(_selectedDate),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Time picker
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: _selectedTime,
+                          );
+                          if (picked != null) {
+                            setState(() => _selectedTime = picked);
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Heure',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.schedule_outlined),
+                          ),
+                          child: Text(_selectedTime.format(context)),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Submit
+                      ElevatedButton(
+                        onPressed: _isSubmitting ? null : _submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0F766E),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isSubmitting
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Créer la visite',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
     );
   }
 }

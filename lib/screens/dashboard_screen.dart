@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../models.dart';
@@ -194,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
-            // Revenue chart placeholder
+            // Revenue chart — per building
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -212,25 +214,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Revenus mensuels',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
-                    ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Revenus mensuels',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '${_buildings.fold<int>(0, (s, b) => s + b.monthlyRevenue)}\$ total',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
-                  Container(
-                    height: 200,
-                    color: const Color(0xFFF3F4F6),
-                    child: const Center(
-                      child: Text(
-                        'Graphique des revenus',
-                        style: TextStyle(color: Color(0xFF9CA3AF)),
+                  if (_buildings.isEmpty)
+                    const SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.bar_chart_outlined,
+                              size: 40,
+                              color: Color(0x80CBD5E1),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Ajoutez des immeubles pour voir les revenus',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 200,
+                      child: CustomPaint(
+                        size: Size.infinite,
+                        painter: _RevenueBarPainter(
+                          buildings: _buildings,
+                          barColor: const Color(0xFF0F766E),
+                          barHighlightColor: const Color(0xFF14B8A6),
+                          textColor: const Color(0xFF64748B),
+                          gridColor: const Color(0xFFF1F5F9),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -711,5 +755,173 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Revenue bar chart painter
+// ---------------------------------------------------------------------------
+
+class _RevenueBarPainter extends CustomPainter {
+  _RevenueBarPainter({
+    required this.buildings,
+    required this.barColor,
+    required this.barHighlightColor,
+    required this.textColor,
+    required this.gridColor,
+  });
+
+  final List<BuildingItem> buildings;
+  final Color barColor;
+  final Color barHighlightColor;
+  final Color textColor;
+  final Color gridColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (buildings.isEmpty) return;
+
+    const padding = EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 32);
+    final chartWidth = size.width - padding.left - padding.right;
+    final chartHeight = size.height - padding.top - padding.bottom;
+
+    // Find max revenue for scaling
+    final maxRevenue =
+        buildings.fold<int>(0, (max, b) => b.monthlyRevenue > max ? b.monthlyRevenue : max);
+    if (maxRevenue == 0) return;
+
+    // Round up max to a nice number for grid lines
+    final gridMax = _niceMax(maxRevenue);
+    const gridLines = 4;
+
+    // Draw horizontal grid lines + labels
+    final gridPaint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 1;
+
+    final labelPaint = TextPainter(
+      textDirection: TextDirection.ltr,
+    );
+
+    for (int i = 0; i <= gridLines; i++) {
+      final y = padding.top + chartHeight - (chartHeight * i / gridLines);
+      canvas.drawLine(
+        Offset(padding.left, y),
+        Offset(size.width - padding.right, y),
+        gridPaint,
+      );
+
+      // Grid label
+      final value = (gridMax * i / gridLines).round();
+      labelPaint.text = TextSpan(
+        text: '${_formatCompact(value)}\$',
+        style: TextStyle(fontSize: 10, color: textColor.withValues(alpha: 0.6)),
+      );
+      labelPaint.layout();
+      labelPaint.paint(
+        canvas,
+        Offset(padding.left, y - 14),
+      );
+    }
+
+    // Draw bars
+    final barCount = buildings.length;
+    final totalBarArea = chartWidth;
+    final barSpacing = totalBarArea / (barCount * 2 + 1); // gaps on both sides
+    final barWidth = barSpacing * 1.5;
+
+    // Find the top building for highlight
+    final topRevenue = maxRevenue;
+
+    for (int i = 0; i < barCount; i++) {
+      final building = buildings[i];
+      final barHeight = (building.monthlyRevenue / gridMax) * chartHeight;
+      final x = padding.left + barSpacing + i * (barWidth + barSpacing);
+      final y = padding.top + chartHeight - barHeight;
+
+      // Bar with rounded top
+      final isTop = building.monthlyRevenue == topRevenue;
+      final paint = Paint()
+        ..color = isTop ? barHighlightColor : barColor
+        ..style = PaintingStyle.fill;
+
+      final radius = Radius.circular(barWidth / 4);
+      final rect = RRect.fromRectAndCorners(
+        Rect.fromLTWH(x, y, barWidth, barHeight),
+        topLeft: radius,
+        topRight: radius,
+        bottomLeft: Radius.zero,
+        bottomRight: Radius.zero,
+      );
+      canvas.drawRRect(rect, paint);
+
+      // Revenue label on top of bar
+      if (barHeight > 20) {
+        final revPaint = TextPainter(
+          text: TextSpan(
+            text: _formatCompact(building.monthlyRevenue),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: barColor,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        revPaint.layout();
+        revPaint.paint(
+          canvas,
+          Offset(x + (barWidth - revPaint.width) / 2, y - 14),
+        );
+      }
+
+      // Building name at bottom (rotated if needed)
+      final namePaint = TextPainter(
+        text: TextSpan(
+          text: building.name.length > 10
+              ? '${building.name.substring(0, 9)}…'
+              : building.name,
+          style: TextStyle(fontSize: 9, color: textColor),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      namePaint.layout(maxWidth: barWidth + barSpacing * 0.5);
+      namePaint.paint(
+        canvas,
+        Offset(
+          x + (barWidth - namePaint.width) / 2,
+          padding.top + chartHeight + 6,
+        ),
+      );
+    }
+  }
+
+  static int _niceMax(int value) {
+    if (value <= 0) return 100;
+    final exp = value.toString().length - 1;
+    final magnitude = math.pow(10, exp).toInt();
+    final normalized = value / magnitude;
+    int nice;
+    if (normalized <= 1) {
+      nice = 1;
+    } else if (normalized <= 2) {
+      nice = 2;
+    } else if (normalized <= 5) {
+      nice = 5;
+    } else {
+      nice = 10;
+    }
+    return nice * magnitude;
+  }
+
+  static String _formatCompact(int value) {
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(0)}k';
+    return '$value';
+  }
+
+  @override
+  bool shouldRepaint(covariant _RevenueBarPainter oldDelegate) {
+    return oldDelegate.buildings != buildings;
   }
 }

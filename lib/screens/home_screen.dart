@@ -7,6 +7,7 @@ import 'dashboard_screen.dart';
 import 'pipeline_screen.dart';
 import 'visits_screen.dart';
 import 'buildings_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -236,11 +237,22 @@ class _HomeTabState extends State<_HomeTab> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Notifications — bientôt disponible'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
         ],
       ),

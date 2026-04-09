@@ -77,7 +77,23 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Ajouter un immeuble'),
+                  content: const Text(
+                    'La création d\'immeubles sera disponible dans une prochaine version.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -596,6 +612,239 @@ class _BuildingDetailScreen extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Create Building — full-screen form
+// =============================================================================
+
+class _CreateBuildingScreen extends StatefulWidget {
+  const _CreateBuildingScreen();
+
+  @override
+  State<_CreateBuildingScreen> createState() => _CreateBuildingScreenState();
+}
+
+class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _cityController = TextEditingController(text: 'Montréal');
+  final _provinceController = TextEditingController(text: 'QC');
+  final _postalCodeController = TextEditingController();
+  final _totalUnitsController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _provinceController.dispose();
+    _postalCodeController.dispose();
+    _totalUnitsController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      await ApiService.instance.post('/buildings', {
+        'name': _nameController.text.trim(),
+        'address': _addressController.text.trim(),
+        'city': _cityController.text.trim().isEmpty
+            ? 'Montréal'
+            : _cityController.text.trim(),
+        'province': _provinceController.text.trim().isEmpty
+            ? 'QC'
+            : _provinceController.text.trim(),
+        'postalCode': _postalCodeController.text.trim().isEmpty
+            ? null
+            : _postalCodeController.text.trim(),
+        'totalUnits': int.parse(_totalUnitsController.text.trim()),
+        'properties': {
+          if (_descriptionController.text.trim().isNotEmpty)
+            'description': _descriptionController.text.trim(),
+        },
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Immeuble créé avec succès'),
+            backgroundColor: Color(0xFF10B981),
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Nouvel immeuble'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1E293B),
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nom de l\'immeuble *',
+                  hintText: 'Ex: 1234 Rue Sainte-Catherine',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.apartment),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().length < 2) ? 'Nom requis (min 2 car.)' : null,
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: _addressController,
+                decoration: const InputDecoration(
+                  labelText: 'Adresse *',
+                  hintText: 'Ex: 1234 Rue Sainte-Catherine',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.location_on_outlined),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().length < 5) ? 'Adresse requise (min 5 car.)' : null,
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _cityController,
+                      decoration: const InputDecoration(
+                        labelText: 'Ville',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.location_city),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 80,
+                    child: TextFormField(
+                      controller: _provinceController,
+                      decoration: const InputDecoration(
+                        labelText: 'Prov.',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 120,
+                    child: TextFormField(
+                      controller: _postalCodeController,
+                      decoration: const InputDecoration(
+                        labelText: 'Code postal',
+                        border: OutlineInputBorder(),
+                        hintText: 'H2X 1Y4',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: _totalUnitsController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre d\'unités *',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.door_front_door),
+                  hintText: 'Ex: 12',
+                ),
+                keyboardType: TextInputType.number,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Requis';
+                  final n = int.tryParse(v.trim());
+                  if (n == null || n < 1) return 'Doit être ≥ 1';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.notes_outlined),
+                  alignLabelWithHint: true,
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 32),
+
+              ElevatedButton(
+                onPressed: _isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F766E),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        'Créer l\'immeuble',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
