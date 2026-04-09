@@ -92,7 +92,7 @@ const occupantMessages = {
     accessConfirmed: (dateTime, buildingName, unitLabel) =>
       `✅ Merci! Accès confirmé pour la visite du ${formatDateTime(dateTime)} à ${buildingName} ${unitLabel}.`,
     accessDenied: () =>
-      `❌ D'accord, merci de nous avoir informé. Nous allons annuler ou replanifier la visite.`,
+      '❌ D\'accord, merci de nous avoir informé. Nous allons annuler ou replanifier la visite.',
   },
   en: {
     accessRequest: (dateTime, buildingName, unitLabel) =>
@@ -100,7 +100,7 @@ const occupantMessages = {
     accessConfirmed: (dateTime, buildingName, unitLabel) =>
       `✅ Thanks! Access confirmed for the visit on ${formatDateTime(dateTime)} at ${buildingName} ${unitLabel}.`,
     accessDenied: () =>
-      `❌ OK, thanks for letting us know. We'll cancel or reschedule the visit.`,
+      '❌ OK, thanks for letting us know. We\'ll cancel or reschedule the visit.',
   },
 };
 
