@@ -22,7 +22,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -48,12 +47,11 @@ const checkJwt = expressjwt({
 });
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api/', limiter);
 
-// Protected endpoint
 app.get('/api/protected', checkJwt, (req, res) => {
   res.json({
     message: 'Protected endpoint',
@@ -62,8 +60,11 @@ app.get('/api/protected', checkJwt, (req, res) => {
   });
 });
 
-// Health check
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Auth backend on port ${port}`));
+module.exports = { app };
+
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`Auth backend on port ${port}`));
+}
