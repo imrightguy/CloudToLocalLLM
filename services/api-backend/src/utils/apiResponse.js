@@ -147,7 +147,13 @@ const getPagination = (page = 1, limit = 20) => {
  * @param {Function} next - Express next function
  */
 const errorHandler = (error, req, res, _next) => {
-  console.error('API Error:', error);
+  const logger = require('./logger');
+  logger.error(error.message, {
+    stack: error.stack,
+    method: req.method,
+    path: req.path,
+    statusCode: error.statusCode,
+  });
 
   // Default error response
   let response = {

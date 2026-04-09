@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { errorHandler } = require('./utils/apiResponse');
+const logger = require('./utils/logger');
 const routes = require('./routes');
 const { connect, closeDatabase } = require('./database/connection');
 const { initTwilio } = require('./services/twilio.service');
@@ -38,7 +39,7 @@ app.use(limiter);
 
 // Request logging
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+  logger.info(`${req.method} ${req.path}`, { method: req.method, path: req.path });
   next();
 });
 
@@ -65,12 +66,12 @@ app.use(errorHandler);
 
 // Start
 app.listen(PORT, async () => {
-  console.log(`🚀 ImmoGestion API on port ${PORT}`);
+  logger.info(`ImmoGestion API started`, { port: PORT });
   try {
     await connect();
-    console.log('✅ Database connected');
+    logger.info('Database connected');
   } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
+    logger.error('Database connection failed', { message: error.message, stack: error.stack });
     process.exit(1);
   }
 
@@ -86,7 +87,7 @@ app.listen(PORT, async () => {
 
 // Graceful shutdown
 const shutdown = async () => {
-  console.log('\n👋 Shutting down...');
+  logger.info('Shutting down');
   stopScheduler();
   stopWeeklyReport();
   await closeDatabase();
