@@ -154,6 +154,8 @@ class VisitItem {
     this.leadName,
     this.tenantConfirmed = false,
     this.employeeConfirmed = false,
+    this.occupantNotified = false,
+    this.occupantSMS,
     required this.unitLabel,
     required this.buildingName,
     required this.dateLabel,
@@ -168,6 +170,8 @@ class VisitItem {
   final String? leadName;
   final bool tenantConfirmed;
   final bool employeeConfirmed;
+  final bool occupantNotified;
+  final Map<String, dynamic>? occupantSMS;
 
   // Display fields (non-nullable, backward compat)
   final String unitLabel;
@@ -211,6 +215,8 @@ class VisitItem {
           : json['leadName'] as String?,
       tenantConfirmed: json['tenantConfirmed'] as bool? ?? false,
       employeeConfirmed: json['employeeConfirmed'] as bool? ?? false,
+      occupantNotified: json['occupantNotified'] as bool? ?? false,
+      occupantSMS: json['occupantSMS'] as Map<String, dynamic>?,
     );
   }
 
@@ -226,6 +232,8 @@ class VisitItem {
         'leadName': leadName,
         'tenantConfirmed': tenantConfirmed,
         'employeeConfirmed': employeeConfirmed,
+        'occupantNotified': occupantNotified,
+        if (occupantSMS != null) 'occupantSMS': occupantSMS,
       };
 }
 
@@ -334,6 +342,9 @@ class UnitItem {
     required this.status,
     required this.leaseEnd,
     this.tenant,
+    this.tenantName,
+    this.tenantPhone,
+    this.tenantLeaseEnd,
   });
 
   // API fields
@@ -351,6 +362,11 @@ class UnitItem {
   final String leaseEnd;
   final String? tenant;
 
+  // Tenant occupant fields
+  final String? tenantName;
+  final String? tenantPhone;
+  final DateTime? tenantLeaseEnd;
+
   factory UnitItem.fromJson(Map<String, dynamic> json) {
     // Convert amenities: Map → List of keys (API sends {key: true}), List → as-is, null → empty list
     List<String>? parsedAmenities;
@@ -362,6 +378,16 @@ class UnitItem {
       parsedAmenities = rawAmenities.map((e) => e.toString()).toList();
     } else {
       parsedAmenities = null;
+    }
+
+    // Parse tenantLeaseEnd
+    DateTime? parsedTenantLeaseEnd;
+    if (json['tenantLeaseEnd'] != null) {
+      try {
+        parsedTenantLeaseEnd = DateTime.parse(json['tenantLeaseEnd'] as String);
+      } catch (_) {
+        parsedTenantLeaseEnd = null;
+      }
     }
 
     return UnitItem(
@@ -376,6 +402,9 @@ class UnitItem {
       tenant: json['tenant'] as String?,
       amenities: parsedAmenities,
       squareFeet: (json['squareFeet'] as num?)?.toInt(),
+      tenantName: json['tenantName'] as String?,
+      tenantPhone: json['tenantPhone'] as String?,
+      tenantLeaseEnd: parsedTenantLeaseEnd,
     );
   }
 
@@ -392,6 +421,10 @@ class UnitItem {
         if (amenities != null)
           'amenities': {for (final a in amenities!) a: true},
         if (squareFeet != null) 'squareFeet': squareFeet,
+        if (tenantName != null) 'tenantName': tenantName,
+        if (tenantPhone != null) 'tenantPhone': tenantPhone,
+        if (tenantLeaseEnd != null)
+          'tenantLeaseEnd': tenantLeaseEnd!.toIso8601String().split('T').first,
       };
 }
 

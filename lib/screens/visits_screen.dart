@@ -428,6 +428,44 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                               ),
                                             ),
                                           ),
+                                          // Pending occupant response badge
+                                          if (visit.occupantNotified &&
+                                              !visit.tenantConfirmed) ...[
+                                            const SizedBox(width: 6),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFF59E0B)
+                                                    .withValues(alpha: 0.15),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: const Row(
+                                                mainAxisSize:
+                                                    MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.hourglass_top,
+                                                      size: 10,
+                                                      color:
+                                                          Color(0xFFF59E0B)),
+                                                  SizedBox(width: 3),
+                                                  Text(
+                                                    'Locataire',
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color:
+                                                          Color(0xFFF59E0B),
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                       const SizedBox(height: 4),
@@ -558,13 +596,8 @@ class _VisitsScreenState extends State<VisitsScreen> {
                   _detailRow('Prospect', visit.leadName!),
                 if (visit.notes.isNotEmpty) _detailRow('Notes', visit.notes),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Text('Tenant confirmé: ',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
-                    Text(visit.tenantConfirmed ? 'Oui' : 'Non'),
-                  ],
-                ),
+                // Occupant notification status
+                _occupantStatusRow(visit),
                 Row(
                   children: [
                     const Text('Employé confirmé: ',
@@ -597,6 +630,66 @@ class _VisitsScreenState extends State<VisitsScreen> {
             style: const TextStyle(fontWeight: FontWeight.w500),
           ),
           Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  /// Display the occupant notification & tenant confirmation status with icons.
+  Widget _occupantStatusRow(VisitItem visit) {
+    if (!visit.occupantNotified && !visit.tenantConfirmed) {
+      // No notification sent — show a neutral grey indicator
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 8),
+        child: Row(
+          children: [
+            Icon(Icons.notifications_none, size: 16, color: Color(0xFF94A3B8)),
+            SizedBox(width: 6),
+            Text(
+              'Locataire non notifié',
+              style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (visit.tenantConfirmed) {
+      // Tenant confirmed — green checkmark
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 8),
+        child: Row(
+          children: [
+            Icon(Icons.check_circle, size: 16, color: Color(0xFF10B981)),
+            SizedBox(width: 6),
+            Text(
+              'Locataire notifié et confirmé',
+              style: TextStyle(
+                fontSize: 13,
+                color: Color(0xFF10B981),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Notified but not confirmed — orange/yellow pending indicator
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(Icons.schedule, size: 16, color: Color(0xFFF59E0B)),
+          SizedBox(width: 6),
+          Text(
+            'Locataire notifié — en attente de confirmation',
+            style: TextStyle(
+              fontSize: 13,
+              color: Color(0xFFF59E0B),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -740,7 +833,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
         _selectedTime.minute,
       );
 
-      await ApiService.instance.post('/visits', {
+      final result = await ApiService.instance.post('/visits', {
         'unitId': _selectedUnitId,
         'leadId': _selectedLeadId,
         'employeeId': _selectedEmployeeId,
@@ -748,12 +841,45 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Visite créée avec succès'),
-            backgroundColor: Color(0xFF10B981),
-          ),
-        );
+        // Check for occupant SMS notification result
+        final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
+        if (occupantSMS != null) {
+          final smsSuccess = occupantSMS['success'] as bool? ?? false;
+          final needsNotice = occupantSMS['needsNotice'] as bool? ?? false;
+
+          if (smsSuccess) {
+            String message = '✅ Visite créée — SMS envoyé au locataire';
+            if (needsNotice) {
+              message += '\n⚠️ Note: moins de 24h de préavis';
+            }
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: needsNotice
+                    ? const Color(0xFFF59E0B)
+                    : const Color(0xFF10B981),
+                duration: Duration(seconds: needsNotice ? 5 : 3),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  '⚠️ Visite créée, mais l\'envoi du SMS au locataire a échoué',
+                ),
+                backgroundColor: Color(0xFFF59E0B),
+                duration: Duration(seconds: 4),
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Visite créée avec succès'),
+              backgroundColor: Color(0xFF10B981),
+            ),
+          );
+        }
         Navigator.of(context).pop();
       }
     } catch (e) {

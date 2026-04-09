@@ -83,6 +83,27 @@ const tenantMessages = {
   },
 };
 
+// ─── Occupant (current tenant) message templates ───────────────────────────────
+
+const occupantMessages = {
+  fr: {
+    accessRequest: (dateTime, buildingName, unitLabel) =>
+      `🔑 Bonjour! Une visite pour l'appartement ${unitLabel} à ${buildingName} est prévue le ${formatDateTime(dateTime)}. Autorisez-vous l'accès? 1=Oui, 2=Non`,
+    accessConfirmed: (dateTime, buildingName, unitLabel) =>
+      `✅ Merci! Accès confirmé pour la visite du ${formatDateTime(dateTime)} à ${buildingName} ${unitLabel}.`,
+    accessDenied: () =>
+      `❌ D'accord, merci de nous avoir informé. Nous allons annuler ou replanifier la visite.`,
+  },
+  en: {
+    accessRequest: (dateTime, buildingName, unitLabel) =>
+      `🔑 Hi! A visit for apartment ${unitLabel} at ${buildingName} is scheduled for ${formatDateTime(dateTime)}. Do you allow access? 1=Yes, 2=No`,
+    accessConfirmed: (dateTime, buildingName, unitLabel) =>
+      `✅ Thanks! Access confirmed for the visit on ${formatDateTime(dateTime)} at ${buildingName} ${unitLabel}.`,
+    accessDenied: () =>
+      `❌ OK, thanks for letting us know. We'll cancel or reschedule the visit.`,
+  },
+};
+
 // ─── Business Functions ────────────────────────────────────────────────────────
 
 /**
@@ -162,6 +183,218 @@ const sendTenantConfirmationRequest = async visitId => {
     return result;
   } catch (error) {
     console.error('❌ sendTenantConfirmationRequest error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Send access request SMS to the current occupant of a unit.
+ * Triggered when a visit is created for an occupied unit.
+ * Returns { success, needsNotice } where needsNotice = true if < 24h before visit.
+ */
+const sendOccupantAccessRequest = async (visitId, lang = 'fr') => {
+  try {
+    const ctx = await getVisitContext(visitId);
+    if (!ctx) {
+      console.error(`❌ sendOccupantAccessRequest: visit ${visitId} not found`);
+      return { success: false, error: 'Visit not found' };
+    }
+
+    const { visit, unit, building } = ctx;
+    if (!unit || !building) {
+      return { success: false, error: 'Missing unit or building data' };
+    }
+
+    // Check if unit has an occupant with a phone
+    if (!unit.tenantPhone) {
+      return { success: false, error: 'No occupant phone on unit — cannot request access' };
+    }
+
+    // Check if occupant's lease is still active (or no lease end = assume active)
+    const occupantActive = !unit.tenantLeaseEnd || new Date(unit.tenantLeaseEnd) > new Date();
+    if (!occupantActive) {
+      return { success: false, error: 'Occupant lease has ended — unit should be vacant' };
+    }
+
+    // Check 24h notice requirement
+    const now = new Date();
+    const visitTime = new Date(visit.dateTime);
+    const hoursUntilVisit = (visitTime - now) / (1000 * 60 * 60);
+    const needsNotice = hoursUntilVisit < 24;
+
+    const language = lang === 'en' ? 'en' : 'fr';
+    const message = occupantMessages[language].accessRequest(
+      visit.dateTime,
+      building.name,
+      unit.label,
+    );
+
+    const result = await sendSMS(unit.tenantPhone, message);
+
+    // Log with occupant phone (not lead)
+    await logSMS({
+      twilioSid: result.sid || null,
+      visitId,
+      phoneNumber: unit.tenantPhone,
+      direction: 'outbound',
+      messageBody: message,
+      status: result.success ? 'sent' : 'failed',
+      twilioStatus: result.status || null,
+      errorMessage: result.error || null,
+    });
+
+    // Mark occupantNotified on the visit
+    if (result.success) {
+      await db
+        .update(visitsTable)
+        .set({ occupantNotified: true, updatedAt: new Date() })
+        .where(eq(visitsTable.id, visitId));
+    }
+
+    return { success: result.success, needsNotice, ...result };
+  } catch (error) {
+    console.error('❌ sendOccupantAccessRequest error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Handle an occupant's SMS reply to access request.
+ * Matches by unit tenantPhone (not lead phone).
+ */
+const handleOccupantReply = async (occupantPhone, reply) => {
+  try {
+    const parsed = handleIncomingMessage(reply);
+    if (!parsed.action) {
+      console.log(`ℹ️  Unrecognised occupant reply from ${occupantPhone}: "${reply}"`);
+      await logSMS({
+        phoneNumber: occupantPhone,
+        direction: 'inbound',
+        messageBody: reply,
+        status: 'received',
+      });
+      return { success: false, error: 'Unrecognised reply' };
+    }
+
+    // Find unit by tenant phone
+    const cleanedPhone = occupantPhone.replace(/[\s\-()+]/g, '');
+
+    let units = await db
+      .select()
+      .from(unitsTable)
+      .where(eq(unitsTable.tenantPhone, cleanedPhone))
+      .limit(1);
+
+    if (!units.length) {
+      // Try with +1 prefix
+      const altPhone = cleanedPhone.startsWith('1') ? `+${cleanedPhone}` : `+1${cleanedPhone}`;
+      units = await db
+        .select()
+        .from(unitsTable)
+        .where(eq(unitsTable.tenantPhone, altPhone))
+        .limit(1);
+    }
+
+    if (!units.length) {
+      console.warn(`⚠️  No unit found for occupant phone ${occupantPhone}`);
+      await logSMS({
+        phoneNumber: occupantPhone,
+        direction: 'inbound',
+        messageBody: reply,
+        status: 'received',
+        errorMessage: 'No unit found for occupant phone',
+      });
+      return { success: false, error: 'No unit found for occupant phone' };
+    }
+
+    const unit = units[0];
+
+    // Find the most recent active visit for this unit
+    const visits = await db
+      .select()
+      .from(visitsTable)
+      .where(and(
+        eq(visitsTable.unitId, unit.id),
+        eq(visitsTable.isActive, true),
+        eq(visitsTable.occupantNotified, true),
+      ))
+      .orderBy(sql`${visitsTable.dateTime} desc`)
+      .limit(1);
+
+    if (!visits.length) {
+      console.warn(`⚠️  No active visit needing occupant confirmation for unit ${unit.id}`);
+      await logSMS({
+        phoneNumber: occupantPhone,
+        direction: 'inbound',
+        messageBody: reply,
+        status: 'received',
+        errorMessage: 'No pending visit for this unit',
+      });
+      return { success: false, error: 'No pending visit found' };
+    }
+
+    const visit = visits[0];
+
+    // Log inbound
+    await logSMS({
+      visitId: visit.id,
+      employeeId: visit.employeeId,
+      leadId: visit.leadId,
+      phoneNumber: occupantPhone,
+      direction: 'inbound',
+      messageBody: reply,
+      status: 'received',
+    });
+
+    const accessGranted = parsed.action === 'yes';
+
+    // Update visit
+    await db
+      .update(visitsTable)
+      .set({ tenantConfirmed: accessGranted, updatedAt: new Date() })
+      .where(eq(visitsTable.id, visit.id));
+
+    // Send acknowledgment to occupant
+    if (accessGranted) {
+      // Get building name for acknowledgment
+      const buildings = await db
+        .select()
+        .from(buildingsTable)
+        .where(eq(buildingsTable.id, unit.buildingId))
+        .limit(1);
+      const building = buildings[0];
+      const ackMessage = occupantMessages.fr.accessConfirmed(
+        visit.dateTime,
+        building ? building.name : '',
+        unit.label,
+      );
+      await sendSMS(occupantPhone, ackMessage);
+      await logSMS({
+        visitId: visit.id,
+        phoneNumber: occupantPhone,
+        direction: 'outbound',
+        messageBody: ackMessage,
+        status: 'sent',
+      });
+    } else {
+      const ackMessage = occupantMessages.fr.accessDenied();
+      await sendSMS(occupantPhone, ackMessage);
+      await logSMS({
+        visitId: visit.id,
+        phoneNumber: occupantPhone,
+        direction: 'outbound',
+        messageBody: ackMessage,
+        status: 'sent',
+      });
+    }
+
+    return {
+      success: true,
+      action: accessGranted ? 'occupant_access_granted' : 'occupant_access_denied',
+      visitId: visit.id,
+    };
+  } catch (error) {
+    console.error('❌ handleOccupantReply error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -684,11 +917,13 @@ const getVisitsNeedingPostSurvey = async () => {
 module.exports = {
   sendVisitConfirmation,
   sendTenantConfirmationRequest,
+  sendOccupantAccessRequest,
   sendMorningOfReminder,
   sendPostVisitSurvey,
   notifySimonInterested,
   handleEmployeeReply,
   handleTenantReply,
+  handleOccupantReply,
   getVisitsNeedingMorningReminder,
   getVisitsNeedingPostSurvey,
 };

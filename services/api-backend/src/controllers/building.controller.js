@@ -291,6 +291,9 @@ exports.createUnit = async (req, res) => {
         squareFeet: value.squareFeet ?? null,
         description: value.description || null,
         amenities: value.amenities || [],
+        tenantName: value.tenantName || null,
+        tenantPhone: value.tenantPhone || null,
+        tenantLeaseEnd: value.tenantLeaseEnd ? new Date(value.tenantLeaseEnd) : null,
       })
       .returning();
 
@@ -298,6 +301,7 @@ exports.createUnit = async (req, res) => {
     const unitWithRent = {
       ...unit,
       rent: unit.rentCents / 100,
+      tenantIsActive: unit.status === 'occupied' && unit.tenantLeaseEnd && new Date(unit.tenantLeaseEnd) > new Date(),
     };
 
     res.status(201).json({ success: true, data: unitWithRent, message: 'Unit created successfully' });
@@ -373,6 +377,7 @@ exports.getUnits = async (req, res) => {
     const unitsWithRent = units.map(unit => ({
       ...unit,
       rent: unit.rentCents / 100,
+      tenantIsActive: unit.status === 'occupied' && unit.tenantLeaseEnd && new Date(unit.tenantLeaseEnd) > new Date(),
     }));
 
     const totalPages = Math.ceil(total / validLimit);
@@ -419,6 +424,7 @@ exports.getUnitById = async (req, res) => {
     const unitWithRent = {
       ...unit,
       rent: unit.rentCents / 100,
+      tenantIsActive: unit.status === 'occupied' && unit.tenantLeaseEnd && new Date(unit.tenantLeaseEnd) > new Date(),
     };
 
     res.json({ success: true, data: unitWithRent });
@@ -468,6 +474,9 @@ exports.updateUnit = async (req, res) => {
     if (value.squareFeet !== undefined) updateData.squareFeet = value.squareFeet;
     if (value.description !== undefined) updateData.description = value.description;
     if (value.amenities !== undefined) updateData.amenities = value.amenities;
+    if (value.tenantName !== undefined) updateData.tenantName = value.tenantName || null;
+    if (value.tenantPhone !== undefined) updateData.tenantPhone = value.tenantPhone || null;
+    if (value.tenantLeaseEnd !== undefined) updateData.tenantLeaseEnd = value.tenantLeaseEnd ? new Date(value.tenantLeaseEnd) : null;
 
     const [updated] = await db
       .update(unitsTable)
@@ -479,6 +488,7 @@ exports.updateUnit = async (req, res) => {
     const updatedWithRent = {
       ...updated,
       rent: updated.rentCents / 100,
+      tenantIsActive: updated.status === 'occupied' && updated.tenantLeaseEnd && new Date(updated.tenantLeaseEnd) > new Date(),
     };
 
     res.json({ success: true, data: updatedWithRent, message: 'Unit updated successfully' });

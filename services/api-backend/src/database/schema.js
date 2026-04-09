@@ -83,6 +83,9 @@ const unitsTable = pgTable('units', {
   squareFeet: integer('square_feet'),
   description: text('description'),
   amenities: jsonb('amenities').default('{}'),
+  tenantName: text('tenant_name'),
+  tenantPhone: text('tenant_phone'),
+  tenantLeaseEnd: timestamp('tenant_lease_end'), // null = no tenant / vacant
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -132,6 +135,7 @@ const visitsTable = pgTable('visits', {
   durationMinutes: integer('duration_minutes').notNull().default(30),
   status: text('status').notNull().default('scheduled'), // scheduled | confirmed | completed | cancelled | no_show
   tenantConfirmed: boolean('tenant_confirmed').notNull().default(false),
+  occupantNotified: boolean('occupant_notified').notNull().default(false), // SMS sent to current occupant for access
   employeeConfirmed: boolean('employee_confirmed').notNull().default(false),
   morningOfSent: boolean('morning_of_sent').notNull().default(false),
   outcome: text('outcome'), // interesse | pas_interesse | no_show | null

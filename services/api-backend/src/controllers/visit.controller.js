@@ -1,6 +1,7 @@
 const { db } = require('../database/connection');
 const { visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable } = require('../database/schema');
 const { eq, and, desc, asc, sql, gte, lte } = require('drizzle-orm');
+const { sendOccupantAccessRequest } = require('../services/sms.service');
 
 // ─── Create Visit ───
 exports.createVisit = async (req, res) => {
@@ -38,7 +39,30 @@ exports.createVisit = async (req, res) => {
       })
       .returning();
 
-    res.status(201).json({ success: true, data: visit, message: 'Visit created successfully' });
+    // Auto-send occupant access request if unit is occupied
+    let occupantResult = null;
+    try {
+      const [unit] = await db
+        .select()
+        .from(unitsTable)
+        .where(eq(unitsTable.id, unitId))
+        .limit(1);
+
+      const isOccupied = unit?.status === 'occupied' || unit?.tenantPhone;
+      if (isOccupied) {
+        occupantResult = await sendOccupantAccessRequest(visit.id);
+      }
+    } catch (smsErr) {
+      console.error('⚠️  Occupant SMS failed (visit created anyway):', smsErr.message);
+      occupantResult = { success: false, error: smsErr.message };
+    }
+
+    res.status(201).json({
+      success: true,
+      data: visit,
+      occupantSMS: occupantResult,
+      message: 'Visit created successfully',
+    });
   } catch (error) {
     console.error('Error creating visit:', error);
 
@@ -133,6 +157,7 @@ exports.getVisits = async (req, res) => {
         durationMinutes: visitsTable.durationMinutes,
         status: visitsTable.status,
         tenantConfirmed: visitsTable.tenantConfirmed,
+        occupantNotified: visitsTable.occupantNotified,
         employeeConfirmed: visitsTable.employeeConfirmed,
         morningOfSent: visitsTable.morningOfSent,
         outcome: visitsTable.outcome,
@@ -184,6 +209,7 @@ exports.getVisits = async (req, res) => {
         durationMinutes: v.durationMinutes,
         status: v.status,
         tenantConfirmed: v.tenantConfirmed,
+        occupantNotified: v.occupantNotified,
         employeeConfirmed: v.employeeConfirmed,
         morningOfSent: v.morningOfSent,
         outcome: v.outcome,

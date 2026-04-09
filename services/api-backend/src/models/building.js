@@ -227,6 +227,30 @@ const unitSchema = Joi.object({
     .messages({
       'object.base': 'Features must be an object',
     }),
+
+  tenantName: Joi.string()
+    .max(200)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.max': 'Tenant name cannot exceed 200 characters',
+    }),
+
+  tenantPhone: Joi.string()
+    .pattern(/^\+?[\d\s\-()]{7,20}$/)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.pattern.base': 'Invalid phone number format',
+    }),
+
+  tenantLeaseEnd: Joi.date()
+    .iso()
+    .optional()
+    .allow(null)
+    .messages({
+      'date.format': 'tenantLeaseEnd must be a valid ISO date',
+    }),
 });
 
 // Building update schema (partial building schema)
@@ -441,6 +465,30 @@ const updateUnitSchema = Joi.object({
     .optional()
     .messages({
       'object.base': 'Features must be an object',
+    }),
+
+  tenantName: Joi.string()
+    .max(200)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.max': 'Tenant name cannot exceed 200 characters',
+    }),
+
+  tenantPhone: Joi.string()
+    .pattern(/^\+?[\d\s\-()]{7,20}$/)
+    .optional()
+    .allow(null, '')
+    .messages({
+      'string.pattern.base': 'Invalid phone number format',
+    }),
+
+  tenantLeaseEnd: Joi.date()
+    .iso()
+    .optional()
+    .allow(null)
+    .messages({
+      'date.format': 'tenantLeaseEnd must be a valid ISO date',
     }),
 });
 
