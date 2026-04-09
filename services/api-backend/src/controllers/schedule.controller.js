@@ -1,6 +1,9 @@
 const { db } = require('../database/connection');
 const { employeeSchedulesTable } = require('../database/schema');
 const { eq, and, asc } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'schedule' });
 
 // ─── Create Schedule ───
 exports.createSchedule = async (req, res) => {
@@ -36,7 +39,7 @@ exports.createSchedule = async (req, res) => {
       message: 'Schedule created successfully',
     });
   } catch (error) {
-    console.error('Error creating schedule:', error);
+    log.error('Error creating schedule', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'SCHEDULE_CREATION_FAILED' },
@@ -65,7 +68,7 @@ exports.getSchedules = async (req, res) => {
       message: 'Schedules retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching schedules:', error);
+    log.error('Error fetching schedules', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'SCHEDULE_FETCH_FAILED' },
@@ -96,7 +99,7 @@ exports.getScheduleById = async (req, res) => {
       message: 'Schedule retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching schedule:', error);
+    log.error('Error fetching schedule', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'SCHEDULE_FETCH_FAILED' },
@@ -149,7 +152,7 @@ exports.updateSchedule = async (req, res) => {
       message: 'Schedule updated successfully',
     });
   } catch (error) {
-    console.error('Error updating schedule:', error);
+    log.error('Error updating schedule', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'SCHEDULE_UPDATE_FAILED' },
@@ -184,7 +187,7 @@ exports.deleteSchedule = async (req, res) => {
       message: 'Schedule deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting schedule:', error);
+    log.error('Error deleting schedule', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'SCHEDULE_DELETE_FAILED' },
@@ -239,7 +242,7 @@ exports.getEmployeeAvailability = async (req, res) => {
       message: 'Employee availability retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching employee availability:', error);
+    log.error('Error fetching employee availability', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'AVAILABILITY_FETCH_FAILED' },

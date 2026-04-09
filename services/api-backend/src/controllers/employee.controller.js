@@ -1,6 +1,9 @@
 const { db } = require('../database/connection');
 const { employeesTable, employeeAssignmentsTable } = require('../database/schema');
 const { eq, and, asc, ilike, sql } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'employee' });
 
 // ─── Create Employee ───
 exports.createEmployee = async (req, res) => {
@@ -28,7 +31,7 @@ exports.createEmployee = async (req, res) => {
       message: 'Employee created successfully',
     });
   } catch (error) {
-    console.error('Error creating employee:', error);
+    log.error('Error creating employee', { error: error.message });
     if (error.code === '23505') {
       return res.status(409).json({
         success: false,
@@ -89,7 +92,7 @@ exports.getEmployees = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching employees:', error);
+    log.error('Error fetching employees', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'EMPLOYEE_FETCH_FAILED' },
@@ -120,7 +123,7 @@ exports.getEmployeeById = async (req, res) => {
       message: 'Employee retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching employee:', error);
+    log.error('Error fetching employee', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'EMPLOYEE_FETCH_FAILED' },
@@ -164,7 +167,7 @@ exports.updateEmployee = async (req, res) => {
       message: 'Employee updated successfully',
     });
   } catch (error) {
-    console.error('Error updating employee:', error);
+    log.error('Error updating employee', { error: error.message });
     if (error.code === '23505') {
       return res.status(409).json({
         success: false,
@@ -205,7 +208,7 @@ exports.deleteEmployee = async (req, res) => {
       message: 'Employee deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting employee:', error);
+    log.error('Error deleting employee', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'EMPLOYEE_DELETE_FAILED' },
@@ -247,7 +250,7 @@ exports.assignEmployee = async (req, res) => {
       message: 'Employee assigned to building successfully',
     });
   } catch (error) {
-    console.error('Error assigning employee:', error);
+    log.error('Error assigning employee', { error: error.message });
     if (error.code === '23503') {
       return res.status(400).json({
         success: false,
@@ -287,7 +290,7 @@ exports.removeAssignment = async (req, res) => {
       message: 'Assignment removed successfully',
     });
   } catch (error) {
-    console.error('Error removing assignment:', error);
+    log.error('Error removing assignment', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'ASSIGNMENT_REMOVAL_FAILED' },
@@ -327,7 +330,7 @@ exports.getBuildingEmployees = async (req, res) => {
       message: 'Building employees retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching building employees:', error);
+    log.error('Error fetching building employees', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'BUILDING_EMPLOYEES_FETCH_FAILED' },

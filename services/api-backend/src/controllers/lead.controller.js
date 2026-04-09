@@ -1,6 +1,9 @@
 const { db } = require('../database/connection');
 const { leadsTable } = require('../database/schema');
 const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'lead' });
 
 // ─── Create Lead ───
 exports.createLead = async (req, res) => {
@@ -38,7 +41,7 @@ exports.createLead = async (req, res) => {
 
     res.status(201).json({ success: true, data: lead, message: 'Lead created successfully' });
   } catch (error) {
-    console.error('Error creating lead:', error);
+    log.error('Error creating lead', { error: error.message });
 
     if (error.code === '23503') {
       return res.status(400).json({
@@ -124,7 +127,7 @@ exports.getLeads = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching leads:', error);
+    log.error('Error fetching leads', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'LEAD_FETCH_FAILED' },
@@ -152,7 +155,7 @@ exports.getLeadById = async (req, res) => {
 
     res.json({ success: true, data: lead });
   } catch (error) {
-    console.error('Error fetching lead:', error);
+    log.error('Error fetching lead', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'LEAD_FETCH_FAILED' },
@@ -208,7 +211,7 @@ exports.updateLead = async (req, res) => {
 
     res.json({ success: true, data: updated, message: 'Lead updated successfully' });
   } catch (error) {
-    console.error('Error updating lead:', error);
+    log.error('Error updating lead', { error: error.message });
 
     if (error.code === '23503') {
       return res.status(400).json({
@@ -249,7 +252,7 @@ exports.deleteLead = async (req, res) => {
 
     res.json({ success: true, data: null, message: 'Lead deleted successfully' });
   } catch (error) {
-    console.error('Error deleting lead:', error);
+    log.error('Error deleting lead', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'LEAD_DELETE_FAILED' },
@@ -302,7 +305,7 @@ exports.updateLeadStatus = async (req, res) => {
 
     res.json({ success: true, data: updated, message: 'Lead status updated successfully' });
   } catch (error) {
-    console.error('Error updating lead status:', error);
+    log.error('Error updating lead status', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'LEAD_STATUS_UPDATE_FAILED' },
@@ -373,7 +376,7 @@ exports.bulkUpdateLeads = async (req, res) => {
       message: `${ids.length} lead(s) updated successfully`,
     });
   } catch (error) {
-    console.error('Error bulk updating leads:', error);
+    log.error('Error bulk updating leads', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'LEAD_BULK_UPDATE_FAILED' },

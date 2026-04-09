@@ -1,6 +1,9 @@
 const { db } = require('../database/connection');
 const { communicationLogsTable, leadsTable, visitsTable, smsLogsTable, employeesTable, unitsTable, buildingsTable } = require('../database/schema');
 const { eq, and, desc, sql, gte } = require('drizzle-orm');
+const { child } = require('../utils/logger');
+
+const log = child({ controller: 'communication' });
 
 // ─── Log Communication ───
 exports.logCommunication = async (req, res) => {
@@ -24,7 +27,7 @@ exports.logCommunication = async (req, res) => {
       });
     }
 
-    const [log] = await db.insert(communicationLogsTable).values({
+    const [record] = await db.insert(communicationLogsTable).values({
       leadId: leadId || null,
       employeeId: employeeId || null,
       type,
@@ -39,11 +42,11 @@ exports.logCommunication = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      data: log,
+      data: record,
       message: 'Communication logged successfully',
     });
   } catch (error) {
-    console.error('Error logging communication:', error);
+    log.error('Error logging communication', { error: error.message });
     if (error.code === '23503') {
       return res.status(400).json({
         success: false,
@@ -99,7 +102,7 @@ exports.getCommunications = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching communications:', error);
+    log.error('Error fetching communications', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'COMMUNICATION_FETCH_FAILED' },
@@ -112,12 +115,12 @@ exports.getCommunicationLogById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [log] = await db.select()
+    const [record] = await db.select()
       .from(communicationLogsTable)
       .where(eq(communicationLogsTable.id, id))
       .limit(1);
 
-    if (!log) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: { message: 'Communication log not found', code: 'COMMUNICATION_NOT_FOUND' },
@@ -126,11 +129,11 @@ exports.getCommunicationLogById = async (req, res) => {
 
     res.json({
       success: true,
-      data: log,
+      data: record,
       message: 'Communication log retrieved successfully',
     });
   } catch (error) {
-    console.error('Error fetching communication log:', error);
+    log.error('Error fetching communication log', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'COMMUNICATION_FETCH_FAILED' },
@@ -424,7 +427,7 @@ exports.getActivityFeed = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching activity feed:', error);
+    log.error('Error fetching activity feed', { error: error.message });
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'ACTIVITY_FEED_FAILED' },
