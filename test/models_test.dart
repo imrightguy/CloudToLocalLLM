@@ -51,7 +51,7 @@ void main() {
     });
 
     test('toJson round-trips', () {
-      final original = OfferItem(id: 'o1', amount: 158000, status: 'envoyée', sentAt: '3 jours');
+      const original = OfferItem(id: 'o1', amount: 158000, status: 'envoyée', sentAt: '3 jours');
       final json = original.toJson();
       final restored = OfferItem.fromJson(json);
       expect(restored.id, original.id);
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('toJson omits null id', () {
-      final offer = OfferItem(amount: 1000, status: 'pending', sentAt: '');
+      const offer = OfferItem(amount: 1000, status: 'pending', sentAt: '');
       expect(offer.toJson().containsKey('id'), isFalse);
     });
   });
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('toJson converts stage back to snake_case', () {
-      final lead = LeadItem(
+      const lead = LeadItem(
         fullName: 'Test',
         email: 't@t.com',
         phone: '',
@@ -114,7 +114,7 @@ void main() {
     });
 
     test('toJson round-trips with nested offers', () {
-      final original = LeadItem(
+      const original = LeadItem(
         id: 'l1',
         fullName: 'Test User',
         email: 'test@test.com',
@@ -142,7 +142,7 @@ void main() {
     });
 
     test('toJson omits null optional fields', () {
-      final lead = LeadItem(
+      const lead = LeadItem(
         fullName: 'T',
         email: 't@t.com',
         phone: '',
@@ -196,7 +196,7 @@ void main() {
     });
 
     test('toJson converts amenities to map format', () {
-      final unit = UnitItem(
+      const unit = UnitItem(
         number: '302',
         type: '4 1/2',
         bedrooms: 4,
@@ -210,7 +210,7 @@ void main() {
     });
 
     test('toJson round-trips', () {
-      final original = UnitItem(
+      const original = UnitItem(
         id: 'u1',
         buildingId: 'b1',
         number: '302',
@@ -233,7 +233,7 @@ void main() {
 
   group('BuildingItem', () {
     test('occupancyRate calculates correctly', () {
-      final b = BuildingItem(
+      const b = BuildingItem(
         name: 'Test',
         address: '123 St',
         city: 'MTL',
@@ -246,7 +246,7 @@ void main() {
     });
 
     test('occupancyRate returns 0 when totalUnits is 0', () {
-      final b = BuildingItem(
+      const b = BuildingItem(
         name: 'Empty',
         address: '',
         city: '',
@@ -276,7 +276,7 @@ void main() {
     });
 
     test('toJson round-trips with units', () {
-      final original = BuildingItem(
+      const original = BuildingItem(
         id: 'b1',
         name: 'Le Test',
         address: '1 Rue',
@@ -299,7 +299,7 @@ void main() {
     });
 
     test('toJson omits null optional fields', () {
-      final building = BuildingItem(
+      const building = BuildingItem(
         name: 'T',
         address: '',
         city: '',
@@ -383,7 +383,7 @@ void main() {
     });
 
     test('toJson omits null id and dateTime', () {
-      final visit = VisitItem(
+      const visit = VisitItem(
         unitLabel: '201',
         buildingName: 'Test',
         dateLabel: '',
