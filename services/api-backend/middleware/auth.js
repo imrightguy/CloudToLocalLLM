@@ -22,11 +22,11 @@ const AUTH0_AUDIENCE =
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
 if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
-  console.warn(
-    ' [WARNING] Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).',
+  logger.warn(
+    'Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).',
   );
-  console.warn(
-    ' [WARNING] Authentication features will return 503 Service Unavailable.',
+  logger.warn(
+    'Authentication features will return 503 Service Unavailable.',
   );
 }
 

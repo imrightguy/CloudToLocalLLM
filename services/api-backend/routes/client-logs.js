@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { promises as fs } from 'fs';
+import logger from '../logger.js';
 
 const router = express.Router();
 let logDir = process.env.CLIENT_LOG_DIR || '/tmp/logs';
@@ -13,9 +14,9 @@ async function ensureLogDirectory() {
     await fs.access(logDir, fs.constants.W_OK);
   } catch (error) {
     if (logDir !== '/tmp/logs') {
-      console.warn(
+      logger.warn(
         `[ClientLogs] Failed to access configured log directory ${logDir}, falling back to /tmp/logs`,
-        error.message,
+        { error: error.message },
       );
       logDir = '/tmp/logs';
       logFilePath = path.join(logDir, logFileName);
@@ -54,7 +55,7 @@ router.post('/', async (req, res) => {
 
     res.json({ success: true, count: sanitized.length });
   } catch (error) {
-    console.error('[ClientLogs] Failed to persist log entries', error);
+    logger.error('[ClientLogs] Failed to persist log entries', error);
     res.status(500).json({ error: 'Failed to persist logs' });
   }
 });

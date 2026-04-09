@@ -7,6 +7,7 @@
  * Requirements: 12.5
  */
 
+import logger from '../logger.js';
 import {
   isDeprecated,
   isSunset,
@@ -68,7 +69,7 @@ export function deprecationWarningMiddleware() {
       const warning = formatDeprecationWarning(req.path);
 
       // Log deprecation warning
-      console.warn(`[DEPRECATION] ${warning}`, {
+      logger.warn(`[DEPRECATION] ${warning}`, {
         path: req.path,
         method: req.method,
         timestamp: new Date().toISOString(),

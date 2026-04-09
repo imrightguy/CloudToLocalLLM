@@ -8,7 +8,9 @@
  * - Configures additional security headers
  *
  * Requirement 15: Security and Data Protection
- */
+  */
+
+import logger from '../logger.js';
 
 /**
  * Middleware to enforce HTTPS in production
@@ -35,7 +37,7 @@ export function enforceHttps(req, res, next) {
     // Construct HTTPS URL
     const httpsUrl = `https://${req.hostname}${req.url}`;
 
-    console.warn(`HTTP request redirected to HTTPS: ${req.method} ${req.url}`);
+    logger.warn(`HTTP request redirected to HTTPS: ${req.method} ${req.url}`);
 
     // Redirect to HTTPS with 301 (permanent redirect)
     return res.redirect(301, httpsUrl);
@@ -132,7 +134,7 @@ export function requireHttps(req, res, next) {
     req.headers['x-forwarded-ssl'] === 'on';
 
   if (!isSecure) {
-    console.error(`HTTPS required: ${req.method} ${req.url} from ${req.ip}`);
+    logger.error(`HTTPS required: ${req.method} ${req.url} from ${req.ip}`);
     return res.status(403).json({
       error: 'HTTPS required',
       code: 'HTTPS_REQUIRED',
@@ -169,7 +171,7 @@ export function adminHttpsEnforcement(req, res, next) {
     req.headers['x-forwarded-ssl'] === 'on';
 
   if (!isSecure && process.env.NODE_ENV !== 'development') {
-    console.error(
+    logger.error(
       `Admin endpoint requires HTTPS: ${req.method} ${req.url} from ${req.ip}`,
     );
     return res.status(403).json({

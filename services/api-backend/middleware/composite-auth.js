@@ -7,6 +7,7 @@
 
 import { optionalAuth } from './auth.js';
 import { optionalApiKeyAuth } from './api-key-auth.js';
+import logger from '../logger.js';
 
 export const authenticateComposite = [
   // 1. Try to authenticate with JWT (header: Authorization: Bearer <token>)
@@ -39,13 +40,15 @@ export const authenticateComposite = [
       ? authHeader.substring(7, 15) + '...'
       : 'none';
 
-    console.warn(
+    logger.warn(
       `[CompositeAuth] Authentication failed for ${req.method} ${req.path}`,
+      {
+        hasUser: !!req.user,
+        hasApiKey: !!req.apiKey,
+        authHeaderProvided: !!authHeader,
+        tokenPreview,
+      },
     );
-    console.warn(`[CompositeAuth] - Has User: ${!!req.user}`);
-    console.warn(`[CompositeAuth] - Has API Key: ${!!req.apiKey}`);
-    console.warn(`[CompositeAuth] - Auth Header provided: ${!!authHeader}`);
-    console.warn(`[CompositeAuth] - Token preview: ${tokenPreview}`);
 
     // If we're here, neither auth method succeeded
     return res.status(401).json({

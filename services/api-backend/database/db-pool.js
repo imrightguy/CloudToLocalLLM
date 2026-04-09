@@ -574,14 +574,14 @@ val = parseFloat(val);
   // Initialize query performance tracking
   initializeQueryTracking();
 
-  console.log('DEBUG: Creating new Pool instance');
+  logger.debug('Creating new Pool instance');
   pool = new Pool(poolConfig);
-  console.log('DEBUG: Pool instance created successfully');
+  logger.debug('Pool instance created successfully');
 
   // Wrap pool to track query performance
-  console.log('DEBUG: Wrapping pool for query tracking');
+  logger.debug('Wrapping pool for query tracking');
   wrapPool(pool);
-  console.log('DEBUG: Pool wrapped successfully');
+  logger.debug('Pool wrapped successfully');
 
   // Handle pool errors
   pool.on('error', (err, _client) => {

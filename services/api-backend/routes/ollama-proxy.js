@@ -2,6 +2,7 @@
 // Proxies requests to the local Ollama instance running on localhost:11434
 
 const axios = require('axios');
+import logger from '../logger.js';
 
 // eslint-disable-next-line no-unused-vars
 let _sshProxy = null;
@@ -57,7 +58,7 @@ export async function handleOllamaProxyRequest(req, res) {
     res.send(ollamaResponse.data);
 
   } catch (error) {
-    console.error('Ollama proxy error:', error.message);
+    logger.error('Ollama proxy error:', error.message);
 
     // Handle different types of errors
     let statusCode = 502; // Bad Gateway

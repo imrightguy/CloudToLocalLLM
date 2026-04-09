@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import db from '../database/db-pool.js';
 import { authenticateJWT } from '../middleware/auth.js';
+import logger from '../logger.js';
 
 /**
  * POST /auth/sessions
@@ -69,7 +70,7 @@ router.get('/current', authenticateJWT, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error getting current session:', error);
+    logger.error('Error getting current session:', error);
     res.status(500).json({ error: 'Failed to get current session' });
   }
 });
@@ -126,7 +127,7 @@ router.get('/validate/:token', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error validating session:', error);
+    logger.error('Error validating session:', error);
     res.status(500).json({ error: 'Failed to validate session' });
   }
 });
@@ -160,7 +161,7 @@ router.put('/tokens', async (req, res) => {
 
     res.json({ message: 'Tokens updated successfully' });
   } catch (error) {
-    console.error('Error updating session tokens:', error);
+    logger.error('Error updating session tokens:', error);
     res.status(500).json({ error: 'Failed to update session tokens' });
   }
 });
@@ -184,7 +185,7 @@ router.delete('/:token', async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error('Error invalidating session:', error);
+    logger.error('Error invalidating session:', error);
     res.status(500).json({ error: 'Failed to invalidate session' });
   }
 });
@@ -201,7 +202,7 @@ router.post('/cleanup', async (req, res) => {
 
     res.json({ deleted: result.rowCount });
   } catch (error) {
-    console.error('Error cleaning up sessions:', error);
+    logger.error('Error cleaning up sessions:', error);
     res.status(500).json({ error: 'Failed to cleanup sessions' });
   }
 });

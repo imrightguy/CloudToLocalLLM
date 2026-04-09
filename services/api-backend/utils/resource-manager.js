@@ -14,6 +14,7 @@ import { Pool } from 'undici';
 import si from 'systeminformation';
 import fs from 'fs-extra';
 import { z } from 'zod';
+import logger from '../logger.js';
 
 // Singleton HTTP pool
 // Note: allow unused in tests where pool is not initialized
@@ -307,7 +308,7 @@ export class ResourceMonitor {
           this.metrics.shift();
         }
       } catch (error) {
-        console.error('Error collecting metrics:', error.message);
+        logger.error('Error collecting metrics:', error.message);
       }
     }, this.interval);
   }
