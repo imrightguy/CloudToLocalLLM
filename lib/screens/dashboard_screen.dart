@@ -50,12 +50,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final analyticsResponse = results[0];
       final buildingsResponse = results[1];
 
-      final analyticsData = analyticsResponse['data'] as Map<String, dynamic>? ?? {};
+      final analyticsData =
+          analyticsResponse['data'] as Map<String, dynamic>? ?? {};
       final buildingsData = buildingsResponse['data'] as List<dynamic>;
 
       setState(() {
-        _pipeline =
-            (analyticsData['pipeline'] as Map<String, dynamic>?) ?? {};
+        _pipeline = (analyticsData['pipeline'] as Map<String, dynamic>?) ?? {};
         _hotLeads = (analyticsData['hotLeads'] as List<dynamic>?) ?? [];
         _visitStats =
             (analyticsData['visitStats'] as Map<String, dynamic>?) ?? {};
@@ -86,8 +86,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _currentPeriodLabel() {
     final now = DateTime.now();
     const months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
     ];
     return '${months[now.month - 1]} ${now.year}';
   }
@@ -172,8 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color:
-                        const Color((0xFF0F766E)).withValues(alpha: 0.1),
+                    color: const Color((0xFF0F766E)).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -187,8 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon:
-                      const Icon(Icons.calendar_month_outlined, size: 16),
+                  icon: const Icon(Icons.calendar_month_outlined, size: 16),
                   onPressed: () {},
                 ),
               ],
@@ -299,15 +307,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final stage = LeadStage.fromString(entry.key);
                   final count = (entry.value as num).toInt();
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -589,11 +596,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       occupiedUnits += b.occupiedUnits;
       totalRevenue += b.monthlyRevenue;
     }
-    final occupancy =
-        totalUnits > 0 ? (occupiedUnits / totalUnits * 100) : 0.0;
+    final occupancy = totalUnits > 0 ? (occupiedUnits / totalUnits * 100) : 0.0;
     final vacancy = totalUnits > 0 ? (100.0 - occupancy) : 0.0;
-    final avgRent =
-        occupiedUnits > 0 ? totalRevenue ~/ occupiedUnits : 0;
+    final avgRent = occupiedUnits > 0 ? totalRevenue ~/ occupiedUnits : 0;
     final pipelineCount = _pipelineTotal();
 
     // Use conversion rate if available
@@ -786,8 +791,8 @@ class _RevenueBarPainter extends CustomPainter {
     final chartHeight = size.height - padding.top - padding.bottom;
 
     // Find max revenue for scaling
-    final maxRevenue =
-        buildings.fold<int>(0, (max, b) => b.monthlyRevenue > max ? b.monthlyRevenue : max);
+    final maxRevenue = buildings.fold<int>(
+        0, (max, b) => b.monthlyRevenue > max ? b.monthlyRevenue : max);
     if (maxRevenue == 0) return;
 
     // Round up max to a nice number for grid lines

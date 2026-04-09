@@ -197,7 +197,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+            style:
+                TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
             child: const Text('Supprimer'),
           ),
         ],
@@ -335,9 +336,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
             radius: 32,
             backgroundColor: stageColor.withValues(alpha: 0.1),
             child: Text(
-              _lead.fullName.isNotEmpty
-                  ? _lead.fullName[0].toUpperCase()
-                  : '?',
+              _lead.fullName.isNotEmpty ? _lead.fullName[0].toUpperCase() : '?',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -418,7 +417,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
               if (_prevStage != null)
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: _isLoading ? null : () => _moveToStage(_prevStage!),
+                    onPressed:
+                        _isLoading ? null : () => _moveToStage(_prevStage!),
                     icon: const Icon(Icons.arrow_back, size: 16),
                     label: Text('← ${_prevStage!.label}'),
                     style: OutlinedButton.styleFrom(
@@ -432,7 +432,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
               if (_nextStage != null)
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : () => _moveToStage(_nextStage!),
+                    onPressed:
+                        _isLoading ? null : () => _moveToStage(_nextStage!),
                     icon: const Icon(Icons.arrow_forward, size: 16),
                     label: Text('${_nextStage!.label} →'),
                     style: ElevatedButton.styleFrom(
@@ -534,7 +535,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           ],
           if (_lead.lastContact.isNotEmpty) ...[
             const Divider(height: 24),
-            _infoRow(Icons.schedule_outlined, 'Dernier contact', _lead.lastContact),
+            _infoRow(
+                Icons.schedule_outlined, 'Dernier contact', _lead.lastContact),
           ],
           if (_lead.createdAt != null) ...[
             const Divider(height: 24),
@@ -741,8 +743,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           const Divider(height: 24),
           const Row(
             children: [
-              Icon(Icons.notes_outlined,
-                  size: 20, color: Color(0xFF64748B)),
+              Icon(Icons.notes_outlined, size: 20, color: Color(0xFF64748B)),
               SizedBox(width: 12),
               Text('Notes',
                   style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
@@ -766,8 +767,9 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                 color: _lead.notes.isNotEmpty
                     ? const Color(0xFF475569)
                     : const Color(0xFF94A3B8),
-                fontStyle:
-                    _lead.notes.isNotEmpty ? FontStyle.normal : FontStyle.italic,
+                fontStyle: _lead.notes.isNotEmpty
+                    ? FontStyle.normal
+                    : FontStyle.italic,
               ),
             ),
         ],
@@ -828,7 +830,9 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                         ),
                       ),
                       Text(
-                        offer.sentAt.isNotEmpty ? offer.sentAt : 'Date inconnue',
+                        offer.sentAt.isNotEmpty
+                            ? offer.sentAt
+                            : 'Date inconnue',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF94A3B8),

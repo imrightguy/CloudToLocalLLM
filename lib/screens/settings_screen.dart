@@ -118,8 +118,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFEF4444)),
+            style:
+                TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
             child: const Text('Déconnexion'),
           ),
         ],
@@ -371,8 +371,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               CircleAvatar(
                 radius: 36,
-                backgroundColor:
-                    const Color(0xFF0F766E).withValues(alpha: 0.1),
+                backgroundColor: const Color(0xFF0F766E).withValues(alpha: 0.1),
                 child: Text(
                   _getInitials(),
                   style: const TextStyle(
@@ -631,7 +630,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         label: const Text('Se déconnecter'),
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFFEF4444),
-          side: const BorderSide(color: Color(0xFFFCA5A5),
+          side: const BorderSide(
+            color: Color(0xFFFCA5A5),
           ),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(

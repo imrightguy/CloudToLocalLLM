@@ -37,17 +37,13 @@ class ActivityEvent {
     return ActivityEvent(
       id: json['id'] as String?,
       type: eventType.isEmpty ? 'info' : eventType,
-      title: (json['title'] as String?) ??
-          json['description'] as String? ??
-          '',
-      detail: (json['detail'] as String?) ??
-          json['description'] as String? ??
-          '',
+      title: (json['title'] as String?) ?? json['description'] as String? ?? '',
+      detail:
+          (json['detail'] as String?) ?? json['description'] as String? ?? '',
       timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'] as String)
           : DateTime.now(),
-      relatedId: json['relatedId'] as String? ??
-          json['leadId'] as String?,
+      relatedId: json['relatedId'] as String? ?? json['leadId'] as String?,
       relatedType: json['relatedType'] as String? ?? inferredRelatedType,
     );
   }

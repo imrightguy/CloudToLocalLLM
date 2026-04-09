@@ -68,8 +68,7 @@ class VisitService {
       Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/visits', data);
     final visit = VisitItem.fromJson(result['data'] as Map<String, dynamic>);
-    final occupantSMS =
-        result['occupantSMS'] as Map<String, dynamic>?;
+    final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
     return (visit: visit, occupantSMS: occupantSMS);
   }
 

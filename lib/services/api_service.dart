@@ -81,8 +81,7 @@ class ApiService {
   // Generic HTTP methods
   // ---------------------------------------------------------------------------
 
-  Future<Map<String, dynamic>> get(String path) async =>
-      _request('GET', path);
+  Future<Map<String, dynamic>> get(String path) async => _request('GET', path);
 
   Future<Map<String, dynamic>> post(String path, Object? body) async =>
       _request('POST', path, body: body);
@@ -112,13 +111,16 @@ class ApiService {
           response = await http.get(uri, headers: _getHeaders());
           break;
         case 'POST':
-          response = await http.post(uri, headers: _getHeaders(), body: jsonEncode(body));
+          response = await http.post(uri,
+              headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'PUT':
-          response = await http.put(uri, headers: _getHeaders(), body: jsonEncode(body));
+          response = await http.put(uri,
+              headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'PATCH':
-          response = await http.patch(uri, headers: _getHeaders(), body: jsonEncode(body));
+          response = await http.patch(uri,
+              headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'DELETE':
           response = await http.delete(uri, headers: _getHeaders());

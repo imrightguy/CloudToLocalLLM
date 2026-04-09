@@ -63,8 +63,11 @@ void main() {
       final before = DateTime.now();
       final event = ActivityEvent.fromJson({});
       final after = DateTime.now();
-      expect(event.timestamp.isAfter(before.subtract(const Duration(seconds: 1))), isTrue);
-      expect(event.timestamp.isBefore(after.add(const Duration(seconds: 1))), isTrue);
+      expect(
+          event.timestamp.isAfter(before.subtract(const Duration(seconds: 1))),
+          isTrue);
+      expect(event.timestamp.isBefore(after.add(const Duration(seconds: 1))),
+          isTrue);
     });
 
     test('fromJson uses description as fallback for title and detail', () {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
 // =============================================================================
 // Enums
 // =============================================================================
@@ -12,7 +11,10 @@ String _snakeToCamel(String s) {
   if (!s.contains('_')) return s;
   final parts = s.split('_');
   return parts[0] +
-      parts.skip(1).map((p) => p.isEmpty ? '' : p[0].toUpperCase() + p.substring(1)).join();
+      parts
+          .skip(1)
+          .map((p) => p.isEmpty ? '' : p[0].toUpperCase() + p.substring(1))
+          .join();
 }
 
 /// Converts a camelCase string to snake_case.
@@ -207,7 +209,8 @@ class VisitItem {
           : null,
       status: json['status'] as String? ?? '',
       agent: (json['employee'] is Map<String, dynamic>)
-          ? '${(json['employee'] as Map<String, dynamic>)['firstName'] ?? ''} ${(json['employee'] as Map<String, dynamic>)['lastName'] ?? ''}'.trim()
+          ? '${(json['employee'] as Map<String, dynamic>)['firstName'] ?? ''} ${(json['employee'] as Map<String, dynamic>)['lastName'] ?? ''}'
+              .trim()
           : json['agent'] as String? ?? '',
       notes: json['notes'] as String? ?? '',
       leadName: (json['lead'] is Map<String, dynamic>)
@@ -290,10 +293,9 @@ class LeadItem {
           ? LeadStage.fromString(_snakeToCamel(json['stage'] as String))
           : LeadStage.nouveau,
       notes: json['notes'] as String? ?? '',
-      tags: (json['tags'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+              [],
       lastContact: json['lastContact'] as String? ?? '',
       offers: (json['offers'] as List<dynamic>?)
               ?.map((e) => OfferItem.fromJson(e as Map<String, dynamic>))
@@ -320,8 +322,7 @@ class LeadItem {
         'lastContact': lastContact,
         'offers': offers.map((o) => o.toJson()).toList(),
         if (language != null) 'language': language,
-        if (createdAt != null)
-          'createdAt': (createdAt!).toIso8601String(),
+        if (createdAt != null) 'createdAt': (createdAt!).toIso8601String(),
       };
 }
 

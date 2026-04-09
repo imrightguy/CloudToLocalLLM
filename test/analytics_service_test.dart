@@ -60,8 +60,12 @@ void main() {
       final before = DateTime.now();
       final stats = WeeklyStats.fromJson({});
       final after = DateTime.now();
-      expect(stats.periodStart.isAfter(before.subtract(const Duration(seconds: 1))), isTrue);
-      expect(stats.periodStart.isBefore(after.add(const Duration(seconds: 1))), isTrue);
+      expect(
+          stats.periodStart
+              .isAfter(before.subtract(const Duration(seconds: 1))),
+          isTrue);
+      expect(stats.periodStart.isBefore(after.add(const Duration(seconds: 1))),
+          isTrue);
     });
   });
 

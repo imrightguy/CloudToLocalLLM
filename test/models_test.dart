@@ -7,7 +7,8 @@ void main() {
       expect(LeadStage.fromString('nouveau'), LeadStage.nouveau);
       expect(LeadStage.fromString('contacte'), LeadStage.contacte);
       expect(LeadStage.fromString('qualifie'), LeadStage.qualifie);
-      expect(LeadStage.fromString('visitePlanifiee'), LeadStage.visitePlanifiee);
+      expect(
+          LeadStage.fromString('visitePlanifiee'), LeadStage.visitePlanifiee);
       expect(LeadStage.fromString('offreEnvoyee'), LeadStage.offreEnvoyee);
       expect(LeadStage.fromString('negociation'), LeadStage.negociation);
       expect(LeadStage.fromString('bailSigne'), LeadStage.bailSigne);
@@ -51,7 +52,8 @@ void main() {
     });
 
     test('toJson round-trips', () {
-      const original = OfferItem(id: 'o1', amount: 158000, status: 'envoyée', sentAt: '3 jours');
+      const original = OfferItem(
+          id: 'o1', amount: 158000, status: 'envoyée', sentAt: '3 jours');
       final json = original.toJson();
       final restored = OfferItem.fromJson(json);
       expect(restored.id, original.id);
@@ -285,7 +287,13 @@ void main() {
         occupiedUnits: 1,
         monthlyRevenue: 5000,
         units: [
-          UnitItem(number: '101', type: '3 1/2', bedrooms: 2, rent: 1500, status: 'occupé', leaseEnd: ''),
+          UnitItem(
+              number: '101',
+              type: '3 1/2',
+              bedrooms: 2,
+              rent: 1500,
+              status: 'occupé',
+              leaseEnd: ''),
         ],
         description: 'A building',
         properties: {'key': 'value'},
@@ -349,7 +357,8 @@ void main() {
       expect(visit.dateTime, isNull);
     });
 
-    test('fromJson falls back to empty dateLabel when dateTime parsing fails', () {
+    test('fromJson falls back to empty dateLabel when dateTime parsing fails',
+        () {
       // DateFormat with 'fr' locale can throw if locale data unavailable (test env);
       // the catch block silently sets derivedDateLabel = null, falling back to ''
       final visit = VisitItem.fromJson({

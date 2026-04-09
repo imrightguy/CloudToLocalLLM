@@ -31,8 +31,9 @@ class _VisitsScreenState extends State<VisitsScreen> {
     try {
       final response = await ApiService.instance.get('/visits');
       final data = response['data'] as List<dynamic>;
-      final visits =
-          data.map((e) => VisitItem.fromJson(e as Map<String, dynamic>)).toList();
+      final visits = data
+          .map((e) => VisitItem.fromJson(e as Map<String, dynamic>))
+          .toList();
       setState(() {
         _allVisits = visits;
         _isLoading = false;
@@ -65,7 +66,9 @@ class _VisitsScreenState extends State<VisitsScreen> {
 
   /// Count visits by status for selected date.
   int _countByStatus(String status) {
-    return _filteredVisits.where((v) => v.status.toLowerCase() == status).length;
+    return _filteredVisits
+        .where((v) => v.status.toLowerCase() == status)
+        .length;
   }
 
   String _statusLabel(String status) {
@@ -409,13 +412,11 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                           ),
                                           const SizedBox(width: 8),
                                           Container(
-                                            padding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: statusColor
-                                                  .withValues(alpha: 0.1),
+                                              color: statusColor.withValues(
+                                                  alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -444,20 +445,17 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                                     BorderRadius.circular(12),
                                               ),
                                               child: const Row(
-                                                mainAxisSize:
-                                                    MainAxisSize.min,
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Icon(Icons.hourglass_top,
                                                       size: 10,
-                                                      color:
-                                                          Color(0xFFF59E0B)),
+                                                      color: Color(0xFFF59E0B)),
                                                   SizedBox(width: 3),
                                                   Text(
                                                     'Locataire',
                                                     style: TextStyle(
                                                       fontSize: 10,
-                                                      color:
-                                                          Color(0xFFF59E0B),
+                                                      color: Color(0xFFF59E0B),
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),
@@ -481,9 +479,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 12),
-
                             Row(
                               children: [
                                 const Icon(Icons.person_outline,
@@ -511,7 +507,6 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                 ),
                               ],
                             ),
-
                             if (visit.notes.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Text(
@@ -523,9 +518,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                 ),
                               ),
                             ],
-
                             const SizedBox(height: 12),
-
                             Row(
                               children: [
                                 Expanded(
@@ -722,12 +715,14 @@ class _VisitsScreenState extends State<VisitsScreen> {
   }
 
   void _showCreateVisitDialog(BuildContext context) {
-    Navigator.of(context).push(
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
         builder: (_) => const _CreateVisitScreen(),
         fullscreenDialog: true,
       ),
-    ).then((_) {
+    )
+        .then((_) {
       if (mounted) _fetchVisits();
     });
   }
@@ -800,7 +795,8 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
     }
   }
 
-  String _unitLabel(UnitItem u) => '${u.number} — ${u.type} (${u.bedrooms}ch, ${u.rent}\$)';
+  String _unitLabel(UnitItem u) =>
+      '${u.number} — ${u.type} (${u.bedrooms}ch, ${u.rent}\$)';
 
   String _leadLabel(LeadItem l) => '${l.fullName} (${l.stage.label})';
 
@@ -953,8 +949,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                                 overflow: TextOverflow.ellipsis),
                           );
                         }).toList(),
-                        onChanged: (v) =>
-                            setState(() => _selectedUnitId = v),
+                        onChanged: (v) => setState(() => _selectedUnitId = v),
                       ),
                       const SizedBox(height: 16),
 
@@ -973,8 +968,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                                 overflow: TextOverflow.ellipsis),
                           );
                         }).toList(),
-                        onChanged: (v) =>
-                            setState(() => _selectedLeadId = v),
+                        onChanged: (v) => setState(() => _selectedLeadId = v),
                       ),
                       const SizedBox(height: 16),
 
@@ -1005,8 +999,8 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                             context: context,
                             initialDate: _selectedDate,
                             firstDate: DateTime.now(),
-                            lastDate: DateTime.now()
-                                .add(const Duration(days: 90)),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 90)),
                           );
                           if (picked != null) {
                             setState(() => _selectedDate = picked);

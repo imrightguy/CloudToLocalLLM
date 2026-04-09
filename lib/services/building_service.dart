@@ -43,7 +43,9 @@ class BuildingService {
     };
     if (search != null && search.isNotEmpty) params['search'] = search;
 
-    final query = params.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&');
+    final query = params.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
     final result = await ApiService.instance.get('/buildings?$query');
 
     final data = result['data'];

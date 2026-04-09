@@ -51,8 +51,9 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
     try {
       final response = await ApiService.instance.get('/buildings');
       final data = response['data'] as List<dynamic>;
-      final buildings =
-          data.map((e) => BuildingItem.fromJson(e as Map<String, dynamic>)).toList();
+      final buildings = data
+          .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
+          .toList();
       setState(() {
         _buildings = buildings;
         _filteredBuildings = buildings;
@@ -275,7 +276,8 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: const Color(0xFF0F766E).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -322,7 +324,8 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       LinearProgressIndicator(
                         value: building.occupancyRate,
                         backgroundColor: const Color(0xFFF1F5F9),
-                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFF10B981)),
                         minHeight: 8,
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -334,7 +337,8 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                   // Revenue info
                   Row(
                     children: [
-                      const Icon(Icons.attach_money, size: 16, color: Color(0xFF10B981)),
+                      const Icon(Icons.attach_money,
+                          size: 16, color: Color(0xFF10B981)),
                       const SizedBox(width: 4),
                       Text(
                         '${building.monthlyRevenue}\$ / mois',
@@ -345,7 +349,8 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                         ),
                       ),
                       const Spacer(),
-                      const Icon(Icons.home_work, size: 16, color: Color(0xFF64748B)),
+                      const Icon(Icons.home_work,
+                          size: 16, color: Color(0xFF64748B)),
                       const SizedBox(width: 4),
                       Text(
                         '${building.totalUnits} unités',
@@ -448,14 +453,16 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                   children: [
                     Text(
                       widget.building.address,
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                      style: const TextStyle(
+                          fontSize: 14, color: Color(0xFF64748B)),
                     ),
                     if (widget.building.description != null &&
                         widget.building.description!.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
                         widget.building.description!,
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
+                        style: const TextStyle(
+                            fontSize: 14, color: Color(0xFF1E293B)),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -588,7 +595,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
               const SizedBox(width: 8),
               if (unit.id != null)
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 18, color: Color(0xFF64748B)),
+                  icon: const Icon(Icons.edit_outlined,
+                      size: 18, color: Color(0xFF64748B)),
                   onPressed: () => _showEditUnitDialog(context, unit),
                   tooltip: 'Modifier l\'unité',
                   padding: EdgeInsets.zero,
@@ -897,7 +905,8 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
                                 final picked = await showDatePicker(
                                   context: context,
                                   initialDate: _tenantLeaseEnd ??
-                                      DateTime.now().add(const Duration(days: 365)),
+                                      DateTime.now()
+                                          .add(const Duration(days: 365)),
                                   firstDate: DateTime(2020),
                                   lastDate: DateTime.now()
                                       .add(const Duration(days: 3650)),
@@ -1082,11 +1091,11 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.apartment),
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().length < 2) ? 'Nom requis (min 2 car.)' : null,
+                validator: (v) => (v == null || v.trim().length < 2)
+                    ? 'Nom requis (min 2 car.)'
+                    : null,
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _addressController,
                 decoration: const InputDecoration(
@@ -1095,11 +1104,11 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.location_on_outlined),
                 ),
-                validator: (v) =>
-                    (v == null || v.trim().length < 5) ? 'Adresse requise (min 5 car.)' : null,
+                validator: (v) => (v == null || v.trim().length < 5)
+                    ? 'Adresse requise (min 5 car.)'
+                    : null,
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   Expanded(
@@ -1138,7 +1147,6 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _totalUnitsController,
                 decoration: const InputDecoration(
@@ -1156,7 +1164,6 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
                 },
               ),
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
@@ -1168,7 +1175,6 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 32),
-
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(

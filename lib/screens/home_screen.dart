@@ -123,8 +123,7 @@ class _HomeTabState extends State<_HomeTab> {
       if (_userName.isEmpty) _userName = 'Utilisateur';
 
       // Parse weekly summary
-      _weeklySummary =
-          (results[1]['data'] as Map<String, dynamic>?) ?? {};
+      _weeklySummary = (results[1]['data'] as Map<String, dynamic>?) ?? {};
 
       // Parse buildings for occupancy
       final buildingsData = results[4]['data'] as List<dynamic>;
@@ -436,8 +435,7 @@ class _HomeTabState extends State<_HomeTab> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color:
-                                activity.color.withValues(alpha: 0.1),
+                            color: activity.color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(

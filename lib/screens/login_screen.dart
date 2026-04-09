@@ -130,7 +130,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           return 'Veuillez entrer votre courriel';
                         }
                         // Basic email regex
-                        final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                        final emailRegex =
+                            RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                         if (!emailRegex.hasMatch(value.trim())) {
                           return 'Format de courriel invalide';
                         }
@@ -167,8 +168,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : Icons.visibility_outlined,
                             color: const Color(0xFF94A3B8),
                           ),
-                          onPressed: () =>
-                              setState(() => _obscurePassword = !_obscurePassword),
+                          onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
                         ),
                       ),
                     ),
@@ -273,8 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Color(0xFFE2E8F0)),

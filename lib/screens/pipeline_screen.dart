@@ -49,8 +49,9 @@ class _PipelineScreenState extends State<PipelineScreen>
     try {
       final response = await ApiService.instance.get('/leads');
       final data = response['data'] as List<dynamic>;
-      final leads =
-          data.map((e) => LeadItem.fromJson(e as Map<String, dynamic>)).toList();
+      final leads = data
+          .map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
+          .toList();
       setState(() {
         _allLeads = leads;
         _isLoading = false;
@@ -106,8 +107,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   'Impossible de charger les prospects',
-                  style: TextStyle(
-                      fontSize: 16, color: Color(0xFF1E293B)),
+                  style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -116,8 +116,8 @@ class _PipelineScreenState extends State<PipelineScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _errorMessage!,
-                  style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF64748B)),
+                  style:
+                      const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -258,8 +258,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 ? const Center(
                     child: Text(
                       'Aucun prospect dans cette étape',
-                      style:
-                          TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
                     ),
                   )
                 : ListView.builder(
@@ -501,9 +500,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           Row(
             children: [
               const Icon(
@@ -535,7 +532,6 @@ class _PipelineScreenState extends State<PipelineScreen>
               ),
             ],
           ),
-
           if (lead.notes.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
@@ -547,9 +543,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               ),
             ),
           ],
-
           const SizedBox(height: 12),
-
           Row(
             children: [
               Text(

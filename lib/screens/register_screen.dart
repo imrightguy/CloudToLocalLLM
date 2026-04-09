@@ -147,8 +147,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _firstNameController,
                             textInputAction: TextInputAction.next,
                             textCapitalization: TextCapitalization.words,
-                            validator: (v) =>
-                                (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Requis'
+                                : null,
                             decoration: _inputDecoration(
                               hintText: 'Simon',
                               prefixIcon: Icons.person_outline_rounded,
@@ -161,8 +162,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _lastNameController,
                             textInputAction: TextInputAction.next,
                             textCapitalization: TextCapitalization.words,
-                            validator: (v) =>
-                                (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Requis'
+                                : null,
                             decoration: _inputDecoration(
                               hintText: 'Tremblay',
                               prefixIcon: Icons.person_outline_rounded,
@@ -184,7 +186,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (value == null || value.trim().isEmpty) {
                           return 'Veuillez entrer votre courriel';
                         }
-                        final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                        final emailRegex =
+                            RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                         if (!emailRegex.hasMatch(value.trim())) {
                           return 'Format invalide';
                         }
@@ -224,8 +227,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 : Icons.visibility_outlined,
                             color: const Color(0xFF94A3B8),
                           ),
-                          onPressed: () =>
-                              setState(() => _obscurePassword = !_obscurePassword),
+                          onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
                         ),
                       ),
                     ),
@@ -331,8 +334,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: Colors.white,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Color(0xFFE2E8F0)),

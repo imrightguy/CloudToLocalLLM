@@ -74,7 +74,8 @@ class ConversionRates {
   final int converted;
   final String conversionRate;
 
-  factory ConversionRates.fromJson(Map<String, dynamic> json) => ConversionRates(
+  factory ConversionRates.fromJson(Map<String, dynamic> json) =>
+      ConversionRates(
         totalVisits: (json['totalVisits'] as num?)?.toInt() ?? 0,
         converted: (json['converted'] as num?)?.toInt() ?? 0,
         conversionRate: json['conversionRate'] as String? ?? '0%',
@@ -114,19 +115,15 @@ class DashboardData {
   factory DashboardData.fromJson(Map<String, dynamic> json) {
     final pipelineJson = json['pipeline'] as Map<String, dynamic>? ?? {};
     final hotLeadsJson = json['hotLeads'] as List<dynamic>? ?? [];
-    final weeklyStatsJson =
-        json['weeklyStats'] as Map<String, dynamic>? ?? {};
-    final visitStatsJson =
-        json['visitStats'] as Map<String, dynamic>? ?? {};
+    final weeklyStatsJson = json['weeklyStats'] as Map<String, dynamic>? ?? {};
+    final visitStatsJson = json['visitStats'] as Map<String, dynamic>? ?? {};
     final conversionRatesJson =
         json['conversionRates'] as Map<String, dynamic>? ?? {};
     final leadSourcesJson = json['leadSources'] as List<dynamic>? ?? [];
 
     return DashboardData(
       pipeline: PipelineData.fromJson(pipelineJson),
-      hotLeads: hotLeadsJson
-          .map((e) => e as Map<String, dynamic>)
-          .toList(),
+      hotLeads: hotLeadsJson.map((e) => e as Map<String, dynamic>).toList(),
       weeklyStats: WeeklyStats.fromJson(weeklyStatsJson),
       visitStats: VisitStatsData.fromJson(visitStatsJson),
       conversionRates: ConversionRates.fromJson(conversionRatesJson),

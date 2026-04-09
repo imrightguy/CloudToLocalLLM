@@ -70,7 +70,8 @@ void main() {
 
       // Parse first building into model
       final buildings = body['data'] as List<dynamic>;
-      final building = BuildingItem.fromJson(buildings[0] as Map<String, dynamic>);
+      final building =
+          BuildingItem.fromJson(buildings[0] as Map<String, dynamic>);
       expect(building.id, isNotNull);
       expect(building.name, isNotEmpty);
       expect(building.address, isNotEmpty);
@@ -93,7 +94,8 @@ void main() {
 
       expect(response.statusCode, 200);
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      final building = BuildingItem.fromJson(body['data'] as Map<String, dynamic>);
+      final building =
+          BuildingItem.fromJson(body['data'] as Map<String, dynamic>);
       expect(building.id, id);
     });
   });
@@ -208,7 +210,8 @@ void main() {
 
       final activities = body['data'] as List<dynamic>;
       if (activities.isNotEmpty) {
-        final event = ActivityEvent.fromJson(activities[0] as Map<String, dynamic>);
+        final event =
+            ActivityEvent.fromJson(activities[0] as Map<String, dynamic>);
         expect(event.type, isNotEmpty);
         expect(event.timestamp, isNotNull);
         // description should map to title
