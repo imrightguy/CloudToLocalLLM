@@ -16,7 +16,7 @@ async function checkVisitConflict(employeeId, dateTime, durationMinutes, exclude
     eq(visitsTable.isActive, true),
     and(
       sql`${visitsTable.dateTime} < ${visitEnd}`,
-      sql`${visitsTable.dateTime} + (${visitsTable.durationMinutes} || ' minutes')::interval > ${visitStart}`
+      sql`${visitsTable.dateTime} + (${visitsTable.durationMinutes} || ' minutes')::interval > ${visitStart}`,
     ),
     // Exclude cancelled visits
     sql`${visitsTable.status} != 'cancelled'`,
@@ -163,13 +163,13 @@ exports.createVisit = async (req, res) => {
     // Auto-send occupant access request if unit is occupied
     let occupantResult = null;
     try {
-      const [unit] = await db
+      const [unitDetails] = await db
         .select()
         .from(unitsTable)
         .where(eq(unitsTable.id, unitId))
         .limit(1);
 
-      const isOccupied = unit?.status === 'occupied' || unit?.tenantPhone;
+      const isOccupied = unitDetails?.status === 'occupied' || unitDetails?.tenantPhone;
       if (isOccupied) {
         occupantResult = await sendOccupantAccessRequest(visit.id);
       }

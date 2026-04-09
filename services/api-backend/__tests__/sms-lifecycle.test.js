@@ -803,7 +803,7 @@ describe('SMS Visit Lifecycle', () => {
       };
       mockQueryChain([ctx]);
 
-      const result = await notifySimonInterested(FIXTURES.visit.id);
+      const _result = await notifySimonInterested(FIXTURES.visit.id);
 
       expect(mockSendSMS).toHaveBeenCalledWith(
         '+15145550001',
@@ -813,7 +813,7 @@ describe('SMS Visit Lifecycle', () => {
         '+15145550001',
         expect.stringContaining(FIXTURES.lead.fullName),
       );
-      expect(result.success).toBe(true);
+      expect(_result.success).toBe(true);
 
       process.env.SIMON_PHONE = originalPhone;
     });
@@ -831,7 +831,7 @@ describe('SMS Visit Lifecycle', () => {
       // getVisitContext → find admin user
       mockQueryChain([ctx], [FIXTURES.adminUser]);
 
-      const result = await notifySimonInterested(FIXTURES.visit.id);
+      const _result = await notifySimonInterested(FIXTURES.visit.id);
 
       expect(mockSendSMS).toHaveBeenCalledWith(
         FIXTURES.adminUser.phone,
@@ -854,9 +854,9 @@ describe('SMS Visit Lifecycle', () => {
       // getVisitContext → find admin (no phone)
       mockQueryChain([ctx], [{ ...FIXTURES.adminUser, phone: null }]);
 
-      const result = await notifySimonInterested(FIXTURES.visit.id);
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('No recipient phone');
+      const _result = await notifySimonInterested(FIXTURES.visit.id);
+      expect(_result.success).toBe(false);
+      expect(_result.error).toContain('No recipient phone');
 
       process.env.SIMON_PHONE = originalPhone;
     });
