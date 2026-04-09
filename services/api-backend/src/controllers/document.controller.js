@@ -315,9 +315,10 @@ exports.searchDocuments = async (req, res) => {
       });
     }
 
+    const escaped = q.replace(/[%_\\]/g, '\\$&');
     const conditions = [
       eq(documentsTable.isActive, true),
-      ilike(documentsTable.name, `%${q}%`),
+      ilike(documentsTable.name, `%${escaped}%`),
     ];
     if (type) conditions.push(eq(documentsTable.type, type));
     if (category) conditions.push(eq(documentsTable.category, category));
