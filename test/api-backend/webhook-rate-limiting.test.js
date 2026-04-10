@@ -96,7 +96,9 @@ describe("WebhookRateLimiterService", () => {
       mockClient.query
         .mockResolvedValueOnce(undefined) // BEGIN
         .mockResolvedValueOnce({ rows: [] }) // existing check: no config found
-        .mockResolvedValueOnce({ rows: [{ ...config, webhook_id: testWebhookId, user_id: testUserId }] }) // INSERT RETURNING
+        .mockResolvedValueOnce({
+          rows: [{ ...config, webhook_id: testWebhookId, user_id: testUserId }],
+        }) // INSERT RETURNING
         .mockResolvedValueOnce(undefined); // COMMIT
 
       const result = await service.setWebhookRateLimitConfig(
@@ -123,7 +125,11 @@ describe("WebhookRateLimiterService", () => {
       mockClient.query
         .mockResolvedValueOnce(undefined) // BEGIN
         .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // existing check: config found
-        .mockResolvedValueOnce({ rows: [{ ...config2, webhook_id: testWebhookId, user_id: testUserId }] }) // UPDATE RETURNING
+        .mockResolvedValueOnce({
+          rows: [
+            { ...config2, webhook_id: testWebhookId, user_id: testUserId },
+          ],
+        }) // UPDATE RETURNING
         .mockResolvedValueOnce(undefined); // COMMIT
 
       const result = await service.setWebhookRateLimitConfig(
@@ -154,7 +160,9 @@ describe("WebhookRateLimiterService", () => {
       mockClient.query
         .mockResolvedValueOnce(undefined) // BEGIN
         .mockResolvedValueOnce({ rows: [] }) // SELECT: no existing
-        .mockResolvedValueOnce({ rows: [{ ...config, webhook_id: testWebhookId, user_id: testUserId }] }) // INSERT RETURNING
+        .mockResolvedValueOnce({
+          rows: [{ ...config, webhook_id: testWebhookId, user_id: testUserId }],
+        }) // INSERT RETURNING
         .mockResolvedValueOnce(undefined); // COMMIT
 
       await service.setWebhookRateLimitConfig(
@@ -181,7 +189,9 @@ describe("WebhookRateLimiterService", () => {
       // then setWebhookRateLimitConfig DB queries
       mockClient.query
         .mockResolvedValueOnce({ rows: [] }) // set: existing check
-        .mockResolvedValueOnce({ rows: [{ ...config, webhook_id: testWebhookId, user_id: testUserId }] }) // set: INSERT RETURNING
+        .mockResolvedValueOnce({
+          rows: [{ ...config, webhook_id: testWebhookId, user_id: testUserId }],
+        }) // set: INSERT RETURNING
         .mockResolvedValueOnce(undefined) // set: COMMIT
         .mockResolvedValueOnce({ rows: [] }); // get: SELECT (no row, uses default)
 
@@ -235,13 +245,17 @@ describe("WebhookRateLimiterService", () => {
       mockClient.query
         .mockResolvedValueOnce(undefined) // BEGIN
         .mockResolvedValueOnce({ rows: [] }) // SELECT: no existing
-        .mockResolvedValueOnce({ rows: [{ ...config, webhook_id: webhookId, user_id: userId }] }) // INSERT RETURNING
+        .mockResolvedValueOnce({
+          rows: [{ ...config, webhook_id: webhookId, user_id: userId }],
+        }) // INSERT RETURNING
         .mockResolvedValueOnce(undefined); // COMMIT
 
       await service.setWebhookRateLimitConfig(webhookId, userId, config);
 
       // Mock getWebhookRateLimitConfig to return our low-limit config
-      mockClient.query.mockResolvedValue({ rows: [{ ...config, webhook_id: webhookId, user_id: userId }] });
+      mockClient.query.mockResolvedValue({
+        rows: [{ ...config, webhook_id: webhookId, user_id: userId }],
+      });
 
       // First request
       let result = await service.checkRateLimit(webhookId, userId);
@@ -272,13 +286,17 @@ describe("WebhookRateLimiterService", () => {
       mockClient.query
         .mockResolvedValueOnce(undefined) // BEGIN
         .mockResolvedValueOnce({ rows: [] }) // SELECT: no existing
-        .mockResolvedValueOnce({ rows: [{ ...config, webhook_id: webhookId, user_id: userId }] }) // INSERT RETURNING
+        .mockResolvedValueOnce({
+          rows: [{ ...config, webhook_id: webhookId, user_id: userId }],
+        }) // INSERT RETURNING
         .mockResolvedValueOnce(undefined); // COMMIT
 
       await service.setWebhookRateLimitConfig(webhookId, userId, config);
 
       // Mock getWebhookRateLimitConfig to return our low-limit config
-      mockClient.query.mockResolvedValue({ rows: [{ ...config, webhook_id: webhookId, user_id: userId }] });
+      mockClient.query.mockResolvedValue({
+        rows: [{ ...config, webhook_id: webhookId, user_id: userId }],
+      });
 
       // First request
       let result = await service.checkRateLimit(webhookId, userId);
@@ -309,13 +327,17 @@ describe("WebhookRateLimiterService", () => {
       mockClient.query
         .mockResolvedValueOnce(undefined) // BEGIN
         .mockResolvedValueOnce({ rows: [] }) // SELECT: no existing
-        .mockResolvedValueOnce({ rows: [{ ...config, webhook_id: webhookId, user_id: userId }] }) // INSERT RETURNING
+        .mockResolvedValueOnce({
+          rows: [{ ...config, webhook_id: webhookId, user_id: userId }],
+        }) // INSERT RETURNING
         .mockResolvedValueOnce(undefined); // COMMIT
 
       await service.setWebhookRateLimitConfig(webhookId, userId, config);
 
       // Mock getWebhookRateLimitConfig to return config with is_enabled: false
-      mockClient.query.mockResolvedValue({ rows: [{ ...config, webhook_id: webhookId, user_id: userId }] });
+      mockClient.query.mockResolvedValue({
+        rows: [{ ...config, webhook_id: webhookId, user_id: userId }],
+      });
 
       // Multiple requests should all be allowed
       for (let i = 0; i < 5; i++) {
@@ -395,14 +417,16 @@ describe("WebhookRateLimiterService", () => {
 
       // Mock: getRateLimitStats SELECT returns a row with zero counts
       mockClient.query.mockResolvedValueOnce({
-        rows: [{
-          total_deliveries: 0,
-          successful_deliveries: 0,
-          failed_deliveries: 0,
-          minute_count: 0,
-          hour_count: 0,
-          day_count: 0,
-        }],
+        rows: [
+          {
+            total_deliveries: 0,
+            successful_deliveries: 0,
+            failed_deliveries: 0,
+            minute_count: 0,
+            hour_count: 0,
+            day_count: 0,
+          },
+        ],
       });
 
       const stats = await service.getRateLimitStats(webhookId, userId);

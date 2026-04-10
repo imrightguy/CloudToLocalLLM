@@ -98,7 +98,9 @@ describe("ProxyHealthService - Property-Based Tests", () => {
   it("should enforce maximum recovery attempts for all proxies", () => {
     fc.assert(
       fc.property(
-        fc.string({ minLength: 1, maxLength: 255 }).filter((s) => s.trim().length > 0),
+        fc
+          .string({ minLength: 1, maxLength: 255 })
+          .filter((s) => s.trim().length > 0),
         fc.integer({ min: 1, max: 10 }),
         (proxyId, attemptCount) => {
           proxyHealthService.shutdown();
@@ -304,13 +306,10 @@ describe("ProxyHealthService - Property-Based Tests", () => {
   it("should return all and only registered proxies in getAllProxyHealthStatus", () => {
     fc.assert(
       fc.property(
-        fc.array(
-          fc.string({ minLength: 1, maxLength: 50 }),
-          {
-            minLength: 1,
-            maxLength: 10,
-          },
-        ),
+        fc.array(fc.string({ minLength: 1, maxLength: 50 }), {
+          minLength: 1,
+          maxLength: 10,
+        }),
         (proxyIds) => {
           const uniqueIds = [...new Set(proxyIds)];
           proxyHealthService.shutdown();

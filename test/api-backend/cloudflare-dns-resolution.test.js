@@ -97,7 +97,7 @@ describe("Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency", 
       }
 
       // IP should be valid IPv4
-      expect(firstIP).toMatch(EXPECTED_NLB_PATTERN);
+      expect(ips[0]).toMatch(EXPECTED_NLB_PATTERN);
     });
 
     it("should maintain DNS resolution across multiple sequential queries", async () => {

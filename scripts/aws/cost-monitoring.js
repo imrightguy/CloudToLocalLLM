@@ -5,18 +5,25 @@
  *
  * Monitors AWS EKS cluster costs and generates reports
  * Integrates with AWS Cost Explorer and CloudWatch
- * 
+ *
  * Migrated to AWS SDK v3
  */
 
-const { CostExplorerClient, GetCostAndUsageCommand } = require('@aws-sdk/client-cost-explorer');
-const { CloudWatchClient, PutDashboardCommand, PutMetricAlarmCommand } = require('@aws-sdk/client-cloudwatch');
-const fs = require('fs');
-const path = require('path');
+const {
+  CostExplorerClient,
+  GetCostAndUsageCommand,
+} = require("@aws-sdk/client-cost-explorer");
+const {
+  CloudWatchClient,
+  PutDashboardCommand,
+  PutMetricAlarmCommand,
+} = require("@aws-sdk/client-cloudwatch");
+const fs = require("fs");
+const path = require("path");
 
-const AWS_ACCOUNT_ID = '422017356244';
-const AWS_REGION = 'us-east-1';
-const CLUSTER_NAME = 'cloudtolocalllm-eks';
+const AWS_ACCOUNT_ID = "422017356244";
+const AWS_REGION = "us-east-1";
+const CLUSTER_NAME = "cloudtolocalllm-eks";
 
 // Initialize AWS SDK v3 clients
 const costExplorerClient = new CostExplorerClient({ region: AWS_REGION });
@@ -26,40 +33,40 @@ const cloudwatchClient = new CloudWatchClient({ region: AWS_REGION });
  * Cost estimation data for common resources
  */
 const COST_ESTIMATES = {
-  't3.small': {
+  "t3.small": {
     hourly: 0.0208,
     monthly: 15.36,
-    description: 't3.small EC2 instance',
+    description: "t3.small EC2 instance",
   },
-  't3.medium': {
+  "t3.medium": {
     hourly: 0.0416,
     monthly: 30.72,
-    description: 't3.medium EC2 instance',
+    description: "t3.medium EC2 instance",
   },
-  't3.micro': {
+  "t3.micro": {
     hourly: 0.0104,
     monthly: 7.68,
-    description: 't3.micro EC2 instance',
+    description: "t3.micro EC2 instance",
   },
-  'network-load-balancer': {
+  "network-load-balancer": {
     hourly: 0.0225,
     monthly: 16.56,
-    description: 'Network Load Balancer',
+    description: "Network Load Balancer",
   },
-  'ebs-storage': {
-    perGb: 0.10,
+  "ebs-storage": {
+    perGb: 0.1,
     monthly: 10,
-    description: 'EBS storage (100GB estimate)',
+    description: "EBS storage (100GB estimate)",
   },
-  'data-transfer': {
+  "data-transfer": {
     perGb: 0.02,
     monthly: 5,
-    description: 'Data transfer out (250GB estimate)',
+    description: "Data transfer out (250GB estimate)",
   },
-  'cloudwatch-logs': {
-    perGb: 0.50,
+  "cloudwatch-logs": {
+    perGb: 0.5,
     monthly: 5,
-    description: 'CloudWatch logs (10GB estimate)',
+    description: "CloudWatch logs (10GB estimate)",
   },
 };
 
@@ -73,18 +80,18 @@ async function getCostAndUsageData(startDate, endDate) {
         Start: startDate,
         End: endDate,
       },
-      Granularity: 'DAILY',
-      Metrics: ['UnblendedCost'],
+      Granularity: "DAILY",
+      Metrics: ["UnblendedCost"],
       GroupBy: [
         {
-          Type: 'DIMENSION',
-          Key: 'SERVICE',
+          Type: "DIMENSION",
+          Key: "SERVICE",
         },
       ],
       Filter: {
         Tags: {
-          Key: 'Environment',
-          Values: ['development'],
+          Key: "Environment",
+          Values: ["development"],
         },
       },
     });
@@ -92,7 +99,7 @@ async function getCostAndUsageData(startDate, endDate) {
     const response = await costExplorerClient.send(command);
     return response;
   } catch (error) {
-    console.error('Error fetching cost data:', error);
+    console.error("Error fetching cost data:", error);
     throw error;
   }
 }
@@ -106,7 +113,8 @@ function calculateEstimatedMonthlyCost(config) {
 
   // EC2 instance costs
   if (config.nodeInstanceType && COST_ESTIMATES[config.nodeInstanceType]) {
-    const instanceCost = COST_ESTIMATES[config.nodeInstanceType].monthly * config.desiredNodes;
+    const instanceCost =
+      COST_ESTIMATES[config.nodeInstanceType].monthly * config.desiredNodes;
     breakdown[config.nodeInstanceType] = {
       cost: instanceCost,
       description: `${config.desiredNodes}x ${COST_ESTIMATES[config.nodeInstanceType].description}`,
@@ -116,40 +124,40 @@ function calculateEstimatedMonthlyCost(config) {
 
   // Network Load Balancer
   if (config.enableLoadBalancer !== false) {
-    const nlbCost = COST_ESTIMATES['network-load-balancer'].monthly;
-    breakdown['network-load-balancer'] = {
+    const nlbCost = COST_ESTIMATES["network-load-balancer"].monthly;
+    breakdown["network-load-balancer"] = {
       cost: nlbCost,
-      description: COST_ESTIMATES['network-load-balancer'].description,
+      description: COST_ESTIMATES["network-load-balancer"].description,
     };
     totalCost += nlbCost;
   }
 
   // EBS storage
   if (config.enableStorage !== false) {
-    const storageCost = COST_ESTIMATES['ebs-storage'].monthly;
-    breakdown['ebs-storage'] = {
+    const storageCost = COST_ESTIMATES["ebs-storage"].monthly;
+    breakdown["ebs-storage"] = {
       cost: storageCost,
-      description: COST_ESTIMATES['ebs-storage'].description,
+      description: COST_ESTIMATES["ebs-storage"].description,
     };
     totalCost += storageCost;
   }
 
   // Data transfer
   if (config.enableDataTransfer !== false) {
-    const transferCost = COST_ESTIMATES['data-transfer'].monthly;
-    breakdown['data-transfer'] = {
+    const transferCost = COST_ESTIMATES["data-transfer"].monthly;
+    breakdown["data-transfer"] = {
       cost: transferCost,
-      description: COST_ESTIMATES['data-transfer'].description,
+      description: COST_ESTIMATES["data-transfer"].description,
     };
     totalCost += transferCost;
   }
 
   // CloudWatch logs
   if (config.enableLogging !== false) {
-    const logsCost = COST_ESTIMATES['cloudwatch-logs'].monthly;
-    breakdown['cloudwatch-logs'] = {
+    const logsCost = COST_ESTIMATES["cloudwatch-logs"].monthly;
+    breakdown["cloudwatch-logs"] = {
       cost: logsCost,
-      description: COST_ESTIMATES['cloudwatch-logs'].description,
+      description: COST_ESTIMATES["cloudwatch-logs"].description,
     };
     totalCost += logsCost;
   }
@@ -168,29 +176,27 @@ async function createCostDashboard() {
     const dashboardBody = {
       widgets: [
         {
-          type: 'metric',
+          type: "metric",
           properties: {
             metrics: [
-              ['AWS/EC2', 'CPUUtilization', { stat: 'Average' }],
-              ['AWS/ELB', 'TargetResponseTime', { stat: 'Average' }],
-              ['AWS/ECS', 'MemoryUtilization', { stat: 'Average' }],
+              ["AWS/EC2", "CPUUtilization", { stat: "Average" }],
+              ["AWS/ELB", "TargetResponseTime", { stat: "Average" }],
+              ["AWS/ECS", "MemoryUtilization", { stat: "Average" }],
             ],
             period: 300,
-            stat: 'Average',
+            stat: "Average",
             region: AWS_REGION,
-            title: 'EKS Cluster Performance',
+            title: "EKS Cluster Performance",
           },
         },
         {
-          type: 'metric',
+          type: "metric",
           properties: {
-            metrics: [
-              ['AWS/Billing', 'EstimatedCharges', { stat: 'Maximum' }],
-            ],
+            metrics: [["AWS/Billing", "EstimatedCharges", { stat: "Maximum" }]],
             period: 86400,
-            stat: 'Maximum',
-            region: 'us-east-1',
-            title: 'Estimated Daily Charges',
+            stat: "Maximum",
+            region: "us-east-1",
+            title: "Estimated Daily Charges",
           },
         },
       ],
@@ -204,7 +210,7 @@ async function createCostDashboard() {
     const response = await cloudwatchClient.send(command);
     return response;
   } catch (error) {
-    console.error('Error creating CloudWatch dashboard:', error);
+    console.error("Error creating CloudWatch dashboard:", error);
     throw error;
   }
 }
@@ -216,19 +222,19 @@ async function configureCostAlerts(monthlyBudget) {
   try {
     const command = new PutMetricAlarmCommand({
       AlarmName: `${CLUSTER_NAME}-monthly-cost-alert`,
-      ComparisonOperator: 'GreaterThanThreshold',
+      ComparisonOperator: "GreaterThanThreshold",
       EvaluationPeriods: 1,
-      MetricName: 'EstimatedCharges',
-      Namespace: 'AWS/Billing',
+      MetricName: "EstimatedCharges",
+      Namespace: "AWS/Billing",
       Period: 86400,
-      Statistic: 'Maximum',
+      Statistic: "Maximum",
       Threshold: monthlyBudget,
       ActionsEnabled: true,
       AlarmDescription: `Alert when monthly AWS costs exceed ${monthlyBudget}`,
       Dimensions: [
         {
-          Name: 'Currency',
-          Value: 'USD',
+          Name: "Currency",
+          Value: "USD",
         },
       ],
     });
@@ -236,7 +242,7 @@ async function configureCostAlerts(monthlyBudget) {
     const response = await cloudwatchClient.send(command);
     return response;
   } catch (error) {
-    console.error('Error configuring cost alerts:', error);
+    console.error("Error configuring cost alerts:", error);
     throw error;
   }
 }
@@ -277,19 +283,23 @@ function generateRecommendations(config, estimatedCost) {
   const recommendations = [];
 
   // Check instance type
-  if (config.nodeInstanceType === 't3.medium') {
+  if (config.nodeInstanceType === "t3.medium") {
     recommendations.push({
-      priority: 'high',
-      recommendation: 'Consider using t3.small or t3.micro for development to reduce costs',
-      potentialSavings: (COST_ESTIMATES['t3.medium'].monthly - COST_ESTIMATES['t3.small'].monthly) * config.desiredNodes,
+      priority: "high",
+      recommendation:
+        "Consider using t3.small or t3.micro for development to reduce costs",
+      potentialSavings:
+        (COST_ESTIMATES["t3.medium"].monthly -
+          COST_ESTIMATES["t3.small"].monthly) *
+        config.desiredNodes,
     });
   }
 
   // Check node count
   if (config.desiredNodes > 2) {
     recommendations.push({
-      priority: 'medium',
-      recommendation: 'Consider reducing desired nodes to 2 for development',
+      priority: "medium",
+      recommendation: "Consider reducing desired nodes to 2 for development",
       potentialSavings: COST_ESTIMATES[config.nodeInstanceType].monthly,
     });
   }
@@ -297,8 +307,8 @@ function generateRecommendations(config, estimatedCost) {
   // Check if over budget
   if (estimatedCost.totalCost > 300) {
     recommendations.push({
-      priority: 'critical',
-      recommendation: 'Cluster cost exceeds budget. Immediate action required.',
+      priority: "critical",
+      recommendation: "Cluster cost exceeds budget. Immediate action required.",
       potentialSavings: estimatedCost.totalCost - 300,
     });
   }
@@ -306,8 +316,8 @@ function generateRecommendations(config, estimatedCost) {
   // Check if under-utilized
   if (estimatedCost.totalCost < 50) {
     recommendations.push({
-      priority: 'low',
-      recommendation: 'Cluster is well-optimized for cost',
+      priority: "low",
+      recommendation: "Cluster is well-optimized for cost",
       potentialSavings: 0,
     });
   }
@@ -324,7 +334,7 @@ function exportCostReport(report, outputPath) {
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
     return reportPath;
   } catch (error) {
-    console.error('Error exporting cost report:', error);
+    console.error("Error exporting cost report:", error);
     throw error;
   }
 }
@@ -336,11 +346,11 @@ async function main() {
   try {
     // Example cluster configuration
     const clusterConfig = {
-      nodeInstanceType: 't3.small',
+      nodeInstanceType: "t3.small",
       desiredNodes: 2,
       minNodes: 2,
       maxNodes: 3,
-      kubernetesVersion: '1.28',
+      kubernetesVersion: "1.28",
       enableLoadBalancer: true,
       enableStorage: true,
       enableDataTransfer: true,
@@ -354,15 +364,15 @@ async function main() {
     const report = generateCostOptimizationReport(clusterConfig, estimatedCost);
 
     // Export report
-    const reportPath = exportCostReport(report, './docs');
+    const reportPath = exportCostReport(report, "./docs");
 
-    console.log('Cost Monitoring Report Generated:');
+    console.log("Cost Monitoring Report Generated:");
     console.log(JSON.stringify(report, null, 2));
     console.log(`\nReport saved to: ${reportPath}`);
 
     return report;
   } catch (error) {
-    console.error('Error in cost monitoring:', error);
+    console.error("Error in cost monitoring:", error);
     process.exit(1);
   }
 }

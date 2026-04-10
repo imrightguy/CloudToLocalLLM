@@ -27,7 +27,7 @@ const eksClusterTemplateArbitrary = () => {
     AWSTemplateFormatVersion: fc.constant("2010-09-09"),
     Description: fc.constant("CloudFormation template for EKS cluster"),
     Parameters: fc.record({
-      ClusterName: fc.stringMatching(/^[a-z0-9\-]{1,63}$/),
+      ClusterName: fc.stringMatching(/^[a-z0-9]{1,63}$/),
       KubernetesVersion: fc.constantFrom("1.28", "1.29", "1.30"),
       NodeInstanceType: fc.constantFrom("t3.medium", "t3.large", "t3.xlarge"),
       DesiredNodeCount: fc.integer({ min: 2, max: 5 }),
@@ -36,10 +36,10 @@ const eksClusterTemplateArbitrary = () => {
       EKSCluster: fc.record({
         Type: fc.constant("AWS::EKS::Cluster"),
         Properties: fc.record({
-          Name: fc.stringMatching(/^[a-z0-9\-]{1,63}$/),
+          Name: fc.stringMatching(/^[a-z0-9]{1,63}$/),
           Version: fc.constantFrom("1.28", "1.29", "1.30"),
           RoleArn: fc.stringMatching(
-            /^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9\-_]+$/,
+            /^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9_]+$/,
           ),
           ResourcesVpcConfig: fc.record({
             SubnetIds: fc.array(fc.stringMatching(/^subnet-[a-z0-9]{17}$/), {
@@ -52,9 +52,9 @@ const eksClusterTemplateArbitrary = () => {
       NodeGroup: fc.record({
         Type: fc.constant("AWS::EKS::Nodegroup"),
         Properties: fc.record({
-          ClusterName: fc.stringMatching(/^[a-z0-9\-]{1,63}$/),
+          ClusterName: fc.stringMatching(/^[a-z0-9]{1,63}$/),
           NodeRole: fc.stringMatching(
-            /^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9\-_]+$/,
+            /^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9_]+$/,
           ),
           Subnets: fc.array(fc.stringMatching(/^subnet-[a-z0-9]{17}$/), {
             minLength: 2,
@@ -72,7 +72,7 @@ const eksClusterTemplateArbitrary = () => {
       NetworkLoadBalancer: fc.record({
         Type: fc.constant("AWS::ElasticLoadBalancingV2::LoadBalancer"),
         Properties: fc.record({
-          Name: fc.stringMatching(/^[a-z0-9\-]{1,32}$/),
+          Name: fc.stringMatching(/^[a-z0-9]{1,32}$/),
           Type: fc.constant("network"),
           Scheme: fc.constant("internet-facing"),
           Subnets: fc.array(fc.stringMatching(/^subnet-[a-z0-9]{17}$/), {
@@ -84,13 +84,11 @@ const eksClusterTemplateArbitrary = () => {
     }),
     Outputs: fc.record({
       ClusterName: fc.record({
-        Value: fc.stringMatching(/^[a-z0-9\-]{1,63}$/),
+        Value: fc.stringMatching(/^[a-z0-9]{1,63}$/),
         Description: fc.constant("EKS Cluster Name"),
       }),
       LoadBalancerDNS: fc.record({
-        Value: fc.stringMatching(
-          /^[a-z0-9\-]+\.elb\.[a-z0-9\-]+\.amazonaws\.com$/,
-        ),
+        Value: fc.stringMatching(/^[a-z0-9]+\.elb\.[a-z0-9]+\.amazonaws\.com$/),
         Description: fc.constant("Network Load Balancer DNS Name"),
       }),
     }),
@@ -179,7 +177,7 @@ const iamRoleTemplateArbitrary = () => {
             ),
           }),
           ManagedPolicyArns: fc.array(
-            fc.stringMatching(/^arn:aws:iam::aws:policy\/[a-zA-Z0-9\-_/]+$/),
+            fc.stringMatching(/^arn:aws:iam::aws:policy\/[a-zA-Z0-9_/]+$/),
             { minLength: 1, maxLength: 3 },
           ),
         }),
@@ -201,7 +199,7 @@ const iamRoleTemplateArbitrary = () => {
             ),
           }),
           ManagedPolicyArns: fc.array(
-            fc.stringMatching(/^arn:aws:iam::aws:policy\/[a-zA-Z0-9\-_/]+$/),
+            fc.stringMatching(/^arn:aws:iam::aws:policy\/[a-zA-Z0-9_/]+$/),
             { minLength: 2, maxLength: 4 },
           ),
         }),
@@ -209,11 +207,11 @@ const iamRoleTemplateArbitrary = () => {
     }),
     Outputs: fc.record({
       EKSServiceRoleArn: fc.record({
-        Value: fc.stringMatching(/^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9\-_]+$/),
+        Value: fc.stringMatching(/^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9_]+$/),
         Description: fc.constant("EKS Service Role ARN"),
       }),
       NodeInstanceRoleArn: fc.record({
-        Value: fc.stringMatching(/^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9\-_]+$/),
+        Value: fc.stringMatching(/^arn:aws:iam::\d{12}:role\/[a-zA-Z0-9_]+$/),
         Description: fc.constant("Node Instance Role ARN"),
       }),
     }),

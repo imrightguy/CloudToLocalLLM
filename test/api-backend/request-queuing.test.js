@@ -39,11 +39,9 @@ describe("RequestQueueService", () => {
 
   afterEach(() => {
     // Silence all pending promise rejections before clearing queues
-    for (const queueType of ['user', 'ip']) {
+    for (const queueType of ["user", "ip"]) {
       const queueMap =
-        queueType === 'user'
-          ? queueService.userQueues
-          : queueService.ipQueues;
+        queueType === "user" ? queueService.userQueues : queueService.ipQueues;
       if (!queueMap) continue;
       for (const [, queue] of queueMap) {
         for (const entry of queue) {
@@ -324,9 +322,15 @@ describe("RequestQueueService", () => {
         queueThresholdPercent: 80,
       });
 
-      const r1 = clearQueueService.queueRequest("user1", "user", { method: "POST" });
-      const r2 = clearQueueService.queueRequest("user2", "user", { method: "POST" });
-      const r3 = clearQueueService.queueRequest("192.168.1.1", "ip", { method: "POST" });
+      const r1 = clearQueueService.queueRequest("user1", "user", {
+        method: "POST",
+      });
+      const r2 = clearQueueService.queueRequest("user2", "user", {
+        method: "POST",
+      });
+      const r3 = clearQueueService.queueRequest("192.168.1.1", "ip", {
+        method: "POST",
+      });
 
       // Prevent unhandled rejections when clearAllQueues rejects all promises
       r1.promise.catch(() => {});
@@ -354,7 +358,9 @@ describe("RequestQueueService", () => {
       // Add 101 requests to trigger degraded status
       const pending = [];
       for (let i = 0; i < 101; i++) {
-        const r = queueService.queueRequest(`user${i}`, "user", { method: "POST" });
+        const r = queueService.queueRequest(`user${i}`, "user", {
+          method: "POST",
+        });
         pending.push(r.promise.catch(() => {}));
       }
 
@@ -422,9 +428,8 @@ describe("Request Queuing - Property-Based Tests", () => {
   afterAll(() => {
     // Drain all PBT service instances to prevent unhandled rejections
     for (const svc of pbtInstances) {
-      for (const queueType of ['user', 'ip']) {
-        const queueMap =
-          queueType === 'user' ? svc.userQueues : svc.ipQueues;
+      for (const queueType of ["user", "ip"]) {
+        const queueMap = queueType === "user" ? svc.userQueues : svc.ipQueues;
         if (!queueMap) continue;
         for (const [, queue] of queueMap) {
           for (const entry of queue) {

@@ -113,7 +113,7 @@ describe("Deprecation Service", () => {
       const warning = formatDeprecationWarning("/v1/users");
       expect(warning).toContain("/v1/users");
       expect(warning).toContain("deprecated");
-      expect(warning).toContain('2027-01-01');
+      expect(warning).toContain("2027-01-01");
       expect(warning).toContain("/v2/users");
     });
 

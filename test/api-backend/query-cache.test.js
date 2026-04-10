@@ -160,9 +160,15 @@ describe("QueryCacheService", () => {
     });
 
     it("should invalidate by table name", () => {
-      cache.set("table:users:1", { data: "user1" }, undefined, undefined, ["users"]);
-      cache.set("table:users:2", { data: "user2" }, undefined, undefined, ["users"]);
-      cache.set("table:posts:1", { data: "post1" }, undefined, undefined, ["posts"]);
+      cache.set("table:users:1", { data: "user1" }, undefined, undefined, [
+        "users",
+      ]);
+      cache.set("table:users:2", { data: "user2" }, undefined, undefined, [
+        "users",
+      ]);
+      cache.set("table:posts:1", { data: "post1" }, undefined, undefined, [
+        "posts",
+      ]);
 
       const count = cache.invalidateByTable("users");
 

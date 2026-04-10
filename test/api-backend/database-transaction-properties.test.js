@@ -185,8 +185,8 @@ class Transaction {
         name,
         timestamp: new Date().toISOString(),
       });
-    } catch (error) {
-      throw error;
+    } catch {
+      throw new Error(`Failed to create savepoint: ${name}`);
     }
   }
 
@@ -199,8 +199,8 @@ class Transaction {
 
     try {
       await this.client.query(`ROLLBACK TO SAVEPOINT ${name}`);
-    } catch (error) {
-      throw error;
+    } catch {
+      throw new Error(`Failed to rollback to savepoint: ${name}`);
     }
   }
 
