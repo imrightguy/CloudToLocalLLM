@@ -46,7 +46,7 @@ describe('Lead stage constants', () => {
   });
 
   it('no overlap between user-facing and SMS-flow stages', () => {
-    const overlap = USER_FACING_STAGES.filter(s => SMS_FLOW_STAGES.includes(s));
+    const overlap = USER_FACING_STAGES.filter((s) => SMS_FLOW_STAGES.includes(s));
     expect(overlap).toEqual([]);
   });
 });

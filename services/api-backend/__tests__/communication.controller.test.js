@@ -102,19 +102,19 @@ describe('Communication Controller Validation', () => {
 
     it('parses comma-separated type filter correctly', () => {
       const input = 'lead_created,visit_scheduled';
-      const parsed = input.split(',').map(t => t.trim()).filter(t => allTypes.includes(t));
+      const parsed = input.split(',').map((t) => t.trim()).filter((t) => allTypes.includes(t));
       expect(parsed).toEqual(['lead_created', 'visit_scheduled']);
     });
 
     it('filters out invalid types from comma-separated input', () => {
       const input = 'lead_created,invalid_type,visit_completed';
-      const parsed = input.split(',').map(t => t.trim()).filter(t => allTypes.includes(t));
+      const parsed = input.split(',').map((t) => t.trim()).filter((t) => allTypes.includes(t));
       expect(parsed).toEqual(['lead_created', 'visit_completed']);
     });
 
     it('handles whitespace in type filter', () => {
       const input = ' lead_created , visit_scheduled ';
-      const parsed = input.split(',').map(t => t.trim()).filter(t => allTypes.includes(t));
+      const parsed = input.split(',').map((t) => t.trim()).filter((t) => allTypes.includes(t));
       expect(parsed).toEqual(['lead_created', 'visit_scheduled']);
     });
 
@@ -172,52 +172,28 @@ describe('Communication Controller Validation', () => {
   });
 
   describe('getActivityFeed — visit outcome text mapping', () => {
+    const outcomeTextMap = {
+      interesse: ' — intéressé',
+      pas_interesse: ' — pas intéressé',
+      no_show: ' — absent',
+    };
+
+    const outcomeText = (outcome) => outcomeTextMap[outcome] || '';
+
     it('maps interesse to interested text', () => {
-      const outcome = 'interesse';
-      const text = outcome === 'interesse'
-        ? ' — intéressé'
-        : outcome === 'pas_interesse'
-          ? ' — pas intéressé'
-          : outcome === 'no_show'
-            ? ' — absent'
-            : '';
-      expect(text).toBe(' — intéressé');
+      expect(outcomeText('interesse')).toBe(' — intéressé');
     });
 
     it('maps pas_interesse to not interested text', () => {
-      const outcome = 'pas_interesse';
-      const text = outcome === 'interesse'
-        ? ' — intéressé'
-        : outcome === 'pas_interesse'
-          ? ' — pas intéressé'
-          : outcome === 'no_show'
-            ? ' — absent'
-            : '';
-      expect(text).toBe(' — pas intéressé');
+      expect(outcomeText('pas_interesse')).toBe(' — pas intéressé');
     });
 
     it('maps no_show to absent text', () => {
-      const outcome = 'no_show';
-      const text = outcome === 'interesse'
-        ? ' — intéressé'
-        : outcome === 'pas_interesse'
-          ? ' — pas intéressé'
-          : outcome === 'no_show'
-            ? ' — absent'
-            : '';
-      expect(text).toBe(' — absent');
+      expect(outcomeText('no_show')).toBe(' — absent');
     });
 
     it('returns empty string for unknown outcomes', () => {
-      const outcome = 'cancelled';
-      const text = outcome === 'interesse'
-        ? ' — intéressé'
-        : outcome === 'pas_interesse'
-          ? ' — pas intéressé'
-          : outcome === 'no_show'
-            ? ' — absent'
-            : '';
-      expect(text).toBe('');
+      expect(outcomeText('cancelled')).toBe('');
     });
   });
 
@@ -225,31 +201,31 @@ describe('Communication Controller Validation', () => {
     const typeLabels = { email: 'E-mail', phone: 'Appel', fb_messenger: 'Messenger' };
 
     it('maps email to E-mail', () => {
-      expect(typeLabels['email']).toBe('E-mail');
+      expect(typeLabels.email).toBe('E-mail');
     });
 
     it('maps phone to Appel', () => {
-      expect(typeLabels['phone']).toBe('Appel');
+      expect(typeLabels.phone).toBe('Appel');
     });
 
     it('maps fb_messenger to Messenger', () => {
-      expect(typeLabels['fb_messenger']).toBe('Messenger');
+      expect(typeLabels.fb_messenger).toBe('Messenger');
     });
 
     it('falls back to raw type for unknown types', () => {
-      expect(typeLabels['sms'] || 'sms').toBe('sms');
+      expect(typeLabels.sms || 'sms').toBe('sms');
     });
   });
 
   describe('getActivityFeed — direction labels', () => {
+    const dirLabel = (dir) => (dir === 'inbound' ? ' reçu de' : ' envoyé à');
+
     it('maps inbound to reçu de', () => {
-      const dirLabel = 'inbound' === 'inbound' ? ' reçu de' : ' envoyé à';
-      expect(dirLabel).toBe(' reçu de');
+      expect(dirLabel('inbound')).toBe(' reçu de');
     });
 
     it('maps outbound to envoyé à', () => {
-      const dirLabel = 'outbound' === 'inbound' ? ' reçu de' : ' envoyé à';
-      expect(dirLabel).toBe(' envoyé à');
+      expect(dirLabel('outbound')).toBe(' envoyé à');
     });
   });
 });

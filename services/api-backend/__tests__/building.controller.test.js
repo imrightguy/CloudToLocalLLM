@@ -1,4 +1,6 @@
-const { buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema } = require('../src/models/building');
+const {
+  buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema,
+} = require('../src/models/building');
 
 // ─── Building Schema Validation ───
 

@@ -23,7 +23,7 @@ const mockDb = {
   where: jest.fn().mockReturnThis(),
   and: jest.fn(),
   eq: jest.fn((a, b) => ({ _eq: [a, b] })),
-  sql: jest.fn(val => ({ _raw: val })),
+  sql: jest.fn((val) => ({ _raw: val })),
   leftJoin: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   limit: jest.fn().mockReturnThis(),
@@ -166,7 +166,7 @@ function makeUpdateChain() {
  * DB queries (e.g. handleEmployeeReply: find employee, find visit, etc.)
  */
 function mockQueryChain(...rowsArrays) {
-  const chains = rowsArrays.map(rows => makeSelectChain(rows));
+  const chains = rowsArrays.map((rows) => makeSelectChain(rows));
   mockDb.select.mockImplementation(() => chains.shift() || makeSelectChain([]));
 
   // Also wire db.update() to resolve (most functions that query also update)
@@ -206,9 +206,9 @@ beforeEach(() => {
     status: 'queued',
   });
   // Default: handleIncomingMessage parses correctly
-  mockHandleIncomingMessage.mockImplementation(body => {
+  mockHandleIncomingMessage.mockImplementation((body) => {
     const trimmed = (body || '').trim().toLowerCase();
-    const numberMap = { '1': 'yes', '2': 'no', '3': 'no_show' };
+    const numberMap = { 1: 'yes', 2: 'no', 3: 'no_show' };
     if (numberMap[trimmed]) return { action: numberMap[trimmed], raw: trimmed };
     return { action: null, raw: trimmed };
   });
@@ -1109,9 +1109,13 @@ describe('SMS Visit Lifecycle', () => {
 
     it('edge case: multiple units same occupant phone → uses most recent visit', async () => {
       // Two units with the same tenant phone
-      const unit2 = { ...FIXTURES.unit, id: 'unit-shared-phone-002', label: '5B' };
-      const recentVisit = { ...FIXTURES.visit, id: 'visit-recent-001', occupantNotified: true, dateTime: '2026-04-11T14:00:00.000Z' };
-      const olderVisit = { ...FIXTURES.visit, id: 'visit-older-001', occupantNotified: true, dateTime: '2026-04-10T10:00:00.000Z' };
+      const _unit2 = { ...FIXTURES.unit, id: 'unit-shared-phone-002', label: '5B' };
+      const recentVisit = {
+        ...FIXTURES.visit, id: 'visit-recent-001', occupantNotified: true, dateTime: '2026-04-11T14:00:00.000Z',
+      };
+      const _olderVisit = {
+        ...FIXTURES.visit, id: 'visit-older-001', occupantNotified: true, dateTime: '2026-04-10T10:00:00.000Z',
+      };
 
       // First unit query returns one unit, then visit query returns the most recent
       mockQueryChain([FIXTURES.unit], [recentVisit], [FIXTURES.building]);

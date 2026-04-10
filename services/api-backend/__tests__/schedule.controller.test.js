@@ -9,7 +9,9 @@ function makeRes() {
 // ─── createSchedule — validation only ───
 
 describe('scheduleController.createSchedule — validation', () => {
-  const validBody = { employeeId: 'e1', buildingId: 'b1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00' };
+  const validBody = {
+    employeeId: 'e1', buildingId: 'b1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00',
+  };
 
   it('returns 400 when any required field is missing', async () => {
     const required = ['employeeId', 'buildingId', 'dayOfWeek', 'startTime', 'endTime'];

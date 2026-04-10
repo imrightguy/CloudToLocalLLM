@@ -15,8 +15,8 @@ jest.mock('nodemailer', () => ({
   createTransport: jest.fn(),
 }));
 
-const notificationService = require('../src/services/notification.service');
 const nodemailer = require('nodemailer');
+const notificationService = require('../src/services/notification.service');
 const { db } = require('../src/database/connection');
 const analyticsService = require('../src/services/analytics.service');
 
@@ -31,18 +31,12 @@ const analyticsService = require('../src/services/analytics.service');
  * while 'limit' means .where() should return this (chain) and .limit() resolves.
  */
 function setupDbQueries(queries) {
-  let whereCallCount = 0;
-  let limitCallCount = 0;
-
-  // Count how many where calls happen before each limit call to map correctly
-  // Actually simpler: use a query index. Each query has ONE terminal call.
-  // We consume queries in order. Terminal is either 'limit' or 'where'.
   let queryIdx = 0;
 
   db.where.mockImplementation(() => {
     if (queryIdx < queries.length && queries[queryIdx].via === 'where') {
       const result = queries[queryIdx].returns;
-      queryIdx++;
+      queryIdx += 1;
       return Promise.resolve(result);
     }
     return db; // returnThis for chaining
@@ -51,7 +45,7 @@ function setupDbQueries(queries) {
   db.limit.mockImplementation(() => {
     if (queryIdx < queries.length && queries[queryIdx].via === 'limit') {
       const result = queries[queryIdx].returns;
-      queryIdx++;
+      queryIdx += 1;
       return Promise.resolve(result);
     }
     return Promise.resolve([]);
@@ -91,7 +85,9 @@ describe('notification.service', () => {
       notificationService.initMailer();
 
       expect(nodemailer.createTransport).toHaveBeenCalledWith({
-        host: 'smtp.test.com', port: 587, secure: false,
+        host: 'smtp.test.com',
+        port: 587,
+        secure: false,
         auth: { user: 'user@test.com', pass: 'secret' },
       });
     });
@@ -204,7 +200,11 @@ describe('notification.service', () => {
       analyticsService.getWeeklySummary.mockResolvedValue({
         periodStart: '2026-04-06',
         generatedAt: new Date().toISOString(),
-        newLeads: 12, visitsCompleted: 8, conversions: 3, hotLeadsCount: 5, noShows: 2,
+        newLeads: 12,
+        visitsCompleted: 8,
+        conversions: 3,
+        hotLeadsCount: 5,
+        noShows: 2,
       });
     });
 
@@ -238,7 +238,7 @@ describe('notification.service', () => {
 
       await notificationService.sendWeeklySummary();
 
-      const html = sendMailMock.mock.calls[0][0].html;
+      const { html } = sendMailMock.mock.calls[0][0];
       expect(html).toContain('12');
       expect(html).toContain('8');
     });
@@ -270,7 +270,9 @@ describe('notification.service', () => {
     });
 
     it('returns NO_ADMINS when no admin users', async () => {
-      const lead = { id: 1, fullName: 'Jean', source: 'facebook', language: 'fr', buildingId: null };
+      const lead = {
+        id: 1, fullName: 'Jean', source: 'facebook', language: 'fr', buildingId: null,
+      };
       // Query 1: lead → limit. Query 2: admins → where.
       setupDbQueries([
         { via: 'limit', returns: [lead] },
@@ -283,7 +285,9 @@ describe('notification.service', () => {
     });
 
     it('sends notification with lead details', async () => {
-      const lead = { id: 1, fullName: 'Jean Dupont', phone: '514-555-1234', source: 'facebook', language: 'fr', buildingId: null };
+      const lead = {
+        id: 1, fullName: 'Jean Dupont', phone: '514-555-1234', source: 'facebook', language: 'fr', buildingId: null,
+      };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
 
       setupDbQueries([
@@ -305,7 +309,9 @@ describe('notification.service', () => {
     });
 
     it('includes building name when lead has buildingId', async () => {
-      const lead = { id: 1, fullName: 'Jean', source: 'website', language: 'en', buildingId: 10 };
+      const lead = {
+        id: 1, fullName: 'Jean', source: 'website', language: 'en', buildingId: 10,
+      };
       const building = { id: 10, name: 'Tour des Cedres' };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
 
@@ -322,7 +328,9 @@ describe('notification.service', () => {
     });
 
     it('shows Anglais for English leads', async () => {
-      const lead = { id: 1, fullName: 'John Smith', source: 'website', language: 'en', buildingId: null };
+      const lead = {
+        id: 1, fullName: 'John Smith', source: 'website', language: 'en', buildingId: null,
+      };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
 
       setupDbQueries([
@@ -336,7 +344,9 @@ describe('notification.service', () => {
     });
 
     it('skips admins without email', async () => {
-      const lead = { id: 1, fullName: 'Test', source: 'other', language: 'fr', buildingId: null };
+      const lead = {
+        id: 1, fullName: 'Test', source: 'other', language: 'fr', buildingId: null,
+      };
       const admins = [
         { id: 1, role: 'admin' },
         { id: 2, email: 'admin@test.com', role: 'admin' },
@@ -354,7 +364,9 @@ describe('notification.service', () => {
     });
 
     it('includes CTA link with APP_URL', async () => {
-      const lead = { id: 1, fullName: 'Test', source: 'other', language: 'fr', buildingId: null };
+      const lead = {
+        id: 1, fullName: 'Test', source: 'other', language: 'fr', buildingId: null,
+      };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
 
       setupDbQueries([
@@ -385,7 +397,9 @@ describe('notification.service', () => {
     });
 
     it('sends alert with N/A for missing lead/employee', async () => {
-      const visit = { id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00' };
+      const visit = {
+        id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00',
+      };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
 
       // visit → limit, lead → limit, employee → limit, admins → where
@@ -404,7 +418,9 @@ describe('notification.service', () => {
     });
 
     it('includes lead and employee names', async () => {
-      const visit = { id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00' };
+      const visit = {
+        id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00',
+      };
       const lead = { id: 5, fullName: 'Marie Tremblay', phone: '514-555-9999' };
       const employee = { id: 10, firstName: 'Pierre', lastName: 'Martin' };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
@@ -418,13 +434,15 @@ describe('notification.service', () => {
 
       await notificationService.sendNoShowAlert(1);
 
-      const html = sendMailMock.mock.calls[0][0].html;
+      const { html } = sendMailMock.mock.calls[0][0];
       expect(html).toContain('Marie Tremblay');
       expect(html).toContain('Pierre Martin');
     });
 
     it('defaults building to Non assigné when no unit', async () => {
-      const visit = { id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00' };
+      const visit = {
+        id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00',
+      };
       const lead = { id: 5, fullName: 'Test' };
       const admins = [{ id: 1, email: 'admin@test.com', role: 'admin' }];
 
