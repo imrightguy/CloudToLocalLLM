@@ -4,6 +4,7 @@
 build/
 *.lock
 !pubspec.lock
+!package-lock.json
 
 # Generated files
 *.g.dart
