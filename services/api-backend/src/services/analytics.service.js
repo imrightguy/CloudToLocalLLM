@@ -1,4 +1,5 @@
 const logger = require('../utils/logger');
+const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 // ─── Analytics Service — Phase 4 ───
 const { db } = require('../database/connection');
 const {
@@ -49,16 +50,8 @@ async function getHotLeads() {
 
 async function getPipelineSummary() {
   try {
-    const stages = [
-      // User-facing stages (Flutter frontend)
-      'nouveau', 'contacte', 'qualifie', 'visitePlanifiee', 'visite_planifiee',
-      'offreEnvoyee', 'negociation', 'bailSigne', 'signe',
-      // Internal SMS-flow stages
-      'visite_completee', 'interesse', 'inactif',
-    ];
-
     const results = {};
-    for (const stage of stages) {
+    for (const stage of VALID_LEAD_STAGES) {
       const [{ total }] = await db
         .select({ total: sql`count(*)` })
         .from(leadsTable)

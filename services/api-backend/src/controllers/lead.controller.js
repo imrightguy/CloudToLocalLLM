@@ -1,6 +1,7 @@
 const { db } = require('../database/connection');
 const { leadsTable } = require('../database/schema');
 const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
+const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'lead' });
@@ -266,19 +267,11 @@ exports.updateLeadStatus = async (req, res) => {
     const { id } = req.params;
     const { stage } = req.body;
 
-    const validStages = [
-      // User-facing stages (Flutter frontend)
-      'nouveau', 'contacte', 'qualifie', 'visitePlanifiee', 'visite_planifiee',
-      'offreEnvoyee', 'negociation', 'bailSigne', 'signe',
-      // Internal SMS-flow stages
-      'visite_completee', 'interesse', 'inactif',
-    ];
-
-    if (!stage || !validStages.includes(stage)) {
+    if (!stage || !VALID_LEAD_STAGES.includes(stage)) {
       return res.status(400).json({
         success: false,
         error: {
-          message: `Invalid stage. Must be one of: ${validStages.join(', ')}`,
+          message: `Invalid stage. Must be one of: ${VALID_LEAD_STAGES.join(', ')}`,
           code: 'VALIDATION_ERROR',
         },
       });
@@ -347,20 +340,11 @@ exports.bulkUpdateLeads = async (req, res) => {
     }
 
     // Validate stage if present
-    if (updates.stage) {
-      const validStages = [
-        // User-facing stages (Flutter frontend)
-        'nouveau', 'contacte', 'qualifie', 'visitePlanifiee', 'visite_planifiee',
-        'offreEnvoyee', 'negociation', 'bailSigne', 'signe',
-        // Internal SMS-flow stages
-        'visite_completee', 'interesse', 'inactif',
-      ];
-      if (!validStages.includes(updates.stage)) {
-        return res.status(400).json({
-          success: false,
-          error: { message: 'Invalid stage value', code: 'VALIDATION_ERROR' },
-        });
-      }
+    if (updates.stage && !VALID_LEAD_STAGES.includes(updates.stage)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Invalid stage value', code: 'VALIDATION_ERROR' },
+      });
     }
 
     // Execute bulk update — one query per id (Drizzle doesn't have bulk where-in easily)
