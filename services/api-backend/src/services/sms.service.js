@@ -77,12 +77,20 @@ const getVisitContext = async (visitId) => {
 
 const tenantMessages = {
   fr: {
-    confirmationRequest: (dateTime, buildingName) => `📍 Visite confirmée! ${formatDateTime(dateTime)} à ${buildingName}. Confirmez votre présence: 1=Oui, 2=Non`,
+    confirmationRequest: (dateTime, buildingName, confirmationToken) => {
+      const baseUrl = process.env.PUBLIC_URL || process.env.PAPERCLIP_PUBLIC_URL || '';
+      const confirmUrl = `${baseUrl}/api/confirm/${confirmationToken}`;
+      return `Visite confirmée! ${formatDateTime(dateTime)} à ${buildingName}. Confirmez: ${confirmUrl} ou répondez 1=Oui, 2=Non`;
+    },
   },
   en: {
-    confirmationRequest: (dateTime, buildingName) => `📍 Visit confirmed! ${new Date(dateTime).toLocaleDateString('en-CA', {
-      weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
-    })} at ${buildingName}. Confirm your attendance: 1=Yes, 2=No`,
+    confirmationRequest: (dateTime, buildingName, confirmationToken) => {
+      const baseUrl = process.env.PUBLIC_URL || process.env.PAPERCLIP_PUBLIC_URL || '';
+      const confirmUrl = `${baseUrl}/api/confirm/${confirmationToken}`;
+      return `Visit confirmed! ${new Date(dateTime).toLocaleDateString('en-CA', {
+        weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      })} at ${buildingName}. Confirm: ${confirmUrl} or reply 1=Yes, 2=No`;
+    },
   },
 };
 
@@ -163,7 +171,11 @@ const sendTenantConfirmationRequest = async (visitId) => {
     }
 
     const lang = (lead.language === 'en') ? 'en' : 'fr';
-    const message = tenantMessages[lang].confirmationRequest(visit.dateTime, building.name);
+    const message = tenantMessages[lang].confirmationRequest(
+      visit.dateTime,
+      building.name,
+      visit.confirmationToken,
+    );
 
     const result = await sendSMS(lead.phone, message);
 

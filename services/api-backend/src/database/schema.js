@@ -138,6 +138,7 @@ const visitsTable = pgTable('visits', {
   occupantNotified: boolean('occupant_notified').notNull().default(false), // SMS sent to current occupant for access
   employeeConfirmed: boolean('employee_confirmed').notNull().default(false),
   morningOfSent: boolean('morning_of_sent').notNull().default(false),
+  confirmationToken: text('confirmation_token').unique(), // unique token for tenant web-based confirmation
   outcome: text('outcome'), // interesse | pas_interesse | no_show | null
   notes: text('notes'),
   isActive: boolean('is_active').notNull().default(true),

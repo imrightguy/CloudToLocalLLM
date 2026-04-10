@@ -7,6 +7,7 @@ const {
   visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable,
 } = require('../database/schema');
 const { sendOccupantAccessRequest, sendVisitConfirmation, sendTenantConfirmationRequest } = require('../services/sms.service');
+const { generateConfirmationToken } = require('./tenant-confirmation.controller');
 
 /**
  * Check if a visit time conflicts with an employee's existing visits.
@@ -147,6 +148,7 @@ exports.createVisit = async (req, res) => {
         durationMinutes: durationMinutes || 30,
         status: status || 'scheduled',
         notes: notes?.trim() || null,
+        confirmationToken: generateConfirmationToken(),
       })
       .returning();
 
