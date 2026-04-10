@@ -1,8 +1,10 @@
+const { eq } = require('drizzle-orm');
 const logger = require('../utils/logger');
-const { handleEmployeeReply, handleTenantReply, handleOccupantReply, sendMorningOfReminder, sendPostVisitSurvey } = require('../services/sms.service');
+const {
+  handleEmployeeReply, handleTenantReply, handleOccupantReply, sendMorningOfReminder, sendPostVisitSurvey,
+} = require('../services/sms.service');
 const { db } = require('../database/connection');
 const { smsLogsTable } = require('../database/schema');
-const { eq } = require('drizzle-orm');
 
 /**
  * POST /webhooks/sms/incoming

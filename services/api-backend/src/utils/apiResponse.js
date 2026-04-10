@@ -33,7 +33,9 @@ const successResponse = ({ data, message = 'Operation successful', metadata = nu
  * @param {number} options.statusCode - HTTP status code
  * @returns {Object} Formatted error response
  */
-const errorResponse = ({ message, code = 'INTERNAL_ERROR', details = null, statusCode: _statusCode = 500 }) => {
+const errorResponse = ({
+  message, code = 'INTERNAL_ERROR', details = null, statusCode: _statusCode = 500,
+}) => {
   const response = {
     success: false,
     error: {
@@ -78,7 +80,7 @@ const validateFilters = (req, allowedFilters) => {
   const { filters = {} } = req.query;
   const validFilters = {};
 
-  Object.keys(filters).forEach(key => {
+  Object.keys(filters).forEach((key) => {
     if (allowedFilters.includes(key)) {
       validFilters[key] = filters[key];
     }
@@ -98,8 +100,7 @@ const addSearch = (queryBuilder, search, searchFields) => {
   if (!search) return queryBuilder;
 
   const searchTerm = `%${search.toLowerCase()}%`;
-  const searchConditions = searchFields.map(field =>
-    `LOWER(${field}) LIKE LOWER(${queryBuilder.client ? '?' : '?'})`);
+  const searchConditions = searchFields.map((field) => `LOWER(${field}) LIKE LOWER(${queryBuilder.client ? '?' : '?'})`);
 
   return queryBuilder.whereRaw(
     searchConditions.join(' OR '),
@@ -257,10 +258,8 @@ const errorHandler = (error, req, res, _next) => {
  * @param {Function} fn - Async function to wrap
  * @returns {Function} Express middleware function
  */
-const asyncHandler = fn => {
-  return (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 /**

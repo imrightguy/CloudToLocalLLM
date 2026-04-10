@@ -24,4 +24,6 @@ const closeDatabase = async () => {
   await pool.end();
 };
 
-module.exports = { db, pool, connect, closeDatabase };
+module.exports = {
+  db, pool, connect, closeDatabase,
+};

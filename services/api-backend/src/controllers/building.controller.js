@@ -1,7 +1,11 @@
+const {
+  eq, and, desc, asc, ilike, sql,
+} = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { buildingsTable, unitsTable } = require('../database/schema');
-const { buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema } = require('../models/building');
-const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
+const {
+  buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema,
+} = require('../models/building');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'building' });
@@ -377,7 +381,7 @@ exports.getUnits = async (req, res) => {
       .offset(offset);
 
     // Attach display rent in dollars for each unit
-    const unitsWithRent = units.map(unit => ({
+    const unitsWithRent = units.map((unit) => ({
       ...unit,
       rent: unit.rentCents / 100,
       tenantIsActive: unit.status === 'occupied' && unit.tenantLeaseEnd && new Date(unit.tenantLeaseEnd) > new Date(),

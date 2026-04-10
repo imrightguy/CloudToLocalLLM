@@ -79,15 +79,15 @@ const sendSMS = async (to, body) => {
  * @param {string} body - Raw incoming SMS body
  * @returns {{ action: string|null, raw: string }}
  */
-const handleIncomingMessage = body => {
+const handleIncomingMessage = (body) => {
   try {
     const trimmed = (body || '').trim().toLowerCase();
 
     // Numbered replies
     const numberMap = {
-      '1': 'yes',
-      '2': 'no',
-      '3': 'no_show',
+      1: 'yes',
+      2: 'no',
+      3: 'no_show',
     };
 
     if (numberMap[trimmed]) {
@@ -96,22 +96,22 @@ const handleIncomingMessage = body => {
 
     // Keyword replies (French + English)
     const keywordMap = {
-      'oui': 'yes',
-      'yes': 'yes',
-      'y': 'yes',
-      'non': 'no',
-      'no': 'no',
-      'n': 'no',
+      oui: 'yes',
+      yes: 'yes',
+      y: 'yes',
+      non: 'no',
+      no: 'no',
+      n: 'no',
       'pas nécessaire': 'no',
       'pas necessaire': 'no',
       'pas interessé': 'no_interest',
       'pas interesse': 'no_interest',
-      'intéressé': 'interested',
-      'interesse': 'interested',
+      intéressé: 'interested',
+      interesse: 'interested',
       'ne s\'est pas présenté': 'no_show',
       'ne s\'est pas presente': 'no_show',
-      'absent': 'no_show',
-      'no_show': 'no_show',
+      absent: 'no_show',
+      no_show: 'no_show',
     };
 
     if (keywordMap[trimmed]) {

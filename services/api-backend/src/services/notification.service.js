@@ -1,10 +1,10 @@
 // ─── Notification Service — Phase 4 ───
 const nodemailer = require('nodemailer');
+const { eq } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
   usersTable, leadsTable, visitsTable, buildingsTable, employeesTable,
 } = require('../database/schema');
-const { eq } = require('drizzle-orm');
 const analyticsService = require('./analytics.service');
 const logger = require('../utils/logger');
 
@@ -102,7 +102,9 @@ async function sendWeeklySummary() {
         <div class="container">
           <div class="header">
             <h1>📊 Résumé Hebdomadaire ImmoGestion</h1>
-            <p>Semaine du ${new Date(summary.periodStart).toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p>Semaine du ${new Date(summary.periodStart).toLocaleDateString('fr-CA', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  })}</p>
           </div>
           <div class="stats">
             <div class="stat-card">
@@ -324,8 +326,12 @@ async function sendNoShowAlert(visitId) {
     }
 
     const visitDate = new Date(visit.dateTime).toLocaleString('fr-CA', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
 
     const html = `

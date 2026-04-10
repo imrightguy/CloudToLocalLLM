@@ -1,6 +1,6 @@
+const { eq, and, asc } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { employeeSchedulesTable } = require('../database/schema');
-const { eq, and, asc } = require('drizzle-orm');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'schedule' });
@@ -8,7 +8,9 @@ const log = child({ controller: 'schedule' });
 // ─── Create Schedule ───
 exports.createSchedule = async (req, res) => {
   try {
-    const { employeeId, buildingId, dayOfWeek, startTime, endTime } = req.body;
+    const {
+      employeeId, buildingId, dayOfWeek, startTime, endTime,
+    } = req.body;
 
     if (!employeeId || !buildingId || dayOfWeek === undefined || !startTime || !endTime) {
       return res.status(400).json({
@@ -111,7 +113,9 @@ exports.getScheduleById = async (req, res) => {
 exports.updateSchedule = async (req, res) => {
   try {
     const { id } = req.params;
-    const { employeeId, buildingId, dayOfWeek, startTime, endTime, isActive } = req.body;
+    const {
+      employeeId, buildingId, dayOfWeek, startTime, endTime, isActive,
+    } = req.body;
 
     const [existing] = await db.select()
       .from(employeeSchedulesTable)

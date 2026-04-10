@@ -1,8 +1,8 @@
-const logger = require('../utils/logger');
-const { db } = require('../database/connection');
 const {
   eq, and, sql, lte, gte,
 } = require('drizzle-orm');
+const logger = require('../utils/logger');
+const { db } = require('../database/connection');
 const {
   visitsTable,
   employeesTable,
@@ -16,7 +16,7 @@ const { sendSMS, handleIncomingMessage } = require('./twilio.service');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
-const formatDateTime = dateTime => {
+const formatDateTime = (dateTime) => {
   const d = new Date(dateTime);
   return d.toLocaleDateString('fr-CA', {
     weekday: 'long',
@@ -28,9 +28,11 @@ const formatDateTime = dateTime => {
   });
 };
 
-const logSMS = async params => {
+const logSMS = async (params) => {
   try {
-    const { twilioSid, visitId, employeeId, leadId, phoneNumber, direction, messageBody, status, twilioStatus, errorMessage } = params;
+    const {
+      twilioSid, visitId, employeeId, leadId, phoneNumber, direction, messageBody, status, twilioStatus, errorMessage,
+    } = params;
     await db.insert(smsLogsTable).values({
       twilioSid: twilioSid || null,
       visitId: visitId || null,
@@ -51,7 +53,7 @@ const logSMS = async params => {
 /**
  * Get full visit context (joins employee, lead, unit, building).
  */
-const getVisitContext = async visitId => {
+const getVisitContext = async (visitId) => {
   const rows = await db
     .select({
       visit: visitsTable,
@@ -75,12 +77,12 @@ const getVisitContext = async visitId => {
 
 const tenantMessages = {
   fr: {
-    confirmationRequest: (dateTime, buildingName) =>
-      `📍 Visite confirmée! ${formatDateTime(dateTime)} à ${buildingName}. Confirmez votre présence: 1=Oui, 2=Non`,
+    confirmationRequest: (dateTime, buildingName) => `📍 Visite confirmée! ${formatDateTime(dateTime)} à ${buildingName}. Confirmez votre présence: 1=Oui, 2=Non`,
   },
   en: {
-    confirmationRequest: (dateTime, buildingName) =>
-      `📍 Visit confirmed! ${new Date(dateTime).toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })} at ${buildingName}. Confirm your attendance: 1=Yes, 2=No`,
+    confirmationRequest: (dateTime, buildingName) => `📍 Visit confirmed! ${new Date(dateTime).toLocaleDateString('en-CA', {
+      weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    })} at ${buildingName}. Confirm your attendance: 1=Yes, 2=No`,
   },
 };
 
@@ -88,20 +90,14 @@ const tenantMessages = {
 
 const occupantMessages = {
   fr: {
-    accessRequest: (dateTime, buildingName, unitLabel) =>
-      `🔑 Bonjour! Une visite pour l'appartement ${unitLabel} à ${buildingName} est prévue le ${formatDateTime(dateTime)}. Autorisez-vous l'accès? 1=Oui, 2=Non`,
-    accessConfirmed: (dateTime, buildingName, unitLabel) =>
-      `✅ Merci! Accès confirmé pour la visite du ${formatDateTime(dateTime)} à ${buildingName} ${unitLabel}.`,
-    accessDenied: () =>
-      '❌ D\'accord, merci de nous avoir informé. Nous allons annuler ou replanifier la visite.',
+    accessRequest: (dateTime, buildingName, unitLabel) => `🔑 Bonjour! Une visite pour l'appartement ${unitLabel} à ${buildingName} est prévue le ${formatDateTime(dateTime)}. Autorisez-vous l'accès? 1=Oui, 2=Non`,
+    accessConfirmed: (dateTime, buildingName, unitLabel) => `✅ Merci! Accès confirmé pour la visite du ${formatDateTime(dateTime)} à ${buildingName} ${unitLabel}.`,
+    accessDenied: () => '❌ D\'accord, merci de nous avoir informé. Nous allons annuler ou replanifier la visite.',
   },
   en: {
-    accessRequest: (dateTime, buildingName, unitLabel) =>
-      `🔑 Hi! A visit for apartment ${unitLabel} at ${buildingName} is scheduled for ${formatDateTime(dateTime)}. Do you allow access? 1=Yes, 2=No`,
-    accessConfirmed: (dateTime, buildingName, unitLabel) =>
-      `✅ Thanks! Access confirmed for the visit on ${formatDateTime(dateTime)} at ${buildingName} ${unitLabel}.`,
-    accessDenied: () =>
-      '❌ OK, thanks for letting us know. We\'ll cancel or reschedule the visit.',
+    accessRequest: (dateTime, buildingName, unitLabel) => `🔑 Hi! A visit for apartment ${unitLabel} at ${buildingName} is scheduled for ${formatDateTime(dateTime)}. Do you allow access? 1=Yes, 2=No`,
+    accessConfirmed: (dateTime, buildingName, unitLabel) => `✅ Thanks! Access confirmed for the visit on ${formatDateTime(dateTime)} at ${buildingName} ${unitLabel}.`,
+    accessDenied: () => '❌ OK, thanks for letting us know. We\'ll cancel or reschedule the visit.',
   },
 };
 
@@ -110,7 +106,7 @@ const occupantMessages = {
 /**
  * Send visit confirmation SMS to the employee.
  */
-const sendVisitConfirmation = async visitId => {
+const sendVisitConfirmation = async (visitId) => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -118,7 +114,9 @@ const sendVisitConfirmation = async visitId => {
       return { success: false, error: 'Visit not found' };
     }
 
-    const { visit, employee, lead, unit, building } = ctx;
+    const {
+      visit, employee, lead, unit, building,
+    } = ctx;
     if (!employee || !lead || !building) {
       return { success: false, error: 'Missing related data for visit confirmation' };
     }
@@ -151,7 +149,7 @@ const sendVisitConfirmation = async visitId => {
  * Send visit confirmation request SMS to the tenant (lead).
  * Checks lead.language for FR/EN.
  */
-const sendTenantConfirmationRequest = async visitId => {
+const sendTenantConfirmationRequest = async (visitId) => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -405,7 +403,7 @@ const handleOccupantReply = async (occupantPhone, reply) => {
  * - If tenant confirmed → positive reminder
  * - If tenant NOT confirmed → warning + call prompt
  */
-const sendMorningOfReminder = async visitId => {
+const sendMorningOfReminder = async (visitId) => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -413,7 +411,9 @@ const sendMorningOfReminder = async visitId => {
       return { success: false, error: 'Visit not found' };
     }
 
-    const { visit, employee, lead, unit, building } = ctx;
+    const {
+      visit, employee, lead, unit, building,
+    } = ctx;
     if (!employee || !building) {
       return { success: false, error: 'Missing employee or building for morning reminder' };
     }
@@ -456,7 +456,7 @@ const sendMorningOfReminder = async visitId => {
 /**
  * Send post-visit survey SMS to the employee.
  */
-const sendPostVisitSurvey = async visitId => {
+const sendPostVisitSurvey = async (visitId) => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -464,7 +464,9 @@ const sendPostVisitSurvey = async visitId => {
       return { success: false, error: 'Visit not found' };
     }
 
-    const { visit: _visit, employee, lead, building } = ctx;
+    const {
+      visit: _visit, employee, lead, building,
+    } = ctx;
     if (!employee || !lead) {
       return { success: false, error: 'Missing employee or lead for post-visit survey' };
     }
@@ -496,7 +498,7 @@ const sendPostVisitSurvey = async visitId => {
 /**
  * Notify Simon (or first admin) that a lead is interested.
  */
-const notifySimonInterested = async visitId => {
+const notifySimonInterested = async (visitId) => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
@@ -504,7 +506,9 @@ const notifySimonInterested = async visitId => {
       return { success: false, error: 'Visit not found' };
     }
 
-    const { visit, lead, unit, building } = ctx;
+    const {
+      visit, lead, unit, building,
+    } = ctx;
     if (!lead) {
       return { success: false, error: 'Missing lead data' };
     }

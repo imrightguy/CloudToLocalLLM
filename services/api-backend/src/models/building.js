@@ -492,4 +492,6 @@ const updateUnitSchema = Joi.object({
     }),
 });
 
-module.exports = { buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema };
+module.exports = {
+  buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema,
+};

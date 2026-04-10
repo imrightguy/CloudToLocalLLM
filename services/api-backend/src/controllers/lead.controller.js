@@ -1,6 +1,8 @@
+const {
+  eq, and, desc, asc, ilike, sql,
+} = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { leadsTable } = require('../database/schema');
-const { eq, and, desc, asc, ilike, sql } = require('drizzle-orm');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 const { child } = require('../utils/logger');
 

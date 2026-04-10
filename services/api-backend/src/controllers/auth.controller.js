@@ -1,8 +1,10 @@
 const bcrypt = require('bcryptjs');
+const {
+  eq, and, ne, sql, desc,
+} = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { usersTable, refreshTokensTable } = require('../database/schema');
 const { generateAccessToken, generateRefreshToken } = require('../auth/jwt.middleware');
-const { eq, and, ne, sql, desc } = require('drizzle-orm');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'auth' });
@@ -10,7 +12,7 @@ const log = child({ controller: 'auth' });
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Strip passwordHash from a user row */
-const sanitizeUser = user => {
+const sanitizeUser = (user) => {
   if (!user) return null;
   const { passwordHash: _passwordHash, ...safe } = user;
   return safe;
@@ -36,7 +38,9 @@ const userPublicFields = {
 
 const register = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phone } = req.body;
+    const {
+      email, password, firstName, lastName, phone,
+    } = req.body;
 
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({
@@ -607,7 +611,9 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, email, phone, role, isActive } = req.body;
+    const {
+      firstName, lastName, email, phone, role, isActive,
+    } = req.body;
 
     const updates = {};
     if (firstName !== undefined) updates.firstName = firstName.trim();

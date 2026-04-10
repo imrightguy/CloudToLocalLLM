@@ -1,6 +1,10 @@
+const {
+  eq, and, desc, sql, gte,
+} = require('drizzle-orm');
 const { db } = require('../database/connection');
-const { communicationLogsTable, leadsTable, visitsTable, smsLogsTable, employeesTable, unitsTable, buildingsTable } = require('../database/schema');
-const { eq, and, desc, sql, gte } = require('drizzle-orm');
+const {
+  communicationLogsTable, leadsTable, visitsTable, smsLogsTable, employeesTable, unitsTable, buildingsTable,
+} = require('../database/schema');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'communication' });
@@ -8,7 +12,9 @@ const log = child({ controller: 'communication' });
 // ─── Log Communication ───
 exports.logCommunication = async (req, res) => {
   try {
-    const { leadId, employeeId, type, direction, content, subject, attachments, status, metadata } = req.body;
+    const {
+      leadId, employeeId, type, direction, content, subject, attachments, status, metadata,
+    } = req.body;
 
     const validTypes = ['sms', 'email', 'phone', 'fb_messenger'];
     const validDirections = ['inbound', 'outbound'];
@@ -63,7 +69,9 @@ exports.logCommunication = async (req, res) => {
 // ─── Get Communications (filterable) ───
 exports.getCommunications = async (req, res) => {
   try {
-    const { leadId, employeeId, type, direction, status, page = 1, limit = 20 } = req.query;
+    const {
+      leadId, employeeId, type, direction, status, page = 1, limit = 20,
+    } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     const conditions = [eq(communicationLogsTable.isActive, true)];
@@ -142,9 +150,7 @@ exports.getCommunicationLogById = async (req, res) => {
 };
 
 // ─── Get Communication Logs (alias for getCommunications) ───
-exports.getCommunicationLogs = async (req, res) => {
-  return exports.getCommunications(req, res);
-};
+exports.getCommunicationLogs = async (req, res) => exports.getCommunications(req, res);
 
 // ─── Activity Feed ───
 // Unified feed aggregating recent activity from leads, visits, and SMS/communications.
@@ -167,7 +173,7 @@ exports.getActivityFeed = async (req, res) => {
       'sms_sent', 'sms_received', 'communication_logged',
     ];
     const filterTypes = type
-      ? type.split(',').map(t => t.trim()).filter(t => allTypes.includes(t))
+      ? type.split(',').map((t) => t.trim()).filter((t) => allTypes.includes(t))
       : null; // null = all types
 
     const activities = [];
@@ -235,7 +241,9 @@ exports.getActivityFeed = async (req, res) => {
 
       for (const visit of scheduledVisits) {
         const dateStr = visit.dateTime
-          ? new Date(visit.dateTime).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+          ? new Date(visit.dateTime).toLocaleDateString('fr-CA', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+          })
           : '';
         activities.push({
           type: 'visit_scheduled',
@@ -279,13 +287,12 @@ exports.getActivityFeed = async (req, res) => {
         .limit(validLimit);
 
       for (const visit of completedVisits) {
-        const outcomeText = visit.outcome === 'interesse'
-          ? ' — intéressé'
-          : visit.outcome === 'pas_interesse'
-            ? ' — pas intéressé'
-            : visit.outcome === 'no_show'
-              ? ' — absent'
-              : '';
+        const outcomeMap = {
+          interesse: ' — intéressé',
+          pas_interesse: ' — pas intéressé',
+          no_show: ' — absent',
+        };
+        const outcomeText = outcomeMap[visit.outcome] || '';
         activities.push({
           type: 'visit_completed',
           description: `Visite terminée : ${visit.leadFullName || 'Prospect'} — ${visit.unitLabel || ''}${outcomeText}`,

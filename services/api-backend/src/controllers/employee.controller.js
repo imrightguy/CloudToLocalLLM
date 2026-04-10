@@ -1,6 +1,8 @@
+const {
+  eq, and, asc, ilike, sql,
+} = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { employeesTable, employeeAssignmentsTable } = require('../database/schema');
-const { eq, and, asc, ilike, sql } = require('drizzle-orm');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'employee' });
@@ -8,7 +10,9 @@ const log = child({ controller: 'employee' });
 // ─── Create Employee ───
 exports.createEmployee = async (req, res) => {
   try {
-    const { firstName, lastName, phone, email } = req.body;
+    const {
+      firstName, lastName, phone, email,
+    } = req.body;
 
     if (!firstName || !lastName || !phone) {
       return res.status(400).json({
@@ -48,7 +52,9 @@ exports.createEmployee = async (req, res) => {
 // ─── Get Employees (paginated) ───
 exports.getEmployees = async (req, res) => {
   try {
-    const { page = 1, limit = 20, search, isActive } = req.query;
+    const {
+      page = 1, limit = 20, search, isActive,
+    } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     const conditions = [];
@@ -135,7 +141,9 @@ exports.getEmployeeById = async (req, res) => {
 exports.updateEmployee = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, phone, email, isActive } = req.body;
+    const {
+      firstName, lastName, phone, email, isActive,
+    } = req.body;
 
     const [existing] = await db.select()
       .from(employeesTable)

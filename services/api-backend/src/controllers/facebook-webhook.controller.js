@@ -5,7 +5,7 @@
  * Facebook Messenger webhook endpoint.
  */
 
-const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
+const { FB_VERIFY_TOKEN } = process.env;
 
 const botService = require('../services/messenger-bot.service');
 const logger = require('../utils/logger');
@@ -34,7 +34,7 @@ exports.handleWebhook = async (req, res) => {
   // Always respond 200 quickly to prevent Facebook retries
   res.status(200).send('EVENT_RECEIVED');
 
-  const body = req.body;
+  const { body } = req;
 
   if (body.object !== 'page') {
     return;
@@ -64,7 +64,7 @@ exports.handleWebhook = async (req, res) => {
 
         // Handle postback events (generic template button taps)
         if (messagingEvent.postback) {
-          const payload = messagingEvent.postback.payload;
+          const { payload } = messagingEvent.postback;
           if (payload) {
             await botService.handlePostback(senderId, payload);
           }

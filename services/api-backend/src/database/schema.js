@@ -203,7 +203,7 @@ const documentsLeadsTable = pgTable('documents_leads', {
   documentId: uuid('document_id').notNull().references(() => documentsTable.id, { onDelete: 'cascade' }),
   leadId: uuid('lead_id').notNull().references(() => leadsTable.id, { onDelete: 'cascade' }),
   assignedAt: timestamp('assigned_at').notNull().defaultNow(),
-}, table => ({
+}, (table) => ({
   pk: { primaryKey: { columns: [table.documentId, table.leadId] } },
 }));
 

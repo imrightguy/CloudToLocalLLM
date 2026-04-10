@@ -1,6 +1,8 @@
+const {
+  eq, and, desc, ilike, sql,
+} = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { documentsTable, documentsLeadsTable } = require('../database/schema');
-const { eq, and, desc, ilike, sql } = require('drizzle-orm');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'document' });
@@ -8,7 +10,9 @@ const log = child({ controller: 'document' });
 // ─── Upload Document ───
 exports.uploadDocument = async (req, res) => {
   try {
-    const { name, type, category, fileSize, mimeType, url, referenceId, referenceType, metadata, uploadedBy } = req.body;
+    const {
+      name, type, category, fileSize, mimeType, url, referenceId, referenceType, metadata, uploadedBy,
+    } = req.body;
 
     if (!name || !type || !url) {
       return res.status(400).json({
@@ -49,7 +53,9 @@ exports.uploadDocument = async (req, res) => {
 // ─── Get Documents ───
 exports.getDocuments = async (req, res) => {
   try {
-    const { referenceId, referenceType, type, category, status, uploadedBy, page = 1, limit = 20 } = req.query;
+    const {
+      referenceId, referenceType, type, category, status, uploadedBy, page = 1, limit = 20,
+    } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     const conditions = [eq(documentsTable.isActive, true)];
@@ -139,7 +145,9 @@ exports.getDocumentById = async (req, res) => {
 exports.updateDocument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, type, category, fileSize, mimeType, url, status, referenceId, referenceType, metadata } = req.body;
+    const {
+      name, type, category, fileSize, mimeType, url, status, referenceId, referenceType, metadata,
+    } = req.body;
 
     const [existing] = await db.select()
       .from(documentsTable)
@@ -308,7 +316,9 @@ exports.rejectDocument = async (req, res) => {
 // ─── Search Documents ───
 exports.searchDocuments = async (req, res) => {
   try {
-    const { q, type, category, status, page = 1, limit = 20 } = req.query;
+    const {
+      q, type, category, status, page = 1, limit = 20,
+    } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     if (!q) {

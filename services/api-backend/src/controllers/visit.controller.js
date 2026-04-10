@@ -1,7 +1,11 @@
+const {
+  eq, and, desc, asc, sql, gte, lte,
+} = require('drizzle-orm');
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
-const { visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable } = require('../database/schema');
-const { eq, and, desc, asc, sql, gte, lte } = require('drizzle-orm');
+const {
+  visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable,
+} = require('../database/schema');
 const { sendOccupantAccessRequest, sendVisitConfirmation, sendTenantConfirmationRequest } = require('../services/sms.service');
 
 /**
@@ -228,7 +232,7 @@ exports.getVisits = async (req, res) => {
     const expandAll = !expand;
     const expandSet = expandAll
       ? new Set(allExpandOptions)
-      : new Set(expand.split(',').map(s => s.trim()).filter(s => allExpandOptions.includes(s)));
+      : new Set(expand.split(',').map((s) => s.trim()).filter((s) => allExpandOptions.includes(s)));
 
     // Build conditions
     const conditions = [eq(visitsTable.isActive, true)];
@@ -322,7 +326,7 @@ exports.getVisits = async (req, res) => {
       .offset(offset);
 
     // Shape response into nested objects for expanded relations
-    const data = visits.map(v => {
+    const data = visits.map((v) => {
       const item = {
         id: v.id,
         unitId: v.unitId,

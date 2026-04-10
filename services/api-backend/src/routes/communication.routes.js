@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const communicationController = require('../controllers/communication.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');

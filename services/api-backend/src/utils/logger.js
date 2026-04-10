@@ -63,4 +63,6 @@ function child(defaultMeta) {
   };
 }
 
-module.exports = { error, warn, info, debug, child };
+module.exports = {
+  error, warn, info, debug, child,
+};

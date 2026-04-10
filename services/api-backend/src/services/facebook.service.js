@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
  * Uses native fetch (Node 18+).
  */
 
-const FB_PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
+const { FB_PAGE_ACCESS_TOKEN } = process.env;
 const FB_API_VERSION = 'v18.0';
 const FB_BASE_URL = `https://graph.facebook.com/${FB_API_VERSION}`;
 
@@ -49,11 +49,9 @@ async function callSendAPI(senderPsid, requestBody) {
  * @param {string} text - Message text (max 640 chars)
  * @returns {Promise<Object>} Facebook API response
  */
-const sendTextMessage = async (senderId, text) => {
-  return callSendAPI(senderId, {
-    message: { text },
-  });
-};
+const sendTextMessage = async (senderId, text) => callSendAPI(senderId, {
+  message: { text },
+});
 
 // ─── Send Quick Replies ───
 
@@ -65,7 +63,7 @@ const sendTextMessage = async (senderId, text) => {
  * @returns {Promise<Object>} Facebook API response
  */
 const sendQuickReplies = async (senderId, text, replies) => {
-  const quickReplies = replies.map(r => ({
+  const quickReplies = replies.map((r) => ({
     content_type: 'text',
     title: r.title,
     payload: r.payload,
@@ -87,19 +85,17 @@ const sendQuickReplies = async (senderId, text, replies) => {
  * @param {Array<{title: string, subtitle?: string, imageUrl?: string, defaultAction?: Object, buttons?: Array}>} elements
  * @returns {Promise<Object>} Facebook API response
  */
-const sendGenericTemplate = async (senderId, elements) => {
-  return callSendAPI(senderId, {
-    message: {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'generic',
-          elements,
-        },
+const sendGenericTemplate = async (senderId, elements) => callSendAPI(senderId, {
+  message: {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        elements,
       },
     },
-  });
-};
+  },
+});
 
 // ─── Get User Profile ───
 
@@ -108,7 +104,7 @@ const sendGenericTemplate = async (senderId, elements) => {
  * @param {string} senderId - Facebook sender PSID
  * @returns {Promise<{firstName: string, lastName: string, locale: string, profilePic: string}>}
  */
-const getUserProfile = async senderId => {
+const getUserProfile = async (senderId) => {
   if (!FB_PAGE_ACCESS_TOKEN) {
     throw new Error('FB_PAGE_ACCESS_TOKEN is not configured');
   }
