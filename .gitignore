@@ -82,9 +82,36 @@ publish_desktop_releases/
 
 # Claude Code skills (user-specific)
 .claude/
+CLAUDE.md
+claude_code_dev_env.sh
+claude_code_zai_env.sh
 
 # Kilocode (user-specific)
 .kilocode/
+AGENTS.md
 
 # Kilo AI (user-specific)
 kilo.json
+
+# Other AI agent session artifacts
+SOUL.md
+IDENTITY.md
+MEMORY.md
+USER.md
+TOOLS.md
+HEARTBEAT.md
+RECOVERY.md
+RECOVERY_NOTION_DESIGN.md
+SESSION_RECOVERY_PLAN.md
+SESSION_REENTRY.md
+gemini-cli.config.json
+opencode.json
+status.json
+
+# Session/working artifacts
+construction_page_completion.md
+domain-routing-report.json
+email_access_request.txt
+notion_api_setup_guide.md
+PKGBUILD_remote
+memory/
