@@ -404,5 +404,147 @@ void main() {
       expect(json.containsKey('id'), isFalse);
       expect(json.containsKey('dateTime'), isFalse);
     });
+
+    test('fromJson parses occupant notification fields', () {
+      final visit = VisitItem.fromJson({
+        'occupantNotified': true,
+        'occupantSMS': {'sid': 'SM123', 'status': 'delivered'},
+      });
+      expect(visit.occupantNotified, isTrue);
+      expect(visit.occupantSMS, {'sid': 'SM123', 'status': 'delivered'});
+    });
+
+    test('fromJson defaults occupant fields', () {
+      final visit = VisitItem.fromJson({});
+      expect(visit.occupantNotified, isFalse);
+      expect(visit.occupantSMS, isNull);
+    });
+
+    test('fromJson parses nested lead object', () {
+      final visit = VisitItem.fromJson({
+        'lead': {'fullName': 'Émilie Beaudoin'},
+      });
+      expect(visit.leadName, 'Émilie Beaudoin');
+    });
+
+    test('fromJson falls back to flat leadName', () {
+      final visit = VisitItem.fromJson({
+        'leadName': 'Jean Dupont',
+      });
+      expect(visit.leadName, 'Jean Dupont');
+    });
+
+    test('toJson includes occupantNotified and omits null occupantSMS', () {
+      const visit = VisitItem(
+        unitLabel: '201',
+        buildingName: 'Test',
+        dateLabel: '',
+        status: '',
+        agent: '',
+        notes: '',
+        occupantNotified: true,
+      );
+      final json = visit.toJson();
+      expect(json['occupantNotified'], isTrue);
+      expect(json.containsKey('occupantSMS'), isFalse);
+    });
+
+    test('toJson includes occupantSMS when present', () {
+      final visit = VisitItem(
+        unitLabel: '201',
+        buildingName: 'Test',
+        dateLabel: '',
+        status: '',
+        agent: '',
+        notes: '',
+        occupantSMS: {'sid': 'SM999'},
+      );
+      final json = visit.toJson();
+      expect(json['occupantSMS'], {'sid': 'SM999'});
+    });
+  });
+
+  group('UnitItem tenant occupant fields', () {
+    test('fromJson parses tenantName, tenantPhone, tenantLeaseEnd', () {
+      final unit = UnitItem.fromJson({
+        'tenantName': 'Sophie Tremblay',
+        'tenantPhone': '514-555-0100',
+        'tenantLeaseEnd': '2025-12-31T23:59:59.000',
+      });
+      expect(unit.tenantName, 'Sophie Tremblay');
+      expect(unit.tenantPhone, '514-555-0100');
+      expect(unit.tenantLeaseEnd, DateTime(2025, 12, 31, 23, 59, 59));
+    });
+
+    test('fromJson handles invalid tenantLeaseEnd gracefully', () {
+      final unit = UnitItem.fromJson({
+        'tenantLeaseEnd': 'not-a-date',
+      });
+      expect(unit.tenantLeaseEnd, isNull);
+    });
+
+    test('fromJson defaults tenant occupant fields', () {
+      final unit = UnitItem.fromJson({});
+      expect(unit.tenantName, isNull);
+      expect(unit.tenantPhone, isNull);
+      expect(unit.tenantLeaseEnd, isNull);
+    });
+
+    test('toJson omits null tenant occupant fields', () {
+      const unit = UnitItem(
+        number: '101',
+        type: '3 1/2',
+        bedrooms: 2,
+        rent: 1000,
+        status: 'libre',
+        leaseEnd: '',
+      );
+      final json = unit.toJson();
+      expect(json.containsKey('tenantName'), isFalse);
+      expect(json.containsKey('tenantPhone'), isFalse);
+      expect(json.containsKey('tenantLeaseEnd'), isFalse);
+    });
+
+    test('toJson includes tenant occupant fields when set', () {
+      final unit = UnitItem(
+        number: '101',
+        type: '3 1/2',
+        bedrooms: 2,
+        rent: 1000,
+        status: 'occupé',
+        leaseEnd: '',
+        tenantName: 'Sophie Tremblay',
+        tenantPhone: '514-555-0100',
+        tenantLeaseEnd: DateTime(2025, 12, 31),
+      );
+      final json = unit.toJson();
+      expect(json['tenantName'], 'Sophie Tremblay');
+      expect(json['tenantPhone'], '514-555-0100');
+      expect(json['tenantLeaseEnd'], '2025-12-31');
+    });
+
+    test('toJson round-trips with tenant occupant fields', () {
+      final original = UnitItem(
+        id: 'u1',
+        buildingId: 'b1',
+        number: '302',
+        type: '4 1/2',
+        bedrooms: 4,
+        rent: 1850,
+        status: 'occupé',
+        leaseEnd: '31/12/2024',
+        tenant: 'Sophie Tremblay',
+        amenities: ['fridge'],
+        squareFeet: 1200,
+        tenantName: 'Sophie Tremblay',
+        tenantPhone: '514-555-0100',
+        tenantLeaseEnd: DateTime(2025, 6, 30),
+      );
+      final json = original.toJson();
+      final restored = UnitItem.fromJson(json);
+      expect(restored.tenantName, original.tenantName);
+      expect(restored.tenantPhone, original.tenantPhone);
+      expect(restored.tenantLeaseEnd, original.tenantLeaseEnd);
+    });
   });
 }
