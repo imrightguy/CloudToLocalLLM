@@ -35,7 +35,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.62.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
     "@opentelemetry/sdk-node": "^0.203.0",
-    "@sentry/node": "^10.29.0",
+    "@sentry/node": "^10.48.0",
     "cors": "^2.8.5",
     "dockerode": "^4.0.9",
     "dotenv": "^16.3.1",
@@ -80,7 +80,7 @@
     "jest-junit": "^16.0.0",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.0.2",
-    "prettier": "^3.1.0",
+    "prettier": "^3.8.2",
     "supertest": "^7.1.4"
   },
   "engines": {
