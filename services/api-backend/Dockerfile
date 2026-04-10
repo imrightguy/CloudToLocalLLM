@@ -21,8 +21,8 @@ RUN npm run lint 2>/dev/null || true
 FROM node:20-alpine AS production
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install dumb-init for proper signal handling + postgres client for migrations
+RUN apk add --no-cache dumb-init postgresql-client
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -34,8 +34,9 @@ COPY --from=deps /prod_modules ./node_modules
 # Copy application source
 COPY . .
 
-# Copy migration files
-COPY migrations/ ./migrations/
+# Copy and set up entrypoint script (runs migrations before starting)
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Create directories for uploads and logs
 RUN mkdir -p /app/uploads /app/logs && \
@@ -48,5 +49,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
-ENTRYPOINT ["dumb-init", "--"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["node", "src/server.js"]

@@ -38,8 +38,9 @@ services:
       - .env.production
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD}@postgres:5432/immogestion
+      # DATABASE_URL comes from .env.production (loaded via env_file above)
       PORT: 3000
+      DB_HOST: postgres
     volumes:
       - uploads:/app/uploads
       - logs:/app/logs
