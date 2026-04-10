@@ -53,22 +53,24 @@ All endpoints are mounted under `/api` (base). All require `Authorization: Beare
 | `OfferItem` | *missing* | — | ⚠️ No backend table for offers; only in Flutter model |
 | `AlertItem` | *missing* | — | ⚠️ No backend table for alerts |
 
-### Stage Enum Mismatch
+### Stage Enum Alignment
+
+Stages are aligned — both Flutter and backend accept the same values. The backend accepts both camelCase (Flutter convention) and snake_case variants for backward compatibility.
 
 | Flutter `LeadStage` | Backend `leads.stage` | Status |
 |---------------------|-----------------------|--------|
 | `nouveau` | `nouveau` | ✅ Match |
 | `contacte` | `contacte` | ✅ Match |
-| `qualifie` | ❌ No equivalent | ⚠️ Missing |
-| `visitePlanifiee` | `visite_planifiee` | ✅ Match (naming convention) |
-| `offreEnvoyee` | ❌ No equivalent | ⚠️ Missing |
-| `negociation` | ❌ No equivalent | ⚠️ Missing |
-| `bailSigne` | `signe` | ⚠️ Renamed |
-| — | `visite_completee` | Backend-only |
-| — | `interesse` | Backend-only |
-| — | `inactif` | Backend-only |
+| `qualifie` | `qualifie` | ✅ Match |
+| `visitePlanifiee` | `visitePlanifiee`, `visite_planifiee` | ✅ Match (both accepted) |
+| `offreEnvoyee` | `offreEnvoyee` | ✅ Match |
+| `negociation` | `negociation` | ✅ Match |
+| `bailSigne` | `bailSigne`, `signe` | ✅ Match (both accepted) |
+| — | `visite_completee` | Backend-only (SMS flow) |
+| — | `interesse` | Backend-only (SMS flow) |
+| — | `inactif` | Backend-only (SMS flow) |
 
-**Action Required:** Align stage enums between Flutter and backend. The Flutter app has 7 stages; the backend only validates 7 different stages with 3 that don't match.
+**Resolved.** Source of truth: `services/api-backend/src/constants/lead-stages.js` (backend), `lib/models.dart` `LeadStage` enum (Flutter). Flutter deserializes via `_snakeToCamel()` helper.
 
 ### Visit Status Mapping
 
@@ -198,11 +200,11 @@ Need to either:
 |---|----------|---------|-------------|
 | 1 | `GET /api/leads?stage=nouveau` | Leads in "Nouveau" tab | `?page=1&limit=50&stage=nouveau` |
 | 2 | `GET /api/leads?stage=contacte` | Leads in "Contacté" tab | `?stage=contacte` |
-| 3 | `GET /api/leads?stage=qualifie` | ⚠️ Invalid backend stage | Need backend fix |
-| 4 | `GET /api/leads?stage=visite_planifiee` | Leads in "Visite" tab | `?stage=visite_planifiee` |
-| 5 | `GET /api/leads?stage=offre_envoyee` | ⚠️ Invalid backend stage | Need backend fix |
-| 6 | `GET /api/leads?stage=negociation` | ⚠️ Invalid backend stage | Need backend fix |
-| 7 | `GET /api/leads?stage=signe` | Leads in "Signé" tab | `?stage=signe` |
+| 3 | `GET /api/leads?stage=qualifie` | Leads in "Qualifié" tab | `?stage=qualifie` |
+| 4 | `GET /api/leads?stage=visitePlanifiee` | Leads in "Visite" tab | `?stage=visitePlanifiee` |
+| 5 | `GET /api/leads?stage=offreEnvoyee` | Leads in "Offre" tab | `?stage=offreEnvoyee` |
+| 6 | `GET /api/leads?stage=negociation` | Leads in "Négociation" tab | `?stage=negociation` |
+| 7 | `GET /api/leads?stage=bailSigne` | Leads in "Bail signé" tab | `?stage=bailSigne` |
 | 8 | `GET /api/analytics/leads/pipeline` | Pipeline summary with counts per stage | — |
 | 9 | `GET /api/analytics/leads/hot` | Hot leads list | — |
 
