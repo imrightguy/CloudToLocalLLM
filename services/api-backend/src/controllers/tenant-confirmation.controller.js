@@ -30,7 +30,7 @@ function generateConfirmationToken() {
 const getConfirmationPage = async (req, res) => {
   try {
     const { token } = req.params;
-    const format = req.query.format;
+    const { format } = req.query;
 
     // Look up visit by confirmation token
     const [visit] = await db

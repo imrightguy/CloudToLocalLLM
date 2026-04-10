@@ -35,7 +35,7 @@ const { getConfirmationPage, submitConfirmation, generateConfirmationToken } = r
 
 // ─── Fixtures ───────────────────────────────────────────────────────────────────
 
-const TOKEN='***';
+const TOKEN = '***';
 
 const baseVisit = {
   id: 'visit-uuid-001',

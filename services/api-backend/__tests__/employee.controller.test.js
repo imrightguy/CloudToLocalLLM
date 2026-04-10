@@ -168,18 +168,18 @@ const { db } = require('../src/database/connection');
  */
 function createMockChain(resolveTo = []) {
   const chain = {};
-  chain.from      = jest.fn().mockReturnValue(chain);
-  chain.where     = jest.fn().mockReturnValue(chain);
-  chain.orderBy   = jest.fn().mockReturnValue(chain);
-  chain.limit     = jest.fn().mockReturnValue(chain);
-  chain.offset    = jest.fn().mockReturnValue(chain);
+  chain.from = jest.fn().mockReturnValue(chain);
+  chain.where = jest.fn().mockReturnValue(chain);
+  chain.orderBy = jest.fn().mockReturnValue(chain);
+  chain.limit = jest.fn().mockReturnValue(chain);
+  chain.offset = jest.fn().mockReturnValue(chain);
   chain.innerJoin = jest.fn().mockReturnValue(chain);
-  chain.values    = jest.fn().mockReturnValue(chain);
+  chain.values = jest.fn().mockReturnValue(chain);
   chain.returning = jest.fn().mockResolvedValue(resolveTo);
-  chain.set       = jest.fn().mockReturnValue(chain);
+  chain.set = jest.fn().mockReturnValue(chain);
   // Make the chain awaitable (drizzle builders implement the Promise interface)
-  chain.then  = (onFulfilled, onRejected) => Promise.resolve(resolveTo).then(onFulfilled, onRejected);
-  chain.catch = (onRejected)              => Promise.resolve(resolveTo).catch(onRejected);
+  chain.then = (onFulfilled, onRejected) => Promise.resolve(resolveTo).then(onFulfilled, onRejected);
+  chain.catch = (onRejected) => Promise.resolve(resolveTo).catch(onRejected);
   return chain;
 }
 
@@ -355,7 +355,9 @@ describe('getEmployeeById', () => {
   });
 
   it('returns employee data when found', async () => {
-    const employee = { id, firstName: 'Jean', lastName: 'Tremblay', phone: '514-555-0001' };
+    const employee = {
+      id, firstName: 'Jean', lastName: 'Tremblay', phone: '514-555-0001',
+    };
     const chain = createMockChain([employee]);
     jest.spyOn(db, 'select').mockReturnValue(chain);
 
@@ -460,7 +462,12 @@ describe('updateEmployee', () => {
     mockExistingEmployee();
 
     await employeeController.updateEmployee(
-      { params: { id }, body: { firstName: 'New', lastName: 'Name', phone: '514-555-0000', email: 'new@example.com' } },
+      {
+        params: { id },
+        body: {
+          firstName: 'New', lastName: 'Name', phone: '514-555-0000', email: 'new@example.com',
+        },
+      },
       res,
     );
 
@@ -684,7 +691,9 @@ describe('getBuildingEmployees', () => {
 
   it('returns employees array for the building', async () => {
     const employees = [
-      { id: 'e1', firstName: 'Jean', lastName: 'Tremblay', role: 'primary' },
+      {
+        id: 'e1', firstName: 'Jean', lastName: 'Tremblay', role: 'primary',
+      },
     ];
     jest.spyOn(db, 'select').mockReturnValue(createMockChain(employees));
 

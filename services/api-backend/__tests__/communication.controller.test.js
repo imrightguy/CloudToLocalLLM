@@ -348,7 +348,9 @@ describe('logCommunication (controller import)', () => {
   });
 
   it('passes validation and returns 201 with valid type and direction', async () => {
-    mockDbResults = [[{ id: 'uuid-1', type: 'sms', direction: 'outbound', status: 'sent' }]];
+    mockDbResults = [[{
+      id: 'uuid-1', type: 'sms', direction: 'outbound', status: 'sent',
+    }]];
     const res = mockRes();
     await communicationController.logCommunication(
       { body: { type: 'sms', direction: 'outbound' } },
@@ -532,8 +534,12 @@ describe('getActivityFeed (controller import)', () => {
   it('respects type filter — only executes relevant sub-queries', async () => {
     // Only lead_created → 1 sub-query (new leads)
     mockDbResults = [[{
-      id: 'l1', fullName: 'Marie Tremblay', phone: '+15145551234',
-      source: 'web', stage: 'new', createdAt: new Date().toISOString(),
+      id: 'l1',
+      fullName: 'Marie Tremblay',
+      phone: '+15145551234',
+      source: 'web',
+      stage: 'new',
+      createdAt: new Date().toISOString(),
     }]];
     const res = mockRes();
     await communicationController.getActivityFeed({

@@ -280,7 +280,9 @@ describe('getLeads - query param parsing', () => {
 
   it('parses multiple filters together', async () => {
     await leadController.getLeads({
-      query: { stage: 'qualifie', buildingId: 'bldg-1', search: 'test', page: 2, limit: 5 },
+      query: {
+        stage: 'qualifie', buildingId: 'bldg-1', search: 'test', page: 2, limit: 5,
+      },
     }, res);
     expect(res.status).not.toHaveBeenCalledWith(400);
   });

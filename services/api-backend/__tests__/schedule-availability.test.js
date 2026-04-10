@@ -19,13 +19,13 @@ function jsDayToScheduleDay(jsDay) {
 
 describe('Schedule availability — day-of-week mapping', () => {
   const cases = [
-    ['Monday',    1, 0],
-    ['Tuesday',   2, 1],
+    ['Monday', 1, 0],
+    ['Tuesday', 2, 1],
     ['Wednesday', 3, 2],
-    ['Thursday',  4, 3],
-    ['Friday',    5, 4],
-    ['Saturday',  6, 5],
-    ['Sunday',    0, 6],
+    ['Thursday', 4, 3],
+    ['Friday', 5, 4],
+    ['Saturday', 6, 5],
+    ['Sunday', 0, 6],
   ];
 
   it.each(cases)('JS getDay(%s)=%i → schedule day %i', (_name, jsDay, expected) => {
@@ -160,7 +160,9 @@ describe('Schedule availability — combined day + time check', () => {
   }
 
   const mondaySchedule = [
-    { dayOfWeek: 0, startTime: '09:00', endTime: '17:00', isActive: true },
+    {
+      dayOfWeek: 0, startTime: '09:00', endTime: '17:00', isActive: true,
+    },
   ];
 
   it('allows Monday 9:00 visit with Monday schedule', () => {
@@ -194,7 +196,9 @@ describe('Schedule availability — combined day + time check', () => {
 
   it('allows Sunday visit with Sunday schedule (dayOfWeek=6)', () => {
     const sundaySchedule = [
-      { dayOfWeek: 6, startTime: '10:00', endTime: '14:00', isActive: true },
+      {
+        dayOfWeek: 6, startTime: '10:00', endTime: '14:00', isActive: true,
+      },
     ];
     // 2026-04-12 is a Sunday
     const result = checkAvailability('2026-04-12T12:00:00', sundaySchedule);
@@ -203,7 +207,9 @@ describe('Schedule availability — combined day + time check', () => {
 
   it('ignores inactive schedule entries', () => {
     const inactiveSchedule = [
-      { dayOfWeek: 0, startTime: '09:00', endTime: '17:00', isActive: false },
+      {
+        dayOfWeek: 0, startTime: '09:00', endTime: '17:00', isActive: false,
+      },
     ];
     const result = checkAvailability('2026-04-13T10:00:00', inactiveSchedule);
     expect(result.ok).toBe(false);
@@ -212,8 +218,12 @@ describe('Schedule availability — combined day + time check', () => {
 
   it('uses first matching schedule when multiple exist', () => {
     const multiSchedule = [
-      { dayOfWeek: 0, startTime: '09:00', endTime: '12:00', isActive: true },
-      { dayOfWeek: 0, startTime: '13:00', endTime: '17:00', isActive: true },
+      {
+        dayOfWeek: 0, startTime: '09:00', endTime: '12:00', isActive: true,
+      },
+      {
+        dayOfWeek: 0, startTime: '13:00', endTime: '17:00', isActive: true,
+      },
     ];
     // 14:00 falls in second schedule, but first matching (09:00-12:00) is checked
     const result = checkAvailability('2026-04-13T14:00:00', multiSchedule);

@@ -24,7 +24,9 @@ jest.mock('../src/database/connection', () => ({
 }));
 
 jest.mock('../src/database/schema', () => ({
-  smsLogsTable: { twilioSid: 'twilioSid', twilioStatus: 'twilioStatus', status: 'status', errorMessage: 'errorMessage', updatedAt: 'updatedAt' },
+  smsLogsTable: {
+    twilioSid: 'twilioSid', twilioStatus: 'twilioStatus', status: 'status', errorMessage: 'errorMessage', updatedAt: 'updatedAt',
+  },
 }));
 
 jest.mock('../src/utils/logger', () => ({
@@ -40,6 +42,7 @@ jest.mock('drizzle-orm', () => ({
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const smsService = require('../src/services/sms.service');
 const { db } = require('../src/database/connection');
+// eslint-disable-next-line import/order -- must come after jest.mock('drizzle-orm') above
 const { eq } = require('drizzle-orm');
 
 const mockRes = () => {

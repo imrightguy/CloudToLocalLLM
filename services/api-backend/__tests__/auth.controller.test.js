@@ -74,7 +74,11 @@ describe('register', () => {
 
   it('rejects null email with 400', async () => {
     await authController.register(
-      { body: { email: null, password: 'Test@1234', firstName: 'Jean', lastName: 'Tremblay' } },
+      {
+        body: {
+          email: null, password: 'Test@1234', firstName: 'Jean', lastName: 'Tremblay',
+        },
+      },
       res,
     );
     expect(res.status).toHaveBeenCalledWith(400);
@@ -82,7 +86,11 @@ describe('register', () => {
 
   it('rejects empty string email with 400', async () => {
     await authController.register(
-      { body: { email: '', password: 'Test@1234', firstName: 'Jean', lastName: 'Tremblay' } },
+      {
+        body: {
+          email: '', password: 'Test@1234', firstName: 'Jean', lastName: 'Tremblay',
+        },
+      },
       res,
     );
     expect(res.status).toHaveBeenCalledWith(400);
@@ -90,7 +98,11 @@ describe('register', () => {
 
   it('rejects undefined email with 400', async () => {
     await authController.register(
-      { body: { email: undefined, password: 'Test@1234', firstName: 'Jean', lastName: 'Tremblay' } },
+      {
+        body: {
+          email: undefined, password: 'Test@1234', firstName: 'Jean', lastName: 'Tremblay',
+        },
+      },
       res,
     );
     expect(res.status).toHaveBeenCalledWith(400);
