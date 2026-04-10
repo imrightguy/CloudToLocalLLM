@@ -1,5 +1,6 @@
 // ─── Analytics Controller — Phase 4 ───
 const analyticsService = require('../services/analytics.service');
+const logger = require('../utils/logger');
 const { successResponse } = require('../utils/apiResponse');
 
 // ─── Dashboard (full overview) ───
@@ -26,7 +27,7 @@ exports.getDashboard = async (req, res) => {
       },
     }));
   } catch (error) {
-    console.error('[analytics.controller] getDashboard error:', error);
+    logger.error('[analytics.controller] getDashboard error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load dashboard', code: 'DASHBOARD_ERROR' },
@@ -41,7 +42,7 @@ exports.getPipeline = async (req, res) => {
     const data = await analyticsService.getPipelineSummary();
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getPipeline error:', error);
+    logger.error('[analytics.controller] getPipeline error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load pipeline', code: 'PIPELINE_ERROR' },
@@ -56,7 +57,7 @@ exports.getHotLeads = async (req, res) => {
     const data = await analyticsService.getHotLeads();
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getHotLeads error:', error);
+    logger.error('[analytics.controller] getHotLeads error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load hot leads', code: 'HOT_LEADS_ERROR' },
@@ -72,7 +73,7 @@ exports.getVisitStats = async (req, res) => {
     const data = await analyticsService.getVisitStats(period || 'week');
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getVisitStats error:', error);
+    logger.error('[analytics.controller] getVisitStats error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load visit stats', code: 'VISIT_STATS_ERROR' },
@@ -88,7 +89,7 @@ exports.getConversionRates = async (req, res) => {
     const data = await analyticsService.getConversionRates(period || 'week');
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getConversionRates error:', error);
+    logger.error('[analytics.controller] getConversionRates error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load conversion rates', code: 'CONVERSION_ERROR' },
@@ -104,7 +105,7 @@ exports.getNoShowPatterns = async (req, res) => {
     const data = await analyticsService.getNoShowPatterns(buildingId || null);
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getNoShowPatterns error:', error);
+    logger.error('[analytics.controller] getNoShowPatterns error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load no-show patterns', code: 'NOSHOW_ERROR' },
@@ -126,7 +127,7 @@ exports.getBuildingPerformance = async (req, res) => {
     const data = await analyticsService.getBuildingPerformance(id);
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getBuildingPerformance error:', error);
+    logger.error('[analytics.controller] getBuildingPerformance error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load building performance', code: 'BUILDING_PERF_ERROR' },
@@ -148,7 +149,7 @@ exports.getEmployeePerformance = async (req, res) => {
     const data = await analyticsService.getEmployeePerformance(id);
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getEmployeePerformance error:', error);
+    logger.error('[analytics.controller] getEmployeePerformance error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load employee performance', code: 'EMPLOYEE_PERF_ERROR' },
@@ -163,7 +164,7 @@ exports.getWeeklySummary = async (req, res) => {
     const data = await analyticsService.getWeeklySummary();
     return res.json(successResponse({ data }));
   } catch (error) {
-    console.error('[analytics.controller] getWeeklySummary error:', error);
+    logger.error('[analytics.controller] getWeeklySummary error:', error);
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load weekly summary', code: 'WEEKLY_SUMMARY_ERROR' },

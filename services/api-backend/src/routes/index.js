@@ -11,6 +11,7 @@ const communicationRoutes = require('./communication.routes');
 const smsRoutes = require('./sms.routes');
 const facebookRoutes = require('./facebook.routes');
 const analyticsRoutes = require('./analytics.routes');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ router.use('/analytics', analyticsRoutes);
 
 router.use((err, req, res, _next) => {
   setCORSHeaders(res);
-  console.error('API Error:', err);
+  logger.error('API Error:', err);
   res.status(500).json({ success: false, error: { message: 'Internal server error', code: 'INTERNAL_ERROR' } });
 });
 

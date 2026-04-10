@@ -1,4 +1,5 @@
 const twilio = require('twilio');
+const logger = require('../utils/logger');
 
 let twilioClient = null;
 let twilioPhoneNumber = null;
@@ -15,17 +16,17 @@ const initTwilio = () => {
     twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER || null;
 
     if (!accountSid || !authToken) {
-      console.warn('⚠️  Twilio credentials not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN). SMS will be disabled.');
+      logger.warn('⚠️  Twilio credentials not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN). SMS will be disabled.');
       isInitialized = false;
       return false;
     }
 
     twilioClient = twilio(accountSid, authToken);
     isInitialized = true;
-    console.log('✅ Twilio client initialized');
+    logger.info('✅ Twilio client initialized');
     return true;
   } catch (error) {
-    console.error('❌ Failed to initialize Twilio client:', error.message);
+    logger.error('❌ Failed to initialize Twilio client:', error.message);
     isInitialized = false;
     return false;
   }
@@ -40,7 +41,7 @@ const initTwilio = () => {
 const sendSMS = async (to, body) => {
   try {
     if (!isInitialized || !twilioClient) {
-      console.warn('Twilio not initialized — skipping sendSMS');
+      logger.warn('Twilio not initialized — skipping sendSMS');
       return { success: false, error: 'Twilio not initialized' };
     }
 
@@ -67,7 +68,7 @@ const sendSMS = async (to, body) => {
       status: message.status,
     };
   } catch (error) {
-    console.error('❌ sendSMS error:', error.message);
+    logger.error('❌ sendSMS error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -119,7 +120,7 @@ const handleIncomingMessage = body => {
 
     return { action: null, raw: trimmed };
   } catch (error) {
-    console.error('❌ handleIncomingMessage parse error:', error.message);
+    logger.error('❌ handleIncomingMessage parse error:', error.message);
     return { action: null, raw: body };
   }
 };

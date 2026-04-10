@@ -1,6 +1,7 @@
 // ─── Weekly Report Cron Service — Phase 4 ───
 const cron = require('node-cron');
 const notificationService = require('./notification.service');
+const logger = require('../utils/logger');
 
 let scheduledTask = null;
 
@@ -12,7 +13,7 @@ let scheduledTask = null;
 function startWeeklyReport() {
   try {
     if (scheduledTask) {
-      console.warn('[weekly-report.service] Cron already running, skipping start');
+      logger.warn('[weekly-report.service] Cron already running, skipping start');
       return;
     }
 
@@ -21,21 +22,21 @@ function startWeeklyReport() {
 
     // Schedule: every Sunday at 5pm
     scheduledTask = cron.schedule('0 17 * * 0', async () => {
-      console.log('[weekly-report.service] Running weekly report cron...');
+      logger.info('[weekly-report.service] Running weekly report cron...');
       try {
         const results = await notificationService.sendWeeklySummary();
-        console.log(`[weekly-report.service] Weekly report sent: ${JSON.stringify(results)}`);
+        logger.info(`[weekly-report.service] Weekly report sent: ${JSON.stringify(results)}`);
       } catch (error) {
-        console.error('[weekly-report.service] Cron execution error:', error);
+        logger.error('[weekly-report.service] Cron execution error:', error);
       }
     }, {
       scheduled: true,
       timezone: 'America/Montreal',
     });
 
-    console.log('[weekly-report.service] ✅ Weekly report cron started — Sundays at 5:00 PM EST');
+    logger.info('[weekly-report.service] ✅ Weekly report cron started — Sundays at 5:00 PM EST');
   } catch (error) {
-    console.error('[weekly-report.service] startWeeklyReport error:', error);
+    logger.error('[weekly-report.service] startWeeklyReport error:', error);
     throw error;
   }
 }
@@ -48,10 +49,10 @@ function stopWeeklyReport() {
     if (scheduledTask) {
       scheduledTask.stop();
       scheduledTask = null;
-      console.log('[weekly-report.service] Weekly report cron stopped');
+      logger.info('[weekly-report.service] Weekly report cron stopped');
     }
   } catch (error) {
-    console.error('[weekly-report.service] stopWeeklyReport error:', error);
+    logger.error('[weekly-report.service] stopWeeklyReport error:', error);
     throw error;
   }
 }

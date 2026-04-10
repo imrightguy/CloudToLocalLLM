@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { db } = require('../database/connection');
 const {
   eq, and, sql, lte, gte,
@@ -43,7 +44,7 @@ const logSMS = async params => {
       errorMessage: errorMessage || null,
     });
   } catch (error) {
-    console.error('❌ Failed to log SMS:', error.message);
+    logger.error('❌ Failed to log SMS:', error.message);
   }
 };
 
@@ -113,7 +114,7 @@ const sendVisitConfirmation = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
-      console.error(`❌ sendVisitConfirmation: visit ${visitId} not found`);
+      logger.error(`❌ sendVisitConfirmation: visit ${visitId} not found`);
       return { success: false, error: 'Visit not found' };
     }
 
@@ -141,7 +142,7 @@ const sendVisitConfirmation = async visitId => {
 
     return result;
   } catch (error) {
-    console.error('❌ sendVisitConfirmation error:', error.message);
+    logger.error('❌ sendVisitConfirmation error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -154,7 +155,7 @@ const sendTenantConfirmationRequest = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
-      console.error(`❌ sendTenantConfirmationRequest: visit ${visitId} not found`);
+      logger.error(`❌ sendTenantConfirmationRequest: visit ${visitId} not found`);
       return { success: false, error: 'Visit not found' };
     }
 
@@ -182,7 +183,7 @@ const sendTenantConfirmationRequest = async visitId => {
 
     return result;
   } catch (error) {
-    console.error('❌ sendTenantConfirmationRequest error:', error.message);
+    logger.error('❌ sendTenantConfirmationRequest error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -196,7 +197,7 @@ const sendOccupantAccessRequest = async (visitId, lang = 'fr') => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
-      console.error(`❌ sendOccupantAccessRequest: visit ${visitId} not found`);
+      logger.error(`❌ sendOccupantAccessRequest: visit ${visitId} not found`);
       return { success: false, error: 'Visit not found' };
     }
 
@@ -253,7 +254,7 @@ const sendOccupantAccessRequest = async (visitId, lang = 'fr') => {
 
     return { success: result.success, needsNotice, ...result };
   } catch (error) {
-    console.error('❌ sendOccupantAccessRequest error:', error.message);
+    logger.error('❌ sendOccupantAccessRequest error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -266,7 +267,7 @@ const handleOccupantReply = async (occupantPhone, reply) => {
   try {
     const parsed = handleIncomingMessage(reply);
     if (!parsed.action) {
-      console.log(`ℹ️  Unrecognised occupant reply from ${occupantPhone}: "${reply}"`);
+      logger.info(`ℹ️  Unrecognised occupant reply from ${occupantPhone}: "${reply}"`);
       await logSMS({
         phoneNumber: occupantPhone,
         direction: 'inbound',
@@ -296,7 +297,7 @@ const handleOccupantReply = async (occupantPhone, reply) => {
     }
 
     if (!units.length) {
-      console.warn(`⚠️  No unit found for occupant phone ${occupantPhone}`);
+      logger.warn(`⚠️  No unit found for occupant phone ${occupantPhone}`);
       await logSMS({
         phoneNumber: occupantPhone,
         direction: 'inbound',
@@ -322,7 +323,7 @@ const handleOccupantReply = async (occupantPhone, reply) => {
       .limit(1);
 
     if (!visits.length) {
-      console.warn(`⚠️  No active visit needing occupant confirmation for unit ${unit.id}`);
+      logger.warn(`⚠️  No active visit needing occupant confirmation for unit ${unit.id}`);
       await logSMS({
         phoneNumber: occupantPhone,
         direction: 'inbound',
@@ -394,7 +395,7 @@ const handleOccupantReply = async (occupantPhone, reply) => {
       visitId: visit.id,
     };
   } catch (error) {
-    console.error('❌ handleOccupantReply error:', error.message);
+    logger.error('❌ handleOccupantReply error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -408,7 +409,7 @@ const sendMorningOfReminder = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
-      console.error(`❌ sendMorningOfReminder: visit ${visitId} not found`);
+      logger.error(`❌ sendMorningOfReminder: visit ${visitId} not found`);
       return { success: false, error: 'Visit not found' };
     }
 
@@ -447,7 +448,7 @@ const sendMorningOfReminder = async visitId => {
 
     return result;
   } catch (error) {
-    console.error('❌ sendMorningOfReminder error:', error.message);
+    logger.error('❌ sendMorningOfReminder error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -459,7 +460,7 @@ const sendPostVisitSurvey = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
-      console.error(`❌ sendPostVisitSurvey: visit ${visitId} not found`);
+      logger.error(`❌ sendPostVisitSurvey: visit ${visitId} not found`);
       return { success: false, error: 'Visit not found' };
     }
 
@@ -487,7 +488,7 @@ const sendPostVisitSurvey = async visitId => {
 
     return result;
   } catch (error) {
-    console.error('❌ sendPostVisitSurvey error:', error.message);
+    logger.error('❌ sendPostVisitSurvey error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -499,7 +500,7 @@ const notifySimonInterested = async visitId => {
   try {
     const ctx = await getVisitContext(visitId);
     if (!ctx) {
-      console.error(`❌ notifySimonInterested: visit ${visitId} not found`);
+      logger.error(`❌ notifySimonInterested: visit ${visitId} not found`);
       return { success: false, error: 'Visit not found' };
     }
 
@@ -523,7 +524,7 @@ const notifySimonInterested = async visitId => {
     }
 
     if (!simonPhone) {
-      console.warn('⚠️  No SIMON_PHONE env var and no admin with phone found — skipping notification');
+      logger.warn('⚠️  No SIMON_PHONE env var and no admin with phone found — skipping notification');
       return { success: false, error: 'No recipient phone configured' };
     }
 
@@ -545,7 +546,7 @@ const notifySimonInterested = async visitId => {
 
     return result;
   } catch (error) {
-    console.error('❌ notifySimonInterested error:', error.message);
+    logger.error('❌ notifySimonInterested error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -558,7 +559,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
   try {
     const parsed = handleIncomingMessage(reply);
     if (!parsed.action) {
-      console.log(`ℹ️  Unrecognised employee reply from ${employeePhone}: "${reply}"`);
+      logger.info(`ℹ️  Unrecognised employee reply from ${employeePhone}: "${reply}"`);
       // Log the inbound message anyway
       await logSMS({
         phoneNumber: employeePhone,
@@ -591,7 +592,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
         .limit(1);
 
       if (!altEmployees.length) {
-        console.warn(`⚠️  No employee found for phone ${employeePhone}`);
+        logger.warn(`⚠️  No employee found for phone ${employeePhone}`);
         await logSMS({
           phoneNumber: employeePhone,
           direction: 'inbound',
@@ -616,7 +617,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
       .limit(1);
 
     if (!visits.length) {
-      console.warn(`⚠️  No active visit for employee ${employee.id}`);
+      logger.warn(`⚠️  No active visit for employee ${employee.id}`);
       await logSMS({
         employeeId: employee.id,
         phoneNumber: employeePhone,
@@ -743,7 +744,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
 
     return { success: true, action: parsed.action, visitId: visit.id };
   } catch (error) {
-    console.error('❌ handleEmployeeReply error:', error.message);
+    logger.error('❌ handleEmployeeReply error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -755,7 +756,7 @@ const handleTenantReply = async (leadPhone, reply) => {
   try {
     const parsed = handleIncomingMessage(reply);
     if (!parsed.action) {
-      console.log(`ℹ️  Unrecognised tenant reply from ${leadPhone}: "${reply}"`);
+      logger.info(`ℹ️  Unrecognised tenant reply from ${leadPhone}: "${reply}"`);
       await logSMS({
         phoneNumber: leadPhone,
         direction: 'inbound',
@@ -785,7 +786,7 @@ const handleTenantReply = async (leadPhone, reply) => {
     }
 
     if (!leads.length) {
-      console.warn(`⚠️  No lead found for phone ${leadPhone}`);
+      logger.warn(`⚠️  No lead found for phone ${leadPhone}`);
       await logSMS({
         phoneNumber: leadPhone,
         direction: 'inbound',
@@ -810,7 +811,7 @@ const handleTenantReply = async (leadPhone, reply) => {
       .limit(1);
 
     if (!visits.length) {
-      console.warn(`⚠️  No active visit for lead ${lead.id}`);
+      logger.warn(`⚠️  No active visit for lead ${lead.id}`);
       await logSMS({
         leadId: lead.id,
         phoneNumber: leadPhone,
@@ -848,7 +849,7 @@ const handleTenantReply = async (leadPhone, reply) => {
       visitId: visit.id,
     };
   } catch (error) {
-    console.error('❌ handleTenantReply error:', error.message);
+    logger.error('❌ handleTenantReply error:', error.message);
     return { success: false, error: error.message };
   }
 };
@@ -882,7 +883,7 @@ const getVisitsNeedingMorningReminder = async () => {
 
     return visits;
   } catch (error) {
-    console.error('❌ getVisitsNeedingMorningReminder error:', error.message);
+    logger.error('❌ getVisitsNeedingMorningReminder error:', error.message);
     return [];
   }
 };
@@ -909,7 +910,7 @@ const getVisitsNeedingPostSurvey = async () => {
 
     return visits;
   } catch (error) {
-    console.error('❌ getVisitsNeedingPostSurvey error:', error.message);
+    logger.error('❌ getVisitsNeedingPostSurvey error:', error.message);
     return [];
   }
 };

@@ -8,9 +8,10 @@
 const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
 
 const botService = require('../services/messenger-bot.service');
+const logger = require('../utils/logger');
 
 if (!FB_VERIFY_TOKEN) {
-  console.warn('[FB Webhook] FB_VERIFY_TOKEN is not set. Webhook verification will fail.');
+  logger.warn('[FB Webhook] FB_VERIFY_TOKEN is not set. Webhook verification will fail.');
 }
 
 // ─── GET /webhooks/facebook — Verification Handshake ───
@@ -20,11 +21,11 @@ exports.verify = (req, res) => {
   const challenge = req.query['hub.challenge'];
 
   if (mode === 'subscribe' && token === FB_VERIFY_TOKEN) {
-    console.log('[FB Webhook] Verification successful');
+    logger.info('[FB Webhook] Verification successful');
     return res.status(200).send(challenge);
   }
 
-  console.error('[FB Webhook] Verification failed — invalid token or mode');
+  logger.error('[FB Webhook] Verification failed — invalid token or mode');
   return res.status(403).send('Forbidden');
 };
 
@@ -75,7 +76,7 @@ exports.handleWebhook = async (req, res) => {
           await botService.handleOptIn(senderId, ref);
         }
       } catch (err) {
-        console.error('[FB Webhook] Error processing event:', err);
+        logger.error('[FB Webhook] Error processing event:', err);
       }
     }
   }

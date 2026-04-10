@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 // ─── Analytics Service — Phase 4 ───
 const { db } = require('../database/connection');
 const {
@@ -39,7 +40,7 @@ async function getHotLeads() {
 
     return rows;
   } catch (error) {
-    console.error('[analytics.service] getHotLeads error:', error);
+    logger.error('[analytics.service] getHotLeads error:', error);
     throw error;
   }
 }
@@ -67,7 +68,7 @@ async function getPipelineSummary() {
 
     return results;
   } catch (error) {
-    console.error('[analytics.service] getPipelineSummary error:', error);
+    logger.error('[analytics.service] getPipelineSummary error:', error);
     throw error;
   }
 }
@@ -106,7 +107,7 @@ async function getConversionRates(period = 'week') {
       conversionRate: `${rate}%`,
     };
   } catch (error) {
-    console.error('[analytics.service] getConversionRates error:', error);
+    logger.error('[analytics.service] getConversionRates error:', error);
     throw error;
   }
 }
@@ -159,7 +160,7 @@ async function getNoShowPatterns(buildingId = null) {
       })),
     };
   } catch (error) {
-    console.error('[analytics.service] getNoShowPatterns error:', error);
+    logger.error('[analytics.service] getNoShowPatterns error:', error);
     throw error;
   }
 }
@@ -213,7 +214,7 @@ async function getVisitStats(period = 'week') {
       noShow: Number(noShow),
     };
   } catch (error) {
-    console.error('[analytics.service] getVisitStats error:', error);
+    logger.error('[analytics.service] getVisitStats error:', error);
     throw error;
   }
 }
@@ -236,7 +237,7 @@ async function getLeadSourceBreakdown() {
       count: Number(r.count),
     }));
   } catch (error) {
-    console.error('[analytics.service] getLeadSourceBreakdown error:', error);
+    logger.error('[analytics.service] getLeadSourceBreakdown error:', error);
     throw error;
   }
 }
@@ -311,7 +312,7 @@ async function getBuildingPerformance(buildingId) {
         : null,
     };
   } catch (error) {
-    console.error('[analytics.service] getBuildingPerformance error:', error);
+    logger.error('[analytics.service] getBuildingPerformance error:', error);
     throw error;
   }
 }
@@ -378,7 +379,7 @@ async function getWeeklySummary() {
       hotLeadsCount: Number(hotLeads),
     };
   } catch (error) {
-    console.error('[analytics.service] getWeeklySummary error:', error);
+    logger.error('[analytics.service] getWeeklySummary error:', error);
     throw error;
   }
 }
@@ -451,7 +452,7 @@ async function getEmployeePerformance(employeeId) {
         : '0%',
     };
   } catch (error) {
-    console.error('[analytics.service] getEmployeePerformance error:', error);
+    logger.error('[analytics.service] getEmployeePerformance error:', error);
     throw error;
   }
 }

@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { db } = require('../database/connection');
 const { visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable } = require('../database/schema');
 const { eq, and, desc, asc, sql, gte, lte } = require('drizzle-orm');
@@ -153,9 +154,9 @@ exports.createVisit = async (req, res) => {
         const employeeConfirmation = await sendVisitConfirmation(visit.id);
         const tenantConfirmation = await sendTenantConfirmationRequest(visit.id);
         confirmationResult = { employee: employeeConfirmation, tenant: tenantConfirmation };
-        console.log(`📨 Visit confirmation sent: employee=${employeeConfirmation.success}, tenant=${tenantConfirmation.success}`);
+        logger.info(`📨 Visit confirmation sent: employee=${employeeConfirmation.success}, tenant=${tenantConfirmation.success}`);
       } catch (smsErr) {
-        console.error('⚠️  Visit confirmation SMS failed (visit created anyway):', smsErr.message);
+        logger.error('⚠️  Visit confirmation SMS failed (visit created anyway):', smsErr.message);
         confirmationResult = { success: false, error: smsErr.message };
       }
     }
@@ -174,7 +175,7 @@ exports.createVisit = async (req, res) => {
         occupantResult = await sendOccupantAccessRequest(visit.id);
       }
     } catch (smsErr) {
-      console.error('⚠️  Occupant SMS failed (visit created anyway):', smsErr.message);
+      logger.error('⚠️  Occupant SMS failed (visit created anyway):', smsErr.message);
       occupantResult = { success: false, error: smsErr.message };
     }
 
@@ -186,7 +187,7 @@ exports.createVisit = async (req, res) => {
       message: 'Visit created successfully',
     });
   } catch (error) {
-    console.error('Error creating visit:', error);
+    logger.error('Error creating visit:', error);
 
     if (error.code === '23503') {
       return res.status(400).json({
@@ -388,7 +389,7 @@ exports.getVisits = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching visits:', error);
+    logger.error('Error fetching visits:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'VISIT_FETCH_FAILED' },
@@ -416,7 +417,7 @@ exports.getVisitById = async (req, res) => {
 
     res.json({ success: true, data: visit });
   } catch (error) {
-    console.error('Error fetching visit:', error);
+    logger.error('Error fetching visit:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'VISIT_FETCH_FAILED' },
@@ -526,7 +527,7 @@ exports.updateVisit = async (req, res) => {
 
     res.json({ success: true, data: updated, message: 'Visit updated successfully' });
   } catch (error) {
-    console.error('Error updating visit:', error);
+    logger.error('Error updating visit:', error);
 
     if (error.code === '23503') {
       return res.status(400).json({
@@ -567,7 +568,7 @@ exports.deleteVisit = async (req, res) => {
 
     res.json({ success: true, data: null, message: 'Visit deleted successfully' });
   } catch (error) {
-    console.error('Error deleting visit:', error);
+    logger.error('Error deleting visit:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'VISIT_DELETE_FAILED' },
@@ -636,7 +637,7 @@ exports.updateVisitStatus = async (req, res) => {
 
     res.json({ success: true, data: updated, message: 'Visit status updated successfully' });
   } catch (error) {
-    console.error('Error updating visit status:', error);
+    logger.error('Error updating visit status:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'VISIT_STATUS_UPDATE_FAILED' },

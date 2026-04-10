@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 /**
  * Facebook Messenger API Service
  * Meta Graph API wrapper for sending messages, templates, and fetching user profiles.
@@ -9,7 +10,7 @@ const FB_API_VERSION = 'v18.0';
 const FB_BASE_URL = `https://graph.facebook.com/${FB_API_VERSION}`;
 
 if (!FB_PAGE_ACCESS_TOKEN) {
-  console.warn('[FB Service] FB_PAGE_ACCESS_TOKEN is not set. Facebook messaging will not work.');
+  logger.warn('[FB Service] FB_PAGE_ACCESS_TOKEN is not set. Facebook messaging will not work.');
 }
 
 // ─── Helpers ───
@@ -33,7 +34,7 @@ async function callSendAPI(senderPsid, requestBody) {
 
   if (!response.ok) {
     const errorBody = await response.text();
-    console.error('[FB Service] Send API error:', response.status, errorBody);
+    logger.error('[FB Service] Send API error:', response.status, errorBody);
     throw new Error(`Facebook Send API error ${response.status}: ${errorBody}`);
   }
 
@@ -118,7 +119,7 @@ const getUserProfile = async senderId => {
   const response = await fetch(url);
   if (!response.ok) {
     const errorBody = await response.text();
-    console.error('[FB Service] User profile error:', response.status, errorBody);
+    logger.error('[FB Service] User profile error:', response.status, errorBody);
     throw new Error(`Facebook User API error ${response.status}: ${errorBody}`);
   }
 

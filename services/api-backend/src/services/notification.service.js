@@ -6,6 +6,7 @@ const {
 } = require('../database/schema');
 const { eq } = require('drizzle-orm');
 const analyticsService = require('./analytics.service');
+const logger = require('../utils/logger');
 
 let transporter = null;
 
@@ -22,10 +23,10 @@ function initMailer() {
         pass: process.env.SMTP_PASS,
       },
     });
-    console.log('[notification.service] Mailer initialized');
+    logger.info('[notification.service] Mailer initialized');
     return transporter;
   } catch (error) {
-    console.error('[notification.service] initMailer error:', error);
+    logger.error('[notification.service] initMailer error:', error);
     throw error;
   }
 }
@@ -39,7 +40,7 @@ async function sendEmail(to, subject, html) {
     }
 
     if (!process.env.SMTP_HOST) {
-      console.warn('[notification.service] SMTP not configured, skipping email send');
+      logger.warn('[notification.service] SMTP not configured, skipping email send');
       return { success: false, reason: 'SMTP_NOT_CONFIGURED' };
     }
 
@@ -50,10 +51,10 @@ async function sendEmail(to, subject, html) {
       html,
     });
 
-    console.log(`[notification.service] Email sent to ${to}: ${info.messageId}`);
+    logger.info(`[notification.service] Email sent to ${to}: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('[notification.service] sendEmail error:', error);
+    logger.error('[notification.service] sendEmail error:', error);
     return { success: false, error: error.message };
   }
 }
@@ -69,7 +70,7 @@ async function sendWeeklySummary() {
       .where(eq(usersTable.role, 'admin'));
 
     if (!admins.length) {
-      console.warn('[notification.service] No admin users found for weekly summary');
+      logger.warn('[notification.service] No admin users found for weekly summary');
       return;
     }
 
@@ -147,7 +148,7 @@ async function sendWeeklySummary() {
 
     return results;
   } catch (error) {
-    console.error('[notification.service] sendWeeklySummary error:', error);
+    logger.error('[notification.service] sendWeeklySummary error:', error);
     throw error;
   }
 }
@@ -163,7 +164,7 @@ async function sendHotLeadNotification(leadId) {
       .limit(1);
 
     if (!lead) {
-      console.warn(`[notification.service] Lead ${leadId} not found`);
+      logger.warn(`[notification.service] Lead ${leadId} not found`);
       return { success: false, reason: 'LEAD_NOT_FOUND' };
     }
 
@@ -174,7 +175,7 @@ async function sendHotLeadNotification(leadId) {
       .where(eq(usersTable.role, 'admin'));
 
     if (!admins.length) {
-      console.warn('[notification.service] No admin users found');
+      logger.warn('[notification.service] No admin users found');
       return { success: false, reason: 'NO_ADMINS' };
     }
 
@@ -269,7 +270,7 @@ async function sendHotLeadNotification(leadId) {
 
     return results;
   } catch (error) {
-    console.error('[notification.service] sendHotLeadNotification error:', error);
+    logger.error('[notification.service] sendHotLeadNotification error:', error);
     throw error;
   }
 }
@@ -285,7 +286,7 @@ async function sendNoShowAlert(visitId) {
       .limit(1);
 
     if (!visit) {
-      console.warn(`[notification.service] Visit ${visitId} not found`);
+      logger.warn(`[notification.service] Visit ${visitId} not found`);
       return { success: false, reason: 'VISIT_NOT_FOUND' };
     }
 
@@ -404,7 +405,7 @@ async function sendNoShowAlert(visitId) {
 
     return results;
   } catch (error) {
-    console.error('[notification.service] sendNoShowAlert error:', error);
+    logger.error('[notification.service] sendNoShowAlert error:', error);
     throw error;
   }
 }

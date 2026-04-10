@@ -24,6 +24,7 @@ const { eq, and, lte, sql, asc } = require('drizzle-orm');
 
 const fbService = require('./facebook.service');
 const smsService = require('./sms.service');
+const logger = require('../utils/logger');
 
 // ─── Conversation States ───
 const STATES = {
@@ -132,7 +133,7 @@ async function logCommunication({ leadId, employeeId, type, direction, content, 
       status: status || 'sent',
     });
   } catch (err) {
-    console.error('[MessengerBot] Failed to log communication:', err.message);
+    logger.error('[MessengerBot] Failed to log communication:', err.message);
   }
 }
 
@@ -319,7 +320,7 @@ const handleIncomingMessage = async (senderId, messageText) => {
         conv.state = STATES.DONE;
     }
   } catch (err) {
-    console.error('[MessengerBot] Error handling message:', err);
+    logger.error('[MessengerBot] Error handling message:', err);
     await fbService.sendTextMessage(
       senderId,
       lang === 'en'
@@ -339,7 +340,7 @@ async function handleNew(senderId, conv, _text) {
     conv.data.lastName = profile.lastName;
     conv.data.locale = profile.locale;
   } catch (err) {
-    console.warn('[MessengerBot] Could not fetch user profile:', err.message);
+    logger.warn('[MessengerBot] Could not fetch user profile:', err.message);
   }
 
   // Send welcome + ask language
@@ -453,7 +454,7 @@ async function handleBudget(senderId, conv, text) {
     const lead = await createLeadFromConversation(senderId, conv.data);
     conv.leadId = lead.id;
   } catch (err) {
-    console.error('[MessengerBot] Failed to create lead:', err.message);
+    logger.error('[MessengerBot] Failed to create lead:', err.message);
   }
 
   // Search for matching listings
@@ -593,7 +594,7 @@ async function handleSuggestVisit(senderId, conv, text) {
         })
         .where(eq(leadsTable.id, conv.leadId));
     } catch (err) {
-      console.error('[MessengerBot] Failed to update lead:', err.message);
+      logger.error('[MessengerBot] Failed to update lead:', err.message);
     }
   }
 
@@ -614,7 +615,7 @@ async function handleSuggestVisit(senderId, conv, text) {
         })
         .returning();
     } catch (err) {
-      console.error('[MessengerBot] Failed to create visit:', err.message);
+      logger.error('[MessengerBot] Failed to create visit:', err.message);
     }
   }
 
@@ -653,7 +654,7 @@ async function handleSuggestVisit(senderId, conv, text) {
         contactPhone: slot.phone,
       });
     } catch (err) {
-      console.error('[MessengerBot] Failed to send visit confirmation SMS:', err.message);
+      logger.error('[MessengerBot] Failed to send visit confirmation SMS:', err.message);
     }
   } else {
     const noPhoneMsg = t('noPhoneNumber', lang);
@@ -760,7 +761,7 @@ const handlePostback = async (senderId, payload) => {
   }
 
   // Unknown payload — treat as fallback
-  console.warn('[MessengerBot] Unknown postback payload:', payload);
+  logger.warn('[MessengerBot] Unknown postback payload:', payload);
   await fbService.sendTextMessage(senderId, t('fallback', lang));
 };
 
@@ -772,7 +773,7 @@ const handlePostback = async (senderId, payload) => {
  * @param {string} ref - Optional ref parameter
  */
 const handleOptIn = async (senderId, ref) => {
-  console.log(`[MessengerBot] Opt-in from ${senderId}, ref: ${ref}`);
+  logger.info(`[MessengerBot] Opt-in from ${senderId}, ref: ${ref}`);
 
   // Treat opt-in as a new conversation
   conversations.delete(senderId);
