@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -14,7 +12,7 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 
 /**
  * Mock WebhookRateLimiterService for testing core logic

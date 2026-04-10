@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -20,7 +18,7 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
 import crypto from "crypto";
 import { query } from "../../services/api-backend/database/db-pool.js";
 import {

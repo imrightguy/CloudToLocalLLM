@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -12,7 +10,7 @@
  * **Validates: Requirements 2.4**
  */
 
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import {
   getUserTier,
   getTierFeatures,

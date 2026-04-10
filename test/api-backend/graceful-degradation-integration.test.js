@@ -9,14 +9,7 @@
  * Requirement 7.6: THE API SHALL implement graceful degradation when services are unavailable
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  jest,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import express from "express";
 import request from "supertest";
 import {

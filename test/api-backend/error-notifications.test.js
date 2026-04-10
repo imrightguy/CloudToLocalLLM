@@ -1,4 +1,3 @@
-/* global jest */
 import { jest } from "@jest/globals";
 
 /**

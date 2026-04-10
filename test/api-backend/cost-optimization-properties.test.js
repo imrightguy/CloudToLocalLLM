@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -12,7 +10,7 @@
  * Validates: Requirements 2.1, 2.2, 2.4, 2.5
  */
 
-import { jest, describe, test, expect } from "@jest/globals";
+import { describe, test, expect } from "@jest/globals";
 import fc from "fast-check";
 
 const AWS_ACCOUNT_ID = "422017356244";

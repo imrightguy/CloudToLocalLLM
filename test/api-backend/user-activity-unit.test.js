@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -16,7 +14,7 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import {
   ACTIVITY_ACTIONS,
   SEVERITY_LEVELS,

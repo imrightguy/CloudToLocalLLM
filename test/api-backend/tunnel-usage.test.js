@@ -19,7 +19,6 @@
  * @version 1.0.0
  */
 
-/* global jest */
 import { jest } from "@jest/globals";
 
 import {

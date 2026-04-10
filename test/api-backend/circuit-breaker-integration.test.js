@@ -1,5 +1,4 @@
-/* global jest */
-import { jest } from "@jest/globals";
+import {} from "@jest/globals";
 
 import express from "express";
 

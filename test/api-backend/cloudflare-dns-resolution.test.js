@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -19,7 +17,7 @@
  * - Verify DNS propagation across multiple queries
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
 import dns from "dns";
 import { promisify } from "util";
 

@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -14,7 +12,7 @@
  * Feature: api-backend-enhancement, Property 15: API documentation consistency
  */
 
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import ChangelogService from "../../services/api-backend/services/changelog-service.js";
 
 describe("Property 15: API Documentation Consistency", () => {

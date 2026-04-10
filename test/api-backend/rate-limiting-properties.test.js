@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -20,14 +18,7 @@
  * **Validates: Requirements 6.1, 6.2, 6.3**
  */
 
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import fc from "fast-check";
 
 /**

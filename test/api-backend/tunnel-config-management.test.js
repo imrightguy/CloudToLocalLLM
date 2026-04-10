@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -19,7 +17,7 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import {
   validateTunnelConfig,
   getDefaultTunnelConfig,

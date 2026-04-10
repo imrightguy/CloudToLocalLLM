@@ -5,14 +5,7 @@
  * Tests system load monitoring and adaptive rate limit adjustment
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  jest,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import { SystemLoadMonitor } from "../../services/api-backend/services/system-load-monitor.js";
 import { AdaptiveRateLimiter } from "../../services/api-backend/middleware/adaptive-rate-limiter.js";
 

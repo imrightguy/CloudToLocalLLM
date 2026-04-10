@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -14,7 +12,7 @@
  * Feature: api-backend-enhancement, Property 11: Metrics consistency
  */
 
-import { jest, describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import AlertTriggeringService from "../../services/api-backend/services/alert-triggering-service.js";
 
 describe("Property 11: Metrics Consistency", () => {

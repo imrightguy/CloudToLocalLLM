@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -20,7 +18,7 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeAll, afterAll } from "@jest/globals";
+import { describe, it, expect, beforeAll, afterAll } from "@jest/globals";
 import { v4 as uuidv4 } from "uuid";
 import { TunnelSharingService } from "../../services/api-backend/services/tunnel-sharing-service.js";
 import { getPool } from "../../services/api-backend/database/db-pool.js";

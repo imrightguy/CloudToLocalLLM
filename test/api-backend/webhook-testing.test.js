@@ -16,14 +16,7 @@
  * @version 1.0.0
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  jest,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import { WebhookTestingService } from "../../services/api-backend/services/webhook-testing-service.js";
 import crypto from "crypto";
 

@@ -10,14 +10,7 @@
  * Requirements: 8.10 (Real-time alerting for critical metrics)
  */
 
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  jest,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import AlertTriggeringService from "../../services/api-backend/services/alert-triggering-service.js";
 
 describe("Alert Triggering Service", () => {

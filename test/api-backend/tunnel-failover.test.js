@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -24,7 +22,7 @@
  * @version 1.0.0
  */
 
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { TunnelFailoverService } from "../../services/api-backend/services/tunnel-failover-service.js";
 
 describe("Tunnel Failover Management - Unit Tests", () => {

@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -16,7 +14,7 @@
 
 import fc from "fast-check";
 import assert from "assert";
-import { jest, describe, test, expect } from "@jest/globals";
+import { describe, test, expect } from "@jest/globals";
 
 /**
  * Generate a unique ID for each deployment

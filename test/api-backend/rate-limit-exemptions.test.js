@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -12,14 +10,7 @@
  * @fileoverview Rate limit exemptions tests
  */
 
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import {
   RateLimitExemptionManager,
   createRateLimitExemptionMiddleware,

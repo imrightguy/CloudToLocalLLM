@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -16,7 +14,6 @@
  */
 
 import {
-  jest,
   describe,
   it,
   expect,

@@ -7,14 +7,7 @@
  * Requirements: 9.8 (Query Optimization and Caching)
  */
 
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import {
   clearCache,
   getCacheStats,

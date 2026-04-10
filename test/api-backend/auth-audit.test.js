@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -16,7 +14,6 @@
 
 import request from "supertest";
 import {
-  jest,
   describe,
   it,
   expect,

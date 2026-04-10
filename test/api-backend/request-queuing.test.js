@@ -1,5 +1,3 @@
-/* global jest */
-
 /**
 
 
@@ -12,14 +10,7 @@
  * @version 1.0.0
  */
 
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-} from "@jest/globals";
+import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import {
   RequestQueueService,
   getRequestQueueService,
