@@ -160,7 +160,9 @@ exports.getActivityFeed = async (req, res) => {
     const {
       limit = 30,
       hoursAgo = 168, // default: 7 days
-      type, // comma-separated filter: lead_created, visit_scheduled, visit_completed, sms_sent, sms_received, communication_logged
+      // comma-separated filter: lead_created, visit_scheduled, visit_completed,
+      // sms_sent, sms_received, communication_logged
+      type,
     } = req.query;
 
     const validLimit = Math.min(100, Math.max(1, parseInt(limit)));

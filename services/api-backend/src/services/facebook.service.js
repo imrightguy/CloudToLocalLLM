@@ -82,7 +82,8 @@ const sendQuickReplies = async (senderId, text, replies) => {
 /**
  * Send a generic template with card-style elements (for listings).
  * @param {string} senderId - Facebook sender PSID
- * @param {Array<{title: string, subtitle?: string, imageUrl?: string, defaultAction?: Object, buttons?: Array}>} elements
+ * @param {Array<{title: string, subtitle?: string, imageUrl?: string,
+ *   defaultAction?: Object, buttons?: Array}>} elements
  * @returns {Promise<Object>} Facebook API response
  */
 const sendGenericTemplate = async (senderId, elements) => callSendAPI(senderId, {

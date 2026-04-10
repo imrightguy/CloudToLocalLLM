@@ -465,7 +465,7 @@ const sendPostVisitSurvey = async (visitId) => {
     }
 
     const {
-      visit: _visit, employee, lead, building,
+      employee, lead, building,
     } = ctx;
     if (!employee || !lead) {
       return { success: false, error: 'Missing employee or lead for post-visit survey' };
@@ -586,7 +586,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
 
     let employee;
     if (employees.length) {
-      employee = employees[0];
+      [employee] = employees;
     } else {
       const altPhone = cleanedPhone.startsWith('1') ? `+${cleanedPhone}` : `+1${cleanedPhone}`;
       const altEmployees = await db
@@ -606,7 +606,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
         });
         return { success: false, error: 'Employee not found' };
       }
-      employee = altEmployees[0];
+      [employee] = altEmployees;
     }
 
     // Find the most recent active visit for this employee

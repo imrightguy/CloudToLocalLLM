@@ -121,7 +121,11 @@ exports.getDocumentById = async (req, res) => {
     }
 
     // Fetch associated lead IDs
-    const leadLinks = await db.select({ leadId: documentsLeadsTable.leadId, assignedAt: documentsLeadsTable.assignedAt })
+    const leadLinks = await db
+      .select({
+        leadId: documentsLeadsTable.leadId,
+        assignedAt: documentsLeadsTable.assignedAt,
+      })
       .from(documentsLeadsTable)
       .where(eq(documentsLeadsTable.documentId, id));
 

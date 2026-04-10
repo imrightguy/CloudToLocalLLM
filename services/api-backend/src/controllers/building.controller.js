@@ -483,7 +483,9 @@ exports.updateUnit = async (req, res) => {
     if (value.amenities !== undefined) updateData.amenities = value.amenities;
     if (value.tenantName !== undefined) updateData.tenantName = value.tenantName || null;
     if (value.tenantPhone !== undefined) updateData.tenantPhone = value.tenantPhone || null;
-    if (value.tenantLeaseEnd !== undefined) updateData.tenantLeaseEnd = value.tenantLeaseEnd ? new Date(value.tenantLeaseEnd) : null;
+    if (value.tenantLeaseEnd !== undefined) {
+      updateData.tenantLeaseEnd = value.tenantLeaseEnd ? new Date(value.tenantLeaseEnd) : null;
+    }
 
     const [updated] = await db
       .update(unitsTable)

@@ -474,7 +474,8 @@ exports.updateVisit = async (req, res) => {
         .limit(1);
 
       if (unitForSchedule.length > 0) {
-        const scheduleErr = await checkScheduleAvailability(checkEmployee, unitForSchedule[0].buildingId, checkDateTime);
+        const { buildingId } = unitForSchedule[0];
+        const scheduleErr = await checkScheduleAvailability(checkEmployee, buildingId, checkDateTime);
         if (scheduleErr) {
           return res.status(409).json({
             success: false,

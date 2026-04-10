@@ -14,6 +14,7 @@ const log = child({ controller: 'auth' });
 /** Strip passwordHash from a user row */
 const sanitizeUser = (user) => {
   if (!user) return null;
+  // eslint-disable-next-line no-unused-vars
   const { passwordHash: _passwordHash, ...safe } = user;
   return safe;
 };

@@ -25,7 +25,8 @@ const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ success: false, error: { message: 'User not found or inactive', code: 'USER_NOT_FOUND' } });
     }
 
-    req.user = rows[0];
+    const [user] = rows;
+    req.user = user;
     req.token = token;
     next();
   } catch (error) {
@@ -49,7 +50,8 @@ const optionalAuth = async (req, res, next) => {
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const rows = await db.select().from(usersTable).where(eq(usersTable.id, decoded.userId)).limit(1);
-      if (rows.length && rows[0].isActive) { req.user = rows[0]; req.token = token; }
+      const [activeUser] = rows;
+      if (activeUser && activeUser.isActive) { req.user = activeUser; req.token = token; }
     }
   } catch { /* continue without user */ }
   next();

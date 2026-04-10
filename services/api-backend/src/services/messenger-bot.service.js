@@ -629,10 +629,9 @@ async function handleSuggestVisit(senderId, conv, text) {
   }
 
   // Create visit in DB
-  let _visit = null;
   if (conv.leadId) {
     try {
-      [_visit] = await db
+      await db
         .insert(visitsTable)
         .values({
           unitId: conv.data.unitId,
@@ -777,8 +776,9 @@ const handlePostback = async (senderId, payload) => {
   // Handle unit selection postbacks
   if (payload.startsWith('SELECT_UNIT_')) {
     const parts = payload.replace('SELECT_UNIT_', '').split('_');
-    conv.data.unitId = parts[0];
-    conv.data.buildingId = parts[1] || null;
+    const [unitId, buildingIdRaw] = parts;
+    conv.data.unitId = unitId;
+    conv.data.buildingId = buildingIdRaw || null;
 
     // Move to visit suggestion
     conv.state = STATES.ASKED_BUILDING;
