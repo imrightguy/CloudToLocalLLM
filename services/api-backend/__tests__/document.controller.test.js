@@ -1,14 +1,13 @@
-const documentController = require('../src/controllers/document.controller');
-
-const mockDb = {
-  select: jest.fn(),
-  insert: jest.fn(),
-  update: jest.fn(),
-};
-
 jest.mock('../src/database/connection', () => ({
-  db: mockDb,
+  db: {
+    select: jest.fn(),
+    insert: jest.fn(),
+    update: jest.fn(),
+  },
 }));
+
+const documentController = require('../src/controllers/document.controller');
+const { db: mockDb } = require('../src/database/connection');
 
 function mockRes() {
   const res = {};
