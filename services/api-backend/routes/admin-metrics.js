@@ -7,6 +7,7 @@
  */
 
 import express from 'express';
+import logger from '../logger.js';
 import {
   exportAdminMetricsAsText,
   initializeAdminMetrics,
@@ -30,7 +31,7 @@ router.get('/metrics', async (req, res) => {
     const metrics = await exportAdminMetricsAsText();
     res.send(metrics);
   } catch (error) {
-    console.error('Error exporting metrics:', error);
+    logger.error('Error exporting metrics', { error: error.message, stack: error.stack });
     res.status(500).send('Error exporting metrics');
   }
 });

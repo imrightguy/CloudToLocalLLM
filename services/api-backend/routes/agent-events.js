@@ -90,7 +90,7 @@ router.post('/', verifyWebhookSignature, async (req, res) => {
 
     res.json({ success: true, agent_id: agent.id });
   } catch (error) {
-    console.error('Agent event error:', error);
+    logger.error('Failed to process agent event', { error: error.message, stack: error.stack });
     res.status(500).json({ error: 'Failed to process event' });
   }
 });
