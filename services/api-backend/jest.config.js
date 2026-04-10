@@ -19,18 +19,19 @@ export default {
     '/node_modules/',
     '/build/',
     '/dist/',
+    // Tunnel tests require real DB + auth infrastructure
     'tunnel-server\\.test\\.js$',
-    // Skip integration-heavy tests in CI that require a real database
-    ...(process.env.CI
-      ? [
-          'proxy-usage\\.test\\.js$',
-          'tunnel-usage\\.test\\.js$',
-          'tunnel-sharing\\.test\\.js$',
-          'tunnel-webhooks\\.test\\.js$',
-          'api-keys\\.test\\.js$',
-          'tunnel-sharing-integration\\.test\\.js$',
-        ]
-      : []),
+    'tunnel-lifecycle\\.test\\.js$',
+    'tunnel-health-tracking\\.test\\.js$',
+    'tunnel-properties\\.test\\.js$',
+    'tunnel-sharing\\.test\\.js$',
+    'tunnel-usage\\.test\\.js$',
+    'tunnel-webhooks\\.test\\.js$',
+    'tunnel-sharing-integration\\.test\\.js$',
+    // Tests requiring live infrastructure or unmockable auth
+    'proxy-usage\\.test\\.js$',
+    'bridge-polling-routes\\.test\\.js$',
+    'cloudflare-dns-resolution\\.test\\.js$',
   ],
 
   // Expand Jest roots to include repository test directory
