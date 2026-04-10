@@ -1,306 +1,110 @@
-# ImmoGestion API Backend
+# ImmoGestion
 
-A comprehensive API backend for the ImmoGestion leasing automation engine, built with Node.js, Express, and Drizzle ORM.
+Leasing automation engine for Quebec landlords. Flutter mobile app with Node.js backend.
 
-## Features
+## 🏗️ Architecture
 
-- 🏢 **Building Management**: Full CRUD for buildings and units
-- 📝 **Lead Management**: Lead tracking, status updates, and bulk operations
-- 🏠 **Visit Scheduling**: Automated visit scheduling with SMS/email notifications
-- 📄 **Document Management**: Upload, review, and approval system for documents
-- ⏰ **Schedule Management**: Automated scheduling with recurring exceptions
-- 💬 **Communication Tools**: Email, SMS, Facebook Messenger, and phone call integration
-- 🔐 **Authentication**: JWT-based authentication with role-based access
-- 🚦 **Rate Limiting**: Configurable rate limiting to prevent abuse
-- 🛡️ **Security**: CORS, helmet, and other security middleware
-- 📊 **Database**: PostgreSQL with Drizzle ORM for type-safe queries
+**Similar to CloudToLocalLLM:**
+- **Flutter frontend** (root directory) - Mobile-first property management UI
+- **Node.js backend** - REST API for data management and automation
+- **PostgreSQL + Drizzle ORM** - Database layer
 
-## Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
+### Flutter Development
 
-- Node.js >= 18.0.0
-- PostgreSQL >= 14
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/imrightguy/ImmoGestion.git
-cd ImmoGestion/services/api-backend
+# Install dependencies
+flutter pub get
+
+# Run on mobile device
+flutter run -d android
+flutter run -d ios
+
+# Run on web
+flutter run -d chrome
+
+# Build for production
+flutter build apk --release
+flutter build ios --release
 ```
 
-2. Install dependencies:
+### Node.js Backend
+
 ```bash
+cd services/api-backend
+
+# Install dependencies
 npm install
-```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your database credentials and other configuration
-```
-
-4. Run migrations:
-```bash
-npm run migrate
-```
-
-5. Start the server:
-```bash
-npm start
-```
-
-For development:
-```bash
+# Start development server
 npm run dev
-```
 
-## API Endpoints
-
-### Buildings
-- `GET /api/buildings` - List all buildings
-- `POST /api/buildings` - Create new building
-- `GET /api/buildings/:id` - Get building by ID
-- `PUT /api/buildings/:id` - Update building
-- `DELETE /api/buildings/:id` - Delete building
-- `GET /api/buildings/units` - List all units
-- `POST /api/buildings/units` - Create new unit
-- `GET /api/buildings/units/:id` - Get unit by ID
-- `PUT /api/buildings/units/:id` - Update unit
-- `DELETE /api/buildings/units/:id` - Delete unit
-
-### Leads
-- `GET /api/leads` - List all leads
-- `POST /api/leads` - Create new lead
-- `GET /api/leads/:id` - Get lead by ID
-- `PUT /api/leads/:id` - Update lead
-- `PATCH /api/leads/:id/status` - Update lead status
-- `DELETE /api/leads/:id` - Delete lead
-
-### Visits
-- `GET /api/visits` - List all visits
-- `POST /api/visits` - Schedule new visit
-- `GET /api/visits/:id` - Get visit by ID
-- `PUT /api/visits/:id` - Update visit
-- `PATCH /api/visits/:id/status` - Update visit status
-- `GET /api/visits/availability` - Check availability
-
-### Documents
-- `GET /api/documents` - List all documents
-- `POST /api/documents` - Upload document
-- `GET /api/documents/:id` - Get document by ID
-- `PUT /api/documents/:id` - Update document
-- `DELETE /api/documents/:id` - Delete document
-- `GET /api/documents/search` - Search documents
-
-### Schedules
-- `GET /api/schedules` - List all schedules
-- `POST /api/schedules` - Create new schedule
-- `GET /api/schedules/:id` - Get schedule by ID
-- `PUT /api/schedules/:id` - Update schedule
-- `DELETE /api/schedules/:id` - Delete schedule
-- `GET /api/schedules/availability` - Check schedule availability
-
-### Communications
-- `GET /api/communications` - List communications
-- `POST /api/communications/email` - Send email
-- `POST /api/communications/sms` - Send SMS
-- `POST /api/communications/phone` - Record phone call
-- `GET /api/communications/templates` - List templates
-- `POST /api/communications/templates` - Create template
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | Required |
-| `PORT` | Server port | 3000 |
-| `NODE_ENV` | Environment (development/production) | development |
-| `JWT_SECRET` | JWT signing secret | Required |
-| `JWT_EXPIRES_IN` | JWT expiration time | 24h |
-| `RATE_LIMIT_WINDOW_MS` | Rate limit window in milliseconds | 900000 |
-| `RATE_LIMIT_MAX_REQUESTS` | Max requests per window | 100 |
-
-### Database Schema
-
-The database uses PostgreSQL with Drizzle ORM. Key tables include:
-
-- `buildings` - Property information
-- `units` - Rental units
-- `leads` - Lead information
-- `visits` - Scheduled visits
-- `documents` - Document storage
-- `schedules` - Recurring schedules
-- `communications` - Communication logs
-
-## Development
-
-### Scripts
-
-- `npm start` - Start production server
-- `npm run dev` - Start development server with auto-reload
-- `npm run test` - Run tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Run tests with coverage
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-- `npm run migrate` - Run database migrations
-- `npm run seed` - Seed initial data
-
-### Testing
-
-The project uses Jest for testing. Create test files in the `tests/` directory:
-
-```bash
-# Run all tests
+# Run tests
 npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
 ```
 
-## API Response Format
+## 📱 Features
 
-All API responses follow this format:
+### Core Modules
+- **Dashboard** - Revenue tracking, occupancy rates, performance metrics
+- **Pipeline** - Lead management through leasing stages
+- **Visits** - Schedule and manage property viewings
+- **Buildings** - Multi-property portfolio management
+- **Calendar** - Visit scheduling and reminders
+- **Documents** - Lease management and storage
 
-```json
-{
-  "success": true,
-  "data": {},
-  "message": "Success message",
-  "metadata": {
-    "pagination": {
-      "total": 100,
-      "page": 1,
-      "limit": 20
-    }
-  }
-}
+### Automation Features
+- **SMS/Email** - Automated communication with prospects
+- **Facebook Messenger** - Chat-based lead generation
+- **Analytics** - Real-time performance tracking
+- **Notifications** - Automated alerts and reminders
+
+## 📁 Project Structure
+
+```
+ImmoGestion/
+├── lib/                      # Flutter frontend
+│   ├── screens/             # Main app screens
+│   ├── models.dart          # Data models
+│   ├── data/                # Mock data
+│   └── main.dart
+├── services/                 # Node.js backend services
+│   └── api-backend/          # Express.js API server
+├── database/                 # PostgreSQL + Drizzle
+├── config/                  # Docker, deployment
+└── pubspec.yaml
 ```
 
-Error responses:
+## 🎯 Target Market
 
-```json
-{
-  "success": false,
-  "error": {
-    "message": "Error message",
-    "code": "ERROR_CODE",
-    "details": {}
-  }
-}
-```
+- **Quebec landlords** with multi-property portfolios
+- **Property managers** needing automation tools
+- **Real estate investors** requiring analytics
+- **Small agencies** managing 5-50 properties
 
-## Security Features
+## 🔄 Development Status
 
-- JWT-based authentication
-- Rate limiting
-- CORS configuration
-- Helmet security headers
-- Input validation with Joi
-- Password hashing with bcrypt
-- File type and size validation
+### ✅ Completed
+- Flutter app UI with Quebec localization
+- Mock data for demo purposes
+- Basic navigation and layouts
+- Responsive design for mobile/tablet
 
-## Integrations
+### 🚧 In Progress
+- Node.js backend API development
+- PostgreSQL database setup
+- Authentication system
+- SMS integration
 
-### Email Services
+### 📋 Next Steps
+- Real API integration (replace mock data)
+- Mobile app builds (Android/iOS)
+- Production deployment
+- Analytics dashboard
 
-- **SMTP**: Email sending via nodemailer
-- **Gmail**: Gmail API integration
-- **SendGrid**: SendGrid API integration
+## 📧 Contact
 
-### SMS Services
-
-- **Twilio**: SMS sending via Twilio API
-- **Local SMS**: SMS integration for local Quebec providers
-
-### Social Media
-
-- **Facebook Messenger**: Facebook Messenger bot integration
-
-### Third-party APIs
-
-- **Google Maps**: Location services
-- **OpenAI**: AI-powered content generation
-
-## Monitoring
-
-The backend includes built-in logging and error tracking:
-
-- Application logs
-- Error tracking integration
-- Performance metrics
-- Database query logging
-
-## Deployment
-
-### Production Setup
-
-1. Set environment variables for production
-2. Run migrations: `npm run migrate`
-3. Start server: `npm start`
-4. Configure reverse proxy (nginx, etc.)
-5. Set up SSL certificates
-6. Configure monitoring and logging
-
-### Docker Support
-
-```bash
-# Build and run with Docker
-docker build -t immogestion-api .
-docker run -p 3000:3000 immogestion-api
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support and questions:
-
-- Email: christopher.maltais@gmail.com
-- GitHub: https://github.com/imrightguy/ImmoGestion/issues
-- Discord: right_guy
-
-## Roadmap
-
-### Phase 1 (Completed)
-- Basic CRUD operations for all entities
-- Email and SMS notification system
-- Document management
-- Basic authentication
-
-### Phase 2 (In Progress)
-- Facebook Messenger bot
-- Advanced scheduling features
-- Reporting and analytics
-- Mobile app support
-
-### Phase 3 (Planned)
-- AI-powered lead scoring
-- Automated follow-up systems
-- Integration with third-party services
-- Advanced analytics dashboard
-
-### Phase 4 (Future)
-- Machine learning predictions
-- Advanced automation features
-- Multi-tenant support
-- International expansion
+- **Email**: simon@immogestion.ca
+- **Demo**: Available for Quebec landlords
+- **Focus**: Streamlined leasing automation for local market
