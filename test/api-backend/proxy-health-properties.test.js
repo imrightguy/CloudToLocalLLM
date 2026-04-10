@@ -305,31 +305,27 @@ describe("ProxyHealthService - Property-Based Tests", () => {
     fc.assert(
       fc.property(
         fc.array(
-          fc.string({ minLength: 1, maxLength: 255 }).filter((s) => s.trim().length > 0),
+          fc.string({ minLength: 1, maxLength: 50 }),
           {
             minLength: 1,
             maxLength: 10,
-            uniqueBy: (id) => id,
           },
         ),
         (proxyIds) => {
+          const uniqueIds = [...new Set(proxyIds)];
           proxyHealthService.shutdown();
           proxyHealthService = new ProxyHealthService();
 
-          // Register all proxies
-          proxyIds.forEach((id) => {
+          uniqueIds.forEach((id) => {
             proxyHealthService.registerProxy(id, {});
           });
 
           const allStatuses = proxyHealthService.getAllProxyHealthStatus();
 
-          // Invariant: All registered proxies are returned
-          expect(allStatuses).toHaveLength(proxyIds.length);
+          expect(allStatuses).toHaveLength(uniqueIds.length);
 
           const returnedIds = allStatuses.map((s) => s.proxyId);
-
-          // Invariant: Returned IDs match registered IDs
-          expect(returnedIds.sort()).toEqual(proxyIds.sort());
+          expect(returnedIds.sort()).toEqual([...uniqueIds].sort());
         },
       ),
       { numRuns: 50 },
