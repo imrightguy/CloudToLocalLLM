@@ -136,7 +136,7 @@ class LinkFixer {
   }
 
   // Remove references to non-existent files
-  removeDeadLinks(filePath, deadLinks) {
+  removeDeadLinks(filePath, _deadLinks) {
     try {
       const fullPath = path.join(this.rootDir, filePath);
       let content = fs.readFileSync(fullPath, "utf8");

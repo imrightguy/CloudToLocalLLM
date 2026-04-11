@@ -327,10 +327,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
         // Execute deployment sequence
         let failureCount = 0;
         scenario.deploymentSequence.forEach((step) => {
-          const result = workflow.executeDeployment(
-            step.version,
-            step.isHealthy,
-          );
+          workflow.executeDeployment(step.version, step.isHealthy);
           if (!step.isHealthy) {
             failureCount++;
           }

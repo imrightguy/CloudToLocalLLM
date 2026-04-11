@@ -100,21 +100,6 @@ class OrganizationValidator {
       ".gitattributes",
     ];
 
-    // Essential directories that should be in root
-    const essentialDirs = [
-      "lib",
-      "services",
-      "scripts",
-      "docs",
-      "test",
-      "k8s",
-      "config",
-      "web",
-      "windows",
-      "linux",
-      "android",
-    ];
-
     // Check for non-essential files in root
     const rootFiles = rootItems
       .filter((item) => item.isFile())

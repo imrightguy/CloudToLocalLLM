@@ -149,14 +149,6 @@ class ContentReviewer {
       }
     }
 
-    // Check for current version references
-    const currentVersions = [
-      "Flutter 3.5+",
-      "Dart 3.5.0+",
-      "Node.js",
-      "Kubernetes 1.30",
-    ];
-
     return issues;
   }
 

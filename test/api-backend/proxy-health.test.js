@@ -660,9 +660,7 @@ describe("ProxyHealthService", () => {
           );
         }
 
-        proxyHealthService.getProxyHealthStatus(
-          testCase.proxyId,
-        );
+        proxyHealthService.getProxyHealthStatus(testCase.proxyId);
 
         // Invariant: canRecover is false when max attempts exceeded
         if (testCase.attemptCount > proxyHealthService.maxRecoveryAttempts) {

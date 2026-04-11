@@ -10,9 +10,7 @@ import {} from "@jest/globals";
 import request from "supertest";
 import express from "express";
 import crypto from "crypto";
-import {
-  query,
-} from "../../services/api-backend/database/db-pool.js";
+import { query } from "../../services/api-backend/database/db-pool.js";
 import apiKeysRouter from "../../services/api-backend/routes/api-keys.js";
 import { authenticateApiKey } from "../../services/api-backend/middleware/api-key-auth.js";
 import {

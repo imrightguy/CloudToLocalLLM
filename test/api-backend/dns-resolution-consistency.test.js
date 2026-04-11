@@ -20,7 +20,6 @@ const CLOUDFLARE_DOMAINS = [
   "auth.cloudtolocalllm.online",
 ];
 
-
 // Mock AWS NLB IP addresses (in real scenario, these would be actual IPs)
 const MOCK_NLB_IPS = {
   "cloudtolocalllm.online": "10.0.1.100",

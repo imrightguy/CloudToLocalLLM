@@ -19,7 +19,6 @@
  * @version 1.0.0
  */
 
-
 import {
   describe,
   it,

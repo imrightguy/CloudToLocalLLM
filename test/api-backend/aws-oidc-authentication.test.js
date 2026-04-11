@@ -199,7 +199,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should generate OIDC token with unique JTI", () => {
-
       const decoded1 = jwt.decode(token1);
       const decoded2 = jwt.decode(token2);
 
@@ -321,7 +320,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should support multiple OIDC token exchanges", () => {
-
       const stsResponse1 = generateAWSSTSResponse();
       const stsResponse2 = generateAWSSTSResponse();
 
