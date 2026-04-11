@@ -4,6 +4,7 @@
  */
 
 const LOG_LEVELS = {
+  silent: -1,
   error: 0,
   warn: 1,
   info: 2,
