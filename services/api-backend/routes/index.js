@@ -32,7 +32,7 @@ import proxyUsageRoutes from './proxy-usage.js';
 import proxyWebhooksRoutes from './proxy-webhooks.js';
 import quotasRoutes from './quotas.js';
 import rateLimitExemptionsRoutes from './rate-limit-exemptions.js';
-import rateLimitViolationsRoutes from './rate-limit-exemptions.js';
+import rateLimitViolationsRoutes from './rate-limit-violations.js';
 import sandboxRoutes from './sandbox.js';
 import tunnelFailoverRoutes from './tunnel-failover.js';
 import tunnelHealthRoutes from './tunnel-health.js';
