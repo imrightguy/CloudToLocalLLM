@@ -40,8 +40,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       DB_HOST: postgres
-      # DATABASE_URL constructed for the Docker network (postgres service hostname)
-      DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD}@postgres:5432/immogestion
+      # NOTE: DATABASE_URL should be set in .env.production with postgres://user:pass@postgres:5432/immogestion
+      # (using "postgres" as hostname, not localhost, since they share a Docker network)
     volumes:
       - uploads:/app/uploads
       - logs:/app/logs
