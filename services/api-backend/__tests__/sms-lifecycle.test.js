@@ -810,7 +810,7 @@ describe('SMS Visit Lifecycle', () => {
         expect.stringContaining('Intéressé'),
       );
       expect(mockSendSMS).toHaveBeenCalledWith(
-        '+151****0001',
+        '+15145550001',
         expect.stringContaining(FIXTURES.lead.fullName),
       );
       expect(_result.success).toBe(true);
