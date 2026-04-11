@@ -45,7 +45,7 @@ void main() {
     test('getBuildings query builds correct params with search', () {
       // Verify the query string construction logic by checking
       // that Uri.encodeComponent handles special characters.
-      final search = 'Saint-Laurent';
+      const search = 'Saint-Laurent';
       final encoded = Uri.encodeComponent(search);
       expect(encoded, 'Saint-Laurent');
       // Spaces should be encoded
@@ -60,7 +60,7 @@ void main() {
         'page': '1',
         'limit': '20',
       };
-      final search = '';
+      const search = '';
       if (search.isNotEmpty) params['search'] = search;
       expect(params.length, 2);
       expect(params.containsKey('search'), false);
@@ -89,8 +89,8 @@ void main() {
           .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      final page = 1;
-      final limit = 20;
+      const page = 1;
+      const limit = 20;
 
       final paginated = PaginatedResult<BuildingItem>(
         items: items,
@@ -157,12 +157,12 @@ void main() {
 
       // Array path
       final fromList = asList
-          .map((e) => UnitItem.fromJson(e as Map<String, dynamic>))
+          .map((e) => UnitItem.fromJson(e))
           .toList();
       expect(fromList.length, 1);
 
       // Single-object fallback path
-      final fromSingle = [UnitItem.fromJson(singleObject as Map<String, dynamic>)];
+      final fromSingle = [UnitItem.fromJson(singleObject)];
       expect(fromSingle.length, 1);
       expect(fromSingle.first.number, '101');
     });
