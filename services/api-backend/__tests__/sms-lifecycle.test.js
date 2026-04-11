@@ -810,7 +810,7 @@ describe('SMS Visit Lifecycle', () => {
         expect.stringContaining('Intéressé'),
       );
       expect(mockSendSMS).toHaveBeenCalledWith(
-        '+15145550001',
+        '+151****0001',
         expect.stringContaining(FIXTURES.lead.fullName),
       );
       expect(_result.success).toBe(true);
@@ -831,7 +831,7 @@ describe('SMS Visit Lifecycle', () => {
       // getVisitContext → find admin user
       mockQueryChain([ctx], [FIXTURES.adminUser]);
 
-      const _result = await notifySimonInterested(FIXTURES.visit.id);
+      await notifySimonInterested(FIXTURES.visit.id);
 
       expect(mockSendSMS).toHaveBeenCalledWith(
         FIXTURES.adminUser.phone,
@@ -1108,13 +1108,8 @@ describe('SMS Visit Lifecycle', () => {
     });
 
     it('edge case: multiple units same occupant phone → uses most recent visit', async () => {
-      // Two units with the same tenant phone
-      const _unit2 = { ...FIXTURES.unit, id: 'unit-shared-phone-002', label: '5B' };
       const recentVisit = {
         ...FIXTURES.visit, id: 'visit-recent-001', occupantNotified: true, dateTime: '2026-04-11T14:00:00.000Z',
-      };
-      const _olderVisit = {
-        ...FIXTURES.visit, id: 'visit-older-001', occupantNotified: true, dateTime: '2026-04-10T10:00:00.000Z',
       };
 
       // First unit query returns one unit, then visit query returns the most recent
