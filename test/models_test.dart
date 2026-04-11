@@ -450,7 +450,7 @@ void main() {
     });
 
     test('toJson includes occupantSMS when present', () {
-      final visit = VisitItem(
+      const visit = VisitItem(
         unitLabel: '201',
         buildingName: 'Test',
         dateLabel: '',
