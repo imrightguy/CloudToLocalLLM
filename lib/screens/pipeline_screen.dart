@@ -307,14 +307,14 @@ class _PipelineScreenState extends State<PipelineScreen>
     );
   }
 
-  void _showAddLeadDialog(BuildContext context, LeadStage stage) {
+  Future<void> _showAddLeadDialog(BuildContext context, LeadStage stage) async {
     final fullNameController = TextEditingController();
     final emailController = TextEditingController();
     final phoneController = TextEditingController();
     final budgetController = TextEditingController();
     final notesController = TextEditingController();
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
@@ -429,6 +429,12 @@ class _PipelineScreenState extends State<PipelineScreen>
         );
       },
     );
+
+    fullNameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    budgetController.dispose();
+    notesController.dispose();
   }
 
   Widget _buildLeadCard(LeadItem lead) {
