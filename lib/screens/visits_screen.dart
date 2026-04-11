@@ -936,7 +936,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                     children: [
                       // Unit picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedUnitId,
+                        value: _selectedUnitId,
                         decoration: const InputDecoration(
                           labelText: 'Unité',
                           border: OutlineInputBorder(),
@@ -955,7 +955,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
 
                       // Lead picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedLeadId,
+                        value: _selectedLeadId,
                         decoration: const InputDecoration(
                           labelText: 'Prospect',
                           border: OutlineInputBorder(),
@@ -974,7 +974,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
 
                       // Employee picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedEmployeeId,
+                        value: _selectedEmployeeId,
                         decoration: const InputDecoration(
                           labelText: 'Employé',
                           border: OutlineInputBorder(),

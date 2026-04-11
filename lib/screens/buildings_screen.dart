@@ -825,7 +825,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
 
               // Status dropdown
               DropdownButtonFormField<String>(
-                initialValue: _status,
+                value: _status,
                 decoration: const InputDecoration(
                   labelText: 'Statut',
                   border: OutlineInputBorder(),
