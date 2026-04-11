@@ -1,5 +1,3 @@
-console.log('Jest Config - CI Environment Variable:', process.env.CI);
-
 export default {
   // Test environment
   testEnvironment: 'node',
