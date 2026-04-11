@@ -163,6 +163,16 @@ function validateSTSResponseStructure(response) {
 
 describe("AWS OIDC Authentication - Property Tests", () => {
   describe("Property 1: OIDC Authentication Succeeds", () => {
+    let token;
+    let token1;
+    let token2;
+
+    beforeAll(() => {
+      token = generateGitHubOIDCToken();
+      token1 = generateGitHubOIDCToken();
+      token2 = generateGitHubOIDCToken();
+    });
+
     test("should generate valid GitHub OIDC token", () => {
       const validation = validateOIDCTokenStructure(token);
 

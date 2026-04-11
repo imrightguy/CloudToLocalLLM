@@ -390,8 +390,7 @@ describe("API Key Routes", () => {
       ["test-jwt-routes", "test-routes@example.com", "Test Routes User"],
     );
     testUserUUID = userResult.rows[0].id;
-    testUserId = testUserUUID.toString();
-    mockUserId = testUserId;
+    mockUserId = testUserUUID;
 
     // Create Express app with routes
     app = express();
@@ -618,7 +617,6 @@ describe("API Key Middleware", () => {
       ],
     );
     testUserUUID = userResult.rows[0].id;
-    testUserId = testUserUUID.toString();
 
     // Generate test API key
     const keyResult = await generateApiKey(

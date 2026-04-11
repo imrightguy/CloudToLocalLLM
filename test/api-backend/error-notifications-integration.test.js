@@ -325,7 +325,7 @@ describe("Error Notification Middleware Integration", () => {
       app.get(
         "/api/test",
         withErrorNotification(async (_req, _res) => {
-          res.json({ success: true });
+          _res.json({ success: true });
         }),
       );
 

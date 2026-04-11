@@ -230,7 +230,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
 
         // Execute deployment sequence
         scenario.deploymentSequence.forEach((step) => {
-          workflow.executeDeployment(
+          const result = workflow.executeDeployment(
             step.version,
             step.isHealthy,
           );
@@ -296,7 +296,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
           );
 
           // Deploy v3 (failure)
-          workflow.executeDeployment(v3, false);
+          const result = workflow.executeDeployment(v3, false);
           assert(!result.success, "v3 deployment should fail");
 
           // Verify application is still accessible and rolled back to v2
@@ -327,7 +327,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
         // Execute deployment sequence
         let failureCount = 0;
         scenario.deploymentSequence.forEach((step) => {
-          workflow.executeDeployment(
+          const result = workflow.executeDeployment(
             step.version,
             step.isHealthy,
           );

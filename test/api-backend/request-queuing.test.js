@@ -449,7 +449,7 @@ describe("Request Queuing - Property-Based Tests", () => {
     // Queue multiple requests
     const queuedIds = [];
     for (let i = 0; i < 10; i++) {
-      pbtQueueService.queueRequest("user123", "user", {
+      const result = pbtQueueService.queueRequest("user123", "user", {
         method: "POST",
       });
       queuedIds.push(result.queueEntryId);
