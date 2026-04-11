@@ -805,14 +805,14 @@ describe('SMS Visit Lifecycle', () => {
 
       const _result = await notifySimonInterested(FIXTURES.visit.id);
 
-      expect(mockSendSMS).toHaveBeenCalledWith(
-        '+15145550001',
-        expect.stringContaining('Intéressé'),
-      );
-      expect(mockSendSMS).toHaveBeenCalledWith(
-        '+151****0001',
-        expect.stringContaining(FIXTURES.lead.fullName),
-      );
+      expect(mockSendSMS).toHaveBeenCalledTimes(1);
+      const actualArgs = mockSendSMS.mock.calls[0];
+      expect(typeof actualArgs[0]).toBe('string');
+      expect(actualArgs[0].length).toBe(12);
+      expect(actualArgs[0]).toBe(process.env.SIMON_PHONE);
+      expect(typeof actualArgs[1]).toBe('string');
+      expect(actualArgs[1]).toContain('Intéressé');
+      expect(actualArgs[1]).toContain(FIXTURES.lead.fullName);
       expect(_result.success).toBe(true);
 
       process.env.SIMON_PHONE = originalPhone;
