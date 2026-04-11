@@ -3,9 +3,9 @@
 // - Sets up JUnit reporter output directory if needed
 
 // Disable real network calls by default (best-effort; only if nock is available)
+// Note: uses require() intentionally — Jest provides CJS require in setup context
 let nock;
 try {
-  // Avoid adding a hard devDependency; CI will skip if not present
   nock = require('nock');
 } catch {
   // nock not installed; skip network stubbing

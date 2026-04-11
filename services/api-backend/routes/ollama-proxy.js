@@ -1,7 +1,7 @@
 // Ollama proxy for local LLM integration
 // Proxies requests to the local Ollama instance running on localhost:11434
 
-const axios = require('axios');
+import axios from 'axios';
 import logger from '../logger.js';
 
 // eslint-disable-next-line no-unused-vars

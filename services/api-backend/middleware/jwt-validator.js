@@ -3,6 +3,7 @@
  * Provides enhanced JWT validation with proper expiration handling, token refresh, and security checks
  */
 
+import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import {
   TunnelLogger,
@@ -249,7 +250,6 @@ export class JWTValidator {
    * @returns {string} Token hash
    */
   createTokenHash(token) {
-    const crypto = require('crypto');
     return crypto.createHash('sha256').update(token).digest('hex');
   }
 

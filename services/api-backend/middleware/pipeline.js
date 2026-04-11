@@ -11,10 +11,7 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import express from 'express';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const cors = require('cors');
+import cors from 'cors';
 
 import { requestLoggingMiddleware } from './request-logging.js';
 import { requestValidationMiddleware } from './request-validation.js';
