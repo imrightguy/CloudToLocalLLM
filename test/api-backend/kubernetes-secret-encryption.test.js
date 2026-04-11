@@ -10,7 +10,6 @@
 
 import crypto from "crypto";
 import { describe, test, expect } from "@jest/globals";
-import fc from "fast-check";
 
 /**
  * Simulate Kubernetes secret storage with encryption
@@ -200,27 +199,6 @@ class KubernetesSecretStore {
  */
 function generateRandomSecret(length = 32) {
   return crypto.randomBytes(length).toString("base64");
-}
-
-/**
- * Generate random service account name
- */
-function generateServiceAccountName() {
-  const names = ["web-app", "api-backend", "postgres", "monitoring", "ingress"];
-  return names[Math.floor(Math.random() * names.length)];
-}
-
-/**
- * Generate random namespace
- */
-function generateNamespace() {
-  const namespaces = [
-    "CloudToLocalLLM",
-    "monitoring",
-    "kube-system",
-    "default",
-  ];
-  return namespaces[Math.floor(Math.random() * namespaces.length)];
 }
 
 describe("Kubernetes Secret Encryption - Property Tests", () => {

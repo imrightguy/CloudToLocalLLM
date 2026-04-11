@@ -367,7 +367,6 @@ describe("RetryManager", () => {
   describe("getAllMetrics", () => {
     it("should return metrics for all services", async () => {
       const service1 = retryManager.getOrCreate("service1");
-      const service2 = retryManager.getOrCreate("service2");
 
       const fn = async () => "success";
       await service1.execute(fn);
@@ -382,7 +381,6 @@ describe("RetryManager", () => {
   describe("resetAllMetrics", () => {
     it("should reset metrics for all services", async () => {
       const service1 = retryManager.getOrCreate("service1");
-      const service2 = retryManager.getOrCreate("service2");
 
       const fn = async () => "success";
       await service1.execute(fn);

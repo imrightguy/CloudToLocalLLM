@@ -16,7 +16,6 @@ import {
   createGracefulDegradationMiddleware,
   degradationStatusMiddleware,
   getDegradationStatus,
-  getAllDegradationStatuses,
   markServiceDegraded,
   markServiceRecovered,
   getDegradationMetrics,

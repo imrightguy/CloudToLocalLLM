@@ -594,7 +594,7 @@ describe("ProxyHealthService", () => {
           );
         }
 
-        const status = proxyHealthService.getProxyHealthStatus(
+        proxyHealthService.getProxyHealthStatus(
           testCase.proxyId,
         );
 
@@ -660,7 +660,7 @@ describe("ProxyHealthService", () => {
           );
         }
 
-        const status = proxyHealthService.getProxyHealthStatus(
+        proxyHealthService.getProxyHealthStatus(
           testCase.proxyId,
         );
 
@@ -704,7 +704,7 @@ describe("ProxyHealthService", () => {
         // Reset
         proxyHealthService.resetRecoveryAttempts(testCase.proxyId);
 
-        const status = proxyHealthService.getProxyHealthStatus(
+        proxyHealthService.getProxyHealthStatus(
           testCase.proxyId,
         );
 
@@ -743,7 +743,7 @@ describe("ProxyHealthService", () => {
           healthCheckFn,
         );
 
-        const status = proxyHealthService.getProxyHealthStatus(
+        proxyHealthService.getProxyHealthStatus(
           testCase.proxyId,
         );
 

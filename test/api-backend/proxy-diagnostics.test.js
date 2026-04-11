@@ -1,9 +1,6 @@
 import request from "supertest";
 import express from "express";
 import { ProxyDiagnosticsService } from "../../services/api-backend/services/proxy-diagnostics-service.js";
-import { createProxyDiagnosticsRoutes } from "../../services/api-backend/routes/proxy-diagnostics.js";
-import { authenticateJWT } from "../../services/api-backend/middleware/auth.js";
-import { addTierInfo } from "../../services/api-backend/middleware/tier-check.js";
 
 describe("Proxy Diagnostics", () => {
   let app;
@@ -45,7 +42,6 @@ describe("Proxy Diagnostics", () => {
       (req, res) => {
         try {
           const { proxyId } = req.params;
-          const userId = req.user?.sub;
 
           if (!proxyId) {
             return res.status(400).json({

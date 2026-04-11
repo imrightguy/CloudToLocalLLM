@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function globalTeardown(config) {
+async function globalTeardown(_config) {
   console.log("\n CloudToLocalLLM Global Teardown");
   console.log("=================================");
 

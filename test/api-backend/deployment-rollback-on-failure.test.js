@@ -12,7 +12,7 @@
 
 import fc from "fast-check";
 import assert from "assert";
-import { describe, test, expect } from "@jest/globals";
+import { describe } from "@jest/globals";
 
 /**
  * Simulate a deployment version with health status
@@ -230,7 +230,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
 
         // Execute deployment sequence
         scenario.deploymentSequence.forEach((step) => {
-          const result = workflow.executeDeployment(
+          workflow.executeDeployment(
             step.version,
             step.isHealthy,
           );
@@ -296,7 +296,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
           );
 
           // Deploy v3 (failure)
-          const result = workflow.executeDeployment(v3, false);
+          workflow.executeDeployment(v3, false);
           assert(!result.success, "v3 deployment should fail");
 
           // Verify application is still accessible and rolled back to v2
@@ -327,7 +327,7 @@ describe("Deployment Rollback on Failure Property Test", () => {
         // Execute deployment sequence
         let failureCount = 0;
         scenario.deploymentSequence.forEach((step) => {
-          const result = workflow.executeDeployment(
+          workflow.executeDeployment(
             step.version,
             step.isHealthy,
           );
@@ -445,7 +445,6 @@ describe("Deployment Rollback on Failure Property Test", () => {
 
         // Deploy initial version
         workflow.executeDeployment(scenario.initialVersion, true);
-        const lastSuccessful = workflow.lastSuccessfulVersion;
 
         // Execute deployment sequence
         scenario.deploymentSequence.forEach((step) => {

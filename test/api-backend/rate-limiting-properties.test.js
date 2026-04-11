@@ -160,7 +160,6 @@ class SimpleRateLimiter {
 const userIdArbitrary = fc.stringMatching(/^user-[a-z0-9]{8}$/);
 
 // Generate request counts within reasonable bounds
-const requestCountArbitrary = fc.integer({ min: 1, max: 200 });
 
 describe("Rate Limiting Properties", () => {
   let rateLimiter;

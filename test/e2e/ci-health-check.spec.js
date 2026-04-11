@@ -91,7 +91,7 @@ test.describe("CI Health Check", () => {
     console.log(" Basic navigation functional");
   });
 
-  test("API endpoints respond", async ({ page, request }) => {
+  test("API endpoints respond", async ({ page: _page, request }) => {
     // Test if API endpoints are accessible
     const apiEndpoints = ["/api/health", "/api/status", "/health"];
 

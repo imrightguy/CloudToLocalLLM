@@ -399,7 +399,6 @@ describe("Admin User Search and Listing - Implementation Validation", () => {
 
     it("should filter users by status", () => {
       // Property: For any status filter, all returned users should have that status
-      const status = "active";
       const users = [
         { is_suspended: false, deleted_at: null },
         { is_suspended: false, deleted_at: null },

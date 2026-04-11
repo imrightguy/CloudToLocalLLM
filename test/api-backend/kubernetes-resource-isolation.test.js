@@ -20,25 +20,8 @@ const VALID_NAMESPACES = [
 ];
 
 // Valid pod labels
-const VALID_POD_LABELS = {
-  "web-app": { app: "web-app", component: "frontend" },
-  "api-backend": { app: "api-backend", component: "backend" },
-  postgres: { app: "postgres", component: "database" },
-  "streaming-proxy": { app: "streaming-proxy", component: "proxy" },
-};
 
 // Valid service accounts
-const VALID_SERVICE_ACCOUNTS = {
-  CloudToLocalLLM: [
-    "web-app-sa",
-    "api-backend-sa",
-    "postgres-sa",
-    "streaming-proxy-sa",
-  ],
-  monitoring: ["prometheus-sa", "grafana-sa", "loki-sa"],
-  "kube-system": ["coredns", "ebs-csi-controller-sa", "ebs-csi-node-sa"],
-  "ingress-nginx": ["ingress-nginx"],
-};
 
 // Network policy rules
 const NETWORK_POLICIES = {
@@ -94,20 +77,6 @@ function generatePodConfig(options = {}) {
         ports: [{ containerPort: 8080 }],
       },
     ],
-  };
-}
-
-/**
- * Generate a namespace configuration
- */
-function generateNamespaceConfig(options = {}) {
-  return {
-    name: options.name || "test-namespace",
-    labels: options.labels || { name: "test-namespace" },
-    networkPoliciesEnabled:
-      options.networkPoliciesEnabled !== undefined
-        ? options.networkPoliciesEnabled
-        : true,
   };
 }
 
@@ -191,7 +160,7 @@ function validateNetworkPolicyTypes(policy) {
 /**
  * Check if pod can access resource in different namespace
  */
-function canAccessCrossNamespace(sourcePod, targetNamespace, networkPolicies) {
+function canAccessCrossNamespace(sourcePod, targetNamespace, _networkPolicies) {
   // If source pod is in different namespace, check network policies
   if (sourcePod.namespace !== targetNamespace) {
     // By default, deny cross-namespace access unless explicitly allowed

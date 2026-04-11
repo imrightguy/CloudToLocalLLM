@@ -136,9 +136,6 @@ describe("QuotaService", () => {
   describe("recordQuotaUsage", () => {
     it("should record quota usage", async () => {
       const quotaId = uuidv4();
-      const today = new Date();
-      const periodStart = new Date(today.getFullYear(), today.getMonth(), 1);
-      const periodEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
       const mockClient = {
         query: jest

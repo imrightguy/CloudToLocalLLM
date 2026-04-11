@@ -82,7 +82,7 @@ describe("Circuit Breaker Middleware Integration", () => {
     app.use(circuitBreakerErrorHandler);
 
     // Generic error handler
-    app.use((err, req, res, next) => {
+    app.use((err, req, res, _next) => {
       if (err.code === "CIRCUIT_BREAKER_OPEN") {
         return res.status(503).json({
           error: {

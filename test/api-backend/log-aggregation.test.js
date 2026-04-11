@@ -250,7 +250,7 @@ describe("Log Aggregation Support", () => {
 
     test("should not flush empty batch", (done) => {
       let flushCalled = false;
-      const batcher = new LogBatcher({
+      new LogBatcher({
         batchSize: 100,
         batchTimeout: 50,
         onFlush: () => {

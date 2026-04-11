@@ -11,9 +11,8 @@
  */
 
 import fc from "fast-check";
-import yaml from "js-yaml";
 import assert from "assert";
-import { describe, test, expect } from "@jest/globals";
+import { describe } from "@jest/globals";
 
 /**
  * Generate a valid Kubernetes Deployment manifest

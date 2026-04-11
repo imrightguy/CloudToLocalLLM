@@ -139,7 +139,7 @@ describe("ProxyHealthService - Property-Based Tests", () => {
         fc.string({ minLength: 1, maxLength: 255 }),
         fc.integer({ min: 0, max: 10000 }),
         fc.integer({ min: 0, max: 10000 }),
-        (proxyId, requestCount, successCount) => {
+        (proxyId, requestCount, _successCount) => {
           proxyHealthService.registerProxy(proxyId, {});
 
           // Update only requestCount

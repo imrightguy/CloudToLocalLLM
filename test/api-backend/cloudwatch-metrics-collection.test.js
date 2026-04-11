@@ -12,7 +12,6 @@ import fc from "fast-check";
 import { describe, test, expect } from "@jest/globals";
 
 // Valid metric types
-const METRIC_TYPES = ["cpu", "memory", "disk", "network"];
 
 // Valid pod states
 const POD_STATES = ["Running", "Pending", "Failed", "Succeeded", "Unknown"];

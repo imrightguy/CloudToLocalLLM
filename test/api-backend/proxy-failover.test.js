@@ -3,7 +3,6 @@ import {
   it,
   expect,
   beforeAll,
-  afterAll,
   beforeEach,
   jest,
 } from "@jest/globals";

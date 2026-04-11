@@ -10,13 +10,11 @@
  * **Validates: Requirements 2.4**
  */
 
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { describe, it, expect } from "@jest/globals";
 import {
   getUserTier,
   getTierFeatures,
   hasFeature,
-  requireTier,
-  requireFeature,
   USER_TIERS,
   TIER_FEATURES,
   shouldUseDirectTunnel,

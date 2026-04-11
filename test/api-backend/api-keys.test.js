@@ -12,7 +12,6 @@ import express from "express";
 import crypto from "crypto";
 import {
   query,
-  getClient,
 } from "../../services/api-backend/database/db-pool.js";
 import apiKeysRouter from "../../services/api-backend/routes/api-keys.js";
 import { authenticateApiKey } from "../../services/api-backend/middleware/api-key-auth.js";
@@ -128,7 +127,6 @@ describe("API Key Service", () => {
     });
 
     it("should update last_used_at on validation", async () => {
-      const beforeValidation = new Date();
       await new Promise((resolve) => setTimeout(resolve, 100));
       await validateApiKey(testKey);
 
@@ -380,7 +378,6 @@ describe("API Key Service", () => {
 
 describe("API Key Routes", () => {
   let app;
-  let testUserId;
   let testUserUUID;
   let mockUserId = "placeholder";
 
@@ -601,7 +598,6 @@ describe("API Key Routes", () => {
 
 describe("API Key Middleware", () => {
   let app;
-  let testUserId;
   let testUserUUID;
   let validApiKey;
 

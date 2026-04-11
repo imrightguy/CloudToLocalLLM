@@ -38,7 +38,6 @@ describe("Tunnel Health and Status Tracking", () => {
   let dbMigrator;
   let pool;
   let testUserId;
-  let testTunnelId;
 
   beforeAll(async () => {
     // Initialize database

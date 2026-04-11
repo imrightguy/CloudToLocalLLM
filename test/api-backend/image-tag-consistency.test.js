@@ -45,18 +45,6 @@ const repositoryNameArbitrary = () => {
 };
 
 /**
- * Generate a valid Docker image reference
- * Format: registry/namespace/repository:tag
- */
-const dockerImageReferenceArbitrary = () => {
-  return fc.record({
-    registry: fc.constant("CloudToLocalLLM"),
-    repository: repositoryNameArbitrary(),
-    tag: dockerImageTagArbitrary(),
-  });
-};
-
-/**
  * Generate a valid commit SHA (40 hex characters)
  */
 const commitSHAArbitrary = () => {

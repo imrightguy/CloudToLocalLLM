@@ -22,7 +22,6 @@ import dns from "dns";
 import { promisify } from "util";
 
 const dnsResolve4 = promisify(dns.resolve4);
-const dnsResolveTxt = promisify(dns.resolveTxt);
 
 // Configuration
 const DOMAINS = [
@@ -126,7 +125,7 @@ describe("Feature: aws-eks-deployment, Property 6: DNS Resolution Consistency", 
       }
 
       // All should resolve to valid IPs
-      for (const [domain, ip] of Object.entries(ips)) {
+      for (const [, ip] of Object.entries(ips)) {
         expect(ip).toMatch(EXPECTED_NLB_PATTERN);
       }
     });

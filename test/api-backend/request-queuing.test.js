@@ -11,10 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
-import {
-  RequestQueueService,
-  getRequestQueueService,
-} from "../../services/api-backend/services/request-queue-service.js";
+import { RequestQueueService } from "../../services/api-backend/services/request-queue-service.js";
 
 describe("RequestQueueService", () => {
   let queueService;
@@ -452,7 +449,7 @@ describe("Request Queuing - Property-Based Tests", () => {
     // Queue multiple requests
     const queuedIds = [];
     for (let i = 0; i < 10; i++) {
-      const result = pbtQueueService.queueRequest("user123", "user", {
+      pbtQueueService.queueRequest("user123", "user", {
         method: "POST",
       });
       queuedIds.push(result.queueEntryId);
@@ -481,7 +478,7 @@ describe("Request Queuing - Property-Based Tests", () => {
 
     // Try to queue more than maxSize requests
     for (let i = 0; i < maxSize + 10; i++) {
-      const result = pbtQueueService.queueRequest("user123", "user", {
+      pbtQueueService.queueRequest("user123", "user", {
         method: "POST",
       });
 

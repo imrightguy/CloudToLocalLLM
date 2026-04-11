@@ -7,7 +7,7 @@
  * Feature: aws-eks-deployment, Task 16.1: End-to-End Deployment Verification
  */
 
-import { describe, it, expect, beforeAll, afterAll, jest } from "@jest/globals";
+import { describe, it, expect, beforeAll } from "@jest/globals";
 import fc from "fast-check";
 
 /**

@@ -10,10 +10,8 @@
  * Requirements: 8.10 (Real-time alerting for critical metrics)
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
-import AlertConfigurationService, {
-  alertConfigService,
-} from "../../services/api-backend/services/alert-configuration-service.js";
+import { describe, it, expect, beforeEach } from "@jest/globals";
+import AlertConfigurationService from "../../services/api-backend/services/alert-configuration-service.js";
 
 describe("Alert Configuration Service", () => {
   let service;

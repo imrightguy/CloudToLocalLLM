@@ -92,16 +92,6 @@ function parseMemory(memStr) {
 }
 
 /**
- * Parse CPU string to millicores
- */
-function parseCpu(cpuStr) {
-  if (cpuStr.endsWith("m")) {
-    return parseInt(cpuStr);
-  }
-  return parseInt(cpuStr) * 1000;
-}
-
-/**
  * Validate environment configuration
  */
 function validateEnvironmentConfig(environment, config) {

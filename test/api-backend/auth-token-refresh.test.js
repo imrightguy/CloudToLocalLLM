@@ -9,7 +9,6 @@
  */
 
 import jwt from "jsonwebtoken";
-import fetch from "node-fetch";
 
 // Mock JWT configuration
 const JWT_ISSUER_DOMAIN = "dev-v2f2p008x3dr74ww.us.jwt.com";

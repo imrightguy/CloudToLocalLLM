@@ -10,9 +10,6 @@
 import {
   FailoverManager,
   FailoverState,
-  initializeFailoverManager,
-  getFailoverManager,
-  closeFailoverManager,
 } from "../../services/api-backend/database/failover-manager.js";
 
 describe("FailoverManager", () => {

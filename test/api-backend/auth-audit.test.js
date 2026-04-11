@@ -12,7 +12,6 @@
  * Validates: Requirements 2.6, 11.10
  */
 
-import request from "supertest";
 import {
   describe,
   it,

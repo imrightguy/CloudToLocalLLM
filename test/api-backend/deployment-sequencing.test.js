@@ -14,7 +14,7 @@
 
 import fc from "fast-check";
 import assert from "assert";
-import { describe, test, expect } from "@jest/globals";
+import { describe } from "@jest/globals";
 
 /**
  * Generate a unique ID for each deployment

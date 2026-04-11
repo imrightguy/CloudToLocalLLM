@@ -264,7 +264,7 @@ describe("Error Notification Middleware Integration", () => {
       });
 
       app.use(createErrorNotificationMiddleware());
-      app.use((error, req, res, next) => {
+      app.use((error, req, res, _next) => {
         res.status(500).json({ error: error.message });
       });
 
@@ -288,7 +288,7 @@ describe("Error Notification Middleware Integration", () => {
       });
 
       app.use(createErrorNotificationMiddleware());
-      app.use((error, req, res, next) => {
+      app.use((error, req, res, _next) => {
         res.status(500).json({ error: error.message });
       });
 
@@ -304,12 +304,12 @@ describe("Error Notification Middleware Integration", () => {
     it("should wrap route handler and catch errors", async () => {
       app.get(
         "/api/test",
-        withErrorNotification(async (req, res) => {
+        withErrorNotification(async (_req, _res) => {
           throw new Error("Handler error");
         }),
       );
 
-      app.use((error, req, res, next) => {
+      app.use((error, req, res, _next) => {
         res.status(500).json({ error: error.message });
       });
 
@@ -324,7 +324,7 @@ describe("Error Notification Middleware Integration", () => {
     it("should pass successful responses through", async () => {
       app.get(
         "/api/test",
-        withErrorNotification(async (req, res) => {
+        withErrorNotification(async (_req, _res) => {
           res.json({ success: true });
         }),
       );
@@ -343,12 +343,12 @@ describe("Error Notification Middleware Integration", () => {
 
       app.get(
         "/api/test",
-        withErrorNotification(async (req, res) => {
+        withErrorNotification(async (_req, _res) => {
           throw new Error("Database error");
         }),
       );
 
-      app.use((error, req, res, next) => {
+      app.use((error, req, res, _next) => {
         res.status(500).json({ error: error.message });
       });
 

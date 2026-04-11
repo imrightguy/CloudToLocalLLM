@@ -8,16 +8,9 @@
  * Validates: Requirements 1.4, 4.3
  */
 
-import dns from "dns";
-import { promisify } from "util";
-import fc from "fast-check";
 import { describe, test, expect } from "@jest/globals";
 
 // Promisify DNS functions
-const resolve4 = promisify(dns.resolve4);
-const resolveCname = promisify(dns.resolveCname);
-const resolveTxt = promisify(dns.resolveTxt);
-const reverse = promisify(dns.reverse);
 
 // Configuration
 const CLOUDFLARE_DOMAINS = [
@@ -27,8 +20,6 @@ const CLOUDFLARE_DOMAINS = [
   "auth.cloudtolocalllm.online",
 ];
 
-const AWS_NLB_REGION = "us-east-1";
-const AWS_ACCOUNT_ID = "422017356244";
 
 // Mock AWS NLB IP addresses (in real scenario, these would be actual IPs)
 const MOCK_NLB_IPS = {

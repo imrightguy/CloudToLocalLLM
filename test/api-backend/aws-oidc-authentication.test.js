@@ -15,7 +15,6 @@ import { describe, test, expect } from "@jest/globals";
 // Mock AWS and GitHub OIDC configuration
 const GITHUB_OIDC_PROVIDER = "token.actions.githubusercontent.com";
 const AWS_ACCOUNT_ID = "422017356244";
-const AWS_REGION = "us-east-1";
 const GITHUB_REPO = "CloudToLocalLLM/CloudToLocalLLM";
 const GITHUB_BRANCH = "main";
 
@@ -165,28 +164,24 @@ function validateSTSResponseStructure(response) {
 describe("AWS OIDC Authentication - Property Tests", () => {
   describe("Property 1: OIDC Authentication Succeeds", () => {
     test("should generate valid GitHub OIDC token", () => {
-      const token = generateGitHubOIDCToken();
       const validation = validateOIDCTokenStructure(token);
 
       expect(validation.valid).toBe(true);
     });
 
     test("should generate OIDC token with correct issuer", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
 
       expect(decoded.iss).toBe(`https://${GITHUB_OIDC_PROVIDER}`);
     });
 
     test("should generate OIDC token with correct audience", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
 
       expect(decoded.aud).toBe("sts.amazonaws.com");
     });
 
     test("should generate OIDC token with valid subject format", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
 
       expect(decoded.sub).toMatch(/^repo:/);
@@ -194,8 +189,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should generate OIDC token with unique JTI", () => {
-      const token1 = generateGitHubOIDCToken();
-      const token2 = generateGitHubOIDCToken();
 
       const decoded1 = jwt.decode(token1);
       const decoded2 = jwt.decode(token2);
@@ -204,7 +197,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should generate OIDC token with future expiration", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
       const now = Math.floor(Date.now() / 1000);
 
@@ -212,7 +204,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should generate OIDC token with past issued-at time", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
       const now = Math.floor(Date.now() / 1000);
 
@@ -220,7 +211,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should generate OIDC token with valid not-before time", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
       const now = Math.floor(Date.now() / 1000);
 
@@ -228,7 +218,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should exchange OIDC token for AWS credentials", () => {
-      const token = generateGitHubOIDCToken();
       const validation = validateOIDCTokenStructure(token);
 
       expect(validation.valid).toBe(true);
@@ -241,7 +230,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should provide temporary AWS credentials", () => {
-      const token = generateGitHubOIDCToken();
       const stsResponse = generateAWSSTSResponse();
 
       expect(stsResponse.Credentials.AccessKeyId).toMatch(/^ASIA/);
@@ -301,7 +289,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should include repository information in token", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
 
       expect(decoded.repository).toBe(GITHUB_REPO);
@@ -309,7 +296,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should include workflow information in token", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
 
       expect(decoded.workflow).toBeDefined();
@@ -318,7 +304,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should include branch information in token", () => {
-      const token = generateGitHubOIDCToken();
       const decoded = jwt.decode(token);
 
       expect(decoded.ref).toBe(`refs/heads/${GITHUB_BRANCH}`);
@@ -326,8 +311,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should support multiple OIDC token exchanges", () => {
-      const token1 = generateGitHubOIDCToken();
-      const token2 = generateGitHubOIDCToken();
 
       const stsResponse1 = generateAWSSTSResponse();
       const stsResponse2 = generateAWSSTSResponse();
@@ -369,11 +352,10 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should support credential rotation", () => {
-      const token1 = generateGitHubOIDCToken();
       const stsResponse1 = generateAWSSTSResponse();
 
       // Simulate new workflow run
-      const token2 = generateGitHubOIDCToken({
+      generateGitHubOIDCToken({
         runId: crypto.randomInt(1000000, 9999999).toString(),
       });
       const stsResponse2 = generateAWSSTSResponse();
@@ -434,7 +416,6 @@ describe("AWS OIDC Authentication - Property Tests", () => {
     });
 
     test("should validate OIDC token before any AWS API calls", () => {
-      const token = generateGitHubOIDCToken();
       const validation = validateOIDCTokenStructure(token);
 
       // Token must be valid before attempting STS exchange

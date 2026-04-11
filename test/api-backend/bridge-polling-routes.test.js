@@ -9,7 +9,6 @@ import {} from "@jest/globals";
 
 import request from "supertest";
 import express from "express";
-import jwt from "jsonwebtoken";
 
 // Auth bypassed via BYPASS_AUTH=true env var (ESM mocking limitations)
 // Import routes directly
@@ -19,7 +18,6 @@ describe("Bridge Polling Routes", () => {
   let app;
   let bridgeId;
   const validToken = "valid-token";
-  const userId = "test-user-id";
 
   beforeEach(() => {
     app = express();

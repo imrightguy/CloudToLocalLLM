@@ -11,7 +11,6 @@ import {
   BackupRecoveryService,
   BackupType,
   BackupStatus,
-  RecoveryStatus,
 } from "../../services/api-backend/services/backup-recovery-service.js";
 import fs from "fs";
 import path from "path";
@@ -158,7 +157,6 @@ describe("BackupRecoveryService", () => {
       fs.writeFileSync(backupFile, backupData);
 
       // Calculate original checksum
-      const originalChecksum = await service._calculateChecksum(backupFile);
 
       const metadata = {
         backupId,

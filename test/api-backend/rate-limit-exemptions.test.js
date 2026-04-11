@@ -439,7 +439,7 @@ describe("Rate Limit Exemptions", () => {
       exemptionManager.addRule(
         "error-rule",
         exemptionManager.config.exemptionTypes.CRITICAL_OPERATION,
-        (req) => {
+        (_req) => {
           throw new Error("Matcher error");
         },
       );

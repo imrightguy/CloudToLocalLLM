@@ -8,7 +8,7 @@
  * - Operation tracking and status
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 import { bulkOperationsService } from "../../services/api-backend/services/bulk-operations-service.js";
 
 describe("Bulk Operations Service", () => {
