@@ -1,17 +1,14 @@
 # ImmoGestion
 
-Leasing automation engine for Quebec landlords. Flutter mobile app with Node.js backend.
+Leasing automation engine for Quebec landlords. Flutter mobile app.
 
 ## 🏗️ Architecture
 
-**Similar to CloudToLocalLLM:**
-- **Flutter frontend** (root directory) - Mobile-first property management UI
-- **Node.js backend** - REST API for data management and automation
-- **PostgreSQL + Drizzle ORM** - Database layer
+- **Flutter app** (`lib/`) - Mobile-first property management UI
+- **Dart service layer** (`lib/services/`) - Service classes consuming REST APIs
+- **Mock data** (`lib/data/`) - Demo data for development
 
 ## 🚀 Quick Start
-
-### Flutter Development
 
 ```bash
 # Install dependencies
@@ -27,21 +24,6 @@ flutter run -d chrome
 # Build for production
 flutter build apk --release
 flutter build ios --release
-```
-
-### Node.js Backend
-
-```bash
-cd services/api-backend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Run tests
-npm test
 ```
 
 ## 📱 Features
@@ -64,16 +46,16 @@ npm test
 
 ```
 ImmoGestion/
-├── lib/                      # Flutter frontend
-│   ├── screens/             # Main app screens
-│   ├── models.dart          # Data models
+├── lib/                      # Flutter app
+│   ├── screens/             # App screens (dashboard, pipeline, buildings, visits, etc.)
+│   ├── services/            # Dart service classes (API, auth, leads, buildings, etc.)
 │   ├── data/                # Mock data
-│   └── main.dart
-├── services/                 # Node.js backend services
-│   └── api-backend/          # Express.js API server
-├── database/                 # PostgreSQL + Drizzle
-├── config/                  # Docker, deployment
-└── pubspec.yaml
+│   ├── models.dart          # Data models
+│   └── main.dart            # Entry point
+├── assets/                   # Static assets
+├── test/                     # Unit and integration tests
+├── analysis_options.yaml     # Dart linter config
+└── pubspec.yaml              # Dependencies
 ```
 
 ## 🎯 Target Market
@@ -87,14 +69,14 @@ ImmoGestion/
 
 ### ✅ Completed
 - Flutter app UI with Quebec localization
+- Dart service layer (API, auth, leads, buildings, visits, analytics)
 - Mock data for demo purposes
 - Basic navigation and layouts
 - Responsive design for mobile/tablet
 
 ### 🚧 In Progress
-- Node.js backend API development
-- PostgreSQL database setup
-- Authentication system
+- Real API integration (replace mock data)
+- Authentication flow
 - SMS integration
 
 ### 📋 Next Steps
