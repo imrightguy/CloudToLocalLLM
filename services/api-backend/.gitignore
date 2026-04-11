@@ -1,33 +1,35 @@
-# Flutter/Dart
-.dart_tool/
-.flutter-plugins-dependencies
-build/
-*.lock
-!pubspec.lock
-!package-lock.json
-
-# Generated files
-*.g.dart
-*.freezed.dart
-*.mocks.dart
-
-# IDE
-.vscode/
-.idea/
-*.iml
-
-# OS
-.DS_Store
-Thumbs.db
+# Dependencies
+node_modules/
 
 # Environment
 .env
 .env.*
 !.env.example
 
+# Build
+dist/
+build/
+
 # Coverage
 coverage/
+.nyc_output/
 
-# Node (services)
-node_modules/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
 npm-debug.log*
+
+# Runtime
+pids/
+*.pid
