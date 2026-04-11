@@ -197,7 +197,18 @@ exports.updateLead = async (req, res) => {
     if (budgetCents !== undefined) updateData.budgetCents = budgetCents;
     if (desiredUnit !== undefined) updateData.desiredUnit = desiredUnit?.trim() || null;
     if (source !== undefined) updateData.source = source;
-    if (stage !== undefined) updateData.stage = stage;
+    if (stage !== undefined) {
+      if (!VALID_LEAD_STAGES.includes(stage)) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: `Invalid stage. Must be one of: ${VALID_LEAD_STAGES.join(', ')}`,
+            code: 'VALIDATION_ERROR',
+          },
+        });
+      }
+      updateData.stage = stage;
+    }
     if (notes !== undefined) updateData.notes = notes?.trim() || null;
     if (tags !== undefined) updateData.tags = tags;
     if (language !== undefined) updateData.language = language;
