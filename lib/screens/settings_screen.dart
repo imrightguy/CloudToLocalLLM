@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models.dart';
 import '../services/api_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -53,11 +54,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final profile = await ApiService.instance.getProfile();
       setState(() {
-        _firstName = profile['firstName'] as String? ?? '';
-        _lastName = profile['lastName'] as String? ?? '';
-        _email = profile['email'] as String? ?? '';
-        _role = profile['role'] as String? ?? '';
-        _company = profile['company'] as String? ?? '';
+        _firstName = profile.firstName;
+        _lastName = profile.lastName;
+        _email = profile.email;
+        _role = profile.role ?? '';
+        _company = profile.company ?? '';
         _isLoading = false;
       });
     } catch (e) {

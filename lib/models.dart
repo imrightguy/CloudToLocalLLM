@@ -101,6 +101,67 @@ class ActivityItem {
 }
 
 // =============================================================================
+// UserItem – authenticated user profile
+// =============================================================================
+
+class UserItem {
+  const UserItem({
+    this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    this.phone,
+    this.role,
+    this.company,
+    this.language,
+    this.createdAt,
+  });
+
+  final String? id;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String? phone;
+  final String? role;
+  final String? company;
+  final String? language;
+  final DateTime? createdAt;
+
+  String get fullName {
+    final trimmed = '$firstName $lastName'.trim();
+    return trimmed.isEmpty ? 'Utilisateur' : trimmed;
+  }
+
+  factory UserItem.fromJson(Map<String, dynamic> json) {
+    return UserItem(
+      id: json['id'] as String?,
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      phone: json['phone'] as String?,
+      role: json['role'] as String?,
+      company: json['company'] as String?,
+      language: json['language'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        if (phone != null) 'phone': phone,
+        if (role != null) 'role': role,
+        if (company != null) 'company': company,
+        if (language != null) 'language': language,
+        if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+      };
+}
+
+// =============================================================================
 // AlertItem – notification alert (UI-only)
 // =============================================================================
 

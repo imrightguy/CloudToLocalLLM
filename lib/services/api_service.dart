@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models.dart';
+
 /// Custom exception for API errors.
 class ApiException implements Exception {
   final String message;
@@ -198,7 +200,7 @@ class ApiService {
   // ---------------------------------------------------------------------------
 
   /// POST /auth/login → stores tokens, returns user map.
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<UserItem> login(String email, String password) async {
     final result = await post('/auth/login', {
       'email': email,
       'password': password,
@@ -210,11 +212,11 @@ class ApiService {
       tokens['accessToken'] as String?,
       tokens['refreshToken'] as String?,
     );
-    return data['user'] as Map<String, dynamic>;
+    return UserItem.fromJson(data['user'] as Map<String, dynamic>);
   }
 
   /// POST /auth/register → stores tokens, returns user map.
-  Future<Map<String, dynamic>> register(
+  Future<UserItem> register(
     String firstName,
     String lastName,
     String email,
@@ -237,7 +239,7 @@ class ApiService {
       tokens['accessToken'] as String?,
       tokens['refreshToken'] as String?,
     );
-    return data['user'] as Map<String, dynamic>;
+    return UserItem.fromJson(data['user'] as Map<String, dynamic>);
   }
 
   /// POST /auth/logout → clears local tokens.
@@ -251,8 +253,8 @@ class ApiService {
   }
 
   /// GET /auth/profile → returns user map.
-  Future<Map<String, dynamic>> getProfile() async {
+  Future<UserItem> getProfile() async {
     final result = await get('/auth/profile');
-    return result['data'] as Map<String, dynamic>;
+    return UserItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 }

@@ -116,11 +116,10 @@ class _HomeTabState extends State<_HomeTab> {
       ]);
 
       // Parse user profile
-      final profile = (results[0]['data'] as Map<String, dynamic>?) ?? {};
-      final firstName = profile['firstName'] as String? ?? '';
-      final lastName = profile['lastName'] as String? ?? '';
-      _userName = '$firstName $lastName'.trim();
-      if (_userName.isEmpty) _userName = 'Utilisateur';
+      final profile = UserItem.fromJson(
+        (results[0]['data'] as Map<String, dynamic>?) ?? {},
+      );
+      _userName = profile.fullName;
 
       // Parse weekly summary
       _weeklySummary = (results[1]['data'] as Map<String, dynamic>?) ?? {};

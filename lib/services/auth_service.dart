@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models.dart';
 import 'api_service.dart';
 
 /// Simple auth state manager using [ChangeNotifier].
@@ -20,13 +21,13 @@ class AuthNotifier extends ChangeNotifier {
   AuthNotifier._();
   static final AuthNotifier instance = AuthNotifier._();
 
-  Map<String, dynamic>? _currentUser;
+  UserItem? _currentUser;
 
   /// `true` when a non-empty access token is held in memory.
   bool get isLoggedIn => ApiService.instance.hasToken;
 
   /// Cached user profile fetched from /auth/profile.
-  Map<String, dynamic>? get currentUser => _currentUser;
+  UserItem? get currentUser => _currentUser;
 
   /// Load tokens from storage and optionally pre-fetch the profile.
   Future<void> init() async {
@@ -42,7 +43,7 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   /// Convenience – login, cache profile, notify.
-  Future<Map<String, dynamic>> login(
+  Future<UserItem> login(
     String email,
     String password,
   ) async {
@@ -53,7 +54,7 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   /// Convenience – register, cache profile, notify.
-  Future<Map<String, dynamic>> register(
+  Future<UserItem> register(
     String firstName,
     String lastName,
     String email,
@@ -86,12 +87,12 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   /// Update the authenticated user's profile fields.
-  /// PATCH /auth/profile → returns updated user map.
-  Future<Map<String, dynamic>> updateProfile(
+  /// PATCH /auth/profile → returns updated user.
+  Future<UserItem> updateProfile(
     Map<String, dynamic> updates,
   ) async {
     final result = await ApiService.instance.patch('/auth/profile', updates);
-    _currentUser = result['data'] as Map<String, dynamic>;
+    _currentUser = UserItem.fromJson(result['data'] as Map<String, dynamic>);
     notifyListeners();
     return _currentUser!;
   }
