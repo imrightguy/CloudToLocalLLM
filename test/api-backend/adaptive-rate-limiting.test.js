@@ -263,26 +263,36 @@ describe("Adaptive Rate Limiting", () => {
       expect(result.reason).toBe("burst_limit_exceeded");
     });
 
-    it.skip("should enforce window rate limit", () => {
-      // Skipped - boundary condition issue with check-then-add pattern needs investigation
-      // The limiter currently allows N-1 requests when baseMaxRequests=N
-      // Create a fresh limiter with adaptive adjustment disabled
+    it("should enforce window rate limit", () => {
+      // Set burst limit higher than window limit so burst doesn't interfere
       const fixedLimiter = new AdaptiveRateLimiter({
         baseWindowMs: 60000,
-        baseMaxRequests: 100,
-        baseBurstWindowMs: 10000,
-        baseBurstRequests: 20,
-        sampleIntervalMs: 60000, // Long interval to avoid interference during test
+        baseMaxRequests: 10,
+        baseBurstWindowMs: 60000,
+        baseBurstRequests: 100,
+        sampleIntervalMs: 60000,
         enableAdaptiveAdjustment: false,
       });
 
-      // Force immediate metrics collection to avoid first interval fire
       fixedLimiter.systemLoadMonitor.collectMetrics();
 
-      // Verify adaptive limits are disabled
       const limits = fixedLimiter.getAdaptiveLimits();
-      expect(limits.maxRequests).toBe(100);
+      expect(limits.maxRequests).toBe(10);
       expect(limits.multiplier).toBe(1.0);
+
+      // Send exactly maxRequests requests — all should be allowed
+      // (check-then-add: count checked before addRequest, so N requests pass)
+      let allowedCount = 0;
+      for (let i = 0; i < 10; i++) {
+        const result = fixedLimiter.checkRateLimit('window-user', `corr-${i}`, {});
+        if (result.allowed) allowedCount++;
+      }
+      expect(allowedCount).toBe(10);
+
+      // Next request should be blocked by window limit
+      const blocked = fixedLimiter.checkRateLimit('window-user', 'corr-blocked', {});
+      expect(blocked.allowed).toBe(false);
+      expect(blocked.reason).toBe('window_limit_exceeded');
 
       fixedLimiter.destroy();
     });
