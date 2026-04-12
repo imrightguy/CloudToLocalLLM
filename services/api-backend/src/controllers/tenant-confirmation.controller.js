@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { eq, and } = require('drizzle-orm');
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
