@@ -148,7 +148,7 @@ void main() {
     });
 
     test('toJson omits null optional fields', () {
-      final visit = VisitItem(
+      const visit = VisitItem(
         unitLabel: '3D',
         buildingName: 'Test',
         dateLabel: '',
@@ -207,9 +207,9 @@ void main() {
         'page': '1',
         'limit': '20',
       };
-      final DateTime? dateFrom = null;
-      final DateTime? dateTo = null;
-      final String? status = null;
+      const DateTime? dateFrom = null;
+      const DateTime? dateTo = null;
+      const String? status = null;
 
       if (dateFrom != null) params['dateFrom'] = 'x';
       if (dateTo != null) params['dateTo'] = 'x';

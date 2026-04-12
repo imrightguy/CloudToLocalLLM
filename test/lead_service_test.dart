@@ -98,7 +98,7 @@ void main() {
     });
 
     test('toJson round-trips key fields', () {
-      final lead = LeadItem(
+      const lead = LeadItem(
         id: 'lead-2',
         fullName: 'Marie Tremblay',
         email: 'marie@test.com',
@@ -110,7 +110,7 @@ void main() {
         notes: 'Budget flexible',
         tags: ['vip'],
         lastContact: '2025-03-01',
-        offers: const [],
+        offers: [],
       );
 
       final json = lead.toJson();
