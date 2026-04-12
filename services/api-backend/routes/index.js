@@ -1,5 +1,15 @@
 import swaggerUi from 'swagger-ui-express';
-import { specs } from '../swagger-config.js';
+
+const specs = {
+  openapi: '3.0.0',
+  info: {
+    title: 'CloudToLocalLLM API Backend',
+    version: '2.0.0',
+    description:
+      'Comprehensive API for CloudToLocalLLM - Bridge cloud AI services with local models',
+  },
+  paths: {},
+};
 import adminRoutes from './admin.js';
 import adminUserRoutes from './admin/users.js';
 import adminSubscriptionRoutes from './admin/subscriptions.js';
