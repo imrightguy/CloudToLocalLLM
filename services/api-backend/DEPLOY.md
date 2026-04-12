@@ -59,6 +59,8 @@ cp .env.production.template .env.production
 # - TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, SIMON_PHONE
 # - SMTP settings (or leave empty for now)
 # - CLOUDFLARE_TUNNEL_TOKEN (from Cloudflare dashboard)
+# - DB_SSL=true (only if using an external database that requires SSL;
+#   not needed for Docker-internal postgres connection)
 ```
 
 ## Step 4: Set Docker Secrets in .env

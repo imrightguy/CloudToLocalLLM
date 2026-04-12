@@ -143,8 +143,9 @@ LOG_LEVEL=info
 
 # ── Database ──────────────────────────────────────────────────────────
 DB_USER=postgres
-DB_PASSWORD=${DB_PASSWORD}
-DATABASE_URL=postgres://postgres:${DB_PASSWORD}@postgres:5432/immogestion
+DB_PASSWORD=***
+DATABASE_URL=postgres://postgres:***@postgres:5432/immogestion
+# DB_SSL=true  (enable if using an external database that requires SSL)
 
 # ── JWT ───────────────────────────────────────────────────────────────
 JWT_SECRET=${JWT_SECRET}
