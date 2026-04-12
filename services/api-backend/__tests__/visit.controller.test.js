@@ -61,7 +61,14 @@ describe('createVisit', () => {
 
   it('rejects invalid dateTime', async () => {
     await visitController.createVisit(
-      { body: { unitId: 'unit-1', employeeId: 'emp-1', leadId: 'lead-1', dateTime: 'not-a-date' } },
+      {
+        body: {
+          unitId: 'unit-1',
+          employeeId: 'emp-1',
+          leadId: 'lead-1',
+          dateTime: 'not-a-date',
+        },
+      },
       res,
     );
     expect(res.status).toHaveBeenCalledWith(400);
