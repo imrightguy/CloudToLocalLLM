@@ -9,8 +9,8 @@
     "test": "LOG_LEVEL=silent jest --forceExit",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/ --ext .js",
-    "lint:fix": "eslint src/ --ext .js --fix",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "migrate": "node -r dotenv/config scripts/migrate.js",
     "seed": "node -r dotenv/config scripts/seed.js",
     "build": "echo 'No build step required for Node.js'"
@@ -41,10 +41,10 @@
     "twilio": "^4.17.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.0",
     "drizzle-kit": "^0.19.13",
-    "eslint": "^8.47.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.28.1",
+    "eslint": "^9.39.0",
+    "globals": "^16.5.0",
     "jest": "^29.6.2",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3"
