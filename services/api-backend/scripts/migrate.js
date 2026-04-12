@@ -1,7 +1,5 @@
 require('dotenv').config();
-/* eslint-disable import/no-unresolved */
 const { migrate } = require('drizzle-kit');
-/* eslint-enable import/no-unresolved */
 const { db } = require('../src/database/connection');
 
 // Migration script for initializing the database
