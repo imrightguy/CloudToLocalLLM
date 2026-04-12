@@ -6,7 +6,7 @@ const { execSync } = require('child_process');
 function run(code) {
   const stdout = execSync(
     `LOG_LEVEL=debug node -e "${code.replace(/"/g, '\\"')}" 2>&1`,
-    { encoding: 'utf8' }
+    { encoding: 'utf8' },
   ).trim();
   if (!stdout) return [];
   return stdout.split('\n').map((line) => {
@@ -77,7 +77,7 @@ describe('logger', () => {
   it('debug is suppressed when LOG_LEVEL=info', () => {
     const result = execSync(
       "LOG_LEVEL=info node -e \"const { debug } = require('./src/utils/logger'); debug('hidden');\" 2>&1",
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     ).trim();
     expect(result).toBe('');
   });
