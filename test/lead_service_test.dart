@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:immogestion/models.dart';
+import 'package:immogestion/services/building_service.dart';
 import 'package:immogestion/services/lead_service.dart';
 
 void main() {
