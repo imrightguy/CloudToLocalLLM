@@ -97,15 +97,13 @@ export class AuthService {
       // Only replace ? that are not inside string literals
       // This prevents false replacements when ? appears in actual text content
       const beforeSql = sql.substring(0, offset);
-      const singleQuoteCount = (beforeSql.match(/'/g) || []).filter(
-        (_, i) => {
-          // Count only unescaped quotes
-          if (i > 0 && beforeSql[i - 1] === '\\') {
-            return false;
-          }
-          return true;
+      const singleQuoteCount = (beforeSql.match(/'/g) || []).filter((_, i) => {
+        // Count only unescaped quotes
+        if (i > 0 && beforeSql[i - 1] === '\\') {
+          return false;
         }
-      ).length;
+        return true;
+      }).length;
       // If odd number of quotes, we're inside a string literal - don't replace
       if (singleQuoteCount % 2 === 1) {
         return '?';
@@ -115,8 +113,8 @@ export class AuthService {
         const b = sql.substring(0, o);
         const sqc = (b.match(/'/g) || []).filter((_, i) => {
           if (i > 0 && b[i - 1] === '\\') {
-return false;
-}
+            return false;
+          }
           return true;
         }).length;
         return sqc % 2 === 0 ? 1 : 0;
@@ -126,7 +124,11 @@ return false;
 
     // Special handling for INSERT to get lastID
     let finalSql = pgSql;
-    if (type === 'run' && sql.trim().toUpperCase().startsWith('INSERT') && !sql.trim().toUpperCase().includes('RETURNING')) {
+    if (
+      type === 'run' &&
+      sql.trim().toUpperCase().startsWith('INSERT') &&
+      !sql.trim().toUpperCase().includes('RETURNING')
+    ) {
       finalSql += ' RETURNING id';
     }
 
