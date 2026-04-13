@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +24,6 @@ class _UsageScreenState extends State<UsageScreen> {
   String? _error;
 
   late final RateLimitManager _rateLimitManager;
-  late final ConnectionManagerService _connectionManager;
 
   @override
   void initState() {
@@ -33,11 +31,10 @@ class _UsageScreenState extends State<UsageScreen> {
     _loadMetrics();
   }
 
-  @override
+@override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _rateLimitManager = context.read<RateLimitManager>();
-    _connectionManager = context.read<ConnectionManagerService>();
   }
 
   Future<void> _loadMetrics() async {
@@ -144,9 +141,9 @@ class _UsageScreenState extends State<UsageScreen> {
                             } else {
                               final capacities = snapshot.data!;
                               final totalTokens = capacities.fold(
-                                  0, (sum, capacity) => sum + capacity.totalTokensUsed);
+                                  0, (sum, capacity) => sum + (capacity.totalTokensUsed ?? 0));
                               final totalLimit = capacities.fold(
-                                  0, (sum, capacity) => sum + capacity.totalTokenLimit);
+                                  0, (sum, capacity) => sum + (capacity.totalTokenLimit ?? 0));
                               final utilization = totalLimit > 0 ? totalTokens / totalLimit : 0.0;
 
                               return MetricCard(
@@ -273,7 +270,7 @@ class _UsageScreenState extends State<UsageScreen> {
         const SizedBox(height: 4),
         _buildCostRow('Input tokens', '74,750', theme),
         _buildCostRow('Output tokens', '49,833', theme),
-        _buildCostRow('Est. cost', '\\$0.037', theme),
+_buildCostRow('Est. cost', r'$\0.037', theme),
       ],
     );
   }
@@ -476,28 +473,6 @@ class _UsageScreenState extends State<UsageScreen> {
   }
 
   // Mock data methods - for now, will be replaced with real implementations
-  String _getMockTokenValue() {
-    switch (_selectedTimeRange) {
-      case TimeRange.today:
-        return '124,583';
-      case TimeRange.week:
-        return '847,291';
-      case TimeRange.month:
-        return '3,521,847';
-    }
-  }
-
-  double _getMockTokenUsage() {
-    switch (_selectedTimeRange) {
-      case TimeRange.today:
-        return 0.65;
-      case TimeRange.week:
-        return 0.72;
-      case TimeRange.month:
-        return 0.58;
-    }
-  }
-
   String _getMockRequestValue() {
     switch (_selectedTimeRange) {
       case TimeRange.today:
