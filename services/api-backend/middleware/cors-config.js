@@ -72,10 +72,9 @@ function corsOriginValidator(origin, callback) {
   if (ALLOWED_ORIGINS.includes(origin)) {
     callback(null, true);
   } else {
-    logger.warn(
-      `CORS: Blocked request from unauthorized origin: '${origin}'`,
-      { allowedOrigins: ALLOWED_ORIGINS },
-    );
+    logger.warn(`CORS: Blocked request from unauthorized origin: '${origin}'`, {
+      allowedOrigins: ALLOWED_ORIGINS,
+    });
     callback(new Error('Not allowed by CORS'));
   }
 }

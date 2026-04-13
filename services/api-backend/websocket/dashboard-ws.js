@@ -31,7 +31,9 @@ class DashboardWebSocketManager {
             this.clients.delete(userId);
           }
         }
-        this.logger.info(`Dashboard WS: Client disconnected for user ${userId}`);
+        this.logger.info(
+          `Dashboard WS: Client disconnected for user ${userId}`,
+        );
       });
 
       // Send initial agent list
@@ -52,7 +54,10 @@ class DashboardWebSocketManager {
 
     try {
       // Verify token (using JWT_SECRET or Auth0)
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'abc12d491e2bc24a60e9e276be8d5b1af62bf');
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'abc12d491e2bc24a60e9e276be8d5b1af62bf',
+      );
       request.userId = decoded.sub || decoded.userId || 'system';
 
       this.wss.handleUpgrade(request, socket, head, (ws) => {
@@ -71,18 +76,18 @@ class DashboardWebSocketManager {
     if (targetUserId) {
       const userClients = this.clients.get(targetUserId);
       if (userClients) {
-        userClients.forEach(ws => {
+        userClients.forEach((ws) => {
           if (ws.readyState === 1) {
-ws.send(message);
-}
+            ws.send(message);
+          }
         });
       }
     } else {
-      this.clients.forEach(userClients => {
-        userClients.forEach(ws => {
+      this.clients.forEach((userClients) => {
+        userClients.forEach((ws) => {
           if (ws.readyState === 1) {
-ws.send(message);
-}
+            ws.send(message);
+          }
         });
       });
     }
@@ -93,14 +98,18 @@ ws.send(message);
     try {
       const result = await pool.query(
         'SELECT * FROM agents WHERE user_id = $1 OR user_id IS NULL',
-        [userId]
+        [userId],
       );
-      ws.send(JSON.stringify({
-        type: 'agent_list',
-        agents: result.rows
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'agent_list',
+          agents: result.rows,
+        }),
+      );
     } catch (error) {
-      this.logger.error('Dashboard WS: Failed to send agent list', { error: error.message });
+      this.logger.error('Dashboard WS: Failed to send agent list', {
+        error: error.message,
+      });
     }
   }
 }

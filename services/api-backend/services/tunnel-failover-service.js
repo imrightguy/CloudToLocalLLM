@@ -626,9 +626,12 @@ export class TunnelFailoverService {
       // Stop all recovery check intervals
       for (const [endpointId, interval] of this.recoveryIntervals.entries()) {
         clearInterval(interval);
-        logger.debug('[TunnelFailoverService] Stopping recovery checks during cleanup', {
-          endpointId,
-        });
+        logger.debug(
+          '[TunnelFailoverService] Stopping recovery checks during cleanup',
+          {
+            endpointId,
+          },
+        );
       }
 
       // Clear all state

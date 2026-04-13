@@ -27,10 +27,10 @@ router.get('/metrics', authenticateJWT, async (req, res) => {
       active: 0,
       idle: 0,
       error: 0,
-      offline: 0
+      offline: 0,
     };
 
-    statusResult.rows.forEach(row => {
+    statusResult.rows.forEach((row) => {
       counts[row.status] = parseInt(row.count);
       counts.total += parseInt(row.count);
     });
@@ -47,7 +47,7 @@ router.get('/metrics', authenticateJWT, async (req, res) => {
     const eventsResult = await query(eventsQuery, [userId]);
 
     const eventsSummary = {};
-    eventsResult.rows.forEach(row => {
+    eventsResult.rows.forEach((row) => {
       eventsSummary[row.event_type] = parseInt(row.count);
     });
 
@@ -56,8 +56,8 @@ router.get('/metrics', authenticateJWT, async (req, res) => {
       data: {
         agents: counts,
         recent_events_24h: eventsSummary,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     logger.error('[AgentDashboard] Error fetching metrics:', error);
@@ -82,7 +82,7 @@ router.get('/agents', authenticateJWT, async (req, res) => {
 
     res.json({
       success: true,
-      data: result.rows
+      data: result.rows,
     });
   } catch (error) {
     logger.error('[AgentDashboard] Error fetching agents:', error);
@@ -111,7 +111,7 @@ router.get('/events', authenticateJWT, async (req, res) => {
 
     res.json({
       success: true,
-      data: result.rows
+      data: result.rows,
     });
   } catch (error) {
     logger.error('[AgentDashboard] Error fetching events:', error);

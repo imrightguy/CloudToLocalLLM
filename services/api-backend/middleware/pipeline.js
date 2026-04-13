@@ -71,7 +71,10 @@ export function setupMiddlewarePipeline(app, options = {}) {
     const corsMiddleware = cors(corsOptions);
     app.use(corsMiddleware);
   } catch (error) {
-    logger.error('Error setting up CORS', { error: error.message, stack: error.stack });
+    logger.error('Error setting up CORS', {
+      error: error.message,
+      stack: error.stack,
+    });
     throw error;
   }
 

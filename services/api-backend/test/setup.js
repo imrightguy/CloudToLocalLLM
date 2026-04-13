@@ -124,9 +124,8 @@ afterAll(async () => {
 
   // Clear request queue service to stop all pending timeouts
   try {
-    const { getRequestQueueService } = await import(
-      '../services/request-queue-service.js'
-    );
+    const { getRequestQueueService } =
+      await import('../services/request-queue-service.js');
     const queueService = getRequestQueueService();
     if (queueService && queueService.clearAllQueues) {
       queueService.clearAllQueues();
@@ -137,9 +136,8 @@ afterAll(async () => {
 
   // Close FailoverManager if initialized
   try {
-    const { closeFailoverManager } = await import(
-      '../database/failover-manager.js'
-    );
+    const { closeFailoverManager } =
+      await import('../database/failover-manager.js');
     await closeFailoverManager();
   } catch {
     // Failover manager may not have been initialized

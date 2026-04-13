@@ -31,7 +31,10 @@ router.get('/metrics', async (req, res) => {
     const metrics = await exportAdminMetricsAsText();
     res.send(metrics);
   } catch (error) {
-    logger.error('Error exporting metrics', { error: error.message, stack: error.stack });
+    logger.error('Error exporting metrics', {
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).send('Error exporting metrics');
   }
 });

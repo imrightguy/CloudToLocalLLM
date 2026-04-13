@@ -22,12 +22,8 @@ const AUTH0_AUDIENCE =
 const isAuthConfigured = !!(AUTH0_DOMAIN && AUTH0_AUDIENCE);
 
 if (!isAuthConfigured && process.env.NODE_ENV !== 'test') {
-  logger.warn(
-    'Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).',
-  );
-  logger.warn(
-    'Authentication features will return 503 Service Unavailable.',
-  );
+  logger.warn('Auth0 configuration is missing (AUTH0_DOMAIN, AUTH0_AUDIENCE).');
+  logger.warn('Authentication features will return 503 Service Unavailable.');
 }
 
 // Rigorous JWT verification middleware using industry-standard library
@@ -129,7 +125,10 @@ export async function syncSession(req, res, next) {
       // However, createOrUpdateSession uses it for hashing.
 
       if (typeof token !== 'string') {
-        logger.debug(' [Auth] Raw token not found as string, using placeholder for sync', { tokenType: typeof token });
+        logger.debug(
+          ' [Auth] Raw token not found as string, using placeholder for sync',
+          { tokenType: typeof token },
+        );
         token = 'validated-payload-no-raw-token';
       }
 

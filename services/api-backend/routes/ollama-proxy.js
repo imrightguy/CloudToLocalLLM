@@ -47,7 +47,11 @@ export async function handleOllamaProxyRequest(req, res) {
     res.status(ollamaResponse.status);
 
     // Copy headers from Ollama response (except some that Express should handle)
-    const excludedHeaders = ['content-length', 'connection', 'transfer-encoding'];
+    const excludedHeaders = [
+      'content-length',
+      'connection',
+      'transfer-encoding',
+    ];
     for (const [key, value] of Object.entries(ollamaResponse.headers)) {
       if (!excludedHeaders.includes(key.toLowerCase())) {
         res.setHeader(key, value);
@@ -56,7 +60,6 @@ export async function handleOllamaProxyRequest(req, res) {
 
     // Send the response body
     res.send(ollamaResponse.data);
-
   } catch (error) {
     logger.error('Ollama proxy error:', error.message);
 
@@ -66,17 +69,22 @@ export async function handleOllamaProxyRequest(req, res) {
 
     if (error.code === 'ECONNREFUSED') {
       statusCode = 503; // Service Unavailable
-      errorMessage = 'Ollama service is not available. Please ensure Ollama is running on localhost:11434';
+      errorMessage =
+        'Ollama service is not available. Please ensure Ollama is running on localhost:11434';
     } else if (error.response) {
       // Ollama returned an error
       statusCode = error.response.status || 502;
-      errorMessage = error.response.data?.error || error.response.statusText || 'Ollama returned an error';
+      errorMessage =
+        error.response.data?.error ||
+        error.response.statusText ||
+        'Ollama returned an error';
     }
 
     res.status(statusCode).json({
       error: 'Ollama proxy error',
       message: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details:
+        process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 }

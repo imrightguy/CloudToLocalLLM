@@ -26,8 +26,7 @@ function _getConfig() {
   return {
     emailEnabled: process.env.ALERT_EMAIL_ENABLED === 'true',
     emailTo: process.env.ALERT_EMAIL_TO || '',
-    emailFrom:
-      process.env.ALERT_EMAIL_FROM || 'alerts@cloudtolocalllm.online',
+    emailFrom: process.env.ALERT_EMAIL_FROM || 'alerts@cloudtolocalllm.online',
     emailSmtpHost: process.env.ALERT_EMAIL_SMTP_HOST || 'smtp.gmail.com',
     emailSmtpPort: parseInt(process.env.ALERT_EMAIL_SMTP_PORT || '587', 10),
     emailSmtpUser: process.env.ALERT_EMAIL_SMTP_USER || '',

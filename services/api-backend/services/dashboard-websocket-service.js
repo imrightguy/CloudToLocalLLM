@@ -32,11 +32,19 @@ class DashboardWebSocketService {
       });
 
       ws.on('error', (error) => {
-        logger.error(`[DashboardWS] Connection error for user ${userId}:`, error);
+        logger.error(
+          `[DashboardWS] Connection error for user ${userId}:`,
+          error,
+        );
       });
 
       // Send initial heartbeat
-      ws.send(JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() }));
+      ws.send(
+        JSON.stringify({
+          type: 'connected',
+          timestamp: new Date().toISOString(),
+        }),
+      );
     });
 
     logger.info('[DashboardWS] Service initialized');
@@ -68,7 +76,9 @@ class DashboardWebSocketService {
         this.wss.emit('connection', ws, request, userId);
       });
     } catch (error) {
-      logger.warn('[DashboardWS] Upgrade rejected: Invalid token', { error: error.message });
+      logger.warn('[DashboardWS] Upgrade rejected: Invalid token', {
+        error: error.message,
+      });
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       socket.destroy();
     }
@@ -82,7 +92,8 @@ class DashboardWebSocketService {
     if (userConnections) {
       const message = JSON.stringify(data);
       userConnections.forEach((ws) => {
-        if (ws.readyState === 1) { // OPEN
+        if (ws.readyState === 1) {
+          // OPEN
           ws.send(message);
         }
       });
@@ -97,7 +108,8 @@ class DashboardWebSocketService {
     const message = JSON.stringify(data);
     this.clients.forEach((userConnections) => {
       userConnections.forEach((ws) => {
-        if (ws.readyState === 1) { // OPEN
+        if (ws.readyState === 1) {
+          // OPEN
           ws.send(message);
         }
       });

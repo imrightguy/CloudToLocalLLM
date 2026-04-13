@@ -40,29 +40,29 @@ export const validateSchema = (schemas) => {
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const details = error.errors.map(err => ({
+        const details = error.errors.map((err) => ({
           path: err.path.join('.'),
           message: err.message,
-          code: err.code
+          code: err.code,
         }));
 
         logger.warn('[Validation] Schema validation failed', {
           path: req.path,
           method: req.method,
           errors: details,
-          userId: req.user?.sub
+          userId: req.user?.sub,
         });
 
         return res.status(400).json({
           error: 'Validation failed',
           code: 'VALIDATION_ERROR',
-          details
+          details,
         });
       }
 
       logger.error('[Validation] Unexpected error during validation', {
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
 
       next(error);
@@ -79,7 +79,7 @@ export const commonSchemas = {
   pagination: z.object({
     page: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
     limit: z.string().regex(/^\d+$/).transform(Number).optional().default('50'),
-  })
+  }),
 };
 
 export default validateSchema;

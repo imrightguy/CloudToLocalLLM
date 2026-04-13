@@ -8,7 +8,7 @@
  * - Configures additional security headers
  *
  * Requirement 15: Security and Data Protection
-  */
+ */
 
 import logger from '../logger.js';
 

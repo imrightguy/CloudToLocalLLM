@@ -291,79 +291,84 @@ router.get('/tier/features', authenticateJWT, (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/tier/check/:feature', authenticateJWT, validateSchema(featureCheckSchema), (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
+router.get(
+  '/tier/check/:feature',
+  authenticateJWT,
+  validateSchema(featureCheckSchema),
+  (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+        });
+      }
+
+      const { feature } = req.params;
+
+      const userTier = getUserTier(req.user);
+      const hasAccess = hasFeature(req.user, feature);
+
+      logger.debug('[UserTier] Feature access check', {
+        userId: req.user.sub,
+        feature,
+        hasAccess,
+        tier: userTier,
+      });
+
+      // Find minimum tier required for this feature
+      let minimumTier = null;
+      const tierHierarchy = [
+        USER_TIERS.FREE,
+        USER_TIERS.PREMIUM,
+        USER_TIERS.ENTERPRISE,
+      ];
+
+      for (const tier of tierHierarchy) {
+        const tierFeatures = getTierFeatures(tier);
+        if (tierFeatures[feature]) {
+          minimumTier = tier;
+          break;
+        }
+      }
+
+      const response = {
+        feature,
+        userHasAccess: hasAccess,
+        currentTier: userTier,
+        minimumTierRequired: minimumTier,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Add upgrade information if user doesn't have access
+      if (!hasAccess && minimumTier) {
+        response.upgrade = {
+          requiredTier: minimumTier,
+          message: getUpgradeMessage(userTier, feature),
+          upgradeUrl:
+            process.env.UPGRADE_URL ||
+            'https://app.cloudtolocalllm.online/upgrade',
+        };
+      }
+
+      res.json({
+        success: true,
+        data: response,
+      });
+    } catch (error) {
+      logger.error('[UserTier] Error checking feature access', {
+        userId: req.user?.sub,
+        feature: req.params.feature,
+        error: error.message,
+      });
+
+      res.status(500).json({
+        error: 'Failed to check feature access',
+        code: 'FEATURE_CHECK_FAILED',
       });
     }
-
-    const { feature } = req.params;
-
-    const userTier = getUserTier(req.user);
-    const hasAccess = hasFeature(req.user, feature);
-
-    logger.debug('[UserTier] Feature access check', {
-      userId: req.user.sub,
-      feature,
-      hasAccess,
-      tier: userTier,
-    });
-
-    // Find minimum tier required for this feature
-    let minimumTier = null;
-    const tierHierarchy = [
-      USER_TIERS.FREE,
-      USER_TIERS.PREMIUM,
-      USER_TIERS.ENTERPRISE,
-    ];
-
-    for (const tier of tierHierarchy) {
-      const tierFeatures = getTierFeatures(tier);
-      if (tierFeatures[feature]) {
-        minimumTier = tier;
-        break;
-      }
-    }
-
-    const response = {
-      feature,
-      userHasAccess: hasAccess,
-      currentTier: userTier,
-      minimumTierRequired: minimumTier,
-      timestamp: new Date().toISOString(),
-    };
-
-    // Add upgrade information if user doesn't have access
-    if (!hasAccess && minimumTier) {
-      response.upgrade = {
-        requiredTier: minimumTier,
-        message: getUpgradeMessage(userTier, feature),
-        upgradeUrl:
-          process.env.UPGRADE_URL ||
-          'https://app.cloudtolocalllm.online/upgrade',
-      };
-    }
-
-    res.json({
-      success: true,
-      data: response,
-    });
-  } catch (error) {
-    logger.error('[UserTier] Error checking feature access', {
-      userId: req.user?.sub,
-      feature: req.params.feature,
-      error: error.message,
-    });
-
-    res.status(500).json({
-      error: 'Failed to check feature access',
-      code: 'FEATURE_CHECK_FAILED',
-    });
-  }
-});
+  },
+);
 
 /**
  * GET /api/users/tier/limits

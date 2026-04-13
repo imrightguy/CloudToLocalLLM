@@ -64,7 +64,10 @@ export class HealthCheckService {
           return {
             status: 'healthy',
             message: 'Database is healthy',
-            details: { allTablesValid: true, results: validationResult.results },
+            details: {
+              allTablesValid: true,
+              results: validationResult.results,
+            },
           };
         }
         return {
