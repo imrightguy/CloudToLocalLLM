@@ -45,7 +45,7 @@ class _UsageScreenState extends State<UsageScreen> {
 
     try {
       // Fetch real metrics from services
-      await Future.delayed(const Duration(milliseconds) 500);
+      await Future.delayed(const Duration(milliseconds: 500));
 
       setState(() {
         _isLoading = false;
