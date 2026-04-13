@@ -7,7 +7,7 @@ import '../../widgets/common/error_state.dart';
 import '../../widgets/navigation/popout_button.dart';
 
 import 'package:cloudtolocalllm/services/rate_limit_manager.dart';
-import 'package:cloudtolocalllm/services/connection_manager_service.dart';
+import 'package:cloudtolocalllm/database/drift_local_brain.dart';
 
 enum TimeRange { today, week, month }
 
@@ -31,7 +31,7 @@ class _UsageScreenState extends State<UsageScreen> {
     _loadMetrics();
   }
 
-@override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _rateLimitManager = context.read<RateLimitManager>();
@@ -45,7 +45,7 @@ class _UsageScreenState extends State<UsageScreen> {
 
     try {
       // Fetch real metrics from services
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds) 500);
 
       setState(() {
         _isLoading = false;
@@ -131,35 +131,35 @@ class _UsageScreenState extends State<UsageScreen> {
                         const SizedBox(height: 24),
 
                         // Token Usage Card
-                        FutureBuilder<List<ModelCapacityData>>(
-                          future: _rateLimitManager.watchCapacities().first,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const SizedBox();
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else {
-                              final capacities = snapshot.data!;
-                              final totalTokens = capacities.fold(
-                                  0, (sum, capacity) => sum + (capacity.totalTokensUsed ?? 0));
-                              final totalLimit = capacities.fold(
-                                  0, (sum, capacity) => sum + (capacity.totalTokenLimit ?? 0));
-                              final utilization = totalLimit > 0 ? totalTokens / totalLimit : 0.0;
+FutureBuilder<List<ModelCapacityData>>(
+      future: _rateLimitManager.watchCapacities().first,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final capacities = snapshot.data!;
+          final totalTokens = capacities.fold(
+              0, (sum, capacity) => sum + capacity.concurrentUsed);
+          final totalLimit = capacities.fold(
+              0, (sum, capacity) => sum + capacity.concurrentLimit);
+          final utilization = totalLimit > 0 ? totalTokens / totalLimit : 0.0;
 
-                              return MetricCard(
-                                title: 'Token Usage',
-                                icon: Icons.token,
-                                value: _formatTokenValue(totalTokens),
-                                unit: 'tokens',
-                                subtitle: 'Total tokens processed',
-                                trend: utilization > 0.8 ? MetricTrend.up : MetricTrend.neutral,
-                                progressValue: utilization,
-                                progressLabel: 'Rate limit utilization',
-                                child: _buildTokenCostBreakdown(theme, capacities),
-                              );
-                            }
-                          },
-                        ),
+          return MetricCard(
+            title: 'Token Usage',
+            icon: Icons.token,
+            value: _formatTokenValue(totalTokens),
+            unit: 'tokens',
+            subtitle: 'Total tokens processed',
+            trend: utilization > 0.8 ? MetricTrend.up : MetricTrend.neutral,
+            progressValue: utilization,
+            progressLabel: 'Rate limit utilization',
+            child: _buildTokenCostBreakdown(theme, capacities),
+          );
+        }
+      },
+    ),
                         const SizedBox(height: 16),
 
                         // Request Metrics Card
@@ -270,7 +270,7 @@ class _UsageScreenState extends State<UsageScreen> {
         const SizedBox(height: 4),
         _buildCostRow('Input tokens', '74,750', theme),
         _buildCostRow('Output tokens', '49,833', theme),
-_buildCostRow('Est. cost', r'$\0.037', theme),
+        _buildCostRow('Est. cost', r'$0.037', theme),
       ],
     );
   }
