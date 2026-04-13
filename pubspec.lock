@@ -101,18 +101,18 @@ packages:
     dependency: "direct main"
     description:
       name: auth0_flutter
-      sha256: "2498e3593326687ae37a0736ecaa005397bf27bc352e95a86ddf749a0aa5e3c9"
+      sha256: a09abfaa73876cf1f9168805a5cb06386761fed3040c587cf115123cba7c9307
       url: "https://pub.dev"
     source: hosted
-    version: "1.14.0"
+    version: "2.0.0"
   auth0_flutter_platform_interface:
     dependency: transitive
     description:
       name: auth0_flutter_platform_interface
-      sha256: "4ec77a30eb5c464a7e5744c72ab380a1f073752de3a8542eb0c5c717053b4e71"
+      sha256: da9067b126f7e55467311867a68f1dde7d5f68a79610d4f562ce7be0fe99c3ec
       url: "https://pub.dev"
     source: hosted
-    version: "1.14.0"
+    version: "2.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -646,10 +646,10 @@ packages:
     dependency: "direct main"
     description:
       name: googleapis_auth
-      sha256: befd71383a955535060acde8792e7efc11d2fccd03dd1d3ec434e85b68775938
+      sha256: b81fe352cc4a330b3710d2b7ad258d9bcef6f909bb759b306bf42973a7d046db
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "2.0.0"
   graphs:
     dependency: transitive
     description:
@@ -1328,18 +1328,18 @@ packages:
     dependency: transitive
     description:
       name: sqlite3
-      sha256: b3fe250b4ebd681a8ba20b12794c42b00c1375e5b51005568f0b8731265beb03
+      sha256: "56da3e13ed7d28a66f930aa2b2b29db6736a233f08283326e96321dd812030f5"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.3.1"
   sqlite3_flutter_libs:
     dependency: "direct main"
     description:
       name: sqlite3_flutter_libs
-      sha256: eeb9e3a45207649076b808f8a5a74d68770d0b7f26ccef6d5f43106eee5375ad
+      sha256: "3ed7553eee7bb368f8950f58ba29f634e06e813c029aff6a0d60862b96de8454"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.42"
+    version: "0.6.0+eol"
   sqlparser:
     dependency: transitive
     description:
