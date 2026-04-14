@@ -17,7 +17,7 @@ export default [
       ...js.configs.recommended.rules,
       'no-console': 'off',
       'no-debugger': 'warn',
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-underscore-dangle': 'off',
       'comma-dangle': ['error', 'always-multiline'],
       'max-len': ['warn', { code: 120, ignoreStrings: true, ignoreTemplateLiterals: true }],

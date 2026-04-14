@@ -274,7 +274,7 @@ describe('VALID_TRANSITIONS', () => {
   });
 
   test('all target statuses are valid', () => {
-    for (const [from, targets] of Object.entries(VALID_TRANSITIONS)) {
+    for (const [_from, targets] of Object.entries(VALID_TRANSITIONS)) {
       for (const to of targets) {
         expect(VALID_LEASE_STATUSES).toContain(to);
       }

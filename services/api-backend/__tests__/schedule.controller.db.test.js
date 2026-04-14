@@ -13,10 +13,8 @@ jest.mock('../src/utils/logger', () => ({
 
 let mockInsertValues;
 let mockInsertReturning;
-let mockUpdateSetWhere;
 let mockUpdateSet;
 let mockUpdateReturning;
-let mockSelectResult;
 
 const createSelectChain = (finalResult) => {
   const chain = {};
