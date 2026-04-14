@@ -86,11 +86,6 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin shared_preferences_android, io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin", e);
     }
     try {
-      flutterEngine.getPlugins().add(new eu.simonbinder.sqlite3_flutter_libs.Sqlite3FlutterLibsPlugin());
-    } catch (Exception e) {
-      Log.e(TAG, "Error registering plugin sqlite3_flutter_libs, eu.simonbinder.sqlite3_flutter_libs.Sqlite3FlutterLibsPlugin", e);
-    }
-    try {
       flutterEngine.getPlugins().add(new io.paratoner.tesseract_ocr.TesseractOcrPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin tesseract_ocr, io.paratoner.tesseract_ocr.TesseractOcrPlugin", e);
