@@ -22,11 +22,23 @@ jest.mock('../src/utils/logger', () => ({
   warn: jest.fn(),
 }));
 
+jest.mock('../src/utils/cache', () => {
+  const store = new Map();
+  return {
+    cache: {
+      get: jest.fn((key) => store.get(key)),
+      set: jest.fn((key, value) => { store.set(key, value); }),
+      _store: store,
+    },
+  };
+});
+
 jest.mock('../src/constants/lead-stages', () => ({
-  VALID_LEAD_STAGES: ['nouveau', 'contacte', 'interesse'],
+  VALID_LEAD_STAGES: ['nouveau', 'contacte', 'interesse', 'signe', 'bailSigne'],
 }));
 
 const { db } = require('../src/database/connection');
+const { cache } = require('../src/utils/cache');
 
 function createChain(resolveWith, shouldReject = false) {
   const chain = {};
@@ -55,6 +67,17 @@ function createChain(resolveWith, shouldReject = false) {
 describe('analytics.service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    cache._store.clear();
+    db.select.mockReset().mockReturnThis();
+    db.from.mockReset().mockReturnThis();
+    db.where.mockReset().mockReturnThis();
+    db.and.mockReset().mockReturnThis();
+    db.or.mockReset().mockReturnThis();
+    db.innerJoin.mockReset().mockReturnThis();
+    db.leftJoin.mockReset().mockReturnThis();
+    db.groupBy.mockReset().mockReturnThis();
+    db.orderBy.mockReset().mockReturnThis();
+    db.limit.mockReset().mockReturnThis();
   });
 
   // ─── getPeriodStart ─────────────────────────────────────────────────────────
@@ -159,25 +182,28 @@ describe('analytics.service', () => {
       });
     });
 
-    it('returns occupancy data for all buildings', async () => {
+    it('returns occupancy data grouped by units.status for all buildings', async () => {
       const rows = [
-        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', totalUnits: '20', occupiedUnits: '16' },
-        { buildingId: 'bldg-2', buildingName: '5678 Blvd René-Lévesque', totalUnits: '10', occupiedUnits: '10' },
+        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', status: 'occupied', count: '16' },
+        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', status: 'vacant', count: '4' },
+        { buildingId: 'bldg-2', buildingName: '5678 Blvd René-Lévesque', status: 'occupied', count: '10' },
       ];
       db.select.mockReturnValue(createChain(rows));
 
       const result = await getOccupancyTrend(null);
 
       expect(result).toEqual([
-        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', totalUnits: 20, occupiedUnits: 16, vacantUnits: 4, occupancyRate: 0.8 },
-        { buildingId: 'bldg-2', buildingName: '5678 Blvd René-Lévesque', totalUnits: 10, occupiedUnits: 10, vacantUnits: 0, occupancyRate: 1 },
+        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', totalUnits: 20, occupiedUnits: 16, vacantUnits: 4, maintenanceUnits: 0, occupancyRate: 0.8 },
+        { buildingId: 'bldg-2', buildingName: '5678 Blvd René-Lévesque', totalUnits: 10, occupiedUnits: 10, vacantUnits: 0, maintenanceUnits: 0, occupancyRate: 1 },
       ]);
       expect(db.select).toHaveBeenCalledTimes(1);
     });
 
     it('filters by buildingId when provided', async () => {
       const rows = [
-        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', totalUnits: '20', occupiedUnits: '16' },
+        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', status: 'occupied', count: '16' },
+        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', status: 'maintenance', count: '2' },
+        { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', status: 'vacant', count: '2' },
       ];
       db.select.mockReturnValue(createChain(rows));
 
@@ -185,18 +211,15 @@ describe('analytics.service', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].buildingId).toBe('bldg-1');
+      expect(result[0].maintenanceUnits).toBe(2);
     });
 
     it('handles zero total units gracefully', async () => {
-      const rows = [
-        { buildingId: 'bldg-1', buildingName: 'Empty Building', totalUnits: '0', occupiedUnits: '0' },
-      ];
-      db.select.mockReturnValue(createChain(rows));
+      db.select.mockReturnValue(createChain([]));
 
       const result = await getOccupancyTrend(null);
 
-      expect(result[0].occupancyRate).toBe(0);
-      expect(result[0].vacantUnits).toBe(0);
+      expect(result).toEqual([]);
     });
 
     it('returns empty array when no buildings found', async () => {
@@ -205,6 +228,21 @@ describe('analytics.service', () => {
       const result = await getOccupancyTrend(null);
 
       expect(result).toEqual([]);
+    });
+
+    it('caches results and returns cached on second call', async () => {
+      const rows = [
+        { buildingId: 'bldg-1', buildingName: 'Test', status: 'occupied', count: '5' },
+      ];
+      db.select.mockReturnValue(createChain(rows));
+
+      const result1 = await getOccupancyTrend(null);
+      const result2 = await getOccupancyTrend(null);
+
+      expect(result1).toEqual(result2);
+      expect(db.select).toHaveBeenCalledTimes(1);
+      expect(cache.set).toHaveBeenCalled();
+      expect(cache.get).toHaveBeenCalled();
     });
 
     it('throws and logs on database error', async () => {
@@ -229,10 +267,10 @@ describe('analytics.service', () => {
 
     it('returns revenue data and totals with default params', async () => {
       const data = [
-        { date: '2026-01-01', value: '1500000', buildingId: 'bldg-1', buildingName: '1234 Rue' },
+        { date: '2026-01-01', value: '15000', buildingId: 'bldg-1', buildingName: '1234 Rue' },
       ];
       const totals = [
-        { date: '2026-01-01', value: '3000000' },
+        { date: '2026-01-01', value: '30000' },
       ];
 
       let callCount = 0;
@@ -244,10 +282,10 @@ describe('analytics.service', () => {
       const result = await getRevenueTrend('12m', null, 'month');
 
       expect(result.data).toEqual([
-        { date: '2026-01-01', value: 1500000, buildingId: 'bldg-1', buildingName: '1234 Rue' },
+        { date: '2026-01-01', value: 15000, buildingId: 'bldg-1', buildingName: '1234 Rue' },
       ]);
       expect(result.totals).toEqual([
-        { date: '2026-01-01', value: 3000000 },
+        { date: '2026-01-01', value: 30000 },
       ]);
       expect(db.select).toHaveBeenCalledTimes(2);
     });
@@ -264,19 +302,49 @@ describe('analytics.service', () => {
     });
 
     it('passes correct period for 90d', async () => {
-      db.select.mockReturnValue(createChain([]));
+      let callCount = 0;
+      db.select.mockImplementation(() => {
+        callCount++;
+        return createChain([]);
+      });
 
       await getRevenueTrend('90d', 'bldg-1', 'week');
       expect(db.select).toHaveBeenCalledTimes(2);
     });
 
     it('handles empty results gracefully', async () => {
-      db.select.mockReturnValue(createChain([]));
+      let callCount = 0;
+      db.select.mockImplementation(() => {
+        callCount++;
+        return createChain([]);
+      });
 
       const result = await getRevenueTrend('30d', null, 'day');
 
       expect(result.data).toEqual([]);
       expect(result.totals).toEqual([]);
+    });
+
+    it('throws on invalid period', async () => {
+      await expect(getRevenueTrend('invalid')).rejects.toThrow('Invalid period');
+    });
+
+    it('throws on invalid granularity', async () => {
+      await expect(getRevenueTrend('30d', null, 'year')).rejects.toThrow('Invalid granularity');
+    });
+
+    it('caches results and returns cached on second call', async () => {
+      let callCount = 0;
+      db.select.mockImplementation(() => {
+        callCount++;
+        return createChain([]);
+      });
+
+      await getRevenueTrend('12m', null, 'month');
+      await getRevenueTrend('12m', null, 'month');
+
+      expect(db.select).toHaveBeenCalledTimes(2);
+      expect(cache.set).toHaveBeenCalled();
     });
 
     it('throws and logs on database error', async () => {
@@ -299,11 +367,11 @@ describe('analytics.service', () => {
       });
     });
 
-    it('returns stages, conversionRate, and timeline', async () => {
+    it('returns stages, conversionRate (signed stages), and timeline', async () => {
       const stageRows = [
         { stage: 'nouveau', count: '10' },
         { stage: 'contacte', count: '7' },
-        { stage: 'interesse', count: '3' },
+        { stage: 'signe', count: '3' },
       ];
       const timelineRows = [
         { date: '2026-03-17', stage: 'nouveau', count: '3' },
@@ -321,7 +389,7 @@ describe('analytics.service', () => {
       expect(result.stages).toEqual([
         { stage: 'nouveau', count: 10 },
         { stage: 'contacte', count: 7 },
-        { stage: 'interesse', count: 3 },
+        { stage: 'signe', count: 3 },
       ]);
       expect(result.conversionRate).toBe('15.0%');
       expect(result.timeline).toEqual([
@@ -330,10 +398,11 @@ describe('analytics.service', () => {
       ]);
     });
 
-    it('calculates conversion rate from interested/total', async () => {
+    it('calculates conversion rate from signed stages (signe + bailSigne)', async () => {
       const stageRows = [
         { stage: 'nouveau', count: '77' },
-        { stage: 'interesse', count: '23' },
+        { stage: 'signe', count: '15' },
+        { stage: 'bailSigne', count: '8' },
       ];
 
       let callCount = 0;
@@ -347,7 +416,7 @@ describe('analytics.service', () => {
       expect(result.conversionRate).toBe('23.0%');
     });
 
-    it('returns 0% conversion rate when no interested leads', async () => {
+    it('returns 0% conversion rate when no signed leads', async () => {
       const stageRows = [
         { stage: 'nouveau', count: '50' },
         { stage: 'contacte', count: '10' },
@@ -368,7 +437,7 @@ describe('analytics.service', () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        return createChain(callCount === 1 ? [] : []);
+        return createChain([]);
       });
 
       const result = await getLeadFunnel('30d');
@@ -379,7 +448,7 @@ describe('analytics.service', () => {
 
     it('filters by buildingId', async () => {
       const stageRows = [
-        { stage: 'interesse', count: '5' },
+        { stage: 'signe', count: '5' },
       ];
 
       let callCount = 0;
@@ -390,6 +459,28 @@ describe('analytics.service', () => {
 
       await getLeadFunnel('90d', 'bldg-1', 'day');
       expect(db.select).toHaveBeenCalledTimes(2);
+    });
+
+    it('throws on invalid period', async () => {
+      await expect(getLeadFunnel('invalid')).rejects.toThrow('Invalid period');
+    });
+
+    it('throws on invalid granularity', async () => {
+      await expect(getLeadFunnel('30d', null, 'hour')).rejects.toThrow('Invalid granularity');
+    });
+
+    it('caches results and returns cached on second call', async () => {
+      let callCount = 0;
+      db.select.mockImplementation(() => {
+        callCount++;
+        return createChain([]);
+      });
+
+      await getLeadFunnel('90d', null, 'week');
+      await getLeadFunnel('90d', null, 'week');
+
+      expect(db.select).toHaveBeenCalledTimes(2);
+      expect(cache.set).toHaveBeenCalled();
     });
 
     it('throws and logs on database error', async () => {
@@ -412,7 +503,7 @@ describe('analytics.service', () => {
       });
     });
 
-    it('returns completionRate, noShowRate, totalVisits, and timeline', async () => {
+    it('returns completionRate, noShowRate, totalVisits, avgTimeToLease, and timeline', async () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
@@ -420,6 +511,7 @@ describe('analytics.service', () => {
         if (callCount === 2) return createChain([{ completed: '18' }]);
         if (callCount === 3) return createChain([{ noShow: '3' }]);
         if (callCount === 4) return createChain([{ cancelled: '4' }]);
+        if (callCount === 5) return createChain([{ avgDays: '12.5' }]);
         return createChain([
           { date: '2026-03-17', completed: '5', cancelled: '1', noShow: '1' },
         ]);
@@ -430,19 +522,19 @@ describe('analytics.service', () => {
       expect(result.completionRate).toBe('72.0%');
       expect(result.noShowRate).toBe('12.0%');
       expect(result.totalVisits).toBe(25);
+      expect(result.avgTimeToLease).toBe(12.5);
       expect(result.timeline).toEqual([
         { date: '2026-03-17', completed: 5, cancelled: 1, noShow: 1 },
       ]);
+      expect(db.select).toHaveBeenCalledTimes(6);
     });
 
-    it('returns 0% rates when no visits', async () => {
+    it('returns 0% rates and null avgTimeToLease when no visits', async () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount === 1) return createChain([{ total: '0' }]);
-        if (callCount === 2) return createChain([{ completed: '0' }]);
-        if (callCount === 3) return createChain([{ noShow: '0' }]);
-        if (callCount === 4) return createChain([{ cancelled: '0' }]);
+        if (callCount <= 4) return createChain([{ total: '0' }]);
+        if (callCount === 5) return createChain([{ avgDays: null }]);
         return createChain([]);
       });
 
@@ -451,6 +543,7 @@ describe('analytics.service', () => {
       expect(result.completionRate).toBe('0.0%');
       expect(result.noShowRate).toBe('0.0%');
       expect(result.totalVisits).toBe(0);
+      expect(result.avgTimeToLease).toBeNull();
       expect(result.timeline).toEqual([]);
     });
 
@@ -462,6 +555,7 @@ describe('analytics.service', () => {
         if (callCount === 2) return createChain([{ completed: '50' }]);
         if (callCount === 3) return createChain([{ noShow: '25' }]);
         if (callCount === 4) return createChain([{ cancelled: '25' }]);
+        if (callCount === 5) return createChain([{ avgDays: '7.3' }]);
         return createChain([]);
       });
 
@@ -469,22 +563,45 @@ describe('analytics.service', () => {
 
       expect(result.completionRate).toBe('50.0%');
       expect(result.noShowRate).toBe('25.0%');
-      expect(db.select).toHaveBeenCalledTimes(5);
+      expect(result.avgTimeToLease).toBe(7.3);
+      expect(db.select).toHaveBeenCalledTimes(6);
     });
 
     it('handles 12m period', async () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount === 1) return createChain([{ total: '0' }]);
-        if (callCount === 2) return createChain([{ completed: '0' }]);
-        if (callCount === 3) return createChain([{ noShow: '0' }]);
-        if (callCount === 4) return createChain([{ cancelled: '0' }]);
+        if (callCount <= 4) return createChain([{ total: '0' }]);
+        if (callCount === 5) return createChain([{ avgDays: null }]);
         return createChain([]);
       });
 
       await getVisitMetrics('12m', null, 'month');
-      expect(db.select).toHaveBeenCalledTimes(5);
+      expect(db.select).toHaveBeenCalledTimes(6);
+    });
+
+    it('throws on invalid period', async () => {
+      await expect(getVisitMetrics('invalid')).rejects.toThrow('Invalid period');
+    });
+
+    it('throws on invalid granularity', async () => {
+      await expect(getVisitMetrics('30d', null, 'quarter')).rejects.toThrow('Invalid granularity');
+    });
+
+    it('caches results and returns cached on second call', async () => {
+      let callCount = 0;
+      db.select.mockImplementation(() => {
+        callCount++;
+        if (callCount <= 4) return createChain([{ total: '0' }]);
+        if (callCount === 5) return createChain([{ avgDays: null }]);
+        return createChain([]);
+      });
+
+      await getVisitMetrics('30d', null, 'week');
+      await getVisitMetrics('30d', null, 'week');
+
+      expect(db.select).toHaveBeenCalledTimes(6);
+      expect(cache.set).toHaveBeenCalled();
     });
 
     it('throws and logs on database error', async () => {
