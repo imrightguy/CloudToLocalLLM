@@ -149,6 +149,95 @@ exports.getCommunicationLogById = async (req, res) => {
   }
 };
 
+// ─── Update Communication Log ───
+exports.updateCommunicationLog = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      content, subject, attachments, status, metadata,
+    } = req.body;
+
+    const [existing] = await db.select()
+      .from(communicationLogsTable)
+      .where(eq(communicationLogsTable.id, id))
+      .limit(1);
+
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Journal de communication introuvable', code: 'COMMUNICATION_NOT_FOUND' },
+      });
+    }
+
+    const validStatuses = ['sent', 'delivered', 'read', 'failed'];
+    if (status !== undefined && !validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Statut invalide. Valeurs acceptées : ${validStatuses.join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    const updateData = {};
+    if (content !== undefined) updateData.content = content;
+    if (subject !== undefined) updateData.subject = subject;
+    if (attachments !== undefined) updateData.attachments = attachments;
+    if (status !== undefined) updateData.status = status;
+    if (metadata !== undefined) updateData.metadata = metadata;
+
+    const [updated] = await db.update(communicationLogsTable)
+      .set(updateData)
+      .where(eq(communicationLogsTable.id, id))
+      .returning();
+
+    res.json({
+      success: true,
+      data: updated,
+      message: 'Journal de communication mis à jour avec succès',
+    });
+  } catch (error) {
+    log.error('Error updating communication log', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur interne du serveur', code: 'COMMUNICATION_UPDATE_FAILED' },
+    });
+  }
+};
+
+// ─── Delete Communication Log (soft delete) ───
+exports.deleteCommunicationLog = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [existing] = await db.select()
+      .from(communicationLogsTable)
+      .where(eq(communicationLogsTable.id, id))
+      .limit(1);
+
+    if (!existing) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Journal de communication introuvable', code: 'COMMUNICATION_NOT_FOUND' },
+      });
+    }
+
+    await db.update(communicationLogsTable)
+      .set({ isActive: false })
+      .where(eq(communicationLogsTable.id, id));
+
+    res.json({
+      success: true,
+      data: null,
+      message: 'Journal de communication supprimé avec succès',
+    });
+  } catch (error) {
+    log.error('Error deleting communication log', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: { message: 'Erreur interne du serveur', code: 'COMMUNICATION_DELETE_FAILED' },
+    });
+  }
+};
+
 // ─── Get Communication Logs (alias for getCommunications) ───
 exports.getCommunicationLogs = async (req, res) => exports.getCommunications(req, res);
 

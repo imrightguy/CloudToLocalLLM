@@ -10,5 +10,7 @@ router.get('/activity', authenticateToken, asyncHandler(communicationController.
 router.post('/', authenticateToken, asyncHandler(communicationController.logCommunication));
 router.get('/logs', authenticateToken, asyncHandler(communicationController.getCommunicationLogs));
 router.get('/logs/:id', authenticateToken, asyncHandler(communicationController.getCommunicationLogById));
+router.put('/logs/:id', authenticateToken, asyncHandler(communicationController.updateCommunicationLog));
+router.delete('/logs/:id', authenticateToken, asyncHandler(communicationController.deleteCommunicationLog));
 
 module.exports = router;

@@ -554,3 +554,75 @@ describe('getActivityFeed (controller import)', () => {
     expect(body.data[0].type).toBe('lead_created');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe('updateCommunicationLog (controller import)', () => {
+  it('returns 404 when log not found', async () => {
+    mockDbResults = [[]];
+    const res = mockRes();
+    await communicationController.updateCommunicationLog(
+      { params: { id: '550e8400-e29b-41d4-a716-446655440000' }, body: { content: 'updated' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
+  it('returns 400 for invalid status', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound' }]];
+    const res = mockRes();
+    await communicationController.updateCommunicationLog(
+      { params: { id: 'c1' }, body: { status: 'bogus' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(400);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('VALIDATION_ERROR');
+    expect(body.error.message).toContain('Statut invalide');
+  });
+
+  it('returns 500 when db update fails', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound' }]];
+    const res = mockRes();
+    await communicationController.updateCommunicationLog(
+      { params: { id: 'c1' }, body: { content: 'updated content' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(500);
+    const body = res.json.mock.calls[0][0];
+    expect(body.error.code).toBe('COMMUNICATION_UPDATE_FAILED');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe('deleteCommunicationLog (controller import)', () => {
+  it('returns 404 when log not found', async () => {
+    mockDbResults = [[]];
+    const res = mockRes();
+    await communicationController.deleteCommunicationLog(
+      { params: { id: '550e8400-e29b-41d4-a716-446655440000' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
+  it('returns 500 when db delete fails', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email' }]];
+    const res = mockRes();
+    await communicationController.deleteCommunicationLog(
+      { params: { id: 'c1' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(500);
+    const body = res.json.mock.calls[0][0];
+    expect(body.error.code).toBe('COMMUNICATION_DELETE_FAILED');
+  });
+});
