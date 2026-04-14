@@ -4,6 +4,8 @@ import '../models.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/notification_preferences_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -135,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profil mis à jour'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -145,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -161,7 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Préférences de notification enregistrées'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -170,7 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -193,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Veuillez remplir tous les champs'),
-          backgroundColor: Color(0xFFF59E0B),
+          backgroundColor: AppColors.warning,
         ),
       );
       return;
@@ -202,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Les mots de passe ne correspondent pas'),
-          backgroundColor: Color(0xFFEF4444),
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -222,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Mot de passe modifié avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -231,7 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -255,7 +257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style:
-                TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+                TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Déconnexion'),
           ),
         ],
@@ -284,7 +286,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style:
-                TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+                TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Supprimer définitivement'),
           ),
         ],
@@ -300,7 +302,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Compte supprimé'),
-            backgroundColor: Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -309,7 +311,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -368,13 +370,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Paramètres'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-      ),
+      appBar: ImmoAppBar(title: 'Paramètres')
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
@@ -383,17 +379,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.error_outline,
-                          size: 48, color: Color(0xFFEF4444)),
+                          size: 48, color: AppColors.error),
                       const SizedBox(height: 16),
                       const Text('Erreur de chargement',
                           style: TextStyle(
-                              fontSize: 16, color: Color(0xFF1E293B))),
+                              fontSize: 16, color: AppColors.textPrimary)),
                       const SizedBox(height: 8),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 32),
                         child: Text(_errorMessage!,
                             style: const TextStyle(
-                                fontSize: 12, color: Color(0xFF64748B)),
+                                fontSize: 12, color: AppColors.textSecondary),
                             textAlign: TextAlign.center),
                       ),
                       const SizedBox(height: 16),
@@ -402,7 +398,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: const Icon(Icons.refresh),
                         label: const Text('Réessayer'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -421,7 +417,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           )),
                       const SizedBox(height: 8),
                       _buildNotificationCard(),
@@ -431,7 +427,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           )),
                       const SizedBox(height: 8),
                       _buildAppearanceCard(),
@@ -441,7 +437,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           )),
                       const SizedBox(height: 8),
                       _buildAccountCard(),
@@ -451,7 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           )),
                       const SizedBox(height: 8),
                       _buildAboutCard(),
@@ -481,13 +477,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: const Color(0xFF0F766E).withValues(alpha: 0.1),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
               child: Text(
                 _getInitials(),
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F766E),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -504,7 +500,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Row(
               children: [
                 const Icon(Icons.email_outlined,
-                    size: 20, color: Color(0xFF94A3B8)),
+                    size: 20, color: AppColors.textMuted),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -512,10 +508,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       const Text('Courriel',
                           style: TextStyle(
-                              fontSize: 12, color: Color(0xFF94A3B8))),
+                              fontSize: 12, color: AppColors.textMuted)),
                       Text(_email,
                           style: const TextStyle(
-                              fontSize: 14, color: Color(0xFF64748B))),
+                              fontSize: 14, color: AppColors.textSecondary)),
                     ],
                   ),
                 ),
@@ -534,8 +530,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _isEditing = false;
                             }),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF64748B),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      foregroundColor: AppColors.textSecondary,
+                      side: const BorderSide(color: AppColors.border),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: const Text('Annuler'),
@@ -546,7 +542,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _saveProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0F766E),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -577,13 +573,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               CircleAvatar(
                 radius: 36,
-                backgroundColor: const Color(0xFF0F766E).withValues(alpha: 0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 child: Text(
                   _getInitials(),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F766E),
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -599,7 +595,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -607,7 +603,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _email,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -646,7 +642,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _editField(String label, String value, TextEditingController ctrl, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: AppColors.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: TextField(
@@ -665,18 +661,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _infoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: AppColors.textSecondary),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
             Text(value,
                 style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B))),
+                    color: AppColors.textPrimary)),
           ],
         ),
       ],
@@ -842,7 +838,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFCBD5E1),
+                color: AppColors.disabled,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -852,7 +848,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -861,9 +857,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _themeMode,
               title: const Text('Système'),
               subtitle: const Text('Suivre les paramètres de l\'appareil',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
               secondary: const Text('💻'),
-              activeColor: const Color(0xFF0F766E),
+              activeColor: AppColors.primary,
               onChanged: (v) {
                 Navigator.of(ctx).pop();
                 if (v != null) _setThemeMode(v);
@@ -874,9 +870,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _themeMode,
               title: const Text('Clair'),
               subtitle: const Text('Thème clair permanent',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
               secondary: const Text('☀️'),
-              activeColor: const Color(0xFF0F766E),
+              activeColor: AppColors.primary,
               onChanged: (v) {
                 Navigator.of(ctx).pop();
                 if (v != null) _setThemeMode(v);
@@ -887,9 +883,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _themeMode,
               title: const Text('Sombre'),
               subtitle: const Text('Thème sombre permanent',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
               secondary: const Text('🌙'),
-              activeColor: const Color(0xFF0F766E),
+              activeColor: AppColors.primary,
               onChanged: (v) {
                 Navigator.of(ctx).pop();
                 if (v != null) _setThemeMode(v);
@@ -974,7 +970,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ElevatedButton(
             onPressed: _isChangingPassword ? null : _handleChangePassword,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0F766E),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
             child: _isChangingPassword
@@ -1027,11 +1023,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F766E).withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.apartment,
-                      color: Color(0xFF0F766E), size: 28),
+                      color: AppColors.primary, size: 28),
                 ),
                 children: [
                   const Text(
@@ -1041,7 +1037,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     '© 2025 ImmoGestion Inc. Tous droits réservés.',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               );
@@ -1064,8 +1060,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         icon: const Icon(Icons.logout, size: 20),
         label: const Text('Se déconnecter'),
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFFEF4444),
-          side: const BorderSide(color: Color(0xFFFCA5A5),
+          foregroundColor: AppColors.error,
+          side: const BorderSide(color: AppColors.errorLight,
 ),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
@@ -1084,7 +1080,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         icon: const Icon(Icons.delete_forever, size: 18),
         label: const Text('Supprimer mon compte'),
         style: TextButton.styleFrom(
-          foregroundColor: const Color(0xFFCBD5E1),
+          foregroundColor: AppColors.disabled,
           padding: const EdgeInsets.symmetric(vertical: 10),
         ),
       ),
@@ -1121,23 +1117,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        child: Icon(icon, size: 20, color: AppColors.textSecondary),
       ),
       title: Text(
         title,
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Color(0xFF1E293B),
+          color: AppColors.textPrimary,
         ),
       ),
       subtitle: subtitle.isNotEmpty
           ? Text(
               subtitle,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
             )
           : null,
       trailing: trailing.isNotEmpty
@@ -1151,7 +1147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             )
           : onTap != null
-              ? const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1))
+              ? const Icon(Icons.chevron_right, color: AppColors.disabled)
               : null,
       onTap: onTap,
     );
@@ -1169,25 +1165,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        child: Icon(icon, size: 20, color: AppColors.textSecondary),
       ),
       title: Text(
         title,
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Color(0xFF1E293B),
+          color: AppColors.textPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+        style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
       ),
       value: value,
-      activeColor: const Color(0xFF0F766E),
+      activeColor: AppColors.primary,
       onChanged: onChanged,
     );
   }

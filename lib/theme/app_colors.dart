@@ -38,4 +38,25 @@ class AppColors {
   static const Color rankGold = Color(0xFFF59E0B);
   static const Color rankSilver = Color(0xFF94A3B8);
   static const Color rankBronze = Color(0xFFCD7F32);
+
+  static const Color label = Color(0xFF475569);
+  static const Color disabled = Color(0xFFCBD5E1);
+  static const Color indigo = Color(0xFF6366F1);
+  static const Color indigoTint = Color(0xFFE0E7FF);
+  static const Color indigoDark = Color(0xFF4338CA);
+  static const Color skyBlue = Color(0xFF38BDF8);
+  static const Color stageNouveau = Color(0xFF6B7280);
+  static const Color stageContacte = Color(0xFF3B82F6);
+  static const Color stageQualifie = Color(0xFF10B981);
+  static const Color stageVisitePlanifiee = Color(0xFF8B5CF6);
+  static const Color stageOffreEnvoyee = Color(0xFFF59E0B);
+  static const Color stageNegociation = Color(0xFFEF4444);
+  static const Color stageBailSigne = Color(0xFF10B981);
+  static const Color visitConfirmed = Color(0xFF10B981);
+  static const Color visitCompleted = Color(0xFF3B82F6);
+  static const Color visitCancelled = Color(0xFFEF4444);
+  static const Color visitNoShow = Color(0xFFF59E0B);
+  static const Color visitScheduled = Color(0xFF38BDF8);
+  static const Color warningDark = Color(0xFFB45309);
+  static const Color errorLight = Color(0xFFFCA5A5);
 }

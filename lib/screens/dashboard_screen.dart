@@ -14,6 +14,7 @@ import '../widgets/lead_funnel.dart';
 import '../widgets/occupancy_chart.dart';
 import '../widgets/revenue_chart.dart';
 import 'units_screen.dart';
+import '../widgets/immo_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -91,13 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tableau de bord'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-      ),
+      appBar: ImmoAppBar(title: 'Tableau de bord')
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'quick_actions_fab',
         backgroundColor: AppColors.primary,

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import 'lease_form_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class LeaseDetailScreen extends StatefulWidget {
   const LeaseDetailScreen({
@@ -44,7 +46,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFF0F766E)),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             child: const Text('Envoyer'),
           ),
         ],
@@ -79,7 +81,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Bail envoyé au locataire'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -88,7 +90,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -111,7 +113,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFF0F766E)),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
             child: const Text('Signer'),
           ),
         ],
@@ -146,7 +148,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Bail marqué comme signé'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -155,7 +157,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -179,7 +181,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Résilier'),
           ),
         ],
@@ -214,7 +216,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Bail résilié'),
-            backgroundColor: Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -223,7 +225,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -237,13 +239,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     final statusColor = _lease.leaseStatus.color;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Détails du bail'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Détails du bail', actions: actions: [
           if (_lease.leaseStatus == LeaseStatus.draft)
             IconButton(
               onPressed: () {
@@ -261,8 +257,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
               icon: const Icon(Icons.edit_outlined),
               tooltip: 'Modifier',
             ),
-        ],
-      ),
+        ])
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -332,7 +327,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -340,7 +335,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                   '${_lease.unitLabel ?? ''} — ${_lease.buildingName ?? ''}',
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -392,7 +387,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -414,7 +409,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                             shape: BoxShape.circle,
                             color: isPast || isActive
                                 ? stageColor
-                                : const Color(0xFFE2E8F0),
+                                : AppColors.border,
                             border: isActive
                                 ? Border.all(
                                     color: stageColor,
@@ -433,7 +428,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                               fontSize: 9,
                               color: isPast || isActive
                                   ? stageColor
-                                  : const Color(0xFF94A3B8),
+                                  : AppColors.textMuted,
                               fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
                             ),
                           ),
@@ -446,8 +441,8 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                           height: 2,
                           margin: const EdgeInsets.only(bottom: 18),
                           color: isPast
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFE2E8F0),
+                              ? AppColors.success
+                              : AppColors.border,
                         ),
                       ),
                   ],
@@ -541,7 +536,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
       ),
       child: Text(
         _lease.notes!,
-        style: const TextStyle(fontSize: 14, color: Color(0xFF475569)),
+        style: const TextStyle(fontSize: 14, color: AppColors.label),
       ),
     );
   }
@@ -583,8 +578,8 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         icon: const Icon(Icons.cancel_outlined, size: 18),
         label: const Text('Résilier le bail'),
         style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFFEF4444),
-          side: const BorderSide(color: Color(0xFFEF4444)),
+          foregroundColor: AppColors.error,
+          side: const BorderSide(color: AppColors.error),
           minimumSize: const Size.fromHeight(48),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -600,7 +595,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
       style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF1E293B),
+        color: AppColors.textPrimary,
       ),
     );
   }
@@ -608,7 +603,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
   Widget _infoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: AppColors.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -618,7 +613,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                 label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textMuted,
                 ),
               ),
               const SizedBox(height: 2),
@@ -626,7 +621,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
                 value,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],

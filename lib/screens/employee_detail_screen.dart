@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../services/employee_service.dart';
 import '../services/schedule_service.dart';
+import '../theme/app_colors.dart';
 
 class EmployeeDetailScreen extends StatefulWidget {
   final EmployeeItem employee;
@@ -87,7 +88,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Employé mis à jour avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -96,7 +97,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -120,7 +121,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child:
-                const Text('Supprimer', style: TextStyle(color: Color(0xFFEF4444))),
+                const Text('Supprimer', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -136,7 +137,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
         setState(() => _isDeleting = false);
@@ -165,7 +166,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Horaire ajouté avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -174,7 +175,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -188,8 +189,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         title: Text(_employee.fullName),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
         actions: [
           if (!_isEditing)
             IconButton(
@@ -228,10 +229,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.delete_outline,
-                          color: Color(0xFFEF4444), size: 20),
+                          color: AppColors.error, size: 20),
                       SizedBox(width: 12),
                       Text('Supprimer',
-                          style: TextStyle(color: Color(0xFFEF4444))),
+                          style: TextStyle(color: AppColors.error)),
                     ],
                   ),
                 ),
@@ -271,7 +272,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -361,8 +362,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _employee.isActive
-                          ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                          : const Color(0xFFEF4444).withValues(alpha: 0.1),
+                          ? AppColors.success.withValues(alpha: 0.1)
+                          : AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -370,8 +371,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         color: _employee.isActive
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFFEF4444),
+                            ? AppColors.success
+                            : AppColors.error,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -394,7 +395,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -403,7 +404,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
             padding: EdgeInsets.all(16),
             child: Text(
               'Aucune assignation',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
           )
         else
@@ -419,12 +420,12 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   children: [
                     const Icon(Icons.apartment_outlined,
-                        size: 20, color: Color(0xFF64748B)),
+                        size: 20, color: AppColors.textSecondary),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -432,7 +433,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -441,8 +442,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: assignment.role.toLowerCase() == 'primary'
-                            ? const Color(0xFF0F766E).withValues(alpha: 0.1)
-                            : const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                            ? AppColors.primary.withValues(alpha: 0.1)
+                            : AppColors.warning.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -450,8 +451,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         style: TextStyle(
                           fontSize: 11,
                           color: assignment.role.toLowerCase() == 'primary'
-                              ? const Color(0xFF0F766E)
-                              : const Color(0xFFF59E0B),
+                              ? AppColors.primary
+                              : AppColors.warning,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -476,7 +477,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             const Spacer(),
@@ -485,7 +486,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Ajouter'),
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF0F766E),
+                foregroundColor: AppColors.primary,
               ),
             ),
           ],
@@ -502,7 +503,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
             padding: const EdgeInsets.all(16),
             child: Text(
               'Erreur: $_scheduleError',
-              style: const TextStyle(fontSize: 13, color: Color(0xFFEF4444)),
+              style: const TextStyle(fontSize: 13, color: AppColors.error),
             ),
           )
         else if (_schedules.isEmpty)
@@ -510,7 +511,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
             padding: EdgeInsets.all(16),
             child: Text(
               'Aucun horaire configuré',
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
           )
         else
@@ -534,14 +535,14 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
         3: FlexColumnWidth(1.5),
       },
       border: TableBorder.all(
-        color: const Color(0xFFE2E8F0),
+        color: AppColors.border,
         borderRadius: BorderRadius.circular(8),
       ),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
         TableRow(
           decoration: const BoxDecoration(
-            color: Color(0xFFF8FAFC),
+            color: AppColors.background,
           ),
           children: const [
             _TableCell('Jour', isHeader: true),
@@ -556,7 +557,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               TableRow(
                 decoration: BoxDecoration(
                   color: day == DateTime.now().weekday
-                      ? const Color(0xFF0F766E).withValues(alpha: 0.05)
+                      ? AppColors.primary.withValues(alpha: 0.05)
                       : Colors.white,
                 ),
                 children: [
@@ -568,8 +569,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       color: s.buildingName != null
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFF94A3B8),
+                          ? AppColors.textPrimary
+                          : AppColors.textMuted,
                     ),
                   ),
                 ],
@@ -588,11 +589,11 @@ class _ContactRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: AppColors.textSecondary),
         const SizedBox(width: 12),
         Text(
           label,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
+          style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
         ),
       ],
     );
@@ -615,7 +616,7 @@ class _TableCell extends StatelessWidget {
             TextStyle(
               fontSize: 12,
               fontWeight: isHeader ? FontWeight.w600 : FontWeight.normal,
-              color: isHeader ? const Color(0xFF64748B) : const Color(0xFF1E293B),
+              color: isHeader ? AppColors.textSecondary : AppColors.textPrimary,
             ),
       ),
     );
@@ -739,7 +740,7 @@ class _ScheduleBlockDialogState extends State<_ScheduleBlockDialog> {
             });
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0F766E),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
           ),
           child: const Text('Ajouter'),

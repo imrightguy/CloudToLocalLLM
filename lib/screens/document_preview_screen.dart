@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/document_service.dart';
+import '../theme/app_colors.dart';
 
 class DocumentPreviewScreen extends StatefulWidget {
   const DocumentPreviewScreen({super.key, required this.document});
@@ -25,8 +26,8 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
         title: Text(doc.fileName),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
         actions: [
           if (doc.fileUrl != null)
             IconButton(
@@ -40,7 +41,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
             onPressed: _share,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+            icon: const Icon(Icons.delete_outline, color: AppColors.error),
             tooltip: 'Supprimer',
             onPressed: _confirmDelete,
           ),
@@ -65,9 +66,9 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
       width: double.infinity,
       height: 300,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Center(
         child: Column(
@@ -96,7 +97,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -105,7 +106,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               doc.fileSizeLabel,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -114,7 +115,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               icon: const Icon(Icons.open_in_new, size: 18),
               label: const Text('Ouvrir le fichier'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -133,7 +134,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 16),
@@ -168,7 +169,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: AppColors.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -178,7 +179,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
                 label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textMuted,
                 ),
               ),
               const SizedBox(height: 2),
@@ -187,7 +188,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -213,7 +214,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Fichier non disponible'),
-          backgroundColor: Color(0xFFEF4444),
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -264,7 +265,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               await _deleteDocument();
             },
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFEF4444),
+              foregroundColor: AppColors.error,
             ),
             child: _isDeleting
                 ? const SizedBox(
@@ -290,7 +291,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Document supprimé'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         Navigator.of(context).pop();
@@ -300,7 +301,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }

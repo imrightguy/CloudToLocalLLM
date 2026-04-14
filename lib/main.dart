@@ -13,6 +13,7 @@ import 'screens/buildings_screen.dart';
 import 'screens/employees_screen.dart';
 import 'screens/documents_screen.dart';
 import 'screens/communications_screen.dart';
+import 'theme/app_colors.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,12 +89,12 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       brightness: Brightness.light,
       fontFamily: 'Inter',
       useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Color(0xFF1E293B),
-        surfaceTintColor: Colors.white,
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
+        surfaceTintColor: AppColors.surface,
       ),
       cardTheme: CardThemeData(
         elevation: 2,
@@ -102,7 +103,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0F766E),
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
           shape:
@@ -121,19 +122,19 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       scaffoldBackgroundColor: const Color(0xFF0F172A),
       appBarTheme: const AppBarTheme(
         elevation: 0,
-        backgroundColor: Color(0xFF1E293B),
-        foregroundColor: Color(0xFFF1F5F9),
-        surfaceTintColor: Color(0xFF1E293B),
+        backgroundColor: AppColors.textPrimary,
+        foregroundColor: AppColors.surfaceVariant,
+        surfaceTintColor: AppColors.textPrimary,
       ),
       cardTheme: CardThemeData(
         elevation: 2,
-        color: const Color(0xFF1E293B),
+        color: AppColors.textPrimary,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF14B8A6),
+          backgroundColor: AppColors.primaryLight,
           foregroundColor: Colors.white,
           elevation: 0,
           shape:
@@ -178,7 +179,7 @@ class _SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -186,10 +187,10 @@ class _SplashScreen extends StatelessWidget {
             Icon(
               Icons.apartment_rounded,
               size: 64,
-              color: Color(0xFF0F766E),
+              color: AppColors.primary,
             ),
             SizedBox(height: 16),
-            CircularProgressIndicator(color: Color(0xFF0F766E)),
+            CircularProgressIndicator(color: AppColors.primary),
           ],
         ),
       ),

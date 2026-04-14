@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import 'visit_form_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 enum _CalendarView { month, week }
 
@@ -127,13 +129,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calendrier'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Calendrier', actions: actions: [
           IconButton(
             icon: const Icon(Icons.today_outlined),
             tooltip: "Aujourd'hui",
@@ -143,12 +139,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
             icon: const Icon(Icons.add),
             onPressed: () => _navigateToVisitForm(context),
           ),
-        ],
-      ),
+        ])
       body: _buildBody(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToVisitForm(context),
-        backgroundColor: const Color(0xFF0F766E),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
         label: const Text('Planifier'),
@@ -165,13 +160,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger le calendrier',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -180,7 +175,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -190,7 +185,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -246,7 +241,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ),
@@ -267,7 +262,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -320,7 +315,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF64748B),
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
           ),
         ),
       ),
@@ -369,7 +364,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF94A3B8),
+                          color: AppColors.textMuted,
                         ),
                       ),
                     ))
@@ -398,14 +393,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFF0F766E)
+                        ? AppColors.primary
                         : isToday
-                            ? const Color(0xFF0F766E).withValues(alpha: 0.1)
+                            ? AppColors.primary.withValues(alpha: 0.1)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: isToday && !isSelected
                         ? Border.all(
-                            color: const Color(0xFF0F766E),
+                            color: AppColors.primary,
                             width: 1.5,
                           )
                         : null,
@@ -423,8 +418,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           color: isSelected
                               ? Colors.white
                               : isCurrentMonth
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFCBD5E1),
+                                  ? AppColors.textPrimary
+                                  : AppColors.disabled,
                         ),
                       ),
                       if (hasVisits)
@@ -435,7 +430,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? Colors.white
-                                : const Color(0xFF0F766E),
+                                : AppColors.primary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -483,7 +478,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? const Color(0xFF0F766E)
+                            ? AppColors.primary
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -496,7 +491,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               fontWeight: FontWeight.w600,
                               color: isSelected
                                   ? Colors.white.withValues(alpha: 0.8)
-                                  : const Color(0xFF94A3B8),
+                                  : AppColors.textMuted,
                             ),
                           ),
                           Text(
@@ -507,8 +502,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               color: isSelected
                                   ? Colors.white
                                   : isToday
-                                      ? const Color(0xFF0F766E)
-                                      : const Color(0xFF1E293B),
+                                      ? AppColors.primary
+                                      : AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -543,7 +538,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               h,
                               style: const TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF94A3B8),
+                                color: AppColors.textMuted,
                               ),
                             ),
                           ),
@@ -571,7 +566,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   right: 0,
                                   child: Divider(
                                     height: 1,
-                                    color: const Color(0xFFF1F5F9),
+                                    color: AppColors.surfaceVariant,
                                   ),
                                 );
                               }),
@@ -650,7 +645,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+          top: BorderSide(color: AppColors.surfaceVariant, width: 1),
         ),
         boxShadow: [
           BoxShadow(
@@ -672,21 +667,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F766E).withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     '${dayVisits.length} visite${dayVisits.length != 1 ? 's' : ''}',
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF0F766E),
+                      color: AppColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -700,11 +695,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.event_busy, size: 20, color: Color(0xFFCBD5E1)),
+                  Icon(Icons.event_busy, size: 20, color: AppColors.disabled),
                   SizedBox(width: 8),
                   Text(
                     'Aucune visite ce jour',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -766,7 +761,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -792,7 +787,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     '${visit.buildingName} · ${visit.unitLabel}',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF64748B),
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   if (visit.leadName != null && visit.leadName!.isNotEmpty)
@@ -800,7 +795,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       visit.leadName!,
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                       ),
                     ),
                 ],
@@ -810,7 +805,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               visit.agent,
               style: const TextStyle(
                 fontSize: 11,
-                color: Color(0xFF94A3B8),
+                color: AppColors.textMuted,
               ),
             ),
           ],
@@ -921,17 +916,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case 'completed':
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case 'cancelled':
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       case 'no_show':
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case 'scheduled':
-        return const Color(0xFF38BDF8);
+        return AppColors.skyBlue;
       default:
-        return const Color(0xFF64748B);
+        return AppColors.textSecondary;
     }
   }
 

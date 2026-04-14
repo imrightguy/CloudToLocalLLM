@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../theme/app_colors.dart';
 
 class LeaseFormScreen extends StatefulWidget {
   const LeaseFormScreen({super.key, this.lease});
@@ -121,7 +122,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -165,7 +166,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
             content: Text(_isEditing
                 ? 'Bail mis à jour avec succès'
                 : 'Bail créé avec succès'),
-            backgroundColor: const Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         Navigator.of(context).pop();
@@ -175,7 +176,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -193,8 +194,8 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),
       body: _isLoadingOptions
@@ -207,11 +208,11 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.error_outline,
-                            size: 48, color: Color(0xFFEF4444)),
+                            size: 48, color: AppColors.error),
                         const SizedBox(height: 16),
                         Text(_error!,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Color(0xFF64748B))),
+                            style: const TextStyle(color: AppColors.textSecondary)),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _fetchOptions,
@@ -281,7 +282,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -324,7 +325,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -356,8 +357,8 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                                   : 'Sélectionner une date',
                               style: TextStyle(
                                 color: _startDate != null
-                                    ? const Color(0xFF1E293B)
-                                    : const Color(0xFF64748B),
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
                               ),
                             ),
                           ),
@@ -393,8 +394,8 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                                   : 'Sélectionner une date',
                               style: TextStyle(
                                 color: _endDate != null
-                                    ? const Color(0xFF1E293B)
-                                    : const Color(0xFF64748B),
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary,
                               ),
                             ),
                           ),
@@ -463,7 +464,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                         ElevatedButton(
                           onPressed: _isSubmitting ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0F766E),
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(

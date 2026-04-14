@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import 'lead_detail_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class PipelineScreen extends StatefulWidget {
   const PipelineScreen({super.key});
@@ -76,38 +78,26 @@ class _PipelineScreenState extends State<PipelineScreen>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Pipeline'),
-          centerTitle: true,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFF1E293B),
-        ),
+        appBar: ImmoAppBar(title: 'Pipeline')
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Pipeline'),
-          centerTitle: true,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFF1E293B),
-        ),
+        appBar: ImmoAppBar(title: 'Pipeline')
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline,
-                  size: 48, color: Color(0xFFEF4444)),
+                  size: 48, color: AppColors.error),
               const SizedBox(height: 16),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   'Impossible de charger les prospects',
-                  style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                  style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -117,7 +107,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 child: Text(
                   _errorMessage!,
                   style:
-                      const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -127,7 +117,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 icon: const Icon(Icons.refresh),
                 label: const Text('Réessayer'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -142,16 +132,16 @@ class _PipelineScreenState extends State<PipelineScreen>
         title: const Text('Pipeline'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          labelColor: const Color(0xFF1E293B),
-          unselectedLabelColor: const Color(0xFF64748B),
+          labelColor: AppColors.textPrimary,
+          unselectedLabelColor: AppColors.textSecondary,
           labelStyle: const TextStyle(fontWeight: FontWeight.w500),
           indicator: const UnderlineTabIndicator(
-            borderSide: BorderSide(color: Color(0xFF0F766E), width: 3),
+            borderSide: BorderSide(color: AppColors.primary, width: 3),
             insets: EdgeInsets.symmetric(horizontal: 16),
           ),
           tabs: _stages.map((stage) {
@@ -223,14 +213,14 @@ class _PipelineScreenState extends State<PipelineScreen>
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         '${filteredLeads.length} ${filteredLeads.length == 1 ? 'prospect' : 'prospects'}',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -243,7 +233,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F766E),
+                    color: AppColors.primary,
                   ),
                 ),
               ],
@@ -258,7 +248,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 ? const Center(
                     child: Text(
                       'Aucun prospect dans cette étape',
-                      style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                     ),
                   )
                 : ListView.builder(
@@ -293,7 +283,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               label: const Text('Ajouter un prospect'),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -403,7 +393,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                     messenger.showSnackBar(
                       const SnackBar(
                         content: Text('Prospect ajouté avec succès'),
-                        backgroundColor: Color(0xFF10B981),
+                        backgroundColor: AppColors.success,
                       ),
                     );
                     _fetchLeads();
@@ -413,14 +403,14 @@ class _PipelineScreenState extends State<PipelineScreen>
                     messenger.showSnackBar(
                       SnackBar(
                         content: Text('Erreur: ${e.toString()}'),
-                        backgroundColor: const Color(0xFFEF4444),
+                        backgroundColor: AppColors.error,
                       ),
                     );
                   }
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Ajouter'),
@@ -459,10 +449,10 @@ class _PipelineScreenState extends State<PipelineScreen>
             children: [
               const CircleAvatar(
                 radius: 24,
-                backgroundColor: Color(0xFFE0E7FF),
+                backgroundColor: AppColors.indigoTint,
                 child: Icon(
                   Icons.person,
-                  color: Color(0xFF6366F1),
+                  color: AppColors.indigo,
                   size: 20,
                 ),
               ),
@@ -476,14 +466,14 @@ class _PipelineScreenState extends State<PipelineScreen>
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
                       lead.desiredUnit,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -512,28 +502,28 @@ class _PipelineScreenState extends State<PipelineScreen>
               const Icon(
                 Icons.email_outlined,
                 size: 16,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
               const SizedBox(width: 4),
               Text(
                 lead.email,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(width: 16),
               const Icon(
                 Icons.phone_outlined,
                 size: 16,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
               const SizedBox(width: 4),
               Text(
                 lead.phone,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -544,7 +534,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               lead.notes,
               style: const TextStyle(
                 fontSize: 12,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -556,7 +546,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 lead.budget > 0 ? '${lead.budget}\$' : 'Budget non spécifié',
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(width: 8),
@@ -566,14 +556,14 @@ class _PipelineScreenState extends State<PipelineScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0E7FF),
+                          color: AppColors.indigoTint,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           tag,
                           style: const TextStyle(
                             fontSize: 10,
-                            color: Color(0xFF4338CA),
+                            color: AppColors.indigoDark,
                           ),
                         ),
                       ),
@@ -590,19 +580,19 @@ class _PipelineScreenState extends State<PipelineScreen>
   Color _getStageColor(LeadStage stage) {
     switch (stage) {
       case LeadStage.nouveau:
-        return const Color(0xFF6B7280);
+        return AppColors.stageNouveau;
       case LeadStage.contacte:
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case LeadStage.qualifie:
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case LeadStage.visitePlanifiee:
-        return const Color(0xFF8B5CF6);
+        return AppColors.stageVisitePlanifiee;
       case LeadStage.offreEnvoyee:
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case LeadStage.negociation:
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       case LeadStage.bailSigne:
-        return const Color(0xFF10B981);
+        return AppColors.success;
     }
   }
 

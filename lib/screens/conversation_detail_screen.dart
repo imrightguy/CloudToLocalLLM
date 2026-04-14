@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/communication_service.dart';
+import '../theme/app_colors.dart';
 
 class ConversationDetailScreen extends StatefulWidget {
   const ConversationDetailScreen({
@@ -105,7 +106,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,25 +116,25 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             Text(
               widget.contactPhone,
               style: const TextStyle(
                 fontSize: 12,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
           ],
         ),
         elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
         actions: [
           IconButton(
-            icon: const Icon(Icons.call_outlined, color: Color(0xFF64748B)),
+            icon: const Icon(Icons.call_outlined, color: AppColors.textSecondary),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Appel — bientôt disponible')),
@@ -141,7 +142,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF64748B)),
+            icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
             onPressed: () {},
           ),
         ],
@@ -154,17 +155,17 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.error_outline,
-                          size: 48, color: Color(0xFFEF4444)),
+                          size: 48, color: AppColors.error),
                       const SizedBox(height: 16),
                       Text(
                         _errorMessage!,
-                        style: const TextStyle(color: Color(0xFF64748B)),
+                        style: const TextStyle(color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _fetchMessages,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
+                          backgroundColor: AppColors.primary,
                         ),
                         child: const Text('Réessayer'),
                       ),
@@ -222,7 +223,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         padding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
+          color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -230,7 +231,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF64748B),
+            color: AppColors.textSecondary,
           ),
         ),
       ),
@@ -252,7 +253,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: const BoxDecoration(
-          color: Color(0xFF0F766E),
+          color: AppColors.primary,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(16),
             topRight: Radius.circular(16),
@@ -300,7 +301,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: const Color(0xFFFEF2F2),
-          border: Border.all(color: const Color(0xFFFCA5A5)),
+          border: Border.all(color: AppColors.errorLight),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16),
             topRight: Radius.circular(16),
@@ -313,7 +314,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           children: [
             Text(
               message.body,
-              style: const TextStyle(fontSize: 14, color: Color(0xFFEF4444)),
+              style: const TextStyle(fontSize: 14, color: AppColors.error),
             ),
             const SizedBox(height: 4),
             Row(
@@ -323,12 +324,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   _formatMessageTime(message.createdAt),
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.textMuted,
                   ),
                 ),
                 const SizedBox(width: 4),
                 const Icon(Icons.error_outline,
-                    size: 14, color: Color(0xFFEF4444)),
+                    size: 14, color: AppColors.error),
               ],
             ),
           ],
@@ -368,12 +369,12 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
           children: [
             Text(
               message.body,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
+              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
               _formatMessageTime(message.createdAt),
-              style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
             ),
           ],
         ),
@@ -388,7 +389,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       case 'delivered':
         return const Icon(Icons.done_all, size: 14, color: Color(0x80FFFFFF));
       case 'read':
-        return const Icon(Icons.done_all, size: 14, color: Color(0xFF0F766E));
+        return const Icon(Icons.done_all, size: 14, color: AppColors.primary);
       default:
         return const SizedBox.shrink();
     }
@@ -399,7 +400,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         children: [
@@ -408,16 +409,16 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: AppColors.background,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: AppColors.border),
               ),
               child: TextField(
                 controller: _replyController,
                 decoration: const InputDecoration(
                   hintText: 'Écrire un message...',
                   hintStyle:
-                      TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
+                      TextStyle(fontSize: 14, color: AppColors.textMuted),
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
@@ -434,7 +435,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             width: 44,
             height: 44,
             decoration: const BoxDecoration(
-              color: Color(0xFF0F766E),
+              color: AppColors.primary,
               borderRadius: BorderRadius.all(Radius.circular(22)),
             ),
             child: IconButton(

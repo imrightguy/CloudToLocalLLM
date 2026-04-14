@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../services/unit_service.dart';
 import 'unit_detail_screen.dart';
+import '../theme/app_colors.dart';
 
 class UnitsScreen extends StatefulWidget {
   const UnitsScreen({super.key, this.buildingId, this.buildingName});
@@ -123,8 +124,8 @@ class _UnitsScreenState extends State<UnitsScreen> {
         title: Text(_selectedBuildingName() ?? 'Unités'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
       ),
       body: _buildBody(),
     );
@@ -140,13 +141,13 @@ class _UnitsScreenState extends State<UnitsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.error_outline,
-                size: 48, color: Color(0xFFEF4444)),
+                size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les données',
-                style: const TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -155,7 +156,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -167,7 +168,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -183,16 +184,16 @@ class _UnitsScreenState extends State<UnitsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.apartment_outlined,
-                  size: 64, color: Color(0xFF94A3B8)),
+                  size: 64, color: AppColors.textMuted),
               const SizedBox(height: 16),
               const Text(
                 'Aucun immeuble enregistré',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Ajoutez un immeuble pour gérer ses unités',
-                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -229,7 +230,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                     isExpanded: true,
                     hint: const Text(
                       'Sélectionner un immeuble',
-                      style: TextStyle(color: Color(0xFF64748B)),
+                      style: TextStyle(color: AppColors.textSecondary),
                     ),
                     items: _buildings.map((b) {
                       return DropdownMenuItem<String>(
@@ -237,7 +238,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                         child: Row(
                           children: [
                             const Icon(Icons.apartment,
-                                size: 18, color: Color(0xFF0F766E)),
+                                size: 18, color: AppColors.primary),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -245,7 +246,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF1E293B),
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ),
@@ -274,7 +275,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                 _buildCountChip(
                   label: 'Total',
                   count: _units.length,
-                  color: const Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                   isSelected: _filterStatus == null,
                   onTap: () {
                     setState(() => _filterStatus = null);
@@ -342,7 +343,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                   child: Column(
                     children: [
                       const Icon(Icons.door_front_door_outlined,
-                          size: 48, color: Color(0xFF94A3B8)),
+                          size: 48, color: AppColors.textMuted),
                       const SizedBox(height: 12),
                       Text(
                         _units.isEmpty
@@ -350,7 +351,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                             : 'Aucune unité ne correspond au filtre',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -400,7 +401,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
             color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: isSelected ? color : const Color(0xFFE2E8F0),
+              color: isSelected ? color : AppColors.border,
               width: 1,
             ),
             boxShadow: [
@@ -418,14 +419,14 @@ class _UnitsScreenState extends State<UnitsScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? color : const Color(0xFF1E293B),
+                  color: isSelected ? color : AppColors.textPrimary,
                 ),
               ),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 10,
-                  color: isSelected ? color : const Color(0xFF64748B),
+                  color: isSelected ? color : AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -485,7 +486,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           if (unit.type.isNotEmpty)
@@ -493,7 +494,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                               unit.type,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                               ),
                             ),
                         ],
@@ -521,39 +522,39 @@ class _UnitsScreenState extends State<UnitsScreen> {
                 Row(
                   children: [
                     const Icon(Icons.attach_money,
-                        size: 16, color: Color(0xFF10B981)),
+                        size: 16, color: AppColors.success),
                     const SizedBox(width: 4),
                     Text(
                       '${unit.rent}\$ / mois',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF10B981),
+                        color: AppColors.success,
                       ),
                     ),
                     const Spacer(),
                     if (unit.bedrooms > 0) ...[
                       const Icon(Icons.bed_outlined,
-                          size: 14, color: Color(0xFF64748B)),
+                          size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 2),
                       Text(
                         '${unit.bedrooms} ch.',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
                     if (unit.bathrooms > 0) ...[
                       const SizedBox(width: 12),
                       const Icon(Icons.bathtub_outlined,
-                          size: 14, color: Color(0xFF64748B)),
+                          size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 2),
                       Text(
                         '${unit.bathrooms} SdB',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -564,14 +565,14 @@ class _UnitsScreenState extends State<UnitsScreen> {
                   Row(
                     children: [
                       const Icon(Icons.person_outline,
-                          size: 14, color: Color(0xFF64748B)),
+                          size: 14, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           tenantLabel,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),

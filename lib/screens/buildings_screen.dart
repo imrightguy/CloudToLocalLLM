@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import 'units_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class BuildingsScreen extends StatefulWidget {
   const BuildingsScreen({super.key});
@@ -71,13 +73,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Immeubles'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Immeubles', actions: actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -98,8 +94,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
               );
             },
           ),
-        ],
-      ),
+        ])
       body: _buildBody(),
     );
   }
@@ -113,20 +108,20 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les immeubles',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _errorMessage!,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -135,7 +130,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -167,7 +162,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, size: 20, color: Color(0xFF64748B)),
+                  const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -176,7 +171,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                         hintText: 'Rechercher un immeuble...',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -198,7 +193,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucun immeuble trouvé',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -234,14 +229,14 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
               height: 120,
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: Color(0xFFE0E7FF),
+                color: AppColors.indigoTint,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: const Center(
                 child: Icon(
                   Icons.apartment,
                   size: 48,
-                  color: Color(0xFF6366F1),
+                  color: AppColors.indigo,
                 ),
               ),
             ),
@@ -262,7 +257,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E293B),
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -270,7 +265,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                               building.address,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],
@@ -280,14 +275,14 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F766E).withValues(alpha: 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           '${building.occupiedUnits}/${building.totalUnits}',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF0F766E),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -307,7 +302,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                             "Taux d'occupation",
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF64748B),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                           const Spacer(),
@@ -316,7 +311,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF10B981),
+                              color: AppColors.success,
                             ),
                           ),
                         ],
@@ -324,9 +319,9 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value: building.occupancyRate,
-                        backgroundColor: const Color(0xFFF1F5F9),
+                        backgroundColor: AppColors.surfaceVariant,
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFF10B981)),
+                            AppColors.success),
                         minHeight: 8,
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -339,25 +334,25 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                   Row(
                     children: [
                       const Icon(Icons.attach_money,
-                          size: 16, color: Color(0xFF10B981)),
+                          size: 16, color: AppColors.success),
                       const SizedBox(width: 4),
                       Text(
                         '${building.monthlyRevenue}\$ / mois',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF10B981),
+                          color: AppColors.success,
                         ),
                       ),
                       const Spacer(),
                       const Icon(Icons.home_work,
-                          size: 16, color: Color(0xFF64748B)),
+                          size: 16, color: AppColors.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         '${building.totalUnits} unités',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -375,7 +370,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                             'Voir détails',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF0F766E),
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -444,8 +439,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
         title: Text(widget.building.name),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.textPrimary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -466,7 +461,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                     Text(
                       widget.building.address,
                       style: const TextStyle(
-                          fontSize: 14, color: Color(0xFF64748B)),
+                          fontSize: 14, color: AppColors.textSecondary),
                     ),
                     if (widget.building.description != null &&
                         widget.building.description!.isNotEmpty) ...[
@@ -474,7 +469,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                       Text(
                         widget.building.description!,
                         style: const TextStyle(
-                            fontSize: 14, color: Color(0xFF1E293B)),
+                            fontSize: 14, color: AppColors.textPrimary),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -485,7 +480,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF0F766E),
+                            color: AppColors.primary,
                           ),
                         ),
                         const Spacer(),
@@ -494,7 +489,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF10B981),
+                            color: AppColors.success,
                           ),
                         ),
                       ],
@@ -509,7 +504,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -519,7 +514,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucune unité',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -571,7 +566,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     if (tenantLabel != null && tenantLabel.isNotEmpty)
@@ -579,7 +574,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                         tenantLabel,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                   ],
@@ -589,8 +584,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isOccupied
-                      ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                      : const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                      ? AppColors.success.withValues(alpha: 0.1)
+                      : AppColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -598,8 +593,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                   style: TextStyle(
                     fontSize: 11,
                     color: isOccupied
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFFF59E0B),
+                        ? AppColors.success
+                        : AppColors.warning,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -608,7 +603,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
               if (unit.id != null)
                 IconButton(
                   icon: const Icon(Icons.edit_outlined,
-                      size: 18, color: Color(0xFF64748B)),
+                      size: 18, color: AppColors.textSecondary),
                   onPressed: () => _showEditUnitDialog(context, unit),
                   tooltip: 'Modifier l\'unité',
                   padding: EdgeInsets.zero,
@@ -624,7 +619,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                 ),
               ),
               const SizedBox(width: 16),
@@ -632,7 +627,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                 '${unit.bedrooms} ch.',
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                 ),
               ),
               if (unit.leaseEnd.isNotEmpty) ...[
@@ -641,7 +636,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                   'Fin: ${unit.leaseEnd}',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -747,7 +742,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Unité mise à jour avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         Navigator.of(context).pop(true);
@@ -757,7 +752,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -769,16 +764,10 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Modifier ${widget.unit.number}'),
-        leading: IconButton(
+      appBar: ImmoAppBar(title: 'Modifier ${widget.unit.number}', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-      ),
+        ))
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -876,13 +865,13 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
                       setState(() => _tenantSectionExpanded = expanded);
                     },
                     leading: const Icon(Icons.person_outline,
-                        color: Color(0xFF0F766E)),
+                        color: AppColors.primary),
                     title: const Text(
                       'Locataire actuel',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     children: [
@@ -942,8 +931,8 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
                                       : 'Sélectionner une date',
                                   style: TextStyle(
                                     color: _tenantLeaseEnd != null
-                                        ? const Color(0xFF1E293B)
-                                        : const Color(0xFF64748B),
+                                        ? AppColors.textPrimary
+                                        : AppColors.textSecondary,
                                   ),
                                 ),
                               ),
@@ -960,7 +949,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -1056,7 +1045,7 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Immeuble créé avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         Navigator.of(context).pop();
@@ -1066,7 +1055,7 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -1078,16 +1067,10 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouvel immeuble'),
-        leading: IconButton(
+      appBar: ImmoAppBar(title: 'Nouvel immeuble', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-      ),
+        ))
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -1190,7 +1173,7 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

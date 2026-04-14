@@ -4,6 +4,8 @@ import '../models.dart';
 import '../services/api_service.dart';
 import 'lease_detail_screen.dart';
 import 'lease_form_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class LeasesScreen extends StatefulWidget {
   const LeasesScreen({super.key});
@@ -100,13 +102,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Baux'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Baux', actions: actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -122,8 +118,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               });
             },
           ),
-        ],
-      ),
+        ])
       body: _buildBody(),
     );
   }
@@ -137,13 +132,13 @@ class _LeasesScreenState extends State<LeasesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les baux',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -152,7 +147,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -162,7 +157,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -195,7 +190,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, size: 20, color: Color(0xFF64748B)),
+                  const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -204,7 +199,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                         hintText: 'Rechercher par locataire...',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -239,7 +234,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
@@ -247,7 +242,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                     isExpanded: true,
                     hint: const Text(
                       'Tous les immeubles',
-                      style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                     items: [
                       const DropdownMenuItem<String?>(
@@ -282,7 +277,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucun bail trouvé',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -305,18 +300,18 @@ class _LeasesScreenState extends State<LeasesScreen> {
           setState(() => _filterStatus = isSelected ? null : status);
           _applyFilters();
         },
-        selectedColor: (status?.color ?? const Color(0xFF0F766E)).withValues(alpha: 0.15),
+        selectedColor: (status?.color ?? AppColors.primary).withValues(alpha: 0.15),
         labelStyle: TextStyle(
           color: isSelected
-              ? (status?.color ?? const Color(0xFF0F766E))
-              : const Color(0xFF64748B),
+              ? (status?.color ?? AppColors.primary)
+              : AppColors.textSecondary,
           fontSize: 12,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
         ),
         side: BorderSide(
           color: isSelected
-              ? (status?.color ?? const Color(0xFF0F766E))
-              : const Color(0xFFE2E8F0),
+              ? (status?.color ?? AppColors.primary)
+              : AppColors.border,
         ),
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -393,7 +388,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -458,7 +453,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -466,7 +461,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                             lease.unitLabel ?? 'Sans unité',
                             style: const TextStyle(
                               fontSize: 13,
-                              color: Color(0xFF64748B),
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -494,25 +489,25 @@ class _LeasesScreenState extends State<LeasesScreen> {
                 Row(
                   children: [
                     const Icon(Icons.attach_money,
-                        size: 16, color: Color(0xFF10B981)),
+                        size: 16, color: AppColors.success),
                     const SizedBox(width: 4),
                     Text(
                       lease.displayRent,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF10B981),
+                        color: AppColors.success,
                       ),
                     ),
                     const Spacer(),
                     const Icon(Icons.calendar_today_outlined,
-                        size: 14, color: Color(0xFF94A3B8)),
+                        size: 14, color: AppColors.textMuted),
                     const SizedBox(width: 4),
                     Text(
                       '${lease.displayStartDate} — ${lease.displayEndDate}',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ],

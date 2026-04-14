@@ -5,6 +5,8 @@ import '../models.dart';
 import '../services/communication_service.dart';
 import 'conversation_detail_screen.dart';
 import 'compose_sms_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class CommunicationsScreen extends StatefulWidget {
   const CommunicationsScreen({super.key});
@@ -89,13 +91,13 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   Color _typeColor(String type) {
     switch (type) {
       case 'sms':
-        return const Color(0xFF6366F1);
+        return AppColors.indigo;
       case 'email':
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case 'call':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       default:
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
     }
   }
 
@@ -112,21 +114,10 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Communications'),
-        titleTextStyle: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF1E293B),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-      ),
+      appBar: ImmoAppBar(title: 'Communications')
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0F766E),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.edit, color: Colors.white),
         onPressed: () {
           Navigator.of(context).push(
@@ -149,16 +140,16 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Text(
               'Impossible de charger les communications',
-              style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+              style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               _errorMessage!,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -167,7 +158,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -195,14 +186,14 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.search, size: 20, color: Color(0xFF64748B)),
+              const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
                   decoration: const InputDecoration(
                     hintText: 'Rechercher par nom ou numéro...',
                     hintStyle:
-                        TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                        TextStyle(fontSize: 14, color: AppColors.textSecondary),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -238,8 +229,8 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
           child: _communications.isEmpty
               ? _buildEmptyState()
               : RefreshIndicator(
-                  color: const Color(0xFF0F766E),
-                  backgroundColor: Colors.white,
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.surface,
                   onRefresh: _fetchCommunications,
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -265,13 +256,13 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF0F766E).withValues(alpha: 0.1)
+              ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF0F766E)
-                : const Color(0xFFE2E8F0),
+                ? AppColors.primary
+                : AppColors.border,
           ),
         ),
         child: Row(
@@ -281,8 +272,8 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
               Icon(icon,
                   size: 14,
                   color: isSelected
-                      ? const Color(0xFF0F766E)
-                      : const Color(0xFF64748B)),
+                      ? AppColors.primary
+                      : AppColors.textSecondary),
             if (icon != null) const SizedBox(width: 4),
             Text(
               label,
@@ -290,8 +281,8 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: isSelected
-                    ? const Color(0xFF0F766E)
-                    : const Color(0xFF64748B),
+                    ? AppColors.primary
+                    : AppColors.textSecondary,
               ),
             ),
           ],
@@ -333,13 +324,13 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
             CircleAvatar(
               radius: 24,
               backgroundColor:
-                  const Color(0xFF0F766E).withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.1),
               child: Text(
                 item.contactInitials,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F766E),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -356,14 +347,14 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         _formatTimestamp(item.createdAt),
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF94A3B8),
+                          color: AppColors.textMuted,
                         ),
                       ),
                     ],
@@ -381,7 +372,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
                               : item.subject,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -403,13 +394,13 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   Widget _buildStatusIcon(String status) {
     switch (status) {
       case 'sent':
-        return const Icon(Icons.check, size: 16, color: Color(0xFF94A3B8));
+        return const Icon(Icons.check, size: 16, color: AppColors.textMuted);
       case 'delivered':
-        return const Icon(Icons.done_all, size: 16, color: Color(0xFF94A3B8));
+        return const Icon(Icons.done_all, size: 16, color: AppColors.textMuted);
       case 'read':
-        return const Icon(Icons.done_all, size: 16, color: Color(0xFF0F766E));
+        return const Icon(Icons.done_all, size: 16, color: AppColors.primary);
       case 'failed':
-        return const Icon(Icons.error_outline, size: 16, color: Color(0xFFEF4444));
+        return const Icon(Icons.error_outline, size: 16, color: AppColors.error);
       default:
         return const SizedBox.shrink();
     }
@@ -423,17 +414,17 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.message_outlined,
-                size: 48, color: Color(0xFFCBD5E1)),
+                size: 48, color: AppColors.disabled),
             SizedBox(height: 16),
             Text(
               'Aucune communication',
-              style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+              style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 8),
             Text(
               'Vos messages et appels apparaîtront ici',
-              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

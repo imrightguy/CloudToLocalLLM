@@ -13,6 +13,8 @@ import 'employees_screen.dart';
 import 'documents_screen.dart';
 import 'leases_screen.dart';
 import 'communications_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,9 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF0F766E),
-        unselectedItemColor: const Color(0xFF94A3B8),
+        backgroundColor: AppColors.surface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textMuted,
         elevation: 0,
         items: const [
           BottomNavigationBarItem(
@@ -180,7 +182,7 @@ class _HomeTabState extends State<_HomeTab> {
           title: 'Nouveau prospect: ${lead['fullName'] ?? ''}',
           detail: '${lead['source'] ?? ''} · ${lead['email'] ?? ''}',
           createdAt: createdAt,
-          color: const Color(0xFF6366F1),
+          color: AppColors.indigo,
           icon: Icons.person_add_outlined,
         ));
       }
@@ -209,10 +211,10 @@ class _HomeTabState extends State<_HomeTab> {
           detail: '$unitLabel${leadName.isNotEmpty ? ' · $leadName' : ''}',
           createdAt: createdAt,
           color: status.toLowerCase() == 'confirmed'
-              ? const Color(0xFF10B981)
+              ? AppColors.success
               : status.toLowerCase() == 'cancelled'
-                  ? const Color(0xFFEF4444)
-                  : const Color(0xFF38BDF8),
+                  ? AppColors.error
+                  : AppColors.skyBlue,
           icon: Icons.calendar_today_outlined,
         ));
       }
@@ -256,13 +258,7 @@ class _HomeTabState extends State<_HomeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ImmoGestion'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'ImmoGestion', actions: actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
@@ -282,8 +278,7 @@ class _HomeTabState extends State<_HomeTab> {
               );
             },
           ),
-        ],
-      ),
+        ])
       body: _buildBody(),
     );
   }
@@ -297,13 +292,13 @@ class _HomeTabState extends State<_HomeTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les données',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -312,7 +307,7 @@ class _HomeTabState extends State<_HomeTab> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -322,7 +317,7 @@ class _HomeTabState extends State<_HomeTab> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -350,14 +345,14 @@ class _HomeTabState extends State<_HomeTab> {
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const Text(
                       "Quel est votre objectif aujourd'hui?",
                       style: TextStyle(
                         fontSize: 16,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -376,14 +371,14 @@ class _HomeTabState extends State<_HomeTab> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF10B981),
+                          color: AppColors.success,
                         ),
                       ),
                       const Text(
                         'Occupation',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF059669),
+                          color: AppColors.funnelBailSigne,
                         ),
                       ),
                     ],
@@ -411,7 +406,7 @@ class _HomeTabState extends State<_HomeTab> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Spacer(),
@@ -419,7 +414,7 @@ class _HomeTabState extends State<_HomeTab> {
                   'Voir tout',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
@@ -433,7 +428,7 @@ class _HomeTabState extends State<_HomeTab> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucune activité récente',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -483,7 +478,7 @@ class _HomeTabState extends State<_HomeTab> {
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -491,7 +486,7 @@ class _HomeTabState extends State<_HomeTab> {
                                 activity.detail,
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF64748B),
+                                  color: AppColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -501,7 +496,7 @@ class _HomeTabState extends State<_HomeTab> {
                           _formatTimeAgo(activity.createdAt),
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -579,7 +574,7 @@ class _HomeTabState extends State<_HomeTab> {
             title,
             style: const TextStyle(
               fontSize: 11,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 2),
@@ -588,14 +583,14 @@ class _HomeTabState extends State<_HomeTab> {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           Text(
             delta,
             style: const TextStyle(
               fontSize: 10,
-              color: Color(0xFF10B981),
+              color: AppColors.success,
               fontWeight: FontWeight.w500,
             ),
           ),

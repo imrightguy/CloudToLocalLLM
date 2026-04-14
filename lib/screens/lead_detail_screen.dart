@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class LeadDetailScreen extends StatefulWidget {
   const LeadDetailScreen({
@@ -96,7 +98,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Prospect déplacé vers ${newStage.label}'),
-            backgroundColor: const Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -105,7 +107,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -160,7 +162,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Prospect mis à jour'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -169,7 +171,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -198,7 +200,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style:
-                TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+                TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Supprimer'),
           ),
         ],
@@ -216,7 +218,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -234,13 +236,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
     final stageColor = _getStageColor(_lead.stage);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Détails du prospect'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Détails du prospect', actions: actions: [
           if (_isEditing)
             IconButton(
               onPressed: _isLoading ? null : _saveEdits,
@@ -262,17 +258,16 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+                    Icon(Icons.delete_outline, color: AppColors.error),
                     SizedBox(width: 8),
                     Text('Supprimer',
-                        style: TextStyle(color: Color(0xFFEF4444))),
+                        style: TextStyle(color: AppColors.error)),
                   ],
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ])
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -354,7 +349,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -405,7 +400,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -422,8 +417,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                     icon: const Icon(Icons.arrow_back, size: 16),
                     label: Text('← ${_prevStage!.label}'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF64748B),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      foregroundColor: AppColors.textSecondary,
+                      side: const BorderSide(color: AppColors.border),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
@@ -449,7 +444,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                     child: Text(
                       '✓ Pipeline terminé',
                       style: TextStyle(
-                        color: Color(0xFF10B981),
+                        color: AppColors.success,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -479,10 +474,10 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isPast
-                      ? const Color(0xFF10B981)
+                      ? AppColors.success
                       : isActive
                           ? _getStageColor(stages[i])
-                          : const Color(0xFFE2E8F0),
+                          : AppColors.border,
                   border: isActive
                       ? Border.all(
                           color: _getStageColor(stages[i]),
@@ -496,8 +491,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                   child: Container(
                     height: 2,
                     color: isPast
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFFE2E8F0),
+                        ? AppColors.success
+                        : AppColors.border,
                   ),
                 ),
             ],
@@ -553,7 +548,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
     if (_isEditing && controller != null) {
       return Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF64748B)),
+          Icon(icon, size: 20, color: AppColors.textSecondary),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -574,7 +569,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
   Widget _infoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: const Color(0xFF64748B)),
+        Icon(icon, size: 20, color: AppColors.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -584,7 +579,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                 label,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textMuted,
                 ),
               ),
               const SizedBox(height: 2),
@@ -592,7 +587,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                 value.isNotEmpty ? value : '—',
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -624,7 +619,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           Row(
             children: [
               const Icon(Icons.attach_money_outlined,
-                  size: 20, color: Color(0xFF64748B)),
+                  size: 20, color: AppColors.textSecondary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -632,7 +627,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                   children: [
                     const Text('Budget',
                         style:
-                            TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                            TextStyle(fontSize: 12, color: AppColors.textMuted)),
                     const SizedBox(height: 2),
                     if (_isEditing)
                       SizedBox(
@@ -653,7 +648,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                   ],
@@ -668,7 +663,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           Row(
             children: [
               const Icon(Icons.apartment_outlined,
-                  size: 20, color: Color(0xFF64748B)),
+                  size: 20, color: AppColors.textSecondary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -676,7 +671,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                   children: [
                     const Text('Type recherché',
                         style:
-                            TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                            TextStyle(fontSize: 12, color: AppColors.textMuted)),
                     const SizedBox(height: 2),
                     if (_isEditing)
                       TextField(
@@ -694,7 +689,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                             : 'Non spécifié',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                   ],
@@ -709,7 +704,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
             Row(
               children: [
                 const Icon(Icons.label_outlined,
-                    size: 20, color: Color(0xFF64748B)),
+                    size: 20, color: AppColors.textSecondary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Wrap(
@@ -720,14 +715,14 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0E7FF),
+                          color: AppColors.indigoTint,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           tag,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF4338CA),
+                            color: AppColors.indigoDark,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -743,10 +738,10 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
           const Divider(height: 24),
           const Row(
             children: [
-              Icon(Icons.notes_outlined, size: 20, color: Color(0xFF64748B)),
+              Icon(Icons.notes_outlined, size: 20, color: AppColors.textSecondary),
               SizedBox(width: 12),
               Text('Notes',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
             ],
           ),
           const SizedBox(height: 8),
@@ -765,8 +760,8 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
               style: TextStyle(
                 fontSize: 14,
                 color: _lead.notes.isNotEmpty
-                    ? const Color(0xFF475569)
-                    : const Color(0xFF94A3B8),
+                    ? AppColors.label
+                    : AppColors.textMuted,
                 fontStyle: _lead.notes.isNotEmpty
                     ? FontStyle.normal
                     : FontStyle.italic,
@@ -795,15 +790,15 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
       child: Column(
         children: _lead.offers.map((offer) {
           final statusColor = offer.status == 'accepted'
-              ? const Color(0xFF10B981)
+              ? AppColors.success
               : offer.status == 'rejected'
-                  ? const Color(0xFFEF4444)
-                  : const Color(0xFFF59E0B);
+                  ? AppColors.error
+                  : AppColors.warning;
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -826,7 +821,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       Text(
@@ -835,7 +830,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                             : 'Date inconnue',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF94A3B8),
+                          color: AppColors.textMuted,
                         ),
                       ),
                     ],
@@ -871,7 +866,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
       style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF1E293B),
+        color: AppColors.textPrimary,
       ),
     );
   }
@@ -879,19 +874,19 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
   Color _getStageColor(LeadStage stage) {
     switch (stage) {
       case LeadStage.nouveau:
-        return const Color(0xFF6B7280);
+        return AppColors.stageNouveau;
       case LeadStage.contacte:
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case LeadStage.qualifie:
-        return const Color(0xFF10B981);
+        return AppColors.success;
       case LeadStage.visitePlanifiee:
-        return const Color(0xFF8B5CF6);
+        return AppColors.stageVisitePlanifiee;
       case LeadStage.offreEnvoyee:
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
       case LeadStage.negociation:
-        return const Color(0xFFEF4444);
+        return AppColors.error;
       case LeadStage.bailSigne:
-        return const Color(0xFF10B981);
+        return AppColors.success;
     }
   }
 

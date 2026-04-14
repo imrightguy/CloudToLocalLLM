@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class UnitDetailScreen extends StatelessWidget {
   const UnitDetailScreen({super.key, required this.unit});
@@ -14,13 +16,7 @@ class UnitDetailScreen extends StatelessWidget {
     final tenantLabel = unit.tenantName ?? unit.tenant;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Unité ${unit.number}'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-      ),
+      appBar: ImmoAppBar(title: 'Unité ${unit.number}')
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -85,7 +81,7 @@ class UnitDetailScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -93,7 +89,7 @@ class UnitDetailScreen extends StatelessWidget {
                       icon: Icons.attach_money,
                       label: 'Loyer',
                       value: '${unit.rent}\$ / mois',
-                      valueColor: const Color(0xFF10B981),
+                      valueColor: AppColors.success,
                     ),
                     const SizedBox(height: 12),
                     if (unit.bedrooms > 0)
@@ -138,14 +134,14 @@ class UnitDetailScreen extends StatelessWidget {
                       Row(
                         children: [
                           const Icon(Icons.person,
-                              color: Color(0xFF0F766E), size: 20),
+                              color: AppColors.primary, size: 20),
                           const SizedBox(width: 8),
                           const Text(
                             'Locataire',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -197,14 +193,14 @@ class UnitDetailScreen extends StatelessWidget {
                       Row(
                         children: [
                           const Icon(Icons.checklist,
-                              color: Color(0xFF0F766E), size: 20),
+                              color: AppColors.primary, size: 20),
                           const SizedBox(width: 8),
                           const Text(
                             'Commodités',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                             ),
                           ),
                         ],
@@ -218,7 +214,7 @@ class UnitDetailScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0F766E)
+                              color: AppColors.primary
                                   .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -226,7 +222,7 @@ class UnitDetailScreen extends StatelessWidget {
                               _amenityLabel(amenity),
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF0F766E),
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -258,9 +254,9 @@ class UnitDetailScreen extends StatelessWidget {
   Color _leaseEndColor(DateTime leaseEnd) {
     final now = DateTime.now();
     final threeMonths = now.add(const Duration(days: 90));
-    if (leaseEnd.isBefore(now)) return const Color(0xFFEF4444);
-    if (leaseEnd.isBefore(threeMonths)) return const Color(0xFFF59E0B);
-    return const Color(0xFF10B981);
+    if (leaseEnd.isBefore(now)) return AppColors.error;
+    if (leaseEnd.isBefore(threeMonths)) return AppColors.warning;
+    return AppColors.success;
   }
 
   Widget _buildDetailRow({
@@ -271,13 +267,13 @@ class UnitDetailScreen extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF64748B)),
+        Icon(icon, size: 18, color: AppColors.textSecondary),
         const SizedBox(width: 10),
         Text(
           label,
           style: const TextStyle(
             fontSize: 14,
-            color: Color(0xFF64748B),
+            color: AppColors.textSecondary,
           ),
         ),
         const Spacer(),
@@ -286,7 +282,7 @@ class UnitDetailScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: valueColor ?? const Color(0xFF1E293B),
+            color: valueColor ?? AppColors.textPrimary,
           ),
         ),
       ],

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/communication_service.dart';
 import '../services/lead_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class ComposeSmsScreen extends StatefulWidget {
   const ComposeSmsScreen({super.key});
@@ -120,7 +122,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -128,7 +130,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
               ...templates.map((t) {
                 return ListTile(
                   leading: const Icon(Icons.description_outlined,
-                      color: Color(0xFF64748B)),
+                      color: AppColors.textSecondary),
                   title: Text(t.name),
                   subtitle: Text(
                     t.body,
@@ -237,22 +239,10 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouveau message'),
-        titleTextStyle: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF1E293B),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+      appBar: ImmoAppBar(title: 'Nouveau message', leading: IconButton(
+          icon: const Icon(Icons.close, color: AppColors.textSecondary),
           onPressed: () => Navigator.pop(context),
-        ),
-      ),
+        ))
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
@@ -265,12 +255,12 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   children: [
                     const Icon(Icons.person_outline,
-                        size: 20, color: Color(0xFF94A3B8)),
+                        size: 20, color: AppColors.textMuted),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -278,13 +268,13 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           color: _selectedContactName != null
-                              ? const Color(0xFF1E293B)
-                              : const Color(0xFF94A3B8),
+                              ? AppColors.textPrimary
+                              : AppColors.textMuted,
                         ),
                       ),
                     ),
                     const Icon(Icons.chevron_right,
-                        size: 20, color: Color(0xFFCBD5E1)),
+                        size: 20, color: AppColors.disabled),
                   ],
                 ),
               ),
@@ -298,24 +288,24 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Row(
                   children: [
                     const Icon(Icons.description_outlined,
-                        size: 20, color: Color(0xFF94A3B8)),
+                        size: 20, color: AppColors.textMuted),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Utiliser un modèle',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF94A3B8),
+                          color: AppColors.textMuted,
                         ),
                       ),
                     ),
                     const Icon(Icons.chevron_right,
-                        size: 20, color: Color(0xFFCBD5E1)),
+                        size: 20, color: AppColors.disabled),
                   ],
                 ),
               ),
@@ -328,20 +318,20 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 labelStyle: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF475569)),
+                    color: AppColors.label),
                 alignLabelWithHint: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(color: Color(0xFFE2E8F0)),
+                  borderSide: BorderSide(color: AppColors.border),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   borderSide:
-                      BorderSide(color: Color(0xFF0F766E), width: 1.5),
+                      BorderSide(color: AppColors.primary, width: 1.5),
                 ),
               ),
               maxLines: 6,
@@ -355,8 +345,8 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   color: _charCount > 160
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF94A3B8),
+                      ? AppColors.error
+                      : AppColors.textMuted,
                 ),
               ),
             ),
@@ -367,7 +357,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -419,10 +409,10 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+              color: AppColors.indigo.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.schedule, size: 20, color: Color(0xFF6366F1)),
+            child: const Icon(Icons.schedule, size: 20, color: AppColors.indigo),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -434,7 +424,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 if (_isScheduled && _scheduledAt != null) ...[
@@ -443,7 +433,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                     DateFormat('dd MMM yyyy à HH:mm', 'fr')
                         .format(_scheduledAt!),
                     style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF64748B)),
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ],
@@ -451,7 +441,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
           ),
           Switch(
             value: _isScheduled,
-            activeColor: const Color(0xFF0F766E),
+            activeColor: AppColors.primary,
             onChanged: _toggleSchedule,
           ),
         ],
@@ -514,7 +504,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
         ),
@@ -524,18 +514,18 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
             decoration: InputDecoration(
               hintText: 'Rechercher...',
               prefixIcon:
-                  const Icon(Icons.search, color: Color(0xFF94A3B8)),
+                  const Icon(Icons.search, color: AppColors.textMuted),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFF0F766E)),
+                borderSide: const BorderSide(color: AppColors.primary),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
@@ -549,7 +539,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
               : _filtered.isEmpty
                   ? const Center(
                       child: Text('Aucun contact trouvé',
-                          style: TextStyle(color: Color(0xFF64748B))),
+                          style: TextStyle(color: AppColors.textSecondary)),
                     )
                   : ListView.builder(
                       controller: widget.scrollController,
@@ -559,7 +549,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                         return ListTile(
                           leading: CircleAvatar(
                             radius: 20,
-                            backgroundColor: const Color(0xFF0F766E)
+                            backgroundColor: AppColors.primary
                                 .withValues(alpha: 0.1),
                             child: Text(
                               lead.fullName.isNotEmpty
@@ -573,7 +563,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                                   : '?',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0F766E),
+                                color: AppColors.primary,
                               ),
                             ),
                           ),

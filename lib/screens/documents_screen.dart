@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/document_service.dart';
 import 'document_preview_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
@@ -99,13 +101,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Documents'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Documents', actions: actions: [
           if (_isUploading)
             Padding(
               padding: const EdgeInsets.only(right: 16),
@@ -120,12 +116,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
             ),
-        ],
-      ),
+        ])
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showUploadDialog,
-        backgroundColor: const Color(0xFF0F766E),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.upload_file, color: Colors.white),
       ),
     );
@@ -140,13 +135,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les documents',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -155,7 +150,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -165,7 +160,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -197,7 +192,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, size: 20, color: Color(0xFF64748B)),
+                  const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -206,7 +201,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         hintText: 'Rechercher par nom ou description...',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -227,7 +222,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucun document trouvé',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -266,15 +261,15 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         });
         _applyFilters();
       },
-      selectedColor: const Color(0xFF0F766E).withValues(alpha: 0.1),
-      checkmarkColor: const Color(0xFF0F766E),
+      selectedColor: AppColors.primary.withValues(alpha: 0.1),
+      checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
         fontSize: 13,
-        color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF64748B),
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
       side: BorderSide(
-        color: isSelected ? const Color(0xFF0F766E) : const Color(0xFFE2E8F0),
+        color: isSelected ? AppColors.primary : AppColors.border,
       ),
       showCheckmark: false,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -294,7 +289,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
         ),
@@ -352,7 +347,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -383,7 +378,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                             doc.fileSizeLabel,
                             style: const TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF94A3B8),
+                              color: AppColors.textMuted,
                             ),
                           ),
                           if (doc.createdAt != null) ...[
@@ -392,7 +387,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               DateFormat('d MMM yyyy', 'fr').format(doc.createdAt!),
                               style: const TextStyle(
                                 fontSize: 11,
-                                color: Color(0xFF94A3B8),
+                                color: AppColors.textMuted,
                               ),
                             ),
                           ],
@@ -401,7 +396,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, size: 20, color: Color(0xFF94A3B8)),
+                const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
               ],
             ),
           ),
@@ -454,7 +449,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur lors de la sélection: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -466,7 +461,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Veuillez sélectionner un fichier'),
-          backgroundColor: Color(0xFFEF4444),
+          backgroundColor: AppColors.error,
         ),
       );
       return;
@@ -490,7 +485,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Document téléversé avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         Navigator.of(context).pop(true);
@@ -500,7 +495,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -532,7 +527,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 IconButton(
@@ -550,12 +545,12 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: _pickedFileName != null
-                        ? const Color(0xFF0F766E)
-                        : const Color(0xFFE2E8F0),
+                        ? AppColors.primary
+                        : AppColors.border,
                   ),
                   borderRadius: BorderRadius.circular(12),
                   color: _pickedFileName != null
-                      ? const Color(0xFF0F766E).withValues(alpha: 0.05)
+                      ? AppColors.primary.withValues(alpha: 0.05)
                       : Colors.white,
                 ),
                 child: Row(
@@ -565,8 +560,8 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                           ? Icons.check_circle
                           : Icons.cloud_upload_outlined,
                       color: _pickedFileName != null
-                          ? const Color(0xFF0F766E)
-                          : const Color(0xFF94A3B8),
+                          ? AppColors.primary
+                          : AppColors.textMuted,
                       size: 28,
                     ),
                     const SizedBox(width: 12),
@@ -580,8 +575,8 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: _pickedFileName != null
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFF64748B),
+                                  ? AppColors.textPrimary
+                                  : AppColors.textSecondary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -591,7 +586,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                               'PDF, images (JPG, PNG, WebP)',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF94A3B8),
+                                color: AppColors.textMuted,
                               ),
                             ),
                         ],
@@ -631,7 +626,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
             ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

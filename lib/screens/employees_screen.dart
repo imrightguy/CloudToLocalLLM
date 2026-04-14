@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../services/employee_service.dart';
 import 'employee_detail_screen.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -82,7 +84,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Employé ajouté avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         _fetchEmployees();
@@ -92,7 +94,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -111,17 +113,11 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Employés'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-      ),
+      appBar: ImmoAppBar(title: 'Employés')
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEmployeeDialog,
-        backgroundColor: const Color(0xFF0F766E),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.person_add, color: Colors.white),
       ),
     );
@@ -136,20 +132,20 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les employés',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _errorMessage!,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -158,7 +154,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -189,7 +185,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, size: 20, color: Color(0xFF64748B)),
+                  const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -198,7 +194,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         hintText: 'Rechercher un employé...',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -217,7 +213,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucun employé trouvé',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -255,8 +251,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: employee.isActive
-                      ? const Color(0xFF0F766E).withValues(alpha: 0.1)
-                      : const Color(0xFF94A3B8).withValues(alpha: 0.1),
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : AppColors.textMuted.withValues(alpha: 0.1),
                   child: Text(
                     employee.firstName.isNotEmpty
                         ? employee.firstName[0].toUpperCase()
@@ -265,8 +261,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: employee.isActive
-                          ? const Color(0xFF0F766E)
-                          : const Color(0xFF94A3B8),
+                          ? AppColors.primary
+                          : AppColors.textMuted,
                     ),
                   ),
                 ),
@@ -280,7 +276,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -288,7 +284,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         employee.email,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       if (employee.phone.isNotEmpty) ...[
@@ -297,7 +293,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                           employee.phone,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -309,8 +305,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: employee.isActive
-                        ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                        : const Color(0xFFEF4444).withValues(alpha: 0.1),
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -318,15 +314,15 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     style: TextStyle(
                       fontSize: 11,
                       color: employee.isActive
-                          ? const Color(0xFF10B981)
-                          : const Color(0xFFEF4444),
+                          ? AppColors.success
+                          : AppColors.error,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 const Icon(Icons.chevron_right,
-                    size: 20, color: Color(0xFF94A3B8)),
+                    size: 20, color: AppColors.textMuted),
               ],
             ),
           ),
@@ -384,7 +380,7 @@ class _CreateEmployeeScreenState extends State<_CreateEmployeeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Employé créé avec succès'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         Navigator.of(context).pop();
@@ -394,7 +390,7 @@ class _CreateEmployeeScreenState extends State<_CreateEmployeeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -406,16 +402,10 @@ class _CreateEmployeeScreenState extends State<_CreateEmployeeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouvel employé'),
-        leading: IconButton(
+      appBar: ImmoAppBar(title: 'Nouvel employé', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-      ),
+        ))
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -474,7 +464,7 @@ class _CreateEmployeeScreenState extends State<_CreateEmployeeScreen> {
               ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
+                  backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

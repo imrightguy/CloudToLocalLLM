@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class VisitsScreen extends StatefulWidget {
   const VisitsScreen({super.key});
@@ -95,19 +97,12 @@ class _VisitsScreenState extends State<VisitsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Visites'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        actions: [
+      appBar: ImmoAppBar(title: 'Visites', actions: actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showCreateVisitDialog(context),
           ),
-        ],
-      ),
+        ])
       body: _buildBody(),
     );
   }
@@ -121,13 +116,13 @@ class _VisitsScreenState extends State<VisitsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les visites',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -136,7 +131,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -146,7 +141,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -187,7 +182,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -230,7 +225,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                           "Visites aujourd'hui",
                           style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -239,7 +234,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -268,7 +263,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                           'Confirmées',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -277,7 +272,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF10B981),
+                            color: AppColors.success,
                           ),
                         ),
                       ],
@@ -306,7 +301,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                           'Potentielles',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -315,7 +310,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFF59E0B),
+                            color: AppColors.warning,
                           ),
                         ),
                       ],
@@ -333,7 +328,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
 
@@ -345,7 +340,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucune visite pour cette date',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -358,8 +353,8 @@ class _VisitsScreenState extends State<VisitsScreen> {
                   final visit = filtered[index];
                   final isConfirmed = _isConfirmed(visit.status);
                   final statusColor = isConfirmed
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFF59E0B);
+                      ? AppColors.success
+                      : AppColors.warning;
                   final displayStatus = _statusLabel(visit.status);
                   final timeLabel = visit.dateTime != null
                       ? DateFormat('HH:mm').format(visit.dateTime!)
@@ -407,7 +402,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
-                                              color: Color(0xFF1E293B),
+                                              color: AppColors.textPrimary,
                                             ),
                                           ),
                                           const SizedBox(width: 8),
@@ -439,7 +434,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                                       horizontal: 6,
                                                       vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFFF59E0B)
+                                                color: AppColors.warning
                                                     .withValues(alpha: 0.15),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
@@ -449,13 +444,13 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                                 children: [
                                                   Icon(Icons.hourglass_top,
                                                       size: 10,
-                                                      color: Color(0xFFF59E0B)),
+                                                      color: AppColors.warning),
                                                   SizedBox(width: 3),
                                                   Text(
                                                     'Locataire',
                                                     style: TextStyle(
                                                       fontSize: 10,
-                                                      color: Color(0xFFF59E0B),
+                                                      color: AppColors.warning,
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),
@@ -471,7 +466,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                         visit.buildingName,
                                         style: const TextStyle(
                                           fontSize: 14,
-                                          color: Color(0xFF64748B),
+                                          color: AppColors.textSecondary,
                                         ),
                                       ),
                                     ],
@@ -483,25 +478,25 @@ class _VisitsScreenState extends State<VisitsScreen> {
                             Row(
                               children: [
                                 const Icon(Icons.person_outline,
-                                    size: 16, color: Color(0xFF64748B)),
+                                    size: 16, color: AppColors.textSecondary),
                                 const SizedBox(width: 4),
                                 Text(
                                   visit.agent,
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFF64748B),
+                                    color: AppColors.textSecondary,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 const Icon(Icons.apartment_outlined,
-                                    size: 16, color: Color(0xFF64748B)),
+                                    size: 16, color: AppColors.textSecondary),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
                                     visit.unitLabel,
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFF64748B),
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -513,7 +508,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                 visit.notes,
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF64748B),
+                                  color: AppColors.textSecondary,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -529,7 +524,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                       'Détails',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Color(0xFF0F766E),
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ),
@@ -636,11 +631,11 @@ class _VisitsScreenState extends State<VisitsScreen> {
         padding: EdgeInsets.only(bottom: 8),
         child: Row(
           children: [
-            Icon(Icons.notifications_none, size: 16, color: Color(0xFF94A3B8)),
+            Icon(Icons.notifications_none, size: 16, color: AppColors.textMuted),
             SizedBox(width: 6),
             Text(
               'Locataire non notifié',
-              style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+              style: TextStyle(fontSize: 13, color: AppColors.textMuted),
             ),
           ],
         ),
@@ -653,13 +648,13 @@ class _VisitsScreenState extends State<VisitsScreen> {
         padding: EdgeInsets.only(bottom: 8),
         child: Row(
           children: [
-            Icon(Icons.check_circle, size: 16, color: Color(0xFF10B981)),
+            Icon(Icons.check_circle, size: 16, color: AppColors.success),
             SizedBox(width: 6),
             Text(
               'Locataire notifié et confirmé',
               style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF10B981),
+                color: AppColors.success,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -673,13 +668,13 @@ class _VisitsScreenState extends State<VisitsScreen> {
       padding: EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(Icons.schedule, size: 16, color: Color(0xFFF59E0B)),
+          Icon(Icons.schedule, size: 16, color: AppColors.warning),
           SizedBox(width: 6),
           Text(
             'Locataire notifié — en attente de confirmation',
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFFF59E0B),
+              color: AppColors.warning,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -697,7 +692,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Visite confirmée'),
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: AppColors.success,
           ),
         );
         _fetchVisits();
@@ -707,7 +702,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: ${e.toString()}'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -813,7 +808,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Veuillez remplir tous les champs'),
-          backgroundColor: Color(0xFFF59E0B),
+          backgroundColor: AppColors.warning,
         ),
       );
       return;
@@ -852,8 +847,8 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
               SnackBar(
                 content: Text(message),
                 backgroundColor: needsNotice
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFF10B981),
+                    ? AppColors.warning
+                    : AppColors.success,
                 duration: Duration(seconds: needsNotice ? 5 : 3),
               ),
             );
@@ -863,7 +858,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                 content: Text(
                   '⚠️ Visite créée, mais l\'envoi du SMS au locataire a échoué',
                 ),
-                backgroundColor: Color(0xFFF59E0B),
+                backgroundColor: AppColors.warning,
                 duration: Duration(seconds: 4),
               ),
             );
@@ -872,7 +867,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Visite créée avec succès'),
-              backgroundColor: Color(0xFF10B981),
+              backgroundColor: AppColors.success,
             ),
           );
         }
@@ -883,7 +878,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -895,16 +890,10 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouvelle visite'),
-        leading: IconButton(
+      appBar: ImmoAppBar(title: 'Nouvelle visite', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-      ),
+        ))
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -915,11 +904,11 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.error_outline,
-                            size: 48, color: Color(0xFFEF4444)),
+                            size: 48, color: AppColors.error),
                         const SizedBox(height: 16),
                         Text(_error!,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Color(0xFF64748B))),
+                            style: const TextStyle(color: AppColors.textSecondary)),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _fetchOptions,
@@ -1046,7 +1035,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                       ElevatedButton(
                         onPressed: _isSubmitting ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(

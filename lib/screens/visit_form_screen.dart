@@ -5,6 +5,8 @@ import '../models.dart';
 import '../services/api_service.dart';
 import '../services/employee_service.dart';
 import '../services/visit_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/immo_app_bar.dart';
 
 class VisitFormScreen extends StatefulWidget {
   final DateTime? initialDate;
@@ -120,7 +122,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Veuillez remplir tous les champs obligatoires'),
-          backgroundColor: Color(0xFFF59E0B),
+          backgroundColor: AppColors.warning,
         ),
       );
       return;
@@ -159,8 +161,8 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
               SnackBar(
                 content: Text(message),
                 backgroundColor: needsNotice
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFF10B981),
+                    ? AppColors.warning
+                    : AppColors.success,
                 duration: Duration(seconds: needsNotice ? 5 : 3),
               ),
             );
@@ -170,7 +172,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                 content: Text(
                   'Visite créée, mais l\'envoi du SMS au locataire a échoué',
                 ),
-                backgroundColor: Color(0xFFF59E0B),
+                backgroundColor: AppColors.warning,
                 duration: Duration(seconds: 4),
               ),
             );
@@ -179,7 +181,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Visite créée avec succès'),
-              backgroundColor: Color(0xFF10B981),
+              backgroundColor: AppColors.success,
             ),
           );
         }
@@ -190,7 +192,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -202,16 +204,10 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouvelle visite'),
-        leading: IconButton(
+      appBar: ImmoAppBar(title: 'Nouvelle visite', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-      ),
+        ))
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -222,11 +218,11 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.error_outline,
-                            size: 48, color: Color(0xFFEF4444)),
+                            size: 48, color: AppColors.error),
                         const SizedBox(height: 16),
                         Text(_error!,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Color(0xFF64748B))),
+                            style: const TextStyle(color: AppColors.textSecondary)),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _fetchOptions,
@@ -366,23 +362,23 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                            color: AppColors.warning.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+                              color: AppColors.warning.withValues(alpha: 0.3),
                             ),
                           ),
                           child: const Row(
                             children: [
                               Icon(Icons.warning_amber,
-                                  color: Color(0xFFF59E0B), size: 20),
+                                  color: AppColors.warning, size: 20),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Conflit détecté: cet employé a déjà une visite à cette heure.',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Color(0xFFB45309),
+                                    color: AppColors.warningDark,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -397,7 +393,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                       ElevatedButton(
                         onPressed: _isSubmitting ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
