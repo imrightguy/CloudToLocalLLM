@@ -183,6 +183,96 @@ docker compose up -d --build
 docker compose down -v
 ```
 
+## Automated Backups
+
+Backups run automatically every day at 2:00 AM via a dedicated cron container.
+
+### How it works
+- The `backup` container runs `scripts/backup.sh` on a daily cron schedule
+- Backups are gzip-compressed SQL dumps stored in the `backups` Docker volume at `/backups/`
+- Filenames are date-stamped: `immogestion_YYYYMMDD_HHMMSS.sql.gz`
+- Backups older than 30 days are automatically deleted
+- Each backup is integrity-checked (gzip verification) before being kept
+
+### Manual backup
+```bash
+docker compose exec backup /scripts/backup.sh
+```
+
+### List backups
+```bash
+docker compose exec backup ls -lh /backups/*.sql.gz
+```
+
+### Restore from a backup
+```bash
+# 1. List available backups and pick one
+docker compose exec backup ls -lh /backups/*.sql.gz
+
+# 2. Restore (replace the filename with your chosen backup)
+docker compose exec postgres \
+  psql -U postgres -d immogestion \
+  -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+
+docker compose exec backup \
+  sh -c "gunzip -c /backups/immogestion_YYYYMMDD_HHMMSS.sql.gz | \
+    psql -h postgres -U postgres -d immogestion"
+
+# 3. Restart the API to pick up restored data
+docker compose restart api
+
+# 4. Verify
+curl http://localhost:3000/api/health
+```
+
+### Backup retention
+- Default: 30 days (configurable via `BACKUP_RETENTION_DAYS` env var in docker-compose.yml)
+- Cron log: `docker compose exec backup cat /backups/cron.log`
+
+## Health Monitoring
+
+### Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /health` | Server-level health check (used by Docker healthcheck) |
+| `GET /api/health` | API health with database connectivity status and latency |
+
+### /api/health response (healthy)
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-04-14T19:00:00.000Z",
+  "version": "1.0.0",
+  "uptime": 86400,
+  "database": { "status": "connected", "latencyMs": 3 }
+}
+```
+
+### /api/health response (unhealthy)
+```json
+{
+  "status": "unhealthy",
+  "timestamp": "2026-04-14T19:00:00.000Z",
+  "version": "1.0.0",
+  "uptime": 86400,
+  "database": { "status": "disconnected", "error": "connection refused" }
+}
+```
+Returns HTTP 503 when the database is unreachable.
+
+### Docker health checks
+- **PostgreSQL**: `pg_isready` every 10s (5 retries)
+- **API**: `wget /health` every 30s (3 retries, 15s start period)
+- **Backup**: runs on cron, no continuous health check needed
+
+### Simple monitoring cron (optional)
+Add to the VPS crontab to ping the health endpoint and alert on failure:
+```bash
+# crontab -e
+*/5 * * * * curl -sf http://localhost:3000/api/health > /dev/null || echo "$(date) API unhealthy" >> /var/log/immogestion-monitor.log
+```
+
 ## Troubleshooting
 
 | Issue | Check |
@@ -192,14 +282,17 @@ docker compose down -v
 | Tunnel not connecting | Check CLOUDFLARE_TUNNEL_TOKEN, verify tunnel exists in Cloudflare dashboard |
 | Health check failing | `curl http://localhost:3000/health` from VPS |
 | Port already in use | `ss -tlnp | grep -E '3000|5432'` |
+| Backups not running | `docker compose logs backup`, check cron log: `docker compose exec backup cat /backups/cron.log` |
+| Restore failed | Verify backup integrity: `docker compose exec backup sh -c 'gzip -t /backups/YOUR_BACKUP.sql.gz'` |
 
 ## Architecture
 
 ```
 Internet -> Cloudflare Edge -> Tunnel -> api container (port 3000) -> postgres (port 5432)
-                                       |
-                                  uploads volume
-                                  logs volume
+                                        |
+                                   uploads volume
+                                   logs volume
+                                   backups volume (daily cron backup at 2 AM)
 ```
 
 All ports are bound to 127.0.0.1 only on the VPS. No ports are publicly exposed. Cloudflare Tunnel provides the public entry point.

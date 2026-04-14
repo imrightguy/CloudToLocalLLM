@@ -60,6 +60,38 @@ services:
     networks:
       - internal
 
+  # ── Automated PostgreSQL Backup ───────────────────────────────────
+  backup:
+    image: postgres:16-alpine
+    container_name: immogestion-backup
+    restart: unless-stopped
+    entrypoint: >
+      sh -c "
+        echo '[backup-cron] Installing cron...' &&
+        apk add --no-cache dcron &&
+        echo '0 2 * * * /scripts/backup.sh >> /backups/cron.log 2>&1' > /etc/crontabs/root &&
+        echo '[backup-cron] Running initial backup...' &&
+        /scripts/backup.sh &&
+        echo '[backup-cron] Starting cron daemon (daily at 2:00 AM)...' &&
+        crond -f -l 2
+      "
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      DB_NAME: immogestion
+      PGPASSWORD: ${DB_PASSWORD}
+      BACKUP_RETENTION_DAYS: 30
+    volumes:
+      - ./scripts/backup.sh:/scripts/backup.sh:ro
+      - backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - internal
+
   # ── Cloudflare Tunnel ──────────────────────────────────────────────
   # Uncomment once cloudflared token is configured
   # tunnel:
@@ -78,6 +110,8 @@ volumes:
   uploads:
     driver: local
   logs:
+    driver: local
+  backups:
     driver: local
 
 networks:
