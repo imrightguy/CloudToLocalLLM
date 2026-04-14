@@ -230,6 +230,63 @@ const documentsLeadsTable = pgTable('documents_leads', {
   pk: { primaryKey: { columns: [table.documentId, table.leadId] } },
 }));
 
+// ─── SMS Templates ───
+const smsTemplatesTable = pgTable('sms_templates', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  name: text('name').notNull(),
+  body: text('body').notNull(),
+  language: text('language').notNull().default('fr'),
+  category: text('category').notNull(), // visit_reminder | lease_renewal | payment_reminder | custom
+  description: text('description'),
+  variables: jsonb('variables').default('[]'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// ─── SMS Campaigns ───
+const smsCampaignsTable = pgTable('sms_campaigns', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  name: text('name').notNull(),
+  description: text('description'),
+  templateId: uuid('template_id').references(() => smsTemplatesTable.id, { onDelete: 'set null' }),
+  targetAudience: text('target_audience').notNull(), // all_tenants | building_tenants | specific_leads
+  buildingId: uuid('building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
+  scheduleType: text('schedule_type').notNull().default('once'), // once | recurring
+  cronExpression: text('cron_expression'),
+  scheduledAt: timestamp('scheduled_at'),
+  status: text('status').notNull().default('draft'), // draft | active | paused | completed | cancelled
+  lastRunAt: timestamp('last_run_at'),
+  nextRunAt: timestamp('next_run_at'),
+  totalSent: integer('total_sent').notNull().default(0),
+  totalFailed: integer('total_failed').notNull().default(0),
+  templateData: jsonb('template_data').default('{}'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: uuid('created_by').references(() => usersTable.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// ─── SMS Queue (scheduled messages awaiting delivery) ───
+const smsQueueTable = pgTable('sms_queue', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: uuid('campaign_id').references(() => smsCampaignsTable.id, { onDelete: 'set null' }),
+  reminderType: text('reminder_type'), // visit_24h | visit_2h | lease_renewal | payment_3d | payment_due
+  visitId: uuid('visit_id').references(() => visitsTable.id, { onDelete: 'set null' }),
+  leaseId: uuid('lease_id').references(() => leasesTable.id, { onDelete: 'set null' }),
+  phoneNumber: text('phone_number').notNull(),
+  messageBody: text('message_body').notNull(),
+  status: text('status').notNull().default('pending'), // pending | processing | sent | failed | cancelled
+  scheduledAt: timestamp('scheduled_at').notNull(),
+  processedAt: timestamp('processed_at'),
+  retryCount: integer('retry_count').notNull().default(0),
+  maxRetries: integer('max_retries').notNull().default(3),
+  lastError: text('last_error'),
+  twilioSid: text('twilio_sid'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 module.exports = {
   usersTable,
   refreshTokensTable,
@@ -245,4 +302,7 @@ module.exports = {
   documentsTable,
   documentsLeadsTable,
   leasesTable,
+  smsTemplatesTable,
+  smsCampaignsTable,
+  smsQueueTable,
 };

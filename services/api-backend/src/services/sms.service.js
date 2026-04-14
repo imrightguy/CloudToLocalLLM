@@ -1,5 +1,5 @@
 const {
-  eq, and, sql, lte, gte,
+  eq, and, sql, lte, gte, ne,
 } = require('drizzle-orm');
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
@@ -11,6 +11,10 @@ const {
   buildingsTable,
   smsLogsTable,
   usersTable,
+  smsTemplatesTable,
+  smsCampaignsTable,
+  smsQueueTable,
+  leasesTable,
 } = require('../database/schema');
 const { sendSMS, handleIncomingMessage } = require('./twilio.service');
 
@@ -931,6 +935,848 @@ const getVisitsNeedingPostSurvey = async () => {
   }
 };
 
+// ─── Template Rendering ───────────────────────────────────────────────────────
+
+const renderTemplate = (templateBody, variables) => {
+  let rendered = templateBody;
+  for (const [key, value] of Object.entries(variables || {})) {
+    rendered = rendered.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value || '');
+  }
+  return rendered;
+};
+
+const extractVariables = (templateBody) => {
+  const matches = templateBody.match(/\{\{(\w+)\}\}/g) || [];
+  return [...new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, '')))];
+};
+
+// ─── Template CRUD ────────────────────────────────────────────────────────────
+
+const createTemplate = async (data) => {
+  const variables = extractVariables(data.body);
+  const [template] = await db
+    .insert(smsTemplatesTable)
+    .values({
+      name: data.name,
+      body: data.body,
+      language: data.language || 'fr',
+      category: data.category,
+      description: data.description || null,
+      variables,
+    })
+    .returning();
+  return template;
+};
+
+const getTemplates = async (filters = {}) => {
+  const conditions = [eq(smsTemplatesTable.isActive, true)];
+  if (filters.category) conditions.push(eq(smsTemplatesTable.category, filters.category));
+  if (filters.language) conditions.push(eq(smsTemplatesTable.language, filters.language));
+
+  const templates = await db
+    .select()
+    .from(smsTemplatesTable)
+    .where(and(...conditions))
+    .orderBy(sql`${smsTemplatesTable.createdAt} desc`);
+  return templates;
+};
+
+const getTemplateById = async (id) => {
+  const [template] = await db
+    .select()
+    .from(smsTemplatesTable)
+    .where(eq(smsTemplatesTable.id, id))
+    .limit(1);
+  return template || null;
+};
+
+const updateTemplate = async (id, data) => {
+  const updateData = { updatedAt: new Date() };
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.body !== undefined) {
+    updateData.body = data.body;
+    updateData.variables = extractVariables(data.body);
+  }
+  if (data.language !== undefined) updateData.language = data.language;
+  if (data.category !== undefined) updateData.category = data.category;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.variables !== undefined) updateData.variables = data.variables;
+
+  const [updated] = await db
+    .update(smsTemplatesTable)
+    .set(updateData)
+    .where(eq(smsTemplatesTable.id, id))
+    .returning();
+  return updated || null;
+};
+
+const deleteTemplate = async (id) => {
+  const [deleted] = await db
+    .update(smsTemplatesTable)
+    .set({ isActive: false, updatedAt: new Date() })
+    .where(eq(smsTemplatesTable.id, id))
+    .returning();
+  return deleted || null;
+};
+
+// ─── Campaign CRUD ────────────────────────────────────────────────────────────
+
+const createCampaign = async (data, createdBy) => {
+  const values = {
+    name: data.name,
+    description: data.description || null,
+    templateId: data.templateId || null,
+    targetAudience: data.targetAudience,
+    buildingId: data.buildingId || null,
+    scheduleType: data.scheduleType || 'once',
+    cronExpression: data.cronExpression || null,
+    scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
+    templateData: data.templateData || {},
+    status: 'draft',
+    createdBy: createdBy || null,
+  };
+
+  if (data.scheduleType === 'once' && data.scheduledAt) {
+    values.nextRunAt = new Date(data.scheduledAt);
+  }
+
+  const [campaign] = await db
+    .insert(smsCampaignsTable)
+    .values(values)
+    .returning();
+  return campaign;
+};
+
+const getCampaigns = async (filters = {}) => {
+  const conditions = [eq(smsCampaignsTable.isActive, true)];
+  if (filters.status) conditions.push(eq(smsCampaignsTable.status, filters.status));
+  if (filters.targetAudience) conditions.push(eq(smsCampaignsTable.targetAudience, filters.targetAudience));
+  if (filters.buildingId) conditions.push(eq(smsCampaignsTable.buildingId, filters.buildingId));
+
+  const campaigns = await db
+    .select()
+    .from(smsCampaignsTable)
+    .where(and(...conditions))
+    .orderBy(sql`${smsCampaignsTable.createdAt} desc`);
+  return campaigns;
+};
+
+const getCampaignById = async (id) => {
+  const [campaign] = await db
+    .select()
+    .from(smsCampaignsTable)
+    .where(eq(smsCampaignsTable.id, id))
+    .limit(1);
+  return campaign || null;
+};
+
+const updateCampaign = async (id, data) => {
+  const updateData = { updatedAt: new Date() };
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.templateId !== undefined) updateData.templateId = data.templateId;
+  if (data.targetAudience !== undefined) updateData.targetAudience = data.targetAudience;
+  if (data.buildingId !== undefined) updateData.buildingId = data.buildingId;
+  if (data.scheduleType !== undefined) updateData.scheduleType = data.scheduleType;
+  if (data.cronExpression !== undefined) updateData.cronExpression = data.cronExpression;
+  if (data.scheduledAt !== undefined) {
+    updateData.scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
+    updateData.nextRunAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
+  }
+  if (data.templateData !== undefined) updateData.templateData = data.templateData;
+
+  const [updated] = await db
+    .update(smsCampaignsTable)
+    .set(updateData)
+    .where(eq(smsCampaignsTable.id, id))
+    .returning();
+  return updated || null;
+};
+
+const setCampaignStatus = async (id, status) => {
+  const updateData = { status, updatedAt: new Date() };
+
+  if (status === 'active') {
+    const [existing] = await db
+      .select()
+      .from(smsCampaignsTable)
+      .where(eq(smsCampaignsTable.id, id))
+      .limit(1);
+
+    if (existing) {
+      if (existing.scheduleType === 'recurring' && existing.cronExpression) {
+        updateData.nextRunAt = new Date();
+      } else if (existing.scheduledAt && new Date(existing.scheduledAt) > new Date()) {
+        updateData.nextRunAt = new Date(existing.scheduledAt);
+      } else if (existing.scheduleType === 'once') {
+        updateData.nextRunAt = new Date();
+      }
+    }
+  }
+
+  if (status === 'cancelled') {
+    updateData.nextRunAt = null;
+  }
+
+  const [updated] = await db
+    .update(smsCampaignsTable)
+    .set(updateData)
+    .where(eq(smsCampaignsTable.id, id))
+    .returning();
+  return updated || null;
+};
+
+const deleteCampaign = async (id) => {
+  await db
+    .update(smsCampaignsTable)
+    .set({ isActive: false, status: 'cancelled', updatedAt: new Date() })
+    .where(eq(smsCampaignsTable.id, id));
+
+  await db
+    .update(smsQueueTable)
+    .set({ status: 'cancelled', updatedAt: new Date() })
+    .where(eq(smsQueueTable.campaignId, id));
+};
+
+// ─── Campaign Execution ───────────────────────────────────────────────────────
+
+const resolveRecipients = async (campaign) => {
+  const recipients = [];
+
+  if (campaign.targetAudience === 'all_tenants') {
+    const units = await db
+      .select()
+      .from(unitsTable)
+      .where(and(
+        eq(unitsTable.isActive, true),
+        eq(unitsTable.status, 'occupied'),
+        sql`${unitsTable.tenantPhone} IS NOT NULL`,
+      ));
+
+    for (const unit of units) {
+      const buildings = await db
+        .select()
+        .from(buildingsTable)
+        .where(eq(buildingsTable.id, unit.buildingId))
+        .limit(1);
+      const building = buildings[0];
+
+      recipients.push({
+        phone: unit.tenantPhone,
+        variables: {
+          tenant_name: unit.tenantName || '',
+          building_address: building ? `${building.address}, ${building.city}` : '',
+          unit_label: unit.label || '',
+        },
+      });
+    }
+  } else if (campaign.targetAudience === 'building_tenants') {
+    if (!campaign.buildingId) return recipients;
+
+    const units = await db
+      .select()
+      .from(unitsTable)
+      .where(and(
+        eq(unitsTable.isActive, true),
+        eq(unitsTable.status, 'occupied'),
+        eq(unitsTable.buildingId, campaign.buildingId),
+        sql`${unitsTable.tenantPhone} IS NOT NULL`,
+      ));
+
+    const buildings = await db
+      .select()
+      .from(buildingsTable)
+      .where(eq(buildingsTable.id, campaign.buildingId))
+      .limit(1);
+    const building = buildings[0];
+
+    for (const unit of units) {
+      recipients.push({
+        phone: unit.tenantPhone,
+        variables: {
+          tenant_name: unit.tenantName || '',
+          building_address: building ? `${building.address}, ${building.city}` : '',
+          unit_label: unit.label || '',
+        },
+      });
+    }
+  } else if (campaign.targetAudience === 'specific_leads') {
+    const leads = await db
+      .select()
+      .from(leadsTable)
+      .where(and(
+        eq(leadsTable.isActive, true),
+        sql`${leadsTable.phone} IS NOT NULL`,
+      ));
+
+    for (const lead of leads) {
+      let buildingAddress = '';
+      if (lead.buildingId) {
+        const buildings = await db
+          .select()
+          .from(buildingsTable)
+          .where(eq(buildingsTable.id, lead.buildingId))
+          .limit(1);
+        if (buildings[0]) {
+          buildingAddress = `${buildings[0].address}, ${buildings[0].city}`;
+        }
+      }
+
+      recipients.push({
+        phone: lead.phone,
+        variables: {
+          tenant_name: lead.fullName || '',
+          building_address: buildingAddress,
+        },
+      });
+    }
+  }
+
+  return recipients;
+};
+
+const executeCampaign = async (campaignId) => {
+  const campaign = await getCampaignById(campaignId);
+  if (!campaign) {
+    logger.error(`❌ executeCampaign: campaign ${campaignId} not found`);
+    return { success: false, error: 'Campaign not found' };
+  }
+
+  let template = null;
+  if (campaign.templateId) {
+    template = await getTemplateById(campaign.templateId);
+  }
+
+  const recipients = await resolveRecipients(campaign);
+  if (recipients.length === 0) {
+    logger.info(`📋 No recipients for campaign ${campaignId}`);
+    await db
+      .update(smsCampaignsTable)
+      .set({ lastRunAt: new Date(), updatedAt: new Date() })
+      .where(eq(smsCampaignsTable.id, campaignId));
+    return { success: true, processed: 0 };
+  }
+
+  let queued = 0;
+  for (const recipient of recipients) {
+    let messageBody;
+    if (template) {
+      const vars = { ...campaign.templateData, ...recipient.variables };
+      messageBody = renderTemplate(template.body, vars);
+    } else {
+      messageBody = recipient.messageBody || '';
+    }
+
+    if (!messageBody || !recipient.phone) continue;
+
+    await db.insert(smsQueueTable).values({
+      campaignId,
+      phoneNumber: recipient.phone,
+      messageBody,
+      scheduledAt: new Date(),
+      status: 'pending',
+      reminderType: null,
+    });
+    queued++;
+  }
+
+  await db
+    .update(smsCampaignsTable)
+    .set({
+      lastRunAt: new Date(),
+      updatedAt: new Date(),
+      nextRunAt: campaign.scheduleType === 'recurring' ? new Date(Date.now() + 60 * 60 * 1000) : null,
+      status: campaign.scheduleType === 'once' ? 'completed' : campaign.status,
+    })
+    .where(eq(smsCampaignsTable.id, campaignId));
+
+  return { success: true, processed: queued };
+};
+
+// ─── SMS Queue Processing ─────────────────────────────────────────────────────
+
+const processQueue = async () => {
+  try {
+    const now = new Date();
+    const messages = await db
+      .select()
+      .from(smsQueueTable)
+      .where(and(
+        eq(smsQueueTable.status, 'pending'),
+        lte(smsQueueTable.scheduledAt, now),
+        sql`${smsQueueTable.retryCount} < ${smsQueueTable.maxRetries}`,
+      ))
+      .orderBy(sql`${smsQueueTable.scheduledAt} asc`)
+      .limit(50);
+
+    if (messages.length === 0) return { processed: 0 };
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const msg of messages) {
+      await db
+        .update(smsQueueTable)
+        .set({ status: 'processing', updatedAt: new Date() })
+        .where(eq(smsQueueTable.id, msg.id));
+
+      const result = await sendSMS(msg.phoneNumber, msg.messageBody);
+
+      if (result.success) {
+        await db
+          .update(smsQueueTable)
+          .set({
+            status: 'sent',
+            processedAt: new Date(),
+            twilioSid: result.sid || null,
+            updatedAt: new Date(),
+          })
+          .where(eq(smsQueueTable.id, msg.id));
+
+        await logSMS({
+          twilioSid: result.sid || null,
+          campaignId: msg.campaignId,
+          visitId: msg.visitId,
+          phoneNumber: msg.phoneNumber,
+          direction: 'outbound',
+          messageBody: msg.messageBody,
+          status: 'sent',
+          twilioStatus: result.status || null,
+        });
+
+        if (msg.campaignId) {
+          await db
+            .update(smsCampaignsTable)
+            .set({
+              totalSent: sql`${smsCampaignsTable.totalSent} + 1`,
+              updatedAt: new Date(),
+            })
+            .where(eq(smsCampaignsTable.id, msg.campaignId));
+        }
+
+        sent++;
+      } else {
+        const newRetryCount = msg.retryCount + 1;
+        const isFinalRetry = newRetryCount >= msg.maxRetries;
+
+        await db
+          .update(smsQueueTable)
+          .set({
+            status: isFinalRetry ? 'failed' : 'pending',
+            retryCount: newRetryCount,
+            lastError: result.error || null,
+            updatedAt: new Date(),
+            scheduledAt: isFinalRetry
+              ? msg.scheduledAt
+              : new Date(Date.now() + Math.pow(2, newRetryCount) * 60 * 1000),
+          })
+          .where(eq(smsQueueTable.id, msg.id));
+
+        if (isFinalRetry && msg.campaignId) {
+          await db
+            .update(smsCampaignsTable)
+            .set({
+              totalFailed: sql`${smsCampaignsTable.totalFailed} + 1`,
+              updatedAt: new Date(),
+            })
+            .where(eq(smsCampaignsTable.id, msg.campaignId));
+        }
+
+        failed++;
+      }
+    }
+
+    return { processed: messages.length, sent, failed };
+  } catch (error) {
+    logger.error('❌ processQueue error:', error.message);
+    return { processed: 0, error: error.message };
+  }
+};
+
+const retryFailedMessages = async () => {
+  try {
+    const messages = await db
+      .select()
+      .from(smsQueueTable)
+      .where(and(
+        eq(smsQueueTable.status, 'failed'),
+        sql`${smsQueueTable.retryCount} < ${smsQueueTable.maxRetries}`,
+      ))
+      .orderBy(sql`${smsQueueTable.updatedAt} asc`)
+      .limit(20);
+
+    for (const msg of messages) {
+      await db
+        .update(smsQueueTable)
+        .set({
+          status: 'pending',
+          scheduledAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(smsQueueTable.id, msg.id));
+    }
+
+    return { reset: messages.length };
+  } catch (error) {
+    logger.error('❌ retryFailedMessages error:', error.message);
+    return { reset: 0, error: error.message };
+  }
+};
+
+// ─── Automated Reminder Queries ───────────────────────────────────────────────
+
+const getVisitsNeeding24hReminder = async () => {
+  try {
+    const now = new Date();
+    const windowStart = new Date(now.getTime() + 23 * 60 * 60 * 1000);
+    const windowEnd = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+
+    const visits = await db
+      .select()
+      .from(visitsTable)
+      .where(and(
+        eq(visitsTable.isActive, true),
+        eq(visitsTable.status, 'confirmed'),
+        gte(visitsTable.dateTime, windowStart),
+        lte(visitsTable.dateTime, windowEnd),
+      ));
+
+    const results = [];
+    for (const visit of visits) {
+      const existing = await db
+        .select()
+        .from(smsQueueTable)
+        .where(and(
+          eq(smsQueueTable.visitId, visit.id),
+          eq(smsQueueTable.reminderType, 'visit_24h'),
+          ne(smsQueueTable.status, 'cancelled'),
+        ))
+        .limit(1);
+
+      if (!existing.length) {
+        results.push(visit);
+      }
+    }
+    return results;
+  } catch (error) {
+    logger.error('❌ getVisitsNeeding24hReminder error:', error.message);
+    return [];
+  }
+};
+
+const getVisitsNeeding2hReminder = async () => {
+  try {
+    const now = new Date();
+    const windowStart = new Date(now.getTime() + 1.5 * 60 * 60 * 1000);
+    const windowEnd = new Date(now.getTime() + 2.5 * 60 * 60 * 1000);
+
+    const visits = await db
+      .select()
+      .from(visitsTable)
+      .where(and(
+        eq(visitsTable.isActive, true),
+        eq(visitsTable.status, 'confirmed'),
+        gte(visitsTable.dateTime, windowStart),
+        lte(visitsTable.dateTime, windowEnd),
+      ));
+
+    const results = [];
+    for (const visit of visits) {
+      const existing = await db
+        .select()
+        .from(smsQueueTable)
+        .where(and(
+          eq(smsQueueTable.visitId, visit.id),
+          eq(smsQueueTable.reminderType, 'visit_2h'),
+          ne(smsQueueTable.status, 'cancelled'),
+        ))
+        .limit(1);
+
+      if (!existing.length) {
+        results.push(visit);
+      }
+    }
+    return results;
+  } catch (error) {
+    logger.error('❌ getVisitsNeeding2hReminder error:', error.message);
+    return [];
+  }
+};
+
+const queueVisit24hReminder = async (visitId) => {
+  const ctx = await getVisitContext(visitId);
+  if (!ctx || !ctx.employee || !ctx.building) {
+    return { success: false, error: 'Missing visit context' };
+  }
+
+  const { visit, employee, lead, unit, building } = ctx;
+  const message = `📍 Rappel: Visite demain ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''} avec ${lead ? lead.fullName : 'locataire'}. Confirmez votre présence.`;
+
+  await db.insert(smsQueueTable).values({
+    reminderType: 'visit_24h',
+    visitId,
+    phoneNumber: employee.phone,
+    messageBody: message,
+    scheduledAt: new Date(),
+    status: 'pending',
+    maxRetries: 3,
+  });
+
+  if (lead && lead.phone) {
+    const leadMessage = `📍 Rappel: Votre visite est demain ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''}. Confirmez: 1=Oui, 2=Non`;
+    await db.insert(smsQueueTable).values({
+      reminderType: 'visit_24h',
+      visitId,
+      leadId: lead.id,
+      phoneNumber: lead.phone,
+      messageBody: leadMessage,
+      scheduledAt: new Date(),
+      status: 'pending',
+      maxRetries: 3,
+    });
+  }
+
+  return { success: true };
+};
+
+const queueVisit2hReminder = async (visitId) => {
+  const ctx = await getVisitContext(visitId);
+  if (!ctx || !ctx.employee || !ctx.building) {
+    return { success: false, error: 'Missing visit context' };
+  }
+
+  const { visit, employee, lead, unit, building } = ctx;
+  const message = `⏰ Visite dans 2h! ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''} avec ${lead ? lead.fullName : 'locataire'}. Départ imminent!`;
+
+  await db.insert(smsQueueTable).values({
+    reminderType: 'visit_2h',
+    visitId,
+    phoneNumber: employee.phone,
+    messageBody: message,
+    scheduledAt: new Date(),
+    status: 'pending',
+    maxRetries: 3,
+  });
+
+  return { success: true };
+};
+
+const getLeasesNeedingRenewalReminder = async () => {
+  try {
+    const now = new Date();
+    const windowStart = new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000);
+    const windowEnd = new Date(now.getTime() + 32 * 24 * 60 * 60 * 1000);
+
+    const leases = await db
+      .select()
+      .from(leasesTable)
+      .where(and(
+        eq(leasesTable.isActive, true),
+        eq(leasesTable.status, 'active'),
+        gte(leasesTable.endDate, windowStart),
+        lte(leasesTable.endDate, windowEnd),
+      ));
+
+    const results = [];
+    for (const lease of leases) {
+      const existing = await db
+        .select()
+        .from(smsQueueTable)
+        .where(and(
+          eq(smsQueueTable.leaseId, lease.id),
+          eq(smsQueueTable.reminderType, 'lease_renewal'),
+          ne(smsQueueTable.status, 'cancelled'),
+        ))
+        .limit(1);
+
+      if (!existing.length) {
+        results.push(lease);
+      }
+    }
+    return results;
+  } catch (error) {
+    logger.error('❌ getLeasesNeedingRenewalReminder error:', error.message);
+    return [];
+  }
+};
+
+const queueLeaseRenewalReminder = async (leaseId) => {
+  const [lease] = await db
+    .select()
+    .from(leasesTable)
+    .where(eq(leasesTable.id, leaseId))
+    .limit(1);
+
+  if (!lease || !lease.tenantPhone) {
+    return { success: false, error: 'Lease or tenant phone not found' };
+  }
+
+  const [unit] = await db
+    .select()
+    .from(unitsTable)
+    .where(eq(unitsTable.id, lease.unitId))
+    .limit(1);
+
+  let buildingAddress = '';
+  if (unit) {
+    const [building] = await db
+      .select()
+      .from(buildingsTable)
+      .where(eq(buildingsTable.id, unit.buildingId))
+      .limit(1);
+    if (building) buildingAddress = `${building.address}, ${building.city}`;
+  }
+
+  const endDate = new Date(lease.endDate).toLocaleDateString('fr-CA', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+
+  const message = `📋 Rappel: Votre bail expire le ${endDate} à ${buildingAddress}. Contactez-nous pour le renouvellement.`;
+
+  await db.insert(smsQueueTable).values({
+    reminderType: 'lease_renewal',
+    leaseId,
+    phoneNumber: lease.tenantPhone,
+    messageBody: message,
+    scheduledAt: new Date(),
+    status: 'pending',
+    maxRetries: 3,
+  });
+
+  return { success: true };
+};
+
+const getPaymentsNeedingReminder = async (type) => {
+  try {
+    const now = new Date();
+    const leases = await db
+      .select()
+      .from(leasesTable)
+      .where(and(
+        eq(leasesTable.isActive, true),
+        eq(leasesTable.status, 'active'),
+      ));
+
+    const results = [];
+
+    for (const lease of leases) {
+      const startDate = new Date(lease.startDate);
+      const dayOfMonth = startDate.getDate();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      let dueDate;
+      if (dayOfMonth > now.getDate()) {
+        dueDate = new Date(currentYear, currentMonth, dayOfMonth);
+      } else {
+        dueDate = new Date(currentYear, currentMonth + 1, dayOfMonth);
+      }
+
+      const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+
+      if (type === 'payment_3d' && daysUntilDue >= 2 && daysUntilDue <= 4) {
+        const existing = await db
+          .select()
+          .from(smsQueueTable)
+          .where(and(
+            eq(smsQueueTable.leaseId, lease.id),
+            eq(smsQueueTable.reminderType, 'payment_3d'),
+            sql`${smsQueueTable.createdAt} > ${new Date(currentYear, currentMonth, 1)}`,
+          ))
+          .limit(1);
+
+        if (!existing.length) {
+          results.push({ lease, dueDate });
+        }
+      } else if (type === 'payment_due' && daysUntilDue === 0) {
+        const existing = await db
+          .select()
+          .from(smsQueueTable)
+          .where(and(
+            eq(smsQueueTable.leaseId, lease.id),
+            eq(smsQueueTable.reminderType, 'payment_due'),
+            sql`${smsQueueTable.createdAt} > ${new Date(currentYear, currentMonth, 1)}`,
+          ))
+          .limit(1);
+
+        if (!existing.length) {
+          results.push({ lease, dueDate });
+        }
+      }
+    }
+
+    return results;
+  } catch (error) {
+    logger.error('❌ getPaymentsNeedingReminder error:', error.message);
+    return [];
+  }
+};
+
+const queuePaymentReminder = async (leaseId, type) => {
+  const [lease] = await db
+    .select()
+    .from(leasesTable)
+    .where(eq(leasesTable.id, leaseId))
+    .limit(1);
+
+  if (!lease || !lease.tenantPhone) {
+    return { success: false, error: 'Lease or tenant phone not found' };
+  }
+
+  const rentDollars = (lease.rentCents / 100).toFixed(2);
+  const [unit] = await db
+    .select()
+    .from(unitsTable)
+    .where(eq(unitsTable.id, lease.unitId))
+    .limit(1);
+
+  let buildingAddress = '';
+  if (unit) {
+    const [building] = await db
+      .select()
+      .from(buildingsTable)
+      .where(eq(buildingsTable.id, unit.buildingId))
+      .limit(1);
+    if (building) buildingAddress = `${building.address}, ${building.city}`;
+  }
+
+  let message;
+  if (type === 'payment_3d') {
+    message = `💰 Rappel: Votre loyer de ${rentDollars}$ est dû dans 3 jours pour ${buildingAddress}. Préparez votre paiement.`;
+  } else {
+    message = `💰 Votre loyer de ${rentDollars}$ est dû aujourd'hui pour ${buildingAddress}. Effectuez votre paiement dès que possible.`;
+  }
+
+  await db.insert(smsQueueTable).values({
+    reminderType: type,
+    leaseId,
+    phoneNumber: lease.tenantPhone,
+    messageBody: message,
+    scheduledAt: new Date(),
+    status: 'pending',
+    maxRetries: 3,
+  });
+
+  return { success: true };
+};
+
+const getActiveCampaignsDue = async () => {
+  const now = new Date();
+  const campaigns = await db
+    .select()
+    .from(smsCampaignsTable)
+    .where(and(
+      eq(smsCampaignsTable.isActive, true),
+      eq(smsCampaignsTable.status, 'active'),
+      sql`${smsCampaignsTable.nextRunAt} IS NOT NULL`,
+      lte(smsCampaignsTable.nextRunAt, now),
+    ))
+    .orderBy(sql`${smsCampaignsTable.nextRunAt} asc`)
+    .limit(10);
+
+  return campaigns;
+};
+
 module.exports = {
   sendVisitConfirmation,
   sendTenantConfirmationRequest,
@@ -943,4 +1789,29 @@ module.exports = {
   handleOccupantReply,
   getVisitsNeedingMorningReminder,
   getVisitsNeedingPostSurvey,
+  renderTemplate,
+  extractVariables,
+  createTemplate,
+  getTemplates,
+  getTemplateById,
+  updateTemplate,
+  deleteTemplate,
+  createCampaign,
+  getCampaigns,
+  getCampaignById,
+  updateCampaign,
+  setCampaignStatus,
+  deleteCampaign,
+  executeCampaign,
+  processQueue,
+  retryFailedMessages,
+  getVisitsNeeding24hReminder,
+  getVisitsNeeding2hReminder,
+  queueVisit24hReminder,
+  queueVisit2hReminder,
+  getLeasesNeedingRenewalReminder,
+  queueLeaseRenewalReminder,
+  getPaymentsNeedingReminder,
+  queuePaymentReminder,
+  getActiveCampaignsDue,
 };

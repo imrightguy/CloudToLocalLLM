@@ -391,6 +391,45 @@ class LeadItem {
 // UnitItem
 // =============================================================================
 
+enum VacancyStatus {
+  vacant,
+  occupied,
+  maintenance;
+
+  static VacancyStatus fromString(String value) {
+    final normalized = value.toLowerCase();
+    if (normalized == 'occupied' || normalized == 'occupé') {
+      return VacancyStatus.occupied;
+    }
+    if (normalized == 'maintenance') {
+      return VacancyStatus.maintenance;
+    }
+    return VacancyStatus.vacant;
+  }
+
+  String get label {
+    switch (this) {
+      case VacancyStatus.vacant:
+        return 'Libre';
+      case VacancyStatus.occupied:
+        return 'Occupé';
+      case VacancyStatus.maintenance:
+        return 'Maintenance';
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case VacancyStatus.vacant:
+        return const Color(0xFFF59E0B);
+      case VacancyStatus.occupied:
+        return const Color(0xFF10B981);
+      case VacancyStatus.maintenance:
+        return const Color(0xFFEF4444);
+    }
+  }
+}
+
 class UnitItem {
   const UnitItem({
     this.id,
@@ -400,6 +439,7 @@ class UnitItem {
     required this.number,
     required this.type,
     required this.bedrooms,
+    required this.bathrooms,
     required this.rent,
     required this.status,
     required this.leaseEnd,
@@ -419,6 +459,7 @@ class UnitItem {
   final String number;
   final String type;
   final int bedrooms;
+  final int bathrooms;
   final int rent;
   final String status;
   final String leaseEnd;
@@ -428,6 +469,8 @@ class UnitItem {
   final String? tenantName;
   final String? tenantPhone;
   final DateTime? tenantLeaseEnd;
+
+  VacancyStatus get vacancyStatus => VacancyStatus.fromString(status);
 
   factory UnitItem.fromJson(Map<String, dynamic> json) {
     // Convert amenities: Map → List of keys (API sends {key: true}), List → as-is, null → empty list
@@ -458,6 +501,7 @@ class UnitItem {
       number: json['label'] as String? ?? '',
       type: json['description'] as String? ?? '',
       bedrooms: (json['bedrooms'] as num?)?.toInt() ?? 0,
+      bathrooms: (json['bathrooms'] as num?)?.toInt() ?? 0,
       rent: (json['rentCents'] as num?)?.toInt() ?? 0,
       status: json['status'] as String? ?? '',
       leaseEnd: json['leaseEnd'] as String? ?? '',
@@ -476,6 +520,7 @@ class UnitItem {
         'label': number,
         'type': type,
         'bedrooms': bedrooms,
+        'bathrooms': bathrooms,
         'rentCents': rent,
         'status': status,
         'leaseEnd': leaseEnd,
@@ -735,5 +780,167 @@ class BuildingItem {
         'units': units.map((u) => u.toJson()).toList(),
         if (description != null) 'description': description,
         if (properties != null) 'properties': properties,
+      };
+}
+
+// =============================================================================
+// DocumentType
+// =============================================================================
+
+enum DocumentType {
+  lease,
+  contract,
+  insurance,
+  other;
+
+  static DocumentType fromString(String value) {
+    final normalized = value.toLowerCase();
+    if (normalized == 'lease' || normalized == 'bail') return DocumentType.lease;
+    if (normalized == 'contract' || normalized == 'contrat') return DocumentType.contract;
+    if (normalized == 'insurance' || normalized == 'assurance') return DocumentType.insurance;
+    return DocumentType.other;
+  }
+
+  String get label {
+    switch (this) {
+      case DocumentType.lease:
+        return 'Bail';
+      case DocumentType.contract:
+        return 'Contrat';
+      case DocumentType.insurance:
+        return 'Assurance';
+      case DocumentType.other:
+        return 'Autre';
+    }
+  }
+
+  String get apiValue {
+    switch (this) {
+      case DocumentType.lease:
+        return 'lease';
+      case DocumentType.contract:
+        return 'contract';
+      case DocumentType.insurance:
+        return 'insurance';
+      case DocumentType.other:
+        return 'other';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case DocumentType.lease:
+        return Icons.description_outlined;
+      case DocumentType.contract:
+        return Icons.gavel_outlined;
+      case DocumentType.insurance:
+        return Icons.shield_outlined;
+      case DocumentType.other:
+        return Icons.insert_drive_file_outlined;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case DocumentType.lease:
+        return const Color(0xFF6366F1);
+      case DocumentType.contract:
+        return const Color(0xFF0F766E);
+      case DocumentType.insurance:
+        return const Color(0xFFF59E0B);
+      case DocumentType.other:
+        return const Color(0xFF64748B);
+    }
+  }
+}
+
+// =============================================================================
+// DocumentItem
+// =============================================================================
+
+class DocumentItem {
+  const DocumentItem({
+    this.id,
+    required this.fileName,
+    required this.fileSize,
+    required this.fileType,
+    required this.documentType,
+    this.description,
+    this.buildingId,
+    this.buildingName,
+    this.unitId,
+    this.unitLabel,
+    this.fileUrl,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  final String? id;
+  final String fileName;
+  final int fileSize;
+  final String fileType;
+  final DocumentType documentType;
+  final String? description;
+  final String? buildingId;
+  final String? buildingName;
+  final String? unitId;
+  final String? unitLabel;
+  final String? fileUrl;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  String get fileSizeLabel {
+    if (fileSize < 1024) return '$fileSize o';
+    if (fileSize < 1024 * 1024) return '${(fileSize / 1024).toStringAsFixed(1)} Ko';
+    return '${(fileSize / (1024 * 1024)).toStringAsFixed(1)} Mo';
+  }
+
+  String get locationLabel {
+    final parts = <String>[
+      if (buildingName != null) buildingName!,
+      if (unitLabel != null) unitLabel!,
+    ];
+    return parts.isEmpty ? 'Non associé' : parts.join(' · ');
+  }
+
+  bool get isPdf => fileType.toLowerCase() == 'application/pdf' || fileName.toLowerCase().endsWith('.pdf');
+  bool get isImage {
+    final t = fileType.toLowerCase();
+    return t.startsWith('image/') || fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg') || fileName.toLowerCase().endsWith('.png') || fileName.toLowerCase().endsWith('.gif') || fileName.toLowerCase().endsWith('.webp');
+  }
+
+  factory DocumentItem.fromJson(Map<String, dynamic> json) {
+    return DocumentItem(
+      id: json['id'] as String?,
+      fileName: json['fileName'] as String? ?? json['filename'] as String? ?? '',
+      fileSize: (json['fileSize'] as num?)?.toInt() ?? (json['size'] as num?)?.toInt() ?? 0,
+      fileType: json['fileType'] as String? ?? json['mimeType'] as String? ?? '',
+      documentType: json['documentType'] != null
+          ? DocumentType.fromString(json['documentType'] as String)
+          : DocumentType.other,
+      description: json['description'] as String?,
+      buildingId: json['buildingId'] as String?,
+      buildingName: json['buildingName'] as String?,
+      unitId: json['unitId'] as String?,
+      unitLabel: json['unitLabel'] as String?,
+      fileUrl: json['fileUrl'] as String? ?? json['url'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'fileName': fileName,
+        'fileSize': fileSize,
+        'fileType': fileType,
+        'documentType': documentType.apiValue,
+        if (description != null) 'description': description,
+        if (buildingId != null) 'buildingId': buildingId,
+        if (unitId != null) 'unitId': unitId,
       };
 }

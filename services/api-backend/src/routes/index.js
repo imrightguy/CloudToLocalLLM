@@ -10,6 +10,7 @@ const documentRoutes = require('./document.routes');
 const scheduleRoutes = require('./schedule.routes');
 const communicationRoutes = require('./communication.routes');
 const smsRoutes = require('./sms.routes');
+const smsCampaignRoutes = require('./sms-campaign.routes');
 const facebookRoutes = require('./facebook.routes');
 const analyticsRoutes = require('./analytics.routes');
 const tenantConfirmationRoutes = require('./tenant-confirmation.routes');
@@ -33,6 +34,7 @@ router.use('/schedules', scheduleRoutes);
 router.use('/communications', communicationRoutes);
 router.use('/webhooks', smsRoutes);
 router.use('/webhooks/facebook', facebookRoutes);
+router.use('/sms', smsCampaignRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/confirm', tenantConfirmationRoutes);
 

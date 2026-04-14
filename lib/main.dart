@@ -10,6 +10,7 @@ import 'screens/pipeline_screen.dart';
 import 'screens/visits_screen.dart';
 import 'screens/buildings_screen.dart';
 import 'screens/employees_screen.dart';
+import 'screens/documents_screen.dart';
 
 void main() {
   // Lock orientation to portrait for property management
@@ -97,6 +98,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         '/visits': (context) => const VisitsScreen(),
         '/buildings': (context) => const BuildingsScreen(),
         '/employees': (context) => const EmployeesScreen(),
+        '/documents': (context) => const DocumentsScreen(),
       },
     );
   }

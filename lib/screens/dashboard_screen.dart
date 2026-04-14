@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import 'units_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -495,7 +496,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               )
-            else
+              else
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -580,8 +581,145 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                 },
               ),
+
+            const SizedBox(height: 24),
+
+            _buildVacancySummary(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildVacancySummary(BuildContext context) {
+    int totalUnits = 0;
+    int occupiedUnits = 0;
+    int vacantUnits = 0;
+    for (final b in _buildings) {
+      totalUnits += b.totalUnits;
+      occupiedUnits += b.occupiedUnits;
+      vacantUnits += b.totalUnits - b.occupiedUnits;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.door_front_door,
+                  color: Color(0xFF0F766E), size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Aperçu des vacances',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildVacancyChip(
+                  label: 'Total',
+                  count: totalUnits,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildVacancyChip(
+                  label: 'Occupées',
+                  count: occupiedUnits,
+                  color: const Color(0xFF10B981),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildVacancyChip(
+                  label: 'Libres',
+                  count: vacantUnits,
+                  color: const Color(0xFFF59E0B),
+                ),
+              ),
+            ],
+          ),
+          if (_buildings.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const UnitsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.arrow_forward, size: 16),
+                label: const Text('Voir toutes les unités'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0F766E),
+                  side: const BorderSide(color: Color(0xFF0F766E)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVacancyChip({
+    required String label,
+    required int count,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '$count',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: color.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

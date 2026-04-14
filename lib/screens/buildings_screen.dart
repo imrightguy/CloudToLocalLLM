@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import 'units_screen.dart';
 
 class BuildingsScreen extends StatefulWidget {
   const BuildingsScreen({super.key});
@@ -382,9 +383,9 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => _navigateToBuildingDetail(building),
+                          onPressed: () => _navigateToUnits(building),
                           child: const Text(
-                            'Gérer',
+                            'Voir unités',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white,
@@ -407,6 +408,17 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => _BuildingDetailScreen(building: building),
+      ),
+    );
+  }
+
+  void _navigateToUnits(BuildingItem building) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => UnitsScreen(
+          buildingId: building.id,
+          buildingName: building.name,
+        ),
       ),
     );
   }

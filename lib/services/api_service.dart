@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app_config.dart';
 import '../models.dart';
 
+export 'package:http/http.dart' show MultipartFile;
+
 /// Custom exception for API errors.
 class ApiException implements Exception {
   final String message;
@@ -54,6 +56,10 @@ class ApiService {
   // ---------------------------------------------------------------------------
 
   bool get hasToken => _accessToken != null && _accessToken!.isNotEmpty;
+
+  String get accessToken => _accessToken ?? '';
+
+  Map<String, String> getHeaders() => _getHeaders();
 
   Map<String, String> _getHeaders() => {
         'Content-Type': 'application/json',
