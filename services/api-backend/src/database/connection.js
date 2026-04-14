@@ -15,9 +15,12 @@ const db = drizzle(pool);
 
 const connect = async () => {
   const client = await pool.connect();
-  await client.query('SELECT 1');
-  client.release();
-  return true;
+  try {
+    await client.query('SELECT 1');
+    return true;
+  } finally {
+    client.release();
+  }
 };
 
 const closeDatabase = async () => {
