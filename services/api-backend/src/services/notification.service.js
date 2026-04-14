@@ -416,10 +416,48 @@ async function sendNoShowAlert(visitId) {
   }
 }
 
+async function createNotificationForEvent(userId, type, title, message, data = {}) {
+  const { notificationsTable } = require('../database/schema');
+  try {
+    const [notification] = await db
+      .insert(notificationsTable)
+      .values({ userId, type, title, message, data })
+      .returning();
+    return notification;
+  } catch (error) {
+    logger.error('[notification.service] createNotificationForEvent error:', error);
+    return null;
+  }
+}
+
+async function notifyAdminsForEvent(type, title, message, data = {}) {
+  try {
+    const admins = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .where(eq(usersTable.role, 'admin'));
+
+    const results = [];
+    for (const admin of admins) {
+      const notification = await createNotificationForEvent(
+        admin.id, type, title, message, data,
+      );
+      if (notification) results.push(notification);
+    }
+
+    return results;
+  } catch (error) {
+    logger.error('[notification.service] notifyAdminsForEvent error:', error);
+    return [];
+  }
+}
+
 module.exports = {
   initMailer,
   sendEmail,
   sendWeeklySummary,
   sendHotLeadNotification,
   sendNoShowAlert,
+  createNotificationForEvent,
+  notifyAdminsForEvent,
 };

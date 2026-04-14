@@ -14,6 +14,7 @@ const smsCampaignRoutes = require('./sms-campaign.routes');
 const facebookRoutes = require('./facebook.routes');
 const analyticsRoutes = require('./analytics.routes');
 const tenantConfirmationRoutes = require('./tenant-confirmation.routes');
+const notificationRoutes = require('./notification.routes');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -36,6 +37,7 @@ router.use('/webhooks', smsRoutes);
 router.use('/webhooks/facebook', facebookRoutes);
 router.use('/sms', smsCampaignRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/notifications', notificationRoutes);
 router.use('/confirm', tenantConfirmationRoutes);
 
 router.use((err, req, res, _next) => {

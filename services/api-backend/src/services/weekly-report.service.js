@@ -1,15 +1,10 @@
-// ─── Weekly Report Cron Service — Phase 4 ───
 const cron = require('node-cron');
 const notificationService = require('./notification.service');
+const emailService = require('./email.service');
 const logger = require('../utils/logger');
 
 let scheduledTask = null;
 
-/**
- * Start the weekly report cron job.
- * Runs every Sunday at 5:00 PM (17:00) Eastern time.
- * Cron: 0 17 * * 0
- */
 function startWeeklyReport() {
   try {
     if (scheduledTask) {
@@ -17,15 +12,13 @@ function startWeeklyReport() {
       return;
     }
 
-    // Initialize mailer on startup
     notificationService.initMailer();
 
-    // Schedule: every Sunday at 5pm
-    scheduledTask = cron.schedule('0 17 * * 0', async () => {
+    scheduledTask = cron.schedule('0 8 * * 1', async () => {
       logger.info('[weekly-report.service] Running weekly report cron...');
       try {
-        const results = await notificationService.sendWeeklySummary();
-        logger.info(`[weekly-report.service] Weekly report sent: ${JSON.stringify(results)}`);
+        const results = await emailService.sendWeeklyDigestToAll();
+        logger.info(`[weekly-report.service] Weekly digest sent: ${JSON.stringify(results)}`);
       } catch (error) {
         logger.error('[weekly-report.service] Cron execution error:', error);
       }
@@ -34,16 +27,13 @@ function startWeeklyReport() {
       timezone: 'America/Montreal',
     });
 
-    logger.info('[weekly-report.service] ✅ Weekly report cron started — Sundays at 5:00 PM EST');
+    logger.info('[weekly-report.service] Weekly digest cron started — Mondays at 8:00 AM EST');
   } catch (error) {
     logger.error('[weekly-report.service] startWeeklyReport error:', error);
     throw error;
   }
 }
 
-/**
- * Stop the weekly report cron job.
- */
 function stopWeeklyReport() {
   try {
     if (scheduledTask) {

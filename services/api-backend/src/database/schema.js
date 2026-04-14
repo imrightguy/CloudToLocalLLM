@@ -267,6 +267,32 @@ const smsCampaignsTable = pgTable('sms_campaigns', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
+// ─── Notification Preferences (per user) ───
+const notificationPreferencesTable = pgTable('notification_preferences', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }).unique(),
+  emailNotifications: boolean('email_notifications').notNull().default(true),
+  smsNotifications: boolean('sms_notifications').notNull().default(false),
+  weeklyDigest: boolean('weekly_digest').notNull().default(true),
+  quietHoursEnabled: boolean('quiet_hours_enabled').notNull().default(false),
+  quietHoursStart: text('quiet_hours_start').default('22:00'), // HH:mm
+  quietHoursEnd: text('quiet_hours_end').default('08:00'), // HH:mm
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// ─── In-App Notifications ───
+const notificationsTable = pgTable('notifications', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid('user_id').notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(), // new_lead | lease_signed | visit_scheduled | no_show | weekly_digest | system
+  title: text('title').notNull(),
+  message: text('message').notNull(),
+  data: jsonb('data').default('{}'),
+  isRead: boolean('is_read').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 // ─── SMS Queue (scheduled messages awaiting delivery) ───
 const smsQueueTable = pgTable('sms_queue', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -302,6 +328,8 @@ module.exports = {
   documentsTable,
   documentsLeadsTable,
   leasesTable,
+  notificationPreferencesTable,
+  notificationsTable,
   smsTemplatesTable,
   smsCampaignsTable,
   smsQueueTable,

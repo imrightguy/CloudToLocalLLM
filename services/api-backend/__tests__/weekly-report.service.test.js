@@ -4,7 +4,10 @@ jest.mock('node-cron', () => ({
 
 jest.mock('../src/services/notification.service', () => ({
   initMailer: jest.fn(),
-  sendWeeklySummary: jest.fn(),
+}));
+
+jest.mock('../src/services/email.service', () => ({
+  sendWeeklyDigestToAll: jest.fn(),
 }));
 
 jest.mock('../src/utils/logger', () => ({
@@ -15,14 +18,13 @@ jest.mock('../src/utils/logger', () => ({
 
 const cron = require('node-cron');
 const notificationService = require('../src/services/notification.service');
+const emailService = require('../src/services/email.service');
 const logger = require('../src/utils/logger');
 
-// Require after mocks are set up
 const { startWeeklyReport, stopWeeklyReport } = require('../src/services/weekly-report.service');
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Return a mock task object from cron.schedule
   cron.schedule.mockReturnValue({ stop: jest.fn() });
 });
 
@@ -32,11 +34,11 @@ afterEach(() => {
 
 describe('weekly-report.service', () => {
   describe('startWeeklyReport', () => {
-    it('should schedule a cron job with correct expression', () => {
+    it('should schedule a cron job for Monday 8am', () => {
       startWeeklyReport();
 
       expect(cron.schedule).toHaveBeenCalledWith(
-        '0 17 * * 0',
+        '0 8 * * 1',
         expect.any(Function),
         expect.objectContaining({
           scheduled: true,
@@ -61,7 +63,7 @@ describe('weekly-report.service', () => {
       );
     });
 
-    it('should call sendWeeklySummary when cron fires', async () => {
+    it('should call sendWeeklyDigestToAll when cron fires', async () => {
       let cronCallback;
       cron.schedule.mockImplementation((_expr, cb) => {
         cronCallback = cb;
@@ -70,17 +72,17 @@ describe('weekly-report.service', () => {
 
       startWeeklyReport();
 
-      notificationService.sendWeeklySummary.mockResolvedValue({ sent: 5 });
+      emailService.sendWeeklyDigestToAll.mockResolvedValue([{ sent: 5 }]);
 
       await cronCallback();
 
-      expect(notificationService.sendWeeklySummary).toHaveBeenCalledTimes(1);
+      expect(emailService.sendWeeklyDigestToAll).toHaveBeenCalledTimes(1);
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('Weekly report sent'),
+        expect.stringContaining('Weekly digest sent'),
       );
     });
 
-    it('should log error if sendWeeklySummary fails', async () => {
+    it('should log error if sendWeeklyDigestToAll fails', async () => {
       let cronCallback;
       cron.schedule.mockImplementation((_expr, cb) => {
         cronCallback = cb;
@@ -89,7 +91,7 @@ describe('weekly-report.service', () => {
 
       startWeeklyReport();
 
-      notificationService.sendWeeklySummary.mockRejectedValue(new Error('SMTP down'));
+      emailService.sendWeeklyDigestToAll.mockRejectedValue(new Error('SMTP down'));
 
       await cronCallback();
 
