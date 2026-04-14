@@ -47,7 +47,9 @@ router.post('/sms/incoming', asyncHandler(smsWebhookController.handleIncoming));
  *   post:
  *     tags: [SMS Webhooks]
  *     summary: SMS delivery status webhook
- *     description: Webhook called by Twilio when an SMS status changes (sent, delivered, failed). No authentication required.
+ *     description: >
+ *       Webhook called by Twilio when an SMS status changes
+ *       (sent, delivered, failed). No authentication required.
  *     requestBody:
  *       required: true
  *       content:

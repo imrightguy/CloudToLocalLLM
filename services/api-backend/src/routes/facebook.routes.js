@@ -11,7 +11,9 @@
  *   get:
  *     tags: [Facebook]
  *     summary: Facebook webhook verification
- *     description: Handshake endpoint called by Facebook during webhook setup. Returns the hub.challenge value to verify ownership.
+ *     description: >
+ *       Handshake endpoint called by Facebook during webhook setup.
+ *       Returns the hub.challenge value to verify ownership.
  *     parameters:
  *       - in: query
  *         name: hub.mode

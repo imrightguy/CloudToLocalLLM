@@ -29,7 +29,16 @@ const { asyncHandler } = require('../utils/apiResponse');
  *         name: status
  *         schema:
  *           type: string
- *           enum: [new, contacted, interested, viewing_scheduled, application_submitted, approved, rejected, leased, inactive]
+ *           enum:
+ *             - new
+ *             - contacted
+ *             - interested
+ *             - viewing_scheduled
+ *             - application_submitted
+ *             - approved
+ *             - rejected
+ *             - leased
+ *             - inactive
  *         description: Filter by lead status
  *       - in: query
  *         name: buildingId
@@ -290,7 +299,16 @@ router.delete('/:id', authenticateToken, asyncHandler(leadController.deleteLead)
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [new, contacted, interested, viewing_scheduled, application_submitted, approved, rejected, leased, inactive]
+ *                 enum:
+ *                   - new
+ *                   - contacted
+ *                   - interested
+ *                   - viewing_scheduled
+ *                   - application_submitted
+ *                   - approved
+ *                   - rejected
+ *                   - leased
+ *                   - inactive
  *     responses:
  *       200:
  *         description: Lead status updated
@@ -342,7 +360,16 @@ router.patch('/:id/status', authenticateToken, asyncHandler(leadController.updat
  *                 properties:
  *                   status:
  *                     type: string
- *                     enum: [new, contacted, interested, viewing_scheduled, application_submitted, approved, rejected, leased, inactive]
+ *                     enum:
+ *                       - new
+ *                       - contacted
+ *                       - interested
+ *                       - viewing_scheduled
+ *                       - application_submitted
+ *                       - approved
+ *                       - rejected
+ *                       - leased
+ *                       - inactive
  *                   buildingId:
  *                     type: string
  *                     format: uuid

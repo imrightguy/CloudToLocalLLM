@@ -263,7 +263,9 @@ router.get('/buildings/:id/performance', authenticateToken, asyncHandler(analyti
  *   get:
  *     tags: [Analytics]
  *     summary: Employee performance
- *     description: Returns performance metrics for a specific employee (visits completed, leases signed, conversion rate).
+ *     description: >
+ *       Returns performance metrics for a specific employee
+ *       (visits completed, leases signed, conversion rate).
  *     security:
  *       - bearerAuth: []
  *     parameters:

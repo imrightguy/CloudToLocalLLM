@@ -10,7 +10,10 @@ const { asyncHandler } = require('../utils/apiResponse');
  *   get:
  *     tags: [Tenant Confirmation]
  *     summary: Get confirmation page
- *     description: Renders an HTML confirmation page for a tenant to review and confirm/decline their lease. No authentication required — accessed via unique SMS link token.
+ *     description: >
+ *       Renders an HTML confirmation page for a tenant to review and
+ *       confirm/decline their lease. No authentication required —
+ *       accessed via unique SMS link token.
  *     parameters:
  *       - in: path
  *         name: token

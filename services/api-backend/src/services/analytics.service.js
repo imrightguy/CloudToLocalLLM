@@ -1,5 +1,5 @@
 const {
-  sql, eq, and, gte, desc, inArray, or,
+  sql, eq, and, gte, desc, or,
 } = require('drizzle-orm');
 const logger = require('../utils/logger');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
@@ -708,7 +708,10 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
       conditions.push(eq(unitsTable.buildingId, buildingId));
     }
 
-    const [totalResult, completedResult, noShowResult, cancelledResult, avgTimeResult, timelineResult] = await Promise.all([
+    const [
+      totalResult, completedResult, noShowResult,
+      cancelledResult, avgTimeResult, timelineResult,
+    ] = await Promise.all([
       db
         .select({ total: sql`count(*)` })
         .from(visitsTable)
@@ -753,6 +756,9 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
     const noShowRate = totalNum > 0
       ? `${(Number(noShowResult[0]?.noShow || 0) / totalNum * 100).toFixed(1)}%`
       : '0.0%';
+    const cancellationRate = totalNum > 0
+      ? `${(Number(cancelledResult[0]?.cancelled || 0) / totalNum * 100).toFixed(1)}%`
+      : '0.0%';
 
     const avgTimeToLease = avgTimeResult[0]?.avgDays !== null && avgTimeResult[0]?.avgDays !== undefined
       ? Math.round(Number(avgTimeResult[0].avgDays) * 10) / 10
@@ -768,6 +774,7 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
     const result = {
       completionRate,
       noShowRate,
+      cancellationRate,
       totalVisits: totalNum,
       avgTimeToLease,
       timeline: timelineMapped,
