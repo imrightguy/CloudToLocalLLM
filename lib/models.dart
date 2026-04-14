@@ -784,6 +784,236 @@ class BuildingItem {
 }
 
 // =============================================================================
+// LeaseStatus
+// =============================================================================
+
+enum LeaseStatus {
+  draft,
+  sent,
+  signed,
+  active,
+  terminated;
+
+  static LeaseStatus fromString(String value) {
+    final normalized = value.toLowerCase();
+    if (normalized == 'draft' || normalized == 'brouillon') return LeaseStatus.draft;
+    if (normalized == 'sent' || normalized == 'envoyé' || normalized == 'envoye') return LeaseStatus.sent;
+    if (normalized == 'signed' || normalized == 'signé' || normalized == 'signe') return LeaseStatus.signed;
+    if (normalized == 'active' || normalized == 'actif') return LeaseStatus.active;
+    if (normalized == 'terminated' || normalized == 'résilié' || normalized == 'resilie') return LeaseStatus.terminated;
+    return LeaseStatus.draft;
+  }
+
+  String get label {
+    switch (this) {
+      case LeaseStatus.draft:
+        return 'Brouillon';
+      case LeaseStatus.sent:
+        return 'Envoyé';
+      case LeaseStatus.signed:
+        return 'Signé';
+      case LeaseStatus.active:
+        return 'Actif';
+      case LeaseStatus.terminated:
+        return 'Résilié';
+    }
+  }
+
+  String get apiValue {
+    switch (this) {
+      case LeaseStatus.draft:
+        return 'draft';
+      case LeaseStatus.sent:
+        return 'sent';
+      case LeaseStatus.signed:
+        return 'signed';
+      case LeaseStatus.active:
+        return 'active';
+      case LeaseStatus.terminated:
+        return 'terminated';
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case LeaseStatus.draft:
+        return const Color(0xFF6B7280);
+      case LeaseStatus.sent:
+        return const Color(0xFF3B82F6);
+      case LeaseStatus.signed:
+        return const Color(0xFF8B5CF6);
+      case LeaseStatus.active:
+        return const Color(0xFF10B981);
+      case LeaseStatus.terminated:
+        return const Color(0xFFEF4444);
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case LeaseStatus.draft:
+        return Icons.edit_note_outlined;
+      case LeaseStatus.sent:
+        return Icons.send_outlined;
+      case LeaseStatus.signed:
+        return Icons.draw_outlined;
+      case LeaseStatus.active:
+        return Icons.check_circle_outlined;
+      case LeaseStatus.terminated:
+        return Icons.cancel_outlined;
+    }
+  }
+
+  int get orderIndex {
+    switch (this) {
+      case LeaseStatus.draft:
+        return 0;
+      case LeaseStatus.sent:
+        return 1;
+      case LeaseStatus.signed:
+        return 2;
+      case LeaseStatus.active:
+        return 3;
+      case LeaseStatus.terminated:
+        return 4;
+    }
+  }
+}
+
+// =============================================================================
+// LeaseItem
+// =============================================================================
+
+class LeaseItem {
+  const LeaseItem({
+    this.id,
+    this.buildingId,
+    this.buildingName,
+    this.unitId,
+    this.unitLabel,
+    this.tenantName,
+    this.tenantEmail,
+    this.tenantPhone,
+    this.startDate,
+    this.endDate,
+    this.monthlyRent,
+    this.deposit,
+    this.status,
+    this.notes,
+    this.terms,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  final String? id;
+  final String? buildingId;
+  final String? buildingName;
+  final String? unitId;
+  final String? unitLabel;
+  final String? tenantName;
+  final String? tenantEmail;
+  final String? tenantPhone;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final int? monthlyRent;
+  final int? deposit;
+  final LeaseStatus? status;
+  final String? notes;
+  final String? terms;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  LeaseStatus get leaseStatus => status ?? LeaseStatus.draft;
+
+  String get displayRent {
+    if (monthlyRent == null || monthlyRent == 0) return '--';
+    return '${(monthlyRent! / 100).toStringAsFixed(2)} \$';
+  }
+
+  String get displayDeposit {
+    if (deposit == null || deposit == 0) return '--';
+    return '${(deposit! / 100).toStringAsFixed(2)} \$';
+  }
+
+  String get displayStartDate {
+    if (startDate == null) return '--';
+    return DateFormat('dd MMM yyyy', 'fr').format(startDate!);
+  }
+
+  String get displayEndDate {
+    if (endDate == null) return '--';
+    return DateFormat('dd MMM yyyy', 'fr').format(endDate!);
+  }
+
+  factory LeaseItem.fromJson(Map<String, dynamic> json) {
+    DateTime? parsedStartDate;
+    if (json['startDate'] != null) {
+      try { parsedStartDate = DateTime.parse(json['startDate'] as String); } catch (_) {}
+    }
+    DateTime? parsedEndDate;
+    if (json['endDate'] != null) {
+      try { parsedEndDate = DateTime.parse(json['endDate'] as String); } catch (_) {}
+    }
+    DateTime? parsedCreatedAt;
+    if (json['createdAt'] != null) {
+      try { parsedCreatedAt = DateTime.parse(json['createdAt'] as String); } catch (_) {}
+    }
+    DateTime? parsedUpdatedAt;
+    if (json['updatedAt'] != null) {
+      try { parsedUpdatedAt = DateTime.parse(json['updatedAt'] as String); } catch (_) {}
+    }
+
+    return LeaseItem(
+      id: json['id'] as String?,
+      buildingId: json['buildingId'] as String?,
+      buildingName: (json['building'] is Map<String, dynamic>)
+          ? (json['building'] as Map<String, dynamic>)['name'] as String?
+          : json['buildingName'] as String?,
+      unitId: json['unitId'] as String?,
+      unitLabel: (json['unit'] is Map<String, dynamic>)
+          ? (json['unit'] as Map<String, dynamic>)['label'] as String?
+          : json['unitLabel'] as String?,
+      tenantName: (json['tenant'] is Map<String, dynamic>)
+          ? (json['tenant'] as Map<String, dynamic>)['fullName'] as String?
+          : json['tenantName'] as String?,
+      tenantEmail: (json['tenant'] is Map<String, dynamic>)
+          ? (json['tenant'] as Map<String, dynamic>)['email'] as String?
+          : json['tenantEmail'] as String?,
+      tenantPhone: (json['tenant'] is Map<String, dynamic>)
+          ? (json['tenant'] as Map<String, dynamic>)['phone'] as String?
+          : json['tenantPhone'] as String?,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
+      monthlyRent: (json['monthlyRent'] as num?)?.toInt(),
+      deposit: (json['deposit'] as num?)?.toInt(),
+      status: json['status'] != null
+          ? LeaseStatus.fromString(json['status'] as String)
+          : null,
+      notes: json['notes'] as String?,
+      terms: json['terms'] as String?,
+      createdAt: parsedCreatedAt,
+      updatedAt: parsedUpdatedAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (buildingId != null) 'buildingId': buildingId,
+        if (unitId != null) 'unitId': unitId,
+        if (tenantName != null) 'tenantName': tenantName,
+        if (tenantEmail != null) 'tenantEmail': tenantEmail,
+        if (tenantPhone != null) 'tenantPhone': tenantPhone,
+        if (startDate != null) 'startDate': startDate!.toIso8601String(),
+        if (endDate != null) 'endDate': endDate!.toIso8601String(),
+        if (monthlyRent != null) 'monthlyRent': monthlyRent,
+        if (deposit != null) 'deposit': deposit,
+        if (status != null) 'status': status!.apiValue,
+        if (notes != null) 'notes': notes,
+        if (terms != null) 'terms': terms,
+      };
+}
+
+// =============================================================================
 // DocumentType
 // =============================================================================
 
@@ -942,5 +1172,144 @@ class DocumentItem {
         if (description != null) 'description': description,
         if (buildingId != null) 'buildingId': buildingId,
         if (unitId != null) 'unitId': unitId,
+      };
+}
+
+// =============================================================================
+// CommunicationItem
+// =============================================================================
+
+class CommunicationItem {
+  const CommunicationItem({
+    this.id,
+    required this.contactId,
+    required this.contactName,
+    required this.contactPhone,
+    required this.contactInitials,
+    required this.type,
+    required this.direction,
+    required this.status,
+    required this.subject,
+    required this.body,
+    required this.createdAt,
+    this.parentId,
+  });
+
+  final String? id;
+  final String contactId;
+  final String contactName;
+  final String contactPhone;
+  final String contactInitials;
+  final String type;
+  final String direction;
+  final String status;
+  final String subject;
+  final String body;
+  final DateTime createdAt;
+  final String? parentId;
+
+  factory CommunicationItem.fromJson(Map<String, dynamic> json) {
+    DateTime? parsedCreatedAt;
+    if (json['createdAt'] != null) {
+      try {
+        parsedCreatedAt = DateTime.parse(json['createdAt'] as String);
+      } catch (_) {
+        parsedCreatedAt = DateTime.now();
+      }
+    }
+
+    final contactName = (json['contact'] is Map<String, dynamic>)
+        ? (json['contact'] as Map<String, dynamic>)['fullName'] as String? ?? ''
+        : json['contactName'] as String? ?? '';
+
+    final contactPhone = (json['contact'] is Map<String, dynamic>)
+        ? (json['contact'] as Map<String, dynamic>)['phone'] as String? ?? ''
+        : json['contactPhone'] as String? ?? '';
+
+    final nameParts = contactName.trim().split(RegExp(r'\s+'));
+    final initials = nameParts.length >= 2
+        ? '${nameParts[0][0]}${nameParts[1][0]}'
+        : nameParts.isNotEmpty
+            ? nameParts[0].substring(0, nameParts[0].length > 1 ? 2 : 1)
+            : '?';
+
+    return CommunicationItem(
+      id: json['id'] as String?,
+      contactId: (json['contact'] is Map<String, dynamic>)
+          ? (json['contact'] as Map<String, dynamic>)['id'] as String? ?? ''
+          : json['contactId'] as String? ?? '',
+      contactName: contactName,
+      contactPhone: contactPhone,
+      contactInitials: initials.toUpperCase(),
+      type: json['type'] as String? ?? 'note',
+      direction: json['direction'] as String? ?? 'outbound',
+      status: json['status'] as String? ?? 'sent',
+      subject: json['subject'] as String? ?? '',
+      body: json['body'] as String? ?? json['content'] as String? ?? '',
+      createdAt: parsedCreatedAt ?? DateTime.now(),
+      parentId: json['parentId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'contactId': contactId,
+        'contactName': contactName,
+        'contactPhone': contactPhone,
+        'type': type,
+        'direction': direction,
+        'status': status,
+        if (subject.isNotEmpty) 'subject': subject,
+        'body': body,
+        'createdAt': createdAt.toIso8601String(),
+        if (parentId != null) 'parentId': parentId,
+      };
+}
+
+// =============================================================================
+// ConversationThread
+// =============================================================================
+
+class ConversationThread {
+  ConversationThread({
+    required this.contactId,
+    required this.contactName,
+    required this.contactPhone,
+    required this.contactInitials,
+    required this.messages,
+  });
+
+  final String contactId;
+  final String contactName;
+  final String contactPhone;
+  final String contactInitials;
+  final List<CommunicationItem> messages;
+
+  CommunicationItem? get lastMessage =>
+      messages.isNotEmpty ? messages.first : null;
+}
+
+// =============================================================================
+// SmsScheduleRequest
+// =============================================================================
+
+class SmsScheduleRequest {
+  SmsScheduleRequest({
+    required this.contactId,
+    required this.message,
+    this.scheduledAt,
+    this.templateId,
+  });
+
+  final String contactId;
+  final String message;
+  final DateTime? scheduledAt;
+  final String? templateId;
+
+  Map<String, dynamic> toJson() => {
+        'contactId': contactId,
+        'message': message,
+        if (scheduledAt != null) 'scheduledAt': scheduledAt!.toIso8601String(),
+        if (templateId != null) 'templateId': templateId,
       };
 }

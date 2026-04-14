@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/communication_service.dart';
 import 'units_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -31,6 +33,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Buildings for top buildings section
   List<BuildingItem> _buildings = [];
 
+  // Recent communications for activity feed
+  List<CommunicationItem> _recentCommunications = [];
+
   @override
   void initState() {
     super.initState();
@@ -46,10 +51,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final results = await Future.wait([
         ApiService.instance.get('/analytics/dashboard'),
         ApiService.instance.get('/buildings'),
+        CommunicationService.instance.getActivity(limit: 5),
       ]);
 
       final analyticsResponse = results[0];
       final buildingsResponse = results[1];
+      final communications = results[2] as List<CommunicationItem>;
 
       final analyticsData =
           analyticsResponse['data'] as Map<String, dynamic>? ?? {};
@@ -70,6 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _buildings = buildingsData
             .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
             .toList();
+        _recentCommunications = communications;
         _isLoading = false;
       });
     } catch (e) {
@@ -584,11 +592,175 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 24),
 
+            _buildActivityFeed(),
+
+            const SizedBox(height: 24),
+
             _buildVacancySummary(context),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildActivityFeed() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Activité récente',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushNamed('/communications');
+                },
+                child: const Text(
+                  'Voir tout',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_recentCommunications.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Aucune activité récente',
+                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+              ),
+            ),
+          )
+        else
+          ..._recentCommunications.map((item) {
+            final typeColor = _communicationTypeColor(item.type);
+            final typeIcon = _communicationTypeIcon(item.type);
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: typeColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(typeIcon, size: 20, color: typeColor),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${_communicationTypeLabel(item.type)}: ${item.contactName}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF1E293B),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.body.isNotEmpty
+                              ? item.body
+                              : item.subject,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF64748B),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    _formatTimeAgo(item.createdAt),
+                    style: const TextStyle(
+                        fontSize: 12, color: Color(0xFF94A3B8)),
+                  ),
+                ],
+              ),
+            );
+          }),
+      ],
+    );
+  }
+
+  Color _communicationTypeColor(String type) {
+    switch (type) {
+      case 'sms':
+        return const Color(0xFF6366F1);
+      case 'email':
+        return const Color(0xFF3B82F6);
+      case 'call':
+        return const Color(0xFF10B981);
+      default:
+        return const Color(0xFFF59E0B);
+    }
+  }
+
+  IconData _communicationTypeIcon(String type) {
+    switch (type) {
+      case 'sms':
+        return Icons.sms_outlined;
+      case 'email':
+        return Icons.email_outlined;
+      case 'call':
+        return Icons.phone_outlined;
+      default:
+        return Icons.note_outlined;
+    }
+  }
+
+  String _communicationTypeLabel(String type) {
+    switch (type) {
+      case 'sms':
+        return 'SMS';
+      case 'email':
+        return 'Courriel';
+      case 'call':
+        return 'Appel';
+      default:
+        return 'Note';
+    }
+  }
+
+  String _formatTimeAgo(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 1) return "À l'instant";
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min';
+    if (diff.inHours < 24) return '${diff.inHours} h';
+    if (diff.inDays < 7) return '${diff.inDays} j';
+    return DateFormat('d MMM').format(dt);
   }
 
   Widget _buildVacancySummary(BuildContext context) {

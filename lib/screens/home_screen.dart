@@ -10,6 +10,8 @@ import 'buildings_screen.dart';
 import 'settings_screen.dart';
 import 'employees_screen.dart';
 import 'documents_screen.dart';
+import 'leases_screen.dart';
+import 'communications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,8 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
     const PipelineScreen(),
     const VisitsScreen(),
     const BuildingsScreen(),
+    const LeasesScreen(),
     const EmployeesScreen(),
     const DocumentsScreen(),
+    const CommunicationsScreen(),
   ];
 
   @override
@@ -72,12 +76,20 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Immeubles',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.description_outlined),
+            label: 'Baux',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.people_outlined),
             label: 'Employés',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.folder_outlined),
             label: 'Documents',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message_outlined),
+            label: 'Messages',
           ),
         ],
       ),
