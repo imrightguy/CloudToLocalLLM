@@ -1,4 +1,5 @@
 const express = require('express');
+const Joi = require('joi');
 
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
@@ -8,6 +9,71 @@ const {
   optionalAuth,
 } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const {
+  authLimiter,
+  registrationLimiter,
+  passwordChangeLimiter,
+} = require('../middleware/rateLimiters');
+
+const registerSchema = {
+  body: Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
+    firstName: Joi.string().trim().min(1).max(100).required(),
+    lastName: Joi.string().trim().min(1).max(100).required(),
+    phone: Joi.string().trim().max(20).optional(),
+  }),
+};
+
+const loginSchema = {
+  body: Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+};
+
+const refreshTokenSchema = {
+  body: Joi.object({
+    refreshToken: Joi.string().required(),
+  }),
+};
+
+const updateProfileSchema = {
+  body: Joi.object({
+    firstName: Joi.string().trim().min(1).max(100).optional(),
+    lastName: Joi.string().trim().min(1).max(100).optional(),
+    phone: Joi.string().trim().max(20).optional(),
+    email: Joi.string().email().optional(),
+  }).min(1),
+};
+
+const changePasswordSchema = {
+  body: Joi.object({
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string().min(8).required(),
+  }),
+};
+
+const uuidParam = {
+  params: Joi.object({
+    id: Joi.string().uuid().required(),
+  }),
+};
+
+const updateUserSchema = {
+  params: Joi.object({
+    id: Joi.string().uuid().required(),
+  }),
+  body: Joi.object({
+    firstName: Joi.string().trim().min(1).max(100).optional(),
+    lastName: Joi.string().trim().min(1).max(100).optional(),
+    email: Joi.string().email().optional(),
+    phone: Joi.string().trim().max(20).optional(),
+    role: Joi.string().valid('admin', 'manager', 'agent', 'maintenance').optional(),
+    isActive: Joi.boolean().optional(),
+  }).min(1),
+};
 
 /**
  * @swagger
@@ -76,7 +142,7 @@ const { asyncHandler } = require('../utils/apiResponse');
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/register', asyncHandler(authController.register));
+router.post('/register', registrationLimiter, validate(registerSchema), asyncHandler(authController.register));
 
 /**
  * @swagger
@@ -133,7 +199,7 @@ router.post('/register', asyncHandler(authController.register));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/login', asyncHandler(authController.login));
+router.post('/login', authLimiter, validate(loginSchema), asyncHandler(authController.login));
 
 /**
  * @swagger
@@ -175,7 +241,7 @@ router.post('/login', asyncHandler(authController.login));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/refresh', asyncHandler(authController.refreshAccessToken));
+router.post('/refresh', validate(refreshTokenSchema), asyncHandler(authController.refreshAccessToken));
 
 /**
  * @swagger
@@ -279,7 +345,7 @@ router.get('/profile', authenticateToken, asyncHandler(authController.getProfile
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/profile', authenticateToken, asyncHandler(authController.updateProfile));
+router.put('/profile', authenticateToken, validate(updateProfileSchema), asyncHandler(authController.updateProfile));
 
 /**
  * @swagger
@@ -321,7 +387,7 @@ router.put('/profile', authenticateToken, asyncHandler(authController.updateProf
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/password', authenticateToken, asyncHandler(authController.changePassword));
+router.put('/password', authenticateToken, passwordChangeLimiter, validate(changePasswordSchema), asyncHandler(authController.changePassword));
 
 /**
  * @swagger
@@ -410,7 +476,7 @@ router.get('/users', authenticateToken, authorizeRole(['admin']), asyncHandler(a
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/users/:id', authenticateToken, authorizeRole(['admin']), asyncHandler(authController.getUserById));
+router.get('/users/:id', authenticateToken, authorizeRole(['admin']), validate(uuidParam), asyncHandler(authController.getUserById));
 
 /**
  * @swagger
@@ -461,7 +527,7 @@ router.get('/users/:id', authenticateToken, authorizeRole(['admin']), asyncHandl
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/users/:id', authenticateToken, authorizeRole(['admin']), asyncHandler(authController.updateUser));
+router.put('/users/:id', authenticateToken, authorizeRole(['admin']), validate(updateUserSchema), asyncHandler(authController.updateUser));
 
 /**
  * @swagger
@@ -493,6 +559,6 @@ router.put('/users/:id', authenticateToken, authorizeRole(['admin']), asyncHandl
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/users/:id', authenticateToken, authorizeRole(['admin']), asyncHandler(authController.deleteUser));
+router.delete('/users/:id', authenticateToken, authorizeRole(['admin']), validate(uuidParam), asyncHandler(authController.deleteUser));
 
 module.exports = router;

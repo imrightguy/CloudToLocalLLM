@@ -3,6 +3,9 @@ const {
   setCacheHeaders,
   setCORSHeaders,
 } = require('../src/utils/apiResponse');
+const AppError = require('../src/middleware/AppError');
+
+const originalEnv = process.env.NODE_ENV;
 
 function mockReqRes(method = 'GET', path = '/test') {
   const res = {
@@ -20,6 +23,7 @@ describe('errorHandler', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('returns 500 INTERNAL_ERROR for generic errors', () => {
@@ -33,6 +37,80 @@ describe('errorHandler', () => {
       success: false,
       error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
     });
+  });
+
+  it('hides error details in production', () => {
+    process.env.NODE_ENV = 'production';
+    const { req, res, next } = mockReqRes();
+    const error = new Error('Something unexpected');
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    const response = res.json.mock.calls[0][0];
+    expect(response.error.message).toBe('Internal server error');
+    expect(response.error.stack).toBeUndefined();
+  });
+
+  it('includes stack trace in development', () => {
+    process.env.NODE_ENV = 'development';
+    const { req, res, next } = mockReqRes();
+    const error = new Error('Something unexpected');
+
+    errorHandler(error, req, res, next);
+
+    const response = res.json.mock.calls[0][0];
+    expect(response.error.message).toBe('Something unexpected');
+    expect(response.error.stack).toBeDefined();
+  });
+
+  it('handles AppError with statusCode and code', () => {
+    const { req, res, next } = mockReqRes();
+    const error = AppError.notFound({ message: 'User not found', code: 'USER_NOT_FOUND' });
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      error: { message: 'User not found', code: 'USER_NOT_FOUND' },
+    });
+  });
+
+  it('handles AppError with details', () => {
+    const { req, res, next } = mockReqRes();
+    const error = AppError.validationError({
+      message: 'Validation failed',
+      details: [{ field: 'email', message: 'Invalid email' }],
+    });
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    const response = res.json.mock.calls[0][0];
+    expect(response.error.details).toEqual([{ field: 'email', message: 'Invalid email' }]);
+  });
+
+  it('handles AppError.badRequest', () => {
+    const { req, res, next } = mockReqRes();
+    const error = AppError.badRequest({ message: 'Missing fields' });
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      error: { message: 'Missing fields', code: 'BAD_REQUEST' },
+    });
+  });
+
+  it('handles AppError.tooManyRequests', () => {
+    const { req, res, next } = mockReqRes();
+    const error = AppError.tooManyRequests({ message: 'Slow down' });
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(429);
   });
 
   it('uses error.statusCode if provided', () => {
@@ -146,6 +224,34 @@ describe('errorHandler', () => {
     });
   });
 
+  it('returns 400 INVALID_JSON for malformed JSON body', () => {
+    const { req, res, next } = mockReqRes();
+    const error = new Error('Unexpected token');
+    error.type = 'entity.parse.failed';
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      error: { message: 'Malformed JSON in request body', code: 'INVALID_JSON' },
+    });
+  });
+
+  it('returns 413 PAYLOAD_TOO_LARGE for large payloads', () => {
+    const { req, res, next } = mockReqRes();
+    const error = new Error('request entity too large');
+    error.type = 'entity.too.large';
+
+    errorHandler(error, req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(413);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      error: { message: 'Request payload too large', code: 'PAYLOAD_TOO_LARGE' },
+    });
+  });
+
   it('logs error with method, path, and stack', () => {
     const logger = require('../src/utils/logger');
     const { req, res, next } = mockReqRes('POST', '/api/leads');
@@ -156,6 +262,19 @@ describe('errorHandler', () => {
     expect(logger.error).toHaveBeenCalledWith('test log', expect.objectContaining({
       method: 'POST',
       path: '/api/leads',
+    }));
+  });
+
+  it('logs isOperational flag for AppError', () => {
+    const logger = require('../src/utils/logger');
+    const { req, res, next } = mockReqRes();
+    const error = AppError.badRequest({ message: 'test' });
+
+    errorHandler(error, req, res, next);
+
+    expect(logger.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+      isOperational: true,
+      code: 'BAD_REQUEST',
     }));
   });
 });

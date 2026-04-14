@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express');
 const { errorHandler } = require('./utils/apiResponse');
 const logger = require('./utils/logger');
@@ -12,15 +11,29 @@ const { connect, closeDatabase } = require('./database/connection');
 const { initTwilio } = require('./services/twilio.service');
 const { startScheduler, stopScheduler } = require('./services/scheduler.service');
 const { startWeeklyReport, stopWeeklyReport } = require('./services/weekly-report.service');
+const { apiLimiter } = require('./middleware/rateLimiters');
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL'];
+  const missing = required.filter(k => !process.env[k]);
+  if (missing.length) {
+    console.error(`FATAL: Missing required env vars: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  if (process.env.JWT_SECRET.length < 32) {
+    console.error('FATAL: JWT_SECRET must be at least 32 characters in production');
+    process.exit(1);
+  }
+  if (!process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS.includes('*')) {
+    console.error('FATAL: ALLOWED_ORIGINS must be set to specific domains in production (no wildcard)');
+    process.exit(1);
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { success: false, error: { message: 'Too many requests', code: 'RATE_LIMIT_EXCEEDED' } },
-});
 
 const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'],
@@ -30,11 +43,17 @@ const corsOptions = {
   maxAge: 86400,
 };
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: isProduction ? {
+    directives: { defaultSrc: ["'self'"] },
+  } : false,
+  hsts: isProduction ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+}));
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(limiter);
+app.use(apiLimiter);
 
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.path}`, { method: req.method, path: req.path });
@@ -76,7 +95,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (!isProduction) {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'ImmoGestion API Docs',
@@ -96,8 +115,8 @@ app.use('*', (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, async () => {
-  logger.info('ImmoGestion API started', { port: PORT });
-  if (process.env.NODE_ENV !== 'production') {
+  logger.info('ImmoGestion API started', { port: PORT, env: process.env.NODE_ENV || 'development' });
+  if (!isProduction) {
     logger.info(`Swagger docs available at http://localhost:${PORT}/api/docs`);
   }
   try {

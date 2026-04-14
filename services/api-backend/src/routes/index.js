@@ -17,7 +17,6 @@ const analyticsRoutes = require('./analytics.routes');
 const tenantConfirmationRoutes = require('./tenant-confirmation.routes');
 const notificationRoutes = require('./notification.routes');
 const adminRoutes = require('./admin.routes');
-const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -61,11 +60,5 @@ router.use('/analytics', analyticsRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/confirm', tenantConfirmationRoutes);
 router.use('/admin', adminRoutes);
-
-router.use((err, req, res, _next) => {
-  setCORSHeaders(res);
-  logger.error('API Error:', err);
-  res.status(500).json({ success: false, error: { message: 'Internal server error', code: 'INTERNAL_ERROR' } });
-});
 
 module.exports = router;

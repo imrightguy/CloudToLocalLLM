@@ -149,107 +149,131 @@ const getPagination = (page = 1, limit = 20) => {
  */
 const errorHandler = (error, req, res, _next) => {
   const logger = require('./logger');
+  const isProduction = process.env.NODE_ENV === 'production';
+
   logger.error(error.message, {
     stack: error.stack,
     method: req.method,
     path: req.path,
     statusCode: error.statusCode,
+    code: error.code,
+    isOperational: error.isOperational,
   });
 
-  // Default error response
-  let response = {
-    success: false,
-    error: {
-      message: 'Internal server error',
-      code: 'INTERNAL_ERROR',
-    },
-  };
+  // Handle AppError (operational errors with known status codes)
+  if (error.name === 'AppError') {
+    const response = {
+      success: false,
+      error: {
+        message: error.message,
+        code: error.code,
+      },
+    };
+    if (error.details) {
+      response.error.details = error.details;
+    }
+    return res.status(error.statusCode).json(response);
+  }
 
   // Handle validation errors
   if (error.name === 'ValidationError') {
-    response = {
+    return res.status(400).json({
       success: false,
       error: {
         message: error.message,
         code: 'VALIDATION_ERROR',
         details: error.details,
       },
-    };
-    return res.status(400).json(response);
+    });
   }
 
   // Handle database errors
   if (error.code === '23505') {
-    response = {
+    return res.status(409).json({
       success: false,
-      error: {
-        message: 'Duplicate entry',
-        code: 'DUPLICATE_ENTRY',
-      },
-    };
-    return res.status(409).json(response);
+      error: { message: 'Duplicate entry', code: 'DUPLICATE_ENTRY' },
+    });
   }
 
   if (error.code === '23503') {
-    response = {
+    return res.status(400).json({
       success: false,
-      error: {
-        message: 'Foreign key constraint violation',
-        code: 'FOREIGN_KEY_VIOLATION',
-      },
-    };
-    return res.status(400).json(response);
+      error: { message: 'Foreign key constraint violation', code: 'FOREIGN_KEY_VIOLATION' },
+    });
   }
 
   // Handle authentication errors
   if (error.name === 'UnauthorizedError') {
-    response = {
+    return res.status(401).json({
       success: false,
-      error: {
-        message: 'Unauthorized access',
-        code: 'UNAUTHORIZED',
-      },
-    };
-    return res.status(401).json(response);
+      error: { message: 'Unauthorized access', code: 'UNAUTHORIZED' },
+    });
   }
 
   // Handle not found errors
   if (error.message?.includes('not found')) {
-    response = {
+    return res.status(404).json({
       success: false,
-      error: {
-        message: error.message || 'Resource not found',
-        code: 'NOT_FOUND',
-      },
-    };
-    return res.status(404).json(response);
+      error: { message: error.message || 'Resource not found', code: 'NOT_FOUND' },
+    });
   }
 
   // Handle file upload errors
   if (error.code === 'LIMIT_FILE_SIZE') {
-    response = {
+    return res.status(413).json({
       success: false,
-      error: {
-        message: 'File size exceeds limit',
-        code: 'FILE_SIZE_EXCEEDED',
-      },
-    };
-    return res.status(413).json(response);
+      error: { message: 'File size exceeds limit', code: 'FILE_SIZE_EXCEEDED' },
+    });
   }
 
   // Handle rate limiting
   if (error.message?.includes('too many requests')) {
-    response = {
+    return res.status(429).json({
       success: false,
-      error: {
-        message: 'Too many requests',
-        code: 'RATE_LIMIT_EXCEEDED',
-      },
-    };
-    return res.status(429).json(response);
+      error: { message: 'Too many requests', code: 'RATE_LIMIT_EXCEEDED' },
+    });
   }
 
-  // Handle other errors
+  // Handle JSON parse errors (malformed request body)
+  if (error.type === 'entity.parse.failed') {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'Malformed JSON in request body', code: 'INVALID_JSON' },
+    });
+  }
+
+  // Handle payload too large
+  if (error.type === 'entity.too.large') {
+    return res.status(413).json({
+      success: false,
+      error: { message: 'Request payload too large', code: 'PAYLOAD_TOO_LARGE' },
+    });
+  }
+
+  // Handle unhandled operational errors with statusCode
+  if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+    return res.status(error.statusCode).json({
+      success: false,
+      error: {
+        message: error.message,
+        code: error.code || 'CLIENT_ERROR',
+      },
+    });
+  }
+
+  // All other errors: return generic message, hide details in production
+  const response = {
+    success: false,
+    error: {
+      message: isProduction ? 'Internal server error' : (error.message || 'Internal server error'),
+      code: 'INTERNAL_ERROR',
+    },
+  };
+
+  if (!isProduction) {
+    response.error.stack = error.stack;
+  }
+
   res.status(error.statusCode || 500).json(response);
 };
 
