@@ -21,6 +21,10 @@ const mockAnalyticsService = {
   getNoShowPatterns: jest.fn(),
   getBuildingPerformance: jest.fn(),
   getEmployeePerformance: jest.fn(),
+  getOccupancyTrend: jest.fn(),
+  getRevenueTrend: jest.fn(),
+  getLeadFunnel: jest.fn(),
+  getVisitMetrics: jest.fn(),
 };
 
 jest.mock('../src/services/analytics.service', () => mockAnalyticsService);
@@ -36,6 +40,10 @@ const {
   getBuildingPerformance,
   getEmployeePerformance,
   getWeeklySummary,
+  getOccupancyTrend,
+  getRevenueTrend,
+  getLeadFunnel,
+  getVisitMetrics,
 } = require('../src/controllers/analytics.controller');
 
 // ─── Fixtures ───────────────────────────────────────────────────────────────────
@@ -99,6 +107,29 @@ const FIXTURES = {
     noShows: 1,
     conversions: 5,
     conversionRate: 0.42,
+  },
+  occupancyTrend: [
+    { buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent', totalUnits: 20, occupiedUnits: 16, vacantUnits: 4, occupancyRate: 0.8 },
+  ],
+  revenueTrend: {
+    data: [
+      { date: '2026-01-01', value: 15000, buildingId: 'bldg-1', buildingName: '1234 Rue Saint-Laurent' },
+    ],
+    totals: [
+      { date: '2026-01-01', value: 30000 },
+    ],
+  },
+  leadFunnel: {
+    stages: [{ stage: 'nouveau', count: 12 }, { stage: 'contacte', count: 8 }],
+    conversionRate: '15.0%',
+    timeline: [{ date: '2026-03-17', stage: 'nouveau', count: 3 }],
+  },
+  visitMetrics: {
+    completionRate: '72.0%',
+    noShowRate: '12.0%',
+    avgTimeToLeaseDays: 14.5,
+    totalVisits: 25,
+    timeline: [{ date: '2026-03-17', completed: 5, cancelled: 1, noShow: 1 }],
   },
 };
 
@@ -456,6 +487,224 @@ describe('analytics.controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
         error: expect.objectContaining({ code: 'WEEKLY_SUMMARY_ERROR' }),
+      }));
+    });
+  });
+
+  // ─── getOccupancyTrend ────────────────────────────────────────────────────────
+
+  describe('getOccupancyTrend', () => {
+    it('returns occupancy trend on success', async () => {
+      mockAnalyticsService.getOccupancyTrend.mockResolvedValue(FIXTURES.occupancyTrend);
+
+      const { req, res } = mockReqRes();
+      await getOccupancyTrend(req, res);
+
+      expect(mockAnalyticsService.getOccupancyTrend).toHaveBeenCalledWith(null);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: true,
+        data: FIXTURES.occupancyTrend,
+      }));
+    });
+
+    it('passes buildingId when provided', async () => {
+      mockAnalyticsService.getOccupancyTrend.mockResolvedValue(FIXTURES.occupancyTrend);
+
+      const { req, res } = mockReqRes({ query: { buildingId: 'bldg-1' } });
+      await getOccupancyTrend(req, res);
+
+      expect(mockAnalyticsService.getOccupancyTrend).toHaveBeenCalledWith('bldg-1');
+    });
+
+    it('returns 500 with OCCUPANCY_TREND_ERROR when service throws', async () => {
+      mockAnalyticsService.getOccupancyTrend.mockRejectedValue(new Error('fail'));
+
+      const { req, res } = mockReqRes();
+      await getOccupancyTrend(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        error: expect.objectContaining({ code: 'OCCUPANCY_TREND_ERROR' }),
+      }));
+    });
+  });
+
+  // ─── getRevenueTrend ──────────────────────────────────────────────────────────
+
+  describe('getRevenueTrend', () => {
+    it('returns revenue trend with defaults (12m, null, month)', async () => {
+      mockAnalyticsService.getRevenueTrend.mockResolvedValue(FIXTURES.revenueTrend);
+
+      const { req, res } = mockReqRes();
+      await getRevenueTrend(req, res);
+
+      expect(mockAnalyticsService.getRevenueTrend).toHaveBeenCalledWith('12m', null, 'month');
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: true,
+        data: FIXTURES.revenueTrend,
+      }));
+    });
+
+    it('passes all query params to service', async () => {
+      mockAnalyticsService.getRevenueTrend.mockResolvedValue(FIXTURES.revenueTrend);
+
+      const { req, res } = mockReqRes({ query: { period: '90d', buildingId: 'bldg-1', granularity: 'week' } });
+      await getRevenueTrend(req, res);
+
+      expect(mockAnalyticsService.getRevenueTrend).toHaveBeenCalledWith('90d', 'bldg-1', 'week');
+    });
+
+    it('returns 400 for invalid period', async () => {
+      const { req, res } = mockReqRes({ query: { period: 'invalid' } });
+      await getRevenueTrend(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+      }));
+    });
+
+    it('returns 400 for invalid granularity', async () => {
+      const { req, res } = mockReqRes({ query: { granularity: 'year' } });
+      await getRevenueTrend(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+      }));
+    });
+
+    it('returns 500 with REVENUE_TREND_ERROR when service throws', async () => {
+      mockAnalyticsService.getRevenueTrend.mockRejectedValue(new Error('fail'));
+
+      const { req, res } = mockReqRes();
+      await getRevenueTrend(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        error: expect.objectContaining({ code: 'REVENUE_TREND_ERROR' }),
+      }));
+    });
+  });
+
+  // ─── getLeadFunnel ────────────────────────────────────────────────────────────
+
+  describe('getLeadFunnel', () => {
+    it('returns lead funnel with defaults (90d, null, week)', async () => {
+      mockAnalyticsService.getLeadFunnel.mockResolvedValue(FIXTURES.leadFunnel);
+
+      const { req, res } = mockReqRes();
+      await getLeadFunnel(req, res);
+
+      expect(mockAnalyticsService.getLeadFunnel).toHaveBeenCalledWith('90d', null, 'week');
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: true,
+        data: FIXTURES.leadFunnel,
+      }));
+    });
+
+    it('passes all query params to service', async () => {
+      mockAnalyticsService.getLeadFunnel.mockResolvedValue(FIXTURES.leadFunnel);
+
+      const { req, res } = mockReqRes({ query: { period: '30d', buildingId: 'bldg-2', granularity: 'day' } });
+      await getLeadFunnel(req, res);
+
+      expect(mockAnalyticsService.getLeadFunnel).toHaveBeenCalledWith('30d', 'bldg-2', 'day');
+    });
+
+    it('returns 400 for invalid period', async () => {
+      const { req, res } = mockReqRes({ query: { period: '1y' } });
+      await getLeadFunnel(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+      }));
+    });
+
+    it('returns 400 for invalid granularity', async () => {
+      const { req, res } = mockReqRes({ query: { granularity: 'quarter' } });
+      await getLeadFunnel(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+      }));
+    });
+
+    it('returns 500 with LEAD_FUNNEL_ERROR when service throws', async () => {
+      mockAnalyticsService.getLeadFunnel.mockRejectedValue(new Error('fail'));
+
+      const { req, res } = mockReqRes();
+      await getLeadFunnel(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        error: expect.objectContaining({ code: 'LEAD_FUNNEL_ERROR' }),
+      }));
+    });
+  });
+
+  // ─── getVisitMetrics ──────────────────────────────────────────────────────────
+
+  describe('getVisitMetrics', () => {
+    it('returns visit metrics with defaults (30d, null, week)', async () => {
+      mockAnalyticsService.getVisitMetrics.mockResolvedValue(FIXTURES.visitMetrics);
+
+      const { req, res } = mockReqRes();
+      await getVisitMetrics(req, res);
+
+      expect(mockAnalyticsService.getVisitMetrics).toHaveBeenCalledWith('30d', null, 'week');
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: true,
+        data: FIXTURES.visitMetrics,
+      }));
+    });
+
+    it('passes all query params to service', async () => {
+      mockAnalyticsService.getVisitMetrics.mockResolvedValue(FIXTURES.visitMetrics);
+
+      const { req, res } = mockReqRes({ query: { period: '90d', buildingId: 'bldg-1', granularity: 'month' } });
+      await getVisitMetrics(req, res);
+
+      expect(mockAnalyticsService.getVisitMetrics).toHaveBeenCalledWith('90d', 'bldg-1', 'month');
+    });
+
+    it('returns 400 for invalid period', async () => {
+      const { req, res } = mockReqRes({ query: { period: '6m' } });
+      await getVisitMetrics(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+      }));
+    });
+
+    it('returns 400 for invalid granularity', async () => {
+      const { req, res } = mockReqRes({ query: { granularity: 'hour' } });
+      await getVisitMetrics(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+      }));
+    });
+
+    it('returns 500 with VISIT_METRICS_ERROR when service throws', async () => {
+      mockAnalyticsService.getVisitMetrics.mockRejectedValue(new Error('fail'));
+
+      const { req, res } = mockReqRes();
+      await getVisitMetrics(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        error: expect.objectContaining({ code: 'VISIT_METRICS_ERROR' }),
       }));
     });
   });

@@ -29,4 +29,10 @@ router.get('/employees/:id/performance', authenticateToken, asyncHandler(analyti
 // ─── Weekly Summary ───
 router.get('/weekly-summary', authenticateToken, asyncHandler(analyticsController.getWeeklySummary));
 
+// ─── Time-Series Analytics ───
+router.get('/occupancy-trend', authenticateToken, asyncHandler(analyticsController.getOccupancyTrend));
+router.get('/revenue-trend', authenticateToken, asyncHandler(analyticsController.getRevenueTrend));
+router.get('/lead-funnel', authenticateToken, asyncHandler(analyticsController.getLeadFunnel));
+router.get('/visit-metrics', authenticateToken, asyncHandler(analyticsController.getVisitMetrics));
+
 module.exports = router;

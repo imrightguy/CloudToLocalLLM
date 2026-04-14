@@ -3,6 +3,9 @@ const analyticsService = require('../services/analytics.service');
 const logger = require('../utils/logger');
 const { successResponse } = require('../utils/apiResponse');
 
+const PERIODS = new Set(['30d', '90d', '12m']);
+const GRANULARITIES = new Set(['day', 'week', 'month']);
+
 // ─── Dashboard (full overview) ───
 
 exports.getDashboard = async (req, res) => {
@@ -168,6 +171,112 @@ exports.getWeeklySummary = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: { message: 'Failed to load weekly summary', code: 'WEEKLY_SUMMARY_ERROR' },
+    });
+  }
+};
+
+// ─── Occupancy Trend ───
+
+exports.getOccupancyTrend = async (req, res) => {
+  try {
+    const { buildingId } = req.query;
+    const data = await analyticsService.getOccupancyTrend(buildingId || null);
+    return res.json(successResponse({ data }));
+  } catch (error) {
+    logger.error('[analytics.controller] getOccupancyTrend error:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Failed to load occupancy trend', code: 'OCCUPANCY_TREND_ERROR' },
+    });
+  }
+};
+
+// ─── Revenue Trend ───
+
+exports.getRevenueTrend = async (req, res) => {
+  try {
+    const { period, buildingId, granularity } = req.query;
+    const p = period || '12m';
+    if (!PERIODS.has(p)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Invalid period. Must be one of: ${[...PERIODS].join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+    const g = granularity || 'month';
+    if (!GRANULARITIES.has(g)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Invalid granularity. Must be one of: ${[...GRANULARITIES].join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+    const data = await analyticsService.getRevenueTrend(p, buildingId || null, g);
+    return res.json(successResponse({ data }));
+  } catch (error) {
+    logger.error('[analytics.controller] getRevenueTrend error:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Failed to load revenue trend', code: 'REVENUE_TREND_ERROR' },
+    });
+  }
+};
+
+// ─── Lead Funnel ───
+
+exports.getLeadFunnel = async (req, res) => {
+  try {
+    const { period, buildingId, granularity } = req.query;
+    const p = period || '90d';
+    if (!PERIODS.has(p)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Invalid period. Must be one of: ${[...PERIODS].join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+    const g = granularity || 'week';
+    if (!GRANULARITIES.has(g)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Invalid granularity. Must be one of: ${[...GRANULARITIES].join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+    const data = await analyticsService.getLeadFunnel(p, buildingId || null, g);
+    return res.json(successResponse({ data }));
+  } catch (error) {
+    logger.error('[analytics.controller] getLeadFunnel error:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Failed to load lead funnel', code: 'LEAD_FUNNEL_ERROR' },
+    });
+  }
+};
+
+// ─── Visit Metrics ───
+
+exports.getVisitMetrics = async (req, res) => {
+  try {
+    const { period, buildingId, granularity } = req.query;
+    const p = period || '30d';
+    if (!PERIODS.has(p)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Invalid period. Must be one of: ${[...PERIODS].join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+    const g = granularity || 'week';
+    if (!GRANULARITIES.has(g)) {
+      return res.status(400).json({
+        success: false,
+        error: { message: `Invalid granularity. Must be one of: ${[...GRANULARITIES].join(', ')}`, code: 'VALIDATION_ERROR' },
+      });
+    }
+    const data = await analyticsService.getVisitMetrics(p, buildingId || null, g);
+    return res.json(successResponse({ data }));
+  } catch (error) {
+    logger.error('[analytics.controller] getVisitMetrics error:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Failed to load visit metrics', code: 'VISIT_METRICS_ERROR' },
     });
   }
 };
