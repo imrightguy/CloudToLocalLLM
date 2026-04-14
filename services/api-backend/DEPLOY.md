@@ -285,10 +285,94 @@ Add to the VPS crontab to ping the health endpoint and alert on failure:
 | Backups not running | `docker compose logs backup`, check cron log: `docker compose exec backup cat /backups/cron.log` |
 | Restore failed | Verify backup integrity: `docker compose exec backup sh -c 'gzip -t /backups/YOUR_BACKUP.sql.gz'` |
 
+## Flutter Web App
+
+The Flutter app can be served as a web app via Docker alongside the API.
+
+### Build and Deploy
+
+```bash
+cd /opt/immogestion/services/api-backend
+
+# Build Flutter web (builds from monorepo root using services/flutter-web/Dockerfile)
+docker compose up -d --build flutter-web
+
+# Verify:
+curl -s http://localhost:8080/ | head -5
+docker compose logs -f flutter-web
+```
+
+The Flutter web app is available at `http://localhost:8080` on the VPS.
+
+### Cloudflare Tunnel Route
+
+Add a second public hostname in the Cloudflare Tunnel configuration:
+- Public hostname: `app.immogestion.ca`
+- Service: `http://flutter-web:80` (uses Docker network)
+
+Uncomment the tunnel service in docker-compose.yml and add `flutter-web` to its `depends_on`.
+
+### Local Development Builds
+
+Use the build script from the project root:
+
+```bash
+# Debug APK (no signing required)
+./scripts/build-release.sh --apk
+
+# Web build
+./scripts/build-release.sh --web
+
+# Both
+./scripts/build-release.sh --all
+
+# Skip tests/analysis
+./scripts/build-release.sh --apk --skip-tests
+```
+
+Builds are output to `build/release/`.
+
+## Android Signing (for release APK)
+
+To build a signed release APK, you need an Android keystore.
+
+### Generate a Keystore (first time)
+
+```bash
+keytool -genkey -v -keystore android/app/upload-keystore.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias upload
+```
+
+Answer the prompts and store the password securely.
+
+### Build Signed APK
+
+```bash
+export KEYSTORE_PATH=android/app/upload-keystore.jks
+export KEYSTORE_PASSWORD=your-keystore-password
+export KEY_ALIAS=upload
+export KEY_PASSWORD=your-key-password
+
+./scripts/build-release.sh --apk
+```
+
+### CI/CD Pipeline
+
+GitHub Actions automatically runs on pushes to `main` and on pull requests:
+- `flutter analyze` — static analysis
+- `flutter test` — unit and widget tests
+- APK debug build — uploaded as artifact (7-day retention)
+- Web release build — uploaded as artifact (7-day retention)
+
+See `.github/workflows/flutter-ci.yml` for full configuration.
+
 ## Architecture
 
 ```
 Internet -> Cloudflare Edge -> Tunnel -> api container (port 3000) -> postgres (port 5432)
+                                        |
+                                       flutter-web container (port 8080)
                                         |
                                    uploads volume
                                    logs volume

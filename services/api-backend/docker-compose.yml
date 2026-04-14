@@ -92,6 +92,24 @@ services:
     networks:
       - internal
 
+  # ── Flutter Web App ───────────────────────────────────────────────
+  flutter-web:
+    build:
+      context: ../../
+      dockerfile: services/flutter-web/Dockerfile
+    container_name: immogestion-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - internal
+
   # ── Cloudflare Tunnel ──────────────────────────────────────────────
   # Uncomment once cloudflared token is configured
   # tunnel:
@@ -103,6 +121,9 @@ services:
   #     TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
   #   networks:
   #     internal
+  #   depends_on:
+  #     - api
+  #     - flutter-web
 
 volumes:
   pgdata:

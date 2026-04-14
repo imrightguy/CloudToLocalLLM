@@ -162,6 +162,83 @@ class UserItem {
 }
 
 // =============================================================================
+// NotificationPreferences – user notification settings
+// =============================================================================
+
+class NotificationPreferences {
+  const NotificationPreferences({
+    this.emailNotifications = true,
+    this.smsNotifications = false,
+    this.weeklyDigest = true,
+    this.quietHoursStart,
+    this.quietHoursEnd,
+    this.quietHoursEnabled = false,
+  });
+
+  final bool emailNotifications;
+  final bool smsNotifications;
+  final bool weeklyDigest;
+  final TimeOfDay? quietHoursStart;
+  final TimeOfDay? quietHoursEnd;
+  final bool quietHoursEnabled;
+
+  factory NotificationPreferences.fromJson(Map<String, dynamic> json) {
+    TimeOfDay? parseTime(String? s) {
+      if (s == null || s.isEmpty) return null;
+      final parts = s.split(':');
+      if (parts.length != 2) return null;
+      final hour = int.tryParse(parts[0]);
+      final minute = int.tryParse(parts[1]);
+      if (hour == null || minute == null) return null;
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+      return TimeOfDay(hour: hour, minute: minute);
+    }
+
+    return NotificationPreferences(
+      emailNotifications: json['emailNotifications'] as bool? ?? true,
+      smsNotifications: json['smsNotifications'] as bool? ?? false,
+      weeklyDigest: json['weeklyDigest'] as bool? ?? true,
+      quietHoursStart: parseTime(json['quietHoursStart'] as String?),
+      quietHoursEnd: parseTime(json['quietHoursEnd'] as String?),
+      quietHoursEnabled: json['quietHoursEnabled'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'emailNotifications': emailNotifications,
+        'smsNotifications': smsNotifications,
+        'weeklyDigest': weeklyDigest,
+        if (quietHoursStart != null)
+          'quietHoursStart':
+              '${quietHoursStart!.hour.toString().padLeft(2, '0')}:${quietHoursStart!.minute.toString().padLeft(2, '0')}',
+        if (quietHoursEnd != null)
+          'quietHoursEnd':
+              '${quietHoursEnd!.hour.toString().padLeft(2, '0')}:${quietHoursEnd!.minute.toString().padLeft(2, '0')}',
+        'quietHoursEnabled': quietHoursEnabled,
+      };
+
+  NotificationPreferences copyWith({
+    bool? emailNotifications,
+    bool? smsNotifications,
+    bool? weeklyDigest,
+    TimeOfDay? quietHoursStart,
+    TimeOfDay? quietHoursEnd,
+    bool? quietHoursEnabled,
+    bool clearStart = false,
+    bool clearEnd = false,
+  }) {
+    return NotificationPreferences(
+      emailNotifications: emailNotifications ?? this.emailNotifications,
+      smsNotifications: smsNotifications ?? this.smsNotifications,
+      weeklyDigest: weeklyDigest ?? this.weeklyDigest,
+      quietHoursStart: clearStart ? null : (quietHoursStart ?? this.quietHoursStart),
+      quietHoursEnd: clearEnd ? null : (quietHoursEnd ?? this.quietHoursEnd),
+      quietHoursEnabled: quietHoursEnabled ?? this.quietHoursEnabled,
+    );
+  }
+}
+
+// =============================================================================
 // AlertItem – notification alert (UI-only)
 // =============================================================================
 

@@ -1,0 +1,13 @@
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+.github/
+.git/
+.idea/
+.vscode/
+services/
+test/
+coverage/
+*.lock
+!pubspec.lock

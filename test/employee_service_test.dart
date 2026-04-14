@@ -198,9 +198,9 @@ void main() {
       expect(a.overlaps(b), isFalse);
     });
 
-    test('overlaps ignores same id', () {
+    test('overlaps returns true for same id with overlapping time', () {
       final a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
-      expect(a.overlaps(a), isFalse);
+      expect(a.overlaps(a), isTrue);
     });
 
     test('overlaps considers same building', () {

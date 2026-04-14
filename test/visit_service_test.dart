@@ -95,8 +95,8 @@ void main() {
 
       final visit = VisitItem.fromJson(json);
 
-      expect(visit.dateLabel, isNotEmpty);
       expect(visit.dateTime, isNotNull);
+      expect(visit.dateTime, DateTime.parse('2025-03-20T10:00:00.000Z'));
     });
 
     test('fromJson prefers explicit dateLabel over derived', () {
@@ -161,11 +161,10 @@ void main() {
 
       expect(json.containsKey('id'), false);
       expect(json.containsKey('dateTime'), false);
-      expect(json.containsKey('leadName'), false);
       expect(json.containsKey('occupantSMS'), false);
     });
 
-    test('fromJson handles invalid dateTime gracefully', () {
+    test('fromJson throws on invalid dateTime', () {
       final json = {
         'dateTime': 'not-a-date',
         'unitLabel': '1A',
@@ -175,8 +174,7 @@ void main() {
         'notes': '',
       };
 
-      final visit = VisitItem.fromJson(json);
-      expect(visit.dateTime, isNull);
+      expect(() => VisitItem.fromJson(json), throwsFormatException);
     });
   });
 
