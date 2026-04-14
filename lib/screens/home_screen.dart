@@ -8,6 +8,7 @@ import 'pipeline_screen.dart';
 import 'visits_screen.dart';
 import 'buildings_screen.dart';
 import 'settings_screen.dart';
+import 'employees_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const PipelineScreen(),
     const VisitsScreen(),
     const BuildingsScreen(),
+    const EmployeesScreen(),
   ];
 
   @override
@@ -66,6 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.apartment_outlined),
             label: 'Immeubles',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outlined),
+            label: 'Employés',
           ),
         ],
       ),
