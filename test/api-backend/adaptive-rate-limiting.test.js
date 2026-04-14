@@ -284,15 +284,23 @@ describe("Adaptive Rate Limiting", () => {
       // (check-then-add: count checked before addRequest, so N requests pass)
       let allowedCount = 0;
       for (let i = 0; i < 10; i++) {
-        const result = fixedLimiter.checkRateLimit('window-user', `corr-${i}`, {});
+        const result = fixedLimiter.checkRateLimit(
+          "window-user",
+          `corr-${i}`,
+          {},
+        );
         if (result.allowed) allowedCount++;
       }
       expect(allowedCount).toBe(10);
 
       // Next request should be blocked by window limit
-      const blocked = fixedLimiter.checkRateLimit('window-user', 'corr-blocked', {});
+      const blocked = fixedLimiter.checkRateLimit(
+        "window-user",
+        "corr-blocked",
+        {},
+      );
       expect(blocked.allowed).toBe(false);
-      expect(blocked.reason).toBe('window_limit_exceeded');
+      expect(blocked.reason).toBe("window_limit_exceeded");
 
       fixedLimiter.destroy();
     });

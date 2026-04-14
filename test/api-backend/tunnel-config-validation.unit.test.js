@@ -58,13 +58,17 @@ describe("validateTunnelConfig", () => {
     it("should reject maxConnections below 1", () => {
       const result = validateTunnelConfig({ maxConnections: 0 });
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("maxConnections must be between 1 and 10000");
+      expect(result.errors).toContain(
+        "maxConnections must be between 1 and 10000",
+      );
     });
 
     it("should reject maxConnections above 10000", () => {
       const result = validateTunnelConfig({ maxConnections: 10001 });
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("maxConnections must be between 1 and 10000");
+      expect(result.errors).toContain(
+        "maxConnections must be between 1 and 10000",
+      );
     });
 
     it("should accept boundary value 1", () => {
@@ -93,13 +97,17 @@ describe("validateTunnelConfig", () => {
     it("should reject timeout below 1000", () => {
       const result = validateTunnelConfig({ timeout: 500 });
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("timeout must be between 1000ms and 300000ms (5 minutes)");
+      expect(result.errors).toContain(
+        "timeout must be between 1000ms and 300000ms (5 minutes)",
+      );
     });
 
     it("should reject timeout above 300000", () => {
       const result = validateTunnelConfig({ timeout: 300001 });
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain("timeout must be between 1000ms and 300000ms (5 minutes)");
+      expect(result.errors).toContain(
+        "timeout must be between 1000ms and 300000ms (5 minutes)",
+      );
     });
 
     it("should accept boundary value 1000", () => {

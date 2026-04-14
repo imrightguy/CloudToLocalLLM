@@ -98,6 +98,16 @@ class ConnectionManagerService {
     _hermesStreamingService?.close();
     _openclawStreamingService?.close();
   }
+
+  /// Initialize the connection manager.
+  ///
+  /// This sets up any necessary state before connecting to backends.
+  Future<void> initialize() async {
+    _log.info('Initializing ConnectionManagerService');
+    // Perform any required setup here
+    // For now, just log that initialization is complete
+    _log.fine('ConnectionManagerService initialized');
+  }
 }
 
 /// Supported backend types.

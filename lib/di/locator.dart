@@ -707,10 +707,11 @@ Future<void> setupAuthenticatedServices() async {
     // Connection Manager - requires authentication for tunnel/cloud connections
     final settingsPreferenceService =
         serviceLocator<SettingsPreferenceService>();
+    final gatewayControlService = serviceLocator.get<GatewayControlService>();
+    final hermesGatewayControlService = serviceLocator.get<HermesGatewayControlService>();
     final connectionManager = ConnectionManagerService(
-      tunnelService: tunnelService,
-      authService: authService,
-      settings: settingsPreferenceService,
+      openclawGatewayService: gatewayControlService,
+      hermesGatewayService: hermesGatewayControlService,
     );
     try {
       await connectionManager.initialize().timeout(const Duration(seconds: 10));

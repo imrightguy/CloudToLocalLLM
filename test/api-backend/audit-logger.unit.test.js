@@ -2,25 +2,25 @@ import {
   createUserManagementDetails,
   createPaymentDetails,
   createSubscriptionDetails,
-} from '../../services/api-backend/utils/audit-logger.js';
+} from "../../services/api-backend/utils/audit-logger.js";
 
-describe('audit-logger helpers', () => {
-  describe('createUserManagementDetails', () => {
-    it('returns details with changes, request body, and timestamp', () => {
-      const req = { body: { email: 'new@example.com' } };
-      const changes = { role: 'admin' };
+describe("audit-logger helpers", () => {
+  describe("createUserManagementDetails", () => {
+    it("returns details with changes, request body, and timestamp", () => {
+      const req = { body: { email: "new@example.com" } };
+      const changes = { role: "admin" };
 
       const result = createUserManagementDetails(req, changes);
 
       expect(result).toMatchObject({
-        changes: { role: 'admin' },
-        requestBody: { email: 'new@example.com' },
+        changes: { role: "admin" },
+        requestBody: { email: "new@example.com" },
       });
       expect(result.timestamp).toBeDefined();
       expect(() => new Date(result.timestamp)).not.toThrow();
     });
 
-    it('defaults to empty changes if not provided', () => {
+    it("defaults to empty changes if not provided", () => {
       const req = { body: {} };
       const result = createUserManagementDetails(req);
 
@@ -29,28 +29,28 @@ describe('audit-logger helpers', () => {
     });
   });
 
-  describe('createPaymentDetails', () => {
-    it('returns payment details with amount, currency, reason, and transactionId', () => {
+  describe("createPaymentDetails", () => {
+    it("returns payment details with amount, currency, reason, and transactionId", () => {
       const req = { body: {} };
       const paymentInfo = {
         amount: 29.99,
-        currency: 'USD',
-        reason: 'monthly_charge',
-        transactionId: 'txn_123',
+        currency: "USD",
+        reason: "monthly_charge",
+        transactionId: "txn_123",
       };
 
       const result = createPaymentDetails(req, paymentInfo);
 
       expect(result).toMatchObject({
         amount: 29.99,
-        currency: 'USD',
-        reason: 'monthly_charge',
-        transactionId: 'txn_123',
+        currency: "USD",
+        reason: "monthly_charge",
+        transactionId: "txn_123",
       });
       expect(result.timestamp).toBeDefined();
     });
 
-    it('defaults to empty object if no paymentInfo', () => {
+    it("defaults to empty object if no paymentInfo", () => {
       const req = {};
       const result = createPaymentDetails(req);
 
@@ -60,28 +60,28 @@ describe('audit-logger helpers', () => {
     });
   });
 
-  describe('createSubscriptionDetails', () => {
-    it('returns subscription details with tier and charge info', () => {
+  describe("createSubscriptionDetails", () => {
+    it("returns subscription details with tier and charge info", () => {
       const req = {};
       const subInfo = {
-        previousTier: 'free',
-        newTier: 'pro',
+        previousTier: "free",
+        newTier: "pro",
         proratedCharge: 15.0,
-        effectiveDate: '2026-04-12',
+        effectiveDate: "2026-04-12",
       };
 
       const result = createSubscriptionDetails(req, subInfo);
 
       expect(result).toMatchObject({
-        previousTier: 'free',
-        newTier: 'pro',
+        previousTier: "free",
+        newTier: "pro",
         proratedCharge: 15.0,
-        effectiveDate: '2026-04-12',
+        effectiveDate: "2026-04-12",
       });
       expect(result.timestamp).toBeDefined();
     });
 
-    it('defaults gracefully with empty subInfo', () => {
+    it("defaults gracefully with empty subInfo", () => {
       const result = createSubscriptionDetails({});
 
       expect(result.previousTier).toBeUndefined();
@@ -90,8 +90,8 @@ describe('audit-logger helpers', () => {
     });
   });
 
-  describe('timestamp consistency', () => {
-    it('all helpers produce valid ISO timestamps', () => {
+  describe("timestamp consistency", () => {
+    it("all helpers produce valid ISO timestamps", () => {
       const req = { body: {} };
 
       const userResult = createUserManagementDetails(req);
