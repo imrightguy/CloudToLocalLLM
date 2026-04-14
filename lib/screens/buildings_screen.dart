@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import 'units_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class BuildingsScreen extends StatefulWidget {
   const BuildingsScreen({super.key});
@@ -73,7 +74,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Immeubles', actions: actions: [
+      appBar: ImmoAppBar(title: 'Immeubles', actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -94,7 +95,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
               );
             },
           ),
-        ])
+        ]),
       body: _buildBody(),
     );
   }
@@ -131,7 +132,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -149,17 +150,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
             // Search bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: AppSpacing.cardDecoration(),
               child: Row(
                 children: [
                   const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
@@ -275,7 +266,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
+                          color: AppColors.primary.withOpacity( 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -383,7 +374,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                             'Voir unités',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white,
+                              color: AppColors.surface,
                             ),
                           ),
                         ),
@@ -435,12 +426,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.building.name),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+      appBar: ImmoAppBar(
+        title: widget.building.name,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -541,17 +528,7 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -584,8 +561,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isOccupied
-                      ? AppColors.success.withValues(alpha: 0.1)
-                      : AppColors.warning.withValues(alpha: 0.1),
+                      ? AppColors.success.withOpacity( 0.1)
+                      : AppColors.warning.withOpacity( 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -767,7 +744,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
       appBar: ImmoAppBar(title: 'Modifier ${widget.unit.number}', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ))
+        )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -826,7 +803,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
 
               // Status dropdown
               DropdownButtonFormField<String>(
-                initialValue: _status,
+                value: _status,
                 decoration: const InputDecoration(
                   labelText: 'Statut',
                   border: OutlineInputBorder(),
@@ -1070,7 +1047,7 @@ class _CreateBuildingScreenState extends State<_CreateBuildingScreen> {
       appBar: ImmoAppBar(title: 'Nouvel immeuble', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ))
+        )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(

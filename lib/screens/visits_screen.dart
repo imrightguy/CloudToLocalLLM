@@ -5,6 +5,7 @@ import '../models.dart';
 import '../services/api_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class VisitsScreen extends StatefulWidget {
   const VisitsScreen({super.key});
@@ -97,12 +98,12 @@ class _VisitsScreenState extends State<VisitsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Visites', actions: actions: [
+      appBar: ImmoAppBar(title: 'Visites', actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showCreateVisitDialog(context),
           ),
-        ])
+        ]),
       body: _buildBody(),
     );
   }
@@ -142,7 +143,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -207,17 +208,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
+                    decoration: AppSpacing.cardDecoration(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -245,17 +236,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
+                    decoration: AppSpacing.cardDecoration(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -283,17 +264,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
+                    decoration: AppSpacing.cardDecoration(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -378,7 +349,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: statusColor.withValues(alpha: 0.1),
+                                    color: statusColor.withOpacity( 0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Icon(
@@ -410,8 +381,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: statusColor.withValues(
-                                                  alpha: 0.1),
+                                              color: statusColor.withOpacity(0.1),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -435,7 +405,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                                       vertical: 2),
                                               decoration: BoxDecoration(
                                                 color: AppColors.warning
-                                                    .withValues(alpha: 0.15),
+                                                    .withOpacity( 0.15),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -539,7 +509,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                       'Confirmer',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.white,
+                                        color: AppColors.surface,
                                       ),
                                     ),
                                   ),
@@ -893,7 +863,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
       appBar: ImmoAppBar(title: 'Nouvelle visite', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ))
+        )),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -925,7 +895,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                     children: [
                       // Unit picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedUnitId,
+                        value: _selectedUnitId,
                         decoration: const InputDecoration(
                           labelText: 'Unité',
                           border: OutlineInputBorder(),
@@ -944,7 +914,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
 
                       // Lead picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedLeadId,
+                        value: _selectedLeadId,
                         decoration: const InputDecoration(
                           labelText: 'Prospect',
                           border: OutlineInputBorder(),
@@ -963,7 +933,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
 
                       // Employee picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedEmployeeId,
+                        value: _selectedEmployeeId,
                         decoration: const InputDecoration(
                           labelText: 'Employé',
                           border: OutlineInputBorder(),

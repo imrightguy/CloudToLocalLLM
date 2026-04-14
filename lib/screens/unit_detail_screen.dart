@@ -16,7 +16,7 @@ class UnitDetailScreen extends StatelessWidget {
     final tenantLabel = unit.tenantName ?? unit.tenant;
 
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Unité ${unit.number}')
+      appBar: ImmoAppBar(title: 'Unité ${unit.number}'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -27,7 +27,7 @@ class UnitDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: vacancy.color.withValues(alpha: 0.1),
+                color: vacancy.color.withOpacity( 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -54,7 +54,7 @@ class UnitDetailScreen extends StatelessWidget {
                           unit.type,
                           style: TextStyle(
                             fontSize: 14,
-                            color: vacancy.color.withValues(alpha: 0.8),
+                            color: vacancy.color.withOpacity( 0.8),
                           ),
                         ),
                     ],
@@ -215,7 +215,7 @@ class UnitDetailScreen extends StatelessWidget {
                                 horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
                               color: AppColors.primary
-                                  .withValues(alpha: 0.1),
+                                  .withOpacity( 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(

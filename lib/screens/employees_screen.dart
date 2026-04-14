@@ -5,6 +5,7 @@ import '../services/employee_service.dart';
 import 'employee_detail_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
@@ -113,7 +114,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Employés')
+      appBar: ImmoAppBar(title: 'Employés'),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEmployeeDialog,
@@ -155,7 +156,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -172,17 +173,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: AppSpacing.cardDecoration(),
               child: Row(
                 children: [
                   const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
@@ -251,8 +242,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: employee.isActive
-                      ? AppColors.primary.withValues(alpha: 0.1)
-                      : AppColors.textMuted.withValues(alpha: 0.1),
+                      ? AppColors.primary.withOpacity( 0.1)
+                      : AppColors.textMuted.withOpacity( 0.1),
                   child: Text(
                     employee.firstName.isNotEmpty
                         ? employee.firstName[0].toUpperCase()
@@ -305,8 +296,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: employee.isActive
-                        ? AppColors.success.withValues(alpha: 0.1)
-                        : AppColors.error.withValues(alpha: 0.1),
+                        ? AppColors.success.withOpacity( 0.1)
+                        : AppColors.error.withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -405,7 +396,7 @@ class _CreateEmployeeScreenState extends State<_CreateEmployeeScreen> {
       appBar: ImmoAppBar(title: 'Nouvel employé', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ))
+        )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(

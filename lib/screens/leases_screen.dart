@@ -6,6 +6,7 @@ import 'lease_detail_screen.dart';
 import 'lease_form_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class LeasesScreen extends StatefulWidget {
   const LeasesScreen({super.key});
@@ -102,7 +103,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Baux', actions: actions: [
+      appBar: ImmoAppBar(title: 'Baux', actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -118,7 +119,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               });
             },
           ),
-        ])
+        ]),
       body: _buildBody(),
     );
   }
@@ -158,7 +159,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -177,17 +178,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
             // Search bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: AppSpacing.cardDecoration(),
               child: Row(
                 children: [
                   const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
@@ -232,7 +223,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -300,7 +291,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
           setState(() => _filterStatus = isSelected ? null : status);
           _applyFilters();
         },
-        selectedColor: (status?.color ?? AppColors.primary).withValues(alpha: 0.15),
+        selectedColor: (status?.color ?? AppColors.primary).withOpacity( 0.15),
         labelStyle: TextStyle(
           color: isSelected
               ? (status?.color ?? AppColors.primary)
@@ -333,11 +324,11 @@ class _LeasesScreenState extends State<LeasesScreen> {
             margin: const EdgeInsets.only(right: 8),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: Colors.black.withOpacity( 0.04),
                   blurRadius: 6,
                   offset: const Offset(0, 1),
                 ),
@@ -434,7 +425,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
+                        color: statusColor.withOpacity( 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -471,7 +462,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
+                        color: statusColor.withOpacity( 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(

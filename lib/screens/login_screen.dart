@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.08),
+                        color: AppColors.primary.withOpacity( 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -185,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           disabledBackgroundColor:
-                              AppColors.primary.withValues(alpha: 0.5),
+                              AppColors.primary.withOpacity( 0.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  color: Colors.white,
+                                  color: AppColors.surface,
                                 ),
                               )
                             : const Text(

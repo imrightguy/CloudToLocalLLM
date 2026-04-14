@@ -92,7 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Tableau de bord')
+      appBar: ImmoAppBar(title: 'Tableau de bord'),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'quick_actions_fab',
         backgroundColor: AppColors.primary,
@@ -150,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -274,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: AppColors.primary.withOpacity( 0.1),
             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
           ),
           child: Text(
@@ -469,7 +469,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: typeColor.withValues(alpha: 0.1),
+                      color: typeColor.withOpacity( 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(typeIcon, size: 20, color: typeColor),
@@ -631,7 +631,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity( 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -648,7 +648,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             label,
             style: TextStyle(
               fontSize: 11,
-              color: color.withValues(alpha: 0.8),
+              color: color.withOpacity( 0.8),
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -207,7 +207,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
       appBar: ImmoAppBar(title: 'Nouvelle visite', leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
-        ))
+        )),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -239,7 +239,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                     children: [
                       // Unit picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedUnitId,
+                        value: _selectedUnitId,
                         decoration: const InputDecoration(
                           labelText: 'Unité *',
                           border: OutlineInputBorder(),
@@ -258,7 +258,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
 
                       // Lead picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedLeadId,
+                        value: _selectedLeadId,
                         decoration: const InputDecoration(
                           labelText: 'Prospect *',
                           border: OutlineInputBorder(),
@@ -277,7 +277,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
 
                       // Employee picker
                       DropdownButtonFormField<String>(
-                        initialValue: _selectedEmployeeId,
+                        value: _selectedEmployeeId,
                         decoration: const InputDecoration(
                           labelText: 'Employé *',
                           border: OutlineInputBorder(),
@@ -362,10 +362,10 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.warning.withValues(alpha: 0.1),
+                            color: AppColors.warning.withOpacity( 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: AppColors.warning.withValues(alpha: 0.3),
+                              color: AppColors.warning.withOpacity( 0.3),
                             ),
                           ),
                           child: const Row(

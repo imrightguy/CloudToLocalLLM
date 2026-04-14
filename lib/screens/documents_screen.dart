@@ -8,6 +8,7 @@ import '../services/document_service.dart';
 import 'document_preview_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
@@ -101,7 +102,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Documents', actions: actions: [
+      appBar: ImmoAppBar(title: 'Documents', actions: [
           if (_isUploading)
             Padding(
               padding: const EdgeInsets.only(right: 16),
@@ -116,7 +117,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
             ),
-        ])
+        ]),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showUploadDialog,
@@ -161,7 +162,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -179,17 +180,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: AppSpacing.cardDecoration(),
               child: Row(
                 children: [
                   const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
@@ -261,7 +252,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         });
         _applyFilters();
       },
-      selectedColor: AppColors.primary.withValues(alpha: 0.1),
+      selectedColor: AppColors.primary.withOpacity( 0.1),
       checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
         fontSize: 13,
@@ -328,7 +319,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: doc.documentType.color.withValues(alpha: 0.1),
+                    color: doc.documentType.color.withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -361,7 +352,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: doc.documentType.color.withValues(alpha: 0.08),
+                              color: doc.documentType.color.withOpacity( 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -550,8 +541,8 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                   ),
                   borderRadius: BorderRadius.circular(12),
                   color: _pickedFileName != null
-                      ? AppColors.primary.withValues(alpha: 0.05)
-                      : Colors.white,
+                      ? AppColors.primary.withOpacity( 0.05)
+                      : AppColors.surface,
                 ),
                 child: Row(
                   children: [

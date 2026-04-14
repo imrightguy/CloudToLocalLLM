@@ -16,6 +16,7 @@ class ImmoAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   final String title;
+  final bool centerTitle;
   final List<Widget>? actions;
   final Widget? leading;
   final PreferredSizeWidget? bottom;

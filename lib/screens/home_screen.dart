@@ -15,6 +15,8 @@ import 'leases_screen.dart';
 import 'communications_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,17 +28,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  late final List<Widget> _screens = [
-    const _HomeTab(),
-    const DashboardScreen(),
-    const PipelineScreen(),
-    const CalendarScreen(),
-    const VisitsScreen(),
-    const BuildingsScreen(),
-    const LeasesScreen(),
-    const EmployeesScreen(),
-    const DocumentsScreen(),
-    const CommunicationsScreen(),
+  static const _mainScreens = [
+    _TabEntry(screen: _HomeTab(), label: 'Accueil'),
+    _TabEntry(screen: DashboardScreen(), label: 'Tableau'),
+    _TabEntry(screen: CommunicationsScreen(), label: 'Messages'),
+    _TabEntry(screen: CalendarScreen(), label: 'Calendrier'),
+    _TabEntry(screen: _MoreScreen(), label: 'Plus'),
   ];
 
   @override
@@ -44,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: _mainScreens.map((e) => e.screen).toList(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -58,49 +55,123 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textMuted,
         elevation: 0,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Accueil',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.dashboard_outlined),
             label: 'Tableau',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.trending_up),
-            label: 'Pipeline',
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.message_outlined),
+            label: 'Messages',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month_outlined),
             label: 'Calendrier',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: 'Visites',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.apartment_outlined),
-            label: 'Immeubles',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.description_outlined),
-            label: 'Baux',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_outlined),
-            label: 'Employés',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.folder_outlined),
-            label: 'Documents',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message_outlined),
-            label: 'Messages',
+            icon: const Icon(Icons.more_horiz),
+            label: 'Plus',
           ),
         ],
       ),
+    );
+  }
+}
+
+class _TabEntry {
+  final Widget screen;
+  final String label;
+  const _TabEntry({required this.screen, required this.label});
+}
+
+class _MoreScreen extends StatelessWidget {
+  const _MoreScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const ImmoAppBar(title: 'Plus'),
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          _MoreTile(
+            icon: Icons.trending_up,
+            label: 'Pipeline',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PipelineScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.calendar_today_outlined,
+            label: 'Visites',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const VisitsScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.apartment_outlined,
+            label: 'Immeubles',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const BuildingsScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.description_outlined,
+            label: 'Baux',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const LeasesScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.people_outlined,
+            label: 'Employés',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const EmployeesScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.folder_outlined,
+            label: 'Documents',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const DocumentsScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.settings_outlined,
+            label: 'Paramètres',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MoreTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _MoreTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primary),
+      title: Text(label, style: AppTypography.body),
+      trailing: const Icon(Icons.chevron_right, color: AppColors.textMuted),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusSm)),
     );
   }
 }
@@ -258,7 +329,7 @@ class _HomeTabState extends State<_HomeTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'ImmoGestion', actions: actions: [
+      appBar: ImmoAppBar(title: 'ImmoGestion', actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
@@ -278,7 +349,7 @@ class _HomeTabState extends State<_HomeTab> {
               );
             },
           ),
-        ])
+        ]),
       body: _buildBody(),
     );
   }
@@ -318,7 +389,7 @@ class _HomeTabState extends State<_HomeTab> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -361,7 +432,7 @@ class _HomeTabState extends State<_HomeTab> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color((0xFF10B981)).withValues(alpha: 0.1),
+                    color: AppColors.success.withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -378,7 +449,7 @@ class _HomeTabState extends State<_HomeTab> {
                         'Occupation',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.funnelBailSigne,
+                          color: AppColors.success,
                         ),
                       ),
                     ],
@@ -442,24 +513,14 @@ class _HomeTabState extends State<_HomeTab> {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
+                    decoration: AppSpacing.cardDecoration(),
                     child: Row(
                       children: [
                         Container(
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: activity.color.withValues(alpha: 0.1),
+                            color: activity.color.withOpacity( 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -555,17 +616,7 @@ class _HomeTabState extends State<_HomeTab> {
     return Container(
       width: (MediaQuery.of(context).size.width - 40) / 2,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

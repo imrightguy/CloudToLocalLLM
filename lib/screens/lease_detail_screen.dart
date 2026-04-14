@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import 'lease_form_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class LeaseDetailScreen extends StatefulWidget {
   const LeaseDetailScreen({
@@ -239,7 +240,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     final statusColor = _lease.leaseStatus.color;
 
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Détails du bail', actions: actions: [
+      appBar: ImmoAppBar(title: 'Détails du bail', actions: [
           if (_lease.leaseStatus == LeaseStatus.draft)
             IconButton(
               onPressed: () {
@@ -257,7 +258,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
               icon: const Icon(Icons.edit_outlined),
               tooltip: 'Modifier',
             ),
-        ])
+        ]),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -296,21 +297,17 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
+          AppSpacing.elevationCard,
         ],
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 32,
-            backgroundColor: statusColor.withValues(alpha: 0.1),
+            backgroundColor: statusColor.withOpacity( 0.1),
             child: Icon(
               _lease.leaseStatus.icon,
               size: 28,
@@ -344,7 +341,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.1),
+              color: statusColor.withOpacity( 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -368,17 +365,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -459,17 +446,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         children: [
           _infoRow(Icons.apartment_outlined, 'Immeuble', _lease.buildingName ?? '--'),
@@ -496,17 +473,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         children: [
           _infoRow(Icons.person_outline, 'Nom', _lease.tenantName ?? '--'),
@@ -523,17 +490,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Text(
         _lease.notes!,
         style: const TextStyle(fontSize: 14, color: AppColors.label),

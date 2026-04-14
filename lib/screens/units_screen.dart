@@ -4,6 +4,8 @@ import '../models.dart';
 import '../services/unit_service.dart';
 import 'unit_detail_screen.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/immo_app_bar.dart';
 
 class UnitsScreen extends StatefulWidget {
   const UnitsScreen({super.key, this.buildingId, this.buildingName});
@@ -120,12 +122,8 @@ class _UnitsScreenState extends State<UnitsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_selectedBuildingName() ?? 'Unités'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+      appBar: ImmoAppBar(
+        title: _selectedBuildingName() ?? 'Unités',
       ),
       body: _buildBody(),
     );
@@ -169,7 +167,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -213,17 +211,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+                decoration: AppSpacing.cardDecoration(),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _selectedBuildingId,
@@ -398,7 +386,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
+            color: isSelected ? color.withOpacity( 0.1) : Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isSelected ? color : AppColors.border,
@@ -406,7 +394,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity( 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -467,7 +455,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: vacancy.color.withValues(alpha: 0.1),
+                        color: vacancy.color.withOpacity( 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -504,7 +492,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: vacancy.color.withValues(alpha: 0.1),
+                        color: vacancy.color.withOpacity( 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

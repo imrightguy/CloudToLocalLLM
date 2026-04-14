@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../services/notification_preferences_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -370,7 +371,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Paramètres')
+      appBar: ImmoAppBar(title: 'Paramètres'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
@@ -399,7 +400,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         label: const Text('Réessayer'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
+                          foregroundColor: AppColors.surface,
                         ),
                       ),
                     ],
@@ -477,7 +478,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+              backgroundColor: AppColors.primary.withOpacity( 0.1),
               child: Text(
                 _getInitials(),
                 style: const TextStyle(
@@ -573,7 +574,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               CircleAvatar(
                 radius: 36,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                backgroundColor: AppColors.primary.withOpacity( 0.1),
                 child: Text(
                   _getInitials(),
                   style: const TextStyle(
@@ -971,7 +972,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: _isChangingPassword ? null : _handleChangePassword,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.surface,
             ),
             child: _isChangingPassword
                 ? const SizedBox(
@@ -1023,7 +1024,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: AppColors.primary.withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.apartment,
@@ -1093,14 +1094,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
+      color: AppColors.surface,
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 2),
-        ),
+        AppSpacing.elevationCard,
       ],
     );
   }
@@ -1141,8 +1138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               trailing,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF94A3B8,
-),
+                color: AppColors.textMuted,
                 fontWeight: FontWeight.w500,
               ),
             )

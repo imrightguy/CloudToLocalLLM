@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models.dart';
 import '../services/communication_service.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
 
 class ConversationDetailScreen extends StatefulWidget {
   const ConversationDetailScreen({
@@ -276,7 +277,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                   _formatMessageTime(message.createdAt),
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Colors.white.withOpacity( 0.7),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -349,7 +350,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
         padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(4),
             topRight: Radius.circular(16),
@@ -357,11 +358,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
             bottomRight: Radius.circular(16),
           ),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
+            AppSpacing.elevationCard,
           ],
         ),
         child: Column(
@@ -399,7 +396,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(

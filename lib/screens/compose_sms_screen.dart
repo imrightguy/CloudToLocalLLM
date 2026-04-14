@@ -6,6 +6,7 @@ import '../services/communication_service.dart';
 import '../services/lead_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class ComposeSmsScreen extends StatefulWidget {
   const ComposeSmsScreen({super.key});
@@ -242,7 +243,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
       appBar: ImmoAppBar(title: 'Nouveau message', leading: IconButton(
           icon: const Icon(Icons.close, color: AppColors.textSecondary),
           onPressed: () => Navigator.pop(context),
-        ))
+        )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
@@ -253,7 +254,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -286,7 +287,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -371,7 +372,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: AppColors.surface,
                         ),
                       )
                     : Text(
@@ -392,24 +393,14 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
   Widget _buildScheduleToggle() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.indigo.withValues(alpha: 0.1),
+              color: AppColors.indigo.withOpacity( 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.schedule, size: 20, color: AppColors.indigo),
@@ -550,7 +541,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                           leading: CircleAvatar(
                             radius: 20,
                             backgroundColor: AppColors.primary
-                                .withValues(alpha: 0.1),
+                                .withOpacity( 0.1),
                             child: Text(
                               lead.fullName.isNotEmpty
                                   ? lead.fullName

@@ -7,6 +7,7 @@ import 'conversation_detail_screen.dart';
 import 'compose_sms_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class CommunicationsScreen extends StatefulWidget {
   const CommunicationsScreen({super.key});
@@ -114,7 +115,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Communications')
+      appBar: ImmoAppBar(title: 'Communications'),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
@@ -159,7 +160,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],
@@ -173,17 +174,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           padding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+          decoration: AppSpacing.cardDecoration(),
           child: Row(
             children: [
               const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
@@ -256,7 +247,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.1)
+              ? AppColors.primary.withOpacity( 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -308,23 +299,13 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        decoration: AppSpacing.cardDecoration(),
         child: Row(
           children: [
             CircleAvatar(
               radius: 24,
               backgroundColor:
-                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primary.withOpacity( 0.1),
               child: Text(
                 item.contactInitials,
                 style: const TextStyle(

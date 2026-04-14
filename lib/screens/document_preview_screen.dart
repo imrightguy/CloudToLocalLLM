@@ -78,7 +78,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: doc.documentType.color.withValues(alpha: 0.1),
+                color: doc.documentType.color.withOpacity( 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
@@ -116,7 +116,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               label: const Text('Ouvrir le fichier'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
             ),
           ],

@@ -362,8 +362,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _employee.isActive
-                          ? AppColors.success.withValues(alpha: 0.1)
-                          : AppColors.error.withValues(alpha: 0.1),
+                          ? AppColors.success.withOpacity( 0.1)
+                          : AppColors.error.withOpacity( 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -418,7 +418,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.border),
                 ),
@@ -442,8 +442,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: assignment.role.toLowerCase() == 'primary'
-                            ? AppColors.primary.withValues(alpha: 0.1)
-                            : AppColors.warning.withValues(alpha: 0.1),
+                            ? AppColors.primary.withOpacity( 0.1)
+                            : AppColors.warning.withOpacity( 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -557,8 +557,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               TableRow(
                 decoration: BoxDecoration(
                   color: day == DateTime.now().weekday
-                      ? AppColors.primary.withValues(alpha: 0.05)
-                      : Colors.white,
+                      ? AppColors.primary.withOpacity( 0.05)
+                      : AppColors.surface,
                 ),
                 children: [
                   _TableCell(s.dayLabel),
@@ -741,7 +741,7 @@ class _ScheduleBlockDialogState extends State<_ScheduleBlockDialog> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            foregroundColor: AppColors.surface,
           ),
           child: const Text('Ajouter'),
         ),

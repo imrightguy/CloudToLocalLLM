@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import 'lead_detail_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
+import '../theme/app_spacing.dart';
 
 class PipelineScreen extends StatefulWidget {
   const PipelineScreen({super.key});
@@ -78,14 +79,14 @@ class _PipelineScreenState extends State<PipelineScreen>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: ImmoAppBar(title: 'Pipeline')
+        appBar: ImmoAppBar(title: 'Pipeline'),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: ImmoAppBar(title: 'Pipeline')
+        appBar: ImmoAppBar(title: 'Pipeline'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -118,7 +119,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                 label: const Text('Réessayer'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: AppColors.surface,
                 ),
               ),
             ],
@@ -128,12 +129,8 @@ class _PipelineScreenState extends State<PipelineScreen>
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pipeline'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+      appBar: ImmoAppBar(
+        title: 'Pipeline',
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -177,24 +174,14 @@ class _PipelineScreenState extends State<PipelineScreen>
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+            decoration: AppSpacing.cardDecoration(),
             child: Row(
               children: [
                 Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _getStageColor(stage).withValues(alpha: 0.1),
+                    color: _getStageColor(stage).withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -411,7 +398,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.surface,
               ),
               child: const Text('Ajouter'),
             ),
@@ -431,17 +418,7 @@ class _PipelineScreenState extends State<PipelineScreen>
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -482,7 +459,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStageColor(lead.stage).withValues(alpha: 0.1),
+                  color: _getStageColor(lead.stage).withOpacity( 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -582,17 +559,17 @@ class _PipelineScreenState extends State<PipelineScreen>
       case LeadStage.nouveau:
         return AppColors.stageNouveau;
       case LeadStage.contacte:
-        return AppColors.info;
+        return AppColors.stageContacte;
       case LeadStage.qualifie:
-        return AppColors.success;
+        return AppColors.stageQualifie;
       case LeadStage.visitePlanifiee:
         return AppColors.stageVisitePlanifiee;
       case LeadStage.offreEnvoyee:
-        return AppColors.warning;
+        return AppColors.stageOffreEnvoyee;
       case LeadStage.negociation:
-        return AppColors.error;
+        return AppColors.stageNegociation;
       case LeadStage.bailSigne:
-        return AppColors.success;
+        return AppColors.stageBailSigne;
     }
   }
 
