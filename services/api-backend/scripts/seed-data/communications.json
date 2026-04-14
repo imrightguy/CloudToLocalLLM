@@ -1,0 +1,74 @@
+[
+  {
+    "leadIndex": 3,
+    "employeeIndex": 0,
+    "type": "sms",
+    "direction": "outbound",
+    "content": "Bonjour Catherine! Merci pour votre intérêt. J'ai une visite disponible jeudi à 10h pour le 2½ au 4827 St-Denis. Ça vous convient?",
+    "status": "delivered",
+    "createdAt": "2026-04-13T09:00:00.000Z"
+  },
+  {
+    "leadIndex": 3,
+    "employeeIndex": 0,
+    "type": "sms",
+    "direction": "inbound",
+    "content": "Oui jeudi 10h c'est parfait! À bientôt",
+    "status": "read",
+    "createdAt": "2026-04-13T09:15:00.000Z"
+  },
+  {
+    "leadIndex": 5,
+    "employeeIndex": 1,
+    "type": "sms",
+    "direction": "outbound",
+    "content": "Bonjour Sabrina! Rappel de votre visite demain à 11h au 6742 Bordeaux, unité 202. N'hésitez pas si vous avez des questions.",
+    "status": "delivered",
+    "createdAt": "2026-04-09T18:00:00.000Z"
+  },
+  {
+    "leadIndex": 6,
+    "employeeIndex": 1,
+    "type": "sms",
+    "direction": "outbound",
+    "content": "Bonjour François-Xavier, super nouvelle! Le propriétaire accepte votre demande pour le 301. Je vous envoie le bail par courriel.",
+    "status": "delivered",
+    "createdAt": "2026-04-09T10:00:00.000Z"
+  },
+  {
+    "leadIndex": 7,
+    "employeeIndex": 1,
+    "type": "sms",
+    "direction": "inbound",
+    "content": "Bonjour, j'ai bien reçu l'offre. Est-ce que le loyer inclut le stationnement?",
+    "status": "read",
+    "createdAt": "2026-04-06T11:00:00.000Z"
+  },
+  {
+    "leadIndex": 8,
+    "employeeIndex": 0,
+    "type": "sms",
+    "direction": "outbound",
+    "content": "Thomas, j'ai discuté avec Simon. On peut faire 1275$/mois si vous signez pour 2 ans. Intéressé?",
+    "status": "delivered",
+    "createdAt": "2026-04-13T14:00:00.000Z"
+  },
+  {
+    "leadIndex": 0,
+    "employeeIndex": 0,
+    "type": "sms",
+    "direction": "outbound",
+    "content": "Bonjour Alexandre! Merci pour votre message sur Facebook. On a un 2½ disponible au Plateau à 1300$. Quand seriez-vous disponible pour une visite?",
+    "status": "delivered",
+    "createdAt": "2026-04-11T10:00:00.000Z"
+  },
+  {
+    "leadIndex": 1,
+    "employeeIndex": 1,
+    "type": "sms",
+    "direction": "outbound",
+    "content": "Bonjour Julie! J'ai un 1½ au 8-plex Rosemont à 950$. Parfait pour étudiante. Visite cette semaine?",
+    "status": "delivered",
+    "createdAt": "2026-04-02T09:30:00.000Z"
+  }
+]

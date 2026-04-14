@@ -1,0 +1,7 @@
+[
+  { "employeeIndex": 0, "buildingIndex": 0, "role": "primary" },
+  { "employeeIndex": 1, "buildingIndex": 1, "role": "primary" },
+  { "employeeIndex": 2, "buildingIndex": 2, "role": "primary" },
+  { "employeeIndex": 0, "buildingIndex": 1, "role": "backup" },
+  { "employeeIndex": 2, "buildingIndex": 0, "role": "backup" }
+]

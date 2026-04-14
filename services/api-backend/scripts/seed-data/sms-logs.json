@@ -1,0 +1,56 @@
+[
+  {
+    "leadIndex": 3,
+    "employeeIndex": 0,
+    "phoneNumber": "+15145553004",
+    "direction": "outbound",
+    "messageBody": "Bonjour Catherine! Merci pour votre intérêt. J'ai une visite disponible jeudi à 10h pour le 2½ au 4827 St-Denis. Ça vous convient?",
+    "status": "delivered",
+    "twilioStatus": "delivered"
+  },
+  {
+    "leadIndex": 3,
+    "employeeIndex": 0,
+    "phoneNumber": "+15145553004",
+    "direction": "inbound",
+    "messageBody": "Oui jeudi 10h c'est parfait! À bientôt",
+    "status": "read",
+    "twilioStatus": "received"
+  },
+  {
+    "leadIndex": 5,
+    "employeeIndex": 1,
+    "phoneNumber": "+15145553006",
+    "direction": "outbound",
+    "messageBody": "Bonjour Sabrina! Rappel de votre visite demain à 11h au 6742 Bordeaux, unité 202. N'hésitez pas si vous avez des questions.",
+    "status": "delivered",
+    "twilioStatus": "delivered"
+  },
+  {
+    "leadIndex": 6,
+    "employeeIndex": 1,
+    "phoneNumber": "+15145553007",
+    "direction": "outbound",
+    "messageBody": "Bonjour François-Xavier, super nouvelle! Le propriétaire accepte votre demande pour le 301. Je vous envoie le bail par courriel.",
+    "status": "delivered",
+    "twilioStatus": "delivered"
+  },
+  {
+    "leadIndex": 7,
+    "employeeIndex": 1,
+    "phoneNumber": "+15145553008",
+    "direction": "inbound",
+    "messageBody": "Bonjour, j'ai bien reçu l'offre. Est-ce que le loyer inclut le stationnement?",
+    "status": "read",
+    "twilioStatus": "received"
+  },
+  {
+    "leadIndex": 8,
+    "employeeIndex": 0,
+    "phoneNumber": "+15145553009",
+    "direction": "outbound",
+    "messageBody": "Thomas, j'ai discuté avec Simon. On peut faire 1275$/mois si vous signez pour 2 ans. Intéressé?",
+    "status": "delivered",
+    "twilioStatus": "delivered"
+  }
+]

@@ -13,7 +13,8 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "migrate": "node -r dotenv/config scripts/migrate.js",
-    "seed": "node -r dotenv/config scripts/seed.js",
+    "seed": "node -r dotenv/config scripts/seed-demo.js",
+    "seed:clear": "node -r dotenv/config scripts/seed-demo.js --clear",
     "build": "echo 'No build step required for Node.js'"
   },
   "keywords": [

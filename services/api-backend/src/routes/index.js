@@ -16,6 +16,7 @@ const facebookRoutes = require('./facebook.routes');
 const analyticsRoutes = require('./analytics.routes');
 const tenantConfirmationRoutes = require('./tenant-confirmation.routes');
 const notificationRoutes = require('./notification.routes');
+const adminRoutes = require('./admin.routes');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -59,6 +60,7 @@ router.use('/sms', smsCampaignRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/confirm', tenantConfirmationRoutes);
+router.use('/admin', adminRoutes);
 
 router.use((err, req, res, _next) => {
   setCORSHeaders(res);

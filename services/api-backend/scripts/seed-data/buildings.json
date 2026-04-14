@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Triplex Mont-Royal",
+    "address": "4827 Rue Saint-Denis",
+    "city": "Montréal",
+    "province": "QC",
+    "postalCode": "H2J 2L8",
+    "totalUnits": 3,
+    "description": "Triplex de 3 logements dans le quartier Plateau-Mont-Royal. Rénové en 2023 avec cuisines modernes et planchers de bois franc. Proche du parc Lafontaine et du métro Mont-Royal."
+  },
+  {
+    "name": "8-Plex Rosemont",
+    "address": "6742 Rue de Bordeaux",
+    "city": "Montréal",
+    "province": "QC",
+    "postalCode": "H1T 1V4",
+    "description": "Immeuble de 8 logements situé dans le quartier Rosemont–La Petite-Patrie. Buanderie commune, stationnement intérieur pour 4 véhicules. Près de la rue Masson et de ses commerces."
+  },
+  {
+    "name": "Immeuble Commercial St-Hubert",
+    "address": "5123 Rue Saint-Hubert",
+    "city": "Montréal",
+    "province": "QC",
+    "postalCode": "H2J 2W5",
+    "description": "Petit immeuble commercial avec 2 locaux au rez-de-chaussée et 4 logements à l'étage. Situé sur l'axe commercial Saint-Hubert. Grandes vitrines, haute plafond."
+  }
+]

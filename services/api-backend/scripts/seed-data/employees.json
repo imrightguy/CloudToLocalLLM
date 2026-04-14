@@ -1,0 +1,20 @@
+[
+  {
+    "firstName": "Mélanie",
+    "lastName": "Rousseau",
+    "phone": "+15145552001",
+    "email": "melanie.rousseau@immogestion.ca"
+  },
+  {
+    "firstName": "Kévin",
+    "lastName": "Lapointe",
+    "phone": "+15145552002",
+    "email": "kevin.lapointe@immogestion.ca"
+  },
+  {
+    "firstName": "Sarah",
+    "lastName": "Bérubé",
+    "phone": "+15145552003",
+    "email": "sarah.berube@immogestion.ca"
+  }
+]

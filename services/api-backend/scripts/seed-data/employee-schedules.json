@@ -1,0 +1,17 @@
+[
+  { "employeeIndex": 0, "buildingIndex": 0, "dayOfWeek": 0, "startTime": "09:00", "endTime": "13:00" },
+  { "employeeIndex": 0, "buildingIndex": 0, "dayOfWeek": 2, "startTime": "09:00", "endTime": "13:00" },
+  { "employeeIndex": 0, "buildingIndex": 0, "dayOfWeek": 4, "startTime": "09:00", "endTime": "13:00" },
+  { "employeeIndex": 0, "buildingIndex": 1, "dayOfWeek": 1, "startTime": "14:00", "endTime": "17:00" },
+  { "employeeIndex": 0, "buildingIndex": 1, "dayOfWeek": 3, "startTime": "14:00", "endTime": "17:00" },
+  { "employeeIndex": 1, "buildingIndex": 1, "dayOfWeek": 0, "startTime": "09:00", "endTime": "17:00" },
+  { "employeeIndex": 1, "buildingIndex": 1, "dayOfWeek": 1, "startTime": "09:00", "endTime": "17:00" },
+  { "employeeIndex": 1, "buildingIndex": 1, "dayOfWeek": 2, "startTime": "09:00", "endTime": "17:00" },
+  { "employeeIndex": 1, "buildingIndex": 1, "dayOfWeek": 3, "startTime": "09:00", "endTime": "17:00" },
+  { "employeeIndex": 1, "buildingIndex": 1, "dayOfWeek": 4, "startTime": "09:00", "endTime": "17:00" },
+  { "employeeIndex": 2, "buildingIndex": 2, "dayOfWeek": 0, "startTime": "10:00", "endTime": "16:00" },
+  { "employeeIndex": 2, "buildingIndex": 2, "dayOfWeek": 2, "startTime": "10:00", "endTime": "16:00" },
+  { "employeeIndex": 2, "buildingIndex": 2, "dayOfWeek": 4, "startTime": "10:00", "endTime": "16:00" },
+  { "employeeIndex": 2, "buildingIndex": 0, "dayOfWeek": 1, "startTime": "13:00", "endTime": "17:00" },
+  { "employeeIndex": 2, "buildingIndex": 0, "dayOfWeek": 3, "startTime": "13:00", "endTime": "17:00" }
+]
