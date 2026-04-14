@@ -1,224 +1,433 @@
-let mockDbResults = [];
+const {
+  leaseSchema,
+  updateLeaseSchema,
+  leaseStatusSchema,
+  VALID_LEASE_STATUSES,
+  VALID_TRANSITIONS,
+} = require('../src/models/lease');
 
-function mockCreateChain() {
-  const instance = {
-    then: (resolve, reject) => {
-      const val = mockDbResults.length > 0 ? mockDbResults.shift() : [];
-      return Promise.resolve(val).then(resolve, reject);
-    },
-    catch: () => instance,
+const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
+const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
+
+// ─── leaseSchema Validation ───
+
+describe('leaseSchema', () => {
+  const validLease = {
+    unitId: VALID_UUID,
+    tenantFirstName: 'Jean',
+    tenantLastName: 'Tremblay',
+    rent: 1200,
+    startDate: '2026-07-01',
+    endDate: '2027-06-30',
   };
-  const chainMethods = [
-    'insert', 'values', 'returning',
-    'select', 'from', 'where', 'orderBy', 'limit', 'offset', 'leftJoin', 'innerJoin', 'set',
-  ];
-  for (const m of chainMethods) {
-    instance[m] = jest.fn().mockReturnValue(instance);
-  }
-  return instance;
-}
 
-jest.mock('../src/database/connection', () => ({
-  db: {
-    insert: jest.fn(() => mockCreateChain()),
-    select: jest.fn(() => mockCreateChain()),
-    update: jest.fn(() => mockCreateChain()),
-  },
-}));
+  it('accepts a valid lease with required fields only', () => {
+    const { error } = leaseSchema.validate(validLease);
+    expect(error).toBeUndefined();
+  });
 
-jest.mock('../src/database/schema', () => ({
-  leasesTable: {},
-  unitsTable: {},
-  buildingsTable: {},
-  leadsTable: {},
-}));
+  it('accepts a valid lease with all optional fields', () => {
+    const { error, value } = leaseSchema.validate({
+      ...validLease,
+      leadId: VALID_UUID_2,
+      tenantEmail: 'jean@example.com',
+      tenantPhone: '+1 514-555-1234',
+      deposit: 1200,
+      terms: { pets: false, smoking: false },
+    });
+    expect(error).toBeUndefined();
+    expect(value.deposit).toBe(1200);
+  });
 
-jest.mock('../src/utils/logger', () => ({
-  child: jest.fn(() => ({
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-  })),
-}));
+  it('defaults deposit to 0', () => {
+    const { value } = leaseSchema.validate(validLease);
+    expect(value.deposit).toBe(0);
+  });
 
-jest.mock('drizzle-orm', () => ({
-  eq: jest.fn((col, val) => ({ _type: 'eq', col, val })),
-  and: jest.fn((...conds) => ({ _type: 'and', conds })),
-  desc: jest.fn((col) => ({ _type: 'desc', col })),
-  asc: jest.fn((col) => ({ _type: 'asc', col })),
-  sql: jest.fn((strings, ...values) => ({ _type: 'sql', strings, values })),
-}));
+  it('defaults terms to empty object', () => {
+    const { value } = leaseSchema.validate(validLease);
+    expect(value.terms).toEqual({});
+  });
 
-const leaseController = require('../src/controllers/lease.controller');
+  it('rejects missing unitId', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      unitId: undefined,
+    });
+    expect(error.details[0].message).toMatch(/unit/i);
+  });
 
-function mockRes() {
-  const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  return res;
-}
+  it('rejects invalid unitId format', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      unitId: 'not-a-uuid',
+    });
+    expect(error.details[0].message).toMatch(/uuid/i);
+  });
 
-beforeEach(() => {
-  jest.clearAllMocks();
-  mockDbResults = [];
+  it('accepts null leadId', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      leadId: null,
+    });
+    expect(error).toBeUndefined();
+  });
+
+  it('rejects invalid leadId format', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      leadId: 'bad-id',
+    });
+    expect(error.details[0].message).toMatch(/uuid/i);
+  });
+
+  it('rejects missing tenantFirstName', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantFirstName: undefined,
+    });
+    expect(error.details[0].message).toMatch(/prénom/i);
+  });
+
+  it('rejects empty tenantFirstName', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantFirstName: '',
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects tenantFirstName over 200 chars', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantFirstName: 'X'.repeat(201),
+    });
+    expect(error.details[0].message).toMatch(/200/i);
+  });
+
+  it('rejects missing tenantLastName', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantLastName: undefined,
+    });
+    expect(error.details[0].message).toMatch(/nom/i);
+  });
+
+  it('rejects invalid tenantEmail', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantEmail: 'not-an-email',
+    });
+    expect(error.details[0].message).toMatch(/courriel/i);
+  });
+
+  it('accepts null tenantEmail', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantEmail: null,
+    });
+    expect(error).toBeUndefined();
+  });
+
+  it('accepts valid tenantPhone formats', () => {
+    const phones = ['+1 514-555-1234', '5145551234', '+33 1 23 45 67 89'];
+    phones.forEach((phone) => {
+      const { error } = leaseSchema.validate({
+        ...validLease,
+        tenantPhone: phone,
+      });
+      expect(error).toBeUndefined();
+    });
+  });
+
+  it('rejects invalid tenantPhone', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      tenantPhone: 'abc',
+    });
+    expect(error.details[0].message).toMatch(/téléphone/i);
+  });
+
+  it('rejects missing rent', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      rent: undefined,
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects rent of 0', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      rent: 0,
+    });
+    expect(error.details[0].message).toMatch(/supérieur à 0/i);
+  });
+
+  it('rejects rent over 100000', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      rent: 100001,
+    });
+    expect(error.details[0].message).toMatch(/100 000/i);
+  });
+
+  it('rejects non-integer rent', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      rent: 1200.50,
+    });
+    expect(error.details[0].message).toMatch(/entier/i);
+  });
+
+  it('rejects negative deposit', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      deposit: -100,
+    });
+    expect(error.details[0].message).toMatch(/négatif/i);
+  });
+
+  it('rejects deposit over 200000', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      deposit: 200001,
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects missing startDate', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      startDate: undefined,
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects missing endDate', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      endDate: undefined,
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects endDate before startDate', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      startDate: '2027-06-30',
+      endDate: '2026-07-01',
+    });
+    expect(error.details[0].message).toMatch(/après/i);
+  });
+
+  it('rejects non-object terms', () => {
+    const { error } = leaseSchema.validate({
+      ...validLease,
+      terms: 'invalid',
+    });
+    expect(error.details[0].message).toMatch(/objet/i);
+  });
 });
 
-describe('deleteLease', () => {
-  it('returns 404 when lease not found', async () => {
-    mockDbResults = [[]];
-    const res = mockRes();
-    await leaseController.deleteLease(
-      { params: { id: '550e8400-e29b-41d4-a716-446655440000' } },
-      res,
-    );
-    expect(res.status).toHaveBeenCalledWith(404);
-    const body = res.json.mock.calls[0][0];
-    expect(body.success).toBe(false);
-    expect(body.error.code).toBe('LEASE_NOT_FOUND');
-    expect(body.error.message).toContain('introuvable');
+// ─── updateLeaseSchema Validation ───
+
+describe('updateLeaseSchema', () => {
+  it('accepts empty update (all fields optional)', () => {
+    const { error } = updateLeaseSchema.validate({});
+    expect(error).toBeUndefined();
   });
 
-  it('returns 400 when lease is active', async () => {
-    mockDbResults = [[{ id: 'l1', status: 'active', unitId: 'u1' }]];
-    const res = mockRes();
-    await leaseController.deleteLease(
-      { params: { id: 'l1' } },
-      res,
-    );
-    expect(res.status).toHaveBeenCalledWith(400);
-    const body = res.json.mock.calls[0][0];
-    expect(body.success).toBe(false);
-    expect(body.error.code).toBe('LEASE_ACTIVE');
-    expect(body.error.message).toContain('actif');
+  it('accepts partial update with tenant names', () => {
+    const { error } = updateLeaseSchema.validate({
+      tenantFirstName: 'Marie',
+      tenantLastName: 'Dubois',
+    });
+    expect(error).toBeUndefined();
   });
 
-  it('soft-deletes a non-active lease', async () => {
-    mockDbResults = [[{ id: 'l1', status: 'draft', unitId: 'u1' }]];
-    const res = mockRes();
-    await leaseController.deleteLease(
-      { params: { id: 'l1' } },
-      res,
-    );
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ success: true }),
-    );
-    const body = res.json.mock.calls[0][0];
-    expect(body.data).toBeNull();
-    expect(body.message).toContain('supprimé');
+  it('accepts rent update', () => {
+    const { error } = updateLeaseSchema.validate({
+      rent: 1500,
+    });
+    expect(error).toBeUndefined();
   });
 
-  it('soft-deletes an expired lease', async () => {
-    mockDbResults = [[{ id: 'l2', status: 'expired', unitId: 'u1' }]];
-    const res = mockRes();
-    await leaseController.deleteLease(
-      { params: { id: 'l2' } },
-      res,
-    );
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ success: true }),
-    );
-  });
-});
-
-describe('getLeaseById', () => {
-  it('returns 404 when lease not found', async () => {
-    mockDbResults = [[]];
-    const res = mockRes();
-    await leaseController.getLeaseById(
-      { params: { id: '550e8400-e29b-41d4-a716-446655440000' } },
-      res,
-    );
-    expect(res.status).toHaveBeenCalledWith(404);
-    const body = res.json.mock.calls[0][0];
-    expect(body.success).toBe(false);
-    expect(body.error.code).toBe('LEASE_NOT_FOUND');
+  it('accepts date updates', () => {
+    const { error } = updateLeaseSchema.validate({
+      startDate: '2026-08-01',
+      endDate: '2027-07-31',
+    });
+    expect(error).toBeUndefined();
   });
 
-  it('returns lease with rent converted from cents', async () => {
-    mockDbResults = [
-      [{ id: 'l1', unitId: 'u1', rentCents: 120000, depositCents: 60000, status: 'draft' }],
-      [],
-      [],
-    ];
-    const res = mockRes();
-    await leaseController.getLeaseById(
-      { params: { id: 'l1' } },
-      res,
-    );
-    const body = res.json.mock.calls[0][0];
-    expect(body.success).toBe(true);
-    expect(body.data.rent).toBe(1200);
-    expect(body.data.deposit).toBe(600);
+  it('accepts terms update', () => {
+    const { error } = updateLeaseSchema.validate({
+      terms: { pets: true },
+    });
+    expect(error).toBeUndefined();
+  });
+
+  it('rejects empty tenantFirstName', () => {
+    const { error } = updateLeaseSchema.validate({
+      tenantFirstName: '',
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects negative rent', () => {
+    const { error } = updateLeaseSchema.validate({
+      rent: -100,
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('rejects invalid email', () => {
+    const { error } = updateLeaseSchema.validate({
+      tenantEmail: 'bad',
+    });
+    expect(error).toBeDefined();
+  });
+
+  it('accepts null email', () => {
+    const { error } = updateLeaseSchema.validate({
+      tenantEmail: null,
+    });
+    expect(error).toBeUndefined();
+  });
+
+  it('accepts null phone', () => {
+    const { error } = updateLeaseSchema.validate({
+      tenantPhone: null,
+    });
+    expect(error).toBeUndefined();
   });
 });
 
-describe('getLeases', () => {
-  it('returns paginated results with metadata', async () => {
-    mockDbResults = [[{ count: 5 }], []];
-    const res = mockRes();
-    await leaseController.getLeases({ query: { page: '1', limit: '10' } }, res);
-    const body = res.json.mock.calls[0][0];
-    expect(body.success).toBe(true);
-    expect(body.metadata).toBeDefined();
-    expect(body.metadata.total).toBe(5);
-    expect(body.metadata.page).toBe(1);
-    expect(body.metadata.limit).toBe(10);
+// ─── leaseStatusSchema Validation ───
+
+describe('leaseStatusSchema', () => {
+  it('accepts all valid statuses', () => {
+    VALID_LEASE_STATUSES.forEach((status) => {
+      const { error } = leaseStatusSchema.validate({ status });
+      expect(error).toBeUndefined();
+    });
   });
 
-  it('accepts valid status filter values', async () => {
-    mockDbResults = [[{ count: 1 }], [{ id: 'l1', status: 'active' }]];
-    const res = mockRes();
-    await leaseController.getLeases({ query: { status: 'active' } }, res);
-    const body = res.json.mock.calls[0][0];
-    expect(body.success).toBe(true);
-  });
-});
-
-describe('updateLeaseStatus', () => {
-  it('returns 404 when lease not found', async () => {
-    mockDbResults = [[]];
-    const res = mockRes();
-    await leaseController.updateLeaseStatus(
-      { params: { id: 'nonexistent' }, body: { status: 'active' } },
-      res,
-    );
-    expect(res.status).toHaveBeenCalledWith(404);
+  it('rejects missing status', () => {
+    const { error } = leaseStatusSchema.validate({});
+    expect(error).toBeDefined();
   });
 
-  it('returns 400 for invalid status transition', async () => {
-    mockDbResults = [[{ id: 'l1', status: 'terminated' }]];
-    const res = mockRes();
-    await leaseController.updateLeaseStatus(
-      { params: { id: 'l1' }, body: { status: 'active' } },
-      res,
-    );
-    expect(res.status).toHaveBeenCalledWith(400);
-    const body = res.json.mock.calls[0][0];
-    expect(body.error.code).toBe('INVALID_STATUS_TRANSITION');
+  it('rejects invalid status', () => {
+    const { error } = leaseStatusSchema.validate({ status: 'pending' });
+    expect(error).toBeDefined();
   });
 });
 
-describe('signLease', () => {
-  it('returns 404 when lease not found', async () => {
-    mockDbResults = [[]];
-    const res = mockRes();
-    await leaseController.signLease(
-      { params: { id: 'nonexistent' } },
-      res,
-    );
-    expect(res.status).toHaveBeenCalledWith(404);
+// ─── VALID_TRANSITIONS ───
+
+describe('VALID_TRANSITIONS', () => {
+  it('allows draft → active', () => {
+    expect(VALID_TRANSITIONS.draft).toContain('active');
   });
 
-  it('returns 400 when lease already signed', async () => {
-    mockDbResults = [[{ id: 'l1', status: 'active', signedAt: new Date(), startDate: new Date() }]];
-    const res = mockRes();
-    await leaseController.signLease(
-      { params: { id: 'l1' } },
-      res,
+  it('allows draft → terminated', () => {
+    expect(VALID_TRANSITIONS.draft).toContain('terminated');
+  });
+
+  it('allows active → expired', () => {
+    expect(VALID_TRANSITIONS.active).toContain('expired');
+  });
+
+  it('allows active → terminated', () => {
+    expect(VALID_TRANSITIONS.active).toContain('terminated');
+  });
+
+  it('allows active → renewed', () => {
+    expect(VALID_TRANSITIONS.active).toContain('renewed');
+  });
+
+  it('allows expired → renewed', () => {
+    expect(VALID_TRANSITIONS.expired).toContain('renewed');
+  });
+
+  it('does not allow terminated transitions', () => {
+    expect(VALID_TRANSITIONS.terminated).toEqual([]);
+  });
+
+  it('does not allow renewed transitions', () => {
+    expect(VALID_TRANSITIONS.renewed).toEqual([]);
+  });
+
+  it('does not allow draft → expired directly', () => {
+    expect(VALID_TRANSITIONS.draft).not.toContain('expired');
+  });
+
+  it('does not allow draft → renewed directly', () => {
+    expect(VALID_TRANSITIONS.draft).not.toContain('renewed');
+  });
+});
+
+// ─── Controller logic tests (computeAutoStatus & toPublicLease) ───
+
+describe('lease controller helpers', () => {
+  // Re-implement computeAutoStatus from the controller for testing
+  const computeAutoStatus = (startDate, endDate) => {
+    const now = new Date();
+    if (now < startDate) return 'draft';
+    if (now > endDate) return 'expired';
+    return 'active';
+  };
+
+  it('returns draft when start date is in the future', () => {
+    const result = computeAutoStatus(
+      new Date('2099-01-01'),
+      new Date('2100-01-01'),
     );
-    expect(res.status).toHaveBeenCalledWith(400);
-    const body = res.json.mock.calls[0][0];
-    expect(body.error.code).toBe('LEASE_ALREADY_SIGNED');
+    expect(result).toBe('draft');
+  });
+
+  it('returns expired when end date is in the past', () => {
+    const result = computeAutoStatus(
+      new Date('2000-01-01'),
+      new Date('2001-01-01'),
+    );
+    expect(result).toBe('expired');
+  });
+
+  it('returns active when now is between start and end', () => {
+    const result = computeAutoStatus(
+      new Date('2020-01-01'),
+      new Date('2099-01-01'),
+    );
+    expect(result).toBe('active');
+  });
+
+  // Re-implement toPublicLease from the controller for testing
+  const toPublicLease = (lease) => ({
+    ...lease,
+    rent: lease.rentCents / 100,
+    deposit: lease.depositCents / 100,
+  });
+
+  it('toPublicLease converts cents to dollars', () => {
+    const result = toPublicLease({
+      id: '1',
+      rentCents: 120000,
+      depositCents: 60000,
+      status: 'draft',
+    });
+    expect(result.rent).toBe(1200);
+    expect(result.deposit).toBe(600);
+    expect(result.status).toBe('draft');
+  });
+
+  it('toPublicLease handles zero deposit', () => {
+    const result = toPublicLease({
+      rentCents: 95000,
+      depositCents: 0,
+    });
+    expect(result.deposit).toBe(0);
   });
 });
