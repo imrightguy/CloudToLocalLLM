@@ -6,7 +6,7 @@ const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 // ─── Analytics Service — Phase 4 ───
 const { db } = require('../database/connection');
 const {
-  leadsTable, visitsTable, buildingsTable, employeesTable,
+  leadsTable, visitsTable, buildingsTable, employeesTable, leasesTable, unitsTable,
 } = require('../database/schema');
 
 // ─── Helpers ───
@@ -452,6 +452,265 @@ async function getEmployeePerformance(employeeId) {
   }
 }
 
+// ─── Occupancy Trend ───
+
+async function getOccupancyTrend(buildingId = null) {
+  try {
+    const conditions = [];
+    if (buildingId) {
+      conditions.push(eq(buildingsTable.id, buildingId));
+    }
+
+    const query = db
+      .select({
+        buildingId: buildingsTable.id,
+        buildingName: buildingsTable.name,
+        totalUnits: buildingsTable.totalUnits,
+        occupiedUnits: buildingsTable.occupiedUnits,
+      })
+      .from(buildingsTable)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const rows = await query;
+
+    return rows.map((r) => {
+      const total = Number(r.totalUnits);
+      const occupied = Number(r.occupiedUnits);
+      return {
+        buildingId: r.buildingId,
+        buildingName: r.buildingName,
+        totalUnits: total,
+        occupiedUnits: occupied,
+        vacantUnits: total - occupied,
+        occupancyRate: total > 0 ? occupied / total : 0,
+      };
+    });
+  } catch (error) {
+    logger.error('[analytics.service] getOccupancyTrend error:', error);
+    throw error;
+  }
+}
+
+// ─── Revenue Trend ───
+
+const PERIOD_DAYS = { '30d': 30, '90d': 90, '12m': 365 };
+const GRANULARITY_TRUNC = { day: 'day', week: 'week', month: 'month' };
+
+async function getRevenueTrend(period = '12m', buildingId = null, granularity = 'month') {
+  try {
+    const days = PERIOD_DAYS[period] || 365;
+    const periodStart = new Date();
+    periodStart.setDate(periodStart.getDate() - days);
+
+    const conditions = [gte(leasesTable.startDate, periodStart)];
+    if (buildingId) {
+      conditions.push(eq(unitsTable.buildingId, buildingId));
+    }
+
+    const truncExpr = GRANULARITY_TRUNC[granularity] || 'month';
+
+    const rows = await db
+      .select({
+        date: sql`DATE_TRUNC(${truncExpr}, ${leasesTable.startDate})`.as('period'),
+        value: sql`SUM(${leasesTable.rentCents})`.as('revenue'),
+        buildingId: unitsTable.buildingId,
+        buildingName: buildingsTable.name,
+      })
+      .from(leasesTable)
+      .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
+      .leftJoin(buildingsTable, eq(unitsTable.buildingId, buildingsTable.id))
+      .where(and(...conditions))
+      .groupBy(
+        sql`DATE_TRUNC(${truncExpr}, ${leasesTable.startDate})`,
+        unitsTable.buildingId,
+        buildingsTable.name,
+      )
+      .orderBy(sql`DATE_TRUNC(${truncExpr}, ${leasesTable.startDate})`);
+
+    const data = rows.map((r) => ({
+      date: r.date,
+      value: Number(r.value),
+      buildingId: r.buildingId,
+      buildingName: r.buildingName,
+    }));
+
+    const totals = await db
+      .select({
+        date: sql`DATE_TRUNC(${truncExpr}, ${leasesTable.startDate})`.as('period'),
+        value: sql`SUM(${leasesTable.rentCents})`.as('revenue'),
+      })
+      .from(leasesTable)
+      .innerJoin(unitsTable, eq(leasesTable.unitId, unitsTable.id))
+      .where(and(...conditions.filter((c) => !buildingId)))
+      .groupBy(sql`DATE_TRUNC(${truncExpr}, ${leasesTable.startDate})`)
+      .orderBy(sql`DATE_TRUNC(${truncExpr}, ${leasesTable.startDate})`);
+
+    const totalsMapped = totals.map((r) => ({
+      date: r.date,
+      value: Number(r.value),
+    }));
+
+    return { data, totals: totalsMapped };
+  } catch (error) {
+    logger.error('[analytics.service] getRevenueTrend error:', error);
+    throw error;
+  }
+}
+
+// ─── Lead Funnel ───
+
+async function getLeadFunnel(period = '90d', buildingId = null, granularity = 'week') {
+  try {
+    const days = PERIOD_DAYS[period] || 90;
+    const periodStart = new Date();
+    periodStart.setDate(periodStart.getDate() - days);
+
+    const conditions = [gte(leadsTable.createdAt, periodStart)];
+    if (buildingId) {
+      conditions.push(eq(leadsTable.buildingId, buildingId));
+    }
+
+    const stageRows = await db
+      .select({
+        stage: leadsTable.stage,
+        count: sql`count(*)`,
+      })
+      .from(leadsTable)
+      .where(and(...conditions))
+      .groupBy(leadsTable.stage)
+      .orderBy(sql`count(*)`);
+
+    const stages = stageRows.map((r) => ({
+      stage: r.stage,
+      count: Number(r.count),
+    }));
+
+    const totalLeads = stages.reduce((sum, s) => sum + s.count, 0);
+    const interestedCount = stages.find((s) => s.stage === 'interesse')?.count || 0;
+    const conversionRate = totalLeads > 0
+      ? `${(interestedCount / totalLeads * 100).toFixed(1)}%`
+      : '0.0%';
+
+    const truncExpr = GRANULARITY_TRUNC[granularity] || 'week';
+
+    const timeline = await db
+      .select({
+        date: sql`DATE_TRUNC(${truncExpr}, ${leadsTable.createdAt})`.as('period'),
+        stage: leadsTable.stage,
+        count: sql`count(*)`,
+      })
+      .from(leadsTable)
+      .where(and(...conditions))
+      .groupBy(
+        sql`DATE_TRUNC(${truncExpr}, ${leadsTable.createdAt})`,
+        leadsTable.stage,
+      )
+      .orderBy(
+        sql`DATE_TRUNC(${truncExpr}, ${leadsTable.createdAt})`,
+      );
+
+    const timelineMapped = timeline.map((r) => ({
+      date: r.date,
+      stage: r.stage,
+      count: Number(r.count),
+    }));
+
+    return { stages, conversionRate, timeline: timelineMapped };
+  } catch (error) {
+    logger.error('[analytics.service] getLeadFunnel error:', error);
+    throw error;
+  }
+}
+
+// ─── Visit Metrics ───
+
+async function getVisitMetrics(period = '30d', buildingId = null, granularity = 'week') {
+  try {
+    const days = PERIOD_DAYS[period] || 30;
+    const periodStart = new Date();
+    periodStart.setDate(periodStart.getDate() - days);
+
+    const conditions = [gte(visitsTable.createdAt, periodStart)];
+    if (buildingId) {
+      conditions.push(eq(unitsTable.buildingId, buildingId));
+    }
+
+    const [{ total }] = await db
+      .select({ total: sql`count(*)` })
+      .from(visitsTable)
+      .where(and(...conditions));
+
+    const [{ completed }] = await db
+      .select({ completed: sql`count(*)` })
+      .from(visitsTable)
+      .where(
+        and(
+          ...conditions,
+          eq(visitsTable.status, 'completed'),
+        ),
+      );
+
+    const [{ noShow }] = await db
+      .select({ noShow: sql`count(*)` })
+      .from(visitsTable)
+      .where(
+        and(
+          ...conditions,
+          eq(visitsTable.status, 'no_show'),
+        ),
+      );
+
+    const [{ cancelled }] = await db
+      .select({ cancelled: sql`count(*)` })
+      .from(visitsTable)
+      .where(
+        and(
+          ...conditions,
+          eq(visitsTable.status, 'cancelled'),
+        ),
+      );
+
+    const totalNum = Number(total);
+    const completionRate = totalNum > 0
+      ? `${(Number(completed) / totalNum * 100).toFixed(1)}%`
+      : '0.0%';
+    const noShowRate = totalNum > 0
+      ? `${(Number(noShow) / totalNum * 100).toFixed(1)}%`
+      : '0.0%';
+
+    const truncExpr = GRANULARITY_TRUNC[granularity] || 'week';
+
+    const timeline = await db
+      .select({
+        date: sql`DATE_TRUNC(${truncExpr}, ${visitsTable.createdAt})`.as('period'),
+        completed: sql`count(*) FILTER (WHERE ${visitsTable.status} = 'completed')`.as('completed'),
+        cancelled: sql`count(*) FILTER (WHERE ${visitsTable.status} = 'cancelled')`.as('cancelled'),
+        noShow: sql`count(*) FILTER (WHERE ${visitsTable.status} = 'no_show')`.as('no_show'),
+      })
+      .from(visitsTable)
+      .where(and(...conditions))
+      .groupBy(sql`DATE_TRUNC(${truncExpr}, ${visitsTable.createdAt})`)
+      .orderBy(sql`DATE_TRUNC(${truncExpr}, ${visitsTable.createdAt})`);
+
+    const timelineMapped = timeline.map((r) => ({
+      date: r.date,
+      completed: Number(r.completed),
+      cancelled: Number(r.cancelled),
+      noShow: Number(r.noShow),
+    }));
+
+    return {
+      completionRate,
+      noShowRate,
+      totalVisits: totalNum,
+      timeline: timelineMapped,
+    };
+  } catch (error) {
+    logger.error('[analytics.service] getVisitMetrics error:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   getPeriodStart,
   getHotLeads,
@@ -463,4 +722,8 @@ module.exports = {
   getBuildingPerformance,
   getWeeklySummary,
   getEmployeePerformance,
+  getOccupancyTrend,
+  getRevenueTrend,
+  getLeadFunnel,
+  getVisitMetrics,
 };
