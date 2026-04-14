@@ -1,0 +1,54 @@
+library screens.onboarding.steps.hermes_gateway_test_gateway_starting_step;
+
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+
+import '../../../services/hermes_manager/hermes_manager.dart';
+
+final Logger _log = Logger('HermesGatewayTestGatewayStartingStep');
+
+class HermesGatewayTestGatewayStartingStep extends StatefulWidget {
+  @override
+  State<HermesGatewayTestGatewayStartingStep> createState() =>
+      _HermesGatewayTestGatewayStartingState();
+}
+
+class _HermesGatewayTestGatewayStartingState
+    extends State<HermesGatewayTestGatewayStartingStep> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Icon(Icons.play_circle, color: Colors.orange, size: 80),
+        const SizedBox(height: 16),
+        const Text(
+          'Gateway Starting',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Hermes gateway is currently starting. Please wait for it to start completely and try again.',
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: () {
+            _log.info('Gateway starting - waiting...');
+          },
+          icon: const Icon(Icons.timer),
+          label: const Text('Wait and Retry'),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: () {
+            _log.info('Gateway starting - checking status...');
+          },
+          style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
+          icon: const Icon(Icons.info),
+          label: const Text('Check Gateway Status'),
+        ),
+      ],
+    );
+  }
+}

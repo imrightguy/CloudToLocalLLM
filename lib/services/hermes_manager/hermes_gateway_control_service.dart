@@ -1,169 +1,110 @@
-import 'dart:async';
+library hermes_manager;
+
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-import 'package:cloudtolocalllm/config/app_config.dart';
-import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart';
+import 'package:logging/logging.dart';
 
-class HermesGatewayControlService extends ChangeNotifier {
-  GatewayState _state = GatewayState.unknown;
-  String? _errorMessage;
-  DateTime? _connectedAt;
-  Timer? _healthCheckTimer;
-  final SettingsPreferenceService _settings;
+final Logger _log = Logger('HermesGatewayControlService');
 
-  HermesGatewayControlService(this._settings);
+/// Manages the hermes-agent gateway process.
+///
+/// This service handles starting, stopping, and restarting the hermes-agent
+/// gateway, similar to how OpenClaw gateway is managed.
+class HermesGatewayControlService {
+  static const String _hermesCommand = 'hermes-agent';
+  static const String _gatewaySubcommand = 'gateway';
 
-  GatewayState get state => _state;
-  String? get errorMessage => _errorMessage;
-  DateTime? get connectedAt => _connectedAt;
-  bool get isConnected => _state == GatewayState.running;
+  Process? _gatewayProcess;
+  bool _isRunning = false;
 
-  Future<String> _getBaseUrl() async {
-    final configuredUrl = await _settings.getHermesUrl();
-    return (configuredUrl?.isNotEmpty ?? false)
-        ? configuredUrl!
-        : AppConfig.defaultHermesUrl;
-  }
+  /// Start the hermes-agent gateway.
+  ///
+  /// Returns true if the gateway started successfully.
+  Future<bool> start() async {
+    if (_isRunning) {
+      _log.info('Hermes gateway is already running');
+      return true;
+    }
 
-  Future<void> checkStatus() async {
-    final baseUrl = await _getBaseUrl();
     try {
-      final uri = Uri.parse('$baseUrl/health');
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 5);
-      try {
-        final request = await client.getUrl(uri);
-        final response = await request.close().timeout(
-              const Duration(seconds: 10),
-            );
+      _gatewayProcess = await Process.start(
+        _hermesCommand,
+        [_gatewaySubcommand, 'start', '--json'],
+        runInShell: true,
+      );
 
-        if (response.statusCode == 200) {
-          if (_state != GatewayState.running) {
-            _state = GatewayState.running;
-            _errorMessage = null;
-            _connectedAt ??= DateTime.now();
-            _startHealthCheck();
-            notifyListeners();
-            debugPrint(
-                '[HermesGatewayControl] Connected to Hermes at $baseUrl');
-          }
-        } else {
-          _setDisconnected('Health check returned status ${response.statusCode}');
-        }
-      } finally {
-        client.close();
+      // Optional: read stdout/stderr to verify startup
+      _gatewayProcess?.stdout.transform(utf8.decoder).listen((data) {
+        _log.fine('Hermes gateway stdout: $data');
+      });
+      _gatewayProcess?.stderr.transform(utf8.decoder).listen((data) {
+        _log.warning('Hermes gateway stderr: $data');
+      });
+
+      final exitCode = await _gatewayProcess?.exitCode;
+      if (exitCode == 0) {
+        _isRunning = true;
+        _log.info('Hermes gateway started successfully');
+        return true;
+      } else {
+        _log.severe('Hermes gateway exited with code $exitCode');
+        return false;
       }
-    } on SocketException {
-      _setDisconnected('Connection refused: Hermes not running at $baseUrl');
-    } on TimeoutException {
-      _setDisconnected('Connection timed out: Hermes not responding at $baseUrl');
-    } catch (e) {
-      if (_state != GatewayState.unknown) {
-        _state = GatewayState.error;
-        _errorMessage = 'Failed to check Hermes status: $e';
-        notifyListeners();
-      }
-      debugPrint('[HermesGatewayControl] Status check error: $e');
+    } catch (e, st) {
+      _log.severe('Failed to start Hermes gateway', e, st);
+      return false;
     }
   }
 
-  void _setDisconnected(String message) {
-    if (_state != GatewayState.stopped) {
-      _state = GatewayState.stopped;
-      _errorMessage = message;
-      _healthCheckTimer?.cancel();
-      _healthCheckTimer = null;
-      notifyListeners();
+  /// Stop the hermes-agent gateway.
+  ///
+  /// Returns true if the gateway was stopped successfully.
+  Future<bool> stop() async {
+    if (!_isRunning) {
+      _log.info('Hermes gateway is not running');
+      return true;
     }
-  }
 
-  Future<bool> testConnection() async {
-    final baseUrl = await _getBaseUrl();
-    debugPrint(
-        '[HermesGatewayControl] Testing connection to Hermes at $baseUrl');
     try {
-      final uri = Uri.parse('$baseUrl/health');
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 5);
-      try {
-        final request = await client.getUrl(uri);
-        final response = await request.close().timeout(
-              const Duration(seconds: 10),
-            );
+      // Send interrupt signal
+      _gatewayProcess?.kill(ProcessSignal.sigint);
 
-        final success = response.statusCode == 200;
-        if (success) {
-          _state = GatewayState.running;
-          _errorMessage = null;
-          _connectedAt = DateTime.now();
-          debugPrint(
-              '[HermesGatewayControl] Connection test successful at $baseUrl');
-        } else {
-          _state = GatewayState.stopped;
-          _errorMessage =
-              'Health check returned status ${response.statusCode}';
-          debugPrint(
-              '[HermesGatewayControl] Connection test failed: status ${response.statusCode}');
-        }
-        notifyListeners();
-        return success;
-      } finally {
-        client.close();
-      }
-    } on SocketException {
-      _state = GatewayState.stopped;
-      _errorMessage = 'Connection refused: Hermes not running at $baseUrl';
-      notifyListeners();
-      debugPrint(
-          '[HermesGatewayControl] Connection test failed: not running at $baseUrl');
-      return false;
-    } on TimeoutException {
-      _state = GatewayState.stopped;
-      _errorMessage = 'Connection timed out: Hermes not responding';
-      notifyListeners();
-      debugPrint(
-          '[HermesGatewayControl] Connection test failed: timeout');
-      return false;
-    } catch (e) {
-      _state = GatewayState.error;
-      _errorMessage = 'Connection test failed: $e';
-      notifyListeners();
-      debugPrint('[HermesGatewayControl] Connection test error: $e');
+      // Wait for process to exit (with timeout)
+      await Future.any([
+        _gatewayProcess?.exitCode,
+        Future.delayed(const Duration(seconds: 5), () {
+          _gatewayProcess?.kill(ProcessSignal.sigkill);
+        }),
+      ]);
+
+      _isRunning = false;
+      _log.info('Hermes gateway stopped');
+      return true;
+    } catch (e, st) {
+      _log.severe('Failed to stop Hermes gateway', e, st);
       return false;
     }
   }
 
-  Stream<GatewayState> watchStatus() async* {
-    yield _state;
-    await for (final _ in Stream.periodic(const Duration(seconds: 30))) {
-      await checkStatus();
-      yield _state;
-    }
+  /// Restart the hermes-agent gateway.
+  ///
+  /// Returns true if the gateway restarted successfully.
+  Future<bool> restart() async {
+    _log.info('Restarting Hermes gateway');
+    await stop();
+    return await start();
   }
 
-  void _startHealthCheck() {
-    _healthCheckTimer?.cancel();
-    _healthCheckTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
-      await checkStatus();
-    });
-  }
+  /// Check if the hermes-agent gateway is running.
+  bool get isRunning => _isRunning;
 
-  Future<Map<String, dynamic>> getStatus() async {
-    await checkStatus();
+  /// Get gateway status information.
+  Map<String, dynamic> getStatus() {
     return {
-      'state': _state.name,
-      'isConnected': isConnected,
-      'connectedAt': _connectedAt?.toIso8601String(),
-      'errorMessage': _errorMessage,
+      'service': 'hermes-gateway',
+      'running': _isRunning,
+      'pid': _gatewayProcess?.pid,
     };
-  }
-
-  @override
-  void dispose() {
-    _healthCheckTimer?.cancel();
-    _healthCheckTimer = null;
-    super.dispose();
   }
 }

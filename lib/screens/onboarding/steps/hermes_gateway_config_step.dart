@@ -1,4 +1,4 @@
-library screens.onboarding.steps.hermes_url_step;
+library screens.onboarding.steps.hermes_gateway_config_step;
 
 import 'dart:convert';
 
@@ -7,23 +7,24 @@ import 'package:logging/logging.dart';
 
 import '../../../services/hermes_manager/hermes_manager.dart';
 
-final Logger _log = Logger('HermesUrlStep');
+final Logger _log = Logger('HermesGatewayConfigStep');
 
-class HermesUrlStep extends StatefulWidget {
+class HermesGatewayConfigStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
 
-  const HermesUrlStep({
+  const HermesGatewayConfigStep({
     Key? key,
     this.hermesUrl,
     this.hermesApiKey,
   }) : super(key: key);
 
   @override
-  State<HermesUrlStep> createState() => _HermesUrlStepState();
+  State<HermesGatewayConfigStep> createState() =>
+      _HermesGatewayConfigStepState();
 }
 
-class _HermesUrlStepState extends State<HermesUrlStep> {
+class _HermesGatewayConfigStepState extends State<HermesGatewayConfigStep> {
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _apiKeyController = TextEditingController();
 
@@ -44,46 +45,38 @@ class _HermesUrlStepState extends State<HermesUrlStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
+      children: ListTile.divideTiles(context: context, tiles: [
+        Text(
+          'Hermes Gateway Configuration',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         TextField(
           controller: _urlController,
           decoration: const InputDecoration(
-            labelText: 'Hermes Gateway URL',
+            labelText: 'Gateway URL',
             hintText: 'ws://localhost:1337',
           ),
         ),
-        const SizedBox(height: 16),
         TextField(
           controller: _apiKeyController,
           decoration: const InputDecoration(
-            labelText: 'Hermes API Key (optional)',
+            labelText: 'API Key (optional)',
             hintText: 'Enter API key if required',
           ),
           obscureText: true,
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: _urlController.text.isNotEmpty
-                    ? () {
-                        // Save Hermes configuration
-                        final hermesConfig = {
-                          'hermesUrl': _urlController.text,
-                          'hermesApiKey': _apiKeyController.text,
-                        };
-                        _log.info('Hermes config: $hermesConfig');
-                        // Store in preferences
-                        // Move to next step
-                      }
-                    : null,
-                child: const Text('Save and Continue'),
-              ),
-            ),
-          ],
+        ElevatedButton(
+          onPressed: () {
+            final config = {
+              'hermesUrl': _urlController.text,
+              'hermesApiKey': _apiKeyController.text,
+            };
+            _log.info('Hermes gateway config saved: $config');
+            // Save configuration
+          },
+          child: const Text('Save Configuration'),
         ),
-      ],
+      ]).toList(),
     );
   }
 }
