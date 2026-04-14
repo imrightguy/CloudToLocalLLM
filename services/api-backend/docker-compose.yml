@@ -3,6 +3,12 @@
 # Use: docker compose up -d
 # ──────────────────────────────────────────────────────────────────────
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   # ── PostgreSQL Database ────────────────────────────────────────────
   postgres:
@@ -24,6 +30,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *default-logging
     networks:
       - internal
 
@@ -57,6 +64,11 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 512M
     networks:
       - internal
 
@@ -89,6 +101,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    logging: *default-logging
     networks:
       - internal
 
@@ -107,6 +120,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    logging: *default-logging
     networks:
       - internal
 
@@ -119,6 +133,7 @@ services:
   #   command: tunnel --no-autoupdate run
   #   environment:
   #     TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+  #   logging: *default-logging
   #   networks:
   #     internal
   #   depends_on:
