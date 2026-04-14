@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "LOG_LEVEL=silent jest --forceExit",
+    "test": "LOG_LEVEL=silent jest --forceExit --testPathIgnorePatterns='integration'",
     "test:watch": "jest --watch",
+    "test:integration": "LOG_LEVEL=silent jest __tests__/integration/ --forceExit --runInBand",
     "test:coverage": "jest --coverage",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
