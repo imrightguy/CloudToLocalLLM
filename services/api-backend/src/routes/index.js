@@ -1,5 +1,6 @@
 const express = require('express');
 const { setCORSHeaders } = require('../utils/apiResponse');
+const { connect } = require('../database/connection');
 const authRoutes = require('./auth.routes');
 const buildingRoutes = require('./building.routes');
 const employeeRoutes = require('./employee.routes');
@@ -19,9 +20,28 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
-router.get('/health', (req, res) => {
+router.get('/health', async (req, res) => {
   setCORSHeaders(res);
-  res.json({ status: 'healthy', timestamp: new Date().toISOString(), version: '1.0.0' });
+  try {
+    const dbStart = Date.now();
+    await connect();
+    const dbLatencyMs = Date.now() - dbStart;
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      uptime: process.uptime(),
+      database: { status: 'connected', latencyMs: dbLatencyMs },
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      uptime: process.uptime(),
+      database: { status: 'disconnected', error: error.message },
+    });
+  }
 });
 
 router.use('/auth', authRoutes);
