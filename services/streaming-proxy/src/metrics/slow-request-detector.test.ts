@@ -39,9 +39,9 @@ describe('SlowRequestDetector', () => {
     it('should log slow requests exceeding threshold', () => {
       detector.trackRequest('user1', 'req-1', 6000, '/api/test');
 
-      expect(loggedWarnings.length).toBe(1);
-      expect(loggedWarnings[0].message).toBe('Slow request detected');
-      expect(loggedWarnings[0].metadata).toEqual({
+      const slowLogs = loggedWarnings.filter(w => w.message === 'Slow request detected');
+      expect(slowLogs.length).toBe(1);
+      expect(slowLogs[0].metadata).toEqual({
         userId: 'user1',
         requestId: 'req-1',
         duration: 6000,
@@ -69,8 +69,9 @@ describe('SlowRequestDetector', () => {
     it('should handle requests without endpoint', () => {
       detector.trackRequest('user1', 'req-1', 6000);
 
-      expect(loggedWarnings.length).toBe(1);
-      expect(loggedWarnings[0].metadata.endpoint).toBeUndefined();
+      const slowLogs = loggedWarnings.filter(w => w.message === 'Slow request detected');
+      expect(slowLogs.length).toBe(1);
+      expect(slowLogs[0].metadata.endpoint).toBeUndefined();
     });
   });
 

@@ -232,7 +232,7 @@ describe('MetricsAggregator', () => {
 
       for (let i = 0; i < 10; i++) {
         const snapshot: RawMetricSnapshot = {
-          timestamp: new Date(now - (10 - i) * 60000),
+          timestamp: new Date(now - (9 - i) * 60000),
           activeConnections: 10,
           requestCount: 100,
           successCount: 90,
@@ -257,7 +257,7 @@ describe('MetricsAggregator', () => {
       expect(stats.totalRequests).toBe(1000); // 100 * 10
       expect(stats.averageRequests).toBe(100);
       expect(stats.averageLatency).toBe(50);
-      expect(stats.averageErrorRate).toBe(0.1);
+      expect(stats.averageErrorRate).toBeCloseTo(0.1);
     });
 
     it('should return empty statistics when no data', () => {

@@ -71,7 +71,7 @@ export class JWTValidationMiddleware implements AuthMiddleware {
   async refreshToken(token: string): Promise<string> {
     // This would typically involve calling Auth0's token refresh endpoint
     // For now, throw an error indicating the client should re-authenticate
-    logger.warn('Token refresh requested - returning original token for re-authentication');
+    this.logger.warn('Token refresh requested - returning original token for re-authentication');
     // Auth0 typically uses refresh_token grant type for token refresh
     // This requires storing refresh_token during initial authentication
     // For now, return the original token and let client handle re-auth

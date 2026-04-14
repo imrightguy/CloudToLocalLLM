@@ -455,7 +455,16 @@ export class AuthAuditLogger {
     endDate: Date
   ): {
     period: { start: string; end: string };
-    stats: ReturnType<typeof this.getAuthStats>;
+    stats: {
+      totalAttempts: number;
+      successfulAttempts: number;
+      failedAttempts: number;
+      successRate: number;
+      uniqueUsers: number;
+      uniqueIPs: number;
+      blockedIPs: number;
+      blockedUsers: number;
+    };
     topFailureReasons: Array<{ reason: string; count: number }>;
     suspiciousIPs: Array<{ ip: string; failureCount: number }>;
     suspiciousUsers: Array<{ userId: string; failureCount: number }>;

@@ -7,6 +7,8 @@ import { JWTValidationMiddleware } from './jwt-validation-middleware';
 import { UserContextManager } from './user-context-manager';
 import { AuthAuditLogger } from './auth-audit-logger';
 import { UserTier } from '../interfaces/auth-middleware';
+import { JWTValidator } from './jwt-validator.interface';
+import { jest } from '@jest/globals';
 
 // Mock configuration
 const mockConfig = {
@@ -15,11 +17,40 @@ const mockConfig = {
   issuer: 'https://test-tenant.auth0.com/',
 };
 
+// Create a mock JWT validator that validates tokens using mock config
+const createMockValidator = (): JWTValidator => ({
+  validateToken: async (token: string) => {
+    if (token === 'invalid-token') {
+      return { valid: false, error: 'Invalid token format' };
+    }
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return { valid: false, error: 'Invalid token format' };
+      }
+      const payload: any = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+      if (payload.iss !== mockConfig.issuer) {
+        return { valid: false, error: 'Invalid issuer' };
+      }
+      const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+      if (!aud.includes(mockConfig.audience)) {
+        return { valid: false, error: 'Invalid audience' };
+      }
+      if (payload.exp < Math.floor(Date.now() / 1000)) {
+        return { valid: false, error: 'Token expired', userId: payload.sub, expiresAt: new Date(payload.exp * 1000) };
+      }
+      return { valid: true, userId: payload.sub, expiresAt: new Date(payload.exp * 1000) };
+    } catch {
+      return { valid: false, error: 'Invalid token format' };
+    }
+  },
+});
+
 describe('JWTValidationMiddleware', () => {
   let middleware: JWTValidationMiddleware;
 
   beforeEach(() => {
-    middleware = new JWTValidationMiddleware(mockConfig);
+    middleware = new JWTValidationMiddleware(createMockValidator());
   });
 
   describe('validateToken', () => {
