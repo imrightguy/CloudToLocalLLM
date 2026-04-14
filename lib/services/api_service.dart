@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../app_config.dart';
 import '../models.dart';
 
 /// Custom exception for API errors.
@@ -27,7 +28,7 @@ class ApiService {
   ApiService._();
   static final ApiService instance = ApiService._();
 
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  static const String baseUrl = AppConfig.apiBaseUrl;
 
   // SharedPreferences keys
   static const _accessTokenKey = 'access_token';
