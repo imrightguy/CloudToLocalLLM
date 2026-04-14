@@ -1,6 +1,5 @@
 import 'api_service.dart';
 
-/// Pipeline stage counts from the dashboard.
 class PipelineData {
   const PipelineData({required this.stages});
   final Map<String, int> stages;
@@ -13,7 +12,6 @@ class PipelineData {
   }
 }
 
-/// Weekly statistics summary.
 class WeeklyStats {
   const WeeklyStats({
     required this.period,
@@ -42,7 +40,6 @@ class WeeklyStats {
       );
 }
 
-/// Visit statistics.
 class VisitStatsData {
   const VisitStatsData({
     required this.total,
@@ -63,7 +60,6 @@ class VisitStatsData {
       );
 }
 
-/// Conversion rate statistics.
 class ConversionRates {
   const ConversionRates({
     required this.totalVisits,
@@ -82,7 +78,6 @@ class ConversionRates {
       );
 }
 
-/// Lead source distribution.
 class LeadSource {
   const LeadSource({required this.source, required this.count});
   final String source;
@@ -94,15 +89,62 @@ class LeadSource {
       );
 }
 
-/// Full dashboard data from /analytics/dashboard.
-class DashboardData {
-  const DashboardData({
+class KpiMetric {
+  const KpiMetric({
+    required this.current,
+    required this.previous,
+    required this.trend,
+  });
+
+  final num current;
+  final num previous;
+  final double trend;
+
+  factory KpiMetric.fromJson(Map<String, dynamic> json) => KpiMetric(
+        current: json['current'] as num? ?? 0,
+        previous: json['previous'] as num? ?? 0,
+        trend: (json['trend'] as num?)?.toDouble() ?? 0.0,
+      );
+}
+
+class KpiSummary {
+  const KpiSummary({
+    required this.revenue,
+    required this.occupancyRate,
+    required this.activeLeases,
+    required this.openLeads,
+  });
+
+  final KpiMetric revenue;
+  final KpiMetric occupancyRate;
+  final KpiMetric activeLeases;
+  final KpiMetric openLeads;
+
+  factory KpiSummary.fromJson(Map<String, dynamic> json) => KpiSummary(
+        revenue: KpiMetric.fromJson(
+            (json['revenue'] as Map<String, dynamic>?) ?? {}),
+        occupancyRate: KpiMetric.fromJson(
+            (json['occupancyRate'] as Map<String, dynamic>?) ?? {}),
+        activeLeases: KpiMetric.fromJson(
+            (json['activeLeases'] as Map<String, dynamic>?) ?? {}),
+        openLeads: KpiMetric.fromJson(
+            (json['openLeads'] as Map<String, dynamic>?) ?? {}),
+      );
+}
+
+class FullDashboardData {
+  const FullDashboardData({
     required this.pipeline,
     required this.hotLeads,
     required this.weeklyStats,
     required this.visitStats,
     required this.conversionRates,
     required this.leadSources,
+    this.kpi,
+    this.revenueChart,
+    this.occupancyChart,
+    this.leadFunnel,
+    this.buildings,
   });
 
   final PipelineData pipeline;
@@ -111,8 +153,13 @@ class DashboardData {
   final VisitStatsData visitStats;
   final ConversionRates conversionRates;
   final List<LeadSource> leadSources;
+  final KpiSummary? kpi;
+  final List<Map<String, dynamic>>? revenueChart;
+  final List<Map<String, dynamic>>? occupancyChart;
+  final Map<String, int>? leadFunnel;
+  final List<Map<String, dynamic>>? buildings;
 
-  factory DashboardData.fromJson(Map<String, dynamic> json) {
+  factory FullDashboardData.fromJson(Map<String, dynamic> json) {
     final pipelineJson = json['pipeline'] as Map<String, dynamic>? ?? {};
     final hotLeadsJson = json['hotLeads'] as List<dynamic>? ?? [];
     final weeklyStatsJson = json['weeklyStats'] as Map<String, dynamic>? ?? {};
@@ -121,7 +168,7 @@ class DashboardData {
         json['conversionRates'] as Map<String, dynamic>? ?? {};
     final leadSourcesJson = json['leadSources'] as List<dynamic>? ?? [];
 
-    return DashboardData(
+    return FullDashboardData(
       pipeline: PipelineData.fromJson(pipelineJson),
       hotLeads: hotLeadsJson.map((e) => e as Map<String, dynamic>).toList(),
       weeklyStats: WeeklyStats.fromJson(weeklyStatsJson),
@@ -130,24 +177,54 @@ class DashboardData {
       leadSources: leadSourcesJson
           .map((e) => LeadSource.fromJson(e as Map<String, dynamic>))
           .toList(),
+      kpi: json['kpi'] != null
+          ? KpiSummary.fromJson(json['kpi'] as Map<String, dynamic>)
+          : null,
+      revenueChart: (json['revenueChart'] as List<dynamic>?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      occupancyChart: (json['occupancyChart'] as List<dynamic>?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      leadFunnel: (json['leadFunnel'] as Map<String, dynamic>?)?.map(
+        (key, value) => MapEntry(key, (value as num).toInt()),
+      ),
+      buildings: (json['buildings'] as List<dynamic>?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
     );
   }
 }
 
-/// Service for dashboard analytics and reporting.
-///
-/// All methods throw [ApiException] on failure.
 class AnalyticsService {
   AnalyticsService._();
   static final AnalyticsService instance = AnalyticsService._();
 
-  /// GET /analytics/dashboard
-  ///
-  /// Returns the full dashboard data including pipeline, visit stats,
-  /// conversion rates, weekly stats, hot leads, and lead sources.
-  Future<DashboardData> getDashboard() async {
+  Future<FullDashboardData> getDashboard() async {
     final result = await ApiService.instance.get('/analytics/dashboard');
     final data = result['data'] as Map<String, dynamic>;
-    return DashboardData.fromJson(data);
+    return FullDashboardData.fromJson(data);
+  }
+
+  Future<List<Map<String, dynamic>>> getRevenueTrend({String period = '12m'}) async {
+    final result = await ApiService.instance
+        .get('/analytics/revenue-trend?period=$period');
+    final data = result['data'] as List<dynamic>;
+    return data.map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getOccupancyTrend(
+      {String period = '12m'}) async {
+    final result = await ApiService.instance
+        .get('/analytics/occupancy-trend?period=$period');
+    final data = result['data'] as List<dynamic>;
+    return data.map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  Future<Map<String, int>> getLeadFunnel() async {
+    final result =
+        await ApiService.instance.get('/analytics/lead-funnel');
+    final data = result['data'] as Map<String, dynamic>;
+    return data.map((key, value) => MapEntry(key, (value as num).toInt()));
   }
 }

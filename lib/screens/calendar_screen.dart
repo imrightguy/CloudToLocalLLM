@@ -1,0 +1,954 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../models.dart';
+import '../services/api_service.dart';
+import 'visit_form_screen.dart';
+
+enum _CalendarView { month, week }
+
+class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
+
+  @override
+  State<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
+  _CalendarView _viewMode = _CalendarView.month;
+  DateTime _focusedMonth = DateTime.now();
+  DateTime _selectedDay = DateTime.now();
+  List<VisitItem> _visits = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchVisits();
+  }
+
+  Future<void> _fetchVisits() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final startOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+      final endOfMonth = DateTime(
+        _focusedMonth.year,
+        _focusedMonth.month + 1,
+        0,
+        23,
+        59,
+        59,
+      );
+      final response = await ApiService.instance.get(
+        '/visits?dateFrom=${Uri.encodeComponent(startOfMonth.toIso8601String().split('T').first)}&dateTo=${Uri.encodeComponent(endOfMonth.toIso8601String().split('T').first)}&limit=200',
+      );
+      final data = response['data'] as List<dynamic>;
+      final visits = data
+          .map((e) => VisitItem.fromJson(e as Map<String, dynamic>))
+          .toList();
+      setState(() {
+        _visits = visits;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  List<VisitItem> _visitsForDay(DateTime day) {
+    return _visits.where((v) {
+      if (v.dateTime == null) return false;
+      return v.dateTime!.year == day.year &&
+          v.dateTime!.month == day.month &&
+          v.dateTime!.day == day.day;
+    }).toList()
+      ..sort((a, b) {
+        if (a.dateTime == null && b.dateTime == null) return 0;
+        if (a.dateTime == null) return 1;
+        if (b.dateTime == null) return -1;
+        return a.dateTime!.compareTo(b.dateTime!);
+      });
+  }
+
+  bool _hasVisitsOnDay(DateTime day) {
+    return _visits.any((v) {
+      if (v.dateTime == null) return false;
+      return v.dateTime!.year == day.year &&
+          v.dateTime!.month == day.month &&
+          v.dateTime!.day == day.day;
+    });
+  }
+
+  void _goToPreviousMonth() {
+    setState(() {
+      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+    });
+    _fetchVisits();
+  }
+
+  void _goToNextMonth() {
+    setState(() {
+      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+    });
+    _fetchVisits();
+  }
+
+  void _goToPreviousWeek() {
+    setState(() {
+      _focusedMonth = _focusedMonth.subtract(const Duration(days: 7));
+      _selectedDay = _selectedDay.subtract(const Duration(days: 7));
+    });
+    _fetchVisits();
+  }
+
+  void _goToNextWeek() {
+    setState(() {
+      _focusedMonth = _focusedMonth.add(const Duration(days: 7));
+      _selectedDay = _selectedDay.add(const Duration(days: 7));
+    });
+    _fetchVisits();
+  }
+
+  void _goToToday() {
+    setState(() {
+      _focusedMonth = DateTime.now();
+      _selectedDay = DateTime.now();
+    });
+    _fetchVisits();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Calendrier'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1E293B),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.today_outlined),
+            tooltip: "Aujourd'hui",
+            onPressed: _goToToday,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _navigateToVisitForm(context),
+          ),
+        ],
+      ),
+      body: _buildBody(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _navigateToVisitForm(context),
+        backgroundColor: const Color(0xFF0F766E),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text('Planifier'),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const SizedBox(height: 16),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'Impossible de charger le calendrier',
+                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage!,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _fetchVisits,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Réessayer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _fetchVisits,
+      child: Column(
+        children: [
+          _buildMonthNavigation(),
+          _buildViewToggle(),
+          Expanded(
+            child: _viewMode == _CalendarView.month
+                ? _buildMonthView()
+                : _buildWeekView(),
+          ),
+          _buildDayDetail(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthNavigation() {
+    final monthLabel = DateFormat('MMMM yyyy', 'fr').format(_focusedMonth);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: _viewMode == _CalendarView.month
+                ? _goToPreviousMonth
+                : _goToPreviousWeek,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: _viewMode == _CalendarView.month ? null : () {
+                setState(() {
+                  _viewMode = _CalendarView.month;
+                  _focusedMonth = DateTime(
+                    _selectedDay.year,
+                    _selectedDay.month,
+                  );
+                });
+                _fetchVisits();
+              },
+              child: Text(
+                monthLabel.replaceFirst(monthLabel[0], monthLabel[0].toUpperCase()),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: _viewMode == _CalendarView.month
+                ? _goToNextMonth
+                : _goToNextWeek,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewToggle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildToggleChip(
+                label: 'Mois',
+                isSelected: _viewMode == _CalendarView.month,
+                onTap: () => setState(() => _viewMode = _CalendarView.month),
+              ),
+            ),
+            Expanded(
+              child: _buildToggleChip(
+                label: 'Semaine',
+                isSelected: _viewMode == _CalendarView.week,
+                onTap: () => setState(() => _viewMode = _CalendarView.week),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToggleChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected ? const Color(0xFF0F766E) : const Color(0xFF64748B),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Month View
+  // ---------------------------------------------------------------------------
+
+  Widget _buildMonthView() {
+    return _buildMonthGrid();
+  }
+
+  Widget _buildMonthGrid() {
+    const dayHeaders = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    final firstOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+    final lastOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
+    final firstWeekday = firstOfMonth.weekday;
+
+    final gridDays = <DateTime>[];
+
+    for (int i = 1; i < firstWeekday; i++) {
+      final prevMonthDay = firstOfMonth.subtract(Duration(days: firstWeekday - i));
+      gridDays.add(prevMonthDay);
+    }
+    for (int d = 1; d <= lastOfMonth.day; d++) {
+      gridDays.add(DateTime(_focusedMonth.year, _focusedMonth.month, d));
+    }
+    while (gridDays.length % 7 != 0) {
+      gridDays.add(
+        gridDays.last.add(const Duration(days: 1)),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: dayHeaders
+                .map((d) => Expanded(
+                      child: Text(
+                        d,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+        Expanded(
+          child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: gridDays.length,
+            itemBuilder: (context, index) {
+              final day = gridDays[index];
+              final isCurrentMonth = day.month == _focusedMonth.month;
+              final isToday = _isSameDay(day, DateTime.now());
+              final isSelected = _isSameDay(day, _selectedDay);
+              final hasVisits = _hasVisitsOnDay(day);
+
+              return GestureDetector(
+                onTap: () => setState(() => _selectedDay = day),
+                child: Container(
+                  margin: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF0F766E)
+                        : isToday
+                            ? const Color(0xFF0F766E).withValues(alpha: 0.1)
+                            : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                    border: isToday && !isSelected
+                        ? Border.all(
+                            color: const Color(0xFF0F766E),
+                            width: 1.5,
+                          )
+                        : null,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${day.day}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: isToday || isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w400,
+                          color: isSelected
+                              ? Colors.white
+                              : isCurrentMonth
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFCBD5E1),
+                        ),
+                      ),
+                      if (hasVisits)
+                        Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.white
+                                : const Color(0xFF0F766E),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Week View
+  // ---------------------------------------------------------------------------
+
+  Widget _buildWeekView() {
+    final weekStart = _selectedDay.subtract(
+      Duration(days: (_selectedDay.weekday - 1) % 7),
+    );
+    final days = List.generate(7, (i) => weekStart.add(Duration(days: i)));
+
+    const hours = [
+      '08:00', '09:00', '10:00', '11:00', '12:00',
+      '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00',
+    ];
+
+    return Column(
+      children: [
+        // Day headers
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              const SizedBox(width: 44),
+              ...days.map((day) {
+                final isToday = _isSameDay(day, DateTime.now());
+                final isSelected = _isSameDay(day, _selectedDay);
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedDay = day),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xFF0F766E)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            DateFormat('E', 'fr').format(day),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Colors.white.withValues(alpha: 0.8)
+                                  : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                          Text(
+                            '${day.day}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected
+                                  ? Colors.white
+                                  : isToday
+                                      ? const Color(0xFF0F766E)
+                                      : const Color(0xFF1E293B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        // Time grid
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Hour labels
+                SizedBox(
+                  width: 44,
+                  child: Column(
+                    children: hours.map((h) {
+                      return SizedBox(
+                        height: 48,
+                        child: Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4, top: 2),
+                            child: Text(
+                              h,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF94A3B8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const VerticalDivider(width: 1),
+                // Day columns
+                Expanded(
+                  child: Row(
+                    children: days.map((day) {
+                      final dayVisits = _visitsForDay(day);
+                      return Expanded(
+                        child: SizedBox(
+                          height: 48 * hours.length,
+                          child: Stack(
+                            children: [
+                              // Grid lines
+                              ...List.generate(hours.length, (i) {
+                                return Positioned(
+                                  top: i * 48.0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Divider(
+                                    height: 1,
+                                    color: const Color(0xFFF1F5F9),
+                                  ),
+                                );
+                              }),
+                              // Visit chips
+                              ...dayVisits.map((visit) {
+                                if (visit.dateTime == null) return const SizedBox.shrink();
+                                final hour = visit.dateTime!.hour;
+                                final minute = visit.dateTime!.minute;
+                                final top = (hour - 8) * 48.0 + (minute / 60.0) * 48.0;
+                                if (top < 0 || top > hours.length * 48.0) {
+                                  return const SizedBox.shrink();
+                                }
+                                final color = _statusColor(visit.status);
+                                return Positioned(
+                                  top: top.clamp(0.0, (hours.length * 48.0 - 24.0)),
+                                  left: 1,
+                                  right: 1,
+                                  child: GestureDetector(
+                                    onTap: () => _showVisitDetailDialog(context, visit),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 3,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: color.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(
+                                          color: color.withValues(alpha: 0.3),
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        '${visit.unitLabel}',
+                                        style: TextStyle(
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.w600,
+                                          color: color,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Day Detail Panel
+  // ---------------------------------------------------------------------------
+
+  Widget _buildDayDetail() {
+    final dayVisits = _visitsForDay(_selectedDay);
+    final isCurrentMonth = _selectedDay.month == _focusedMonth.month ||
+        _viewMode == _CalendarView.week;
+    final dayLabel = isCurrentMonth
+        ? DateFormat('EEEE d MMMM', 'fr').format(_selectedDay)
+        : DateFormat('d MMMM', 'fr').format(_selectedDay);
+
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 280),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                Text(
+                  dayLabel.replaceFirst(dayLabel[0], dayLabel[0].toUpperCase()),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F766E).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${dayVisits.length} visite${dayVisits.length != 1 ? 's' : ''}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF0F766E),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (dayVisits.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.event_busy, size: 20, color: Color(0xFFCBD5E1)),
+                  SizedBox(width: 8),
+                  Text(
+                    'Aucune visite ce jour',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                  ),
+                ],
+              ),
+            )
+          else
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: dayVisits.length,
+                itemBuilder: (context, index) {
+                  final visit = dayVisits[index];
+                  return _buildVisitCard(visit);
+                },
+              ),
+            ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVisitCard(VisitItem visit) {
+    final color = _statusColor(visit.status);
+    final timeLabel = visit.dateTime != null
+        ? DateFormat('HH:mm').format(visit.dateTime!)
+        : '';
+    final statusLabel = _statusLabel(visit.status);
+
+    return GestureDetector(
+      onTap: () => _showVisitDetailDialog(context, visit),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        timeLabel,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          statusLabel,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: color,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${visit.buildingName} · ${visit.unitLabel}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  if (visit.leadName != null && visit.leadName!.isNotEmpty)
+                    Text(
+                      visit.leadName!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Text(
+              visit.agent,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF94A3B8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Visit Detail Dialog
+  // ---------------------------------------------------------------------------
+
+  void _showVisitDetailDialog(BuildContext context, VisitItem visit) {
+    final displayStatus = _statusLabel(visit.status);
+    final timeLabel = visit.dateTime != null
+        ? DateFormat('EEEE d MMMM yyyy à HH:mm', 'fr').format(visit.dateTime!)
+        : visit.dateLabel;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Détails de la visite'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _detailRow('Date', timeLabel),
+                _detailRow('Statut', displayStatus),
+                _detailRow('Immeuble', visit.buildingName),
+                _detailRow('Unité', visit.unitLabel),
+                _detailRow('Agent', visit.agent),
+                if (visit.leadName != null && visit.leadName!.isNotEmpty)
+                  _detailRow('Prospect', visit.leadName!),
+                if (visit.notes.isNotEmpty) _detailRow('Notes', visit.notes),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Text('Locataire notifié: ',
+                        style: TextStyle(fontWeight: FontWeight.w500)),
+                    Text(visit.occupantNotified ? 'Oui' : 'Non'),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Text('Employé confirmé: ',
+                        style: TextStyle(fontWeight: FontWeight.w500)),
+                    Text(visit.employeeConfirmed ? 'Oui' : 'Non'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Fermer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------------------
+
+  void _navigateToVisitForm(BuildContext context) {
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (_) => VisitFormScreen(initialDate: _selectedDay),
+        fullscreenDialog: true,
+      ),
+    )
+        .then((didCreate) {
+      if (didCreate == true && mounted) _fetchVisits();
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return const Color(0xFF10B981);
+      case 'completed':
+        return const Color(0xFF3B82F6);
+      case 'cancelled':
+        return const Color(0xFFEF4444);
+      case 'no_show':
+        return const Color(0xFFF59E0B);
+      case 'scheduled':
+        return const Color(0xFF38BDF8);
+      default:
+        return const Color(0xFF64748B);
+    }
+  }
+
+  String _statusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return 'Confirmée';
+      case 'completed':
+        return 'Terminée';
+      case 'cancelled':
+        return 'Annulée';
+      case 'no_show':
+        return 'Absent';
+      case 'scheduled':
+        return 'Planifiée';
+      default:
+        return status;
+    }
+  }
+}

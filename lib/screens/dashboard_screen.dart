@@ -1,11 +1,18 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/analytics_service.dart';
 import '../services/communication_service.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
+import '../widgets/building_perf_row.dart';
+import '../widgets/kpi_card.dart';
+import '../widgets/lead_funnel.dart';
+import '../widgets/occupancy_chart.dart';
+import '../widgets/revenue_chart.dart';
 import 'units_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -19,21 +26,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
-  // Analytics data
-  Map<String, dynamic> _pipeline = {};
-  List<dynamic> _hotLeads = [];
-  Map<String, dynamic> _visitStats = {};
-  Map<String, dynamic> _conversionRates = {};
-  // _leadSources and _weeklyStats stored for future use
-  // ignore: unused_field
-  Map<String, dynamic> _leadSources = {};
-  // ignore: unused_field
-  Map<String, dynamic> _weeklyStats = {};
-
-  // Buildings for top buildings section
+  FullDashboardData? _dashboardData;
   List<BuildingItem> _buildings = [];
-
-  // Recent communications for activity feed
   List<CommunicationItem> _recentCommunications = [];
 
   @override
@@ -49,31 +43,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
     try {
       final results = await Future.wait([
-        ApiService.instance.get('/analytics/dashboard'),
+        AnalyticsService.instance.getDashboard(),
         ApiService.instance.get('/buildings'),
         CommunicationService.instance.getActivity(limit: 5),
       ]);
 
-      final analyticsResponse = results[0];
+      final analytics = results[0] as FullDashboardData;
       final buildingsResponse = results[1];
       final communications = results[2] as List<CommunicationItem>;
 
-      final analyticsData =
-          analyticsResponse['data'] as Map<String, dynamic>? ?? {};
       final buildingsData = buildingsResponse['data'] as List<dynamic>;
 
       setState(() {
-        _pipeline = (analyticsData['pipeline'] as Map<String, dynamic>?) ?? {};
-        _hotLeads = (analyticsData['hotLeads'] as List<dynamic>?) ?? [];
-        _visitStats =
-            (analyticsData['visitStats'] as Map<String, dynamic>?) ?? {};
-        _conversionRates =
-            (analyticsData['conversionRates'] as Map<String, dynamic>?) ?? {};
-        _leadSources =
-            (analyticsData['leadSources'] as Map<String, dynamic>?) ?? {};
-        _weeklyStats =
-            (analyticsData['weeklyStats'] as Map<String, dynamic>?) ?? {};
-
+        _dashboardData = analytics;
         _buildings = buildingsData
             .map((e) => BuildingItem.fromJson(e as Map<String, dynamic>))
             .toList();
@@ -88,27 +70,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  int _pipelineTotal() {
-    return _pipeline.values.fold<int>(0, (sum, v) => sum + (v as num).toInt());
-  }
-
   String _currentPeriodLabel() {
     final now = DateTime.now();
     const months = [
-      'Janvier',
-      'Février',
-      'Mars',
-      'Avril',
-      'Mai',
-      'Juin',
-      'Juillet',
-      'Août',
-      'Septembre',
-      'Octobre',
-      'Novembre',
-      'Décembre',
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
     ];
     return '${months[now.month - 1]} ${now.year}';
+  }
+
+  KpiSummary? get _kpi => _dashboardData?.kpi;
+
+  String _formatRevenue(int value) {
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(value % 1000 == 0 ? 0 : 1)}k \$';
+    }
+    return '$value \$';
   }
 
   @override
@@ -121,26 +98,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF1E293B),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'quick_actions_fab',
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: const StadiumBorder(),
+        onPressed: () {
+          Navigator.of(context).pushNamed('/pipeline');
+        },
+        icon: const Icon(Icons.add_circle_outline),
+        label: const Text('Nouvelle piste', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+      ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
     }
     if (_errorMessage != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Color(0xFFEF4444)),
+            const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                'Impossible de charger le tableau de bord',
-                style: TextStyle(fontSize: 16, color: Color(0xFF1E293B)),
+                'Erreur de chargement',
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -149,7 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -159,7 +154,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F766E),
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
             ),
@@ -168,435 +163,268 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
+    final hasNoData = _kpi == null &&
+        _buildings.isEmpty &&
+        (_dashboardData?.pipeline.stages.isEmpty ?? true);
+
+    if (hasNoData) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.analytics_outlined, size: 48, color: AppColors.textMuted),
+            const SizedBox(height: 16),
+            const Text(
+              'Aucune donnée disponible',
+              style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 48),
+              child: Text(
+                'Les données apparaîtront une fois les premiers baux et immeubles ajoutés.',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/buildings');
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+              ),
+              child: const Text('Ajouter un immeuble'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final revenueChart = _dashboardData?.revenueChart
+            ?.map((e) => RevenueDataPoint.fromJson(e))
+            .toList() ??
+        [];
+    final occupancyChart = _dashboardData?.occupancyChart
+            ?.map((e) => OccupancyDataPoint.fromJson(e))
+            .toList() ??
+        [];
+
     return RefreshIndicator(
       onRefresh: _fetchDashboard,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Period selector
-            Row(
-              children: [
-                const Text(
-                  'Période:',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color((0xFF0F766E)).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _currentPeriodLabel(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF0F766E),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.calendar_month_outlined, size: 16),
-                  onPressed: () {},
-                ),
-              ],
+            _buildPeriodSelector(),
+            const SizedBox(height: AppSpacing.xl),
+
+            _buildKpiCards(),
+            const SizedBox(height: AppSpacing.xl),
+
+            RevenueChartCard(data: revenueChart),
+            const SizedBox(height: AppSpacing.xl),
+
+            OccupancyChartCard(
+              data: occupancyChart,
+              currentRate: _kpi?.occupancyRate.current.toDouble(),
             ),
+            const SizedBox(height: AppSpacing.xl),
 
-            const SizedBox(height: 24),
+            if (_dashboardData?.leadFunnel != null &&
+                (_dashboardData!.leadFunnel!.isNotEmpty))
+              LeadFunnelCard(funnelData: _dashboardData!.leadFunnel!),
+            if (_dashboardData?.leadFunnel != null &&
+                _dashboardData!.leadFunnel!.isNotEmpty)
+              const SizedBox(height: AppSpacing.xl),
 
-            // Revenue chart — per building
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Revenus mensuels',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '${_buildings.fold<int>(0, (s, b) => s + b.monthlyRevenue)}\$ total',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  if (_buildings.isEmpty)
-                    const SizedBox(
-                      height: 200,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.bar_chart_outlined,
-                              size: 40,
-                              color: Color(0x80CBD5E1),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Ajoutez des immeubles pour voir les revenus',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF94A3B8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    SizedBox(
-                      height: 200,
-                      child: CustomPaint(
-                        size: Size.infinite,
-                        painter: _RevenueBarPainter(
-                          buildings: _buildings,
-                          barColor: const Color(0xFF0F766E),
-                          barHighlightColor: const Color(0xFF14B8A6),
-                          textColor: const Color(0xFF64748B),
-                          gridColor: const Color(0xFFF1F5F9),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Pipeline summary
-            if (_pipeline.isNotEmpty) ...[
-              const Text(
-                'Pipeline',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _pipeline.entries.map((entry) {
-                  final stage = LeadStage.fromString(entry.key);
-                  final count = (entry.value as num).toInt();
-                  return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          '$count',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                        Text(
-                          stage.label,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Color(0xFF64748B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 24),
+            if (_dashboardData?.pipeline.stages.isNotEmpty == true) ...[
+              _buildPipelineSection(),
+              const SizedBox(height: AppSpacing.xl),
             ],
 
-            // Visit stats
-            if (_visitStats.isNotEmpty) ...[
-              const Text(
-                'Statistiques des visites',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _buildVisitStatChip(
-                    label: 'Total',
-                    value: (_visitStats['total'] as num?)?.toInt() ?? 0,
-                    color: const Color(0xFF1E293B),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildVisitStatChip(
-                    label: 'Terminées',
-                    value: (_visitStats['completed'] as num?)?.toInt() ?? 0,
-                    color: const Color(0xFF10B981),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildVisitStatChip(
-                    label: 'Annulées',
-                    value: (_visitStats['cancelled'] as num?)?.toInt() ?? 0,
-                    color: const Color(0xFFEF4444),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildVisitStatChip(
-                    label: 'Absent',
-                    value: (_visitStats['no_show'] as num?)?.toInt() ?? 0,
-                    color: const Color(0xFFF59E0B),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
+            if (_dashboardData?.visitStats != null) ...[
+              _buildVisitStatsSection(),
+              const SizedBox(height: AppSpacing.xl),
             ],
 
-            // Hot leads
-            if (_hotLeads.isNotEmpty) ...[
-              const Text(
-                'Leads chauds',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ..._hotLeads.map((lead) {
-                final name = lead['fullName'] as String? ?? '';
-                final stage = lead['stage'] as String? ?? '';
-                final source = lead['source'] as String? ?? '';
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Color(0xFFFEE2E2),
-                        child: Icon(Icons.local_fire_department,
-                            color: Color(0xFFEF4444), size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF1E293B),
-                              ),
-                            ),
-                            Text(
-                              '$stage · $source',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-              const SizedBox(height: 24),
-            ],
-
-            // Performance metrics
-            const Text(
-              'Performance',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
-              ),
+            BuildingPerformanceCard(
+              buildings: _buildings,
+              onViewAll: () {
+                Navigator.of(context).pushNamed('/buildings');
+              },
             ),
-
-            const SizedBox(height: 12),
-
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: _buildPerformanceMetrics(),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Top buildings
-            const Text(
-              'Meilleurs immeubles',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            if (_buildings.isEmpty)
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Aucun immeuble',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-                  ),
-                ),
-              )
-              else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _buildings.length,
-                itemBuilder: (context, index) {
-                  final building = _buildings[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: const Color((0xFF0F766E))
-                                .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.apartment,
-                            color: Color(0xFF0F766E),
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                building.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF1E293B),
-                                ),
-                              ),
-                              Text(
-                                '${building.occupiedUnits}/${building.totalUnits} unités',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${building.occupancyRate.toStringAsFixed(1)}%',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF10B981),
-                              ),
-                            ),
-                            Text(
-                              '${building.monthlyRevenue}\$',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xl),
 
             _buildActivityFeed(),
-
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xl),
 
             _buildVacancySummary(context),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPeriodSelector() {
+    return Row(
+      children: [
+        const Text('Période:', style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+        const SizedBox(width: AppSpacing.sm),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+          ),
+          child: Text(
+            _currentPeriodLabel(),
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.primary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildKpiCards() {
+    if (_kpi == null) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 140,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          KpiCard(
+            label: 'Revenus',
+            value: _formatRevenue(_kpi!.revenue.current.toInt()),
+            icon: Icons.attach_money,
+            trendPercentage: _kpi!.revenue.trend,
+            onTap: () {},
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          KpiCard(
+            label: "Taux d'occupation",
+            value: '${_kpi!.occupancyRate.current.toStringAsFixed(1)}%',
+            icon: Icons.percent,
+            trendPercentage: _kpi!.occupancyRate.trend,
+            onTap: () {},
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          KpiCard(
+            label: 'Baux actifs',
+            value: '${_kpi!.activeLeases.current.toInt()}',
+            icon: Icons.description,
+            trendPercentage: _kpi!.activeLeases.trend,
+            onTap: () {
+              Navigator.of(context).pushNamed('/leases');
+            },
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          KpiCard(
+            label: 'Pistes ouvertes',
+            value: '${_kpi!.openLeads.current.toInt()}',
+            icon: Icons.person_add,
+            trendPercentage: _kpi!.openLeads.trend,
+            onTap: () {
+              Navigator.of(context).pushNamed('/pipeline');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPipelineSection() {
+    final pipeline = _dashboardData!.pipeline;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Pipeline', style: AppTypography.sectionHeader),
+        const SizedBox(height: AppSpacing.md),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: pipeline.stages.entries.map((entry) {
+            final stage = LeadStage.fromString(entry.key);
+            final count = entry.value;
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: AppSpacing.cardDecoration(),
+              child: Column(
+                children: [
+                  Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(stage.label, style: AppTypography.chartAxisLabel),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVisitStatsSection() {
+    final vs = _dashboardData!.visitStats;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Statistiques des visites', style: AppTypography.sectionHeader),
+        const SizedBox(height: AppSpacing.md),
+        Row(
+          children: [
+            _buildVisitStatChip(label: 'Total', value: vs.total, color: AppColors.textPrimary),
+            const SizedBox(width: AppSpacing.sm),
+            _buildVisitStatChip(label: 'Terminées', value: vs.completed, color: AppColors.success),
+            const SizedBox(width: AppSpacing.sm),
+            _buildVisitStatChip(label: 'Annulées', value: vs.cancelled, color: AppColors.error),
+            const SizedBox(width: AppSpacing.sm),
+            _buildVisitStatChip(label: 'Absent', value: vs.noShow, color: AppColors.warning),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVisitStatChip({
+    required String label,
+    required int value,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [AppSpacing.elevationCard],
+        ),
+        child: Column(
+          children: [
+            Text(
+              '$value',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(label, style: AppTypography.chartAxisLabel),
           ],
         ),
       ),
@@ -608,25 +436,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Activité récente',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
+              const Text('Activité récente', style: AppTypography.sectionHeader),
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushNamed('/communications');
                 },
-                child: const Text(
+                child: Text(
                   'Voir tout',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ),
             ],
@@ -635,11 +456,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (_recentCommunications.isEmpty)
           const Center(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Aucune activité récente',
-                style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-              ),
+              padding: EdgeInsets.all(AppSpacing.lg),
+              child: Text('Aucune activité récente', style: AppTypography.caption),
             ),
           )
         else
@@ -647,19 +465,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final typeColor = _communicationTypeColor(item.type);
             final typeIcon = _communicationTypeIcon(item.type);
             return Container(
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+              decoration: AppSpacing.cardDecoration(),
               child: Row(
                 children: [
                   Container(
@@ -671,30 +479,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     child: Icon(typeIcon, size: 20, color: typeColor),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '${_communicationTypeLabel(item.type)}: ${item.contactName}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF1E293B),
-                          ),
+                          style: AppTypography.cardTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          item.body.isNotEmpty
-                              ? item.body
-                              : item.subject,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF64748B),
-                          ),
+                          item.body.isNotEmpty ? item.body : item.subject,
+                          style: AppTypography.caption,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -703,8 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   Text(
                     _formatTimeAgo(item.createdAt),
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -717,13 +515,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Color _communicationTypeColor(String type) {
     switch (type) {
       case 'sms':
-        return const Color(0xFF6366F1);
+        return AppColors.funnelContacte;
       case 'email':
-        return const Color(0xFF3B82F6);
+        return AppColors.info;
       case 'call':
-        return const Color(0xFF10B981);
+        return AppColors.success;
       default:
-        return const Color(0xFFF59E0B);
+        return AppColors.warning;
     }
   }
 
@@ -775,83 +573,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: AppSpacing.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
-              Icon(Icons.door_front_door,
-                  color: Color(0xFF0F766E), size: 20),
-              SizedBox(width: 8),
-              Text(
-                'Aperçu des vacances',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
+              Icon(Icons.door_front_door, color: AppColors.primary, size: 20),
+              SizedBox(width: AppSpacing.sm),
+              Text('Aperçu des vacances', style: AppTypography.sectionHeader),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
               Expanded(
-                child: _buildVacancyChip(
-                  label: 'Total',
-                  count: totalUnits,
-                  color: const Color(0xFF1E293B),
-                ),
+                child: _buildVacancyChip(label: 'Total', count: totalUnits, color: AppColors.textPrimary),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: _buildVacancyChip(
-                  label: 'Occupées',
-                  count: occupiedUnits,
-                  color: const Color(0xFF10B981),
-                ),
+                child: _buildVacancyChip(label: 'Occupées', count: occupiedUnits, color: AppColors.success),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: _buildVacancyChip(
-                  label: 'Libres',
-                  count: vacantUnits,
-                  color: const Color(0xFFF59E0B),
-                ),
+                child: _buildVacancyChip(label: 'Libres', count: vacantUnits, color: AppColors.warning),
               ),
             ],
           ),
           if (_buildings.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const UnitsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const UnitsScreen()),
                   );
                 },
                 icon: const Icon(Icons.arrow_forward, size: 16),
                 label: const Text('Voir toutes les unités'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF0F766E),
-                  side: const BorderSide(color: Color(0xFF0F766E)),
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                   ),
                 ),
               ),
@@ -868,7 +634,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
@@ -894,349 +660,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
-  }
-
-  List<Widget> _buildPerformanceMetrics() {
-    // Compute occupancy from buildings data
-    int totalUnits = 0;
-    int occupiedUnits = 0;
-    int totalRevenue = 0;
-    for (final b in _buildings) {
-      totalUnits += b.totalUnits;
-      occupiedUnits += b.occupiedUnits;
-      totalRevenue += b.monthlyRevenue;
-    }
-    final occupancy = totalUnits > 0 ? (occupiedUnits / totalUnits * 100) : 0.0;
-    final vacancy = totalUnits > 0 ? (100.0 - occupancy) : 0.0;
-    final avgRent = occupiedUnits > 0 ? totalRevenue ~/ occupiedUnits : 0;
-    final pipelineCount = _pipelineTotal();
-
-    // Use conversion rate if available
-    final conversionRate = _conversionRates['overall'] as num?;
-    final rotationRate = conversionRate != null
-        ? (conversionRate.toDouble() * 100).toStringAsFixed(1)
-        : '-';
-
-    return [
-      _buildMetricCard(
-        title: "Taux d'occupation",
-        value: '${occupancy.toStringAsFixed(1)}%',
-        change: '$occupiedUnits / $totalUnits',
-        isPositive: occupancy > 90,
-        icon: Icons.home_work,
-        color: const Color(0xFF10B981),
-      ),
-      _buildMetricCard(
-        title: 'Revenu moyen',
-        value: '$avgRent\$',
-        change: '$totalRevenue\$ total',
-        isPositive: true,
-        icon: Icons.attach_money,
-        color: const Color(0xFF3B82F6),
-      ),
-      _buildMetricCard(
-        title: 'Taux de rotation',
-        value: '$rotationRate%',
-        change: '$pipelineCount dans le pipeline',
-        isPositive: true,
-        icon: Icons.swap_horiz,
-        color: const Color(0xFFF59E0B),
-      ),
-      _buildMetricCard(
-        title: 'Taux de vacance',
-        value: '${vacancy.toStringAsFixed(1)}%',
-        change: '${totalUnits - occupiedUnits} libres',
-        isPositive: vacancy < 10,
-        icon: Icons.hourglass_empty,
-        color: const Color(0xFF6366F1),
-      ),
-    ];
-  }
-
-  Widget _buildVisitStatChip({
-    required String label,
-    required int value,
-    required Color color,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              '$value',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 10,
-                color: Color(0xFF64748B),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMetricCard({
-    required String title,
-    required String value,
-    required String change,
-    required bool isPositive,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      width: (MediaQuery.of(context).size.width - 40) / 2,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  change,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isPositive
-                        ? const Color(0xFF10B981)
-                        : const Color(0xFFEF4444),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Revenue bar chart painter
-// ---------------------------------------------------------------------------
-
-class _RevenueBarPainter extends CustomPainter {
-  _RevenueBarPainter({
-    required this.buildings,
-    required this.barColor,
-    required this.barHighlightColor,
-    required this.textColor,
-    required this.gridColor,
-  });
-
-  final List<BuildingItem> buildings;
-  final Color barColor;
-  final Color barHighlightColor;
-  final Color textColor;
-  final Color gridColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (buildings.isEmpty) return;
-
-    const padding = EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 32);
-    final chartWidth = size.width - padding.left - padding.right;
-    final chartHeight = size.height - padding.top - padding.bottom;
-
-    // Find max revenue for scaling
-    final maxRevenue = buildings.fold<int>(
-        0, (max, b) => b.monthlyRevenue > max ? b.monthlyRevenue : max);
-    if (maxRevenue == 0) return;
-
-    // Round up max to a nice number for grid lines
-    final gridMax = _niceMax(maxRevenue);
-    const gridLines = 4;
-
-    // Draw horizontal grid lines + labels
-    final gridPaint = Paint()
-      ..color = gridColor
-      ..strokeWidth = 1;
-
-    final labelPaint = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
-
-    for (int i = 0; i <= gridLines; i++) {
-      final y = padding.top + chartHeight - (chartHeight * i / gridLines);
-      canvas.drawLine(
-        Offset(padding.left, y),
-        Offset(size.width - padding.right, y),
-        gridPaint,
-      );
-
-      // Grid label
-      final value = (gridMax * i / gridLines).round();
-      labelPaint.text = TextSpan(
-        text: '${_formatCompact(value)}\$',
-        style: TextStyle(fontSize: 10, color: textColor.withValues(alpha: 0.6)),
-      );
-      labelPaint.layout();
-      labelPaint.paint(
-        canvas,
-        Offset(padding.left, y - 14),
-      );
-    }
-
-    // Draw bars
-    final barCount = buildings.length;
-    final totalBarArea = chartWidth;
-    final barSpacing = totalBarArea / (barCount * 2 + 1); // gaps on both sides
-    final barWidth = barSpacing * 1.5;
-
-    // Find the top building for highlight
-    final topRevenue = maxRevenue;
-
-    for (int i = 0; i < barCount; i++) {
-      final building = buildings[i];
-      final barHeight = (building.monthlyRevenue / gridMax) * chartHeight;
-      final x = padding.left + barSpacing + i * (barWidth + barSpacing);
-      final y = padding.top + chartHeight - barHeight;
-
-      // Bar with rounded top
-      final isTop = building.monthlyRevenue == topRevenue;
-      final paint = Paint()
-        ..color = isTop ? barHighlightColor : barColor
-        ..style = PaintingStyle.fill;
-
-      final radius = Radius.circular(barWidth / 4);
-      final rect = RRect.fromRectAndCorners(
-        Rect.fromLTWH(x, y, barWidth, barHeight),
-        topLeft: radius,
-        topRight: radius,
-        bottomLeft: Radius.zero,
-        bottomRight: Radius.zero,
-      );
-      canvas.drawRRect(rect, paint);
-
-      // Revenue label on top of bar
-      if (barHeight > 20) {
-        final revPaint = TextPainter(
-          text: TextSpan(
-            text: _formatCompact(building.monthlyRevenue),
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: barColor,
-            ),
-          ),
-          textDirection: TextDirection.ltr,
-        );
-        revPaint.layout();
-        revPaint.paint(
-          canvas,
-          Offset(x + (barWidth - revPaint.width) / 2, y - 14),
-        );
-      }
-
-      // Building name at bottom (rotated if needed)
-      final namePaint = TextPainter(
-        text: TextSpan(
-          text: building.name.length > 10
-              ? '${building.name.substring(0, 9)}…'
-              : building.name,
-          style: TextStyle(fontSize: 9, color: textColor),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      namePaint.layout(maxWidth: barWidth + barSpacing * 0.5);
-      namePaint.paint(
-        canvas,
-        Offset(
-          x + (barWidth - namePaint.width) / 2,
-          padding.top + chartHeight + 6,
-        ),
-      );
-    }
-  }
-
-  static int _niceMax(int value) {
-    if (value <= 0) return 100;
-    final exp = value.toString().length - 1;
-    final magnitude = math.pow(10, exp).toInt();
-    final normalized = value / magnitude;
-    int nice;
-    if (normalized <= 1) {
-      nice = 1;
-    } else if (normalized <= 2) {
-      nice = 2;
-    } else if (normalized <= 5) {
-      nice = 5;
-    } else {
-      nice = 10;
-    }
-    return nice * magnitude;
-  }
-
-  static String _formatCompact(int value) {
-    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(0)}k';
-    return '$value';
-  }
-
-  @override
-  bool shouldRepaint(covariant _RevenueBarPainter oldDelegate) {
-    return oldDelegate.buildings != buildings;
   }
 }

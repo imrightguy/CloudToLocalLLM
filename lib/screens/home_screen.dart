@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import 'calendar_screen.dart';
 import 'dashboard_screen.dart';
 import 'pipeline_screen.dart';
 import 'visits_screen.dart';
@@ -27,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const _HomeTab(),
     const DashboardScreen(),
     const PipelineScreen(),
+    const CalendarScreen(),
     const VisitsScreen(),
     const BuildingsScreen(),
     const LeasesScreen(),
@@ -66,6 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.trending_up),
             label: 'Pipeline',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month_outlined),
+            label: 'Calendrier',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today_outlined),

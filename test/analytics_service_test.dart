@@ -126,9 +126,9 @@ void main() {
     });
   });
 
-  group('DashboardData', () {
+  group('FullDashboardData', () {
     test('fromJson parses full dashboard', () {
-      final dashboard = DashboardData.fromJson({
+      final dashboard = FullDashboardData.fromJson({
         'pipeline': {'nouveau': 10, 'contacte': 5},
         'hotLeads': [
           {'id': 'l1', 'fullName': 'Test User'},
@@ -169,13 +169,57 @@ void main() {
     });
 
     test('fromJson handles empty dashboard', () {
-      final dashboard = DashboardData.fromJson({});
+      final dashboard = FullDashboardData.fromJson({});
       expect(dashboard.pipeline.stages, isEmpty);
       expect(dashboard.hotLeads, isEmpty);
       expect(dashboard.weeklyStats.newLeads, 0);
       expect(dashboard.visitStats.total, 0);
       expect(dashboard.conversionRates.conversionRate, '0%');
       expect(dashboard.leadSources, isEmpty);
+    });
+
+    test('fromJson parses KPI summary', () {
+      final dashboard = FullDashboardData.fromJson({
+        'kpi': {
+          'revenue': {'current': 45000, 'previous': 42000, 'trend': 7.14},
+          'occupancyRate': {'current': 87.5, 'previous': 82.1, 'trend': 5.3},
+          'activeLeases': {'current': 156, 'previous': 148, 'trend': 5.4},
+          'openLeads': {'current': 42, 'previous': 38, 'trend': -10.5},
+        },
+      });
+
+      expect(dashboard.kpi, isNotNull);
+      expect(dashboard.kpi!.revenue.current, 45000);
+      expect(dashboard.kpi!.occupancyRate.trend, 5.3);
+      expect(dashboard.kpi!.activeLeases.current, 156);
+      expect(dashboard.kpi!.openLeads.trend, -10.5);
+    });
+
+    test('fromJson parses revenue chart data', () {
+      final dashboard = FullDashboardData.fromJson({
+        'revenueChart': [
+          {'month': '2026-01', 'revenue': 38000},
+          {'month': '2026-02', 'revenue': 41000},
+        ],
+      });
+
+      expect(dashboard.revenueChart, isNotNull);
+      expect(dashboard.revenueChart!.length, 2);
+      expect(dashboard.revenueChart!.first['month'], '2026-01');
+    });
+
+    test('fromJson parses lead funnel', () {
+      final dashboard = FullDashboardData.fromJson({
+        'leadFunnel': {
+          'nouveau': 42,
+          'contacte': 35,
+          'bailSigne': 8,
+        },
+      });
+
+      expect(dashboard.leadFunnel, isNotNull);
+      expect(dashboard.leadFunnel!['nouveau'], 42);
+      expect(dashboard.leadFunnel!['bailSigne'], 8);
     });
   });
 }

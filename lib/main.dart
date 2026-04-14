@@ -7,6 +7,7 @@ import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/pipeline_screen.dart';
+import 'screens/calendar_screen.dart';
 import 'screens/visits_screen.dart';
 import 'screens/buildings_screen.dart';
 import 'screens/employees_screen.dart';
@@ -96,6 +97,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       routes: {
         '/dashboard': (context) => const DashboardScreen(),
         '/pipeline': (context) => const PipelineScreen(),
+        '/calendar': (context) => const CalendarScreen(),
         '/visits': (context) => const VisitsScreen(),
         '/buildings': (context) => const BuildingsScreen(),
         '/employees': (context) => const EmployeesScreen(),
