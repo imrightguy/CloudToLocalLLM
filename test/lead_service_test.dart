@@ -9,7 +9,8 @@ void main() {
       expect(LeadStage.fromString('nouveau'), LeadStage.nouveau);
       expect(LeadStage.fromString('contacte'), LeadStage.contacte);
       expect(LeadStage.fromString('qualifie'), LeadStage.qualifie);
-      expect(LeadStage.fromString('visitePlanifiee'), LeadStage.visitePlanifiee);
+      expect(
+          LeadStage.fromString('visitePlanifiee'), LeadStage.visitePlanifiee);
       expect(LeadStage.fromString('offreEnvoyee'), LeadStage.offreEnvoyee);
       expect(LeadStage.fromString('negociation'), LeadStage.negociation);
       expect(LeadStage.fromString('bailSigne'), LeadStage.bailSigne);

@@ -156,9 +156,7 @@ void main() {
       final asList = [singleObject];
 
       // Array path
-      final fromList = asList
-          .map((e) => UnitItem.fromJson(e))
-          .toList();
+      final fromList = asList.map((e) => UnitItem.fromJson(e)).toList();
       expect(fromList.length, 1);
 
       // Single-object fallback path

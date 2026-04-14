@@ -16,8 +16,8 @@ void main() {
   setUpAll(() async {
     // Skip entire suite if backend is not reachable
     try {
-      final socket =
-          await Socket.connect('localhost', 3000, timeout: const Duration(seconds: 2));
+      final socket = await Socket.connect('localhost', 3000,
+          timeout: const Duration(seconds: 2));
       socket.destroy();
     } catch (_) {
       throw TestFailure(
