@@ -47,7 +47,11 @@ beforeEach(() => {
   jest.resetModules();
 
   // Setup mock DB chain
-  mockDb.insert.mockReturnValue({ values: jest.fn().mockReturnValue({ returning: jest.fn().mockResolvedValue([{ id: 1 }]) }) });
+  mockDb.insert.mockReturnValue({
+    values: jest.fn().mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: 1 }]),
+    }),
+  });
   mockDb.select.mockReturnValue({
     from: jest.fn().mockReturnValue({
       innerJoin: jest.fn().mockReturnValue({
