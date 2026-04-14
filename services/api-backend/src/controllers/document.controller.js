@@ -56,7 +56,9 @@ exports.getDocuments = async (req, res) => {
     const {
       referenceId, referenceType, type, category, status, uploadedBy, page = 1, limit = 20,
     } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const validPage = Math.max(1, parseInt(page) || 1);
+    const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
+    const offset = (validPage - 1) * validLimit;
 
     const conditions = [eq(documentsTable.isActive, true)];
     if (referenceId) conditions.push(eq(documentsTable.referenceId, referenceId));
@@ -77,10 +79,10 @@ exports.getDocuments = async (req, res) => {
       .from(documentsTable)
       .where(and(...conditions))
       .orderBy(desc(documentsTable.createdAt))
-      .limit(parseInt(limit))
+      .limit(validLimit)
       .offset(offset);
 
-    const totalPages = Math.ceil(total / parseInt(limit));
+    const totalPages = Math.ceil(total / validLimit);
 
     res.json({
       success: true,
@@ -88,10 +90,10 @@ exports.getDocuments = async (req, res) => {
       message: 'Documents retrieved successfully',
       metadata: {
         total,
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: validPage,
+        limit: validLimit,
         totalPages,
-        hasMore: parseInt(page) < totalPages,
+        hasMore: validPage < totalPages,
       },
     });
   } catch (error) {
@@ -323,7 +325,9 @@ exports.searchDocuments = async (req, res) => {
     const {
       q, type, category, status, page = 1, limit = 20,
     } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const validPage = Math.max(1, parseInt(page) || 1);
+    const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
+    const offset = (validPage - 1) * validLimit;
 
     if (!q) {
       return res.status(400).json({
@@ -352,10 +356,10 @@ exports.searchDocuments = async (req, res) => {
       .from(documentsTable)
       .where(and(...conditions))
       .orderBy(desc(documentsTable.createdAt))
-      .limit(parseInt(limit))
+      .limit(validLimit)
       .offset(offset);
 
-    const totalPages = Math.ceil(total / parseInt(limit));
+    const totalPages = Math.ceil(total / validLimit);
 
     res.json({
       success: true,
@@ -363,10 +367,10 @@ exports.searchDocuments = async (req, res) => {
       message: 'Document search completed',
       metadata: {
         total,
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: validPage,
+        limit: validLimit,
         totalPages,
-        hasMore: parseInt(page) < totalPages,
+        hasMore: validPage < totalPages,
         query: q,
       },
     });

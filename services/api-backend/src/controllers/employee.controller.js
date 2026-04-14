@@ -55,7 +55,9 @@ exports.getEmployees = async (req, res) => {
     const {
       page = 1, limit = 20, search, isActive,
     } = req.query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const validPage = Math.max(1, parseInt(page) || 1);
+    const validLimit = Math.min(100, Math.max(1, parseInt(limit) || 20));
+    const offset = (validPage - 1) * validLimit;
 
     const conditions = [];
     if (search) {
@@ -80,10 +82,10 @@ exports.getEmployees = async (req, res) => {
       .from(employeesTable)
       .where(whereClause)
       .orderBy(asc(employeesTable.lastName), asc(employeesTable.firstName))
-      .limit(parseInt(limit))
+      .limit(validLimit)
       .offset(offset);
 
-    const totalPages = Math.ceil(total / parseInt(limit));
+    const totalPages = Math.ceil(total / validLimit);
 
     res.json({
       success: true,
@@ -91,10 +93,10 @@ exports.getEmployees = async (req, res) => {
       message: 'Employees retrieved successfully',
       metadata: {
         total,
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: validPage,
+        limit: validLimit,
         totalPages,
-        hasMore: parseInt(page) < totalPages,
+        hasMore: validPage < totalPages,
       },
     });
   } catch (error) {
