@@ -491,6 +491,187 @@ class UnitItem {
 }
 
 // =============================================================================
+// EmployeeItem
+// =============================================================================
+
+class EmployeeItem {
+  const EmployeeItem({
+    this.id,
+    this.createdAt,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.phone,
+    required this.isActive,
+    required this.buildingAssignments,
+  });
+
+  final String? id;
+  final DateTime? createdAt;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phone;
+  final bool isActive;
+  final List<BuildingAssignment> buildingAssignments;
+
+  String get fullName {
+    final trimmed = '$firstName $lastName'.trim();
+    return trimmed.isEmpty ? 'Employé' : trimmed;
+  }
+
+  factory EmployeeItem.fromJson(Map<String, dynamic> json) {
+    return EmployeeItem(
+      id: json['id'] as String?,
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      isActive: json['isActive'] as bool? ?? true,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      buildingAssignments: (json['buildingAssignments'] as List<dynamic>?)
+              ?.map((e) =>
+                  BuildingAssignment.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'firstName': firstName,
+        'lastName': lastName,
+        'email': email,
+        'phone': phone,
+        'isActive': isActive,
+        if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+        'buildingAssignments':
+            buildingAssignments.map((a) => a.toJson()).toList(),
+      };
+}
+
+// =============================================================================
+// BuildingAssignment
+// =============================================================================
+
+class BuildingAssignment {
+  const BuildingAssignment({
+    this.id,
+    this.buildingId,
+    this.buildingName,
+    required this.role,
+  });
+
+  final String? id;
+  final String? buildingId;
+  final String? buildingName;
+  final String role;
+
+  String get roleLabel {
+    switch (role.toLowerCase()) {
+      case 'primary':
+        return 'Principale';
+      case 'backup':
+        return 'Remplacement';
+      default:
+        return role;
+    }
+  }
+
+  factory BuildingAssignment.fromJson(Map<String, dynamic> json) {
+    return BuildingAssignment(
+      id: json['id'] as String?,
+      buildingId: json['buildingId'] as String?,
+      buildingName: json['buildingName'] as String?,
+      role: json['role'] as String? ?? 'primary',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (buildingId != null) 'buildingId': buildingId,
+        if (buildingName != null) 'buildingName': buildingName,
+        'role': role,
+      };
+}
+
+// =============================================================================
+// ScheduleItem
+// =============================================================================
+
+class ScheduleItem {
+  const ScheduleItem({
+    this.id,
+    this.employeeId,
+    this.employeeName,
+    this.buildingId,
+    this.buildingName,
+    required this.dayOfWeek,
+    required this.startTime,
+    required this.endTime,
+    this.createdAt,
+  });
+
+  final String? id;
+  final String? employeeId;
+  final String? employeeName;
+  final String? buildingId;
+  final String? buildingName;
+  final int dayOfWeek;
+  final String startTime;
+  final String endTime;
+  final DateTime? createdAt;
+
+  String get dayLabel {
+    const days = [
+      'Dimanche',
+      'Lundi',
+      'Mardi',
+      'Mercredi',
+      'Jeudi',
+      'Vendredi',
+      'Samedi',
+    ];
+    if (dayOfWeek >= 0 && dayOfWeek < days.length) return days[dayOfWeek];
+    return 'Jour $dayOfWeek';
+  }
+
+  factory ScheduleItem.fromJson(Map<String, dynamic> json) {
+    return ScheduleItem(
+      id: json['id'] as String?,
+      employeeId: json['employeeId'] as String?,
+      employeeName: json['employeeName'] as String?,
+      buildingId: json['buildingId'] as String?,
+      buildingName: json['buildingName'] as String?,
+      dayOfWeek: (json['dayOfWeek'] as num?)?.toInt() ?? 0,
+      startTime: json['startTime'] as String? ?? '09:00',
+      endTime: json['endTime'] as String? ?? '17:00',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (employeeId != null) 'employeeId': employeeId,
+        if (buildingId != null) 'buildingId': buildingId,
+        'dayOfWeek': dayOfWeek,
+        'startTime': startTime,
+        'endTime': endTime,
+      };
+
+  bool overlaps(ScheduleItem other) {
+    if (dayOfWeek != other.dayOfWeek) return false;
+    if (buildingId != null && other.buildingId != null && buildingId != other.buildingId) return false;
+    return startTime.compareTo(other.endTime) < 0 &&
+        other.startTime.compareTo(endTime) < 0;
+  }
+}
+
+// =============================================================================
 // BuildingItem
 // =============================================================================
 

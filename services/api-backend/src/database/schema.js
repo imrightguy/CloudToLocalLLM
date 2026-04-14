@@ -199,6 +199,28 @@ const documentsTable = pgTable('documents', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
+// ─── Leases ───
+const leasesTable = pgTable('leases', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  unitId: uuid('unit_id').notNull().references(() => unitsTable.id, { onDelete: 'cascade' }),
+  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
+  tenantFirstName: text('tenant_first_name').notNull(),
+  tenantLastName: text('tenant_last_name').notNull(),
+  tenantEmail: text('tenant_email'),
+  tenantPhone: text('tenant_phone'),
+  rentCents: integer('rent_cents').notNull(),
+  depositCents: integer('deposit_cents').notNull().default(0),
+  startDate: timestamp('start_date', { mode: 'date' }).notNull(),
+  endDate: timestamp('end_date', { mode: 'date' }).notNull(),
+  status: text('status').notNull().default('draft'), // draft | active | expired | terminated | renewed
+  terms: jsonb('terms').default('{}'),
+  signedAt: timestamp('signed_at'),
+  createdBy: uuid('created_by').references(() => usersTable.id, { onDelete: 'set null' }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // ─── Document-Lead junction ───
 const documentsLeadsTable = pgTable('documents_leads', {
   documentId: uuid('document_id').notNull().references(() => documentsTable.id, { onDelete: 'cascade' }),
@@ -222,4 +244,5 @@ module.exports = {
   communicationLogsTable,
   documentsTable,
   documentsLeadsTable,
+  leasesTable,
 };

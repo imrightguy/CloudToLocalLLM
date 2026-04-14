@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const buildingController = require('../controllers/building.controller');
+const leaseController = require('../controllers/lease.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
 
@@ -9,6 +10,7 @@ const { asyncHandler } = require('../utils/apiResponse');
 router.get('/', authenticateToken, asyncHandler(buildingController.getBuildings));
 router.post('/', authenticateToken, asyncHandler(buildingController.createBuilding));
 router.get('/:id', authenticateToken, asyncHandler(buildingController.getBuildingById));
+router.get('/:id/leases', authenticateToken, asyncHandler(leaseController.getLeasesByBuilding));
 router.put('/:id', authenticateToken, asyncHandler(buildingController.updateBuilding));
 router.delete('/:id', authenticateToken, asyncHandler(buildingController.deleteBuilding));
 
@@ -16,6 +18,7 @@ router.delete('/:id', authenticateToken, asyncHandler(buildingController.deleteB
 router.get('/units', authenticateToken, asyncHandler(buildingController.getUnits));
 router.post('/units', authenticateToken, asyncHandler(buildingController.createUnit));
 router.get('/units/:id', authenticateToken, asyncHandler(buildingController.getUnitById));
+router.get('/units/:id/leases', authenticateToken, asyncHandler(leaseController.getLeasesByUnit));
 router.put('/units/:id', authenticateToken, asyncHandler(buildingController.updateUnit));
 router.delete('/units/:id', authenticateToken, asyncHandler(buildingController.deleteUnit));
 
