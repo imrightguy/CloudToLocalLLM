@@ -56,7 +56,7 @@ jest.mock('../../src/database/schema', () => ({
 }));
 
 const authController = require('../../src/controllers/auth.controller');
-const { db } = require('../../src/database/connection');
+const { db: _db } = require('../../src/database/connection');
 
 function mockRes() {
   const res = {};

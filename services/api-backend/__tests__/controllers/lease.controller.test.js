@@ -18,7 +18,8 @@ jest.mock('../../src/utils/logger', () => ({
 jest.mock('../../src/models/lease', () => ({
   leaseSchema: {
     validate: jest.fn((body) => {
-      if (!body.unitId || !body.tenantFirstName || !body.tenantLastName || !body.rent || !body.startDate || !body.endDate) {
+      const req = [body.unitId, body.tenantFirstName, body.tenantLastName, body.rent, body.startDate, body.endDate];
+      if (req.some((f) => !f)) {
         return { error: { details: [{ message: 'Validation failed' }] } };
       }
       return { error: null, value: body };
@@ -102,7 +103,6 @@ function mockRes() {
 
 const futureStart = new Date(Date.now() + 30 * 86400000);
 const futureEnd = new Date(Date.now() + 395 * 86400000);
-const pastEnd = new Date(Date.now() - 30 * 86400000);
 
 beforeEach(() => {
   jest.clearAllMocks();

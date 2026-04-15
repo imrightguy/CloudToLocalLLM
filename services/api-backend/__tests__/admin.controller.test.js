@@ -11,7 +11,7 @@ jest.mock('../src/database/connection', () => ({
   },
 }));
 
-const { db } = require('../src/database/connection');
+const { db: _db } = require('../src/database/connection');
 const { seedDemoData } = require('../scripts/seed-demo');
 const adminController = require('../src/controllers/admin.controller');
 

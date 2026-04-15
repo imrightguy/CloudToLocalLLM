@@ -291,9 +291,7 @@ describe('analytics.service', () => {
     });
 
     it('passes correct period for 30d', async () => {
-      let callCount = 0;
       db.select.mockImplementation(() => {
-        callCount++;
         return createChain([]);
       });
 
@@ -302,9 +300,7 @@ describe('analytics.service', () => {
     });
 
     it('passes correct period for 90d', async () => {
-      let callCount = 0;
       db.select.mockImplementation(() => {
-        callCount++;
         return createChain([]);
       });
 
@@ -313,9 +309,7 @@ describe('analytics.service', () => {
     });
 
     it('handles empty results gracefully', async () => {
-      let callCount = 0;
       db.select.mockImplementation(() => {
-        callCount++;
         return createChain([]);
       });
 
@@ -334,9 +328,7 @@ describe('analytics.service', () => {
     });
 
     it('caches results and returns cached on second call', async () => {
-      let callCount = 0;
       db.select.mockImplementation(() => {
-        callCount++;
         return createChain([]);
       });
 
@@ -434,9 +426,7 @@ describe('analytics.service', () => {
     });
 
     it('returns 0% conversion rate when no leads', async () => {
-      let callCount = 0;
       db.select.mockImplementation(() => {
-        callCount++;
         return createChain([]);
       });
 
@@ -470,9 +460,7 @@ describe('analytics.service', () => {
     });
 
     it('caches results and returns cached on second call', async () => {
-      let callCount = 0;
       db.select.mockImplementation(() => {
-        callCount++;
         return createChain([]);
       });
 
