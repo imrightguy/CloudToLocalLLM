@@ -105,7 +105,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
   Future<void> _fetchUnits(String buildingId) async {
     try {
       final result =
-          await ApiService.instance.get('/buildings/$buildingId/units');
+          await ApiService.instance.get('/buildings/units?buildingId=$buildingId');
       final data = result['data'];
       List<UnitItem> units = [];
       if (data is List) {

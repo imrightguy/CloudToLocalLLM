@@ -77,10 +77,10 @@ class CommunicationService {
     return CommunicationItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
-  /// POST /sms/schedule — schedule an SMS.
+  /// POST /webhooks/sms/schedule — schedule an SMS.
   Future<Map<String, dynamic>> scheduleSms(SmsScheduleRequest request) async {
     final result =
-        await ApiService.instance.post('/sms/schedule', request.toJson());
+        await ApiService.instance.post('/webhooks/sms/schedule', request.toJson());
     return result['data'] as Map<String, dynamic>? ?? {};
   }
 

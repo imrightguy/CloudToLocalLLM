@@ -701,7 +701,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      await ApiService.instance.put('/units/${widget.unit.id}', {
+      await ApiService.instance.put('/buildings/units/${widget.unit.id}', {
         'label': _numberController.text.trim(),
         'type': _typeController.text.trim(),
         'bedrooms': int.parse(_bedroomsController.text.trim()),

@@ -137,7 +137,7 @@ class BuildingService {
   // Units
   // ---------------------------------------------------------------------------
 
-  /// GET /buildings/:buildingId/units
+  /// GET /buildings/units?buildingId=...
   Future<List<UnitItem>> getUnits(String buildingId,
       {bool forceRefresh = false}) async {
     final cacheKey = 'units_$buildingId';
@@ -149,7 +149,7 @@ class BuildingService {
     }
 
     final result =
-        await ApiService.instance.get('/buildings/$buildingId/units');
+        await ApiService.instance.get('/buildings/units?buildingId=$buildingId');
     final raw = jsonEncode(result['data']);
     CacheService.instance.set(cacheKey, raw, ttlSeconds: _cacheTtlSeconds);
     return _parseUnitsList(raw);
@@ -165,27 +165,27 @@ class BuildingService {
     return [UnitItem.fromJson(data as Map<String, dynamic>)];
   }
 
-  /// POST /buildings/:buildingId/units
+  /// POST /buildings/units (buildingId in request body)
   Future<UnitItem> createUnit(
     String buildingId,
     Map<String, dynamic> data,
   ) async {
     final result =
-        await ApiService.instance.post('/buildings/$buildingId/units', data);
+        await ApiService.instance.post('/buildings/units', {'buildingId': buildingId, ...data});
     CacheService.instance.invalidateAll();
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// PUT /units/:id
   Future<UnitItem> updateUnit(String id, Map<String, dynamic> data) async {
-    final result = await ApiService.instance.put('/units/$id', data);
+    final result = await ApiService.instance.put('/buildings/units/$id', data);
     CacheService.instance.invalidateAll();
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /units/:id
   Future<void> deleteUnit(String id) async {
-    await ApiService.instance.delete('/units/$id');
+    await ApiService.instance.delete('/buildings/units/$id');
     CacheService.instance.invalidateAll();
   }
 }

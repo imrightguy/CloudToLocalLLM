@@ -18,7 +18,7 @@ class NotificationPreferencesService extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final result = await ApiService.instance.get('/users/me/preferences');
+      final result = await ApiService.instance.get('/notifications/me/preferences');
       final data = result['data'] as Map<String, dynamic>?;
       if (data != null) {
         _prefs = NotificationPreferences.fromJson(data);
@@ -35,7 +35,7 @@ class NotificationPreferencesService extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      await ApiService.instance.patch('/users/me/preferences', newPrefs.toJson());
+      await ApiService.instance.patch('/notifications/me/preferences', newPrefs.toJson());
       _prefs = newPrefs;
     } finally {
       _isLoading = false;

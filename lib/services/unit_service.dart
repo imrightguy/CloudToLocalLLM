@@ -7,7 +7,7 @@ class UnitService {
 
   Future<List<UnitItem>> getUnitsByBuilding(String buildingId) async {
     final result =
-        await ApiService.instance.get('/buildings/$buildingId/units');
+        await ApiService.instance.get('/buildings/units?buildingId=$buildingId');
     final data = result['data'];
     if (data is List) {
       return data
@@ -18,12 +18,12 @@ class UnitService {
   }
 
   Future<UnitItem> getUnit(String unitId) async {
-    final result = await ApiService.instance.get('/units/$unitId');
+    final result = await ApiService.instance.get('/buildings/units/$unitId');
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   Future<UnitItem> updateUnit(String unitId, Map<String, dynamic> data) async {
-    final result = await ApiService.instance.put('/units/$unitId', data);
+    final result = await ApiService.instance.put('/buildings/units/$unitId', data);
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -32,12 +32,12 @@ class UnitService {
     Map<String, dynamic> data,
   ) async {
     final result =
-        await ApiService.instance.post('/buildings/$buildingId/units', data);
+        await ApiService.instance.post('/buildings/units', {'buildingId': buildingId, ...data});
     return UnitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   Future<void> deleteUnit(String unitId) async {
-    await ApiService.instance.delete('/units/$unitId');
+    await ApiService.instance.delete('/buildings/units/$unitId');
   }
 
   Future<List<BuildingItem>> getBuildings() async {

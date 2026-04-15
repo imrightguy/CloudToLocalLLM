@@ -87,23 +87,23 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   /// Update the authenticated user's profile fields.
-  /// PATCH /auth/profile → returns updated user.
+  /// PUT /auth/profile → returns updated user.
   Future<UserItem> updateProfile(
     Map<String, dynamic> updates,
   ) async {
-    final result = await ApiService.instance.patch('/auth/profile', updates);
+    final result = await ApiService.instance.put('/auth/profile', updates);
     _currentUser = UserItem.fromJson(result['data'] as Map<String, dynamic>);
     notifyListeners();
     return _currentUser!;
   }
 
   /// Change the authenticated user's password.
-  /// POST /auth/change-password
+  /// PUT /auth/password
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
   }) async {
-    await ApiService.instance.post('/auth/change-password', {
+    await ApiService.instance.put('/auth/password', {
       'currentPassword': currentPassword,
       'newPassword': newPassword,
     });
