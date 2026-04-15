@@ -5,6 +5,8 @@ const {
   validateFilters,
   getPagination,
   asyncHandler,
+  addSearch,
+  addSort,
 } = require('../src/utils/apiResponse');
 
 describe('successResponse', () => {
@@ -159,5 +161,79 @@ describe('asyncHandler', () => {
 
     await handler({}, {}, next);
     expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe('addSearch', () => {
+  it('returns queryBuilder unchanged when search is falsy', () => {
+    const qb = { whereRaw: jest.fn().mockReturnThis() };
+    const result = addSearch(qb, '', ['name']);
+    expect(result).toBe(qb);
+    expect(qb.whereRaw).not.toHaveBeenCalled();
+  });
+
+  it('returns queryBuilder unchanged when search is null', () => {
+    const qb = { whereRaw: jest.fn().mockReturnThis() };
+    const result = addSearch(qb, null, ['name']);
+    expect(result).toBe(qb);
+    expect(qb.whereRaw).not.toHaveBeenCalled();
+  });
+
+  it('calls whereRaw with LIKE conditions for each search field', () => {
+    const qb = { whereRaw: jest.fn().mockReturnThis() };
+    addSearch(qb, 'john', ['name', 'email']);
+
+    expect(qb.whereRaw).toHaveBeenCalledTimes(1);
+    const [rawClause, bindings] = qb.whereRaw.mock.calls[0];
+    expect(rawClause).toContain('LOWER(name)');
+    expect(rawClause).toContain('LOWER(email)');
+    expect(rawClause).toContain(' OR ');
+    expect(bindings).toEqual(['%john%', '%john%']);
+  });
+
+  it('lowercases the search term', () => {
+    const qb = { whereRaw: jest.fn().mockReturnThis() };
+    addSearch(qb, 'JOHN', ['name']);
+
+    const bindings = qb.whereRaw.mock.calls[0][1];
+    expect(bindings).toEqual(['%john%']);
+  });
+});
+
+describe('addSort', () => {
+  it('sorts by allowed field ascending by default', () => {
+    const qb = { orderBy: jest.fn().mockReturnThis() };
+    const result = addSort(qb, 'name', 'asc', ['name', 'createdAt']);
+
+    expect(result).toBe(qb);
+    expect(qb.orderBy).toHaveBeenCalledWith('name', 'asc');
+  });
+
+  it('sorts descending', () => {
+    const qb = { orderBy: jest.fn().mockReturnThis() };
+    addSort(qb, 'name', 'desc', ['name']);
+
+    expect(qb.orderBy).toHaveBeenCalledWith('name', 'desc');
+  });
+
+  it('falls back to createdAt when sortBy is not in allowed fields', () => {
+    const qb = { orderBy: jest.fn().mockReturnThis() };
+    addSort(qb, 'hacked', 'asc', ['name', 'email']);
+
+    expect(qb.orderBy).toHaveBeenCalledWith('createdAt', 'asc');
+  });
+
+  it('falls back to asc when sortOrder is invalid', () => {
+    const qb = { orderBy: jest.fn().mockReturnThis() };
+    addSort(qb, 'name', 'sideways', ['name']);
+
+    expect(qb.orderBy).toHaveBeenCalledWith('name', 'asc');
+  });
+
+  it('uses defaults when no sort params provided', () => {
+    const qb = { orderBy: jest.fn().mockReturnThis() };
+    addSort(qb);
+
+    expect(qb.orderBy).toHaveBeenCalledWith('createdAt', 'asc');
   });
 });
