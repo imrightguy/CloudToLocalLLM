@@ -514,6 +514,78 @@ const sendPostVisitSurvey = async (visitId) => {
 /**
  * Notify Simon (or first admin) that a lead is interested.
  */
+const sendLeadArrivalNotification = async (visitId) => {
+  try {
+    const ctx = await getVisitContext(visitId);
+    if (!ctx) {
+      logger.error(`sendLeadArrivalNotification: visit ${visitId} not found`);
+      return { success: false, error: 'Visit not found' };
+    }
+
+    const { lead, building } = ctx;
+    if (!lead || !lead.phone) {
+      return { success: false, error: 'Missing lead data for arrival notification' };
+    }
+
+    const message = `Votre visiteur est arrivé! ${building ? building.name : ''}. Bienvenue!`;
+
+    const result = await sendSMS(lead.phone, message);
+
+    await logSMS({
+      twilioSid: result.sid || null,
+      visitId,
+      leadId: lead.id,
+      phoneNumber: lead.phone,
+      direction: 'outbound',
+      messageBody: message,
+      status: result.success ? 'sent' : 'failed',
+      twilioStatus: result.status || null,
+      errorMessage: result.error || null,
+    });
+
+    return result;
+  } catch (error) {
+    logger.error('sendLeadArrivalNotification error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+const sendLeadFeedbackRequest = async (visitId) => {
+  try {
+    const ctx = await getVisitContext(visitId);
+    if (!ctx) {
+      logger.error(`sendLeadFeedbackRequest: visit ${visitId} not found`);
+      return { success: false, error: 'Visit not found' };
+    }
+
+    const { lead } = ctx;
+    if (!lead || !lead.phone) {
+      return { success: false, error: 'Missing lead data for feedback request' };
+    }
+
+    const message = `Comment s'est passée votre visite? Répondez 1=Satisfait, 2=Insatisfait`;
+
+    const result = await sendSMS(lead.phone, message);
+
+    await logSMS({
+      twilioSid: result.sid || null,
+      visitId,
+      leadId: lead.id,
+      phoneNumber: lead.phone,
+      direction: 'outbound',
+      messageBody: message,
+      status: result.success ? 'sent' : 'failed',
+      twilioStatus: result.status || null,
+      errorMessage: result.error || null,
+    });
+
+    return result;
+  } catch (error) {
+    logger.error('sendLeadFeedbackRequest error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
 const notifySimonInterested = async (visitId) => {
   try {
     const ctx = await getVisitContext(visitId);
@@ -757,6 +829,31 @@ const handleEmployeeReply = async (employeePhone, reply) => {
         }
 
         return { success: true, action: 'lead_no_show', visitId: visit.id };
+
+      case 'arrive':
+        if (visit.status === 'confirmed') {
+          await db
+            .update(visitsTable)
+            .set({ status: 'in_progress', updatedAt: new Date() })
+            .where(eq(visitsTable.id, visit.id));
+
+          await sendLeadArrivalNotification(visit.id);
+          return { success: true, action: 'employee_arrived', visitId: visit.id };
+        }
+        return { success: false, action: 'arrive_invalid_state', visitId: visit.id };
+
+      case 'termine':
+        if (visit.status === 'in_progress' || visit.status === 'confirmed') {
+          await db
+            .update(visitsTable)
+            .set({ status: 'completed', updatedAt: new Date() })
+            .where(eq(visitsTable.id, visit.id));
+
+          await sendLeadFeedbackRequest(visit.id);
+          await sendPostVisitSurvey(visit.id);
+          return { success: true, action: 'visit_completed', visitId: visit.id };
+        }
+        return { success: false, action: 'termine_invalid_state', visitId: visit.id };
 
       default:
         return { success: false, action: 'unrecognised', visitId: visit.id };
@@ -1829,6 +1926,8 @@ module.exports = {
   sendOccupantAccessRequest,
   sendMorningOfReminder,
   sendPostVisitSurvey,
+  sendLeadArrivalNotification,
+  sendLeadFeedbackRequest,
   notifySimonInterested,
   handleEmployeeReply,
   handleTenantReply,

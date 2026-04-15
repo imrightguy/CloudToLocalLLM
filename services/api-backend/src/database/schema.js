@@ -148,7 +148,7 @@ const visitsTable = pgTable('visits', {
   leadId: uuid('lead_id').notNull().references(() => leadsTable.id),
   dateTime: timestamp('date_time').notNull(),
   durationMinutes: integer('duration_minutes').notNull().default(30),
-  status: text('status').notNull().default('scheduled'), // scheduled | confirmed | completed | cancelled | no_show
+  status: text('status').notNull().default('scheduled'), // scheduled | confirmed | in_progress | completed | cancelled | no_show
   tenantConfirmed: boolean('tenant_confirmed').notNull().default(false),
   occupantNotified: boolean('occupant_notified').notNull().default(false), // SMS sent to current occupant for access
   employeeConfirmed: boolean('employee_confirmed').notNull().default(false),

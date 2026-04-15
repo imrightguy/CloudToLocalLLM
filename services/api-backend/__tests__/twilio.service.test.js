@@ -182,4 +182,44 @@ describe('handleIncomingMessage', () => {
       raw: "ne s'est pas présenté",
     });
   });
+
+  it('maps accept to yes', () => {
+    expect(handleIncomingMessage('accept')).toEqual({ action: 'yes', raw: 'accept' });
+  });
+
+  it('maps accepte to yes', () => {
+    expect(handleIncomingMessage('accepte')).toEqual({ action: 'yes', raw: 'accepte' });
+  });
+
+  it('maps decline to no', () => {
+    expect(handleIncomingMessage('decline')).toEqual({ action: 'no', raw: 'decline' });
+  });
+
+  it('maps refuse to no', () => {
+    expect(handleIncomingMessage('refuse')).toEqual({ action: 'no', raw: 'refuse' });
+  });
+
+  it('maps arrive to arrive', () => {
+    expect(handleIncomingMessage('arrive')).toEqual({ action: 'arrive', raw: 'arrive' });
+  });
+
+  it('maps arrivé to arrive', () => {
+    expect(handleIncomingMessage('arrivé')).toEqual({ action: 'arrive', raw: 'arrivé' });
+  });
+
+  it('maps je suis arrivé to arrive', () => {
+    expect(handleIncomingMessage('je suis arrivé')).toEqual({ action: 'arrive', raw: 'je suis arrivé' });
+  });
+
+  it('maps termine to termine', () => {
+    expect(handleIncomingMessage('termine')).toEqual({ action: 'termine', raw: 'termine' });
+  });
+
+  it('maps terminé to termine', () => {
+    expect(handleIncomingMessage('terminé')).toEqual({ action: 'termine', raw: 'terminé' });
+  });
+
+  it('maps fin to termine', () => {
+    expect(handleIncomingMessage('fin')).toEqual({ action: 'termine', raw: 'fin' });
+  });
 });
