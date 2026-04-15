@@ -203,6 +203,94 @@ void main() {
       expect(helper.statusColor('unknown'), const Color(0xFF64748B));
     });
   });
+
+  group('Calendar filter logic', () {
+    List<VisitItem> filterVisits(
+      List<VisitItem> visits, {
+      String? statusFilter,
+      String? buildingFilter,
+      String? employeeFilter,
+    }) {
+      return visits.where((v) {
+        if (statusFilter != null && statusFilter.isNotEmpty) {
+          if (v.status.toLowerCase() != statusFilter.toLowerCase()) return false;
+        }
+        if (buildingFilter != null && buildingFilter.isNotEmpty) {
+          if (v.buildingName != buildingFilter) return false;
+        }
+        if (employeeFilter != null && employeeFilter.isNotEmpty) {
+          if (v.agent != employeeFilter) return false;
+        }
+        return true;
+      }).toList();
+    }
+
+    final visits = [
+      VisitItem(id: '1', dateTime: DateTime(2026, 4, 15, 10, 0), unitLabel: '4A', buildingName: 'Immeuble A', dateLabel: '', status: 'confirmed', agent: 'Marie Tremblay', leadName: 'Jean', notes: ''),
+      VisitItem(id: '2', dateTime: DateTime(2026, 4, 15, 14, 0), unitLabel: '4B', buildingName: 'Immeuble B', dateLabel: '', status: 'pending', agent: 'Pierre Martin', leadName: 'Paul', notes: ''),
+      VisitItem(id: '3', dateTime: DateTime(2026, 4, 15, 16, 0), unitLabel: '5A', buildingName: 'Immeuble A', dateLabel: '', status: 'cancelled', agent: 'Marie Tremblay', leadName: '', notes: ''),
+      VisitItem(id: '4', dateTime: DateTime(2026, 4, 16, 10, 0), unitLabel: '2C', buildingName: 'Immeuble C', dateLabel: '', status: 'confirmed', agent: 'Sophie Lefebvre', leadName: '', notes: ''),
+    ];
+
+    test('no filters returns all visits', () {
+      expect(filterVisits(visits).length, 4);
+    });
+
+    test('status filter by confirmed', () {
+      final result = filterVisits(visits, statusFilter: 'confirmed');
+      expect(result.length, 2);
+      expect(result.every((v) => v.status == 'confirmed'), true);
+    });
+
+    test('status filter by pending', () {
+      final result = filterVisits(visits, statusFilter: 'pending');
+      expect(result.length, 1);
+      expect(result.first.id, '2');
+    });
+
+    test('building filter by name', () {
+      final result = filterVisits(visits, buildingFilter: 'Immeuble A');
+      expect(result.length, 2);
+      expect(result.every((v) => v.buildingName == 'Immeuble A'), true);
+    });
+
+    test('employee filter by name', () {
+      final result = filterVisits(visits, employeeFilter: 'Marie Tremblay');
+      expect(result.length, 2);
+      expect(result.every((v) => v.agent == 'Marie Tremblay'), true);
+    });
+
+    test('combined status and building filter', () {
+      final result = filterVisits(visits, statusFilter: 'confirmed', buildingFilter: 'Immeuble A');
+      expect(result.length, 1);
+      expect(result.first.id, '1');
+    });
+
+    test('filter with no matches returns empty', () {
+      final result = filterVisits(visits, statusFilter: 'completed', buildingFilter: 'Immeuble Z');
+      expect(result, isEmpty);
+    });
+
+    test('case-insensitive status filter', () {
+      final result = filterVisits(visits, statusFilter: 'CONFIRMED');
+      expect(result.length, 2);
+    });
+  });
+
+  group('Calendar pending status support', () {
+    test('pending status returns Planifiée label', () {
+      final helper = _CalendarHelpers();
+      expect(helper.statusLabel('pending'), 'Planifiée');
+      expect(helper.statusLabel('PENDING'), 'Planifiée');
+      expect(helper.statusLabel('scheduled'), 'Planifiée');
+    });
+
+    test('pending status returns scheduled color', () {
+      final helper = _CalendarHelpers();
+      expect(helper.statusColor('pending'), const Color(0xFF38BDF8));
+      expect(helper.statusColor('scheduled'), const Color(0xFF38BDF8));
+    });
+  });
 }
 
 class _TestableDayDetail extends StatefulWidget {
@@ -398,6 +486,7 @@ class _CalendarHelpers {
       case 'no_show':
         return const Color(0xFFF59E0B);
       case 'scheduled':
+      case 'pending':
         return const Color(0xFF38BDF8);
       default:
         return const Color(0xFF64748B);
@@ -415,6 +504,7 @@ class _CalendarHelpers {
       case 'no_show':
         return 'Absent';
       case 'scheduled':
+      case 'pending':
         return 'Planifiée';
       default:
         return status;

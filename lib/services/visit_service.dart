@@ -140,4 +140,21 @@ class VisitService {
     await ApiService.instance.delete('/visits/$id');
     CacheService.instance.invalidateAll();
   }
+
+  /// PATCH /visits/:id/reschedule — reschedule and optionally send re-confirmation SMS.
+  Future<VisitItem> rescheduleVisit(
+    String id, {
+    required DateTime newDateTime,
+    bool sendSms = true,
+  }) async {
+    final result = await ApiService.instance.patch(
+      '/visits/$id/reschedule',
+      {
+        'dateTime': newDateTime.toIso8601String(),
+        'sendSms': sendSms,
+      },
+    );
+    CacheService.instance.invalidateAll();
+    return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
+  }
 }

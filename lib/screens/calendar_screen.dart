@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/visit_service.dart';
 import 'visit_form_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
@@ -23,6 +24,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<VisitItem> _visits = [];
   bool _isLoading = true;
   String? _errorMessage;
+  String? _statusFilter;
+  String? _buildingFilter;
+  String? _employeeFilter;
+  String? _reschedulingVisitId;
 
   @override
   void initState() {
@@ -64,8 +69,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  List<VisitItem> _visitsForDay(DateTime day) {
+  List<VisitItem> _filteredVisits() {
     return _visits.where((v) {
+      if (_statusFilter != null && _statusFilter!.isNotEmpty) {
+        if (v.status.toLowerCase() != _statusFilter!.toLowerCase()) return false;
+      }
+      if (_buildingFilter != null && _buildingFilter!.isNotEmpty) {
+        if (v.buildingName != _buildingFilter) return false;
+      }
+      if (_employeeFilter != null && _employeeFilter!.isNotEmpty) {
+        if (v.agent != _employeeFilter) return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  List<VisitItem> _visitsForDay(DateTime day) {
+    return _filteredVisits().where((v) {
       if (v.dateTime == null) return false;
       return v.dateTime!.year == day.year &&
           v.dateTime!.month == day.month &&
@@ -80,7 +100,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   bool _hasVisitsOnDay(DateTime day) {
-    return _visits.any((v) {
+    return _filteredVisits().any((v) {
       if (v.dateTime == null) return false;
       return v.dateTime!.year == day.year &&
           v.dateTime!.month == day.month &&
@@ -200,6 +220,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         children: [
           _buildMonthNavigation(),
           _buildViewToggle(),
+          _buildFilterBar(),
           Expanded(
             child: _viewMode == _CalendarView.month
                 ? _buildMonthView()
@@ -318,6 +339,59 @@ class _CalendarScreenState extends State<CalendarScreen> {
             color: isSelected ? AppColors.primary : AppColors.textSecondary,
           ),
         ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Filter Bar
+  // ---------------------------------------------------------------------------
+
+  Widget _buildFilterBar() {
+    final statusFilters = [
+      _FilterOption(label: 'Tous', value: ''),
+      _FilterOption(label: 'Planifiée', value: 'scheduled'),
+      _FilterOption(label: 'Confirmée', value: 'confirmed'),
+      _FilterOption(label: 'Terminée', value: 'completed'),
+      _FilterOption(label: 'Annulée', value: 'cancelled'),
+      _FilterOption(label: 'Absent', value: 'no_show'),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: statusFilters.map((f) {
+          final isSelected = (_statusFilter ?? '') == f.value;
+          return Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: GestureDetector(
+              onTap: () {
+                setState(() => _statusFilter = f.value.isEmpty ? null : f.value);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primary.withOpacity(0.1)
+                      : AppColors.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? AppColors.primary : AppColors.border,
+                  ),
+                ),
+                child: Text(
+                  f.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -549,75 +623,90 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 const VerticalDivider(width: 1),
                 // Day columns
-                Expanded(
-                  child: Row(
-                    children: days.map((day) {
-                      final dayVisits = _visitsForDay(day);
-                      return Expanded(
-                        child: SizedBox(
-                          height: 48.0 * hours.length,
-                          child: Stack(
-                            children: [
-                              // Grid lines
-                              ...List.generate(hours.length, (i) {
-                                return Positioned(
-                                  top: i * 48.0,
-                                  left: 0,
-                                  right: 0,
-                                  child: Divider(
-                                    height: 1,
-                                    color: AppColors.surfaceVariant,
-                                  ),
-                                );
-                              }),
-                              // Visit chips
-                              ...dayVisits.map((visit) {
-                                if (visit.dateTime == null) return const SizedBox.shrink();
-                                final hour = visit.dateTime!.hour;
-                                final minute = visit.dateTime!.minute;
-                                final top = (hour - 8) * 48.0 + (minute / 60.0) * 48.0;
-                                if (top < 0 || top > hours.length * 48.0) {
-                                  return const SizedBox.shrink();
-                                }
-                                final color = _statusColor(visit.status);
-                                return Positioned(
-                                  top: top.clamp(0.0, (hours.length * 48.0 - 24.0)),
-                                  left: 1,
-                                  right: 1,
-                                  child: GestureDetector(
-                                    onTap: () => _showVisitDetailDialog(context, visit),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 3,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: color.withOpacity( 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: color.withOpacity( 0.3),
-                                          width: 0.5,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        '${visit.unitLabel}',
-                                        style: TextStyle(
-                                          fontSize: 8,
-                                          fontWeight: FontWeight.w600,
-                                          color: color,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                 Expanded(
+                   child: Row(
+                     children: days.map((day) {
+                       final dayVisits = _visitsForDay(day);
+                       return Expanded(
+                         child: DragTarget<DateTime>(
+                           onAcceptWithDetails: (details) async {
+                             final visit = details.data as VisitItem;
+                             final hour = day.hour.clamp(8, 19);
+                             final newDateTime = DateTime(
+                               day.year, day.month, day.day, hour,
+                             );
+                             _handleReschedule(visit, newDateTime);
+                           },
+                           builder: (context, candidateData, rejectedData) {
+                             return Container(
+                               height: 48.0 * hours.length,
+                               decoration: candidateData.isNotEmpty
+                                   ? BoxDecoration(
+                                       color: AppColors.primary.withOpacity(0.05),
+                                       borderRadius: BorderRadius.circular(4),
+                                     )
+                                   : null,
+                               child: Stack(
+                                 children: [
+                                   // Grid lines
+                                   ...List.generate(hours.length, (i) {
+                                     return Positioned(
+                                       top: i * 48.0,
+                                       left: 0,
+                                       right: 0,
+                                       child: Divider(
+                                         height: 1,
+                                         color: AppColors.surfaceVariant,
+                                       ),
+                                     );
+                                   }),
+                               // Visit chips
+                               ...dayVisits.map((visit) {
+                                 if (visit.dateTime == null) return const SizedBox.shrink();
+                                 final hour = visit.dateTime!.hour;
+                                 final minute = visit.dateTime!.minute;
+                                 final top = (hour - 8) * 48.0 + (minute / 60.0) * 48.0;
+                                 if (top < 0 || top > hours.length * 48.0) {
+                                   return const SizedBox.shrink();
+                                 }
+                                 final color = _statusColor(visit.status);
+                                 return Positioned(
+                                   top: top.clamp(0.0, (hours.length * 48.0 - 24.0)),
+                                   left: 1,
+                                   right: 1,
+                                   child: LongPressDraggable<VisitItem>(
+                                     data: visit,
+                                     feedback: Material(
+                                       elevation: 4,
+                                       borderRadius: BorderRadius.circular(6),
+                                       child: Container(
+                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                         decoration: BoxDecoration(
+                                           color: color.withOpacity(0.2),
+                                           borderRadius: BorderRadius.circular(6),
+                                           border: Border.all(color: color),
+                                         ),
+                                         child: Text(
+                                           '${visit.unitLabel} - ${DateFormat('HH:mm', 'fr').format(visit.dateTime!)}',
+                                           style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.w600),
+                                         ),
+                                       ),
+                                     ),
+                                     childWhenDragging: Opacity(opacity: 0.3, child: _buildWeekVisitChip(visit, color)),
+                                     child: GestureDetector(
+                                       onTap: () => _showVisitDetailDialog(context, visit),
+                                       child: _buildWeekVisitChip(visit, color),
+                                     ),
+                                   ),
+                                 );
+                               }),
+                             ],
+                           ),
+                             );
+                           },
+                         ),
+                       );
+                     }).toList(),
                   ),
                 ),
               ],
@@ -625,6 +714,80 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Drag-to-Reschedule
+  // ---------------------------------------------------------------------------
+
+  Future<void> _handleReschedule(VisitItem visit, DateTime newDateTime) async {
+    if (visit.id == null) return;
+    setState(() => _reschedulingVisitId = visit.id);
+    try {
+      await VisitService.instance.rescheduleVisit(
+        visit.id!,
+        newDateTime: newDateTime,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Visite reprogrammée au ${DateFormat('d MMM à HH:mm', 'fr').format(newDateTime)}'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        _fetchVisits();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _reschedulingVisitId = null);
+    }
+  }
+
+  Widget _buildWeekVisitChip(VisitItem visit, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              visit.unitLabel,
+              style: TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (visit.agent.isNotEmpty)
+            CircleAvatar(
+              radius: 7,
+              backgroundColor: AppColors.surface,
+              child: Text(
+                visit.agent.split(RegExp(r'\s+')).take(2).map((w) => w.isNotEmpty ? w[0] : '').join().toUpperCase(),
+                style: TextStyle(fontSize: 6, fontWeight: FontWeight.bold, color: color),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -728,6 +891,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ? DateFormat('HH:mm').format(visit.dateTime!)
         : '';
     final statusLabel = _statusLabel(visit.status);
+    final agentInitials = visit.agent.isNotEmpty
+        ? visit.agent.split(RegExp(r'\s+')).take(2).map((w) => w.isNotEmpty ? w[0] : '').join().toUpperCase()
+        : '?';
 
     return GestureDetector(
       onTap: () => _showVisitDetailDialog(context, visit),
@@ -735,9 +901,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity( 0.05),
+          color: color.withOpacity(0.05),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity( 0.15)),
+          border: Border.all(color: color.withOpacity(0.15)),
         ),
         child: Row(
           children: [
@@ -768,7 +934,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: color.withOpacity( 0.15),
+                          color: color.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -801,13 +967,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ],
               ),
             ),
-            Text(
-              visit.agent,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textMuted,
-              ),
-            ),
+            if (visit.agent.isNotEmpty)
+              CircleAvatar(
+                radius: 14,
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                child: Text(
+                  agentInitials,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              )
+            else
+              const Icon(Icons.person_outline, size: 18, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -924,6 +1098,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       case 'no_show':
         return AppColors.visitNoShow;
       case 'scheduled':
+      case 'pending':
         return AppColors.visitScheduled;
       default:
         return AppColors.textSecondary;
@@ -941,9 +1116,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
       case 'no_show':
         return 'Absent';
       case 'scheduled':
+      case 'pending':
         return 'Planifiée';
       default:
         return status;
     }
   }
+}
+
+class _FilterOption {
+  const _FilterOption({required this.label, required this.value});
+  final String label;
+  final String value;
 }
