@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
+import 'services/cache_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/public_entry_screen.dart';
@@ -55,6 +56,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
 
   Future<void> _initApp() async {
     await ApiService.instance.init();
+    await CacheService.instance.init();
     await AuthNotifier.instance.init();
     _themeMode = await ApiService.instance.getThemeMode();
     if (mounted) {

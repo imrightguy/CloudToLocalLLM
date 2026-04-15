@@ -1390,3 +1390,155 @@ class SmsScheduleRequest {
         if (templateId != null) 'templateId': templateId,
       };
 }
+
+// =============================================================================
+// PaymentStatus
+// =============================================================================
+
+enum PaymentStatus {
+  paid,
+  pending,
+  late,
+  partial,
+  failed;
+
+  static PaymentStatus fromString(String value) {
+    final normalized = value.toLowerCase();
+    switch (normalized) {
+      case 'paid':
+        return PaymentStatus.paid;
+      case 'pending':
+        return PaymentStatus.pending;
+      case 'late':
+        return PaymentStatus.late;
+      case 'partial':
+        return PaymentStatus.partial;
+      case 'failed':
+        return PaymentStatus.failed;
+      default:
+        return PaymentStatus.pending;
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case PaymentStatus.paid:
+        return 'Payé';
+      case PaymentStatus.pending:
+        return 'En attente';
+      case PaymentStatus.late:
+        return 'En retard';
+      case PaymentStatus.partial:
+        return 'Partiel';
+      case PaymentStatus.failed:
+        return 'Échoué';
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case PaymentStatus.paid:
+        return const Color(0xFF10B981);
+      case PaymentStatus.pending:
+        return const Color(0xFF3B82F6);
+      case PaymentStatus.late:
+        return const Color(0xFFEF4444);
+      case PaymentStatus.partial:
+        return const Color(0xFFF59E0B);
+      case PaymentStatus.failed:
+        return const Color(0xFF94A3B8);
+    }
+  }
+}
+
+// =============================================================================
+// PaymentItem
+// =============================================================================
+
+class PaymentItem {
+  const PaymentItem({
+    this.id,
+    this.leaseId,
+    this.buildingId,
+    this.unitId,
+    this.tenantId,
+    required this.amount,
+    required this.amountPaid,
+    required this.dueDate,
+    required this.paidAt,
+    required this.status,
+    required this.method,
+    required this.tenantName,
+    required this.unitLabel,
+    required this.buildingName,
+    required this.periodLabel,
+    this.notes,
+    this.createdAt,
+  });
+
+  final String? id;
+  final String? leaseId;
+  final String? buildingId;
+  final String? unitId;
+  final String? tenantId;
+  final int amount;
+  final int amountPaid;
+  final String dueDate;
+  final String paidAt;
+  final PaymentStatus status;
+  final String method;
+  final String tenantName;
+  final String unitLabel;
+  final String buildingName;
+  final String periodLabel;
+  final String? notes;
+  final DateTime? createdAt;
+
+  int get outstanding => amount - amountPaid;
+
+  bool get isPaid => status == PaymentStatus.paid;
+
+  factory PaymentItem.fromJson(Map<String, dynamic> json) {
+    return PaymentItem(
+      id: json['id'] as String?,
+      leaseId: json['leaseId'] as String?,
+      buildingId: json['buildingId'] as String?,
+      unitId: json['unitId'] as String?,
+      tenantId: json['tenantId'] as String?,
+      amount: (json['amountCents'] as num?)?.toInt() ?? 0,
+      amountPaid: (json['amountPaidCents'] as num?)?.toInt() ?? 0,
+      dueDate: json['dueDate'] as String? ?? '',
+      paidAt: json['paidAt'] as String? ?? '',
+      status: PaymentStatus.fromString(json['status'] as String? ?? ''),
+      method: json['method'] as String? ?? '',
+      tenantName: json['tenantName'] as String? ?? '',
+      unitLabel: json['unitLabel'] as String? ?? '',
+      buildingName: json['buildingName'] as String? ?? '',
+      periodLabel: json['periodLabel'] as String? ?? '',
+      notes: json['notes'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        if (leaseId != null) 'leaseId': leaseId,
+        if (buildingId != null) 'buildingId': buildingId,
+        if (unitId != null) 'unitId': unitId,
+        if (tenantId != null) 'tenantId': tenantId,
+        'amountCents': amount,
+        'amountPaidCents': amountPaid,
+        'dueDate': dueDate,
+        'paidAt': paidAt,
+        'status': status.name,
+        'method': method,
+        'tenantName': tenantName,
+        'unitLabel': unitLabel,
+        'buildingName': buildingName,
+        'periodLabel': periodLabel,
+        if (notes != null) 'notes': notes,
+        if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+      };
+}

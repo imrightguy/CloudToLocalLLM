@@ -1,13 +1,19 @@
+import 'dart:convert';
+
 import '../models.dart';
 import 'api_service.dart';
 import 'building_service.dart';
+import 'cache_service.dart';
 
 /// Service for visit CRUD and status management.
 ///
 /// All methods throw [ApiException] on failure.
+/// Responses are cached for 2 minutes.
 class VisitService {
   VisitService._();
   static final VisitService instance = VisitService._();
+
+  static const int _cacheTtlSeconds = 120;
 
   // ---------------------------------------------------------------------------
   // Visits
@@ -20,7 +26,17 @@ class VisitService {
     String? status,
     int page = 1,
     int limit = 20,
+    bool forceRefresh = false,
   }) async {
+    final cacheKey =
+        'visits_${status ?? '_'}_p$page';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        return _parseVisitsPage(cached, page, limit);
+      }
+    }
+
     final params = <String, String>{
       'page': page.toString(),
       'limit': limit.toString(),
@@ -38,6 +54,17 @@ class VisitService {
         .join('&');
     final result = await ApiService.instance.get('/visits?$query');
 
+    final raw = jsonEncode(result);
+    CacheService.instance.set(cacheKey, raw, ttlSeconds: _cacheTtlSeconds);
+    return _parseVisitsPage(raw, page, limit);
+  }
+
+  PaginatedResult<VisitItem> _parseVisitsPage(
+    String raw,
+    int page,
+    int limit,
+  ) {
+    final result = jsonDecode(raw) as Map<String, dynamic>;
     final data = result['data'];
     final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
 
@@ -56,8 +83,20 @@ class VisitService {
   }
 
   /// GET /visits/:id
-  Future<VisitItem> getVisit(String id) async {
+  Future<VisitItem> getVisit(String id, {bool forceRefresh = false}) async {
+    final cacheKey = 'visit_$id';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        return VisitItem.fromJson(
+          jsonDecode(cached) as Map<String, dynamic>,
+        );
+      }
+    }
+
     final result = await ApiService.instance.get('/visits/$id');
+    final data = jsonEncode(result['data']);
+    CacheService.instance.set(cacheKey, data, ttlSeconds: _cacheTtlSeconds);
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -67,6 +106,7 @@ class VisitService {
   Future<({VisitItem visit, Map<String, dynamic>? occupantSMS})> createVisit(
       Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/visits', data);
+    CacheService.instance.invalidateAll();
     final visit = VisitItem.fromJson(result['data'] as Map<String, dynamic>);
     final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
     return (visit: visit, occupantSMS: occupantSMS);
@@ -78,6 +118,7 @@ class VisitService {
     Map<String, dynamic> data,
   ) async {
     final result = await ApiService.instance.put('/visits/$id', data);
+    CacheService.instance.invalidateAll();
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -90,11 +131,13 @@ class VisitService {
       '/visits/$id/status',
       {'status': newStatus},
     );
+    CacheService.instance.invalidateAll();
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /visits/:id
   Future<void> deleteVisit(String id) async {
     await ApiService.instance.delete('/visits/$id');
+    CacheService.instance.invalidateAll();
   }
 }

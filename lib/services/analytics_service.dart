@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'api_service.dart';
+import 'cache_service.dart';
 
 class PipelineData {
   const PipelineData({required this.stages});
@@ -200,31 +203,92 @@ class AnalyticsService {
   AnalyticsService._();
   static final AnalyticsService instance = AnalyticsService._();
 
-  Future<FullDashboardData> getDashboard() async {
+  static const int _cacheTtlSeconds = 60;
+
+  Future<FullDashboardData> getDashboard({bool forceRefresh = false}) async {
+    const cacheKey = 'analytics_dashboard';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        return FullDashboardData.fromJson(
+          jsonDecode(cached) as Map<String, dynamic>,
+        );
+      }
+    }
+
     final result = await ApiService.instance.get('/analytics/dashboard');
     final data = result['data'] as Map<String, dynamic>;
+    CacheService.instance.set(
+      cacheKey,
+      jsonEncode(data),
+      ttlSeconds: _cacheTtlSeconds,
+    );
     return FullDashboardData.fromJson(data);
   }
 
-  Future<List<Map<String, dynamic>>> getRevenueTrend({String period = '12m'}) async {
+  Future<List<Map<String, dynamic>>> getRevenueTrend(
+      {String period = '12m', bool forceRefresh = false}) async {
+    final cacheKey = 'analytics_revenue_$period';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        final data = jsonDecode(cached) as List<dynamic>;
+        return data.map((e) => e as Map<String, dynamic>).toList();
+      }
+    }
+
     final result = await ApiService.instance
         .get('/analytics/revenue-trend?period=$period');
     final data = result['data'] as List<dynamic>;
+    CacheService.instance.set(
+      cacheKey,
+      jsonEncode(data),
+      ttlSeconds: _cacheTtlSeconds,
+    );
     return data.map((e) => e as Map<String, dynamic>).toList();
   }
 
   Future<List<Map<String, dynamic>>> getOccupancyTrend(
-      {String period = '12m'}) async {
+      {String period = '12m', bool forceRefresh = false}) async {
+    final cacheKey = 'analytics_occupancy_$period';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        final data = jsonDecode(cached) as List<dynamic>;
+        return data.map((e) => e as Map<String, dynamic>).toList();
+      }
+    }
+
     final result = await ApiService.instance
         .get('/analytics/occupancy-trend?period=$period');
     final data = result['data'] as List<dynamic>;
+    CacheService.instance.set(
+      cacheKey,
+      jsonEncode(data),
+      ttlSeconds: _cacheTtlSeconds,
+    );
     return data.map((e) => e as Map<String, dynamic>).toList();
   }
 
-  Future<Map<String, int>> getLeadFunnel() async {
+  Future<Map<String, int>> getLeadFunnel({bool forceRefresh = false}) async {
+    const cacheKey = 'analytics_lead_funnel';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        final data = jsonDecode(cached) as Map<String, dynamic>;
+        return data.map(
+            (key, value) => MapEntry(key, (value as num).toInt()));
+      }
+    }
+
     final result =
         await ApiService.instance.get('/analytics/lead-funnel');
     final data = result['data'] as Map<String, dynamic>;
+    CacheService.instance.set(
+      cacheKey,
+      jsonEncode(data),
+      ttlSeconds: _cacheTtlSeconds,
+    );
     return data.map((key, value) => MapEntry(key, (value as num).toInt()));
   }
 }

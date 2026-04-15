@@ -1,13 +1,19 @@
+import 'dart:convert';
+
 import '../models.dart';
 import 'api_service.dart';
 import 'building_service.dart';
+import 'cache_service.dart';
 
 /// Service for lead CRUD and pipeline stage management.
 ///
 /// All methods throw [ApiException] on failure.
+/// Responses are cached for 2 minutes (leads change frequently).
 class LeadService {
   LeadService._();
   static final LeadService instance = LeadService._();
+
+  static const int _cacheTtlSeconds = 120;
 
   // ---------------------------------------------------------------------------
   // Leads
@@ -19,7 +25,16 @@ class LeadService {
     String? search,
     int page = 1,
     int limit = 20,
+    bool forceRefresh = false,
   }) async {
+    final cacheKey = 'leads_${stage?.name ?? '_'}_${search ?? ''}_p$page';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        return _parseLeadsPage(cached, page, limit);
+      }
+    }
+
     final params = <String, String>{
       'page': page.toString(),
       'limit': limit.toString(),
@@ -32,6 +47,17 @@ class LeadService {
         .join('&');
     final result = await ApiService.instance.get('/leads?$query');
 
+    final raw = jsonEncode(result);
+    CacheService.instance.set(cacheKey, raw, ttlSeconds: _cacheTtlSeconds);
+    return _parseLeadsPage(raw, page, limit);
+  }
+
+  PaginatedResult<LeadItem> _parseLeadsPage(
+    String raw,
+    int page,
+    int limit,
+  ) {
+    final result = jsonDecode(raw) as Map<String, dynamic>;
     final data = result['data'];
     final metadata = result['metadata'] as Map<String, dynamic>? ?? {};
 
@@ -50,14 +76,27 @@ class LeadService {
   }
 
   /// GET /leads/:id
-  Future<LeadItem> getLead(String id) async {
+  Future<LeadItem> getLead(String id, {bool forceRefresh = false}) async {
+    final cacheKey = 'lead_$id';
+    if (!forceRefresh) {
+      final cached = CacheService.instance.get(cacheKey);
+      if (cached != null) {
+        return LeadItem.fromJson(
+          jsonDecode(cached) as Map<String, dynamic>,
+        );
+      }
+    }
+
     final result = await ApiService.instance.get('/leads/$id');
+    final data = jsonEncode(result['data']);
+    CacheService.instance.set(cacheKey, data, ttlSeconds: _cacheTtlSeconds);
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// POST /leads
   Future<LeadItem> createLead(Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/leads', data);
+    CacheService.instance.invalidateAll();
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -67,6 +106,7 @@ class LeadService {
     Map<String, dynamic> data,
   ) async {
     final result = await ApiService.instance.put('/leads/$id', data);
+    CacheService.instance.invalidateAll();
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
@@ -79,11 +119,13 @@ class LeadService {
       '/leads/$id/stage',
       {'stage': newStage.name},
     );
+    CacheService.instance.invalidateAll();
     return LeadItem.fromJson(result['data'] as Map<String, dynamic>);
   }
 
   /// DELETE /leads/:id
   Future<void> deleteLead(String id) async {
     await ApiService.instance.delete('/leads/$id');
+    CacheService.instance.invalidateAll();
   }
 }

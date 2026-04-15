@@ -12,6 +12,7 @@ import 'settings_screen.dart';
 import 'employees_screen.dart';
 import 'documents_screen.dart';
 import 'leases_screen.dart';
+import 'payments_screen.dart';
 import 'communications_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
@@ -124,6 +125,13 @@ class _MoreScreen extends StatelessWidget {
             label: 'Baux',
             onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LeasesScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.receipt_long_outlined,
+            label: 'Paiements',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PaymentsScreen()),
                 ),
           ),
           _MoreTile(
