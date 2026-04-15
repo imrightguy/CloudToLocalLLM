@@ -310,6 +310,26 @@ const paymentsTable = pgTable('payments', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
+// ─── Renewal Offers ───
+const renewalOffersTable = pgTable('renewal_offers', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  leaseId: uuid('lease_id').notNull().references(() => leasesTable.id, { onDelete: 'cascade' }),
+  newStartDate: timestamp('new_start_date', { mode: 'date' }).notNull(),
+  newEndDate: timestamp('new_end_date', { mode: 'date' }).notNull(),
+  newRentCents: integer('new_rent_cents').notNull(),
+  newDepositCents: integer('new_deposit_cents').notNull().default(0),
+  terms: jsonb('terms').default('{}'),
+  status: text('status').notNull().default('pending'), // pending | sent | accepted | declined | expired
+  sentAt: timestamp('sent_at'),
+  sentVia: text('sent_via'), // sms | email | both
+  tenantResponse: text('tenant_response'),
+  respondedAt: timestamp('responded_at'),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // ─── SMS Queue (scheduled messages awaiting delivery) ───
 const smsQueueTable = pgTable('sms_queue', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -351,4 +371,5 @@ module.exports = {
   smsCampaignsTable,
   smsQueueTable,
   paymentsTable,
+  renewalOffersTable,
 };

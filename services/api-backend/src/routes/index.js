@@ -18,6 +18,7 @@ const tenantConfirmationRoutes = require('./tenant-confirmation.routes');
 const notificationRoutes = require('./notification.routes');
 const adminRoutes = require('./admin.routes');
 const paymentRoutes = require('./payment.routes');
+const renewalRoutes = require('./renewal.routes');
 
 const router = express.Router();
 
@@ -62,5 +63,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/confirm', tenantConfirmationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/renewals', renewalRoutes);
 
 module.exports = router;
