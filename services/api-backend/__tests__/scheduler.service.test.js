@@ -80,7 +80,7 @@ describe('Scheduler Service', () => {
     it('should log success message after starting', () => {
       startScheduler();
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('SMS scheduler started')
+        expect.stringContaining('SMS scheduler started'),
       );
     });
 
@@ -91,7 +91,7 @@ describe('Scheduler Service', () => {
       startScheduler();
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining('Failed to start scheduler'),
-        expect.any(String)
+        expect.any(String),
       );
     });
   });
@@ -111,7 +111,7 @@ describe('Scheduler Service', () => {
       startScheduler();
       stopScheduler();
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('SMS scheduler stopped')
+        expect.stringContaining('SMS scheduler stopped'),
       );
     });
 
@@ -146,10 +146,10 @@ describe('Scheduler Service', () => {
       expect(smsService.getVisitsNeedingMorningReminder).toHaveBeenCalled();
       expect(smsService.sendMorningOfReminder).toHaveBeenCalledTimes(2);
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('2 visits needing morning reminders')
+        expect.stringContaining('2 visits needing morning reminders'),
       );
       expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to send morning reminder for visit 2')
+        expect.stringContaining('Failed to send morning reminder for visit 2'),
       );
     });
 
@@ -157,7 +157,7 @@ describe('Scheduler Service', () => {
       smsService.getVisitsNeedingMorningReminder.mockResolvedValueOnce([]);
       await callbacks['0 * * * *']();
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('No visits needing morning reminders')
+        expect.stringContaining('No visits needing morning reminders'),
       );
     });
 
@@ -221,18 +221,18 @@ describe('Scheduler Service', () => {
       await callbacks['0 9 * * *']();
 
       expect(smsService.getPaymentsNeedingReminder).toHaveBeenCalledWith(
-        'payment_3d'
+        'payment_3d',
       );
       expect(smsService.getPaymentsNeedingReminder).toHaveBeenCalledWith(
-        'payment_due'
+        'payment_due',
       );
       expect(smsService.queuePaymentReminder).toHaveBeenCalledWith(
         1,
-        'payment_3d'
+        'payment_3d',
       );
       expect(smsService.queuePaymentReminder).toHaveBeenCalledWith(
         2,
-        'payment_due'
+        'payment_due',
       );
     });
 
@@ -246,7 +246,7 @@ describe('Scheduler Service', () => {
 
       expect(smsService.executeCampaign).toHaveBeenCalledWith(50);
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('5 messages queued')
+        expect.stringContaining('5 messages queued'),
       );
     });
 
@@ -267,7 +267,7 @@ describe('Scheduler Service', () => {
 
       expect(smsService.processQueue).toHaveBeenCalled();
       expect(logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('2 sent, 1 failed')
+        expect.stringContaining('2 sent, 1 failed'),
       );
     });
 
@@ -285,14 +285,14 @@ describe('Scheduler Service', () => {
 
     it('task callbacks should catch and log errors', async () => {
       smsService.getVisitsNeedingMorningReminder.mockRejectedValueOnce(
-        new Error('DB connection lost')
+        new Error('DB connection lost'),
       );
 
       await callbacks['0 * * * *']();
 
       expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining('Morning reminder task error'),
-        'DB connection lost'
+        'DB connection lost',
       );
     });
   });

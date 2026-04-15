@@ -30,7 +30,7 @@ const validLease = () => ({
 describe('VALID_LEASE_STATUSES', () => {
   test('contains all expected statuses', () => {
     expect(VALID_LEASE_STATUSES).toEqual(
-      expect.arrayContaining(['draft', 'active', 'expired', 'terminated', 'renewed'])
+      expect.arrayContaining(['draft', 'active', 'expired', 'terminated', 'renewed']),
     );
   });
 
@@ -118,14 +118,14 @@ describe('leaseSchema — valid leases', () => {
   });
 
   test('defaults deposit to 0 when omitted', () => {
-    const { deposit, ...lease } = validLease();
+    const { deposit: _deposit, ...lease } = validLease();
     const { error, value } = leaseSchema.validate(lease);
     expect(error).toBeUndefined();
     expect(value.deposit).toBe(0);
   });
 
   test('defaults terms to {} when omitted', () => {
-    const { terms, ...lease } = validLease();
+    const { terms: _terms, ...lease } = validLease();
     const { error, value } = leaseSchema.validate(lease);
     expect(error).toBeUndefined();
     expect(value.terms).toEqual({});
@@ -149,37 +149,37 @@ describe('leaseSchema — valid leases', () => {
 // ══════════════════════════════════════════
 describe('leaseSchema — required fields', () => {
   test('rejects missing unitId', () => {
-    const { unitId, ...lease } = validLease();
+    const { unitId: _unitId, ...lease } = validLease();
     const { error } = leaseSchema.validate(lease);
     expect(error).toBeDefined();
   });
 
   test('rejects missing tenantFirstName', () => {
-    const { tenantFirstName, ...lease } = validLease();
+    const { tenantFirstName: _tenantFirstName, ...lease } = validLease();
     const { error } = leaseSchema.validate(lease);
     expect(error).toBeDefined();
   });
 
   test('rejects missing tenantLastName', () => {
-    const { tenantLastName, ...lease } = validLease();
+    const { tenantLastName: _tenantLastName, ...lease } = validLease();
     const { error } = leaseSchema.validate(lease);
     expect(error).toBeDefined();
   });
 
   test('rejects missing rent', () => {
-    const { rent, ...lease } = validLease();
+    const { rent: _rent, ...lease } = validLease();
     const { error } = leaseSchema.validate(lease);
     expect(error).toBeDefined();
   });
 
   test('rejects missing startDate', () => {
-    const { startDate, ...lease } = validLease();
+    const { startDate: _startDate, ...lease } = validLease();
     const { error } = leaseSchema.validate(lease);
     expect(error).toBeDefined();
   });
 
   test('rejects missing endDate', () => {
-    const { endDate, ...lease } = validLease();
+    const { endDate: _endDate, ...lease } = validLease();
     const { error } = leaseSchema.validate(lease);
     expect(error).toBeDefined();
   });

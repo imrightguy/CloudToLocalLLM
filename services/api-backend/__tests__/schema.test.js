@@ -40,7 +40,7 @@ function hasColumn(table, colName) {
 }
 
 /** Get all column names from a Drizzle table */
-function getColumnNames(table) {
+function _getColumnNames(table) {
   return Object.keys(table).filter((k) => hasColumn(table, k));
 }
 
