@@ -2,12 +2,14 @@
  * Facebook Webhook Controller
  *
  * Handles GET (verification) and POST (incoming events) for the
- * Facebook Messenger webhook endpoint.
+ * Facebook webhook endpoint.
+ * Supports both Messenger events and Lead Ads webhooks.
  */
 
 const { FB_VERIFY_TOKEN } = process.env;
 
 const botService = require('../services/messenger-bot.service');
+const facebookService = require('../services/facebook.service');
 const logger = require('../utils/logger');
 
 if (!FB_VERIFY_TOKEN) {
@@ -42,6 +44,7 @@ exports.handleWebhook = async (req, res) => {
 
   // Process each entry (FB may batch events)
   for (const entry of body.entry || []) {
+    // Handle Messenger events
     for (const messagingEvent of entry.messaging || []) {
       try {
         const senderId = messagingEvent.sender?.id;
@@ -76,7 +79,18 @@ exports.handleWebhook = async (req, res) => {
           await botService.handleOptIn(senderId, ref);
         }
       } catch (err) {
-        logger.error('[FB Webhook] Error processing event:', err);
+        logger.error('[FB Webhook] Error processing messaging event:', err);
+      }
+    }
+
+    // Handle Lead Ads changes
+    for (const change of entry.changes || []) {
+      try {
+        if (change.field === 'leadgen_id') {
+          await facebookService.processLeadAdWebhook(change.value);
+        }
+      } catch (err) {
+        logger.error('[FB Webhook] Error processing lead ad event:', err);
       }
     }
   }

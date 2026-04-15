@@ -15,6 +15,10 @@ jest.mock('../src/services/messenger-bot.service', () => ({
   handleOptIn: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../src/services/facebook.service', () => ({
+  processLeadAdWebhook: jest.fn().mockResolvedValue({ success: true }),
+}));
+
 jest.mock('../src/utils/logger', () => ({
   info: jest.fn(),
   warn: jest.fn(),
@@ -25,6 +29,7 @@ jest.mock('../src/utils/logger', () => ({
 // ── Imports (after mocks) ──
 const { verify, handleWebhook } = require('../src/controllers/facebook-webhook.controller');
 const botService = require('../src/services/messenger-bot.service');
+const facebookService = require('../src/services/facebook.service');
 
 // ── Helpers ──
 function mockRes() {
@@ -483,6 +488,123 @@ describe('handleWebhook', () => {
 
     await handleWebhook(req, res);
 
+    expect(res.status).toHaveBeenCalledWith(200);
     expect(botService.handleIncomingMessage).not.toHaveBeenCalled();
   });
 });
+
+// ════════════════════════════════════════════════════════════════
+// handleWebhook — Lead Ads events (entry.changes)
+// ════════════════════════════════════════════════════════════════
+
+describe('handleWebhook — Lead Ads events', () => {
+  let res;
+
+  beforeEach(() => {
+    res = mockRes();
+    jest.clearAllMocks();
+  });
+
+  it('delegates leadgen_id changes to facebookService.processLeadAdWebhook', async () => {
+    const leadValue = {
+      leadgen_id: '123456',
+      field_data: [{ name: 'full_name', values: ['Jean Tremblay'] }],
+      ad_id: 'ad_001',
+      page_id: 'page_001',
+    };
+    const req = {
+      body: {
+        object: 'page',
+        entry: [{
+          id: 'entry_1',
+          changes: [{ field: 'leadgen_id', value: leadValue }],
+        }],
+      },
+    };
+
+    await handleWebhook(req, res);
+
+    expect(facebookService.processLeadAdWebhook).toHaveBeenCalledWith(leadValue);
+  });
+
+  it('processes multiple lead ad changes in a single entry', async () => {
+    const lead1 = { leadgen_id: 'L1', field_data: [{ name: 'full_name', values: ['A'] }] };
+    const lead2 = { leadgen_id: 'L2', field_data: [{ name: 'full_name', values: ['B'] }] };
+    const req = {
+      body: {
+        object: 'page',
+        entry: [{
+          changes: [
+            { field: 'leadgen_id', value: lead1 },
+            { field: 'leadgen_id', value: lead2 },
+          ],
+        }],
+      },
+    };
+
+    await handleWebhook(req, res);
+
+    expect(facebookService.processLeadAdWebhook).toHaveBeenCalledTimes(2);
+    expect(facebookService.processLeadAdWebhook).toHaveBeenNthCalledWith(1, lead1);
+    expect(facebookService.processLeadAdWebhook).toHaveBeenNthCalledWith(2, lead2);
+  });
+
+  it('ignores changes that are not leadgen_id', async () => {
+    const req = {
+      body: {
+        object: 'page',
+        entry: [{
+          changes: [{ field: 'feed', value: {} }],
+        }],
+      },
+    };
+
+    await handleWebhook(req, res);
+
+    expect(facebookService.processLeadAdWebhook).not.toHaveBeenCalled();
+  });
+
+  it('continues processing when lead ad event throws', async () => {
+    facebookService.processLeadAdWebhook
+      .mockRejectedValueOnce(new Error('DB down'));
+
+    const leadValue = { leadgen_id: 'FAIL', field_data: [] };
+    const req = {
+      body: {
+        object: 'page',
+        entry: [{
+          changes: [
+            { field: 'leadgen_id', value: leadValue },
+            { field: 'leadgen_id', value: { leadgen_id: 'OK', field_data: [{ name: 'full_name', values: ['Test'] }] } },
+          ],
+        }],
+      },
+    };
+
+    await handleWebhook(req, res);
+
+    expect(facebookService.processLeadAdWebhook).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles both messaging and lead ad changes in the same entry', async () => {
+    const req = {
+      body: {
+        object: 'page',
+        entry: [{
+          id: 'entry_1',
+          messaging: [{
+            sender: { id: 'U1' },
+            message: { text: 'Hello' },
+          }],
+          changes: [{ field: 'leadgen_id', value: { leadgen_id: 'L1', field_data: [{ name: 'full_name', values: ['A'] }] } }],
+        }],
+      },
+    };
+
+    await handleWebhook(req, res);
+
+    expect(botService.handleIncomingMessage).toHaveBeenCalledWith('U1', 'Hello');
+    expect(facebookService.processLeadAdWebhook).toHaveBeenCalledWith({ leadgen_id: 'L1', field_data: [{ name: 'full_name', values: ['A'] }] });
+  });
+});
+
