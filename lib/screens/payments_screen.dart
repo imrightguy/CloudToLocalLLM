@@ -37,14 +37,14 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       _errorMessage = null;
     });
     try {
-      final results = await Future.wait([
+      final results = await Future.wait<dynamic>([
         PaymentService.instance.getPayments(),
         UnitService.instance.getBuildings(),
       ]);
       setState(() {
-        _payments = results[0];
+        _payments = results[0] as List<PaymentItem>;
         _filteredPayments = List.of(_payments);
-        _buildings = results[1];
+        _buildings = results[1] as List<BuildingItem>;
         _isLoading = false;
       });
     } catch (e) {

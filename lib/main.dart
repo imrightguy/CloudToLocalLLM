@@ -144,7 +144,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         foregroundColor: AppColors.textPrimary,
         surfaceTintColor: AppColors.surface,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -174,7 +174,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         foregroundColor: AppColors.surfaceVariant,
         surfaceTintColor: AppColors.textPrimary,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         color: AppColors.textPrimary,
         shape:

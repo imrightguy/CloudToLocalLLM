@@ -119,8 +119,8 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
           isCurved: true,
           curveSmoothness: 0.35,
           color: AppColors.chartLine1,
-          strokeWidth: 3,
-          dotData: FlDotData(show: false),
+          barWidth: 3,
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             color: AppColors.chartLine1.withValues(alpha: 0.1),
@@ -165,35 +165,39 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
         drawVerticalLine: false,
         drawHorizontalLine: true,
         horizontalInterval: 1,
-        color: AppColors.border.withValues(alpha: 0.5),
+        getDrawingHorizontalLine: (_) => FlLine(
+          color: AppColors.border.withValues(alpha: 0.5),
+          strokeWidth: 1,
+        ),
       ),
       borderData: FlBorderData(show: false),
-      tooltipData: LineTouchTooltipData(
-        getTooltipColor: (_) => AppColors.surface,
-        tooltipRoundedRadius: 8,
-        tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        getTooltipItems: (touchedSpots) {
-          return touchedSpots.map((spot) {
-            final idx = spot.x.toInt();
-            if (idx < 0 || idx >= data.length) return null;
-            final point = data[idx];
-            const frenchMonthNames = [
-              'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-              'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-            ];
-            return LineTooltipItem(
-              '${point.revenue} \$\n${frenchMonthNames[point.month - 1]} ${point.year}',
-              const TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w500,
-              ),
-            );
-          }).toList();
-        },
+      lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipColor: (_) => AppColors.surface,
+          tooltipRoundedRadius: 8,
+          tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((spot) {
+              final idx = spot.x.toInt();
+              if (idx < 0 || idx >= data.length) return null;
+              final point = data[idx];
+              const frenchMonthNames = [
+                'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+              ];
+              return LineTooltipItem(
+                '${point.revenue} \$\n${frenchMonthNames[point.month - 1]} ${point.year}',
+                const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              );
+            }).toList();
+          },
+        ),
       ),
-      lineTouchData: LineTouchData(handleBuiltInTouches: true),
     );
   }
 

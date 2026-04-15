@@ -112,7 +112,7 @@ class LeadFunnelCard extends StatelessWidget {
                               widthFactor: widthFactor,
                               alignment: Alignment.centerLeft,
                               child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 400 + index * 50),
+                                duration: Duration(milliseconds: 400 + index * 50),
                                 curve: Curves.easeOutCubic,
                                 decoration: BoxDecoration(
                                   color: color,

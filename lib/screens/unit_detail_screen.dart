@@ -243,7 +243,7 @@ class UnitDetailScreen extends StatelessWidget {
   IconData _vacancyIcon(VacancyStatus status) {
     switch (status) {
       case VacancyStatus.vacant:
-        return Icons.vacuum_outlined;
+        return Icons.door_front_door_outlined;
       case VacancyStatus.occupied:
         return Icons.check_circle_outline;
       case VacancyStatus.maintenance:

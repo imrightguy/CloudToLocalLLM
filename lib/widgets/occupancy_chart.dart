@@ -93,8 +93,8 @@ class OccupancyChartCard extends StatelessWidget {
           isCurved: true,
           curveSmoothness: 0.35,
           color: AppColors.chartLine2,
-          strokeWidth: 2.5,
-          dotData: FlDotData(show: false),
+          barWidth: 2.5,
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             color: AppColors.chartLine2.withValues(alpha: 0.15),
@@ -140,7 +140,10 @@ class OccupancyChartCard extends StatelessWidget {
       gridData: FlGridData(
         drawVerticalLine: false,
         drawHorizontalLine: true,
-        color: AppColors.border.withValues(alpha: 0.5),
+        getDrawingHorizontalLine: (_) => FlLine(
+          color: AppColors.border.withValues(alpha: 0.5),
+          strokeWidth: 1,
+        ),
       ),
       borderData: FlBorderData(show: false),
       extraLinesData: ExtraLinesData(
@@ -163,32 +166,33 @@ class OccupancyChartCard extends StatelessWidget {
           ),
         ],
       ),
-      tooltipData: LineTouchTooltipData(
-        getTooltipColor: (_) => AppColors.surface,
-        tooltipRoundedRadius: 8,
-        tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        getTooltipItems: (touchedSpots) {
-          return touchedSpots.map((spot) {
-            final idx = spot.x.toInt();
-            if (idx < 0 || idx >= data.length) return null;
-            final point = data[idx];
-            const frenchMonthNames = [
-              'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-              'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-            ];
-            return LineTooltipItem(
-              '${point.rate.toStringAsFixed(1)}%\n${frenchMonthNames[point.month - 1]} ${point.year}',
-              const TextStyle(
-                fontSize: 12,
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w500,
-              ),
-            );
-          }).toList();
-        },
+      lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipColor: (_) => AppColors.surface,
+          tooltipRoundedRadius: 8,
+          tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((spot) {
+              final idx = spot.x.toInt();
+              if (idx < 0 || idx >= data.length) return null;
+              final point = data[idx];
+              const frenchMonthNames = [
+                'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+              ];
+              return LineTooltipItem(
+                '${point.rate.toStringAsFixed(1)}%\n${frenchMonthNames[point.month - 1]} ${point.year}',
+                const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              );
+            }).toList();
+          },
+        ),
       ),
-      lineTouchData: LineTouchData(handleBuiltInTouches: true),
     );
   }
 }

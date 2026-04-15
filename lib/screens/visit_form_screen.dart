@@ -30,8 +30,8 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
   String? _selectedUnitId;
   String? _selectedLeadId;
   String? _selectedEmployeeId;
-  DateTime _selectedDate;
-  TimeOfDay _selectedTime;
+  late DateTime _selectedDate;
+  late TimeOfDay _selectedTime;
   String _notes = '';
 
   bool get _hasConflict {
@@ -65,7 +65,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
 
   Future<void> _fetchOptions() async {
     try {
-      final results = await Future.wait([
+      final results = await Future.wait<dynamic>([
         ApiService.instance.get('/buildings/units?limit=100'),
         ApiService.instance.get('/leads?limit=100'),
         EmployeeService.instance.getEmployees(),
@@ -86,7 +86,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                 .toList() ??
             [];
         _employees = results[2] as List<EmployeeItem>;
-        _existingVisits = results[3].items;
+        _existingVisits = (results[3] as dynamic).items as List<VisitItem>;
         _isLoading = false;
       });
     } catch (e) {

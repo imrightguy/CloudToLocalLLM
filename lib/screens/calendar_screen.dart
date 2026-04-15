@@ -555,7 +555,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       final dayVisits = _visitsForDay(day);
                       return Expanded(
                         child: SizedBox(
-                          height: 48 * hours.length,
+                          height: 48.0 * hours.length,
                           child: Stack(
                             children: [
                               // Grid lines
