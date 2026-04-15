@@ -1,8 +1,12 @@
+import { jest, describe, it, expect, beforeAll } from "@jest/globals";
 import request from "supertest";
 
-const { app } =
-  (await import("../../backend/auth/handlers.js")).default ||
-  (await import("../../backend/auth/handlers.js"));
+let app;
+
+beforeAll(async () => {
+  const mod = await import("../../backend/auth/handlers.js");
+  app = mod.app || mod.default.app;
+});
 
 describe("Auth Backend", () => {
   describe("GET /health", () => {
@@ -50,6 +54,28 @@ describe("Auth Backend", () => {
         .get("/api/protected")
         .set("Authorization", "Bearer invalid.jwt.token");
       expect(res.status).toBe(401);
+    });
+
+    it("returns proper error body for missing token", async () => {
+      const res = await request(app).get("/api/protected");
+      expect(res.body).toHaveProperty("error");
+    });
+  });
+
+  describe("Error handling", () => {
+    it("returns 401 for UnauthorizedError", async () => {
+      const res = await request(app)
+        .get("/api/protected")
+        .set("Authorization", "Bearer invalid.jwt.token");
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "Invalid token" });
+    });
+  });
+
+  describe("Rate limiting", () => {
+    it("applies rate limiter to /api/ routes", async () => {
+      const res = await request(app).get("/api/protected");
+      expect(res.headers["x-ratelimit-limit"]).toBeDefined();
     });
   });
 });
