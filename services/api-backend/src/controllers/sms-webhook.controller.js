@@ -5,7 +5,9 @@ const {
   getVisitsNeeding24hReminder, getVisitsNeeding2hReminder,
   queueVisit24hReminder, queueVisit2hReminder,
   getVisitsNeedingExpiry, expireVisits,
+  handleOptOutReply,
 } = require('../services/sms.service');
+const { handleIncomingMessage } = require('../services/twilio.service');
 const { db } = require('../database/connection');
 const { smsLogsTable } = require('../database/schema');
 
@@ -24,6 +26,14 @@ const handleIncoming = async (req, res) => {
     }
 
     logger.info(`📩 Incoming SMS from ${From}: "${Body}" (SID: ${MessageSid})`);
+
+    // Check for opt-out keywords first (STOP, ARRET, etc.)
+    const parsed = handleIncomingMessage(Body);
+    if (parsed.action === 'stop') {
+      logger.info(`🔇 Opt-out request from ${From}`);
+      await handleOptOutReply(From);
+      return res.status(200).type('text/xml').send('<Response></Response>');
+    }
 
     // Try employee first, then tenant
     const employeeResult = await handleEmployeeReply(From, Body);

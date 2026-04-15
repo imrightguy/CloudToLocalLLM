@@ -106,7 +106,6 @@ const handleIncomingMessage = (body) => {
       n: 'no',
       decline: 'no',
       refuse: 'no',
-      refuse: 'no',
       'pas nécessaire': 'no',
       'pas necessaire': 'no',
       arrive: 'arrive',

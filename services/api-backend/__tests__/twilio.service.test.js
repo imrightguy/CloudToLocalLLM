@@ -222,4 +222,20 @@ describe('handleIncomingMessage', () => {
   it('maps fin to termine', () => {
     expect(handleIncomingMessage('fin')).toEqual({ action: 'termine', raw: 'fin' });
   });
+
+  it('maps stop to stop', () => {
+    expect(handleIncomingMessage('stop')).toEqual({ action: 'stop', raw: 'stop' });
+  });
+
+  it('maps arret to stop', () => {
+    expect(handleIncomingMessage('arret')).toEqual({ action: 'stop', raw: 'arret' });
+  });
+
+  it('maps unsubscribe to stop', () => {
+    expect(handleIncomingMessage('unsubscribe')).toEqual({ action: 'stop', raw: 'unsubscribe' });
+  });
+
+  it('maps desabonner to stop', () => {
+    expect(handleIncomingMessage('desabonner')).toEqual({ action: 'stop', raw: 'desabonner' });
+  });
 });
