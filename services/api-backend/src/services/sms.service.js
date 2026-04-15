@@ -1760,6 +1760,52 @@ const queuePaymentReminder = async (leaseId, type) => {
   return { success: true };
 };
 
+const getVisitsNeedingExpiry = async () => {
+  try {
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const visits = await db
+      .select()
+      .from(visitsTable)
+      .where(and(
+        eq(visitsTable.isActive, true),
+        eq(visitsTable.status, 'scheduled'),
+        eq(visitsTable.employeeConfirmed, false),
+        sql`${visitsTable.createdAt} < ${twentyFourHoursAgo}`,
+      ));
+
+    return visits;
+  } catch (error) {
+    logger.error('❌ getVisitsNeedingExpiry error:', error.message);
+    return [];
+  }
+};
+
+const expireVisits = async () => {
+  try {
+    const visits = await getVisitsNeedingExpiry();
+
+    if (visits.length === 0) return { expired: 0 };
+
+    let expired = 0;
+    for (const visit of visits) {
+      await db
+        .update(visitsTable)
+        .set({ status: 'cancelled', updatedAt: new Date() })
+        .where(eq(visitsTable.id, visit.id));
+
+      logger.info(`⏰ Visit ${visit.id} auto-cancelled: no confirmation after 24h`);
+      expired++;
+    }
+
+    return { expired };
+  } catch (error) {
+    logger.error('❌ expireVisits error:', error.message);
+    return { expired: 0, error: error.message };
+  }
+};
+
 const getActiveCampaignsDue = async () => {
   const now = new Date();
   const campaigns = await db
@@ -1814,4 +1860,6 @@ module.exports = {
   getPaymentsNeedingReminder,
   queuePaymentReminder,
   getActiveCampaignsDue,
+  getVisitsNeedingExpiry,
+  expireVisits,
 };

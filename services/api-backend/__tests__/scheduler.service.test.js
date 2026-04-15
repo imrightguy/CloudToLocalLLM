@@ -48,9 +48,9 @@ describe('Scheduler Service', () => {
   });
 
   describe('startScheduler', () => {
-    it('should register 8 cron tasks', () => {
+    it('should register 9 cron tasks', () => {
       startScheduler();
-      expect(cron.schedule).toHaveBeenCalledTimes(8);
+      expect(cron.schedule).toHaveBeenCalledTimes(9);
     });
 
     it('should use correct cron expressions for each task', () => {
@@ -73,6 +73,8 @@ describe('Scheduler Service', () => {
       expect(expressions).toContain('0 9 * * *');
       // Campaign execution: every 5 min
       expect(expressions).toContain('*/5 * * * *');
+      // Visit confirmation expiry: every 30 min
+      expect(expressions).toContain('*/30 * * * *');
     });
 
     it('should log success message after starting', () => {

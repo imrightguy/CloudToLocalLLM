@@ -16,6 +16,7 @@ const {
   getActiveCampaignsDue,
   executeCampaign,
   processQueue,
+  expireVisits,
 } = require('./sms.service');
 
 let morningReminderTask = null;
@@ -26,6 +27,7 @@ let leaseRenewalTask = null;
 let paymentReminderTask = null;
 let campaignExecutionTask = null;
 let queueProcessorTask = null;
+let visitExpiryTask = null;
 
 const startScheduler = () => {
   try {
@@ -170,6 +172,18 @@ const startScheduler = () => {
       }
     });
 
+    visitExpiryTask = cron.schedule('*/30 * * * *', async () => {
+      try {
+        logger.info('⏰ [Scheduler] Running visit confirmation expiry check...');
+        const result = await expireVisits();
+        if (result.expired > 0) {
+          logger.info(`⏰ [Scheduler] Expired ${result.expired} unconfirmed visits`);
+        }
+      } catch (error) {
+        logger.error('❌ [Scheduler] Visit expiry task error:', error.message);
+      }
+    });
+
     campaignExecutionTask = cron.schedule('*/5 * * * *', async () => {
       try {
         const campaigns = await getActiveCampaignsDue();
@@ -196,7 +210,7 @@ const startScheduler = () => {
       }
     });
 
-    logger.info('✅ SMS scheduler started (queue: 1min, 24h visit: 10min, 2h visit: 2min, lease renewal: 8am, payment: 9am, campaigns: 5min, morning: hourly, survey: 2h)');
+    logger.info('✅ SMS scheduler started (queue: 1min, 24h visit: 10min, 2h visit: 2min, lease renewal: 8am, payment: 9am, campaigns: 5min, morning: hourly, survey: 2h, expiry: 30min)');
   } catch (error) {
     logger.error('❌ Failed to start scheduler:', error.message);
   }
@@ -213,6 +227,7 @@ const stopScheduler = () => {
       { task: paymentReminderTask, name: 'paymentReminderTask' },
       { task: campaignExecutionTask, name: 'campaignExecutionTask' },
       { task: queueProcessorTask, name: 'queueProcessorTask' },
+      { task: visitExpiryTask, name: 'visitExpiryTask' },
     ];
 
     for (const { task } of tasks) {
@@ -229,6 +244,7 @@ const stopScheduler = () => {
     paymentReminderTask = null;
     campaignExecutionTask = null;
     queueProcessorTask = null;
+    visitExpiryTask = null;
 
     logger.info('🛑 SMS scheduler stopped');
   } catch (error) {

@@ -13,6 +13,12 @@ jest.mock('../src/services/sms.service', () => ({
   sendPostVisitSurvey: jest.fn(),
   getVisitsNeedingMorningReminder: jest.fn(),
   getVisitsNeedingPostSurvey: jest.fn(),
+  getVisitsNeeding24hReminder: jest.fn(),
+  getVisitsNeeding2hReminder: jest.fn(),
+  queueVisit24hReminder: jest.fn(),
+  queueVisit2hReminder: jest.fn(),
+  getVisitsNeedingExpiry: jest.fn(),
+  expireVisits: jest.fn(),
 }));
 
 jest.mock('../src/database/connection', () => ({
@@ -349,6 +355,9 @@ describe('handleSchedule', () => {
     );
     expect(smsService.sendMorningOfReminder).not.toHaveBeenCalled();
     expect(smsService.sendPostVisitSurvey).not.toHaveBeenCalled();
+    expect(smsService.queueVisit24hReminder).not.toHaveBeenCalled();
+    expect(smsService.queueVisit2hReminder).not.toHaveBeenCalled();
+    expect(smsService.expireVisits).not.toHaveBeenCalled();
   });
 
   it('returns 400 for invalid action', async () => {
@@ -364,6 +373,18 @@ describe('handleSchedule', () => {
         error: expect.objectContaining({ code: 'INVALID_ACTION' }),
       }),
     );
+  });
+
+  it('returns 400 for reminder_24h, reminder_2h, expire_confirmations when action is invalid', async () => {
+    const req = { body: { action: 'bad_action' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(smsService.queueVisit24hReminder).not.toHaveBeenCalled();
+    expect(smsService.queueVisit2hReminder).not.toHaveBeenCalled();
+    expect(smsService.expireVisits).not.toHaveBeenCalled();
   });
 
   // ── morning_reminder with visitId ──────────────────────────────────────────
@@ -516,6 +537,181 @@ describe('handleSchedule', () => {
     smsService.getVisitsNeedingPostSurvey.mockResolvedValue([{ id: 'v1' }]);
     smsService.sendPostVisitSurvey.mockRejectedValue(new Error('Provider error'));
     const req = { body: { action: 'post_survey' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'SCHEDULE_FAILED' }),
+      }),
+    );
+  });
+
+  // ── reminder_24h with visitId ────────────────────────────────────────────────
+  it('calls queueVisit24hReminder with visitId and returns result', async () => {
+    smsService.queueVisit24hReminder.mockResolvedValue({ success: true });
+    const req = { body: { action: 'reminder_24h', visitId: 'v1' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(smsService.queueVisit24hReminder).toHaveBeenCalledWith('v1');
+    expect(smsService.queueVisit24hReminder).toHaveBeenCalledTimes(1);
+    expect(smsService.getVisitsNeeding24hReminder).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: {
+        action: 'reminder_24h',
+        processed: 1,
+        results: [{ visitId: 'v1', success: true }],
+      },
+    });
+  });
+
+  // ── reminder_24h full sweep ─────────────────────────────────────────────────
+  it('runs full 24h reminder sweep when no visitId', async () => {
+    smsService.getVisitsNeeding24hReminder.mockResolvedValue([
+      { id: 'v1' },
+      { id: 'v2' },
+    ]);
+    smsService.queueVisit24hReminder
+      .mockResolvedValueOnce({ success: true })
+      .mockResolvedValueOnce({ success: false, error: 'Missing context' });
+    const req = { body: { action: 'reminder_24h' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(smsService.getVisitsNeeding24hReminder).toHaveBeenCalledTimes(1);
+    expect(smsService.queueVisit24hReminder).toHaveBeenCalledTimes(2);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: {
+        action: 'reminder_24h',
+        processed: 2,
+        results: [
+          { visitId: 'v1', success: true },
+          { visitId: 'v2', success: false, error: 'Missing context' },
+        ],
+      },
+    });
+  });
+
+  // ── reminder_2h with visitId ─────────────────────────────────────────────────
+  it('calls queueVisit2hReminder with visitId and returns result', async () => {
+    smsService.queueVisit2hReminder.mockResolvedValue({ success: true });
+    const req = { body: { action: 'reminder_2h', visitId: 'v3' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(smsService.queueVisit2hReminder).toHaveBeenCalledWith('v3');
+    expect(smsService.queueVisit2hReminder).toHaveBeenCalledTimes(1);
+    expect(smsService.getVisitsNeeding2hReminder).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: {
+        action: 'reminder_2h',
+        processed: 1,
+        results: [{ visitId: 'v3', success: true }],
+      },
+    });
+  });
+
+  // ── reminder_2h full sweep ──────────────────────────────────────────────────
+  it('runs full 2h reminder sweep when no visitId', async () => {
+    smsService.getVisitsNeeding2hReminder.mockResolvedValue([{ id: 'v4' }]);
+    smsService.queueVisit2hReminder.mockResolvedValue({ success: true });
+    const req = { body: { action: 'reminder_2h' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(smsService.getVisitsNeeding2hReminder).toHaveBeenCalledTimes(1);
+    expect(smsService.queueVisit2hReminder).toHaveBeenCalledWith('v4');
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: {
+        action: 'reminder_2h',
+        processed: 1,
+        results: [{ visitId: 'v4', success: true }],
+      },
+    });
+  });
+
+  // ── expire_confirmations ─────────────────────────────────────────────────────
+  it('calls expireVisits and returns result', async () => {
+    smsService.expireVisits.mockResolvedValue({ expired: 3 });
+    const req = { body: { action: 'expire_confirmations' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(smsService.expireVisits).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: {
+        action: 'expire_confirmations',
+        expired: 3,
+      },
+    });
+  });
+
+  it('returns 0 expired when no visits need expiry', async () => {
+    smsService.expireVisits.mockResolvedValue({ expired: 0 });
+    const req = { body: { action: 'expire_confirmations' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(smsService.expireVisits).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: {
+        action: 'expire_confirmations',
+        expired: 0,
+      },
+    });
+  });
+
+  it('returns 500 when expireVisits throws', async () => {
+    smsService.expireVisits.mockRejectedValue(new Error('DB connection lost'));
+    const req = { body: { action: 'expire_confirmations' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'SCHEDULE_FAILED' }),
+      }),
+    );
+  });
+
+  it('returns 500 when queueVisit24hReminder throws', async () => {
+    smsService.queueVisit24hReminder.mockRejectedValue(new Error('Twilio error'));
+    const req = { body: { action: 'reminder_24h', visitId: 'v1' } };
+    const res = mockRes();
+
+    await handleSchedule(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({ code: 'SCHEDULE_FAILED' }),
+      }),
+    );
+  });
+
+  it('returns 500 when queueVisit2hReminder throws', async () => {
+    smsService.queueVisit2hReminder.mockRejectedValue(new Error('Twilio error'));
+    const req = { body: { action: 'reminder_2h', visitId: 'v1' } };
     const res = mockRes();
 
     await handleSchedule(req, res);

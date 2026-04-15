@@ -2,6 +2,9 @@ const { eq } = require('drizzle-orm');
 const logger = require('../utils/logger');
 const {
   handleEmployeeReply, handleTenantReply, handleOccupantReply, sendMorningOfReminder, sendPostVisitSurvey,
+  getVisitsNeeding24hReminder, getVisitsNeeding2hReminder,
+  queueVisit24hReminder, queueVisit2hReminder,
+  getVisitsNeedingExpiry, expireVisits,
 } = require('../services/sms.service');
 const { db } = require('../database/connection');
 const { smsLogsTable } = require('../database/schema');
@@ -111,10 +114,11 @@ const handleSchedule = async (req, res) => {
   try {
     const { action, visitId } = req.body;
 
-    if (!action || !['morning_reminder', 'post_survey'].includes(action)) {
+    const validActions = ['morning_reminder', 'post_survey', 'reminder_24h', 'reminder_2h', 'expire_confirmations'];
+    if (!action || !validActions.includes(action)) {
       return res.status(400).json({
         success: false,
-        error: { message: 'Action must be "morning_reminder" or "post_survey"', code: 'INVALID_ACTION' },
+        error: { message: `Action must be one of: ${validActions.join(', ')}`, code: 'INVALID_ACTION' },
       });
     }
 
@@ -125,7 +129,6 @@ const handleSchedule = async (req, res) => {
         const result = await sendMorningOfReminder(visitId);
         results.push({ visitId, ...result });
       } else {
-        // Full sweep
         const {
           getVisitsNeedingMorningReminder,
         } = require('../services/sms.service');
@@ -144,7 +147,6 @@ const handleSchedule = async (req, res) => {
         const result = await sendPostVisitSurvey(visitId);
         results.push({ visitId, ...result });
       } else {
-        // Full sweep
         const {
           getVisitsNeedingPostSurvey,
         } = require('../services/sms.service');
@@ -156,6 +158,47 @@ const handleSchedule = async (req, res) => {
           results.push({ visitId: visit.id, ...result });
         }
       }
+    }
+
+    if (action === 'reminder_24h') {
+      if (visitId) {
+        const result = await queueVisit24hReminder(visitId);
+        results.push({ visitId, ...result });
+      } else {
+        const visits = await getVisitsNeeding24hReminder();
+        logger.info(`📍 24h reminder sweep: ${visits.length} visits`);
+
+        for (const visit of visits) {
+          const result = await queueVisit24hReminder(visit.id);
+          results.push({ visitId: visit.id, ...result });
+        }
+      }
+    }
+
+    if (action === 'reminder_2h') {
+      if (visitId) {
+        const result = await queueVisit2hReminder(visitId);
+        results.push({ visitId, ...result });
+      } else {
+        const visits = await getVisitsNeeding2hReminder();
+        logger.info(`⏰ 2h reminder sweep: ${visits.length} visits`);
+
+        for (const visit of visits) {
+          const result = await queueVisit2hReminder(visit.id);
+          results.push({ visitId: visit.id, ...result });
+        }
+      }
+    }
+
+    if (action === 'expire_confirmations') {
+      const result = await expireVisits();
+      return res.json({
+        success: true,
+        data: {
+          action,
+          ...result,
+        },
+      });
     }
 
     return res.json({
