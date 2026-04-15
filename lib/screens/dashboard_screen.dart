@@ -14,6 +14,7 @@ import '../widgets/lead_funnel.dart';
 import '../widgets/occupancy_chart.dart';
 import '../widgets/revenue_chart.dart';
 import 'units_screen.dart';
+import 'onboarding_screen.dart';
 import '../widgets/immo_app_bar.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -192,6 +193,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 side: const BorderSide(color: AppColors.primary),
               ),
               child: const Text('Ajouter un immeuble'),
+            ),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const OnboardingScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.play_circle_outline, size: 18),
+              label: const Text('Configuration initiale guidée'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+              ),
             ),
           ],
         ),
