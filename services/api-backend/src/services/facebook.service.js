@@ -1,6 +1,6 @@
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
-const { eq, and } = require('drizzle-orm');
+const { eq } = require('drizzle-orm');
 const { leadsTable } = require('../database/schema');
 /**
  * Facebook Messenger API Service

@@ -1,5 +1,5 @@
 const {
-  eq, and, desc, asc, sql, lte, gte,
+  eq, and, desc, asc, sql, lte,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -49,7 +49,7 @@ const calculateLateFee = (amountCents, dueDate) => {
   return Math.min(totalFee, maxFee);
 };
 
-const autoUpdateOverduePayments = async (leaseId, rentCents) => {
+const autoUpdateOverduePayments = async (leaseId) => {
   const overduePayments = await db
     .select()
     .from(paymentsTable)

@@ -1,5 +1,5 @@
 const {
-  eq, and, desc, asc, sql, lte, gte, ne,
+  eq, and, desc, sql, lte, gte, ne,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -7,7 +7,7 @@ const {
 } = require('../database/schema');
 const {
   renewalOfferSchema, updateRenewalOfferSchema, renewalOfferStatusSchema,
-  VALID_RENEWAL_TRANSITIONS, RENEWAL_WINDOWS,
+  VALID_RENEWAL_TRANSITIONS,
 } = require('../models/renewal');
 const { child } = require('../utils/logger');
 
