@@ -8,5 +8,6 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/__tests__/integration/',
   ],
+  setupFilesAfterEnv: ['./jest.setup.js'],
   forceExit: true,
 };
