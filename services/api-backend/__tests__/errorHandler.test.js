@@ -27,6 +27,7 @@ describe('errorHandler', () => {
   });
 
   it('returns 500 INTERNAL_ERROR for generic errors', () => {
+    process.env.NODE_ENV = 'production';
     const { req, res, next } = mockReqRes();
     const error = new Error('Something unexpected');
 

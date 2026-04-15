@@ -345,7 +345,7 @@ describe('scheduleController — DB paths', () => {
       expect(callArg.data.dayOfWeek).toBeLessThanOrEqual(6);
     });
 
-    it('computes dayOfWeek using JS getDay() conversion', async () => {
+    it('computes dayOfWeek using UTC day conversion (YYYY-MM-DD is UTC)', async () => {
       selectChain = createSelectChain([]);
 
       const res = mockRes();
@@ -354,7 +354,8 @@ describe('scheduleController — DB paths', () => {
       }, res);
 
       const dayOfWeek = res.json.mock.calls[0][0].data.dayOfWeek;
-      const jsDay = new Date('2025-04-14').getDay();
+      // Controller uses getUTCDay() because the date string is YYYY-MM-DD (UTC midnight)
+      const jsDay = new Date('2025-04-14').getUTCDay();
       const expected = jsDay === 0 ? 6 : jsDay - 1;
       expect(dayOfWeek).toBe(expected);
     });

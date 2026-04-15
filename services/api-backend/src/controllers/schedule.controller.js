@@ -220,8 +220,9 @@ exports.getEmployeeAvailability = async (req, res) => {
       });
     }
 
-    // getDay() returns 0=Sunday, convert to 0=Monday schema
-    const jsDay = parsedDate.getDay();
+    // Date string is YYYY-MM-DD (no time), so use UTC methods to avoid timezone shift.
+    // getUTCDay() returns 0=Sunday, convert to 0=Monday schema.
+    const jsDay = parsedDate.getUTCDay();
     const dayOfWeek = jsDay === 0 ? 6 : jsDay - 1;
 
     const schedules = await db.select()
