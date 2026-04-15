@@ -4,7 +4,7 @@ const {
   handleEmployeeReply, handleTenantReply, handleOccupantReply, sendMorningOfReminder, sendPostVisitSurvey,
   getVisitsNeeding24hReminder, getVisitsNeeding2hReminder,
   queueVisit24hReminder, queueVisit2hReminder,
-  getVisitsNeedingExpiry, expireVisits,
+  expireVisits,
   handleOptOutReply,
 } = require('../services/sms.service');
 const { handleIncomingMessage } = require('../services/twilio.service');

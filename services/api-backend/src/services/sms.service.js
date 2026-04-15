@@ -1484,8 +1484,8 @@ const executeCampaign = async (campaignId) => {
   }
 
   let queued = 0;
-  let skippedOptOut = 0;
-  let skippedValidation = 0;
+  let _skippedOptOut = 0;
+  let _skippedValidation = 0;
   const now = new Date();
   const staggerDelayMs = 5000;
   const maxBatchTimeMs = 30 * 60 * 1000;
@@ -1495,7 +1495,7 @@ const executeCampaign = async (campaignId) => {
     if (Date.now() - batchStart > maxBatchTimeMs) break;
 
     if (await isOptedOut(recipient.phone)) {
-      skippedOptOut++;
+      _skippedOptOut++;
       continue;
     }
 
@@ -1512,7 +1512,7 @@ const executeCampaign = async (campaignId) => {
     const validation = validateTemplateRender(messageBody);
     if (!validation.valid) {
       logger.warn(`Template validation failed for ${recipient.phone}: unrendered vars ${validation.unreplacedVariables.join(', ')}`);
-      skippedValidation++;
+      _skippedValidation++;
       continue;
     }
 
