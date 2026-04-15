@@ -83,4 +83,34 @@ class CommunicationService {
         await ApiService.instance.post('/sms/schedule', request.toJson());
     return result['data'] as Map<String, dynamic>? ?? {};
   }
+
+  /// GET /sms/conversation/:contactId — get SMS thread for a contact.
+  Future<List<SmsMessage>> getSmsConversation({
+    required String contactId,
+    int page = 1,
+    int limit = 50,
+  }) async {
+    final query = 'page=$page&limit=$limit';
+    final result = await ApiService.instance
+        .get('/sms/conversation/$contactId?$query');
+    final data = result['data'];
+    if (data is List) {
+      return data
+          .map((e) => SmsMessage.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
+  }
+
+  /// POST /sms/send — send an SMS immediately.
+  Future<SmsMessage> sendSms({
+    required String contactId,
+    required String body,
+  }) async {
+    final result = await ApiService.instance.post('/sms/send', {
+      'contactId': contactId,
+      'body': body,
+    });
+    return SmsMessage.fromJson(result['data'] as Map<String, dynamic>);
+  }
 }

@@ -1392,6 +1392,134 @@ class SmsScheduleRequest {
 }
 
 // =============================================================================
+// SmsDeliveryStatus
+// =============================================================================
+
+enum SmsDeliveryStatus {
+  queued,
+  sent,
+  delivered,
+  read,
+  failed;
+
+  static SmsDeliveryStatus fromString(String value) {
+    final normalized = value.toLowerCase();
+    switch (normalized) {
+      case 'queued':
+        return SmsDeliveryStatus.queued;
+      case 'sent':
+        return SmsDeliveryStatus.sent;
+      case 'delivered':
+        return SmsDeliveryStatus.delivered;
+      case 'read':
+        return SmsDeliveryStatus.read;
+      case 'failed':
+        return SmsDeliveryStatus.failed;
+      default:
+        return SmsDeliveryStatus.queued;
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case SmsDeliveryStatus.queued:
+        return 'En attente';
+      case SmsDeliveryStatus.sent:
+        return 'Envoyé';
+      case SmsDeliveryStatus.delivered:
+        return 'Livré';
+      case SmsDeliveryStatus.read:
+        return 'Lu';
+      case SmsDeliveryStatus.failed:
+        return 'Échoué';
+    }
+  }
+}
+
+// =============================================================================
+// SmsMessage
+// =============================================================================
+
+class SmsMessage {
+  const SmsMessage({
+    this.id,
+    required this.contactId,
+    required this.direction,
+    required this.body,
+    required this.status,
+    required this.createdAt,
+    this.errorCode,
+    this.errorMessage,
+  });
+
+  final String? id;
+  final String contactId;
+  final String direction;
+  final String body;
+  final SmsDeliveryStatus status;
+  final DateTime createdAt;
+  final String? errorCode;
+  final String? errorMessage;
+
+  bool get isInbound => direction == 'inbound';
+  bool get isOutbound => direction == 'outbound';
+  bool get isFailed => status == SmsDeliveryStatus.failed;
+
+  factory SmsMessage.fromJson(Map<String, dynamic> json) {
+    DateTime? parsedCreatedAt;
+    if (json['createdAt'] != null || json['sentAt'] != null) {
+      try {
+        parsedCreatedAt = DateTime.parse(
+          (json['createdAt'] ?? json['sentAt']) as String,
+        );
+      } catch (_) {
+        parsedCreatedAt = DateTime.now();
+      }
+    }
+
+    return SmsMessage(
+      id: json['id'] as String?,
+      contactId: (json['contactId'] as String?) ?? '',
+      direction: json['direction'] as String? ?? 'outbound',
+      body: json['body'] as String? ?? json['content'] as String? ?? '',
+      status: SmsDeliveryStatus.fromString(
+        json['status'] as String? ?? json['deliveryStatus'] as String? ?? 'queued',
+      ),
+      createdAt: parsedCreatedAt ?? DateTime.now(),
+      errorCode: json['errorCode'] as String?,
+      errorMessage: json['errorMessage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'contactId': contactId,
+        'direction': direction,
+        'body': body,
+        'status': status.name,
+        'createdAt': createdAt.toIso8601String(),
+        if (errorCode != null) 'errorCode': errorCode,
+        if (errorMessage != null) 'errorMessage': errorMessage,
+      };
+}
+
+// =============================================================================
+// QuickReply
+// =============================================================================
+
+class QuickReply {
+  const QuickReply({
+    required this.label,
+    required this.message,
+    this.icon,
+  });
+
+  final String label;
+  final String message;
+  final IconData? icon;
+}
+
+// =============================================================================
 // PaymentStatus
 // =============================================================================
 
