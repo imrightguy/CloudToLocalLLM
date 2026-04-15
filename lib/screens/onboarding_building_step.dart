@@ -6,7 +6,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
 class OnboardingBuildingStep extends StatefulWidget {
-  final void Function(String buildingId, int totalUnits) onCreated;
+  final void Function(String buildingId, String buildingName, int totalUnits) onCreated;
   final String initialName;
   final String initialAddress;
   final String initialCity;
@@ -39,9 +39,7 @@ class _OnboardingBuildingStepState extends State<OnboardingBuildingStep> {
     _addressController = TextEditingController(text: widget.initialAddress);
     _cityController = TextEditingController(text: widget.initialCity);
     _postalCodeController = TextEditingController();
-    _totalUnitsController = TextEditingController(
-      text: widget.totalUnits > 0 ? widget.totalUnits.toString() : '',
-    );
+    _totalUnitsController = TextEditingController();
   }
 
   @override
@@ -73,7 +71,7 @@ class _OnboardingBuildingStepState extends State<OnboardingBuildingStep> {
 
       if (mounted) {
         final totalUnits = int.parse(_totalUnitsController.text.trim());
-        widget.onCreated(building.id, totalUnits);
+        widget.onCreated(building.id ?? '', building.name, totalUnits);
       }
     } catch (e) {
       if (mounted) {

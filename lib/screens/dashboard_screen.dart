@@ -54,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final buildingsResponse = results[1];
       final communications = results[2] as List<CommunicationItem>;
 
-      final buildingsData = buildingsResponse['data'] as List<dynamic>;
+      final buildingsData = (buildingsResponse as Map<String, dynamic>)['data'] as List<dynamic>;
 
       setState(() {
         _dashboardData = analytics;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../services/api_service.dart';
 import '../services/building_service.dart';
 import 'onboarding_building_step.dart';
 import 'onboarding_units_step.dart';
@@ -11,11 +10,11 @@ import '../theme/app_typography.dart';
 
 class OnboardingData {
   String buildingId;
-  final String buildingName;
+  String buildingName;
   final String buildingAddress;
   final String buildingCity;
-  final int totalUnits;
-  final List<Map<String, dynamic>> units;
+  int totalUnits;
+  List<Map<String, dynamic>> units;
 
   OnboardingData({
     this.buildingId = '',
@@ -59,14 +58,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _goToNext() async {
     if (_currentPage < _stepTitles.length - 1) {
-      _pageController.nextPage();
+      await _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
       setState(() => _currentPage++);
     }
   }
 
   Future<void> _goToPrevious() async {
     if (_currentPage > 0) {
-      _pageController.previousPage();
+      await _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
       setState(() => _currentPage--);
     }
   }
@@ -74,7 +79,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
     try {
-      // Create units
       for (final unit in _data.units) {
         unit['buildingId'] = _data.buildingId;
         await BuildingService.instance.createUnit(
@@ -106,9 +110,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _onBuildingCreated(String buildingId, int totalUnits) {
+  void _onBuildingCreated(String buildingId, String buildingName, int totalUnits) {
     setState(() {
       _data.buildingId = buildingId;
+      _data.buildingName = buildingName;
       _data.totalUnits = totalUnits;
     });
     _goToNext();
@@ -125,7 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: 'Configuration sauvegardée (sans invitation)'),
+          content: Text('Configuration sauvegardée (sans invitation)'),
           backgroundColor: AppColors.info,
         ),
       );
@@ -153,7 +158,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       body: Column(
         children: [
-          // Progress indicator
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
@@ -190,7 +194,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
-          // Step content
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -219,7 +222,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
-          // Navigation buttons
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(

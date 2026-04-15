@@ -14,6 +14,7 @@ import 'documents_screen.dart';
 import 'leases_screen.dart';
 import 'payments_screen.dart';
 import 'communications_screen.dart';
+import 'onboarding_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
@@ -125,6 +126,13 @@ class _MoreScreen extends StatelessWidget {
             label: 'Baux',
             onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LeasesScreen()),
+                ),
+          ),
+          _MoreTile(
+            icon: Icons.play_circle_outline,
+            label: 'Configuration initiale',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const OnboardingScreen()),
                 ),
           ),
           _MoreTile(
