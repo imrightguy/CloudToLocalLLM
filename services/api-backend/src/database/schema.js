@@ -389,6 +389,15 @@ const smsQueueTable = pgTable('sms_queue', {
   statusScheduledIdx: index('sms_queue_status_scheduled_idx').on(table.status, table.scheduledAt),
 }));
 
+// ─── SMS Opt-outs ───
+const smsOptOutsTable = pgTable('sms_opt_outs', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  phoneNumber: text('phone_number').notNull().unique(),
+  reason: text('reason').notNull().default('stop'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 module.exports = {
   usersTable,
   refreshTokensTable,
@@ -409,6 +418,7 @@ module.exports = {
   smsTemplatesTable,
   smsCampaignsTable,
   smsQueueTable,
+  smsOptOutsTable,
   paymentsTable,
   renewalOffersTable,
 };

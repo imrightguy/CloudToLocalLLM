@@ -14,6 +14,7 @@ const {
   smsTemplatesTable,
   smsCampaignsTable,
   smsQueueTable,
+  smsOptOutsTable,
   leasesTable,
 } = require('../database/schema');
 const { sendSMS, handleIncomingMessage } = require('./twilio.service');
@@ -1047,6 +1048,134 @@ const extractVariables = (templateBody) => {
   return [...new Set(matches.map((m) => m.replace(/\{\{|\}\}/g, '')))];
 };
 
+// ─── Opt-out Handling ──────────────────────────────────────────────────────────
+
+const addToOptOut = async (phoneNumber, reason = 'stop') => {
+  try {
+    const cleanedPhone = phoneNumber.replace(/[\s\-()+]/g, '');
+    const existing = await db
+      .select()
+      .from(smsOptOutsTable)
+      .where(and(
+        eq(smsOptOutsTable.phoneNumber, cleanedPhone),
+        eq(smsOptOutsTable.isActive, true),
+      ))
+      .limit(1);
+
+    if (existing.length) {
+      return { success: true, alreadyOptedOut: true };
+    }
+
+    await db.insert(smsOptOutsTable).values({
+      phoneNumber: cleanedPhone,
+      reason,
+    });
+
+    logger.info(`🔇 Phone ${cleanedPhone} opted out (reason: ${reason})`);
+    return { success: true, alreadyOptedOut: false };
+  } catch (error) {
+    logger.error('addToOptOut error:', error.message);
+    return { success: false, error: error.message };
+  }
+};
+
+const isOptedOut = async (phoneNumber) => {
+  try {
+    const cleanedPhone = phoneNumber.replace(/[\s\-()+]/g, '');
+    const results = await db
+      .select()
+      .from(smsOptOutsTable)
+      .where(and(
+        eq(smsOptOutsTable.phoneNumber, cleanedPhone),
+        eq(smsOptOutsTable.isActive, true),
+      ))
+      .limit(1);
+
+    return results.length > 0;
+  } catch (error) {
+    logger.error('isOptedOut error:', error.message);
+    return false;
+  }
+};
+
+const handleOptOutReply = async (phoneNumber) => {
+  await addToOptOut(phoneNumber, 'stop');
+  await sendSMS(phoneNumber, 'Vous avez ete desabonne. Vous ne recevrez plus de SMS. Repondez START pour vous reinscrire.');
+  await logSMS({
+    phoneNumber,
+    direction: 'outbound',
+    messageBody: 'Vous avez ete desabonne. Vous ne recevrez plus de SMS. Repondez START pour vous reinscrire.',
+    status: 'sent',
+  });
+  return { success: true, action: 'opted_out' };
+};
+
+// ─── Template Validation ───────────────────────────────────────────────────────
+
+const validateTemplateRender = (renderedBody) => {
+  const unreplaced = renderedBody.match(/\{\{(\w+)\}\}/g);
+  if (unreplaced && unreplaced.length > 0) {
+    return {
+      valid: false,
+      unreplacedVariables: unreplaced.map((m) => m.replace(/\{\{|\}\}/g, '')),
+    };
+  }
+  return { valid: true, unreplacedVariables: [] };
+};
+
+// ─── Business Hours ────────────────────────────────────────────────────────────
+
+const QUEBEC_TIMEZONE_OFFSET = -5;
+
+const isWithinBusinessHours = (date = new Date()) => {
+  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+  const quebecTime = new Date(utc + QUEBEC_TIMEZONE_OFFSET * 3600000);
+  const hour = quebecTime.getHours();
+  const day = quebecTime.getDay();
+  if (day === 0) return false;
+  if (day === 6 && hour >= 13) return false;
+  return hour >= 8 && hour < 21;
+};
+
+const getNextBusinessHour = (date = new Date()) => {
+  const d = new Date(date);
+  const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+  const quebecTime = new Date(utc + QUEBEC_TIMEZONE_OFFSET * 3600000);
+  const hour = quebecTime.getHours();
+  const day = quebecTime.getDay();
+
+  if (day === 0) {
+    quebecTime.setDate(quebecTime.getDate() + 1);
+    quebecTime.setHours(8, 0, 0, 0);
+    return new Date(quebecTime.getTime() - QUEBEC_TIMEZONE_OFFSET * 3600000 - d.getTimezoneOffset() * 60000);
+  }
+
+  if (day === 6 && hour >= 13) {
+    quebecTime.setDate(quebecTime.getDate() + 2);
+    quebecTime.setHours(8, 0, 0, 0);
+    return new Date(quebecTime.getTime() - QUEBEC_TIMEZONE_OFFSET * 3600000 - d.getTimezoneOffset() * 60000);
+  }
+
+  if (hour >= 21) {
+    quebecTime.setDate(quebecTime.getDate() + 1);
+    if (quebecTime.getDay() === 0) quebecTime.setDate(quebecTime.getDate() + 1);
+    quebecTime.setHours(8, 0, 0, 0);
+    return new Date(quebecTime.getTime() - QUEBEC_TIMEZONE_OFFSET * 3600000 - d.getTimezoneOffset() * 60000);
+  }
+
+  if (hour < 8) {
+    quebecTime.setHours(8, 0, 0, 0);
+    return new Date(quebecTime.getTime() - QUEBEC_TIMEZONE_OFFSET * 3600000 - d.getTimezoneOffset() * 60000);
+  }
+
+  if (day === 6 && hour >= 8) {
+    quebecTime.setHours(13, 0, 0, 0);
+    return new Date(quebecTime.getTime() - QUEBEC_TIMEZONE_OFFSET * 3600000 - d.getTimezoneOffset() * 60000);
+  }
+
+  return d;
+};
+
 // ─── Template CRUD ────────────────────────────────────────────────────────────
 
 const createTemplate = async (data) => {
@@ -1355,7 +1484,21 @@ const executeCampaign = async (campaignId) => {
   }
 
   let queued = 0;
+  let skippedOptOut = 0;
+  let skippedValidation = 0;
+  const now = new Date();
+  const staggerDelayMs = 5000;
+  const maxBatchTimeMs = 30 * 60 * 1000;
+  let batchStart = Date.now();
+
   for (const recipient of recipients) {
+    if (Date.now() - batchStart > maxBatchTimeMs) break;
+
+    if (await isOptedOut(recipient.phone)) {
+      skippedOptOut++;
+      continue;
+    }
+
     let messageBody;
     if (template) {
       const vars = { ...campaign.templateData, ...recipient.variables };
@@ -1366,11 +1509,22 @@ const executeCampaign = async (campaignId) => {
 
     if (!messageBody || !recipient.phone) continue;
 
+    const validation = validateTemplateRender(messageBody);
+    if (!validation.valid) {
+      logger.warn(`Template validation failed for ${recipient.phone}: unrendered vars ${validation.unreplacedVariables.join(', ')}`);
+      skippedValidation++;
+      continue;
+    }
+
+    const scheduledAt = isWithinBusinessHours(now)
+      ? new Date(now.getTime() + queued * staggerDelayMs)
+      : new Date(getNextBusinessHour(now).getTime() + queued * staggerDelayMs);
+
     await db.insert(smsQueueTable).values({
       campaignId,
       phoneNumber: recipient.phone,
       messageBody,
-      scheduledAt: new Date(),
+      scheduledAt,
       status: 'pending',
       reminderType: null,
     });

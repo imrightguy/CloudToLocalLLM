@@ -125,6 +125,10 @@ const handleIncomingMessage = (body) => {
       'ne s\'est pas presente': 'no_show',
       absent: 'no_show',
       no_show: 'no_show',
+      stop: 'stop',
+      arret: 'stop',
+      unsubscribe: 'stop',
+      desabonner: 'stop',
     };
 
     if (keywordMap[trimmed]) {
