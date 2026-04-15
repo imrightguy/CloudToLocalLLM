@@ -1,6 +1,6 @@
 const { sql } = require('drizzle-orm');
 const {
-  pgTable, text, integer, timestamp, boolean, jsonb, uuid,
+  pgTable, text, integer, timestamp, boolean, jsonb, uuid, index,
 } = require('drizzle-orm/pg-core');
 
 // ─── Users (app login — Simon + future admins only) ───
@@ -29,7 +29,9 @@ const refreshTokensTable = pgTable('refresh_tokens', {
   ip: text('ip'),
   userAgent: text('user_agent'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  userIdIdx: index('rt_user_id_idx').on(table.userId),
+}));
 
 // ─── Employees (show apartments via SMS only — NO app access) ───
 const employeesTable = pgTable('employees', {
@@ -69,7 +71,9 @@ const employeeAssignmentsTable = pgTable('employee_assignments', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  employeeBuildingIdx: index('ea_employee_building_idx').on(table.employeeId, table.buildingId),
+}));
 
 // ─── Units ───
 const unitsTable = pgTable('units', {
@@ -89,7 +93,10 @@ const unitsTable = pgTable('units', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  buildingIdx: index('units_building_id_idx').on(table.buildingId),
+  statusIdx: index('units_status_idx').on(table.status),
+}));
 
 // ─── Employee Weekly Schedule ───
 const employeeSchedulesTable = pgTable('employee_schedules', {
@@ -102,7 +109,10 @@ const employeeSchedulesTable = pgTable('employee_schedules', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  employeeIdx: index('es_employee_id_idx').on(table.employeeId),
+  buildingIdx: index('es_building_id_idx').on(table.buildingId),
+}));
 
 // ─── Leads (potential tenants) ───
 const leadsTable = pgTable('leads', {
@@ -123,7 +133,12 @@ const leadsTable = pgTable('leads', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  stageIdx: index('leads_stage_idx').on(table.stage),
+  buildingIdx: index('leads_building_id_idx').on(table.buildingId),
+  sourceIdx: index('leads_source_idx').on(table.source),
+  employeeIdx: index('leads_assigned_employee_id_idx').on(table.assignedEmployeeId),
+}));
 
 // ─── Visits ───
 const visitsTable = pgTable('visits', {
@@ -144,7 +159,12 @@ const visitsTable = pgTable('visits', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  dateTimeIdx: index('visits_date_time_idx').on(table.dateTime),
+  statusIdx: index('visits_status_idx').on(table.status),
+  employeeIdx: index('visits_employee_id_idx').on(table.employeeId),
+  leadIdx: index('visits_lead_id_idx').on(table.leadId),
+}));
 
 // ─── SMS Logs (Twilio) ───
 const smsLogsTable = pgTable('sms_logs', {
@@ -162,7 +182,11 @@ const smsLogsTable = pgTable('sms_logs', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  visitIdx: index('sms_logs_visit_id_idx').on(table.visitId),
+  phoneIdx: index('sms_logs_phone_number_idx').on(table.phoneNumber),
+  leadIdx: index('sms_logs_lead_id_idx').on(table.leadId),
+}));
 
 // ─── Communication Logs ───
 const communicationLogsTable = pgTable('communication_logs', {
@@ -178,7 +202,9 @@ const communicationLogsTable = pgTable('communication_logs', {
   metadata: jsonb('metadata').default('{}'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  leadIdx: index('comm_logs_lead_id_idx').on(table.leadId),
+}));
 
 // ─── Documents ───
 const documentsTable = pgTable('documents', {
@@ -219,7 +245,10 @@ const leasesTable = pgTable('leases', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  unitIdx: index('leases_unit_id_idx').on(table.unitId),
+  statusIdx: index('leases_status_idx').on(table.status),
+}));
 
 // ─── Document-Lead junction ───
 const documentsLeadsTable = pgTable('documents_leads', {
@@ -291,7 +320,9 @@ const notificationsTable = pgTable('notifications', {
   data: jsonb('data').default('{}'),
   isRead: boolean('is_read').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  userIdReadIdx: index('notifications_user_read_idx').on(table.userId, table.isRead),
+}));
 
 // ─── Rent Payments ───
 const paymentsTable = pgTable('payments', {
@@ -308,7 +339,10 @@ const paymentsTable = pgTable('payments', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  leaseIdx: index('payments_lease_id_idx').on(table.leaseId),
+  statusIdx: index('payments_status_idx').on(table.status),
+}));
 
 // ─── Renewal Offers ───
 const renewalOffersTable = pgTable('renewal_offers', {
@@ -328,7 +362,10 @@ const renewalOffersTable = pgTable('renewal_offers', {
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  leaseIdx: index('renewal_offers_lease_id_idx').on(table.leaseId),
+  statusIdx: index('renewal_offers_status_idx').on(table.status),
+}));
 
 // ─── SMS Queue (scheduled messages awaiting delivery) ───
 const smsQueueTable = pgTable('sms_queue', {
@@ -348,7 +385,9 @@ const smsQueueTable = pgTable('sms_queue', {
   twilioSid: text('twilio_sid'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-});
+}, (table) => ({
+  statusScheduledIdx: index('sms_queue_status_scheduled_idx').on(table.status, table.scheduledAt),
+}));
 
 module.exports = {
   usersTable,
