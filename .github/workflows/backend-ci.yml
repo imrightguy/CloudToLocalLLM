@@ -1,10 +1,6 @@
-name: Backend CI/CD
+name: Backend CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'services/api-backend/**'
   pull_request:
     branches: [main]
     paths:
@@ -66,40 +62,19 @@ jobs:
           JWT_SECRET: test-secret-for-ci
           JWT_REFRESH_SECRET: test-refresh-secret-for-ci
 
-  deploy:
-    name: Deploy to VPS
-    runs-on: ubuntu-latest
-    needs: lint-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://postgres:test_password@localhost:5432/immogestion_test
+          DB_PASSWORD: test_password
+          JWT_SECRET: test-secret-for-ci
+          JWT_REFRESH_SECRET: test-refresh-secret-for-ci
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /opt/immogestion
-            git pull
-            cd services/api-backend
-            docker compose up -d --build
-
-      - name: Health check
-        run: |
-          for i in $(seq 1 20); do
-            if ssh -o StrictHostKeyChecking=no \
-              -i <(echo "${{ secrets.VPS_SSH_KEY }}") \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-              "curl -sf http://localhost:3000/health" > /dev/null 2>&1; then
-              echo "API healthy after ${i} attempts"
-              exit 0
-            fi
-            echo "Waiting for API... (${i}/20)"
-            sleep 5
-          done
-          echo "ERROR: API did not become healthy within 100s"
-          exit 1
+          name: backend-coverage
+          path: ${{ env.API_DIR }}/coverage/
+          retention-days: 7

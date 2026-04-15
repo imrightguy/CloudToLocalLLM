@@ -19,3 +19,11 @@ updates:
     ignore:
       - dependency-name: "drizzle-kit"
         versions: [">=0.20.0"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"

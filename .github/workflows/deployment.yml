@@ -1,0 +1,257 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force full build (ignore change detection)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  API_DIR: services/api-backend
+  NODE_VERSION: '20'
+  FLUTTER_VERSION: '3.24.0'
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/immogestion
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      flutter: ${{ steps.filter.outputs.flutter }}
+      infra: ${{ steps.filter.outputs.infra }}
+      any: ${{ steps.filter.outputs.backend == 'true' || steps.filter.outputs.flutter == 'true' || steps.filter.outputs.infra == 'true' || github.event.inputs.force_build == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'services/api-backend/**'
+              - '.github/workflows/deployment.yml'
+              - '.github/workflows/backend-ci.yml'
+            flutter:
+              - 'lib/**'
+              - 'test/**'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
+              - 'assets/**'
+              - 'analysis_options.yaml'
+              - 'services/flutter-web/**'
+              - 'Dockerfile.web'
+            infra:
+              - 'services/api-backend/docker-compose.yml'
+              - 'docker-compose.prod.yml'
+
+  backend-lint-test:
+    name: Backend Lint & Test
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.any == 'true'
+    defaults:
+      run:
+        working-directory: ${{ env.API_DIR }}
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: immogestion_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ env.API_DIR }}/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://postgres:test_password@localhost:5432/immogestion_test
+          DB_PASSWORD: test_password
+          JWT_SECRET: test-secret-for-ci
+          JWT_REFRESH_SECRET: test-refresh-secret-for-ci
+
+  backend-build-push:
+    name: Build & Push API Image
+    runs-on: ubuntu-latest
+    needs: [detect-changes, backend-lint-test]
+    if: needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.any == 'true'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.API_DIR }}
+          file: ${{ env.API_DIR }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/api:latest
+            ${{ env.IMAGE_PREFIX }}/api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  flutter-build-push:
+    name: Build & Push Web Image
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.flutter == 'true' || needs.detect-changes.outputs.any == 'true'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.web
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/web:latest
+            ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: [detect-changes, backend-build-push, flutter-build-push]
+    if: always() && needs.detect-changes.outputs.any == 'true'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/immogestion/services/api-backend
+
+            echo "[deploy] Pulling latest images..."
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull || true
+
+            echo "[deploy] Starting services..."
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+            echo "[deploy] Waiting for API health..."
+            for i in $(seq 1 20); do
+              if curl -sf http://localhost:3000/health > /dev/null 2>&1; then
+                echo "[deploy] API healthy after ${i} attempts"
+                break
+              fi
+              echo "[deploy] Waiting for API... (${i}/20)"
+              sleep 5
+            done
+
+            if ! curl -sf http://localhost:3000/health > /dev/null 2>&1; then
+              echo "[deploy] ERROR: API did not become healthy"
+              docker compose logs --tail=50 api
+              exit 1
+            fi
+
+            echo "[deploy] Checking Flutter web..."
+            if ! curl -sf http://localhost:8080/ > /dev/null 2>&1; then
+              echo "[deploy] WARN: Flutter web not responding on port 8080"
+            else
+              echo "[deploy] Flutter web healthy"
+            fi
+
+            echo "[deploy] Cleaning old images..."
+            docker image prune -f
+
+  cloudflare-purge:
+    name: Purge Cloudflare Cache
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: needs.deploy.result == 'success'
+    steps:
+      - name: Purge cache
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ZONE_ID" ]; then
+            echo "Cloudflare secrets not configured, skipping cache purge"
+            exit 0
+          fi
+
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}' | jq .
+
+  version-bump:
+    name: Bump Version & Tag
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: needs.deploy.result == 'success'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Bump versions
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          CURRENT=$(node -p "require('./${{ env.API_DIR }}/package.json').version")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          NEW_PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+          npm version $NEW_VERSION --no-git-tag-version --prefix services/api-backend
+
+          sed -i "s/^version: .*/version: ${NEW_VERSION}+1/" pubspec.yaml
+
+      - name: Commit and tag
+        run: |
+          git add services/api-backend/package.json services/api-backend/package-lock.json pubspec.yaml
+          git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+          git tag "v${{ env.NEW_VERSION }}"
+          git push && git push --tags

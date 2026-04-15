@@ -125,20 +125,20 @@ services:
       - internal
 
   # ── Cloudflare Tunnel ──────────────────────────────────────────────
-  # Uncomment once cloudflared token is configured
-  # tunnel:
-  #   image: cloudflare/cloudflared:latest
-  #   container_name: immogestion-tunnel
-  #   restart: unless-stopped
-  #   command: tunnel --no-autoupdate run
-  #   environment:
-  #     TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
-  #   logging: *default-logging
-  #   networks:
-  #     internal
-  #   depends_on:
-  #     - api
-  #     - flutter-web
+  # Requires CLOUDFLARE_TUNNEL_TOKEN in .env.production
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: immogestion-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    logging: *default-logging
+    networks:
+      - internal
+    depends_on:
+      - api
+      - flutter-web
 
 volumes:
   pgdata:

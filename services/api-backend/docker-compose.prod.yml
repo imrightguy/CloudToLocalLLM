@@ -1,0 +1,13 @@
+# ── ImmoGestion Production Override ───────────────────────────────────
+# Pulls pre-built images from GHCR instead of building locally.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ──────────────────────────────────────────────────────────────────────
+
+services:
+  api:
+    image: ghcr.io/imrightguy/immogestion/api:latest
+    build: null
+
+  flutter-web:
+    image: ghcr.io/imrightguy/immogestion/web:latest
+    build: null
