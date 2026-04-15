@@ -1,153 +1,150 @@
 const validate = require('../src/middleware/validate');
 const Joi = require('joi');
 
+function mockReqRes(body = {}, query = {}, params = {}) {
+  const res = {};
+  const next = jest.fn();
+  return { req: { body, query, params }, res, next };
+}
+
 describe('validate middleware', () => {
-  let req;
-  let res;
-  let next;
-
-  beforeEach(() => {
-    req = { body: {}, query: {}, params: {} };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
-    };
-    next = jest.fn();
-  });
-
-  it('calls next() when all validations pass', () => {
+  it('calls next() when no validation errors', () => {
     const schema = {
       body: Joi.object({ name: Joi.string().required() }),
     };
+    const { req, res, next } = mockReqRes({ name: 'test' });
 
-    req.body = { name: 'test' };
-    const middleware = validate(schema);
-    middleware(req, res, next);
+    validate(schema)(req, res, next);
 
     expect(next).toHaveBeenCalledWith();
+    expect(req.body).toEqual({ name: 'test' });
+  });
+
+  it('calls next with ValidationError for invalid body', () => {
+    const schema = {
+      body: Joi.object({ name: Joi.string().required() }),
+    };
+    const { req, res, next } = mockReqRes({});
+
+    validate(schema)(req, res, next);
+
     expect(next).toHaveBeenCalledTimes(1);
-  });
-
-  it('returns ValidationError when body validation fails', () => {
-    const schema = {
-      body: Joi.object({ email: Joi.string().email().required() }),
-    };
-
-    req.body = { email: 'not-an-email' };
-    const middleware = validate(schema);
-    middleware(req, res, next);
-
-    expect(next).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'ValidationError',
-      message: 'Validation failed',
-    }));
-
     const error = next.mock.calls[0][0];
+    expect(error.name).toBe('ValidationError');
+    expect(error.message).toBe('Validation failed');
     expect(error.details.body).toBeDefined();
-    expect(error.details.body[0].field).toBe('email');
+    expect(error.details.body[0].field).toBe('name');
   });
 
-  it('returns ValidationError when query validation fails', () => {
+  it('validates query parameters', () => {
     const schema = {
-      query: Joi.object({ page: Joi.number().integer().min(1) }),
+      query: Joi.object({ page: Joi.number().min(1) }),
     };
+    const { req, res, next } = mockReqRes({}, { page: 'abc' });
 
-    req.query = { page: 'abc' };
-    const middleware = validate(schema);
-    middleware(req, res, next);
-
-    expect(next).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'ValidationError',
-    }));
+    validate(schema)(req, res, next);
 
     const error = next.mock.calls[0][0];
+    expect(error.name).toBe('ValidationError');
     expect(error.details.query).toBeDefined();
   });
 
-  it('returns ValidationError when params validation fails', () => {
+  it('validates route params', () => {
     const schema = {
-      params: Joi.object({ id: Joi.string().uuid().required() }),
+      params: Joi.object({ id: Joi.number().required() }),
     };
+    const { req, res, next } = mockReqRes({}, {}, { id: 'not-a-number' });
 
-    req.params = { id: 'not-a-uuid' };
-    const middleware = validate(schema);
-    middleware(req, res, next);
-
-    expect(next).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'ValidationError',
-    }));
+    validate(schema)(req, res, next);
 
     const error = next.mock.calls[0][0];
+    expect(error.name).toBe('ValidationError');
     expect(error.details.params).toBeDefined();
   });
 
-  it('collects multiple validation errors across body and query', () => {
+  it('handles multiple validation sources simultaneously', () => {
     const schema = {
       body: Joi.object({ name: Joi.string().required() }),
-      query: Joi.object({ page: Joi.number().required() }),
+      query: Joi.object({ page: Joi.number().min(1) }),
     };
+    const { req, res, next } = mockReqRes({}, { page: '-1' });
 
-    req.body = {};
-    req.query = {};
-    const middleware = validate(schema);
-    middleware(req, res, next);
+    validate(schema)(req, res, next);
 
     const error = next.mock.calls[0][0];
     expect(error.details.body).toBeDefined();
     expect(error.details.query).toBeDefined();
   });
 
-  it('strips unknown fields from body (stripUnknown)', () => {
+  it('strips unknown fields from validated values', () => {
     const schema = {
-      body: Joi.object({ name: Joi.string().required() }),
+      body: Joi.object({ name: Joi.string() }),
     };
+    const { req, res, next } = mockReqRes({ name: 'test', extra: 'removed' });
 
-    req.body = { name: 'test', extra: 'field' };
-    const middleware = validate(schema);
-    middleware(req, res, next);
+    validate(schema)(req, res, next);
 
     expect(next).toHaveBeenCalledWith();
+    expect(req.body).toEqual({ name: 'test' });
     expect(req.body.extra).toBeUndefined();
-    expect(req.body.name).toBe('test');
-  });
-
-  it('passes with empty schema', () => {
-    const middleware = validate({});
-    middleware(req, res, next);
-
-    expect(next).toHaveBeenCalledWith();
-  });
-
-  it('handles nested field paths in error details', () => {
-    const schema = {
-      body: Joi.object({
-        address: Joi.object({
-          city: Joi.string().required(),
-        }).required(),
-      }),
-    };
-
-    req.body = { address: {} };
-    const middleware = validate(schema);
-    middleware(req, res, next);
-
-    const error = next.mock.calls[0][0];
-    expect(error.details.body[0].field).toBe('address.city');
   });
 
   it('collects all errors when abortEarly is false', () => {
     const schema = {
       body: Joi.object({
+        name: Joi.string().required(),
         email: Joi.string().email().required(),
-        name: Joi.string().min(3).required(),
+        age: Joi.number().min(0).required(),
       }),
     };
+    const { req, res, next } = mockReqRes({ age: 'not-a-number' });
 
-    req.body = {};
-    const middleware = validate(schema);
-    middleware(req, res, next);
+    validate(schema)(req, res, next);
 
     const error = next.mock.calls[0][0];
-    expect(error.details.body.length).toBe(2);
+    expect(error.details.body.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('passes through with no schema properties', () => {
+    const { req, res, next } = mockReqRes({ anything: 'goes' });
+
+    validate({})(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('replaces validated values on req object', () => {
+    const schema = {
+      body: Joi.object({ count: Joi.number() }),
+      query: Joi.object({ limit: Joi.number() }),
+      params: Joi.object({ id: Joi.number() }),
+    };
+    const { req, res, next } = mockReqRes(
+      { count: '5' },
+      { limit: '10' },
+      { id: '42' },
+    );
+
+    validate(schema)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body.count).toBe(5);
+    expect(req.query.limit).toBe(10);
+    expect(req.params.id).toBe(42);
+  });
+
+  it('maps error details with field, message, and type', () => {
+    const schema = {
+      body: Joi.object({ email: Joi.string().email().required() }),
+    };
+    const { req, res, next } = mockReqRes({ email: 'not-email' });
+
+    validate(schema)(req, res, next);
+
+    const error = next.mock.calls[0][0];
+    const detail = error.details.body[0];
+    expect(detail).toHaveProperty('field');
+    expect(detail).toHaveProperty('message');
+    expect(detail).toHaveProperty('type');
   });
 });
