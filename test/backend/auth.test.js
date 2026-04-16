@@ -41,6 +41,11 @@ describe("Auth Backend", () => {
       expect(res.status).toBe(200);
       expect(res.headers["access-control-allow-origin"]).toBeUndefined();
     });
+
+    it("allows requests with no origin (server-to-server)", async () => {
+      const res = await request(app).get("/health").unset("Origin");
+      expect(res.status).toBe(200);
+    });
   });
 
   describe("GET /api/protected", () => {
@@ -70,12 +75,23 @@ describe("Auth Backend", () => {
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ error: "Invalid token" });
     });
+
+    it("returns 404 for unknown routes", async () => {
+      const res = await request(app).get("/nonexistent-route");
+      expect(res.status).toBe(404);
+    });
   });
 
   describe("Rate limiting", () => {
     it("applies rate limiter to /api/ routes", async () => {
       const res = await request(app).get("/api/protected");
       expect(res.headers["x-ratelimit-limit"]).toBeDefined();
+      expect(res.headers["x-ratelimit-remaining"]).toBeDefined();
+    });
+
+    it("does not apply rate limit headers to non-api routes", async () => {
+      const res = await request(app).get("/health");
+      expect(res.headers["x-ratelimit-limit"]).toBeUndefined();
     });
   });
 });
