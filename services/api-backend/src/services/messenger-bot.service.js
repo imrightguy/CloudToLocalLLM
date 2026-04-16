@@ -232,9 +232,9 @@ async function createLeadFromConversation(senderId, conversationData) {
   const fullName = [firstName, lastName].filter(Boolean).join(' ').trim() || `FB User ${senderId.slice(-6)}`;
 
   const tags = [];
-  if (reason) tags.push(reason);
-  if (employment) tags.push(employment);
-  if (pets === 'yes') tags.push('pets');
+  if (reason) {tags.push(reason);}
+  if (employment) {tags.push(employment);}
+  if (pets === 'yes') {tags.push('pets');}
 
   const notes = [
     reason && `Raison: ${reason}`,

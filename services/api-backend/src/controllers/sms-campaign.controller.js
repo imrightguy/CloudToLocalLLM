@@ -49,8 +49,8 @@ const getTemplatesHandler = async (req, res) => {
   try {
     const { category, language } = req.query;
     const filters = {};
-    if (category) filters.category = category;
-    if (language) filters.language = language;
+    if (category) {filters.category = category;}
+    if (language) {filters.language = language;}
 
     const templates = await getTemplates(filters);
     res.json({ success: true, data: templates });
@@ -183,9 +183,9 @@ const getCampaignsHandler = async (req, res) => {
   try {
     const { status, targetAudience, buildingId } = req.query;
     const filters = {};
-    if (status) filters.status = status;
-    if (targetAudience) filters.targetAudience = targetAudience;
-    if (buildingId) filters.buildingId = buildingId;
+    if (status) {filters.status = status;}
+    if (targetAudience) {filters.targetAudience = targetAudience;}
+    if (buildingId) {filters.buildingId = buildingId;}
 
     const campaigns = await getCampaigns(filters);
     res.json({ success: true, data: campaigns });

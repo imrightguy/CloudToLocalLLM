@@ -7,7 +7,7 @@ const validate = (schema) => (req, res, next) => {
       abortEarly: false,
       stripUnknown: true,
     });
-    if (value !== undefined) req.body = value;
+    if (value !== undefined) {req.body = value;}
     if (error) {
       errors.body = error.details.map((d) => ({
         field: d.path.join('.'),
@@ -22,7 +22,7 @@ const validate = (schema) => (req, res, next) => {
       abortEarly: false,
       stripUnknown: true,
     });
-    if (value !== undefined) req.query = value;
+    if (value !== undefined) {req.query = value;}
     if (error) {
       errors.query = error.details.map((d) => ({
         field: d.path.join('.'),
@@ -37,7 +37,7 @@ const validate = (schema) => (req, res, next) => {
       abortEarly: false,
       stripUnknown: true,
     });
-    if (value !== undefined) req.params = value;
+    if (value !== undefined) {req.params = value;}
     if (error) {
       errors.params = error.details.map((d) => ({
         field: d.path.join('.'),

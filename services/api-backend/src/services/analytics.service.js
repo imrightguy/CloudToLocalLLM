@@ -461,7 +461,7 @@ async function getOccupancyTrend(buildingId = null) {
   try {
     const cacheKey = `analytics:getOccupancyTrend:30d:${buildingId || 'all'}:month`;
     const cached = cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const conditions = [];
     if (buildingId) {
@@ -487,9 +487,9 @@ async function getOccupancyTrend(buildingId = null) {
         buildingMap[bid] = { buildingId: bid, buildingName: r.buildingName, occupied: 0, vacant: 0, maintenance: 0 };
       }
       const count = Number(r.count);
-      if (r.status === 'occupied') buildingMap[bid].occupied = count;
-      else if (r.status === 'vacant') buildingMap[bid].vacant = count;
-      else if (r.status === 'maintenance') buildingMap[bid].maintenance = count;
+      if (r.status === 'occupied') {buildingMap[bid].occupied = count;}
+      else if (r.status === 'vacant') {buildingMap[bid].vacant = count;}
+      else if (r.status === 'maintenance') {buildingMap[bid].maintenance = count;}
     }
 
     const result = Object.values(buildingMap).map((b) => {
@@ -537,7 +537,7 @@ async function getRevenueTrend(period = '12m', buildingId = null, granularity = 
 
     const cacheKey = getCacheKey('getRevenueTrend', period, buildingId, granularity);
     const cached = cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const days = PERIOD_DAYS[period];
     const periodStart = new Date();
@@ -625,7 +625,7 @@ async function getLeadFunnel(period = '90d', buildingId = null, granularity = 'w
 
     const cacheKey = getCacheKey('getLeadFunnel', period, buildingId, granularity);
     const cached = cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const days = PERIOD_DAYS[period];
     const periodStart = new Date();
@@ -697,7 +697,7 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
 
     const cacheKey = getCacheKey('getVisitMetrics', period, buildingId, granularity);
     const cached = cache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
 
     const days = PERIOD_DAYS[period];
     const periodStart = new Date();

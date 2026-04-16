@@ -77,11 +77,11 @@ exports.getCommunications = async (req, res) => {
     const offset = (validPage - 1) * validLimit;
 
     const conditions = [eq(communicationLogsTable.isActive, true)];
-    if (leadId) conditions.push(eq(communicationLogsTable.leadId, leadId));
-    if (employeeId) conditions.push(eq(communicationLogsTable.employeeId, employeeId));
-    if (type) conditions.push(eq(communicationLogsTable.type, type));
-    if (direction) conditions.push(eq(communicationLogsTable.direction, direction));
-    if (status) conditions.push(eq(communicationLogsTable.status, status));
+    if (leadId) {conditions.push(eq(communicationLogsTable.leadId, leadId));}
+    if (employeeId) {conditions.push(eq(communicationLogsTable.employeeId, employeeId));}
+    if (type) {conditions.push(eq(communicationLogsTable.type, type));}
+    if (direction) {conditions.push(eq(communicationLogsTable.direction, direction));}
+    if (status) {conditions.push(eq(communicationLogsTable.status, status));}
 
     // Count
     const countResult = await db.select({ count: sql`count(*)::int` })
@@ -180,11 +180,11 @@ exports.updateCommunicationLog = async (req, res) => {
     }
 
     const updateData = {};
-    if (content !== undefined) updateData.content = content;
-    if (subject !== undefined) updateData.subject = subject;
-    if (attachments !== undefined) updateData.attachments = attachments;
-    if (status !== undefined) updateData.status = status;
-    if (metadata !== undefined) updateData.metadata = metadata;
+    if (content !== undefined) {updateData.content = content;}
+    if (subject !== undefined) {updateData.subject = subject;}
+    if (attachments !== undefined) {updateData.attachments = attachments;}
+    if (status !== undefined) {updateData.status = status;}
+    if (metadata !== undefined) {updateData.metadata = metadata;}
 
     const [updated] = await db.update(communicationLogsTable)
       .set(updateData)

@@ -21,8 +21,8 @@ const toPublicLease = (lease) => ({
 
 const computeAutoStatus = (startDate, endDate) => {
   const now = new Date();
-  if (now < startDate) return 'draft';
-  if (now > endDate) return 'expired';
+  if (now < startDate) {return 'draft';}
+  if (now > endDate) {return 'expired';}
   return 'active';
 };
 
@@ -33,7 +33,7 @@ const findLeaseOr404 = async (id) => {
     .where(eq(leasesTable.id, id))
     .limit(1);
 
-  if (!lease) return null;
+  if (!lease) {return null;}
   return lease;
 };
 
@@ -137,8 +137,8 @@ exports.getLeases = async (req, res) => {
     const offset = (validPage - 1) * validLimit;
 
     const conditions = [];
-    if (status) conditions.push(eq(leasesTable.status, status));
-    if (unitId) conditions.push(eq(leasesTable.unitId, unitId));
+    if (status) {conditions.push(eq(leasesTable.status, status));}
+    if (unitId) {conditions.push(eq(leasesTable.unitId, unitId));}
 
     if (buildingId) {
       conditions.push(eq(buildingsTable.id, buildingId));
@@ -268,15 +268,15 @@ exports.updateLease = async (req, res) => {
     }
 
     const updateData = { updatedAt: new Date() };
-    if (value.tenantFirstName !== undefined) updateData.tenantFirstName = value.tenantFirstName;
-    if (value.tenantLastName !== undefined) updateData.tenantLastName = value.tenantLastName;
-    if (value.tenantEmail !== undefined) updateData.tenantEmail = value.tenantEmail || null;
-    if (value.tenantPhone !== undefined) updateData.tenantPhone = value.tenantPhone || null;
-    if (value.rent !== undefined) updateData.rentCents = value.rent * 100;
-    if (value.deposit !== undefined) updateData.depositCents = value.deposit * 100;
-    if (value.startDate !== undefined) updateData.startDate = new Date(value.startDate);
-    if (value.endDate !== undefined) updateData.endDate = new Date(value.endDate);
-    if (value.terms !== undefined) updateData.terms = value.terms;
+    if (value.tenantFirstName !== undefined) {updateData.tenantFirstName = value.tenantFirstName;}
+    if (value.tenantLastName !== undefined) {updateData.tenantLastName = value.tenantLastName;}
+    if (value.tenantEmail !== undefined) {updateData.tenantEmail = value.tenantEmail || null;}
+    if (value.tenantPhone !== undefined) {updateData.tenantPhone = value.tenantPhone || null;}
+    if (value.rent !== undefined) {updateData.rentCents = value.rent * 100;}
+    if (value.deposit !== undefined) {updateData.depositCents = value.deposit * 100;}
+    if (value.startDate !== undefined) {updateData.startDate = new Date(value.startDate);}
+    if (value.endDate !== undefined) {updateData.endDate = new Date(value.endDate);}
+    if (value.terms !== undefined) {updateData.terms = value.terms;}
 
     if (updateData.startDate || updateData.endDate) {
       const s = updateData.startDate || existing.startDate;

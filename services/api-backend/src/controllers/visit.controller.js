@@ -238,9 +238,9 @@ exports.getVisits = async (req, res) => {
 
     // Build conditions
     const conditions = [eq(visitsTable.isActive, true)];
-    if (status) conditions.push(eq(visitsTable.status, status));
-    if (employeeId) conditions.push(eq(visitsTable.employeeId, employeeId));
-    if (leadId) conditions.push(eq(visitsTable.leadId, leadId));
+    if (status) {conditions.push(eq(visitsTable.status, status));}
+    if (employeeId) {conditions.push(eq(visitsTable.employeeId, employeeId));}
+    if (leadId) {conditions.push(eq(visitsTable.leadId, leadId));}
     if (dateFrom) {
       const from = new Date(dateFrom);
       if (!Number.isNaN(from.getTime())) {
@@ -504,9 +504,9 @@ exports.updateVisit = async (req, res) => {
 
     // Build update payload
     const updateData = { updatedAt: new Date() };
-    if (unitId !== undefined) updateData.unitId = unitId;
-    if (employeeId !== undefined) updateData.employeeId = employeeId;
-    if (leadId !== undefined) updateData.leadId = leadId;
+    if (unitId !== undefined) {updateData.unitId = unitId;}
+    if (employeeId !== undefined) {updateData.employeeId = employeeId;}
+    if (leadId !== undefined) {updateData.leadId = leadId;}
     if (dateTime !== undefined) {
       const parsed = new Date(dateTime);
       if (Number.isNaN(parsed.getTime())) {
@@ -517,14 +517,14 @@ exports.updateVisit = async (req, res) => {
       }
       updateData.dateTime = parsed;
     }
-    if (durationMinutes !== undefined) updateData.durationMinutes = durationMinutes;
-    if (status !== undefined) updateData.status = status;
-    if (tenantConfirmed !== undefined) updateData.tenantConfirmed = tenantConfirmed;
-    if (employeeConfirmed !== undefined) updateData.employeeConfirmed = employeeConfirmed;
-    if (morningOfSent !== undefined) updateData.morningOfSent = morningOfSent;
-    if (outcome !== undefined) updateData.outcome = outcome;
-    if (notes !== undefined) updateData.notes = notes?.trim() || null;
-    if (isActive !== undefined) updateData.isActive = isActive;
+    if (durationMinutes !== undefined) {updateData.durationMinutes = durationMinutes;}
+    if (status !== undefined) {updateData.status = status;}
+    if (tenantConfirmed !== undefined) {updateData.tenantConfirmed = tenantConfirmed;}
+    if (employeeConfirmed !== undefined) {updateData.employeeConfirmed = employeeConfirmed;}
+    if (morningOfSent !== undefined) {updateData.morningOfSent = morningOfSent;}
+    if (outcome !== undefined) {updateData.outcome = outcome;}
+    if (notes !== undefined) {updateData.notes = notes?.trim() || null;}
+    if (isActive !== undefined) {updateData.isActive = isActive;}
 
     const [updated] = await db
       .update(visitsTable)

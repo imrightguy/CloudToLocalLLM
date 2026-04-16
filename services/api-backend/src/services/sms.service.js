@@ -1132,8 +1132,8 @@ const isWithinBusinessHours = (date = new Date()) => {
   const quebecTime = new Date(utc + QUEBEC_TIMEZONE_OFFSET * 3600000);
   const hour = quebecTime.getHours();
   const day = quebecTime.getDay();
-  if (day === 0) return false;
-  if (day === 6 && hour >= 13) return false;
+  if (day === 0) {return false;}
+  if (day === 6 && hour >= 13) {return false;}
   return hour >= 8 && hour < 21;
 };
 
@@ -1158,7 +1158,7 @@ const getNextBusinessHour = (date = new Date()) => {
 
   if (hour >= 21) {
     quebecTime.setDate(quebecTime.getDate() + 1);
-    if (quebecTime.getDay() === 0) quebecTime.setDate(quebecTime.getDate() + 1);
+    if (quebecTime.getDay() === 0) {quebecTime.setDate(quebecTime.getDate() + 1);}
     quebecTime.setHours(8, 0, 0, 0);
     return new Date(quebecTime.getTime() - QUEBEC_TIMEZONE_OFFSET * 3600000 - d.getTimezoneOffset() * 60000);
   }
@@ -1196,8 +1196,8 @@ const createTemplate = async (data) => {
 
 const getTemplates = async (filters = {}) => {
   const conditions = [eq(smsTemplatesTable.isActive, true)];
-  if (filters.category) conditions.push(eq(smsTemplatesTable.category, filters.category));
-  if (filters.language) conditions.push(eq(smsTemplatesTable.language, filters.language));
+  if (filters.category) {conditions.push(eq(smsTemplatesTable.category, filters.category));}
+  if (filters.language) {conditions.push(eq(smsTemplatesTable.language, filters.language));}
 
   const templates = await db
     .select()
@@ -1218,15 +1218,15 @@ const getTemplateById = async (id) => {
 
 const updateTemplate = async (id, data) => {
   const updateData = { updatedAt: new Date() };
-  if (data.name !== undefined) updateData.name = data.name;
+  if (data.name !== undefined) {updateData.name = data.name;}
   if (data.body !== undefined) {
     updateData.body = data.body;
     updateData.variables = extractVariables(data.body);
   }
-  if (data.language !== undefined) updateData.language = data.language;
-  if (data.category !== undefined) updateData.category = data.category;
-  if (data.description !== undefined) updateData.description = data.description;
-  if (data.variables !== undefined) updateData.variables = data.variables;
+  if (data.language !== undefined) {updateData.language = data.language;}
+  if (data.category !== undefined) {updateData.category = data.category;}
+  if (data.description !== undefined) {updateData.description = data.description;}
+  if (data.variables !== undefined) {updateData.variables = data.variables;}
 
   const [updated] = await db
     .update(smsTemplatesTable)
@@ -1275,9 +1275,9 @@ const createCampaign = async (data, createdBy) => {
 
 const getCampaigns = async (filters = {}) => {
   const conditions = [eq(smsCampaignsTable.isActive, true)];
-  if (filters.status) conditions.push(eq(smsCampaignsTable.status, filters.status));
-  if (filters.targetAudience) conditions.push(eq(smsCampaignsTable.targetAudience, filters.targetAudience));
-  if (filters.buildingId) conditions.push(eq(smsCampaignsTable.buildingId, filters.buildingId));
+  if (filters.status) {conditions.push(eq(smsCampaignsTable.status, filters.status));}
+  if (filters.targetAudience) {conditions.push(eq(smsCampaignsTable.targetAudience, filters.targetAudience));}
+  if (filters.buildingId) {conditions.push(eq(smsCampaignsTable.buildingId, filters.buildingId));}
 
   const campaigns = await db
     .select()
@@ -1298,18 +1298,18 @@ const getCampaignById = async (id) => {
 
 const updateCampaign = async (id, data) => {
   const updateData = { updatedAt: new Date() };
-  if (data.name !== undefined) updateData.name = data.name;
-  if (data.description !== undefined) updateData.description = data.description;
-  if (data.templateId !== undefined) updateData.templateId = data.templateId;
-  if (data.targetAudience !== undefined) updateData.targetAudience = data.targetAudience;
-  if (data.buildingId !== undefined) updateData.buildingId = data.buildingId;
-  if (data.scheduleType !== undefined) updateData.scheduleType = data.scheduleType;
-  if (data.cronExpression !== undefined) updateData.cronExpression = data.cronExpression;
+  if (data.name !== undefined) {updateData.name = data.name;}
+  if (data.description !== undefined) {updateData.description = data.description;}
+  if (data.templateId !== undefined) {updateData.templateId = data.templateId;}
+  if (data.targetAudience !== undefined) {updateData.targetAudience = data.targetAudience;}
+  if (data.buildingId !== undefined) {updateData.buildingId = data.buildingId;}
+  if (data.scheduleType !== undefined) {updateData.scheduleType = data.scheduleType;}
+  if (data.cronExpression !== undefined) {updateData.cronExpression = data.cronExpression;}
   if (data.scheduledAt !== undefined) {
     updateData.scheduledAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
     updateData.nextRunAt = data.scheduledAt ? new Date(data.scheduledAt) : null;
   }
-  if (data.templateData !== undefined) updateData.templateData = data.templateData;
+  if (data.templateData !== undefined) {updateData.templateData = data.templateData;}
 
   const [updated] = await db
     .update(smsCampaignsTable)
@@ -1397,7 +1397,7 @@ const resolveRecipients = async (campaign) => {
       });
     }
   } else if (campaign.targetAudience === 'building_tenants') {
-    if (!campaign.buildingId) return recipients;
+    if (!campaign.buildingId) {return recipients;}
 
     const units = await db
       .select()
@@ -1492,7 +1492,7 @@ const executeCampaign = async (campaignId) => {
   let batchStart = Date.now();
 
   for (const recipient of recipients) {
-    if (Date.now() - batchStart > maxBatchTimeMs) break;
+    if (Date.now() - batchStart > maxBatchTimeMs) {break;}
 
     if (await isOptedOut(recipient.phone)) {
       _skippedOptOut++;
@@ -1507,7 +1507,7 @@ const executeCampaign = async (campaignId) => {
       messageBody = recipient.messageBody || '';
     }
 
-    if (!messageBody || !recipient.phone) continue;
+    if (!messageBody || !recipient.phone) {continue;}
 
     const validation = validateTemplateRender(messageBody);
     if (!validation.valid) {
@@ -1560,7 +1560,7 @@ const processQueue = async () => {
       .orderBy(sql`${smsQueueTable.scheduledAt} asc`)
       .limit(50);
 
-    if (messages.length === 0) return { processed: 0 };
+    if (messages.length === 0) {return { processed: 0 };}
 
     let sent = 0;
     let failed = 0;
@@ -1875,7 +1875,7 @@ const queueLeaseRenewalReminder = async (leaseId) => {
       .from(buildingsTable)
       .where(eq(buildingsTable.id, unit.buildingId))
       .limit(1);
-    if (building) buildingAddress = `${building.address}, ${building.city}`;
+    if (building) {buildingAddress = `${building.address}, ${building.city}`;}
   }
 
   const endDate = new Date(lease.endDate).toLocaleDateString('fr-CA', {
@@ -1988,7 +1988,7 @@ const queuePaymentReminder = async (leaseId, type) => {
       .from(buildingsTable)
       .where(eq(buildingsTable.id, unit.buildingId))
       .limit(1);
-    if (building) buildingAddress = `${building.address}, ${building.city}`;
+    if (building) {buildingAddress = `${building.address}, ${building.city}`;}
   }
 
   let message;
@@ -2037,7 +2037,7 @@ const expireVisits = async () => {
   try {
     const visits = await getVisitsNeedingExpiry();
 
-    if (visits.length === 0) return { expired: 0 };
+    if (visits.length === 0) {return { expired: 0 };}
 
     let expired = 0;
     for (const visit of visits) {

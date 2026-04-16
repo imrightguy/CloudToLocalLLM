@@ -97,7 +97,7 @@ const validateFilters = (req, allowedFilters) => {
  * @returns {Object} Updated query builder
  */
 const addSearch = (queryBuilder, search, searchFields) => {
-  if (!search) return queryBuilder;
+  if (!search) {return queryBuilder;}
 
   const searchTerm = `%${search.toLowerCase()}%`;
   const searchConditions = searchFields.map((field) => `LOWER(${field}) LIKE LOWER(${queryBuilder.client ? '?' : '?'})`);

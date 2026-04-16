@@ -15,12 +15,12 @@ async function getUserPreferences(userId) {
 }
 
 async function shouldSendEmail(userId) {
-  if (!process.env.SMTP_HOST) return false;
+  if (!process.env.SMTP_HOST) {return false;}
 
   const prefs = await getUserPreferences(userId);
-  if (!prefs) return true;
+  if (!prefs) {return true;}
 
-  if (!prefs.emailNotifications) return false;
+  if (!prefs.emailNotifications) {return false;}
 
   if (prefs.quietHoursEnabled) {
     const now = new Date();
@@ -31,9 +31,9 @@ async function shouldSendEmail(userId) {
     const endMinutes = endH * 60 + endM;
 
     if (startMinutes <= endMinutes) {
-      if (currentMinutes >= startMinutes && currentMinutes < endMinutes) return false;
+      if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {return false;}
     } else {
-      if (currentMinutes >= startMinutes || currentMinutes < endMinutes) return false;
+      if (currentMinutes >= startMinutes || currentMinutes < endMinutes) {return false;}
     }
   }
 

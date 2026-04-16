@@ -50,12 +50,12 @@ exports.updatePreferences = async (req, res) => {
     } = req.body;
 
     const allowedFields = {};
-    if (typeof emailNotifications === 'boolean') allowedFields.emailNotifications = emailNotifications;
-    if (typeof smsNotifications === 'boolean') allowedFields.smsNotifications = smsNotifications;
-    if (typeof weeklyDigest === 'boolean') allowedFields.weeklyDigest = weeklyDigest;
-    if (typeof quietHoursEnabled === 'boolean') allowedFields.quietHoursEnabled = quietHoursEnabled;
-    if (quietHoursStart !== undefined) allowedFields.quietHoursStart = quietHoursStart;
-    if (quietHoursEnd !== undefined) allowedFields.quietHoursEnd = quietHoursEnd;
+    if (typeof emailNotifications === 'boolean') {allowedFields.emailNotifications = emailNotifications;}
+    if (typeof smsNotifications === 'boolean') {allowedFields.smsNotifications = smsNotifications;}
+    if (typeof weeklyDigest === 'boolean') {allowedFields.weeklyDigest = weeklyDigest;}
+    if (typeof quietHoursEnabled === 'boolean') {allowedFields.quietHoursEnabled = quietHoursEnabled;}
+    if (quietHoursStart !== undefined) {allowedFields.quietHoursStart = quietHoursStart;}
+    if (quietHoursEnd !== undefined) {allowedFields.quietHoursEnd = quietHoursEnd;}
 
     if (Object.keys(allowedFields).length === 0) {
       return res.status(400).json({
@@ -249,7 +249,7 @@ exports.notifyAllAdmins = async (type, title, message, data = {}) => {
       const notification = await exports.createNotification(
         admin.id, type, title, message, data,
       );
-      if (notification) results.push(notification);
+      if (notification) {results.push(notification);}
     }
 
     return results;

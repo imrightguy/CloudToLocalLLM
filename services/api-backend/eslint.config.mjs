@@ -18,6 +18,8 @@ export default [
       'no-console': 'off',
       'no-debugger': 'warn',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      eqeqeq: 'warn',
+      curly: 'warn',
       'no-underscore-dangle': 'off',
       'comma-dangle': ['error', 'always-multiline'],
       'max-len': ['warn', { code: 120, ignoreStrings: true, ignoreTemplateLiterals: true }],

@@ -40,7 +40,7 @@ const calculateLateFee = (amountCents, dueDate) => {
   due.setHours(0, 0, 0, 0);
 
   const daysLate = Math.floor((now - due) / (1000 * 60 * 60 * 24)) - LATE_FEE_GRACE_DAYS;
-  if (daysLate <= 0) return 0;
+  if (daysLate <= 0) {return 0;}
 
   const dailyFee = Math.round(amountCents * LATE_FEE_DAILY_RATE);
   const totalFee = dailyFee * daysLate;
@@ -162,8 +162,8 @@ exports.getPayments = async (req, res) => {
     const offset = (validPage - 1) * validLimit;
 
     const conditions = [];
-    if (status) conditions.push(eq(paymentsTable.status, status));
-    if (leaseId) conditions.push(eq(paymentsTable.leaseId, leaseId));
+    if (status) {conditions.push(eq(paymentsTable.status, status));}
+    if (leaseId) {conditions.push(eq(paymentsTable.leaseId, leaseId));}
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -325,12 +325,12 @@ exports.updatePayment = async (req, res) => {
     }
 
     const updateData = { updatedAt: new Date() };
-    if (value.amount !== undefined) updateData.amountCents = Math.round(value.amount * 100);
-    if (value.paidDate !== undefined) updateData.paidDate = value.paidDate ? new Date(value.paidDate) : null;
-    if (value.method !== undefined) updateData.method = value.method || null;
-    if (value.reference !== undefined) updateData.reference = value.reference || null;
-    if (value.notes !== undefined) updateData.notes = value.notes || null;
-    if (value.lateFeeCents !== undefined) updateData.lateFeeCents = value.lateFeeCents;
+    if (value.amount !== undefined) {updateData.amountCents = Math.round(value.amount * 100);}
+    if (value.paidDate !== undefined) {updateData.paidDate = value.paidDate ? new Date(value.paidDate) : null;}
+    if (value.method !== undefined) {updateData.method = value.method || null;}
+    if (value.reference !== undefined) {updateData.reference = value.reference || null;}
+    if (value.notes !== undefined) {updateData.notes = value.notes || null;}
+    if (value.lateFeeCents !== undefined) {updateData.lateFeeCents = value.lateFeeCents;}
 
     if (updateData.paidDate && !updateData.amountCents) {
       updateData.amountCents = existing.amountCents;

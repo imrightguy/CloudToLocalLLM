@@ -55,9 +55,9 @@ exports.getSchedules = async (req, res) => {
     const { employeeId, buildingId, dayOfWeek } = req.query;
 
     const conditions = [eq(employeeSchedulesTable.isActive, true)];
-    if (employeeId) conditions.push(eq(employeeSchedulesTable.employeeId, employeeId));
-    if (buildingId) conditions.push(eq(employeeSchedulesTable.buildingId, buildingId));
-    if (dayOfWeek !== undefined) conditions.push(eq(employeeSchedulesTable.dayOfWeek, parseInt(dayOfWeek)));
+    if (employeeId) {conditions.push(eq(employeeSchedulesTable.employeeId, employeeId));}
+    if (buildingId) {conditions.push(eq(employeeSchedulesTable.buildingId, buildingId));}
+    if (dayOfWeek !== undefined) {conditions.push(eq(employeeSchedulesTable.dayOfWeek, parseInt(dayOfWeek)));}
 
     const schedules = await db.select()
       .from(employeeSchedulesTable)
@@ -130,8 +130,8 @@ exports.updateSchedule = async (req, res) => {
     }
 
     const updateData = { updatedAt: new Date() };
-    if (employeeId !== undefined) updateData.employeeId = employeeId;
-    if (buildingId !== undefined) updateData.buildingId = buildingId;
+    if (employeeId !== undefined) {updateData.employeeId = employeeId;}
+    if (buildingId !== undefined) {updateData.buildingId = buildingId;}
     if (dayOfWeek !== undefined) {
       if (dayOfWeek < 0 || dayOfWeek > 6) {
         return res.status(400).json({
@@ -141,9 +141,9 @@ exports.updateSchedule = async (req, res) => {
       }
       updateData.dayOfWeek = dayOfWeek;
     }
-    if (startTime !== undefined) updateData.startTime = startTime;
-    if (endTime !== undefined) updateData.endTime = endTime;
-    if (isActive !== undefined) updateData.isActive = isActive;
+    if (startTime !== undefined) {updateData.startTime = startTime;}
+    if (endTime !== undefined) {updateData.endTime = endTime;}
+    if (isActive !== undefined) {updateData.isActive = isActive;}
 
     const [updated] = await db.update(employeeSchedulesTable)
       .set(updateData)

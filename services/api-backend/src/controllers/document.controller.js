@@ -61,12 +61,12 @@ exports.getDocuments = async (req, res) => {
     const offset = (validPage - 1) * validLimit;
 
     const conditions = [eq(documentsTable.isActive, true)];
-    if (referenceId) conditions.push(eq(documentsTable.referenceId, referenceId));
-    if (referenceType) conditions.push(eq(documentsTable.referenceType, referenceType));
-    if (type) conditions.push(eq(documentsTable.type, type));
-    if (category) conditions.push(eq(documentsTable.category, category));
-    if (status) conditions.push(eq(documentsTable.status, status));
-    if (uploadedBy) conditions.push(eq(documentsTable.uploadedBy, uploadedBy));
+    if (referenceId) {conditions.push(eq(documentsTable.referenceId, referenceId));}
+    if (referenceType) {conditions.push(eq(documentsTable.referenceType, referenceType));}
+    if (type) {conditions.push(eq(documentsTable.type, type));}
+    if (category) {conditions.push(eq(documentsTable.category, category));}
+    if (status) {conditions.push(eq(documentsTable.status, status));}
+    if (uploadedBy) {conditions.push(eq(documentsTable.uploadedBy, uploadedBy));}
 
     // Count
     const countResult = await db.select({ count: sql`count(*)::int` })
@@ -168,16 +168,16 @@ exports.updateDocument = async (req, res) => {
     }
 
     const updateData = { updatedAt: new Date() };
-    if (name !== undefined) updateData.name = name;
-    if (type !== undefined) updateData.type = type;
-    if (category !== undefined) updateData.category = category;
-    if (fileSize !== undefined) updateData.fileSize = fileSize;
-    if (mimeType !== undefined) updateData.mimeType = mimeType;
-    if (url !== undefined) updateData.url = url;
-    if (status !== undefined) updateData.status = status;
-    if (referenceId !== undefined) updateData.referenceId = referenceId;
-    if (referenceType !== undefined) updateData.referenceType = referenceType;
-    if (metadata !== undefined) updateData.metadata = metadata;
+    if (name !== undefined) {updateData.name = name;}
+    if (type !== undefined) {updateData.type = type;}
+    if (category !== undefined) {updateData.category = category;}
+    if (fileSize !== undefined) {updateData.fileSize = fileSize;}
+    if (mimeType !== undefined) {updateData.mimeType = mimeType;}
+    if (url !== undefined) {updateData.url = url;}
+    if (status !== undefined) {updateData.status = status;}
+    if (referenceId !== undefined) {updateData.referenceId = referenceId;}
+    if (referenceType !== undefined) {updateData.referenceType = referenceType;}
+    if (metadata !== undefined) {updateData.metadata = metadata;}
 
     const [updated] = await db.update(documentsTable)
       .set(updateData)
@@ -341,9 +341,9 @@ exports.searchDocuments = async (req, res) => {
       eq(documentsTable.isActive, true),
       ilike(documentsTable.name, `%${escaped}%`),
     ];
-    if (type) conditions.push(eq(documentsTable.type, type));
-    if (category) conditions.push(eq(documentsTable.category, category));
-    if (status) conditions.push(eq(documentsTable.status, status));
+    if (type) {conditions.push(eq(documentsTable.type, type));}
+    if (category) {conditions.push(eq(documentsTable.category, category));}
+    if (status) {conditions.push(eq(documentsTable.status, status));}
 
     // Count
     const countResult = await db.select({ count: sql`count(*)::int` })

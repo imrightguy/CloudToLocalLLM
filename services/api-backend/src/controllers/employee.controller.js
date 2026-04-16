@@ -160,11 +160,11 @@ exports.updateEmployee = async (req, res) => {
     }
 
     const updateData = { updatedAt: new Date() };
-    if (firstName !== undefined) updateData.firstName = firstName;
-    if (lastName !== undefined) updateData.lastName = lastName;
-    if (phone !== undefined) updateData.phone = phone;
-    if (email !== undefined) updateData.email = email;
-    if (isActive !== undefined) updateData.isActive = isActive;
+    if (firstName !== undefined) {updateData.firstName = firstName;}
+    if (lastName !== undefined) {updateData.lastName = lastName;}
+    if (phone !== undefined) {updateData.phone = phone;}
+    if (email !== undefined) {updateData.email = email;}
+    if (isActive !== undefined) {updateData.isActive = isActive;}
 
     const [updated] = await db.update(employeesTable)
       .set(updateData)

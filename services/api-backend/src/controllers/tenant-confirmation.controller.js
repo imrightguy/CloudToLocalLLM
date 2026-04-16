@@ -8,7 +8,7 @@ const {
 } = require('../database/schema');
 
 function esc(str) {
-  if (!str) return '';
+  if (!str) {return '';}
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

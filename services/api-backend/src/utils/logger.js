@@ -24,7 +24,7 @@ function formatMessage(level, message, meta = {}) {
 }
 
 function log(level, message, meta) {
-  if (LOG_LEVELS[level] > currentLevel) return;
+  if (LOG_LEVELS[level] > currentLevel) {return;}
   const formatted = formatMessage(level, message, meta);
 
   switch (level) {

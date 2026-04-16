@@ -177,8 +177,8 @@ exports.getRenewalOffers = async (req, res) => {
     const offset = (validPage - 1) * validLimit;
 
     const conditions = [eq(renewalOffersTable.isActive, true)];
-    if (leaseId) conditions.push(eq(renewalOffersTable.leaseId, leaseId));
-    if (status) conditions.push(eq(renewalOffersTable.status, status));
+    if (leaseId) {conditions.push(eq(renewalOffersTable.leaseId, leaseId));}
+    if (status) {conditions.push(eq(renewalOffersTable.status, status));}
 
     const whereClause = and(...conditions);
 
@@ -277,12 +277,12 @@ exports.updateRenewalOffer = async (req, res) => {
     }
 
     const updateData = { updatedAt: new Date() };
-    if (value.newRent !== undefined) updateData.newRentCents = Math.round(value.newRent * 100);
-    if (value.newDeposit !== undefined) updateData.newDepositCents = Math.round(value.newDeposit * 100);
-    if (value.newStartDate !== undefined) updateData.newStartDate = new Date(value.newStartDate);
-    if (value.newEndDate !== undefined) updateData.newEndDate = new Date(value.newEndDate);
-    if (value.terms !== undefined) updateData.terms = value.terms;
-    if (value.notes !== undefined) updateData.notes = value.notes || null;
+    if (value.newRent !== undefined) {updateData.newRentCents = Math.round(value.newRent * 100);}
+    if (value.newDeposit !== undefined) {updateData.newDepositCents = Math.round(value.newDeposit * 100);}
+    if (value.newStartDate !== undefined) {updateData.newStartDate = new Date(value.newStartDate);}
+    if (value.newEndDate !== undefined) {updateData.newEndDate = new Date(value.newEndDate);}
+    if (value.terms !== undefined) {updateData.terms = value.terms;}
+    if (value.notes !== undefined) {updateData.notes = value.notes || null;}
 
     const [updated] = await db
       .update(renewalOffersTable)

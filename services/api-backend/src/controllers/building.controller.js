@@ -182,15 +182,15 @@ exports.updateBuilding = async (req, res) => {
 
     // Build update payload
     const updateData = { updatedAt: new Date() };
-    if (value.name !== undefined) updateData.name = value.name;
-    if (value.address !== undefined) updateData.address = value.address;
-    if (value.city !== undefined) updateData.city = value.city;
-    if (value.province !== undefined) updateData.province = value.province;
-    if (value.postalCode !== undefined) updateData.postalCode = value.postalCode;
-    if (value.totalUnits !== undefined) updateData.totalUnits = value.totalUnits;
-    if (value.occupiedUnits !== undefined) updateData.occupiedUnits = value.occupiedUnits;
-    if (value.description !== undefined) updateData.description = value.description;
-    if (value.properties !== undefined) updateData.properties = value.properties;
+    if (value.name !== undefined) {updateData.name = value.name;}
+    if (value.address !== undefined) {updateData.address = value.address;}
+    if (value.city !== undefined) {updateData.city = value.city;}
+    if (value.province !== undefined) {updateData.province = value.province;}
+    if (value.postalCode !== undefined) {updateData.postalCode = value.postalCode;}
+    if (value.totalUnits !== undefined) {updateData.totalUnits = value.totalUnits;}
+    if (value.occupiedUnits !== undefined) {updateData.occupiedUnits = value.occupiedUnits;}
+    if (value.description !== undefined) {updateData.description = value.description;}
+    if (value.properties !== undefined) {updateData.properties = value.properties;}
 
     const [updated] = await db
       .update(buildingsTable)
@@ -347,8 +347,8 @@ exports.getUnits = async (req, res) => {
 
     // Build conditions
     const conditions = [];
-    if (buildingId) conditions.push(eq(unitsTable.buildingId, buildingId));
-    if (status) conditions.push(eq(unitsTable.status, status));
+    if (buildingId) {conditions.push(eq(unitsTable.buildingId, buildingId));}
+    if (status) {conditions.push(eq(unitsTable.status, status));}
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -473,16 +473,16 @@ exports.updateUnit = async (req, res) => {
 
     // Build update payload
     const updateData = { updatedAt: new Date() };
-    if (value.label !== undefined) updateData.label = value.label;
-    if (value.rent !== undefined) updateData.rentCents = value.rent * 100;
-    if (value.status !== undefined) updateData.status = value.status;
-    if (value.bedrooms !== undefined) updateData.bedrooms = value.bedrooms;
-    if (value.bathrooms !== undefined) updateData.bathrooms = value.bathrooms;
-    if (value.squareFeet !== undefined) updateData.squareFeet = value.squareFeet;
-    if (value.description !== undefined) updateData.description = value.description;
-    if (value.amenities !== undefined) updateData.amenities = value.amenities;
-    if (value.tenantName !== undefined) updateData.tenantName = value.tenantName || null;
-    if (value.tenantPhone !== undefined) updateData.tenantPhone = value.tenantPhone || null;
+    if (value.label !== undefined) {updateData.label = value.label;}
+    if (value.rent !== undefined) {updateData.rentCents = value.rent * 100;}
+    if (value.status !== undefined) {updateData.status = value.status;}
+    if (value.bedrooms !== undefined) {updateData.bedrooms = value.bedrooms;}
+    if (value.bathrooms !== undefined) {updateData.bathrooms = value.bathrooms;}
+    if (value.squareFeet !== undefined) {updateData.squareFeet = value.squareFeet;}
+    if (value.description !== undefined) {updateData.description = value.description;}
+    if (value.amenities !== undefined) {updateData.amenities = value.amenities;}
+    if (value.tenantName !== undefined) {updateData.tenantName = value.tenantName || null;}
+    if (value.tenantPhone !== undefined) {updateData.tenantPhone = value.tenantPhone || null;}
     if (value.tenantLeaseEnd !== undefined) {
       updateData.tenantLeaseEnd = value.tenantLeaseEnd ? new Date(value.tenantLeaseEnd) : null;
     }

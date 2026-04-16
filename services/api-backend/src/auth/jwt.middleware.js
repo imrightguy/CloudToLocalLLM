@@ -38,8 +38,8 @@ const authenticateToken = async (req, res, next) => {
 };
 
 const authorizeRole = (roles) => (req, res, next) => {
-  if (!req.user) return res.status(401).json({ success: false, error: { message: 'Not authenticated', code: 'NOT_AUTHENTICATED' } });
-  if (!roles.includes(req.user.role)) return res.status(403).json({ success: false, error: { message: 'Insufficient permissions', code: 'FORBIDDEN' } });
+  if (!req.user) {return res.status(401).json({ success: false, error: { message: 'Not authenticated', code: 'NOT_AUTHENTICATED' } });}
+  if (!roles.includes(req.user.role)) {return res.status(403).json({ success: false, error: { message: 'Insufficient permissions', code: 'FORBIDDEN' } });}
   next();
 };
 

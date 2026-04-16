@@ -79,8 +79,8 @@ exports.getLeads = async (req, res) => {
 
     // Build conditions
     const conditions = [];
-    if (stage) conditions.push(eq(leadsTable.stage, stage));
-    if (buildingId) conditions.push(eq(leadsTable.buildingId, buildingId));
+    if (stage) {conditions.push(eq(leadsTable.stage, stage));}
+    if (buildingId) {conditions.push(eq(leadsTable.buildingId, buildingId));}
     if (search) {
       conditions.push(
         ilike(leadsTable.fullName, `%${search}%`),
@@ -191,12 +191,12 @@ exports.updateLead = async (req, res) => {
 
     // Build update payload (only include provided fields)
     const updateData = { updatedAt: new Date() };
-    if (fullName !== undefined) updateData.fullName = fullName.trim();
-    if (email !== undefined) updateData.email = email?.trim() || null;
-    if (phone !== undefined) updateData.phone = phone?.trim() || null;
-    if (budgetCents !== undefined) updateData.budgetCents = budgetCents;
-    if (desiredUnit !== undefined) updateData.desiredUnit = desiredUnit?.trim() || null;
-    if (source !== undefined) updateData.source = source;
+    if (fullName !== undefined) {updateData.fullName = fullName.trim();}
+    if (email !== undefined) {updateData.email = email?.trim() || null;}
+    if (phone !== undefined) {updateData.phone = phone?.trim() || null;}
+    if (budgetCents !== undefined) {updateData.budgetCents = budgetCents;}
+    if (desiredUnit !== undefined) {updateData.desiredUnit = desiredUnit?.trim() || null;}
+    if (source !== undefined) {updateData.source = source;}
     if (stage !== undefined) {
       if (!VALID_LEAD_STAGES.includes(stage)) {
         return res.status(400).json({
@@ -209,13 +209,13 @@ exports.updateLead = async (req, res) => {
       }
       updateData.stage = stage;
     }
-    if (notes !== undefined) updateData.notes = notes?.trim() || null;
-    if (tags !== undefined) updateData.tags = tags;
-    if (language !== undefined) updateData.language = language;
-    if (assignedEmployeeId !== undefined) updateData.assignedEmployeeId = assignedEmployeeId || null;
-    if (buildingId !== undefined) updateData.buildingId = buildingId || null;
-    if (unitId !== undefined) updateData.unitId = unitId || null;
-    if (isActive !== undefined) updateData.isActive = isActive;
+    if (notes !== undefined) {updateData.notes = notes?.trim() || null;}
+    if (tags !== undefined) {updateData.tags = tags;}
+    if (language !== undefined) {updateData.language = language;}
+    if (assignedEmployeeId !== undefined) {updateData.assignedEmployeeId = assignedEmployeeId || null;}
+    if (buildingId !== undefined) {updateData.buildingId = buildingId || null;}
+    if (unitId !== undefined) {updateData.unitId = unitId || null;}
+    if (isActive !== undefined) {updateData.isActive = isActive;}
 
     const [updated] = await db
       .update(leadsTable)

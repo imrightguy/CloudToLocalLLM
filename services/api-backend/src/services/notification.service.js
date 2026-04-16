@@ -139,7 +139,7 @@ async function sendWeeklySummary() {
 
     const results = [];
     for (const admin of admins) {
-      if (!admin.email) continue;
+      if (!admin.email) {continue;}
       const result = await sendEmail(
         admin.email,
         `📊 Résumé Hebdomadaire — ${new Date(summary.periodStart).toLocaleDateString('fr-CA')}`,
@@ -189,7 +189,7 @@ async function sendHotLeadNotification(leadId) {
         .from(buildingsTable)
         .where(eq(buildingsTable.id, lead.buildingId))
         .limit(1);
-      if (building) buildingName = building.name;
+      if (building) {buildingName = building.name;}
     }
 
     const sourceLabels = {
@@ -261,7 +261,7 @@ async function sendHotLeadNotification(leadId) {
 
     const results = [];
     for (const admin of admins) {
-      if (!admin.email) continue;
+      if (!admin.email) {continue;}
       const result = await sendEmail(
         admin.email,
         `🔥 Lead Chaud — ${lead.fullName}`,
@@ -321,7 +321,7 @@ async function sendNoShowAlert(visitId) {
           .from(buildingsTable)
           .where(eq(buildingsTable.id, unit.buildingId))
           .limit(1);
-        if (building) buildingName = building.name;
+        if (building) {buildingName = building.name;}
       }
     }
 
@@ -400,7 +400,7 @@ async function sendNoShowAlert(visitId) {
 
     const results = [];
     for (const admin of admins) {
-      if (!admin.email) continue;
+      if (!admin.email) {continue;}
       const result = await sendEmail(
         admin.email,
         `⚠️ Absence Non-Présentée — ${lead ? lead.fullName : 'Visite'}`,
@@ -442,7 +442,7 @@ async function notifyAdminsForEvent(type, title, message, data = {}) {
       const notification = await createNotificationForEvent(
         admin.id, type, title, message, data,
       );
-      if (notification) results.push(notification);
+      if (notification) {results.push(notification);}
     }
 
     return results;

@@ -84,7 +84,7 @@ const startScheduler = () => {
         logger.info('📍 [Scheduler] Running 24h visit reminder check...');
         const visits = await getVisitsNeeding24hReminder();
 
-        if (visits.length === 0) return;
+        if (visits.length === 0) {return;}
 
         logger.info(`📍 [Scheduler] Found ${visits.length} visits needing 24h reminders`);
         for (const visit of visits) {
@@ -105,7 +105,7 @@ const startScheduler = () => {
         logger.info('⏰ [Scheduler] Running 2h visit reminder check...');
         const visits = await getVisitsNeeding2hReminder();
 
-        if (visits.length === 0) return;
+        if (visits.length === 0) {return;}
 
         logger.info(`⏰ [Scheduler] Found ${visits.length} visits needing 2h reminders`);
         for (const visit of visits) {
@@ -126,7 +126,7 @@ const startScheduler = () => {
         logger.info('📋 [Scheduler] Running lease renewal reminder check...');
         const leases = await getLeasesNeedingRenewalReminder();
 
-        if (leases.length === 0) return;
+        if (leases.length === 0) {return;}
 
         logger.info(`📋 [Scheduler] Found ${leases.length} leases needing renewal reminders`);
         for (const lease of leases) {
@@ -187,7 +187,7 @@ const startScheduler = () => {
     campaignExecutionTask = cron.schedule('*/5 * * * *', async () => {
       try {
         const campaigns = await getActiveCampaignsDue();
-        if (campaigns.length === 0) return;
+        if (campaigns.length === 0) {return;}
 
         logger.info(`📣 [Scheduler] Found ${campaigns.length} campaigns due for execution`);
         for (const campaign of campaigns) {

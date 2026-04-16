@@ -48,12 +48,12 @@ exports.handleWebhook = async (req, res) => {
     for (const messagingEvent of entry.messaging || []) {
       try {
         const senderId = messagingEvent.sender?.id;
-        if (!senderId) continue;
+        if (!senderId) {continue;}
 
         // Handle text messages
         if (messagingEvent.message) {
           // Ignore echo messages (our own outgoing messages)
-          if (messagingEvent.message.is_echo) continue;
+          if (messagingEvent.message.is_echo) {continue;}
 
           const messageText = messagingEvent.message.text || '';
 

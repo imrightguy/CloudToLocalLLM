@@ -13,7 +13,7 @@ const log = child({ controller: 'auth' });
 
 /** Strip passwordHash from a user row */
 const sanitizeUser = (user) => {
-  if (!user) return null;
+  if (!user) {return null;}
   const { passwordHash: _passwordHash, ...safe } = user;
   return safe;
 };
@@ -391,9 +391,9 @@ const updateProfile = async (req, res) => {
     const { firstName, lastName, email } = req.body;
     const updates = {};
 
-    if (firstName !== undefined) updates.firstName = firstName.trim();
-    if (lastName !== undefined) updates.lastName = lastName.trim();
-    if (email !== undefined) updates.email = email.toLowerCase().trim();
+    if (firstName !== undefined) {updates.firstName = firstName.trim();}
+    if (lastName !== undefined) {updates.lastName = lastName.trim();}
+    if (email !== undefined) {updates.email = email.toLowerCase().trim();}
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({
@@ -616,12 +616,12 @@ const updateUser = async (req, res) => {
     } = req.body;
 
     const updates = {};
-    if (firstName !== undefined) updates.firstName = firstName.trim();
-    if (lastName !== undefined) updates.lastName = lastName.trim();
-    if (email !== undefined) updates.email = email.toLowerCase().trim();
-    if (phone !== undefined) updates.phone = phone ? phone.trim() : null;
-    if (role !== undefined) updates.role = role;
-    if (isActive !== undefined) updates.isActive = isActive;
+    if (firstName !== undefined) {updates.firstName = firstName.trim();}
+    if (lastName !== undefined) {updates.lastName = lastName.trim();}
+    if (email !== undefined) {updates.email = email.toLowerCase().trim();}
+    if (phone !== undefined) {updates.phone = phone ? phone.trim() : null;}
+    if (role !== undefined) {updates.role = role;}
+    if (isActive !== undefined) {updates.isActive = isActive;}
 
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({
