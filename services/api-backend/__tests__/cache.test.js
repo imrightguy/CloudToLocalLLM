@@ -4,6 +4,10 @@ beforeEach(() => {
   flush();
 });
 
+afterAll(() => {
+  cache.close();
+});
+
 describe('cache', () => {
   it('exports a NodeCache instance', () => {
     expect(cache).toBeDefined();
