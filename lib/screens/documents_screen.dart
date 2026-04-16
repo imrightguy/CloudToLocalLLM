@@ -409,9 +409,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
   final _descriptionController = TextEditingController();
   DocumentType _selectedType = DocumentType.lease;
   String? _selectedBuildingId;
-  String? _selectedBuildingName;
   String? _selectedUnitId;
-  String? _selectedUnitLabel;
 
   String? _pickedFileName;
   String? _pickedFileType;

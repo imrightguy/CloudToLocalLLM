@@ -27,7 +27,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   String? _statusFilter;
   String? _buildingFilter;
   String? _employeeFilter;
-  String? _reschedulingVisitId;
 
   @override
   void initState() {
@@ -723,7 +722,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Future<void> _handleReschedule(VisitItem visit, DateTime newDateTime) async {
     if (visit.id == null) return;
-    setState(() => _reschedulingVisitId = visit.id);
     try {
       await VisitService.instance.rescheduleVisit(
         visit.id!,
@@ -747,8 +745,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) setState(() => _reschedulingVisitId = null);
     }
   }
 

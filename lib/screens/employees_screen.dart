@@ -68,40 +68,6 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     }
   }
 
-  Future<void> _createEmployee({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-  }) async {
-    try {
-      await EmployeeService.instance.createEmployee({
-        'firstName': firstName,
-        'lastName': lastName,
-        'email': email,
-        'phone': phone,
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Employé ajouté avec succès'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-        _fetchEmployees();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
   void _showAddEmployeeDialog() {
     Navigator.of(context).push(
       MaterialPageRoute(

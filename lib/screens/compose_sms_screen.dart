@@ -471,7 +471,6 @@ class _ContactPickerSheet extends StatefulWidget {
 }
 
 class _ContactPickerSheetState extends State<_ContactPickerSheet> {
-  String _search = '';
   String _filterQuery = '';
 
   List<LeadItem> get _filtered {

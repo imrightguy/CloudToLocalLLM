@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/payment_service.dart';
-import '../services/unit_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -20,7 +18,6 @@ class PaymentsScreen extends StatefulWidget {
 class _PaymentsScreenState extends State<PaymentsScreen> {
   List<PaymentItem> _payments = [];
   List<PaymentItem> _filteredPayments = [];
-  List<BuildingItem> _buildings = [];
   bool _isLoading = true;
   String? _errorMessage;
   PaymentStatus? _filterStatus;
@@ -37,14 +34,10 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       _errorMessage = null;
     });
     try {
-      final results = await Future.wait<dynamic>([
-        PaymentService.instance.getPayments(),
-        UnitService.instance.getBuildings(),
-      ]);
+      final payments = await PaymentService.instance.getPayments();
       setState(() {
-        _payments = results[0] as List<PaymentItem>;
+        _payments = payments;
         _filteredPayments = List.of(_payments);
-        _buildings = results[1] as List<BuildingItem>;
         _isLoading = false;
       });
     } catch (e) {
