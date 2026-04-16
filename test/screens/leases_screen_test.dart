@@ -242,7 +242,7 @@ void main() {
 
       final filterStatus = LeaseStatus.active;
       final filtered = leases.where((lease) {
-        if (filterStatus != null && lease.leaseStatus != filterStatus) return false;
+        if (lease.leaseStatus != filterStatus) return false;
         return true;
       }).toList();
 
@@ -256,11 +256,7 @@ void main() {
       ];
 
       final filtered = leases.where((lease) {
-        LeaseStatus? filterStatus;
-        String? filterBuildingId;
         final query = '';
-        if (filterStatus != null && lease.leaseStatus != filterStatus) return false;
-        if (filterBuildingId != null && lease.buildingId != filterBuildingId) return false;
         if (query.isNotEmpty) {
           final tenantName = (lease.tenantName ?? '').toLowerCase();
           if (!tenantName.contains(query)) return false;

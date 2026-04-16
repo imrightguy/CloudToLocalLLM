@@ -429,7 +429,7 @@ void main() {
     test('getSchedules path omits employeeId when empty', () {
       String path = '/schedules';
       const employeeId = '';
-      if (employeeId != null && employeeId.isNotEmpty) {
+      if (employeeId.isNotEmpty) {
         path += '?employeeId=${Uri.encodeComponent(employeeId)}';
       }
 

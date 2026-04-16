@@ -432,13 +432,13 @@ void main() {
 
     test('query string omits null/empty params', () {
       final params = <String, String>{};
-      String? type;
-      String? search;
-      String? buildingId;
+      const type = '';
+      const search = '';
+      const buildingId = '';
 
-      if (type != null && type.isNotEmpty) params['type'] = type;
-      if (search != null && search.isNotEmpty) params['search'] = search;
-      if (buildingId != null && buildingId.isNotEmpty) params['buildingId'] = buildingId;
+      if (type.isNotEmpty) params['type'] = type;
+      if (search.isNotEmpty) params['search'] = search;
+      if (buildingId.isNotEmpty) params['buildingId'] = buildingId;
 
       expect(params.isEmpty, true);
     });
@@ -543,14 +543,12 @@ void main() {
       // Verify the multipart field logic
       final fields = <String, String>{};
       const documentType = 'lease';
-      String? description;
-      String? buildingId = 'b-1';
-      String? unitId;
+      const buildingId = 'b-1';
+      const unitId = '';
 
       fields['documentType'] = documentType;
-      if (description != null) fields['description'] = description;
-      if (buildingId != null) fields['buildingId'] = buildingId;
-      if (unitId != null) fields['unitId'] = unitId;
+      if (buildingId.isNotEmpty) fields['buildingId'] = buildingId;
+      if (unitId.isNotEmpty) fields['unitId'] = unitId;
 
       expect(fields['documentType'], 'lease');
       expect(fields.containsKey('description'), false);
@@ -590,8 +588,6 @@ void main() {
     });
 
     test('uploadDocument 401 throws session expired message', () {
-      // The service throws a specific message for 401
-      const statusCode = 401;
       const expectedMsg = 'Session expirée — veuillez vous reconnecter';
       expect(expectedMsg, contains('Session expirée'));
     });
