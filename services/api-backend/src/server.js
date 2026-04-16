@@ -15,6 +15,8 @@ const { apiLimiter } = require('./middleware/rateLimiters');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+app.set('trust proxy', process.env.TRUST_PROXY ?? (isProduction ? 1 : false));
+
 if (isProduction) {
   const required = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'DATABASE_URL'];
   const missing = required.filter(k => !process.env[k]);
