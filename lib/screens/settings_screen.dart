@@ -859,33 +859,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.of(ctx).pop();
                 _setThemeMode(v);
               },
-              child: Column(
+              child: const Column(
                 children: [
                   RadioListTile<ThemeMode>(
                     value: ThemeMode.system,
-                    title: const Text('Système'),
-                    subtitle: const Text('Suivre les paramètres de l\'appareil',
+                    title: Text('Système'),
+                    subtitle: Text('Suivre les paramètres de l\'appareil',
                         style: TextStyle(
                             fontSize: 12, color: AppColors.textMuted)),
-                    secondary: const Text('💻'),
+                    secondary: Text('💻'),
                     activeColor: AppColors.primary,
                   ),
                   RadioListTile<ThemeMode>(
                     value: ThemeMode.light,
-                    title: const Text('Clair'),
-                    subtitle: const Text('Thème clair permanent',
+                    title: Text('Clair'),
+                    subtitle: Text('Thème clair permanent',
                         style: TextStyle(
                             fontSize: 12, color: AppColors.textMuted)),
-                    secondary: const Text('☀️'),
+                    secondary: Text('☀️'),
                     activeColor: AppColors.primary,
                   ),
                   RadioListTile<ThemeMode>(
                     value: ThemeMode.dark,
-                    title: const Text('Sombre'),
-                    subtitle: const Text('Thème sombre permanent',
+                    title: Text('Sombre'),
+                    subtitle: Text('Thème sombre permanent',
                         style: TextStyle(
                             fontSize: 12, color: AppColors.textMuted)),
-                    secondary: const Text('🌙'),
+                    secondary: Text('🌙'),
                     activeColor: AppColors.primary,
                   ),
                 ],
