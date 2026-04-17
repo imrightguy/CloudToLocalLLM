@@ -58,7 +58,7 @@ void main() {
     });
 
     test('toJson round-trips', () {
-      final original = EmployeeItem(
+      const original = EmployeeItem(
         id: 'e1',
         firstName: 'Jean',
         lastName: 'Dupont',
@@ -154,17 +154,17 @@ void main() {
     });
 
     test('dayLabel returns correct French day names', () {
-      expect(ScheduleItem(dayOfWeek: 0, startTime: '', endTime: '').dayLabel, 'Dimanche');
-      expect(ScheduleItem(dayOfWeek: 1, startTime: '', endTime: '').dayLabel, 'Lundi');
-      expect(ScheduleItem(dayOfWeek: 2, startTime: '', endTime: '').dayLabel, 'Mardi');
-      expect(ScheduleItem(dayOfWeek: 3, startTime: '', endTime: '').dayLabel, 'Mercredi');
-      expect(ScheduleItem(dayOfWeek: 4, startTime: '', endTime: '').dayLabel, 'Jeudi');
-      expect(ScheduleItem(dayOfWeek: 5, startTime: '', endTime: '').dayLabel, 'Vendredi');
-      expect(ScheduleItem(dayOfWeek: 6, startTime: '', endTime: '').dayLabel, 'Samedi');
+      expect(const ScheduleItem(dayOfWeek: 0, startTime: '', endTime: '').dayLabel, 'Dimanche');
+      expect(const ScheduleItem(dayOfWeek: 1, startTime: '', endTime: '').dayLabel, 'Lundi');
+      expect(const ScheduleItem(dayOfWeek: 2, startTime: '', endTime: '').dayLabel, 'Mardi');
+      expect(const ScheduleItem(dayOfWeek: 3, startTime: '', endTime: '').dayLabel, 'Mercredi');
+      expect(const ScheduleItem(dayOfWeek: 4, startTime: '', endTime: '').dayLabel, 'Jeudi');
+      expect(const ScheduleItem(dayOfWeek: 5, startTime: '', endTime: '').dayLabel, 'Vendredi');
+      expect(const ScheduleItem(dayOfWeek: 6, startTime: '', endTime: '').dayLabel, 'Samedi');
     });
 
     test('toJson round-trips', () {
-      final original = ScheduleItem(
+      const original = ScheduleItem(
         id: 's1',
         employeeId: 'e1',
         buildingId: 'b1',
@@ -181,37 +181,37 @@ void main() {
     });
 
     test('overlaps detects time conflicts on same day', () {
-      final a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
-      final b = ScheduleItem(id: 's2', dayOfWeek: 1, startTime: '11:00', endTime: '14:00');
+      const a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
+      const b = ScheduleItem(id: 's2', dayOfWeek: 1, startTime: '11:00', endTime: '14:00');
       expect(a.overlaps(b), isTrue);
     });
 
     test('overlaps returns false for different days', () {
-      final a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
-      final b = ScheduleItem(id: 's2', dayOfWeek: 2, startTime: '09:00', endTime: '17:00');
+      const a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
+      const b = ScheduleItem(id: 's2', dayOfWeek: 2, startTime: '09:00', endTime: '17:00');
       expect(a.overlaps(b), isFalse);
     });
 
     test('overlaps returns false for non-overlapping times on same day', () {
-      final a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
-      final b = ScheduleItem(id: 's2', dayOfWeek: 1, startTime: '13:00', endTime: '17:00');
+      const a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
+      const b = ScheduleItem(id: 's2', dayOfWeek: 1, startTime: '13:00', endTime: '17:00');
       expect(a.overlaps(b), isFalse);
     });
 
     test('overlaps returns true for same id with overlapping time', () {
-      final a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
+      const a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
       expect(a.overlaps(a), isTrue);
     });
 
     test('overlaps considers same building', () {
-      final a = ScheduleItem(id: 's1', buildingId: 'b1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
-      final b = ScheduleItem(id: 's2', buildingId: 'b2', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
+      const a = ScheduleItem(id: 's1', buildingId: 'b1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
+      const b = ScheduleItem(id: 's2', buildingId: 'b2', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
       expect(a.overlaps(b), isFalse);
     });
 
     test('overlaps when buildingId is null', () {
-      final a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
-      final b = ScheduleItem(id: 's2', buildingId: 'b2', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
+      const a = ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
+      const b = ScheduleItem(id: 's2', buildingId: 'b2', dayOfWeek: 1, startTime: '09:00', endTime: '17:00');
       expect(a.overlaps(b), isTrue);
     });
   });
@@ -234,10 +234,10 @@ void main() {
     });
 
     test('detectConflicts finds overlapping schedules', () {
-      final newEntry = ScheduleItem(id: 's_new', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
+      const newEntry = ScheduleItem(id: 's_new', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
       final existing = [
-        ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '10:00', endTime: '14:00'),
-        ScheduleItem(id: 's2', dayOfWeek: 2, startTime: '09:00', endTime: '12:00'),
+        const ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '10:00', endTime: '14:00'),
+        const ScheduleItem(id: 's2', dayOfWeek: 2, startTime: '09:00', endTime: '12:00'),
       ];
       final conflicts = ScheduleService.instance.detectConflicts(newEntry, existing);
       expect(conflicts.length, 1);
@@ -245,10 +245,10 @@ void main() {
     });
 
     test('detectConflicts returns empty when no overlap', () {
-      final newEntry = ScheduleItem(id: 's_new', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
+      const newEntry = ScheduleItem(id: 's_new', dayOfWeek: 1, startTime: '09:00', endTime: '12:00');
       final existing = [
-        ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '13:00', endTime: '17:00'),
-        ScheduleItem(id: 's2', dayOfWeek: 2, startTime: '09:00', endTime: '12:00'),
+        const ScheduleItem(id: 's1', dayOfWeek: 1, startTime: '13:00', endTime: '17:00'),
+        const ScheduleItem(id: 's2', dayOfWeek: 2, startTime: '09:00', endTime: '12:00'),
       ];
       final conflicts = ScheduleService.instance.detectConflicts(newEntry, existing);
       expect(conflicts, isEmpty);

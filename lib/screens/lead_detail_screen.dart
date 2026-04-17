@@ -326,7 +326,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
         children: [
           CircleAvatar(
             radius: 32,
-            backgroundColor: stageColor.withOpacity( 0.1),
+            backgroundColor: stageColor.withValues(alpha: 0.1),
             child: Text(
               _lead.fullName.isNotEmpty ? _lead.fullName[0].toUpperCase() : '?',
               style: TextStyle(
@@ -354,7 +354,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: stageColor.withOpacity( 0.1),
+                    color: stageColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -797,7 +797,7 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity( 0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

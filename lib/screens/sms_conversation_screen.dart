@@ -223,18 +223,18 @@ class _SmsConversationScreenState extends State<SmsConversationScreen> {
 
   Widget _buildMessageList() {
     if (_messages.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.sms_outlined, size: 48, color: AppColors.textMuted),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Aucun message',
               style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Envoyez un message pour commencer la conversation.',
               style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
@@ -326,7 +326,7 @@ class _SmsConversationScreenState extends State<SmsConversationScreen> {
                   _formatMessageTime(message.createdAt),
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(width: 4),

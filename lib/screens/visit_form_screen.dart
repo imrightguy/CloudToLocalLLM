@@ -239,7 +239,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                     children: [
                       // Unit picker
                       DropdownButtonFormField<String>(
-                        value: _selectedUnitId,
+                        initialValue: _selectedUnitId,
                         decoration: const InputDecoration(
                           labelText: 'Unité *',
                           border: OutlineInputBorder(),
@@ -258,7 +258,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
 
                       // Lead picker
                       DropdownButtonFormField<String>(
-                        value: _selectedLeadId,
+                        initialValue: _selectedLeadId,
                         decoration: const InputDecoration(
                           labelText: 'Prospect *',
                           border: OutlineInputBorder(),
@@ -277,7 +277,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
 
                       // Employee picker
                       DropdownButtonFormField<String>(
-                        value: _selectedEmployeeId,
+                        initialValue: _selectedEmployeeId,
                         decoration: const InputDecoration(
                           labelText: 'Employé *',
                           border: OutlineInputBorder(),
@@ -362,10 +362,10 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.warning.withOpacity( 0.1),
+                            color: AppColors.warning.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: AppColors.warning.withOpacity( 0.3),
+                              color: AppColors.warning.withValues(alpha: 0.3),
                             ),
                           ),
                           child: const Row(

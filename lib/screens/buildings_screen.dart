@@ -266,7 +266,7 @@ class _BuildingsScreenState extends State<BuildingsScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity( 0.1),
+                          color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -561,8 +561,8 @@ class _BuildingDetailScreenState extends State<_BuildingDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isOccupied
-                      ? AppColors.success.withOpacity( 0.1)
-                      : AppColors.warning.withOpacity( 0.1),
+                      ? AppColors.success.withValues(alpha: 0.1)
+                      : AppColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -803,7 +803,7 @@ class _EditUnitScreenState extends State<_EditUnitScreen> {
 
               // Status dropdown
               DropdownButtonFormField<String>(
-                value: _status,
+                initialValue: _status,
                 decoration: const InputDecoration(
                   labelText: 'Statut',
                   border: OutlineInputBorder(),

@@ -92,7 +92,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: AppSpacing.lg),
-            Text('Impossible de charger les paiements',
+            const Text('Impossible de charger les paiements',
                 style: AppTypography.body),
             const SizedBox(height: AppSpacing.sm),
             Text(_errorMessage!,
@@ -378,7 +378,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   ),
                   const Spacer(),
                   if (payment.outstanding > 0) ...[
-                    Text(
+                    const Text(
                       'Reste: ',
                       style: AppTypography.caption,
                     ),

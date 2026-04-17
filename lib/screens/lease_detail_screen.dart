@@ -306,7 +306,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
         children: [
           CircleAvatar(
             radius: 32,
-            backgroundColor: statusColor.withOpacity( 0.1),
+            backgroundColor: statusColor.withValues(alpha: 0.1),
             child: Icon(
               _lease.leaseStatus.icon,
               size: 28,
@@ -340,7 +340,7 @@ class _LeaseDetailScreenState extends State<LeaseDetailScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity( 0.1),
+              color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(

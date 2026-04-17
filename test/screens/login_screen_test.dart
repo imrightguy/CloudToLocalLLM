@@ -244,7 +244,7 @@ class _TestableLoginScreenState extends State<_TestableLoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool _obscurePassword = true;
 
   @override
@@ -273,7 +273,7 @@ class _TestableLoginScreenState extends State<_TestableLoginScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F766E).withOpacity(0.08),
+                        color: const Color(0xFF0F766E).withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -394,7 +394,7 @@ class _TestableLoginScreenState extends State<_TestableLoginScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0F766E),
                           foregroundColor: Colors.white,
-                          disabledBackgroundColor: const Color(0xFF0F766E).withOpacity(0.5),
+                          disabledBackgroundColor: const Color(0xFF0F766E).withValues(alpha: 0.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),

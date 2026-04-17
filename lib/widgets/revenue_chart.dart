@@ -45,7 +45,7 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
           SizedBox(
             height: 220,
             child: displayData.length < 2
-                ? Center(
+                ? const Center(
                     child: Text(
                       'Données insuffisantes',
                       style: AppTypography.caption,

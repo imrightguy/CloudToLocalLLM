@@ -118,7 +118,7 @@ class _OnboardingUnitsStepState extends State<OnboardingUnitsStep> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.door_front_door_outlined,
                             size: 18,
                             color: AppColors.primary,

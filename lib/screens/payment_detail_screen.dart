@@ -140,7 +140,7 @@ class PaymentDetailScreen extends StatelessWidget {
                         ? payment.amountPaid / payment.amount
                         : 0.0,
                     backgroundColor: AppColors.surfaceVariant,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.success),
+                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.success),
                     minHeight: 8,
                   ),
                 ),

@@ -291,7 +291,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
           setState(() => _filterStatus = isSelected ? null : status);
           _applyFilters();
         },
-        selectedColor: (status?.color ?? AppColors.primary).withOpacity( 0.15),
+        selectedColor: (status?.color ?? AppColors.primary).withValues(alpha: 0.15),
         labelStyle: TextStyle(
           color: isSelected
               ? (status?.color ?? AppColors.primary)
@@ -328,7 +328,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity( 0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 6,
                   offset: const Offset(0, 1),
                 ),
@@ -425,7 +425,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity( 0.1),
+                        color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -462,7 +462,7 @@ class _LeasesScreenState extends State<LeasesScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity( 0.1),
+                        color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(

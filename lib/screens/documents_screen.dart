@@ -22,8 +22,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   List<DocumentItem> _filteredDocuments = [];
   bool _isLoading = true;
   String? _errorMessage;
-  bool _isUploading = false;
-  double _uploadProgress = 0;
+  final bool _isUploading = false;
+  final double _uploadProgress = 0;
   final TextEditingController _searchController = TextEditingController();
   DocumentType? _selectedTypeFilter;
 
@@ -252,7 +252,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         });
         _applyFilters();
       },
-      selectedColor: AppColors.primary.withOpacity( 0.1),
+      selectedColor: AppColors.primary.withValues(alpha: 0.1),
       checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
         fontSize: 13,
@@ -319,7 +319,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: doc.documentType.color.withOpacity( 0.1),
+                    color: doc.documentType.color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -352,7 +352,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: doc.documentType.color.withOpacity( 0.08),
+                              color: doc.documentType.color.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -539,7 +539,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
                   ),
                   borderRadius: BorderRadius.circular(12),
                   color: _pickedFileName != null
-                      ? AppColors.primary.withOpacity( 0.05)
+                      ? AppColors.primary.withValues(alpha: 0.05)
                       : AppColors.surface,
                 ),
                 child: Row(
@@ -587,7 +587,7 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<DocumentType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: const InputDecoration(
                 labelText: 'Type de document',
                 border: OutlineInputBorder(),

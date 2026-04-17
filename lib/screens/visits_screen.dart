@@ -349,7 +349,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: statusColor.withOpacity( 0.1),
+                                    color: statusColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Icon(
@@ -381,7 +381,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: statusColor.withOpacity(0.1),
+                                              color: statusColor.withValues(alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -405,7 +405,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                                       vertical: 2),
                                               decoration: BoxDecoration(
                                                 color: AppColors.warning
-                                                    .withOpacity( 0.15),
+                                                    .withValues(alpha: 0.15),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -895,7 +895,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
                     children: [
                       // Unit picker
                       DropdownButtonFormField<String>(
-                        value: _selectedUnitId,
+                        initialValue: _selectedUnitId,
                         decoration: const InputDecoration(
                           labelText: 'Unité',
                           border: OutlineInputBorder(),
@@ -914,7 +914,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
 
                       // Lead picker
                       DropdownButtonFormField<String>(
-                        value: _selectedLeadId,
+                        initialValue: _selectedLeadId,
                         decoration: const InputDecoration(
                           labelText: 'Prospect',
                           border: OutlineInputBorder(),
@@ -933,7 +933,7 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
 
                       // Employee picker
                       DropdownButtonFormField<String>(
-                        value: _selectedEmployeeId,
+                        initialValue: _selectedEmployeeId,
                         decoration: const InputDecoration(
                           labelText: 'Employé',
                           border: OutlineInputBorder(),

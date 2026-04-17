@@ -78,7 +78,7 @@ class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: doc.documentType.color.withOpacity( 0.1),
+                color: doc.documentType.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(

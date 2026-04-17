@@ -52,7 +52,7 @@ class BuildingPerfRow extends StatelessWidget {
         decoration: BoxDecoration(
           border: isLast
               ? null
-              : Border(
+              : const Border(
                   bottom: BorderSide(color: AppColors.border, width: 1),
                 ),
         ),
@@ -193,7 +193,7 @@ class BuildingPerformanceCard extends StatelessWidget {
               if (onViewAll != null)
                 GestureDetector(
                   onTap: onViewAll,
-                  child: Text(
+                  child: const Text(
                     'Voir tout',
                     style: TextStyle(
                       fontSize: 12,

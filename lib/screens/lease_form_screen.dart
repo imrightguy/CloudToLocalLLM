@@ -231,7 +231,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
                       children: [
                         // Building selector
                         DropdownButtonFormField<String>(
-                          value: _selectedBuildingId,
+                          initialValue: _selectedBuildingId,
                           decoration: const InputDecoration(
                             labelText: 'Immeuble *',
                             border: OutlineInputBorder(),
@@ -255,7 +255,7 @@ class _LeaseFormScreenState extends State<LeaseFormScreen> {
 
                         // Unit selector (cascading)
                         DropdownButtonFormField<String>(
-                          value: _selectedUnitId,
+                          initialValue: _selectedUnitId,
                           decoration: const InputDecoration(
                             labelText: 'Unité *',
                             border: OutlineInputBorder(),

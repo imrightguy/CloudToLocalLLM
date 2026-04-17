@@ -138,12 +138,12 @@ void main() {
     });
 
     test('dayLabel handles out-of-range values', () {
-      final s = ScheduleItem(dayOfWeek: 9, startTime: '09:00', endTime: '17:00');
+      const s = ScheduleItem(dayOfWeek: 9, startTime: '09:00', endTime: '17:00');
       expect(s.dayLabel, 'Jour 9');
     });
 
     test('dayLabel handles negative values', () {
-      final s = ScheduleItem(dayOfWeek: -1, startTime: '09:00', endTime: '17:00');
+      const s = ScheduleItem(dayOfWeek: -1, startTime: '09:00', endTime: '17:00');
       expect(s.dayLabel, 'Jour -1');
     });
   });
@@ -308,7 +308,7 @@ void main() {
     });
 
     test('detectConflicts returns overlapping schedules', () {
-      final newEntry = ScheduleItem(
+      const newEntry = ScheduleItem(
         id: 'new-1',
         dayOfWeek: 1,
         startTime: '10:00',
@@ -317,21 +317,21 @@ void main() {
       );
 
       final existing = [
-        ScheduleItem(
+        const ScheduleItem(
           id: 'existing-1',
           dayOfWeek: 1,
           startTime: '09:00',
           endTime: '12:00',
           buildingId: 'bld-1',
         ),
-        ScheduleItem(
+        const ScheduleItem(
           id: 'existing-2',
           dayOfWeek: 1,
           startTime: '13:00',
           endTime: '17:00',
           buildingId: 'bld-1',
         ),
-        ScheduleItem(
+        const ScheduleItem(
           id: 'existing-3',
           dayOfWeek: 2,
           startTime: '10:00',
@@ -351,7 +351,7 @@ void main() {
     });
 
     test('detectConflicts excludes self (same id)', () {
-      final newEntry = ScheduleItem(
+      const newEntry = ScheduleItem(
         id: 'sched-1',
         dayOfWeek: 1,
         startTime: '09:00',
@@ -360,7 +360,7 @@ void main() {
       );
 
       final existing = [
-        ScheduleItem(
+        const ScheduleItem(
           id: 'sched-1',
           dayOfWeek: 1,
           startTime: '09:00',
@@ -375,7 +375,7 @@ void main() {
     });
 
     test('detectConflicts returns empty for no conflicts', () {
-      final newEntry = ScheduleItem(
+      const newEntry = ScheduleItem(
         id: 'new-1',
         dayOfWeek: 1,
         startTime: '09:00',
@@ -384,14 +384,14 @@ void main() {
       );
 
       final existing = [
-        ScheduleItem(
+        const ScheduleItem(
           id: 'existing-1',
           dayOfWeek: 1,
           startTime: '13:00',
           endTime: '17:00',
           buildingId: 'bld-1',
         ),
-        ScheduleItem(
+        const ScheduleItem(
           id: 'existing-2',
           dayOfWeek: 2,
           startTime: '09:00',

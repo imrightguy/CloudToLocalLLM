@@ -24,11 +24,11 @@ class TrendIndicator extends StatelessWidget {
                 : TrendDirection.neutral);
 
     if (dir == TrendDirection.neutral) {
-      return Row(
+      return const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.remove, size: 14, color: AppColors.textMuted),
-          const SizedBox(width: 2),
+          SizedBox(width: 2),
           Text(
             '—',
             style: TextStyle(

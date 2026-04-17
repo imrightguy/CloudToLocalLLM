@@ -57,7 +57,7 @@ void main() {
   group('Dashboard vacancy summary', () {
     test('calculates total, occupied, and vacant units correctly', () {
       final buildings = [
-        BuildingItem(
+        const BuildingItem(
           name: 'A',
           address: '1 St',
           city: 'MTL',
@@ -66,7 +66,7 @@ void main() {
           monthlyRevenue: 0,
           units: [],
         ),
-        BuildingItem(
+        const BuildingItem(
           name: 'B',
           address: '2 St',
           city: 'MTL',
@@ -120,30 +120,30 @@ void main() {
 
   group('Dashboard KPI formatting', () {
     test('occupancy rate displays with one decimal', () {
-      final value = 87.5;
+      const value = 87.5;
       final formatted = '${value.toStringAsFixed(1)}%';
       expect(formatted, '87.5%');
     });
 
     test('active leases displays as integer', () {
-      final value = 156;
-      final formatted = '$value';
+      const value = 156;
+      const formatted = '$value';
       expect(formatted, '156');
     });
 
     test('open leads displays as integer', () {
-      final value = 42;
-      final formatted = '$value';
+      const value = 42;
+      const formatted = '$value';
       expect(formatted, '42');
     });
   });
 
   group('Dashboard visit stats display', () {
     testWidgets('renders visit stat chips', (tester) async {
-      final stats = VisitStatsData(total: 50, completed: 40, cancelled: 5, noShow: 5);
+      const stats = VisitStatsData(total: 50, completed: 40, cancelled: 5, noShow: 5);
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: _TestableVisitStats(stats: stats),
           ),
@@ -280,7 +280,7 @@ class _TestableVisitStats extends StatelessWidget {
       child: Column(
         children: [
           Text('$value', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-          Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8))),
+          Text(label, style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.8))),
         ],
       ),
     );

@@ -318,7 +318,7 @@ class _TestableDayDetailState extends State<_TestableDayDetail> {
         return a.dateTime!.compareTo(b.dateTime!);
       });
 
-    final dayLabel = 'Mardi 15 Avril';
+    const dayLabel = 'Mardi 15 Avril';
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -327,9 +327,9 @@ class _TestableDayDetailState extends State<_TestableDayDetail> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Row(
             children: [
-              Text(
+              const Text(
                 dayLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1E293B),
@@ -340,7 +340,7 @@ class _TestableDayDetailState extends State<_TestableDayDetail> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F766E).withOpacity(0.1),
+                  color: const Color(0xFF0F766E).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -388,9 +388,9 @@ class _TestableDayDetailState extends State<_TestableDayDetail> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.05),
+                      color: color.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: color.withOpacity(0.15)),
+                      border: Border.all(color: color.withValues(alpha: 0.15)),
                     ),
                     child: Row(
                       children: [
@@ -422,7 +422,7 @@ class _TestableDayDetailState extends State<_TestableDayDetail> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 6, vertical: 1),
                                     decoration: BoxDecoration(
-                                      color: color.withOpacity(0.15),
+                                      color: color.withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(

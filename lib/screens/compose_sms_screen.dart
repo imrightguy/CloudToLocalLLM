@@ -93,15 +93,15 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
 
   void _showTemplateSelector() {
     final templates = [
-      _SmsTemplate(id: 'visit_reminder', name: 'Rappel de visite',
+      const _SmsTemplate(id: 'visit_reminder', name: 'Rappel de visite',
           body: 'Bonjour, ceci est un rappel pour votre visite prévue.'),
-      _SmsTemplate(id: 'lease_ready', name: 'Bail prêt',
+      const _SmsTemplate(id: 'lease_ready', name: 'Bail prêt',
           body: 'Bonjour, votre bail est prêt pour signature.'),
-      _SmsTemplate(id: 'payment_reminder', name: 'Rappel de paiement',
+      const _SmsTemplate(id: 'payment_reminder', name: 'Rappel de paiement',
           body: 'Bonjour, ceci est un rappel concernant votre paiement de loyer.'),
-      _SmsTemplate(id: 'maintenance_update', name: 'Mise à jour maintenance',
+      const _SmsTemplate(id: 'maintenance_update', name: 'Mise à jour maintenance',
           body: 'Bonjour, nous vous informons de la progression des travaux.'),
-      _SmsTemplate(id: 'generic', name: 'Message générique',
+      const _SmsTemplate(id: 'generic', name: 'Message générique',
           body: 'Bonjour, nous vous contactons concernant votre dossier.'),
     ];
 
@@ -116,11 +116,11 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
+              const Padding(
+                padding: EdgeInsets.all(16),
                 child: Text(
                   'Choisir un modèle',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
@@ -291,21 +291,21 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.border),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.description_outlined,
+                    Icon(Icons.description_outlined,
                         size: 20, color: AppColors.textMuted),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Utiliser un modèle',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: AppColors.textMuted,
                         ),
                       ),
                     ),
-                    const Icon(Icons.chevron_right,
+                    Icon(Icons.chevron_right,
                         size: 20, color: AppColors.disabled),
                   ],
                 ),
@@ -400,7 +400,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.indigo.withOpacity( 0.1),
+              color: AppColors.indigo.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.schedule, size: 20, color: AppColors.indigo),
@@ -432,7 +432,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
           ),
           Switch(
             value: _isScheduled,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
             onChanged: _toggleSchedule,
           ),
         ],
@@ -487,11 +487,11 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
+        const Padding(
+          padding: EdgeInsets.all(16),
           child: Text(
             'Choisir un contact',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
@@ -540,7 +540,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                           leading: CircleAvatar(
                             radius: 20,
                             backgroundColor: AppColors.primary
-                                .withOpacity( 0.1),
+                                .withValues(alpha: 0.1),
                             child: Text(
                               lead.fullName.isNotEmpty
                                   ? lead.fullName

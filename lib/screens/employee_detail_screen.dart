@@ -362,8 +362,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                         horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _employee.isActive
-                          ? AppColors.success.withOpacity( 0.1)
-                          : AppColors.error.withOpacity( 0.1),
+                          ? AppColors.success.withValues(alpha: 0.1)
+                          : AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -442,8 +442,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: assignment.role.toLowerCase() == 'primary'
-                            ? AppColors.primary.withOpacity( 0.1)
-                            : AppColors.warning.withOpacity( 0.1),
+                            ? AppColors.primary.withValues(alpha: 0.1)
+                            : AppColors.warning.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -540,11 +540,11 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
       ),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       children: [
-        TableRow(
-          decoration: const BoxDecoration(
+        const TableRow(
+          decoration: BoxDecoration(
             color: AppColors.background,
           ),
-          children: const [
+          children: [
             _TableCell('Jour', isHeader: true),
             _TableCell('Début', isHeader: true),
             _TableCell('Fin', isHeader: true),
@@ -557,7 +557,7 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> {
               TableRow(
                 decoration: BoxDecoration(
                   color: day == DateTime.now().weekday
-                      ? AppColors.primary.withOpacity( 0.05)
+                      ? AppColors.primary.withValues(alpha: 0.05)
                       : AppColors.surface,
                 ),
                 children: [
@@ -659,7 +659,7 @@ class _ScheduleBlockDialogState extends State<_ScheduleBlockDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             DropdownButtonFormField<int>(
-              value: _selectedDay,
+              initialValue: _selectedDay,
               decoration: const InputDecoration(
                 labelText: 'Jour',
                 border: OutlineInputBorder(),

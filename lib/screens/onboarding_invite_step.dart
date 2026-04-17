@@ -90,7 +90,7 @@ class _OnboardingInviteStepState extends State<OnboardingInviteStep> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.sms_outlined, color: AppColors.primary, size: 28),
+                  const Icon(Icons.sms_outlined, color: AppColors.primary, size: 28),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Text(

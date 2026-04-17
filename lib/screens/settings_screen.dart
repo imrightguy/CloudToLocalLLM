@@ -371,7 +371,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Paramètres'),
+      appBar: const ImmoAppBar(title: 'Paramètres'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
@@ -478,7 +478,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: AppColors.primary.withOpacity( 0.1),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
               child: Text(
                 _getInitials(),
                 style: const TextStyle(
@@ -574,7 +574,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               CircleAvatar(
                 radius: 36,
-                backgroundColor: AppColors.primary.withOpacity( 0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 child: Text(
                   _getInitials(),
                   style: const TextStyle(
@@ -1024,7 +1024,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity( 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.apartment,
@@ -1179,7 +1179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
       ),
       value: value,
-      activeColor: AppColors.primary,
+      activeThumbColor: AppColors.primary,
       onChanged: onChanged,
     );
   }

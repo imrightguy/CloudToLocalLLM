@@ -141,11 +141,11 @@ class _UnitsScreenState extends State<UnitsScreen> {
             const Icon(Icons.error_outline,
                 size: 48, color: AppColors.error),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 'Impossible de charger les données',
-                style: const TextStyle(fontSize: 16, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -175,21 +175,21 @@ class _UnitsScreenState extends State<UnitsScreen> {
       );
     }
     if (_buildings.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.apartment_outlined,
+              Icon(Icons.apartment_outlined,
                   size: 64, color: AppColors.textMuted),
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 'Aucun immeuble enregistré',
                 style: TextStyle(fontSize: 16, color: AppColors.textPrimary),
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Ajoutez un immeuble pour gérer ses unités',
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
@@ -386,7 +386,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity( 0.1) : Colors.white,
+            color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isSelected ? color : AppColors.border,
@@ -394,7 +394,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity( 0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -455,7 +455,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: vacancy.color.withOpacity( 0.1),
+                        color: vacancy.color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -492,7 +492,7 @@ class _UnitsScreenState extends State<UnitsScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: vacancy.color.withOpacity( 0.1),
+                        color: vacancy.color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(

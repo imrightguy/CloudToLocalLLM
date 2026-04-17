@@ -56,7 +56,7 @@ void main() {
 
     testWidgets('shows Sans locataire when tenantName is null', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           unitLabel: '4B',
           status: LeaseStatus.draft,
@@ -71,7 +71,7 @@ void main() {
 
     testWidgets('displays unit label', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Test',
           unitLabel: '3A',
@@ -87,7 +87,7 @@ void main() {
 
     testWidgets('shows Sans unité when unitLabel is null', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Test',
           status: LeaseStatus.draft,
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('displays status badge', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Test',
           status: LeaseStatus.active,
@@ -133,7 +133,7 @@ void main() {
 
     testWidgets('displays rent amount', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Test',
           status: LeaseStatus.active,
@@ -149,7 +149,7 @@ void main() {
 
     testWidgets('displays -- when no rent', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Test',
           status: LeaseStatus.draft,
@@ -164,19 +164,19 @@ void main() {
 
     testWidgets('groups leases by building name', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Tenant A',
           buildingName: 'Building B',
           status: LeaseStatus.active,
         ),
-        LeaseItem(
+        const LeaseItem(
           id: 'l2',
           tenantName: 'Tenant B',
           buildingName: 'Building A',
           status: LeaseStatus.active,
         ),
-        LeaseItem(
+        const LeaseItem(
           id: 'l3',
           tenantName: 'Tenant C',
           buildingName: 'Building A',
@@ -193,7 +193,7 @@ void main() {
 
     testWidgets('shows Sans immeuble when buildingName is null', (tester) async {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Test',
           status: LeaseStatus.draft,
@@ -210,19 +210,19 @@ void main() {
   group('Lease filter logic', () {
     test('filter by tenant name matches case-insensitive', () {
       final leases = [
-        LeaseItem(
+        const LeaseItem(
           id: 'l1',
           tenantName: 'Jean Dupont',
           status: LeaseStatus.active,
         ),
-        LeaseItem(
+        const LeaseItem(
           id: 'l2',
           tenantName: 'Marie Tremblay',
           status: LeaseStatus.active,
         ),
       ];
 
-      final query = 'jean';
+      const query = 'jean';
       final filtered = leases.where((lease) {
         final tenantName = (lease.tenantName ?? '').toLowerCase();
         if (query.isNotEmpty && !tenantName.contains(query)) return false;
@@ -235,12 +235,12 @@ void main() {
 
     test('filter by status matches', () {
       final leases = [
-        LeaseItem(id: 'l1', tenantName: 'A', status: LeaseStatus.active),
-        LeaseItem(id: 'l2', tenantName: 'B', status: LeaseStatus.draft),
-        LeaseItem(id: 'l3', tenantName: 'C', status: LeaseStatus.active),
+        const LeaseItem(id: 'l1', tenantName: 'A', status: LeaseStatus.active),
+        const LeaseItem(id: 'l2', tenantName: 'B', status: LeaseStatus.draft),
+        const LeaseItem(id: 'l3', tenantName: 'C', status: LeaseStatus.active),
       ];
 
-      final filterStatus = LeaseStatus.active;
+      const filterStatus = LeaseStatus.active;
       final filtered = leases.where((lease) {
         if (lease.leaseStatus != filterStatus) return false;
         return true;
@@ -251,12 +251,12 @@ void main() {
 
     test('filter with no filters returns all', () {
       final leases = [
-        LeaseItem(id: 'l1', tenantName: 'A', status: LeaseStatus.active),
-        LeaseItem(id: 'l2', tenantName: 'B', status: LeaseStatus.draft),
+        const LeaseItem(id: 'l1', tenantName: 'A', status: LeaseStatus.active),
+        const LeaseItem(id: 'l2', tenantName: 'B', status: LeaseStatus.draft),
       ];
 
       final filtered = leases.where((lease) {
-        final query = '';
+        const query = '';
         if (query.isNotEmpty) {
           final tenantName = (lease.tenantName ?? '').toLowerCase();
           if (!tenantName.contains(query)) return false;
@@ -462,7 +462,7 @@ class _TestableLeasesScreenState extends State<_TestableLeasesScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
@@ -499,7 +499,7 @@ class _TestableLeasesScreenState extends State<_TestableLeasesScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(

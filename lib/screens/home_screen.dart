@@ -74,8 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.calendar_month_outlined),
             label: 'Calendrier',
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.more_horiz),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.more_horiz),
             label: 'Plus',
           ),
         ],
@@ -448,7 +448,7 @@ class _HomeTabState extends State<_HomeTab> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity( 0.1),
+                    color: AppColors.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -536,7 +536,7 @@ class _HomeTabState extends State<_HomeTab> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: activity.color.withOpacity( 0.1),
+                            color: activity.color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(

@@ -27,7 +27,7 @@ class UnitDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: vacancy.color.withOpacity( 0.1),
+                color: vacancy.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -54,7 +54,7 @@ class UnitDetailScreen extends StatelessWidget {
                           unit.type,
                           style: TextStyle(
                             fontSize: 14,
-                            color: vacancy.color.withOpacity( 0.8),
+                            color: vacancy.color.withValues(alpha: 0.8),
                           ),
                         ),
                     ],
@@ -131,12 +131,12 @@ class UnitDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
-                          const Icon(Icons.person,
+                          Icon(Icons.person,
                               color: AppColors.primary, size: 20),
-                          const SizedBox(width: 8),
-                          const Text(
+                          SizedBox(width: 8),
+                          Text(
                             'Locataire',
                             style: TextStyle(
                               fontSize: 16,
@@ -190,12 +190,12 @@ class UnitDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
-                          const Icon(Icons.checklist,
+                          Icon(Icons.checklist,
                               color: AppColors.primary, size: 20),
-                          const SizedBox(width: 8),
-                          const Text(
+                          SizedBox(width: 8),
+                          Text(
                             'Commodités',
                             style: TextStyle(
                               fontSize: 16,
@@ -215,7 +215,7 @@ class UnitDetailScreen extends StatelessWidget {
                                 horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
                               color: AppColors.primary
-                                  .withOpacity( 0.1),
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(

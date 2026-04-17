@@ -236,7 +236,7 @@ void main() {
     });
 
     test('toJson uses apiValue for status', () {
-      final lease = LeaseItem(
+      const lease = LeaseItem(
         tenantName: 'Test',
         status: LeaseStatus.active,
       );
@@ -248,7 +248,7 @@ void main() {
 
   group('LeaseItem display getters', () {
     test('displayRent formats cents to dollars', () {
-      final lease = LeaseItem(
+      const lease = LeaseItem(
         tenantName: 'Test',
         monthlyRent: 150000,
       );
@@ -261,12 +261,12 @@ void main() {
     });
 
     test('displayRent returns -- when zero', () {
-      final lease = LeaseItem(tenantName: 'Test', monthlyRent: 0);
+      const lease = LeaseItem(tenantName: 'Test', monthlyRent: 0);
       expect(lease.displayRent, '--');
     });
 
     test('displayDeposit formats cents to dollars', () {
-      final lease = LeaseItem(
+      const lease = LeaseItem(
         tenantName: 'Test',
         deposit: 50000,
       );
@@ -284,7 +284,7 @@ void main() {
     });
 
     test('leaseStatus returns actual status when set', () {
-      final lease = LeaseItem(
+      const lease = LeaseItem(
         tenantName: 'Test',
         status: LeaseStatus.active,
       );

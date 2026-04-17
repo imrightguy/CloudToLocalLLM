@@ -322,7 +322,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity( 0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),
@@ -348,12 +348,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildFilterBar() {
     final statusFilters = [
-      _FilterOption(label: 'Tous', value: ''),
-      _FilterOption(label: 'Planifiée', value: 'scheduled'),
-      _FilterOption(label: 'Confirmée', value: 'confirmed'),
-      _FilterOption(label: 'Terminée', value: 'completed'),
-      _FilterOption(label: 'Annulée', value: 'cancelled'),
-      _FilterOption(label: 'Absent', value: 'no_show'),
+      const _FilterOption(label: 'Tous', value: ''),
+      const _FilterOption(label: 'Planifiée', value: 'scheduled'),
+      const _FilterOption(label: 'Confirmée', value: 'confirmed'),
+      const _FilterOption(label: 'Terminée', value: 'completed'),
+      const _FilterOption(label: 'Annulée', value: 'cancelled'),
+      const _FilterOption(label: 'Absent', value: 'no_show'),
     ];
 
     return SingleChildScrollView(
@@ -372,7 +372,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppColors.primary.withOpacity(0.1)
+                      ? AppColors.primary.withValues(alpha: 0.1)
                       : AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -468,7 +468,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     color: isSelected
                         ? AppColors.primary
                         : isToday
-                            ? AppColors.primary.withOpacity( 0.1)
+                            ? AppColors.primary.withValues(alpha: 0.1)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: isToday && !isSelected
@@ -563,7 +563,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: isSelected
-                                  ? Colors.white.withOpacity( 0.8)
+                                  ? Colors.white.withValues(alpha: 0.8)
                                   : AppColors.textMuted,
                             ),
                           ),
@@ -641,7 +641,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                height: 48.0 * hours.length,
                                decoration: candidateData.isNotEmpty
                                    ? BoxDecoration(
-                                       color: AppColors.primary.withOpacity(0.05),
+                                       color: AppColors.primary.withValues(alpha: 0.05),
                                        borderRadius: BorderRadius.circular(4),
                                      )
                                    : null,
@@ -653,7 +653,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                        top: i * 48.0,
                                        left: 0,
                                        right: 0,
-                                       child: Divider(
+                                       child: const Divider(
                                          height: 1,
                                          color: AppColors.surfaceVariant,
                                        ),
@@ -681,7 +681,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                        child: Container(
                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                          decoration: BoxDecoration(
-                                           color: color.withOpacity(0.2),
+                                           color: color.withValues(alpha: 0.2),
                                            borderRadius: BorderRadius.circular(6),
                                            border: Border.all(color: color),
                                          ),
@@ -752,10 +752,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
@@ -833,7 +833,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity( 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -897,9 +897,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
+          color: color.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -930,7 +930,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.15),
+                          color: color.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -966,7 +966,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             if (visit.agent.isNotEmpty)
               CircleAvatar(
                 radius: 14,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 child: Text(
                   agentInitials,
                   style: const TextStyle(

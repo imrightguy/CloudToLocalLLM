@@ -116,7 +116,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Communications'),
+      appBar: const ImmoAppBar(title: 'Communications'),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
@@ -248,7 +248,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withOpacity( 0.1)
+              ? AppColors.primary.withValues(alpha: 0.1)
               : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -318,7 +318,7 @@ class _CommunicationsScreenState extends State<CommunicationsScreen> {
             CircleAvatar(
               radius: 24,
               backgroundColor:
-                  AppColors.primary.withOpacity( 0.1),
+                  AppColors.primary.withValues(alpha: 0.1),
               child: Text(
                 item.contactInitials,
                 style: const TextStyle(

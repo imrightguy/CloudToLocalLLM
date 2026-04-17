@@ -118,7 +118,7 @@ void main() {
     });
 
     test('toJson round-trips', () {
-      final original = PaymentItem(
+      const original = PaymentItem(
         id: 'p1',
         leaseId: 'l1',
         buildingId: 'b1',

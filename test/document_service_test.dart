@@ -559,7 +559,7 @@ void main() {
     test('uploadDocument error parsing: JSON error body', () {
       // Simulate error response parsing
       const statusCode = 413;
-      final responseBody = '{"message": "Fichier trop volumineux"}';
+      const responseBody = '{"message": "Fichier trop volumineux"}';
 
       String errorMsg;
       try {

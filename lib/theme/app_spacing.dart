@@ -17,13 +17,13 @@ class AppSpacing {
   static const double radiusFull = 20.0;
 
   static BoxShadow get elevationCard => BoxShadow(
-        color: Colors.black.withOpacity(0.05),
+        color: Colors.black.withValues(alpha: 0.05),
         blurRadius: 10,
         offset: const Offset(0, 2),
       );
 
   static BoxShadow get elevationCardHover => BoxShadow(
-        color: Colors.black.withOpacity(0.10),
+        color: Colors.black.withValues(alpha: 0.10),
         blurRadius: 16,
         offset: const Offset(0, 4),
       );

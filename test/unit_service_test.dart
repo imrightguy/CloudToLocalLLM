@@ -103,7 +103,7 @@ void main() {
     });
 
     test('vacancyStatus derived from status field', () {
-      final occupied = UnitItem(
+      const occupied = UnitItem(
         number: '1',
         type: '',
         bedrooms: 0,
@@ -114,7 +114,7 @@ void main() {
       );
       expect(occupied.vacancyStatus, VacancyStatus.occupied);
 
-      final vacant = UnitItem(
+      const vacant = UnitItem(
         number: '2',
         type: '',
         bedrooms: 0,
@@ -125,7 +125,7 @@ void main() {
       );
       expect(vacant.vacancyStatus, VacancyStatus.vacant);
 
-      final maintenance = UnitItem(
+      const maintenance = UnitItem(
         number: '3',
         type: '',
         bedrooms: 0,

@@ -78,15 +78,15 @@ class _PipelineScreenState extends State<PipelineScreen>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
+      return const Scaffold(
         appBar: ImmoAppBar(title: 'Pipeline'),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: ImmoAppBar(title: 'Pipeline'),
+        appBar: const ImmoAppBar(title: 'Pipeline'),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -181,7 +181,7 @@ class _PipelineScreenState extends State<PipelineScreen>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _getStageColor(stage).withOpacity( 0.1),
+                    color: _getStageColor(stage).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -459,7 +459,7 @@ class _PipelineScreenState extends State<PipelineScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _getStageColor(lead.stage).withOpacity( 0.1),
+                  color: _getStageColor(lead.stage).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

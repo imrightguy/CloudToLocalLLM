@@ -80,7 +80,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Employés'),
+      appBar: const ImmoAppBar(title: 'Employés'),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEmployeeDialog,
@@ -208,8 +208,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: employee.isActive
-                      ? AppColors.primary.withOpacity( 0.1)
-                      : AppColors.textMuted.withOpacity( 0.1),
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : AppColors.textMuted.withValues(alpha: 0.1),
                   child: Text(
                     employee.firstName.isNotEmpty
                         ? employee.firstName[0].toUpperCase()
@@ -262,8 +262,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: employee.isActive
-                        ? AppColors.success.withOpacity( 0.1)
-                        : AppColors.error.withOpacity( 0.1),
+                        ? AppColors.success.withValues(alpha: 0.1)
+                        : AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

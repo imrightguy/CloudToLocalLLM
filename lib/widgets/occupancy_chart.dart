@@ -59,7 +59,7 @@ class OccupancyChartCard extends StatelessWidget {
           SizedBox(
             height: 200,
             child: data.length < 2
-                ? Center(
+                ? const Center(
                     child: Text(
                       'Données insuffisantes',
                       style: AppTypography.caption,
