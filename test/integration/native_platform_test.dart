@@ -15,7 +15,7 @@ void main() {
 
     setUpAll(() async {
       // Initialize the app to register platform channels
-      app.main(const <String>[]);
+      app.main();
       await Future.delayed(const Duration(milliseconds: 500));
 
       guiAutomationChannel =
