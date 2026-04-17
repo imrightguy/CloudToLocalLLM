@@ -236,7 +236,7 @@ const server = http.createServer(async(req, res) => {
         status: 'healthy',
         userId: USER_ID,
         proxyId: PROXY_ID,
-        ollamaBaseUrl: OLLAMA_BASE_URL,
+        ollamaBaseUrl: OLLAMA_BASE_URL ? '***REDACTED***' : 'not configured',
         tunnelConfigured: !!OLLAMA_BASE_URL,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
@@ -291,7 +291,7 @@ const server = http.createServer(async(req, res) => {
         tunnel: httpClient
           ? {
             configured: true,
-            baseUrl: OLLAMA_BASE_URL,
+            baseUrl: OLLAMA_BASE_URL ? '***REDACTED***' : 'not configured',
             stats: httpClient.getStats(),
           }
           : {
