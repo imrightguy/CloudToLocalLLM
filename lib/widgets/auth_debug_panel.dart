@@ -68,7 +68,7 @@ class _AuthDebugPanelState extends State<AuthDebugPanel> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withAlpha((255 * 0.1).round()),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),

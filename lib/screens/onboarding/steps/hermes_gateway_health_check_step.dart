@@ -43,7 +43,7 @@ class _HermesGatewayHealthCheckStepState
         if (_healthStatus.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(8),
-            color: Colors.green.withOpacity(0.2),
+            color: Colors.green.withValues(alpha: 0.2),
             child: Text(
               _healthStatus,
               style: const TextStyle(color: Colors.green),

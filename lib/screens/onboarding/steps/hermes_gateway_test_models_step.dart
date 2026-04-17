@@ -51,7 +51,7 @@ class _HermesGatewayTestModelsStepState
         if (_testResult.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(8),
-            color: Colors.green.withOpacity(0.2),
+            color: Colors.green.withValues(alpha: 0.2),
             child: Text(
               _testResult,
               style: TextStyle(color: Colors.green),

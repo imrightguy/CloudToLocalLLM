@@ -79,7 +79,7 @@ class ErrorNotificationBanner extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withAlpha((0.1 * 255).toInt()),
+        color: color.withValues(alpha: 0.1),
         border: Border.all(color: color),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -209,7 +209,7 @@ class _SuccessNotificationBannerState extends State<SuccessNotificationBanner>
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.green.withAlpha((0.1 * 255).toInt()),
+          color: Colors.green.withValues(alpha: 0.1),
           border: Border.all(color: Colors.green),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -265,7 +265,7 @@ class ValidationErrorList extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.orange.withAlpha((0.1 * 255).toInt()),
+        color: Colors.orange.withValues(alpha: 0.1),
         border: Border.all(color: Colors.orange),
         borderRadius: BorderRadius.circular(8),
       ),
