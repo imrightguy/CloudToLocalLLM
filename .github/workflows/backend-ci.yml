@@ -12,7 +12,7 @@ concurrency:
 
 env:
   API_DIR: services/api-backend
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   lint-and-test:
