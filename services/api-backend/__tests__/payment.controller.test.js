@@ -336,7 +336,7 @@ describe('updatePaymentStatus', () => {
   });
 
   it('rejects transition from paid to any other status', async () => {
-    const chain = setupDbChain([FAKE_PAYMENT]);
+    const _chain = setupDbChain([FAKE_PAYMENT]);
     const selectChain = {
       from: jest.fn().mockReturnValue({
         where: jest.fn().mockReturnValue({
@@ -565,17 +565,6 @@ describe('getPayments', () => {
   });
 
   it('returns payments with default pagination', async () => {
-    const selectChain = {
-      from: jest.fn().mockReturnValue({
-        where: jest.fn().mockResolvedValue([{ count: 1 }]),
-      }),
-      innerJoin: jest.fn().mockReturnThis(),
-      where: jest.fn().mockResolvedValue([{ count: 1 }]),
-      orderBy: jest.fn().mockReturnThis(),
-      limit: jest.fn().mockReturnThis(),
-      offset: jest.fn().mockResolvedValue([FAKE_PAYMENT]),
-    };
-
     db.select
       .mockReturnValueOnce({
         from: jest.fn().mockReturnValue({
