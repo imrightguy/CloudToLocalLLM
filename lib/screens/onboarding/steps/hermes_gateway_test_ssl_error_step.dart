@@ -45,7 +45,7 @@ class _HermesGatewayTestSSLErrorState
             _log.info('SSL error - checking certificate...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
-          icon: const Icon(Icons.certified),
+          icon: const Icon(Icons.verified_user),
           label: const Text('Check Certificate'),
         ),
       ],

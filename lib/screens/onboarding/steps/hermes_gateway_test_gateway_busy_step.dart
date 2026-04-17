@@ -21,7 +21,7 @@ class _HermesGatewayTestGatewayBusyState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Icon(Icons.busy, color: Colors.orange, size: 80),
+        const Icon(Icons.hourglass_full, color: Colors.orange, size: 80),
         const SizedBox(height: 16),
         const Text(
           'Gateway Busy',

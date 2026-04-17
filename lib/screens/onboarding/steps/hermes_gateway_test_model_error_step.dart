@@ -45,7 +45,7 @@ class _HermesGatewayTestModelErrorState
             _log.info('Model error - showing available models...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
-          icon: const Icon(Icons.models),
+          icon: const Icon(Icons.category),
           label: const Text('View Available Models'),
         ),
       ],

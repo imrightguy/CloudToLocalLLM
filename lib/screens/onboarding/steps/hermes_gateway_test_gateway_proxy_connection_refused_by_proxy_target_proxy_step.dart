@@ -45,7 +45,7 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyState
             _log.info('Proxy target proxy connection refused - starting target proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
-          icon: const Icon(Icons.play),
+          icon: const Icon(Icons.play_arrow),
           label: const Text('Start Target Proxy Server'),
         ),
       ],

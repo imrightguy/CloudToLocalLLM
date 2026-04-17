@@ -21,7 +21,7 @@ class _HermesGatewayTestRateLimitErrorState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Icon(Icons.thumbs_down, color: Colors.red, size: 80),
+        const Icon(Icons.thumb_down, color: Colors.red, size: 80),
         const SizedBox(height: 16),
         const Text(
           'Rate Limit Exceeded',

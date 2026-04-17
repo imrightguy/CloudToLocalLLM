@@ -45,7 +45,7 @@ class _HermesGatewayTestGatewayConnectionRefusedState
             _log.info('Connection refused - starting gateway...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
-          icon: const Icon(Icons.play),
+          icon: const Icon(Icons.play_arrow),
           label: const Text('Start Gateway'),
         ),
       ],

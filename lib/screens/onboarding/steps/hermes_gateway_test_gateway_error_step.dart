@@ -36,7 +36,7 @@ class _HermesGatewayTestGatewayErrorState
           onPressed: () {
             _log.info('Gateway error - restarting gateway...');
           },
-          icon: const Icon(Icons.restart),
+          icon: const Icon(Icons.restart_alt),
           label: const Text('Restart Gateway'),
         ),
         const SizedBox(height: 16),

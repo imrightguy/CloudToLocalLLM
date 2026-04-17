@@ -36,7 +36,7 @@ class _HermesGatewayTestGatewayNotFoundState
           onPressed: () {
             _log.info('Gateway not found - checking installation...');
           },
-          icon: const Icon(Icons.package),
+          icon: const Icon(Icons.inventory_2),
           label: const Text('Check Installation'),
         ),
         const SizedBox(height: 16),

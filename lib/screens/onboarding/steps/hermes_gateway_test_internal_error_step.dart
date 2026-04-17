@@ -21,7 +21,7 @@ class _HermesGatewayTestInternalErrorState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Icon(Icons.bug, color: Colors.red, size: 80),
+        const Icon(Icons.bug_report, color: Colors.red, size: 80),
         const SizedBox(height: 16),
         const Text(
           'Internal Server Error',
@@ -36,7 +36,7 @@ class _HermesGatewayTestInternalErrorState
           onPressed: () {
             _log.info('Internal error - restarting gateway...');
           },
-          icon: const Icon(Icons.restart),
+          icon: const Icon(Icons.restart_alt),
           label: const Text('Restart Gateway'),
         ),
         const SizedBox(height: 16),

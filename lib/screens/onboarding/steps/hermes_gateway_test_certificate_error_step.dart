@@ -21,7 +21,7 @@ class _HermesGatewayTestCertificateErrorState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Icon(Icons.certified, color: Colors.red, size: 80),
+        const Icon(Icons.verified_user, color: Colors.red, size: 80),
         const SizedBox(height: 16),
         const Text(
           'Certificate Error',

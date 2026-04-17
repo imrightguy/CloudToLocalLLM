@@ -36,7 +36,7 @@ class _HermesGatewayTestPermissionErrorState
           onPressed: () {
             _log.info('Permission error - checking permissions...');
           },
-          icon: const Icon(Icons.permissions),
+          icon: const Icon(Icons.admin_panel_settings),
           label: const Text('Check Permissions'),
         ),
         const SizedBox(height: 16),
