@@ -53,11 +53,11 @@ class DashboardWebSocketManager {
     }
 
     try {
-      // Verify token (using JWT_SECRET or Auth0)
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || 'abc12d491e2bc24a60e9e276be8d5b1af62bf',
-      );
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new Error('JWT_SECRET not configured');
+      }
+      const decoded = jwt.verify(token, secret);
       request.userId = decoded.sub || decoded.userId || 'system';
 
       this.wss.handleUpgrade(request, socket, head, (ws) => {
