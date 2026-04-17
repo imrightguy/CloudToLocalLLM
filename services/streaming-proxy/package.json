@@ -25,7 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.72.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.73.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.215.0",
     "@opentelemetry/sdk-node": "^0.215.0",
     "@sentry/node": "^10.49.0",
