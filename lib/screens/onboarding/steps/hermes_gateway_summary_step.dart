@@ -39,7 +39,7 @@ class _HermesGatewaySummaryStepState extends State<HermesGatewaySummaryStep> {
           Column(
             children: [
               Text('Gateway URL: ${widget.hermesUrl}'),
-              Text('API Key: ${widget.hermesApiKey != null ? \'Set\' : \'Not set\'}'),
+              Text('API Key: ${widget.hermesApiKey != null ? 'Set' : 'Not set'}'),
               const SizedBox(height: 16),
               const Text(
                 'Hermes gateway is enabled and ready to use!',

@@ -19,6 +19,15 @@ class _HermesGatewayNetworkStepState extends State<HermesGatewayNetworkStep> {
   int _port = 1337;
   String _host = '0.0.0.0';
   bool _allowRemote = false;
+  late TextEditingController _hostController;
+  late TextEditingController _portController;
+
+  @override
+  void initState() {
+    super.initState();
+    _hostController = TextEditingController(text: _host);
+    _portController = TextEditingController(text: _port.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,7 @@ class _HermesGatewayNetworkStepState extends State<HermesGatewayNetworkStep> {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         TextField(
-          initialValue: _host,
+          controller: _hostController,
           decoration: const InputDecoration(
             labelText: 'Host Interface',
             hintText: '0.0.0.0 (all interfaces) or 127.0.0.1 (localhost only)',
@@ -39,7 +48,7 @@ class _HermesGatewayNetworkStepState extends State<HermesGatewayNetworkStep> {
           },
         ),
         TextField(
-          initialValue: _port.toString(),
+          controller: _portController,
           decoration: const InputDecoration(
             labelText: 'Port',
             hintText: '1337 (default)',

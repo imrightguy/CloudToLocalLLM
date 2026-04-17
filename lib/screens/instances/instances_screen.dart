@@ -13,7 +13,7 @@ import '../../widgets/common/status_badge.dart';
 import '../../widgets/navigation/popout_button.dart';
 import '../../services/connection_manager_service.dart';
 import '../../services/hermes/hermes_streaming_service.dart';
-import '../../services/settings_preference_service.dart';
+import '../../services/settings_preference_service.dart' hide BackendType;
 import '../../config/app_config.dart';
 
 /// Screen displaying gateway process state and model instances

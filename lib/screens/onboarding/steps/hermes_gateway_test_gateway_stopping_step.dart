@@ -43,7 +43,7 @@ class _HermesGatewayTestGatewayStoppingState
         ElevatedButton.icon(
           onPressed: () {
             _log.info('Gateway stopping - checking status...');
-          ),
+          },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.info),
           label: const Text('Check Gateway Status'),

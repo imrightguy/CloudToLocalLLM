@@ -12,7 +12,7 @@ final Logger _log = Logger('HermesGatewayStatusStep');
 class HermesGatewayStatusStep extends StatefulWidget {
   final bool hermesEnabled;
 
-  const HermesGatewayStatusStep({Key? key, thishermesEnabled = false})
+  const HermesGatewayStatusStep({Key? key, this.hermesEnabled = false})
       : super(key: key);
 
   @override

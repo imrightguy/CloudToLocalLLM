@@ -19,6 +19,15 @@ class _HermesGatewayBackupStepState extends State<HermesGatewayBackupStep> {
   String _backupDir = '/var/lib/hermes/backups';
   bool _autoBackup = true;
   int _backupFrequency = 24; // hours
+  late TextEditingController _backupDirController;
+  late TextEditingController _backupFrequencyController;
+
+  @override
+  void initState() {
+    super.initState();
+    _backupDirController = TextEditingController(text: _backupDir);
+    _backupFrequencyController = TextEditingController(text: _backupFrequency.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,7 @@ class _HermesGatewayBackupStepState extends State<HermesGatewayBackupStep> {
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         TextField(
-          initialValue: _backupDir,
+          controller: _backupDirController,
           decoration: const InputDecoration(
             labelText: 'Backup Directory',
             hintText: '/var/lib/hermes/backups',
@@ -47,7 +56,7 @@ class _HermesGatewayBackupStepState extends State<HermesGatewayBackupStep> {
         ),
         if (_autoBackup)
           TextField(
-            initialValue: _backupFrequency.toString(),
+            controller: _backupFrequencyController,
             decoration: const InputDecoration(
               labelText: 'Backup Frequency (hours)',
               hintText: '24 (daily)',

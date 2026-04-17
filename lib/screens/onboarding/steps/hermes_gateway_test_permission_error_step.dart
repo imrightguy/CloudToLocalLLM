@@ -1,5 +1,3 @@
-library screens/onboarding.steps.hermes_gateway_test_permission_error_step;
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';

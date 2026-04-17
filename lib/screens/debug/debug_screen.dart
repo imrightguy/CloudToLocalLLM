@@ -173,10 +173,10 @@ class _DebugScreenState extends State<DebugScreen> {
         buffer.writeln('━━━ App Connection State ━━━');
         buffer.writeln('Connected: ${connService.isConnected}');
         buffer.writeln(
-          'Health: ${connService.healthStatus.name}',
+          'Health: ${connService.healthStatus}',
         );
         buffer.writeln(
-            'Preferred: ${connService.preferredConnectionType?.name ?? "auto"}');
+            'Preferred: ${connService.preferredConnectionType ?? "auto"}');
         buffer.writeln('Model: ${connService.selectedModel ?? "none"}');
         buffer
             .writeln('Models: ${connService.availableModels.length} available');
@@ -404,7 +404,7 @@ class _DebugScreenState extends State<DebugScreen> {
           ),
           StatusBadge(
             status: isConnected ? StatusType.active : StatusType.stopped,
-            label: connService.healthStatus.name,
+            label: connService.healthStatus ?? 'unknown',
           ),
         ],
       ),
@@ -656,7 +656,7 @@ class _DebugScreenState extends State<DebugScreen> {
                   status:
                       connService.isConnected ? 'Connected' : 'Disconnected',
                   isHealthy: connService.isConnected,
-                  details: connService.preferredConnectionType?.name ?? 'auto',
+                  details: connService.preferredConnectionType ?? 'auto',
                 ),
                 const Divider(),
                 _buildServiceTile(

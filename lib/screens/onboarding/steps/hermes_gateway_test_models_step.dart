@@ -25,7 +25,7 @@ class HermesGatewayTestModelsStep extends StatefulWidget {
 }
 
 class _HermesGatewayTestModelsStepState
-    extends HermesGatewayTestModelsStepState {
+    extends State<HermesGatewayTestModelsStep> {
   bool _isTesting = false;
   String _testResult = 'Available models: hermes/model, meta/llama-3-70b, mistral/medium';
 

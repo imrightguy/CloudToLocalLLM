@@ -19,6 +19,17 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
   int _maxConcurrentRequests = 10;
   int _requestTimeout = 30;
   int _maxTokens = 4096;
+  late TextEditingController _maxConcurrentController;
+  late TextEditingController _requestTimeoutController;
+  late TextEditingController _maxTokensController;
+
+  @override
+  void initState() {
+    super.initState();
+    _maxConcurrentController = TextEditingController(text: _maxConcurrentRequests.toString());
+    _requestTimeoutController = TextEditingController(text: _requestTimeout.toString());
+    _maxTokensController = TextEditingController(text: _maxTokens.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +40,7 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         TextField(
-          initialValue: _maxConcurrentRequests.toString(),
+          controller: _maxConcurrentController,
           decoration: const InputDecoration(
             labelText: 'Max Concurrent Requests',
             hintText: '10 (default)',
@@ -41,7 +52,7 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
           },
         ),
         TextField(
-          initialValue: _requestTimeout.toString(),
+          controller: _requestTimeoutController,
           decoration: const InputDecoration(
             labelText: 'Request Timeout (seconds)',
             hintText: '30 (default)',
@@ -53,7 +64,7 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
           },
         ),
         TextField(
-          initialValue: _maxTokens.toString(),
+          controller: _maxTokensController,
           decoration: const InputDecoration(
             labelText: 'Max Tokens per Request',
             hintText: '4096 (default)',
