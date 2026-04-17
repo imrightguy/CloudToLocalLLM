@@ -7,6 +7,7 @@ build/
 .idea/
 .vscode/
 services/
+!services/flutter-web/nginx.conf
 test/
 coverage/
 *.lock
