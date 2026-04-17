@@ -1,4 +1,3 @@
-library main;
 
 import 'dart:async';
 import 'dart:convert';

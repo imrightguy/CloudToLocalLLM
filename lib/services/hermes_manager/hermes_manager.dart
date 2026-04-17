@@ -1,4 +1,3 @@
-library hermes_manager;
 
 export 'hermes_gateway_control_service.dart';
 export 'hermes_streaming_service.dart';

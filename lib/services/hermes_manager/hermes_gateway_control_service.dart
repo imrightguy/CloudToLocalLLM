@@ -1,4 +1,3 @@
-library hermes_manager;
 
 import 'dart:convert';
 import 'dart:io';

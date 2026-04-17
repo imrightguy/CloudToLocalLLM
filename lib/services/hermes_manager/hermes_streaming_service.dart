@@ -1,4 +1,3 @@
-library hermes_manager;
 
 import 'dart:async';
 import 'dart:convert';

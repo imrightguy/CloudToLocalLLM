@@ -1,9 +1,7 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import '../../../services/hermes_manager/hermes_manager.dart';
 
 final Logger _log = Logger('HermesGatewayTestPermissionErrorStep');
 

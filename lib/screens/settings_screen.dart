@@ -1,9 +1,6 @@
-library screens.settings_screen;
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import '../services/hermes_manager/hermes_manager.dart';
 import '../widgets/settings/openclaw_gateway_category.dart';
 import '../widgets/settings/hermes_gateway_category.dart';
 import '../widgets/settings/settings_sidebar.dart';

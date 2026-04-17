@@ -1,4 +1,3 @@
-library screens.home_screen;
 
 import 'dart:convert';
 

@@ -1,11 +1,8 @@
-library screens.onboarding.steps.hermes_gateway_test_gateway_proxy_connection_error_by_proxy_target_proxy_proxy_step;
 
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import '../../../services/hermes_manager/hermes_manager.dart';
 
 final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionErrorByProxyTargetProxyProxyStep');
 

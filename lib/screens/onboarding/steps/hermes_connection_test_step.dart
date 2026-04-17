@@ -1,11 +1,8 @@
-library screens.onboarding.steps.hermes_connection_test_step;
 
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logger.dart';
 
-import '../../../services/hermes_manager/hermes_manager.dart';
 
 final Logger _log = Logger('HermesConnectionTestStep');
 
