@@ -14,13 +14,13 @@ jest.mock('../../src/utils/logger', () => ({
 jest.mock('../../src/models/building', () => ({
   buildingSchema: {
     validate: jest.fn((body) => {
-      if (!body.name || !body.address) return { error: { details: [{ message: 'name and address are required' }] } };
+      if (!body.name || !body.address) {return { error: { details: [{ message: 'name and address are required' }] } };}
       return { error: null, value: body };
     }),
   },
   unitSchema: {
     validate: jest.fn((body) => {
-      if (!body.buildingId) return { error: { details: [{ message: 'buildingId is required' }] } };
+      if (!body.buildingId) {return { error: { details: [{ message: 'buildingId is required' }] } };}
       return { error: null, value: body };
     }),
   },

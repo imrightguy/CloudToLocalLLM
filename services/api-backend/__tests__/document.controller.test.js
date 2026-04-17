@@ -364,7 +364,7 @@ describe('document.controller', () => {
       ];
 
       let selectCallCount = 0;
-      db.select.mockImplementation((fields) => {
+      db.select.mockImplementation((_fields) => {
         selectCallCount++;
         if (selectCallCount === 1) {
           // Document lookup: select().from().where().limit()

@@ -209,7 +209,7 @@ beforeEach(() => {
   mockHandleIncomingMessage.mockImplementation((body) => {
     const trimmed = (body || '').trim().toLowerCase();
     const numberMap = { 1: 'yes', 2: 'no', 3: 'no_show' };
-    if (numberMap[trimmed]) return { action: numberMap[trimmed], raw: trimmed };
+    if (numberMap[trimmed]) {return { action: numberMap[trimmed], raw: trimmed };}
     return { action: null, raw: trimmed };
   });
   mockInsertResolve();

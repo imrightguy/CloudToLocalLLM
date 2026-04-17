@@ -30,7 +30,7 @@ jest.mock('../../src/models/payment', () => ({
   paymentStatusSchema: {
     validate: jest.fn((body) => {
       const valid = ['pending', 'paid', 'late', 'partial'];
-      if (!valid.includes(body.status)) return { error: { details: [{ message: 'Invalid status' }] } };
+      if (!valid.includes(body.status)) {return { error: { details: [{ message: 'Invalid status' }] } };}
       return { error: null, value: body };
     }),
   },

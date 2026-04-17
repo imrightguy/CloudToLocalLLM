@@ -138,7 +138,7 @@ describe('email.service', () => {
       const originalDate = Date;
       global.Date = class extends Date {
         constructor(...args) {
-          if (args.length === 0) return new originalDate(hour.getTime());
+          if (args.length === 0) {return new originalDate(hour.getTime());}
           return new originalDate(...args);
         }
       };
@@ -166,7 +166,7 @@ describe('email.service', () => {
       const originalDate = Date;
       global.Date = class extends Date {
         constructor(...args) {
-          if (args.length === 0) return new originalDate(hour.getTime());
+          if (args.length === 0) {return new originalDate(hour.getTime());}
           return new originalDate(...args);
         }
       };

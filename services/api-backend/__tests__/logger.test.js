@@ -8,7 +8,7 @@ function run(code) {
     `LOG_LEVEL=debug node -e "${code.replace(/"/g, '\\"')}" 2>&1`,
     { encoding: 'utf8' },
   ).trim();
-  if (!stdout) return [];
+  if (!stdout) {return [];}
   return stdout.split('\n').map((line) => {
     try { return JSON.parse(line); } catch { return null; }
   }).filter(Boolean);

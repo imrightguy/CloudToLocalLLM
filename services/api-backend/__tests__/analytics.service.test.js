@@ -495,11 +495,11 @@ describe('analytics.service', () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount === 1) return createChain([{ total: '25' }]);
-        if (callCount === 2) return createChain([{ completed: '18' }]);
-        if (callCount === 3) return createChain([{ noShow: '3' }]);
-        if (callCount === 4) return createChain([{ cancelled: '4' }]);
-        if (callCount === 5) return createChain([{ avgDays: '12.5' }]);
+        if (callCount === 1) {return createChain([{ total: '25' }]);}
+        if (callCount === 2) {return createChain([{ completed: '18' }]);}
+        if (callCount === 3) {return createChain([{ noShow: '3' }]);}
+        if (callCount === 4) {return createChain([{ cancelled: '4' }]);}
+        if (callCount === 5) {return createChain([{ avgDays: '12.5' }]);}
         return createChain([
           { date: '2026-03-17', completed: '5', cancelled: '1', noShow: '1' },
         ]);
@@ -521,8 +521,8 @@ describe('analytics.service', () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount <= 4) return createChain([{ total: '0' }]);
-        if (callCount === 5) return createChain([{ avgDays: null }]);
+        if (callCount <= 4) {return createChain([{ total: '0' }]);}
+        if (callCount === 5) {return createChain([{ avgDays: null }]);}
         return createChain([]);
       });
 
@@ -539,11 +539,11 @@ describe('analytics.service', () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount === 1) return createChain([{ total: '100' }]);
-        if (callCount === 2) return createChain([{ completed: '50' }]);
-        if (callCount === 3) return createChain([{ noShow: '25' }]);
-        if (callCount === 4) return createChain([{ cancelled: '25' }]);
-        if (callCount === 5) return createChain([{ avgDays: '7.3' }]);
+        if (callCount === 1) {return createChain([{ total: '100' }]);}
+        if (callCount === 2) {return createChain([{ completed: '50' }]);}
+        if (callCount === 3) {return createChain([{ noShow: '25' }]);}
+        if (callCount === 4) {return createChain([{ cancelled: '25' }]);}
+        if (callCount === 5) {return createChain([{ avgDays: '7.3' }]);}
         return createChain([]);
       });
 
@@ -559,8 +559,8 @@ describe('analytics.service', () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount <= 4) return createChain([{ total: '0' }]);
-        if (callCount === 5) return createChain([{ avgDays: null }]);
+        if (callCount <= 4) {return createChain([{ total: '0' }]);}
+        if (callCount === 5) {return createChain([{ avgDays: null }]);}
         return createChain([]);
       });
 
@@ -580,8 +580,8 @@ describe('analytics.service', () => {
       let callCount = 0;
       db.select.mockImplementation(() => {
         callCount++;
-        if (callCount <= 4) return createChain([{ total: '0' }]);
-        if (callCount === 5) return createChain([{ avgDays: null }]);
+        if (callCount <= 4) {return createChain([{ total: '0' }]);}
+        if (callCount === 5) {return createChain([{ avgDays: null }]);}
         return createChain([]);
       });
 

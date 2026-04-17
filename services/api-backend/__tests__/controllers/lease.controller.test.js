@@ -31,7 +31,7 @@ jest.mock('../../src/models/lease', () => ({
   leaseStatusSchema: {
     validate: jest.fn((body) => {
       const valid = ['draft', 'active', 'expired', 'terminated', 'renewed'];
-      if (!valid.includes(body.status)) return { error: { details: [{ message: 'Invalid status' }] } };
+      if (!valid.includes(body.status)) {return { error: { details: [{ message: 'Invalid status' }] } };}
       return { error: null, value: body };
     }),
   },

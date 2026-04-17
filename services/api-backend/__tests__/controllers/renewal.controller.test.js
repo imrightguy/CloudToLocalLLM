@@ -31,7 +31,7 @@ jest.mock('../../src/models/renewal', () => ({
   renewalOfferStatusSchema: {
     validate: jest.fn((body) => {
       const valid = ['pending', 'sent', 'accepted', 'declined', 'expired'];
-      if (!valid.includes(body.status)) return { error: { details: [{ message: 'Invalid status' }] } };
+      if (!valid.includes(body.status)) {return { error: { details: [{ message: 'Invalid status' }] } };}
       return { error: null, value: body };
     }),
   },

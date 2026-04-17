@@ -92,7 +92,7 @@ describe('admin.controller — clearDemo', () => {
     let callCount = 0;
     mockExecute.mockImplementation(() => {
       callCount++;
-      if (callCount === 1) throw new Error('table not found');
+      if (callCount === 1) {throw new Error('table not found');}
       return Promise.resolve();
     });
 
