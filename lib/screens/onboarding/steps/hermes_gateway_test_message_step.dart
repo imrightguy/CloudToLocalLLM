@@ -1,11 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
-
-
-final Logger _log = Logger('HermesGatewayTestMessageStep');
-
 class HermesGatewayTestMessageStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;

@@ -9,7 +9,6 @@ import '../../components/gradient_button.dart';
 import '../../services/unified_connection_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/connection_manager_service.dart';
-import '../../services/settings_preference_service.dart' hide BackendType;
 import '../../widgets/navigation/breadcrumb_bar.dart';
 import '../../services/platform_adapter.dart';
 

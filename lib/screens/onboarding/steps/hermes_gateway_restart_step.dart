@@ -1,11 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
-
-
-final Logger _log = Logger('HermesGatewayRestartStep');
-
 class HermesGatewayRestartStep extends StatefulWidget {
   @override
   State<HermesGatewayRestartStep> createState() =>

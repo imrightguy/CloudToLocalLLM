@@ -1,11 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
-
-
-final Logger _log = Logger('HermesGatewayMetricsStep');
-
 class HermesGatewayMetricsStep extends StatefulWidget {
   @override
   State<HermesGatewayMetricsStep> createState() =>
