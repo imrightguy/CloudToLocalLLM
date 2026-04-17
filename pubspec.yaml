@@ -77,7 +77,7 @@ dependencies:
   dartssh2: ^2.9.0
 
   get_it: ^9.2.1
-  logger: ^2.6.2
+  logger: ^2.7.0
 
   # Discord integration
   nyxx: ^6.8.1
