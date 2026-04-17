@@ -52,8 +52,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         final matchesSearch = query.isEmpty ||
             doc.fileName.toLowerCase().contains(query) ||
             (doc.description?.toLowerCase().contains(query) ?? false);
-        final matchesType =
-            _selectedTypeFilter == null || doc.documentType == _selectedTypeFilter;
+        final matchesType = _selectedTypeFilter == null ||
+            doc.documentType == _selectedTypeFilter;
         return matchesSearch && matchesType;
       }).toList();
     });
@@ -103,21 +103,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ImmoAppBar(title: 'Documents', actions: [
-          if (_isUploading)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    value: _uploadProgress > 0 ? _uploadProgress : null,
-                  ),
+        if (_isUploading)
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  value: _uploadProgress > 0 ? _uploadProgress : null,
                 ),
               ),
             ),
-        ]),
+          ),
+      ]),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showUploadDialog,
@@ -151,7 +151,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: const TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -183,7 +184,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               decoration: AppSpacing.cardDecoration(),
               child: Row(
                 children: [
-                  const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+                  const Icon(Icons.search,
+                      size: 20, color: AppColors.textSecondary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -213,7 +215,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   padding: EdgeInsets.all(32),
                   child: Text(
                     'Aucun document trouvé',
-                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style:
+                        TextStyle(fontSize: 14, color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -352,7 +355,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: doc.documentType.color.withValues(alpha: 0.08),
+                              color: doc.documentType.color
+                                  .withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -375,7 +379,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                           if (doc.createdAt != null) ...[
                             const SizedBox(width: 8),
                             Text(
-                              DateFormat('d MMM yyyy', 'fr').format(doc.createdAt!),
+                              DateFormat('d MMM yyyy', 'fr')
+                                  .format(doc.createdAt!),
                               style: const TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textMuted,
@@ -387,7 +392,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, size: 20, color: AppColors.textMuted),
+                const Icon(Icons.chevron_right,
+                    size: 20, color: AppColors.textMuted),
               ],
             ),
           ),
@@ -647,11 +653,11 @@ class _UploadDocumentSheetState extends State<_UploadDocumentSheet> {
 }
 
 class FilePickerWrapper {
-  static Future<_PickedFile?> pickFiles() async {
+  static Future<PickedFile?> pickFiles() async {
     try {
       final result = await FilePickerPlatform.pickFiles();
       if (result == null) return null;
-      return _PickedFile(
+      return PickedFile(
         fileName: result['name'] as String,
         fileType: result['type'] as String,
         fileBytes: Uint8List.fromList(result['bytes'] as List<int>),
@@ -668,12 +674,12 @@ class FilePickerPlatform {
   }
 }
 
-class _PickedFile {
+class PickedFile {
   final String fileName;
   final String fileType;
   final Uint8List fileBytes;
 
-  const _PickedFile({
+  const PickedFile({
     required this.fileName,
     required this.fileType,
     required this.fileBytes,

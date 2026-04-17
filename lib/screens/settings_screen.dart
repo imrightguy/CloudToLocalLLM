@@ -257,8 +257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style:
-                TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Déconnexion'),
           ),
         ],
@@ -286,8 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            style:
-                TextButton.styleFrom(foregroundColor: AppColors.error),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Supprimer définitivement'),
           ),
         ],
@@ -356,7 +354,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
   }
 
-  Future<void> _pickTime(TimeOfDay? current, ValueChanged<TimeOfDay> onPicked) async {
+  Future<void> _pickTime(
+      TimeOfDay? current, ValueChanged<TimeOfDay> onPicked) async {
     final picked = await showTimePicker(
       context: context,
       initialTime: current ?? const TimeOfDay(hour: 22, minute: 0),
@@ -413,7 +412,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _buildProfileCard(),
                       const SizedBox(height: 24),
-
                       const Text('Notifications',
                           style: TextStyle(
                             fontSize: 16,
@@ -423,7 +421,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildNotificationCard(),
                       const SizedBox(height: 24),
-
                       const Text('Apparence',
                           style: TextStyle(
                             fontSize: 16,
@@ -433,7 +430,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildAppearanceCard(),
                       const SizedBox(height: 24),
-
                       const Text('Compte',
                           style: TextStyle(
                             fontSize: 16,
@@ -443,7 +439,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildAccountCard(),
                       const SizedBox(height: 24),
-
                       const Text('À propos',
                           style: TextStyle(
                             fontSize: 16,
@@ -453,7 +448,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _buildAboutCard(),
                       const SizedBox(height: 24),
-
                       _buildLogoutButton(),
                       const SizedBox(height: 16),
                       _buildDeleteAccountButton(),
@@ -489,15 +483,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _editField('Prénom', _firstName, _firstNameCtrl, Icons.person_outline),
+            _editField(
+                'Prénom', _firstName, _firstNameCtrl, Icons.person_outline),
             const SizedBox(height: 12),
             _editField('Nom', _lastName, _lastNameCtrl, Icons.person_outline),
             const SizedBox(height: 12),
             _editField('Téléphone', _phone, _phoneCtrl, Icons.phone_outlined),
             const SizedBox(height: 12),
-            _editField('Entreprise', _company, _companyCtrl, Icons.business_outlined),
+            _editField(
+                'Entreprise', _company, _companyCtrl, Icons.business_outlined),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 const Icon(Icons.email_outlined,
@@ -518,9 +513,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
             ),
-
             const Divider(height: 24),
-
             Row(
               children: [
                 Expanded(
@@ -623,9 +616,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-
           const Divider(height: 24),
-
           _infoRow(Icons.badge_outlined, 'Rôle', _getRoleLabel()),
           if (_phone.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -640,7 +631,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _editField(String label, String value, TextEditingController ctrl, IconData icon) {
+  Widget _editField(
+      String label, String value, TextEditingController ctrl, IconData icon) {
     return Row(
       children: [
         Icon(icon, size: 20, color: AppColors.textSecondary),
@@ -668,7 +660,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                style:
+                    const TextStyle(fontSize: 12, color: AppColors.textMuted)),
             Text(value,
                 style: const TextStyle(
                     fontSize: 14,
@@ -711,7 +704,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Recevoir les alertes par courriel',
             value: _notifPrefs.emailNotifications,
             onChanged: (v) {
-              setState(() => _notifPrefs = _notifPrefs.copyWith(emailNotifications: v));
+              setState(() =>
+                  _notifPrefs = _notifPrefs.copyWith(emailNotifications: v));
               _saveNotificationPreferences();
             },
           ),
@@ -722,7 +716,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Recevoir les alertes par texto',
             value: _notifPrefs.smsNotifications,
             onChanged: (v) {
-              setState(() => _notifPrefs = _notifPrefs.copyWith(smsNotifications: v));
+              setState(() =>
+                  _notifPrefs = _notifPrefs.copyWith(smsNotifications: v));
               _saveNotificationPreferences();
             },
           ),
@@ -733,7 +728,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Recevoir un résumé chaque lundi',
             value: _notifPrefs.weeklyDigest,
             onChanged: (v) {
-              setState(() => _notifPrefs = _notifPrefs.copyWith(weeklyDigest: v));
+              setState(
+                  () => _notifPrefs = _notifPrefs.copyWith(weeklyDigest: v));
               _saveNotificationPreferences();
             },
           ),
@@ -746,7 +742,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 : 'Désactivées',
             value: _notifPrefs.quietHoursEnabled,
             onChanged: (v) {
-              setState(() => _notifPrefs = _notifPrefs.copyWith(quietHoursEnabled: v));
+              setState(() =>
+                  _notifPrefs = _notifPrefs.copyWith(quietHoursEnabled: v));
               _saveNotificationPreferences();
             },
           ),
@@ -758,7 +755,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: _formatTimeOfDay(_notifPrefs.quietHoursStart),
               onTap: () async {
                 await _pickTime(_notifPrefs.quietHoursStart, (t) {
-                  setState(() => _notifPrefs = _notifPrefs.copyWith(quietHoursStart: t));
+                  setState(() =>
+                      _notifPrefs = _notifPrefs.copyWith(quietHoursStart: t));
                   _saveNotificationPreferences();
                 });
               },
@@ -770,7 +768,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: _formatTimeOfDay(_notifPrefs.quietHoursEnd),
               onTap: () async {
                 await _pickTime(_notifPrefs.quietHoursEnd, (t) {
-                  setState(() => _notifPrefs = _notifPrefs.copyWith(quietHoursEnd: t));
+                  setState(() =>
+                      _notifPrefs = _notifPrefs.copyWith(quietHoursEnd: t));
                   _saveNotificationPreferences();
                 });
               },
@@ -853,44 +852,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            RadioListTile<ThemeMode>(
-              value: ThemeMode.system,
+            RadioGroup<ThemeMode>(
               groupValue: _themeMode,
-              title: const Text('Système'),
-              subtitle: const Text('Suivre les paramètres de l\'appareil',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-              secondary: const Text('💻'),
-              activeColor: AppColors.primary,
               onChanged: (v) {
+                if (v == null) return;
                 Navigator.of(ctx).pop();
-                if (v != null) _setThemeMode(v);
+                _setThemeMode(v);
               },
-            ),
-            RadioListTile<ThemeMode>(
-              value: ThemeMode.light,
-              groupValue: _themeMode,
-              title: const Text('Clair'),
-              subtitle: const Text('Thème clair permanent',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-              secondary: const Text('☀️'),
-              activeColor: AppColors.primary,
-              onChanged: (v) {
-                Navigator.of(ctx).pop();
-                if (v != null) _setThemeMode(v);
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              value: ThemeMode.dark,
-              groupValue: _themeMode,
-              title: const Text('Sombre'),
-              subtitle: const Text('Thème sombre permanent',
-                  style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-              secondary: const Text('🌙'),
-              activeColor: AppColors.primary,
-              onChanged: (v) {
-                Navigator.of(ctx).pop();
-                if (v != null) _setThemeMode(v);
-              },
+              child: Column(
+                children: [
+                  RadioListTile<ThemeMode>(
+                    value: ThemeMode.system,
+                    title: const Text('Système'),
+                    subtitle: const Text('Suivre les paramètres de l\'appareil',
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.textMuted)),
+                    secondary: const Text('💻'),
+                    activeColor: AppColors.primary,
+                  ),
+                  RadioListTile<ThemeMode>(
+                    value: ThemeMode.light,
+                    title: const Text('Clair'),
+                    subtitle: const Text('Thème clair permanent',
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.textMuted)),
+                    secondary: const Text('☀️'),
+                    activeColor: AppColors.primary,
+                  ),
+                  RadioListTile<ThemeMode>(
+                    value: ThemeMode.dark,
+                    title: const Text('Sombre'),
+                    subtitle: const Text('Thème sombre permanent',
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.textMuted)),
+                    secondary: const Text('🌙'),
+                    activeColor: AppColors.primary,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
           ],
@@ -978,8 +977,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child:
-                        CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Text('Enregistrer'),
           ),
@@ -1038,7 +1037,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     '© 2025 ImmoGestion Inc. Tous droits réservés.',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style:
+                        TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               );
@@ -1062,8 +1062,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         label: const Text('Se déconnecter'),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.error,
-          side: const BorderSide(color: AppColors.errorLight,
-),
+          side: const BorderSide(
+            color: AppColors.errorLight,
+          ),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

@@ -93,15 +93,26 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
 
   void _showTemplateSelector() {
     final templates = [
-      const _SmsTemplate(id: 'visit_reminder', name: 'Rappel de visite',
+      const _SmsTemplate(
+          id: 'visit_reminder',
+          name: 'Rappel de visite',
           body: 'Bonjour, ceci est un rappel pour votre visite prévue.'),
-      const _SmsTemplate(id: 'lease_ready', name: 'Bail prêt',
+      const _SmsTemplate(
+          id: 'lease_ready',
+          name: 'Bail prêt',
           body: 'Bonjour, votre bail est prêt pour signature.'),
-      const _SmsTemplate(id: 'payment_reminder', name: 'Rappel de paiement',
-          body: 'Bonjour, ceci est un rappel concernant votre paiement de loyer.'),
-      const _SmsTemplate(id: 'maintenance_update', name: 'Mise à jour maintenance',
+      const _SmsTemplate(
+          id: 'payment_reminder',
+          name: 'Rappel de paiement',
+          body:
+              'Bonjour, ceci est un rappel concernant votre paiement de loyer.'),
+      const _SmsTemplate(
+          id: 'maintenance_update',
+          name: 'Mise à jour maintenance',
           body: 'Bonjour, nous vous informons de la progression des travaux.'),
-      const _SmsTemplate(id: 'generic', name: 'Message générique',
+      const _SmsTemplate(
+          id: 'generic',
+          name: 'Message générique',
           body: 'Bonjour, nous vous contactons concernant votre dossier.'),
     ];
 
@@ -171,13 +182,13 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (date == null) return;
+    if (date == null || !mounted) return;
 
     final time = await showTimePicker(
       context: context,
       initialTime: const TimeOfDay(hour: 9, minute: 0),
     );
-    if (time == null) return;
+    if (!mounted || time == null) return;
 
     setState(() {
       _scheduledAt = DateTime(
@@ -240,10 +251,12 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ImmoAppBar(title: 'Nouveau message', leading: IconButton(
-          icon: const Icon(Icons.close, color: AppColors.textSecondary),
-          onPressed: () => Navigator.pop(context),
-        )),
+      appBar: ImmoAppBar(
+          title: 'Nouveau message',
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: AppColors.textSecondary),
+            onPressed: () => Navigator.pop(context),
+          )),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
@@ -331,8 +344,7 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide:
-                      BorderSide(color: AppColors.primary, width: 1.5),
+                  borderSide: BorderSide(color: AppColors.primary, width: 1.5),
                 ),
               ),
               maxLines: 6,
@@ -345,9 +357,8 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
                 '$_charCount / 160',
                 style: TextStyle(
                   fontSize: 12,
-                  color: _charCount > 160
-                      ? AppColors.error
-                      : AppColors.textMuted,
+                  color:
+                      _charCount > 160 ? AppColors.error : AppColors.textMuted,
                 ),
               ),
             ),
@@ -403,7 +414,8 @@ class _ComposeSmsScreenState extends State<ComposeSmsScreen> {
               color: AppColors.indigo.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.schedule, size: 20, color: AppColors.indigo),
+            child:
+                const Icon(Icons.schedule, size: 20, color: AppColors.indigo),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -503,8 +515,7 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Rechercher...',
-              prefixIcon:
-                  const Icon(Icons.search, color: AppColors.textMuted),
+              prefixIcon: const Icon(Icons.search, color: AppColors.textMuted),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: const BorderSide(color: AppColors.border),
@@ -539,15 +550,14 @@ class _ContactPickerSheetState extends State<_ContactPickerSheet> {
                         return ListTile(
                           leading: CircleAvatar(
                             radius: 20,
-                            backgroundColor: AppColors.primary
-                                .withValues(alpha: 0.1),
+                            backgroundColor:
+                                AppColors.primary.withValues(alpha: 0.1),
                             child: Text(
                               lead.fullName.isNotEmpty
                                   ? lead.fullName
                                       .split(RegExp(r'\s+'))
                                       .take(2)
-                                      .map((w) =>
-                                          w.isNotEmpty ? w[0] : '')
+                                      .map((w) => w.isNotEmpty ? w[0] : '')
                                       .join()
                                       .toUpperCase()
                                   : '?',
