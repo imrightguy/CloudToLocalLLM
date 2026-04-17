@@ -11,13 +11,13 @@
     "employeeConfirmed": true,
     "morningOfSent": false,
     "outcome": null,
-    "notes": "Visite du 2½ vacant au 3e étage."
+    "notes": "Visite du 2\u00bd vacant au 3e \u00e9tage."
   },
   {
     "unitIndex": 13,
     "employeeIndex": 2,
     "leadIndex": 4,
-    "dateTime": "2026-04-17T14:00:00.000Z",
+    "dateTime": "2026-04-25T14:00:00.000Z",
     "durationMinutes": 45,
     "status": "scheduled",
     "tenantConfirmed": false,
@@ -25,7 +25,7 @@
     "employeeConfirmed": true,
     "morningOfSent": false,
     "outcome": null,
-    "notes": "Visite du local commercial C2. Client veut ouvrir un café."
+    "notes": "Visite du local commercial C2. Client veut ouvrir un caf\u00e9."
   },
   {
     "unitIndex": 9,
@@ -39,21 +39,21 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Sabrina a beaucoup aimé l'appartement mais trouve le loyer un peu élevé."
+    "notes": "Sabrina a beaucoup aim\u00e9 l'appartement mais trouve le loyer un peu \u00e9lev\u00e9."
   },
   {
     "unitIndex": 8,
     "employeeIndex": 1,
     "leadIndex": 6,
-    "dateTime": "2026-04-08T14:30:00.000Z",
+    "dateTime": "2026-05-01T14:30:00.000Z",
     "durationMinutes": 30,
-    "status": "completed",
+    "status": "scheduled",
     "tenantConfirmed": true,
     "occupantNotified": true,
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "François-Xavier veut signer rapidement. Très motivé."
+    "notes": "Fran\u00e7ois-Xavier veut signer rapidement. Tr\u00e8s motiv\u00e9."
   },
   {
     "unitIndex": 10,
@@ -67,21 +67,21 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Magalie a adoré le 303. A soumis une demande sur-le-champ."
+    "notes": "Magalie a ador\u00e9 le 303. A soumis une demande sur-le-champ."
   },
   {
     "unitIndex": 0,
     "employeeIndex": 0,
     "leadIndex": 8,
-    "dateTime": "2026-04-12T15:00:00.000Z",
+    "dateTime": "2026-04-20T15:00:00.000Z",
     "durationMinutes": 30,
-    "status": "completed",
+    "status": "scheduled",
     "tenantConfirmed": true,
     "occupantNotified": true,
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Thomas veut négocier. A proposé 1250$ au lieu de 1300$."
+    "notes": "Thomas veut n\u00e9gocier. A propos\u00e9 1250$ au lieu de 1300$."
   },
   {
     "unitIndex": 1,
@@ -95,7 +95,7 @@
     "employeeConfirmed": true,
     "morningOfSent": true,
     "outcome": "interesse",
-    "notes": "Amélie a signé le bail après cette visite."
+    "notes": "Am\u00e9lie a sign\u00e9 le bail apr\u00e8s cette visite."
   },
   {
     "unitIndex": 3,
