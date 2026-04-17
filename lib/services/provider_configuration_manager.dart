@@ -1,5 +1,3 @@
-library services.provider_configuration_manager;
-
 import 'package:logging/logging.dart';
 
 import '../services/providers/hermes_provider.dart';

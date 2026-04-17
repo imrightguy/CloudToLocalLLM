@@ -1,7 +1,3 @@
-library widgets.settings.hermes_gateway_category;
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
@@ -17,11 +13,11 @@ class HermesGatewayCategory extends StatefulWidget {
   final bool hermesEnabled;
 
   const HermesGatewayCategory({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
     this.hermesEnabled = false,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewayCategory> createState() => _HermesGatewayCategoryState();
@@ -94,14 +90,14 @@ class _HermesGatewayCategoryState extends State<HermesGatewayCategory> {
             obscureText: true,
           ),
         ),
-        ButtonBar(
+        OverflowBar(
           children: [
             ElevatedButton(
-              onPressed: _isGatewayRunning ? null : () => _startGateway(),
+              onPressed: _isGatewayRunning ? null : _startGateway,
               child: const Text('Start'),
             ),
             ElevatedButton(
-              onPressed: _isGatewayRunning ? () => _stopGateway() : null,
+              onPressed: _isGatewayRunning ? _stopGateway : null,
               style: ElevatedButton.styleFrom(foregroundColor: Colors.red),
               child: const Text('Stop'),
             ),

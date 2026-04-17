@@ -1,7 +1,4 @@
-library providers.hermes_provider;
-
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
@@ -53,15 +50,16 @@ class HermesProvider {
     _log.fine('HermesProvider request: $body');
 
     try {
-      final response = await _client.post(
-        Uri.parse(endpoint),
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
-        },
-        timeout: const Duration(seconds: 30),
-      );
+      final response = await _client
+          .post(
+            Uri.parse(endpoint),
+            body: jsonEncode(body),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $_apiKey',
+            },
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -83,13 +81,14 @@ class HermesProvider {
     final endpoint = '$_baseUrl/v1/models';
 
     try {
-      final response = await _client.get(
-        Uri.parse(endpoint),
-        headers: {
-          'Authorization': 'Bearer $_apiKey',
-        },
-        timeout: const Duration(seconds: 30),
-      );
+      final response = await _client
+          .get(
+            Uri.parse(endpoint),
+            headers: {
+              'Authorization': 'Bearer $_apiKey',
+            },
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
