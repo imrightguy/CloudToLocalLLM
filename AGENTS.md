@@ -43,7 +43,7 @@ docker compose -f docker-compose.prod.yml up -d  # production
 | `controllers/` | Request handlers (18 controllers)              |
 | `services/`    | Business logic — email, SMS, Facebook, Twilio, analytics, scheduler |
 | `models/`      | Drizzle ORM table definitions (5 models)       |
-| `routes/`      | Express route definitions (16 route files)     |
+| `routes/`      | Express route definitions (18 route files)     |
 | `database/`    | Connection pool, Drizzle schema                |
 | `middleware/`   | Auth, rate limiting, validation                |
 | `utils/`       | Logger, API response helpers                   |
@@ -66,9 +66,26 @@ docker compose -f docker-compose.prod.yml up -d  # production
 
 - `users` — admin login accounts
 - `buildings` — property management
+- `units` — rental units within buildings
 - `leases` — tenant lease tracking
 - `payments` — rent payment records
-- `renewals` — lease renewal pipeline
+- `renewal_offers` — lease renewal pipeline
+- `visits` — property visit scheduling
+- `leads` — lead tracking and pipeline
+- `employees` — employee management
+- `employee_assignments` — employee-to-lead assignments
+- `employee_schedules` — employee availability scheduling
+- `sms_campaigns` — SMS marketing campaigns
+- `sms_logs` — SMS delivery logs
+- `sms_queue` — SMS sending queue
+- `sms_opt_outs` — SMS opt-out list
+- `sms_templates` — SMS message templates
+- `notifications` — in-app notifications
+- `notification_preferences` — user notification settings
+- `communication_logs` — multi-channel communication history
+- `documents` — document storage references
+- `documents_leads` — document-lead associations
+- `refresh_tokens` — JWT refresh token storage
 
 ### Frontend
 
