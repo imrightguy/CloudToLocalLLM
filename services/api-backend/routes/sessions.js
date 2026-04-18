@@ -79,7 +79,7 @@ router.get('/current', authenticateJWT, async (req, res) => {
  * GET /auth/sessions/validate/:token
  * Validate a session token and return session data
  */
-router.get('/validate/:token', async (req, res) => {
+router.get('/validate/:token', authenticateJWT, async (req, res) => {
   try {
     const { token } = req.params;
 
@@ -136,7 +136,7 @@ router.get('/validate/:token', async (req, res) => {
  * PUT /auth/sessions/tokens
  * Update tokens for the current session
  */
-router.put('/tokens', async (req, res) => {
+router.put('/tokens', authenticateJWT, async (req, res) => {
   try {
     const { sessionToken, accessToken, idToken, refreshToken } = req.body;
 
@@ -170,7 +170,7 @@ router.put('/tokens', async (req, res) => {
  * DELETE /auth/sessions/:token
  * Invalidate a session
  */
-router.delete('/:token', async (req, res) => {
+router.delete('/:token', authenticateJWT, async (req, res) => {
   try {
     const { token } = req.params;
 
@@ -194,7 +194,7 @@ router.delete('/:token', async (req, res) => {
  * POST /auth/sessions/cleanup
  * Clean up expired sessions
  */
-router.post('/cleanup', async (req, res) => {
+router.post('/cleanup', authenticateJWT, async (req, res) => {
   try {
     const result = await db.query(
       'DELETE FROM user_sessions WHERE expires_at < NOW() OR is_active = false',
