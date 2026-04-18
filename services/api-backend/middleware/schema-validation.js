@@ -77,8 +77,18 @@ export const commonSchemas = {
   uuid: z.string().uuid(),
   email: z.string().email(),
   pagination: z.object({
-    page: z.string().regex(/^\d+$/).transform(Number).optional().default('1'),
-    limit: z.string().regex(/^\d+$/).transform(Number).optional().default('50'),
+    page: z
+      .string()
+      .regex(/^\d+$/)
+      .transform(Number)
+      .optional()
+      .default(1),
+    limit: z
+      .string()
+      .regex(/^\d+$/)
+      .transform(Number)
+      .optional()
+      .default(50),
   }),
 };
 
