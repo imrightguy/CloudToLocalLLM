@@ -5,6 +5,47 @@
 
 import express from 'express';
 import winston from 'winston';
+import { z } from 'zod';
+import { validateSchema } from '../middleware/schema-validation.js';
+
+const messageSchema = z.object({
+  role: z.string().default('user'),
+  content: z.string().default(''),
+  model: z.string().optional(),
+  status: z.string().default('sent'),
+  error: z.string().nullable().optional(),
+  timestamp: z.string().datetime({ offset: true }).optional(),
+  metadata: z.record(z.unknown()).optional(),
+});
+
+const createConversationSchema = {
+  body: z.object({
+    title: z.string().min(1).max(500),
+    model: z.string().min(1).max(200),
+    metadata: z.record(z.unknown()).optional(),
+    messages: z.array(messageSchema).optional(),
+  }),
+};
+
+const updateConversationSchema = {
+  params: z.object({
+    id: z.string().min(1).max(200),
+  }),
+  body: z.object({
+    title: z.string().min(1).max(500).optional(),
+    model: z.string().min(1).max(200).optional(),
+    metadata: z.record(z.unknown()).optional(),
+    messages: z.array(messageSchema).optional(),
+  }).refine((data) => data.title || data.model || data.metadata || data.messages, {
+    message: 'At least one field must be provided for update',
+  }),
+};
+
+const conversationIdSchema = {
+  params: z.object({
+    id: z.string().min(1).max(200),
+  }),
+};
 
 export function createConversationRoutes(
   dbMigrator,
@@ -97,7 +138,7 @@ id,
    * GET /api/conversations/:id
    * Get a specific conversation with all its messages
    */
-  router.get('/:id', async (req, res) => {
+  router.get('/:id', validateSchema(conversationIdSchema), async (req, res) => {
     try {
       const userId = req.auth?.payload?.sub || req.user?.sub;
       const conversationId = req.params.id;
@@ -175,22 +216,15 @@ id,
    * POST /api/conversations
    * Create a new conversation
    */
-  router.post('/', async (req, res) => {
+  router.post('/', validateSchema(createConversationSchema), async (req, res) => {
     try {
       const userId = req.auth?.payload?.sub || req.user?.sub;
-      const { title, model, messages } = req.body;
+      const { title, model, messages, metadata } = req.body;
 
       if (!userId) {
         return res.status(401).json({
           error: 'Unauthorized',
           message: 'User ID not found in token',
-        });
-      }
-
-      if (!title || !model) {
-        return res.status(400).json({
-          error: 'Bad Request',
-          message: 'Title and model are required',
         });
       }
 
@@ -211,7 +245,7 @@ id,
           `INSERT INTO conversations(user_id, title, model, metadata)
 VALUES($1, $2, $3, $4:: jsonb)
           RETURNING id, title, model, created_at, updated_at, metadata`,
-          [userId, title, model, JSON.stringify(req.body.metadata || {})],
+          [userId, title, model, JSON.stringify(metadata || {})],
         );
 
         const conversation = conversationRows[0];
@@ -290,7 +324,7 @@ VALUES($1, $2, $3, $4:: jsonb)
    * PUT /api/conversations/:id
    * Update a conversation (title, metadata, or add/update messages)
    */
-  router.put('/:id', async (req, res) => {
+  router.put('/:id', validateSchema(updateConversationSchema), async (req, res) => {
     try {
       const userId = req.auth?.payload?.sub || req.user?.sub;
       const conversationId = req.params.id;
@@ -436,7 +470,7 @@ VALUES($1, $2, $3, $4, $5:: jsonb)`,
    * DELETE /api/conversations/:id
    * Delete a conversation and all its messages
    */
-  router.delete('/:id', async (req, res) => {
+  router.delete('/:id', validateSchema(conversationIdSchema), async (req, res) => {
     try {
       const userId = req.auth?.payload?.sub || req.user?.sub;
       const conversationId = req.params.id;
