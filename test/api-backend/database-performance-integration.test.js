@@ -1,8 +1,6 @@
-import {} from "@jest/globals";
+import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
 /**
-
-
  * Database Performance Metrics API Integration Tests
  *
  * Tests for database performance metrics endpoints
@@ -11,15 +9,24 @@ import {} from "@jest/globals";
  * Requirements: 9.7 (Database Performance Metrics)
  */
 
+jest.unstable_mockModule(
+  "../../services/api-backend/middleware/admin-auth.js",
+  () => ({
+    adminAuth: () => (req, res, next) => next(),
+  }),
+);
+
 import request from "supertest";
 import express from "express";
-import databasePerformanceRoutes from "../../services/api-backend/routes/database-performance.js";
 import {
   trackQuery,
   resetPerformanceMetrics,
   initializeQueryTracking,
   setSlowQueryThreshold,
 } from "../../services/api-backend/database/query-performance-tracker.js";
+
+const { default: databasePerformanceRoutes } =
+  await import("../../services/api-backend/routes/database-performance.js");
 
 describe("Database Performance Metrics API", () => {
   let app;
@@ -232,7 +239,6 @@ describe("Database Performance Metrics API", () => {
     });
 
     it("should apply new threshold to subsequent queries", async () => {
-      // Set threshold to 100
       await request(app)
         .post("/database/performance/threshold")
         .set("Content-Type", "application/json")
@@ -245,7 +251,6 @@ describe("Database Performance Metrics API", () => {
       );
       expect(metricsResponse.body.data.totalSlowQueries).toBe(1);
 
-      // Change threshold to 200
       await request(app)
         .post("/database/performance/threshold")
         .set("Content-Type", "application/json")
@@ -254,7 +259,6 @@ describe("Database Performance Metrics API", () => {
       trackQuery("SELECT 2", 150, { queryType: "SELECT" });
 
       metricsResponse = await request(app).get("/database/performance/metrics");
-      // Second query should not be slow with new threshold
       expect(metricsResponse.body.data.totalSlowQueries).toBe(1);
     });
   });
@@ -284,7 +288,6 @@ describe("Database Performance Metrics API", () => {
 
   describe("Error handling", () => {
     it("should handle errors gracefully", async () => {
-      // This test ensures error handling middleware works
       const response = await request(app).get("/database/performance/metrics");
 
       expect(response.status).toBe(200);
