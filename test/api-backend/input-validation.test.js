@@ -43,6 +43,9 @@ import {
   sanitizeInput,
   validateAndSanitizeProfile,
   validateAndSanitizePreferences,
+  validateInput,
+  logValidationError,
+  ValidationError,
 } from "../../services/api-backend/utils/input-validation.js";
 
 describe("Input Validation Utilities", () => {
@@ -604,6 +607,85 @@ describe("Input Validation Utilities", () => {
       };
       const result = validateAndSanitizeProfile(profile);
       expect(result.valid).toBe(false); // Contains HTML characters
+    });
+  });
+
+  describe("validateInput", () => {
+    it("should validate correct primitive types", () => {
+      expect(() => validateInput("hello", "name", "string")).not.toThrow();
+      expect(() => validateInput(42, "age", "number")).not.toThrow();
+      expect(() => validateInput(true, "active", "boolean")).not.toThrow();
+    });
+
+    it("should reject incorrect primitive types", () => {
+      expect(() => validateInput(42, "name", "string")).toThrow(
+        "Invalid name: expected string, got number",
+      );
+      expect(() => validateInput("true", "active", "boolean")).toThrow(
+        "Invalid active: expected boolean, got string",
+      );
+    });
+
+    it("should validate UUID format", () => {
+      expect(() =>
+        validateInput("550e8400-e29b-41d4-a716-446655440000", "id", "uuid"),
+      ).not.toThrow();
+    });
+
+    it("should reject invalid UUID format", () => {
+      expect(() =>
+        validateInput("not-a-uuid", "id", "uuid"),
+      ).toThrow("Invalid id: expected UUID");
+    });
+
+    it("should reject non-string UUID input", () => {
+      expect(() => validateInput(123, "id", "uuid")).toThrow(
+        "Invalid id: expected UUID",
+      );
+    });
+
+    it("should reject UUID with wrong segment lengths", () => {
+      expect(() =>
+        validateInput("550e8400-e29b-41d4-a716", "id", "uuid"),
+      ).toThrow("Invalid id: expected UUID");
+    });
+  });
+
+  describe("ValidationError", () => {
+    it("should create error with message", () => {
+      const err = new ValidationError("test error");
+      expect(err.message).toBe("test error");
+      expect(err.name).toBe("ValidationError");
+      expect(err.field).toBeNull();
+      expect(err.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("should create error with field and code", () => {
+      const err = new ValidationError("bad input", "email", "INVALID_EMAIL");
+      expect(err.message).toBe("bad input");
+      expect(err.field).toBe("email");
+      expect(err.code).toBe("INVALID_EMAIL");
+    });
+
+    it("should be instanceof Error", () => {
+      const err = new ValidationError("test");
+      expect(err).toBeInstanceOf(Error);
+    });
+  });
+
+  describe("logValidationError", () => {
+    it("should call logger.warn with structured data", () => {
+      logValidationError("POST /users", "user-1", "email", "invalid format");
+    });
+
+    it("should accept optional context", () => {
+      logValidationError(
+        "POST /users",
+        "user-1",
+        "age",
+        "too low",
+        { value: -1 },
+      );
     });
   });
 
