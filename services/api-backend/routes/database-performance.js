@@ -17,6 +17,7 @@ import {
   resetPerformanceMetrics,
 } from '../database/query-performance-tracker.js';
 import logger from '../logger.js';
+import { adminAuth } from '../middleware/admin-auth.js';
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ const router = express.Router();
  * - Query statistics by type
  * - Recent queries and slow queries
  */
-router.get('/metrics', (req, res) => {
+router.get('/metrics', adminAuth(['view_system_metrics']), (req, res) => {
   try {
     const metrics = getPerformanceMetrics();
 
@@ -70,7 +71,7 @@ router.get('/metrics', (req, res) => {
  * - Query text and parameters
  * - Detection timestamp
  */
-router.get('/slow-queries', (req, res) => {
+router.get('/slow-queries', adminAuth(['view_system_metrics']), (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit || '50', 10), 100);
     const slowQueries = getSlowQueries(limit);
@@ -108,7 +109,7 @@ router.get('/slow-queries', (req, res) => {
  * - Count, average time, min/max times
  * - Slow query count and percentage
  */
-router.get('/stats', (req, res) => {
+router.get('/stats', adminAuth(['view_system_metrics']), (req, res) => {
   try {
     const stats = getQueryStatsByType();
 
@@ -143,7 +144,7 @@ router.get('/stats', (req, res) => {
  * - Analysis by query type
  * - Recommendations for optimization
  */
-router.get('/analysis', (req, res) => {
+router.get('/analysis', adminAuth(['view_system_metrics']), (req, res) => {
   try {
     const analysis = analyzePerformance();
 
@@ -179,7 +180,7 @@ router.get('/analysis', (req, res) => {
  * Returns:
  * - Updated threshold configuration
  */
-router.post('/threshold', (req, res) => {
+router.post('/threshold', adminAuth(['manage_system']), (req, res) => {
   try {
     const { thresholdMs } = req.body;
 
@@ -221,7 +222,7 @@ router.post('/threshold', (req, res) => {
  * Returns:
  * - Reset confirmation
  */
-router.post('/reset', (req, res) => {
+router.post('/reset', adminAuth(['manage_system']), (req, res) => {
   try {
     const result = resetPerformanceMetrics();
 
