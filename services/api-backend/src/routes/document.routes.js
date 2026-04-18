@@ -122,7 +122,7 @@ router.get('/', authenticateToken, asyncHandler(documentController.getDocuments)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(documentController.uploadDocument));
+router.post('/', authenticateToken, validate(documentSchemas.create), asyncHandler(documentController.uploadDocument));
 
 /**
  * @swagger

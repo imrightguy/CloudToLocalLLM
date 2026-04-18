@@ -60,58 +60,17 @@ describe('document.controller', () => {
   // ─── uploadDocument ───
 
   describe('uploadDocument', () => {
-    it('returns 400 when name is missing', async () => {
-      const req = {
-        body: { type: 'lease', url: 'https://example.com/doc.pdf' },
-      };
-      const res = mockRes();
-
-      await uploadDocument(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.body.success).toBe(false);
-      expect(res.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('returns 400 when type is missing', async () => {
-      const req = {
-        body: { name: 'Lease.pdf', url: 'https://example.com/doc.pdf' },
-      };
-      const res = mockRes();
-
-      await uploadDocument(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.body.error.message).toMatch(/name.*type.*url/i);
-    });
-
-    it('returns 400 when url is missing', async () => {
-      const req = {
-        body: { name: 'Lease.pdf', type: 'lease' },
-      };
-      const res = mockRes();
-
-      await uploadDocument(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-    });
-
-    it('returns 400 when all required fields are missing', async () => {
-      const req = { body: {} };
-      const res = mockRes();
-
-      await uploadDocument(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('returns 201 on successful upload with all fields', async () => {
+    it('creates document when valid data is provided by middleware', async () => {
       const mockDoc = {
         id: 'doc-1',
         name: 'Lease.pdf',
         type: 'lease',
         url: 'https://example.com/doc.pdf',
+        category: 'legal',
+        fileSize: 1024,
+        mimeType: 'application/pdf',
+        referenceId: 'lead-1',
+        referenceType: 'lead',
         status: 'pending',
         isActive: true,
       };
@@ -145,7 +104,7 @@ describe('document.controller', () => {
       expect(db.values).toHaveBeenCalled();
     });
 
-    it('returns 201 on successful upload with only required fields', async () => {
+    it('creates document with only required fields (middleware strips extras)', async () => {
       const mockDoc = {
         id: 'doc-2',
         name: 'Application.pdf',

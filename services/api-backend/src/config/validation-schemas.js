@@ -299,12 +299,35 @@ const communicationSchemas = {
   },
 };
 
+const validDocumentTypes = ['lease', 'application', 'id', 'income_proof', 'other'];
+const validReferenceTypes = ['lead', 'building', 'unit'];
+
 const documentSchemas = {
+  create: {
+    body: Joi.object({
+      name: Joi.string().trim().min(1).max(255).required(),
+      type: Joi.string().valid(...validDocumentTypes).required(),
+      category: Joi.string().trim().max(100),
+      fileSize: Joi.number().integer().min(0),
+      mimeType: Joi.string().trim().max(100),
+      url: Joi.string().uri({ scheme: ['http', 'https'] }).required(),
+      referenceId: uuid,
+      referenceType: Joi.string().valid(...validReferenceTypes),
+      metadata: Joi.object().max(50).default({}),
+    }),
+  },
   update: {
     params: Joi.object({ id: uuid }),
     body: Joi.object({
       name: Joi.string().trim().min(1).max(255),
+      type: Joi.string().valid(...validDocumentTypes),
       category: Joi.string().trim().max(100),
+      fileSize: Joi.number().integer().min(0),
+      mimeType: Joi.string().trim().max(100),
+      url: Joi.string().uri({ scheme: ['http', 'https'] }),
+      referenceId: uuid,
+      referenceType: Joi.string().valid(...validReferenceTypes),
+      metadata: Joi.object().max(50),
     }).min(1),
   },
   approve: {

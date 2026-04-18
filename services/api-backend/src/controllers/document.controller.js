@@ -14,13 +14,6 @@ exports.uploadDocument = async (req, res) => {
       name, type, category, fileSize, mimeType, url, referenceId, referenceType, metadata, uploadedBy,
     } = req.body;
 
-    if (!name || !type || !url) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'name, type, and url are required', code: 'VALIDATION_ERROR' },
-      });
-    }
-
     const [document] = await db.insert(documentsTable).values({
       name,
       type,
