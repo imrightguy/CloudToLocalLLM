@@ -10,6 +10,7 @@
 import express from 'express';
 import { getCacheStats, clearCache } from '../database/cached-query-wrapper.js';
 import { getQueryCache } from '../database/query-cache.js';
+import { adminAuth } from '../middleware/admin-auth.js';
 import logger from '../logger.js';
 
 const router = express.Router();
@@ -39,7 +40,7 @@ router.get('/stats', (req, res) => {
  * POST /cache/clear
  * Clear all cache entries
  */
-router.post('/clear', (req, res) => {
+router.post('/clear', adminAuth(['manage_system']), (req, res) => {
   try {
     clearCache();
     res.json({
@@ -60,7 +61,7 @@ router.post('/clear', (req, res) => {
  * POST /cache/invalidate
  * Invalidate cache by pattern
  */
-router.post('/invalidate', (req, res) => {
+router.post('/invalidate', adminAuth(['manage_system']), (req, res) => {
   try {
     const { pattern, table } = req.body;
 
@@ -106,7 +107,7 @@ router.post('/invalidate', (req, res) => {
  * GET /cache/reset-metrics
  * Reset cache metrics
  */
-router.get('/reset-metrics', (req, res) => {
+router.get('/reset-metrics', adminAuth(['manage_system']), (req, res) => {
   try {
     const cache = getQueryCache();
     cache.resetMetrics();

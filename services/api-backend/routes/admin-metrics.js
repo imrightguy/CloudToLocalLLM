@@ -8,6 +8,7 @@
 
 import express from 'express';
 import logger from '../logger.js';
+import { adminAuth } from '../middleware/admin-auth.js';
 import {
   exportAdminMetricsAsText,
   initializeAdminMetrics,
@@ -25,7 +26,7 @@ initializeAdminMetrics();
  *
  * Response: text/plain with Prometheus metrics
  */
-router.get('/metrics', async (req, res) => {
+router.get('/metrics', adminAuth(['view_system_metrics']), async (req, res) => {
   try {
     res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
     const metrics = await exportAdminMetricsAsText();
