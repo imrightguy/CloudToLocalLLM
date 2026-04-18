@@ -54,6 +54,9 @@
     "nodemon": "^3.1.14",
     "supertest": "^6.3.4"
   },
+  "overrides": {
+    "esbuild": "^0.25.0"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
