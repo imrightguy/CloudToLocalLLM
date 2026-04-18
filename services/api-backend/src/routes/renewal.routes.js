@@ -175,7 +175,7 @@ router.get('/lease/:id', authenticateToken, asyncHandler(renewalController.getRe
  *       200:
  *         description: Renewal offer details
  */
-router.get('/:id', authenticateToken, asyncHandler(renewalController.getRenewalOfferById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(renewalController.getRenewalOfferById));
 
 /**
  * @swagger

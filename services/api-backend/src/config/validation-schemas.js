@@ -10,6 +10,8 @@ const pagination = Joi.object({
 
 const uuidParam = { params: Joi.object({ id: uuid }) };
 
+const buildingIdParam = { params: Joi.object({ buildingId: uuid }) };
+
 const buildingSchemas = {
   create: {
     body: Joi.object({
@@ -173,6 +175,12 @@ const employeeSchemas = {
       role: Joi.string().valid('manager', 'agent', 'maintenance').required(),
     }),
   },
+  removeAssignment: {
+    params: Joi.object({
+      id: uuid,
+      assignmentId: uuid,
+    }),
+  },
 };
 
 const visitSchemas = {
@@ -298,6 +306,9 @@ const documentSchemas = {
       name: Joi.string().trim().min(1).max(255),
       category: Joi.string().trim().max(100),
     }).min(1),
+  },
+  approve: {
+    params: Joi.object({ id: uuid }),
   },
   reject: {
     params: Joi.object({ id: uuid }),
@@ -474,6 +485,7 @@ const smsCampaignSchemas = {
 
 module.exports = {
   uuidParam,
+  buildingIdParam,
   pagination,
   buildingSchemas,
   leadSchemas,

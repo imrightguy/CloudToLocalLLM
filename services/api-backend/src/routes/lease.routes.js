@@ -223,7 +223,7 @@ router.get('/unit/:id', authenticateToken, asyncHandler(leaseController.getLease
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(leaseController.getLeaseById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getLeaseById));
 
 /**
  * @swagger

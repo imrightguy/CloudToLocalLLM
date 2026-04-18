@@ -263,7 +263,7 @@ router.post('/units', authenticateToken, validate(buildingSchemas.createUnit), a
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/units/:id', authenticateToken, asyncHandler(buildingController.getUnitById));
+router.get('/units/:id', authenticateToken, validate(uuidParam), asyncHandler(buildingController.getUnitById));
 
 /**
  * @swagger
@@ -297,7 +297,7 @@ router.get('/units/:id', authenticateToken, asyncHandler(buildingController.getU
  *                       items:
  *                         $ref: '#/components/schemas/Lease'
  */
-router.get('/units/:id/leases', authenticateToken, asyncHandler(leaseController.getLeasesByUnit));
+router.get('/units/:id/leases', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getLeasesByUnit));
 
 /**
  * @swagger
@@ -426,7 +426,7 @@ router.delete('/units/:id', authenticateToken, validate(uuidParam), asyncHandler
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(buildingController.getBuildingById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(buildingController.getBuildingById));
 
 /**
  * @swagger
@@ -466,7 +466,7 @@ router.get('/:id', authenticateToken, asyncHandler(buildingController.getBuildin
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id/leases', authenticateToken, asyncHandler(leaseController.getLeasesByBuilding));
+router.get('/:id/leases', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getLeasesByBuilding));
 
 /**
  * @swagger

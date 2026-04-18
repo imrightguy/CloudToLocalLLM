@@ -165,7 +165,7 @@ router.post('/', authenticateToken, validate(visitSchemas.create), asyncHandler(
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(visitController.getVisitById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(visitController.getVisitById));
 
 /**
  * @swagger

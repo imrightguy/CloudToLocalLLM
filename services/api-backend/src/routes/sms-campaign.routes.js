@@ -158,7 +158,7 @@ router.get('/templates/preview', authenticateToken, asyncHandler(smsCampaignCont
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/templates/:id', authenticateToken, asyncHandler(smsCampaignController.getTemplateByIdHandler));
+router.get('/templates/:id', authenticateToken, validate(uuidParam), asyncHandler(smsCampaignController.getTemplateByIdHandler));
 
 /**
  * @swagger
@@ -362,7 +362,7 @@ router.get('/campaigns', authenticateToken, asyncHandler(smsCampaignController.g
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/campaigns/:id', authenticateToken, asyncHandler(smsCampaignController.getCampaignByIdHandler));
+router.get('/campaigns/:id', authenticateToken, validate(uuidParam), asyncHandler(smsCampaignController.getCampaignByIdHandler));
 
 /**
  * @swagger
@@ -479,7 +479,7 @@ router.delete('/campaigns/:id', authenticateToken, validate(uuidParam), asyncHan
  *                     data:
  *                       $ref: '#/components/schemas/SmsCampaign'
  */
-router.post('/campaigns/:id/activate', authenticateToken, asyncHandler(smsCampaignController.activateCampaignHandler));
+router.post('/campaigns/:id/activate', authenticateToken, validate(uuidParam), asyncHandler(smsCampaignController.activateCampaignHandler));
 
 /**
  * @swagger
@@ -514,6 +514,6 @@ router.post('/campaigns/:id/activate', authenticateToken, asyncHandler(smsCampai
  *                         status: { type: string }
  *                         recipientCount: { type: integer }
  */
-router.post('/campaigns/:id/execute', authenticateToken, asyncHandler(smsCampaignController.executeCampaignHandler));
+router.post('/campaigns/:id/execute', authenticateToken, validate(uuidParam), asyncHandler(smsCampaignController.executeCampaignHandler));
 
 module.exports = router;

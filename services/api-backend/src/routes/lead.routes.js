@@ -177,7 +177,7 @@ router.post('/', authenticateToken, validate(leadSchemas.create), asyncHandler(l
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(leadController.getLeadById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(leadController.getLeadById));
 
 /**
  * @swagger

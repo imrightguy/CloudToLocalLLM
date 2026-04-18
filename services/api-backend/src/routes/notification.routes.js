@@ -3,7 +3,7 @@ const router = express.Router();
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
 const validate = require('../middleware/validate');
-const { notificationSchemas } = require('../config/validation-schemas');
+const { notificationSchemas, uuidParam } = require('../config/validation-schemas');
 const notificationController = require('../controllers/notification.controller');
 
 /**
@@ -200,6 +200,6 @@ router.patch('/read-all', authenticateToken, asyncHandler(notificationController
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/:id/read', authenticateToken, asyncHandler(notificationController.markAsRead));
+router.patch('/:id/read', authenticateToken, validate(uuidParam), asyncHandler(notificationController.markAsRead));
 
 module.exports = router;

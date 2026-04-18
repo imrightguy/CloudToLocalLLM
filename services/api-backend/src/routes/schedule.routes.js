@@ -135,7 +135,7 @@ router.post('/', authenticateToken, validate(scheduleSchemas.create), asyncHandl
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(scheduleController.getScheduleById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(scheduleController.getScheduleById));
 
 /**
  * @swagger

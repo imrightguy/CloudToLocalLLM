@@ -5,7 +5,7 @@ const employeeController = require('../controllers/employee.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
 const validate = require('../middleware/validate');
-const { employeeSchemas, uuidParam } = require('../config/validation-schemas');
+const { employeeSchemas, uuidParam, buildingIdParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -150,7 +150,7 @@ router.post('/', authenticateToken, validate(employeeSchemas.create), asyncHandl
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(employeeController.getEmployeeById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(employeeController.getEmployeeById));
 
 /**
  * @swagger
@@ -329,7 +329,7 @@ router.post('/:id/assign', authenticateToken, validate(employeeSchemas.assign), 
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id/assign/:assignmentId', authenticateToken, asyncHandler((req, res) => employeeController.removeAssignment(req, res, req.params.assignmentId)));
+router.delete('/:id/assign/:assignmentId', authenticateToken, validate(employeeSchemas.removeAssignment), asyncHandler((req, res) => employeeController.removeAssignment(req, res, req.params.assignmentId)));
 
 /**
  * @swagger
@@ -363,6 +363,6 @@ router.delete('/:id/assign/:assignmentId', authenticateToken, asyncHandler((req,
  *                       items:
  *                         $ref: '#/components/schemas/Employee'
  */
-router.get('/building/:buildingId', authenticateToken, asyncHandler((req, res) => employeeController.getBuildingEmployees(req, res, req.params.buildingId)));
+router.get('/building/:buildingId', authenticateToken, validate(buildingIdParam), asyncHandler((req, res) => employeeController.getBuildingEmployees(req, res, req.params.buildingId)));
 
 module.exports = router;

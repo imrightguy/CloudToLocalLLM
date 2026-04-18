@@ -201,7 +201,7 @@ router.get('/search', authenticateToken, asyncHandler(documentController.searchD
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', authenticateToken, asyncHandler(documentController.getDocumentById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(documentController.getDocumentById));
 
 /**
  * @swagger
@@ -318,7 +318,7 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(docum
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id/approve', authenticateToken, asyncHandler(documentController.approveDocument));
+router.put('/:id/approve', authenticateToken, validate(documentSchemas.approve), asyncHandler(documentController.approveDocument));
 
 /**
  * @swagger

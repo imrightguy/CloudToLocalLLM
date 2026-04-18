@@ -228,7 +228,7 @@ router.get('/logs', authenticateToken, asyncHandler(communicationController.getC
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/logs/:id', authenticateToken, asyncHandler(communicationController.getCommunicationLogById));
+router.get('/logs/:id', authenticateToken, validate(uuidParam), asyncHandler(communicationController.getCommunicationLogById));
 
 /**
  * @swagger

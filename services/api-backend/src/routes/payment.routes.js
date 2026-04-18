@@ -182,7 +182,7 @@ router.post('/', authenticateToken, validate(paymentSchemas.create), asyncHandle
  *       404:
  *         description: Payment not found
  */
-router.get('/:id', authenticateToken, asyncHandler(paymentController.getPaymentById));
+router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(paymentController.getPaymentById));
 
 /**
  * @swagger
