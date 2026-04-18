@@ -4,6 +4,8 @@ const router = express.Router();
 const scheduleController = require('../controllers/schedule.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { scheduleSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -96,7 +98,7 @@ router.get('/', authenticateToken, asyncHandler(scheduleController.getSchedules)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(scheduleController.createSchedule));
+router.post('/', authenticateToken, validate(scheduleSchemas.create), asyncHandler(scheduleController.createSchedule));
 
 /**
  * @swagger
@@ -187,7 +189,7 @@ router.get('/:id', authenticateToken, asyncHandler(scheduleController.getSchedul
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', authenticateToken, asyncHandler(scheduleController.updateSchedule));
+router.put('/:id', authenticateToken, validate(scheduleSchemas.update), asyncHandler(scheduleController.updateSchedule));
 
 /**
  * @swagger
@@ -219,7 +221,7 @@ router.put('/:id', authenticateToken, asyncHandler(scheduleController.updateSche
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(scheduleController.deleteSchedule));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(scheduleController.deleteSchedule));
 
 /**
  * @swagger

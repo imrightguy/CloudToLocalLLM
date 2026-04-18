@@ -4,6 +4,8 @@ const router = express.Router();
 const visitController = require('../controllers/visit.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { visitSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -126,7 +128,7 @@ router.get('/', authenticateToken, asyncHandler(visitController.getVisits));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(visitController.createVisit));
+router.post('/', authenticateToken, validate(visitSchemas.create), asyncHandler(visitController.createVisit));
 
 /**
  * @swagger
@@ -215,7 +217,7 @@ router.get('/:id', authenticateToken, asyncHandler(visitController.getVisitById)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', authenticateToken, asyncHandler(visitController.updateVisit));
+router.put('/:id', authenticateToken, validate(visitSchemas.update), asyncHandler(visitController.updateVisit));
 
 /**
  * @swagger
@@ -247,7 +249,7 @@ router.put('/:id', authenticateToken, asyncHandler(visitController.updateVisit))
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(visitController.deleteVisit));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visitController.deleteVisit));
 
 /**
  * @swagger
@@ -292,6 +294,6 @@ router.delete('/:id', authenticateToken, asyncHandler(visitController.deleteVisi
  *                     data:
  *                       $ref: '#/components/schemas/Visit'
  */
-router.patch('/:id/status', authenticateToken, asyncHandler(visitController.updateVisitStatus));
+router.patch('/:id/status', authenticateToken, validate(visitSchemas.updateStatus), asyncHandler(visitController.updateVisitStatus));
 
 module.exports = router;

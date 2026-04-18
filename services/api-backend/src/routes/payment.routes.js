@@ -4,6 +4,8 @@ const router = express.Router();
 const paymentController = require('../controllers/payment.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { paymentSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -156,7 +158,7 @@ router.get('/lease/:id/late-fee-preview', authenticateToken, asyncHandler(paymen
  *       201:
  *         description: Payment created
  */
-router.post('/', authenticateToken, asyncHandler(paymentController.createPayment));
+router.post('/', authenticateToken, validate(paymentSchemas.create), asyncHandler(paymentController.createPayment));
 
 /**
  * @swagger
@@ -221,7 +223,7 @@ router.get('/:id', authenticateToken, asyncHandler(paymentController.getPaymentB
  *       200:
  *         description: Payment updated
  */
-router.patch('/:id', authenticateToken, asyncHandler(paymentController.updatePayment));
+router.patch('/:id', authenticateToken, validate(paymentSchemas.update), asyncHandler(paymentController.updatePayment));
 
 /**
  * @swagger
@@ -243,7 +245,7 @@ router.patch('/:id', authenticateToken, asyncHandler(paymentController.updatePay
  *       200:
  *         description: Payment deleted
  */
-router.delete('/:id', authenticateToken, asyncHandler(paymentController.deletePayment));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(paymentController.deletePayment));
 
 /**
  * @swagger
@@ -277,6 +279,6 @@ router.delete('/:id', authenticateToken, asyncHandler(paymentController.deletePa
  *       200:
  *         description: Payment status updated
  */
-router.patch('/:id/status', authenticateToken, asyncHandler(paymentController.updatePaymentStatus));
+router.patch('/:id/status', authenticateToken, validate(paymentSchemas.updateStatus), asyncHandler(paymentController.updatePaymentStatus));
 
 module.exports = router;

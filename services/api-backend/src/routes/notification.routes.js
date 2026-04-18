@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { notificationSchemas } = require('../config/validation-schemas');
 const notificationController = require('../controllers/notification.controller');
 
 /**
@@ -76,7 +78,7 @@ router.get('/me/preferences', authenticateToken, asyncHandler(notificationContro
  *                     data:
  *                       type: object
  */
-router.patch('/me/preferences', authenticateToken, asyncHandler(notificationController.updatePreferences));
+router.patch('/me/preferences', authenticateToken, validate(notificationSchemas.updatePreferences), asyncHandler(notificationController.updatePreferences));
 
 /**
  * @swagger

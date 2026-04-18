@@ -4,6 +4,8 @@ const router = express.Router();
 const documentController = require('../controllers/document.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { documentSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -247,7 +249,7 @@ router.get('/:id', authenticateToken, asyncHandler(documentController.getDocumen
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', authenticateToken, asyncHandler(documentController.updateDocument));
+router.put('/:id', authenticateToken, validate(documentSchemas.update), asyncHandler(documentController.updateDocument));
 
 /**
  * @swagger
@@ -279,7 +281,7 @@ router.put('/:id', authenticateToken, asyncHandler(documentController.updateDocu
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(documentController.deleteDocument));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(documentController.deleteDocument));
 
 /**
  * @swagger
@@ -362,6 +364,6 @@ router.put('/:id/approve', authenticateToken, asyncHandler(documentController.ap
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id/reject', authenticateToken, asyncHandler(documentController.rejectDocument));
+router.put('/:id/reject', authenticateToken, validate(documentSchemas.reject), asyncHandler(documentController.rejectDocument));
 
 module.exports = router;

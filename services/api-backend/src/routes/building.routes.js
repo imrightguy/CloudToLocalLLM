@@ -5,6 +5,8 @@ const buildingController = require('../controllers/building.controller');
 const leaseController = require('../controllers/lease.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { buildingSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -112,7 +114,7 @@ router.get('/', authenticateToken, asyncHandler(buildingController.getBuildings)
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
-router.post('/', authenticateToken, asyncHandler(buildingController.createBuilding));
+router.post('/', authenticateToken, validate(buildingSchemas.create), asyncHandler(buildingController.createBuilding));
 
 /**
  * @swagger
@@ -224,7 +226,7 @@ router.get('/units', authenticateToken, asyncHandler(buildingController.getUnits
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/units', authenticateToken, asyncHandler(buildingController.createUnit));
+router.post('/units', authenticateToken, validate(buildingSchemas.createUnit), asyncHandler(buildingController.createUnit));
 
 /**
  * @swagger
@@ -354,7 +356,7 @@ router.get('/units/:id/leases', authenticateToken, asyncHandler(leaseController.
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/units/:id', authenticateToken, asyncHandler(buildingController.updateUnit));
+router.put('/units/:id', authenticateToken, validate(buildingSchemas.updateUnit), asyncHandler(buildingController.updateUnit));
 
 /**
  * @swagger
@@ -387,7 +389,7 @@ router.put('/units/:id', authenticateToken, asyncHandler(buildingController.upda
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/units/:id', authenticateToken, asyncHandler(buildingController.deleteUnit));
+router.delete('/units/:id', authenticateToken, validate(uuidParam), asyncHandler(buildingController.deleteUnit));
 
 /**
  * @swagger
@@ -520,7 +522,7 @@ router.get('/:id/leases', authenticateToken, asyncHandler(leaseController.getLea
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', authenticateToken, asyncHandler(buildingController.updateBuilding));
+router.put('/:id', authenticateToken, validate(buildingSchemas.update), asyncHandler(buildingController.updateBuilding));
 
 /**
  * @swagger
@@ -553,5 +555,5 @@ router.put('/:id', authenticateToken, asyncHandler(buildingController.updateBuil
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(buildingController.deleteBuilding));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(buildingController.deleteBuilding));
 module.exports = router;

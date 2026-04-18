@@ -4,6 +4,8 @@ const router = express.Router();
 const communicationController = require('../controllers/communication.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { communicationSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -145,7 +147,7 @@ router.get('/activity', authenticateToken, asyncHandler(communicationController.
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(communicationController.logCommunication));
+router.post('/', authenticateToken, validate(communicationSchemas.log), asyncHandler(communicationController.logCommunication));
 
 /**
  * @swagger
@@ -277,7 +279,7 @@ router.get('/logs/:id', authenticateToken, asyncHandler(communicationController.
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/logs/:id', authenticateToken, asyncHandler(communicationController.updateCommunicationLog));
+router.put('/logs/:id', authenticateToken, validate(communicationSchemas.updateLog), asyncHandler(communicationController.updateCommunicationLog));
 
 /**
  * @swagger
@@ -309,6 +311,6 @@ router.put('/logs/:id', authenticateToken, asyncHandler(communicationController.
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/logs/:id', authenticateToken, asyncHandler(communicationController.deleteCommunicationLog));
+router.delete('/logs/:id', authenticateToken, validate(uuidParam), asyncHandler(communicationController.deleteCommunicationLog));
 
 module.exports = router;

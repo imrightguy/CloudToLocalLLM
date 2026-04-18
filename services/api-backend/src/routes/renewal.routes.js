@@ -4,6 +4,8 @@ const router = express.Router();
 const renewalController = require('../controllers/renewal.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { renewalSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -56,7 +58,7 @@ router.get('/expiring', authenticateToken, asyncHandler(renewalController.getLea
  *       200:
  *         description: Bulk renewal offers generated
  */
-router.post('/bulk', authenticateToken, asyncHandler(renewalController.generateBulkRenewalOffers));
+router.post('/bulk', authenticateToken, validate(renewalSchemas.bulk), asyncHandler(renewalController.generateBulkRenewalOffers));
 
 /**
  * @swagger
@@ -131,7 +133,7 @@ router.get('/', authenticateToken, asyncHandler(renewalController.getRenewalOffe
  *       201:
  *         description: Renewal offer created
  */
-router.post('/', authenticateToken, asyncHandler(renewalController.createRenewalOffer));
+router.post('/', authenticateToken, validate(renewalSchemas.create), asyncHandler(renewalController.createRenewalOffer));
 
 /**
  * @swagger
@@ -205,7 +207,7 @@ router.get('/:id', authenticateToken, asyncHandler(renewalController.getRenewalO
  *       200:
  *         description: Renewal offer updated
  */
-router.patch('/:id', authenticateToken, asyncHandler(renewalController.updateRenewalOffer));
+router.patch('/:id', authenticateToken, validate(renewalSchemas.update), asyncHandler(renewalController.updateRenewalOffer));
 
 /**
  * @swagger
@@ -240,7 +242,7 @@ router.patch('/:id', authenticateToken, asyncHandler(renewalController.updateRen
  *       200:
  *         description: Renewal offer status updated
  */
-router.patch('/:id/status', authenticateToken, asyncHandler(renewalController.updateRenewalOfferStatus));
+router.patch('/:id/status', authenticateToken, validate(renewalSchemas.updateStatus), asyncHandler(renewalController.updateRenewalOfferStatus));
 
 /**
  * @swagger
@@ -272,6 +274,6 @@ router.patch('/:id/status', authenticateToken, asyncHandler(renewalController.up
  *       200:
  *         description: Notification sent
  */
-router.post('/:id/send', authenticateToken, asyncHandler(renewalController.sendRenewalNotification));
+router.post('/:id/send', authenticateToken, validate(renewalSchemas.send), asyncHandler(renewalController.sendRenewalNotification));
 
 module.exports = router;

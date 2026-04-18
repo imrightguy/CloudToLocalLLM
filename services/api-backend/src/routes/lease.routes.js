@@ -4,6 +4,8 @@ const router = express.Router();
 const leaseController = require('../controllers/lease.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { leaseSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -116,7 +118,7 @@ router.get('/', authenticateToken, asyncHandler(leaseController.getLeases));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(leaseController.createLease));
+router.post('/', authenticateToken, validate(leaseSchemas.create), asyncHandler(leaseController.createLease));
 
 /**
  * @swagger
@@ -273,7 +275,7 @@ router.get('/:id', authenticateToken, asyncHandler(leaseController.getLeaseById)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/:id', authenticateToken, asyncHandler(leaseController.updateLease));
+router.patch('/:id', authenticateToken, validate(leaseSchemas.update), asyncHandler(leaseController.updateLease));
 
 /**
  * @swagger
@@ -305,7 +307,7 @@ router.patch('/:id', authenticateToken, asyncHandler(leaseController.updateLease
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(leaseController.deleteLease));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(leaseController.deleteLease));
 
 /**
  * @swagger
@@ -348,7 +350,7 @@ router.delete('/:id', authenticateToken, asyncHandler(leaseController.deleteLeas
  *                     data:
  *                       $ref: '#/components/schemas/Lease'
  */
-router.patch('/:id/status', authenticateToken, asyncHandler(leaseController.updateLeaseStatus));
+router.patch('/:id/status', authenticateToken, validate(leaseSchemas.updateStatus), asyncHandler(leaseController.updateLeaseStatus));
 
 /**
  * @swagger
@@ -395,6 +397,6 @@ router.patch('/:id/status', authenticateToken, asyncHandler(leaseController.upda
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/:id/sign', authenticateToken, asyncHandler(leaseController.signLease));
+router.patch('/:id/sign', authenticateToken, validate(leaseSchemas.sign), asyncHandler(leaseController.signLease));
 
 module.exports = router;

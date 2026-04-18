@@ -4,6 +4,8 @@ const router = express.Router();
 const leadController = require('../controllers/lead.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { leadSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -138,7 +140,7 @@ router.get('/', authenticateToken, asyncHandler(leadController.getLeads));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(leadController.createLead));
+router.post('/', authenticateToken, validate(leadSchemas.create), asyncHandler(leadController.createLead));
 
 /**
  * @swagger
@@ -238,7 +240,7 @@ router.get('/:id', authenticateToken, asyncHandler(leadController.getLeadById));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', authenticateToken, asyncHandler(leadController.updateLead));
+router.put('/:id', authenticateToken, validate(leadSchemas.update), asyncHandler(leadController.updateLead));
 
 /**
  * @swagger
@@ -270,7 +272,7 @@ router.put('/:id', authenticateToken, asyncHandler(leadController.updateLead));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(leadController.deleteLead));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(leadController.deleteLead));
 
 /**
  * @swagger
@@ -328,7 +330,7 @@ router.delete('/:id', authenticateToken, asyncHandler(leadController.deleteLead)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/:id/status', authenticateToken, asyncHandler(leadController.updateLeadStatus));
+router.patch('/:id/status', authenticateToken, validate(leadSchemas.updateStatus), asyncHandler(leadController.updateLeadStatus));
 
 /**
  * @swagger
@@ -397,6 +399,6 @@ router.patch('/:id/status', authenticateToken, asyncHandler(leadController.updat
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/bulk', authenticateToken, asyncHandler(leadController.bulkUpdateLeads));
+router.post('/bulk', authenticateToken, validate(leadSchemas.bulkUpdate), asyncHandler(leadController.bulkUpdateLeads));
 
 module.exports = router;

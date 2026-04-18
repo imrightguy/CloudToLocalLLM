@@ -4,6 +4,8 @@ const router = express.Router();
 const employeeController = require('../controllers/employee.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { employeeSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -111,7 +113,7 @@ router.get('/', authenticateToken, asyncHandler(employeeController.getEmployees)
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', authenticateToken, asyncHandler(employeeController.createEmployee));
+router.post('/', authenticateToken, validate(employeeSchemas.create), asyncHandler(employeeController.createEmployee));
 
 /**
  * @swagger
@@ -206,7 +208,7 @@ router.get('/:id', authenticateToken, asyncHandler(employeeController.getEmploye
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', authenticateToken, asyncHandler(employeeController.updateEmployee));
+router.put('/:id', authenticateToken, validate(employeeSchemas.update), asyncHandler(employeeController.updateEmployee));
 
 /**
  * @swagger
@@ -238,7 +240,7 @@ router.put('/:id', authenticateToken, asyncHandler(employeeController.updateEmpl
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', authenticateToken, asyncHandler(employeeController.deleteEmployee));
+router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(employeeController.deleteEmployee));
 
 /**
  * @swagger
@@ -287,7 +289,7 @@ router.delete('/:id', authenticateToken, asyncHandler(employeeController.deleteE
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/:id/assign', authenticateToken, asyncHandler((req, res) => employeeController.assignEmployee(req, res, req.params.id, req.body.buildingId, req.body.role)));
+router.post('/:id/assign', authenticateToken, validate(employeeSchemas.assign), asyncHandler((req, res) => employeeController.assignEmployee(req, res, req.params.id, req.body.buildingId, req.body.role)));
 
 /**
  * @swagger

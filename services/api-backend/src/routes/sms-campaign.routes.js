@@ -4,6 +4,8 @@ const router = express.Router();
 const smsCampaignController = require('../controllers/sms-campaign.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { smsCampaignSchemas, uuidParam } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -52,7 +54,7 @@ const { asyncHandler } = require('../utils/apiResponse');
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/templates', authenticateToken, asyncHandler(smsCampaignController.createTemplateHandler));
+router.post('/templates', authenticateToken, validate(smsCampaignSchemas.createTemplate), asyncHandler(smsCampaignController.createTemplateHandler));
 
 /**
  * @swagger
@@ -208,7 +210,7 @@ router.get('/templates/:id', authenticateToken, asyncHandler(smsCampaignControll
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/templates/:id', authenticateToken, asyncHandler(smsCampaignController.updateTemplateHandler));
+router.patch('/templates/:id', authenticateToken, validate(smsCampaignSchemas.updateTemplate), asyncHandler(smsCampaignController.updateTemplateHandler));
 
 /**
  * @swagger
@@ -240,7 +242,7 @@ router.patch('/templates/:id', authenticateToken, asyncHandler(smsCampaignContro
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/templates/:id', authenticateToken, asyncHandler(smsCampaignController.deleteTemplateHandler));
+router.delete('/templates/:id', authenticateToken, validate(uuidParam), asyncHandler(smsCampaignController.deleteTemplateHandler));
 
 /**
  * @swagger
@@ -297,7 +299,7 @@ router.delete('/templates/:id', authenticateToken, asyncHandler(smsCampaignContr
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/campaigns', authenticateToken, asyncHandler(smsCampaignController.createCampaignHandler));
+router.post('/campaigns', authenticateToken, validate(smsCampaignSchemas.createCampaign), asyncHandler(smsCampaignController.createCampaignHandler));
 
 /**
  * @swagger
@@ -414,7 +416,7 @@ router.get('/campaigns/:id', authenticateToken, asyncHandler(smsCampaignControll
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/campaigns/:id', authenticateToken, asyncHandler(smsCampaignController.updateCampaignHandler));
+router.patch('/campaigns/:id', authenticateToken, validate(smsCampaignSchemas.updateCampaign), asyncHandler(smsCampaignController.updateCampaignHandler));
 
 /**
  * @swagger
@@ -446,7 +448,7 @@ router.patch('/campaigns/:id', authenticateToken, asyncHandler(smsCampaignContro
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/campaigns/:id', authenticateToken, asyncHandler(smsCampaignController.deleteCampaignHandler));
+router.delete('/campaigns/:id', authenticateToken, validate(uuidParam), asyncHandler(smsCampaignController.deleteCampaignHandler));
 
 /**
  * @swagger
