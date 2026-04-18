@@ -4,9 +4,11 @@
  */
 
 import express from 'express';
+import { authenticateJWT } from '../middleware/auth.js';
 import { TunnelLogger } from '../utils/logger.js';
 
 const router = express.Router();
+router.use(authenticateJWT);
 const logger = new TunnelLogger('rate-limit-exemptions-routes');
 
 // Global exemption manager (will be injected)

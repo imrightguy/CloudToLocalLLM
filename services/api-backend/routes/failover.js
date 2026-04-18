@@ -11,10 +11,12 @@
  */
 
 import express from 'express';
+import { authenticateJWT } from '../middleware/auth.js';
 import { getFailoverManager } from '../database/failover-manager.js';
 import logger from '../logger.js';
 
 const router = express.Router();
+router.use(authenticateJWT);
 
 /**
  * GET /failover/status

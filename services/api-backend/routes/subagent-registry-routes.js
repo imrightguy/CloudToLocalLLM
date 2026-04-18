@@ -1,9 +1,11 @@
 import express from 'express';
+import { authenticateJWT } from '../middleware/auth.js';
 import { TunnelLogger } from '../utils/logger.js';
 import db from '../database/db-pool.js';
 
 const logger = new TunnelLogger('subagent-registry-routes');
 const router = express.Router();
+router.use(authenticateJWT);
 
 /**
  * GET /api/admin/subagents

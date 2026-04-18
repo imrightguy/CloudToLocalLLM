@@ -12,9 +12,11 @@
 
 import express from 'express';
 import winston from 'winston';
+import { authenticateJWT } from '../middleware/auth.js';
 import { sandboxService } from '../services/sandbox-service.js';
 
 const router = express.Router();
+router.use(authenticateJWT);
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',

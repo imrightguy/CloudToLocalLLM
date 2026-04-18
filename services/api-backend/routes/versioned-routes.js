@@ -8,6 +8,7 @@
  */
 
 import express from 'express';
+import { authenticateJWT } from '../middleware/auth.js';
 
 /**
  * Create versioned health check endpoint
@@ -130,8 +131,7 @@ export function createVersionedErrorResponse(version, error) {
 export function createVersionedRouterFactory() {
   return (version) => {
     const router = express.Router();
-
-    // Health check endpoint
+    router.use(authenticateJWT);
     router.get('/health', createVersionedHealthCheck(version));
 
     // User endpoint

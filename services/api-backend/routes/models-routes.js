@@ -1,8 +1,10 @@
 import express from 'express';
+import { authenticateJWT } from '../middleware/auth.js';
 import db from '../database/db-pool.js';
 import { TunnelLogger } from '../utils/logger.js';
 
 const router = express.Router();
+router.use(authenticateJWT);
 const logger = new TunnelLogger('models-routes');
 
 /**
