@@ -1,10 +1,13 @@
 import express from 'express';
 import { TunnelLogger } from '../utils/logger.js';
 import db from '../database/db-pool.js';
+import { authenticateJWT, requireAdmin } from '../middleware/auth.js';
 
 const logger = new TunnelLogger('context-usage-routes');
 
 const router = express.Router();
+
+router.use(authenticateJWT, requireAdmin);
 
 /**
  * GET /api/admin/context-usage

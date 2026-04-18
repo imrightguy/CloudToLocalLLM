@@ -14,22 +14,6 @@ export function createConversationRoutes(
   const router = express.Router();
   logger.info('Express router created successfully');
 
-  // All routes require authentication
-  // router.use(authenticateJWT);
-  // router.use(addTierInfo);
-
-  // Temporary test route without auth
-  router.get('/test', (req, res) => {
-    logger.info('Conversation test route accessed');
-    res.json({ message: 'Conversation routes working' });
-  });
-
-  // Another test route
-  router.get('/', (req, res) => {
-    logger.info('Conversation root route accessed');
-    res.json({ message: 'Conversation root working' });
-  });
-
   /**
    * GET /api/conversations
    * Get all conversations for the authenticated user
