@@ -22,9 +22,11 @@ const verifyWebhookSignature = (req, res, next) => {
     .digest('hex');
 
   if (!signature || signature !== expectedSignature) {
-    logger.warn('Invalid OpenClaw webhook signature');
-    // return res.status(401).json({ error: 'Invalid signature' });
-    return next(); // Temporarily allow for testing
+    logger.warn('Invalid OpenClaw webhook signature', {
+      hasSignature: !!signature,
+      agentId: req.body?.agent_id,
+    });
+    return res.status(401).json({ error: 'Invalid webhook signature' });
   }
   next();
 };
