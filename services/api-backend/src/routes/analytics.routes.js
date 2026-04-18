@@ -5,6 +5,8 @@ const router = express.Router();
 const analyticsController = require('../controllers/analytics.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { analyticsSchemas } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -42,7 +44,7 @@ const { asyncHandler } = require('../utils/apiResponse');
  *                         monthlyRevenue: { type: number }
  *                         conversionRate: { type: number }
  */
-router.get('/dashboard', authenticateToken, asyncHandler(analyticsController.getDashboard));
+router.get('/dashboard', authenticateToken, validate(analyticsSchemas.dashboard), asyncHandler(analyticsController.getDashboard));
 
 /**
  * @swagger
@@ -103,7 +105,7 @@ router.get('/leads/pipeline', authenticateToken, asyncHandler(analyticsControlle
  *                       items:
  *                         $ref: '#/components/schemas/Lead'
  */
-router.get('/leads/hot', authenticateToken, asyncHandler(analyticsController.getHotLeads));
+router.get('/leads/hot', authenticateToken, validate(analyticsSchemas.hotLeads), asyncHandler(analyticsController.getHotLeads));
 
 /**
  * @swagger
@@ -143,7 +145,7 @@ router.get('/leads/hot', authenticateToken, asyncHandler(analyticsController.get
  *                         cancelled: { type: integer }
  *                         noShow: { type: integer }
  */
-router.get('/visits/stats', authenticateToken, asyncHandler(analyticsController.getVisitStats));
+router.get('/visits/stats', authenticateToken, validate(analyticsSchemas.visitStats), asyncHandler(analyticsController.getVisitStats));
 
 /**
  * @swagger
@@ -255,7 +257,7 @@ router.get('/noshow-patterns', authenticateToken, asyncHandler(analyticsControll
  *                         occupiedUnits: { type: integer }
  *                         activeLeases: { type: integer }
  */
-router.get('/buildings/:id/performance', authenticateToken, asyncHandler(analyticsController.getBuildingPerformance));
+router.get('/buildings/:id/performance', authenticateToken, validate(analyticsSchemas.buildingPerformance), asyncHandler(analyticsController.getBuildingPerformance));
 
 /**
  * @swagger
@@ -295,7 +297,7 @@ router.get('/buildings/:id/performance', authenticateToken, asyncHandler(analyti
  *                         conversionRate: { type: number }
  *                         noShowRate: { type: number }
  */
-router.get('/employees/:id/performance', authenticateToken, asyncHandler(analyticsController.getEmployeePerformance));
+router.get('/employees/:id/performance', authenticateToken, validate(analyticsSchemas.employeePerformance), asyncHandler(analyticsController.getEmployeePerformance));
 
 /**
  * @swagger
@@ -362,7 +364,7 @@ router.get('/weekly-summary', authenticateToken, asyncHandler(analyticsControlle
  *                           month: { type: string }
  *                           occupancyRate: { type: number }
  */
-router.get('/occupancy-trend', authenticateToken, asyncHandler(analyticsController.getOccupancyTrend));
+router.get('/occupancy-trend', authenticateToken, validate(analyticsSchemas.trendMonths), asyncHandler(analyticsController.getOccupancyTrend));
 
 /**
  * @swagger
@@ -397,7 +399,7 @@ router.get('/occupancy-trend', authenticateToken, asyncHandler(analyticsControll
  *                           month: { type: string }
  *                           revenue: { type: number }
  */
-router.get('/revenue-trend', authenticateToken, asyncHandler(analyticsController.getRevenueTrend));
+router.get('/revenue-trend', authenticateToken, validate(analyticsSchemas.trendMonths), asyncHandler(analyticsController.getRevenueTrend));
 
 /**
  * @swagger
@@ -467,6 +469,6 @@ router.get('/lead-funnel', authenticateToken, asyncHandler(analyticsController.g
  *                         completionRate: { type: number }
  *                         noShowRate: { type: number }
  */
-router.get('/visit-metrics', authenticateToken, asyncHandler(analyticsController.getVisitMetrics));
+router.get('/visit-metrics', authenticateToken, validate(analyticsSchemas.visitMetrics), asyncHandler(analyticsController.getVisitMetrics));
 
 module.exports = router;

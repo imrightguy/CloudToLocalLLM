@@ -95,8 +95,10 @@ const express = require('express');
 
 const router = express.Router();
 const webhookController = require('../controllers/facebook-webhook.controller');
+const validate = require('../middleware/validate');
+const { facebookWebhookSchemas } = require('../config/validation-schemas');
 
-router.get('/', webhookController.verify);
-router.post('/', webhookController.handleWebhook);
+router.get('/', validate(facebookWebhookSchemas.verify), webhookController.verify);
+router.post('/', validate(facebookWebhookSchemas.webhook), webhookController.handleWebhook);
 
 module.exports = router;

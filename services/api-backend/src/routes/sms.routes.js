@@ -4,6 +4,8 @@ const router = express.Router();
 const smsWebhookController = require('../controllers/sms-webhook.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { smsWebhookSchemas } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -39,7 +41,7 @@ const { asyncHandler } = require('../utils/apiResponse');
  *             schema:
  *               type: string
  */
-router.post('/sms/incoming', asyncHandler(smsWebhookController.handleIncoming));
+router.post('/sms/incoming', validate(smsWebhookSchemas.incoming), asyncHandler(smsWebhookController.handleIncoming));
 
 /**
  * @swagger
@@ -70,7 +72,7 @@ router.post('/sms/incoming', asyncHandler(smsWebhookController.handleIncoming));
  *             schema:
  *               type: string
  */
-router.post('/sms/status', asyncHandler(smsWebhookController.handleStatus));
+router.post('/sms/status', validate(smsWebhookSchemas.status), asyncHandler(smsWebhookController.handleStatus));
 
 /**
  * @swagger
@@ -116,6 +118,6 @@ router.post('/sms/status', asyncHandler(smsWebhookController.handleStatus));
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/sms/schedule', authenticateToken, asyncHandler(smsWebhookController.handleSchedule));
+router.post('/sms/schedule', authenticateToken, validate(smsWebhookSchemas.schedule), asyncHandler(smsWebhookController.handleSchedule));
 
 module.exports = router;

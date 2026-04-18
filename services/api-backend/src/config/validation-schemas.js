@@ -341,6 +341,102 @@ const notificationSchemas = {
   },
 };
 
+const smsWebhookSchemas = {
+  incoming: {
+    body: Joi.object({
+      MessageSid: Joi.string().trim().max(64),
+      From: Joi.string().trim().max(50).required(),
+      To: Joi.string().trim().max(50).required(),
+      Body: Joi.string().trim().max(1600).required(),
+    }),
+  },
+  status: {
+    body: Joi.object({
+      MessageSid: Joi.string().trim().max(64).required(),
+      SmsStatus: Joi.string()
+        .valid('queued', 'sent', 'delivered', 'undelivered', 'failed', 'read'),
+      ErrorMessage: Joi.string().trim().max(500),
+    }),
+  },
+  schedule: {
+    body: Joi.object({
+      action: Joi.string()
+        .valid('morning_reminder', 'post_survey', 'reminder_24h', 'reminder_2h', 'expire_confirmations')
+        .required(),
+      visitId: Joi.string().uuid(),
+    }),
+  },
+};
+
+const analyticsSchemas = {
+  dashboard: {
+    query: Joi.object({
+      period: Joi.string().valid('today', 'week', 'month', 'quarter', 'year').default('month'),
+    }),
+  },
+  hotLeads: {
+    query: Joi.object({
+      limit: Joi.number().integer().min(1).max(100).default(10),
+    }),
+  },
+  visitStats: {
+    query: Joi.object({
+      dateFrom: Joi.date().iso(),
+      dateTo: Joi.date().iso().greater(Joi.ref('dateFrom')),
+    }),
+  },
+  visitMetrics: {
+    query: Joi.object({
+      dateFrom: Joi.date().iso(),
+      dateTo: Joi.date().iso().greater(Joi.ref('dateFrom')),
+    }),
+  },
+  trendMonths: {
+    query: Joi.object({
+      months: Joi.number().integer().min(1).max(60).default(12),
+    }),
+  },
+  buildingPerformance: {
+    params: Joi.object({ id: uuid }),
+  },
+  employeePerformance: {
+    params: Joi.object({ id: uuid }),
+  },
+};
+
+const tenantConfirmationSchemas = {
+  submit: {
+    params: Joi.object({ token: Joi.string().trim().min(1).max(255).required() }),
+    body: Joi.object({
+      action: Joi.string().valid('confirm', 'decline').required(),
+    }),
+  },
+  getPage: {
+    params: Joi.object({ token: Joi.string().trim().min(1).max(255).required() }),
+  },
+};
+
+const facebookWebhookSchemas = {
+  verify: {
+    query: Joi.object({
+      'hub.mode': Joi.string().valid('subscribe').required(),
+      'hub.verify_token': Joi.string().trim().required(),
+      'hub.challenge': Joi.string().trim().required(),
+    }),
+  },
+  webhook: {
+    body: Joi.object({
+      object: Joi.string().trim(),
+      entry: Joi.array().items(
+        Joi.object({
+          id: Joi.string(),
+          messaging: Joi.array(),
+        }),
+      ),
+    }),
+  },
+};
+
 const smsCampaignSchemas = {
   createTemplate: {
     body: Joi.object({
@@ -391,4 +487,8 @@ module.exports = {
   scheduleSchemas,
   notificationSchemas,
   smsCampaignSchemas,
+  smsWebhookSchemas,
+  analyticsSchemas,
+  tenantConfirmationSchemas,
+  facebookWebhookSchemas,
 };

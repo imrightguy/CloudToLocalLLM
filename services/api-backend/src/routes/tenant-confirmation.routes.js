@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const tenantConfirmationController = require('../controllers/tenant-confirmation.controller');
 const { asyncHandler } = require('../utils/apiResponse');
+const validate = require('../middleware/validate');
+const { tenantConfirmationSchemas } = require('../config/validation-schemas');
 
 /**
  * @swagger
@@ -31,7 +33,7 @@ const { asyncHandler } = require('../utils/apiResponse');
  *       404:
  *         description: Invalid or expired token
  */
-router.get('/:token', asyncHandler(tenantConfirmationController.getConfirmationPage));
+router.get('/:token', validate(tenantConfirmationSchemas.getPage), asyncHandler(tenantConfirmationController.getConfirmationPage));
 
 /**
  * @swagger
@@ -72,6 +74,6 @@ router.get('/:token', asyncHandler(tenantConfirmationController.getConfirmationP
  *       404:
  *         description: Invalid or expired token
  */
-router.post('/:token', asyncHandler(tenantConfirmationController.submitConfirmation));
+router.post('/:token', validate(tenantConfirmationSchemas.submit), asyncHandler(tenantConfirmationController.submitConfirmation));
 
 module.exports = router;
