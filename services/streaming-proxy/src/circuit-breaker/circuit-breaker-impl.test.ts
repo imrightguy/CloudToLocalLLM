@@ -1,3 +1,4 @@
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { CircuitBreakerImpl } from './circuit-breaker-impl';
 import { CircuitState } from '../interfaces/circuit-breaker';
 
@@ -240,7 +241,7 @@ describe('CircuitBreakerImpl', () => {
       const listener = jest.fn();
       breaker.on('stateChange', listener);
       breaker.open();
-      const event = listener.mock.calls[0][0];
+      const event = listener.mock.calls[0][0] as Record<string, unknown>;
       expect(event).toHaveProperty('from', CircuitState.CLOSED);
       expect(event).toHaveProperty('to', CircuitState.OPEN);
       expect(event.timestamp).toBeInstanceOf(Date);
