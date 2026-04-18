@@ -112,173 +112,7 @@ router.get('/', authenticateToken, asyncHandler(buildingController.getBuildings)
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- */
 router.post('/', authenticateToken, asyncHandler(buildingController.createBuilding));
-
-/**
- * @swagger
- * /api/buildings/{id}:
- *   get:
- *     tags: [Buildings]
- *     summary: Get building by ID
- *     description: Returns a single building with its details.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Building details
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/Building'
- *       404:
- *         description: Building not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.get('/:id', authenticateToken, asyncHandler(buildingController.getBuildingById));
-
-/**
- * @swagger
- * /api/buildings/{id}/leases:
- *   get:
- *     tags: [Buildings]
- *     summary: Get leases for a building
- *     description: Returns all leases associated with a specific building.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         description: Building ID
- *     responses:
- *       200:
- *         description: List of leases
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Lease'
- *       404:
- *         description: Building not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.get('/:id/leases', authenticateToken, asyncHandler(leaseController.getLeasesByBuilding));
-
-/**
- * @swagger
- * /api/buildings/{id}:
- *   put:
- *     tags: [Buildings]
- *     summary: Update a building
- *     description: Update a building's information.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               address:
- *                 type: string
- *               city:
- *                 type: string
- *               province:
- *                 type: string
- *               postalCode:
- *                 type: string
- *               totalUnits:
- *                 type: integer
- *     responses:
- *       200:
- *         description: Building updated
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/Building'
- *       404:
- *         description: Building not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.put('/:id', authenticateToken, asyncHandler(buildingController.updateBuilding));
-
-/**
- * @swagger
- * /api/buildings/{id}:
- *   delete:
- *     tags: [Buildings]
- *     summary: Delete a building
- *     description: Delete a building and all associated units.
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Building deleted
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         description: Building not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.delete('/:id', authenticateToken, asyncHandler(buildingController.deleteBuilding));
 
 /**
  * @swagger
@@ -544,7 +378,8 @@ router.put('/units/:id', authenticateToken, asyncHandler(buildingController.upda
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
  *       404:
  *         description: Unit not found
  *         content:
@@ -554,4 +389,169 @@ router.put('/units/:id', authenticateToken, asyncHandler(buildingController.upda
  */
 router.delete('/units/:id', authenticateToken, asyncHandler(buildingController.deleteUnit));
 
+/**
+ * @swagger
+ * /api/buildings/{id}:
+ *   get:
+ *     tags: [Buildings]
+ *     summary: Get building by ID
+ *     description: Returns a single building with its details.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Building details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Building'
+ *       404:
+ *         description: Building not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/:id', authenticateToken, asyncHandler(buildingController.getBuildingById));
+
+/**
+ * @swagger
+ * /api/buildings/{id}/leases:
+ *   get:
+ *     tags: [Buildings]
+ *     summary: Get leases for a building
+ *     description: Returns all leases associated with a specific building.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Building ID
+ *     responses:
+ *       200:
+ *         description: List of leases
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Lease'
+ *       404:
+ *         description: Building not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/:id/leases', authenticateToken, asyncHandler(leaseController.getLeasesByBuilding));
+
+/**
+ * @swagger
+ * /api/buildings/{id}:
+ *   put:
+ *     tags: [Buildings]
+ *     summary: Update a building
+ *     description: Update a building's information.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               province:
+ *                 type: string
+ *               postalCode:
+ *                 type: string
+ *               totalUnits:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Building updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Building'
+ *       404:
+ *         description: Building not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.put('/:id', authenticateToken, asyncHandler(buildingController.updateBuilding));
+
+/**
+ * @swagger
+ * /api/buildings/{id}:
+ *   delete:
+ *     tags: [Buildings]
+ *     summary: Delete a building
+ *     description: Delete a building and all associated units.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Building deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         description: Building not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.delete('/:id', authenticateToken, asyncHandler(buildingController.deleteBuilding));
 module.exports = router;
