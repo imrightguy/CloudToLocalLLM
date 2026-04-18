@@ -12,8 +12,10 @@
 
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { authenticateJWT, extractUserId } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import {
   generateApiKey,
   listApiKeys,
@@ -26,10 +28,42 @@ import {
 
 const router = express.Router();
 
+const createApiKeySchema = {
+  body: z.object({
+    name: z.string().trim().min(1, 'API key name is required'),
+    description: z.string().default(''),
+    scopes: z.array(z.string()).default([]),
+    rateLimit: z.number().int().min(1).default(1000),
+    expiresIn: z.number().int().min(1000).nullable().default(null),
+  }),
+};
+
+const updateApiKeySchema = {
+  params: z.object({
+    keyId: z.string().min(1),
+  }),
+  body: z
+    .object({
+      name: z.string().trim().min(1).optional(),
+      description: z.string().optional(),
+      scopes: z.array(z.string()).optional(),
+      rateLimit: z.number().int().min(1).optional(),
+    })
+    .refine((data) => Object.keys(data).length > 0, {
+      message: 'At least one field must be provided for update',
+    }),
+};
+
+const keyIdParamSchema = {
+  params: z.object({
+    keyId: z.string().min(1),
+  }),
+};
+
 // Strict rate limiter for sensitive operations (key generation/rotation)
 const apiKeyOpsLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // Limit each IP to 10 key generations/rotations per hour
+  windowMs: 60 * 60 * 1000,
+  max: 10,
   message: {
     error: 'Too many API key operations',
     message: 'Please try again after an hour',
@@ -38,81 +72,22 @@ const apiKeyOpsLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * POST /api-keys
- * Generate a new API key
- *
- * Request body:
- * {
- *   "name": "string (required)",
- *   "description": "string (optional)",
- *   "scopes": ["string"] (optional),
- *   "rateLimit": "number (optional, default: 1000)",
- *   "expiresIn": "number (optional, milliseconds)"
- * }
- *
- * Response:
- * {
- *   "id": "uuid",
- *   "apiKey": "ctll_...",
- *   "keyPrefix": "ctll_...",
- *   "name": "string",
- *   "description": "string",
- *   "scopes": ["string"],
- *   "rateLimit": "number",
- *   "isActive": "boolean",
- *   "createdAt": "ISO8601",
- *   "expiresAt": "ISO8601 or null"
- * }
- */
-router.post('/', apiKeyOpsLimiter, authenticateJWT, async (req, res) => {
-  try {
-    const userId = extractUserId(req);
-    const { name, description, scopes, rateLimit, expiresIn } = req.body;
+router.post(
+  '/',
+  apiKeyOpsLimiter,
+  authenticateJWT,
+  validateSchema(createApiKeySchema),
+  async (req, res) => {
+    try {
+      const userId = extractUserId(req);
+      const { name, description, scopes, rateLimit, expiresIn } = req.body;
 
-    // Validate required fields
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_NAME',
-        message: 'API key name is required and must be a non-empty string',
+      const apiKey = await generateApiKey(userId, name, {
+        description,
+        scopes,
+        rateLimit,
+        expiresIn,
       });
-    }
-
-    // Validate optional fields
-    if (
-      scopes &&
-      (!Array.isArray(scopes) || !scopes.every((s) => typeof s === 'string'))
-    ) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_SCOPES',
-        message: 'Scopes must be an array of strings',
-      });
-    }
-
-    if (rateLimit && (typeof rateLimit !== 'number' || rateLimit < 1)) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_RATE_LIMIT',
-        message: 'Rate limit must be a positive number',
-      });
-    }
-
-    if (expiresIn && (typeof expiresIn !== 'number' || expiresIn < 1000)) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_EXPIRES_IN',
-        message: 'Expires in must be a number in milliseconds (minimum 1000)',
-      });
-    }
-
-    const apiKey = await generateApiKey(userId, name.trim(), {
-      description: description || '',
-      scopes: scopes || [],
-      rateLimit: rateLimit || 1000,
-      expiresIn: expiresIn || null,
-    });
 
     const { id: newKeyId } = apiKey;
     logger.info('[APIKeyRoutes] API key generated', {
@@ -134,27 +109,6 @@ router.post('/', apiKeyOpsLimiter, authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * GET /api-keys
- * List all API keys for the authenticated user
- *
- * Response:
- * [
- *   {
- *     "id": "uuid",
- *     "name": "string",
- *     "keyPrefix": "ctll_...",
- *     "description": "string",
- *     "scopes": ["string"],
- *     "rateLimit": "number",
- *     "isActive": "boolean",
- *     "createdAt": "ISO8601",
- *     "updatedAt": "ISO8601",
- *     "expiresAt": "ISO8601 or null",
- *     "lastUsedAt": "ISO8601 or null"
- *   }
- * ]
- */
 router.get('/', authenticateJWT, async (req, res) => {
   try {
     const userId = extractUserId(req);
@@ -179,26 +133,11 @@ router.get('/', authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * GET /api-keys/:keyId
- * Get details for a specific API key
- *
- * Response:
- * {
- *   "id": "uuid",
- *   "name": "string",
- *   "keyPrefix": "ctll_...",
- *   "description": "string",
- *   "scopes": ["string"],
- *   "rateLimit": "number",
- *   "isActive": "boolean",
- *   "createdAt": "ISO8601",
- *   "updatedAt": "ISO8601",
- *   "expiresAt": "ISO8601 or null",
- *   "lastUsedAt": "ISO8601 or null"
- * }
- */
-router.get('/:keyId', authenticateJWT, async (req, res) => {
+router.get(
+  '/:keyId',
+  authenticateJWT,
+  validateSchema(keyIdParamSchema),
+  async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;
@@ -230,73 +169,15 @@ router.get('/:keyId', authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * PATCH /api-keys/:keyId
- * Update API key metadata
- *
- * Request body:
- * {
- *   "name": "string (optional)",
- *   "description": "string (optional)",
- *   "scopes": ["string"] (optional),
- *   "rateLimit": "number (optional)"
- * }
- *
- * Response: Updated API key object
- */
-router.patch('/:keyId', authenticateJWT, async (req, res) => {
-  try {
-    const userId = extractUserId(req);
-    const { keyId } = req.params;
-    const updates = req.body;
-
-    // Validate updates
-    const allowedFields = ['name', 'description', 'scopes', 'rateLimit'];
-    const invalidFields = Object.keys(updates).filter(
-      (field) => !allowedFields.includes(field),
-    );
-
-    if (invalidFields.length > 0) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_FIELDS',
-        message: `Cannot update fields: ${invalidFields.join(', ')}`,
-      });
-    }
-
-    if (
-      updates.name &&
-      (typeof updates.name !== 'string' || updates.name.trim().length === 0)
-    ) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_NAME',
-        message: 'Name must be a non-empty string',
-      });
-    }
-
-    if (
-      updates.scopes &&
-      (!Array.isArray(updates.scopes) ||
-        !updates.scopes.every((s) => typeof s === 'string'))
-    ) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_SCOPES',
-        message: 'Scopes must be an array of strings',
-      });
-    }
-
-    if (
-      updates.rateLimit &&
-      (typeof updates.rateLimit !== 'number' || updates.rateLimit < 1)
-    ) {
-      return res.status(400).json({
-        error: 'Invalid request',
-        code: 'INVALID_RATE_LIMIT',
-        message: 'Rate limit must be a positive number',
-      });
-    }
+router.patch(
+  '/:keyId',
+  authenticateJWT,
+  validateSchema(updateApiKeySchema),
+  async (req, res) => {
+    try {
+      const userId = extractUserId(req);
+      const { keyId } = req.params;
+      const updates = req.body;
 
     const updatedKey = await updateApiKey(keyId, userId, updates);
 
@@ -326,28 +207,11 @@ router.patch('/:keyId', authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * POST /api-keys/:keyId/rotate
- * Rotate an API key (revoke old, generate new)
- *
- * Response:
- * {
- *   "id": "uuid",
- *   "apiKey": "ctll_...",
- *   "keyPrefix": "ctll_...",
- *   "name": "string",
- *   "description": "string",
- *   "scopes": ["string"],
- *   "rateLimit": "number",
- *   "isActive": "boolean",
- *   "createdAt": "ISO8601",
- *   "expiresAt": "ISO8601 or null"
- * }
- */
 router.post(
   '/:keyId/rotate',
   apiKeyOpsLimiter,
   authenticateJWT,
+  validateSchema(keyIdParamSchema),
   async (req, res) => {
     try {
       const userId = extractUserId(req);
@@ -382,16 +246,11 @@ router.post(
   },
 );
 
-/**
- * POST /api-keys/:keyId/revoke
- * Revoke an API key
- *
- * Response:
- * {
- *   "message": "API key revoked successfully"
- * }
- */
-router.post('/:keyId/revoke', authenticateJWT, async (req, res) => {
+router.post(
+  '/:keyId/revoke',
+  authenticateJWT,
+  validateSchema(keyIdParamSchema),
+  async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;
@@ -425,21 +284,11 @@ router.post('/:keyId/revoke', authenticateJWT, async (req, res) => {
   }
 });
 
-/**
- * GET /api-keys/:keyId/audit-logs
- * Get audit logs for an API key
- *
- * Response:
- * [
- *   {
- *     "id": "uuid",
- *     "action": "created|used|rotated|revoked|expired",
- *     "details": "object",
- *     "createdAt": "ISO8601"
- *   }
- * ]
- */
-router.get('/:keyId/audit-logs', authenticateJWT, async (req, res) => {
+router.get(
+  '/:keyId/audit-logs',
+  authenticateJWT,
+  validateSchema(keyIdParamSchema),
+  async (req, res) => {
   try {
     const userId = extractUserId(req);
     const { keyId } = req.params;
