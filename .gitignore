@@ -58,6 +58,12 @@ certbot/
 *.key
 *.crt
 
+# Binary tools and local config
+.config/
+
+# SQLite databases
+*.db
+
 # Temporary files
 tmp/
 temp/
