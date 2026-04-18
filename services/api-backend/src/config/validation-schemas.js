@@ -360,6 +360,10 @@ const scheduleSchemas = {
       isAvailable: Joi.boolean(),
     }).min(1),
   },
+  getAvailability: {
+    params: Joi.object({ employeeId: uuid.required() }),
+    query: Joi.object({ date: Joi.date().iso() }),
+  },
 };
 
 const notificationSchemas = {

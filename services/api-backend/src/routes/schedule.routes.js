@@ -272,6 +272,6 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(sched
  *                               endTime: { type: string }
  *                               isAvailable: { type: boolean }
  */
-router.get('/employee/:employeeId/availability', authenticateToken, asyncHandler((req, res) => scheduleController.getEmployeeAvailability(req, res, req.params.employeeId, req.query.date)));
+router.get('/employee/:employeeId/availability', authenticateToken, validate(scheduleSchemas.getAvailability), asyncHandler((req, res) => scheduleController.getEmployeeAvailability(req, res, req.params.employeeId, req.query.date)));
 
 module.exports = router;
