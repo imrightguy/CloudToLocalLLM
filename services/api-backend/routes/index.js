@@ -251,7 +251,7 @@ export function setupRoutes(
   registerRoutes('/metrics', rateLimitMetricsRoutes);
   registerRoutes('/prometheus', prometheusMetricsRoutes);
   registerRoutes('/changelog', changelogRoutes);
-  registerRoutes('/queue/status', queueStatusHandler);
+  registerRoutes('/queue/status', ...authenticateJWT, queueStatusHandler);
   registerRoutes('/queue/drain', ...authenticateJWT, queueDrainHandler);
 
   // Ollama proxy

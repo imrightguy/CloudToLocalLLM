@@ -495,7 +495,7 @@ registerRoutes('/prometheus', prometheusMetricsRoutes);
 registerRoutes('/changelog', changelogRoutes);
 
 // Queue status endpoints
-registerRoutes('/queue/status', queueStatusHandler);
+registerRoutes('/queue/status', ...authenticateJWT, queueStatusHandler);
 
 // Queue drain endpoint (for testing/debugging)
 registerRoutes('/queue/drain', ...authenticateJWT, queueDrainHandler);
