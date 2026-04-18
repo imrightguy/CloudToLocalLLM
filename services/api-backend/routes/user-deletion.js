@@ -19,9 +19,46 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { UserDeletionService } from '../services/user-deletion-service.js';
 import logger from '../logger.js';
+
+const userIdParamSchema = {
+  params: z.object({
+    id: z.string().min(1).max(200),
+  }),
+};
+
+const deleteUserBodySchema = {
+  params: z.object({
+    id: z.string().min(1).max(200),
+  }),
+  body: z
+    .object({
+      softDelete: z.boolean().optional().default(true),
+      reason: z
+        .string()
+        .min(1)
+        .max(1000)
+        .optional()
+        .default('User requested deletion'),
+    })
+    .optional()
+    .default({}),
+  query: z
+    .object({
+      softDelete: z
+        .string()
+        .transform((v) => v !== 'false')
+        .optional()
+        .default('true'),
+      reason: z.string().max(1000).optional(),
+    })
+    .optional()
+    .default({}),
+};
 
 const router = express.Router();
 let userDeletionService = null;
@@ -69,7 +106,7 @@ export async function initializeUserDeletionService() {
  * Rate Limit: Standard (100 req/min)
  * Authorization: User can only delete their own account
  */
-router.delete('/:id', authenticateJWT, async (req, res) => {
+router.delete('/:id', authenticateJWT, validateSchema(deleteUserBodySchema), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -104,11 +141,9 @@ router.delete('/:id', authenticateJWT, async (req, res) => {
       });
     }
 
-    // Get deletion options from query params or body
-    const softDelete =
-      req.query.softDelete !== 'false' && req.body.softDelete !== false;
+    const softDelete = req.body?.softDelete ?? req.query?.softDelete ?? true;
     const reason =
-      req.body.reason || req.query.reason || 'User requested deletion';
+      req.body?.reason || req.query?.reason || 'User requested deletion';
 
     logger.info('[UserDeletion] Account deletion initiated', {
       userId,
@@ -169,7 +204,7 @@ router.delete('/:id', authenticateJWT, async (req, res) => {
  * Rate Limit: Standard (100 req/min)
  * Authorization: User can only restore their own account
  */
-router.post('/:id/restore', authenticateJWT, async (req, res) => {
+router.post('/:id/restore', authenticateJWT, validateSchema(userIdParamSchema), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -256,7 +291,7 @@ router.post('/:id/restore', authenticateJWT, async (req, res) => {
  * Rate Limit: Standard (100 req/min)
  * Authorization: User can only check their own status
  */
-router.get('/:id/deletion-status', authenticateJWT, async (req, res) => {
+router.get('/:id/deletion-status', authenticateJWT, validateSchema(userIdParamSchema), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -358,7 +393,7 @@ router.get('/:id/deletion-status', authenticateJWT, async (req, res) => {
  * Rate Limit: Standard (100 req/min)
  * Authorization: Admin only
  */
-router.post('/:id/permanent-delete', authenticateJWT, async (req, res) => {
+router.post('/:id/permanent-delete', authenticateJWT, validateSchema(userIdParamSchema), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
