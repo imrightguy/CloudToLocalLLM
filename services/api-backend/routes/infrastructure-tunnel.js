@@ -21,11 +21,32 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateInfrastructure } from '../middleware/infrastructure-auth.js';
 import { getInfrastructureTunnelService } from '../services/cloudflare-infrastructure-tunnel-service.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import logger from '../logger.js';
 
 const router = express.Router();
+
+const ingressEntrySchema = z.object({
+  hostname: z.string().optional(),
+  service: z.string().optional(),
+  originRequest: z.record(z.unknown()).optional(),
+}).passthrough();
+
+const updateRoutesBodySchema = {
+  body: z.object({
+    ingress: z.array(ingressEntrySchema).min(1),
+    warpRouting: z.record(z.unknown()).optional(),
+  }),
+};
+
+const dnsSyncBodySchema = {
+  body: z.object({
+    subdomains: z.array(z.string()).optional(),
+  }),
+};
 
 /**
  * GET /api/infrastructure/tunnel/status
@@ -132,17 +153,9 @@ router.get('/routes', authenticateInfrastructure, async (req, res) => {
  *
  * Authentication: X-Infrastructure-Key
  */
-router.put('/routes', authenticateInfrastructure, async (req, res) => {
+router.put('/routes', authenticateInfrastructure, validateSchema(updateRoutesBodySchema), async (req, res) => {
   try {
     const { ingress, warpRouting } = req.body;
-
-    if (!ingress || !Array.isArray(ingress)) {
-      return res.status(400).json({
-        error: 'Bad request',
-        code: 'INVALID_INGRESS',
-        message: 'Request body must contain "ingress" array',
-      });
-    }
 
     const service = getInfrastructureTunnelService();
     const result = await service.updateIngressConfig(ingress, { warpRouting });
@@ -239,7 +252,7 @@ router.get('/dns', authenticateInfrastructure, async (req, res) => {
 /**
  * POST /api/infrastructure/tunnel/dns/sync
  *
- * Sync/repair DNS records for the tunnel
+ * Sync/repair DNS records for tunnel
  *
  * Request body (optional):
  * {
@@ -250,7 +263,7 @@ router.get('/dns', authenticateInfrastructure, async (req, res) => {
  *
  * Authentication: X-Infrastructure-Key
  */
-router.post('/dns/sync', authenticateInfrastructure, async (req, res) => {
+router.post('/dns/sync', authenticateInfrastructure, validateSchema(dnsSyncBodySchema), async (req, res) => {
   try {
     const service = getInfrastructureTunnelService();
     const { subdomains } = req.body;
