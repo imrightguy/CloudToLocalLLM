@@ -1,6 +1,8 @@
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
 import { addTierInfo } from '../middleware/tier-check.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import winston from 'winston';
 
 const router = express.Router();
@@ -27,6 +29,32 @@ const logger = winston.createLogger({
 // Global proxy config service (will be injected)
 let proxyConfigService = null;
 
+const createProxyConfigSchema = z.object({
+  config: z.record(z.unknown()).optional(),
+  templateId: z.string().max(255).optional(),
+});
+
+const updateProxyConfigSchema = z.object({
+  updates: z.record(z.unknown(), { message: 'updates object is required' }),
+  changeReason: z.string().max(1000).optional(),
+});
+
+const createTemplateSchema = z.object({
+  name: z.string().min(1).max(255),
+  config: z.record(z.unknown(), { message: 'config object is required' }),
+  description: z.string().max(2000).optional(),
+  isDefault: z.boolean().optional(),
+});
+
+const proxyIdParamSchema = z.object({
+  proxyId: z.string().min(1),
+});
+
+const applyTemplateParamSchema = z.object({
+  proxyId: z.string().min(1),
+  templateId: z.string().min(1),
+});
+
 /**
  * Initialize proxy config routes with service
  * @param {ProxyConfigService} configService - Proxy config service instance
@@ -46,19 +74,12 @@ router.post(
   '/config/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ body: createProxyConfigSchema, params: proxyIdParamSchema }),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
       const { config, templateId } = req.body;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_CONFIG_001',
-        });
-      }
 
       if (!proxyConfigService) {
         return res.status(503).json({
@@ -143,18 +164,11 @@ router.get(
   '/config/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ params: proxyIdParamSchema }),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_CONFIG_001',
-        });
-      }
 
       if (!proxyConfigService) {
         return res.status(503).json({
@@ -208,27 +222,12 @@ router.put(
   '/config/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ body: updateProxyConfigSchema, params: proxyIdParamSchema }),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
       const { updates, changeReason } = req.body;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_CONFIG_001',
-        });
-      }
-
-      if (!updates || typeof updates !== 'object') {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'updates object is required',
-          code: 'PROXY_CONFIG_001',
-        });
-      }
 
       if (!proxyConfigService) {
         return res.status(503).json({
@@ -298,6 +297,7 @@ router.delete(
   '/config/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ params: proxyIdParamSchema }),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
@@ -311,14 +311,6 @@ router.delete(
           error: 'FORBIDDEN',
           message: 'Admin access required',
           code: 'PROXY_CONFIG_006',
-        });
-      }
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_CONFIG_001',
         });
       }
 
@@ -366,19 +358,12 @@ router.get(
   '/config/:proxyId/history',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ params: proxyIdParamSchema }),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
       const limit = parseInt(req.query.limit || '50', 10);
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_CONFIG_001',
-        });
-      }
 
       if (!proxyConfigService) {
         return res.status(503).json({
@@ -426,6 +411,7 @@ router.post(
   '/config/templates',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ body: createTemplateSchema }),
   async (req, res) => {
     try {
       const userId = req.user?.sub;
@@ -439,14 +425,6 @@ router.post(
           error: 'FORBIDDEN',
           message: 'Admin access required',
           code: 'PROXY_CONFIG_006',
-        });
-      }
-
-      if (!name || !config) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'name and config are required',
-          code: 'PROXY_CONFIG_001',
         });
       }
 
@@ -610,18 +588,11 @@ router.post(
   '/config/:proxyId/apply-template/:templateId',
   authenticateJWT,
   addTierInfo,
+  validateSchema({ params: applyTemplateParamSchema }),
   async (req, res) => {
     try {
       const { proxyId, templateId } = req.params;
       const userId = req.user?.sub;
-
-      if (!proxyId || !templateId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId and templateId are required',
-          code: 'PROXY_CONFIG_001',
-        });
-      }
 
       if (!proxyConfigService) {
         return res.status(503).json({
