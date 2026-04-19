@@ -15,8 +15,10 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT, requireAdmin } from '../middleware/auth.js';
 import { adminDataFlushService } from '../admin-data-flush-service.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import logger from '../logger.js';
 
 // Import admin rate limiters
@@ -39,6 +41,21 @@ import adminDNSRoutes from './admin/dns.js';
 import adminBulkOperationsRoutes from './admin/bulk-operations.js';
 
 const router = express.Router();
+
+const flushPrepareBodySchema = {
+  body: z.object({
+    targetUserId: z.string().optional(),
+    scope: z.enum(['FULL_FLUSH', 'USER_SPECIFIC', 'CONTAINERS_ONLY', 'AUTH_ONLY']).optional(),
+  }),
+};
+
+const flushExecuteBodySchema = {
+  body: z.object({
+    confirmationToken: z.string({ required_error: 'Confirmation token is required' }),
+    targetUserId: z.string().optional(),
+    options: z.record(z.any()).optional(),
+  }),
+};
 
 /**
  * @swagger
@@ -178,34 +195,20 @@ router.post(
   authenticateJWT,
   requireAdmin,
   adminRateLimiter,
+  validateSchema(flushPrepareBodySchema),
   async (req, res) => {
     try {
       const { targetUserId, scope } = req.body;
       const adminUserId = req.user.sub;
 
-      logger.info('� [AdminAPI] Data flush preparation requested', {
+      logger.info('🔵 [AdminAPI] Data flush preparation requested', {
         adminUserId,
         targetUserId: targetUserId || 'ALL_USERS',
         scope: scope || 'FULL_FLUSH',
         userAgent: req.get('User-Agent'),
       });
 
-      // Validate scope
-      const validScopes = [
-        'FULL_FLUSH',
-        'USER_SPECIFIC',
-        'CONTAINERS_ONLY',
-        'AUTH_ONLY',
-      ];
       const flushScope = scope || 'FULL_FLUSH';
-
-      if (!validScopes.includes(flushScope)) {
-        return res.status(400).json({
-          error: 'Invalid flush scope',
-          code: 'INVALID_FLUSH_SCOPE',
-          validScopes,
-        });
-      }
 
       // Generate confirmation token
       const confirmationData = adminDataFlushService.generateConfirmationToken(
@@ -257,19 +260,13 @@ router.post(
   authenticateJWT,
   requireAdmin,
   adminCriticalLimiter,
+  validateSchema(flushExecuteBodySchema),
   async (req, res) => {
     try {
       const { confirmationToken, targetUserId, options = {} } = req.body;
       const adminUserId = req.user.sub;
 
-      if (!confirmationToken) {
-        return res.status(400).json({
-          error: 'Confirmation token required',
-          code: 'CONFIRMATION_TOKEN_REQUIRED',
-        });
-      }
-
-      logger.warn('� [AdminAPI] CRITICAL: Data flush execution requested', {
+      logger.warn('🔴 [AdminAPI] CRITICAL: Data flush execution requested', {
         adminUserId,
         targetUserId: targetUserId || 'ALL_USERS',
         options,
