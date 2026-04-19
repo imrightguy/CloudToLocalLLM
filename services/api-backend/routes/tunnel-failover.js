@@ -20,12 +20,27 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { TunnelFailoverService } from '../services/tunnel-failover-service.js';
 import logger from '../logger.js';
 
 const router = express.Router();
 let failoverService = null;
+
+const tunnelIdSchema = z.object({
+  tunnelId: z.string().uuid(),
+});
+
+const endpointIdBodySchema = z.object({
+  endpointId: z.string().uuid(),
+});
+
+const recordFailureBodySchema = z.object({
+  endpointId: z.string().uuid(),
+  error: z.string().optional(),
+});
 
 /**
  * Initialize the tunnel failover service
@@ -67,6 +82,7 @@ export async function initializeTunnelFailoverService() {
 router.get(
   '/:tunnelId/failover/endpoint',
   authenticateJWT,
+  validateSchema({ params: tunnelIdSchema }),
   async (req, res) => {
     try {
       if (!req.user) {
@@ -135,7 +151,7 @@ router.get(
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:tunnelId/failover/status', authenticateJWT, async (req, res) => {
+router.get('/:tunnelId/failover/status', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -197,7 +213,7 @@ router.get('/:tunnelId/failover/status', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:tunnelId/failover/manual', authenticateJWT, async (req, res) => {
+router.post('/:tunnelId/failover/manual', authenticateJWT, validateSchema({ params: tunnelIdSchema, body: endpointIdBodySchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -218,14 +234,6 @@ router.post('/:tunnelId/failover/manual', authenticateJWT, async (req, res) => {
     const { tunnelId } = req.params;
     const { endpointId } = req.body;
     const userId = req.user.sub;
-
-    if (!endpointId) {
-      return res.status(400).json({
-        error: 'Missing required field',
-        code: 'MISSING_ENDPOINT_ID',
-        message: 'endpointId is required',
-      });
-    }
 
     const endpoint = await failoverService.manualFailover(
       tunnelId,
@@ -293,6 +301,7 @@ router.post('/:tunnelId/failover/manual', authenticateJWT, async (req, res) => {
 router.post(
   '/:tunnelId/failover/record-failure',
   authenticateJWT,
+  validateSchema({ params: tunnelIdSchema, body: recordFailureBodySchema }),
   async (req, res) => {
     try {
       if (!req.user) {
@@ -313,14 +322,6 @@ router.post(
 
       const { tunnelId } = req.params;
       const { endpointId, error } = req.body;
-
-      if (!endpointId) {
-        return res.status(400).json({
-          error: 'Missing required field',
-          code: 'MISSING_ENDPOINT_ID',
-          message: 'endpointId is required',
-        });
-      }
 
       const state = await failoverService.recordEndpointFailure(
         endpointId,
@@ -371,6 +372,7 @@ router.post(
 router.post(
   '/:tunnelId/failover/record-success',
   authenticateJWT,
+  validateSchema({ params: tunnelIdSchema, body: endpointIdBodySchema }),
   async (req, res) => {
     try {
       if (!req.user) {
@@ -390,14 +392,6 @@ router.post(
       }
 
       const { endpointId } = req.body;
-
-      if (!endpointId) {
-        return res.status(400).json({
-          error: 'Missing required field',
-          code: 'MISSING_ENDPOINT_ID',
-          message: 'endpointId is required',
-        });
-      }
 
       await failoverService.recordEndpointSuccess(endpointId);
 
@@ -439,6 +433,7 @@ router.post(
 router.post(
   '/:tunnelId/failover/reset-failures',
   authenticateJWT,
+  validateSchema({ params: tunnelIdSchema, body: endpointIdBodySchema }),
   async (req, res) => {
     try {
       if (!req.user) {
@@ -458,14 +453,6 @@ router.post(
       }
 
       const { endpointId } = req.body;
-
-      if (!endpointId) {
-        return res.status(400).json({
-          error: 'Missing required field',
-          code: 'MISSING_ENDPOINT_ID',
-          message: 'endpointId is required',
-        });
-      }
 
       await failoverService.resetEndpointFailureCount(endpointId);
 
