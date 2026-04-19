@@ -1,9 +1,58 @@
 import express from 'express';
 import { authenticateJWT } from '../middleware/auth.js';
 import { addTierInfo } from '../middleware/tier-check.js';
+import { validateSchema } from '../middleware/schema-validation.js';
+import { z } from 'zod';
 import winston from 'winston';
 
 const router = express.Router();
+
+const createScalingPolicySchema = {
+  params: z.object({
+    proxyId: z.string().min(1),
+  }),
+  body: z.object({
+    minReplicas: z.number().int().min(1).optional(),
+    maxReplicas: z.number().int().min(1).optional(),
+    targetCpuPercent: z.number().min(0).max(100).optional(),
+    targetMemoryPercent: z.number().min(0).max(100).optional(),
+    targetRequestRate: z.number().min(0).optional(),
+    scaleUpThreshold: z.number().min(0).max(100).optional(),
+    scaleDownThreshold: z.number().min(0).max(100).optional(),
+    scaleUpCooldownSeconds: z.number().int().min(0).optional(),
+    scaleDownCooldownSeconds: z.number().int().min(0).optional(),
+    enabled: z.boolean().optional(),
+  })
+    .refine((data) => !data.maxReplicas || !data.minReplicas || data.maxReplicas >= data.minReplicas, {
+      message: 'maxReplicas must be >= minReplicas',
+      path: ['maxReplicas'],
+    })
+    .refine((data) => !data.scaleDownThreshold || !data.scaleUpThreshold || data.scaleDownThreshold < data.scaleUpThreshold, {
+      message: 'scaleDownThreshold must be less than scaleUpThreshold',
+      path: ['scaleDownThreshold'],
+    }),
+};
+
+const recordLoadMetricsSchema = {
+  params: z.object({
+    proxyId: z.string().min(1),
+  }),
+  body: z.object({
+    currentReplicas: z.number().int().min(1),
+    cpuPercent: z.number().min(0).max(100),
+    memoryPercent: z.number().min(0).max(100),
+    requestRate: z.number().min(0),
+    averageLatencyMs: z.number().min(0),
+    errorRate: z.number().min(0).max(1),
+    connectionCount: z.number().int().min(0),
+  }),
+};
+
+const proxyIdParamSchema = {
+  params: z.object({
+    proxyId: z.string().min(1),
+  }),
+};
 
 // Logger
 const logger = winston.createLogger({
@@ -46,19 +95,12 @@ router.post(
   '/scaling/policies/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema(createScalingPolicySchema),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
       const policy = req.body;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_SCALING_001',
-        });
-      }
 
       if (!proxyScalingService) {
         return res.status(503).json({
@@ -120,18 +162,11 @@ router.get(
   '/scaling/policies/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema(proxyIdParamSchema),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_SCALING_001',
-        });
-      }
 
       if (!proxyScalingService) {
         return res.status(503).json({
@@ -184,6 +219,7 @@ router.post(
   '/scaling/metrics/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema(recordLoadMetricsSchema),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
@@ -261,18 +297,11 @@ router.get(
   '/scaling/metrics/:proxyId',
   authenticateJWT,
   addTierInfo,
+  validateSchema(proxyIdParamSchema),
   async (req, res) => {
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_SCALING_001',
-        });
-      }
 
       if (!proxyScalingService) {
         return res.status(503).json({
@@ -329,14 +358,6 @@ router.post(
     try {
       const { proxyId } = req.params;
       const userId = req.user?.sub;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: 'INVALID_REQUEST',
-          message: 'proxyId is required',
-          code: 'PROXY_SCALING_001',
-        });
-      }
 
       if (!proxyScalingService) {
         return res.status(503).json({
