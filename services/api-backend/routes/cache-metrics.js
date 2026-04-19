@@ -8,12 +8,21 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { getCacheStats, clearCache } from '../database/cached-query-wrapper.js';
 import { getQueryCache } from '../database/query-cache.js';
 import { adminAuth } from '../middleware/admin-auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import logger from '../logger.js';
 
 const router = express.Router();
+
+const invalidateCacheBodySchema = z.object({
+  pattern: z.string().regex(/.+/).optional(),
+  table: z.string().min(1).optional(),
+}).refine((data) => data.pattern || data.table, {
+  message: 'Either pattern or table must be provided',
+});
 
 /**
  * GET /cache/stats
@@ -61,16 +70,9 @@ router.post('/clear', adminAuth(['manage_system']), (req, res) => {
  * POST /cache/invalidate
  * Invalidate cache by pattern
  */
-router.post('/invalidate', adminAuth(['manage_system']), (req, res) => {
+router.post('/invalidate', adminAuth(['manage_system']), validateSchema({ body: invalidateCacheBodySchema }), async (req, res) => {
   try {
     const { pattern, table } = req.body;
-
-    if (!pattern && !table) {
-      return res.status(400).json({
-        success: false,
-        error: 'Either pattern or table must be provided',
-      });
-    }
 
     const cache = getQueryCache();
     let invalidatedCount = 0;

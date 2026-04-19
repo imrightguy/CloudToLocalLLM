@@ -1,10 +1,22 @@
 import express from 'express';
+import { z } from 'zod';
 import crypto from 'crypto';
 import { getPool } from '../database/db-pool.js';
 import dashboardWSManager from '../websocket/dashboard-ws.js';
 import logger from '../logger.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
+
+const agentEventBodySchema = z.object({
+  agent_id: z.string().min(1),
+  event_type: z.string().min(1),
+  event_data: z.object({
+    agent_name: z.string().optional(),
+    agent_type: z.string().optional(),
+  }).optional(),
+  correlation_id: z.string().optional(),
+});
 
 // Middleware: Verify webhook signature
 const verifyWebhookSignature = (req, res, next) => {
@@ -31,7 +43,7 @@ const verifyWebhookSignature = (req, res, next) => {
   next();
 };
 
-router.post('/', verifyWebhookSignature, async (req, res) => {
+router.post('/', verifyWebhookSignature, validateSchema({ body: agentEventBodySchema }), async (req, res) => {
   logger.info('Received agent event request');
   const { agent_id, event_type, event_data, correlation_id } = req.body;
   const pool = getPool();
