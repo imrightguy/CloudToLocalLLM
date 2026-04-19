@@ -11,8 +11,10 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import winston from 'winston';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { sandboxService } from '../services/sandbox-service.js';
 
 const router = express.Router();
@@ -34,6 +36,40 @@ const logger = winston.createLogger({
       ),
     }),
   ],
+});
+
+// Zod schemas for validation
+const createMockUserSchema = z.object({
+  email: z.string().email().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  tier: z.string().optional(),
+});
+
+const createMockTunnelSchema = z.object({
+  userId: z.string().optional(),
+  name: z.string().optional(),
+});
+
+const createMockWebhookSchema = z.object({
+  userId: z.string().optional(),
+  url: z.string().url().optional(),
+  events: z.array(z.string()).optional(),
+});
+
+const updateTunnelStatusSchema = z.object({
+  status: z.string().min(1),
+});
+
+const recordTunnelMetricsSchema = z.object({
+  requestCount: z.number().int().nonnegative().optional(),
+  successCount: z.number().int().nonnegative().optional(),
+  errorCount: z.number().int().nonnegative().optional(),
+  latency: z.number().nonnegative().optional(),
+});
+
+const tunnelIdSchema = z.object({
+  tunnelId: z.string().min(1),
 });
 
 /**
@@ -86,7 +122,7 @@ router.get('/credentials', (req, res) => {
  * POST /sandbox/users
  * Create mock user for testing
  */
-router.post('/users', (req, res) => {
+router.post('/users', validateSchema({ body: createMockUserSchema }), (req, res) => {
   if (!req.isSandbox) {
     return res.status(403).json({
       error: {
@@ -127,7 +163,7 @@ router.post('/users', (req, res) => {
  * POST /sandbox/tunnels
  * Create mock tunnel for testing
  */
-router.post('/tunnels', (req, res) => {
+router.post('/tunnels', validateSchema({ body: createMockTunnelSchema }), (req, res) => {
   if (!req.isSandbox) {
     return res.status(403).json({
       error: {
@@ -166,7 +202,7 @@ router.post('/tunnels', (req, res) => {
  * POST /sandbox/webhooks
  * Create mock webhook for testing
  */
-router.post('/webhooks', (req, res) => {
+router.post('/webhooks', validateSchema({ body: createMockWebhookSchema }), (req, res) => {
   if (!req.isSandbox) {
     return res.status(403).json({
       error: {
@@ -388,7 +424,7 @@ router.get('/tunnels/:tunnelId', (req, res) => {
  * PATCH /sandbox/tunnels/:tunnelId/status
  * Update mock tunnel status
  */
-router.patch('/tunnels/:tunnelId/status', (req, res) => {
+router.patch('/tunnels/:tunnelId/status', validateSchema({ params: tunnelIdSchema, body: updateTunnelStatusSchema }), (req, res) => {
   if (!req.isSandbox) {
     return res.status(403).json({
       error: {
@@ -401,15 +437,6 @@ router.patch('/tunnels/:tunnelId/status', (req, res) => {
   try {
     const { tunnelId } = req.params;
     const { status } = req.body;
-
-    if (!status) {
-      return res.status(400).json({
-        error: {
-          code: 'INVALID_REQUEST',
-          message: 'Status is required',
-        },
-      });
-    }
 
     sandboxService.updateMockTunnelStatus(tunnelId, status);
     const tunnel = sandboxService.getMockTunnel(tunnelId);
@@ -435,7 +462,7 @@ router.patch('/tunnels/:tunnelId/status', (req, res) => {
  * POST /sandbox/tunnels/:tunnelId/metrics
  * Record mock tunnel metrics
  */
-router.post('/tunnels/:tunnelId/metrics', (req, res) => {
+router.post('/tunnels/:tunnelId/metrics', validateSchema({ params: tunnelIdSchema, body: recordTunnelMetricsSchema }), (req, res) => {
   if (!req.isSandbox) {
     return res.status(403).json({
       error: {
