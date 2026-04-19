@@ -11,8 +11,10 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { authenticateJWT, requireAdmin } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import {
   getAuthAuditLogs,
   getAuthAuditLogsCount,
@@ -23,6 +25,36 @@ import {
 } from '../services/auth-audit-service.js';
 
 const router = express.Router();
+
+const auditLogsQuerySchema = {
+  query: z.object({
+    limit: z.coerce.number().int().min(1).max(100).optional().default(50),
+    offset: z.coerce.number().int().min(0).optional().default(0),
+    eventType: z.string().optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+  }),
+};
+
+const auditLogsQueryNoEventSchema = {
+  query: z.object({
+    limit: z.coerce.number().int().min(1).max(100).optional().default(50),
+    offset: z.coerce.number().int().min(0).optional().default(0),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+  }),
+};
+
+const auditLogsQueryAdminSchema = {
+  query: z.object({
+    limit: z.coerce.number().int().min(1).max(500).optional().default(100),
+    offset: z.coerce.number().int().min(0).optional().default(0),
+    eventType: z.string().optional(),
+    severity: z.string().optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+  }),
+};
 
 /**
  * GET /auth/audit-logs/me
@@ -39,7 +71,7 @@ const router = express.Router();
  * - Logs all authentication attempts (success and failure)
  * - Provides audit log retrieval for users
  */
-router.get('/audit-logs/me', authenticateJWT, async (req, res) => {
+router.get('/audit-logs/me', authenticateJWT, validateSchema(auditLogsQuerySchema), async (req, res) => {
   try {
     const userId = req.user?.sub || req.userId;
 
@@ -50,25 +82,7 @@ router.get('/audit-logs/me', authenticateJWT, async (req, res) => {
       });
     }
 
-    // Parse query parameters
-    let limit = parseInt(req.query.limit) || 50;
-    let offset = parseInt(req.query.offset) || 0;
-    const eventType = req.query.eventType || null;
-    const startDate = req.query.startDate || null;
-    const endDate = req.query.endDate || null;
-
-    // Validate and constrain limit
-    if (limit < 1) {
-      limit = 1;
-    }
-    if (limit > 100) {
-      limit = 100;
-    }
-
-    // Validate and constrain offset
-    if (offset < 0) {
-      offset = 0;
-    }
+    const { limit, offset, eventType, startDate, endDate } = req.query;
 
     logger.info('[AuthAudit] Retrieving audit logs for user', {
       userId,
@@ -131,7 +145,7 @@ router.get('/audit-logs/me', authenticateJWT, async (req, res) => {
  * - Logs all authentication attempts (success and failure)
  * - Provides failed login attempt retrieval
  */
-router.get('/audit-logs/failed-attempts', authenticateJWT, async (req, res) => {
+router.get('/audit-logs/failed-attempts', authenticateJWT, validateSchema(auditLogsQueryNoEventSchema), async (req, res) => {
   try {
     const userId = req.user?.sub || req.userId;
 
@@ -142,24 +156,7 @@ router.get('/audit-logs/failed-attempts', authenticateJWT, async (req, res) => {
       });
     }
 
-    // Parse query parameters
-    let limit = parseInt(req.query.limit) || 50;
-    let offset = parseInt(req.query.offset) || 0;
-    const startDate = req.query.startDate || null;
-    const endDate = req.query.endDate || null;
-
-    // Validate and constrain limit
-    if (limit < 1) {
-      limit = 1;
-    }
-    if (limit > 100) {
-      limit = 100;
-    }
-
-    // Validate and constrain offset
-    if (offset < 0) {
-      offset = 0;
-    }
+    const { limit, offset, startDate, endDate } = req.query;
 
     logger.info('[AuthAudit] Retrieving failed login attempts for user', {
       userId,
@@ -226,28 +223,10 @@ router.get(
   '/admin/auth/audit-logs',
   authenticateJWT,
   requireAdmin,
+  validateSchema(auditLogsQueryAdminSchema),
   async (req, res) => {
     try {
-      // Parse query parameters
-      let limit = parseInt(req.query.limit) || 100;
-      let offset = parseInt(req.query.offset) || 0;
-      const eventType = req.query.eventType || null;
-      const severity = req.query.severity || null;
-      const startDate = req.query.startDate || null;
-      const endDate = req.query.endDate || null;
-
-      // Validate and constrain limit
-      if (limit < 1) {
-        limit = 1;
-      }
-      if (limit > 500) {
-        limit = 500;
-      }
-
-      // Validate and constrain offset
-      if (offset < 0) {
-        offset = 0;
-      }
+      const { limit, offset, eventType, severity, startDate, endDate } = req.query;
 
       logger.info('[AuthAudit] Admin retrieving system-wide audit logs', {
         adminUserId: req.user?.sub,
