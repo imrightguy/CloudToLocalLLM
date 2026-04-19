@@ -19,13 +19,38 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { authenticateJWT } from '../middleware/auth.js';
 import { authorizeRBAC, requireAdmin } from '../middleware/rbac.js';
-import { validateInput } from '../utils/input-validation.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
 let quotaService;
+
+const resourceTypeSchema = {
+  params: z.object({
+    resourceType: z.string().min(1).max(100),
+  }),
+};
+
+const quotaEventsSchema = {
+  query: z.object({
+    resourceType: z.string().optional(),
+    eventType: z.string().optional(),
+    limit: z.coerce.number().int().min(1).max(1000).default(100),
+    offset: z.coerce.number().int().min(0).default(0),
+  }),
+};
+
+const resetQuotaSchema = {
+  params: z.object({
+    resourceType: z.string().min(1).max(100),
+  }),
+  body: z.object({
+    userId: z.string().uuid(),
+  }),
+};
 
 /**
  * Initialize the quota routes with service
@@ -81,13 +106,10 @@ router.get('/quotas', authenticateJWT, async function (req, res) {
  * Response: 200 OK with quota
  * Error: 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Internal Server Error
  */
-router.get('/quotas/:resourceType', authenticateJWT, async function (req, res) {
+router.get('/quotas/:resourceType', authenticateJWT, validateSchema(resourceTypeSchema), async function (req, res) {
   try {
     const { resourceType } = req.params;
     const userId = req.user.sub;
-
-    // Validate input
-    validateInput(resourceType, 'resourceType', 'string');
 
     logger.info('[QuotaRoutes] Getting quota for resource', {
       userId,
@@ -150,7 +172,7 @@ router.get('/quotas/:resourceType', authenticateJWT, async function (req, res) {
  * Response: 200 OK with quota events
  * Error: 401 Unauthorized, 500 Internal Server Error
  */
-router.get('/quotas/events', authenticateJWT, async function (req, res) {
+router.get('/quotas/events', authenticateJWT, validateSchema(quotaEventsSchema), async function (req, res) {
   try {
     const userId = req.user.sub;
     const { resourceType, eventType, limit = 100, offset = 0 } = req.query;
@@ -242,14 +264,11 @@ router.post(
   authenticateJWT,
   authorizeRBAC,
   requireAdmin(),
+  validateSchema(resetQuotaSchema),
   async function (req, res) {
     try {
       const { resourceType } = req.params;
       const { userId } = req.body;
-
-      // Validate inputs
-      validateInput(resourceType, 'resourceType', 'string');
-      validateInput(userId, 'userId', 'uuid');
 
       logger.info('[QuotaRoutes] Resetting quota', {
         adminId: req.user.sub,
