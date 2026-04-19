@@ -4,7 +4,9 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { TunnelLogger } from '../utils/logger.js';
 
 const router = express.Router();
@@ -13,6 +15,24 @@ const logger = new TunnelLogger('rate-limit-exemptions-routes');
 
 // Global exemption manager (will be injected)
 let exemptionManager = null;
+
+// Zod schemas for validation
+const exemptionIdSchema = z.object({
+  id: z.string().min(1),
+});
+
+const userIdSchema = z.object({
+  userId: z.string().min(1),
+});
+
+const addExemptionRuleSchema = z.object({
+  id: z.string().min(1),
+  type: z.string().min(1),
+  description: z.string().optional(),
+  enabled: z.boolean().optional(),
+  maxExemptionsPerUser: z.number().int().positive().optional(),
+  pathPatterns: z.array(z.string()).optional(),
+});
 
 /**
  * Initialize exemption routes with manager
@@ -59,7 +79,7 @@ router.get('/', (req, res) => {
  * POST /api/admin/rate-limit-exemptions
  * Add a new exemption rule
  */
-router.post('/', (req, res) => {
+router.post('/', validateSchema({ body: addExemptionRuleSchema }), (req, res) => {
   try {
     if (!exemptionManager) {
       return res.status(503).json({
@@ -68,15 +88,7 @@ router.post('/', (req, res) => {
       });
     }
 
-    const { id, type, description, enabled, maxExemptionsPerUser } = req.body;
-
-    // Validate required fields
-    if (!id || !type) {
-      return res.status(400).json({
-        code: 'INVALID_EXEMPTION_RULE',
-        message: 'Rule ID and type are required',
-      });
-    }
+    const { id, type, description, enabled, maxExemptionsPerUser, pathPatterns } = req.body;
 
     // Validate type
     const validTypes = Object.values(exemptionManager.config.exemptionTypes);
@@ -86,10 +98,6 @@ router.post('/', (req, res) => {
         message: `Invalid exemption type. Valid types: ${validTypes.join(', ')}`,
       });
     }
-
-    // Create a simple matcher function based on path patterns
-    // In production, this would be more sophisticated
-    const pathPatterns = req.body.pathPatterns || [];
     const matcher = (request) => {
       return pathPatterns.some((pattern) => {
         if (pattern.startsWith('/')) {
@@ -135,7 +143,7 @@ router.post('/', (req, res) => {
  * PATCH /api/admin/rate-limit-exemptions/:id/enable
  * Enable an exemption rule
  */
-router.patch('/:id/enable', (req, res) => {
+router.patch('/:id/enable', validateSchema({ params: exemptionIdSchema }), (req, res) => {
   try {
     if (!exemptionManager) {
       return res.status(503).json({
@@ -172,7 +180,7 @@ router.patch('/:id/enable', (req, res) => {
  * PATCH /api/admin/rate-limit-exemptions/:id/disable
  * Disable an exemption rule
  */
-router.patch('/:id/disable', (req, res) => {
+router.patch('/:id/disable', validateSchema({ params: exemptionIdSchema }), (req, res) => {
   try {
     if (!exemptionManager) {
       return res.status(503).json({
@@ -209,7 +217,7 @@ router.patch('/:id/disable', (req, res) => {
  * DELETE /api/admin/rate-limit-exemptions/:id
  * Remove an exemption rule
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateSchema({ params: exemptionIdSchema }), (req, res) => {
   try {
     if (!exemptionManager) {
       return res.status(503).json({
@@ -246,7 +254,7 @@ router.delete('/:id', (req, res) => {
  * POST /api/admin/rate-limit-exemptions/reset/user/:userId
  * Reset exemption counts for a user
  */
-router.post('/reset/user/:userId', (req, res) => {
+router.post('/reset/user/:userId', validateSchema({ params: userIdSchema }), (req, res) => {
   try {
     if (!exemptionManager) {
       return res.status(503).json({
