@@ -1,8 +1,25 @@
 import express from 'express';
+import { z } from 'zod';
 const router = express.Router();
 import db from '../database/db-pool.js';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import logger from '../logger.js';
+
+const updateSessionTokensSchema = {
+  body: z.object({
+    sessionToken: z.string().min(1, 'sessionToken is required'),
+    accessToken: z.string().optional(),
+    idToken: z.string().optional(),
+    refreshToken: z.string().optional(),
+  }),
+};
+
+const tokenParamSchema = {
+  params: z.object({
+    token: z.string().min(1, 'token is required'),
+  }),
+};
 
 /**
  * POST /auth/sessions
@@ -79,7 +96,7 @@ router.get('/current', authenticateJWT, async (req, res) => {
  * GET /auth/sessions/validate/:token
  * Validate a session token and return session data
  */
-router.get('/validate/:token', authenticateJWT, async (req, res) => {
+router.get('/validate/:token', validateSchema(tokenParamSchema), authenticateJWT, async (req, res) => {
   try {
     const { token } = req.params;
 
@@ -136,13 +153,9 @@ router.get('/validate/:token', authenticateJWT, async (req, res) => {
  * PUT /auth/sessions/tokens
  * Update tokens for the current session
  */
-router.put('/tokens', authenticateJWT, async (req, res) => {
+router.put('/tokens', validateSchema(updateSessionTokensSchema), authenticateJWT, async (req, res) => {
   try {
     const { sessionToken, accessToken, idToken, refreshToken } = req.body;
-
-    if (!sessionToken) {
-      return res.status(400).json({ error: 'Session token is required' });
-    }
 
     const result = await db.query(
       `UPDATE user_sessions 
@@ -170,7 +183,7 @@ router.put('/tokens', authenticateJWT, async (req, res) => {
  * DELETE /auth/sessions/:token
  * Invalidate a session
  */
-router.delete('/:token', authenticateJWT, async (req, res) => {
+router.delete('/:token', validateSchema(tokenParamSchema), authenticateJWT, async (req, res) => {
   try {
     const { token } = req.params;
 
