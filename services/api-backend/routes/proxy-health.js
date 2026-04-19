@@ -1,9 +1,15 @@
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
 import { addTierInfo } from '../middleware/tier-check.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import winston from 'winston';
 
 const router = express.Router();
+
+const proxyIdSchema = z.object({
+  proxyId: z.string().uuid(),
+});
 
 // Logger
 const logger = winston.createLogger({
@@ -42,7 +48,7 @@ export function createProxyHealthRoutes(healthService) {
  * Get health status for a specific proxy
  * Validates: Requirements 5.3
  */
-router.get('/health/:proxyId', authenticateJWT, addTierInfo, (req, res) => {
+router.get('/health/:proxyId', authenticateJWT, validateSchema({ params: proxyIdSchema }), addTierInfo, (req, res) => {
   try {
     const { proxyId } = req.params;
     const userId = req.user?.sub;

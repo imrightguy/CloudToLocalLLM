@@ -172,7 +172,7 @@ router.post('/:proxyId/webhooks',
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:proxyId/webhooks', authenticateJWT, async (req, res) => {
+router.get('/:proxyId/webhooks', authenticateJWT, validateSchema({ params: z.object({ proxyId: z.string().uuid() }) }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
