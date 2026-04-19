@@ -1,11 +1,31 @@
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
 import { TunnelLogger } from '../utils/logger.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import db from '../database/db-pool.js';
 
 const logger = new TunnelLogger('subagent-registry-routes');
 const router = express.Router();
 router.use(authenticateJWT);
+
+const createSubagentSchema = {
+  body: z.object({
+    subagentId: z.string().min(1),
+    label: z.string().optional(),
+    agentId: z.string().min(1),
+    task: z.string().optional(),
+  }),
+};
+
+const updateSubagentStatusSchema = {
+  body: z.object({
+    status: z.enum(['pending', 'running', 'completed', 'failed']),
+    result: z.record(z.unknown()).optional(),
+    logs: z.string().optional(),
+    error: z.string().optional(),
+  }),
+};
 
 /**
  * GET /api/admin/subagents
@@ -57,16 +77,9 @@ router.get('/', async (req, res) => {
  * Register a new subagent
  * Accessible to all agents
  */
-router.post('/', async (req, res) => {
+router.post('/', validateSchema(createSubagentSchema), async (req, res) => {
   try {
     const { subagentId, label, agentId, task } = req.body;
-
-    if (!subagentId || !agentId) {
-      return res.status(400).json({
-        success: false,
-        error: 'subagentId and agentId are required',
-      });
-    }
 
     const result = await db.query(
       `INSERT INTO subagent_registry (subagent_id, label, agent_id, task, status)
@@ -140,17 +153,10 @@ router.get('/:subagentId', async (req, res) => {
  * Update subagent status (start, complete, fail)
  * Accessible to all agents
  */
-router.patch('/:subagentId/status', async (req, res) => {
+router.patch('/:subagentId/status', validateSchema(updateSubagentStatusSchema), async (req, res) => {
   const { subagentId } = req.params;
   try {
     const { status, result, logs, error } = req.body;
-
-    if (!['pending', 'running', 'completed', 'failed'].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid status. Must be pending, running, completed, or failed',
-      });
-    }
 
     const updates = ['status = $1'];
     const params = [status, subagentId];
