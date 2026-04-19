@@ -8,12 +8,25 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import winston from 'winston';
 import { errorRecoveryService } from '../services/error-recovery-service.js';
 import { authenticateJWT } from '../middleware/auth.js';
 import { requireAdmin as createRequireAdminMiddleware } from '../middleware/rbac.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
+
+const serviceNameParamSchema = z.object({
+  serviceName: z.string().min(1),
+});
+
+const recoverServiceSchema = {
+  params: serviceNameParamSchema,
+  body: z.object({
+    reason: z.string().optional(),
+  }),
+};
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -70,19 +83,12 @@ router.get(
  */
 router.get(
   '/status/:serviceName',
+  validateSchema({ params: serviceNameParamSchema }),
   authenticateJWT,
   createRequireAdminMiddleware(),
   (req, res) => {
     try {
       const { serviceName } = req.params;
-
-      if (!serviceName) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Service name is required',
-          timestamp: new Date().toISOString(),
-        });
-      }
 
       const status = errorRecoveryService.getRecoveryStatus(serviceName);
 
@@ -111,21 +117,14 @@ router.get(
  */
 router.post(
   '/recover/:serviceName',
+  validateSchema(recoverServiceSchema),
   authenticateJWT,
   createRequireAdminMiddleware(),
   async (req, res) => {
     try {
       const { serviceName } = req.params;
-      const { reason } = req.body || {};
+      const { reason } = req.body;
       const userId = req.auth?.payload?.sub;
-
-      if (!serviceName) {
-        return res.status(400).json({
-          status: 'error',
-          message: 'Service name is required',
-          timestamp: new Date().toISOString(),
-        });
-      }
 
       logger.info(`Recovery initiated for service: ${serviceName}`, {
         userId,
