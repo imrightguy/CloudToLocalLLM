@@ -25,7 +25,10 @@ const verifyWebhookSignature = (req, res, next) => {
   const signature = req.headers['x-openclaw-signature'];
 
   if (!webhookSecret) {
-    return next(); // Skip verification if secret not configured (for dev)
+    logger.error('OpenClaw webhook secret not configured', {
+      agentId: req.body?.agent_id,
+    });
+    return res.status(500).json({ error: 'Webhook secret not configured' });
   }
 
   const expectedSignature = crypto
