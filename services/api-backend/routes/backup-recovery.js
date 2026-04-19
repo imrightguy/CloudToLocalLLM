@@ -8,12 +8,20 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { getBackupRecoveryService } from '../services/backup-recovery-service.js';
 import { authenticateJWT, requireAdmin } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
 const backupService = getBackupRecoveryService();
+
+const restoreBackupBodySchema = {
+  body: z.object({
+    confirmed: z.boolean({ required_error: 'confirmed is required' }),
+  }),
+};
 
 /**
  * POST /backup/create
@@ -202,21 +210,12 @@ router.post(
   '/backup/:backupId/restore',
   authenticateJWT,
   requireAdmin,
+  validateSchema(restoreBackupBodySchema),
   async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
-    const { confirmed } = req.body;
 
     try {
-      if (!confirmed) {
-        return res.status(400).json({
-          success: false,
-          error: 'Restoration requires confirmation',
-          message: 'Set confirmed: true to proceed with restoration',
-          correlationId,
-        });
-      }
-
       logger.warn('🟡 [BackupRecovery] Starting database restoration', {
         correlationId,
         backupId,
