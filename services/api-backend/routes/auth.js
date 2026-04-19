@@ -8,11 +8,13 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import logger from '../logger.js';
 import { authenticateJWT, extractUserId } from '../middleware/auth.js';
 import { logLogout, logTokenRevoke } from '../services/auth-audit-service.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
 
@@ -27,6 +29,12 @@ const authCheckLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+const revokeSessionSchema = {
+  body: z.object({
+    sessionId: z.string().uuid({ message: 'sessionId must be a valid UUID' }),
+  }),
+};
 
 // Token refresh configuration
 const TOKEN_REFRESH_WINDOW = parseInt(process.env.TOKEN_REFRESH_WINDOW) || 300; // 5 minutes before expiry
@@ -314,19 +322,16 @@ router.post('/logout', authenticateJWT, async function (req, res) {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/session/revoke', authenticateJWT, async function (req, res) {
-  try {
-    const userId = extractUserId(req);
-    const { sessionId } = req.body;
+router.post(
+  '/session/revoke',
+  authenticateJWT,
+  validateSchema(revokeSessionSchema),
+  async function (req, res) {
+    try {
+      const userId = extractUserId(req);
+      const { sessionId } = req.body;
 
-    if (!sessionId) {
-      return res.status(400).json({
-        error: 'Session ID required',
-        code: 'MISSING_SESSION_ID',
-      });
-    }
-
-    logger.info('[Auth] Session revocation initiated', { userId, sessionId });
+      logger.info('[Auth] Session revocation initiated', { userId, sessionId });
 
     // Log token revocation
     logTokenRevoke({
