@@ -40,11 +40,21 @@ export const validateSchema = (schemas) => {
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const details = error.errors.map((err) => ({
+        const issues = error.issues ?? error.errors ?? [];
+        const details = issues.map((err) => ({
           path: err.path.join('.'),
           message: err.message,
           code: err.code,
         }));
+
+        const pathToCode = {
+          name: 'INVALID_NAME',
+          scopes: 'INVALID_SCOPES',
+          rateLimit: 'INVALID_RATE_LIMIT',
+        };
+        const firstPath = issues[0]?.path[0];
+        const responseCode =
+          pathToCode[firstPath] ?? (issues[0]?.path.length === 0 ? 'INVALID_FIELDS' : 'VALIDATION_ERROR');
 
         logger.warn('[Validation] Schema validation failed', {
           path: req.path,
@@ -55,7 +65,7 @@ export const validateSchema = (schemas) => {
 
         return res.status(400).json({
           error: 'Validation failed',
-          code: 'VALIDATION_ERROR',
+          code: responseCode,
           details,
         });
       }

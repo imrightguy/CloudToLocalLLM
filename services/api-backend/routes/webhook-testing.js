@@ -44,7 +44,9 @@ const testSendSchema = {
       .refine((url) => {
         try {
           const parsed = new URL(url);
-          if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+          if (!['http:', 'https:'].includes(parsed.protocol)) {
+            return false;
+          }
           const hostname = parsed.hostname.toLowerCase();
           if (
             hostname === 'localhost' ||
