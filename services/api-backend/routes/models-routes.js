@@ -1,11 +1,31 @@
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import db from '../database/db-pool.js';
 import { TunnelLogger } from '../utils/logger.js';
 
 const router = express.Router();
 router.use(authenticateJWT);
 const logger = new TunnelLogger('models-routes');
+
+const createModelSchema = {
+  body: z.object({
+    model_id: z.string().min(1, 'model_id is required'),
+    alias: z.string().optional(),
+    context_window: z.number().int().positive().optional(),
+    max_tokens: z.number().int().positive().optional(),
+    pricing_input: z.number().nonnegative().optional(),
+    pricing_output: z.number().nonnegative().optional(),
+    is_primary: z.boolean().optional(),
+  }),
+};
+
+const modelIdSchema = {
+  params: z.object({
+    modelId: z.string().min(1, 'modelId is required'),
+  }),
+};
 
 /**
  * GET /api/admin/models
@@ -36,7 +56,7 @@ router.get('/', async (req, res) => {
  * GET /api/admin/models/:modelId
  * Get a specific model's details
  */
-router.get('/:modelId', async (req, res) => {
+router.get('/:modelId', validateSchema(modelIdSchema), async (req, res) => {
   const { modelId } = req.params;
   try {
     const model = await db.query(
@@ -70,7 +90,7 @@ router.get('/:modelId', async (req, res) => {
  * POST /api/admin/models
  * Add or update a model
  */
-router.post('/', async (req, res) => {
+router.post('/', validateSchema(createModelSchema), async (req, res) => {
   try {
     const {
       model_id,
@@ -81,13 +101,6 @@ router.post('/', async (req, res) => {
       pricing_output,
       is_primary,
     } = req.body;
-
-    if (!model_id) {
-      return res.status(400).json({
-        success: false,
-        error: 'model_id is required',
-      });
-    }
 
     const result = await db.query(
       `INSERT INTO models (model_id, alias, context_window, max_tokens, pricing_input, pricing_output, is_primary)
