@@ -54,7 +54,7 @@ const { communicationSchemas, uuidParam } = require('../config/validation-schema
  *                     meta:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
-router.get('/', authenticateToken, asyncHandler(communicationController.getCommunications));
+router.get('/', authenticateToken, validate(communicationSchemas.list), asyncHandler(communicationController.getCommunications));
 
 /**
  * @swagger
@@ -93,7 +93,7 @@ router.get('/', authenticateToken, asyncHandler(communicationController.getCommu
  *                           subject: { type: string }
  *                           createdAt: { type: string, format: date-time }
  */
-router.get('/activity', authenticateToken, asyncHandler(communicationController.getActivityFeed));
+router.get('/activity', authenticateToken, validate(communicationSchemas.activity), asyncHandler(communicationController.getActivityFeed));
 
 /**
  * @swagger
@@ -191,7 +191,7 @@ router.post('/', authenticateToken, validate(communicationSchemas.log), asyncHan
  *                     meta:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
-router.get('/logs', authenticateToken, asyncHandler(communicationController.getCommunicationLogs));
+router.get('/logs', authenticateToken, validate(communicationSchemas.logs), asyncHandler(communicationController.getCommunicationLogs));
 
 /**
  * @swagger

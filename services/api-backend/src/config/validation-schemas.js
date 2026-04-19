@@ -280,6 +280,26 @@ const renewalSchemas = {
 };
 
 const communicationSchemas = {
+  list: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      leadId: uuid,
+      type: Joi.string().valid('email', 'phone', 'sms', 'in_person', 'whatsapp'),
+    }),
+  },
+  activity: {
+    query: Joi.object({
+      limit: Joi.number().integer().min(1).max(100).default(20),
+    }),
+  },
+  logs: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      leadId: uuid,
+    }),
+  },
   log: {
     body: Joi.object({
       leadId: uuid.required(),
