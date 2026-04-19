@@ -14,12 +14,50 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { adminAuth } from '../middleware/admin-auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { alertConfigService } from '../services/alert-configuration-service.js';
 import { alertTriggeringService } from '../services/alert-triggering-service.js';
 
 const router = express.Router();
+
+const thresholdValueSchema = z.object({
+  warning: z.number().min(0).optional(),
+  critical: z.number().min(0).optional(),
+});
+
+const updateThresholdsSchema = z.object({
+  thresholds: z.record(z.string(), thresholdValueSchema).min(1),
+});
+
+const updateChannelsSchema = z.object({
+  channels: z.object({
+    email: z.boolean().optional(),
+    slack: z.boolean().optional(),
+    pagerduty: z.boolean().optional(),
+    webhook: z.boolean().optional(),
+  }),
+});
+
+const testAlertSchema = z.object({
+  metric: z.string().min(1),
+  value: z.number(),
+  severity: z.enum(['warning', 'critical']).optional().default('warning'),
+});
+
+const alertHistoryQuerySchema = z.object({
+  limit: z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .max(1000)
+    .optional()
+    .default(100),
+  metric: z.string().optional(),
+  severity: z.enum(['warning', 'critical']).optional(),
+});
 
 /**
  * GET /alert-config
@@ -81,17 +119,9 @@ router.get('/thresholds', adminAuth(['manage_alerts']), (req, res) => {
  * Requires: admin authentication
  * Body: { metric: { warning: number, critical: number } }
  */
-router.put('/thresholds', adminAuth(['manage_alerts']), (req, res) => {
+router.put('/thresholds', adminAuth(['manage_alerts']), validateSchema({ body: updateThresholdsSchema }), (req, res) => {
   try {
     const { thresholds } = req.body;
-
-    if (!thresholds || typeof thresholds !== 'object') {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid thresholds format',
-        code: 'INVALID_THRESHOLDS',
-      });
-    }
 
     const updated = alertConfigService.updateThresholds(thresholds);
 
@@ -152,17 +182,9 @@ router.get('/channels', adminAuth(['manage_alerts']), (req, res) => {
  * Requires: admin authentication
  * Body: { email: boolean, slack: boolean, pagerduty: boolean }
  */
-router.put('/channels', adminAuth(['manage_alerts']), (req, res) => {
+router.put('/channels', adminAuth(['manage_alerts']), validateSchema({ body: updateChannelsSchema }), (req, res) => {
   try {
     const { channels } = req.body;
-
-    if (!channels || typeof channels !== 'object') {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid channels format',
-        code: 'INVALID_CHANNELS',
-      });
-    }
 
     const updated = alertConfigService.updateEnabledChannels(channels);
 
@@ -196,12 +218,12 @@ router.put('/channels', adminAuth(['manage_alerts']), (req, res) => {
  * Requires: admin authentication
  * Query: limit (default 100), metric, severity
  */
-router.get('/history', adminAuth(['view_alerts']), (req, res) => {
+router.get('/history', adminAuth(['view_alerts']), validateSchema({ query: alertHistoryQuerySchema }), (req, res) => {
   try {
-    const { limit = 100, metric, severity } = req.query;
+    const { limit, metric, severity } = req.query;
 
     const history = alertConfigService.getAlertHistory({
-      limit: parseInt(limit, 10),
+      limit,
       metric,
       severity,
     });
@@ -259,17 +281,9 @@ router.get('/active', adminAuth(['view_alerts']), (req, res) => {
  * Requires: admin authentication
  * Body: { metric: string, value: number, severity: string }
  */
-router.post('/test', adminAuth(['manage_alerts']), async (req, res) => {
+router.post('/test', adminAuth(['manage_alerts']), validateSchema({ body: testAlertSchema }), async (req, res) => {
   try {
-    const { metric, value, severity = 'warning' } = req.body;
-
-    if (!metric || value === undefined) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: metric, value',
-        code: 'MISSING_FIELDS',
-      });
-    }
+    const { metric, value, severity } = req.body;
 
     await alertTriggeringService.manualTrigger(metric, value, severity);
 
