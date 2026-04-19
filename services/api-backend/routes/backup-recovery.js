@@ -17,7 +17,16 @@ import { validateSchema } from '../middleware/schema-validation.js';
 const router = express.Router();
 const backupService = getBackupRecoveryService();
 
+const backupIdParamSchema = {
+  params: z.object({
+    backupId: z.string().uuid({ message: 'backupId must be a valid UUID' }),
+  }),
+};
+
 const restoreBackupBodySchema = {
+  params: z.object({
+    backupId: z.string().uuid({ message: 'backupId must be a valid UUID' }),
+  }),
   body: z.object({
     confirmed: z.boolean({ required_error: 'confirmed is required' }),
   }),
@@ -116,6 +125,7 @@ router.get(
   '/backup/:backupId',
   authenticateJWT,
   requireAdmin,
+  validateSchema(backupIdParamSchema),
   async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
@@ -160,6 +170,7 @@ router.post(
   '/backup/:backupId/verify',
   authenticateJWT,
   requireAdmin,
+  validateSchema(backupIdParamSchema),
   async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
@@ -262,6 +273,7 @@ router.delete(
   '/backup/:backupId',
   authenticateJWT,
   requireAdmin,
+  validateSchema(backupIdParamSchema),
   async (req, res) => {
     const correlationId = req.correlationId || 'unknown';
     const { backupId } = req.params;
