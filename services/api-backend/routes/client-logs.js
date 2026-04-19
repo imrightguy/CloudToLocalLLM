@@ -1,12 +1,28 @@
 import express from 'express';
+import { z } from 'zod';
 import path from 'path';
 import { promises as fs } from 'fs';
 import logger from '../logger.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
 let logDir = process.env.CLIENT_LOG_DIR || '/tmp/logs';
 const logFileName = process.env.CLIENT_LOG_FILE || 'client-web.log';
 let logFilePath = path.join(logDir, logFileName);
+
+const logEntrySchema = z.object({
+  timestamp: z.string().isoDateTime().optional(),
+  level: z.string().optional(),
+  message: z.any(),
+  url: z.string().url().nullable().optional(),
+  userAgent: z.string().nullable().optional(),
+});
+
+const clientLogsBodySchema = z.object({
+  entries: z.array(logEntrySchema).min(1).max(200),
+  source: z.string().optional(),
+  sessionId: z.string().nullable().optional(),
+});
 
 async function ensureLogDirectory() {
   try {
@@ -27,15 +43,11 @@ async function ensureLogDirectory() {
   }
 }
 
-router.post('/', async (req, res) => {
+router.post('/', validateSchema({ body: clientLogsBodySchema }), async (req, res) => {
   try {
-    const { entries, source = 'web-client', sessionId = null } = req.body || {};
+    const { entries, source = 'web-client', sessionId = null } = req.body;
 
-    if (!Array.isArray(entries) || entries.length === 0) {
-      return res.status(400).json({ error: 'entries array is required' });
-    }
-
-    const sanitized = entries.slice(0, 200).map((entry) => ({
+    const sanitized = entries.map((entry) => ({
       timestamp: entry?.timestamp || new Date().toISOString(),
       level: entry?.level || 'INFO',
       message:
