@@ -11,12 +11,18 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
 import { getFailoverManager } from '../database/failover-manager.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import logger from '../logger.js';
 
 const router = express.Router();
 router.use(authenticateJWT);
+
+const triggerFailoverBodySchema = z.object({
+  standbyIndex: z.coerce.number().int().min(0),
+});
 
 /**
  * GET /failover/status
@@ -117,23 +123,9 @@ router.get('/health', async (req, res) => {
  * Manually trigger failover to a specific standby
  * Admin only
  */
-router.post('/trigger', async (req, res) => {
+router.post('/trigger', validateSchema({ body: triggerFailoverBodySchema }), async (req, res) => {
   try {
     const { standbyIndex } = req.body;
-
-    if (standbyIndex === undefined || standbyIndex === null) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required parameter: standbyIndex',
-      });
-    }
-
-    if (typeof standbyIndex !== 'number' || standbyIndex < 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid standbyIndex: must be a non-negative number',
-      });
-    }
 
     const failoverManager = getFailoverManager();
     const status = failoverManager.getFailoverStatus();
