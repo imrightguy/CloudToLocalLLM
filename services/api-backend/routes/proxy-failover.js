@@ -1,6 +1,8 @@
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
 import { authorizeRBAC } from '../middleware/rbac.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { ProxyFailoverService } from '../services/proxy-failover-service.js';
 
 /**
@@ -13,24 +15,67 @@ export function createProxyFailoverRoutes(db, logger) {
   const router = express.Router();
   const failoverService = new ProxyFailoverService(db, logger);
 
+  // Zod schemas for validation
+  const failoverConfigSchema = z.object({
+    proxyId: z.string().min(1),
+    config: z.record(z.any()).optional(),
+  });
+
+  const proxyInstanceSchema = z.object({
+    proxyId: z.string().min(1),
+    instanceData: z.record(z.any()),
+  });
+
+  const instanceHealthSchema = z.object({
+    healthStatus: z.enum(['healthy', 'degraded', 'unhealthy', 'unknown']),
+    metrics: z.record(z.any()).optional(),
+  });
+
+  const evaluateFailoverSchema = z.object({
+    proxyId: z.string().min(1),
+  });
+
+  const executeFailoverSchema = z.object({
+    proxyId: z.string().min(1),
+    sourceInstanceId: z.string().min(1),
+    targetInstanceId: z.string().min(1),
+    reason: z.string().optional(),
+  });
+
+  const completeFailoverEventSchema = z.object({
+    status: z.enum(['success', 'failed', 'partial']),
+    errorMessage: z.string().optional(),
+    durationMs: z.number().int().positive().optional(),
+  });
+
+  const updateRedundancySchema = z.object({
+    statusData: z.record(z.any()),
+  });
+
+  const instanceIdSchema = z.object({
+    instanceId: z.string().min(1),
+  });
+
+  const eventIdSchema = z.object({
+    eventId: z.string().min(1),
+  });
+
+  const proxyIdSchema = z.object({
+    proxyId: z.string().min(1),
+  });
+
   /**
    * POST /proxy/failover/config
    * Create or update failover configuration for a proxy
    */
-  router.post('/proxy/failover/config', authenticateJWT, async (req, res) => {
-    try {
-      const { proxyId, config } = req.body;
-      const userId = req.user.sub;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: {
-            code: 'PROXY_FAILOVER_001',
-            message: 'proxyId is required',
-            statusCode: 400,
-          },
-        });
-      }
+  router.post(
+    '/proxy/failover/config',
+    authenticateJWT,
+    validateSchema({ body: failoverConfigSchema }),
+    async (req, res) => {
+      try {
+        const { proxyId, config } = req.body;
+        const userId = req.user.sub;
 
       const result = await failoverService.createFailoverConfiguration(
         proxyId,
@@ -105,20 +150,14 @@ export function createProxyFailoverRoutes(db, logger) {
    * POST /proxy/instances
    * Register a proxy instance
    */
-  router.post('/proxy/instances', authenticateJWT, async (req, res) => {
-    try {
-      const { proxyId, instanceData } = req.body;
-      const userId = req.user.sub;
-
-      if (!proxyId || !instanceData) {
-        return res.status(400).json({
-          error: {
-            code: 'PROXY_FAILOVER_005',
-            message: 'proxyId and instanceData are required',
-            statusCode: 400,
-          },
-        });
-      }
+  router.post(
+    '/proxy/instances',
+    authenticateJWT,
+    validateSchema({ body: proxyInstanceSchema }),
+    async (req, res) => {
+      try {
+        const { proxyId, instanceData } = req.body;
+        const userId = req.user.sub;
 
       const result = await failoverService.registerProxyInstance(
         proxyId,
@@ -183,20 +222,11 @@ export function createProxyFailoverRoutes(db, logger) {
   router.put(
     '/proxy/instances/:instanceId/health',
     authenticateJWT,
+    validateSchema({ params: instanceIdSchema, body: instanceHealthSchema }),
     async (req, res) => {
       try {
         const { instanceId } = req.params;
         const { healthStatus, metrics } = req.body;
-
-        if (!healthStatus) {
-          return res.status(400).json({
-            error: {
-              code: 'PROXY_FAILOVER_008',
-              message: 'healthStatus is required',
-              statusCode: 400,
-            },
-          });
-        }
 
         const result = await failoverService.updateInstanceHealth(
           instanceId,
@@ -229,20 +259,14 @@ export function createProxyFailoverRoutes(db, logger) {
    * POST /proxy/failover/evaluate
    * Evaluate if failover is needed
    */
-  router.post('/proxy/failover/evaluate', authenticateJWT, async (req, res) => {
-    try {
-      const { proxyId } = req.body;
-      const userId = req.user.sub;
-
-      if (!proxyId) {
-        return res.status(400).json({
-          error: {
-            code: 'PROXY_FAILOVER_010',
-            message: 'proxyId is required',
-            statusCode: 400,
-          },
-        });
-      }
+  router.post(
+    '/proxy/failover/evaluate',
+    authenticateJWT,
+    validateSchema({ body: evaluateFailoverSchema }),
+    async (req, res) => {
+      try {
+        const { proxyId } = req.body;
+        const userId = req.user.sub;
 
       const result = await failoverService.evaluateFailover(proxyId, userId);
 
@@ -273,22 +297,12 @@ export function createProxyFailoverRoutes(db, logger) {
     '/proxy/failover/execute',
     authenticateJWT,
     authorizeRBAC('admin'),
+    validateSchema({ body: executeFailoverSchema }),
     async (req, res) => {
       try {
         const { proxyId, sourceInstanceId, targetInstanceId, reason } =
           req.body;
         const userId = req.user.sub;
-
-        if (!proxyId || !sourceInstanceId || !targetInstanceId) {
-          return res.status(400).json({
-            error: {
-              code: 'PROXY_FAILOVER_012',
-              message:
-                'proxyId, sourceInstanceId, and targetInstanceId are required',
-              statusCode: 400,
-            },
-          });
-        }
 
         const result = await failoverService.executeFailover(
           proxyId,
@@ -327,20 +341,11 @@ export function createProxyFailoverRoutes(db, logger) {
     '/proxy/failover/events/:eventId/complete',
     authenticateJWT,
     authorizeRBAC('admin'),
+    validateSchema({ params: eventIdSchema, body: completeFailoverEventSchema }),
     async (req, res) => {
       try {
         const { eventId } = req.params;
         const { status, errorMessage, durationMs } = req.body;
-
-        if (!status) {
-          return res.status(400).json({
-            error: {
-              code: 'PROXY_FAILOVER_014',
-              message: 'status is required',
-              statusCode: 400,
-            },
-          });
-        }
 
         const result = await failoverService.completeFailoverEvent(
           eventId,
@@ -421,11 +426,12 @@ export function createProxyFailoverRoutes(db, logger) {
     '/proxy/:proxyId/redundancy',
     authenticateJWT,
     authorizeRBAC('admin'),
+    validateSchema({ params: proxyIdSchema, body: updateRedundancySchema }),
     async (req, res) => {
       try {
         const { proxyId } = req.params;
         const userId = req.user.sub;
-        const statusData = req.body;
+        const { statusData } = req.body;
 
         const result = await failoverService.updateRedundancyStatus(
           proxyId,
