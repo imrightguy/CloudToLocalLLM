@@ -1,12 +1,18 @@
 import express from 'express';
-import { authenticateJWT } from '../middleware/auth.js';
+import { z } from 'zod';
+import { authenticateJWT, requireAdmin } from '../middleware/auth.js';
 import { TunnelLogger } from '../utils/logger.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import db from '../database/db-pool.js';
 
 const logger = new TunnelLogger('behavior-warnings-routes');
 
 const router = express.Router();
-router.use(authenticateJWT);
+router.use(authenticateJWT, requireAdmin);
+
+const acknowledgeParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
 /**
  * GET /api/admin/behavior-warnings
@@ -39,7 +45,7 @@ router.get('/', async (req, res) => {
  * POST /api/admin/behavior-warnings/:id/acknowledge
  * Acknowledge a warning
  */
-router.post('/:id/acknowledge', async (req, res) => {
+router.post('/:id/acknowledge', validateSchema({ params: acknowledgeParamsSchema }), async (req, res) => {
   const { id } = req.params;
   try {
     await db.query(

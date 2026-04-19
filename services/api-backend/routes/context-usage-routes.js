@@ -1,7 +1,9 @@
 import express from 'express';
+import { z } from 'zod';
 import { TunnelLogger } from '../utils/logger.js';
 import db from '../database/db-pool.js';
 import { authenticateJWT, requireAdmin } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const logger = new TunnelLogger('context-usage-routes');
 
@@ -9,20 +11,17 @@ const router = express.Router();
 
 router.use(authenticateJWT, requireAdmin);
 
+const contextUsageQuerySchema = z.object({
+  sessionKey: z.string().min(1),
+});
+
 /**
  * GET /api/admin/context-usage
  * Get current context usage for a session
  */
-router.get('/', async (req, res) => {
+router.get('/', validateSchema({ query: contextUsageQuerySchema }), async (req, res) => {
   try {
-    const sessionKey = req.query.sessionKey;
-
-    if (!sessionKey) {
-      return res.status(400).json({
-        success: false,
-        error: 'sessionKey query parameter required',
-      });
-    }
+    const { sessionKey } = req.query;
 
     // Get current context usage
     const result = await db.query(
