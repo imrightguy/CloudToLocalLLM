@@ -20,11 +20,92 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { webhookTestingService } from '../services/webhook-testing-service.js';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 
 const router = express.Router();
+
+const testPayloadSchema = {
+  body: z.object({
+    eventType: z.string().min(1).max(200),
+    customData: z.record(z.unknown()).optional().default({}),
+  }),
+};
+
+const testSendSchema = {
+  body: z.object({
+    webhookUrl: z
+      .string()
+      .url()
+      .max(2048)
+      .refine((url) => {
+        try {
+          const parsed = new URL(url);
+          if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+          const hostname = parsed.hostname.toLowerCase();
+          if (
+            hostname === 'localhost' ||
+            hostname === '127.0.0.1' ||
+            hostname === '0.0.0.0' ||
+            hostname === '::1' ||
+            hostname.endsWith('.local') ||
+            hostname.endsWith('.internal') ||
+            hostname === 'metadata.google.internal' ||
+            /^169\.254\./.test(hostname) ||
+            /^10\./.test(hostname) ||
+            /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+            /^192\.168\./.test(hostname)
+          ) {
+            return false;
+          }
+          return true;
+        } catch {
+          return false;
+        }
+      }, 'Invalid or disallowed webhook URL'),
+    eventType: z.string().min(1).max(200),
+    customData: z.record(z.unknown()).optional().default({}),
+    secret: z.string().max(500).optional(),
+  }),
+};
+
+const testEventsQuerySchema = {
+  query: z.object({
+    limit: z
+      .string()
+      .regex(/^\d+$/)
+      .transform(Number)
+      .optional()
+      .default(100),
+  }),
+};
+
+const testIdParamSchema = {
+  params: z.object({
+    testId: z.string().min(1).max(200),
+  }),
+};
+
+const webhookIdParamSchema = {
+  params: z.object({
+    webhookId: z.string().min(1).max(200),
+  }),
+};
+
+const deliveryIdParamSchema = {
+  params: z.object({
+    deliveryId: z.string().min(1).max(200),
+  }),
+};
+
+const validatePayloadSchema = {
+  body: z.object({
+    payload: z.record(z.unknown()),
+  }),
+};
 
 /**
  * Initialize webhook testing service
@@ -47,15 +128,9 @@ await webhookTestingService.initialize();
  *   "payload": { ... }
  * }
  */
-router.post('/test/payload', authenticateJWT, (req, res) => {
+router.post('/test/payload', authenticateJWT, validateSchema(testPayloadSchema), (req, res) => {
   try {
     const { eventType, customData } = req.body;
-
-    if (!eventType) {
-      return res.status(400).json({
-        error: 'eventType is required',
-      });
-    }
 
     const supportedTypes = webhookTestingService.getSupportedEventTypes();
     if (!supportedTypes.includes(eventType)) {
@@ -107,26 +182,13 @@ router.post('/test/payload', authenticateJWT, (req, res) => {
  *   ...
  * }
  */
-router.post('/test/send', authenticateJWT, async (req, res) => {
+router.post('/test/send', authenticateJWT, validateSchema(testSendSchema), async (req, res) => {
   try {
     const { webhookUrl, eventType, customData, secret } = req.body;
 
-    if (!webhookUrl) {
-      return res.status(400).json({
-        error: 'webhookUrl is required',
-      });
-    }
-
-    if (!eventType) {
-      return res.status(400).json({
-        error: 'eventType is required',
-      });
-    }
-
-    // Generate test payload
     const payload = webhookTestingService.generateTestPayload(
       eventType,
-      customData || {},
+      customData,
     );
 
     // Simulate delivery
@@ -167,9 +229,9 @@ router.post('/test/send', authenticateJWT, async (req, res) => {
  *   "events": [ ... ]
  * }
  */
-router.get('/test/events', authenticateJWT, (req, res) => {
+router.get('/test/events', authenticateJWT, validateSchema(testEventsQuerySchema), (req, res) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
+    const limit = Math.min(req.query.limit, 1000);
     const events = webhookTestingService.getAllTestEvents(limit);
 
     logger.info('[WebhookTesting] Test events retrieved', {
@@ -197,7 +259,7 @@ router.get('/test/events', authenticateJWT, (req, res) => {
  *   "event": { ... }
  * }
  */
-router.get('/test/events/:testId', authenticateJWT, (req, res) => {
+router.get('/test/events/:testId', authenticateJWT, validateSchema(testIdParamSchema), (req, res) => {
   try {
     const { testId } = req.params;
     const event = webhookTestingService.getTestEvent(testId);
@@ -236,7 +298,7 @@ router.get('/test/events/:testId', authenticateJWT, (req, res) => {
  *   "statistics": { ... }
  * }
  */
-router.get('/:webhookId/debug', authenticateJWT, async (req, res) => {
+router.get('/:webhookId/debug', authenticateJWT, validateSchema(webhookIdParamSchema), async (req, res) => {
   try {
     const { webhookId } = req.params;
     const userId = req.user.sub;
@@ -279,6 +341,7 @@ router.get('/:webhookId/debug', authenticateJWT, async (req, res) => {
 router.get(
   '/deliveries/:deliveryId/details',
   authenticateJWT,
+  validateSchema(deliveryIdParamSchema),
   async (req, res) => {
     try {
       const { deliveryId } = req.params;
@@ -326,15 +389,9 @@ router.get(
  *   "errors": []
  * }
  */
-router.post('/test/validate', authenticateJWT, (req, res) => {
+router.post('/test/validate', authenticateJWT, validateSchema(validatePayloadSchema), (req, res) => {
   try {
     const { payload } = req.body;
-
-    if (!payload) {
-      return res.status(400).json({
-        error: 'payload is required',
-      });
-    }
 
     const validation = webhookTestingService.validatePayloadStructure(payload);
 
