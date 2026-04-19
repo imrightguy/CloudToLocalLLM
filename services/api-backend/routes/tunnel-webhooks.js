@@ -21,12 +21,31 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { TunnelWebhookService } from '../services/tunnel-webhook-service.js';
 import logger from '../logger.js';
 
 const router = express.Router();
 let webhookService = null;
+
+// Zod schemas
+const registerWebhookSchema = z.object({
+  url: z.string().url(),
+  events: z.array(z.string()).min(1).optional(),
+});
+
+const webhookParamsSchema = z.object({
+  tunnelId: z.string().uuid(),
+  webhookId: z.string().uuid(),
+});
+
+const updateWebhookSchema = z.object({
+  url: z.string().url().optional(),
+  events: z.array(z.string()).min(1).optional(),
+  is_active: z.boolean().optional(),
+});
 
 /**
  * Initialize the webhook service
@@ -64,7 +83,10 @@ export async function initializeTunnelWebhookService() {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:tunnelId/webhooks', authenticateJWT, async (req, res) => {
+router.post('/:tunnelId/webhooks',
+  validateSchema({ params: z.object({ tunnelId: z.string().uuid() }), body: registerWebhookSchema }),
+  authenticateJWT,
+  async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -85,15 +107,6 @@ router.post('/:tunnelId/webhooks', authenticateJWT, async (req, res) => {
     const userId = req.user.sub;
     const { tunnelId } = req.params;
     const { url, events } = req.body;
-
-    // Validate required fields
-    if (!url) {
-      return res.status(400).json({
-        error: 'Bad request',
-        code: 'INVALID_REQUEST',
-        message: 'Webhook URL is required',
-      });
-    }
 
     const webhook = await webhookService.registerWebhook(
       userId,
@@ -309,6 +322,7 @@ router.get(
  */
 router.put(
   '/:tunnelId/webhooks/:webhookId',
+  validateSchema({ params: webhookParamsSchema, body: updateWebhookSchema }),
   authenticateJWT,
   async (req, res) => {
     try {
@@ -393,6 +407,7 @@ router.put(
  */
 router.delete(
   '/:tunnelId/webhooks/:webhookId',
+  validateSchema({ params: webhookParamsSchema }),
   authenticateJWT,
   async (req, res) => {
     try {
