@@ -154,7 +154,7 @@ router.post('/', authenticateToken, validate(renewalSchemas.create), asyncHandle
  *       200:
  *         description: Renewal offers for lease
  */
-router.get('/lease/:id', authenticateToken, asyncHandler(renewalController.getRenewalOffersByLease));
+router.get('/lease/:id', authenticateToken, validate(uuidParam), asyncHandler(renewalController.getRenewalOffersByLease));
 
 /**
  * @swagger

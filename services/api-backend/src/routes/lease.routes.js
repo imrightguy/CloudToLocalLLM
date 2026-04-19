@@ -152,7 +152,7 @@ router.post('/', authenticateToken, validate(leaseSchemas.create), asyncHandler(
  *                       items:
  *                         $ref: '#/components/schemas/Lease'
  */
-router.get('/building/:id', authenticateToken, asyncHandler(leaseController.getLeasesByBuilding));
+router.get('/building/:id', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getLeasesByBuilding));
 
 /**
  * @swagger
@@ -186,7 +186,7 @@ router.get('/building/:id', authenticateToken, asyncHandler(leaseController.getL
  *                       items:
  *                         $ref: '#/components/schemas/Lease'
  */
-router.get('/unit/:id', authenticateToken, asyncHandler(leaseController.getLeasesByUnit));
+router.get('/unit/:id', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getLeasesByUnit));
 
 /**
  * @swagger

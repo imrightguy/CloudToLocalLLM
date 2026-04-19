@@ -94,7 +94,7 @@ router.get('/late', authenticateToken, asyncHandler(paymentController.getLatePay
  *       200:
  *         description: Payments for lease
  */
-router.get('/lease/:id', authenticateToken, asyncHandler(paymentController.getPaymentsByLease));
+router.get('/lease/:id', authenticateToken, validate(uuidParam), asyncHandler(paymentController.getPaymentsByLease));
 
 /**
  * @swagger
@@ -116,7 +116,7 @@ router.get('/lease/:id', authenticateToken, asyncHandler(paymentController.getPa
  *       200:
  *         description: Late fee preview
  */
-router.get('/lease/:id/late-fee-preview', authenticateToken, asyncHandler(paymentController.calculateLateFeePreview));
+router.get('/lease/:id/late-fee-preview', authenticateToken, validate(uuidParam), asyncHandler(paymentController.calculateLateFeePreview));
 
 /**
  * @swagger
