@@ -19,12 +19,60 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import logger from '../logger.js';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import WebhookPayloadTransformer from '../services/webhook-payload-transformer.js';
 
 const router = express.Router();
 const transformer = new WebhookPayloadTransformer();
+
+const tunnelParamsSchema = {
+  params: z.object({
+    tunnelId: z.string().min(1).max(100),
+    webhookId: z.string().min(1).max(100),
+  }),
+};
+
+const transformationBodySchema = {
+  params: z.object({
+    tunnelId: z.string().min(1).max(100),
+    webhookId: z.string().min(1).max(100),
+  }),
+  body: z.object({
+    enabled: z.boolean().optional(),
+    transformations: z.array(z.any()).optional(),
+    fields: z.array(z.any()).optional(),
+  }),
+};
+
+const validateTransformationSchema = {
+  params: z.object({
+    tunnelId: z.string().min(1).max(100),
+    webhookId: z.string().min(1).max(100),
+  }),
+  body: z.object({
+    enabled: z.boolean().optional(),
+    transformations: z.array(z.any()).optional(),
+    fields: z.array(z.any()).optional(),
+  }),
+};
+
+const testTransformationSchema = {
+  params: z.object({
+    tunnelId: z.string().min(1).max(100),
+    webhookId: z.string().min(1).max(100),
+  }),
+  body: z.object({
+    payload: z.record(z.any()).refine((v) => v !== null, { message: 'Payload is required' }),
+    transformation: z.object({
+      enabled: z.boolean().optional(),
+      transformations: z.array(z.any()).optional(),
+      fields: z.array(z.any()).optional(),
+    }),
+  }),
+};
 
 /**
  * Initialize transformer service
@@ -38,6 +86,7 @@ await transformer.initialize();
 router.post(
   '/api/tunnels/:tunnelId/webhooks/:webhookId/transformations',
   authenticateJWT,
+  validateSchema(transformationBodySchema),
   async (req, res) => {
     try {
       const { tunnelId, webhookId } = req.params;
@@ -93,6 +142,7 @@ router.post(
 router.get(
   '/api/tunnels/:tunnelId/webhooks/:webhookId/transformations',
   authenticateJWT,
+  validateSchema(tunnelParamsSchema),
   async (req, res) => {
     try {
       const { webhookId } = req.params;
@@ -138,6 +188,7 @@ router.get(
 router.put(
   '/api/tunnels/:tunnelId/webhooks/:webhookId/transformations',
   authenticateJWT,
+  validateSchema(transformationBodySchema),
   async (req, res) => {
     try {
       const { webhookId } = req.params;
@@ -192,6 +243,7 @@ router.put(
 router.delete(
   '/api/tunnels/:tunnelId/webhooks/:webhookId/transformations',
   authenticateJWT,
+  validateSchema(tunnelParamsSchema),
   async (req, res) => {
     try {
       const { webhookId } = req.params;
@@ -231,6 +283,7 @@ router.delete(
 router.post(
   '/api/tunnels/:tunnelId/webhooks/:webhookId/transformations/validate',
   authenticateJWT,
+  validateSchema(validateTransformationSchema),
   async (req, res) => {
     try {
       const transformConfig = req.body;
@@ -267,32 +320,12 @@ router.post(
 router.post(
   '/api/tunnels/:tunnelId/webhooks/:webhookId/transformations/test',
   authenticateJWT,
+  validateSchema(testTransformationSchema),
   async (req, res) => {
     try {
       const { payload, transformation } = req.body;
 
-      if (!payload) {
-        return res.status(400).json({
-          error: 'Payload is required',
-        });
-      }
-
-      if (!transformation) {
-        return res.status(400).json({
-          error: 'Transformation configuration is required',
-        });
-      }
-
       logger.info('[WebhookTransformationRoutes] Testing transformation');
-
-      // Validate transformation configuration
-      const validation = transformer.validateTransformConfig(transformation);
-      if (!validation.isValid) {
-        return res.status(400).json({
-          error: 'Invalid transformation configuration',
-          details: validation.errors,
-        });
-      }
 
       // Apply transformation
       const transformedPayload = transformer.transformPayload(
