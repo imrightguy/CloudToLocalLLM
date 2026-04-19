@@ -18,12 +18,18 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { TunnelHealthService } from '../services/tunnel-health-service.js';
 import logger from '../logger.js';
 
 const router = express.Router();
 let tunnelHealthService = null;
+
+const tunnelIdSchema = z.object({
+  id: z.string().uuid(),
+});
 
 /**
  * Initialize the tunnel health service
@@ -59,7 +65,7 @@ export async function initializeTunnelHealthService() {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/status', authenticateJWT, async (req, res) => {
+router.get('/:id/status', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -131,7 +137,7 @@ router.get('/:id/status', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/health', authenticateJWT, async (req, res) => {
+router.get('/:id/health', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -203,7 +209,7 @@ router.get('/:id/health', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/health-check', authenticateJWT, async (req, res) => {
+router.post('/:id/health-check', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -284,7 +290,7 @@ router.post('/:id/health-check', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/metrics', authenticateJWT, async (req, res) => {
+router.get('/:id/metrics', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -366,7 +372,7 @@ router.get('/:id/metrics', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/metrics/record', authenticateJWT, async (req, res) => {
+router.post('/:id/metrics/record', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -466,7 +472,7 @@ router.post('/:id/metrics/record', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/metrics/flush', authenticateJWT, async (req, res) => {
+router.post('/:id/metrics/flush', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({

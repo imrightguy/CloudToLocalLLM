@@ -318,7 +318,7 @@ router.get('/', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id', authenticateJWT, async (req, res) => {
+router.get('/:id', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -719,7 +719,7 @@ router.post(
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/metrics', authenticateJWT, async (req, res) => {
+router.get('/:id/metrics', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -790,7 +790,7 @@ router.get('/:id/metrics', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/activity', authenticateJWT, async (req, res) => {
+router.get('/:id/activity', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -869,7 +869,7 @@ router.get('/:id/activity', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/config', authenticateJWT, async (req, res) => {
+router.get('/:id/config', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({

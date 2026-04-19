@@ -18,12 +18,18 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { TunnelSharingService } from '../services/tunnel-sharing-service.js';
 import logger from '../logger.js';
 
 const router = express.Router();
 let tunnelSharingService = null;
+
+const tunnelIdSchema = z.object({
+  id: z.string().uuid(),
+});
 
 /**
  * Initialize the tunnel sharing service
@@ -64,7 +70,7 @@ export async function initializeTunnelSharingService() {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/shares', authenticateJWT, async (req, res) => {
+router.post('/:id/shares', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -164,7 +170,7 @@ router.post('/:id/shares', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/shares', authenticateJWT, async (req, res) => {
+router.get('/:id/shares', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -398,7 +404,7 @@ router.get('/shared-with-me', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/share-tokens', authenticateJWT, async (req, res) => {
+router.post('/:id/share-tokens', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -493,7 +499,7 @@ router.post('/:id/share-tokens', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/share-tokens', authenticateJWT, async (req, res) => {
+router.get('/:id/share-tokens', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
@@ -650,7 +656,7 @@ router.delete(
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.get('/:id/access-logs', authenticateJWT, async (req, res) => {
+router.get('/:id/access-logs', authenticateJWT, validateSchema({ params: tunnelIdSchema }), async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
