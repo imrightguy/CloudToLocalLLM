@@ -123,7 +123,7 @@ router.post(
   async (req, res) => {
     try {
       const { serviceName } = req.params;
-      const { reason } = req.body;
+      const { reason } = req.body || {};
       const userId = req.auth?.payload?.sub;
 
       logger.info(`Recovery initiated for service: ${serviceName}`, {

@@ -48,8 +48,9 @@ import jwt from "jsonwebtoken";
 // Use dynamic imports
 const { default: errorRecoveryRoutes } =
   await import("../../services/api-backend/routes/error-recovery.js");
-const { errorRecoveryService } =
+const errorRecoveryServiceModule =
   await import("../../services/api-backend/services/error-recovery-service.js");
+const { errorRecoveryService } = errorRecoveryServiceModule;
 
 // Mock authentication middleware
 const mockAuthMiddleware = (req, res, next) => {
