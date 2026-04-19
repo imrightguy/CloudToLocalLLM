@@ -22,12 +22,51 @@
  */
 
 import express from 'express';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth.js';
+import { validateSchema } from '../middleware/schema-validation.js';
 import { TunnelService } from '../services/tunnel-service.js';
 import logger from '../logger.js';
 
 const router = express.Router();
 let tunnelService = null;
+
+// Zod schemas for validation
+const tunnelEndpointSchema = z.object({
+  url: z.string().url().optional(),
+  priority: z.number().int().optional(),
+  weight: z.number().int().optional(),
+});
+
+const createTunnelSchema = z.object({
+  name: z.string().min(1).max(255),
+  config: z
+    .object({
+      maxConnections: z.number().int().positive().optional(),
+      timeout: z.number().int().positive().optional(),
+      compression: z.boolean().optional(),
+    })
+    .optional(),
+  endpoints: z.array(tunnelEndpointSchema).optional(),
+});
+
+const updateTunnelSchema = z
+  .object({
+    name: z.string().min(1).max(255).optional(),
+    config: z
+      .object({
+        maxConnections: z.number().int().positive().optional(),
+        timeout: z.number().int().positive().optional(),
+        compression: z.boolean().optional(),
+      })
+      .optional(),
+    endpoints: z.array(tunnelEndpointSchema).optional(),
+  })
+  .partial();
+
+const tunnelIdSchema = z.object({
+  id: z.string().uuid(),
+});
 
 /**
  * Initialize the tunnel service
@@ -126,35 +165,30 @@ export async function initializeTunnelService() {
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-router.post('/', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to create a tunnel',
-      });
-    }
+router.post(
+  '/',
+  authenticateJWT,
+  validateSchema({ body: createTunnelSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to create a tunnel',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
-        error: 'Service unavailable',
-        code: 'SERVICE_UNAVAILABLE',
-        message: 'Tunnel service is not initialized',
-      });
-    }
+      if (!tunnelService) {
+        return res.status(503).json({
+          error: 'Service unavailable',
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Tunnel service is not initialized',
+        });
+      }
 
-    const userId = req.user.sub;
-    const { name, config, endpoints } = req.body;
-
-    // Validate required fields
-    if (!name) {
-      return res.status(400).json({
-        error: 'Bad request',
-        code: 'INVALID_REQUEST',
-        message: 'Tunnel name is required',
-      });
-    }
+      const userId = req.user.sub;
+      const { name, config, endpoints } = req.body;
 
     const ipAddress = req.ip || req.connection.remoteAddress;
     const userAgent = req.get('user-agent');
@@ -358,27 +392,31 @@ router.get('/:id', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to update tunnel',
-      });
-    }
+router.put(
+  '/:id',
+  authenticateJWT,
+  validateSchema({ params: tunnelIdSchema, body: updateTunnelSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to update tunnel',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
-        error: 'Service unavailable',
-        code: 'SERVICE_UNAVAILABLE',
-        message: 'Tunnel service is not initialized',
-      });
-    }
+      if (!tunnelService) {
+        return res.status(503).json({
+          error: 'Service unavailable',
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Tunnel service is not initialized',
+        });
+      }
 
-    const userId = req.user.sub;
-    const { id: tunnelId } = req.params;
-    const updateData = req.body;
+      const userId = req.user.sub;
+      const { id: tunnelId } = req.params;
+      const updateData = req.body;
 
     const ipAddress = req.ip || req.connection.remoteAddress;
     const userAgent = req.get('user-agent');
@@ -443,18 +481,22 @@ router.put('/:id', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.delete('/:id', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to delete tunnel',
-      });
-    }
+router.delete(
+  '/:id',
+  authenticateJWT,
+  validateSchema({ params: tunnelIdSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to delete tunnel',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
+      if (!tunnelService) {
+        return res.status(503).json({
         error: 'Service unavailable',
         code: 'SERVICE_UNAVAILABLE',
         message: 'Tunnel service is not initialized',
@@ -513,18 +555,22 @@ router.delete('/:id', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/start', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to start tunnel',
-      });
-    }
+router.post(
+  '/:id/start',
+  authenticateJWT,
+  validateSchema({ params: tunnelIdSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to start tunnel',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
+      if (!tunnelService) {
+        return res.status(503).json({
         error: 'Service unavailable',
         code: 'SERVICE_UNAVAILABLE',
         message: 'Tunnel service is not initialized',
@@ -590,18 +636,22 @@ router.post('/:id/start', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/stop', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to stop tunnel',
-      });
-    }
+router.post(
+  '/:id/stop',
+  authenticateJWT,
+  validateSchema({ params: tunnelIdSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to stop tunnel',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
+      if (!tunnelService) {
+        return res.status(503).json({
         error: 'Service unavailable',
         code: 'SERVICE_UNAVAILABLE',
         message: 'Tunnel service is not initialized',
@@ -893,18 +943,22 @@ router.get('/:id/config', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.put('/:id/config', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to update configuration',
-      });
-    }
+router.put(
+  '/:id/config',
+  authenticateJWT,
+  validateSchema({ params: tunnelIdSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to update configuration',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
+      if (!tunnelService) {
+        return res.status(503).json({
         error: 'Service unavailable',
         code: 'SERVICE_UNAVAILABLE',
         message: 'Tunnel service is not initialized',
@@ -984,18 +1038,22 @@ router.put('/:id/config', authenticateJWT, async (req, res) => {
  * Authentication: Required (JWT)
  * Rate Limit: Standard (100 req/min)
  */
-router.post('/:id/config/reset', authenticateJWT, async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Authentication required',
-        code: 'AUTH_REQUIRED',
-        message: 'Please authenticate to reset configuration',
-      });
-    }
+router.post(
+  '/:id/config/reset',
+  authenticateJWT,
+  validateSchema({ params: tunnelIdSchema }),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          code: 'AUTH_REQUIRED',
+          message: 'Please authenticate to reset configuration',
+        });
+      }
 
-    if (!tunnelService) {
-      return res.status(503).json({
+      if (!tunnelService) {
+        return res.status(503).json({
         error: 'Service unavailable',
         code: 'SERVICE_UNAVAILABLE',
         message: 'Tunnel service is not initialized',
