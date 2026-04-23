@@ -65,7 +65,7 @@ const { communicationSchemas, uuidParam } = require('../config/validation-schema
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/Communication'
- *                     meta:
+ *                     metadata:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
 router.get('/', authenticateToken, validate(communicationSchemas.list), asyncHandler(communicationController.getCommunications));
@@ -246,7 +246,7 @@ router.post('/', authenticateToken, validate(communicationSchemas.log), asyncHan
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/Communication'
- *                     meta:
+ *                     metadata:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
 router.get('/logs', authenticateToken, validate(communicationSchemas.logs), asyncHandler(communicationController.getCommunicationLogs));
@@ -323,6 +323,7 @@ router.get('/logs/:id', authenticateToken, validate(uuidParam), asyncHandler(com
  *                     - type: object
  *               status:
  *                 type: string
+ *                 enum: [sent, delivered, read, failed]
  *               metadata:
  *                 type: object
  *                 additionalProperties: true

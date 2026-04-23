@@ -319,4 +319,61 @@ describe('validate middleware', () => {
     expect(error.name).toBe('ValidationError');
     expect(error.details.body[0].type).toBe('object.min');
   });
+
+  it('accepts visit status notes so completion follow-up context survives validation', () => {
+    const { req, res, next } = mockReqRes(
+      {
+        status: 'completed',
+        outcome: 'no_show',
+        notes: 'Le prospect ne s’est jamais présenté.',
+      },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440098' },
+    );
+
+    validate(visitSchemas.updateStatus)(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body.notes).toBe('Le prospect ne s’est jamais présenté.');
+  });
+
+  it('rejects non-string visit status notes before the controller runs', () => {
+    const { req, res, next } = mockReqRes(
+      {
+        status: 'completed',
+        notes: { text: 'not allowed' },
+      },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440099' },
+    );
+
+    validate(visitSchemas.updateStatus)(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const error = next.mock.calls[0][0];
+    expect(error.name).toBe('ValidationError');
+    expect(error.details.body).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'notes' }),
+    ]));
+  });
+
+  it('rejects unsupported communication log statuses before the controller runs', () => {
+    const { req, res, next } = mockReqRes(
+      {
+        status: 'archived',
+      },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440097' },
+    );
+
+    validate(communicationSchemas.updateLog)(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const error = next.mock.calls[0][0];
+    expect(error.name).toBe('ValidationError');
+    expect(error.details.body).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'status' }),
+    ]));
+  });
 });

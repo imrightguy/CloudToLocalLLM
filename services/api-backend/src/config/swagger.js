@@ -56,6 +56,7 @@ const options = {
             page: { type: 'integer' },
             limit: { type: 'integer' },
             totalPages: { type: 'integer' },
+            hasMore: { type: 'boolean' },
           },
         },
         Building: {

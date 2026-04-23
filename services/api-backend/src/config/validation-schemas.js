@@ -377,7 +377,7 @@ const communicationSchemas = {
       subject: Joi.string().trim().max(500),
       content: Joi.string().trim().max(10000),
       attachments: Joi.array().items(Joi.alternatives(Joi.string(), Joi.object())),
-      status: Joi.string().trim().max(100),
+      status: Joi.string().valid('sent', 'delivered', 'read', 'failed'),
       metadata: Joi.object().unknown(true),
     }).min(1),
   },

@@ -587,7 +587,7 @@ exports.deleteVisit = async (req, res) => {
 exports.updateVisitStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, outcome } = req.body;
+    const { status, outcome, notes } = req.body;
 
     const validStatuses = ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'];
 
@@ -634,6 +634,10 @@ exports.updateVisitStatus = async (req, res) => {
         });
       }
       updateData.outcome = outcome;
+    }
+
+    if (notes !== undefined) {
+      updateData.notes = notes?.trim() || null;
     }
 
     const [updated] = await db

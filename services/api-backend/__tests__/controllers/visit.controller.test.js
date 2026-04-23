@@ -312,6 +312,40 @@ describe('updateVisitStatus', () => {
     await visitController.updateVisitStatus({ params: { id: 'visit-1' }, body: { status: 'completed', outcome: 'banana' } }, res);
     expect(res.status).toHaveBeenCalledWith(400);
   });
+
+  it('persists status notes when completing a visit', async () => {
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'visit-1', status: 'scheduled' }]);
+    const set = jest.fn().mockReturnValue({
+      where: jest.fn().mockReturnValue({
+        returning: jest.fn(() => Promise.resolve([{ id: 'visit-1', status: 'completed', outcome: 'no_show', notes: 'Le prospect ne s’est jamais présenté.' }])),
+      }),
+    });
+    db.update.mockReturnValueOnce({ set });
+    const res = mockRes();
+
+    await visitController.updateVisitStatus({
+      params: { id: 'visit-1' },
+      body: {
+        status: 'completed',
+        outcome: 'no_show',
+        notes: 'Le prospect ne s’est jamais présenté.',
+      },
+    }, res);
+
+    expect(set).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'completed',
+      outcome: 'no_show',
+      notes: 'Le prospect ne s’est jamais présenté.',
+      updatedAt: expect.any(Date),
+    }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      data: expect.objectContaining({
+        notes: 'Le prospect ne s’est jamais présenté.',
+      }),
+    }));
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════

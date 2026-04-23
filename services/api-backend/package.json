@@ -8,7 +8,7 @@
     "dev": "nodemon src/server.js",
     "test": "LOG_LEVEL=silent jest --forceExit --testPathIgnorePatterns='integration'",
     "test:watch": "jest --watch",
-    "test:integration": "LOG_LEVEL=silent jest __tests__/integration/ --forceExit --runInBand",
+    "test:integration": "JEST_INCLUDE_INTEGRATION=true LOG_LEVEL=silent jest __tests__/integration/ --forceExit --runInBand",
     "test:coverage": "jest --coverage",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",

@@ -1,4 +1,6 @@
 /** @type {import('jest').Config} */
+const includeIntegration = process.env.JEST_INCLUDE_INTEGRATION === 'true';
+
 module.exports = {
   testEnvironment: 'node',
   testMatch: [
@@ -6,7 +8,7 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
-    '<rootDir>/__tests__/integration/',
+    ...(!includeIntegration ? ['<rootDir>/__tests__/integration/'] : []),
   ],
   setupFilesAfterEnv: ['./jest.setup.js'],
   forceExit: true,

@@ -51,7 +51,7 @@ describe('Swagger contract regression coverage', () => {
   });
 
   describe('marketplace communication docs', () => {
-    it('documents list filters for Messenger workflows', () => {
+    it('documents list filters and pagination envelope for Messenger workflows', () => {
       expect(getParameter('/api/communications', 'get', 'employeeId')).toMatchObject({
         name: 'employeeId',
         schema: { type: 'string', format: 'uuid' },
@@ -60,6 +60,12 @@ describe('Swagger contract regression coverage', () => {
       expect(getParameter('/api/communications', 'get', 'status').schema.type).toBe('string');
       expect(getParameter('/api/communications', 'get', 'type').schema.enum).toEqual(['email', 'phone', 'sms', 'fb_messenger']);
 
+      const communicationListResponse = swaggerSpec.paths['/api/communications'].get.responses[200].content['application/json'].schema.allOf[1].properties;
+      expect(communicationListResponse.metadata).toMatchObject({
+        $ref: '#/components/schemas/PaginationMeta',
+      });
+      expect(communicationListResponse.meta).toBeUndefined();
+
       expect(getParameter('/api/communications/logs', 'get', 'employeeId')).toMatchObject({
         name: 'employeeId',
         schema: { type: 'string', format: 'uuid' },
@@ -67,6 +73,13 @@ describe('Swagger contract regression coverage', () => {
       expect(getParameter('/api/communications/logs', 'get', 'type').schema.enum).toEqual(['email', 'phone', 'sms', 'fb_messenger']);
       expect(getParameter('/api/communications/logs', 'get', 'direction').schema.enum).toEqual(['inbound', 'outbound']);
       expect(getParameter('/api/communications/logs', 'get', 'status').schema.type).toBe('string');
+
+      const communicationLogsResponse = swaggerSpec.paths['/api/communications/logs'].get.responses[200].content['application/json'].schema.allOf[1].properties;
+      expect(communicationLogsResponse.metadata).toMatchObject({
+        $ref: '#/components/schemas/PaginationMeta',
+      });
+      expect(communicationLogsResponse.meta).toBeUndefined();
+
       expect(getParameter('/api/communications/activity', 'get', 'hoursAgo')).toMatchObject({
         name: 'hoursAgo',
         schema: { type: 'integer', default: 168 },
@@ -96,19 +109,31 @@ describe('Swagger contract regression coverage', () => {
       expect(schema.properties.subject).toMatchObject({ type: 'string' });
       expect(schema.properties.content).toMatchObject({ type: 'string' });
       expect(schema.properties.attachments).toMatchObject({ type: 'array' });
-      expect(schema.properties.status.type).toBe('string');
+      expect(schema.properties.status).toMatchObject({
+        type: 'string',
+        enum: ['sent', 'delivered', 'read', 'failed'],
+      });
       expect(schema.properties.metadata).toMatchObject({ type: 'object', additionalProperties: true });
       expect(schema.properties.type).toBeUndefined();
     });
 
-    it('documents the shared Communication schema for Messenger logs', () => {
+    it('documents the shared Communication and pagination schemas for Messenger logs', () => {
       const schema = swaggerSpec.components.schemas.Communication;
+      const paginationSchema = swaggerSpec.components.schemas.PaginationMeta;
 
       expect(schema.properties.employeeId).toMatchObject({ type: 'string', format: 'uuid', nullable: true });
       expect(schema.properties.type.enum).toEqual(['email', 'phone', 'sms', 'fb_messenger']);
       expect(schema.properties.attachments).toMatchObject({ type: 'array' });
       expect(schema.properties.metadata).toMatchObject({ type: 'object', additionalProperties: true });
       expect(schema.properties.status.type).toBe('string');
+
+      expect(paginationSchema.properties).toMatchObject({
+        total: { type: 'integer' },
+        page: { type: 'integer' },
+        limit: { type: 'integer' },
+        totalPages: { type: 'integer' },
+        hasMore: { type: 'boolean' },
+      });
     });
   });
 });
