@@ -1,5 +1,6 @@
 const validate = require('../src/middleware/validate');
 const Joi = require('joi');
+const { communicationSchemas, visitSchemas } = require('../src/config/validation-schemas');
 
 function mockReqRes(body = {}, query = {}, params = {}) {
   const res = {};
@@ -146,5 +147,96 @@ describe('validate middleware', () => {
     expect(detail).toHaveProperty('field');
     expect(detail).toHaveProperty('message');
     expect(detail).toHaveProperty('type');
+  });
+
+  it('accepts visit creation payloads used by the visit controller', () => {
+    const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { req, res, next } = mockReqRes({
+      unitId: '550e8400-e29b-41d4-a716-446655440000',
+      employeeId: '550e8400-e29b-41d4-a716-446655440001',
+      leadId: '550e8400-e29b-41d4-a716-446655440002',
+      dateTime: futureDate,
+      durationMinutes: 45,
+      notes: 'Visite du samedi',
+    });
+
+    validate(visitSchemas.create)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body).toMatchObject({
+      unitId: '550e8400-e29b-41d4-a716-446655440000',
+      employeeId: '550e8400-e29b-41d4-a716-446655440001',
+      leadId: '550e8400-e29b-41d4-a716-446655440002',
+      durationMinutes: 45,
+      notes: 'Visite du samedi',
+    });
+    expect(req.body.dateTime).toBeInstanceOf(Date);
+    expect(req.body.dateTime.toISOString()).toBe(futureDate);
+  });
+
+  it('accepts visit rescheduling payloads used by the visit controller', () => {
+    const futureDate = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString();
+    const { req, res, next } = mockReqRes(
+      {
+        dateTime: futureDate,
+        employeeId: '550e8400-e29b-41d4-a716-446655440001',
+        durationMinutes: 60,
+        notes: 'Reporter à 15h',
+      },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440004' },
+    );
+
+    validate(visitSchemas.update)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body).toMatchObject({
+      employeeId: '550e8400-e29b-41d4-a716-446655440001',
+      durationMinutes: 60,
+      notes: 'Reporter à 15h',
+    });
+    expect(req.body.dateTime).toBeInstanceOf(Date);
+    expect(req.body.dateTime.toISOString()).toBe(futureDate);
+  });
+
+  it('accepts confirmed as a valid visit status update', () => {
+    const { req, res, next } = mockReqRes(
+      { status: 'confirmed', outcome: 'interesse' },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440003' },
+    );
+
+    validate(visitSchemas.updateStatus)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body).toEqual({ status: 'confirmed', outcome: 'interesse' });
+  });
+
+  it('accepts marketplace Messenger communication logs without a leadId', () => {
+    const { req, res, next } = mockReqRes({
+      type: 'fb_messenger',
+      direction: 'inbound',
+      content: 'Bonjour, la propriété est-elle disponible?',
+    });
+
+    validate(communicationSchemas.log)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body).toMatchObject({
+      type: 'fb_messenger',
+      direction: 'inbound',
+      content: 'Bonjour, la propriété est-elle disponible?',
+    });
+    expect(req.body.attachments).toEqual([]);
+    expect(req.body.metadata).toEqual({});
+  });
+
+  it('accepts filtering communications by marketplace Messenger type', () => {
+    const { req, res, next } = mockReqRes({}, { type: 'fb_messenger', page: '2', limit: '25' });
+
+    validate(communicationSchemas.list)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.query).toEqual({ type: 'fb_messenger', page: 2, limit: 25 });
   });
 });

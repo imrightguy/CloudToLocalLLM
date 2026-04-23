@@ -183,29 +183,58 @@ const employeeSchemas = {
   },
 };
 
+const visitExpand = Joi.string().pattern(
+  /^\s*(unit|building|employee|lead)\s*(,\s*(unit|building|employee|lead)\s*)*$/,
+);
+
 const visitSchemas = {
+  list: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'),
+      employeeId: uuid,
+      leadId: uuid,
+      dateFrom: Joi.date().iso(),
+      dateTo: Joi.date().iso(),
+      sortBy: Joi.string().valid('dateTime', 'createdAt', 'status').default('dateTime'),
+      sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
+      expand: visitExpand,
+    }),
+  },
   create: {
     body: Joi.object({
+      unitId: uuid.required(),
+      employeeId: uuid.required(),
       leadId: uuid.required(),
-      buildingId: uuid.required(),
-      unitId: uuid,
-      employeeId: uuid,
-      scheduledAt: Joi.date().iso().greater('now').required(),
+      dateTime: Joi.date().iso().required(),
+      durationMinutes: Joi.number().integer().min(1).max(1440),
+      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'),
       notes: Joi.string().trim().max(5000),
     }),
   },
   update: {
     params: Joi.object({ id: uuid }),
     body: Joi.object({
-      scheduledAt: Joi.date().iso().greater('now'),
+      unitId: uuid,
       employeeId: uuid,
+      leadId: uuid,
+      dateTime: Joi.date().iso(),
+      durationMinutes: Joi.number().integer().min(1).max(1440),
+      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'),
+      tenantConfirmed: Joi.boolean(),
+      employeeConfirmed: Joi.boolean(),
+      morningOfSent: Joi.boolean(),
+      outcome: Joi.string().valid('interesse', 'pas_interesse', 'no_show').allow(null),
       notes: Joi.string().trim().max(5000),
+      isActive: Joi.boolean(),
     }).min(1),
   },
   updateStatus: {
     params: Joi.object({ id: uuid }),
     body: Joi.object({
-      status: Joi.string().valid('scheduled', 'completed', 'cancelled', 'no_show').required(),
+      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show').required(),
+      outcome: Joi.string().valid('interesse', 'pas_interesse', 'no_show').allow(null),
       notes: Joi.string().trim().max(5000),
     }),
   },
@@ -285,12 +314,16 @@ const communicationSchemas = {
       page: pagination.extract('page'),
       limit: pagination.extract('limit'),
       leadId: uuid,
-      type: Joi.string().valid('email', 'phone', 'sms', 'in_person', 'whatsapp'),
+      employeeId: uuid,
+      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
+      direction: Joi.string().valid('inbound', 'outbound'),
+      status: Joi.string().trim().max(100),
     }),
   },
   activity: {
     query: Joi.object({
       limit: Joi.number().integer().min(1).max(100).default(20),
+      hoursAgo: Joi.number().integer().min(1).max(720).default(168),
     }),
   },
   logs: {
@@ -298,15 +331,21 @@ const communicationSchemas = {
       page: pagination.extract('page'),
       limit: pagination.extract('limit'),
       leadId: uuid,
+      employeeId: uuid,
+      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
     }),
   },
   log: {
     body: Joi.object({
-      leadId: uuid.required(),
-      type: Joi.string().valid('email', 'phone', 'sms', 'in_person', 'whatsapp').required(),
+      leadId: uuid.allow(null),
+      employeeId: uuid.allow(null),
+      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger').required(),
       direction: Joi.string().valid('inbound', 'outbound').required(),
       subject: Joi.string().trim().max(500),
       content: Joi.string().trim().max(10000),
+      attachments: Joi.array().items(Joi.alternatives(Joi.string(), Joi.object())).default([]),
+      status: Joi.string().trim().max(100),
+      metadata: Joi.object().unknown(true).default({}),
     }),
   },
   updateLog: {
@@ -314,7 +353,7 @@ const communicationSchemas = {
     body: Joi.object({
       subject: Joi.string().trim().max(500),
       content: Joi.string().trim().max(10000),
-      type: Joi.string().valid('email', 'phone', 'sms', 'in_person', 'whatsapp'),
+      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
     }).min(1),
   },
 };

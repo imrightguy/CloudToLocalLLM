@@ -33,10 +33,24 @@ const { communicationSchemas, uuidParam } = require('../config/validation-schema
  *           type: string
  *           format: uuid
  *       - in: query
+ *         name: employeeId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
  *         name: type
  *         schema:
  *           type: string
- *           enum: [email, phone, sms, in_person, whatsapp]
+ *           enum: [email, phone, sms, fb_messenger]
+ *       - in: query
+ *         name: direction
+ *         schema:
+ *           type: string
+ *           enum: [inbound, outbound]
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: List of communications
@@ -71,6 +85,11 @@ router.get('/', authenticateToken, validate(communicationSchemas.list), asyncHan
  *         schema:
  *           type: integer
  *           default: 20
+ *       - in: query
+ *         name: hoursAgo
+ *         schema:
+ *           type: integer
+ *           default: 168
  *     responses:
  *       200:
  *         description: Activity feed
@@ -111,16 +130,20 @@ router.get('/activity', authenticateToken, validate(communicationSchemas.activit
  *           schema:
  *             type: object
  *             required:
- *               - leadId
  *               - type
  *               - direction
  *             properties:
  *               leadId:
  *                 type: string
  *                 format: uuid
+ *                 nullable: true
+ *               employeeId:
+ *                 type: string
+ *                 format: uuid
+ *                 nullable: true
  *               type:
  *                 type: string
- *                 enum: [email, phone, sms, in_person, whatsapp]
+ *                 enum: [email, phone, sms, fb_messenger]
  *               direction:
  *                 type: string
  *                 enum: [inbound, outbound]
@@ -128,6 +151,17 @@ router.get('/activity', authenticateToken, validate(communicationSchemas.activit
  *                 type: string
  *               content:
  *                 type: string
+ *               attachments:
+ *                 type: array
+ *                 items:
+ *                   oneOf:
+ *                     - type: string
+ *                     - type: object
+ *               status:
+ *                 type: string
+ *               metadata:
+ *                 type: object
+ *                 additionalProperties: true
  *     responses:
  *       201:
  *         description: Communication logged
@@ -174,6 +208,16 @@ router.post('/', authenticateToken, validate(communicationSchemas.log), asyncHan
  *         schema:
  *           type: string
  *           format: uuid
+ *       - in: query
+ *         name: employeeId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [email, phone, sms, fb_messenger]
  *     responses:
  *       200:
  *         description: List of communication logs

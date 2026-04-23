@@ -31,14 +31,14 @@ const { visitSchemas, uuidParam } = require('../config/validation-schemas');
  *         name: status
  *         schema:
  *           type: string
- *           enum: [scheduled, completed, cancelled, no_show]
+ *           enum: [scheduled, confirmed, completed, cancelled, no_show]
  *       - in: query
- *         name: buildingId
+ *         name: employeeId
  *         schema:
  *           type: string
  *           format: uuid
  *       - in: query
- *         name: employeeId
+ *         name: leadId
  *         schema:
  *           type: string
  *           format: uuid
@@ -52,6 +52,23 @@ const { visitSchemas, uuidParam } = require('../config/validation-schemas');
  *         schema:
  *           type: string
  *           format: date
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [dateTime, createdAt, status]
+ *           default: dateTime
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *       - in: query
+ *         name: expand
+ *         schema:
+ *           type: string
+ *           example: unit,building,employee,lead
  *     responses:
  *       200:
  *         description: List of visits
@@ -69,7 +86,7 @@ const { visitSchemas, uuidParam } = require('../config/validation-schemas');
  *                     meta:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
-router.get('/', authenticateToken, asyncHandler(visitController.getVisits));
+router.get('/', authenticateToken, validate(visitSchemas.list), asyncHandler(visitController.getVisits));
 
 /**
  * @swagger
@@ -87,26 +104,32 @@ router.get('/', authenticateToken, asyncHandler(visitController.getVisits));
  *           schema:
  *             type: object
  *             required:
+ *               - unitId
+ *               - employeeId
  *               - leadId
- *               - buildingId
- *               - scheduledAt
+ *               - dateTime
  *             properties:
- *               leadId:
- *                 type: string
- *                 format: uuid
- *               buildingId:
- *                 type: string
- *                 format: uuid
  *               unitId:
  *                 type: string
  *                 format: uuid
  *               employeeId:
  *                 type: string
  *                 format: uuid
- *               scheduledAt:
+ *               leadId:
+ *                 type: string
+ *                 format: uuid
+ *               dateTime:
  *                 type: string
  *                 format: date-time
  *                 example: "2026-05-15T14:00:00Z"
+ *               durationMinutes:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 1440
+ *                 default: 30
+ *               status:
+ *                 type: string
+ *                 enum: [scheduled, confirmed, completed, cancelled, no_show]
  *               notes:
  *                 type: string
  *     responses:
@@ -190,12 +213,35 @@ router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(visitCon
  *           schema:
  *             type: object
  *             properties:
- *               scheduledAt:
+ *               unitId:
  *                 type: string
- *                 format: date-time
+ *                 format: uuid
  *               employeeId:
  *                 type: string
  *                 format: uuid
+ *               leadId:
+ *                 type: string
+ *                 format: uuid
+ *               dateTime:
+ *                 type: string
+ *                 format: date-time
+ *               durationMinutes:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 1440
+ *               status:
+ *                 type: string
+ *                 enum: [scheduled, confirmed, completed, cancelled, no_show]
+ *               tenantConfirmed:
+ *                 type: boolean
+ *               employeeConfirmed:
+ *                 type: boolean
+ *               morningOfSent:
+ *                 type: boolean
+ *               outcome:
+ *                 type: string
+ *                 nullable: true
+ *                 enum: [interesse, pas_interesse, no_show]
  *               notes:
  *                 type: string
  *     responses:
@@ -257,7 +303,7 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visit
  *   patch:
  *     tags: [Visits]
  *     summary: Update visit status
- *     description: Change the status of a visit (complete, cancel, mark no-show).
+ *     description: Change the status of a visit (confirm, complete, cancel, or mark no-show).
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -278,7 +324,11 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visit
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [scheduled, completed, cancelled, no_show]
+ *                 enum: [scheduled, confirmed, completed, cancelled, no_show]
+ *               outcome:
+ *                 type: string
+ *                 nullable: true
+ *                 enum: [interesse, pas_interesse, no_show]
  *               notes:
  *                 type: string
  *     responses:
