@@ -18,9 +18,9 @@ describe('Visit route validation contract', () => {
     expect(listRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
   });
 
-  it('accepts visit list filters supported by the controller', () => {
+  it('accepts visit list filters including in_progress used by the employee SMS workflow', () => {
     const { req, res, next } = mockReqRes({}, {
-      status: 'confirmed',
+      status: 'in_progress',
       employeeId: '550e8400-e29b-41d4-a716-446655440001',
       leadId: '550e8400-e29b-41d4-a716-446655440002',
       dateFrom: '2026-05-01',
@@ -36,7 +36,7 @@ describe('Visit route validation contract', () => {
 
     expect(next).toHaveBeenCalledWith();
     expect(req.query).toMatchObject({
-      status: 'confirmed',
+      status: 'in_progress',
       employeeId: '550e8400-e29b-41d4-a716-446655440001',
       leadId: '550e8400-e29b-41d4-a716-446655440002',
       sortBy: 'updatedAt',

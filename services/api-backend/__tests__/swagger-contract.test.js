@@ -13,7 +13,7 @@ describe('Swagger contract regression coverage', () => {
       expect(schema.required).not.toEqual(expect.arrayContaining(['buildingId', 'scheduledAt']));
       expect(schema.properties.dateTime).toMatchObject({ type: 'string', format: 'date-time' });
       expect(schema.properties.durationMinutes).toMatchObject({ type: 'integer', minimum: 1, maximum: 1440, default: 30 });
-      expect(schema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show']);
+      expect(schema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']);
     });
 
     it('documents visit update and status fields used by the controller', () => {
@@ -24,7 +24,7 @@ describe('Swagger contract regression coverage', () => {
       expect(updateSchema.properties.durationMinutes).toMatchObject({ type: 'integer', minimum: 1, maximum: 1440 });
       expect(updateSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
       expect(updateSchema.properties.tenantConfirmed).toMatchObject({ type: 'boolean' });
-      expect(statusSchema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show']);
+      expect(statusSchema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']);
       expect(statusSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
     });
 
@@ -52,7 +52,7 @@ describe('Swagger contract regression coverage', () => {
 
       expect(schema.properties.dateTime).toMatchObject({ type: 'string', format: 'date-time' });
       expect(schema.properties.durationMinutes).toMatchObject({ type: 'integer' });
-      expect(schema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show']);
+      expect(schema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']);
       expect(schema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
       expect(schema.properties.scheduledAt).toBeUndefined();
       expect(schema.properties.buildingId).toBeUndefined();

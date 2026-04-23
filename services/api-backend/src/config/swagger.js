@@ -133,7 +133,7 @@ const options = {
             employeeId: { type: 'string', format: 'uuid' },
             dateTime: { type: 'string', format: 'date-time' },
             durationMinutes: { type: 'integer', minimum: 1, maximum: 1440 },
-            status: { type: 'string', enum: ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'] },
+            status: { type: 'string', enum: ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'] },
             tenantConfirmed: { type: 'boolean' },
             employeeConfirmed: { type: 'boolean' },
             morningOfSent: { type: 'boolean' },

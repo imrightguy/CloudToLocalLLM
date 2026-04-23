@@ -199,9 +199,9 @@ describe('validate middleware', () => {
     expect(req.body.dateTime.toISOString()).toBe(futureDate);
   });
 
-  it('accepts confirmed as a valid visit status update', () => {
+  it('accepts in_progress as a valid visit status update', () => {
     const { req, res, next } = mockReqRes(
-      { status: 'confirmed', outcome: 'interesse' },
+      { status: 'in_progress' },
       {},
       { id: '550e8400-e29b-41d4-a716-446655440003' },
     );
@@ -209,7 +209,7 @@ describe('validate middleware', () => {
     validate(visitSchemas.updateStatus)(req, res, next);
 
     expect(next).toHaveBeenCalledWith();
-    expect(req.body).toEqual({ status: 'confirmed', outcome: 'interesse' });
+    expect(req.body).toEqual({ status: 'in_progress' });
   });
 
   it('accepts marketplace Messenger communication logs without a leadId', () => {

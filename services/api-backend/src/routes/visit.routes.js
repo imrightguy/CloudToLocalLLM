@@ -31,7 +31,7 @@ const { visitSchemas, uuidParam } = require('../config/validation-schemas');
  *         name: status
  *         schema:
  *           type: string
- *           enum: [scheduled, confirmed, completed, cancelled, no_show]
+ *           enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
  *       - in: query
  *         name: employeeId
  *         schema:
@@ -129,7 +129,7 @@ router.get('/', authenticateToken, validate(visitSchemas.list), asyncHandler(vis
  *                 default: 30
  *               status:
  *                 type: string
- *                 enum: [scheduled, confirmed, completed, cancelled, no_show]
+ *                 enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
  *               notes:
  *                 type: string
  *     responses:
@@ -231,7 +231,7 @@ router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(visitCon
  *                 maximum: 1440
  *               status:
  *                 type: string
- *                 enum: [scheduled, confirmed, completed, cancelled, no_show]
+ *                 enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
  *               tenantConfirmed:
  *                 type: boolean
  *               employeeConfirmed:
@@ -324,7 +324,7 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visit
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [scheduled, confirmed, completed, cancelled, no_show]
+ *                 enum: [scheduled, confirmed, in_progress, completed, cancelled, no_show]
  *               outcome:
  *                 type: string
  *                 nullable: true

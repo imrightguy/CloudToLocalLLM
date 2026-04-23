@@ -192,7 +192,7 @@ const visitSchemas = {
     query: Joi.object({
       page: pagination.extract('page'),
       limit: pagination.extract('limit'),
-      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'),
+      status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'),
       employeeId: uuid,
       leadId: uuid,
       dateFrom: Joi.date().iso(),
@@ -209,7 +209,7 @@ const visitSchemas = {
       leadId: uuid.required(),
       dateTime: Joi.date().iso().required(),
       durationMinutes: Joi.number().integer().min(1).max(1440),
-      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'),
+      status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'),
       notes: Joi.string().trim().max(5000),
     }),
   },
@@ -221,7 +221,7 @@ const visitSchemas = {
       leadId: uuid,
       dateTime: Joi.date().iso(),
       durationMinutes: Joi.number().integer().min(1).max(1440),
-      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'),
+      status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'),
       tenantConfirmed: Joi.boolean(),
       employeeConfirmed: Joi.boolean(),
       morningOfSent: Joi.boolean(),
@@ -233,7 +233,7 @@ const visitSchemas = {
   updateStatus: {
     params: Joi.object({ id: uuid }),
     body: Joi.object({
-      status: Joi.string().valid('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show').required(),
+      status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show').required(),
       outcome: Joi.string().valid('interesse', 'pas_interesse', 'no_show').allow(null),
       notes: Joi.string().trim().max(5000),
     }),
@@ -553,7 +553,13 @@ const facebookWebhookSchemas = {
         Joi.object({
           id: Joi.string(),
           messaging: Joi.array(),
-        }),
+          changes: Joi.array().items(
+            Joi.object({
+              field: Joi.string().trim(),
+              value: Joi.object().unknown(true),
+            }).unknown(true),
+          ),
+        }).unknown(true),
       ),
     }),
   },
