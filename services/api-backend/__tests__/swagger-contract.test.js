@@ -38,6 +38,15 @@ describe('Swagger contract regression coverage', () => {
       ]);
     });
 
+    it('documents the visit list pagination envelope as metadata', () => {
+      const visitListResponse = swaggerSpec.paths['/api/visits'].get.responses[200].content['application/json'].schema.allOf[1].properties;
+
+      expect(visitListResponse.metadata).toMatchObject({
+        $ref: '#/components/schemas/PaginationMeta',
+      });
+      expect(visitListResponse.meta).toBeUndefined();
+    });
+
     it('documents the shared Visit schema with dateTime and durationMinutes', () => {
       const schema = swaggerSpec.components.schemas.Visit;
 
@@ -88,6 +97,13 @@ describe('Swagger contract regression coverage', () => {
         name: 'type',
         schema: { type: 'string' },
       });
+
+      const activityItem = swaggerSpec.paths['/api/communications/activity'].get.responses[200].content['application/json'].schema.allOf[1].properties.data.items.properties;
+      expect(activityItem.timestamp).toMatchObject({ type: 'string', format: 'date-time' });
+      expect(activityItem.description).toMatchObject({ type: 'string' });
+      expect(activityItem.metadata).toMatchObject({ type: 'object', additionalProperties: true });
+      expect(activityItem.createdAt).toBeUndefined();
+      expect(activityItem.leadName).toBeUndefined();
     });
 
     it('documents logging Messenger communications without requiring leadId', () => {

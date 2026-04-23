@@ -83,7 +83,7 @@ const { visitSchemas, uuidParam } = require('../config/validation-schemas');
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/Visit'
- *                     meta:
+ *                     metadata:
  *                       $ref: '#/components/schemas/PaginationMeta'
  */
 router.get('/', authenticateToken, validate(visitSchemas.list), asyncHandler(visitController.getVisits));

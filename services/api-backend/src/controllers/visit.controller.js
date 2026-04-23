@@ -49,11 +49,14 @@ async function checkVisitConflict(employeeId, dateTime, durationMinutes, exclude
  * Check if an employee has a valid schedule for the given day/time at the building.
  * Returns null if OK, or an error message string.
  */
-async function checkScheduleAvailability(employeeId, buildingId, dateTime) {
+async function checkScheduleAvailability(employeeId, buildingId, dateTime, durationMinutes = 30) {
   const dayOfWeek = dateTime.getDay(); // 0=Sunday in JS, but schema says 0=Monday
   const scheduleDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert: JS Sun=0 → 6, Mon=1 → 0, etc.
 
-  const timeHHMM = `${String(dateTime.getHours()).padStart(2, '0')}:${String(dateTime.getMinutes()).padStart(2, '0')}`;
+  const visitStartMinutes = (dateTime.getHours() * 60) + dateTime.getMinutes();
+  const visitEndMinutes = visitStartMinutes + durationMinutes;
+  const formatMinutes = (minutes) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+  const timeHHMM = formatMinutes(visitStartMinutes);
 
   const schedules = await db
     .select()
@@ -71,8 +74,13 @@ async function checkScheduleAvailability(employeeId, buildingId, dateTime) {
   }
 
   const schedule = schedules[0];
-  if (timeHHMM < schedule.startTime || timeHHMM >= schedule.endTime) {
-    return `Visit time ${timeHHMM} is outside employee schedule (${schedule.startTime}–${schedule.endTime})`;
+  const [scheduleStartHours, scheduleStartMinutes] = schedule.startTime.split(':').map(Number);
+  const [scheduleEndHours, scheduleEndMinutes] = schedule.endTime.split(':').map(Number);
+  const scheduleStartTotalMinutes = (scheduleStartHours * 60) + scheduleStartMinutes;
+  const scheduleEndTotalMinutes = (scheduleEndHours * 60) + scheduleEndMinutes;
+
+  if (visitStartMinutes < scheduleStartTotalMinutes || visitEndMinutes > scheduleEndTotalMinutes) {
+    return `Visit window ${timeHHMM}–${formatMinutes(visitEndMinutes)} is outside employee schedule (${schedule.startTime}–${schedule.endTime})`;
   }
 
   return null;
@@ -116,7 +124,8 @@ exports.createVisit = async (req, res) => {
     }
 
     // Check employee schedule availability
-    const scheduleError = await checkScheduleAvailability(employeeId, unit.buildingId, parsedDate);
+    const duration = durationMinutes || 30;
+    const scheduleError = await checkScheduleAvailability(employeeId, unit.buildingId, parsedDate, duration);
     if (scheduleError) {
       return res.status(409).json({
         success: false,
@@ -125,7 +134,6 @@ exports.createVisit = async (req, res) => {
     }
 
     // Check for visit time conflicts
-    const duration = durationMinutes || 30;
     const conflict = await checkVisitConflict(employeeId, parsedDate, duration);
     if (conflict) {
       return res.status(409).json({
@@ -467,8 +475,8 @@ exports.updateVisit = async (req, res) => {
       });
     }
 
-    // Check schedule if dateTime changed
-    if (dateTime !== undefined) {
+    // Check schedule when the appointment slot, assignee, or building can change
+    if (dateTime !== undefined || durationMinutes !== undefined || employeeId !== undefined || unitId !== undefined) {
       const unitForSchedule = await db
         .select({ buildingId: unitsTable.buildingId })
         .from(unitsTable)
@@ -477,7 +485,7 @@ exports.updateVisit = async (req, res) => {
 
       if (unitForSchedule.length > 0) {
         const { buildingId } = unitForSchedule[0];
-        const scheduleErr = await checkScheduleAvailability(checkEmployee, buildingId, checkDateTime);
+        const scheduleErr = await checkScheduleAvailability(checkEmployee, buildingId, checkDateTime, checkDuration);
         if (scheduleErr) {
           return res.status(409).json({
             success: false,

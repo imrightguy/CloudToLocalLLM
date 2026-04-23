@@ -126,6 +126,30 @@ describe('createVisit', () => {
     }));
   });
 
+  it('returns 409 when visit duration extends past employee availability', async () => {
+    const lateVisit = new Date(futureDate);
+    lateVisit.setHours(16, 30, 0, 0);
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
+    selectChain.limit.mockResolvedValueOnce([{ startTime: '09:00', endTime: '17:00', isActive: true }]);
+    const res = mockRes();
+
+    await visitController.createVisit({
+      body: {
+        unitId: 'unit-1',
+        employeeId: 'emp-1',
+        leadId: 'lead-1',
+        dateTime: lateVisit.toISOString(),
+        durationMinutes: 90,
+      },
+    }, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      error: expect.objectContaining({ code: 'SCHEDULE_CONFLICT' }),
+    }));
+  });
+
   it('returns 409 on visit time conflict', async () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
@@ -241,6 +265,40 @@ describe('updateVisit', () => {
     const newDate = new Date(Date.now() + 7 * 86400000);
     newDate.setHours(20, 0, 0, 0);
     await visitController.updateVisit({ params: { id: 'visit-1' }, body: { dateTime: newDate.toISOString() } }, res);
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      error: expect.objectContaining({ code: 'SCHEDULE_CONFLICT' }),
+    }));
+  });
+
+  it('returns 409 when extending a visit beyond employee availability', async () => {
+    const currentStart = new Date(futureDate);
+    currentStart.setHours(16, 30, 0, 0);
+    const existing = { id: 'visit-1', status: 'scheduled', dateTime: currentStart, durationMinutes: 30, employeeId: 'emp-1', unitId: 'unit-1' };
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([existing]);
+    selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
+    selectChain.limit.mockResolvedValueOnce([{ startTime: '09:00', endTime: '17:00', isActive: true }]);
+    const res = mockRes();
+
+    await visitController.updateVisit({ params: { id: 'visit-1' }, body: { durationMinutes: 90 } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      error: expect.objectContaining({ code: 'SCHEDULE_CONFLICT' }),
+    }));
+  });
+
+  it('returns 409 when reassigning a visit to a unit whose building schedule does not match', async () => {
+    const existing = { id: 'visit-1', status: 'scheduled', dateTime: futureDate, durationMinutes: 30, employeeId: 'emp-1', unitId: 'unit-1' };
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([existing]);
+    selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-2' }]);
+    selectChain.limit.mockResolvedValueOnce([]);
+    const res = mockRes();
+
+    await visitController.updateVisit({ params: { id: 'visit-1' }, body: { unitId: 'unit-2' } }, res);
+
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'SCHEDULE_CONFLICT' }),

@@ -110,12 +110,25 @@ router.get('/', authenticateToken, validate(communicationSchemas.list), asyncHan
  *                       items:
  *                         type: object
  *                         properties:
- *                           id: { type: string }
  *                           type: { type: string }
- *                           leadName: { type: string }
- *                           direction: { type: string }
- *                           subject: { type: string }
- *                           createdAt: { type: string, format: date-time }
+ *                           description: { type: string }
+ *                           timestamp: { type: string, format: date-time }
+ *                           leadId: { type: string, format: uuid, nullable: true }
+ *                           visitId: { type: string, format: uuid, nullable: true }
+ *                           smsLogId: { type: string, format: uuid, nullable: true }
+ *                           communicationLogId: { type: string, format: uuid, nullable: true }
+ *                           metadata:
+ *                             type: object
+ *                             additionalProperties: true
+ *                     metadata:
+ *                       type: object
+ *                       properties:
+ *                         total: { type: integer }
+ *                         limit: { type: integer }
+ *                         hoursAgo: { type: integer }
+ *                         types:
+ *                           type: array
+ *                           items: { type: string }
  */
 router.get('/activity', authenticateToken, validate(communicationSchemas.activity), asyncHandler(communicationController.getActivityFeed));
 
