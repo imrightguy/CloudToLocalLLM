@@ -239,4 +239,84 @@ describe('validate middleware', () => {
     expect(next).toHaveBeenCalledWith();
     expect(req.query).toEqual({ type: 'fb_messenger', page: 2, limit: 25 });
   });
+
+  it('preserves activity feed type filters supported by the controller', () => {
+    const { req, res, next } = mockReqRes({}, {
+      limit: '15',
+      hoursAgo: '48',
+      type: 'visit_scheduled,communication_logged',
+    });
+
+    validate(communicationSchemas.activity)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.query).toEqual({
+      limit: 15,
+      hoursAgo: 48,
+      type: 'visit_scheduled,communication_logged',
+    });
+  });
+
+  it('preserves logs filters supported by the shared communications controller', () => {
+    const { req, res, next } = mockReqRes({}, {
+      page: '1',
+      limit: '20',
+      employeeId: '550e8400-e29b-41d4-a716-446655440001',
+      type: 'fb_messenger',
+      direction: 'inbound',
+      status: 'read',
+    });
+
+    validate(communicationSchemas.logs)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.query).toEqual({
+      page: 1,
+      limit: 20,
+      employeeId: '550e8400-e29b-41d4-a716-446655440001',
+      type: 'fb_messenger',
+      direction: 'inbound',
+      status: 'read',
+    });
+  });
+
+  it('accepts marketplace communication log updates used by the controller', () => {
+    const { req, res, next } = mockReqRes(
+      {
+        subject: 'Suivi Messenger',
+        content: 'Le prospect confirme la visite.',
+        attachments: [{ url: 'https://example.com/thread/123' }],
+        status: 'read',
+        metadata: { source: 'messenger', threadId: '123' },
+      },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440099' },
+    );
+
+    validate(communicationSchemas.updateLog)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.body).toEqual({
+      subject: 'Suivi Messenger',
+      content: 'Le prospect confirme la visite.',
+      attachments: [{ url: 'https://example.com/thread/123' }],
+      status: 'read',
+      metadata: { source: 'messenger', threadId: '123' },
+    });
+  });
+
+  it('rejects unsupported communication type changes on log updates', () => {
+    const { req, res, next } = mockReqRes(
+      { type: 'fb_messenger' },
+      {},
+      { id: '550e8400-e29b-41d4-a716-446655440098' },
+    );
+
+    validate(communicationSchemas.updateLog)(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const error = next.mock.calls[0][0];
+    expect(error.name).toBe('ValidationError');
+    expect(error.details.body[0].type).toBe('object.min');
+  });
 });

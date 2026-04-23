@@ -90,6 +90,11 @@ router.get('/', authenticateToken, validate(communicationSchemas.list), asyncHan
  *         schema:
  *           type: integer
  *           default: 168
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           example: visit_scheduled,communication_logged
  *     responses:
  *       200:
  *         description: Activity feed
@@ -218,6 +223,15 @@ router.post('/', authenticateToken, validate(communicationSchemas.log), asyncHan
  *         schema:
  *           type: string
  *           enum: [email, phone, sms, fb_messenger]
+ *       - in: query
+ *         name: direction
+ *         schema:
+ *           type: string
+ *           enum: [inbound, outbound]
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: List of communication logs
@@ -301,9 +315,17 @@ router.get('/logs/:id', authenticateToken, validate(uuidParam), asyncHandler(com
  *                 type: string
  *               content:
  *                 type: string
- *               type:
+ *               attachments:
+ *                 type: array
+ *                 items:
+ *                   oneOf:
+ *                     - type: string
+ *                     - type: object
+ *               status:
  *                 type: string
- *                 enum: [email, phone, sms, in_person, whatsapp]
+ *               metadata:
+ *                 type: object
+ *                 additionalProperties: true
  *     responses:
  *       200:
  *         description: Communication log updated

@@ -197,7 +197,7 @@ const visitSchemas = {
       leadId: uuid,
       dateFrom: Joi.date().iso(),
       dateTo: Joi.date().iso(),
-      sortBy: Joi.string().valid('dateTime', 'createdAt', 'status').default('dateTime'),
+      sortBy: Joi.string().valid('dateTime', 'createdAt', 'status', 'durationMinutes', 'updatedAt').default('dateTime'),
       sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
       expand: visitExpand,
     }),
@@ -308,6 +308,26 @@ const renewalSchemas = {
   },
 };
 
+const validCommunicationActivityTypes = [
+  'lead_created',
+  'visit_scheduled',
+  'visit_completed',
+  'sms_sent',
+  'sms_received',
+  'communication_logged',
+];
+
+const communicationActivityTypeFilter = Joi.string().custom((value, helpers) => {
+  const requestedTypes = value.split(',').map((part) => part.trim()).filter(Boolean);
+  const hasInvalidType = requestedTypes.some((type) => !validCommunicationActivityTypes.includes(type));
+
+  if (requestedTypes.length === 0 || hasInvalidType) {
+    return helpers.error('any.invalid');
+  }
+
+  return requestedTypes.join(',');
+}, 'communication activity type filter');
+
 const communicationSchemas = {
   list: {
     query: Joi.object({
@@ -324,6 +344,7 @@ const communicationSchemas = {
     query: Joi.object({
       limit: Joi.number().integer().min(1).max(100).default(20),
       hoursAgo: Joi.number().integer().min(1).max(720).default(168),
+      type: communicationActivityTypeFilter,
     }),
   },
   logs: {
@@ -333,6 +354,8 @@ const communicationSchemas = {
       leadId: uuid,
       employeeId: uuid,
       type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
+      direction: Joi.string().valid('inbound', 'outbound'),
+      status: Joi.string().trim().max(100),
     }),
   },
   log: {
@@ -353,7 +376,9 @@ const communicationSchemas = {
     body: Joi.object({
       subject: Joi.string().trim().max(500),
       content: Joi.string().trim().max(10000),
-      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
+      attachments: Joi.array().items(Joi.alternatives(Joi.string(), Joi.object())),
+      status: Joi.string().trim().max(100),
+      metadata: Joi.object().unknown(true),
     }).min(1),
   },
 };

@@ -28,6 +28,16 @@ describe('Swagger contract regression coverage', () => {
       expect(statusSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
     });
 
+    it('documents visit list sorting options supported by the controller', () => {
+      expect(getParameter('/api/visits', 'get', 'sortBy').schema.enum).toEqual([
+        'dateTime',
+        'createdAt',
+        'status',
+        'durationMinutes',
+        'updatedAt',
+      ]);
+    });
+
     it('documents the shared Visit schema with dateTime and durationMinutes', () => {
       const schema = swaggerSpec.components.schemas.Visit;
 
@@ -55,9 +65,15 @@ describe('Swagger contract regression coverage', () => {
         schema: { type: 'string', format: 'uuid' },
       });
       expect(getParameter('/api/communications/logs', 'get', 'type').schema.enum).toEqual(['email', 'phone', 'sms', 'fb_messenger']);
+      expect(getParameter('/api/communications/logs', 'get', 'direction').schema.enum).toEqual(['inbound', 'outbound']);
+      expect(getParameter('/api/communications/logs', 'get', 'status').schema.type).toBe('string');
       expect(getParameter('/api/communications/activity', 'get', 'hoursAgo')).toMatchObject({
         name: 'hoursAgo',
         schema: { type: 'integer', default: 168 },
+      });
+      expect(getParameter('/api/communications/activity', 'get', 'type')).toMatchObject({
+        name: 'type',
+        schema: { type: 'string' },
       });
     });
 
@@ -72,6 +88,17 @@ describe('Swagger contract regression coverage', () => {
       expect(schema.properties.attachments).toMatchObject({ type: 'array' });
       expect(schema.properties.metadata).toMatchObject({ type: 'object', additionalProperties: true });
       expect(schema.properties.status.type).toBe('string');
+    });
+
+    it('documents communication log updates with status, attachments, and metadata', () => {
+      const schema = swaggerSpec.paths['/api/communications/logs/{id}'].put.requestBody.content['application/json'].schema;
+
+      expect(schema.properties.subject).toMatchObject({ type: 'string' });
+      expect(schema.properties.content).toMatchObject({ type: 'string' });
+      expect(schema.properties.attachments).toMatchObject({ type: 'array' });
+      expect(schema.properties.status.type).toBe('string');
+      expect(schema.properties.metadata).toMatchObject({ type: 'object', additionalProperties: true });
+      expect(schema.properties.type).toBeUndefined();
     });
 
     it('documents the shared Communication schema for Messenger logs', () => {

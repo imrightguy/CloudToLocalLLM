@@ -56,7 +56,7 @@ const { visitSchemas, uuidParam } = require('../config/validation-schemas');
  *         name: sortBy
  *         schema:
  *           type: string
- *           enum: [dateTime, createdAt, status]
+ *           enum: [dateTime, createdAt, status, durationMinutes, updatedAt]
  *           default: dateTime
  *       - in: query
  *         name: sortOrder
