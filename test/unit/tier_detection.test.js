@@ -13,7 +13,7 @@ import {
   shouldUseDirectTunnel,
   USER_TIERS,
   TIER_FEATURES,
-} from "../../api-backend/middleware/tier-check.js";
+} from "../../services/api-backend/middleware/tier-check.js";
 
 describe("Tier Detection Logic", () => {
   describe("getUserTier", () => {

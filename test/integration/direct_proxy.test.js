@@ -15,7 +15,7 @@ import {
 } from "@jest/globals";
 import request from "supertest";
 import express from "express";
-import { createDirectProxyRoutes } from "../../api-backend/routes/direct-proxy-routes.js";
+import { createDirectProxyRoutes } from "../../services/api-backend/routes/direct-proxy-routes.js";
 
 describe("Direct Proxy Integration Tests", () => {
   let app;
@@ -28,6 +28,7 @@ describe("Direct Proxy Integration Tests", () => {
       forwardRequest: jest.fn(),
       isUserConnected: jest.fn(),
     };
+    mockTunnelProxy.isUserConnected.mockReturnValue(true);
 
     // Mock auth middleware
     mockAuth = (req, res, next) => {
@@ -40,7 +41,8 @@ describe("Direct Proxy Integration Tests", () => {
 
     // Create test app
     app = express();
-    app.use(express.json());
+    app.disable("x-powered-by");
+    app.use(express.json({ limit: "20mb" }));
     app.use("/test", mockAuth);
     app.use("/test", createDirectProxyRoutes(mockTunnelProxy));
   });
@@ -211,7 +213,7 @@ describe("Direct Proxy Integration Tests", () => {
 
     it("should prevent path traversal attacks", async () => {
       const response = await request(app)
-        .get("/test/ollama/../../../etc/passwd")
+        .get("/test/ollama/..%2F..%2F..%2Fetc/passwd")
         .expect(400);
 
       expect(response.body).toMatchObject({
@@ -228,7 +230,6 @@ describe("Direct Proxy Integration Tests", () => {
 
       const response = await request(app)
         .post("/test/ollama/api/generate")
-        .set("Content-Length", largeBody.length.toString())
         .send({ data: largeBody })
         .expect(413);
 

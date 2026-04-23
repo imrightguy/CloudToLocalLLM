@@ -24,8 +24,6 @@ import { logger } from '../utils/logger.js';
 const REQUEST_TIMEOUT = parseInt(process.env.DIRECT_PROXY_TIMEOUT) || 30000; // 30 seconds
 const MAX_REQUEST_SIZE = parseInt(process.env.MAX_REQUEST_SIZE) || 10485760; // 10MB
 
-const router = express.Router();
-
 /**
  * Create direct proxy routes for free tier users with comprehensive validation
  * @param {Object} tunnelProxy - TunnelProxy instance with forwardRequest method
@@ -45,6 +43,8 @@ export function createDirectProxyRoutes(tunnelProxy) {
   if (typeof tunnelProxy.isUserConnected !== 'function') {
     throw new Error('TunnelProxy instance must have isUserConnected method');
   }
+
+  const router = express.Router();
 
   /**
    * Health check endpoint for direct proxy with comprehensive status
@@ -91,7 +91,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
    * Direct proxy endpoint for Ollama API calls with comprehensive security
    * Routes: /api/direct-proxy/:userId/ollama/*
    */
-  router.all('/ollama/*', authenticateJWT, addTierInfo, async (req, res) => {
+  router.all(/^\/ollama(?:\/.*)?$/, authenticateJWT, addTierInfo, async (req, res) => {
     const startTime = Date.now();
     const requestId = `dp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -164,11 +164,24 @@ export function createDirectProxyRoutes(tunnelProxy) {
       const ollamaPath = req.path.replace('/ollama', '') || '/';
 
       // Validate path for security (prevent path traversal)
-      if (ollamaPath.includes('..') || ollamaPath.includes('//')) {
-        logger.warn('� [DirectProxy] Path traversal attempt detected', {
+      let normalizedOllamaPath = ollamaPath;
+      try {
+        normalizedOllamaPath = decodeURIComponent(ollamaPath);
+      } catch (decodeError) {
+        logger.warn(' [DirectProxy] Failed to decode path during validation', {
           userId,
           originalPath: req.path,
           ollamaPath,
+          error: decodeError.message,
+          requestId,
+        });
+      }
+
+      if (normalizedOllamaPath.includes('..') || normalizedOllamaPath.includes('//')) {
+        logger.warn(' [DirectProxy] Path traversal attempt detected', {
+          userId,
+          originalPath: req.path,
+          ollamaPath: normalizedOllamaPath,
           requestId,
         });
 
@@ -222,83 +235,90 @@ export function createDirectProxyRoutes(tunnelProxy) {
       });
 
       // Forward request through tunnel proxy with timeout
-      const response = await Promise.race([
-        tunnelProxy.forwardRequest(userId, httpRequest),
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error('Request timeout')),
-            REQUEST_TIMEOUT,
-          ),
-        ),
-      ]);
+      let timeoutId;
+      try {
+        const response = await Promise.race([
+          tunnelProxy.forwardRequest(userId, httpRequest),
+          new Promise((_, reject) => {
+            timeoutId = setTimeout(
+              () => reject(new Error('Request timeout')),
+              REQUEST_TIMEOUT,
+            );
+          }),
+        ]);
 
-      // Validate response object
-      if (!response || typeof response !== 'object') {
-        throw new Error('Invalid response from tunnel proxy');
-      }
+        // Validate response object
+        if (!response || typeof response !== 'object') {
+          throw new Error('Invalid response from tunnel proxy');
+        }
 
-      // Sanitize response headers (remove security-sensitive headers)
-      const sanitizedResponseHeaders = { ...response.headers };
-      const responseHeadersToRemove = ['set-cookie', 'server', 'x-powered-by'];
-      responseHeadersToRemove.forEach((header) => {
-        delete sanitizedResponseHeaders[header];
-      });
-
-      // Set response headers safely
-      if (sanitizedResponseHeaders) {
-        Object.entries(sanitizedResponseHeaders).forEach(([key, value]) => {
-          if (value !== undefined && typeof key === 'string') {
-            try {
-              res.set(key, value);
-            } catch (headerError) {
-              logger.warn(' [DirectProxy] Invalid response header', {
-                userId,
-                header: key,
-                value,
-                error: headerError.message,
-                requestId,
-              });
-            }
-          }
+        // Sanitize response headers (remove security-sensitive headers)
+        const sanitizedResponseHeaders = { ...response.headers };
+        const responseHeadersToRemove = ['set-cookie', 'server', 'x-powered-by'];
+        responseHeadersToRemove.forEach((header) => {
+          delete sanitizedResponseHeaders[header];
         });
-      }
 
-      // Validate and set status code
-      const statusCode = parseInt(response.statusCode) || 200;
-      if (statusCode < 100 || statusCode > 599) {
-        logger.warn(' [DirectProxy] Invalid status code, using 200', {
+        // Set response headers safely
+        if (sanitizedResponseHeaders) {
+          Object.entries(sanitizedResponseHeaders).forEach(([key, value]) => {
+            if (value !== undefined && typeof key === 'string') {
+              try {
+                res.set(key, value);
+              } catch (headerError) {
+                logger.warn(' [DirectProxy] Invalid response header', {
+                  userId,
+                  header: key,
+                  value,
+                  error: headerError.message,
+                  requestId,
+                });
+              }
+            }
+          });
+        }
+
+        // Validate and set status code
+        const statusCode = parseInt(response.statusCode) || 200;
+        if (statusCode < 100 || statusCode > 599) {
+          logger.warn(' [DirectProxy] Invalid status code, using 200', {
+            userId,
+            originalStatusCode: response.statusCode,
+            requestId,
+          });
+          res.status(200);
+        } else {
+          res.status(statusCode);
+        }
+
+        // Send response body safely
+        if (response.body !== undefined && response.body !== null) {
+          if (typeof response.body === 'string') {
+            res.send(response.body);
+          } else if (typeof response.body === 'object') {
+            res.json(response.body);
+          } else {
+            res.send(String(response.body));
+          }
+        } else {
+          res.end();
+        }
+
+        const duration = Date.now() - startTime;
+        logger.debug(' [DirectProxy] Request completed successfully', {
           userId,
-          originalStatusCode: response.statusCode,
+          userTier,
+          method: req.method,
+          path: ollamaPath,
+          statusCode,
+          duration,
           requestId,
         });
-        res.status(200);
-      } else {
-        res.status(statusCode);
-      }
-
-      // Send response body safely
-      if (response.body !== undefined && response.body !== null) {
-        if (typeof response.body === 'string') {
-          res.send(response.body);
-        } else if (typeof response.body === 'object') {
-          res.json(response.body);
-        } else {
-          res.send(String(response.body));
+      } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
         }
-      } else {
-        res.end();
       }
-
-      const duration = Date.now() - startTime;
-      logger.debug(' [DirectProxy] Request completed successfully', {
-        userId,
-        userTier,
-        method: req.method,
-        path: ollamaPath,
-        statusCode,
-        duration,
-        requestId,
-      });
     } catch (error) {
       const duration = Date.now() - startTime;
       const userId = req.user?.sub;
@@ -378,7 +398,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
    * Direct proxy endpoint for general API calls
    * Routes: /api/direct-proxy/:userId/api/*
    */
-  router.all('/api/*', authenticateJWT, addTierInfo, async (req, res) => {
+  router.all(/^\/api(?:\/.*)?$/, authenticateJWT, addTierInfo, async (req, res) => {
     const userId = req.user.sub;
     const userTier = getUserTier(req.user);
 
@@ -463,7 +483,7 @@ export function createDirectProxyRoutes(tunnelProxy) {
   /**
    * Catch-all route for unsupported paths
    */
-  router.all('*', authenticateJWT, addTierInfo, (req, res) => {
+  router.all(/.*/, authenticateJWT, addTierInfo, (req, res) => {
     const userTier = getUserTier(req.user);
 
     res.status(404).json({
