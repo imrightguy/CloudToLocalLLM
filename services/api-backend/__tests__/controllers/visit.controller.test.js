@@ -214,6 +214,26 @@ describe('getVisitById', () => {
     expect(res.status).toHaveBeenCalledWith(404);
   });
 
+  it('returns 404 for soft-deleted visits', async () => {
+    const visit = {
+      id: 'visit-1',
+      status: 'cancelled',
+      dateTime: new Date(),
+      isActive: false,
+    };
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([visit]);
+    const res = mockRes();
+
+    await visitController.getVisitById({ params: { id: 'visit-1' } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      error: expect.objectContaining({ code: 'VISIT_NOT_FOUND' }),
+    }));
+  });
+
   it('returns visit data', async () => {
     const visit = { id: 'visit-1', status: 'scheduled', dateTime: new Date() };
     selectChain.from.mockReturnValue(selectChain);
@@ -234,6 +254,30 @@ describe('updateVisit', () => {
     const res = mockRes();
     await visitController.updateVisit({ params: { id: 'nonexistent' }, body: { notes: 'test' } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it('returns 404 when attempting to update a soft-deleted visit', async () => {
+    const existing = {
+      id: 'visit-1',
+      status: 'cancelled',
+      dateTime: new Date(),
+      durationMinutes: 30,
+      employeeId: 'emp-1',
+      unitId: 'unit-1',
+      isActive: false,
+    };
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([existing]);
+    const res = mockRes();
+
+    await visitController.updateVisit({ params: { id: 'visit-1' }, body: { notes: 'Updated' } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(db.update).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      error: expect.objectContaining({ code: 'VISIT_NOT_FOUND' }),
+    }));
   });
 
   it('updates visit with notes only', async () => {
@@ -318,6 +362,21 @@ describe('deleteVisit', () => {
     expect(res.status).toHaveBeenCalledWith(404);
   });
 
+  it('returns 404 when attempting to delete a soft-deleted visit again', async () => {
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'visit-1', isActive: false }]);
+    const res = mockRes();
+
+    await visitController.deleteVisit({ params: { id: 'visit-1' } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(db.update).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      error: expect.objectContaining({ code: 'VISIT_NOT_FOUND' }),
+    }));
+  });
+
   it('soft-deletes visit', async () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([{ id: 'visit-1', isActive: true }]);
@@ -344,6 +403,21 @@ describe('updateVisitStatus', () => {
     const res = mockRes();
     await visitController.updateVisitStatus({ params: { id: 'nonexistent' }, body: { status: 'completed' } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it('returns 404 when attempting to patch the status of a soft-deleted visit', async () => {
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'visit-1', status: 'cancelled', isActive: false }]);
+    const res = mockRes();
+
+    await visitController.updateVisitStatus({ params: { id: 'visit-1' }, body: { status: 'completed' } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(db.update).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      error: expect.objectContaining({ code: 'VISIT_NOT_FOUND' }),
+    }));
   });
 
   it('updates to completed with valid outcome', async () => {

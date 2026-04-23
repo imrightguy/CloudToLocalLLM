@@ -419,10 +419,13 @@ exports.getVisitById = async (req, res) => {
     const [visit] = await db
       .select()
       .from(visitsTable)
-      .where(eq(visitsTable.id, id))
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!visit) {
+    if (!visit || visit.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Visit not found', code: 'VISIT_NOT_FOUND' },
@@ -453,10 +456,13 @@ exports.updateVisit = async (req, res) => {
     const [existing] = await db
       .select()
       .from(visitsTable)
-      .where(eq(visitsTable.id, id))
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!existing) {
+    if (!existing || existing.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Visit not found', code: 'VISIT_NOT_FOUND' },
@@ -537,7 +543,10 @@ exports.updateVisit = async (req, res) => {
     const [updated] = await db
       .update(visitsTable)
       .set(updateData)
-      .where(eq(visitsTable.id, id))
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
       .returning();
 
     res.json({ success: true, data: updated, message: 'Visit updated successfully' });
@@ -566,10 +575,13 @@ exports.deleteVisit = async (req, res) => {
     const [existing] = await db
       .select()
       .from(visitsTable)
-      .where(eq(visitsTable.id, id))
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!existing) {
+    if (!existing || existing.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Visit not found', code: 'VISIT_NOT_FOUND' },
@@ -579,7 +591,10 @@ exports.deleteVisit = async (req, res) => {
     await db
       .update(visitsTable)
       .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(visitsTable.id, id));
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ));
 
     res.json({ success: true, data: null, message: 'Visit deleted successfully' });
   } catch (error) {
@@ -612,10 +627,13 @@ exports.updateVisitStatus = async (req, res) => {
     const [existing] = await db
       .select()
       .from(visitsTable)
-      .where(eq(visitsTable.id, id))
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!existing) {
+    if (!existing || existing.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Visit not found', code: 'VISIT_NOT_FOUND' },
@@ -651,7 +669,10 @@ exports.updateVisitStatus = async (req, res) => {
     const [updated] = await db
       .update(visitsTable)
       .set(updateData)
-      .where(eq(visitsTable.id, id))
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
       .returning();
 
     res.json({ success: true, data: updated, message: 'Visit status updated successfully' });

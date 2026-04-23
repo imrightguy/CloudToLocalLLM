@@ -248,6 +248,35 @@ describe('getVisitSlots', () => {
   });
 });
 
+describe('handleIncomingAttachment', () => {
+  it('logs attachment-only Messenger messages with attachment metadata', async () => {
+    const mockReturning = jest.fn().mockResolvedValue([{ id: 1 }]);
+    const mockValues = jest.fn().mockReturnValue({ returning: mockReturning });
+    mockDb.insert.mockReturnValue({ values: mockValues });
+
+    await botService.handleIncomingAttachment('sender-attachment', [
+      { type: 'image', payload: { url: 'https://example.com/image.jpg' } },
+      { type: 'file', payload: { url: 'https://example.com/file.pdf' } },
+    ]);
+
+    expect(mockDb.insert).toHaveBeenCalledWith('communicationLogsTable');
+    expect(mockValues).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'fb_messenger',
+      direction: 'inbound',
+      content: 'Pièce jointe Messenger reçue (image, file)',
+      status: 'received',
+      attachments: expect.arrayContaining([
+        expect.objectContaining({ type: 'image' }),
+        expect.objectContaining({ type: 'file' }),
+      ]),
+      metadata: {
+        attachmentCount: 2,
+        attachmentTypes: ['image', 'file'],
+      },
+    }));
+  });
+});
+
 // ─── handleIncomingMessage — state transitions ───
 
 describe('handleIncomingMessage — state machine', () => {

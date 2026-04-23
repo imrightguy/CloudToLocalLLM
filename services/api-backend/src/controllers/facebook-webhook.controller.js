@@ -56,12 +56,17 @@ exports.handleWebhook = async (req, res) => {
           if (messagingEvent.message.is_echo) {continue;}
 
           const messageText = messagingEvent.message.text || '';
+          const attachments = Array.isArray(messagingEvent.message.attachments)
+            ? messagingEvent.message.attachments
+            : [];
 
           // Check for quick reply payload
           if (messagingEvent.message.quick_reply?.payload) {
             await botService.handlePostback(senderId, messagingEvent.message.quick_reply.payload);
           } else if (messageText.trim()) {
             await botService.handleIncomingMessage(senderId, messageText);
+          } else if (attachments.length > 0) {
+            await botService.handleIncomingAttachment(senderId, attachments);
           }
         }
 

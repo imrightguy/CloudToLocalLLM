@@ -1,6 +1,6 @@
 // ─── Notification Service — Phase 4 ───
 const nodemailer = require('nodemailer');
-const { eq } = require('drizzle-orm');
+const { and, eq } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
   usersTable, leadsTable, visitsTable, buildingsTable, employeesTable,
@@ -284,10 +284,13 @@ async function sendNoShowAlert(visitId) {
     const [visit] = await db
       .select()
       .from(visitsTable)
-      .where(eq(visitsTable.id, visitId))
+      .where(and(
+        eq(visitsTable.id, visitId),
+        eq(visitsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!visit) {
+    if (!visit || visit.isActive === false) {
       logger.warn(`[notification.service] Visit ${visitId} not found`);
       return { success: false, reason: 'VISIT_NOT_FOUND' };
     }

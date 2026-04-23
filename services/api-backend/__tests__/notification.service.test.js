@@ -396,6 +396,15 @@ describe('notification.service', () => {
       expect(result).toEqual({ success: false, reason: 'VISIT_NOT_FOUND' });
     });
 
+    it('returns VISIT_NOT_FOUND for soft-deleted visits', async () => {
+      setupDbQueries([{ via: 'limit', returns: [{ id: 1, isActive: false }] }]);
+
+      const result = await notificationService.sendNoShowAlert(1);
+
+      expect(result).toEqual({ success: false, reason: 'VISIT_NOT_FOUND' });
+      expect(sendMailMock).not.toHaveBeenCalled();
+    });
+
     it('sends alert with N/A for missing lead/employee', async () => {
       const visit = {
         id: 1, leadId: 5, employeeId: 10, unitId: null, dateTime: '2026-04-08T14:00:00',

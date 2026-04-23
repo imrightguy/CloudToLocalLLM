@@ -134,6 +134,16 @@ describe('sendVisitConfirmation', () => {
     expect(result.error).toBe('Visit not found');
   });
 
+  it('returns error when visit is soft-deleted', async () => {
+    setupDb([makeRow({ visit: { isActive: false } })]);
+
+    const result = await smsService.sendVisitConfirmation(1);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Visit not found');
+    expect(sendSMS).not.toHaveBeenCalled();
+  });
+
   it('returns error when employee is missing', async () => {
     setupDb([makeRow({ employee: null })]);
 
@@ -205,6 +215,16 @@ describe('sendTenantConfirmationRequest', () => {
     expect(result.error).toBe('Visit not found');
   });
 
+  it('returns error when visit is soft-deleted', async () => {
+    setupDb([makeRow({ visit: { isActive: false } })]);
+
+    const result = await smsService.sendTenantConfirmationRequest(1);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Visit not found');
+    expect(sendSMS).not.toHaveBeenCalled();
+  });
+
   it('returns error when lead phone is missing', async () => {
     setupDb([makeRow({ lead: { phone: null } })]);
 
@@ -249,6 +269,16 @@ describe('sendOccupantAccessRequest', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Visit not found');
+  });
+
+  it('returns error when visit is soft-deleted', async () => {
+    setupDb([makeRow({ visit: { isActive: false }, unit: { tenantPhone: '+151****0099' } })]);
+
+    const result = await smsService.sendOccupantAccessRequest(1);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Visit not found');
+    expect(sendSMS).not.toHaveBeenCalled();
   });
 
   it('returns error when unit is missing', async () => {

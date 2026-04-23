@@ -11,6 +11,7 @@ process.env.FB_VERIFY_TOKEN = 'test_verify_token';
 // ── Module mocks ──
 jest.mock('../src/services/messenger-bot.service', () => ({
   handleIncomingMessage: jest.fn().mockResolvedValue(undefined),
+  handleIncomingAttachment: jest.fn().mockResolvedValue(undefined),
   handlePostback: jest.fn().mockResolvedValue(undefined),
   handleOptIn: jest.fn().mockResolvedValue(undefined),
 }));
@@ -244,6 +245,26 @@ describe('handleWebhook', () => {
 
     await handleWebhook(req, res);
 
+    expect(botService.handleIncomingMessage).not.toHaveBeenCalled();
+  });
+
+  it('delegates attachment-only messages so marketplace uploads are not dropped', async () => {
+    const attachments = [{ type: 'image', payload: { url: 'https://example.com/image.jpg' } }];
+    const req = {
+      body: {
+        object: 'page',
+        entry: [{
+          messaging: [{
+            sender: { id: '222' },
+            message: { attachments },
+          }],
+        }],
+      },
+    };
+
+    await handleWebhook(req, res);
+
+    expect(botService.handleIncomingAttachment).toHaveBeenCalledWith('222', attachments);
     expect(botService.handleIncomingMessage).not.toHaveBeenCalled();
   });
 

@@ -125,7 +125,7 @@ function getConversation(senderId) {
  * Log a communication to the DB.
  */
 async function logCommunication({
-  leadId, employeeId, type, direction, content, status,
+  leadId, employeeId, type, direction, content, status, attachments, metadata,
 }) {
   try {
     await db.insert(communicationLogsTable).values({
@@ -134,12 +134,37 @@ async function logCommunication({
       type: type || 'fb_messenger',
       direction: direction || 'outbound',
       content: content || null,
+      attachments: attachments || [],
       status: status || 'sent',
+      metadata: metadata || {},
     });
   } catch (err) {
     logger.error('[MessengerBot] Failed to log communication:', err.message);
   }
 }
+
+const handleIncomingAttachment = async (senderId, attachments = []) => {
+  const conv = getConversation(senderId);
+  const normalizedAttachments = Array.isArray(attachments) ? attachments : [];
+  const attachmentTypes = normalizedAttachments
+    .map((attachment) => attachment?.type)
+    .filter(Boolean);
+  const uniqueTypes = [...new Set(attachmentTypes)];
+  const typeSummary = uniqueTypes.length > 0 ? ` (${uniqueTypes.join(', ')})` : '';
+
+  await logCommunication({
+    leadId: conv.leadId,
+    type: 'fb_messenger',
+    direction: 'inbound',
+    content: `Pièce jointe Messenger reçue${typeSummary}`,
+    status: 'received',
+    attachments: normalizedAttachments,
+    metadata: {
+      attachmentCount: normalizedAttachments.length,
+      attachmentTypes: uniqueTypes,
+    },
+  });
+};
 
 // ─── DB Queries ───
 
@@ -818,6 +843,7 @@ const handleOptIn = async (senderId, ref) => {
 
 module.exports = {
   handleIncomingMessage,
+  handleIncomingAttachment,
   handlePostback,
   handleOptIn,
   getAvailableListings,

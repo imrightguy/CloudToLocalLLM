@@ -72,10 +72,18 @@ const getVisitContext = async (visitId) => {
     .leftJoin(leadsTable, eq(visitsTable.leadId, leadsTable.id))
     .leftJoin(unitsTable, eq(visitsTable.unitId, unitsTable.id))
     .leftJoin(buildingsTable, eq(unitsTable.buildingId, buildingsTable.id))
-    .where(eq(visitsTable.id, visitId))
+    .where(and(
+      eq(visitsTable.id, visitId),
+      eq(visitsTable.isActive, true),
+    ))
     .limit(1);
 
-  return rows.length ? rows[0] : null;
+  const row = rows.length ? rows[0] : null;
+  if (!row || row.visit?.isActive === false) {
+    return null;
+  }
+
+  return row;
 };
 
 // ─── Tenant message templates (FR / EN) ────────────────────────────────────────
