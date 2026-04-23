@@ -127,10 +127,13 @@ exports.getCommunicationLogById = async (req, res) => {
 
     const [record] = await db.select()
       .from(communicationLogsTable)
-      .where(eq(communicationLogsTable.id, id))
+      .where(and(
+        eq(communicationLogsTable.id, id),
+        eq(communicationLogsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!record) {
+    if (!record || record.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Communication log not found', code: 'COMMUNICATION_NOT_FOUND' },
@@ -161,10 +164,13 @@ exports.updateCommunicationLog = async (req, res) => {
 
     const [existing] = await db.select()
       .from(communicationLogsTable)
-      .where(eq(communicationLogsTable.id, id))
+      .where(and(
+        eq(communicationLogsTable.id, id),
+        eq(communicationLogsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!existing) {
+    if (!existing || existing.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Journal de communication introuvable', code: 'COMMUNICATION_NOT_FOUND' },
@@ -188,8 +194,18 @@ exports.updateCommunicationLog = async (req, res) => {
 
     const [updated] = await db.update(communicationLogsTable)
       .set(updateData)
-      .where(eq(communicationLogsTable.id, id))
+      .where(and(
+        eq(communicationLogsTable.id, id),
+        eq(communicationLogsTable.isActive, true),
+      ))
       .returning();
+
+    if (!updated || updated.isActive === false) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Journal de communication introuvable', code: 'COMMUNICATION_NOT_FOUND' },
+      });
+    }
 
     res.json({
       success: true,
@@ -212,19 +228,33 @@ exports.deleteCommunicationLog = async (req, res) => {
 
     const [existing] = await db.select()
       .from(communicationLogsTable)
-      .where(eq(communicationLogsTable.id, id))
+      .where(and(
+        eq(communicationLogsTable.id, id),
+        eq(communicationLogsTable.isActive, true),
+      ))
       .limit(1);
 
-    if (!existing) {
+    if (!existing || existing.isActive === false) {
       return res.status(404).json({
         success: false,
         error: { message: 'Journal de communication introuvable', code: 'COMMUNICATION_NOT_FOUND' },
       });
     }
 
-    await db.update(communicationLogsTable)
+    const [deleted] = await db.update(communicationLogsTable)
       .set({ isActive: false })
-      .where(eq(communicationLogsTable.id, id));
+      .where(and(
+        eq(communicationLogsTable.id, id),
+        eq(communicationLogsTable.isActive, true),
+      ))
+      .returning({ id: communicationLogsTable.id, isActive: communicationLogsTable.isActive });
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Journal de communication introuvable', code: 'COMMUNICATION_NOT_FOUND' },
+      });
+    }
 
     res.json({
       success: true,

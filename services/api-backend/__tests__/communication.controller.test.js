@@ -437,12 +437,31 @@ describe('getCommunicationLogById (controller import)', () => {
     expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
   });
 
+  it('returns 404 for soft-deleted logs', async () => {
+    mockDbResults = [[{
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      isActive: false,
+      type: 'email',
+      direction: 'inbound',
+    }]];
+    const res = mockRes();
+    await communicationController.getCommunicationLogById(
+      { params: { id: '550e8400-e29b-41d4-a716-446655440000' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
   it('returns the record when found', async () => {
     mockDbResults = [[{
       id: '550e8400-e29b-41d4-a716-446655440000',
       type: 'email',
       direction: 'inbound',
       subject: 'Test subject',
+      isActive: true,
     }]];
     const res = mockRes();
     await communicationController.getCommunicationLogById(
@@ -571,8 +590,21 @@ describe('updateCommunicationLog (controller import)', () => {
     expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
   });
 
+  it('returns 404 when attempting to update a soft-deleted log', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound', isActive: false }]];
+    const res = mockRes();
+    await communicationController.updateCommunicationLog(
+      { params: { id: 'c1' }, body: { status: 'delivered' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
   it('returns 400 for invalid status', async () => {
-    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound' }]];
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound', isActive: true }]];
     const res = mockRes();
     await communicationController.updateCommunicationLog(
       { params: { id: 'c1' }, body: { status: 'bogus' } },
@@ -585,8 +617,55 @@ describe('updateCommunicationLog (controller import)', () => {
     expect(body.error.message).toContain('Statut invalide');
   });
 
+  it('updates active logs with an active-only write guard', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound', isActive: true }]];
+    const where = jest.fn().mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: 'c1', type: 'email', direction: 'inbound', isActive: true, status: 'delivered' }]),
+    });
+    const set = jest.fn().mockReturnValue({ where });
+    db.update.mockImplementationOnce(() => ({ set }));
+    const res = mockRes();
+
+    await communicationController.updateCommunicationLog(
+      { params: { id: 'c1' }, body: { status: 'delivered' } },
+      res,
+    );
+
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      data: expect.objectContaining({ id: 'c1', status: 'delivered' }),
+    }));
+    expect(where).toHaveBeenCalledWith(expect.objectContaining({
+      _type: 'and',
+      conds: expect.arrayContaining([
+        expect.objectContaining({ _type: 'eq', val: 'c1' }),
+        expect.objectContaining({ _type: 'eq', val: true }),
+      ]),
+    }));
+  });
+
+  it('returns 404 when the active-only update guard matches zero rows', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound', isActive: true }]];
+    const where = jest.fn().mockReturnValue({
+      returning: jest.fn().mockResolvedValue([]),
+    });
+    const set = jest.fn().mockReturnValue({ where });
+    db.update.mockImplementationOnce(() => ({ set }));
+    const res = mockRes();
+
+    await communicationController.updateCommunicationLog(
+      { params: { id: 'c1' }, body: { status: 'delivered' } },
+      res,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
   it('returns 500 when db update fails', async () => {
-    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound' }]];
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound', isActive: true }]];
     const res = mockRes();
     await communicationController.updateCommunicationLog(
       { params: { id: 'c1' }, body: { content: 'updated content' } },
@@ -614,8 +693,65 @@ describe('deleteCommunicationLog (controller import)', () => {
     expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
   });
 
+  it('returns 404 when attempting to delete a soft-deleted log again', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', isActive: false }]];
+    const res = mockRes();
+    await communicationController.deleteCommunicationLog(
+      { params: { id: 'c1' } },
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
+  it('soft-deletes active logs with an active-only write guard', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', isActive: true }]];
+    const returning = jest.fn().mockResolvedValue([{ id: 'c1', isActive: false }]);
+    const where = jest.fn().mockReturnValue({ returning });
+    const set = jest.fn().mockReturnValue({ where });
+    db.update.mockImplementationOnce(() => ({ set }));
+    const res = mockRes();
+
+    await communicationController.deleteCommunicationLog(
+      { params: { id: 'c1' } },
+      res,
+    );
+
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: null }));
+    expect(where).toHaveBeenCalledWith(expect.objectContaining({
+      _type: 'and',
+      conds: expect.arrayContaining([
+        expect.objectContaining({ _type: 'eq', val: 'c1' }),
+        expect.objectContaining({ _type: 'eq', val: true }),
+      ]),
+    }));
+    expect(returning).toHaveBeenCalled();
+  });
+
+  it('returns 404 when the active-only delete guard matches zero rows', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', isActive: true }]];
+    const where = jest.fn().mockReturnValue({
+      returning: jest.fn().mockResolvedValue([]),
+    });
+    const set = jest.fn().mockReturnValue({ where });
+    db.update.mockImplementationOnce(() => ({ set }));
+    const res = mockRes();
+
+    await communicationController.deleteCommunicationLog(
+      { params: { id: 'c1' } },
+      res,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    const body = res.json.mock.calls[0][0];
+    expect(body.success).toBe(false);
+    expect(body.error.code).toBe('COMMUNICATION_NOT_FOUND');
+  });
+
   it('returns 500 when db delete fails', async () => {
-    mockDbResults = [[{ id: 'c1', type: 'email' }]];
+    mockDbResults = [[{ id: 'c1', type: 'email', isActive: true }]];
     const res = mockRes();
     await communicationController.deleteCommunicationLog(
       { params: { id: 'c1' } },
