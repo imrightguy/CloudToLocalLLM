@@ -86,6 +86,9 @@ async function checkScheduleAvailability(employeeId, buildingId, dateTime, durat
   return null;
 }
 
+exports.checkVisitConflict = checkVisitConflict;
+exports.checkScheduleAvailability = checkScheduleAvailability;
+
 // ─── Create Visit ───
 exports.createVisit = async (req, res) => {
   try {

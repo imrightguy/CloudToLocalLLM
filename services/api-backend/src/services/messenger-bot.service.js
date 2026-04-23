@@ -26,6 +26,11 @@ const {
 
 const fbService = require('./facebook.service');
 const smsService = require('./sms.service');
+const {
+  checkVisitConflict,
+  checkScheduleAvailability,
+} = require('../controllers/visit.controller');
+const { generateConfirmationToken } = require('../controllers/tenant-confirmation.controller');
 const logger = require('../utils/logger');
 
 // ─── Conversation States ───
@@ -616,8 +621,27 @@ async function handleSuggestVisit(senderId, conv, text) {
 
   // Get visit slots
   const slots = await getVisitSlots(conv.data.buildingId, visitDate);
+  const validatedSlots = [];
 
-  if (slots.length === 0) {
+  for (const slot of slots) {
+    const candidateDateTime = new Date(visitDate);
+    const [candidateHours, candidateMinutes] = slot.startTime.split(':').map(Number);
+    candidateDateTime.setHours(candidateHours, candidateMinutes, 0, 0);
+
+    const scheduleError = await checkScheduleAvailability(slot.employeeId, conv.data.buildingId, candidateDateTime, 30);
+    if (scheduleError) {
+      continue;
+    }
+
+    const conflict = await checkVisitConflict(slot.employeeId, candidateDateTime, 30);
+    if (conflict) {
+      continue;
+    }
+
+    validatedSlots.push(slot);
+  }
+
+  if (validatedSlots.length === 0) {
     const noSlotsMsg = lang === 'en'
       ? 'No available time slots found for this building. Simon will contact you to arrange a visit.'
       : 'Aucun créneau disponible pour cet immeuble. Simon vous contactera pour organiser une visite.';
@@ -630,7 +654,7 @@ async function handleSuggestVisit(senderId, conv, text) {
   }
 
   // Use first available slot
-  const slot = slots[0];
+  const slot = validatedSlots[0];
   const visitDateTime = new Date(visitDate);
   const [hours, minutes] = slot.startTime.split(':').map(Number);
   visitDateTime.setHours(hours, minutes, 0, 0);
@@ -653,10 +677,10 @@ async function handleSuggestVisit(senderId, conv, text) {
     }
   }
 
-  // Create visit in DB
+  let visit = null;
   if (conv.leadId) {
     try {
-      await db
+      [visit] = await db
         .insert(visitsTable)
         .values({
           unitId: conv.data.unitId,
@@ -666,6 +690,7 @@ async function handleSuggestVisit(senderId, conv, text) {
           durationMinutes: 30,
           status: 'scheduled',
           notes: 'Visit scheduled via Facebook Messenger bot',
+          confirmationToken: generateConfirmationToken(),
         })
         .returning();
     } catch (err) {
@@ -692,27 +717,31 @@ async function handleSuggestVisit(senderId, conv, text) {
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: visitMsg,
   });
 
-  // Trigger SMS confirmation if lead has a phone number
-  if (conv.leadId && conv.data.phone) {
+  if (visit) {
     try {
-      // Fetch the building address
-      const [building] = await db
+      await smsService.sendVisitConfirmation(visit.id);
+      await smsService.sendTenantConfirmationRequest(visit.id);
+    } catch (err) {
+      logger.error('[MessengerBot] Failed to send visit confirmation workflow:', err.message);
+    }
+
+    try {
+      const [unitDetails] = await db
         .select()
-        .from(buildingsTable)
-        .where(eq(buildingsTable.id, conv.data.buildingId))
+        .from(unitsTable)
+        .where(eq(unitsTable.id, conv.data.unitId))
         .limit(1);
 
-      await smsService.sendVisitConfirmationSMS({
-        leadName: [conv.data.firstName, conv.data.lastName].filter(Boolean).join(' ') || 'Prospect',
-        leadPhone: conv.data.phone,
-        propertyAddress: building ? building.address : '',
-        visitDate: visitDateTime,
-        contactPhone: slot.phone,
-      });
+      const isOccupied = unitDetails?.status === 'occupied' || unitDetails?.tenantPhone;
+      if (isOccupied) {
+        await smsService.sendOccupantAccessRequest(visit.id);
+      }
     } catch (err) {
-      logger.error('[MessengerBot] Failed to send visit confirmation SMS:', err.message);
+      logger.error('[MessengerBot] Failed to send occupant access request:', err.message);
     }
-  } else {
+  }
+
+  if (!conv.data.phone) {
     const noPhoneMsg = t('noPhoneNumber', lang);
     await fbService.sendTextMessage(senderId, noPhoneMsg);
     await logCommunication({

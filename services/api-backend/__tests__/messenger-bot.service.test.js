@@ -7,6 +7,7 @@
 const mockDb = {
   insert: jest.fn(),
   select: jest.fn(),
+  update: jest.fn(),
 };
 jest.mock('../src/database/connection', () => ({ db: mockDb }));
 jest.mock('../src/database/schema', () => ({
@@ -30,8 +31,23 @@ jest.mock('../src/services/facebook.service', () => mockFbService);
 
 const mockSmsService = {
   sendSms: jest.fn(),
+  sendVisitConfirmation: jest.fn(),
+  sendTenantConfirmationRequest: jest.fn(),
+  sendOccupantAccessRequest: jest.fn(),
 };
 jest.mock('../src/services/sms.service', () => mockSmsService);
+
+jest.mock('../src/controllers/tenant-confirmation.controller', () => ({
+  generateConfirmationToken: jest.fn(() => 'token-abc'),
+}));
+
+const mockCheckVisitConflict = jest.fn();
+const mockCheckScheduleAvailability = jest.fn();
+
+jest.mock('../src/controllers/visit.controller', () => ({
+  checkVisitConflict: (...args) => mockCheckVisitConflict(...args),
+  checkScheduleAvailability: (...args) => mockCheckScheduleAvailability(...args),
+}));
 
 const mockLogger = {
   info: jest.fn(),
@@ -62,11 +78,22 @@ beforeEach(() => {
       }),
     }),
   });
+  mockDb.update.mockReturnValue({
+    set: jest.fn().mockReturnValue({
+      where: jest.fn().mockResolvedValue([]),
+    }),
+  });
 
   mockFbService.sendTextMessage.mockResolvedValue({ recipient_id: 'test' });
   mockFbService.sendQuickReplies.mockResolvedValue({ recipient_id: 'test' });
   mockFbService.sendGenericTemplate.mockResolvedValue({ recipient_id: 'test' });
   mockFbService.getUserProfile.mockResolvedValue(null);
+
+  mockSmsService.sendVisitConfirmation.mockResolvedValue({ success: true });
+  mockSmsService.sendTenantConfirmationRequest.mockResolvedValue({ success: true });
+  mockSmsService.sendOccupantAccessRequest.mockResolvedValue({ success: true });
+  mockCheckVisitConflict.mockResolvedValue(null);
+  mockCheckScheduleAvailability.mockResolvedValue(null);
 
   botService = require('../src/services/messenger-bot.service');
 });
@@ -298,6 +325,192 @@ describe('handleIncomingMessage — state machine', () => {
 
     // Should have moved forward
     expect(mockFbService.sendQuickReplies).toHaveBeenCalled();
+  });
+
+  it('creates messenger-booked visits with confirmation token and shared visit notifications', async () => {
+    const listingSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([
+              {
+                unit: { id: 'unit-1' },
+                building: { id: 'building-1', name: 'Le Château', address: '123 Rue Test' },
+              },
+            ]),
+          }),
+        }),
+      }),
+    };
+    const slotSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          innerJoin: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              orderBy: jest.fn().mockReturnValue({
+                limit: jest.fn().mockResolvedValue([
+                  {
+                    employeeId: 'emp-1',
+                    firstName: 'Simon',
+                    lastName: 'Roy',
+                    phone: '+151****0123',
+                    startTime: '09:00',
+                    endTime: '17:00',
+                  },
+                ]),
+              }),
+            }),
+          }),
+        }),
+      }),
+    };
+    const occupiedUnitSelect = {
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([{ status: 'occupied', tenantPhone: '+151****0999' }]),
+        }),
+      }),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(listingSelect)
+      .mockReturnValueOnce(slotSelect)
+      .mockReturnValueOnce(occupiedUnitSelect);
+
+    mockDb.insert.mockImplementation((table) => ({
+      values: jest.fn().mockReturnValue({
+        returning: jest.fn().mockResolvedValue(
+          table === 'leadsTable'
+            ? [{ id: 'lead-1', fullName: 'Jean Tremblay' }]
+            : table === 'visitsTable'
+              ? [{ id: 'visit-1', status: 'scheduled' }]
+              : [{ id: 1 }],
+        ),
+      }),
+    }));
+
+    await botService.handleIncomingMessage('sender-visit', 'bonjour');
+    await botService.handleIncomingMessage('sender-visit', 'français');
+    await botService.handleIncomingMessage('sender-visit', 'travail');
+    await botService.handleIncomingMessage('sender-visit', 'temps plein');
+    await botService.handleIncomingMessage('sender-visit', '2');
+    await botService.handleIncomingMessage('sender-visit', 'non');
+    await botService.handleIncomingMessage('sender-visit', '1200');
+    await botService.handlePostback('sender-visit', 'SELECT_UNIT_unit-1_building-1');
+    await botService.handlePostback('sender-visit', 'VISIT_YES');
+
+    const visitInsertIndex = mockDb.insert.mock.calls.findIndex(([table]) => table === 'visitsTable');
+    expect(visitInsertIndex).toBeGreaterThan(-1);
+    const visitInsertValues = mockDb.insert.mock.results[visitInsertIndex].value.values.mock.calls[0][0];
+
+    expect(visitInsertValues).toEqual(expect.objectContaining({
+      unitId: 'unit-1',
+      employeeId: 'emp-1',
+      leadId: 'lead-1',
+      status: 'scheduled',
+      confirmationToken: 'token-abc',
+    }));
+    expect(mockSmsService.sendVisitConfirmation).toHaveBeenCalledWith('visit-1');
+    expect(mockSmsService.sendTenantConfirmationRequest).toHaveBeenCalledWith('visit-1');
+    expect(mockSmsService.sendOccupantAccessRequest).toHaveBeenCalledWith('visit-1');
+  });
+
+  it('skips conflicting messenger visit slots and books the next valid employee slot', async () => {
+    const listingSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([
+              {
+                unit: { id: 'unit-1' },
+                building: { id: 'building-1', name: 'Le Château', address: '123 Rue Test' },
+              },
+            ]),
+          }),
+        }),
+      }),
+    };
+    const slotSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          innerJoin: jest.fn().mockReturnValue({
+            where: jest.fn().mockReturnValue({
+              orderBy: jest.fn().mockReturnValue({
+                limit: jest.fn().mockResolvedValue([
+                  {
+                    employeeId: 'emp-1',
+                    firstName: 'Simon',
+                    lastName: 'Roy',
+                    phone: '+151****0123',
+                    startTime: '09:00',
+                    endTime: '17:00',
+                  },
+                  {
+                    employeeId: 'emp-2',
+                    firstName: 'Julie',
+                    lastName: 'Fortin',
+                    phone: '+151****0456',
+                    startTime: '10:00',
+                    endTime: '18:00',
+                  },
+                ]),
+              }),
+            }),
+          }),
+        }),
+      }),
+    };
+    const vacantUnitSelect = {
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([{ status: 'vacant', tenantPhone: null }]),
+        }),
+      }),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(listingSelect)
+      .mockReturnValueOnce(slotSelect)
+      .mockReturnValueOnce(vacantUnitSelect);
+
+    mockCheckVisitConflict
+      .mockResolvedValueOnce({ id: 'visit-existing' })
+      .mockResolvedValueOnce(null);
+
+    mockDb.insert.mockImplementation((table) => ({
+      values: jest.fn().mockReturnValue({
+        returning: jest.fn().mockResolvedValue(
+          table === 'leadsTable'
+            ? [{ id: 'lead-1', fullName: 'Jean Tremblay' }]
+            : table === 'visitsTable'
+              ? [{ id: 'visit-2', status: 'scheduled' }]
+              : [{ id: 1 }],
+        ),
+      }),
+    }));
+
+    await botService.handleIncomingMessage('sender-visit-conflict', 'bonjour');
+    await botService.handleIncomingMessage('sender-visit-conflict', 'français');
+    await botService.handleIncomingMessage('sender-visit-conflict', 'travail');
+    await botService.handleIncomingMessage('sender-visit-conflict', 'temps plein');
+    await botService.handleIncomingMessage('sender-visit-conflict', '2');
+    await botService.handleIncomingMessage('sender-visit-conflict', 'non');
+    await botService.handleIncomingMessage('sender-visit-conflict', '1200');
+    await botService.handlePostback('sender-visit-conflict', 'SELECT_UNIT_unit-1_building-1');
+    await botService.handlePostback('sender-visit-conflict', 'VISIT_YES');
+
+    const visitInsertIndex = mockDb.insert.mock.calls.findIndex(([table]) => table === 'visitsTable');
+    expect(visitInsertIndex).toBeGreaterThan(-1);
+    const visitInsertValues = mockDb.insert.mock.results[visitInsertIndex].value.values.mock.calls[0][0];
+
+    expect(visitInsertValues).toEqual(expect.objectContaining({
+      employeeId: 'emp-2',
+      confirmationToken: 'token-abc',
+    }));
+    expect(mockCheckScheduleAvailability).toHaveBeenCalledTimes(2);
+    expect(mockCheckVisitConflict).toHaveBeenCalledTimes(2);
+    expect(mockSmsService.sendVisitConfirmation).toHaveBeenCalledWith('visit-2');
+    expect(mockSmsService.sendOccupantAccessRequest).not.toHaveBeenCalled();
   });
 
   it('handles DONE state with thank you message', async () => {
