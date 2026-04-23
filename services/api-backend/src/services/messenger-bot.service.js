@@ -10,7 +10,7 @@
  */
 
 const {
-  eq, and, lte, sql, asc,
+  eq, and, lte, sql, asc, inArray,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -119,7 +119,7 @@ function getConversation(senderId) {
   if (!conversations.has(senderId)) {
     conversations.set(senderId, {
       state: STATES.NEW,
-      data: { language: 'fr', fbSenderId: senderId },
+      data: { language: 'fr', fbSenderId: senderId, communicationLogIds: [] },
       leadId: null,
     });
   }
@@ -130,10 +130,10 @@ function getConversation(senderId) {
  * Log a communication to the DB.
  */
 async function logCommunication({
-  leadId, employeeId, type, direction, content, status, attachments, metadata,
+  senderId, leadId, employeeId, type, direction, content, status, attachments, metadata,
 }) {
   try {
-    await db.insert(communicationLogsTable).values({
+    const insertQuery = db.insert(communicationLogsTable).values({
       leadId: leadId || null,
       employeeId: employeeId || null,
       type: type || 'fb_messenger',
@@ -143,8 +143,36 @@ async function logCommunication({
       status: status || 'sent',
       metadata: metadata || {},
     });
+
+    const insertedRows = typeof insertQuery.returning === 'function'
+      ? await insertQuery.returning({ id: sql`id` })
+      : await insertQuery;
+
+    if (senderId && insertedRows?.[0]?.id) {
+      const conv = getConversation(senderId);
+      conv.data.communicationLogIds = conv.data.communicationLogIds || [];
+      conv.data.communicationLogIds.push(insertedRows[0].id);
+    }
   } catch (err) {
     logger.error('[MessengerBot] Failed to log communication:', err.message);
+  }
+}
+
+async function backfillConversationLead(senderId, leadId) {
+  const conv = conversations.get(senderId);
+  const communicationLogIds = conv?.data?.communicationLogIds || [];
+
+  if (!leadId || communicationLogIds.length === 0) {
+    return;
+  }
+
+  try {
+    await db
+      .update(communicationLogsTable)
+      .set({ leadId })
+      .where(inArray(sql`id`, communicationLogIds));
+  } catch (err) {
+    logger.error('[MessengerBot] Failed to backfill Messenger communications:', err.message);
   }
 }
 
@@ -158,6 +186,7 @@ const handleIncomingAttachment = async (senderId, attachments = []) => {
   const typeSummary = uniqueTypes.length > 0 ? ` (${uniqueTypes.join(', ')})` : '';
 
   await logCommunication({
+    senderId,
     leadId: conv.leadId,
     type: 'fb_messenger',
     direction: 'inbound',
@@ -310,6 +339,7 @@ const handleIncomingMessage = async (senderId, messageText) => {
 
   // Log inbound message
   await logCommunication({
+    senderId,
     leadId: conv.leadId,
     type: 'fb_messenger',
     direction: 'inbound',
@@ -349,12 +379,14 @@ const handleIncomingMessage = async (senderId, messageText) => {
       case STATES.DONE:
         await fbService.sendTextMessage(senderId, t('thankYou', lang));
         await logCommunication({
+          senderId,
           leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: t('thankYou', lang),
         });
         break;
       default:
         await fbService.sendTextMessage(senderId, t('fallback', lang));
         await logCommunication({
+          senderId,
           leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: t('fallback', lang),
         });
         conv.state = STATES.DONE;
@@ -386,13 +418,13 @@ async function handleNew(senderId, conv, _text) {
   // Send welcome + ask language
   const msg = t('welcome', 'fr');
   await fbService.sendTextMessage(senderId, msg);
-  await logCommunication({ type: 'fb_messenger', direction: 'outbound', content: msg });
+  await logCommunication({ senderId, type: 'fb_messenger', direction: 'outbound', content: msg });
 
   await fbService.sendQuickReplies(senderId, t('askLanguage', 'fr'), [
     { title: '🇫🇷 Français', payload: 'LANG_FR' },
     { title: '🇬🇧 English', payload: 'LANG_EN' },
   ]);
-  await logCommunication({ type: 'fb_messenger', direction: 'outbound', content: t('askLanguage', 'fr') });
+  await logCommunication({ senderId, type: 'fb_messenger', direction: 'outbound', content: t('askLanguage', 'fr') });
 
   conv.state = STATES.ASKED_LANGUAGE;
 }
@@ -417,6 +449,7 @@ async function handleLanguage(senderId, conv, text) {
     { title: lang === 'en' ? '📦 Other' : '📦 Autre', payload: 'REASON_OTHER' },
   ]);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
   });
 }
@@ -434,6 +467,7 @@ async function handleReason(senderId, conv, text) {
     { title: lang === 'en' ? '📦 Other' : '📦 Autre', payload: 'EMPLOY_OTHER' },
   ]);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
   });
 }
@@ -451,6 +485,7 @@ async function handleEmployment(senderId, conv, text) {
     { title: '4+', payload: 'OCC_4+' },
   ]);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
   });
 }
@@ -467,6 +502,7 @@ async function handleOccupants(senderId, conv, text) {
     { title: lang === 'en' ? '✅ No' : '✅ Non', payload: 'PETS_NO' },
   ]);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
   });
 }
@@ -480,6 +516,7 @@ async function handlePets(senderId, conv, text) {
   const msg = t('askBudget', lang);
   await fbService.sendTextMessage(senderId, msg);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
   });
 }
@@ -494,6 +531,7 @@ async function handleBudget(senderId, conv, text) {
       : 'Je n\'ai pas pu comprendre le montant. Veuillez entrer un nombre (ex: 1200).';
     await fbService.sendTextMessage(senderId, retryMsg);
     await logCommunication({
+      senderId,
       leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: retryMsg,
     });
     return; // Stay in ASKED_BUDGET
@@ -505,6 +543,7 @@ async function handleBudget(senderId, conv, text) {
   try {
     const lead = await createLeadFromConversation(senderId, conv.data);
     conv.leadId = lead.id;
+    await backfillConversationLead(senderId, lead.id);
   } catch (err) {
     logger.error('[MessengerBot] Failed to create lead:', err.message);
   }
@@ -520,6 +559,7 @@ async function handleBudget(senderId, conv, text) {
     const noMsg = t('noListings', lang);
     await fbService.sendTextMessage(senderId, noMsg);
     await logCommunication({
+      senderId,
       leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: noMsg,
     });
     conv.state = STATES.DONE;
@@ -550,6 +590,7 @@ async function handleBudget(senderId, conv, text) {
 
   await fbService.sendGenericTemplate(senderId, elements);
   await logCommunication({
+    senderId,
     leadId: conv.leadId,
     type: 'fb_messenger',
     direction: 'outbound',
@@ -573,6 +614,7 @@ async function handleBuilding(senderId, conv, _text) {
     { title: lang === 'en' ? '❌ No thanks' : '❌ Non merci', payload: 'VISIT_NO' },
   ]);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
   });
 }
@@ -587,6 +629,7 @@ async function handleSuggestVisit(senderId, conv, text) {
     const msg = t('thankYou', lang);
     await fbService.sendTextMessage(senderId, msg);
     await logCommunication({
+      senderId,
       leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
     });
     conv.state = STATES.DONE;
@@ -601,7 +644,15 @@ async function handleSuggestVisit(senderId, conv, text) {
     });
 
     if (listings.length === 0) {
-      await fbService.sendTextMessage(senderId, t('noListings', lang));
+      const noListingsMsg = t('noListings', lang);
+      await fbService.sendTextMessage(senderId, noListingsMsg);
+      await logCommunication({
+        senderId,
+        leadId: conv.leadId,
+        type: 'fb_messenger',
+        direction: 'outbound',
+        content: noListingsMsg,
+      });
       conv.state = STATES.DONE;
       return;
     }
@@ -647,6 +698,7 @@ async function handleSuggestVisit(senderId, conv, text) {
       : 'Aucun créneau disponible pour cet immeuble. Simon vous contactera pour organiser une visite.';
     await fbService.sendTextMessage(senderId, noSlotsMsg);
     await logCommunication({
+      senderId,
       leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: noSlotsMsg,
     });
     conv.state = STATES.DONE;
@@ -714,6 +766,7 @@ async function handleSuggestVisit(senderId, conv, text) {
 
   await fbService.sendTextMessage(senderId, visitMsg);
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: visitMsg,
   });
 
@@ -745,12 +798,14 @@ async function handleSuggestVisit(senderId, conv, text) {
     const noPhoneMsg = t('noPhoneNumber', lang);
     await fbService.sendTextMessage(senderId, noPhoneMsg);
     await logCommunication({
+      senderId,
       leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: noPhoneMsg,
     });
   }
 
   await fbService.sendTextMessage(senderId, t('visitBooked', lang));
   await logCommunication({
+    senderId,
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: t('visitBooked', lang),
   });
 
@@ -770,6 +825,7 @@ const handlePostback = async (senderId, payload) => {
 
   // Log inbound postback
   await logCommunication({
+    senderId,
     leadId: conv.leadId,
     type: 'fb_messenger',
     direction: 'inbound',

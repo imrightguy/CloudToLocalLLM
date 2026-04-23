@@ -615,7 +615,7 @@ exports.updateVisitStatus = async (req, res) => {
     const { id } = req.params;
     const { status, outcome, notes } = req.body;
 
-    const validStatuses = ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'];
+    const validStatuses = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'];
 
     if (!status || !validStatuses.includes(status)) {
       return res.status(400).json({

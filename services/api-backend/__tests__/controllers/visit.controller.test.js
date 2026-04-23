@@ -428,6 +428,30 @@ describe('updateVisitStatus', () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
   });
 
+  it('accepts in_progress as a valid visit status transition', async () => {
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'visit-1', status: 'confirmed', isActive: true }]);
+    const set = jest.fn().mockReturnValue({
+      where: jest.fn().mockReturnValue({
+        returning: jest.fn(() => Promise.resolve([{ id: 'visit-1', status: 'in_progress', updatedAt: new Date() }])),
+      }),
+    });
+    db.update.mockReturnValueOnce({ set });
+    const res = mockRes();
+
+    await visitController.updateVisitStatus({ params: { id: 'visit-1' }, body: { status: 'in_progress' } }, res);
+
+    expect(set).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'in_progress',
+      updatedAt: expect.any(Date),
+    }));
+    expect(res.status).not.toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      data: expect.objectContaining({ status: 'in_progress' }),
+    }));
+  });
+
   it('auto-sets confirmation flags on confirmed', async () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([{ id: 'visit-1', status: 'scheduled' }]);

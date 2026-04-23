@@ -327,6 +327,51 @@ describe('handleIncomingMessage — state machine', () => {
     expect(mockFbService.sendQuickReplies).toHaveBeenCalled();
   });
 
+  it('backfills pre-lead Messenger logs onto the created lead once budget is collected', async () => {
+    const listingSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([
+              {
+                unit: { id: 'unit-1' },
+                building: { id: 'building-1', name: 'Le Château', address: '123 Rue Test' },
+              },
+            ]),
+          }),
+        }),
+      }),
+    };
+
+    mockDb.select.mockReturnValueOnce(listingSelect);
+
+    let communicationLogId = 0;
+    mockDb.insert.mockImplementation((table) => ({
+      values: jest.fn().mockReturnValue({
+        returning: jest.fn().mockResolvedValue(
+          table === 'leadsTable'
+            ? [{ id: 'lead-backfill', fullName: 'Jean Tremblay' }]
+            : table === 'communicationLogsTable'
+              ? [{ id: `comm-${++communicationLogId}` }]
+              : [{ id: 1 }],
+        ),
+      }),
+    }));
+
+    await botService.handleIncomingMessage('sender-backfill', 'bonjour');
+    await botService.handleIncomingMessage('sender-backfill', 'français');
+    await botService.handleIncomingMessage('sender-backfill', 'travail');
+    await botService.handleIncomingMessage('sender-backfill', 'temps plein');
+    await botService.handleIncomingMessage('sender-backfill', '2');
+    await botService.handleIncomingMessage('sender-backfill', 'non');
+    await botService.handleIncomingMessage('sender-backfill', '1200');
+
+    expect(mockDb.update).toHaveBeenCalledWith('communicationLogsTable');
+    expect(mockDb.update.mock.results[0].value.set).toHaveBeenCalledWith(expect.objectContaining({
+      leadId: 'lead-backfill',
+    }));
+  });
+
   it('creates messenger-booked visits with confirmation token and shared visit notifications', async () => {
     const listingSelect = {
       from: jest.fn().mockReturnValue({
@@ -413,6 +458,70 @@ describe('handleIncomingMessage — state machine', () => {
     expect(mockSmsService.sendVisitConfirmation).toHaveBeenCalledWith('visit-1');
     expect(mockSmsService.sendTenantConfirmationRequest).toHaveBeenCalledWith('visit-1');
     expect(mockSmsService.sendOccupantAccessRequest).toHaveBeenCalledWith('visit-1');
+  });
+
+  it('logs the no-listings handoff when availability disappears before visit booking', async () => {
+    const initialListingSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([
+              {
+                unit: { id: 'unit-1' },
+                building: { id: 'building-1', name: 'Le Château', address: '123 Rue Test' },
+              },
+            ]),
+          }),
+        }),
+      }),
+    };
+    const emptyListingSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
+      }),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(initialListingSelect)
+      .mockReturnValueOnce(emptyListingSelect);
+
+    mockDb.insert.mockImplementation((table) => ({
+      values: jest.fn().mockReturnValue({
+        returning: jest.fn().mockResolvedValue(
+          table === 'leadsTable'
+            ? [{ id: 'lead-vanished', fullName: 'Jean Tremblay' }]
+            : [{ id: 1 }],
+        ),
+      }),
+    }));
+
+    await botService.handleIncomingMessage('sender-no-listings', 'bonjour');
+    await botService.handleIncomingMessage('sender-no-listings', 'français');
+    await botService.handleIncomingMessage('sender-no-listings', 'travail');
+    await botService.handleIncomingMessage('sender-no-listings', 'temps plein');
+    await botService.handleIncomingMessage('sender-no-listings', '2');
+    await botService.handleIncomingMessage('sender-no-listings', 'non');
+    await botService.handleIncomingMessage('sender-no-listings', '1200');
+    await botService.handleIncomingMessage('sender-no-listings', 'n\'importe');
+    await botService.handlePostback('sender-no-listings', 'VISIT_YES');
+
+    const communicationPayloads = mockDb.insert.mock.calls
+      .map(([table], index) => (table === 'communicationLogsTable'
+        ? mockDb.insert.mock.results[index].value.values.mock.calls[0][0]
+        : null))
+      .filter(Boolean);
+
+    expect(communicationPayloads).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        leadId: 'lead-vanished',
+        direction: 'outbound',
+        content: 'Désolé, je n\'ai pas de logements disponibles correspondant à vos critères. Je transfère votre demande à Simon.',
+      }),
+    ]));
   });
 
   it('skips conflicting messenger visit slots and books the next valid employee slot', async () => {
