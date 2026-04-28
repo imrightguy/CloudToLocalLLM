@@ -76,9 +76,6 @@ temp/
 audit_output.json
 package-lock.json.REMOVED.*
 
-# Documentation archives
-docs/archive/
-
 # Deployment generated files
 deploy/
 publish_desktop_releases/
@@ -94,7 +91,6 @@ claude_code_zai_env.sh
 
 # Kilocode (user-specific)
 .kilocode/
-AGENTS.md
 
 # Kilo AI (user-specific)
 kilo.json

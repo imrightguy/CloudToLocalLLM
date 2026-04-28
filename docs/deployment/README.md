@@ -1,100 +1,49 @@
-# CloudToLocalLLM Deployment Documentation
+# Deployment Documentation
 
-## 📚 Documentation Overview
+This directory documents supported deployment paths for CloudToLocalLLM.
 
-This directory contains deployment documentation for CloudToLocalLLM. The project uses **Dockerfile-based builds** and deploys to **Kubernetes** (managed or self-hosted).
+## Start Here
 
-## 🎯 Primary Documentation (Start Here)
+- [Deployment Overview](DEPLOYMENT_OVERVIEW.md)
+- [Complete Deployment Workflow](COMPLETE_DEPLOYMENT_WORKFLOW.md)
+- [Self Hosting](SELF_HOSTING.md)
+- [Docker Deployment](DOCKER_DEPLOYMENT.md)
+- [Strict Deployment Policy](STRICT_DEPLOYMENT_POLICY.md)
+- [Secrets Management](SECRETS_MANAGEMENT.md)
 
-### **[DEPLOYMENT_OVERVIEW.md](./DEPLOYMENT_OVERVIEW.md)** ⭐ **PRIMARY**
+## Installation Guides
 
-**Complete deployment overview** - All deployment options and strategies.
+- [Linux Installation](installation/LINUX.md)
+- [Windows Installation](installation/WINDOWS.md)
+- [macOS Installation](installation/MACOS.md)
 
-- **Purpose**: Understand all deployment methods
-- **Audience**: All developers and deployment operators
-- **Content**: Kubernetes deployment, Dockerfiles, platform options
-- **When to use**: For understanding deployment architecture
+## Kubernetes And GitOps
 
-### **[COMPLETE_DEPLOYMENT_WORKFLOW.md](./COMPLETE_DEPLOYMENT_WORKFLOW.md)** ⭐ **ESSENTIAL**
+- [k3s Proxmox Deployment Workflow](K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)
+- [ArgoCD Integration](ARGOCD_INTEGRATION.md)
+- [ArgoCD Proxmox Management VM](ARGOCD_PROXMOX_MANAGEMENT_VM.md)
 
-**Step-by-step deployment guide** - Complete deployment process.
+Kubernetes manifests live under `k8s/`, `services/*/k8s/`, and `config/kubernetes/`. Not every Kubernetes path has a README, so link to specific runbooks from this directory when documenting deployment procedures.
 
-- **Purpose**: Execute deployments
-- **Audience**: Developers, DevOps engineers, deployment operators
-- **Content**: Detailed procedures, commands, verification steps
-- **When to use**: For executing actual deployments
+## Cloud And Provider Runbooks
 
-### **[VERSIONING_STRATEGY.md](./VERSIONING_STRATEGY.md)**
+- [Provider Infrastructure Guide](PROVIDER_INFRASTRUCTURE_GUIDE.md)
+- [Cloudron Deployment](../../CloudronManifest.json)
+- [Cloudflare/Chisel Deployment](CHISEL_DEPLOYMENT.md)
+- [DigitalOcean Deployment Summary](DIGITALOCEAN_DEPLOYMENT_SUMMARY.md)
 
-**Version management strategy** - How to manage versions.
+Provider-specific notes are runbooks, not universal architecture. Prefer [Deployment Overview](DEPLOYMENT_OVERVIEW.md) for the cross-provider model.
 
-- **Purpose**: Version increment decisions
-- **Audience**: Release managers, developers
-- **Content**: Version format, increment guidelines
-- **When to use**: Before starting deployments
+## Packaging And Releases
 
-## 🔧 Specialized Documentation
+- [AUR Status](AUR_STATUS.md)
+- [Versioning Strategy](VERSIONING_STRATEGY.md)
+- [Deployment Testing Guide](DEPLOYMENT_TESTING_GUIDE.md)
+- [Validation Testing Guide](VALIDATION_TESTING_GUIDE.md)
 
-### **[STRICT_DEPLOYMENT_POLICY.md](./STRICT_DEPLOYMENT_POLICY.md)**
+## Related Documentation
 
-**Quality standards** - Deployment quality requirements.
-
-- **Purpose**: Understand quality gates
-- **Audience**: DevOps engineers
-- **Content**: Quality standards, rollback procedures
-
-### **[K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md](./K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)**
-
-**k3s on Proxmox workflow** - Template-driven Kubernetes deployment.
-
-- **Purpose**: Execute Kubernetes-first deployment on Proxmox
-- **Audience**: DevOps engineers and self-hosting operators
-- **Content**: Template creation, node cloning, GitOps bootstrap, tunnel-only ingress
-
-### **[ARGOCD_PROXMOX_MANAGEMENT_VM.md](./ARGOCD_PROXMOX_MANAGEMENT_VM.md)**
-
-**ArgoCD management isolation** - Dedicated Proxmox VM/LXC runbook.
-
-- **Purpose**: Separate GitOps control plane from app workloads
-- **Audience**: Platform operators
-- **Content**: Sizing, network security, backup/restore, operational checks
-
-### **[AUR_STATUS.md](./AUR_STATUS.md)**
-
-**AUR package status** - Temporarily removed, reintegration planned.
-
-- **Status**: AUR support temporarily removed
-- **Alternative**: Use AppImage for Linux
-
-## 📋 Quick Reference
-
-### **For New Deployments**
-
-1. Read [`DEPLOYMENT_OVERVIEW.md`](./DEPLOYMENT_OVERVIEW.md) → Understand deployment options
-2. Read [`COMPLETE_DEPLOYMENT_WORKFLOW.md`](./COMPLETE_DEPLOYMENT_WORKFLOW.md) → Execute deployment
-3. Reference [`KUBERNETES_QUICKSTART.md`](../../k8s/README.md) → DigitalOcean example
-4. See [`k8s/README.md`](../../k8s/README.md) → Complete Kubernetes guide
-
-### **For Kubernetes Deployment**
-
-- **Managed Kubernetes**: See [`KUBERNETES_QUICKSTART.md`](../../k8s/README.md) for DigitalOcean example
-- **Self-Hosted Kubernetes**: See [`KUBERNETES_SELF_HOSTED_GUIDE.md`](../../KUBERNETES_SELF_HOSTED_GUIDE.md) for on-premises deployment
-- **Any Kubernetes**: See [`k8s/README.md`](../../k8s/README.md) for platform-agnostic guide
-
-## ✅ Current Deployment Method
-
-**CloudToLocalLLM uses:**
-
-- **Dockerfiles** for building container images
-- **Kubernetes** for orchestration (any cluster: managed or self-hosted)
-- **kubectl apply** for deployment
-
-**No longer used:**
-
-- Deployment scripts in `scripts/deploy/` folder (for cloud deployment)
-- VPS deployment scripts
-- Docker Compose for production (use Kubernetes instead)
-
----
-
-_For questions about deployment, see [COMPLETE_DEPLOYMENT_WORKFLOW.md](./COMPLETE_DEPLOYMENT_WORKFLOW.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)._
+- [Documentation Hub](../README.md)
+- [Operations Index](../operations/README.md)
+- [Development Workflow](../development/DEVELOPMENT_WORKFLOW.md)
+- [Security Policy](../governance/security/SECURITY.md)

@@ -1,322 +1,166 @@
 # CloudToLocalLLM System Architecture
 
-**OpenClaw Agent Manager** — A privacy-first desktop AI companion.
+CloudToLocalLLM is a Flutter desktop/web application with optional Node.js backend services. The product is organized around five pillars: Chat, OpenClaw Gateway, Evolving Avatar, Desktop Control, and Vision.
 
----
-
-## Overview
-
-CloudToLocalLLM is a Flutter-based desktop application (Windows, Linux, Web) that manages the OpenClaw Gateway as a local AI engine. The application is organized around **Five Core Pillars**: Chat, OpenClaw Gateway Management, Evolving Avatar, Desktop Control, and Vision.
-
-**Key Architectural Principles:**
-
-- **Privacy-First**: All processing runs locally via OpenClaw Gateway
-- **Local-First**: Zero cloud dependencies for core functionality
-- **Optional Cloud**: Cloud features (Auth0, tunneling) are opt-in only
-- **Cross-Platform**: Single Flutter codebase for desktop and web
-- **Service-Oriented**: Modular services with dependency injection
-
----
+Core functionality is local-first. Cloud services add authentication, sync, relay, admin, and deployment capabilities, but should not be required for the local desktop path.
 
 ## Technology Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | Flutter 3.5+ | Cross-platform UI (Windows, Linux, Web) |
-| **AI Engine** | OpenClaw Gateway | Local LLM and vision processing (localhost:18789) |
-| **Local Database** | Drift (SQLite) | Conversation storage, configuration |
-| **Backend (Optional)** | Node.js 22+ | Cloud relay, tunneling (optional) |
-| **Authentication (Optional)** | Auth0 | Cloud account sync (optional) |
+| Layer | Current implementation |
+| --- | --- |
+| Flutter app | `pubspec.yaml`, Dart `>=3.5.0 <4.0.0`, package `cloudtolocalllm` |
+| Shared Flutter package | `lib/shared/pubspec.yaml`, Dart `>=3.9.0 <4.0.0` |
+| Local database | Drift/SQLite in `lib/database/drift_local_brain.dart` |
+| Embedded router | Shelf server in `lib/services/router_server.dart`, default port `1337` |
+| API backend | Express 5 ESM in `services/api-backend/`, Node `>=22 <25`, default port `8080` |
+| Streaming proxy | ESM service in `services/streaming-proxy/`, Node `>=22 <25`, default port `3001` |
+| Tailscale relay | ESM service in `services/tailscale-relay/`, default port `3002` |
+| Auth backend | CommonJS Express 5 app in `backend/auth/`, default port `3000` |
 
----
+## Flutter Structure
 
-## Architecture Diagram
+| Path | Purpose |
+| --- | --- |
+| `lib/main.dart` | App entry point |
+| `lib/bootstrap/` | Startup/bootstrap support |
+| `lib/di/locator.dart` | GetIt service registration and two-phase DI |
+| `lib/database/` | Drift database and platform connections |
+| `lib/services/` | Service layer |
+| `lib/services/providers/` | Router provider adapters |
+| `lib/services/avatar/` | Personality, evolution, memory, avatar state |
+| `lib/services/openclaw_manager/` | Gateway control |
+| `lib/services/hermes_manager/` | Hermes gateway and streaming management |
+| `lib/services/desktop_control/` | Clipboard and desktop window control |
+| `lib/services/vision/` | Region capture, camera capture, OCR, vision orchestration |
+| `lib/screens/` | App screens |
+| `lib/widgets/` | Shared UI widgets |
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     CloudToLocalLLM Application                  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │                    Flutter Frontend                        │ │
-│  │  ┌────────────┐  ┌────────────┐  ┌──────────────────────┐ │ │
-│  │  │   Chat     │  │   Avatar   │  │   Desktop Control    │ │ │
-│  │  │  Interface │  │   System   │  │      + Vision        │ │ │
-│  │  └─────┬──────┘  └─────┬──────┘  └──────────┬───────────┘ │ │
-│  │        │                │                    │              │ │
-│  │  ┌─────┴────────────────┴────────────────────┴───────┐    │ │
-│  │  │              Service Layer (Provider)              │    │ │
-│  │  │  ┌──────────────┐  ┌──────────────────────────┐   │    │ │
-│  │  │  │  Chat Service│  │  OpenClaw Manager        │   │    │ │
-│  │  │  └──────────────┘  │  - Gateway Control       │   │    │ │
-│  │  │                    │  - Health Monitor        │   │    │ │
-│  │  │  ┌──────────────┐  │  - Agent Lifecycle       │   │    │ │
-│  │  │  │ Avatar Svc   │  └──────────────────────────┘   │    │ │
-│  │  │  └──────────────┘                                 │    │ │
-│  │  │                                                    │    │ │
-│  │  │  ┌──────────────┐  ┌──────────────┐              │    │ │
-│  │  │  │ Desktop Ctrl │  │  Vision Svc  │              │    │ │
-│  │  │  └──────────────┘  └──────────────┘              │    │ │
-│  │  └─────────────────────────────────────────────────┘    │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│                                │                                │
-│  ┌─────────────────────────────┼────────────────────────────┐  │
-│  │                             ↓                            │  │
-│  │  ┌──────────────────────────────────────────────────────┐│  │
-│  │  │              Provider/Router Layer                   ││  │
-│  │  │  ┌──────────────────┐  ┌─────────────────────────┐  ││  │
-│  │  │  │  Router Server   │  │  Provider Manager       │  ││  │
-│  │  │  │  (Port 1337)     │  │  - OpenClaw (local)     │  ││  │
-│  │  │  │  OpenAI-compatible│  │  - LM Studio           │  ││  │
-│  │  │  └──────────────────┘  │  - Ollama              │  ││  │
-│  │  │                         │  - Remote/Tailscale    │  ││  │
-│  │  │                         └─────────────────────────┘  ││  │
-│  │  └──────────────────────────────────────────────────────┘│  │
-│  └────────────────────────────────────────────────────────────┘ │
-│                                │                                │
-└────────────────────────────────┼────────────────────────────────┘
-                                 ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    OpenClaw Gateway                              │
-│                   (localhost:18789)                              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   LLM Engine │  │ Vision Model │  │   Agent System       │  │
-│  │              │  │              │  │   - Skills           │  │
-│  │  - GLM-4     │  │  - OCR       │  │   - Tools            │  │
-│  │  - Custom    │  │  - Analysis  │  │   - Memory           │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+## Dependency Injection
 
-                                 │ (Optional)
-                                 ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                 Optional Cloud Services                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ Auth0        │  │ Tunnel Relay │  │   Backend API        │  │
-│  │ (Optional)   │  │ (Tailscale)  │  │   (Optional)         │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
+`lib/di/locator.dart` owns service registration.
 
----
+1. `setupCoreServices()` registers pre-auth services: settings, session/auth support, local brain, router, provider discovery, platform detection, setup wizard, and tier services.
+2. `setupAuthenticatedServices()` calls core setup first, then registers auth-dependent services: tunnel, streaming proxy, LLM provider manager, LangChain, gateway control, agent lifecycle, admin, desktop control, vision, and popout services.
 
-## Frontend Architecture
+Use `di.serviceLocator<T>()` or `serviceLocator.get<T>()` for registered services. Do not instantiate long-lived services directly unless the file already follows that pattern for a local helper.
 
-### Flutter Application Structure
+## Pillar Services
 
-```
-lib/
-├── main.dart                      # Entry point
-├── di/
-│   └── locator.dart               # Service locator (two-phase DI)
-├── config/
-│   ├── app_config.dart            # App configuration
-│   └── router.dart                # Navigation routes
-├── models/                        # Data models
-├── providers/                     # State management (Provider)
-├── screens/                       # UI screens
-│   ├── home/                      # Main chat interface
-│   ├── settings/                  # Configuration screens
-│   ├── dashboard/                 # OpenClaw Gateway dashboard
-│   └── onboarding/                # Setup wizard
-├── widgets/                       # Reusable UI components
-└── services/                      # Business logic
-    ├── chat/                      # Chat services
-    ├── openclaw_manager/          # OpenClaw Gateway management
-    ├── avatar/                    # Avatar system
-    ├── desktop_control/           # GUI automation
-    ├── vision/                    # Screen and camera vision
-    ├── providers/                 # LLM provider adapters
-    └── database/                  # Local storage (Drift)
-```
+### Chat
 
-### Dependency Injection
+| Service | File |
+| --- | --- |
+| `StreamingChatService` | `lib/services/streaming_chat_service.dart` |
+| `ConversationStorageService` | `lib/services/conversation_storage_service.dart` |
+| `LocalConversationStorage` | `lib/services/local_conversation_storage.dart` |
 
-CloudToLocalLLM uses a **two-phase service initialization**:
+### OpenClaw Gateway
 
-```dart
-// Phase 1: Core Services (always available)
-setupCoreServices() {
-  // Settings, auth detection, local brain, token storage
-}
+| Service | File |
+| --- | --- |
+| `ConnectionManagerService` | `lib/services/connection_manager_service.dart` |
+| `AgentStatusService` | `lib/services/agent_status_service.dart` |
+| `AgentLifecycleService` | `lib/services/agent_lifecycle_service.dart` |
+| `GatewayControlService` | `lib/services/openclaw_manager/gateway_control_service.dart` |
 
-// Phase 2: Authenticated Services (after login)
-setupAuthenticatedServices() {
-  // Calls setupCoreServices() first
-  // Then registers: TunnelService, LLMProviderManager,
-  //                 StreamingChatService, etc.
-}
-```
+Provider discovery scans local providers including OpenClaw Gateway on `localhost:18789`, LM Studio on `localhost:1234`, and Ollama on `localhost:11434`.
 
----
+### Avatar
 
-## Service Layer
+| Service | File |
+| --- | --- |
+| `AvatarStateService` | `lib/services/avatar/avatar_state_service.dart` |
+| `PersonalityEngine` | `lib/services/avatar/personality_engine.dart` |
+| `EvolutionTracker` | `lib/services/avatar/evolution_tracker.dart` |
+| `MemoryService` | `lib/services/avatar/memory_service.dart` |
+| `MarkdownSyncService` | `lib/services/avatar/markdown_sync_service.dart` |
 
-### Core Services
+### Desktop Control
 
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `SettingsPreferenceService` | `lib/services/settings_preference_service.dart` | App settings persistence |
-| `AuthService` | `lib/services/auth_service.dart` | Auth0 authentication (optional) |
-| `ThemeProvider` | `lib/services/theme_provider.dart` | Theme management |
-| `TokenStorageService` | `lib/services/token_storage_service.dart` | Secure token storage |
+| Service | File |
+| --- | --- |
+| `GuiAutomationService` | `lib/services/gui_automation_service.dart` |
+| `SystemControlService` | `lib/services/system_control_service.dart` |
+| `ClipboardService` | `lib/services/desktop_control/clipboard_service.dart` |
+| `WindowManagerService` | `lib/services/desktop_control/window_manager_service.dart` |
 
-### Pillar-Specific Services
+### Vision
 
-#### Chat (Pillar 1)
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `StreamingChatService` | `lib/services/streaming_chat_service.dart` | Real-time token streaming |
-| `ConversationStorageService` | `lib/services/local_conversation_storage.dart` | Chat history |
+| Service | File |
+| --- | --- |
+| `VisionService` | `lib/services/vision/vision_service.dart` |
+| `RegionCaptureService` | `lib/services/vision/region_capture_service.dart` |
+| `CameraCaptureService` | `lib/services/vision/camera_capture_service.dart` |
+| `OcrEngineService` | `lib/services/vision/ocr_engine_service.dart` |
 
-#### OpenClaw Manager (Pillar 2)
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `ConnectionManagerService` | `lib/services/connection_manager_service.dart` | Gateway connection |
-| `AgentStatusService` | `lib/services/agent_status_service.dart` | Health monitoring |
-| `AgentLifecycleService` | `lib/services/agent_lifecycle_service.dart` | Agent lifecycle |
-| `GatewayControlService` | `lib/services/openclaw_manager/gateway_control_service.dart` | Start/stop control |
+## Embedded Router
 
-#### Avatar (Pillar 3)
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `PersonalityEngine` | `lib/services/avatar/personality_engine.dart` | Trait management |
-| `EvolutionTracker` | `lib/services/avatar/evolution_tracker.dart` | XP/level/achievements |
-| `MemoryService` | `lib/services/avatar/memory_service.dart` | Conversation embeddings |
+The Flutter app embeds an OpenAI-compatible HTTP router:
 
-#### Desktop Control (Pillar 4)
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `GuiAutomationService` | `lib/services/gui_automation_service.dart` | Screenshot, vision automation |
-| `SystemControlService` | `lib/services/system_control_service.dart` | Commands, processes |
-| `ClipboardService` | `lib/services/desktop_control/clipboard_service.dart` | Clipboard operations |
+- Implementation: `lib/services/router_server.dart`
+- Default port: `1337`
+- Health: `GET /health`
+- Models: `GET /v1/models`
+- Chat: `POST /v1/chat/completions`
+- Avatar state: `GET /avatar/state`
+- Avatar traits: `POST /avatar/traits`
+- Avatar evolution request: `POST /avatar/evolution/request`
 
-#### Vision (Pillar 5)
-| Service | Location | Purpose |
-|---------|----------|---------|
-| `ScreenCaptureService` | `lib/services/vision/screen_capture.dart` | Screenshot/region capture |
-| `CameraCaptureService` | `lib/services/vision/camera_capture.dart` | Webcam input |
-| `OcrEngine` | `lib/services/vision/ocr_engine.dart` | Text extraction |
+Current provider adapter files:
 
----
+| Adapter | File |
+| --- | --- |
+| Base models/interface | `lib/services/providers/base_provider.dart` |
+| Zhipu | `lib/services/providers/zhipu_adapter.dart` |
+| Google | `lib/services/providers/google_adapter.dart` |
+| Moonshot | `lib/services/providers/moonshot_adapter.dart` |
+| Hermes | `lib/services/providers/hermes_adapter.dart` |
 
-## Provider/Router Layer
-
-### Router Server (Embedded HTTP)
-
-The Flutter app runs an embedded HTTP server on **port 1337** that provides an OpenAI-compatible API for routing LLM requests:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│              Router Server (Port 1337)                  │
-│  ┌────────────────────────────────────────────────────┐ │
-│  │  OpenAI-Compatible Endpoints:                      │ │
-│  │  - GET  /v1/models                                 │ │
-│  │  - POST /v1/chat/completions                       │ │
-│  │  - GET  /health                                    │ │
-│  └────────────────────────────────────────────────────┘ │
-│                          │                               │
-│                          ↓                               │
-│  ┌────────────────────────────────────────────────────┐ │
-│  │              Provider Manager                       │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌──────────────┐  │ │
-│  │  │  OpenClaw   │ │  LM Studio  │ │    Ollama    │  │ │
-│  │  │  Adapter    │ │  Adapter    │ │   Adapter    │  │ │
-│  │  └─────────────┘ └─────────────┘ └──────────────┘  │ │
-│  └────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Provider Adapters
-
-| Provider | Adapter File | Default Port |
-|----------|--------------|--------------|
-| OpenClaw Gateway | `lib/services/providers/openclaw_adapter.dart` | 18789 |
-| LM Studio | `lib/services/providers/lmstudio_adapter.dart` | 1234 |
-| Ollama | `lib/services/providers/ollama_adapter.dart` | 11434 |
-
----
+Provider configuration and discovery for local services are handled separately by `ProviderConfigurationManager`, `ProviderDiscoveryService`, and `LLMProviderManager`.
 
 ## Data Storage
 
-### Local Database (Drift/SQLite)
+| Store | Use |
+| --- | --- |
+| Drift/SQLite | Local brain, conversations, avatar state, memories, rate-limit data |
+| IndexedDB/web storage | Web-safe client storage paths |
+| PostgreSQL | Optional backend persistence for authenticated cloud features |
+| Markdown sync | Avatar/personality backup and OpenClaw skill integration |
 
-**File**: `~/.local/share/CloudToLocalLLM/local_brain.db` (Linux)
+After changing Drift schema or queries, run:
 
-**Tables**:
-- `conversations` - Chat history
-- `messages` - Individual messages
-- `provider_configurations` - LLM provider settings
-- `model_capacity` - Rate limit tracking
-- `avatar_profiles` - Avatar state
-- `achievements` - Unlocked achievements
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
 
-### Cloud Storage (Optional)
+## Backend Services
 
-**PostgreSQL** for authenticated users:
-- Conversation sync
-- Settings backup
-- Tunnel configurations
+| Service | Directory | Notes |
+| --- | --- | --- |
+| API backend | `services/api-backend/` | Express 5, Auth0 JWT, PostgreSQL, admin routes, tunnel/proxy APIs |
+| Streaming proxy | `services/streaming-proxy/` | WebSocket/HTTP proxy container with TypeScript modules under `src/` |
+| Tailscale relay | `services/tailscale-relay/` | Relay service using Express 4 |
+| Auth backend | `backend/auth/` | Lightweight CommonJS Auth0 JWT validation |
+| SDK | `services/sdk/` | TypeScript SDK published from `dist/` |
+| OpenClaw skills | `services/openclaw-skills/cloudtolocallm/` | Avatar personality/evolution skill package |
 
----
+## Platform Boundaries
 
-## Optional Cloud Features
+The app uses conditional imports for web/native splits. Do not import `dart:io` in shared code.
 
-All cloud features are **opt-in**. The application runs entirely locally without them.
+Examples in the repo use:
 
-### Auth0 Authentication
-- Used only for cloud sync
-- Local mode available without account
+- `dart.library.io`
+- `dart.library.html`
+- `dart.library.js_interop`
 
-### Tunneling
-- **Tailscale**: Access OpenClaw on remote devices
-- **SSH Tunnel**: VPS-based OpenClaw access
-- **WebSocket Relay**: Cloud proxy for web clients
-
-### Backend API
-- **Express.js** server on port 8080
-- Provides tunnel relay, conversation sync
-- Not required for local usage
-
----
-
-## Platform Support
-
-| Platform | Status | Notes |
-|----------|--------|-------|
-| **Linux** | ✅ Full Support | Native builds, all features |
-| **Windows** | ✅ Full Support | Native builds, all features |
-| **Web** | 🟡 Limited | No native tray, requires backend relay |
-
----
-
-## Security & Privacy
-
-### Privacy-First Design
-
-- **Local Processing**: All AI computations run locally via OpenClaw
-- **Zero Cloud Dependencies**: Core features work offline
-- **Local Storage**: Conversations stored in local SQLite
-- **Optional Cloud**: Only used when explicitly configured
-
-### Authentication (Optional)
-
-- **Auth0**: JWT-based authentication for cloud features
-- **Token Storage**: Secure local token storage
-- **Auto-Refresh**: Automatic token refresh
-
-### Network Security
-
-- **TLS**: All cloud connections use HTTPS/WSS
-- **Tunnel Security**: SSH-over-WebSocket for tunneling
-- **Rate Limiting**: Request rate limiting per provider
-
----
+Match nearby file patterns when adding platform-specific code.
 
 ## Related Documentation
 
-- [Five Core Pillars](../SPEC.md#core-pillars) - Feature specifications
-- [Implementation Plan](../development/IMPLEMENTATION_PLAN.md) - Development roadmap
-- [Avatar System](AVATAR_SYSTEM.md) - Avatar architecture
-- [Desktop Control](DESKTOP_CONTROL.md) - GUI automation details
-- [Vision System](VISION_SYSTEM.md) - Screen and camera vision
+- [Documentation Hub](../README.md)
+- [Avatar System](AVATAR_SYSTEM.md)
+- [Desktop Control](DESKTOP_CONTROL.md)
+- [Vision System](VISION_SYSTEM.md)
+- [Tunnel System](TUNNEL_SYSTEM.md)
+- [Service Lifecycle](service_lifecycle.md)

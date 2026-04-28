@@ -9,7 +9,9 @@
     "dev": "nodemon services/api-backend/server.js",
     "lint": "for d in services/api-backend services/streaming-proxy services/sdk; do echo \"\\n--- Linting $d ---\" && (cd $d && npm run lint) || true; done",
     "format": "for d in services/api-backend services/streaming-proxy services/sdk; do (cd $d && npm run format 2>/dev/null) || true; done; prettier --write 'test/**/*.js'",
-    "test": "NODE_ENV=test BYPASS_AUTH=*** node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
+    "test": "NODE_ENV=test BYPASS_AUTH=*** node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "docs:links": "node scripts/validate-doc-links.js",
+    "docs:links:all": "node scripts/validate-doc-links.js --all"
   },
   "keywords": [],
   "author": "",

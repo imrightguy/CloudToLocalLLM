@@ -1,28 +1,34 @@
 # Operations Documentation
 
-This directory contains operational guides for CloudToLocalLLM infrastructure management.
+Operational documentation covers running, monitoring, recovering, and securing CloudToLocalLLM infrastructure.
 
-## 📚 Contents
+## Primary Operations
 
-### Core Operations
+- [Deployment Index](../deployment/README.md)
+- [Self Hosting](../deployment/SELF_HOSTING.md)
+- [Docker Deployment](../deployment/DOCKER_DEPLOYMENT.md)
+- [Complete Deployment Workflow](../deployment/COMPLETE_DEPLOYMENT_WORKFLOW.md)
+- [Strict Deployment Policy](../deployment/STRICT_DEPLOYMENT_POLICY.md)
 
-- **[Self Hosting](SELF_HOSTING.md)** - Deploy your own instance via Docker Compose (Core Feature).
-- **[Tunnel Troubleshooting](TUNNEL_TROUBLESHOOTING.md)** - Diagnose and fix tunnel connectivity issues.
+## CI/CD
 
-### CI/CD Operations
+- [Unified Deployment Workflow](cicd/UNIFIED_DEPLOYMENT_WORKFLOW.md)
+- [CI/CD Quick Reference](cicd/CI_CD_QUICK_REFERENCE.md)
 
-- **[Unified Deployment Workflow](cicd/UNIFIED_DEPLOYMENT_WORKFLOW.md)** - GitHub Actions pipeline details (Azure/GHCR).
-- **[CI/CD Quick Reference](cicd/CI_CD_QUICK_REFERENCE.md)** - Quick commands and secret config.
+## Backend Operations
 
-### Backend Services
+- [Backend Operations Index](backend/README.md)
+- [Backup Recovery](backend/BACKUP_RECOVERY_QUICK_REFERENCE.md)
+- [Database Performance](backend/DATABASE_PERFORMANCE_QUICK_REFERENCE.md)
+- [Error Recovery](backend/ERROR_RECOVERY_QUICK_REFERENCE.md)
+- [Prometheus Metrics](backend/PROMETHEUS_METRICS_QUICK_REFERENCE.md)
 
-- **[Backend Operations](backend/README.md)** - Backup, recovery, and performance guides.
+## Security Operations
 
-## 📖 Operations Overview
+- [Backend Security](security/BACKEND_SECURITY.md)
+- [Rate Limiting](security/RATE_LIMITING.md)
+- [RBAC Guide](security/RBAC_GUIDE.md)
 
-CloudToLocalLLM supports two primary production paths:
+## Current Baseline
 
-1. **Azure Swarm**: Primary managed infrastructure using Azure Virtual Machines and Docker Swarm for orchestration.
-2. **Self-Hosted**: Docker Compose on a single Linux VPS for privacy and simplicity.
-
-Deployment to Azure is automated via GitHub Actions, using the `deployment.yml` workflow which performs forensic analysis of changes before building and deploying updated containers to the Azure Swarm.
+CloudToLocalLLM supports local desktop operation first. Cloud deployment paths currently include Docker Compose for self-hosting and Kubernetes manifests under `k8s/` and `config/kubernetes/`; provider-specific deployment notes should be treated as runbooks, not universal architecture.
