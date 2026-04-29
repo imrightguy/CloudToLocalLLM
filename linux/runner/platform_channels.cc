@@ -828,10 +828,10 @@ static FlValue* get_screen_size() {
   if (backend == Backend::WAYLAND) {
     const char* wayland_display = g_getenv("WAYLAND_DISPLAY");
     if (wayland_display) {
-      struct wl_output* output = nullptr;
       struct wl_display* display = wl_display_connect(nullptr);
       if (display) {
         struct wl_registry* registry = wl_display_get_registry(display);
+        (void)registry;
         wl_display_roundtrip(display);
         wl_display_disconnect(display);
       }
