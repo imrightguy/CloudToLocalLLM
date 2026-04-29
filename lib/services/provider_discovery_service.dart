@@ -108,6 +108,7 @@ class ProviderDiscoveryService {
       final response = await http.get(healthUrl).timeout(_scanTimeout);
 
       if (response.statusCode == 200) {
+        final models = await _fetchOpenAICompatibleModels(baseUrl);
         debugPrint('[ProviderDiscovery] Found Hermes Agent at $baseUrl');
         return ProviderInfo(
           id: 'hermes_discovered',
@@ -117,6 +118,7 @@ class ProviderDiscoveryService {
           isLocal: true,
           isAvailable: true,
           version: _extractVersion(response.body),
+          availableModels: models,
         );
       }
     } catch (e) {
@@ -287,6 +289,29 @@ class ProviderDiscoveryService {
     }
 
     return ips;
+  }
+
+  Future<List<String>> _fetchOpenAICompatibleModels(String baseUrl) async {
+    try {
+      final response = await http
+          .get(Uri.parse('$baseUrl/v1/models'))
+          .timeout(_scanTimeout);
+      if (response.statusCode != 200) {
+        return const [];
+      }
+      final data = jsonDecode(response.body);
+      if (data is Map && data['data'] is List) {
+        return (data['data'] as List)
+            .whereType<Map>()
+            .map((model) => model['id']?.toString())
+            .whereType<String>()
+            .where((id) => id.isNotEmpty)
+            .toList(growable: false);
+      }
+    } catch (e) {
+      debugPrint('[ProviderDiscovery] Failed to fetch models from $baseUrl: $e');
+    }
+    return const [];
   }
 
   List<String> _extractOllamaModels(String responseBody) {
