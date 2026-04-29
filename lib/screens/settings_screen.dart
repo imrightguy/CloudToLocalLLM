@@ -3,7 +3,7 @@ import 'package:logging/logging.dart';
 
 import '../widgets/settings/openclaw_gateway_category.dart';
 import '../widgets/settings/hermes_gateway_category.dart';
-import '../widgets/settings/settings_sidebar.dart';
+import '../components/settings_sidebar.dart';
 
 final Logger _log = Logger('SettingsScreen');
 
@@ -35,9 +35,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // Sidebar
           SettingsSidebar(
-            selectedIndex: 0,
-            onTap: (index) {
-              // Handle navigation
+            sections: SettingsSidebar.defaultSections,
+            selectedSectionId: 'general',
+            onSectionSelected: (sectionId) {
+              _log.info('Settings section selected: $sectionId');
             },
           ),
           // Main content
@@ -63,10 +64,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 // OpenClaw Gateway settings
                 Card(
-                  child: OpenClawGatewayCategory(
-                    openclawUrl: 'http://localhost:8080',
-                    openclawApiKey: '',
-                    openclawEnabled: true,
+                  child: const OpenClawGatewayCategory(
+                    categoryId: 'openclaw-gateway',
                   ),
                 ),
                 // Hermes Gateway settings

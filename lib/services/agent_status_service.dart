@@ -22,10 +22,12 @@ class AgentStatus {
     this.lastUpdate,
   });
 
-  factory AgentStatus.fromSessionInfo(AgentSessionInfo session) {
+  factory AgentStatus.fromSessionInfo(dynamic session) {
+    final sessionId = session.sessionId as String?;
+    final key = session.key as String?;
     return AgentStatus(
-      id: session.sessionId,
-      name: session.key.split(':').last,
+      id: sessionId ?? '',
+      name: key?.split(':').last ?? 'Unknown',
       status: session.abortedLastRun == true ? 'error' : 'active',
       activity:
           'Model: ${session.model ?? 'unknown'} (${session.inputTokens ?? 0} in, ${session.outputTokens ?? 0} out)',
@@ -138,7 +140,10 @@ class AgentStatusService {
       // Get sessions list via WebSocket
       final sessions = await _connectionManager.getSessionsList();
 
-      final statuses = sessions.map(AgentStatus.fromSessionInfo).toList();
+      final statuses = sessions
+          .whereType<Map<String, dynamic>>()
+          .map(AgentStatus.fromJson)
+          .toList();
 
       _cachedStatuses = statuses;
       _statusController.add(statuses);

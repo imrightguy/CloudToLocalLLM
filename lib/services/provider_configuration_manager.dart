@@ -1,11 +1,58 @@
 import 'package:logging/logging.dart';
 
+import '../models/provider_configuration.dart';
 import '../services/providers/hermes_provider.dart';
 
 final Logger _log = Logger('ProviderConfigurationManager');
 
 /// Manages provider configurations for different LLM backends.
 class ProviderConfigurationManager {
+  final Map<String, ProviderConfiguration> _configurations = {};
+  String? _preferredProviderId;
+
+  bool isProviderConfigured(String providerId) =>
+      _configurations.containsKey(providerId);
+
+  Future<void> setConfiguration(ProviderConfiguration configuration) async {
+    _configurations[configuration.providerId] = configuration;
+  }
+
+  String? get preferredProviderId => _preferredProviderId;
+
+  Future<void> setPreferredProvider(String providerId) async {
+    _preferredProviderId = providerId;
+  }
+
+  Future<List<dynamic>> getAllProviders() async =>
+      _configurations.values.toList(growable: false);
+
+  Future<void> saveProvider({
+    required String name,
+    required ProviderType type,
+    required String url,
+    required bool isLocal,
+    bool isDefault = false,
+    String? version,
+  }) async {
+    final providerId = name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+    final configuration = OpenAICompatibleProviderConfiguration(
+      providerId: providerId,
+      baseUrl: url,
+      port: Uri.tryParse(url)?.port == 0 ? 80 : (Uri.tryParse(url)?.port ?? 80),
+      requiresAuth: !isLocal,
+      customSettings: {
+        'name': name,
+        'type': type.toString(),
+        'isLocal': isLocal,
+        if (version != null) 'version': version,
+      },
+    );
+    await setConfiguration(configuration);
+    if (isDefault) {
+      await setPreferredProvider(providerId);
+    }
+  }
+
   /// Get the Hermes provider instance.
   ///
   /// [baseUrl] is the base URL for hermes-agent API.

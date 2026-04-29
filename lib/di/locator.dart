@@ -373,8 +373,7 @@ Future<void> setupCoreServices() async {
         .registerSingleton<GatewayControlService>(gatewayControlService);
 
     // Hermes gateway control service - HTTP-only health monitor for Hermes Agent
-    final hermesGatewayControlService =
-        HermesGatewayControlService(settingsPreferenceService);
+    final hermesGatewayControlService = HermesGatewayControlService();
     serviceLocator.registerSingleton<HermesGatewayControlService>(
         hermesGatewayControlService);
 
@@ -705,8 +704,6 @@ Future<void> setupAuthenticatedServices() async {
     serviceLocator.registerSingleton<LLMProviderManager>(llmProviderManager);
 
     // Connection Manager - requires authentication for tunnel/cloud connections
-    final settingsPreferenceService =
-        serviceLocator<SettingsPreferenceService>();
     final gatewayControlService = serviceLocator.get<GatewayControlService>();
     final hermesGatewayControlService = serviceLocator.get<HermesGatewayControlService>();
     final connectionManager = ConnectionManagerService(
@@ -725,7 +722,6 @@ Future<void> setupAuthenticatedServices() async {
     // Wire up GatewayControlService with ConnectionManagerService now that both exist
     debugPrint(
         '[ServiceLocator] Wiring GatewayControlService with ConnectionManagerService...');
-    final gatewayControlService = serviceLocator.get<GatewayControlService>();
     gatewayControlService.setConnectionManager(connectionManager);
     debugPrint(
         '[ServiceLocator] ✓ GatewayControlService now listens to connection changes');

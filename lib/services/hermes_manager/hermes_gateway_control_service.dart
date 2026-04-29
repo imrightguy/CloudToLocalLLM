@@ -17,6 +17,8 @@ class HermesGatewayControlService {
   Process? _gatewayProcess;
   bool _isRunning = false;
 
+  HermesGatewayControlService([Object? _settingsPreferenceService]);
+
   /// Start the hermes-agent gateway.
   ///
   /// Returns true if the gateway started successfully.
@@ -70,10 +72,11 @@ class HermesGatewayControlService {
       _gatewayProcess?.kill(ProcessSignal.sigint);
 
       // Wait for process to exit (with timeout)
-      await Future.any([
-        _gatewayProcess?.exitCode,
-        Future.delayed(const Duration(seconds: 5), () {
+      await Future.any<int?>([
+        _gatewayProcess?.exitCode ?? Future<int?>.value(null),
+        Future<int?>.delayed(const Duration(seconds: 5), () {
           _gatewayProcess?.kill(ProcessSignal.sigkill);
+          return null;
         }),
       ]);
 

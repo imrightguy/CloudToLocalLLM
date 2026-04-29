@@ -1,7 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:logging/logger.dart';
 class HermesConnectionTestStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;

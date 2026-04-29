@@ -165,12 +165,7 @@ describe("ProxyHealthService", () => {
       const proxyId = "proxy-123";
       proxyHealthService.registerProxy(proxyId, {});
 
-      const slowHealthCheck = jest.fn(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(() => resolve({ status: "ok" }), 10000);
-          }),
-      );
+      const slowHealthCheck = jest.fn(() => new Promise(() => {}));
 
       const result = await proxyHealthService.checkProxyHealth(
         proxyId,

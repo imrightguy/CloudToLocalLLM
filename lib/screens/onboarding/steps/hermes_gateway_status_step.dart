@@ -21,7 +21,7 @@ class _HermesGatewayStatusStepState extends State<HermesGatewayStatusStep> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               _gatewayRunning ? Icons.check_circle : Icons.warning,
               color: _gatewayRunning ? Colors.green : Colors.red,
             ),
@@ -44,7 +44,7 @@ class _HermesGatewayStatusStepState extends State<HermesGatewayStatusStep> {
         if (!_gatewayRunning)
           Text(
             'Please start the Hermes gateway in settings or ensure it is installed.',
-            style: TextStyle(color: Colors.red),
+            style: const TextStyle(color: Colors.red),
           ),
       ],
     );

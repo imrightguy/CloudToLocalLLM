@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 final Logger _log = Logger('HermesStreamingService');
@@ -33,8 +34,8 @@ class HermesStreamingService {
   HermesStreamingService({
     String baseUrl = 'ws://localhost',
     int port = 1337,
-    required String model,
-    required String apiKey,
+    String model = 'hermes/model',
+    String apiKey = '',
   })  : _baseUrl = baseUrl,
         _port = port,
         _model = model,
@@ -51,7 +52,7 @@ class HermesStreamingService {
         'Content-Type': 'application/json',
       });
 
-      _channel = WebSocketChannel(socket);
+      _channel = IOWebSocketChannel(socket);
 
       _channel.stream.listen((data) {
         _handleMessage(data);

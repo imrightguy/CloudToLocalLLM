@@ -129,16 +129,26 @@ export class ProxyHealthService {
     const startTime = Date.now();
 
     try {
-      // Execute health check with timeout
+      // Execute health check with timeout. Always clear the timeout after
+      // Promise.race resolves so successful checks do not leave open handles in
+      // tests or long-lived processes.
       const healthCheckPromise = healthCheckFn();
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(
           () => reject(new Error('Health check timeout')),
           this.healthCheckTimeoutMs,
-        ),
-      );
+        );
+      });
 
-      const result = await Promise.race([healthCheckPromise, timeoutPromise]);
+      let result;
+      try {
+        result = await Promise.race([healthCheckPromise, timeoutPromise]);
+      } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      }
 
       // Update health status
       const currentStatus = this.proxyHealthStatus.get(proxyId);

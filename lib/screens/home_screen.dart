@@ -3,7 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../../services/connection_manager_service.dart';
-import '../../services/hermes_manager/hermes_manager.dart';
+import '../../screens/settings_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
