@@ -66,6 +66,15 @@ class ConnectionManagerService extends ChangeNotifier {
   String? get selectedModel => _selectedModel;
   String? get activeProviderModelId => _selectedModel;
 
+  void setAvailableModels(List<String> models) {
+    _availableModels = models.toSet().toList(growable: false);
+    if (_availableModels.isNotEmpty &&
+        (_selectedModel == null || !_availableModels.contains(_selectedModel))) {
+      _selectedModel = _availableModels.first;
+    }
+    notifyListeners();
+  }
+
   // ---------------------------------------------------------------------------
   // Gateway token
   // ---------------------------------------------------------------------------

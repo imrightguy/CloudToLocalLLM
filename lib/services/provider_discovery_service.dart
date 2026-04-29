@@ -22,7 +22,7 @@ class ProviderDiscoveryService {
       _scanOpenClawGateway(),
       _scanLMStudio(),
       _scanHermes(),
-      // Ollama is handled by the LLM router, not as a separate provider
+      _scanOllama(),
     ];
 
     try {
@@ -121,6 +121,35 @@ class ProviderDiscoveryService {
       }
     } catch (e) {
       debugPrint('[ProviderDiscovery] Hermes Agent not available: $e');
+    }
+    return null;
+  }
+
+  /// Scan for Ollama on localhost:11434
+  Future<ProviderInfo?> _scanOllama() async {
+    const host = '127.0.0.1';
+    const port = 11434;
+    const baseUrl = 'http://$host:$port';
+    final tagsUrl = Uri.parse('$baseUrl/api/tags');
+
+    try {
+      final response = await http.get(tagsUrl).timeout(_scanTimeout);
+
+      if (response.statusCode == 200) {
+        final models = _extractOllamaModels(response.body);
+        debugPrint('[ProviderDiscovery] Found Ollama at $baseUrl');
+        return ProviderInfo(
+          id: 'ollama_discovered',
+          type: ProviderType.ollama,
+          name: 'Ollama',
+          url: baseUrl,
+          isLocal: true,
+          isAvailable: true,
+          availableModels: models,
+        );
+      }
+    } catch (e) {
+      debugPrint('[ProviderDiscovery] Ollama not available: $e');
     }
     return null;
   }
@@ -258,6 +287,23 @@ class ProviderDiscoveryService {
     }
 
     return ips;
+  }
+
+  List<String> _extractOllamaModels(String responseBody) {
+    try {
+      final data = jsonDecode(responseBody);
+      if (data is Map && data['models'] is List) {
+        return (data['models'] as List)
+            .whereType<Map>()
+            .map((model) => model['name']?.toString() ?? model['model']?.toString())
+            .whereType<String>()
+            .where((name) => name.isNotEmpty)
+            .toList(growable: false);
+      }
+    } catch (e) {
+      // Ignore parse errors; provider availability matters more than model list.
+    }
+    return const [];
   }
 
   String? _extractVersion(String responseBody) {

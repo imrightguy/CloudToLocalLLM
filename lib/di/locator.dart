@@ -712,6 +712,21 @@ Future<void> setupAuthenticatedServices() async {
     );
     try {
       await connectionManager.initialize().timeout(const Duration(seconds: 10));
+      final providerConfigurations = await serviceLocator
+          .get<ProviderConfigurationManager>()
+          .getAllProviders();
+      final discoveredModels = <String>[];
+      for (final providerConfiguration in providerConfigurations) {
+        final models = providerConfiguration.customSettings['models'];
+        if (models is List) {
+          discoveredModels.addAll(models.whereType<String>());
+        }
+      }
+      if (discoveredModels.isNotEmpty) {
+        connectionManager.setAvailableModels(discoveredModels);
+        debugPrint(
+            '[ServiceLocator] ✓ Loaded ${discoveredModels.length} discovered models into ConnectionManagerService');
+      }
     } catch (e) {
       debugPrint(
           '[ServiceLocator] Warning: ConnectionManagerService initialization failed: $e');
