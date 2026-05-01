@@ -1,10 +1,12 @@
 # CloudToLocalLLM System Architecture
 
-CloudToLocalLLM is a Flutter desktop/web application with optional Node.js backend services. It is a local-first companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, Ollama, LM Studio, and compatible private endpoints.
+CloudToLocalLLM is a Flutter desktop/web application with optional Node.js backend services. It is a local-first companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, and compatible custom agent gateways.
 
-Core functionality is local-first. Cloud services add authentication, sync, presence, admin, per-user cloud connector containers, and optional hosted runtime compute. They should not be required for the single-device local path.
+Ollama, LM Studio, and similar local model servers are support model providers. They can power memory, embeddings, summarization, semantic search, OCR cleanup, speech helpers, and other app-owned background intelligence, but they are not primary app runtimes.
 
-The setup wizard is the authority for runtime selection. Do not assume one universal default runtime. Hermes is the current first test path; OpenClaw remains a supported runtime and original integration.
+Core functionality is local-first. Cloud services add authentication, sync, presence, admin, per-user cloud connector containers, and optional hosted agent runtime compute. They should not be required for the single-device local path.
+
+The setup wizard is the authority for agent runtime selection. Do not assume one universal default runtime. Hermes is the current first test path; OpenClaw remains a supported agent runtime and original integration.
 
 ## Technology Stack
 
@@ -28,7 +30,7 @@ The setup wizard is the authority for runtime selection. Do not assume one unive
 | `lib/di/locator.dart` | GetIt service registration and two-phase DI |
 | `lib/database/` | Drift database and platform connections |
 | `lib/services/` | Service layer |
-| `lib/services/providers/` | Router provider adapters |
+| `lib/services/providers/` | Support model and router provider adapters |
 | `lib/services/avatar/` | Personality, evolution, memory, avatar state |
 | `lib/services/voice/` | Avatar companion voice state, Hermes bridge status, TTS foundation |
 | `lib/services/openclaw_manager/` | Gateway control |
@@ -57,7 +59,7 @@ Use `di.serviceLocator<T>()` or `serviceLocator.get<T>()` for registered service
 | `ConversationStorageService` | `lib/services/conversation_storage_service.dart` |
 | `LocalConversationStorage` | `lib/services/local_conversation_storage.dart` |
 
-### Runtime And Agent Management
+### Agent Runtime And Session Management
 
 | Service | File |
 | --- | --- |
@@ -66,7 +68,9 @@ Use `di.serviceLocator<T>()` or `serviceLocator.get<T>()` for registered service
 | `AgentLifecycleService` | `lib/services/agent_lifecycle_service.dart` |
 | `GatewayControlService` | `lib/services/openclaw_manager/gateway_control_service.dart` |
 
-Provider discovery scans supported local/private runtimes including Hermes, OpenClaw Gateway on `localhost:18789`, LM Studio on `localhost:1234`, and Ollama on `localhost:11434`.
+Agent runtime discovery should scan Hermes, OpenClaw Gateway on `localhost:18789`, and compatible custom agent gateways.
+
+Local model provider discovery may scan LM Studio on `localhost:1234`, Ollama on `localhost:11434`, and similar model endpoints for memory/background features only.
 
 ### Avatar
 
@@ -106,9 +110,9 @@ Voice is part of the avatar companion experience. The main app can show compact 
 | `CameraCaptureService` | `lib/services/vision/camera_capture_service.dart` |
 | `OcrEngineService` | `lib/services/vision/ocr_engine_service.dart` |
 
-## Embedded Router
+## Embedded Router And Support Providers
 
-The Flutter app embeds an OpenAI-compatible HTTP router:
+The Flutter app embeds an OpenAI-compatible HTTP router for app-owned local services and support-provider integration. This router is not itself the primary agent runtime.
 
 - Implementation: `lib/services/router_server.dart`
 - Default port: `1337`
@@ -131,7 +135,13 @@ Current provider adapter files:
 | Moonshot | `lib/services/providers/moonshot_adapter.dart` |
 | Hermes | `lib/services/providers/hermes_adapter.dart` |
 
-Provider configuration and discovery for local services are handled separately by `ProviderConfigurationManager`, `ProviderDiscoveryService`, and `LLMProviderManager`.
+Provider configuration and discovery for local support model services are handled separately by `ProviderConfigurationManager`, `ProviderDiscoveryService`, and `LLMProviderManager`.
+
+## Agent Runtime Contract
+
+The main secure channel connects to an agent runtime. See [Agent Runtime Contract](AGENT_RUNTIME_CONTRACT.md).
+
+Minimum runtime capabilities include health, session lifecycle, chat streaming, agent status, tool listing, desktop action requests, and vision context requests. Raw local model providers must not satisfy agent runtime setup unless they are wrapped by a compatible agent gateway.
 
 ## Data Storage
 
@@ -153,7 +163,7 @@ Optional per-user CloudToLocalLLM cloud connector
         |
 User's Tailscale tailnet
         |
-CloudToLocalLLM desktop apps and user-selected runtimes
+CloudToLocalLLM desktop apps and user-selected agent runtimes
 ```
 
 The intended cloud connector shape is one isolated container per user. The connector joins only that user's tailnet, coordinates secure channel sync and device presence, and must not bypass local desktop permissions.
@@ -192,6 +202,7 @@ Match nearby file patterns when adding platform-specific code.
 ## Related Documentation
 
 - [Documentation Hub](../README.md)
+- [Agent Runtime Contract](AGENT_RUNTIME_CONTRACT.md)
 - [Secure Device Mesh](SECURE_DEVICE_MESH.md)
 - [Avatar System](AVATAR_SYSTEM.md)
 - [Desktop Control](DESKTOP_CONTROL.md)

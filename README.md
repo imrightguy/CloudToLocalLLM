@@ -22,7 +22,9 @@ This repository includes `AGENTS.md`, `SOUL.md`, `USER.md`, and `SESSION_REENTRY
 
 ## 🚀 Overview
 
-**CloudToLocalLLM** is a local-first companion and desktop capability layer for user-selected agent runtimes. The main window is a secure direct channel to the active runtime, with Hermes as the current first test path. OpenClaw, Ollama, LM Studio, and other compatible runtimes remain supported through setup and runtime adapters.
+**CloudToLocalLLM** is a local-first companion and desktop capability layer for user-selected agent runtimes. The main window is a secure direct channel to the active agent runtime, with Hermes as the current first test path. OpenClaw and compatible custom agent gateways remain supported through setup and runtime adapters.
+
+Ollama, LM Studio, and similar local model servers are support model providers, not primary app runtimes. They can power memory, embeddings, summarization, semantic search, OCR cleanup, speech helpers, and other app-owned background intelligence.
 
 The desktop app can be installed on all of your devices. With cloud mode and Tailscale, those devices can stay in sync while desktop control and vision remain device-scoped and permissioned.
 
@@ -32,18 +34,19 @@ The desktop app can be installed on all of your devices. With cloud mode and Tai
 
 | Pillar | Description |
 | --- | --- |
-| **💬 Secure Agent Channel** | Main direct channel to the selected runtime, synced across authorized devices when enabled |
+| **💬 Secure Agent Channel** | Main direct channel to the selected agent runtime, synced across authorized devices when enabled |
 | **🦞 Avatar & Voice Companion** | Sidecar companion window with personality, memory, voice state, and reactions |
 | **💻 Desktop Control** | Permissioned hands-on access to selected desktops: apps, windows, keyboard, files, clipboard, commands |
 | **👁️ Vision** | Screen, region, OCR, and camera awareness with explicit user control |
-| **🧠 Runtime & Agent Management** | Manage Hermes, OpenClaw, agents, skills, sessions, providers, and diagnostics when needed |
+| **🧠 Runtime & Agent Management** | Manage Hermes, OpenClaw, agents, skills, sessions, tools, local support models, and diagnostics when needed |
 | **🔐 Secure Device Mesh** | Tailscale-first private connectivity plus optional isolated per-user cloud connector |
 
 ## 📋 Prerequisites
 
-- **An agent runtime:** Hermes is the current first test path. OpenClaw, Ollama, LM Studio, and other compatible runtimes can be configured through setup.
-- **Optional [Tailscale](https://tailscale.com/):** Recommended for connecting devices and runtimes across your private network.
-- **Optional GPU drivers:** Required only if your chosen runtime/model stack needs GPU acceleration.
+- **An agent runtime:** Hermes is the current first test path. OpenClaw and compatible agent gateways can be configured through setup.
+- **Optional local model provider:** Ollama, LM Studio, or a custom local model endpoint for memory and other app-owned support features.
+- **Optional [Tailscale](https://tailscale.com/):** Recommended for connecting devices and agent runtimes across your private network.
+- **Optional GPU drivers:** Required only if your chosen agent runtime or support model stack needs GPU acceleration.
 
 ## 🚀 Quick Install
 
@@ -151,7 +154,7 @@ Comment=Manage and run powerful Large Language Models locally
 Exec=$(pwd)/CloudToLocalLLM-x86_64.AppImage %u
 Terminal=false
 Categories=Development;Utility;Network;
-Keywords=AI;LLM;Machine Learning;Ollama;Local;
+Keywords=AI;Agent;LLM;Desktop;Local;
 StartupNotify=true
 EOF
 
@@ -252,6 +255,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 - **[Setup Guide](docs/user-guide/SETUP_GUIDE.md):** Step-by-step installation.
 - **[Troubleshooting](docs/user-guide/TROUBLESHOOTING.md):** Common issues and fixes.
 - **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
+- **[Agent Runtime Contract](docs/architecture/AGENT_RUNTIME_CONTRACT.md):** Required split between agent runtimes and support model providers.
 - **[Secure Device Mesh](docs/architecture/SECURE_DEVICE_MESH.md):** Tailscale-first multi-device and cloud connector architecture.
 - **[Avatar System](docs/architecture/AVATAR_SYSTEM.md):** Evolving avatar architecture.
 - **[Desktop Control](docs/architecture/DESKTOP_CONTROL.md):** GUI automation and system integration.
@@ -269,7 +273,8 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 ### Tech Stack
 
 - **Frontend:** Flutter 3.5+ (Linux, Windows, Web)
-- **Runtime adapters:** Hermes first for current testing, with OpenClaw, Ollama, LM Studio, and compatible endpoints supported through setup.
+- **Agent runtime adapters:** Hermes first for current testing, with OpenClaw and compatible agent gateways supported through setup.
+- **Support model providers:** Ollama, LM Studio, and compatible local model endpoints for memory and background intelligence.
 - **Backend:** Node.js 22.x (Express.js)
 - **Local Database:** SQLite via Drift (LocalBrain)
 - **Authentication:** Auth0
@@ -277,7 +282,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 ### Build from Source
 
 1.  **Clone:** `git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git`
-2.  **Start a runtime:** Hermes is the current first test path; OpenClaw, Ollama, LM Studio, or another compatible private endpoint can also be used.
+2.  **Start an agent runtime:** Hermes is the current first test path; OpenClaw or another compatible agent gateway can also be used.
 3.  **Deps:** `flutter pub get` && `(cd services/api-backend && npm install)`
 4.  **Run:** `flutter run -d linux` (Desktop) or `flutter run -d chrome` (Web)
 

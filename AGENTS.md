@@ -2,16 +2,19 @@
 
 ## What this is
 
-Flutter desktop/web app plus Node.js backend services. The product is a local-first companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, Ollama, LM Studio, and compatible private endpoints.
+Flutter desktop/web app plus Node.js backend services. The product is a local-first companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, and compatible agent gateways.
 
-Core orientation: secure agent channel, avatar/voice companion, desktop control, vision, runtime/agent management, and multi-device sync through a Tailscale-first secure device mesh.
+Ollama, LM Studio, and similar local model servers are support model providers for app-owned features such as memory, embeddings, summarization, classification, OCR cleanup, and speech helpers. They are not primary app runtimes unless wrapped by a compatible agent runtime.
 
-- Do not assume a universal default runtime. The setup wizard decides whether the active runtime is on this device, another private device, a Tailscale device, a manual/private URL, or optional paid CloudToLocalLLM-hosted compute.
+Core orientation: secure agent channel, avatar/voice companion, desktop control, vision, agent runtime management, and multi-device sync through a Tailscale-first secure device mesh.
+
+- Do not assume a universal default runtime. The setup wizard decides whether the active agent runtime is on this device, another private device, a Tailscale device, a manual/private URL, or optional paid CloudToLocalLLM-hosted compute.
+- The main secure channel connects to an agent runtime, not a raw local model provider.
 - Hermes is the current first test path.
-- OpenClaw remains a supported runtime and original integration, but it is not the universal default.
+- OpenClaw remains a supported agent runtime and original integration, but it is not the universal default.
 - Desktop control is a core feature and must remain explicit, device-scoped, permissioned, and auditable.
 - Voice belongs with the avatar companion. The avatar/voice companion should be able to open as a sidecar window, separate from the main app.
-- Agent/runtime management remains important but should not be the first UI surface.
+- Agent runtime management remains important but should not be the first UI surface.
 - Prefer Tailscale for secure private connectivity. The cloud connector model is one isolated container per user, joined to that user's tailnet.
 
 ## Commands
@@ -189,7 +192,7 @@ npm test
 | `lib/di/locator.dart` | GetIt service locator and two-phase DI |
 | `lib/database/` | Drift/SQLite local brain and platform database connections |
 | `lib/services/` | Service layer, router, auth, providers, tunnel, admin, platform services |
-| `lib/services/providers/` | OpenAI-compatible provider adapters: Zhipu, Google, Moonshot, Hermes |
+| `lib/services/providers/` | Support model and router provider adapters: Zhipu, Google, Moonshot, Hermes |
 | `lib/services/avatar/` | Avatar state, personality, memory, evolution, markdown sync |
 | `lib/services/voice/` | Avatar companion voice state, Hermes bridge status, TTS foundation |
 | `lib/services/openclaw_manager/` | OpenClaw Gateway control |
@@ -238,7 +241,8 @@ import 'thing.dart'
 - Avatar endpoints include `/avatar/state`, `/avatar/traits`, and `/avatar/evolution/request`.
 - Provider adapters live in `lib/services/providers/`.
 - Rate limit tiers live in `lib/services/model_tiers.dart`.
-- Provider discovery scans local services including Hermes, OpenClaw Gateway `localhost:18789`, LM Studio `localhost:1234`, and Ollama `localhost:11434` where supported by the current adapters.
+- Agent runtime discovery should scan Hermes, OpenClaw Gateway `localhost:18789`, and compatible custom agent gateways.
+- Local model provider discovery may scan LM Studio `localhost:1234`, Ollama `localhost:11434`, and other model endpoints for memory/background features only.
 
 ### Backend services
 
@@ -266,7 +270,7 @@ import 'thing.dart'
 - The intended cloud connector shape is one isolated CloudToLocalLLM container per user.
 - A cloud connector joins only that user's Tailscale tailnet, ideally through a narrow service identity/tag.
 - The connector coordinates secure channel sync, device presence, and web/mobile access. It must not bypass local desktop permissions.
-- Cloud-hosted runtime is optional paid compute. Most users are expected to run Hermes/OpenClaw/etc. on their own device, server, or tailnet.
+- Cloud-hosted agent runtime is optional paid compute. Most users are expected to run Hermes/OpenClaw/etc. on their own device, server, or tailnet.
 - Custom SSH/WebSocket tunnel docs and services should be treated as legacy/fallback unless a task explicitly targets them.
 
 ### Deployment and infrastructure
@@ -312,6 +316,7 @@ import 'thing.dart'
 - `README.md` - User-facing overview.
 - `docs/development/IMPLEMENTATION_PLAN.md` - Pillar implementation plan.
 - `docs/architecture/SYSTEM_ARCHITECTURE.md` - Architecture deep dive.
+- `docs/architecture/AGENT_RUNTIME_CONTRACT.md` - Agent runtime vs support model provider contract.
 - `docs/architecture/AVATAR_SYSTEM.md` - Avatar system.
 - `docs/architecture/DESKTOP_CONTROL.md` - Desktop control.
 - `docs/architecture/VISION_SYSTEM.md` - Vision system.

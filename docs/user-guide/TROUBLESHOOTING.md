@@ -1,46 +1,42 @@
 # CloudToLocalLLM Troubleshooting Guide
 
-This guide helps diagnose setup, runtime, mesh, desktop-control, voice, and sync problems.
+This guide helps diagnose setup, agent runtime, support model, mesh, desktop-control, voice, and sync problems.
 
-CloudToLocalLLM does not require one default runtime. Confirm which runtime the setup wizard selected before troubleshooting.
+CloudToLocalLLM does not require one default runtime. Confirm which agent runtime the setup wizard selected before troubleshooting. Ollama and LM Studio are support model providers, not primary agent runtime targets.
 
 ---
 
-## Runtime Connection Problems
+## Agent Runtime Connection Problems
 
-### Runtime Not Detected
+### Agent Runtime Not Detected
 
-**Symptoms**: Empty model list, timeout errors, disconnected status, or disabled chat input.
+**Symptoms**: Empty session list, timeout errors, disconnected status, disabled chat input, or unavailable desktop/vision tools.
 
 **Checks**:
 
-1. Confirm the selected runtime is running.
+1. Confirm the selected agent runtime is running.
 2. Confirm the endpoint in setup or settings.
 3. Test the endpoint directly when possible.
 
 ```bash
 # OpenClaw Gateway
 curl http://localhost:18789/health
-
-# LM Studio
-curl http://localhost:1234/v1/models
-
-# Ollama
-curl http://localhost:11434/api/tags
 ```
 
-For Hermes and custom endpoints, use the health or model route exposed by that runtime and the setup wizard connection test.
+For Hermes and custom agent gateways, use the health route exposed by that runtime and the setup wizard connection test.
+
+Do not enter raw Ollama or LM Studio endpoints as the agent runtime. They do not manage agents, tools, sessions, or desktop action requests by themselves.
 
 ### Wrong Runtime Selected
 
-1. Open runtime settings.
-2. Review the active runtime and endpoint.
+1. Open agent runtime settings.
+2. Review the active agent runtime and endpoint.
 3. Re-run the setup wizard connection test.
-4. Switch to Hermes, OpenClaw, LM Studio, Ollama, or a custom endpoint as needed.
+4. Switch to Hermes, OpenClaw, or a compatible custom agent gateway as needed.
 
-### Remote Runtime Not Connecting
+### Remote Agent Runtime Not Connecting
 
-Prefer Tailscale for remote runtime paths.
+Prefer Tailscale for remote agent runtime paths.
 
 ```bash
 tailscale status
@@ -50,9 +46,34 @@ tailscale ping <runtime-device-name>
 Confirm:
 
 - Both devices are in the expected tailnet.
-- The runtime is listening on the expected interface.
+- The agent runtime is listening on the expected interface.
 - The runtime device firewall allows access from the tailnet.
 - The endpoint uses the tailnet hostname or IP, not an unreachable LAN-only address.
+
+---
+
+## Support Model Provider Problems
+
+### Local Model Provider Not Detected
+
+Support model providers are optional. They can help memory and background features, but they do not affect whether the main agent channel can connect.
+
+```bash
+# LM Studio
+curl http://localhost:1234/v1/models
+
+# Ollama
+curl http://localhost:11434/api/tags
+```
+
+If the support model provider works but chat is disconnected, troubleshoot the agent runtime instead.
+
+### Memory Or Summaries Not Using Local Model
+
+- Confirm the provider is configured under local model/support settings.
+- Confirm the feature is allowed to use local model support.
+- Confirm the model needed for embeddings or summaries is available.
+- Check app logs for feature-level errors.
 
 ---
 
@@ -118,6 +139,7 @@ Check:
 - The action is approved if approval is required.
 - The platform supports the action.
 - Linux Wayland restrictions are not blocking capture or input injection.
+- The request came through the selected agent runtime and capability broker, not a raw local model provider.
 
 ### Screenshot Or Region Capture Failed
 
@@ -136,7 +158,7 @@ Command execution should be explicit and device-scoped. Enable it only for devic
 
 ### Vision Analysis Fails
 
-- Confirm the active runtime exposes a vision-capable model or tool.
+- Confirm the active agent runtime exposes a vision-capable tool or accepts vision context.
 - Confirm screenshot capture works first.
 - Use PNG screenshots when manually testing.
 - Install OCR dependencies if local OCR is enabled:
@@ -163,7 +185,7 @@ sudo apt install tesseract-ocr
 
 ### Speech Output Not Working
 
-- Confirm the selected runtime or fallback service supports text-to-speech.
+- Confirm the selected agent runtime or fallback service supports text-to-speech.
 - Check audio output device settings.
 - Test with a short message.
 
@@ -193,15 +215,16 @@ Cloud features are optional. Local runtime use should remain possible without au
 
 ### Slow Responses
 
-- Check runtime health and latency.
-- Use a smaller or faster model.
+- Check agent runtime health and latency.
+- Use a smaller or faster model inside the agent runtime if it exposes model choice.
 - Reduce conversation context length.
-- Move the runtime to a stronger local device or optional hosted runtime.
+- Move the agent runtime to a stronger local device or optional hosted agent runtime.
 - Confirm Tailscale latency for remote runtimes.
+- If only memory/summaries are slow, check the configured local model provider.
 
 ### High CPU Or RAM
 
-- Reduce model size.
+- Reduce model size in the agent runtime or support model provider.
 - Disable continuous vision monitoring.
 - Avoid heavy OCR loops.
 - Check GPU driver status for local model acceleration:
@@ -249,5 +272,6 @@ rmdir /s "%LOCALAPPDATA%\CloudToLocalLLM"
 - [Setup Guide](SETUP_GUIDE.md)
 - [Features Guide](FEATURES_GUIDE.md)
 - [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
+- [Agent Runtime Contract](../architecture/AGENT_RUNTIME_CONTRACT.md)
 - [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md)
 - [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)

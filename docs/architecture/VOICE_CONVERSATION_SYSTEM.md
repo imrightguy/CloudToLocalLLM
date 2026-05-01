@@ -31,7 +31,7 @@ Hermes remains the brain for:
 - long-context reasoning
 - agent actions
 
-The avatar companion becomes the low-latency voice shell around Hermes or the selected runtime.
+The avatar companion becomes the low-latency voice shell around Hermes or the selected agent runtime.
 
 ## Recommended architecture
 
@@ -157,6 +157,6 @@ Yes: CloudToLocalLLM as the avatar/voice sidecar makes this easier.
 Best split:
 - Avatar companion = natural voice shell and side presence
 - Main app = secure channel, setup, management, approvals
-- Hermes/selected runtime = memory, tools, desktop awareness, deep reasoning
+- Hermes/selected agent runtime = memory, tools, desktop awareness, deep reasoning
 
 That division keeps the main app simple while giving the assistant a persistent desktop presence.

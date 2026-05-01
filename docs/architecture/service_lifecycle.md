@@ -23,20 +23,21 @@ graph TD
   AuthService --> TunnelService
   AuthService --> EnhancedUserTierService
   AuthService --> StreamingProxyService
-  AuthService --> RuntimeServices
+  AuthService --> AgentRuntimeServices
   AuthService --> AppInitializationService
   AuthService --> WebDownloadPromptService
   AuthService --> UserContainerService
   TunnelService --> ConnectionManager
-  RuntimeDiscovery --> ConnectionManager
+  AgentRuntimeDiscovery --> ConnectionManager
+  LocalModelProviderDiscovery --> LLMProviderManager
   ConnectionManager --> StreamingChat
   ConnectionManager --> UnifiedConnection
-  ConnectionManager --> RuntimeStreaming
+  ConnectionManager --> AgentRuntimeStreaming
   ConnectionManager --> LangChainRAG
   ProviderDiscovery --> LangChainIntegration
   LangChainIntegration --> LLMProviderManager
   LangChainIntegration --> LLMErrorHandler
-  RuntimeStreaming --> LangChainRAG
+  AgentRuntimeStreaming --> LangChainRAG
   AuthService --> LLMAudit
   ConnectionManager --> UnifiedConnection
 ```
@@ -45,7 +46,8 @@ Legend:
 
 - **Auth0Service** instances differ for web/desktop at registration time.
 - **AuthService** publishes authentication state and is the primary trigger for services that depend on user session context.
-- **ConnectionManagerService** orchestrates the selected runtime path. Hermes is the current first test path; OpenClaw, Ollama, LM Studio, and compatible private endpoints are adapter paths discovered or configured by setup.
+- **ConnectionManagerService** should orchestrate the selected agent runtime path. Hermes is the current first test path; OpenClaw and compatible agent gateways are primary agent runtime paths discovered or configured by setup.
+- **Local model providers** such as Ollama and LM Studio belong to memory/background feature support, not the main agent channel.
 - **Tailscale-first secure mesh** is the preferred multi-device transport. Custom tunnel services are legacy/fallback unless a task explicitly targets them.
 
 ## Lifecycle Contract

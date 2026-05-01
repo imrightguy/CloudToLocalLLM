@@ -1,6 +1,6 @@
 # CloudToLocalLLM - Docker Compose Deployment Guide
 
-> **Status**: Historical deployment summary for the older tunnel-centered stack. Current product direction is runtime-neutral and Tailscale-first, with optional per-user cloud connector containers and optional paid hosted runtime containers. Keep this file for deployment history and migration reference.
+> **Status**: Historical deployment summary for the older tunnel-centered stack. Current product direction is agent-runtime-first and Tailscale-first, with optional per-user cloud connector containers and optional paid hosted agent runtime containers. Ollama/LM Studio are support model providers, not primary app runtimes. Keep this file for deployment history and migration reference.
 
 ## Summary
 
@@ -33,7 +33,7 @@ This guide covers deploying CloudToLocalLLM using Docker Compose for development
 - **API Routes**: `/api/bridge/*` endpoints enabled in the older stack
 - **Desktop Client**: `HttpPollingTunnelClient` available for fallback paths
 - **Authentication**: Auth0 JWT validation
-- **LLM Integration**: Older automatic routing to local Ollama; current setup should use runtime selection
+- **LLM Integration**: Older automatic routing to local Ollama; current setup should use selected agent runtime paths
 
 ### 3. WebSocket Tunnel (Bonus - Server Ready)
 
@@ -362,7 +362,7 @@ docker compose -f docker-compose.production.yml exec api-backend \
 
 ## 🎉 You're Ready
 
-This historical stack is configured for the older HTTP-polling tunnel path. Current deployments should prefer the Tailscale-first secure device mesh and selected runtime path unless this fallback stack is intentionally required.
+This historical stack is configured for the older HTTP-polling tunnel path. Current deployments should prefer the Tailscale-first secure device mesh and selected agent runtime path unless this fallback stack is intentionally required.
 
 ### Deploy Command
 
@@ -374,7 +374,7 @@ This historical stack is configured for the older HTTP-polling tunnel path. Curr
 
 1. Access web app: `https://yourdomain.com`
 2. Launch Windows desktop app
-3. Start chatting with your local Ollama!
+3. Start chatting through your selected agent runtime.
 
 ## 💡 Pro Tips
 

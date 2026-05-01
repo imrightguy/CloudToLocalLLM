@@ -1,8 +1,8 @@
 # Implementation Plan - Secure Agent Companion
 
-**CloudToLocalLLM** is a secure companion and desktop capability layer for user-selected runtimes such as Hermes, OpenClaw, LM Studio, Ollama, or private compatible endpoints.
+**CloudToLocalLLM** is a secure companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, compatible custom agent gateways, or optional hosted agent runtimes.
 
-> **Orientation note**: This file is a historical implementation plan and progress log. The current product direction is defined in [SPEC.md](../../SPEC.md): there is no universal default runtime, Hermes is the first runtime path for current testing, OpenClaw remains supported as the original integration, desktop control is core, avatar and voice belong together as a sidecar companion, and Tailscale is the preferred secure device mesh.
+> **Orientation note**: This file is a historical implementation plan and progress log. The current product direction is defined in [SPEC.md](../../SPEC.md) and [Agent Runtime Contract](../architecture/AGENT_RUNTIME_CONTRACT.md): there is no universal default runtime, Hermes is the first agent runtime path for current testing, OpenClaw remains supported as the original integration, desktop control is core, avatar and voice belong together as a sidecar companion, and Tailscale is the preferred secure device mesh. Ollama, LM Studio, and similar model servers are support model providers for app-owned memory/background features, not primary app runtimes.
 
 > **Last Updated**: 2026-04-06 | **Overall Progress**: ~95% complete | **Estimated Timeline**: 8 weeks (0 remaining)
 
@@ -228,41 +228,41 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
                               │
                               ▼
                     ┌─────────────────┐
-                    │  LLM Router     │
+                    │ Agent Runtime   │
+                    │ Session Manager │
                     │  (localhost:1337)│
-                    │  OpenAI-compatible│
+                    │ secure app channel│
                     └────────┬─────────┘
                              │
                              ▼
                   ┌──────────────────────┐
-                  │  OpenClaw Gateway     │
-                  │  (localhost:18789)   │
-                  │  Privacy Router      │
+                  │ Agent Runtime         │
+                  │ Hermes / OpenClaw /   │
+                  │ compatible gateway    │
                   └──────────┬───────────┘
                              │
               ┌──────────────┴──────────────┐
               ▼                             ▼
      ┌─────────────────┐          ┌─────────────────┐
-     │  Cloud Providers│          │  Local Models   │
-     │  (Performance)  │          │  (Privacy)      │
+     │ Runtime Tools   │          │ Support Models  │
+     │ Desktop/vision  │          │ Memory/background│
      │                 │          │                 │
-     │  • Zhipu (GLM)  │          │  • Llama        │
-     │  • Google Gemini│          │  • Qwen         │
-     │  • Moonshot Kimi│          │  • Mistral      │
+     │  • File/window  │          │  • Ollama       │
+     │  • Desktop ctrl │          │  • LM Studio    │
+     │  • Voice/avatar │          │  • Custom local │
      └─────────────────┘          └─────────────────┘
 ```
 
 **How It Works:**
-1. **LLM Router** (localhost:1337) provides OpenAI-compatible API for the app
-2. In the original phase, requests routed through **OpenClaw Gateway** (localhost:18789)
-3. The current architecture generalizes this behind runtime selection:
-   - **Hermes** is the first runtime path for current testing
-   - **OpenClaw Gateway** remains supported as the original integration
-   - **LM Studio, Ollama, and custom endpoints** remain provider paths
-4. OpenClaw can still intelligently route based on content when it is the selected runtime:
+1. The main app channel connects to an **agent runtime** that owns sessions, tools, capability requests, and streaming.
+2. **Hermes** is the first agent runtime path for current testing.
+3. **OpenClaw Gateway** remains supported as the original integration.
+4. Compatible custom agent gateways and optional hosted agent runtimes must satisfy the [Agent Runtime Contract](../architecture/AGENT_RUNTIME_CONTRACT.md).
+5. **LM Studio, Ollama, and custom local model endpoints** remain support model provider paths for memory, embeddings, summarization, semantic search, OCR cleanup, and speech helpers.
+6. OpenClaw can still intelligently route based on content when it is the selected agent runtime:
    - **Sensitive/private data** → Local models (stays on machine)
    - **Regular queries** → Cloud providers (faster, more capable)
-5. **Model Selector** switches the active runtime/model/provider where supported
+7. Runtime model selection belongs to the selected agent runtime. Support model provider settings are separate and must not satisfy primary agent runtime setup.
 
 ---
 
@@ -272,15 +272,16 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 
 ### Goal
 
-Guide new users through selected runtime configuration with support for:
-- **Local**: Hermes, OpenClaw, LM Studio, Ollama, or compatible runtime on this device
-- **Remote/Tailscale**: runtime on another user-controlled device or VPS in the tailnet
-- **Custom**: compatible private endpoint or URL
+Guide new users through selected agent runtime configuration with support for:
+- **Local agent runtime**: Hermes, OpenClaw, or a compatible agent gateway on this device
+- **Remote/Tailscale agent runtime**: runtime on another user-controlled device or VPS in the tailnet
+- **Hosted agent runtime**: optional paid per-user runtime container
+- **Support model provider**: optional Ollama, LM Studio, or custom local model endpoint for memory/background features only
 
 ### Success Criteria ✅
 
 - ✅ New users complete setup in <3 minutes
-- ✅ A selected runtime is required and verified before the main channel opens
+- ✅ A selected agent runtime is required and verified before the main channel opens
 - ✅ Database-backed configuration persistence
 
 ### Implementation Tasks

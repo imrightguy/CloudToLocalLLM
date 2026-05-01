@@ -1,6 +1,8 @@
 # Linux Installation Guide
 
-This guide covers installing CloudToLocalLLM on Linux. Runtime selection happens in the setup wizard after installation. CloudToLocalLLM can connect to Hermes, OpenClaw, LM Studio, Ollama, or a compatible custom endpoint. Hermes is the first runtime path for current testing.
+This guide covers installing CloudToLocalLLM on Linux. Agent runtime selection happens in the setup wizard after installation. CloudToLocalLLM can connect to Hermes, OpenClaw, or a compatible custom agent gateway. Hermes is the first agent runtime path for current testing.
+
+Ollama and LM Studio are optional support model providers for memory/background features, not primary app runtimes.
 
 ---
 
@@ -10,22 +12,28 @@ This guide covers installing CloudToLocalLLM on Linux. Runtime selection happens
 
 - Ubuntu 20.04+, Debian 11+, Arch, Fedora, or another modern Linux desktop
 - 4 GB RAM minimum, 8 GB+ recommended
-- 2 GB app storage plus local model storage if running a runtime on this device
+- 2 GB app storage plus storage for local agent runtimes/models
 - Internet access for downloads, account sync, and optional cloud features
 
-### Runtime
+### Agent Runtime
 
-Prepare one runtime before or during first launch:
+Prepare one agent runtime before or during first launch:
 
 | Runtime | Typical Endpoint | Notes |
 | --- | --- | --- |
-| Hermes | Configured in wizard | First runtime path for current testing |
+| Hermes | Configured in wizard | First agent runtime path for current testing |
 | OpenClaw Gateway | `http://localhost:18789` | Supported original integration |
-| LM Studio | `http://localhost:1234` | OpenAI-compatible local runtime |
-| Ollama | `http://localhost:11434` | Optional local model runtime |
-| Custom endpoint | User supplied | Private server, VPS, or compatible API |
+| Custom agent gateway | User supplied | Private server, VPS, or compatible agent runtime API |
+| Hosted agent runtime | CloudToLocalLLM managed | Optional paid compute |
 
 For a runtime on another machine, install Tailscale on both devices and confirm they can reach each other.
+
+### Optional Support Model Provider
+
+| Provider | Typical Endpoint | Use |
+| --- | --- | --- |
+| LM Studio | `http://localhost:1234` | Local model support for app features |
+| Ollama | `http://localhost:11434` | Local model support for memory/background features |
 
 ### System Dependencies
 
@@ -132,12 +140,13 @@ build/linux/x64/release/bundle/CloudToLocalLLM
 
 ## First Launch
 
-1. Start your selected runtime or confirm the remote runtime is reachable.
+1. Start your selected agent runtime or confirm the remote runtime is reachable.
 2. Launch CloudToLocalLLM.
 3. Complete the setup wizard.
-4. Select the runtime and endpoint.
-5. Grant desktop permissions for this Linux device only where needed.
-6. Enable Tailscale-backed sync if using remote devices.
+4. Select the agent runtime and endpoint.
+5. Optionally configure a support model provider for memory/background features.
+6. Grant desktop permissions for this Linux device only where needed.
+7. Enable Tailscale-backed sync if using remote devices.
 
 ### Tailscale Check
 
@@ -164,12 +173,19 @@ sudo apt-get install -y libgtk-3-0 libglib2.0-0
 chmod +x /opt/CloudToLocalLLM/CloudToLocalLLM
 ```
 
-### Runtime Not Found
+### Agent Runtime Not Found
 
-- Confirm the selected runtime is running.
+- Confirm the selected agent runtime is running.
 - Check the endpoint configured in the wizard.
 - Test the runtime health endpoint if it has one.
 - For remote runtimes, confirm Tailscale connectivity.
+- Confirm you did not enter an Ollama/LM Studio endpoint as the agent runtime.
+
+### Support Model Provider Not Found
+
+- Confirm Ollama, LM Studio, or the custom local model endpoint is running.
+- Check support model provider settings.
+- Test the model endpoint directly.
 
 ### Tailscale Remote Runtime Not Reachable
 
@@ -178,7 +194,7 @@ tailscale status
 tailscale ping <runtime-device-name>
 ```
 
-Confirm the runtime listens on the expected interface and that the device firewall allows tailnet access.
+Confirm the agent runtime listens on the expected interface and that the device firewall allows tailnet access.
 
 ### System Tray Not Visible
 
@@ -204,3 +220,5 @@ journalctl --user -u cloudtolocalllm -f
 - [Setup Guide](../../user-guide/SETUP_GUIDE.md)
 - [User Guide](../../user-guide/USER_GUIDE.md)
 - [Troubleshooting](../../user-guide/TROUBLESHOOTING.md)
+- [Agent Runtime Contract](../../architecture/AGENT_RUNTIME_CONTRACT.md)
+- [Secure Device Mesh](../../architecture/SECURE_DEVICE_MESH.md)

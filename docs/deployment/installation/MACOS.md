@@ -2,7 +2,9 @@
 
 macOS support is planned but not the primary packaged desktop target yet. This guide covers the current development build path and the intended setup direction.
 
-Runtime selection belongs to the setup wizard. CloudToLocalLLM can connect to Hermes, OpenClaw, LM Studio, Ollama, or a compatible custom endpoint. Hermes is the first runtime path for current testing.
+Agent runtime selection belongs to the setup wizard. CloudToLocalLLM can connect to Hermes, OpenClaw, or a compatible custom agent gateway. Hermes is the first agent runtime path for current testing.
+
+Ollama and LM Studio are optional support model providers for memory/background features, not primary app runtimes.
 
 ---
 
@@ -14,7 +16,7 @@ The macOS app is expected to support:
 - Menu bar integration
 - Notifications
 - Keychain storage for secrets
-- Tailscale-backed remote runtime access
+- Tailscale-backed remote agent runtime access
 - Desktop, screen, and accessibility permissions where macOS allows them
 
 Packaged macOS distribution details are still pending. Avoid documenting dated release windows until the release process is active.
@@ -57,17 +59,16 @@ build/macos/Build/Products/Release/
 
 ---
 
-## Runtime Prerequisites
+## Agent Runtime Prerequisites
 
-Prepare one runtime before or during first launch:
+Prepare one agent runtime before or during first launch:
 
 | Runtime | Typical Endpoint | Notes |
 | --- | --- | --- |
-| Hermes | Configured in wizard | First runtime path for current testing |
+| Hermes | Configured in wizard | First agent runtime path for current testing |
 | OpenClaw Gateway | `http://localhost:18789` | Supported original integration |
-| LM Studio | `http://localhost:1234` | OpenAI-compatible local runtime |
-| Ollama | `http://localhost:11434` | Optional local model runtime |
-| Custom endpoint | User supplied | Private server, VPS, or compatible API |
+| Custom agent gateway | User supplied | Private server, VPS, or compatible agent runtime API |
+| Hosted agent runtime | CloudToLocalLLM managed | Optional paid compute |
 
 For a runtime on another machine, install Tailscale on both devices and confirm they can reach each other:
 
@@ -76,16 +77,24 @@ tailscale status
 tailscale ping <runtime-device-name>
 ```
 
+## Optional Support Model Provider
+
+| Provider | Typical Endpoint | Use |
+| --- | --- | --- |
+| LM Studio | `http://localhost:1234` | Local model support for app features |
+| Ollama | `http://localhost:11434` | Local model support for memory/background features |
+
 ---
 
 ## First Launch
 
-1. Start your selected runtime or confirm the remote runtime is reachable.
+1. Start your selected agent runtime or confirm the remote runtime is reachable.
 2. Launch the macOS development build.
 3. Complete the setup wizard.
-4. Select the runtime and endpoint.
-5. Grant macOS permissions only for features you need.
-6. Enable Tailscale-backed sync if using remote devices.
+4. Select the agent runtime and endpoint.
+5. Optionally configure a support model provider for memory/background features.
+6. Grant macOS permissions only for features you need.
+7. Enable Tailscale-backed sync if using remote devices.
 
 ### macOS Permissions
 
@@ -129,12 +138,19 @@ Web and mobile access should use the Tailscale-first cloud connector design. The
 
 ## Troubleshooting
 
-### Runtime Not Found
+### Agent Runtime Not Found
 
-- Confirm the selected runtime is running.
+- Confirm the selected agent runtime is running.
 - Check the endpoint configured in the wizard.
 - Test the runtime health endpoint if it has one.
 - For remote runtimes, confirm Tailscale connectivity.
+- Confirm you did not enter an Ollama/LM Studio endpoint as the agent runtime.
+
+### Support Model Provider Not Found
+
+- Confirm Ollama, LM Studio, or the custom local model endpoint is running.
+- Check support model provider settings.
+- Test the model endpoint directly.
 
 ### Desktop Control Not Working
 
@@ -163,4 +179,5 @@ Then rebuild.
 - [Windows Installation](WINDOWS.md)
 - [Setup Guide](../../user-guide/SETUP_GUIDE.md)
 - [User Guide](../../user-guide/USER_GUIDE.md)
+- [Agent Runtime Contract](../../architecture/AGENT_RUNTIME_CONTRACT.md)
 - [Secure Device Mesh](../../architecture/SECURE_DEVICE_MESH.md)

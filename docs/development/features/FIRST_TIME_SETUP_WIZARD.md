@@ -1,6 +1,6 @@
 # First-Time Setup Wizard
 
-> **Current orientation**: The setup wizard is the authority for selecting a runtime and device path. It must not assume a default runtime. Hermes is the first current test path; OpenClaw remains supported; LM Studio, Ollama, and compatible custom endpoints are valid paths. Remote runtime and cloud connector flows should prefer Tailscale over the older custom tunnel stack.
+> **Current orientation**: The setup wizard is the authority for selecting an agent runtime and device path. It must not assume a default runtime. Hermes is the first current test path; OpenClaw remains supported; compatible custom agent gateways and optional hosted agent runtimes are valid primary paths. LM Studio, Ollama, and similar model servers are optional support model providers for memory/background features, not primary app runtimes. Remote runtime and cloud connector flows should prefer Tailscale over the older custom tunnel stack.
 
 ## Overview
 
@@ -434,4 +434,4 @@ For issues related to the setup wizard:
 
 ---
 
-The First-Time Setup Wizard represents the authority for onboarding CloudToLocalLLM users into a selected runtime, device permissions, optional avatar/voice companion, and secure Tailscale-backed sync path.
+The First-Time Setup Wizard represents the authority for onboarding CloudToLocalLLM users into a selected agent runtime, optional support model provider, device permissions, optional avatar/voice companion, and secure Tailscale-backed sync path.

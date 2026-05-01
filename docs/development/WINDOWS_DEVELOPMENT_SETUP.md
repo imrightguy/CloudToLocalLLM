@@ -38,7 +38,7 @@ cd C:\path\to\CloudToLocalLLM
 
 1. **Docker Desktop** - For containerized development
 2. **WSL2** - Windows Subsystem for Linux (for cross-platform builds)
-3. **Ollama** - Local AI model runtime
+3. **Ollama or LM Studio** - Optional support model provider for memory/background feature testing
 
 ## 🔧 Manual Installation Steps
 
@@ -69,7 +69,7 @@ choco install nodejs -y
 # Install Docker Desktop (optional)
 choco install docker-desktop -y
 
-# Install Ollama for local AI models (optional)
+# Install Ollama for support model features (optional)
 choco install ollama -y
 
 # Refresh environment variables
@@ -185,7 +185,6 @@ flutter config --enable-windows-desktop
 ```powershell
 # Run PowerShell as Administrator and try:
 Set-ExecutionPolicy Bypass -Scope Process -Force
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
 
@@ -281,8 +280,8 @@ After setup completion:
 
 - **[Developer Onboarding Guide](DEVELOPER_ONBOARDING.md)** - Comprehensive development guide
 - **[Building Guide](BUILDING_GUIDE.md)** - Platform-specific build instructions
-- **[PowerShell Scripts README](../../scripts/powershell/README.md)** - PowerShell utilities documentation
-- **[Development Workflow](../DEVELOPMENT_WORKFLOW.md)** - Daily development practices
+- **[PowerShell Scripts README](scripts/powershell/README.md)** - PowerShell utilities documentation
+- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - Daily development practices
 
 ---
 

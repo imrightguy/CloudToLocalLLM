@@ -2,7 +2,7 @@
 
 **⚠️ DEVELOPMENT/TESTING ONLY**: This Docker Compose deployment is suitable for development, testing, and small-scale deployments. For production use, **Kubernetes deployment is strongly recommended**.
 
-> **Current orientation**: CloudToLocalLLM is runtime-neutral and Tailscale-first. Docker Compose deployment documents may still describe older WebSocket tunnel flows; use those as fallback/migration references unless the deployment explicitly depends on them.
+> **Current orientation**: CloudToLocalLLM is agent-runtime-first and Tailscale-first. The setup wizard selects an agent runtime such as Hermes, OpenClaw, a compatible custom agent gateway, or an optional hosted runtime. Ollama, LM Studio, and similar model servers are support model providers, not primary app runtimes. Docker Compose deployment documents may still describe older WebSocket tunnel flows; use those as fallback/migration references unless the deployment explicitly depends on them.
 
 See [Deployment Overview](DEPLOYMENT_OVERVIEW.md) for all deployment options.
 

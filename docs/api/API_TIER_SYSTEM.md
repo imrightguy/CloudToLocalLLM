@@ -4,7 +4,7 @@
 
 The CloudToLocalLLM API now supports a tier-based architecture that provides different levels of functionality based on user subscription levels. This document outlines the tier system, available endpoints, and usage patterns.
 
-> **Orientation note**: This document still contains older Ollama/direct-proxy endpoint examples. Current product direction is runtime-neutral and Tailscale-first. Tier policy should apply to selected runtimes, optional cloud connectors, and optional paid hosted runtime containers rather than assuming Ollama is the only local runtime.
+> **Orientation note**: This document still contains older Ollama/direct-proxy endpoint examples. Current product direction is agent-runtime-first and Tailscale-first. Tier policy should apply to selected agent runtimes, optional cloud connectors, optional support model providers, and optional paid hosted agent runtime containers rather than assuming Ollama is a primary local agent runtime.
 
 ## User Tiers
 
@@ -12,7 +12,7 @@ The CloudToLocalLLM API now supports a tier-based architecture that provides dif
 
 - **Direct tunnel access** without container orchestration
 - **No Docker required** on user's machine
-- **Single connection** to the selected local/runtime endpoint
+- **Single connection** to the selected local agent runtime endpoint
 - **Basic features** with upgrade prompts for advanced functionality
 
 ### Premium Tier
@@ -91,7 +91,7 @@ Health check for direct proxy service.
 
 #### ALL `/api/direct-proxy/:userId/ollama/*`
 
-Historical direct proxy to a local Ollama instance for free tier users. New runtime-neutral designs should expose the selected runtime path instead of assuming Ollama.
+Historical direct proxy to a local Ollama instance for free tier users. New agent-runtime designs should expose the selected agent runtime path instead of assuming Ollama.
 
 **Security:**
 
@@ -272,7 +272,7 @@ const tierInfo = await fetch('/api/user/tier', {
 }).then(r => r.json());
 
 if (tierInfo.tier === 'free') {
-  // 2. Use direct proxy for Ollama access
+  // 2. Use legacy direct proxy for Ollama support-model access
   const models = await fetch(`/api/direct-proxy/${userId}/ollama/api/tags`, {
     headers: { 'Authorization': `Bearer ${token}` }
   }).then(r => r.json());
@@ -350,7 +350,7 @@ const response = await fetch(`/api/tunnel/${userId}/ollama/api/generate`, {
    - Review firewall and network settings
 
 3. **"Request timeout"**
-   - Check local Ollama instance status
+   - Check selected agent runtime status, or the support model provider if using a legacy direct-proxy path
    - Verify network connectivity
    - Review timeout configuration
 

@@ -1,8 +1,10 @@
 # CloudToLocalLLM Setup Guide
 
-CloudToLocalLLM is a privacy-first companion shell for a runtime you choose during setup. It can connect to Hermes, OpenClaw, LM Studio, Ollama, or another compatible endpoint running on this device, another device in your tailnet, or an optional hosted runtime.
+CloudToLocalLLM is a privacy-first companion shell for an agent runtime you choose during setup. It can connect to Hermes, OpenClaw, or another compatible agent gateway running on this device, another device in your tailnet, or an optional hosted agent runtime.
 
-There is no universal default runtime. Hermes is the first runtime path used for current testing. OpenClaw remains supported as the original integration target.
+There is no universal default runtime. Hermes is the first agent runtime path used for current testing. OpenClaw remains supported as the original agent integration target.
+
+Ollama, LM Studio, and similar local model servers are optional support model providers for app-owned memory and background features. They are not the main agent endpoint.
 
 ---
 
@@ -12,16 +14,17 @@ There is no universal default runtime. Hermes is the first runtime path used for
 | --- | --- | --- |
 | OS | Windows 10+, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04+ |
 | RAM | 8 GB | 16 GB+ |
-| GPU | None | NVIDIA GPU for local model acceleration |
-| Storage | 500 MB app space | 2 GB+ plus model storage |
-| Runtime | Hermes, OpenClaw, LM Studio, Ollama, or compatible endpoint | Hermes for current test path |
-| Secure mesh | Optional | Tailscale for multi-device and remote runtime paths |
+| GPU | None | GPU for local agent runtime or support model acceleration |
+| Storage | 500 MB app space | 2 GB+ plus model/agent runtime storage |
+| Agent runtime | Hermes, OpenClaw, or compatible agent gateway | Hermes for current test path |
+| Support model provider | Optional | Ollama or LM Studio for memory/background features |
+| Secure mesh | Optional | Tailscale for multi-device and remote agent runtime paths |
 
-Cloud features are optional. Local runtime use should work without a CloudToLocalLLM-hosted runtime.
+Cloud features are optional. Local agent runtime use should work without a CloudToLocalLLM-hosted agent runtime.
 
 ---
 
-## Step 1: Choose A Runtime
+## Step 1: Choose An Agent Runtime
 
 Choose where your agent runtime will run before or during the setup wizard.
 
@@ -31,7 +34,7 @@ Use Hermes first when validating the current CloudToLocalLLM direction. Install 
 
 ### OpenClaw Gateway
 
-OpenClaw was the original runtime integration and remains supported.
+OpenClaw was the original agent runtime integration and remains supported.
 
 Typical local endpoint:
 
@@ -45,9 +48,19 @@ Health check:
 curl http://localhost:18789/health
 ```
 
-### LM Studio
+### Custom Agent Gateway
 
-LM Studio provides an OpenAI-compatible local endpoint.
+Use a custom endpoint for a private server, local gateway, or compatible agent runtime API. For remote runtimes, prefer putting the runtime device inside your Tailscale tailnet.
+
+Do not use raw Ollama or LM Studio endpoints here. They are support model providers unless wrapped by an agent runtime.
+
+---
+
+## Step 2: Optional Local Model Support
+
+Configure a local model provider only if you want CloudToLocalLLM app features to use it for memory or background intelligence.
+
+### LM Studio
 
 Typical local endpoint:
 
@@ -63,8 +76,6 @@ curl http://localhost:1234/v1/models
 
 ### Ollama
 
-Ollama can be used as a local model runtime.
-
 Typical local endpoint:
 
 ```bash
@@ -77,13 +88,24 @@ Model check:
 curl http://localhost:11434/api/tags
 ```
 
-### Custom Runtime
+Allowed uses:
 
-Use a custom endpoint for a private server, local gateway, or compatible OpenAI-style API. For remote runtimes, prefer putting the runtime device inside your Tailscale tailnet.
+- memory embeddings
+- conversation summaries
+- semantic search
+- local classification
+- OCR cleanup
+- speech helpers where supported
+
+Not allowed:
+
+- main agent channel target
+- desktop-control authority
+- substitute for Hermes/OpenClaw/custom agent gateway setup
 
 ---
 
-## Step 2: Install CloudToLocalLLM
+## Step 3: Install CloudToLocalLLM
 
 ### Download
 
@@ -113,19 +135,18 @@ cloudtolocalllm
 
 ---
 
-## Step 3: Complete The Setup Wizard
+## Step 4: Complete The Setup Wizard
 
 The setup wizard is the authority for the first working configuration.
 
-### Runtime Selection
+### Agent Runtime Selection
 
-Select the runtime you want this device to use:
+Select the agent runtime this device should use:
 
 - Hermes
 - OpenClaw Gateway
-- LM Studio
-- Ollama
-- Custom endpoint
+- Custom compatible agent gateway
+- Optional hosted agent runtime
 
 ### Runtime Location
 
@@ -134,17 +155,27 @@ Choose where that runtime lives:
 - This computer
 - Another device in your Tailscale tailnet
 - A private server or VPS in your tailnet
-- Optional CloudToLocalLLM-hosted runtime container
+- Optional CloudToLocalLLM-hosted agent runtime container
 
 ### Connection Test
 
 The wizard checks:
 
 - Runtime health
-- Available models
+- Agent session support
+- Tool/capability support
 - Streaming support
 - Voice and vision capabilities when exposed
 - Network reachability through localhost, LAN, Tailscale, or custom URL
+
+### Optional Support Model Provider
+
+Choose whether app-owned background features may use:
+
+- None
+- Ollama
+- LM Studio
+- Custom local model endpoint
 
 ### Desktop Permissions
 
@@ -165,15 +196,15 @@ These permissions are device-scoped. Syncing your account does not automatically
 Enable account-backed sync if you want:
 
 - Conversation state across installed devices
-- Runtime presence and device availability
+- Agent runtime presence and device availability
 - Shared avatar preferences
 - Web or mobile access through a connector
 
 ---
 
-## Step 4: Configure Tailscale For Remote Devices
+## Step 5: Configure Tailscale For Remote Devices
 
-Tailscale is the preferred secure transport for remote runtime and multi-device usage.
+Tailscale is the preferred secure transport for remote agent runtime and multi-device usage.
 
 1. Install Tailscale on each device that should participate.
 2. Sign in to the same tailnet.
@@ -184,55 +215,52 @@ tailscale status
 tailscale ping <runtime-device-name>
 ```
 
-4. In CloudToLocalLLM, choose the runtime device or enter its tailnet endpoint.
+4. In CloudToLocalLLM, choose the agent runtime device or enter its tailnet endpoint.
 
 ### Cloud Connector
 
 For web/mobile access or cloud coordination, CloudToLocalLLM should add an isolated per-user connector container to the user's tailnet. That connector coordinates sync and reachability. It does not grant desktop permissions by itself.
 
-### Hosted Runtime
+### Hosted Agent Runtime
 
 Running the agent runtime in CloudToLocalLLM-hosted infrastructure is an optional paid compute path. It should use a per-user isolated container and join the user's tailnet only after setup approval.
 
 ---
 
-## Step 5: Verify The Setup
+## Step 6: Verify The Setup
 
 1. Open CloudToLocalLLM.
-2. Confirm the main channel shows a connected runtime.
+2. Confirm the main channel shows a connected agent runtime.
 3. Send a short test message.
 4. Open the avatar/voice companion sidecar.
 5. If using desktop control, run a low-risk permission test such as screenshot or notification.
 6. If using Tailscale, test from a second device.
-
----
-
-## System Tray
-
-On desktop platforms, CloudToLocalLLM can run from the system tray.
-
-- Show or hide the main window.
-- Open the avatar/voice companion.
-- View connection status.
-- Open settings.
-- Quit the app.
+7. If using a local model provider, run a memory/support-model health check from settings.
 
 ---
 
 ## Troubleshooting
 
-### Runtime Not Found
+### Agent Runtime Not Found
 
-- Confirm the runtime is running.
+- Confirm the agent runtime is running.
 - Check the endpoint and port.
 - Use the wizard connection test.
 - For remote runtimes, confirm Tailscale connectivity.
+- Confirm you did not enter an Ollama/LM Studio endpoint as the agent runtime.
 
 ### Hermes Path Not Working
 
 - Verify the Hermes service is running.
 - Confirm the endpoint configured in the wizard.
 - Check whether Hermes exposes the capabilities required by the selected feature.
+
+### Local Model Provider Not Working
+
+- Confirm the local model server is running.
+- Check the support model provider settings.
+- Test the model endpoint directly.
+- Confirm the feature you are using is allowed to use local model support.
 
 ### Remote Device Not Reachable
 
@@ -241,7 +269,7 @@ tailscale status
 tailscale ping <device-name-or-ip>
 ```
 
-Confirm both devices are in the same tailnet and that the runtime is listening on the expected interface.
+Confirm both devices are in the same tailnet and that the agent runtime is listening on the expected interface.
 
 ### Desktop Control Not Working
 

@@ -1,6 +1,6 @@
 # CloudToLocalLLM – Architecture Codemap (Reorganized)
 
-> **Status**: Historical codemap for the older Ollama/tunnel-centered implementation. The current orientation is runtime-neutral and Tailscale-first: the setup wizard selects Hermes, OpenClaw, LM Studio, Ollama, or a custom endpoint; Hermes is the first current test path; OpenClaw remains supported; custom tunnel components are legacy/fallback. See [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) and [SECURE_DEVICE_MESH.md](SECURE_DEVICE_MESH.md) for the current architecture.
+> **Status**: Historical codemap for the older Ollama/tunnel-centered implementation. The current orientation is agent-runtime-first and Tailscale-first: the setup wizard selects an agent runtime such as Hermes, OpenClaw, a compatible custom agent gateway, or an optional hosted agent runtime; Ollama and LM Studio are support model providers only unless wrapped by a compatible agent runtime; custom tunnel components are legacy/fallback. See [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md), [AGENT_RUNTIME_CONTRACT.md](AGENT_RUNTIME_CONTRACT.md), and [SECURE_DEVICE_MESH.md](SECURE_DEVICE_MESH.md) for the current architecture.
 
 ## Trace 0: System Overview
 
@@ -10,7 +10,7 @@ High-level map of the major subsystems and their responsibilities.
   - Bootstrap & DI (Trace 1)
   - Auth & Authenticated Services (Trace 2)
   - Connection Orchestration (Trace 3)
-  - Runtime Connection (legacy Ollama trace in Trace 4)
+  - Agent Runtime Connection (legacy Ollama trace in Trace 4)
   - Secure Transport (legacy tunnel trace in Trace 5)
   - Chat Message & Streaming (Trace 6)
   - User Tier Management (Trace 8 – client)
@@ -129,8 +129,8 @@ User Authentication & Service Loading Flow
 
 ## Trace 3: Connection Orchestration (ConnectionManagerService)
 
-**Title:** Connection Orchestration & Connection Type Selection  
-**Description:** Single decision point that historically chose between local Ollama, cloud tunnel, or no connection. Current design generalizes this to the selected runtime and prefers Tailscale for secure remote reachability.
+**Title:** Connection Orchestration & Agent Runtime Selection
+**Description:** Single decision point that historically chose between local Ollama, cloud tunnel, or no connection. Current design generalizes this to the selected agent runtime and prefers Tailscale for secure remote reachability.
 
 ### Flow
 
@@ -138,11 +138,11 @@ User Authentication & Service Loading Flow
 Connection Orchestration Flow
 ├── ConnectionManagerService initialization             <-- 3d
 │   ├── Injected services:
-│   │   ├── LocalOllamaConnectionService
+│   │   ├── Agent runtime discovery/session services
 │   │   ├── TunnelService
 │   │   ├── AuthService
-│   │   └── OllamaService / LangChain providers
-│   ├── _localOllama.addListener(_onConnectionChanged)
+│   │   └── Support model provider services
+│   ├── runtime session listeners
 │   ├── _tunnelService.addListener(_onConnectionChanged)
 │   └── _authService.addListener(_onAuthChanged)
 │
@@ -156,8 +156,8 @@ Connection Orchestration Flow
 │
 ├── Streaming Service Selection                         <-- 5c
 │   └── getStreamingService()
-│       ├── local → LocalOllamaStreamingService
-│       ├── cloud → CloudStreamingService
+│       ├── local agent runtime → agent runtime streaming service
+│       ├── cloud/remote agent runtime → authenticated runtime stream
 │       └── none → null (UI handles disabled state)
 │
 └── Model List & State Propagation
@@ -183,10 +183,10 @@ Connection Orchestration Flow
 
 ---
 
-## Trace 4: Local Runtime Connection (Legacy Ollama Trace)
+## Trace 4: Local Support Model Provider Connection (Legacy Ollama Trace)
 
-**Title:** Desktop Local Runtime Connection Flow
-**Description:** Historical desktop-only flow for connecting directly to a localhost Ollama instance; disabled on web to avoid CORS issues. Current design keeps Ollama as one provider path and adds Hermes, OpenClaw, LM Studio, and custom endpoints through setup wizard runtime selection.
+**Title:** Desktop Local Support Model Provider Connection Flow
+**Description:** Historical desktop-only flow for connecting directly to a localhost Ollama instance; disabled on web to avoid CORS issues. Current design keeps Ollama as a support model provider path for memory/background features. Hermes, OpenClaw, compatible custom agent gateways, and optional hosted agent runtimes satisfy primary setup through the Agent Runtime Contract.
 
 ### Flow
 
@@ -228,7 +228,7 @@ Desktop Local Ollama Connection Flow
 ## Trace 5: Cloud Tunnel Establishment (Legacy/Fallback)
 
 **Title:** Cloud Tunnel Establishment (Web/Remote)  
-**Description:** SSH tunnel setup path used by older web clients or remote desktop flows when local Ollama was not available or not preferred. Current design should prefer Tailscale and the secure device mesh.
+**Description:** SSH tunnel setup path used by older web clients or remote desktop flows when local Ollama was not available or not preferred. Current design should prefer Tailscale, the secure device mesh, and selected agent runtime paths.
 
 ### Flow
 
@@ -281,8 +281,8 @@ Cloud Tunnel Connection Flow
 
 ## Trace 6: Chat Message Send & Streaming Response
 
-**Title:** Chat Message Flow – Local or Cloud  
-**Description:** End-to-end message flow from the Home screen through ConnectionManager to Ollama (local or cloud) with streaming responses surfaced back to the UI.
+**Title:** Chat Message Flow - Agent Runtime
+**Description:** Historical end-to-end message flow from the Home screen through ConnectionManager to Ollama. Current design routes the main chat channel through the selected agent runtime; Ollama/LM Studio paths are support-model or legacy fallback paths.
 
 ### Flow
 
@@ -304,15 +304,15 @@ Chat Message Flow
 ├── ConnectionManagerService                            (Trace 3)
 │   ├── getBestConnectionType()
 │   └── getStreamingService()
-│       ├── local → LocalOllamaStreamingService
-│       └── cloud → CloudStreamingService
+│       ├── local agent runtime → agent runtime streaming service
+│       └── cloud/remote agent runtime → authenticated runtime stream
 │
 ├── Cloud Path (when cloud selected)
-│   ├── OllamaService._buildRequestHeaders()            <-- 5d
+│   ├── Runtime/service client builds request headers   <-- 5d
 │   │   └── getValidatedAccessToken() from AuthService
 │   ├── Sends HTTP request to API backend
 │   └── API Backend authenticateToken middleware        <-- 5e
-│       └── Proxies to streaming proxy / Ollama
+│       └── Proxies to selected agent runtime or legacy provider path
 └── UI Streaming Updates
     └── _streamingContentSubject emits tokens           <-- 5f
         └── StreamBuilder updates chat UI in real time

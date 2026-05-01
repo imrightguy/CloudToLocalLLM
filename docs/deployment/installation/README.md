@@ -2,7 +2,9 @@
 
 This directory contains platform-specific installation guides for CloudToLocalLLM.
 
-CloudToLocalLLM does not require one default runtime. During first launch, the setup wizard connects the app to Hermes, OpenClaw, LM Studio, Ollama, or another compatible runtime. Hermes is the first runtime path for current testing.
+CloudToLocalLLM does not require one default runtime. During first launch, the setup wizard connects the app to an agent runtime such as Hermes, OpenClaw, or a compatible custom agent gateway. Hermes is the first agent runtime path for current testing.
+
+Ollama, LM Studio, and similar model servers are optional support model providers for memory and background app features. They are not primary app runtimes.
 
 ---
 
@@ -16,23 +18,32 @@ CloudToLocalLLM does not require one default runtime. During first launch, the s
 
 ## Prerequisites
 
-### Runtime
+### Agent Runtime
 
-Install or prepare at least one runtime before completing setup:
+Install or prepare at least one agent runtime before completing setup:
 
 | Runtime | Typical Endpoint | Notes |
 | --- | --- | --- |
-| Hermes | Configured in wizard | First runtime path for current testing |
+| Hermes | Configured in wizard | First agent runtime path for current testing |
 | OpenClaw Gateway | `http://localhost:18789` | Supported original integration |
-| LM Studio | `http://localhost:1234` | OpenAI-compatible local runtime |
-| Ollama | `http://localhost:11434` | Local model runtime |
-| Custom endpoint | User supplied | Private server, VPS, or compatible API |
+| Custom agent gateway | User supplied | Private server, VPS, or compatible agent runtime API |
+| Hosted agent runtime | CloudToLocalLLM managed | Optional paid compute |
 
-Most users should run the runtime locally or on another machine they control. Running a runtime in CloudToLocalLLM-hosted infrastructure is optional paid compute and should use an isolated per-user container.
+Most users should run the agent runtime locally or on another machine they control. Running an agent runtime in CloudToLocalLLM-hosted infrastructure is optional paid compute and should use an isolated per-user container.
+
+### Optional Support Model Provider
+
+Configure a support model provider only if app-owned features need local model help:
+
+| Provider | Typical Endpoint | Use |
+| --- | --- | --- |
+| LM Studio | `http://localhost:1234` | Local model support for app features |
+| Ollama | `http://localhost:11434` | Local model support for memory/background features |
+| Custom model endpoint | User supplied | Local support model provider |
 
 ### Secure Device Mesh
 
-Tailscale is recommended for remote runtimes and multi-device sync.
+Tailscale is recommended for remote agent runtimes and multi-device sync.
 
 1. Install Tailscale on each device.
 2. Sign in to the same tailnet.
@@ -48,7 +59,7 @@ The cloud connector, when enabled, should join the user's tailnet as an isolated
 ### System Requirements
 
 - RAM: minimum 4 GB, recommended 8 GB+
-- Storage: 2 GB for the app plus model storage for local runtimes
+- Storage: 2 GB for the app plus storage for local agent runtimes/models
 - Network: internet for downloads, account sync, and optional cloud features
 - OS: see the platform-specific guide for detailed requirements
 
@@ -56,11 +67,15 @@ The cloud connector, when enabled, should join the user's tailnet as an isolated
 
 ## Installation Overview
 
-### 1. Prepare A Runtime
+### 1. Prepare An Agent Runtime
 
-Start Hermes, OpenClaw, LM Studio, Ollama, or another compatible endpoint on this device or a reachable tailnet device.
+Start Hermes, OpenClaw, or another compatible agent gateway on this device or a reachable tailnet device.
 
-### 2. Install CloudToLocalLLM
+### 2. Optionally Prepare A Support Model Provider
+
+Start Ollama, LM Studio, or a custom local model endpoint only if you want memory or background features to use it.
+
+### 3. Install CloudToLocalLLM
 
 Choose the platform-specific installation method:
 
@@ -69,21 +84,22 @@ Choose the platform-specific installation method:
 - Windows installer or portable build on Windows
 - Source build for development
 
-### 3. Complete First-Time Setup
+### 4. Complete First-Time Setup
 
 The setup wizard will:
 
-- Select the runtime
+- Select the agent runtime
 - Test connectivity
-- Detect available models and capabilities
+- Detect sessions, tools, and capabilities where supported
+- Configure optional local model support
 - Configure desktop permissions on this device
 - Offer optional Tailscale-based device sync
 
-### 4. Open The Main Channel
+### 5. Open The Main Channel
 
-The main window opens as the secure channel to the selected runtime. Runtime and agent management stays available in setup, settings, and management views.
+The main window opens as the secure channel to the selected agent runtime. Agent/runtime management stays available in setup, settings, and management views.
 
-### 5. Optional Companion And Mesh
+### 6. Optional Companion And Mesh
 
 - Open the avatar/voice companion as a sidecar window.
 - Enable account sync for conversations and presence.
@@ -107,6 +123,7 @@ The main window opens as the secure channel to the selected runtime. Runtime and
 - [Setup Guide](../../user-guide/SETUP_GUIDE.md)
 - [User Guide](../../user-guide/USER_GUIDE.md)
 - [Troubleshooting](../../user-guide/TROUBLESHOOTING.md)
+- [Agent Runtime Contract](../../architecture/AGENT_RUNTIME_CONTRACT.md)
 - [Secure Device Mesh](../../architecture/SECURE_DEVICE_MESH.md)
 - [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
 - [GitHub Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)
@@ -122,7 +139,7 @@ The main window opens as the secure channel to the selected runtime. Runtime and
 
 ### Manual Updates
 
-Download the latest release and install it over the existing app. Settings, local data, and configured runtime endpoints should be preserved.
+Download the latest release and install it over the existing app. Settings, local data, and configured agent runtime/support model endpoints should be preserved.
 
 ---
 

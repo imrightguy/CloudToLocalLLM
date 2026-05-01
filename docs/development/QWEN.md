@@ -2,16 +2,17 @@
 
 ## Project Overview
 
-CloudToLocalLLM is a revolutionary Flutter-based application that bridges the gap between cloud-based AI services and local AI models. It provides a seamless, secure, and efficient way to interact with various AI models while maintaining complete control over your data and privacy.
+CloudToLocalLLM is a Flutter-based, privacy-first companion and desktop control plane for user-owned agent runtimes. The main app channel connects to an agent runtime such as Hermes, OpenClaw, a compatible custom agent gateway, or an optional hosted agent runtime while maintaining user control over data and device permissions.
 
-The project uses a hybrid architecture supporting both cloud-based (OpenAI, Anthropic) and local AI models (via Ollama). It's built with Flutter for cross-platform support (Windows, Linux, Web) and incorporates secure authentication, real-time communication via WebSockets, and end-to-end encryption.
+The project uses an agent-runtime-first architecture. Ollama, LM Studio, and similar local model servers are optional support model providers for memory/background features, not primary app runtimes. It's built with Flutter for cross-platform support (Windows, Linux, Web) and incorporates secure authentication, real-time communication, and encrypted local storage.
 
 ### Key Technologies
 
 - **Flutter 3.8+** - Cross-platform UI framework
 - **Dart** - Primary programming language
 - **Node.js** - Development and testing environment
-- **Ollama** - Local AI model support
+- **Hermes/OpenClaw** - Agent runtime integration
+- **Ollama/LM Studio** - Optional support model providers
 - **WebSocket** - Real-time communication
 - **OAuth2** - Secure authentication
 
@@ -43,7 +44,8 @@ The project uses a hybrid architecture supporting both cloud-based (OpenAI, Anth
 - Flutter SDK (3.8 or higher)
 - Node.js (for development and testing)
 - Git (for version control)
-- Ollama (optional, for local AI models)
+- Agent runtime such as Hermes, OpenClaw, or a compatible gateway
+- Ollama or LM Studio (optional, for support model features)
 
 ### Installation
 
@@ -124,12 +126,12 @@ The project uses a comprehensive CI/CD pipeline:
 
 ## Key Features
 
-1. **Hybrid AI Architecture**: Seamlessly switch between cloud-based and local AI models
+1. **Agent Runtime Architecture**: Connect the main app channel to a selected agent runtime
 2. **Privacy-First Design**: Keep sensitive data local while leveraging cloud AI when needed
 3. **Cross-Platform Support**: Available on Windows, Linux, and Web platforms
 4. **Secure Authentication**: OAuth2-based authentication with encrypted token storage
 5. **Real-Time Communication**: WebSocket-based tunneling for instant AI responses
-6. **Model Flexibility**: Support for OpenAI, Anthropic, and local Ollama models
+6. **Support Model Flexibility**: Optional local model providers for memory and background app features
 7. **User-Friendly Interface**: Intuitive Flutter-based UI with responsive design
 
 ## Configuration
@@ -155,9 +157,9 @@ OAUTH_CLIENT_ID=your_client_id
 OAUTH_CLIENT_SECRET=your_client_secret
 ```
 
-### Local AI Models
+### Support Model Providers
 
-To use local AI models with Ollama:
+To use optional support model features with Ollama:
 
 ```bash
 # Install Ollama

@@ -352,7 +352,7 @@ Get detailed health information for debugging.
 
 ## 🚇 **Simplified Tunnel System API**
 
-> **Status**: Legacy/fallback API surface. Current connectivity design should prefer the Tailscale secure device mesh and runtime-neutral setup wizard. Keep this section for existing tunnel maintenance and migration reference.
+> **Status**: Legacy/fallback API surface. Current connectivity design should prefer the Tailscale secure device mesh and agent-runtime-first setup wizard. Keep this section for existing tunnel maintenance and migration reference. Ollama examples in this section describe the older direct-provider path, not the primary app runtime contract.
 
 ### **Overview**
 

@@ -2,7 +2,7 @@
 
 This document provides a comprehensive overview of deployment options and strategies for CloudToLocalLLM.
 
-> **Current orientation**: CloudToLocalLLM is runtime-neutral and Tailscale-first. The setup wizard selects Hermes, OpenClaw, LM Studio, Ollama, or a compatible endpoint. Cloud deployment should focus on account sync, presence, web/mobile access, and optional per-user hosted runtime containers. Legacy streaming-proxy/tunnel components remain fallback architecture unless a deployment specifically depends on them.
+> **Current orientation**: CloudToLocalLLM is agent-runtime-first and Tailscale-first. The setup wizard selects an agent runtime such as Hermes, OpenClaw, a compatible custom agent gateway, or an optional hosted runtime. Ollama, LM Studio, and similar model servers are support model providers for app-owned memory/background features, not primary app runtimes. Cloud deployment should focus on account sync, presence, web/mobile access, per-user cloud connectors, and optional per-user hosted agent runtime containers. Legacy streaming-proxy/tunnel components remain fallback architecture unless a deployment specifically depends on them.
 
 ## 📋 Table of Contents
 
@@ -93,7 +93,7 @@ CloudToLocalLLM features a modern multi-container architecture that provides:
 - `flutter-app`: The unified Flutter web application (UI, chat, marketing pages)
 - `api-backend`: Core API, authentication, and streaming proxy management
 - `tailscale-relay` / cloud connector: secure device mesh integration
-- `streaming-proxy` (ephemeral): legacy/fallback proxies for user-to-local-LLM communication
+- `streaming-proxy` (ephemeral): legacy/fallback proxies for older user-to-local-provider communication
 - `certbot`: Automated SSL certificate management
 
 For detailed information, see [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md).
