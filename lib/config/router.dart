@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../config/app_config.dart';
 import '../services/auth_service.dart';
 import '../services/streaming_chat_service.dart';
 import '../di/locator.dart';
@@ -201,11 +200,6 @@ class _HomeWithSetupCheckState extends State<_HomeWithSetupCheck> {
   }
 
   Future<void> _checkSetupNeeded() async {
-    if (!AppConfig.forceSetupWizard) {
-      debugPrint('[Router] Setup wizard disabled, skipping check');
-      return;
-    }
-
     try {
       final setupWizardService = serviceLocator<SetupWizardService>();
       final shouldShow = await setupWizardService.shouldShowWizard();

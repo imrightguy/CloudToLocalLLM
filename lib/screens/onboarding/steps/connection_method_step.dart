@@ -46,12 +46,11 @@ class ConnectionMethodStep extends StatelessWidget {
                     icon: Icons.hub,
                     title: 'OpenClaw Gateway',
                     description: 'OpenClaw Gateway running locally or remote',
-                    selected:
-                        wizard.state.selectedMethod == ConnectionMethod.local ||
+                    selected: wizard.state.selectedMethod ==
+                            ConnectionMethod.local ||
                         wizard.state.selectedMethod ==
                             ConnectionMethod.tailscale ||
-                        wizard.state.selectedMethod ==
-                            ConnectionMethod.custom,
+                        wizard.state.selectedMethod == ConnectionMethod.custom,
                     onTap: () =>
                         wizard.selectConnectionMethod(ConnectionMethod.local),
                   ),

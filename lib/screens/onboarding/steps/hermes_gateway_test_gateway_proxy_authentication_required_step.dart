@@ -1,15 +1,17 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyAuthenticationRequiredStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyAuthenticationRequiredStep');
+class HermesGatewayTestGatewayProxyAuthenticationRequiredStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyAuthenticationRequiredStep({super.key});
 
-class HermesGatewayTestGatewayProxyAuthenticationRequiredStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyAuthenticationRequiredStep> createState() =>
-      _HermesGatewayTestGatewayProxyAuthenticationRequiredState();
+  State<HermesGatewayTestGatewayProxyAuthenticationRequiredStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyAuthenticationRequiredState();
 }
 
 class _HermesGatewayTestGatewayProxyAuthenticationRequiredState

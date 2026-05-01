@@ -69,6 +69,9 @@ import 'package:cloudtolocalllm/services/vision/vision_service.dart';
 import 'package:cloudtolocalllm/services/vision/region_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/camera_capture_service.dart';
 import 'package:cloudtolocalllm/services/vision/ocr_engine_service.dart';
+import 'package:cloudtolocalllm/services/voice/cloud_tts_service.dart';
+import 'package:cloudtolocalllm/services/voice/hermes_voice_bridge_service.dart';
+import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 import 'package:cloudtolocalllm/services/desktop_control/window_manager_service.dart';
 import 'package:cloudtolocalllm/services/popout/popout_manager.dart';
 import 'package:cloudtolocalllm/services/auto_update_service.dart';
@@ -233,6 +236,7 @@ Future<void> setupCoreServices() async {
         personalityEngine: personalityEngine,
         evolutionTracker: evolutionTracker,
         conscienceStorage: conscienceStorageService,
+        ttsService: CloudTtsService(),
       );
       serviceLocator.registerSingleton<RouterServer>(routerServer);
 
@@ -240,6 +244,19 @@ Future<void> setupCoreServices() async {
       final hermesStreamingService = HermesStreamingService();
       serviceLocator
           .registerSingleton<HermesStreamingService>(hermesStreamingService);
+
+      final voiceConversationService = VoiceConversationService();
+      serviceLocator.registerLazySingleton<VoiceConversationService>(
+        () => voiceConversationService,
+      );
+
+      final hermesVoiceBridgeService = HermesVoiceBridgeService(
+        voiceConversationService: voiceConversationService,
+      );
+      serviceLocator.registerSingleton<HermesVoiceBridgeService>(
+        hermesVoiceBridgeService,
+      );
+      hermesVoiceBridgeService.start();
 
       // Start the router server in the background.
       unawaited(routerServer.start());
@@ -705,7 +722,8 @@ Future<void> setupAuthenticatedServices() async {
 
     // Connection Manager - requires authentication for tunnel/cloud connections
     final gatewayControlService = serviceLocator.get<GatewayControlService>();
-    final hermesGatewayControlService = serviceLocator.get<HermesGatewayControlService>();
+    final hermesGatewayControlService =
+        serviceLocator.get<HermesGatewayControlService>();
     final connectionManager = ConnectionManagerService(
       openclawGatewayService: gatewayControlService,
       hermesGatewayService: hermesGatewayControlService,

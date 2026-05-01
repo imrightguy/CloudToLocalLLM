@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../config/theme.dart';
+import '../../di/locator.dart' as di;
 import '../../models/chat_model.dart';
 import '../../services/streaming_chat_service.dart';
 import '../../services/platform_detection_service.dart';
@@ -15,8 +16,11 @@ import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
 import '../../widgets/chat/model_selector.dart';
 import '../../widgets/chat/chat_control_bar.dart';
+import '../../widgets/voice/open_voice_ui_control_panel.dart';
+import '../../widgets/voice/voice_conversation_status_card.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
+import '../../services/voice/voice_conversation_service.dart';
 
 import '../../components/glass_container.dart';
 import '../../components/welcome_screen.dart';
@@ -249,6 +253,18 @@ class _ChatPaneState extends State<_ChatPane> {
                 selectedModel: activeModel,
                 availableModels: availableModels,
                 onModelChanged: _onModelChanged,
+              ),
+            if (!_focusMode &&
+                di.serviceLocator.isRegistered<VoiceConversationService>())
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Column(
+                  children: [
+                    VoiceConversationStatusCard(showDemoControls: false),
+                    SizedBox(height: 12),
+                    OpenVoiceUIControlPanel(),
+                  ],
+                ),
               ),
             Expanded(
               child: conversation != null && conversation.messages.isNotEmpty

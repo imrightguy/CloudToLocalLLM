@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayLogsStep extends StatefulWidget {
+  const HermesGatewayLogsStep({super.key});
+
   @override
   State<HermesGatewayLogsStep> createState() => _HermesGatewayLogsStepState();
 }
@@ -12,8 +13,7 @@ class _HermesGatewayLogsStepState extends State<HermesGatewayLogsStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children:
-          ListTile.divideTiles(context: context, tiles: [
+      children: ListTile.divideTiles(context: context, tiles: [
         Text(
           'Gateway Logs',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyPr
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection lost - checking network...');
+            _log.info(
+                'Proxy target proxy connection lost - checking network...');
           },
           icon: const Icon(Icons.wifi),
           label: const Text('Check Network Connection'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyProxyProxyPr
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection lost - restarting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection lost - restarting target proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.refresh),

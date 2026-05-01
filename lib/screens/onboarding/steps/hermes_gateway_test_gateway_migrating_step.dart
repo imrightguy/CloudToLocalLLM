@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayTestGatewayMigratingStep');
 
 class HermesGatewayTestGatewayMigratingStep extends StatefulWidget {
+  const HermesGatewayTestGatewayMigratingStep({super.key});
+
   @override
   State<HermesGatewayTestGatewayMigratingStep> createState() =>
       _HermesGatewayTestGatewayMigratingState();

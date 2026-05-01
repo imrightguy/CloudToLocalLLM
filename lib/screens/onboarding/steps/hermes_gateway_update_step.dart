@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayUpdateStep extends StatefulWidget {
+  const HermesGatewayUpdateStep({super.key});
+
   @override
   State<HermesGatewayUpdateStep> createState() =>
       _HermesGatewayUpdateStepState();

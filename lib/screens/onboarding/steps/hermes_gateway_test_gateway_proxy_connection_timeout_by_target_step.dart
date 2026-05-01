@@ -1,15 +1,17 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep');
+class HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep({super.key});
 
-class HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetState();
+  State<HermesGatewayTestGatewayProxyConnectionTimeoutByTargetStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetState

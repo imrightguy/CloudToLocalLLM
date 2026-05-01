@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyP
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection reset - restarting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection reset - restarting target proxy server...');
           },
           icon: const Icon(Icons.refresh),
           label: const Text('Restart Target Proxy Server'),

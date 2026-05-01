@@ -1,15 +1,14 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayMetricsStep extends StatefulWidget {
+  const HermesGatewayMetricsStep({super.key});
+
   @override
   State<HermesGatewayMetricsStep> createState() =>
       _HermesGatewayMetricsStepState();
 }
 
 class _HermesGatewayMetricsStepState extends State<HermesGatewayMetricsStep> {
-  String _metrics = 'Uptime: 99.9%\nLatency: 120ms\nRequests: 1,234\nErrors: 0';
-
   @override
   Widget build(BuildContext context) {
     return Column(

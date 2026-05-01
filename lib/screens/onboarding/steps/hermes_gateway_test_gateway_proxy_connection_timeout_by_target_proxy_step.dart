@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep');
+class HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -39,7 +43,8 @@ class _HermesGatewayTestGatewayProxyConnectionTimeoutByTargetProxyState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Target proxy connection timeout - checking proxy load...');
+            _log.info(
+                'Target proxy connection timeout - checking proxy load...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.show_chart),

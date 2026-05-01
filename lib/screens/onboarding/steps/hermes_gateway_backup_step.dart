@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayBackupStep extends StatefulWidget {
+  const HermesGatewayBackupStep({super.key});
+
   @override
   State<HermesGatewayBackupStep> createState() =>
       _HermesGatewayBackupStepState();
@@ -18,7 +19,8 @@ class _HermesGatewayBackupStepState extends State<HermesGatewayBackupStep> {
   void initState() {
     super.initState();
     _backupDirController = TextEditingController(text: _backupDir);
-    _backupFrequencyController = TextEditingController(text: _backupFrequency.toString());
+    _backupFrequencyController =
+        TextEditingController(text: _backupFrequency.toString());
   }
 
   @override

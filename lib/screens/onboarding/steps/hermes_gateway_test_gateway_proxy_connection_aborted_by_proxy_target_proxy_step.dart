@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep');
+class HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection aborted - restarting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection aborted - restarting target proxy server...');
           },
           icon: const Icon(Icons.refresh),
           label: const Text('Restart Target Proxy Server'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection aborted - checking logs...');
+            _log.info(
+                'Proxy target proxy connection aborted - checking logs...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.archive),

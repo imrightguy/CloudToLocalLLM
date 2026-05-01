@@ -1,13 +1,15 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayPerformanceStep extends StatefulWidget {
+  const HermesGatewayPerformanceStep({super.key});
+
   @override
   State<HermesGatewayPerformanceStep> createState() =>
       _HermesGatewayPerformanceStepState();
 }
 
-class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceStep> {
+class _HermesGatewayPerformanceStepState
+    extends State<HermesGatewayPerformanceStep> {
   int _maxConcurrentRequests = 10;
   int _requestTimeout = 30;
   int _maxTokens = 4096;
@@ -18,8 +20,10 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
   @override
   void initState() {
     super.initState();
-    _maxConcurrentController = TextEditingController(text: _maxConcurrentRequests.toString());
-    _requestTimeoutController = TextEditingController(text: _requestTimeout.toString());
+    _maxConcurrentController =
+        TextEditingController(text: _maxConcurrentRequests.toString());
+    _requestTimeoutController =
+        TextEditingController(text: _requestTimeout.toString());
     _maxTokensController = TextEditingController(text: _maxTokens.toString());
   }
 
@@ -39,8 +43,8 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
           ),
           keyboardType: TextInputType.number,
           onChanged: (value) {
-            setState(() =>
-                _maxConcurrentRequests = int.tryParse(value) ?? _maxConcurrentRequests);
+            setState(() => _maxConcurrentRequests =
+                int.tryParse(value) ?? _maxConcurrentRequests);
           },
         ),
         TextField(
@@ -51,8 +55,8 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
           ),
           keyboardType: TextInputType.number,
           onChanged: (value) {
-            setState(() =>
-                _requestTimeout = int.tryParse(value) ?? _requestTimeout);
+            setState(
+                () => _requestTimeout = int.tryParse(value) ?? _requestTimeout);
           },
         ),
         TextField(
@@ -63,8 +67,7 @@ class _HermesGatewayPerformanceStepState extends State<HermesGatewayPerformanceS
           ),
           keyboardType: TextInputType.number,
           onChanged: (value) {
-            setState(() =>
-                _maxTokens = int.tryParse(value) ?? _maxTokens);
+            setState(() => _maxTokens = int.tryParse(value) ?? _maxTokens);
           },
         ),
       ]).toList(),

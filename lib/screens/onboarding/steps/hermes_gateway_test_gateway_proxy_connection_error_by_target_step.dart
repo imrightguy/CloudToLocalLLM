@@ -1,15 +1,17 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionErrorByTargetStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionErrorByTargetStep');
+class HermesGatewayTestGatewayProxyConnectionErrorByTargetStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionErrorByTargetStep({super.key});
 
-class HermesGatewayTestGatewayProxyConnectionErrorByTargetStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionErrorByTargetStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionErrorByTargetState();
+  State<HermesGatewayTestGatewayProxyConnectionErrorByTargetStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionErrorByTargetState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionErrorByTargetState
@@ -31,7 +33,8 @@ class _HermesGatewayTestGatewayProxyConnectionErrorByTargetState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Target connection error - checking Hermes gateway settings...');
+            _log.info(
+                'Target connection error - checking Hermes gateway settings...');
           },
           icon: const Icon(Icons.settings),
           label: const Text('Check Hermes Gateway Settings'),

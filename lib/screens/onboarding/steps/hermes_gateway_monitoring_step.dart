@@ -1,13 +1,15 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayMonitoringStep extends StatefulWidget {
+  const HermesGatewayMonitoringStep({super.key});
+
   @override
   State<HermesGatewayMonitoringStep> createState() =>
       _HermesGatewayMonitoringStepState();
 }
 
-class _HermesGatewayMonitoringStepState extends State<HermesGatewayMonitoringStep> {
+class _HermesGatewayMonitoringStepState
+    extends State<HermesGatewayMonitoringStep> {
   bool _enableMetrics = true;
   bool _enableTracing = false;
   bool _enableAlerts = false;
@@ -26,7 +28,8 @@ class _HermesGatewayMonitoringStepState extends State<HermesGatewayMonitoringSte
           onChanged: (value) {
             setState(() => _enableMetrics = value);
           },
-          subtitle: const Text('Collect performance metrics (Prometheus format)'),
+          subtitle:
+              const Text('Collect performance metrics (Prometheus format)'),
         ),
         SwitchListTile(
           title: const Text('Enable Distributed Tracing'),

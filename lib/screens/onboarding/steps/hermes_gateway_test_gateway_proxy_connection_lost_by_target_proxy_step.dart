@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep');
+class HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionLostByTargetProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionLostByTargetProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionLostByTargetProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionLostByTargetProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -39,7 +43,8 @@ class _HermesGatewayTestGatewayProxyConnectionLostByTargetProxyState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Target proxy connection lost - restarting proxy server...');
+            _log.info(
+                'Target proxy connection lost - restarting proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.refresh),

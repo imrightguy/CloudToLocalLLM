@@ -1,8 +1,5 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayConfigStep');
 
@@ -11,10 +8,10 @@ class HermesGatewayConfigStep extends StatefulWidget {
   final String? hermesApiKey;
 
   const HermesGatewayConfigStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewayConfigStep> createState() =>

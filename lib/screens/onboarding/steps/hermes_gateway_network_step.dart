@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayNetworkStep extends StatefulWidget {
+  const HermesGatewayNetworkStep({super.key});
+
   @override
   State<HermesGatewayNetworkStep> createState() =>
       _HermesGatewayNetworkStepState();
@@ -56,7 +57,8 @@ class _HermesGatewayNetworkStepState extends State<HermesGatewayNetworkStep> {
           onChanged: (value) {
             setState(() => _allowRemote = value);
           },
-          subtitle: const Text('Enable if you need to access Hermes from other devices on your network'),
+          subtitle: const Text(
+              'Enable if you need to access Hermes from other devices on your network'),
         ),
       ]).toList(),
     );

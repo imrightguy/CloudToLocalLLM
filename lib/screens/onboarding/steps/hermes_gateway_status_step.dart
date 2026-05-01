@@ -1,11 +1,9 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayStatusStep extends StatefulWidget {
   final bool hermesEnabled;
 
-  const HermesGatewayStatusStep({Key? key, this.hermesEnabled = false})
-      : super(key: key);
+  const HermesGatewayStatusStep({super.key, this.hermesEnabled = false});
 
   @override
   State<HermesGatewayStatusStep> createState() =>
@@ -13,7 +11,7 @@ class HermesGatewayStatusStep extends StatefulWidget {
 }
 
 class _HermesGatewayStatusStepState extends State<HermesGatewayStatusStep> {
-  bool _gatewayRunning = false;
+  final bool _gatewayRunning = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +31,8 @@ class _HermesGatewayStatusStepState extends State<HermesGatewayStatusStep> {
                     : 'Hermes gateway is not running',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: _gatewayRunning ? FontWeight.bold : FontWeight.normal,
+                  fontWeight:
+                      _gatewayRunning ? FontWeight.bold : FontWeight.normal,
                   color: _gatewayRunning ? Colors.green : Colors.red,
                 ),
               ),

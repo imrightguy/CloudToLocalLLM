@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayTestTimeoutRetryStep');
 
 class HermesGatewayTestTimeoutRetryStep extends StatefulWidget {
+  const HermesGatewayTestTimeoutRetryStep({super.key});
+
   @override
   State<HermesGatewayTestTimeoutRetryStep> createState() =>
       _HermesGatewayTestTimeoutRetryState();

@@ -13,11 +13,11 @@ class SettingsScreen extends StatefulWidget {
   final bool hermesEnabled;
 
   const SettingsScreen({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
     this.hermesEnabled = false,
-  }) : super(key: key);
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -113,7 +113,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Card(
                   child: ListTile(
                     title: const Text('API Keys'),
-                    subtitle: const Text('Manage your API keys for various services'),
+                    subtitle:
+                        const Text('Manage your API keys for various services'),
                     trailing: IconButton(
                       icon: const Icon(Icons.key),
                       onPressed: () {

@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayStorageStep extends StatefulWidget {
+  const HermesGatewayStorageStep({super.key});
+
   @override
   State<HermesGatewayStorageStep> createState() =>
       _HermesGatewayStorageStepState();
@@ -55,8 +56,8 @@ class _HermesGatewayStorageStepState extends State<HermesGatewayStorageStep> {
           onChanged: (value) {
             setState(() => _enableDiskCache = value);
           },
-          subtitle:
-              const Text('Cache model weights and conversation history on disk'),
+          subtitle: const Text(
+              'Cache model weights and conversation history on disk'),
         ),
       ]).toList(),
     );

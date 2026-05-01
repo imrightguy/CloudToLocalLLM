@@ -1,15 +1,12 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesApiKeyStep');
 
 class HermesApiKeyStep extends StatefulWidget {
   final String? hermesApiKey;
 
-  const HermesApiKeyStep({Key? key, this.hermesApiKey}) : super(key: key);
+  const HermesApiKeyStep({super.key, this.hermesApiKey});
 
   @override
   State<HermesApiKeyStep> createState() => _HermesApiKeyStepState();
@@ -51,7 +48,8 @@ class _HermesApiKeyStepState extends State<HermesApiKeyStep> {
                     ? () {
                         // Save API key
                         final apiKey = _apiKeyController.text;
-                        _log.info('Hermes API key saved: ${apiKey.length} chars');
+                        _log.info(
+                            'Hermes API key saved: ${apiKey.length} chars');
                         // Store in preferences
                         // Move to next step
                       }

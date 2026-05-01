@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection failed - checking target proxy server settings...');
+            _log.info(
+                'Proxy target proxy connection failed - checking target proxy server settings...');
           },
           icon: const Icon(Icons.settings),
           label: const Text('Check Target Proxy Server Settings'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionFailedByProxyTargetProxyProxyState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection failed - checking network...');
+            _log.info(
+                'Proxy target proxy connection failed - checking network...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.network_check),

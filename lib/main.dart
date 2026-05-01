@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:cloudtolocalllm/services/voice/voice_conversation_service.dart';
 
 import 'package:cloudtolocalllm/bootstrap/bootstrapper.dart';
 import 'package:cloudtolocalllm/config/app_config.dart';
@@ -169,7 +170,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
 
     return FutureBuilder<AppBootstrapData>(
       future: widget.bootstrapFuture ??
-          Future.value(AppBootstrapData(isWeb: kIsWeb, supportsNativeShell: !kIsWeb)),
+          Future.value(
+              AppBootstrapData(isWeb: kIsWeb, supportsNativeShell: !kIsWeb)),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             !snapshot.hasData) {
@@ -265,6 +267,8 @@ class _CloudToLocalLLMAppState extends State<CloudToLocalLLMApp> {
           providersList, 'EnhancedUserTierService');
       _addProviderIfAvailable<ConnectionManagerService>(
           providersList, 'ConnectionManagerService');
+      _addProviderIfAvailable<VoiceConversationService>(
+          providersList, 'VoiceConversationService');
       _addValueProviderIfAvailable<LangChainPromptService>(
           providersList, 'LangChainPromptService');
       _addProviderIfAvailable<PlatformDetectionService>(

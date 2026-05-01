@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProx
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection aborted - restarting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection aborted - restarting target proxy server...');
           },
           icon: const Icon(Icons.refresh),
           label: const Text('Restart Target Proxy Server'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionAbortedByProxyTargetProxyProxyProx
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection aborted - checking logs...');
+            _log.info(
+                'Proxy target proxy connection aborted - checking logs...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.archive),

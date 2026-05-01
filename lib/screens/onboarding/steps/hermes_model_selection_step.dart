@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesModelSelectionStep');
 
 class HermesModelSelectionStep extends StatefulWidget {
+  const HermesModelSelectionStep({super.key});
+
   @override
   State<HermesModelSelectionStep> createState() =>
       _HermesModelSelectionStepState();

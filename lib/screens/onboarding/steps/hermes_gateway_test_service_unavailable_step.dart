@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayTestServiceUnavailableStep');
 
 class HermesGatewayTestServiceUnavailableStep extends StatefulWidget {
+  const HermesGatewayTestServiceUnavailableStep({super.key});
+
   @override
   State<HermesGatewayTestServiceUnavailableStep> createState() =>
       _HermesGatewayTestServiceUnavailableState();

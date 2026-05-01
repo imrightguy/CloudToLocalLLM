@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayHealthCheckStep extends StatefulWidget {
+  const HermesGatewayHealthCheckStep({super.key});
+
   @override
   State<HermesGatewayHealthCheckStep> createState() =>
       _HermesGatewayHealthCheckStepState();

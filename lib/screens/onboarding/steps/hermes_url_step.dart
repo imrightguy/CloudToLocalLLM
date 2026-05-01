@@ -1,8 +1,5 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesUrlStep');
 
@@ -11,10 +8,10 @@ class HermesUrlStep extends StatefulWidget {
   final String? hermesApiKey;
 
   const HermesUrlStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesUrlStep> createState() => _HermesUrlStepState();

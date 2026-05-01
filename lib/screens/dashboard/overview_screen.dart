@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../di/locator.dart' as di;
 import '../../services/connection_manager_service.dart';
+import '../../services/voice/voice_conversation_service.dart';
 import '../../widgets/navigation/breadcrumb_bar.dart';
+import '../../widgets/voice/open_voice_ui_control_panel.dart';
+import '../../widgets/voice/voice_conversation_status_card.dart';
 
 class OverviewScreen extends StatefulWidget {
   const OverviewScreen({super.key});
@@ -56,6 +60,23 @@ class _OverviewScreenState extends State<OverviewScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildSection(
+                            'Voice Companion',
+                            'Natural conversation state, backend switching, and agent control for the CloudToLocalLLM voice shell layered around Hermes.',
+                            di.serviceLocator
+                                    .isRegistered<VoiceConversationService>()
+                                ? Column(
+                                    children: [
+                                      const VoiceConversationStatusCard(),
+                                      const SizedBox(height: 16),
+                                      const OpenVoiceUIControlPanel(),
+                                    ],
+                                  )
+                                : _buildVoiceUnavailableCard(),
+                          ),
+
+                          const SizedBox(height: 24),
+
                           // Gateway Access Section
                           _buildSection(
                             'Gateway Access',
@@ -185,6 +206,20 @@ class _OverviewScreenState extends State<OverviewScreen> {
             _buildSnapshotRow(
                 'Last Channels Refresh', gatewayStatus['lastRefresh'] ?? 'n/a'),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVoiceUnavailableCard() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          'Voice conversation service is only wired on desktop builds right now.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey,
+              ),
         ),
       ),
     );

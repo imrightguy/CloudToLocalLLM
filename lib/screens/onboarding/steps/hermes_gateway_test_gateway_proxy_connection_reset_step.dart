@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionResetStep');
 
 class HermesGatewayTestGatewayProxyConnectionResetStep extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionResetStep({super.key});
+
   @override
   State<HermesGatewayTestGatewayProxyConnectionResetStep> createState() =>
       _HermesGatewayTestGatewayProxyConnectionResetState();

@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayStopStep extends StatefulWidget {
+  const HermesGatewayStopStep({super.key});
+
   @override
   State<HermesGatewayStopStep> createState() => _HermesGatewayStopStepState();
 }
@@ -23,8 +24,7 @@ class _HermesGatewayStopStepState extends State<HermesGatewayStopStep> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (_stopping)
-          const CircularProgressIndicator(),
+        if (_stopping) const CircularProgressIndicator(),
         if (!_stopping)
           ElevatedButton(
             onPressed: _stopGateway,

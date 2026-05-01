@@ -11,6 +11,7 @@ import 'model_tiers.dart';
 import 'avatar/personality_engine.dart';
 import 'avatar/evolution_tracker.dart';
 import 'conscience_storage_service.dart';
+import 'voice/cloud_tts_service.dart';
 import 'package:cloudtolocalllm/models/avatar/personality_models.dart';
 import 'package:cloudtolocalllm/utils/http_constants.dart';
 
@@ -22,6 +23,7 @@ class RouterServer {
   final PersonalityEngine? personalityEngine;
   final EvolutionTracker? evolutionTracker;
   final ConscienceStorageService? conscienceStorage;
+  final CloudTtsService? ttsService;
 
   HttpServer? _server;
 
@@ -32,7 +34,8 @@ class RouterServer {
     this.personalityEngine,
     this.evolutionTracker,
     this.conscienceStorage,
-  });
+    CloudTtsService? ttsService,
+  }) : ttsService = ttsService ?? (kIsWeb ? null : CloudTtsService());
 
   /// Start the server
   Future<void> start() async {
@@ -46,6 +49,12 @@ class RouterServer {
 
     // GET /health
     router.get('/health', (Request request) => Response.ok('OK'));
+
+    // OpenAI-compatible local speech endpoint for Hermes voice output.
+    if (ttsService != null) {
+      router.post('/v1/audio/speech', _handleAudioSpeech);
+      router.get('/v1/audio/voices', _handleListVoices);
+    }
 
     // Avatar Evolution API endpoints
     if (personalityEngine != null) {
@@ -174,6 +183,66 @@ class RouterServer {
     } finally {
       await rateLimitManager.endRequest(modelId);
     }
+  }
+
+  Future<Response> _handleAudioSpeech(Request request) async {
+    final service = ttsService;
+    if (service == null) {
+      return Response.notFound('TTS service not available');
+    }
+
+    try {
+      final body = await request.readAsString();
+      final data = jsonDecode(body) as Map<String, dynamic>;
+      final speechRequest = CloudTtsRequest.fromJson(data);
+      final result = await service.synthesize(speechRequest);
+      final file = File(result.path);
+
+      return Response.ok(
+        file.openRead(),
+        headers: {
+          'Content-Type': result.contentType,
+          'Content-Length': (await file.length()).toString(),
+          'X-CloudToLocalLLM-TTS': 'edge-tts',
+        },
+      );
+    } on FormatException catch (e) {
+      return Response.badRequest(
+        body: jsonEncode({'error': e.message}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    } catch (e) {
+      return Response.internalServerError(
+        body: jsonEncode({'error': e.toString()}),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+  }
+
+  Response _handleListVoices(Request request) {
+    return Response.ok(
+      jsonEncode({
+        'object': 'list',
+        'data': [
+          {
+            'id': 'en-US-GuyNeural',
+            'object': 'voice',
+            'owned_by': 'cloudtolocalllm',
+          },
+          {
+            'id': 'en-US-AriaNeural',
+            'object': 'voice',
+            'owned_by': 'cloudtolocalllm',
+          },
+          {
+            'id': 'en-US-JennyNeural',
+            'object': 'voice',
+            'owned_by': 'cloudtolocalllm',
+          },
+        ],
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
   }
 
   /// GET /avatar/state - Returns the current avatar personality state

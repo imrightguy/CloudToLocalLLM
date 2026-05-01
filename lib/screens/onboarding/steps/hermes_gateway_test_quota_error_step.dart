@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayTestQuotaErrorStep');
 
 class HermesGatewayTestQuotaErrorStep extends StatefulWidget {
+  const HermesGatewayTestQuotaErrorStep({super.key});
+
   @override
   State<HermesGatewayTestQuotaErrorStep> createState() =>
       _HermesGatewayTestQuotaErrorState();

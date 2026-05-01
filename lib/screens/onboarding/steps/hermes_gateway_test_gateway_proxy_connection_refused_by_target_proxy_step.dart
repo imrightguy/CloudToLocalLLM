@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep');
+class HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Target proxy connection refused - checking proxy server...');
+            _log.info(
+                'Target proxy connection refused - checking proxy server...');
           },
           icon: const Icon(Icons.play_circle),
           label: const Text('Check Proxy Server Status'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByTargetProxyState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Target proxy connection refused - starting proxy server...');
+            _log.info(
+                'Target proxy connection refused - starting proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.play_arrow),

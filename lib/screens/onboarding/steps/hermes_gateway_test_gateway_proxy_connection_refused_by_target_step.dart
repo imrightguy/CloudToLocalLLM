@@ -1,15 +1,17 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep');
+class HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep({super.key});
 
-class HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionRefusedByTargetState();
+  State<HermesGatewayTestGatewayProxyConnectionRefusedByTargetStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionRefusedByTargetState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionRefusedByTargetState

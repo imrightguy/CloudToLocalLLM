@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayTroubleshootingStep extends StatefulWidget {
+  const HermesGatewayTroubleshootingStep({super.key});
+
   @override
   State<HermesGatewayTroubleshootingStep> createState() =>
       _HermesGatewayTroubleshootingStepState();

@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionResetByProxyTargetProxyProxyProxyP
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection reset - restarting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection reset - restarting target proxy server...');
           },
           icon: const Icon(Icons.refresh),
           label: const Text('Restart Target Proxy Server'),

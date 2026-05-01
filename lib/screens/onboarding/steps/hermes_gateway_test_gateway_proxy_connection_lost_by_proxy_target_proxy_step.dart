@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep');
+class HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection lost - checking network...');
+            _log.info(
+                'Proxy target proxy connection lost - checking network...');
           },
           icon: const Icon(Icons.wifi),
           label: const Text('Check Network Connection'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionLostByProxyTargetProxyState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection lost - restarting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection lost - restarting target proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.refresh),

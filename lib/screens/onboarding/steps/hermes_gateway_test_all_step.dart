@@ -1,23 +1,21 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayTestAllStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
 
   const HermesGatewayTestAllStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewayTestAllStep> createState() =>
       _HermesGatewayTestAllStepState();
 }
 
-class _HermesGatewayTestAllStepState
-    extends State<HermesGatewayTestAllStep> {
+class _HermesGatewayTestAllStepState extends State<HermesGatewayTestAllStep> {
   bool _isTesting = false;
   String _testResult = '';
 
@@ -28,7 +26,8 @@ class _HermesGatewayTestAllStepState
     });
 
     // Test all aspects of Hermes gateway
-    await Future.delayed(const Duration(seconds: 3)); // Simulate comprehensive test
+    await Future.delayed(
+        const Duration(seconds: 3)); // Simulate comprehensive test
 
     setState(() {
       _isTesting = false;

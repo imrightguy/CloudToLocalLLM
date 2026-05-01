@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -54,9 +53,7 @@ class HermesStreamingService {
 
       _channel = IOWebSocketChannel(socket);
 
-      _channel.stream.listen((data) {
-        _handleMessage(data);
-      }, onError: (error) {
+      _channel.stream.listen(_handleMessage, onError: (error) {
         _log.severe('WebSocket error: $error');
         _isConnected = false;
         _responseController.addError(error);

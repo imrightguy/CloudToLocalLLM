@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProx
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection refused - checking target proxy server...');
+            _log.info(
+                'Proxy target proxy connection refused - checking target proxy server...');
           },
           icon: const Icon(Icons.play_circle),
           label: const Text('Check Target Proxy Server Status'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProx
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection refused - starting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection refused - starting target proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.play_arrow),

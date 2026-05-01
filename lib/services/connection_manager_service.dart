@@ -69,7 +69,8 @@ class ConnectionManagerService extends ChangeNotifier {
   void setAvailableModels(List<String> models) {
     _availableModels = models.toSet().toList(growable: false);
     if (_availableModels.isNotEmpty &&
-        (_selectedModel == null || !_availableModels.contains(_selectedModel))) {
+        (_selectedModel == null ||
+            !_availableModels.contains(_selectedModel))) {
       _selectedModel = _availableModels.first;
     }
     notifyListeners();
@@ -107,8 +108,7 @@ class ConnectionManagerService extends ChangeNotifier {
   DateTime? _lastSuccessfulConnection;
   DateTime? get lastSuccessfulConnection => _lastSuccessfulConnection;
 
-  String? get healthStatus =>
-      _isConnected ? 'healthy' : 'disconnected';
+  String? get healthStatus => _isConnected ? 'healthy' : 'disconnected';
 
   // ---------------------------------------------------------------------------
   // Connection type / backend info
@@ -150,7 +150,8 @@ class ConnectionManagerService extends ChangeNotifier {
       case BackendType.openclaw:
         return _connectToOpenClaw();
       case BackendType.hermes:
-        return _connectToHermes(hermesUrl, hermesApiKey, model ?? 'hermes/model');
+        return _connectToHermes(
+            hermesUrl, hermesApiKey, model ?? 'hermes/model');
     }
   }
 
@@ -266,17 +267,63 @@ class ConnectionManagerService extends ChangeNotifier {
   }
 
   Map<String, dynamic> getGatewayStatus() {
-    final status = openclawGatewayService.state;
+    final activeBackend = _currentBackend;
+    final activeBackendLabel = activeBackend == BackendType.hermes
+        ? 'Hermes Agent'
+        : 'OpenClaw Gateway';
+
+    final openclawStatus = openclawGatewayService.state;
+    final hermesStatus = hermesGatewayService.getStatus();
+    final activeStatus = activeBackend == BackendType.hermes
+        ? hermesStatus
+        : {
+            'state': openclawStatus.name,
+            'running': openclawStatus == GatewayState.running,
+          };
+
     return {
-      'state': status.name,
-      'isRunning': status == GatewayState.running,
+      'state': activeStatus['state']?.toString() ?? 'unknown',
+      'isRunning': activeBackend == BackendType.hermes
+          ? activeStatus['running'] == true
+          : openclawStatus == GatewayState.running,
       'isConnected': _isConnected,
-      'backend': _currentBackend.name,
+      'backend': activeBackend.name,
+      'backendLabel': activeBackendLabel,
+      'openclaw': {
+        'state': openclawStatus.name,
+        'isRunning': openclawStatus == GatewayState.running,
+      },
+      'hermes': hermesStatus,
     };
   }
 
   bool isGatewayHealthy() {
-    return _isConnected && openclawGatewayService.isRunning;
+    return switch (_currentBackend) {
+      BackendType.openclaw => _isConnected && openclawGatewayService.isRunning,
+      BackendType.hermes =>
+        _isConnected && hermesGatewayService.getStatus()['running'] == true,
+    };
+  }
+
+  Future<bool> startActiveGateway() {
+    return switch (_currentBackend) {
+      BackendType.openclaw => openclawGatewayService.start(),
+      BackendType.hermes => hermesGatewayService.start(),
+    };
+  }
+
+  Future<bool> stopActiveGateway() {
+    return switch (_currentBackend) {
+      BackendType.openclaw => openclawGatewayService.stop(),
+      BackendType.hermes => hermesGatewayService.stop(),
+    };
+  }
+
+  Future<bool> restartActiveGateway() {
+    return switch (_currentBackend) {
+      BackendType.openclaw => openclawGatewayService.restart(),
+      BackendType.hermes => hermesGatewayService.restart(),
+    };
   }
 
   Future<void> reconnectAll() async {
@@ -302,7 +349,8 @@ class ConnectionManagerService extends ChangeNotifier {
       String? fullResponse;
       stream.listen(
         (data) {
-          fullResponse = (fullResponse ?? '') + (data['content']?.toString() ?? data['delta']?.toString() ?? '');
+          fullResponse = (fullResponse ?? '') +
+              (data['content']?.toString() ?? data['delta']?.toString() ?? '');
         },
         onDone: () {
           completer.complete(fullResponse);

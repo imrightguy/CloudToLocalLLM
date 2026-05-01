@@ -1,23 +1,21 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayTestChatStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
 
   const HermesGatewayTestChatStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewayTestChatStep> createState() =>
       _HermesGatewayTestChatStepState();
 }
 
-class _HermesGatewayTestChatStepState
-    extends State<HermesGatewayTestChatStep> {
+class _HermesGatewayTestChatStepState extends State<HermesGatewayTestChatStep> {
   bool _isTesting = false;
   String _testResult = '';
 

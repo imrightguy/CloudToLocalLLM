@@ -1,7 +1,8 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayAdvancedStep extends StatefulWidget {
+  const HermesGatewayAdvancedStep({super.key});
+
   @override
   State<HermesGatewayAdvancedStep> createState() =>
       _HermesGatewayAdvancedStepState();
@@ -26,7 +27,9 @@ class _HermesGatewayAdvancedStepState extends State<HermesGatewayAdvancedStep> {
                   children: [
                     Text(_showAdvanced ? 'Hide Advanced' : 'Show Advanced'),
                     const SizedBox(width: 8),
-                    Icon(_showAdvanced ? Icons.arrow_drop_up : Icons.arrow_drop_down),
+                    Icon(_showAdvanced
+                        ? Icons.arrow_drop_up
+                        : Icons.arrow_drop_down),
                   ],
                 ),
               ),

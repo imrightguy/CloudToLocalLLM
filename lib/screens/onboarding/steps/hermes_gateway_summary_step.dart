@@ -1,17 +1,16 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewaySummaryStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
   final bool hermesEnabled;
 
   const HermesGatewaySummaryStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
     this.hermesEnabled = false,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewaySummaryStep> createState() =>
@@ -31,7 +30,8 @@ class _HermesGatewaySummaryStepState extends State<HermesGatewaySummaryStep> {
           Column(
             children: [
               Text('Gateway URL: ${widget.hermesUrl}'),
-              Text('API Key: ${widget.hermesApiKey != null ? 'Set' : 'Not set'}'),
+              Text(
+                  'API Key: ${widget.hermesApiKey != null ? 'Set' : 'Not set'}'),
               const SizedBox(height: 16),
               const Text(
                 'Hermes gateway is enabled and ready to use!',

@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStat
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection timeout - checking network...');
+            _log.info(
+                'Proxy target proxy connection timeout - checking network...');
           },
           icon: const Icon(Icons.network_check),
           label: const Text('Check Network Connection'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyStat
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection timeout - checking proxy load...');
+            _log.info(
+                'Proxy target proxy connection timeout - checking proxy load...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.show_chart),

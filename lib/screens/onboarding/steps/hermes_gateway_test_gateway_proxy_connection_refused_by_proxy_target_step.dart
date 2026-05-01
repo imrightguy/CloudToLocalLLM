@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep');
+class HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetState();
+  State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetState
-    extends State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target connection refused - checking Hermes gateway...');
+            _log.info(
+                'Proxy target connection refused - checking Hermes gateway...');
           },
           icon: const Icon(Icons.play_circle),
           label: const Text('Check Hermes Gateway Status'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetState
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target connection refused - starting Hermes gateway...');
+            _log.info(
+                'Proxy target connection refused - starting Hermes gateway...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.play_arrow),

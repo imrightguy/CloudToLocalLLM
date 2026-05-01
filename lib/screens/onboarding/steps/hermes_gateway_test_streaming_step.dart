@@ -1,15 +1,14 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayTestStreamingStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
 
   const HermesGatewayTestStreamingStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewayTestStreamingStep> createState() =>

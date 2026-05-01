@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -17,7 +16,7 @@ class HermesGatewayControlService {
   Process? _gatewayProcess;
   bool _isRunning = false;
 
-  HermesGatewayControlService([Object? _settingsPreferenceService]);
+  HermesGatewayControlService([Object? settingsPreferenceService]);
 
   /// Start the hermes-agent gateway.
   ///

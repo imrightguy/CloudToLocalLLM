@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProx
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection refused - checking target proxy server...');
+            _log.info(
+                'Proxy target proxy connection refused - checking target proxy server...');
           },
           icon: const Icon(Icons.play_circle),
           label: const Text('Check Target Proxy Server Status'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionRefusedByProxyTargetProxyProxyProx
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection refused - starting target proxy server...');
+            _log.info(
+                'Proxy target proxy connection refused - starting target proxy server...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.play_arrow),

@@ -1,18 +1,18 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayCompletionStep');
 
 class HermesGatewayCompletionStep extends StatefulWidget {
+  const HermesGatewayCompletionStep({super.key});
+
   @override
   State<HermesGatewayCompletionStep> createState() =>
       _HermesGatewayCompletionStepState();
 }
 
-class _HermesGatewayCompletionStepState extends State<HermesGatewayCompletionStep> {
+class _HermesGatewayCompletionStepState
+    extends State<HermesGatewayCompletionStep> {
   @override
   Widget build(BuildContext context) {
     return Column(

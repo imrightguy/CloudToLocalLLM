@@ -1,15 +1,14 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesGatewayTestModelsStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
 
   const HermesGatewayTestModelsStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesGatewayTestModelsStep> createState() =>
@@ -19,7 +18,8 @@ class HermesGatewayTestModelsStep extends StatefulWidget {
 class _HermesGatewayTestModelsStepState
     extends State<HermesGatewayTestModelsStep> {
   bool _isTesting = false;
-  String _testResult = 'Available models: hermes/model, meta/llama-3-70b, mistral/medium';
+  String _testResult =
+      'Available models: hermes/model, meta/llama-3-70b, mistral/medium';
 
   Future<void> _testModels() async {
     setState(() {
@@ -32,7 +32,8 @@ class _HermesGatewayTestModelsStepState
 
     setState(() {
       _isTesting = false;
-      _testResult = 'Available models: hermes/model, meta/llama-3-70b, mistral/medium';
+      _testResult =
+          'Available models: hermes/model, meta/llama-3-70b, mistral/medium';
     });
   }
 

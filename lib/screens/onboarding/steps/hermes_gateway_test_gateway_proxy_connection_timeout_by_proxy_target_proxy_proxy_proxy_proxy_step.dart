@@ -1,19 +1,23 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log = Logger(
+    'HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep');
+class HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep(
+      {super.key});
 
-class HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyState();
+  State<HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyState
-    extends State<HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep> {
+    extends State<
+        HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProxyProxyStep> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -31,7 +35,8 @@ class _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProx
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection timeout - checking network...');
+            _log.info(
+                'Proxy target proxy connection timeout - checking network...');
           },
           icon: const Icon(Icons.network_check),
           label: const Text('Check Network Connection'),
@@ -39,7 +44,8 @@ class _HermesGatewayTestGatewayProxyConnectionTimeoutByProxyTargetProxyProxyProx
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Proxy target proxy connection timeout - checking proxy load...');
+            _log.info(
+                'Proxy target proxy connection timeout - checking proxy load...');
           },
           style: ElevatedButton.styleFrom(foregroundColor: Colors.grey),
           icon: const Icon(Icons.show_chart),

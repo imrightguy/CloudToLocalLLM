@@ -1,12 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-
 
 final Logger _log = Logger('HermesGatewayTestGatewayConnectionTimeoutStep');
 
 class HermesGatewayTestGatewayConnectionTimeoutStep extends StatefulWidget {
+  const HermesGatewayTestGatewayConnectionTimeoutStep({super.key});
+
   @override
   State<HermesGatewayTestGatewayConnectionTimeoutStep> createState() =>
       _HermesGatewayTestGatewayConnectionTimeoutState();

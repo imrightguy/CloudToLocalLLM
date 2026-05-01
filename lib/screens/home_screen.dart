@@ -1,8 +1,4 @@
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import '../../services/connection_manager_service.dart';
 import '../../screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,11 +7,11 @@ class HomeScreen extends StatefulWidget {
   final bool hermesEnabled;
 
   const HomeScreen({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
     this.hermesEnabled = false,
-  }) : super(key: key);
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -78,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class ConversationsScreen extends StatelessWidget {
-  const ConversationsScreen({Key? key}) : super(key: key);
+  const ConversationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +102,7 @@ class ConversationsScreen extends StatelessWidget {
 }
 
 class PipelineScreen extends StatelessWidget {
-  const PipelineScreen({Key? key}) : super(key: key);
+  const PipelineScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

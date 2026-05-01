@@ -1,15 +1,17 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
+final Logger _log =
+    Logger('HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep');
 
-final Logger _log = Logger('HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep');
+class HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep
+    extends StatefulWidget {
+  const HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep({super.key});
 
-class HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep extends StatefulWidget {
   @override
-  State<HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep> createState() =>
-      _HermesGatewayTestGatewayProxyConnectionAbortedByTargetState();
+  State<HermesGatewayTestGatewayProxyConnectionAbortedByTargetStep>
+      createState() =>
+          _HermesGatewayTestGatewayProxyConnectionAbortedByTargetState();
 }
 
 class _HermesGatewayTestGatewayProxyConnectionAbortedByTargetState
@@ -31,7 +33,8 @@ class _HermesGatewayTestGatewayProxyConnectionAbortedByTargetState
         const SizedBox(height: 24),
         ElevatedButton.icon(
           onPressed: () {
-            _log.info('Target connection aborted - restarting Hermes gateway...');
+            _log.info(
+                'Target connection aborted - restarting Hermes gateway...');
           },
           icon: const Icon(Icons.refresh),
           label: const Text('Restart Hermes Gateway'),

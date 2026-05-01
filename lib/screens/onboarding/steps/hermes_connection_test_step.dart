@@ -1,15 +1,14 @@
-
-
 import 'package:flutter/material.dart';
+
 class HermesConnectionTestStep extends StatefulWidget {
   final String? hermesUrl;
   final String? hermesApiKey;
 
   const HermesConnectionTestStep({
-    Key? key,
+    super.key,
     this.hermesUrl,
     this.hermesApiKey,
-  }) : super(key: key);
+  });
 
   @override
   State<HermesConnectionTestStep> createState() =>
