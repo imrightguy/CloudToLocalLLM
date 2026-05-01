@@ -62,7 +62,7 @@ We take security seriously. Our architecture is designed to provide enterprise-g
 ### Built-in Protections
 
 * **Non-Root Execution**: All our containers are architected to run as unprivileged non-root users, utilizing minimal base images to reduce the attack surface.
-* **Network Isolation**: Our deployment definitions strictly isolate backend services from the public internet. Optional hosted runtimes and cloud connectors must be isolated per user.
+* **Network Isolation**: Our deployment definitions strictly isolate backend services from the public internet. Optional hosted agent runtimes and cloud connectors must be isolated per user.
 * **Automated Rate Limiting**: All sensitive endpoints (Auth, API Keys) are protected by strict, adaptive rate limits by default to prevent abuse.
 
 ### Authentication & Secrets

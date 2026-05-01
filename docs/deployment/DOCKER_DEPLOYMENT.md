@@ -2,16 +2,16 @@
 
 **⚠️ DEVELOPMENT/TESTING ONLY**: This Docker Compose deployment is suitable for development, testing, and small-scale deployments. For production use, **Kubernetes deployment is strongly recommended**.
 
-> **Current orientation**: CloudToLocalLLM is agent-runtime-first and Tailscale-first. The setup wizard selects an agent runtime such as Hermes, OpenClaw, a compatible custom agent gateway, or an optional hosted runtime. Ollama, LM Studio, and similar model servers are support model providers, not primary app runtimes. Docker Compose deployment documents may still describe older WebSocket tunnel flows; use those as fallback/migration references unless the deployment explicitly depends on them.
+> **Current orientation**: CloudToLocalLLM is agent-runtime-first and Tailscale-first. The setup wizard selects an agent runtime such as Hermes, OpenClaw, a compatible custom agent gateway, or an optional hosted agent runtime. Ollama, LM Studio, and similar model servers are support model providers, not primary app runtimes. Docker Compose deployment documents may still describe older WebSocket tunnel flows; use those as fallback/migration references unless the deployment explicitly depends on them.
 
 See [Deployment Overview](DEPLOYMENT_OVERVIEW.md) for all deployment options.
 
 ## Overview
 
-This guide will help you deploy CloudToLocalLLM using Docker Compose with a complete stack including:
+This guide will help you deploy the older Docker Compose stack including:
 
 - **Web Application** (Flutter + Nginx)
-- **API Backend** (Node.js with WebSocket tunnel support)
+- **API Backend** (Node.js; older stacks include WebSocket tunnel support)
 - **PostgreSQL Database** (Self-contained)
 - **Nginx Reverse Proxy** (SSL termination)
 - **Certbot** (Automatic SSL certificate management with Let's Encrypt)
@@ -167,10 +167,10 @@ Nginx (Port 80/443)
    │   └─→ API Backend Service :3000
    │       └─→ PostgreSQL :5432
    │
-   └─→ WebSocket Tunnel (/ws/tunnel)
+   └─→ Legacy WebSocket Tunnel (/ws/tunnel)
        └─→ API Backend Service :3000
            └─→ Windows Desktop App
-               └─→ Local Ollama :11434
+               └─→ Selected agent runtime or support model provider
 ```
 
 ## Service Details
@@ -189,7 +189,7 @@ Nginx (Port 80/443)
 - **Port**: 3000 (internal)
 - **Features**:
   - REST API endpoints
-  - WebSocket tunnel server at `/ws/tunnel`
+  - Legacy WebSocket tunnel server at `/ws/tunnel`
   - Auth0 JWT validation
   - PostgreSQL database connection
   - Tier-based user management
@@ -221,20 +221,23 @@ Nginx (Port 80/443)
 - **Function**: Automatic SSL certificate renewal
 - **Schedule**: Checks for renewal every 12 hours
 
-## Windows Desktop App Connection
+## Desktop App Connection
 
 ### Prerequisites
 
 1. Windows desktop app installed
-2. Local Ollama running on `localhost:11434`
+2. Selected agent runtime running locally or on a reachable Tailscale device
+3. Optional support model provider only if memory/background features need it
 
 ### Connection Steps
 
-1. Start your local Ollama instance
+1. Start Hermes, OpenClaw, or another compatible agent gateway.
 2. Launch the CloudToLocalLLM desktop app
 3. Sign in with your Auth0 credentials
-4. Desktop app will connect to: `wss://api.yourdomain.com/ws/tunnel`
-5. WebSocket tunnel established
+4. Use the setup wizard to select and validate the agent runtime.
+5. Use Tailscale for remote devices where possible.
+
+The `/ws/tunnel` path is retained for legacy/fallback testing only. New deployments should prefer the Tailscale secure device mesh and per-user cloud connector design.
 
 ### Troubleshooting Desktop Connection
 
@@ -316,7 +319,7 @@ curl https://yourdomain.com/health
 # API backend
 curl https://api.yourdomain.com/health
 
-# Check WebSocket tunnel (requires auth token)
+# Check legacy WebSocket tunnel (requires auth token)
 curl -i -N \
   -H "Connection: Upgrade" \
   -H "Upgrade: websocket" \

@@ -2,22 +2,22 @@
 
 ## Overview
 
-The CloudToLocalLLM API now supports a tier-based architecture that provides different levels of functionality based on user subscription levels. This document outlines the tier system, available endpoints, and usage patterns.
+The CloudToLocalLLM API supports tier-aware behavior for cloud features, per-user connectors, optional hosted agent runtimes, and legacy proxy paths.
 
-> **Orientation note**: This document still contains older Ollama/direct-proxy endpoint examples. Current product direction is agent-runtime-first and Tailscale-first. Tier policy should apply to selected agent runtimes, optional cloud connectors, optional support model providers, and optional paid hosted agent runtime containers rather than assuming Ollama is a primary local agent runtime.
+> **Status**: This document still contains older Ollama/direct-proxy endpoint examples. Current product direction is agent-runtime-first and Tailscale-first. New tier policy should apply to selected agent runtimes, optional cloud connectors, optional support model providers, and optional paid hosted agent runtime containers. Do not design new primary app flows around direct Ollama proxy endpoints.
 
 ## User Tiers
 
 ### Free Tier
 
-- **Direct tunnel access** without container orchestration
+- **Local/user-owned agent runtime access** without hosted runtime compute
 - **No Docker required** on user's machine
-- **Single connection** to the selected local agent runtime endpoint
+- **Single local or private-network agent runtime path**
 - **Basic features** with upgrade prompts for advanced functionality
 
 ### Premium Tier
 
-- **Container orchestration** with isolated environments
+- **Optional hosted agent runtime or cloud connector orchestration** with isolated environments
 - **Team features** and collaboration tools
 - **API access** for custom integrations
 - **Multiple connections** and advanced networking
@@ -66,11 +66,11 @@ Get current user's tier information and available features.
 }
 ```
 
-### Direct Proxy (Free Tier Only)
+### Direct Proxy (Legacy / Fallback)
 
 #### GET `/api/direct-proxy/:userId/health`
 
-Health check for direct proxy service.
+Health check for the historical direct proxy service.
 
 **Headers:**
 
@@ -91,7 +91,7 @@ Health check for direct proxy service.
 
 #### ALL `/api/direct-proxy/:userId/ollama/*`
 
-Historical direct proxy to a local Ollama instance for free tier users. New agent-runtime designs should expose the selected agent runtime path instead of assuming Ollama.
+Historical direct proxy to a local Ollama support-provider path for free tier users. New agent-runtime designs should expose the selected agent runtime path instead of assuming Ollama.
 
 **Security:**
 
@@ -133,7 +133,7 @@ Content-Type: application/json
 {
   "error": "Request timeout",
   "code": "REQUEST_TIMEOUT",
-  "message": "The request to your local Ollama instance timed out.",
+  "message": "The request to your legacy Ollama support-provider path timed out.",
   "timeout": 30000,
   "requestId": "dp-1642234567890-abc123"
 }
@@ -148,11 +148,11 @@ Content-Type: application/json
 }
 ```
 
-### Container Proxy (Premium/Enterprise Only)
+### Container Proxy (Legacy / Fallback)
 
 #### POST `/api/proxy/start`
 
-Start container-based proxy for premium/enterprise users.
+Start the historical container-based proxy for premium/enterprise users.
 
 **Request:**
 
@@ -223,13 +223,13 @@ Container-based proxy with advanced features (premium/enterprise only).
 
 ### Free Tier
 
-- **Direct proxy**: 100 requests per minute
+- **Legacy direct proxy**: 100 requests per minute when enabled
 - **API calls**: 50 requests per minute
 - **Concurrent connections**: 1
 
 ### Premium Tier
 
-- **Container proxy**: 500 requests per minute
+- **Legacy container proxy**: 500 requests per minute when enabled
 - **API calls**: 200 requests per minute
 - **Concurrent connections**: 10
 
@@ -263,7 +263,7 @@ Container-based proxy with advanced features (premium/enterprise only).
 
 ## Usage Examples
 
-### Free Tier User Flow
+### Legacy Free Tier Proxy Flow
 
 ```javascript
 // 1. Check tier and features
@@ -293,7 +293,7 @@ if (tierInfo.tier === 'free') {
 }
 ```
 
-### Premium Tier User Flow
+### Legacy Premium Proxy Flow
 
 ```javascript
 // 1. Start container-based proxy
@@ -325,14 +325,14 @@ const response = await fetch(`/api/tunnel/${userId}/ollama/api/generate`, {
 
 ### Existing Users
 
-- **Premium/Enterprise users**: No changes required, existing functionality preserved
-- **Free tier users**: Automatically migrated to direct tunnel mode
-- **Setup process**: Updated to be tier-aware with appropriate guidance
+- **Premium/Enterprise users**: Preserve existing proxy behavior where still enabled, but prefer cloud connector or hosted agent runtime design for new work.
+- **Free tier users**: Should use local/user-owned agent runtimes by default.
+- **Setup process**: Must verify an agent runtime first, then configure optional support model providers or cloud features.
 
 ### API Clients
 
-- **Existing endpoints**: Continue to work with tier validation
-- **New endpoints**: Use direct proxy for free tier, container proxy for premium
+- **Existing endpoints**: Continue to work with tier validation where the legacy proxy path is still enabled.
+- **New endpoints**: Prefer selected agent runtime, Tailscale cloud connector, and hosted agent runtime APIs.
 - **Error handling**: Update to handle new tier-related error codes
 
 ## Support & Troubleshooting

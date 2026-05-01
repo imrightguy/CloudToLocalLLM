@@ -53,7 +53,7 @@ Major implementation sprint completing Vision System foundation, Desktop Control
 
 **Next Steps:**
 - Native platform implementations for vision and desktop control
-- Vector embedding integration with local LLM or external service
+- Vector embedding integration with optional support model provider or external service
 - Avatar achievements system
 - Macro scripting for desktop automation
 
@@ -274,7 +274,7 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 
 Guide new users through selected agent runtime configuration with support for:
 - **Local agent runtime**: Hermes, OpenClaw, or a compatible agent gateway on this device
-- **Remote/Tailscale agent runtime**: runtime on another user-controlled device or VPS in the tailnet
+- **Remote/Tailscale agent runtime**: agent runtime on another user-controlled device or VPS in the tailnet
 - **Hosted agent runtime**: optional paid per-user runtime container
 - **Support model provider**: optional Ollama, LM Studio, or custom local model endpoint for memory/background features only
 

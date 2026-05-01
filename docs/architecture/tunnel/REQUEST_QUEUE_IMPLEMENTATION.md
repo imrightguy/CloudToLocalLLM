@@ -1,5 +1,7 @@
 # Request Queue Implementation
 
+> **Status**: Legacy/fallback request queue notes for the older SSH WebSocket tunnel stack. Current connectivity work should prefer the Tailscale secure device mesh.
+
 This document describes the implementation of the request queue with priority and persistence for the SSH WebSocket tunnel enhancement.
 
 ## Overview

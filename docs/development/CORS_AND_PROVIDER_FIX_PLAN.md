@@ -1,5 +1,7 @@
 # CORS and Provider Fix Plan
 
+> **Status**: Historical fix plan. References to `/ollama/bridge/status` and local LLM provider widgets describe older or support-provider paths; they do not make Ollama the primary app runtime. Current main-channel work must start from the selected agent runtime and the Agent Runtime Contract.
+
 ## Issues Identified
 
 1. **CORS Preflight Failures**: Multiple endpoints failing with "No 'Access-Control-Allow-Origin' header is present on the requested resource"
@@ -9,7 +11,7 @@
    - `/api/conversations/*` (PUT)
    - `/api/client-logs` (POST)
 
-2. **Provider Not Found Error**: `Provider<minified:bmF> not found for minified:On` in `local_llm_providers_category.dart`
+2. **Support Provider Not Found Error**: `Provider<minified:bmF> not found for minified:On` in `local_llm_providers_category.dart`
 
 3. **AdminCenterService Not Registered**: Error when accessing in `UnifiedSettingsScreen`
 
@@ -22,7 +24,7 @@
 - **Issue**: Helmet CSP might be interfering with CORS headers
 - **Issue**: Rate limiting middleware might be blocking OPTIONS requests
 
-### 2. Provider Not Found
+### 2. Support Provider Not Found
 
 - **Problem**: `context.read<ProviderConfigurationManager>()` called in `initState()` before provider is available
 - **Location**: `lib/widgets/settings/local_llm_providers_category.dart:67`
@@ -53,7 +55,7 @@
    - Ensure rate limiting doesn't block OPTIONS requests
    - Add exception for preflight requests
 
-### Phase 2: Fix Provider Access (Priority: HIGH)
+### Phase 2: Fix Support Provider Access (Priority: HIGH)
 
 1. **Safe Provider Access**:
    - Change `context.read<ProviderConfigurationManager>()` to use `Provider.of` with error handling

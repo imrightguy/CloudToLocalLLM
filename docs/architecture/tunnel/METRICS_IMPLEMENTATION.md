@@ -1,5 +1,7 @@
 # Tunnel Metrics Collection Implementation
 
+> **Status**: Legacy/fallback tunnel metrics notes for the older SSH WebSocket tunnel stack. Current connectivity work should prefer the Tailscale secure device mesh.
+
 ## Overview
 
 This document describes the implementation of client-side metrics collection for the SSH WebSocket tunnel system. The implementation provides comprehensive performance tracking, real-time quality calculation, and multiple export formats.

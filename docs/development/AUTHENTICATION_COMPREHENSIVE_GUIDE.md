@@ -3,6 +3,8 @@
 **Last Updated**: December 15, 2025  
 **Status**: ✅ ALL AUTHENTICATION SYSTEMS OPERATIONAL
 
+> **Current orientation**: This authentication guide includes older `/ollama/bridge/status` verification examples. Treat those as legacy/support-provider endpoint checks. They do not imply Ollama is the primary app runtime; the main channel must use the selected agent runtime.
+
 ---
 
 ## Quick Start
@@ -126,7 +128,7 @@ SUPABASE_JWT_SECRET=(configured)
 
 - ✅ `POST /auth/sessions` - Create authenticated session
 - ✅ `GET /user/tier` - Get user tier information
-- ✅ `GET /ollama/bridge/status` - Get Ollama bridge status
+- ✅ `GET /ollama/bridge/status` - Get legacy/support-provider bridge status
 - ✅ `PUT /conversations/:id` - Update conversations
 - ✅ All other protected endpoints
 

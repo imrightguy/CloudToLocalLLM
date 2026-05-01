@@ -1,5 +1,7 @@
 # CloudToLocalLLM Docker Development Environment
 
+> **Current orientation**: Docker development can include optional support model providers for testing memory/background features, but the main app channel still requires an agent runtime such as Hermes, OpenClaw, or a compatible agent gateway. Do not treat Ollama/LM Studio containers as primary app runtimes unless wrapped by a compatible agent runtime.
+
 ## Quick Start
 
 ### 1. Build and Validate Environment
@@ -117,7 +119,7 @@ docker compose -f docker-compose.dev.yml up -d
 ### With Testing Services
 
 ```bash
-# Includes Ollama and web server
+# Includes optional support model provider and web server
 docker compose -f docker-compose.dev.yml --profile testing up -d
 ```
 
@@ -235,9 +237,10 @@ This will:
 
 ## Documentation
 
-- [Complete Docker Development Guide](docs/DOCKER_DEVELOPMENT.md)
-- [CloudToLocalLLM Architecture](docs/ARCHITECTURE/)
-- [Development Workflow](docs/DEVELOPMENT/)
+- [Docker Deployment Guide](DOCKER_DEPLOYMENT.md)
+- [CloudToLocalLLM Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
+- [Development Workflow](../development/DEVELOPMENT_WORKFLOW.md)
+- [Docker Scripts](../development/scripts/docker/README.md)
 
 ## Support
 
@@ -246,4 +249,4 @@ For Docker environment issues:
 1. Run validation: `./scripts/docker/validate_dev_environment.sh`
 2. Check health: `flutter-health`
 3. Review logs: `docker compose logs flutter`
-4. Consult [Docker Development Guide](docs/DOCKER_DEVELOPMENT.md)
+4. Consult [Docker Scripts](../development/scripts/docker/README.md)

@@ -175,7 +175,7 @@ flutter run -d linux
 - [ ] ✅ SQLite database creation successful
 - [ ] ✅ Native tray integration works
 - [ ] ✅ Window management functions
-- [ ] ✅ Local Ollama detection works
+- [ ] ✅ Optional support model provider detection works, including Ollama when configured
 - [ ] ✅ File system access available
 
 ## 🔧 **ERROR HANDLING VALIDATION**

@@ -22,7 +22,7 @@ lib/
 │           ├── platform_detection_step.dart
 │           ├── download_step.dart
 │           ├── installation_guide_step.dart
-│           ├── tunnel_configuration_step.dart
+│           ├── tunnel_configuration_step.dart  # legacy name; agent runtime/cloud connector path
 │           ├── validation_step.dart
 │           └── completion_step.dart
 ├── services/
@@ -30,7 +30,7 @@ lib/
 │   ├── user_container_service.dart
 │   ├── platform_detection_service.dart
 │   ├── download_management_service.dart
-│   ├── tunnel_configuration_service.dart
+│   ├── tunnel_configuration_service.dart  # legacy name; prefer Tailscale/cloud connector paths
 │   └── connection_validation_service.dart
 ├── models/
 │   ├── user_setup_status.dart
@@ -67,7 +67,7 @@ class SetupStatusService {
 
 #### UserContainerService
 
-Handles creation and management of user-specific streaming proxy containers.
+Handles creation and management of user-specific cloud connector or hosted agent runtime containers. Older code and docs may still call these streaming proxy containers; new setup work should not assume a proxy container is mandatory.
 
 ```dart
 class UserContainerService {
@@ -212,7 +212,7 @@ class SetupErrorHandler {
       case SetupErrorType.configuration:
         return 'Configuration failed. Please verify your settings and try again.';
       case SetupErrorType.validation:
-        return 'Validation tests failed. Please check your local LLM setup and network connection.';
+        return 'Validation tests failed. Please check your agent runtime, optional support model provider, and network connection.';
       default:
         return 'An unexpected error occurred. Please try again or contact support.';
     }
@@ -782,8 +782,8 @@ class SetupAuthGuard {
 **Solution**:
 
 1. Check desktop client is running and accessible
-2. Verify tunnel configuration is correct
-3. Test local LLM connectivity manually
+2. Verify agent runtime configuration is correct
+3. Test optional support model provider connectivity manually if the failed feature uses one
 4. Review firewall and network settings
 
 ### Debugging Tools

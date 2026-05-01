@@ -1,6 +1,6 @@
 # Tunnel End-to-End Test Scenarios
 
-> **Status**: Legacy/fallback test scenarios for the older SSH WebSocket tunnel path. New end-to-end connectivity tests should prioritize the Tailscale secure device mesh, runtime selection wizard, and per-user cloud connector behavior.
+> **Status**: Legacy/fallback test scenarios for the older SSH WebSocket tunnel path. New end-to-end connectivity tests should prioritize the Tailscale secure device mesh, agent runtime setup wizard, and per-user cloud connector behavior.
 
 This document outlines the complete user flows that need to be tested for the SSH WebSocket tunnel enhancement.
 

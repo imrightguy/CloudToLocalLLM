@@ -1,5 +1,7 @@
 # Inline Code Documentation Guide
 
+> **Status**: Legacy/fallback tunnel documentation guide. Current connectivity work should prefer the Tailscale secure device mesh and selected agent runtime paths. Use these examples only when documenting older tunnel code.
+
 This guide provides standards and examples for adding inline documentation to the tunnel system codebase.
 
 ## TypeScript/Node.js Documentation (JSDoc)

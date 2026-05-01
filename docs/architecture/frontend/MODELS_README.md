@@ -2,6 +2,8 @@
 
 This directory contains all data models used throughout the CloudToLocalLLM application.
 
+> **Current orientation**: Tunnel-related models are legacy/fallback unless a task explicitly targets old tunnel paths. Ollama-specific models describe support model provider errors, not primary agent runtime readiness.
+
 ## Admin Center Models
 
 Models for the Admin Center feature (user management, subscriptions, payments):
@@ -149,11 +151,11 @@ final updated = subscription.copyWith(
 
 ### provider_configuration.dart
 
-**Purpose:** LLM provider configuration
+**Purpose:** Support model provider configuration
 
 ### tunnel_config.dart
 
-**Purpose:** SSH tunnel configuration
+**Purpose:** Legacy/fallback SSH tunnel configuration
 
 ### tunnel_state.dart
 
@@ -167,7 +169,7 @@ final updated = subscription.copyWith(
 
 ### ollama_connection_error.dart
 
-**Purpose:** Ollama-specific connection errors
+**Purpose:** Ollama support model provider connection errors
 
 ## Validation Models
 
@@ -246,10 +248,9 @@ final updated = subscription.copyWith(
 
 ## Related Documentation
 
-- [Admin Center Design](../../.kiro/specs/admin-center/design.md)
-- [Admin Center Requirements](../../.kiro/specs/admin-center/requirements.md)
-- [Admin API Documentation](../../docs/API/ADMIN_API.md)
-- [Backend Services](../../services/api-backend/README.md)
+- Admin Center design and requirements were originally tracked in local `.kiro` specs that are not checked into this repository.
+- [Admin API Documentation](../../api/ADMIN_API.md)
+- [Backend Services](../../backend/services/README.md)
 
 ## Related Services
 

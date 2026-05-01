@@ -3,13 +3,13 @@
 **Project**: CloudToLocalLLM (secure agent companion)
 **Author**: Brainstorming Session
 **Date**: 2026-02-22
-**Status**: Historical design; update implementation against the current runtime-neutral orientation in [SPEC.md](../../SPEC.md)
+**Status**: Historical design; update implementation against the current agent-runtime-first orientation in [SPEC.md](../../SPEC.md) and [Agent Runtime Contract](../architecture/AGENT_RUNTIME_CONTRACT.md)
 
 ---
 
 ## Executive Summary
 
-The Avatar Personality Engine enables the selected agent runtime to develop a companion personality that evolves organically through meaningful conversations. The original design centered on OpenClaw Gateway; current implementation should keep that path supported while allowing Hermes and other configured runtimes to participate through runtime adapters. Voice belongs with this avatar companion and should be able to open as a sidecar surface.
+The Avatar Personality Engine enables the selected agent runtime to develop a companion personality that evolves organically through meaningful conversations. The original design centered on OpenClaw Gateway; current implementation should keep that path supported while allowing Hermes and other configured agent runtimes to participate through runtime adapters. Voice belongs with this avatar companion and should be able to open as a sidecar surface.
 
 **Key Design Principles**:
 - **Collaborative Evolution**: Agent self-reflection + app validation (no XP grinding)

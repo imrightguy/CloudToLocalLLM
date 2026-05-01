@@ -2,11 +2,13 @@
 
 This directory contains the settings-related screens for CloudToLocalLLM.
 
+> **Current orientation**: Local LLM/provider settings are support model provider settings. They are separate from primary agent runtime settings and must not present Ollama or LM Studio as the main app runtime unless wrapped by a compatible agent gateway.
+
 ## Structure
 
-- `connection_status_screen.dart` - Displays connection status to local LLM providers
+- `connection_status_screen.dart` - Displays connection status to agent runtimes and support model providers
 - `daemon_settings_screen.dart` - Settings for the daemon/backend service
-- `llm_provider_settings_screen.dart` - Configuration for local LLM providers
+- `llm_provider_settings_screen.dart` - Configuration for local support model providers
 
 ## New Settings Architecture
 
@@ -22,7 +24,7 @@ The unified settings screen is being implemented with the following components:
 ### Settings Categories
 
 - **General** - Theme, language, and general preferences
-- **Local LLM Providers** - Configure local AI model providers
+- **Support Model Providers** - Configure local model providers for memory/background features
 - **Account** - Account information and subscription
 - **Privacy** - Privacy and data collection settings
 - **Desktop** - Desktop application settings (Windows/Linux only)

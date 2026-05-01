@@ -1,5 +1,7 @@
 # CloudToLocalLLM Docker Deployment Guide
 
+> **Status**: Historical Docker Swarm runbook for the older streaming-proxy stack. Current deployment direction is described in [docs/deployment/DEPLOYMENT_OVERVIEW.md](docs/deployment/DEPLOYMENT_OVERVIEW.md): agent-runtime-first, Tailscale-first, optional per-user cloud connector, and optional hosted agent runtime. Use this file only when maintaining the older Swarm deployment path.
+
 ## Prerequisites
 
 - Docker Swarm initialized (already running on LXC container)
@@ -90,7 +92,7 @@ curl http://localhost:3001/health
 | Service | Port | Description |
 |---------|------|-------------|
 | API Backend | 8080 | REST API with Auth0 JWT |
-| Streaming Proxy | 3001 | WebSocket proxy for LLM streaming |
+| Streaming Proxy | 3001 | Legacy/fallback WebSocket proxy service |
 | Redis | 6379 | Rate limiting cache |
 | Traefik | 80, 443 | Reverse proxy with SSL |
 | Prometheus | 9090 | Metrics collection |

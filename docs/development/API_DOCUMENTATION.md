@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-CloudToLocalLLM v3.6.2+ provides comprehensive APIs for bridge communication, streaming proxy management, and service integration. This document covers all available APIs for developers and integrators.
+CloudToLocalLLM v3.6.2+ provides APIs for bridge communication, legacy streaming proxy management, and service integration. Current main-channel work should use the selected agent runtime, Tailscale secure device mesh, and per-user cloud connector model rather than assuming a streaming proxy is the default path.
 
 **API Base URLs:**
 
@@ -390,7 +390,7 @@ wss://api.cloudtolocalllm.online/ws/tunnel?token=<jwt_token>
 1. Desktop client connects with JWT token
 2. Server validates token and extracts user ID
 3. Connection established with health monitoring
-4. Client receives HTTP requests to forward to local Ollama
+4. Client receives HTTP requests to forward to the legacy local provider path
 
 #### **HTTP Proxy Endpoints**
 
@@ -452,7 +452,7 @@ Proxy HTTP requests to user's desktop client (requires auth)
 **Example:**
 
 ```bash
-# Proxy request to local Ollama
+# Proxy request to a legacy local provider path
 curl -X POST https://api.cloudtolocalllm.online/api/tunnel/auth0|user123/api/chat \
   -H "Authorization: Bearer <jwt_token>" \
   -H "Content-Type: application/json" \

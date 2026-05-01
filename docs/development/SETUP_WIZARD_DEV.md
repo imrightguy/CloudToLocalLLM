@@ -17,10 +17,10 @@ FirstTimeSetupWizard (StatefulWidget)
 ├── SetupWizardState (State Management)
 ├── WizardStepManager (Step Navigation)
 ├── SetupStatusService (Status Tracking)
-├── UserContainerService (Container Management)
+├── UserContainerService (Cloud Connector / Hosted Runtime Container Management)
 ├── PlatformDetectionService (OS Detection)
 ├── DownloadManagementService (Download Handling)
-├── TunnelConfigurationService (Connection Setup)
+├── TunnelConfigurationService (Legacy name; agent runtime/cloud connector setup)
 └── ConnectionValidationService (Testing)
 ```
 
@@ -38,7 +38,7 @@ FirstTimeSetupWizard (StatefulWidget)
 #### UserContainerService
 
 - **Location**: `lib/services/user_container_service.dart`
-- **Purpose**: Manages user-specific streaming proxy containers
+- **Purpose**: Manages user-specific cloud connector or hosted agent runtime containers. Older code may still call these streaming proxy containers; new setup work should not make a proxy container mandatory.
 - **Key Methods**:
   - `createUserContainer(String userId)` - Create isolated container
   - `validateContainerHealth(String containerId)` - Health checks

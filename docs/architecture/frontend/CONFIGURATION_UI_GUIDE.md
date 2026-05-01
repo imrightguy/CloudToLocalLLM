@@ -2,11 +2,13 @@
 
 This guide provides comprehensive documentation for the enhanced configuration management and UI components in CloudToLocalLLM.
 
+> **Current orientation**: Provider configuration here describes support model providers for app-owned features. The primary app channel connects to an agent runtime through setup and the Agent Runtime Contract.
+
 ## Provider Configuration Management
 
 ### Overview
 
-The provider configuration system provides type-safe, validated configuration management for different LLM provider types with persistence and migration support.
+The provider configuration system provides type-safe, validated configuration management for different support model provider types with persistence and migration support.
 
 ### Core Components
 
@@ -30,9 +32,9 @@ abstract class ProviderConfiguration {
 
 **Provider-Specific Configurations**
 
-- **OllamaProviderConfiguration**: Ollama-specific settings including streaming, embeddings, concurrent requests, and keep-alive timeout
-- **LMStudioProviderConfiguration**: LM Studio settings with model parameters (temperature, topP, maxTokens)
-- **OpenAICompatibleProviderConfiguration**: OpenAI-compatible API settings with authentication and API versioning
+- **OllamaProviderConfiguration**: Ollama-specific support model settings including streaming, embeddings, concurrent requests, and keep-alive timeout
+- **LMStudioProviderConfiguration**: LM Studio support model settings with model parameters (temperature, topP, maxTokens)
+- **OpenAICompatibleProviderConfiguration**: OpenAI-compatible support model API settings with authentication and API versioning
 
 **Validation System**
 

@@ -24,7 +24,7 @@ For project-wide agent instructions, see [AGENTS.md](../AGENTS.md). For the prod
 - [Avatar System](architecture/AVATAR_SYSTEM.md)
 - [Desktop Control](architecture/DESKTOP_CONTROL.md)
 - [Vision System](architecture/VISION_SYSTEM.md)
-- [Tunnel System](architecture/TUNNEL_SYSTEM.md)
+- [Tunnel System](architecture/TUNNEL_SYSTEM.md) - legacy/fallback tunnel reference
 - [Service Lifecycle](architecture/service_lifecycle.md)
 - [Architecture Codemap](architecture/architecture-codemap.md)
 
@@ -42,11 +42,11 @@ For project-wide agent instructions, see [AGENTS.md](../AGENTS.md). For the prod
 
 - [API Index](api/README.md)
 - [Admin API](api/ADMIN_API.md)
-- [Tunnel Client API](api/TUNNEL_CLIENT_API.md)
-- [Tunnel Server API](api/TUNNEL_SERVER_API.md)
+- [Tunnel Client API](api/TUNNEL_CLIENT_API.md) - legacy/fallback tunnel reference
+- [Tunnel Server API](api/TUNNEL_SERVER_API.md) - legacy/fallback tunnel reference
 - [Backend Database](backend/database/README.md)
 - [Backend Services](backend/services/README.md)
-- [Streaming Proxy Deployment](backend/streaming-proxy/DEPLOYMENT.md)
+- [Streaming Proxy Deployment](backend/streaming-proxy/DEPLOYMENT.md) - legacy/fallback proxy service
 
 ## Deployment And Operations
 

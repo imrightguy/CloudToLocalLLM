@@ -1,5 +1,7 @@
 # Streaming Proxy Deployment Guide
 
+> **Status**: Legacy/fallback service deployment guide. Current product direction prefers the Tailscale secure device mesh with per-user cloud connectors and selected agent runtimes. Use this guide only for maintaining or testing the existing streaming-proxy service.
+
 ## Overview
 
 The streaming-proxy service is a Node.js application that provides WebSocket connection management, SSH tunneling, rate limiting, circuit breaking, and authentication for the CloudToLocalLLM system.

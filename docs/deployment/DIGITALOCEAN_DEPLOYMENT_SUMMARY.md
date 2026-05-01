@@ -1,5 +1,7 @@
 # 🚀 DigitalOcean Kubernetes Deployment - Ready to Deploy
 
+> **Status**: Provider-specific deployment snapshot. Current product direction is agent-runtime-first and Tailscale-first with optional per-user cloud connector containers and optional paid hosted agent runtime containers. Treat older WebSocket tunnel verification notes in this file as legacy/fallback checks, not the default connectivity design.
+
 ## ✅ What's Been Configured
 
 Your CloudToLocalLLM project is now fully configured for DigitalOcean Kubernetes deployment with:

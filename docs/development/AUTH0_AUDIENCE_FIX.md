@@ -1,12 +1,14 @@
 # Auth0 Audience Mismatch Fix
 
+> **Status**: Historical authentication fix note. References to `/ollama/bridge/status` describe an older support-provider/bridge endpoint and do not imply Ollama is the primary app runtime.
+
 ## Problem Summary
 
 After successful Auth0 login, the Flutter web app was making API calls that all failed with 401 (Unauthorized) errors:
 
 - `POST /auth/sessions` → 400 (Bad Request)
 - `GET /user/tier` → 401 (Unauthorized)
-- `GET /ollama/bridge/status` → 401 (Unauthorized)
+- `GET /ollama/bridge/status` → 401 (Unauthorized, legacy/support-provider endpoint)
 - `PUT /conversations/conv_*` → 401 (Unauthorized)
 
 ## Root Cause

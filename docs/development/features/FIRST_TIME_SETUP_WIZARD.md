@@ -1,6 +1,6 @@
 # First-Time Setup Wizard
 
-> **Current orientation**: The setup wizard is the authority for selecting an agent runtime and device path. It must not assume a default runtime. Hermes is the first current test path; OpenClaw remains supported; compatible custom agent gateways and optional hosted agent runtimes are valid primary paths. LM Studio, Ollama, and similar model servers are optional support model providers for memory/background features, not primary app runtimes. Remote runtime and cloud connector flows should prefer Tailscale over the older custom tunnel stack.
+> **Current orientation**: The setup wizard is the authority for selecting an agent runtime and device path. It must not assume a default runtime. Hermes is the first current test path; OpenClaw remains supported; compatible custom agent gateways and optional hosted agent runtimes are valid primary paths. LM Studio, Ollama, and similar model servers are optional support model providers for memory/background features, not primary app runtimes. Remote agent runtime and cloud connector flows should prefer Tailscale over the older custom tunnel stack.
 
 ## Overview
 
@@ -116,7 +116,7 @@ sequenceDiagram
     
     U->>W: Complete installation
     W->>S: Validate connection
-    S->>B: Test runtime and Tailscale path
+    S->>B: Test agent runtime and Tailscale path
     B->>C: Health check
     C-->>B: Connection status
     B-->>S: Validation results
@@ -324,7 +324,7 @@ class SetupWizardFeatureFlags {
 
 - **Connector Creation Time**: Average time to create optional per-user connector containers
 - **Download Success Rate**: Percentage of successful downloads
-- **Connection Validation Time**: Time to validate runtime and Tailscale paths
+- **Connection Validation Time**: Time to validate agent runtime and Tailscale paths
 - **Page Load Times**: Performance of wizard step loading
 
 #### User Experience Metrics

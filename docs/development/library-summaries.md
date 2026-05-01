@@ -10,7 +10,7 @@ This file contains concise, project-relevant summaries for commonly used librari
 
 - **`rxdart`**: Reactive stream utilities that extend Dart Streams with Subjects, transformers, and useful operators. Use `BehaviorSubject` for current-value streams, `PublishSubject` for transient events. Useful in `StreamingMessage` patterns; remember to close subjects to avoid leaks.
 
-- **`langchain` (Python)**: Framework for building LLM-based chains and agents. Key concepts: `Chains`, `Agents`, `Tools`, `Memory` stores (InMemory, Redis, Postgres), and streaming. When using Ollama or local LLMs, prefer the `langchain_ollama` connector for compatibility and streaming. Use checkpointers and memory stores for long-running chains.
+- **`langchain` (Python)**: Framework for building LLM-based chains and agents. Key concepts: `Chains`, `Agents`, `Tools`, `Memory` stores (InMemory, Redis, Postgres), and streaming. When using Ollama as an optional support model provider, prefer the `langchain_ollama` connector for compatibility and streaming. Use checkpointers and memory stores for long-running chains.
 
 - **`langchain_ollama`**: Connector enabling LangChain to talk to Ollama local models; supports streaming outputs. Pay attention to model name compatibility and Ollama server endpoints; handle timeouts and local server availability.
 
