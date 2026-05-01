@@ -1,5 +1,7 @@
 # Tunnel Server API Documentation
 
+> **Status**: Legacy/fallback API. Current product orientation prefers Tailscale as the secure transport for device, runtime, web, and cloud connector paths. Keep this document for existing tunnel maintenance and migration reference; new designs should start with [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md).
+
 ## Overview
 
 The Tunnel Server API provides REST endpoints and WebSocket protocol for managing secure SSH-over-WebSocket tunnels. This document describes all endpoints, message formats, and error codes.

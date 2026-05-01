@@ -1,135 +1,109 @@
 # CloudToLocalLLM Troubleshooting Guide
 
-This guide helps you resolve common issues with CloudToLocalLLM.
+This guide helps diagnose setup, runtime, mesh, desktop-control, voice, and sync problems.
+
+CloudToLocalLLM does not require one default runtime. Confirm which runtime the setup wizard selected before troubleshooting.
 
 ---
 
-## Connection Problems
+## Runtime Connection Problems
 
-### OpenClaw Gateway Not Detected
+### Runtime Not Detected
 
-**Symptoms**: "No OpenClaw connection" message, empty model list, or timeout errors.
+**Symptoms**: Empty model list, timeout errors, disconnected status, or disabled chat input.
 
-**Solutions**:
+**Checks**:
 
-1. **Check if OpenClaw is running**:
-   - **Linux**: `ps aux | grep openclaw` or check `localhost:18789`
-   - **Windows**: Check for OpenClaw in Task Manager or system tray
-   - **Command**: `curl http://localhost:18789/health` should return status
+1. Confirm the selected runtime is running.
+2. Confirm the endpoint in setup or settings.
+3. Test the endpoint directly when possible.
 
-2. **Verify Port**: OpenClaw defaults to port `18789`. Ensure no other service is using this port:
-   ```bash
-   # Linux
-   lsof -i :18789
+```bash
+# OpenClaw Gateway
+curl http://localhost:18789/health
 
-   # Windows
-   netstat -ano | findstr :18789
-   ```
+# LM Studio
+curl http://localhost:1234/v1/models
 
-3. **Manual Configuration**: If OpenClaw runs on a different port/IP:
-   - Go to **Settings > LLM Provider Settings**
-   - Enter your custom URL (e.g., `http://192.168.1.100:18789`)
+# Ollama
+curl http://localhost:11434/api/tags
+```
 
-4. **Restart Gateway**: Stop and restart OpenClaw Gateway
+For Hermes and custom endpoints, use the health or model route exposed by that runtime and the setup wizard connection test.
 
-### Remote Gateway (Tailscale/VPS) Not Connecting
+### Wrong Runtime Selected
 
-**Symptoms**: Cannot connect to remote OpenClaw Gateway.
+1. Open runtime settings.
+2. Review the active runtime and endpoint.
+3. Re-run the setup wizard connection test.
+4. Switch to Hermes, OpenClaw, LM Studio, Ollama, or a custom endpoint as needed.
 
-**Solutions**:
+### Remote Runtime Not Connecting
 
-1. **Tailscale Connection**:
-   - Verify Tailscale is running: `tailscale status`
-   - Check you're on the same tailnet
-   - Ping the remote machine: `ping <tailscale-ip>`
+Prefer Tailscale for remote runtime paths.
 
-2. **SSH Tunnel**:
-   - Verify SSH key is configured
-   - Check tunnel is established
-   - Test connection: `curl http://localhost:18789/health`
+```bash
+tailscale status
+tailscale ping <runtime-device-name>
+```
 
-3. **Firewall**: Ensure port 18789 is open on the remote machine
+Confirm:
+
+- Both devices are in the expected tailnet.
+- The runtime is listening on the expected interface.
+- The runtime device firewall allows access from the tailnet.
+- The endpoint uses the tailnet hostname or IP, not an unreachable LAN-only address.
+
+---
+
+## Secure Device Mesh
+
+### Device Does Not Appear
+
+- Confirm CloudToLocalLLM is installed and signed in where sync is expected.
+- Confirm Tailscale is running on the device.
+- Check account sync settings.
+- Re-open the app after network changes.
+
+### Cloud Connector Not Working
+
+- Confirm the connector was approved in setup.
+- Confirm it joined the user's tailnet.
+- Check that the connector belongs to the expected user container.
+- Verify that it is coordinating sync and reachability only; it should not grant desktop permissions by itself.
+
+### Sync Works But Desktop Control Does Not
+
+That is expected unless the target device granted desktop permissions. Conversation and presence sync are global account features; desktop, vision, clipboard, file, and command permissions are device-scoped.
 
 ---
 
 ## Desktop App Issues
 
-### Application Won't Start
+### Application Will Not Start
 
-**Solutions**:
+Linux:
 
-1. **Dependencies**:
-   - **Linux**: Check for missing libraries with `ldd`
-   - Run with verbose flag: `./cloudtolocalllm --verbose`
+```bash
+ldd /opt/CloudToLocalLLM/CloudToLocalLLM
+./cloudtolocalllm --verbose
+```
 
-2. **Corrupted Config**: Clear local config:
-   ```bash
-   # Linux
-   rm -rf ~/.config/CloudToLocalLLM/
+Windows:
 
-   # Windows
-   rmdir /s "%APPDATA%\CloudToLocalLLM"
-   ```
+```powershell
+eventvwr.msc
+```
 
-### System Tray Not Visible (Linux)
+Also check antivirus, controlled folder access, and missing desktop dependencies.
 
-**Solutions**:
+### System Tray Not Visible On Linux
 
-1. **Install Support Packages**:
-   ```bash
-   sudo apt install libayatana-appindicator3-1
-   ```
+```bash
+sudo apt install libayatana-appindicator3-1
+```
 
-2. **GNOME Extension**: Install "AppIndicator and KStatusNotifierItem Support"
-
-3. **Restart App**: Quit and relaunch to see error logs
-
----
-
-## Authentication Issues (Cloud Features)
-
-### Login Loops or Failures
-
-**Cloud features are optional** — local mode works without authentication.
-
-**If using cloud features**:
-
-1. **Check Auth0 Status**: [status.auth0.com](https://status.auth0.com)
-
-2. **System Time**: Ensure your clock is accurate (JWT tokens fail with time skew)
-
-3. **Clear Browser Data** (web version only): Clear cookies for the app domain
-
-4. **Keyring/Keychain**: Ensure OS credential storage is unlocked
-
----
-
-## Performance & Resources
-
-### High CPU/RAM Usage
-
-**Solutions**:
-
-1. **Model Size**: Use smaller models (Qwen 7B instead of 70B)
-
-2. **GPU Acceleration**: Ensure NVIDIA drivers are installed and working:
-   ```bash
-   nvidia-smi
-   ```
-
-3. **Context Length**: Reduce conversation context length for faster responses
-
-4. **Vision Features**: OCR and continuous monitoring are CPU-intensive
-
-### Slow Responses
-
-**Solutions**:
-
-1. **Check Gateway Health**: High latency = slow responses
-
-2. **Model Performance**: Some models are faster than others
-
-3. **System Resources**: Check CPU/RAM usage
+For GNOME, install the "AppIndicator and KStatusNotifierItem Support" extension, then restart the desktop session.
 
 ---
 
@@ -137,124 +111,143 @@ This guide helps you resolve common issues with CloudToLocalLLM.
 
 ### Automation Not Working
 
-**Solutions**:
+Check:
 
-1. **Permissions**: Ensure the app has necessary permissions
+- The current device granted the required permission.
+- The requested action type is enabled.
+- The action is approved if approval is required.
+- The platform supports the action.
+- Linux Wayland restrictions are not blocking capture or input injection.
 
-2. **Platform**: Desktop control works on Linux and Windows only (not web)
+### Screenshot Or Region Capture Failed
 
-3. **Wayland (Linux)**: Some features may require X11
+- Confirm screen-capture permission.
+- On Linux, try an X11 session if Wayland blocks the feature.
+- Check temp directory and app data permissions.
+- Confirm no privacy overlay or OS security setting is blocking capture.
 
-4. **Screenshot Failed**: Check temp directory permissions
+### Command Execution Disabled
+
+Command execution should be explicit and device-scoped. Enable it only for devices where shell access is intended.
+
+---
+
+## Vision Issues
 
 ### Vision Analysis Fails
 
-**Solutions**:
+- Confirm the active runtime exposes a vision-capable model or tool.
+- Confirm screenshot capture works first.
+- Use PNG screenshots when manually testing.
+- Install OCR dependencies if local OCR is enabled:
 
-1. **OpenClaw Vision Model**: Verify vision model is loaded in Gateway
-
-2. **Image Format**: Ensure screenshots are in PNG format
-
-3. **OCR Failed**: Install Tesseract:
-   ```bash
-   sudo apt install tesseract-ocr
-   ```
-
----
-
-## Setup Wizard Issues
-
-### Wizard Won't Proceed
-
-**Symptoms**: Stuck on a step, can't continue.
-
-**Solutions**:
-
-1. **Skip for Returning Users**: If you've configured before, click "Skip Setup"
-
-2. **Force Re-run**: Clear first-run flag in config
-
-3. **Manual Config**: Go to Settings > LLM Provider Settings to configure manually
-
----
-
-## Platform-Specific Issues
-
-### Linux
-
-**Wayland**: Some features (screenshots, automation) work better on X11
-
-**Dependencies**: Install missing packages:
 ```bash
-sudo apt install libayatana-appindicator3-1 tesseract-ocr
+sudo apt install tesseract-ocr
 ```
 
-### Windows
+### Camera Input Fails
 
-**Defender**: Add exception for CloudToLocalLLM if needed
-
-**Firewall**: Allow CloudToLocalLLM through Windows Firewall
-
-### Web
-
-**Limitations**: Desktop control and automation not available
-
-**Browser**: Use Chrome or Edge for best experience
+- Confirm camera permission on the device.
+- Check whether another app is using the camera.
+- Confirm the platform implementation supports camera capture.
 
 ---
 
-## Data & Storage
+## Voice Companion Issues
 
-### Lost Conversations
+### Companion Window Will Not Open
 
-**Local Storage**: Conversations stored in:
-- **Linux**: `~/.local/share/cloudtolocalllm/local_brain.db`
-- **Windows**: `%LOCALAPPDATA%\cloudtolocalllm\local_brain.db`
+- Open it from the tray or companion settings.
+- Restart the app if the pop-out state is stuck.
+- Check logs for window manager or popout service errors.
 
-**Backup**: Copy this file regularly
+### Speech Output Not Working
 
-### Reset to Defaults
+- Confirm the selected runtime or fallback service supports text-to-speech.
+- Check audio output device settings.
+- Test with a short message.
 
-**Warning**: This deletes all data!
+### Microphone Input Not Working
+
+- Confirm microphone permission.
+- Check OS input device settings.
+- Confirm voice input is enabled in companion settings.
+- Check whether the current build includes the planned microphone/VAD path.
+
+---
+
+## Authentication And Cloud Features
+
+Cloud features are optional. Local runtime use should remain possible without authentication where the selected features do not need sync.
+
+### Login Loops Or Failures
+
+- Check system time and timezone.
+- Clear browser cookies for the app domain on web.
+- Confirm OS credential storage is available on desktop.
+- Check Auth0 status if account-backed features are down.
+
+---
+
+## Performance
+
+### Slow Responses
+
+- Check runtime health and latency.
+- Use a smaller or faster model.
+- Reduce conversation context length.
+- Move the runtime to a stronger local device or optional hosted runtime.
+- Confirm Tailscale latency for remote runtimes.
+
+### High CPU Or RAM
+
+- Reduce model size.
+- Disable continuous vision monitoring.
+- Avoid heavy OCR loops.
+- Check GPU driver status for local model acceleration:
 
 ```bash
-# Linux
+nvidia-smi
+```
+
+---
+
+## Data And Storage
+
+### Conversation Storage
+
+- Linux: `~/.local/share/cloudtolocalllm/local_brain.db`
+- Windows: `%LOCALAPPDATA%\cloudtolocalllm\local_brain.db`
+
+### Logs
+
+- Linux: `~/.local/share/cloudtolocalllm/logs/app.log`
+- Windows: `%LOCALAPPDATA%\cloudtolocalllm\logs\app.log`
+
+### Reset Configuration
+
+This removes local app configuration and local app data.
+
+Linux:
+
+```bash
 rm -rf ~/.config/CloudToLocalLLM/ ~/.local/share/cloudtolocalllm/
+```
 
-# Windows
-rmdir /s "%APPDATA%\CloudToLocalLLM" %LOCALAPPDATA%\CloudToLocalLLM"
+Windows:
+
+```cmd
+rmdir /s "%APPDATA%\CloudToLocalLLM"
+rmdir /s "%LOCALAPPDATA%\CloudToLocalLLM"
 ```
 
 ---
 
-## Logs & Debugging
+## More Help
 
-### Finding Logs
-
-**Linux**: `~/.local/share/cloudtolocalllm/logs/app.log`
-
-**Windows**: `%LOCALAPPDATA%\cloudtolocalllm\logs\app.log`
-
-### Enable Debug Mode
-
-Run with verbose flag:
-```bash
-./cloudtolocalllm --verbose
-```
-
----
-
-## Getting More Help
-
-If your issue isn't listed here:
-
-1. **Documentation**:
-   - [USER_GUIDE.md](USER_GUIDE.md)
-   - [SETUP_GUIDE.md](SETUP_GUIDE.md)
-   - [FEATURES_GUIDE.md](FEATURES_GUIDE.md)
-
-2. **Architecture**: [SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)
-
-3. **GitHub Issues**: [Report a bug](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
-
-4. **Check Existing Issues**: Search before creating new issues
+- [User Guide](USER_GUIDE.md)
+- [Setup Guide](SETUP_GUIDE.md)
+- [Features Guide](FEATURES_GUIDE.md)
+- [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
+- [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md)
+- [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)

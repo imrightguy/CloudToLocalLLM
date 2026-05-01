@@ -1,18 +1,23 @@
 # CloudToLocalLLM User Guide
 
-**OpenClaw Agent Manager** — A privacy-first desktop AI companion.
+CloudToLocalLLM is a privacy-first companion shell for Hermes, OpenClaw, and other local or private agent runtimes. It gives the selected runtime a secure channel to you, plus controlled access to desktop, vision, voice, avatar, and multi-device sync features.
+
+The setup wizard decides which runtime and device path to use. There is no universal default runtime. Hermes is the first runtime path used for current testing, while OpenClaw remains a supported runtime and the original integration target.
 
 ---
 
 ## Overview
 
-CloudToLocalLLM is organized around **Five Core Pillars**:
+CloudToLocalLLM is organized around six core pillars:
 
-1. **Chat** — Unified chat interface with streaming responses
-2. **OpenClaw Gateway Management** — Start, stop, monitor your local AI
-3. **Evolving Avatar** — Visual character that grows with you
-4. **Desktop Control** — GUI automation and system control
-5. **Vision** — Screen understanding and camera input
+1. **Secure Agent Channel** - The main window is a direct, low-friction channel to the selected runtime.
+2. **Avatar And Voice Companion** - A sidecar companion window for avatar presence and voice interaction.
+3. **Desktop Control** - Permissioned hands-on access to the current desktop.
+4. **Vision** - Screen, region, OCR, and camera understanding.
+5. **Runtime And Agent Management** - Runtime discovery, health, models, tools, and agent sessions.
+6. **Secure Device Mesh** - Tailscale-first connectivity and optional cloud sync across your devices.
+
+Agent management is still available, but it is not the first thing in the interface. The first screen should feel like a secure conversation path to the active runtime.
 
 ---
 
@@ -20,210 +25,189 @@ CloudToLocalLLM is organized around **Five Core Pillars**:
 
 ### First Run
 
-When you first launch CloudToLocalLLM, you'll be guided through the **Setup Wizard**:
+When you first launch CloudToLocalLLM, the setup wizard guides you through the decisions that matter:
 
-1. **Connection Method** — Choose how to connect to OpenClaw Gateway:
-   - **Local**: OpenClaw running on this computer (localhost:18789)
-   - **Tailscale**: OpenClaw on your tailnet/VPS
-   - **Custom**: SSH tunnel, VPN, or custom URL
+1. **Choose a runtime**
+   - Hermes on this machine or another device
+   - OpenClaw Gateway
+   - LM Studio
+   - Ollama
+   - Custom OpenAI-compatible endpoint
 
-2. **Provider Detection** — The wizard automatically detects your OpenClaw Gateway
+2. **Choose where the runtime lives**
+   - This computer
+   - Another device on your Tailscale tailnet
+   - A private server or VPS in your tailnet
+   - Optional CloudToLocalLLM-hosted runtime container
 
-3. **Connection Test** — Verify your connection is working
+3. **Test the connection**
+   - The wizard checks health, available models, and streaming support.
+   - Hermes is the first runtime path to validate during current testing.
 
-4. **Complete** — Start chatting!
+4. **Set desktop permissions**
+   - Desktop control, clipboard, file actions, vision, and command execution are enabled per device.
+   - Remote devices cannot receive desktop actions unless that device grants them.
 
-### Installing OpenClaw Gateway
+5. **Enable optional sync**
+   - Conversation state and presence can sync between installed devices.
+   - Local desktop permissions and action approvals remain device-scoped.
 
-If the wizard doesn't find OpenClaw Gateway:
+### Runtime Discovery
 
-- **Download**: Get OpenClaw Gateway from [GitHub](https://github.com/your-repo/openclaw)
-- **Run**: `./openclaw-gateway` (Linux) or `openclaw-gateway.exe` (Windows)
-- **Default Port**: 18789
+The app can discover common local runtimes:
+
+| Runtime | Typical Endpoint | Notes |
+| --- | --- | --- |
+| Hermes | Configured by wizard | First runtime path for current testing |
+| OpenClaw Gateway | `localhost:18789` | Supported original integration |
+| LM Studio | `localhost:1234` | OpenAI-compatible local provider |
+| Ollama | `localhost:11434` | Local model runtime |
+| Custom endpoint | User supplied | Private runtime, server, or compatible API |
 
 ---
 
-## Pillar 1: Chat
+## Secure Agent Channel
 
-### Starting a Conversation
-
-1. Click the "+" button or select "New Conversation" from the drawer
-2. Type your message in the input field
-3. Press Enter or click Send
+The main app window is the direct channel to the selected runtime.
 
 ### Chat Features
 
-- **Streaming Responses**: See responses generate token-by-token
-- **Conversation History**: Automatically saved locally
-- **Model Selection**: Switch between available models
-- **Search**: Find messages across all conversations
-- **Export/Import**: Backup or transfer your conversations
+- Streaming responses
+- Conversation history
+- Model selection when the runtime exposes multiple models
+- Search across conversations
+- Import and export
+- Runtime status and connection health
 
-### Multi-Model Support
+### Runtime Switching
 
-CloudToLocalLLM supports multiple local LLM providers:
+Runtime and agent management lives behind settings, setup, and management views. Use it to:
 
-| Provider | Default Port | Status |
-|----------|--------------|--------|
-| OpenClaw Gateway | 18789 | Primary |
-| LM Studio | 1234 | Alternative |
-| Ollama | 11434 | Alternative |
-
----
-
-## Pillar 2: OpenClaw Gateway Management
-
-### What is OpenClaw Gateway?
-
-OpenClaw Gateway is your local AI engine that runs entirely on your computer. It provides:
-
-- **LLM Models**: Text generation and chat
-- **Vision Models**: Screen and image understanding
-- **Agent System**: Tools, skills, and memory
-
-### Monitoring Your Gateway
-
-Access the **Dashboard** to view:
-
-- **Connection Status**: Online/offline state
-- **Health**: Response times and error rates
-- **Active Agents**: Currently running agent sessions
-- **Resource Usage**: CPU and memory consumption
-
-### Gateway Controls
-
-- **Start**: Launch OpenClaw Gateway
-- **Stop**: Gracefully shutdown
-- **Restart**: Quick restart the service
-- **Auto-Restart**: Automatically restart on crash (settings)
+- Add or remove runtime endpoints
+- Test health and streaming
+- Select models
+- Inspect active agent sessions
+- Review available tools and capabilities
 
 ---
 
-## Pillar 3: Evolving Avatar
+## Avatar And Voice Companion
 
-### Your AI Companion
+The avatar and voice companion are one feature surface. The companion can appear as a sidecar or pop-out window, so it can stay open beside the main app or another desktop workflow.
 
-The avatar is a visual representation of your AI that evolves over time:
+### Companion Features
 
-- **States**: Reacts to what's happening (idle, thinking, working, happy, error)
-- **Personality**: Develops traits based on your interactions
-- **Leveling**: Earn XP through conversations and achievements
-- **Memory**: Remembers important details from your chats
+- Avatar state: idle, listening, thinking, speaking, working, error
+- Voice conversation mode
+- Push-to-talk and planned wake/listening flows
+- Text-to-speech through the selected runtime or CloudToLocalLLM fallback services
+- Personality, memory, and evolution features as they mature
 
-### Avatar States
-
-| State | Appearance | Meaning |
-|-------|-------------|---------|
-| 🦞 Idle | Lobster resting | Ready for your input |
-| 🤔 Thinking | Question mark | Processing your request |
-| ⚡ Working | Lightning | Executing a task |
-| 💢 Error | Angry face | Something went wrong |
-| ✨ Happy | Sparkles | Success/celebration |
-
-### Evolution System
-
-- **XP**: Earn experience through conversations and feature usage
-- **Levels**: Unlock new visual elements and features
-- **Achievements**: Unlock special milestones (First Words, Social Butterfly, etc.)
+The companion should not replace the main secure channel. It provides presence, voice, and side conversation while the main window remains focused on the active runtime conversation.
 
 ---
 
-## Pillar 4: Desktop Control
+## Desktop Control
 
-### GUI Automation
+Desktop control is a core feature. It gives the selected runtime controlled hands-on capability on the current device.
 
-The AI can see and interact with your desktop:
+### Capabilities
 
-- **Screenshot**: Capture what's on your screen
-- **Vision Analysis**: Understand UI elements and content
-- **Actions**: Click, type text, press keys
-- **Automation**: Execute complex action sequences
+- Screenshot capture
+- Region capture
+- Vision analysis
+- Click, type, and keyboard actions
+- Clipboard actions
+- Window management
+- System notifications
+- Command execution when explicitly enabled
 
-### Using Desktop Control
+### Safety Model
 
-1. Navigate to **Desktop Control** from the menu
-2. Click **"Take Screenshot"** to capture your screen
-3. The AI analyzes the screenshot
-4. Request actions like "Click the Firefox icon" or "Type 'hello world'"
-
-### System Commands
-
-Execute system commands directly:
-- Open applications
-- List files
-- Get system stats (CPU, RAM)
-- Show notifications
-
-### Privacy & Security
-
-- All automation runs **locally only**
-- Visual indicator when automation is active
-- Full action history for review
-- Explicit opt-in required for automation
+- Desktop actions are local to the device granting permission.
+- Visual indicators show when automation or capture is active.
+- Sensitive actions should require explicit user approval.
+- Action history should be reviewable.
+- Cloud sync does not imply permission to control every synced device.
 
 ---
 
-## Pillar 5: Vision
+## Vision
 
-### Screen Capture
+Vision features let the runtime understand what is on the current device.
 
-- **Full Screen**: Capture your entire desktop
-- **Region Selection**: Select a specific area to analyze
-- **Continuous Monitoring**: Watch a screen region for changes
+- Full-screen capture
+- Region capture
+- OCR and text extraction
+- Camera input where supported
+- Continuous watch modes for selected regions
 
-### OCR (Text Extraction)
+Vision permissions are per device and should be visible while active.
 
-Extract text from:
-- Screenshots
-- Application windows
-- Images
-- Camera input
+---
 
-### Camera Input
+## Secure Device Mesh
 
-Use your webcam for:
-- Real-time vision analysis
-- Document scanning
-- Object recognition
+CloudToLocalLLM is designed to be installed on all your devices and kept in sync.
 
-### Privacy Indicators
+Tailscale is the preferred secure transport. Instead of maintaining a separate custom tunnel stack as the main path, CloudToLocalLLM should use the user's tailnet wherever possible.
 
-When vision features are active:
-- Screen border highlight
-- System notification
-- Clear visual indicator
+### Typical Layouts
+
+- Laptop app connects to Hermes running on the same laptop.
+- Desktop app connects to Hermes or OpenClaw running on a workstation in the same tailnet.
+- Phone or web session connects through a per-user cloud connector that has joined the user's tailnet.
+- Optional paid cloud runtime runs in an isolated per-user container and joins the user's tailnet only after setup approval.
+
+### What Syncs
+
+- Conversation state
+- Runtime presence
+- Device availability
+- Avatar state and preferences
+- Non-sensitive settings selected for sync
+
+### What Stays Device-Scoped
+
+- Desktop control permissions
+- Clipboard access
+- File access
+- Screen and camera capture
+- Shell command permissions
+- Runtime secrets and local tokens unless explicitly stored in an approved secure vault
 
 ---
 
 ## Settings
 
-### Provider Settings
+### Runtime Settings
 
-Configure your LLM providers:
-- Add/remove providers
-- Set connection URLs
-- Test connections
-- Enable/disable auto-discovery
+- Add, remove, and test runtime endpoints
+- Configure Hermes, OpenClaw, LM Studio, Ollama, or custom providers
+- Set preferred runtime per device
+- Review detected capabilities
 
-### Appearance
+### Companion Settings
 
-- **Theme**: Light, Dark, or System
-- **Avatar Display**: Show/hide avatar
-- **Font Size**: Adjust text size
+- Show or hide avatar
+- Open companion sidecar
+- Configure voice mode
+- Choose text-to-speech voice when available
 
-### Local Mode
+### Mesh And Cloud Settings
 
-- **Offline Mode**: Work without any internet connection
-- **Local Storage**: All data stored on your computer
-- **No Cloud**: Privacy-first, everything stays local
+- Enable Tailscale-based device connectivity
+- Add the optional cloud connector to your tailnet
+- Review connected devices
+- Enable or disable conversation sync
+- Configure optional hosted runtime compute
 
-### Cloud Features (Optional)
+### Privacy
 
-Cloud features are **opt-in only**:
-
-- **Account**: Create an account for cloud sync
-- **Cloud Sync**: Back up conversations to the cloud
-- **Remote Access**: Access your AI from other devices (via Tailscale/SSH)
+- Offline mode
+- Local-only storage
+- Per-device desktop permissions
+- Data export and deletion
 
 ---
 
@@ -231,39 +215,40 @@ Cloud features are **opt-in only**:
 
 For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
-### Common Issues
+### Runtime Not Found
 
-**OpenClaw Gateway Not Found**
-- Verify Gateway is running on port 18789
-- Check firewall settings
-- Try "Custom URL" if using alternative port
+- Confirm the runtime is running.
+- Check the endpoint and port in runtime settings.
+- Use the setup wizard connection test.
+- For remote devices, check that both devices are on the expected Tailscale tailnet.
 
-**Connection Lost**
-- Check if Gateway is still running
-- Verify network settings for remote connections
-- Check Tailscale connection for remote gateways
+### Connection Lost
 
-**Desktop Control Not Working**
-- Ensure automation permissions are granted
-- Check platform compatibility (Linux/Windows supported)
-- Verify system control service is running
+- Check runtime health.
+- Verify Tailscale status for remote runtime paths.
+- Re-run the wizard connection test.
+- Switch to another configured runtime if available.
+
+### Desktop Control Not Working
+
+- Confirm desktop permissions were granted on that specific device.
+- Check platform support for the requested action.
+- Verify that the desktop control service is running.
+- Review action approvals and denied permissions.
+
+### Voice Companion Not Working
+
+- Confirm the companion window is open.
+- Check microphone permission where voice input is enabled.
+- Verify that the runtime or fallback TTS service supports speech output.
 
 ---
 
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
-|----------|--------|
+| --- | --- |
 | `Ctrl + N` | New conversation |
 | `Ctrl + /` | Focus search |
 | `Ctrl + S` | Open settings |
-| `Escape` | Close modal/drawer |
-
----
-
-## Getting Help
-
-- **Documentation**: See [README.md](../../README.md)
-- **Architecture**: See [SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)
-- **Implementation**: See [IMPLEMENTATION_PLAN.md](../development/IMPLEMENTATION_PLAN.md)
-- **Issues**: [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
+| `Escape` | Close modal or drawer |

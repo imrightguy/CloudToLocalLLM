@@ -1,5 +1,7 @@
 # Simplified Tunnel System Validation Testing Guide
 
+> **Status**: Legacy/fallback validation guide. Current connectivity work should validate the Tailscale-first secure device mesh and per-user cloud connector design first. Use this guide only for existing tunnel deployments or migration safety.
+
 ## Overview
 
 This guide provides comprehensive instructions for validating the Simplified Tunnel System deployment using automated testing scripts. The validation suite includes multiple testing approaches to ensure thorough coverage of system functionality, performance, and security.

@@ -1,4 +1,4 @@
-# CloudToLocalLLM 🦞 — OpenClaw Agent Manager
+# CloudToLocalLLM 🦞 — Secure Agent Companion
 
 <div align="center">
   
@@ -8,9 +8,9 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Web-lightgrey.svg)]()
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange.svg)]()
 
-**Your private AI companion. Manage OpenClaw, watch your avatar evolve, control your desktop with vision. Privacy-first, locally-powered agent.**
+**A local-first companion shell for Hermes, OpenClaw, and other agent runtimes. Secure channel, avatar/voice companion, vision, and permissioned desktop control across your devices.**
 
-_OpenClaw Agent Manager — privacy-first local AI with claws._ 🦞</div>
+_Private AI, local control, secure hands and eyes on your desktops._ 🦞</div>
 
 ---
 
@@ -22,24 +22,28 @@ This repository includes `AGENTS.md`, `SOUL.md`, `USER.md`, and `SESSION_REENTRY
 
 ## 🚀 Overview
 
-**CloudToLocalLLM** is an **OpenClaw Agent Manager** — a privacy-first desktop AI companion with unified chat, evolving avatar, desktop control, and vision capabilities. It manages the OpenClaw Gateway, provides an evolving visual avatar with growing personality, and offers full desktop control through GUI automation and vision-language models.
+**CloudToLocalLLM** is a local-first companion and desktop capability layer for user-selected agent runtimes. The main window is a secure direct channel to the active runtime, with Hermes as the current first test path. OpenClaw, Ollama, LM Studio, and other compatible runtimes remain supported through setup and runtime adapters.
+
+The desktop app can be installed on all of your devices. With cloud mode and Tailscale, those devices can stay in sync while desktop control and vision remain device-scoped and permissioned.
 
 > **Note:** The project is currently in **Heavy Development/Early Access**.
 
 ## ✨ Core Pillars
 
-| Pillar                  | Description                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| **💬 Chat**             | Unified chat interface with streaming responses, conversation history, and multi-model support   |
-| **🔌 OpenClaw Manager** | Start, stop, monitor OpenClaw Gateway (localhost:18789) with health monitoring and configuration |
-| **🎨 Evolving Avatar**  | Visual 2D/3D character that grows with you — appearance and personality evolve over time         |
-| **💻 Desktop Control**  | GUI automation (launch apps, control windows) + system integration (files, commands, clipboard)  |
-| **👁️ Vision**           | Screen capture/analysis + camera input, powered by OpenClaw for screen understanding and OCR     |
+| Pillar | Description |
+| --- | --- |
+| **💬 Secure Agent Channel** | Main direct channel to the selected runtime, synced across authorized devices when enabled |
+| **🦞 Avatar & Voice Companion** | Sidecar companion window with personality, memory, voice state, and reactions |
+| **💻 Desktop Control** | Permissioned hands-on access to selected desktops: apps, windows, keyboard, files, clipboard, commands |
+| **👁️ Vision** | Screen, region, OCR, and camera awareness with explicit user control |
+| **🧠 Runtime & Agent Management** | Manage Hermes, OpenClaw, agents, skills, sessions, providers, and diagnostics when needed |
+| **🔐 Secure Device Mesh** | Tailscale-first private connectivity plus optional isolated per-user cloud connector |
 
 ## 📋 Prerequisites
 
-- **[OpenClaw Gateway](https://github.com/openclaw/openclaw):** The primary engine for all LLM, Vision, and Agent tasks. Runs on `localhost:18789`.
-- **[NVIDIA Drivers](https://www.nvidia.com/drivers):** Required for GPU acceleration (RTX 30/40 series recommended).
+- **An agent runtime:** Hermes is the current first test path. OpenClaw, Ollama, LM Studio, and other compatible runtimes can be configured through setup.
+- **Optional [Tailscale](https://tailscale.com/):** Recommended for connecting devices and runtimes across your private network.
+- **Optional GPU drivers:** Required only if your chosen runtime/model stack needs GPU acceleration.
 
 ## 🚀 Quick Install
 
@@ -248,6 +252,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 - **[Setup Guide](docs/user-guide/SETUP_GUIDE.md):** Step-by-step installation.
 - **[Troubleshooting](docs/user-guide/TROUBLESHOOTING.md):** Common issues and fixes.
 - **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md):** Technical deep dive.
+- **[Secure Device Mesh](docs/architecture/SECURE_DEVICE_MESH.md):** Tailscale-first multi-device and cloud connector architecture.
 - **[Avatar System](docs/architecture/AVATAR_SYSTEM.md):** Evolving avatar architecture.
 - **[Desktop Control](docs/architecture/DESKTOP_CONTROL.md):** GUI automation and system integration.
 - **[Vision System](docs/architecture/VISION_SYSTEM.md):** Screen and camera capabilities.
@@ -264,7 +269,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 ### Tech Stack
 
 - **Frontend:** Flutter 3.5+ (Linux, Windows, Web)
-- **Agent Engine:** [OpenClaw Gateway](https://github.com/openclaw/openclaw) (localhost:18789)
+- **Runtime adapters:** Hermes first for current testing, with OpenClaw, Ollama, LM Studio, and compatible endpoints supported through setup.
 - **Backend:** Node.js 22.x (Express.js)
 - **Local Database:** SQLite via Drift (LocalBrain)
 - **Authentication:** Auth0
@@ -272,7 +277,7 @@ Latest web deployment: **[cloudtolocalllm.online](https://cloudtolocalllm.online
 ### Build from Source
 
 1.  **Clone:** `git clone https://github.com/CloudToLocalLLM-online/CloudToLocalLLM.git`
-2.  **Start OpenClaw:** Ensure OpenClaw Gateway is running on `localhost:18789`
+2.  **Start a runtime:** Hermes is the current first test path; OpenClaw, Ollama, LM Studio, or another compatible private endpoint can also be used.
 3.  **Deps:** `flutter pub get` && `(cd services/api-backend && npm install)`
 4.  **Run:** `flutter run -d linux` (Desktop) or `flutter run -d chrome` (Web)
 

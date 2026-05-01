@@ -1,5 +1,7 @@
 # Simplified Tunnel System Rollback Procedures
 
+> **Status**: Legacy/fallback rollback guide. Current connectivity work should prefer the Tailscale-first secure device mesh. Use this document for existing tunnel deployments and migration rollback only.
+
 ## Overview
 
 This document provides comprehensive rollback procedures for the Simplified Tunnel System deployment. These procedures ensure rapid recovery in case of deployment issues, maintaining system availability and user experience.

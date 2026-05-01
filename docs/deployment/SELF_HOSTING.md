@@ -4,7 +4,9 @@ This guide explains how to deploy CloudToLocalLLM for self-hosted, privacy-first
 
 ## Overview
 
-CloudToLocalLLM is designed to run primarily on local devices with optional cloud/SaaS features. Self-hosting allows you to run the backend services on your own infrastructure while maintaining full control over your data.
+CloudToLocalLLM is designed to run primarily on local devices with optional cloud/SaaS features. Self-hosting allows you to run backend services on your own infrastructure while maintaining control over your data.
+
+Current orientation is runtime-neutral and Tailscale-first. The setup wizard selects Hermes, OpenClaw, LM Studio, Ollama, or a compatible endpoint. Remote runtimes and cloud connectors should live inside the user's Tailscale tailnet where possible.
 
 ## Prerequisites
 
@@ -22,8 +24,8 @@ When self-hosted, CloudToLocalLLM consists of:
 1. **Frontend**: Flutter application (runs locally on user's device)
 2. **Backend Services** (optional, for cloud features):
    - API Backend (Express 5, PostgreSQL)
-   - Streaming Proxy (WebSocket proxy for LLM streaming)
-   - Tailscale Relay (secure tunneling)
+   - Tailscale Relay and cloud connector support for secure device mesh
+   - Streaming Proxy (legacy/fallback WebSocket proxy for tunnel-heavy paths)
    - Auth Backend (JWT validation)
    - SDK (TypeScript service SDK)
 
@@ -48,7 +50,7 @@ flutter run -d linux  # or windows, macos, chrome
 In this mode:
 - All data stored locally via encrypted SQLite (Drift)
 - No external dependencies
-- Full functionality for local AI models
+- Full functionality for the selected local runtime where its capabilities are available
 - Optional features requiring backend services are disabled
 
 ### Option 2: Full Self-Hosted Stack
@@ -64,7 +66,7 @@ cp .env.example .env
 # - Redis configuration
 # - JWT secrets
 # - API keys for external LLM providers (optional)
-# - Tailscale configuration (optional)
+# - Tailscale configuration for secure device mesh
 ```
 
 #### Step 2: Start Infrastructure Services
@@ -80,7 +82,7 @@ npm run db:migrate
 #### Step 3: Start Backend Services
 
 ```bash
-# Start all backend services
+# Start backend services. Streaming proxy is legacy/fallback for tunnel-heavy paths.
 docker-compose up -d api-backend streaming-proxy tailscale-relay auth-backend
 ```
 
@@ -236,9 +238,9 @@ docker-compose restart
 
 ## Getting Help
 
-- Check the [Troubleshooting Guide](user-guide/TROUBLESHOOTING.md)
+- Check the [Troubleshooting Guide](../user-guide/TROUBLESHOOTING.md)
 - Review existing tests in `test/api-backend/` for service behavior
-- Consult the [API Reference](development/API_DOCUMENTATION.md)
+- Consult the [API Reference](../development/API_DOCUMENTATION.md)
 - Join community forums for self-hosting discussions
 
 ## Support

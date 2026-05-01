@@ -352,9 +352,11 @@ Get detailed health information for debugging.
 
 ## 🚇 **Simplified Tunnel System API**
 
+> **Status**: Legacy/fallback API surface. Current connectivity design should prefer the Tailscale secure device mesh and runtime-neutral setup wizard. Keep this section for existing tunnel maintenance and migration reference.
+
 ### **Overview**
 
-The Simplified Tunnel System replaces the complex multi-layered bridge architecture with a streamlined design using a single WebSocket connection and standard HTTP proxy patterns. This system provides secure, efficient communication between cloud interfaces and local Ollama instances.
+The Simplified Tunnel System replaced an older multi-layered bridge architecture with a single WebSocket connection and standard HTTP proxy patterns. This system provided secure communication between cloud interfaces and local Ollama instances in the older stack.
 
 **Architecture:**
 

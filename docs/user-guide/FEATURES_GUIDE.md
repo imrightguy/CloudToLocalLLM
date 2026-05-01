@@ -1,124 +1,175 @@
 # CloudToLocalLLM Features Guide
 
-## 📋 Overview
+CloudToLocalLLM is a local-first secure agent companion for Hermes, OpenClaw, and other private runtimes. The app is not tied to one default runtime. The setup wizard selects and validates the runtime path for each user and device.
 
-CloudToLocalLLM is an **OpenClaw Agent Manager** that provides a comprehensive suite of features for local AI agent management. This guide covers all core features and capabilities.
+Hermes is the first runtime path used for current testing. OpenClaw remains supported as the original integration target.
 
 ---
 
-## 🎯 Core Features
+## Core Features
 
-### 1. Chat Interface
-
-| Feature           | Description                            |
-| ----------------- | -------------------------------------- |
-| **Unified Chat**  | Main interaction point with the agent  |
-| **Streaming**     | Real-time token-by-token responses     |
-| **Conversations** | Create, save, organize multiple chats  |
-| **History**       | Persistent message history with search |
-| **Multi-Model**   | Switch between available LLM models    |
-
-### 2. OpenClaw Gateway Management
-
-| Feature               | Description                                        |
-| --------------------- | -------------------------------------------------- |
-| **Service Control**   | Start, stop, restart OpenClaw Gateway from the app |
-| **Health Monitoring** | Real-time status, latency, and error tracking      |
-| **Configuration**     | Manage gateway settings, models, and capabilities  |
-| **Auto-discovery**    | Automatically detect OpenClaw on localhost:18789   |
-
-### 3. Evolving Avatar
+### 1. Secure Agent Channel
 
 | Feature | Description |
-|----------|-------------|
-| **Visual Character** | Avatar with emoji-based reactions to system state |
-| **State Reactions** | Idle, thinking, working, error, happy states |
-| **Planned: Growth System** | XP and levels tied to interactions |
-| **Planned: Personality** | Memory, traits, and learned preferences |
-| **Planned: Achievements** | Unlockable milestones and rewards |
+| --- | --- |
+| Unified chat | Main interaction point with the selected runtime |
+| Streaming | Real-time token-by-token responses |
+| Conversations | Create, save, and organize chats |
+| History | Persistent local history with search |
+| Multi-runtime support | Hermes, OpenClaw, LM Studio, Ollama, and custom compatible endpoints |
+| Runtime health | Connection, latency, and capability checks |
 
-### 4. Desktop Control
+### 2. Avatar And Voice Companion
+
+| Feature | Description |
+| --- | --- |
+| Pop-out companion | Avatar and voice can open as a sidecar outside the main app window |
+| Avatar states | Idle, listening, thinking, speaking, working, error, and success states |
+| Voice conversation | Voice shell for the selected runtime |
+| Speech output | Runtime or CloudToLocalLLM fallback text-to-speech |
+| Planned speech input | Microphone capture, VAD, direct-address detection, and barge-in |
+| Planned evolution | Memory, traits, levels, achievements, and learned preferences |
+
+### 3. Desktop Control
+
+Desktop control is a core feature, not an advanced add-on.
 
 | Feature | Status |
-|----------|--------|
-| **GUI Automation** | ✅ Screenshot capture and vision analysis |
-| **System Commands** | ✅ Execute shell commands |
-| **Notifications** | ✅ System notifications |
-| **Planned: Window Management** | Move, resize, focus windows |
-| **Planned: Clipboard** | Read and write clipboard content |
-| **Planned: File Operations** | File browser and operations |
-| **Planned: Macros** | Record and replay action sequences |
+| --- | --- |
+| Screenshot capture | Available |
+| Vision analysis | Available through supported runtime paths |
+| System commands | Available when explicitly enabled |
+| Notifications | Available |
+| Clipboard | In progress or platform-dependent |
+| Window management | In progress or platform-dependent |
+| File operations | Planned behind explicit permissions |
+| Macro/action replay | Planned behind explicit approvals |
 
-### 5. Vision Capabilities
+Desktop actions are scoped to the device that granted permission. Cloud sync does not automatically grant control over other devices.
+
+### 4. Vision Capabilities
 
 | Feature | Status |
-|----------|--------|
-| **Screen Capture** | ✅ Full-screen screenshots |
-| **Screen Analysis** | ✅ Vision analysis via OpenClaw |
-| **Planned: Region Capture** | Select and capture specific regions |
-| **Planned: OCR** | Text extraction from images |
-| **Planned: Camera Input** | Webcam capture for real-time vision |
-| **Planned: Continuous Monitor** | Watch screen regions for changes |
+| --- | --- |
+| Full-screen capture | Available |
+| Screen analysis | Available through supported runtime paths |
+| Region capture | Planned or partially implemented depending on platform |
+| OCR | Planned or partially implemented depending on runtime |
+| Camera input | Planned or platform-dependent |
+| Continuous monitor | Planned for selected regions |
+
+### 5. Runtime And Agent Management
+
+| Feature | Description |
+| --- | --- |
+| Runtime discovery | Detect common local endpoints and configured remote endpoints |
+| Runtime setup | Wizard-driven selection and testing |
+| Agent sessions | Inspect and manage active agent sessions |
+| Model selection | Choose from models exposed by the active runtime |
+| Capability review | Show available tools, desktop permissions, voice, and vision support |
+
+Runtime management remains available, but it should not dominate the first screen of the app.
+
+### 6. Secure Device Mesh
+
+| Feature | Description |
+| --- | --- |
+| Tailscale-first transport | Preferred path for remote device and runtime connectivity |
+| Multi-device install | Run CloudToLocalLLM on all user devices |
+| Presence sync | See which devices and runtimes are available |
+| Conversation sync | Optional account-backed conversation sync |
+| Per-user cloud connector | Isolated container joined to the user's tailnet after approval |
+| Optional hosted runtime | Paid cloud compute path, isolated per user |
+
+The older custom tunnel stack is legacy or fallback architecture. New design and documentation should prefer Tailscale unless a specific platform cannot support it.
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
-- **Auth0 Integration**: Enterprise-grade authentication
-- **Desktop**: Native Auth0 flow with encrypted token storage
-- **Web**: Session-based authentication via auth0-bridge
+- Auth0 integration for account-backed features.
+- Desktop uses native authentication with secure local token storage.
+- Web uses session-based authentication through the bridge service.
+- Local-only usage should remain possible where the chosen runtime and features do not need cloud sync.
 
 ---
 
-## 🔌 Integrations
+## Integrations
+
+### Hermes
+
+Hermes is the first runtime path to test during the current product direction. Configure the endpoint through the setup wizard.
 
 ### OpenClaw Gateway
 
-1. **Install**: [OpenClaw GitHub](https://github.com/openclaw/openclaw)
-2. **Start**: Ensure OpenClaw runs on `localhost:18789`
-3. **Verify**: `curl http://localhost:18789/health`
+OpenClaw was the original runtime integration and remains supported.
 
-### LM Studio (Optional)
+- Typical endpoint: `http://localhost:18789`
+- Health check: `GET /health`
 
-CloudToLocalLLM also supports LM Studio as an alternative local provider:
+### LM Studio
 
-- **Port**: localhost:1234
-- **Auto-discovery**: Automatic model detection
+- Typical endpoint: `http://localhost:1234`
+- Useful as an OpenAI-compatible local provider.
 
----
+### Ollama
 
-## 📁 Data & Storage
+- Typical endpoint: `http://localhost:11434`
+- Useful for local model hosting and development.
 
-| Location                          | Description              |
-| --------------------------------- | ------------------------ |
-| `~/.config/cloudtolocalllm/`      | Configuration files      |
-| `~/.local/share/cloudtolocalllm/` | Logs and data            |
-| LocalBrain (SQLite)               | Encrypted local database |
+### Custom Runtime
+
+Use a custom endpoint for private servers, VPS deployments, or compatible local gateways. Prefer putting remote endpoints inside the user's Tailscale tailnet.
 
 ---
 
-## 🐛 Troubleshooting
+## Data And Storage
 
-### OpenClaw Connection Issues
+| Location | Description |
+| --- | --- |
+| `~/.config/cloudtolocalllm/` | Configuration files |
+| `~/.local/share/cloudtolocalllm/` | Logs and app data |
+| LocalBrain SQLite | Encrypted local companion database |
+| Optional cloud account | Sync metadata and conversation state when enabled |
+
+Sensitive desktop permissions, local runtime secrets, and local command access should stay device-scoped unless an explicit secure storage design is approved.
+
+---
+
+## Troubleshooting
+
+### Runtime Connection Issues
 
 ```bash
-# Test gateway health
+# Example local health checks
 curl http://localhost:18789/health
-
-# Check if port is in use
-netstat -tlnp | grep 18789
+curl http://localhost:1234/v1/models
+curl http://localhost:11434/api/tags
 ```
+
+Use the setup wizard connection test for Hermes and custom endpoints.
+
+### Tailscale Issues
+
+```bash
+tailscale status
+tailscale ping <device-name-or-ip>
+```
+
+Confirm both the app device and runtime device are in the expected tailnet.
 
 ### Logs
 
-- **Linux**: `~/.local/share/cloudtolocalllm/logs/`
-- **Windows**: `%LOCALAPPDATA%\cloudtolocalllm\logs\`
+- Linux: `~/.local/share/cloudtolocalllm/logs/`
+- Windows: `%LOCALAPPDATA%\cloudtolocalllm\logs\`
 
 ---
 
-## 📚 Documentation
+## Documentation
 
-- [SPEC.md](../../SPEC.md) - Master specification
-- [Setup Guide](SETUP_GUIDE.md) - Installation instructions
-- [Troubleshooting](TROUBLESHOOTING.md) - Common issues
-- [Architecture](../architecture/SYSTEM_ARCHITECTURE.md) - Technical details
+- [Specification](../../SPEC.md)
+- [Setup Guide](SETUP_GUIDE.md)
+- [User Guide](USER_GUIDE.md)
+- [Troubleshooting](TROUBLESHOOTING.md)
+- [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
+- [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md)

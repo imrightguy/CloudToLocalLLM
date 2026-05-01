@@ -1,5 +1,7 @@
 # Tunnel System Development Guide
 
+> **Status**: Legacy/fallback development guide. Current product direction is Tailscale-first secure device mesh with per-user cloud connector containers. Use this guide only for maintaining existing tunnel components or planning migration. New connectivity work should start with [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md).
+
 ## Prerequisites
 
 Before starting tunnel system development, ensure you have the following installed:

@@ -1,310 +1,251 @@
 # CloudToLocalLLM Setup Guide
 
-Welcome to CloudToLocalLLM — your privacy-first desktop AI companion.
+CloudToLocalLLM is a privacy-first companion shell for a runtime you choose during setup. It can connect to Hermes, OpenClaw, LM Studio, Ollama, or another compatible endpoint running on this device, another device in your tailnet, or an optional hosted runtime.
 
----
-
-## Overview
-
-CloudToLocalLLM requires **OpenClaw Gateway** to run AI models locally on your computer. This guide walks you through setting up both the Gateway and the CloudToLocalLLM application.
-
-**Privacy First**: All AI processing happens locally. Cloud features are optional.
+There is no universal default runtime. Hermes is the first runtime path used for current testing. OpenClaw remains supported as the original integration target.
 
 ---
 
 ## Prerequisites
 
 | Requirement | Minimum | Recommended |
-|-------------|----------|-------------|
-| **OS** | Windows 10+, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04+ |
-| **RAM** | 8 GB | 16 GB+ |
-| **GPU** | None (CPU mode) | NVIDIA RTX 30/40 series |
-| **Storage** | 500 MB free space | 2 GB+ for models |
-| **Internet** | For download only | For cloud features (optional) |
+| --- | --- | --- |
+| OS | Windows 10+, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04+ |
+| RAM | 8 GB | 16 GB+ |
+| GPU | None | NVIDIA GPU for local model acceleration |
+| Storage | 500 MB app space | 2 GB+ plus model storage |
+| Runtime | Hermes, OpenClaw, LM Studio, Ollama, or compatible endpoint | Hermes for current test path |
+| Secure mesh | Optional | Tailscale for multi-device and remote runtime paths |
+
+Cloud features are optional. Local runtime use should work without a CloudToLocalLLM-hosted runtime.
 
 ---
 
-## Step 1: Install OpenClaw Gateway
+## Step 1: Choose A Runtime
 
-OpenClaw Gateway is the local AI engine that powers CloudToLocalLLM.
+Choose where your agent runtime will run before or during the setup wizard.
 
-### Download
+### Hermes
 
-Get OpenClaw Gateway from:
-- **GitHub**: [https://github.com/openclaw/openclaw/releases](https://github.com/openclaw/openclaw/releases)
+Use Hermes first when validating the current CloudToLocalLLM direction. Install and start Hermes according to the Hermes project instructions, then provide its endpoint in the setup wizard.
 
-### Install
+### OpenClaw Gateway
 
-**Linux**:
-```bash
-# Download
-wget https://github.com/openclaw/openclaw/releases/latest/download/openclaw-linux-amd64
+OpenClaw was the original runtime integration and remains supported.
 
-# Make executable
-chmod +x openclaw-linux-amd64
-
-# Move to PATH
-sudo mv openclaw-linux-amd64 /usr/local/bin/openclaw
-```
-
-**Windows**:
-1. Download `openclaw-windows.exe`
-2. Place in a folder (e.g., `C:\OpenClaw\`)
-3. Add to PATH if desired
-
-### Verify Installation
+Typical local endpoint:
 
 ```bash
-# Run help
-openclaw --help
-
-# Check version
-openclaw --version
+http://localhost:18789
 ```
 
----
+Health check:
 
-## Step 2: Start OpenClaw Gateway
-
-### Start the Gateway
-
-**Linux**:
-```bash
-openclaw serve --port 18789
-```
-
-**Windows**:
-```cmd
-openclaw-windows.exe serve --port 18789
-```
-
-### Verify It's Running
-
-Open a new terminal and test:
 ```bash
 curl http://localhost:18789/health
 ```
 
-Expected response:
-```json
-{"status": "ok", "version": "1.0.0"}
+### LM Studio
+
+LM Studio provides an OpenAI-compatible local endpoint.
+
+Typical local endpoint:
+
+```bash
+http://localhost:1234
 ```
 
-### GPU Setup (Optional but Recommended)
+Model check:
 
-If you have an NVIDIA GPU:
+```bash
+curl http://localhost:1234/v1/models
+```
 
-1. **Install NVIDIA Drivers**:
-   ```bash
-   # Ubuntu
-   sudo apt install nvidia-driver-535
-   ```
+### Ollama
 
-2. **Install CUDA** (if not already installed)
+Ollama can be used as a local model runtime.
 
-3. **Verify GPU**:
-   ```bash
-   nvidia-smi
-   ```
+Typical local endpoint:
 
-4. **Start OpenClaw with GPU**:
-   ```bash
-   openclaw serve --port 18789 --gpu
-   ```
+```bash
+http://localhost:11434
+```
+
+Model check:
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+### Custom Runtime
+
+Use a custom endpoint for a private server, local gateway, or compatible OpenAI-style API. For remote runtimes, prefer putting the runtime device inside your Tailscale tailnet.
 
 ---
 
-## Step 3: Install CloudToLocalLLM
+## Step 2: Install CloudToLocalLLM
 
 ### Download
 
 Get the latest release for your platform:
-- **GitHub**: [https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
 
-### Install
+- [CloudToLocalLLM releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
 
-**Windows**:
-1. Download `CloudToLocalLLM-setup.exe`
-2. Run the installer
-3. Launch from Start Menu
+### Windows
 
-**Linux (AppImage)**:
+1. Download the Windows installer.
+2. Run the installer.
+3. Launch CloudToLocalLLM from the Start Menu.
+
+### Linux AppImage
+
 ```bash
-# Download
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/CloudToLocalLLM-linux.AppImage
-
-# Make executable
 chmod +x CloudToLocalLLM-linux.AppImage
-
-# Run
 ./CloudToLocalLLM-linux.AppImage
 ```
 
-**Linux (Deb Package)**:
+### Linux Deb Package
+
 ```bash
-# Download
-wget https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/latest/download/cloudtolocalllm_amd64.deb
-
-# Install
 sudo dpkg -i cloudtolocalllm_amd64.deb
-
-# Launch
 cloudtolocalllm
 ```
 
 ---
 
-## Step 4: First Run Setup Wizard
+## Step 3: Complete The Setup Wizard
 
-When you first launch CloudToLocalLLM, the **Setup Wizard** will guide you:
+The setup wizard is the authority for the first working configuration.
 
-### Welcome Screen
+### Runtime Selection
 
-Click "Get Started" to begin.
+Select the runtime you want this device to use:
 
-### Connection Method Selection
+- Hermes
+- OpenClaw Gateway
+- LM Studio
+- Ollama
+- Custom endpoint
 
-Choose how you connect to OpenClaw Gateway:
+### Runtime Location
 
-1. **Local on this computer** — OpenClaw running on localhost:18789
-2. **Remote via Tailscale** — OpenClaw on your tailnet or VPS
-3. **Custom remote URL** — SSH tunnel, VPN, or custom URL
+Choose where that runtime lives:
 
-### Provider Detection
-
-The wizard will automatically scan for OpenClaw Gateway:
-- **Local**: Scans localhost:18789
-- **Tailscale**: Lists devices on your tailnet
-- **Custom**: Enter your URL manually
+- This computer
+- Another device in your Tailscale tailnet
+- A private server or VPS in your tailnet
+- Optional CloudToLocalLLM-hosted runtime container
 
 ### Connection Test
 
-The wizard tests the connection to ensure everything works.
+The wizard checks:
 
-### Complete
+- Runtime health
+- Available models
+- Streaming support
+- Voice and vision capabilities when exposed
+- Network reachability through localhost, LAN, Tailscale, or custom URL
 
-Click "Proceed to Chat" to start using CloudToLocalLLM!
+### Desktop Permissions
 
----
+Grant only the permissions this device should expose:
 
-## Alternative Providers (Optional)
+- Screen capture
+- Region capture
+- Clipboard
+- Window management
+- Keyboard and mouse actions
+- Shell commands
+- File access
 
-CloudToLocalLLM also supports other local LLM providers:
+These permissions are device-scoped. Syncing your account does not automatically enable desktop control on every device.
 
-### LM Studio
+### Optional Device Sync
 
-1. Download from [lmstudio.ai](https://lmstudio.ai)
-2. LM Studio runs on `localhost:1234`
-3. CloudToLocalLLM will auto-detect it
+Enable account-backed sync if you want:
 
-### Ollama
-
-1. Install from [ollama.com](https://ollama.com)
-2. Ollama runs on `localhost:11434`
-3. CloudToLocalLLM will auto-detect it
-
----
-
-## Cloud Features (Optional)
-
-Cloud features are **not required** for local use.
-
-### Account (Optional)
-
-- Create an account to sync conversations across devices
-- **Not required** for local chat
-
-### Remote Access (Optional)
-
-- Access your AI from other devices via Tailscale or SSH
-- Requires OpenClaw Gateway to be accessible remotely
+- Conversation state across installed devices
+- Runtime presence and device availability
+- Shared avatar preferences
+- Web or mobile access through a connector
 
 ---
 
-## System Tray (Desktop)
+## Step 4: Configure Tailscale For Remote Devices
 
-Once installed, CloudToLocalLLM runs in your system tray:
+Tailscale is the preferred secure transport for remote runtime and multi-device usage.
 
-- **Windows**: Look in the notification area (system tray)
-- **Linux**: Look in the top panel
-
-**Tray Menu**:
-- Show/Hide window
-- Connection status
-- Settings
-- Quit
-
----
-
-## Auto-Start (Optional)
-
-### Linux
-
-Create a systemd service or add to startup applications.
-
-### Windows
-
-1. Win+R, type `shell:startup`
-2. Create a shortcut to CloudToLocalLLM
-
----
-
-## Verify Installation
-
-Once everything is set up:
-
-1. **Open CloudToLocalLLM**
-2. **Check Connection Status**: Should show "Connected"
-3. **Start a Chat**: Type "Hello!" to test
-
----
-
-## Upgrading
-
-### OpenClaw Gateway
+1. Install Tailscale on each device that should participate.
+2. Sign in to the same tailnet.
+3. Confirm devices can reach each other:
 
 ```bash
-# Download latest
-wget https://github.com/openclaw/openclaw/releases/latest/download/openclaw-linux-amd64
-
-# Replace
-sudo mv openclaw-linux-amd64 /usr/local/bin/openclaw
+tailscale status
+tailscale ping <runtime-device-name>
 ```
 
-### CloudToLocalLLM
+4. In CloudToLocalLLM, choose the runtime device or enter its tailnet endpoint.
 
-Download the latest release and install over your existing version.
+### Cloud Connector
+
+For web/mobile access or cloud coordination, CloudToLocalLLM should add an isolated per-user connector container to the user's tailnet. That connector coordinates sync and reachability. It does not grant desktop permissions by itself.
+
+### Hosted Runtime
+
+Running the agent runtime in CloudToLocalLLM-hosted infrastructure is an optional paid compute path. It should use a per-user isolated container and join the user's tailnet only after setup approval.
 
 ---
 
-## Uninstalling
+## Step 5: Verify The Setup
 
-### OpenClaw Gateway
-
-```bash
-# Linux
-sudo rm /usr/local/bin/openclaw
-
-# Windows
-del C:\OpenClaw\openclaw-windows.exe
-```
-
-### CloudToLocalLLM
-
-**Windows**:
-Use "Add or Remove Programs" in Windows Settings
-
-**Linux**:
-```bash
-sudo apt remove cloudtolocalllm
-# Or delete the AppImage
-```
+1. Open CloudToLocalLLM.
+2. Confirm the main channel shows a connected runtime.
+3. Send a short test message.
+4. Open the avatar/voice companion sidecar.
+5. If using desktop control, run a low-risk permission test such as screenshot or notification.
+6. If using Tailscale, test from a second device.
 
 ---
 
-## Need Help?
+## System Tray
 
-- **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- **Features**: [FEATURES_GUIDE.md](FEATURES_GUIDE.md)
-- **User Guide**: [USER_GUIDE.md](USER_GUIDE.md)
-- **Issues**: [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
+On desktop platforms, CloudToLocalLLM can run from the system tray.
+
+- Show or hide the main window.
+- Open the avatar/voice companion.
+- View connection status.
+- Open settings.
+- Quit the app.
+
+---
+
+## Troubleshooting
+
+### Runtime Not Found
+
+- Confirm the runtime is running.
+- Check the endpoint and port.
+- Use the wizard connection test.
+- For remote runtimes, confirm Tailscale connectivity.
+
+### Hermes Path Not Working
+
+- Verify the Hermes service is running.
+- Confirm the endpoint configured in the wizard.
+- Check whether Hermes exposes the capabilities required by the selected feature.
+
+### Remote Device Not Reachable
+
+```bash
+tailscale status
+tailscale ping <device-name-or-ip>
+```
+
+Confirm both devices are in the same tailnet and that the runtime is listening on the expected interface.
+
+### Desktop Control Not Working
+
+- Grant permissions on the device being controlled.
+- Check that the action type is enabled.
+- Review pending approvals.
+- Confirm platform support for the requested action.

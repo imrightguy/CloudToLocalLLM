@@ -1,6 +1,8 @@
-# Implementation Plan - OpenClaw Agent Manager
+# Implementation Plan - Secure Agent Companion
 
-**CloudToLocalLLM** is an OpenClaw Agent Manager — a privacy-first desktop AI companion organized around five core pillars.
+**CloudToLocalLLM** is a secure companion and desktop capability layer for user-selected runtimes such as Hermes, OpenClaw, LM Studio, Ollama, or private compatible endpoints.
+
+> **Orientation note**: This file is a historical implementation plan and progress log. The current product direction is defined in [SPEC.md](../../SPEC.md): there is no universal default runtime, Hermes is the first runtime path for current testing, OpenClaw remains supported as the original integration, desktop control is core, avatar and voice belong together as a sidecar companion, and Tailscale is the preferred secure device mesh.
 
 > **Last Updated**: 2026-04-06 | **Overall Progress**: ~95% complete | **Estimated Timeline**: 8 weeks (0 remaining)
 
@@ -252,11 +254,15 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 
 **How It Works:**
 1. **LLM Router** (localhost:1337) provides OpenAI-compatible API for the app
-2. All requests route through **OpenClaw Gateway** (localhost:18789)
-3. OpenClaw intelligently routes based on content:
+2. In the original phase, requests routed through **OpenClaw Gateway** (localhost:18789)
+3. The current architecture generalizes this behind runtime selection:
+   - **Hermes** is the first runtime path for current testing
+   - **OpenClaw Gateway** remains supported as the original integration
+   - **LM Studio, Ollama, and custom endpoints** remain provider paths
+4. OpenClaw can still intelligently route based on content when it is the selected runtime:
    - **Sensitive/private data** → Local models (stays on machine)
    - **Regular queries** → Cloud providers (faster, more capable)
-4. **Model Selector** switches OpenClaw's active cloud provider
+5. **Model Selector** switches the active runtime/model/provider where supported
 
 ---
 
@@ -266,15 +272,15 @@ Implemented device identity authentication for OpenClaw Gateway WebSocket connec
 
 ### Goal
 
-Guide new users through OpenClaw Gateway configuration with support for:
-- **Local**: OpenClaw running on localhost:18789
-- **Remote/Tailscale**: OpenClaw on VPS via tailnet IP
-- **Custom**: SSH tunnels, VPNs, or custom URLs
+Guide new users through selected runtime configuration with support for:
+- **Local**: Hermes, OpenClaw, LM Studio, Ollama, or compatible runtime on this device
+- **Remote/Tailscale**: runtime on another user-controlled device or VPS in the tailnet
+- **Custom**: compatible private endpoint or URL
 
 ### Success Criteria ✅
 
 - ✅ New users complete setup in <3 minutes
-- ✅ OpenClaw Gateway required (no partial setups)
+- ✅ A selected runtime is required and verified before the main channel opens
 - ✅ Database-backed configuration persistence
 
 ### Implementation Tasks
@@ -459,7 +465,7 @@ OpenClaw Gateway              Drift Database (VPS)           CloudToLocalLLM
 |-------|--------|--------|
 | Setup | `lib/di/locator.dart`, `lib/config/router.dart` | Wizard screens + services |
 | Chat | `connection_manager_service.dart`, `home_layout.dart` | Provider selector implementation |
-| OpenClaw | `gateway_control_service.dart` | None (already exists) |
+| Runtime management | `gateway_control_service.dart`, Hermes/OpenClaw provider services | None (already exists) |
 | Avatar | `avatar_widget.dart` | Personality, evolution, memory services |
 | Desktop | `gui_automation_service.dart` | `clipboard_service.dart` |
 | Vision | `gui_automation_service.dart` | `camera_capture.dart`, `ocr_engine.dart` |
@@ -470,8 +476,8 @@ OpenClaw Gateway              Drift Database (VPS)           CloudToLocalLLM
 
 ### Phase 0 (Setup Wizard) ✅
 - ✅ New users complete setup in <3 minutes
-- ✅ OpenClaw Gateway required and verified
-- ✅ Local, Tailscale, and custom options work
+- ✅ Selected runtime required and verified
+- ✅ Local, Tailscale, and custom endpoint options work
 
 ### Phase 1 (Foundation) ✅
 - ✅ Gateway auto-restart working

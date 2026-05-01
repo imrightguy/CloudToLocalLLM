@@ -1,5 +1,9 @@
 # Voice Interface Quick Reference
 
+> Status: superseded planning note.
+>
+> Voice now belongs to the avatar companion. Current code uses `lib/services/voice/`, `lib/widgets/voice/`, Hermes bridge status files, and the local `/v1/audio/speech` endpoint. The backend `/api/v1/voice/*` endpoints below are historical planning details, not current product direction.
+
 ## Overview
 Voice interface for CloudToLocalLLM: Speech-to-Text (STT) and Text-to-Speech (TTS) integration.
 

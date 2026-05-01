@@ -1,5 +1,9 @@
 # SSH WebSocket Tunnel System Architecture
 
+> Status: legacy/fallback architecture.
+>
+> CloudToLocalLLM's current product direction is Tailscale-first secure device mesh with one isolated cloud connector container per user. New multi-device and cloud-connector work should start with [Secure Device Mesh](SECURE_DEVICE_MESH.md). Keep this document for historical context and for any fallback path that still explicitly requires custom SSH/WebSocket tunneling.
+
 ## System Overview
 
 The SSH WebSocket Tunnel System is a production-ready tunneling solution that enables secure, reliable communication between cloud-based services and local SSH servers. It bridges the gap between cloud applications and local resources through a resilient WebSocket transport layer with comprehensive error handling, performance monitoring, and multi-tenant security.

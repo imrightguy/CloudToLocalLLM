@@ -1,5 +1,7 @@
 # Security Test Suite
 
+> **Status**: These tests cover the older simplified tunnel system. Keep them for tunnel fallback and migration coverage. New security testing should also cover Tailscale-first device mesh behavior, per-user cloud connector isolation, runtime selection, and device-scoped desktop permissions.
+
 This directory contains comprehensive security tests for the CloudToLocalLLM simplified tunnel system. The tests validate authentication, authorization, user isolation, rate limiting, and other security measures.
 
 ## Test Files

@@ -1,6 +1,6 @@
 # Service Lifecycle & Dependency Graph
 
-CloudToLocalLLM now uses a centralized service locator (`lib/di/locator.dart`) to ensure that all long–lived `ChangeNotifier` instances are constructed once during bootstrap and disposed in a predictable order.
+CloudToLocalLLM uses a centralized service locator (`lib/di/locator.dart`) to ensure that long-lived services are constructed once during bootstrap and disposed in a predictable order.
 
 ## Boot Sequence
 
@@ -23,20 +23,20 @@ graph TD
   AuthService --> TunnelService
   AuthService --> EnhancedUserTierService
   AuthService --> StreamingProxyService
-  AuthService --> OllamaService
+  AuthService --> RuntimeServices
   AuthService --> AppInitializationService
   AuthService --> WebDownloadPromptService
   AuthService --> UserContainerService
   TunnelService --> ConnectionManager
-  LocalOllama --> ConnectionManager
+  RuntimeDiscovery --> ConnectionManager
   ConnectionManager --> StreamingChat
   ConnectionManager --> UnifiedConnection
-  ConnectionManager --> LangChainOllama
+  ConnectionManager --> RuntimeStreaming
   ConnectionManager --> LangChainRAG
   ProviderDiscovery --> LangChainIntegration
   LangChainIntegration --> LLMProviderManager
   LangChainIntegration --> LLMErrorHandler
-  LangChainOllama --> LangChainRAG
+  RuntimeStreaming --> LangChainRAG
   AuthService --> LLMAudit
   ConnectionManager --> UnifiedConnection
 ```
@@ -45,7 +45,8 @@ Legend:
 
 - **Auth0Service** instances differ for web/desktop at registration time.
 - **AuthService** publishes authentication state and is the primary trigger for services that depend on user session context.
-- **ConnectionManagerService** orchestrates local Ollama, secure tunnels, and cloud connections.
+- **ConnectionManagerService** orchestrates the selected runtime path. Hermes is the current first test path; OpenClaw, Ollama, LM Studio, and compatible private endpoints are adapter paths discovered or configured by setup.
+- **Tailscale-first secure mesh** is the preferred multi-device transport. Custom tunnel services are legacy/fallback unless a task explicitly targets them.
 
 ## Lifecycle Contract
 

@@ -1,8 +1,10 @@
 # First-Time Setup Wizard
 
+> **Current orientation**: The setup wizard is the authority for selecting a runtime and device path. It must not assume a default runtime. Hermes is the first current test path; OpenClaw remains supported; LM Studio, Ollama, and compatible custom endpoints are valid paths. Remote runtime and cloud connector flows should prefer Tailscale over the older custom tunnel stack.
+
 ## Overview
 
-The First-Time Setup Wizard is a comprehensive onboarding experience that guides new CloudToLocalLLM users through downloading, installing, and configuring the desktop client needed to connect to their local LLM. This feature replaces the previous homepage download card with a more guided and user-friendly approach.
+The First-Time Setup Wizard is a comprehensive onboarding experience that guides new CloudToLocalLLM users through downloading, installing, and configuring the desktop client, then selecting the runtime and secure connectivity path for the device.
 
 ## Table of Contents
 
@@ -20,7 +22,7 @@ The First-Time Setup Wizard is a comprehensive onboarding experience that guides
 
 - **Guided Multi-Step Process**: 8-step wizard that walks users through the entire setup
 - **Automatic Platform Detection**: Detects user's operating system and recommends appropriate downloads
-- **Container Creation**: Automatically creates isolated streaming proxy containers for each user
+- **Connector Creation**: Creates or attaches isolated per-user cloud connector containers when cloud/web/mobile access is enabled
 - **Real-Time Validation**: Tests connections and validates setup completion
 - **Error Recovery**: Comprehensive error handling with retry mechanisms and troubleshooting guidance
 - **Progress Persistence**: Saves progress across browser sessions for interrupted setups
@@ -85,7 +87,7 @@ sequenceDiagram
     participant W as Wizard
     participant S as Services
     participant B as Backend
-    participant C as Container
+    participant C as Connector
 
     U->>W: Login (first time)
     W->>S: Check setup status
@@ -95,12 +97,12 @@ sequenceDiagram
     W->>U: Launch setup wizard
     
     U->>W: Start setup
-    W->>S: Create user container
-    S->>B: Container creation request
-    B->>C: Deploy streaming proxy
-    C-->>B: Container ready
-    B-->>S: Container ID
-    S-->>W: Container created
+    W->>S: Select runtime and mesh path
+    S->>B: Connector request if cloud access enabled
+    B->>C: Join per-user connector to tailnet
+    C-->>B: Connector ready
+    B-->>S: Connector ID
+    S-->>W: Runtime path recorded
     
     W->>S: Detect platform
     S-->>W: Platform and download options
@@ -114,7 +116,7 @@ sequenceDiagram
     
     U->>W: Complete installation
     W->>S: Validate connection
-    S->>B: Test tunnel connection
+    S->>B: Test runtime and Tailscale path
     B->>C: Health check
     C-->>B: Connection status
     B-->>S: Validation results
@@ -135,8 +137,9 @@ sequenceDiagram
    - Explanation of why desktop client is needed
    - Overview of setup process
 
-2. **Container Creation** (1-2 minutes)
-   - Automatic creation of user's isolated container
+2. **Runtime And Connector Setup** (1-2 minutes)
+   - Runtime selection and validation
+   - Optional creation of user's isolated cloud connector
    - Real-time progress updates
    - Error handling with retry options
 
@@ -319,9 +322,9 @@ class SetupWizardFeatureFlags {
 
 #### Performance Metrics
 
-- **Container Creation Time**: Average time to create user containers
+- **Connector Creation Time**: Average time to create optional per-user connector containers
 - **Download Success Rate**: Percentage of successful downloads
-- **Connection Validation Time**: Time to validate tunnel connections
+- **Connection Validation Time**: Time to validate runtime and Tailscale paths
 - **Page Load Times**: Performance of wizard step loading
 
 #### User Experience Metrics
@@ -354,23 +357,22 @@ class SetupAnalyticsService {
 
 ### User Documentation
 
-- [First-Time Setup Guide](../USER_DOCUMENTATION/FIRST_TIME_SETUP_GUIDE.md) - Complete user walkthrough
-- [Setup Troubleshooting & FAQ](../USER_DOCUMENTATION/SETUP_TROUBLESHOOTING_FAQ.md) - Common issues and solutions
+- [Setup Guide](../../user-guide/SETUP_GUIDE.md) - Complete user walkthrough
+- [Troubleshooting](../../user-guide/TROUBLESHOOTING.md) - Common issues and solutions
 
 ### Developer Documentation
 
-- [Developer Guide](../DEVELOPMENT/FIRST_TIME_SETUP_WIZARD_DEVELOPMENT.md) - Technical implementation details
-- [API Documentation](../API/SETUP_WIZARD_API.md) - Backend service endpoints
+- [Setup Wizard Developer Guide](../SETUP_WIZARD_DEV.md) - Technical implementation details
+- [API Documentation](../API_DOCUMENTATION.md) - Backend service endpoints
 
 ### Deployment Documentation
 
-- [Deployment Checklist](../DEPLOYMENT/SETUP_WIZARD_DEPLOYMENT_CHECKLIST.md) - Complete deployment process
-- [Feature Flag Configuration](../../config/setup_wizard_remote_config.json) - Remote configuration options
+- [Deployment Overview](../../deployment/DEPLOYMENT_OVERVIEW.md) - Deployment process and options
+- [Feature Flag Configuration](../../../config/setup_wizard_remote_config.json) - Remote configuration options
 
 ### Testing Documentation
 
-- [Test Strategy](../TESTING/SETUP_WIZARD_TESTING.md) - Comprehensive testing approach
-- [Test Cases](../TESTING/SETUP_WIZARD_TEST_CASES.md) - Detailed test scenarios
+- [Comprehensive Testing Guide](../testing/COMPREHENSIVE_TESTING_GUIDE.md) - Comprehensive testing approach
 
 ## Success Criteria
 
@@ -416,20 +418,20 @@ class SetupAnalyticsService {
 
 For developers interested in contributing to the setup wizard:
 
-1. Review the [Developer Guide](../DEVELOPMENT/FIRST_TIME_SETUP_WIZARD_DEVELOPMENT.md)
-2. Check the [Contributing Guidelines](../../CONTRIBUTING.md)
-3. Follow the [Code Style Guide](../DEVELOPMENT/CODE_STYLE_GUIDE.md)
+1. Review the [Setup Wizard Developer Guide](../SETUP_WIZARD_DEV.md)
+2. Check the [Contributing Guidelines](../CONTRIBUTING.md)
+3. Follow the existing style in nearby setup wizard code and docs
 4. Submit pull requests with comprehensive tests
 
 ## Support
 
 For issues related to the setup wizard:
 
-- **User Issues**: Check the [Troubleshooting Guide](../USER_DOCUMENTATION/SETUP_TROUBLESHOOTING_FAQ.md)
-- **Developer Issues**: Review the [Developer Guide](../DEVELOPMENT/FIRST_TIME_SETUP_WIZARD_DEVELOPMENT.md)
+- **User Issues**: Check the [Troubleshooting Guide](../../user-guide/TROUBLESHOOTING.md)
+- **Developer Issues**: Review the [Setup Wizard Developer Guide](../SETUP_WIZARD_DEV.md)
 - **Bug Reports**: Submit issues via GitHub with detailed reproduction steps
 - **Feature Requests**: Discuss proposals in GitHub Discussions
 
 ---
 
-The First-Time Setup Wizard represents a significant improvement in user onboarding for CloudToLocalLLM, providing a guided, secure, and user-friendly way to get started with local LLM access through the web interface.
+The First-Time Setup Wizard represents the authority for onboarding CloudToLocalLLM users into a selected runtime, device permissions, optional avatar/voice companion, and secure Tailscale-backed sync path.

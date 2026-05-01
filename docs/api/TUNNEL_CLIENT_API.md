@@ -1,5 +1,7 @@
 # Tunnel Client API Documentation
 
+> **Status**: Legacy/fallback API. Current product orientation prefers Tailscale as the secure transport for device, runtime, web, and cloud connector paths. Keep this document for existing tunnel maintenance and migration reference; new designs should start with [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md).
+
 ## Overview
 
 The Tunnel Client API provides a Dart interface for establishing and managing secure SSH-over-WebSocket tunnels from Flutter applications. This document describes all public classes, methods, and configuration options.

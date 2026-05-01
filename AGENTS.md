@@ -2,9 +2,17 @@
 
 ## What this is
 
-Flutter desktop/web app plus Node.js backend services. The product is a privacy-first AI companion and OpenClaw Agent Manager.
+Flutter desktop/web app plus Node.js backend services. The product is a local-first companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, Ollama, LM Studio, and compatible private endpoints.
 
-Core pillars: Chat, OpenClaw Gateway, Evolving Avatar, Desktop Control, Vision.
+Core orientation: secure agent channel, avatar/voice companion, desktop control, vision, runtime/agent management, and multi-device sync through a Tailscale-first secure device mesh.
+
+- Do not assume a universal default runtime. The setup wizard decides whether the active runtime is on this device, another private device, a Tailscale device, a manual/private URL, or optional paid CloudToLocalLLM-hosted compute.
+- Hermes is the current first test path.
+- OpenClaw remains a supported runtime and original integration, but it is not the universal default.
+- Desktop control is a core feature and must remain explicit, device-scoped, permissioned, and auditable.
+- Voice belongs with the avatar companion. The avatar/voice companion should be able to open as a sidecar window, separate from the main app.
+- Agent/runtime management remains important but should not be the first UI surface.
+- Prefer Tailscale for secure private connectivity. The cloud connector model is one isolated container per user, joined to that user's tailnet.
 
 ## Commands
 
@@ -183,11 +191,12 @@ npm test
 | `lib/services/` | Service layer, router, auth, providers, tunnel, admin, platform services |
 | `lib/services/providers/` | OpenAI-compatible provider adapters: Zhipu, Google, Moonshot, Hermes |
 | `lib/services/avatar/` | Avatar state, personality, memory, evolution, markdown sync |
+| `lib/services/voice/` | Avatar companion voice state, Hermes bridge status, TTS foundation |
 | `lib/services/openclaw_manager/` | OpenClaw Gateway control |
 | `lib/services/hermes_manager/` | Hermes gateway management and streaming |
 | `lib/services/desktop_control/` | Clipboard and window management |
 | `lib/services/vision/` | Camera, OCR, region capture, vision orchestration |
-| `lib/services/tunnel/` | Tunnel resilience, queueing, diagnostics, metrics, config |
+| `lib/services/tunnel/` | Legacy/fallback tunnel resilience, queueing, diagnostics, metrics, config |
 | `lib/features/` | Feature widgets for avatar, browser, system |
 | `lib/screens/` | UI screens: admin, agents, dashboard, onboarding, settings, skills, usage, more |
 | `lib/widgets/` | Shared widgets, chat widgets, settings widgets, navigation |
@@ -198,7 +207,7 @@ npm test
 
 `lib/di/locator.dart` is the central registration point.
 
-1. `setupCoreServices()` registers pre-auth services such as settings, session storage, auth, local brain, router, provider discovery, platform detection, setup wizard, and tier services.
+1. `setupCoreServices()` registers pre-auth services such as settings, session storage, auth, local brain, router, provider discovery, platform detection, setup wizard, voice foundation, and tier services.
 2. `setupAuthenticatedServices()` calls core setup first, then registers auth-dependent services such as tunnel, streaming proxy, LLM provider manager, LangChain, gateway control, agent lifecycle, admin, desktop control, vision, and popout services.
 
 - Use `di.serviceLocator<T>()` or `serviceLocator.get<T>()`; do not instantiate registered services directly.
@@ -219,23 +228,24 @@ import 'thing.dart'
 - Do not import `dart:io` directly in shared code; use existing platform helpers, stubs, or conditional imports.
 - Stub files are common for tray, window manager, SSH tunnel, RAG, download prompt, and Auth0 web/native splits.
 
-### Embedded LLM router
+### Embedded runtime router
 
 - Implemented in `lib/services/router_server.dart`.
 - Default port: `1337`.
 - OpenAI-compatible endpoints include `/v1/models` and `/v1/chat/completions`.
+- Local speech endpoint: `/v1/audio/speech` where the desktop TTS foundation is available.
 - Health endpoint: `/health`.
 - Avatar endpoints include `/avatar/state`, `/avatar/traits`, and `/avatar/evolution/request`.
 - Provider adapters live in `lib/services/providers/`.
 - Rate limit tiers live in `lib/services/model_tiers.dart`.
-- Provider discovery scans local services including OpenClaw Gateway `localhost:18789`, LM Studio `localhost:1234`, and Ollama `localhost:11434`.
+- Provider discovery scans local services including Hermes, OpenClaw Gateway `localhost:18789`, LM Studio `localhost:1234`, and Ollama `localhost:11434` where supported by the current adapters.
 
 ### Backend services
 
 | Service | Directory | Default port | Notes |
 | --- | --- | --- | --- |
 | API Backend | `services/api-backend/` | `8080` | Express 5 REST API, Auth0 JWT, PostgreSQL, rate limiting, Sentry/OpenTelemetry |
-| Streaming Proxy | `services/streaming-proxy/` | `3001` | WebSocket/HTTP streaming proxy container |
+| Streaming Proxy | `services/streaming-proxy/` | `3001` | WebSocket/HTTP streaming proxy container; legacy/fallback for tunnel-heavy paths |
 | Tailscale Relay | `services/tailscale-relay/` | `3002` | ESM relay service, Express 4 |
 | Auth Backend | `backend/auth/` | `3000` | Lightweight CommonJS Auth0 JWT validation |
 | SDK | `services/sdk/` | n/a | TypeScript SDK, builds to `dist/` |
@@ -249,6 +259,15 @@ import 'thing.dart'
 - Backend database: PostgreSQL via `services/api-backend/database/`.
 - Backend migrations: `services/api-backend/database/migrations/`.
 - Web client storage avoids sensitive local file persistence; use web-safe storage services and stubs.
+
+### Secure device mesh and cloud connector
+
+- Tailscale is the preferred private transport for multi-device CloudToLocalLLM.
+- The intended cloud connector shape is one isolated CloudToLocalLLM container per user.
+- A cloud connector joins only that user's Tailscale tailnet, ideally through a narrow service identity/tag.
+- The connector coordinates secure channel sync, device presence, and web/mobile access. It must not bypass local desktop permissions.
+- Cloud-hosted runtime is optional paid compute. Most users are expected to run Hermes/OpenClaw/etc. on their own device, server, or tailnet.
+- Custom SSH/WebSocket tunnel docs and services should be treated as legacy/fallback unless a task explicitly targets them.
 
 ### Deployment and infrastructure
 
@@ -296,6 +315,7 @@ import 'thing.dart'
 - `docs/architecture/AVATAR_SYSTEM.md` - Avatar system.
 - `docs/architecture/DESKTOP_CONTROL.md` - Desktop control.
 - `docs/architecture/VISION_SYSTEM.md` - Vision system.
-- `docs/architecture/TUNNEL_SYSTEM.md` - Tunnel system.
+- `docs/architecture/SECURE_DEVICE_MESH.md` - Tailscale-first multi-device and cloud connector architecture.
+- `docs/architecture/TUNNEL_SYSTEM.md` - Legacy/fallback tunnel system.
 - `docs/development/DEVELOPMENT_WORKFLOW.md` - Development workflow.
 - `docs/development/testing/COMPREHENSIVE_TESTING_GUIDE.md` - Testing guide.

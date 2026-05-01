@@ -1,5 +1,7 @@
 # CloudToLocalLLM – Architecture Codemap (Reorganized)
 
+> **Status**: Historical codemap for the older Ollama/tunnel-centered implementation. The current orientation is runtime-neutral and Tailscale-first: the setup wizard selects Hermes, OpenClaw, LM Studio, Ollama, or a custom endpoint; Hermes is the first current test path; OpenClaw remains supported; custom tunnel components are legacy/fallback. See [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) and [SECURE_DEVICE_MESH.md](SECURE_DEVICE_MESH.md) for the current architecture.
+
 ## Trace 0: System Overview
 
 High-level map of the major subsystems and their responsibilities.
@@ -8,16 +10,16 @@ High-level map of the major subsystems and their responsibilities.
   - Bootstrap & DI (Trace 1)
   - Auth & Authenticated Services (Trace 2)
   - Connection Orchestration (Trace 3)
-  - Local Ollama Connection (Trace 4)
-  - Cloud Tunnel Connection (Trace 5)
+  - Runtime Connection (legacy Ollama trace in Trace 4)
+  - Secure Transport (legacy tunnel trace in Trace 5)
   - Chat Message & Streaming (Trace 6)
   - User Tier Management (Trace 8 – client)
 - **API Backend (services/api-backend/)**
   - Server Initialization & Middleware (Trace 7 – init)
-  - Tunnel & Proxy Management (Trace 7 – tunnels)
+  - Tunnel & Proxy Management (legacy/fallback, Trace 7 – tunnels)
   - Tier Middleware & Limits (Trace 8 – backend)
 - **Streaming Proxy (services/streaming-proxy/)**
-  - Per-user proxy containers for cloud streaming (Trace 7 – proxy)
+  - Per-user proxy containers for cloud streaming (legacy/fallback, Trace 7 – proxy)
 
 ---
 
@@ -128,7 +130,7 @@ User Authentication & Service Loading Flow
 ## Trace 3: Connection Orchestration (ConnectionManagerService)
 
 **Title:** Connection Orchestration & Connection Type Selection  
-**Description:** Single decision point that chooses between local Ollama, cloud tunnel, or no connection, and exposes the appropriate streaming service.
+**Description:** Single decision point that historically chose between local Ollama, cloud tunnel, or no connection. Current design generalizes this to the selected runtime and prefers Tailscale for secure remote reachability.
 
 ### Flow
 
@@ -181,10 +183,10 @@ Connection Orchestration Flow
 
 ---
 
-## Trace 4: Local Ollama Connection (Desktop)
+## Trace 4: Local Runtime Connection (Legacy Ollama Trace)
 
-**Title:** Desktop Local Ollama Connection Flow  
-**Description:** Desktop-only flow for connecting directly to a localhost Ollama instance; disabled on web to avoid CORS issues. Feeds into ConnectionManager (Trace 3).
+**Title:** Desktop Local Runtime Connection Flow
+**Description:** Historical desktop-only flow for connecting directly to a localhost Ollama instance; disabled on web to avoid CORS issues. Current design keeps Ollama as one provider path and adds Hermes, OpenClaw, LM Studio, and custom endpoints through setup wizard runtime selection.
 
 ### Flow
 
@@ -223,10 +225,10 @@ Desktop Local Ollama Connection Flow
 
 ---
 
-## Trace 5: Cloud Tunnel Establishment (Web/Remote)
+## Trace 5: Cloud Tunnel Establishment (Legacy/Fallback)
 
 **Title:** Cloud Tunnel Establishment (Web/Remote)  
-**Description:** SSH tunnel setup path used by web clients or remote desktop when local Ollama is not available or not preferred.
+**Description:** SSH tunnel setup path used by older web clients or remote desktop flows when local Ollama was not available or not preferred. Current design should prefer Tailscale and the secure device mesh.
 
 ### Flow
 

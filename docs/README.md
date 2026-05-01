@@ -19,6 +19,7 @@ For project-wide agent instructions, see [AGENTS.md](../AGENTS.md). For the prod
 ## Current Architecture
 
 - [System Architecture](architecture/SYSTEM_ARCHITECTURE.md)
+- [Secure Device Mesh](architecture/SECURE_DEVICE_MESH.md)
 - [Avatar System](architecture/AVATAR_SYSTEM.md)
 - [Desktop Control](architecture/DESKTOP_CONTROL.md)
 - [Vision System](architecture/VISION_SYSTEM.md)

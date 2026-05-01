@@ -2,7 +2,9 @@
 
 **⚠️ DEVELOPMENT/TESTING ONLY**: This Docker Compose deployment is suitable for development, testing, and small-scale deployments. For production use, **Kubernetes deployment is strongly recommended**.
 
-See [Deployment Overview](DEPLOYMENT/DEPLOYMENT_OVERVIEW.md) for all deployment options.
+> **Current orientation**: CloudToLocalLLM is runtime-neutral and Tailscale-first. Docker Compose deployment documents may still describe older WebSocket tunnel flows; use those as fallback/migration references unless the deployment explicitly depends on them.
+
+See [Deployment Overview](DEPLOYMENT_OVERVIEW.md) for all deployment options.
 
 ## Overview
 
@@ -434,11 +436,7 @@ For production deployments, **Kubernetes is recommended** over Docker Compose:
 - ✅ Platform-agnostic (works with any Kubernetes cluster)
 - ✅ Supports both managed and self-hosted clusters
 
-**See:**
-
-- [Kubernetes Quick Start](../k8s/README.md) - DigitalOcean example
-- [Kubernetes README](../k8s/README.md) - Complete Kubernetes guide
-- [Self-Hosted Kubernetes Guide](../KUBERNETES_SELF_HOSTED_GUIDE.md) - For businesses
+Kubernetes manifests live in `k8s/`. For private deployments, start with [Self-Hosting Guide](SELF_HOSTING.md).
 
 ## Support
 

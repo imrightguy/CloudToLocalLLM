@@ -5,6 +5,7 @@ This directory contains current architecture references for CloudToLocalLLM.
 ## Canonical Architecture
 
 - [System Architecture](SYSTEM_ARCHITECTURE.md)
+- [Secure Device Mesh](SECURE_DEVICE_MESH.md)
 - [Service Lifecycle](service_lifecycle.md)
 - [Architecture Codemap](architecture-codemap.md)
 - [Avatar System](AVATAR_SYSTEM.md)

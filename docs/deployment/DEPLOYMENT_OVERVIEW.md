@@ -2,6 +2,8 @@
 
 This document provides a comprehensive overview of deployment options and strategies for CloudToLocalLLM.
 
+> **Current orientation**: CloudToLocalLLM is runtime-neutral and Tailscale-first. The setup wizard selects Hermes, OpenClaw, LM Studio, Ollama, or a compatible endpoint. Cloud deployment should focus on account sync, presence, web/mobile access, and optional per-user hosted runtime containers. Legacy streaming-proxy/tunnel components remain fallback architecture unless a deployment specifically depends on them.
+
 ## 📋 Table of Contents
 
 - [Deployment Options](#deployment-options)
@@ -65,9 +67,8 @@ For Proxmox-hosted Kubernetes with Cloudflare Tunnel-only ingress:
 
 For self-hosted Kubernetes deployments (on-premises or private cloud):
 
-- [Self-Hosted Kubernetes Guide](../../KUBERNETES_SELF_HOSTED_GUIDE.md) - Complete guide for businesses
-- [Self-Hosting Guide](../OPERATIONS/SELF_HOSTING.md) - General self-hosting information
-- [Infrastructure Guide](../OPERATIONS/INFRASTRUCTURE_GUIDE.md) - Server requirements
+- [Self-Hosting Guide](SELF_HOSTING.md) - General self-hosting information
+- [Provider Infrastructure Guide](PROVIDER_INFRASTRUCTURE_GUIDE.md) - Server and provider infrastructure notes
 
 ### ⚠️ Legacy Single Container (Deprecated)
 
@@ -91,10 +92,11 @@ CloudToLocalLLM features a modern multi-container architecture that provides:
 - `nginx-proxy`: SSL termination and request routing
 - `flutter-app`: The unified Flutter web application (UI, chat, marketing pages)
 - `api-backend`: Core API, authentication, and streaming proxy management
-- `streaming-proxy` (ephemeral): Lightweight proxies for user-to-local-LLM communication
+- `tailscale-relay` / cloud connector: secure device mesh integration
+- `streaming-proxy` (ephemeral): legacy/fallback proxies for user-to-local-LLM communication
 - `certbot`: Automated SSL certificate management
 
-For detailed information, see [System Architecture](../ARCHITECTURE/SYSTEM_ARCHITECTURE.md).
+For detailed information, see [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md).
 
 ---
 
@@ -145,9 +147,8 @@ kubectl apply -f k8s/ingress-nginx.yaml
 
 For detailed deployment instructions, see:
 
-- [Kubernetes Quick Start](../../k8s/README.md) - DigitalOcean example
-- [Kubernetes README](../../k8s/README.md) - Complete Kubernetes deployment guide (platform-agnostic)
-- [Self-Hosted Kubernetes Guide](../../KUBERNETES_SELF_HOSTED_GUIDE.md) - For businesses deploying on-premises
+- Kubernetes manifests live in `k8s/`
+- [Self-Hosting Guide](SELF_HOSTING.md) - For businesses deploying on-premises
 
 ---
 
@@ -194,33 +195,30 @@ For detailed information, see [Versioning Strategy](VERSIONING_STRATEGY.md).
 
 - [Complete Deployment Workflow](COMPLETE_DEPLOYMENT_WORKFLOW.md)
 - [Strict Deployment Policy](STRICT_DEPLOYMENT_POLICY.md)
-- [VPS Quality Gates Specification](VPS_QUALITY_GATES_SPECIFICATION.md)
 - [Deployment Testing Guide](DEPLOYMENT_TESTING_GUIDE.md)
 - [k3s on Proxmox Deployment Workflow](K3S_PROXMOX_DEPLOYMENT_WORKFLOW.md)
 - [ArgoCD Proxmox Management VM Runbook](ARGOCD_PROXMOX_MANAGEMENT_VM.md)
 
 ### 🔧 **Operations**
 
-- [Self-Hosting Guide](../OPERATIONS/SELF_HOSTING.md)
-- [Infrastructure Guide](../OPERATIONS/INFRASTRUCTURE_GUIDE.md)
--
+- [Self-Hosting Guide](SELF_HOSTING.md)
+- [Provider Infrastructure Guide](PROVIDER_INFRASTRUCTURE_GUIDE.md)
 
 ### ☸️ **Kubernetes Deployment**
 
-- [Kubernetes Quick Start](../../k8s/README.md) - DigitalOcean Kubernetes example
-- [Kubernetes README](../../k8s/README.md) - Complete Kubernetes deployment guide (works with any cluster)
+- Kubernetes manifests live in `k8s/`
 
 ### 🏗️ **Architecture**
 
-- [System Architecture](../ARCHITECTURE/SYSTEM_ARCHITECTURE.md)
-- [Multi-Container Architecture](../ARCHITECTURE/MULTI_CONTAINER_ARCHITECTURE.md)
-- [Streaming Proxy Architecture](../ARCHITECTURE/STREAMING_PROXY_ARCHITECTURE.md)
+- [System Architecture](../architecture/SYSTEM_ARCHITECTURE.md)
+- [Secure Device Mesh](../architecture/SECURE_DEVICE_MESH.md)
+- [Tunnel System](../architecture/TUNNEL_SYSTEM.md)
 
 ### 👨‍💻 **Development**
 
-- [Developer Onboarding](../DEVELOPMENT/DEVELOPER_ONBOARDING.md)
-- [API Documentation](../DEVELOPMENT/API_DOCUMENTATION.md)
+- [Developer Onboarding](../development/DEVELOPER_ONBOARDING.md)
+- [API Documentation](../development/API_DOCUMENTATION.md)
 
 ---
 
-_For questions about deployment, please see our [troubleshooting guide](deployment-troubleshooting.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)._
+_For questions about deployment, please see our [troubleshooting guide](../user-guide/TROUBLESHOOTING.md) or [open an issue](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)._

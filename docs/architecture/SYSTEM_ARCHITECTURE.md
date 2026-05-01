@@ -1,8 +1,10 @@
 # CloudToLocalLLM System Architecture
 
-CloudToLocalLLM is a Flutter desktop/web application with optional Node.js backend services. The product is organized around five pillars: Chat, OpenClaw Gateway, Evolving Avatar, Desktop Control, and Vision.
+CloudToLocalLLM is a Flutter desktop/web application with optional Node.js backend services. It is a local-first companion and desktop capability layer for user-selected agent runtimes such as Hermes, OpenClaw, Ollama, LM Studio, and compatible private endpoints.
 
-Core functionality is local-first. Cloud services add authentication, sync, relay, admin, and deployment capabilities, but should not be required for the local desktop path.
+Core functionality is local-first. Cloud services add authentication, sync, presence, admin, per-user cloud connector containers, and optional hosted runtime compute. They should not be required for the single-device local path.
+
+The setup wizard is the authority for runtime selection. Do not assume one universal default runtime. Hermes is the current first test path; OpenClaw remains a supported runtime and original integration.
 
 ## Technology Stack
 
@@ -28,6 +30,7 @@ Core functionality is local-first. Cloud services add authentication, sync, rela
 | `lib/services/` | Service layer |
 | `lib/services/providers/` | Router provider adapters |
 | `lib/services/avatar/` | Personality, evolution, memory, avatar state |
+| `lib/services/voice/` | Avatar companion voice state, Hermes bridge status, TTS foundation |
 | `lib/services/openclaw_manager/` | Gateway control |
 | `lib/services/hermes_manager/` | Hermes gateway and streaming management |
 | `lib/services/desktop_control/` | Clipboard and desktop window control |
@@ -54,7 +57,7 @@ Use `di.serviceLocator<T>()` or `serviceLocator.get<T>()` for registered service
 | `ConversationStorageService` | `lib/services/conversation_storage_service.dart` |
 | `LocalConversationStorage` | `lib/services/local_conversation_storage.dart` |
 
-### OpenClaw Gateway
+### Runtime And Agent Management
 
 | Service | File |
 | --- | --- |
@@ -63,7 +66,7 @@ Use `di.serviceLocator<T>()` or `serviceLocator.get<T>()` for registered service
 | `AgentLifecycleService` | `lib/services/agent_lifecycle_service.dart` |
 | `GatewayControlService` | `lib/services/openclaw_manager/gateway_control_service.dart` |
 
-Provider discovery scans local providers including OpenClaw Gateway on `localhost:18789`, LM Studio on `localhost:1234`, and Ollama on `localhost:11434`.
+Provider discovery scans supported local/private runtimes including Hermes, OpenClaw Gateway on `localhost:18789`, LM Studio on `localhost:1234`, and Ollama on `localhost:11434`.
 
 ### Avatar
 
@@ -74,6 +77,16 @@ Provider discovery scans local providers including OpenClaw Gateway on `localhos
 | `EvolutionTracker` | `lib/services/avatar/evolution_tracker.dart` |
 | `MemoryService` | `lib/services/avatar/memory_service.dart` |
 | `MarkdownSyncService` | `lib/services/avatar/markdown_sync_service.dart` |
+
+Voice is part of the avatar companion experience. The main app can show compact avatar/voice status, but the intended UX is a sidecar companion window attached to the secure agent channel.
+
+### Voice Foundation
+
+| Service | File |
+| --- | --- |
+| `VoiceConversationService` | `lib/services/voice/voice_conversation_service.dart` |
+| `HermesVoiceBridgeService` | `lib/services/voice/hermes_voice_bridge_service.dart` |
+| `CloudTtsService` | `lib/services/voice/cloud_tts_service.dart` |
 
 ### Desktop Control
 
@@ -102,6 +115,8 @@ The Flutter app embeds an OpenAI-compatible HTTP router:
 - Health: `GET /health`
 - Models: `GET /v1/models`
 - Chat: `POST /v1/chat/completions`
+- Speech: `POST /v1/audio/speech`
+- Voices: `GET /v1/audio/voices`
 - Avatar state: `GET /avatar/state`
 - Avatar traits: `POST /avatar/traits`
 - Avatar evolution request: `POST /avatar/evolution/request`
@@ -127,6 +142,24 @@ Provider configuration and discovery for local services are handled separately b
 | PostgreSQL | Optional backend persistence for authenticated cloud features |
 | Markdown sync | Avatar/personality backup and OpenClaw skill integration |
 
+## Secure Device Mesh
+
+Tailscale is the preferred private transport for multi-device CloudToLocalLLM.
+
+```text
+Client UI / web / phone
+        |
+Optional per-user CloudToLocalLLM cloud connector
+        |
+User's Tailscale tailnet
+        |
+CloudToLocalLLM desktop apps and user-selected runtimes
+```
+
+The intended cloud connector shape is one isolated container per user. The connector joins only that user's tailnet, coordinates secure channel sync and device presence, and must not bypass local desktop permissions.
+
+Custom SSH/WebSocket tunnel infrastructure should be treated as legacy or fallback unless a task explicitly targets it.
+
 After changing Drift schema or queries, run:
 
 ```bash
@@ -138,7 +171,7 @@ dart run build_runner build --delete-conflicting-outputs
 | Service | Directory | Notes |
 | --- | --- | --- |
 | API backend | `services/api-backend/` | Express 5, Auth0 JWT, PostgreSQL, admin routes, tunnel/proxy APIs |
-| Streaming proxy | `services/streaming-proxy/` | WebSocket/HTTP proxy container with TypeScript modules under `src/` |
+| Streaming proxy | `services/streaming-proxy/` | WebSocket/HTTP proxy container with TypeScript modules under `src/`; legacy/fallback for tunnel-heavy paths |
 | Tailscale relay | `services/tailscale-relay/` | Relay service using Express 4 |
 | Auth backend | `backend/auth/` | Lightweight CommonJS Auth0 JWT validation |
 | SDK | `services/sdk/` | TypeScript SDK published from `dist/` |
@@ -159,6 +192,7 @@ Match nearby file patterns when adding platform-specific code.
 ## Related Documentation
 
 - [Documentation Hub](../README.md)
+- [Secure Device Mesh](SECURE_DEVICE_MESH.md)
 - [Avatar System](AVATAR_SYSTEM.md)
 - [Desktop Control](DESKTOP_CONTROL.md)
 - [Vision System](VISION_SYSTEM.md)

@@ -2,167 +2,142 @@
 
 This directory contains platform-specific installation guides for CloudToLocalLLM.
 
-## 📋 Quick Navigation
-
-### 🖥️ **Platform-Specific Guides**
-
-- **[Linux Installation](LINUX.md)** - Ubuntu, Debian, Arch, and other distributions
-- **[Windows Installation](WINDOWS.md)** - Windows 10/11 desktop application
-- **[macOS Installation](MACOS.md)** - Coming soon
-
-### 🚀 **Quick Start**
-
-- **** - What you need before installing
-- **** - Getting started after installation
-- **** - Common installation issues
+CloudToLocalLLM does not require one default runtime. During first launch, the setup wizard connects the app to Hermes, OpenClaw, LM Studio, Ollama, or another compatible runtime. Hermes is the first runtime path for current testing.
 
 ---
 
-## 🎯 Choose Your Platform
+## Platform Guides
 
-### 🐧 **Linux Users**
-
-CloudToLocalLLM supports multiple Linux installation methods:
-
-- **DEB Package** (Ubuntu/Debian) - Recommended for most users
-- **AppImage** - Universal Linux package, works everywhere
-- **Source Build** - For advanced users and developers
-
-**[→ Linux Installation Guide](LINUX.md)**
-
-### 🪟 **Windows Users**
-
-Simple installer for Windows 10/11:
-
-- **Windows Installer** - Easy setup with system tray integration
-- **Portable Version** - No installation required
-- **Development Build** - For testing latest features
-
-**[→ Windows Installation Guide](WINDOWS.md)**
-
-### 🍎 **macOS Users**
-
-macOS support is coming soon!
-
-- **Native App Bundle** - Planned
-- **Homebrew Package** - Planned
-- **Development Preview** - Available for testing
-
-**[→ macOS Installation Guide](MACOS.md)**
+- [Linux Installation](LINUX.md) - Ubuntu, Debian, Arch, AppImage, and source builds
+- [Windows Installation](WINDOWS.md) - Windows 10/11 desktop app
+- [macOS Installation](MACOS.md) - Planned and development notes
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
-Before installing CloudToLocalLLM, you'll need:
+### Runtime
 
-### 🧠 **Ollama (Required)**
+Install or prepare at least one runtime before completing setup:
 
-CloudToLocalLLM requires Ollama to run local AI models:
+| Runtime | Typical Endpoint | Notes |
+| --- | --- | --- |
+| Hermes | Configured in wizard | First runtime path for current testing |
+| OpenClaw Gateway | `http://localhost:18789` | Supported original integration |
+| LM Studio | `http://localhost:1234` | OpenAI-compatible local runtime |
+| Ollama | `http://localhost:11434` | Local model runtime |
+| Custom endpoint | User supplied | Private server, VPS, or compatible API |
 
-1. **Install Ollama**: Visit [ollama.ai](https://ollama.ai/) and follow installation instructions
-2. **Download a model**: `ollama pull llama3.2` (or your preferred model)
-3. **Verify installation**: `ollama list` should show your downloaded models
+Most users should run the runtime locally or on another machine they control. Running a runtime in CloudToLocalLLM-hosted infrastructure is optional paid compute and should use an isolated per-user container.
 
-### 💻 **System Requirements**
+### Secure Device Mesh
 
-- **RAM**: Minimum 4GB, recommended 8GB+ (depends on AI model size)
-- **Storage**: 2GB for application + space for AI models
-- **Network**: Internet connection for initial setup and web access
-- **OS**: See platform-specific requirements in individual guides
+Tailscale is recommended for remote runtimes and multi-device sync.
 
----
-
-## 🚀 Installation Overview
-
-### 1. **Install Prerequisites**
-
-- Install Ollama and download AI models
-- Ensure system meets requirements
-
-### 2. **Install CloudToLocalLLM**
-
-- Choose your platform-specific installation method
-- Follow the detailed guide for your operating system
-
-### 3. **First Time Setup**
-
-- Launch CloudToLocalLLM (appears in system tray)
-- Complete the setup wizard
-- Connect to your local Ollama instance
-
-### 4. **Access Web Interface**
-
-- Visit [app.cloudtolocalllm.online](https://app.cloudtolocalllm.online)
-- Sign in with your account
-- Start chatting with your local AI models!
-
----
-
-## 🔧 Installation Methods Comparison
-
-| Method | Pros | Cons | Best For |
-|--------|------|------|----------|
-| **Package Manager** | Easy updates, system integration | Platform-specific | Regular users |
-| **Installer** | Simple setup, guided process | Larger download | First-time users |
-| **Portable** | No installation, easy to move | Manual updates | Testing, temporary use |
-| **Source Build** | Latest features, customizable | Requires development tools | Developers, advanced users |
-
----
-
-## 🆘 Need Help?
-
-### 📚 **Documentation**
-
-- **** - Common installation issues
-- **[User Guide](../USER_DOCUMENTATION/USER_GUIDE.md)** - How to use CloudToLocalLLM
-- **[FAQ](../USER_DOCUMENTATION/SETUP_TROUBLESHOOTING_FAQ.md)** - Frequently asked questions
-
-### 💬 **Support**
-
-- **[GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)** - Report bugs or ask questions
-- **[Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)** - Community support
-- **[User Troubleshooting](../USER_DOCUMENTATION/USER_TROUBLESHOOTING_GUIDE.md)** - Self-help guide
-
----
-
-## 🔄 Updating CloudToLocalLLM
-
-### **Automatic Updates**
-
-- Package manager installations receive automatic updates
-- Check for updates in the application settings
-
-### **Manual Updates**
-
-- Download latest version from [releases](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases)
-- Follow the same installation process
-- Your settings and data will be preserved
-
----
-
-## 🗑️ Uninstalling
-
-### **Package Manager**
+1. Install Tailscale on each device.
+2. Sign in to the same tailnet.
+3. Confirm device reachability:
 
 ```bash
-# Ubuntu/Debian
-sudo apt remove CloudToLocalLLM
-
-# Arch Linux (when available)
-sudo pacman -R CloudToLocalLLM
+tailscale status
+tailscale ping <runtime-device-name>
 ```
 
-### **Windows**
+The cloud connector, when enabled, should join the user's tailnet as an isolated per-user container.
 
-- Use "Add or Remove Programs" in Windows Settings
-- Or run the uninstaller from the Start Menu
+### System Requirements
 
-### **Portable Versions**
-
-- Simply delete the application folder
-- Optionally remove configuration files from user directory
+- RAM: minimum 4 GB, recommended 8 GB+
+- Storage: 2 GB for the app plus model storage for local runtimes
+- Network: internet for downloads, account sync, and optional cloud features
+- OS: see the platform-specific guide for detailed requirements
 
 ---
 
-*Choose your platform above to get started with CloudToLocalLLM!*
+## Installation Overview
+
+### 1. Prepare A Runtime
+
+Start Hermes, OpenClaw, LM Studio, Ollama, or another compatible endpoint on this device or a reachable tailnet device.
+
+### 2. Install CloudToLocalLLM
+
+Choose the platform-specific installation method:
+
+- Package manager or `.deb` package on Linux
+- AppImage on Linux
+- Windows installer or portable build on Windows
+- Source build for development
+
+### 3. Complete First-Time Setup
+
+The setup wizard will:
+
+- Select the runtime
+- Test connectivity
+- Detect available models and capabilities
+- Configure desktop permissions on this device
+- Offer optional Tailscale-based device sync
+
+### 4. Open The Main Channel
+
+The main window opens as the secure channel to the selected runtime. Runtime and agent management stays available in setup, settings, and management views.
+
+### 5. Optional Companion And Mesh
+
+- Open the avatar/voice companion as a sidecar window.
+- Enable account sync for conversations and presence.
+- Add the cloud connector to the user's tailnet when web/mobile access is needed.
+
+---
+
+## Installation Methods Comparison
+
+| Method | Pros | Cons | Best For |
+| --- | --- | --- | --- |
+| Package manager | Easy updates, system integration | Platform-specific | Regular desktop users |
+| Installer | Guided setup | Larger download | First-time users |
+| Portable | No install, easy to move | Manual updates | Testing and temporary use |
+| Source build | Latest changes, customizable | Requires development tools | Developers |
+
+---
+
+## Need Help?
+
+- [Setup Guide](../../user-guide/SETUP_GUIDE.md)
+- [User Guide](../../user-guide/USER_GUIDE.md)
+- [Troubleshooting](../../user-guide/TROUBLESHOOTING.md)
+- [Secure Device Mesh](../../architecture/SECURE_DEVICE_MESH.md)
+- [GitHub Issues](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues)
+- [GitHub Discussions](https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/discussions)
+
+---
+
+## Updating CloudToLocalLLM
+
+### Automatic Updates
+
+- Package manager installations receive updates through the platform package flow.
+- Application update checks should preserve settings and local data.
+
+### Manual Updates
+
+Download the latest release and install it over the existing app. Settings, local data, and configured runtime endpoints should be preserved.
+
+---
+
+## Uninstalling
+
+### Linux Package
+
+```bash
+sudo apt remove cloudtolocalllm
+```
+
+### Windows
+
+Use "Add or Remove Programs" in Windows Settings, or run the uninstaller from the Start Menu.
+
+### Portable Builds
+
+Delete the application folder. Optionally remove configuration and data directories if you no longer need local settings or logs.

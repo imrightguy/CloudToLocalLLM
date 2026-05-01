@@ -1,5 +1,7 @@
 # Requirements Verification Matrix
 
+> **Status**: Legacy/fallback verification matrix for the SSH WebSocket Tunnel Enhancement specification. Keep it for tunnel maintenance and migration checks. Current connectivity verification should prioritize the Tailscale secure device mesh and per-user cloud connector model.
+
 This document provides a comprehensive verification of all requirements from the SSH WebSocket Tunnel Enhancement specification.
 
 ## Requirement 1: Connection Resilience and Auto-Recovery

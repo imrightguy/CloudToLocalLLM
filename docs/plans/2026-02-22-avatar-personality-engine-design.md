@@ -1,15 +1,15 @@
 # Avatar Personality Engine Design
 
-**Project**: CloudToLocalLLM (OpenClaw Agent Manager)
+**Project**: CloudToLocalLLM (secure agent companion)
 **Author**: Brainstorming Session
 **Date**: 2026-02-22
-**Status**: Design Approved
+**Status**: Historical design; update implementation against the current runtime-neutral orientation in [SPEC.md](../../SPEC.md)
 
 ---
 
 ## Executive Summary
 
-The Avatar Personality Engine enables OpenClaw agents to develop unique personalities that evolve organically through meaningful conversations. The system uses a hybrid architecture where OpenClaw Gateway owns the avatar's core personality and evolution, while CloudToLocalLLM provides expanded awareness through shared state stored in a Drift database with markdown file backup.
+The Avatar Personality Engine enables the selected agent runtime to develop a companion personality that evolves organically through meaningful conversations. The original design centered on OpenClaw Gateway; current implementation should keep that path supported while allowing Hermes and other configured runtimes to participate through runtime adapters. Voice belongs with this avatar companion and should be able to open as a sidecar surface.
 
 **Key Design Principles**:
 - **Collaborative Evolution**: Agent self-reflection + app validation (no XP grinding)

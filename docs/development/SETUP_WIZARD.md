@@ -1,5 +1,7 @@
 # First-Time Setup Wizard Development Guide
 
+> **Current orientation**: The setup wizard selects the runtime and secure device path. Do not assume a default runtime or a mandatory streaming-proxy container. Hermes is the first current test path, OpenClaw remains supported, and remote/cloud paths should prefer Tailscale with optional per-user connector containers.
+
 ## Overview
 
 This guide provides comprehensive information for developers working on the first-time setup wizard feature. The wizard is a critical component that guides new users through downloading, installing, and configuring the CloudToLocalLLM desktop client.

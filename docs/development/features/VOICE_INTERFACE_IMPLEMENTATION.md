@@ -1,5 +1,9 @@
 # Voice Interface Implementation
 
+> Status: superseded planning note.
+>
+> Current product direction folds voice into the avatar companion sidecar. The current implementation lives in `lib/services/voice/`, `lib/widgets/voice/`, and the local `/v1/audio/speech` router endpoint. Do not treat the backend `/api/v1/voice/transcribe` and `/api/v1/voice/synthesize` plan below as current architecture unless a task explicitly revives it.
+
 ## Overview
 
 This document describes the implementation of a voice interface for CloudToLocalLLM, enabling speech-to-text (STT), text-to-speech (TTS), and voice-driven conversations with LLMs.

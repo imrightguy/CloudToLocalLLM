@@ -1,10 +1,12 @@
 # Voice Conversation System
 
-Status: proposed MVP foundation
+Status: avatar companion foundation
+
+Voice is part of the avatar companion, not a standalone app feature. This document describes the voice layer that should attach to the avatar sidecar window and the secure agent channel.
 
 ## Goal
 
-Make CloudToLocalLLM feel like a natural local voice companion instead of a push-to-talk tool or delayed assistant loop.
+Make the CloudToLocalLLM avatar feel like a natural local voice companion instead of a push-to-talk tool or delayed assistant loop.
 
 The target experience is:
 - always listening locally
@@ -12,9 +14,9 @@ The target experience is:
 - short conversational back-and-forth without re-entering a heavy analysis loop every turn
 - optional escalation to deeper Hermes reasoning, vision, or desktop-aware context when useful
 
-## Why a separate app/front-end helps
+## Why an avatar sidecar helps
 
-A dedicated CloudToLocalLLM voice front-end is a better fit for natural conversation than bolting voice onto Hermes directly because it can own:
+A dedicated avatar/voice sidecar is a better fit for natural conversation than bolting voice directly onto Hermes because it can own:
 - microphone stream handling
 - wake-word or direct-address detection
 - turn-taking / end-of-utterance detection
@@ -29,7 +31,7 @@ Hermes remains the brain for:
 - long-context reasoning
 - agent actions
 
-CloudToLocalLLM becomes the low-latency voice shell around Hermes.
+The avatar companion becomes the low-latency voice shell around Hermes or the selected runtime.
 
 ## Recommended architecture
 
@@ -108,7 +110,7 @@ Requirements:
 - end-of-utterance detection
 - response cancellation / replacement
 
-### Phase D — demo polish for Simon
+### Phase D — sidecar polish
 - visible voice status orb / indicator
 - transcript preview
 - “hearing / engaged / speaking” state
@@ -127,7 +129,7 @@ This service provides:
 - fast acknowledgement suggestions
 - assistant reply/session state tracking
 
-This is intentionally dependency-light so it can be wired into the app before committing to a specific mic/STT/TTS package.
+This is intentionally dependency-light so it can be wired into the avatar companion before committing to a specific mic/STT package.
 
 ## Suggested next code steps
 
@@ -150,10 +152,11 @@ This is intentionally dependency-light so it can be wired into the app before co
 
 ## Practical recommendation
 
-Yes: CloudToLocalLLM as the separate voice app makes this easier.
+Yes: CloudToLocalLLM as the avatar/voice sidecar makes this easier.
 
 Best split:
-- CloudToLocalLLM = natural voice shell and demo surface
-- Hermes = memory, tools, desktop awareness, deep reasoning
+- Avatar companion = natural voice shell and side presence
+- Main app = secure channel, setup, management, approvals
+- Hermes/selected runtime = memory, tools, desktop awareness, deep reasoning
 
-That division is the most likely to feel impressive in a live Simon demo.
+That division keeps the main app simple while giving the assistant a persistent desktop presence.

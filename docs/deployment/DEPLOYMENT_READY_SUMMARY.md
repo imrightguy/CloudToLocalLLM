@@ -1,4 +1,6 @@
-# 🎉 CloudToLocalLLM - Docker Compose Deployment Guide
+# CloudToLocalLLM - Docker Compose Deployment Guide
+
+> **Status**: Historical deployment summary for the older tunnel-centered stack. Current product direction is runtime-neutral and Tailscale-first, with optional per-user cloud connector containers and optional paid hosted runtime containers. Keep this file for deployment history and migration reference.
 
 ## Summary
 
@@ -26,12 +28,12 @@ This guide covers deploying CloudToLocalLLM using Docker Compose for development
 - **Nginx Reverse Proxy**: SSL termination, WebSocket proxying, rate limiting
 - **Certbot**: Automatic Let's Encrypt SSL certificates
 
-### 2. Tunnel System (HTTP Polling - Active)
+### 2. Tunnel System (Historical / Fallback)
 
-- ✅ **API Routes**: `/api/bridge/*` endpoints enabled
-- ✅ **Desktop Client**: `HttpPollingTunnelClient` ready to connect
-- ✅ **Authentication**: Auth0 JWT validation
-- ✅ **LLM Integration**: Automatic routing to local Ollama
+- **API Routes**: `/api/bridge/*` endpoints enabled in the older stack
+- **Desktop Client**: `HttpPollingTunnelClient` available for fallback paths
+- **Authentication**: Auth0 JWT validation
+- **LLM Integration**: Older automatic routing to local Ollama; current setup should use runtime selection
 
 ### 3. WebSocket Tunnel (Bonus - Server Ready)
 
@@ -354,13 +356,13 @@ docker compose -f docker-compose.production.yml exec api-backend \
 ## 📚 Documentation Reference
 
 - **[DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)**: Comprehensive deployment guide
-- **[TUNNEL_IMPLEMENTATION_STATUS.md](TUNNEL_IMPLEMENTATION_STATUS.md)**: Tunnel architecture details
-- **[env.template](env.template)**: Configuration template
-- **[deploy.sh](deploy.sh)**: Deployment automation script
+- **[Tunnel System](../architecture/TUNNEL_SYSTEM.md)**: Legacy/fallback tunnel architecture details
+- **[env.template](../../config/env.template)**: Configuration template
+- **[deploy.sh](../../scripts/deployment/deploy.sh)**: Deployment automation script
 
 ## 🎉 You're Ready
 
-Everything is configured and ready to deploy. The tunnel system uses HTTP polling (which is already implemented in your desktop app), so it should work out of the box.
+This historical stack is configured for the older HTTP-polling tunnel path. Current deployments should prefer the Tailscale-first secure device mesh and selected runtime path unless this fallback stack is intentionally required.
 
 ### Deploy Command
 

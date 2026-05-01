@@ -62,11 +62,11 @@ We take security seriously. Our architecture is designed to provide enterprise-g
 ### Built-in Protections
 
 * **Non-Root Execution**: All our containers are architected to run as unprivileged non-root users, utilizing minimal base images to reduce the attack surface.
-* **Network Isolation**: Our specific `docker-compose` network definitions strictly isolate backend services (like the database and Ollama bridge) from the public internet. Only the API Gateway is exposed.
+* **Network Isolation**: Our deployment definitions strictly isolate backend services from the public internet. Optional hosted runtimes and cloud connectors must be isolated per user.
 * **Automated Rate Limiting**: All sensitive endpoints (Auth, API Keys) are protected by strict, adaptive rate limits by default to prevent abuse.
 
 ### Authentication & Secrets
 
 * **Secure Defaults**: We enforce industry-standard JWT validation and API key hashing. Keys are never stored in plain text.
-* **Encrypted Tunnels**: All traffic between local LLMs and the cloud proxy uses encrypted WebSocket tunnels (WSS) and SSH tunneling, ensuring data privacy in transit.
+* **Tailscale-First Transport**: The preferred secure transport is the user's Tailscale tailnet. The cloud connector joins the user's tailnet as an isolated per-user container after setup approval. Legacy WebSocket/SSH tunnel components remain fallback architecture and should not be the default design path.
 * **Production-Ready Configuration**: Our default configurations enforce HTTPS, secure headers (Helmet), and strict cookie policies out of the box.

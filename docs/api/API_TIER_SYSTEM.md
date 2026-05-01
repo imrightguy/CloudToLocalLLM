@@ -4,13 +4,15 @@
 
 The CloudToLocalLLM API now supports a tier-based architecture that provides different levels of functionality based on user subscription levels. This document outlines the tier system, available endpoints, and usage patterns.
 
+> **Orientation note**: This document still contains older Ollama/direct-proxy endpoint examples. Current product direction is runtime-neutral and Tailscale-first. Tier policy should apply to selected runtimes, optional cloud connectors, and optional paid hosted runtime containers rather than assuming Ollama is the only local runtime.
+
 ## User Tiers
 
 ### Free Tier
 
 - **Direct tunnel access** without container orchestration
 - **No Docker required** on user's machine
-- **Single connection** to local Ollama instance
+- **Single connection** to the selected local/runtime endpoint
 - **Basic features** with upgrade prompts for advanced functionality
 
 ### Premium Tier
@@ -89,7 +91,7 @@ Health check for direct proxy service.
 
 #### ALL `/api/direct-proxy/:userId/ollama/*`
 
-Direct proxy to local Ollama instance for free tier users.
+Historical direct proxy to a local Ollama instance for free tier users. New runtime-neutral designs should expose the selected runtime path instead of assuming Ollama.
 
 **Security:**
 
