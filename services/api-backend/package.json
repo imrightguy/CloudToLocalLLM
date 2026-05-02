@@ -43,7 +43,7 @@
     "pg": "^8.20.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "twilio": "^4.23.0"
+    "twilio": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
