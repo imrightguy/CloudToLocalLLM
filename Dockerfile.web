@@ -4,12 +4,16 @@ ENV PATH="/sdks/flutter/bin:/sdks/flutter/bin/cache/dart-sdk/bin:${PATH}"
 RUN flutter config --no-analytics && flutter config --enable-web && flutter precache --web
 
 WORKDIR /app
+ARG WEB_CACHE_BUST=latest
 COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get
 
 COPY . .
 RUN flutter create . --platforms web
 RUN flutter build web --release --base-href '/'
+RUN set -eux; \
+    mv build/web/main.dart.js "build/web/main.${WEB_CACHE_BUST}.dart.js"; \
+    python3 -c "from pathlib import Path; root = Path('build/web'); p = root / 'flutter_bootstrap.js'; p.write_text(p.read_text().replace('main.dart.js', 'main.${WEB_CACHE_BUST}.dart.js')); p = root / 'index.html'; p.write_text(p.read_text().replace('flutter_bootstrap.js', 'flutter_bootstrap.js?v=${WEB_CACHE_BUST}'))"
 
 FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html

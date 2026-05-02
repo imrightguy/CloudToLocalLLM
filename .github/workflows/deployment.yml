@@ -144,6 +144,8 @@ jobs:
           context: .
           file: Dockerfile.web
           push: true
+          build-args: |
+            WEB_CACHE_BUST=${{ github.sha }}
           tags: |
             ${{ env.IMAGE_PREFIX }}/web:latest
             ${{ env.IMAGE_PREFIX }}/web:${{ github.sha }}
