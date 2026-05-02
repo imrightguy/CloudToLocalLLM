@@ -5,15 +5,26 @@ import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/public_entry_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'utils/browser_location.dart';
+import 'utils/entrypoint_policy.dart';
 import 'screens/pipeline_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/visits_screen.dart';
 import 'screens/buildings_screen.dart';
+import 'screens/leases_screen.dart';
+import 'screens/payments_screen.dart';
 import 'screens/employees_screen.dart';
 import 'screens/documents_screen.dart';
 import 'screens/communications_screen.dart';
+import 'screens/marketplace_inbox_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/renovation_ops_screen.dart';
+import 'screens/observation_review_inbox_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'theme/app_colors.dart';
+import 'theme/app_typography.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +62,29 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     }
   }
 
+  WidgetBuilder _protectedRoute(WidgetBuilder builder) {
+    return (context) {
+      if (!AuthNotifier.instance.isLoggedIn) {
+        return const LoginScreen();
+      }
+      return AuthGate(child: builder(context));
+    };
+  }
+
+  Widget _buildStartScreen(Uri location) {
+    switch (resolveEntryPointDestination(
+      location: location,
+      isLoggedIn: AuthNotifier.instance.isLoggedIn,
+    )) {
+      case EntryPointDestination.publicLanding:
+        return PublicEntryScreen(location: location);
+      case EntryPointDestination.loginWall:
+        return const LoginScreen();
+      case EntryPointDestination.appShell:
+        return const AuthGate(child: HomeScreen());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -63,22 +97,34 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
           ? ListenableBuilder(
               listenable: AuthNotifier.instance,
               builder: (context, _) {
-                if (AuthNotifier.instance.isLoggedIn) {
-                  return const AuthGate(child: HomeScreen());
-                }
-                return const AuthGate(child: LoginScreen());
+                return _buildStartScreen(currentBrowserLocation());
               },
             )
           : const _SplashScreen(),
       routes: {
-        '/dashboard': (context) => const DashboardScreen(),
-        '/pipeline': (context) => const PipelineScreen(),
-        '/calendar': (context) => const CalendarScreen(),
-        '/visits': (context) => const VisitsScreen(),
-        '/buildings': (context) => const BuildingsScreen(),
-        '/employees': (context) => const EmployeesScreen(),
-        '/documents': (context) => const DocumentsScreen(),
-        '/communications': (context) => const CommunicationsScreen(),
+        '/dashboard': _protectedRoute((context) => const DashboardScreen()),
+        '/pipeline': _protectedRoute((context) => const PipelineScreen()),
+        '/calendar': _protectedRoute((context) => const CalendarScreen()),
+        '/visits': _protectedRoute((context) => const VisitsScreen()),
+        '/buildings': _protectedRoute((context) => const BuildingsScreen()),
+        '/leases': _protectedRoute((context) => const LeasesScreen()),
+        '/payments': _protectedRoute((context) => const PaymentsScreen()),
+        '/employees': _protectedRoute((context) => const EmployeesScreen()),
+        '/documents': _protectedRoute((context) => const DocumentsScreen()),
+        '/renovation-ops': _protectedRoute((context) => const RenovationOpsScreen()),
+        '/observations': _protectedRoute((context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+          final findingId = args is Map<String, dynamic>
+              ? args['findingId'] as String?
+              : args is String
+                  ? args
+                  : null;
+          return ObservationReviewInboxScreen(initialFindingId: findingId);
+        }),
+        '/communications': _protectedRoute((context) => const CommunicationsScreen()),
+        '/marketplace': _protectedRoute((context) => const MarketplaceInboxScreen()),
+        '/settings': _protectedRoute((context) => const SettingsScreen()),
+        '/onboarding': _protectedRoute((context) => const OnboardingScreen()),
       },
     );
   }
@@ -87,8 +133,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     return ThemeData(
       primarySwatch: Colors.teal,
       brightness: Brightness.light,
-      fontFamily: 'Inter',
       useMaterial3: true,
+      fontFamily: AppTypography.fontFamily,
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -117,8 +163,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     return ThemeData(
       primarySwatch: Colors.teal,
       brightness: Brightness.dark,
-      fontFamily: 'Inter',
       useMaterial3: true,
+      fontFamily: AppTypography.fontFamily,
       scaffoldBackgroundColor: const Color(0xFF0F172A),
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -160,12 +206,7 @@ class AuthGate extends StatelessWidget {
       listenable: AuthNotifier.instance,
       builder: (context, _) {
         if (!AuthNotifier.instance.isLoggedIn) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
-              (route) => false,
-            );
-          });
+          return const LoginScreen();
         }
         return child;
       },

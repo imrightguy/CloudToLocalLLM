@@ -1,0 +1,1 @@
+Uri currentBrowserLocation() => Uri.base;
