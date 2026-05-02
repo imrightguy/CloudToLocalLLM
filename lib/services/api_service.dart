@@ -69,6 +69,9 @@ class ApiService {
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
 
+  @visibleForTesting
+  http.Client client = http.Client();
+
   String? _accessToken;
   String? _refreshToken;
 
@@ -150,22 +153,22 @@ class ApiService {
     try {
       switch (method) {
         case 'GET':
-          response = await http.get(uri, headers: _getHeaders());
+          response = await client.get(uri, headers: _getHeaders());
           break;
         case 'POST':
-          response = await http.post(uri,
+          response = await client.post(uri,
               headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'PUT':
-          response = await http.put(uri,
+          response = await client.put(uri,
               headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'PATCH':
-          response = await http.patch(uri,
+          response = await client.patch(uri,
               headers: _getHeaders(), body: jsonEncode(body));
           break;
         case 'DELETE':
-          response = await http.delete(uri, headers: _getHeaders());
+          response = await client.delete(uri, headers: _getHeaders());
           break;
         default:
           throw ApiException('Unsupported HTTP method: $method');
