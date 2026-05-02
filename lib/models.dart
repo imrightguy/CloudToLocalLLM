@@ -290,6 +290,7 @@ class OfferItem {
 class VisitItem {
   const VisitItem({
     this.id,
+    this.leadId,
     this.dateTime,
     this.leadName,
     this.tenantConfirmed = false,
@@ -313,6 +314,7 @@ class VisitItem {
 
   // API fields (optional)
   final String? id;
+  final String? leadId;
   final DateTime? dateTime;
   final String? leadName;
   final bool tenantConfirmed;
@@ -352,6 +354,7 @@ class VisitItem {
 
     return VisitItem(
       id: json['id'] as String?,
+      leadId: json['leadId'] as String?,
       unitLabel: (json['unit'] is Map<String, dynamic>)
           ? (json['unit'] as Map<String, dynamic>)['label'] as String? ?? ''
           : json['unitLabel'] as String? ?? '',
@@ -385,6 +388,7 @@ class VisitItem {
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
+        if (leadId != null) 'leadId': leadId,
         'unitLabel': unitLabel,
         'buildingName': buildingName,
         'dateLabel': dateLabel,

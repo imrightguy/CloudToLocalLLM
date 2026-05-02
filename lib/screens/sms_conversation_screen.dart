@@ -5,6 +5,7 @@ import '../models.dart';
 import '../services/communication_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import 'visit_form_screen.dart';
 
 class SmsConversationScreen extends StatefulWidget {
   const SmsConversationScreen({
@@ -170,6 +171,20 @@ class _SmsConversationScreenState extends State<SmsConversationScreen> {
         surfaceTintColor: AppColors.surface,
         foregroundColor: AppColors.textPrimary,
         actions: [
+          IconButton(
+            tooltip: 'Planifier une visite',
+            icon: const Icon(Icons.event_available_outlined, color: AppColors.textSecondary),
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => VisitFormScreen(
+                    initialLeadId: widget.contactId,
+                    initialDate: DateTime.now().add(const Duration(hours: 1)),
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.call_outlined, color: AppColors.textSecondary),
             onPressed: () {

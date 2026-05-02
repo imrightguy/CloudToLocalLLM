@@ -67,6 +67,8 @@ const postVisit = async (req, res) => {
  *   get:
  *     tags: [Marketplace]
  *     summary: List marketplace inbox threads
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: search
@@ -75,7 +77,19 @@ const postVisit = async (req, res) => {
  *         name: stage
  *         schema:
  *           type: string
- *           enum: [nouveau, contacte, qualifie, visitePlanifiee, visite_planifiee, offreEnvoyee, negociation, bailSigne, signe, visite_completee, interesse, inactif]
+ *           enum:
+ *             - nouveau
+ *             - contacte
+ *             - qualifie
+ *             - visitePlanifiee
+ *             - visite_planifiee
+ *             - offreEnvoyee
+ *             - negociation
+ *             - bailSigne
+ *             - signe
+ *             - visite_completee
+ *             - interesse
+ *             - inactif
  *       - in: query
  *         name: assignedEmployeeId
  *         schema: { type: string, format: uuid }
@@ -113,6 +127,8 @@ router.get('/inbox', authenticateToken, validate(marketplaceSchemas.inbox), asyn
  *   get:
  *     tags: [Marketplace]
  *     summary: Get a lead timeline
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: leadId
@@ -152,6 +168,8 @@ router.get('/leads/:leadId/timeline', authenticateToken, validate(marketplaceSch
  *   post:
  *     tags: [Marketplace]
  *     summary: Log a marketplace message for a lead
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: leadId
@@ -191,6 +209,8 @@ router.get('/leads/:leadId/timeline', authenticateToken, validate(marketplaceSch
  *     responses:
  *       201:
  *         description: Message logged
+ *       400:
+ *         description: Validation error
  */
 router.post('/leads/:leadId/messages', authenticateToken, validate(marketplaceSchemas.leadMessage), asyncHandler(postMessage));
 
@@ -200,6 +220,8 @@ router.post('/leads/:leadId/messages', authenticateToken, validate(marketplaceSc
  *   post:
  *     tags: [Marketplace]
  *     summary: Create a marketplace visit for a lead
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: leadId
@@ -234,6 +256,10 @@ router.post('/leads/:leadId/messages', authenticateToken, validate(marketplaceSc
  *     responses:
  *       201:
  *         description: Visit created
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: Visit conflict or schedule conflict
  */
 router.post('/leads/:leadId/visits', authenticateToken, validate(marketplaceSchemas.leadVisit), asyncHandler(postVisit));
 

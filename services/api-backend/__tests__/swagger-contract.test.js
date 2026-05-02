@@ -154,6 +154,7 @@ describe('Swagger contract regression coverage', () => {
       });
 
       const inboxResponse = swaggerSpec.paths['/api/marketplace/inbox'].get.responses[200].content['application/json'].schema.allOf[1].properties;
+      expect(swaggerSpec.paths['/api/marketplace/inbox'].get.security).toEqual([{ bearerAuth: [] }]);
       expect(inboxResponse.data.items).toMatchObject({ $ref: '#/components/schemas/CommunicationThread' });
       const threadProperties = swaggerSpec.components.schemas.CommunicationThread.properties;
       expect(threadProperties.firstSeenAt).toMatchObject({ type: 'string', format: 'date-time', nullable: true });
@@ -161,6 +162,7 @@ describe('Swagger contract regression coverage', () => {
       expect(threadProperties.firstResponseDelayMinutes).toMatchObject({ type: 'integer', nullable: true });
       expect(inboxResponse.metadata).toMatchObject({ $ref: '#/components/schemas/PaginationMeta' });
 
+      expect(swaggerSpec.paths['/api/marketplace/leads/{leadId}/timeline'].get.security).toEqual([{ bearerAuth: [] }]);
       expect(getParameter('/api/marketplace/leads/{leadId}/timeline', 'get', 'leadId')).toMatchObject({
         name: 'leadId',
         in: 'path',
@@ -184,13 +186,18 @@ describe('Swagger contract regression coverage', () => {
       });
 
       const messageSchema = swaggerSpec.paths['/api/marketplace/leads/{leadId}/messages'].post.requestBody.content['application/json'].schema;
+      expect(swaggerSpec.paths['/api/marketplace/leads/{leadId}/messages'].post.security).toEqual([{ bearerAuth: [] }]);
       expect(messageSchema.required).toEqual(expect.arrayContaining(['type', 'direction']));
       expect(messageSchema.properties.content).toMatchObject({ type: 'string' });
       expect(messageSchema.properties.body).toMatchObject({ type: 'string' });
       expect(messageSchema.properties.attachments).toMatchObject({ type: 'array' });
       expect(messageSchema.properties.metadata).toMatchObject({ type: 'object', additionalProperties: true });
+      expect(messageSchema.properties.status.type).toBe('string');
 
       const visitSchema = swaggerSpec.paths['/api/marketplace/leads/{leadId}/visits'].post.requestBody.content['application/json'].schema;
+      expect(swaggerSpec.paths['/api/marketplace/leads/{leadId}/visits'].post.security).toEqual([{ bearerAuth: [] }]);
+      expect(swaggerSpec.paths['/api/marketplace/leads/{leadId}/visits'].post.responses[400]).toBeDefined();
+      expect(swaggerSpec.paths['/api/marketplace/leads/{leadId}/visits'].post.responses[409]).toBeDefined();
       expect(visitSchema.required).toEqual(['unitId', 'employeeId', 'dateTime']);
       expect(visitSchema.properties.dateTime).toMatchObject({ type: 'string', format: 'date-time' });
       expect(visitSchema.properties.durationMinutes).toMatchObject({ type: 'integer', minimum: 1, maximum: 1440 });
@@ -243,4 +250,44 @@ describe('Swagger contract regression coverage', () => {
       });
     });
   });
+
+  describe('facebook webhook docs', () => {
+    it('documents the verification handshake contract', () => {
+      expect(getParameter('/api/webhooks/facebook', 'get', 'hub.mode')).toMatchObject({
+        name: 'hub.mode',
+        in: 'query',
+        required: true,
+        schema: { type: 'string', enum: ['subscribe'] },
+      });
+      expect(getParameter('/api/webhooks/facebook', 'get', 'hub.verify_token')).toMatchObject({
+        name: 'hub.verify_token',
+        in: 'query',
+        required: true,
+        schema: { type: 'string' },
+      });
+      expect(getParameter('/api/webhooks/facebook', 'get', 'hub.challenge')).toMatchObject({
+        name: 'hub.challenge',
+        in: 'query',
+        required: true,
+        schema: { type: 'string' },
+      });
+      expect(swaggerSpec.paths['/api/webhooks/facebook'].get.responses[200].content['text/plain'].schema).toMatchObject({ type: 'string' });
+      expect(swaggerSpec.paths['/api/webhooks/facebook'].get.responses[403]).toBeDefined();
+    });
+
+    it('documents the incoming webhook payload used by the controller', () => {
+      const schema = swaggerSpec.paths['/api/webhooks/facebook'].post.requestBody.content['application/json'].schema;
+
+      expect(schema.properties.object).toMatchObject({ type: 'string', example: 'page' });
+      expect(schema.properties.entry).toMatchObject({ type: 'array' });
+      expect(schema.properties.entry.items.properties.messaging).toMatchObject({ type: 'array' });
+      expect(schema.properties.entry.items.properties).toHaveProperty('changes');
+      expect(schema.properties.entry.items.properties.changes).toMatchObject({ type: 'array' });
+      expect(schema.properties.entry.items.properties.changes.items.properties.value).toMatchObject({
+        type: 'object',
+      });
+      expect(swaggerSpec.paths['/api/webhooks/facebook'].post.responses[200]).toBeDefined();
+    });
+  });
+
 });

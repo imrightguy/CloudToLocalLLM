@@ -20,6 +20,7 @@
  *         required: true
  *         schema:
  *           type: string
+ *           enum: [subscribe]
  *         description: Must be "subscribe"
  *       - in: query
  *         name: hub.verify_token
@@ -86,6 +87,16 @@
  *                             properties:
  *                               mid: { type: string }
  *                               text: { type: string }
+ *                     changes:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           field:
+ *                             type: string
+ *                           value:
+ *                             type: object
+ *                             additionalProperties: true
  *     responses:
  *       200:
  *         description: Event processed

@@ -427,7 +427,10 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                       child: _VisitPreviewCard(
                         visit: visit,
                         badge: _visitBadge(visit),
-                        onTap: () => _openBooking(initialDate: visit.dateTime ?? DateTime.now()),
+                        onTap: () => _openBooking(
+                          initialDate: visit.dateTime ?? DateTime.now(),
+                          leadId: visit.leadId,
+                        ),
                       ),
                     ),
                   )
@@ -554,7 +557,7 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
     }
     final hours = (minutes / 60).floor();
     final remainder = minutes % 60;
-    return remainder == 0 ? 'Réponse en ${hours} h' : 'Réponse en ${hours} h ${remainder} min';
+    return remainder == 0 ? 'Réponse en $hours h' : 'Réponse en $hours h $remainder min';
   }
 
   Widget _buildInboxItem(MarketplaceInboxThread item) {
