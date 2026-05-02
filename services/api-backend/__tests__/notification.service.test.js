@@ -256,7 +256,7 @@ describe('notification.service', () => {
   describe('sendHotLeadNotification', () => {
     beforeEach(() => {
       process.env.SMTP_HOST = 'smtp.test.com';
-      process.env.APP_URL = 'https://app.immogestion.ca';
+      process.env.APP_URL = 'https://app.immogestion.app';
       notificationService.initMailer();
     });
 
@@ -376,7 +376,7 @@ describe('notification.service', () => {
 
       await notificationService.sendHotLeadNotification(1);
 
-      expect(sendMailMock.mock.calls[0][0].html).toContain('https://app.immogestion.ca/leads');
+      expect(sendMailMock.mock.calls[0][0].html).toContain('https://app.immogestion.app/leads');
     });
   });
 

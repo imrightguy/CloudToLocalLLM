@@ -514,7 +514,7 @@ describe('analytics.service', () => {
       expect(result.timeline).toEqual([
         { date: '2026-03-17', completed: 5, cancelled: 1, noShow: 1 },
       ]);
-      expect(db.select).toHaveBeenCalledTimes(6);
+      expect(db.select).toHaveBeenCalledTimes(7);
     });
 
     it('returns 0% rates and null avgTimeToLease when no visits', async () => {
@@ -552,7 +552,7 @@ describe('analytics.service', () => {
       expect(result.completionRate).toBe('50.0%');
       expect(result.noShowRate).toBe('25.0%');
       expect(result.avgTimeToLease).toBe(7.3);
-      expect(db.select).toHaveBeenCalledTimes(6);
+      expect(db.select).toHaveBeenCalledTimes(7);
     });
 
     it('handles 12m period', async () => {
@@ -565,7 +565,7 @@ describe('analytics.service', () => {
       });
 
       await getVisitMetrics('12m', null, 'month');
-      expect(db.select).toHaveBeenCalledTimes(6);
+      expect(db.select).toHaveBeenCalledTimes(7);
     });
 
     it('throws on invalid period', async () => {
@@ -588,7 +588,7 @@ describe('analytics.service', () => {
       await getVisitMetrics('30d', null, 'week');
       await getVisitMetrics('30d', null, 'week');
 
-      expect(db.select).toHaveBeenCalledTimes(6);
+      expect(db.select).toHaveBeenCalledTimes(7);
       expect(cache.set).toHaveBeenCalled();
     });
 

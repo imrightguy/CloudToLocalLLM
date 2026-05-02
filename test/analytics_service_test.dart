@@ -126,6 +126,52 @@ void main() {
     });
   });
 
+  group('Operational metrics', () {
+    test('OperationalMetricsWindow.fromJson parses all fields', () {
+      final window = OperationalMetricsWindow.fromJson({
+        'inboxVolume': 14,
+        'replies': 9,
+        'bookings': 3,
+        'completedVisits': 2,
+        'noShows': 1,
+        'stalledConversations': 4,
+      });
+
+      expect(window.inboxVolume, 14);
+      expect(window.replies, 9);
+      expect(window.bookings, 3);
+      expect(window.completedVisits, 2);
+      expect(window.noShows, 1);
+      expect(window.stalledConversations, 4);
+    });
+
+    test('InboxToVisitMetrics.fromJson parses nested periods', () {
+      final metrics = InboxToVisitMetrics.fromJson({
+        'generatedAt': '2026-05-01T20:00:00.000Z',
+        'daily': {
+          'inboxVolume': 4,
+          'replies': 2,
+          'bookings': 1,
+          'completedVisits': 1,
+          'noShows': 0,
+          'stalledConversations': 2,
+        },
+        'weekly': {
+          'inboxVolume': 18,
+          'replies': 11,
+          'bookings': 6,
+          'completedVisits': 4,
+          'noShows': 1,
+          'stalledConversations': 3,
+        },
+      });
+
+      expect(metrics.generatedAt, DateTime.utc(2026, 5, 1, 20));
+      expect(metrics.daily.bookings, 1);
+      expect(metrics.weekly.replies, 11);
+    });
+  });
+
   group('FullDashboardData', () {
     test('fromJson parses full dashboard', () {
       final dashboard = FullDashboardData.fromJson({
@@ -156,6 +202,25 @@ void main() {
           {'source': 'Web', 'count': 30},
           {'source': 'Referral', 'count': 15},
         ],
+        'inboxToVisitMetrics': {
+          'generatedAt': '2026-05-01T20:00:00.000Z',
+          'daily': {
+            'inboxVolume': 5,
+            'replies': 3,
+            'bookings': 1,
+            'completedVisits': 1,
+            'noShows': 0,
+            'stalledConversations': 2,
+          },
+          'weekly': {
+            'inboxVolume': 19,
+            'replies': 12,
+            'bookings': 7,
+            'completedVisits': 4,
+            'noShows': 1,
+            'stalledConversations': 3,
+          },
+        },
       });
 
       expect(dashboard.pipeline.stages['nouveau'], 10);
@@ -166,6 +231,9 @@ void main() {
       expect(dashboard.conversionRates.conversionRate, '40%');
       expect(dashboard.leadSources.length, 2);
       expect(dashboard.leadSources.first.source, 'Web');
+      expect(dashboard.inboxToVisitMetrics, isNotNull);
+      expect(dashboard.inboxToVisitMetrics!.daily.inboxVolume, 5);
+      expect(dashboard.inboxToVisitMetrics!.weekly.stalledConversations, 3);
     });
 
     test('fromJson handles empty dashboard', () {
@@ -176,6 +244,7 @@ void main() {
       expect(dashboard.visitStats.total, 0);
       expect(dashboard.conversionRates.conversionRate, '0%');
       expect(dashboard.leadSources, isEmpty);
+      expect(dashboard.inboxToVisitMetrics, isNull);
     });
 
     test('fromJson parses KPI summary', () {

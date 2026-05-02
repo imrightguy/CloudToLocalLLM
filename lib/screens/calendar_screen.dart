@@ -622,17 +622,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 const VerticalDivider(width: 1),
                 // Day columns
-                 Expanded(
+                Expanded(
                    child: Row(
                      children: days.map((day) {
                        final dayVisits = _visitsForDay(day);
-                       return Expanded(
-                         child: DragTarget<DateTime>(
+                      return Expanded(
+                         child: DragTarget<VisitItem>(
                            onAcceptWithDetails: (details) async {
-                             final visit = details.data as VisitItem;
-                             final hour = day.hour.clamp(8, 19);
+                             final visit = details.data;
+                             final sourceDateTime = visit.dateTime ?? DateTime.now();
                              final newDateTime = DateTime(
-                               day.year, day.month, day.day, hour,
+                               day.year,
+                               day.month,
+                               day.day,
+                               sourceDateTime.hour,
+                               sourceDateTime.minute,
                              );
                              _handleReschedule(visit, newDateTime);
                            },
@@ -960,6 +964,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         color: AppColors.textMuted,
                       ),
                     ),
+                  if (visit.outcome != null && visit.outcome!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _outcomeColor(visit.outcome!).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        _outcomeLabel(visit.outcome!),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: _outcomeColor(visit.outcome!),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -988,47 +1010,264 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // Visit Detail Dialog
   // ---------------------------------------------------------------------------
 
+  Future<String?> _promptReasonCode(BuildContext context, String status) async {
+    final options = status == 'no_show'
+        ? const [
+            ('tenant_no_show', 'Le locataire ne s’est pas présenté'),
+            ('access_issue', 'Problème d’accès'),
+            ('weather', 'Météo'),
+            ('other', 'Autre'),
+          ]
+        : const [
+            ('tenant_request', 'À la demande du locataire'),
+            ('tenant_conflict', 'Conflit d’horaire du locataire'),
+            ('host_unavailable', 'Hôte / employé indisponible'),
+            ('access_issue', 'Problème d’accès'),
+            ('weather', 'Météo'),
+            ('other', 'Autre'),
+          ];
+
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return SimpleDialog(
+          title: Text(status == 'no_show' ? 'Motif d’absence' : 'Motif d’annulation'),
+          children: [
+            for (final option in options)
+              SimpleDialogOption(
+                onPressed: () => Navigator.of(dialogContext).pop(option.$1),
+                child: Text(option.$2),
+              ),
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(dialogContext).pop(null),
+              child: const Text('Annuler'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _updateVisitStatus(
+    VisitItem visit,
+    String status, {
+    String? outcome,
+    String? reasonCode,
+  }) async {
+    if (visit.id == null) return;
+    try {
+      await VisitService.instance.updateVisitStatus(
+        visit.id!,
+        status,
+        outcome: outcome,
+        reasonCode: reasonCode,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              outcome != null
+                  ? 'Statut mis à jour: ${_statusLabel(status)} · ${_outcomeLabel(outcome)}'
+                  : 'Statut mis à jour: ${_statusLabel(status)}',
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        _fetchVisits();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   void _showVisitDetailDialog(BuildContext context, VisitItem visit) {
     final displayStatus = _statusLabel(visit.status);
+    final displayOutcome = visit.outcome == null || visit.outcome!.isEmpty
+        ? null
+        : _outcomeLabel(visit.outcome!);
+    final displayReasonCode = visit.reasonCode ?? visit.failureReasonCode;
     final timeLabel = visit.dateTime != null
         ? DateFormat('EEEE d MMMM yyyy à HH:mm', 'fr').format(visit.dateTime!)
         : visit.dateLabel;
+
+    Widget actionButton(
+      BuildContext dialogContext,
+      String label,
+      String status, {
+      String? outcome,
+      bool filled = false,
+    }) {
+      Future<void> onPressed() async {
+        Navigator.of(dialogContext).pop();
+        String? selectedReasonCode;
+        if (status == 'cancelled' || status == 'no_show') {
+          selectedReasonCode = await _promptReasonCode(context, status);
+          if (selectedReasonCode == null) {
+            return;
+          }
+        }
+        await _updateVisitStatus(
+          visit,
+          status,
+          outcome: outcome,
+          reasonCode: selectedReasonCode,
+        );
+      }
+      final button = filled
+          ? FilledButton.tonalIcon(
+              onPressed: onPressed,
+              icon: const Icon(Icons.chevron_right, size: 18),
+              label: Text(label),
+            )
+          : OutlinedButton.icon(
+              onPressed: onPressed,
+              icon: const Icon(Icons.chevron_right, size: 18),
+              label: Text(label),
+            );
+      return SizedBox(width: double.infinity, child: button);
+    }
+
+    List<Widget> buildWorkflowActions(BuildContext dialogContext) {
+      final actions = <Widget>[];
+      switch (visit.status.toLowerCase()) {
+        case 'scheduled':
+          actions.add(actionButton(dialogContext, 'Confirmer', 'confirmed', filled: true));
+          actions.add(const SizedBox(height: 8));
+          actions.add(actionButton(dialogContext, 'Annuler', 'cancelled'));
+          break;
+        case 'confirmed':
+          actions.add(actionButton(dialogContext, 'Démarrer la visite', 'in_progress', filled: true));
+          actions.add(const SizedBox(height: 8));
+          actions.add(actionButton(dialogContext, 'Annuler', 'cancelled'));
+          break;
+        case 'in_progress':
+          actions.add(actionButton(dialogContext, 'Terminer', 'completed', filled: true));
+          actions.add(const SizedBox(height: 8));
+          actions.add(actionButton(dialogContext, 'Absent', 'no_show'));
+          break;
+        case 'completed':
+          actions.add(actionButton(dialogContext, 'Marquer intéressé', 'completed', outcome: 'interesse', filled: true));
+          actions.add(const SizedBox(height: 8));
+          actions.add(actionButton(dialogContext, 'Pas intéressé', 'completed', outcome: 'pas_interesse'));
+          actions.add(const SizedBox(height: 8));
+          actions.add(actionButton(dialogContext, 'Absent', 'no_show'));
+          break;
+        case 'cancelled':
+        case 'no_show':
+          actions.add(actionButton(dialogContext, 'Réouvrir', 'scheduled', filled: true));
+          break;
+        default:
+          actions.add(actionButton(dialogContext, 'Passer en confirmée', 'confirmed', filled: true));
+          break;
+      }
+      return actions;
+    }
 
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Détails de la visite'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _detailRow('Date', timeLabel),
-                _detailRow('Statut', displayStatus),
-                _detailRow('Immeuble', visit.buildingName),
-                _detailRow('Unité', visit.unitLabel),
-                _detailRow('Agent', visit.agent),
-                if (visit.leadName != null && visit.leadName!.isNotEmpty)
-                  _detailRow('Prospect', visit.leadName!),
-                if (visit.notes.isNotEmpty) _detailRow('Notes', visit.notes),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Text('Locataire notifié: ',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
-                    Text(visit.occupantNotified ? 'Oui' : 'Non'),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Text('Employé confirmé: ',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
-                    Text(visit.employeeConfirmed ? 'Oui' : 'Non'),
-                  ],
-                ),
-              ],
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.14)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          timeLabel,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _detailPill(displayStatus, _statusColor(visit.status)),
+                            if (displayOutcome != null)
+                              _detailPill(displayOutcome, _outcomeColor(visit.outcome!)),
+                            if (displayReasonCode != null)
+                              _detailPill(_reasonCodeLabel(displayReasonCode), AppColors.warning),
+                            _detailPill(visit.buildingName, AppColors.textSecondary),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _detailRow('Immeuble', visit.buildingName),
+                  _detailRow('Unité', visit.unitLabel),
+                  _detailRow('Agent', visit.agent),
+                  if (visit.leadName != null && visit.leadName!.isNotEmpty)
+                    _detailRow('Prospect', visit.leadName!),
+                  if (visit.notes.isNotEmpty) _detailRow('Notes', visit.notes),
+                  if (visit.completedAt != null)
+                    _detailRow('Terminée le', _formatVisitTimestamp(visit.completedAt!)),
+                  if (visit.cancelledAt != null)
+                    _detailRow('Annulée le', _formatVisitTimestamp(visit.cancelledAt!)),
+                  if (visit.noShowAt != null)
+                    _detailRow('Absence enregistrée le', _formatVisitTimestamp(visit.noShowAt!)),
+                  if (visit.rescheduledAt != null)
+                    _detailRow('Reprogrammée le', _formatVisitTimestamp(visit.rescheduledAt!)),
+                  if (displayReasonCode != null)
+                    _detailRow('Motif', _reasonCodeLabel(displayReasonCode)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text('Locataire notifié: ',
+                          style: TextStyle(fontWeight: FontWeight.w500)),
+                      Text(visit.occupantNotified ? 'Oui' : 'Non'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Text('Employé confirmé: ',
+                          style: TextStyle(fontWeight: FontWeight.w500)),
+                      Text(visit.employeeConfirmed ? 'Oui' : 'Non'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Workflow',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Fais avancer la visite vers la confirmation, la réalisation, puis le résultat.',
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 12),
+                  ...buildWorkflowActions(dialogContext),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -1054,6 +1293,49 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           Expanded(child: Text(value)),
         ],
+      ),
+    );
+  }
+
+  String _formatVisitTimestamp(DateTime dateTime) {
+    return DateFormat('d MMM yyyy à HH:mm', 'fr').format(dateTime);
+  }
+
+  String _reasonCodeLabel(String reasonCode) {
+    switch (reasonCode) {
+      case 'tenant_request':
+        return 'À la demande du locataire';
+      case 'tenant_conflict':
+        return 'Conflit d’horaire du locataire';
+      case 'host_unavailable':
+        return 'Hôte / employé indisponible';
+      case 'access_issue':
+        return 'Problème d’accès';
+      case 'weather':
+        return 'Météo';
+      case 'tenant_no_show':
+        return 'Locataire absent';
+      case 'other':
+        return 'Autre';
+      default:
+        return reasonCode;
+    }
+  }
+
+  Widget _detailPill(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
       ),
     );
   }
@@ -1114,8 +1396,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
       case 'scheduled':
       case 'pending':
         return 'Planifiée';
+      case 'in_progress':
+        return 'En cours';
       default:
         return status;
+    }
+  }
+
+  String _outcomeLabel(String outcome) {
+    switch (outcome.toLowerCase()) {
+      case 'interesse':
+        return 'Intéressé';
+      case 'pas_interesse':
+        return 'Pas intéressé';
+      case 'no_show':
+        return 'Absent';
+      default:
+        return outcome;
+    }
+  }
+
+  Color _outcomeColor(String outcome) {
+    switch (outcome.toLowerCase()) {
+      case 'interesse':
+        return AppColors.success;
+      case 'pas_interesse':
+        return AppColors.warning;
+      case 'no_show':
+        return AppColors.visitNoShow;
+      default:
+        return AppColors.textSecondary;
     }
   }
 }

@@ -1,5 +1,10 @@
 const Joi = require('joi');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
+const {
+  QUALIFICATION_STATES,
+  BOOKING_STATES,
+  MARKETPLACE_REASON_CODES,
+} = require('../constants/marketplace-states');
 
 const uuid = Joi.string().uuid();
 
@@ -70,6 +75,9 @@ const leadSchemas = {
       desiredUnit: Joi.string().trim().max(100),
       source: Joi.string().trim().max(100).default('other'),
       stage: Joi.string().valid(...VALID_LEAD_STAGES).default('nouveau'),
+      qualificationState: Joi.string().valid(...QUALIFICATION_STATES).default('unknown'),
+      qualificationReasonCode: Joi.string().valid(...MARKETPLACE_REASON_CODES),
+      qualificationReasonNote: Joi.string().trim().max(1000),
       notes: Joi.string().trim().max(5000),
       tags: Joi.array().items(Joi.string().trim().max(100)).max(20),
       language: Joi.string().valid('fr', 'en').default('fr'),
@@ -88,6 +96,9 @@ const leadSchemas = {
       desiredUnit: Joi.string().trim().max(100),
       source: Joi.string().trim().max(100),
       stage: Joi.string().valid(...VALID_LEAD_STAGES),
+      qualificationState: Joi.string().valid(...QUALIFICATION_STATES),
+      qualificationReasonCode: Joi.string().valid(...MARKETPLACE_REASON_CODES),
+      qualificationReasonNote: Joi.string().trim().max(1000),
       notes: Joi.string().trim().max(5000),
       tags: Joi.array().items(Joi.string().trim().max(100)).max(20),
       language: Joi.string().valid('fr', 'en'),
@@ -107,6 +118,9 @@ const leadSchemas = {
       leadIds: Joi.array().items(uuid).min(1).max(200).required(),
       updates: Joi.object({
         status: Joi.string().valid(...VALID_LEAD_STAGES),
+        qualificationState: Joi.string().valid(...QUALIFICATION_STATES),
+        qualificationReasonCode: Joi.string().valid(...MARKETPLACE_REASON_CODES),
+        qualificationReasonNote: Joi.string().trim().max(1000),
         buildingId: uuid,
         employeeId: uuid,
       }).min(1).required(),
@@ -187,6 +201,16 @@ const visitExpand = Joi.string().pattern(
   /^\s*(unit|building|employee|lead)\s*(,\s*(unit|building|employee|lead)\s*)*$/,
 );
 
+const visitReasonCodes = Joi.string().valid(
+  'tenant_request',
+  'tenant_conflict',
+  'host_unavailable',
+  'access_issue',
+  'weather',
+  'tenant_no_show',
+  'other',
+);
+
 const visitSchemas = {
   list: {
     query: Joi.object({
@@ -226,6 +250,11 @@ const visitSchemas = {
       employeeConfirmed: Joi.boolean(),
       morningOfSent: Joi.boolean(),
       outcome: Joi.string().valid('interesse', 'pas_interesse', 'no_show').allow(null),
+      reasonCode: visitReasonCodes.allow(null),
+      completedAt: Joi.date().iso(),
+      cancelledAt: Joi.date().iso(),
+      noShowAt: Joi.date().iso(),
+      rescheduledAt: Joi.date().iso(),
       notes: Joi.string().trim().max(5000),
       isActive: Joi.boolean(),
     }).min(1),
@@ -235,10 +264,22 @@ const visitSchemas = {
     body: Joi.object({
       status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show').required(),
       outcome: Joi.string().valid('interesse', 'pas_interesse', 'no_show').allow(null),
+      reasonCode: visitReasonCodes.allow(null),
+      notes: Joi.string().trim().max(5000),
+    }),
+  },
+  reschedule: {
+    params: Joi.object({ id: uuid }),
+    body: Joi.object({
+      dateTime: Joi.date().iso().required(),
+      sendSms: Joi.boolean().default(true),
+      reasonCode: visitReasonCodes.required(),
       notes: Joi.string().trim().max(5000),
     }),
   },
 };
+
+
 
 const paymentSchemas = {
   create: {
@@ -312,6 +353,9 @@ const validCommunicationActivityTypes = [
   'lead_created',
   'visit_scheduled',
   'visit_completed',
+  'visit_cancelled',
+  'visit_no_show',
+  'visit_rescheduled',
   'sms_sent',
   'sms_received',
   'communication_logged',
@@ -347,6 +391,18 @@ const communicationSchemas = {
       type: communicationActivityTypeFilter,
     }),
   },
+  threads: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      leadId: uuid,
+      employeeId: uuid,
+      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger'),
+      direction: Joi.string().valid('inbound', 'outbound'),
+      status: Joi.string().trim().max(100),
+      includeMessages: Joi.boolean().default(true),
+    }),
+  },
   logs: {
     query: Joi.object({
       page: pagination.extract('page'),
@@ -366,6 +422,7 @@ const communicationSchemas = {
       direction: Joi.string().valid('inbound', 'outbound').required(),
       subject: Joi.string().trim().max(500),
       content: Joi.string().trim().max(10000),
+      body: Joi.string().trim().max(10000),
       attachments: Joi.array().items(Joi.alternatives(Joi.string(), Joi.object())).default([]),
       status: Joi.string().trim().max(100),
       metadata: Joi.object().unknown(true).default({}),
@@ -376,10 +433,57 @@ const communicationSchemas = {
     body: Joi.object({
       subject: Joi.string().trim().max(500),
       content: Joi.string().trim().max(10000),
+      body: Joi.string().trim().max(10000),
       attachments: Joi.array().items(Joi.alternatives(Joi.string(), Joi.object())),
       status: Joi.string().valid('sent', 'delivered', 'read', 'failed'),
       metadata: Joi.object().unknown(true),
     }).min(1),
+  },
+};
+
+const marketplaceSchemas = {
+  inbox: {
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      search: Joi.string().trim().max(255),
+      stage: Joi.string().valid(...VALID_LEAD_STAGES),
+      assignedEmployeeId: uuid,
+      source: Joi.string().trim().max(100),
+    }),
+  },
+  timeline: {
+    params: Joi.object({ leadId: uuid }),
+    query: Joi.object({
+      limit: Joi.number().integer().min(1).max(100).default(50),
+      hoursAgo: Joi.number().integer().min(1).max(720).default(168),
+      type: communicationActivityTypeFilter,
+    }),
+  },
+  leadMessage: {
+    params: Joi.object({ leadId: uuid }),
+    body: Joi.object({
+      employeeId: uuid.allow(null),
+      type: Joi.string().valid('email', 'phone', 'sms', 'fb_messenger').required(),
+      direction: Joi.string().valid('inbound', 'outbound').required(),
+      subject: Joi.string().trim().max(500),
+      content: Joi.string().trim().max(10000),
+      body: Joi.string().trim().max(10000),
+      attachments: Joi.array().items(Joi.alternatives(Joi.string(), Joi.object())).default([]),
+      status: Joi.string().trim().max(100),
+      metadata: Joi.object().unknown(true).default({}),
+    }).or('content', 'body'),
+  },
+  leadVisit: {
+    params: Joi.object({ leadId: uuid }),
+    body: Joi.object({
+      unitId: uuid.required(),
+      employeeId: uuid.required(),
+      dateTime: Joi.date().iso().required(),
+      durationMinutes: Joi.number().integer().min(1).max(1440),
+      status: Joi.string().valid('scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'),
+      notes: Joi.string().trim().max(5000),
+    }),
   },
 };
 
@@ -463,13 +567,109 @@ const notificationSchemas = {
   },
 };
 
+const observationResultDomainValues = ['lead', 'message', 'visit', 'follow-up'];
+const observationResultStatusValues = ['new', 'reviewed', 'dismissed', 'converted'];
+
+const observationResultItemSchema = Joi.object({
+  projectId: uuid,
+  domain: Joi.string().valid(...observationResultDomainValues).required(),
+  sourceKind: Joi.string().trim().min(1).max(100).required(),
+  sourceRef: Joi.string().trim().max(255),
+  sourceFingerprint: Joi.string().trim().max(255),
+  title: Joi.string().trim().min(1).max(500).required(),
+  summary: Joi.string().trim().min(1).max(5000).required(),
+  details: Joi.object().unknown(true).default({}),
+  privacyClass: Joi.string().valid('redacted', 'summary').default('redacted'),
+  confidence: Joi.number().min(0).max(1),
+  leadId: uuid,
+  visitId: uuid,
+  communicationLogId: uuid,
+  followUpType: Joi.string().trim().max(100),
+  followUpDueAt: Joi.date().iso(),
+});
+
+const observationResultReviewSchema = Joi.object({
+  title: Joi.string().trim().min(1).max(500),
+  summary: Joi.string().trim().min(1).max(5000),
+  details: Joi.object().unknown(true),
+  confidence: Joi.number().min(0).max(1),
+  projectId: uuid.allow(null),
+  leadId: uuid.allow(null),
+  visitId: uuid.allow(null),
+  communicationLogId: uuid.allow(null),
+  followUpType: Joi.string().trim().max(100).allow(null),
+  followUpDueAt: Joi.date().iso().allow(null),
+}).min(1);
+
+const observationResultDismissSchema = Joi.object({
+  reason: Joi.string().trim().min(1).max(2000).allow(null, ''),
+});
+
+const observationResultSchemas = {
+  import: {
+    params: Joi.object({ companyId: uuid.required() }),
+    body: Joi.alternatives().try(
+      observationResultItemSchema,
+      Joi.array().items(observationResultItemSchema).min(1).max(100),
+    ),
+  },
+  list: {
+    params: Joi.object({ companyId: uuid.required() }),
+    query: Joi.object({
+      page: pagination.extract('page'),
+      limit: pagination.extract('limit'),
+      status: Joi.string().valid(...observationResultStatusValues),
+      domain: Joi.string().valid(...observationResultDomainValues),
+      leadId: uuid,
+      visitId: uuid,
+      communicationLogId: uuid,
+      followUpType: Joi.string().trim().max(100),
+      sourceKind: Joi.string().trim().max(100),
+      projectId: uuid,
+    }),
+  },
+  detail: {
+    params: Joi.object({ companyId: uuid.required(), id: uuid.required() }),
+  },
+  review: {
+    params: Joi.object({ companyId: uuid.required(), id: uuid.required() }),
+    body: observationResultReviewSchema,
+  },
+  dismiss: {
+    params: Joi.object({ companyId: uuid.required(), id: uuid.required() }),
+    body: observationResultDismissSchema,
+  },
+};
+
 const smsWebhookSchemas = {
   incoming: {
     body: Joi.object({
       MessageSid: Joi.string().trim().max(64),
+      SmsMessageSid: Joi.string().trim().max(64),
       From: Joi.string().trim().max(50).required(),
       To: Joi.string().trim().max(50).required(),
-      Body: Joi.string().trim().max(1600).required(),
+      Body: Joi.string().trim().max(1600).allow('', null),
+      NumMedia: Joi.number().integer().min(0).max(10).default(0),
+      MediaUrl0: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl1: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl2: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl3: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl4: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl5: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl6: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl7: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl8: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaUrl9: Joi.string().uri({ scheme: ['http', 'https'] }),
+      MediaContentType0: Joi.string().trim().max(255),
+      MediaContentType1: Joi.string().trim().max(255),
+      MediaContentType2: Joi.string().trim().max(255),
+      MediaContentType3: Joi.string().trim().max(255),
+      MediaContentType4: Joi.string().trim().max(255),
+      MediaContentType5: Joi.string().trim().max(255),
+      MediaContentType6: Joi.string().trim().max(255),
+      MediaContentType7: Joi.string().trim().max(255),
+      MediaContentType8: Joi.string().trim().max(255),
+      MediaContentType9: Joi.string().trim().max(255),
     }),
   },
   status: {
@@ -612,9 +812,11 @@ module.exports = {
   paymentSchemas,
   renewalSchemas,
   communicationSchemas,
+  marketplaceSchemas,
   documentSchemas,
   scheduleSchemas,
   notificationSchemas,
+  observationResultSchemas,
   smsCampaignSchemas,
   smsWebhookSchemas,
   analyticsSchemas,

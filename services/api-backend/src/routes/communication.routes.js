@@ -134,6 +134,112 @@ router.get('/activity', authenticateToken, validate(communicationSchemas.activit
 
 /**
  * @swagger
+ * /api/communications/threads:
+ *   get:
+ *     tags: [Communications]
+ *     summary: List conversation threads
+ *     description: Returns grouped communication threads for marketplace
+ *       leads, including the latest visit coordination state.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: leadId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: employeeId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [email, phone, sms, fb_messenger]
+ *       - in: query
+ *         name: direction
+ *         schema:
+ *           type: string
+ *           enum: [inbound, outbound]
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: includeMessages
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *     responses:
+ *       200:
+ *         description: Conversation threads
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           leadId: { type: string, format: uuid }
+ *                           contactId: { type: string, format: uuid }
+ *                           contactName: { type: string }
+ *                           contactPhone: { type: string }
+ *                           contactInitials: { type: string }
+ *                           messageCount: { type: integer }
+ *                           lastMessageAt: { type: string, format: date-time }
+ *                           coordinationState:
+ *                             type: string
+ *                             enum: [message_only, awaiting_employee_confirmation,
+ *                               awaiting_tenant_confirmation, scheduled, confirmed,
+ *                               in_progress, completed_interested,
+ *                               completed_not_interested, completed_no_show,
+ *                               cancelled, follow_up_required]
+ *                           latestVisit:
+ *                             type: object
+ *                             nullable: true
+ *                             properties:
+ *                               id: { type: string, format: uuid }
+ *                               status: { type: string }
+ *                               outcome: { type: string, nullable: true }
+ *                               dateTime: { type: string, format: date-time, nullable: true }
+ *                               tenantConfirmed: { type: boolean }
+ *                               employeeConfirmed: { type: boolean }
+ *                               morningOfSent: { type: boolean }
+ *                           lastMessage:
+ *                             $ref: '#/components/schemas/Communication'
+ *                           messages:
+ *                             type: array
+ *                             items:
+ *                               $ref: '#/components/schemas/Communication'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMeta'
+ */
+router.get(
+  '/threads',
+  authenticateToken,
+  validate(communicationSchemas.threads),
+  asyncHandler(communicationController.getConversationThreads),
+);
+
+/**
+ * @swagger
  * /api/communications:
  *   post:
  *     tags: [Communications]

@@ -296,6 +296,13 @@ class VisitItem {
     this.employeeConfirmed = false,
     this.occupantNotified = false,
     this.occupantSMS,
+    this.outcome,
+    this.reasonCode,
+    this.failureReasonCode,
+    this.completedAt,
+    this.cancelledAt,
+    this.noShowAt,
+    this.rescheduledAt,
     required this.unitLabel,
     required this.buildingName,
     required this.dateLabel,
@@ -312,6 +319,13 @@ class VisitItem {
   final bool employeeConfirmed;
   final bool occupantNotified;
   final Map<String, dynamic>? occupantSMS;
+  final String? outcome;
+  final String? reasonCode;
+  final String? failureReasonCode;
+  final DateTime? completedAt;
+  final DateTime? cancelledAt;
+  final DateTime? noShowAt;
+  final DateTime? rescheduledAt;
 
   // Display fields (non-nullable, backward compat)
   final String unitLabel;
@@ -322,16 +336,19 @@ class VisitItem {
   final String notes;
 
   factory VisitItem.fromJson(Map<String, dynamic> json) {
-    // Derive dateLabel from dateTime if available
-    String? derivedDateLabel;
-    if (json['dateTime'] != null) {
+    DateTime? parseDate(dynamic value) {
+      if (value == null) return null;
       try {
-        final dt = DateTime.parse(json['dateTime'] as String);
-        derivedDateLabel = DateFormat('dd MMM yyyy', 'fr').format(dt);
+        return DateTime.parse(value as String);
       } catch (_) {
-        derivedDateLabel = null;
+        return null;
       }
     }
+
+    final parsedDateTime = parseDate(json['dateTime']);
+    final derivedDateLabel = parsedDateTime == null
+        ? null
+        : DateFormat('dd MMM yyyy', 'fr').format(parsedDateTime);
 
     return VisitItem(
       id: json['id'] as String?,
@@ -342,9 +359,7 @@ class VisitItem {
           ? (json['building'] as Map<String, dynamic>)['name'] as String? ?? ''
           : json['buildingName'] as String? ?? '',
       dateLabel: derivedDateLabel ?? json['dateLabel'] as String? ?? '',
-      dateTime: json['dateTime'] != null
-          ? DateTime.parse(json['dateTime'] as String)
-          : null,
+      dateTime: parsedDateTime,
       status: json['status'] as String? ?? '',
       agent: (json['employee'] is Map<String, dynamic>)
           ? '${(json['employee'] as Map<String, dynamic>)['firstName'] ?? ''} ${(json['employee'] as Map<String, dynamic>)['lastName'] ?? ''}'
@@ -358,6 +373,13 @@ class VisitItem {
       employeeConfirmed: json['employeeConfirmed'] as bool? ?? false,
       occupantNotified: json['occupantNotified'] as bool? ?? false,
       occupantSMS: json['occupantSMS'] as Map<String, dynamic>?,
+      outcome: json['outcome'] as String?,
+      reasonCode: json['reasonCode'] as String? ?? json['failureReasonCode'] as String?,
+      failureReasonCode: json['failureReasonCode'] as String? ?? json['reasonCode'] as String?,
+      completedAt: parseDate(json['completedAt']),
+      cancelledAt: parseDate(json['cancelledAt']),
+      noShowAt: parseDate(json['noShowAt']),
+      rescheduledAt: parseDate(json['rescheduledAt']),
     );
   }
 
@@ -375,6 +397,13 @@ class VisitItem {
         'employeeConfirmed': employeeConfirmed,
         'occupantNotified': occupantNotified,
         if (occupantSMS != null) 'occupantSMS': occupantSMS,
+        if (outcome != null) 'outcome': outcome,
+        if (reasonCode != null) 'reasonCode': reasonCode,
+        if (failureReasonCode != null && reasonCode == null) 'failureReasonCode': failureReasonCode,
+        if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
+        if (cancelledAt != null) 'cancelledAt': cancelledAt!.toIso8601String(),
+        if (noShowAt != null) 'noShowAt': noShowAt!.toIso8601String(),
+        if (rescheduledAt != null) 'rescheduledAt': rescheduledAt!.toIso8601String(),
       };
 }
 
@@ -1303,7 +1332,11 @@ class CommunicationItem {
         ? (json['contact'] as Map<String, dynamic>)['phone'] as String? ?? ''
         : json['contactPhone'] as String? ?? '';
 
-    final nameParts = contactName.trim().split(RegExp(r'\s+'));
+    final nameParts = contactName
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
     final initials = nameParts.length >= 2
         ? '${nameParts[0][0]}${nameParts[1][0]}'
         : nameParts.isNotEmpty
@@ -1341,6 +1374,83 @@ class CommunicationItem {
         'createdAt': createdAt.toIso8601String(),
         if (parentId != null) 'parentId': parentId,
       };
+}
+
+class MarketplaceInboxThread {
+  const MarketplaceInboxThread({
+    this.leadId,
+    required this.contactId,
+    required this.contactName,
+    required this.contactPhone,
+    required this.contactInitials,
+    required this.messageCount,
+    required this.coordinationState,
+    this.lastMessageAt,
+    this.firstSeenAt,
+    this.firstResponseAt,
+    this.firstResponseDelayMinutes,
+    this.latestVisit,
+    this.lastMessage,
+  });
+
+  final String? leadId;
+  final String contactId;
+  final String contactName;
+  final String contactPhone;
+  final String contactInitials;
+  final int messageCount;
+  final String coordinationState;
+  final DateTime? lastMessageAt;
+  final DateTime? firstSeenAt;
+  final DateTime? firstResponseAt;
+  final int? firstResponseDelayMinutes;
+  final VisitItem? latestVisit;
+  final CommunicationItem? lastMessage;
+
+  bool get needsResponse => firstResponseAt == null;
+
+  factory MarketplaceInboxThread.fromJson(Map<String, dynamic> json) {
+    DateTime? parseDate(dynamic value) {
+      if (value == null) return null;
+      try {
+        return DateTime.parse(value as String);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    final lastMessageJson = json['lastMessage'];
+    final visitJson = json['latestVisit'];
+    final contactName = json['contactName'] as String? ?? '';
+    final nameParts = contactName
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .toList();
+    final initials = nameParts.isNotEmpty
+        ? nameParts.take(2).map((part) => part[0]).join().toUpperCase()
+        : '?';
+
+    return MarketplaceInboxThread(
+      leadId: json['leadId'] as String? ?? json['contactId'] as String?,
+      contactId: json['contactId'] as String? ?? '',
+      contactName: contactName,
+      contactPhone: json['contactPhone'] as String? ?? '',
+      contactInitials: json['contactInitials'] as String? ?? initials,
+      messageCount: (json['messageCount'] as num?)?.toInt() ?? 0,
+      coordinationState: json['coordinationState'] as String? ?? 'message_only',
+      lastMessageAt: parseDate(json['lastMessageAt']),
+      firstSeenAt: parseDate(json['firstSeenAt']),
+      firstResponseAt: parseDate(json['firstResponseAt']),
+      firstResponseDelayMinutes: (json['firstResponseDelayMinutes'] as num?)?.toInt(),
+      latestVisit: visitJson is Map<String, dynamic>
+          ? VisitItem.fromJson(visitJson)
+          : null,
+      lastMessage: lastMessageJson is Map<String, dynamic>
+          ? CommunicationItem.fromJson(lastMessageJson)
+          : null,
+    );
+  }
 }
 
 // =============================================================================

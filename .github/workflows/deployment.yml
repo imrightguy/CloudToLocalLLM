@@ -55,7 +55,7 @@ jobs:
               - 'Dockerfile.web'
             infra:
               - 'services/api-backend/docker-compose.yml'
-              - 'docker-compose.prod.yml'
+              - 'services/api-backend/docker-compose.prod.yml'
 
   backend-lint-test:
     name: Backend Lint & Test
@@ -166,13 +166,16 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            echo "[deploy] Logging into GHCR so the VPS can pull private images..."
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+
             cd /opt/immogestion/services/api-backend
 
             echo "[deploy] Pulling latest images..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull || true
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
 
             echo "[deploy] Starting services..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
 
             echo "[deploy] Waiting for API health..."
             for i in $(seq 1 20); do
@@ -196,6 +199,12 @@ jobs:
             else
               echo "[deploy] Flutter web healthy"
             fi
+
+            echo "[deploy] Verifying public demo surfaces..."
+            curl -fsS --max-time 20 https://api.immogestion.app/api/health | jq -e '.status == "healthy" and .database.status == "connected"' >/dev/null
+            curl -fsS --max-time 20 https://immogestion.app/ > /dev/null
+            curl -fsS --max-time 20 https://app.immogestion.app/ > /dev/null
+            echo "[deploy] Public demo surfaces reachable"
 
             echo "[deploy] Cleaning old images..."
             docker image prune -f
@@ -252,6 +261,6 @@ jobs:
       - name: Commit and tag
         run: |
           git add services/api-backend/package.json services/api-backend/package-lock.json pubspec.yaml
-          git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+          git commit -m "chore: bump version to ${{ env.NEW_VERSION }} [skip ci]"
           git tag "v${{ env.NEW_VERSION }}"
           git push && git push --tags

@@ -242,6 +242,10 @@ router.get('/:id', authenticateToken, validate(uuidParam), asyncHandler(visitCon
  *                 type: string
  *                 nullable: true
  *                 enum: [interesse, pas_interesse, no_show]
+ *               reasonCode:
+ *                 type: string
+ *                 nullable: true
+ *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other]
  *               notes:
  *                 type: string
  *     responses:
@@ -329,9 +333,12 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visit
  *                 type: string
  *                 nullable: true
  *                 enum: [interesse, pas_interesse, no_show]
+ *               reasonCode:
+ *                 type: string
+ *                 nullable: true
+ *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other]
  *               notes:
  *                 type: string
- *     responses:
  *       200:
  *         description: Visit status updated
  *         content:
@@ -345,5 +352,57 @@ router.delete('/:id', authenticateToken, validate(uuidParam), asyncHandler(visit
  *                       $ref: '#/components/schemas/Visit'
  */
 router.patch('/:id/status', authenticateToken, validate(visitSchemas.updateStatus), asyncHandler(visitController.updateVisitStatus));
+
+/**
+ * @swagger
+ * /api/visits/{id}/reschedule:
+ *   patch:
+ *     tags: [Visits]
+ *     summary: Reschedule a visit
+ *     description: Move a visit to a new date/time and refresh the follow-up notifications.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - dateTime
+ *               - reasonCode
+ *             properties:
+ *               dateTime:
+ *                 type: string
+ *                 format: date-time
+ *               sendSms:
+ *                 type: boolean
+ *                 default: true
+ *               reasonCode:
+ *                 type: string
+ *                 enum: [tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other]
+ *               notes:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Visit rescheduled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Visit'
+ */
+router.patch('/:id/reschedule', authenticateToken, validate(visitSchemas.reschedule), asyncHandler(visitController.rescheduleVisit));
 
 module.exports = router;

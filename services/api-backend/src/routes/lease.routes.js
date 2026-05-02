@@ -187,6 +187,7 @@ router.get('/building/:id', authenticateToken, validate(uuidParam), asyncHandler
  *                         $ref: '#/components/schemas/Lease'
  */
 router.get('/unit/:id', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getLeasesByUnit));
+router.get('/unit/:id/readiness', authenticateToken, validate(uuidParam), asyncHandler(leaseController.getUnitReadinessByUnitId));
 
 /**
  * @swagger

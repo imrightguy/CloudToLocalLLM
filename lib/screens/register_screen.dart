@@ -13,6 +13,64 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
+class _AccountExistsNotice extends StatelessWidget {
+  const _AccountExistsNotice({
+    required this.message,
+    required this.onSignIn,
+  });
+
+  final String message;
+  final VoidCallback onSignIn;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.orange.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
+                  color: Colors.orange,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: onSignIn,
+                icon: const Icon(Icons.login_rounded),
+                label: const Text('Se connecter'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
@@ -22,6 +80,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  String? _accountExistsMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    void clearNotice() {
+      if (!mounted || _accountExistsMessage == null) return;
+      setState(() => _accountExistsMessage = null);
+    }
+
+    _firstNameController.addListener(clearNotice);
+    _lastNameController.addListener(clearNotice);
+    _emailController.addListener(clearNotice);
+    _passwordController.addListener(clearNotice);
+  }
 
   @override
   void dispose() {
@@ -53,9 +126,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     } on ApiException catch (e) {
       if (!mounted) return;
+
+      if (e.isDuplicateAccount) {
+        setState(() {
+          _accountExistsMessage = e.userFacingMessage;
+        });
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.message),
+          content: Text(e.userFacingMessage),
           backgroundColor: Colors.red.shade700,
           behavior: SnackBarBehavior.floating,
         ),
@@ -234,6 +315,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
+
+                    if (_accountExistsMessage != null) ...[
+                      _AccountExistsNotice(
+                        message: _accountExistsMessage!,
+                        onSignIn: () {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const LoginScreen(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
 
                     // Register button
                     SizedBox(

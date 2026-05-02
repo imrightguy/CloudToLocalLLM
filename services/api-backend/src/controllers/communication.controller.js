@@ -6,6 +6,7 @@ const {
   communicationLogsTable, leadsTable, visitsTable, smsLogsTable, employeesTable, unitsTable, buildingsTable,
 } = require('../database/schema');
 const { child } = require('../utils/logger');
+const { getConversationThreads, refreshCommunicationThread } = require('../services/communication-thread.service');
 
 const log = child({ controller: 'communication' });
 
@@ -13,8 +14,9 @@ const log = child({ controller: 'communication' });
 exports.logCommunication = async (req, res) => {
   try {
     const {
-      leadId, employeeId, type, direction, content, subject, attachments, status, metadata,
+      leadId, employeeId, type, direction, content, body, subject, attachments, status, metadata,
     } = req.body;
+    const messageContent = content ?? body ?? null;
 
     const validTypes = ['sms', 'email', 'phone', 'fb_messenger'];
     const validDirections = ['inbound', 'outbound'];
@@ -38,13 +40,24 @@ exports.logCommunication = async (req, res) => {
       employeeId: employeeId || null,
       type,
       direction,
-      content: content || null,
+      content: messageContent,
       subject: subject || null,
       attachments: attachments || [],
       status: status || 'sent',
       metadata: metadata || {},
       isActive: true,
     }).returning();
+
+    if (record?.leadId) {
+      try {
+        await refreshCommunicationThread(record.leadId, { includeMessages: false });
+      } catch (syncError) {
+        log.warn('Failed to refresh communication thread after logging communication', {
+          leadId: record.leadId,
+          error: syncError.message,
+        });
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -159,8 +172,9 @@ exports.updateCommunicationLog = async (req, res) => {
   try {
     const { id } = req.params;
     const {
-      content, subject, attachments, status, metadata,
+      content, body, subject, attachments, status, metadata,
     } = req.body;
+    const nextContent = content ?? body;
 
     const [existing] = await db.select()
       .from(communicationLogsTable)
@@ -186,7 +200,7 @@ exports.updateCommunicationLog = async (req, res) => {
     }
 
     const updateData = {};
-    if (content !== undefined) {updateData.content = content;}
+    if (nextContent !== undefined) {updateData.content = nextContent;}
     if (subject !== undefined) {updateData.subject = subject;}
     if (attachments !== undefined) {updateData.attachments = attachments;}
     if (status !== undefined) {updateData.status = status;}
@@ -273,6 +287,46 @@ exports.deleteCommunicationLog = async (req, res) => {
 // ─── Get Communication Logs (alias for getCommunications) ───
 exports.getCommunicationLogs = async (req, res) => exports.getCommunications(req, res);
 
+// ─── Conversation Threads ───
+exports.getConversationThreads = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      leadId,
+      employeeId,
+      type,
+      direction,
+      status,
+      includeMessages = 'true',
+    } = req.query;
+
+    const result = await getConversationThreads({
+      page,
+      limit,
+      leadId,
+      employeeId,
+      type,
+      direction,
+      status,
+      includeMessages: String(includeMessages) !== 'false',
+    });
+
+    res.json({
+      success: true,
+      data: result.threads,
+      message: 'Conversation threads retrieved successfully',
+      metadata: result.pagination,
+    });
+  } catch (error) {
+    log.error('Error fetching conversation threads', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: { message: 'Internal server error', code: 'CONVERSATION_THREAD_FETCH_FAILED' },
+    });
+  }
+};
+
 // ─── Activity Feed ───
 // Unified feed aggregating recent activity from leads, visits, and SMS/communications.
 // GET /api/communications/activity?type=lead_created,visit_scheduled,sms_sent&limit=30&hoursAgo=168
@@ -292,12 +346,29 @@ exports.getActivityFeed = async (req, res) => {
 
     // Parse type filter
     const allTypes = [
-      'lead_created', 'visit_scheduled', 'visit_completed',
+      'lead_created', 'visit_scheduled', 'visit_completed', 'visit_cancelled',
+      'visit_no_show', 'visit_rescheduled',
       'sms_sent', 'sms_received', 'communication_logged',
     ];
     const filterTypes = type
       ? type.split(',').map((t) => t.trim()).filter((t) => allTypes.includes(t))
       : null; // null = all types
+
+    const outcomeLabel = (value) => ({
+      interesse: 'intéressé',
+      pas_interesse: 'pas intéressé',
+      no_show: 'absent',
+    }[value] || value || '');
+
+    const reasonCodeLabel = (value) => ({
+      tenant_request: 'à la demande du locataire',
+      tenant_conflict: 'conflit d’horaire du locataire',
+      host_unavailable: 'hôte / employé indisponible',
+      access_issue: 'problème d’accès',
+      weather: 'météo',
+      tenant_no_show: 'locataire absent',
+      other: 'autre',
+    }[value] || value || '');
 
     const activities = [];
 
@@ -410,12 +481,7 @@ exports.getActivityFeed = async (req, res) => {
         .limit(validLimit);
 
       for (const visit of completedVisits) {
-        const outcomeMap = {
-          interesse: ' — intéressé',
-          pas_interesse: ' — pas intéressé',
-          no_show: ' — absent',
-        };
-        const outcomeText = outcomeMap[visit.outcome] || '';
+        const outcomeText = visit.outcome ? ` — ${outcomeLabel(visit.outcome)}` : '';
         activities.push({
           type: 'visit_completed',
           description: `Visite terminée : ${visit.leadFullName || 'Prospect'} — ${visit.unitLabel || ''}${outcomeText}`,
@@ -431,7 +497,138 @@ exports.getActivityFeed = async (req, res) => {
       }
     }
 
-    // 4. SMS sent
+    // 4. Visits cancelled / no-show / rescheduled
+    if (!filterTypes || filterTypes.includes('visit_cancelled')) {
+      const cancelledVisits = await db
+        .select({
+          id: visitsTable.id,
+          dateTime: visitsTable.dateTime,
+          outcome: visitsTable.outcome,
+          reasonCode: visitsTable.reasonCode,
+          leadFullName: leadsTable.fullName,
+          employeeFirstName: employeesTable.firstName,
+          employeeLastName: employeesTable.lastName,
+          unitLabel: unitsTable.label,
+          cancelledAt: visitsTable.cancelledAt,
+          updatedAt: visitsTable.updatedAt,
+        })
+        .from(visitsTable)
+        .leftJoin(leadsTable, eq(visitsTable.leadId, leadsTable.id))
+        .leftJoin(employeesTable, eq(visitsTable.employeeId, employeesTable.id))
+        .leftJoin(unitsTable, eq(visitsTable.unitId, unitsTable.id))
+        .where(and(
+          eq(visitsTable.isActive, true),
+          eq(visitsTable.status, 'cancelled'),
+          gte(visitsTable.cancelledAt, since),
+        ))
+        .orderBy(desc(visitsTable.cancelledAt))
+        .limit(validLimit);
+
+      for (const visit of cancelledVisits) {
+        const reasonText = visit.reasonCode ? ` — ${reasonCodeLabel(visit.reasonCode)}` : '';
+        activities.push({
+          type: 'visit_cancelled',
+          description: `Visite annulée : ${visit.leadFullName || 'Prospect'} — ${visit.unitLabel || ''}${reasonText}`,
+          timestamp: visit.cancelledAt,
+          visitId: visit.id,
+          metadata: {
+            leadFullName: visit.leadFullName,
+            employeeName: `${visit.employeeFirstName || ''} ${visit.employeeLastName || ''}`.trim(),
+            unitLabel: visit.unitLabel,
+            reasonCode: visit.reasonCode,
+            outcome: visit.outcome,
+          },
+        });
+      }
+    }
+
+    if (!filterTypes || filterTypes.includes('visit_no_show')) {
+      const noShowVisits = await db
+        .select({
+          id: visitsTable.id,
+          dateTime: visitsTable.dateTime,
+          outcome: visitsTable.outcome,
+          reasonCode: visitsTable.reasonCode,
+          leadFullName: leadsTable.fullName,
+          employeeFirstName: employeesTable.firstName,
+          employeeLastName: employeesTable.lastName,
+          unitLabel: unitsTable.label,
+          noShowAt: visitsTable.noShowAt,
+          updatedAt: visitsTable.updatedAt,
+        })
+        .from(visitsTable)
+        .leftJoin(leadsTable, eq(visitsTable.leadId, leadsTable.id))
+        .leftJoin(employeesTable, eq(visitsTable.employeeId, employeesTable.id))
+        .leftJoin(unitsTable, eq(visitsTable.unitId, unitsTable.id))
+        .where(and(
+          eq(visitsTable.isActive, true),
+          eq(visitsTable.status, 'no_show'),
+          gte(visitsTable.noShowAt, since),
+        ))
+        .orderBy(desc(visitsTable.noShowAt))
+        .limit(validLimit);
+
+      for (const visit of noShowVisits) {
+        const reasonText = visit.reasonCode ? ` — ${reasonCodeLabel(visit.reasonCode)}` : '';
+        activities.push({
+          type: 'visit_no_show',
+          description: `Visite manquée : ${visit.leadFullName || 'Prospect'} — ${visit.unitLabel || ''}${reasonText}`,
+          timestamp: visit.noShowAt,
+          visitId: visit.id,
+          metadata: {
+            leadFullName: visit.leadFullName,
+            employeeName: `${visit.employeeFirstName || ''} ${visit.employeeLastName || ''}`.trim(),
+            unitLabel: visit.unitLabel,
+            reasonCode: visit.reasonCode,
+            outcome: visit.outcome,
+          },
+        });
+      }
+    }
+
+    if (!filterTypes || filterTypes.includes('visit_rescheduled')) {
+      const rescheduledVisits = await db
+        .select({
+          id: visitsTable.id,
+          dateTime: visitsTable.dateTime,
+          outcome: visitsTable.outcome,
+          reasonCode: visitsTable.reasonCode,
+          leadFullName: leadsTable.fullName,
+          employeeFirstName: employeesTable.firstName,
+          employeeLastName: employeesTable.lastName,
+          unitLabel: unitsTable.label,
+          rescheduledAt: visitsTable.rescheduledAt,
+          updatedAt: visitsTable.updatedAt,
+        })
+        .from(visitsTable)
+        .leftJoin(leadsTable, eq(visitsTable.leadId, leadsTable.id))
+        .leftJoin(employeesTable, eq(visitsTable.employeeId, employeesTable.id))
+        .leftJoin(unitsTable, eq(visitsTable.unitId, unitsTable.id))
+        .where(and(
+          eq(visitsTable.isActive, true),
+          gte(visitsTable.rescheduledAt, since),
+        ))
+        .orderBy(desc(visitsTable.rescheduledAt))
+        .limit(validLimit);
+
+      for (const visit of rescheduledVisits) {
+        activities.push({
+          type: 'visit_rescheduled',
+          description: `Visite reprogrammée : ${visit.leadFullName || 'Prospect'} — ${visit.unitLabel || ''}`,
+          timestamp: visit.rescheduledAt,
+          visitId: visit.id,
+          metadata: {
+            leadFullName: visit.leadFullName,
+            employeeName: `${visit.employeeFirstName || ''} ${visit.employeeLastName || ''}`.trim(),
+            unitLabel: visit.unitLabel,
+            reasonCode: visit.reasonCode,
+            outcome: visit.outcome,
+          },
+        });
+      }
+    }
+
+    // 5. SMS sent
     if (!filterTypes || filterTypes.includes('sms_sent')) {
       const sentSms = await db
         .select({

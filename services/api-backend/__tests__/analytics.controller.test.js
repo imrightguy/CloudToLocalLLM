@@ -18,6 +18,7 @@ const mockAnalyticsService = {
   getVisitStats: jest.fn(),
   getConversionRates: jest.fn(),
   getLeadSourceBreakdown: jest.fn(),
+  getInboxToVisitMetrics: jest.fn(),
   getNoShowPatterns: jest.fn(),
   getBuildingPerformance: jest.fn(),
   getEmployeePerformance: jest.fn(),
@@ -85,6 +86,25 @@ const FIXTURES = {
     google: 7,
     referral: 5,
     other: 4,
+  },
+  inboxToVisitMetrics: {
+    generatedAt: '2026-05-01T20:00:00.000Z',
+    daily: {
+      inboxVolume: 6,
+      replies: 4,
+      bookings: 2,
+      completedVisits: 1,
+      noShows: 0,
+      stalledConversations: 3,
+    },
+    weekly: {
+      inboxVolume: 21,
+      replies: 13,
+      bookings: 8,
+      completedVisits: 5,
+      noShows: 2,
+      stalledConversations: 4,
+    },
   },
   noShowPatterns: {
     byDayOfWeek: { 0: 2, 1: 1, 2: 3, 3: 0, 4: 2, 5: 4, 6: 1 },
@@ -163,6 +183,7 @@ describe('analytics.controller', () => {
       mockAnalyticsService.getVisitStats.mockResolvedValue(FIXTURES.visitStats);
       mockAnalyticsService.getConversionRates.mockResolvedValue(FIXTURES.conversionRates);
       mockAnalyticsService.getLeadSourceBreakdown.mockResolvedValue(FIXTURES.leadSources);
+      mockAnalyticsService.getInboxToVisitMetrics.mockResolvedValue(FIXTURES.inboxToVisitMetrics);
 
       const { req, res } = mockReqRes();
       await getDashboard(req, res);
@@ -176,6 +197,7 @@ describe('analytics.controller', () => {
           visitStats: FIXTURES.visitStats,
           conversionRates: FIXTURES.conversionRates,
           leadSources: FIXTURES.leadSources,
+          inboxToVisitMetrics: FIXTURES.inboxToVisitMetrics,
         }),
       }));
     });
@@ -187,6 +209,7 @@ describe('analytics.controller', () => {
       mockAnalyticsService.getVisitStats.mockResolvedValue({});
       mockAnalyticsService.getConversionRates.mockResolvedValue({});
       mockAnalyticsService.getLeadSourceBreakdown.mockResolvedValue({});
+      mockAnalyticsService.getInboxToVisitMetrics.mockResolvedValue({});
 
       const { req, res } = mockReqRes();
       await getDashboard(req, res);
@@ -197,6 +220,7 @@ describe('analytics.controller', () => {
       expect(mockAnalyticsService.getVisitStats).toHaveBeenCalledWith('week');
       expect(mockAnalyticsService.getConversionRates).toHaveBeenCalledWith('week');
       expect(mockAnalyticsService.getLeadSourceBreakdown).toHaveBeenCalledTimes(1);
+      expect(mockAnalyticsService.getInboxToVisitMetrics).toHaveBeenCalledTimes(1);
     });
 
     it('returns 500 with DASHBOARD_ERROR when service throws', async () => {

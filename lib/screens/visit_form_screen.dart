@@ -10,8 +10,9 @@ import '../widgets/immo_app_bar.dart';
 
 class VisitFormScreen extends StatefulWidget {
   final DateTime? initialDate;
+  final String? initialLeadId;
 
-  const VisitFormScreen({super.key, this.initialDate});
+  const VisitFormScreen({super.key, this.initialDate, this.initialLeadId});
 
   @override
   State<VisitFormScreen> createState() => _VisitFormScreenState();
@@ -32,7 +33,7 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
   String? _selectedEmployeeId;
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
-  String _notes = '';
+  late final TextEditingController _notesController;
 
   bool get _hasConflict {
     if (_selectedEmployeeId == null) return false;
@@ -57,10 +58,15 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
     super.initState();
     final initial = widget.initialDate ?? DateTime.now().add(const Duration(hours: 1));
     _selectedDate = DateTime(initial.year, initial.month, initial.day);
-    _selectedTime = TimeOfDay.now().replacing(
-      hour: initial.hour,
-    );
+    _selectedTime = TimeOfDay.fromDateTime(initial);
+    _notesController = TextEditingController();
     _fetchOptions();
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchOptions() async {
@@ -85,6 +91,12 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
                 ?.map((e) => LeadItem.fromJson(e as Map<String, dynamic>))
                 .toList() ??
             [];
+        if (widget.initialLeadId != null && _selectedLeadId == null) {
+          final matchesInitialLead = _leads.any((lead) => lead.id == widget.initialLeadId);
+          if (matchesInitialLead) {
+            _selectedLeadId = widget.initialLeadId;
+          }
+        }
         _employees = results[2] as List<EmployeeItem>;
         _existingVisits = (results[3] as dynamic).items as List<VisitItem>;
         _isLoading = false;
@@ -138,12 +150,13 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
         _selectedTime.minute,
       );
 
+      final notes = _notesController.text.trim();
       final result = await ApiService.instance.post('/visits', {
         'unitId': _selectedUnitId,
         'leadId': _selectedLeadId,
         'employeeId': _selectedEmployeeId,
         'dateTime': dt.toIso8601String(),
-        if (_notes.isNotEmpty) 'notes': _notes,
+        if (notes.isNotEmpty) 'notes': notes,
       });
 
       if (mounted) {
@@ -346,14 +359,13 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
 
                       // Notes
                       TextField(
-                        onChanged: (v) => setState(() => _notes = v),
+                        controller: _notesController,
                         decoration: const InputDecoration(
                           labelText: 'Notes',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.notes_outlined),
                         ),
                         maxLines: 3,
-                        controller: TextEditingController(text: _notes),
                       ),
                       const SizedBox(height: 16),
 

@@ -58,6 +58,38 @@ void main() {
       expect(find.text('Marie Tremblay'), findsOneWidget);
     });
 
+    testWidgets('visit card shows outcome label when present', (tester) async {
+      final List<VisitItem> visits = [
+        VisitItem(
+          id: 'v-outcome',
+          dateTime: DateTime(2026, 4, 15, 14, 30),
+          unitLabel: '4B',
+          buildingName: '1234 Rue Saint-Catherine',
+          dateLabel: '15 avr. 2026',
+          status: 'completed',
+          agent: 'Marie Tremblay',
+          leadName: 'Jean Dupont',
+          outcome: 'interesse',
+          notes: '',
+        ),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: _TestableDayDetail(
+              selectedDay: DateTime(2026, 4, 15),
+              visits: visits,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Intéressé'), findsOneWidget);
+    });
+
     testWidgets('visit status colors are correct', (tester) async {
       final testCases = [
         ('confirmed', 'Confirmée'),
@@ -453,6 +485,18 @@ class _TestableDayDetailState extends State<_TestableDayDetail> {
                                     color: Color(0xFF94A3B8),
                                   ),
                                 ),
+                              if (visit.outcome != null &&
+                                  visit.outcome!.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  helper.outcomeLabel(visit.outcome!),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: helper.outcomeColor(visit.outcome!),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -508,6 +552,32 @@ class _CalendarHelpers {
         return 'Planifiée';
       default:
         return status;
+    }
+  }
+
+  String outcomeLabel(String outcome) {
+    switch (outcome.toLowerCase()) {
+      case 'interesse':
+        return 'Intéressé';
+      case 'pas_interesse':
+        return 'Pas intéressé';
+      case 'no_show':
+        return 'Absent';
+      default:
+        return outcome;
+    }
+  }
+
+  Color outcomeColor(String outcome) {
+    switch (outcome.toLowerCase()) {
+      case 'interesse':
+        return const Color(0xFF10B981);
+      case 'pas_interesse':
+        return const Color(0xFFF59E0B);
+      case 'no_show':
+        return const Color(0xFFF59E0B);
+      default:
+        return const Color(0xFF64748B);
     }
   }
 }

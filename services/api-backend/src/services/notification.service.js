@@ -249,7 +249,7 @@ async function sendHotLeadNotification(leadId) {
               <span class="detail-label">Langue</span>
               <span class="detail-value">${lead.language === 'en' ? 'Anglais' : 'Français'}</span>
             </div>
-            <a href="${process.env.APP_URL || 'https://app.immogestion.ca'}/leads" class="cta">Voir le Lead →</a>
+            <a href="${process.env.APP_URL || 'https://app.immogestion.app'}/leads" class="cta">Voir le Lead →</a>
           </div>
           <div class="footer">
             <p>ImmoGestion — Moteur d'automatisation de location au Québec</p>

@@ -325,7 +325,7 @@ describe('updateVisitStatus (mocked)', () => {
     selectChain.limit.mockResolvedValueOnce([existing]);
     const res = mockRes();
     await visitController.updateVisitStatus(
-      { params: { id: 'visit-1' }, body: { status: 'cancelled', outcome: null } },
+      { params: { id: 'visit-1' }, body: { status: 'cancelled', outcome: null, reasonCode: 'tenant_request' } },
       res,
     );
     expect(res.json).toHaveBeenCalledWith(

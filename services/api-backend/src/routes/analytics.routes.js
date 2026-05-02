@@ -14,7 +14,7 @@ const { analyticsSchemas } = require('../config/validation-schemas');
  *   get:
  *     tags: [Analytics]
  *     summary: Dashboard overview
- *     description: Returns high-level KPIs: total leads, visits, leases, revenue, occupancy rate.
+ *     description: "Returns high-level KPIs and inbox-to-visit operational metrics."
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -43,6 +43,12 @@ const { analyticsSchemas } = require('../config/validation-schemas');
  *                         occupancyRate: { type: number }
  *                         monthlyRevenue: { type: number }
  *                         conversionRate: { type: number }
+ *                         inboxToVisitMetrics:
+ *                           type: object
+ *                           properties:
+ *                             generatedAt: { type: string, format: date-time }
+ *                             daily: { type: object }
+ *                             weekly: { type: object }
  */
 router.get('/dashboard', authenticateToken, validate(analyticsSchemas.dashboard), asyncHandler(analyticsController.getDashboard));
 
@@ -113,7 +119,7 @@ router.get('/leads/hot', authenticateToken, validate(analyticsSchemas.hotLeads),
  *   get:
  *     tags: [Analytics]
  *     summary: Visit statistics
- *     description: Returns visit statistics: total, completed, cancelled, no-show counts.
+ *     description: "Returns visit statistics: total, completed, cancelled, no-show counts."
  *     security:
  *       - bearerAuth: []
  *     parameters:

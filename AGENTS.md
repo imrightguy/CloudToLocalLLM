@@ -102,9 +102,23 @@ docker compose -f docker-compose.prod.yml up -d  # production
 
 ## Key gotchas
 
+
+### Public demo / browser verification and Cloudflare routing
+
+- HTTP 200 / curl is not enough for public demo readiness; use `/paperclip/ImmoGestion/scripts/browser-check.js https://app.immogestion.app/` and inspect browser-render evidence.
+- Blank page, empty body text, CSP, CanvasKit, WASM, font, dynamic import, console/page errors, or render-blocking failed requests mean the demo is not ready.
+- Normal OS/browser DNS and unforced HTTPS are decisive; Cloudflare API, DoH-only, `curl --resolve`, localhost, and origin-container health are diagnostic only.
+- Cloudflare/API success and frontend usability are separate checks.
+- `paperclip.immogestion.app` must stay private; do not expose it as the public demo.
+- Christopher corrections must be reconciled into active issues and agent instructions immediately.
+
 - **Tests location**: Tests live in `services/api-backend/__tests__/`, not a separate top-level directory
 - **Test default**: `npm test` skips integration tests (uses `--testPathIgnorePatterns='integration'`)
 - **Production safety**: Server enforces `JWT_SECRET` >= 32 chars and specific `ALLOWED_ORIGINS` in production
 - **Trust proxy**: Auto-set to 1 in production (behind reverse proxy)
 - **Drizzle ORM**: Schema in `src/database/schema.js`, migrations in `migrations/`
 - **Express version**: Currently Express 4 (not 5)
+- **Public/app boundary**: `https://immogestion.app/` is the public landing page. `https://app.immogestion.app/` is always behind a login page. Do not expose or build unauthenticated app-subdomain dashboards, property operations, tenant/payment/service-request pages, reports, or internal workflows unless Christopher explicitly marks a route public.
+- **Public landing-page verification**: HTTP 200 / curl is not enough. For `immogestion.app`, agents must verify real browser rendering and console/page errors. Use `/paperclip/ImmoGestion/scripts/browser-check.js https://immogestion.app/` inside the Paperclip runtime. For Flutter/canvas rendering, empty body text alone is not failure if the screenshot shows the landing page. A blank page, CSP errors that block rendering, CanvasKit/WASM/font load blockers, or dynamic import failures mean the landing page is not ready.
+- **App subdomain verification**: Browser tests should confirm `https://app.immogestion.app/` and non-landing operational routes require login/authorization rather than rendering public app content.
+- **Cloudflare/public routing**: normal OS/browser DNS + unforced HTTPS checks are decisive. Cloudflare API, DoH-only, `curl --resolve`, localhost, or container-origin health can diagnose but do not prove user-visible readiness.

@@ -7,10 +7,17 @@ const { cache } = require('../utils/cache');
 const { db } = require('../database/connection');
 const {
   leadsTable, visitsTable, buildingsTable, employeesTable, leasesTable, unitsTable,
+  communicationLogsTable, communicationThreadsTable,
 } = require('../database/schema');
 
 const VALID_PERIODS = new Set(['30d', '90d', '12m']);
 const VALID_GRANULARITIES = new Set(['day', 'week', 'month']);
+const OPEN_THREAD_STATES = new Set([
+  'message_only',
+  'awaiting_employee_confirmation',
+  'awaiting_tenant_confirmation',
+  'follow_up_required',
+]);
 
 // ─── Helpers ───
 
@@ -382,6 +389,81 @@ async function getWeeklySummary() {
   }
 }
 
+async function getInboxToVisitMetrics() {
+  try {
+    const now = new Date();
+    const dailyStart = new Date(now);
+    dailyStart.setDate(now.getDate() - 1);
+    const weeklyStart = new Date(now);
+    weeklyStart.setDate(now.getDate() - 7);
+
+    const [communicationRows, visitRows, threadRows] = await Promise.all([
+      db
+        .select({
+          direction: communicationLogsTable.direction,
+          createdAt: communicationLogsTable.createdAt,
+        })
+        .from(communicationLogsTable)
+        .where(and(
+          eq(communicationLogsTable.isActive, true),
+          gte(communicationLogsTable.createdAt, weeklyStart),
+        )),
+      db
+        .select({
+          status: visitsTable.status,
+          createdAt: visitsTable.createdAt,
+        })
+        .from(visitsTable)
+        .where(and(
+          eq(visitsTable.isActive, true),
+          gte(visitsTable.createdAt, weeklyStart),
+        )),
+      db
+        .select({
+          coordinationState: communicationThreadsTable.coordinationState,
+          lastMessageAt: communicationThreadsTable.lastMessageAt,
+          createdAt: communicationThreadsTable.createdAt,
+        })
+        .from(communicationThreadsTable)
+        .where(eq(communicationThreadsTable.isActive, true)),
+    ]);
+
+    const buildWindowMetrics = (startDate) => {
+      const isInWindow = (date) => date && new Date(date) >= startDate;
+      const inboxVolume = communicationRows.filter((row) => row.direction === 'inbound' && isInWindow(row.createdAt)).length;
+      const replies = communicationRows.filter((row) => row.direction === 'outbound' && isInWindow(row.createdAt)).length;
+      const bookings = visitRows.filter((row) => ['scheduled', 'confirmed', 'in_progress'].includes(row.status) && isInWindow(row.createdAt)).length;
+      const completedVisits = visitRows.filter((row) => row.status === 'completed' && isInWindow(row.createdAt)).length;
+      const noShows = visitRows.filter((row) => row.status === 'no_show' && isInWindow(row.createdAt)).length;
+      const stalledConversations = threadRows.filter((row) => {
+        if (!OPEN_THREAD_STATES.has(row.coordinationState)) {
+          return false;
+        }
+        const lastActivity = row.lastMessageAt || row.createdAt;
+        return lastActivity && new Date(lastActivity) < startDate;
+      }).length;
+
+      return {
+        inboxVolume,
+        replies,
+        bookings,
+        completedVisits,
+        noShows,
+        stalledConversations,
+      };
+    };
+
+    return {
+      generatedAt: now.toISOString(),
+      daily: buildWindowMetrics(dailyStart),
+      weekly: buildWindowMetrics(weeklyStart),
+    };
+  } catch (error) {
+    logger.error('[analytics.service] getInboxToVisitMetrics error:', error);
+    throw error;
+  }
+}
+
 // ─── Employee Performance ───
 
 async function getEmployeePerformance(employeeId) {
@@ -711,6 +793,7 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
     const [
       totalResult, completedResult, noShowResult,
       cancelledResult, avgTimeResult, timelineResult,
+      lifecycleResult,
     ] = await Promise.all([
       db
         .select({ total: sql`count(*)` })
@@ -747,6 +830,22 @@ async function getVisitMetrics(period = '30d', buildingId = null, granularity = 
         .where(and(...conditions))
         .groupBy(sql`DATE_TRUNC(${GRANULARITY_TRUNC[granularity]}, ${visitsTable.createdAt})`)
         .orderBy(sql`DATE_TRUNC(${GRANULARITY_TRUNC[granularity]}, ${visitsTable.createdAt})`),
+      db
+        .select({
+          tenantConfirmedCount: sql`count(*) FILTER (WHERE ${visitsTable.tenantConfirmed} = true)`.as('tenant_confirmed_count'),
+          employeeConfirmedCount: sql`count(*) FILTER (WHERE ${visitsTable.employeeConfirmed} = true)`.as('employee_confirmed_count'),
+          rescheduledCount: sql`count(*) FILTER (WHERE ${visitsTable.rescheduledAt} IS NOT NULL)`.as('rescheduled_count'),
+          noResponseCancelledCount: sql`count(*) FILTER (WHERE ${visitsTable.reasonCode} = 'no_response')`.as('no_response_cancelled_count'),
+          tenantAvgResponseMinutes: sql`AVG(EXTRACT(EPOCH FROM (${visitsTable.tenantConfirmedAt} - ${visitsTable.tenantConfirmationRequestedAt})) / 60)
+            FILTER (WHERE ${visitsTable.tenantConfirmedAt} IS NOT NULL AND ${visitsTable.tenantConfirmationRequestedAt} IS NOT NULL)`.as('tenant_avg_response_minutes'),
+          employeeAvgResponseMinutes: sql`AVG(EXTRACT(EPOCH FROM (${visitsTable.employeeConfirmedAt} - ${visitsTable.employeeConfirmationRequestedAt})) / 60)
+            FILTER (WHERE ${visitsTable.employeeConfirmedAt} IS NOT NULL AND ${visitsTable.employeeConfirmationRequestedAt} IS NOT NULL)`.as('employee_avg_response_minutes'),
+          reminder24hQueuedCount: sql`count(*) FILTER (WHERE ${visitsTable.reminder24hQueuedAt} IS NOT NULL)`.as('reminder_24h_queued_count'),
+          reminder2hQueuedCount: sql`count(*) FILTER (WHERE ${visitsTable.reminder2hQueuedAt} IS NOT NULL)`.as('reminder_2h_queued_count'),
+          morningReminderSentCount: sql`count(*) FILTER (WHERE ${visitsTable.morningReminderSentAt} IS NOT NULL)`.as('morning_reminder_sent_count'),
+        })
+        .from(visitsTable)
+        .where(and(...conditions)),
     ]);
 
     const totalNum = Number(totalResult[0]?.total || 0);
@@ -797,6 +896,7 @@ module.exports = {
   getLeadSourceBreakdown,
   getBuildingPerformance,
   getWeeklySummary,
+  getInboxToVisitMetrics,
   getEmployeePerformance,
   getOccupancyTrend,
   getRevenueTrend,

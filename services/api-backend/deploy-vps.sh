@@ -54,6 +54,7 @@ else
   PUB_KEY=$(cat "$SSH_KEY.pub")
   AUTH_FILE="$HOME/.ssh/authorized_keys"
   touch "$AUTH_FILE"
+  chmod 600 "$AUTH_FILE"
   if grep -qF "$PUB_KEY" "$AUTH_FILE" 2>/dev/null; then
     info "Deploy key already in authorized_keys"
   else
@@ -153,9 +154,9 @@ JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
 JWT_EXPIRES_IN=24h
 
 # ── App URLs ──────────────────────────────────────────────────────────
-APP_URL=https://api.immogestion.ca
-PUBLIC_URL=https://api.immogestion.ca
-ALLOWED_ORIGINS=https://immogestion.ca,https://app.immogestion.ca,https://api.immogestion.ca
+APP_URL=https://app.immogestion.app
+PUBLIC_URL=https://api.immogestion.app
+ALLOWED_ORIGINS=https://immogestion.app,https://app.immogestion.app,https://api.immogestion.app
 
 # ── Twilio (fill in with real values) ─────────────────────────────────
 TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-}
@@ -170,21 +171,22 @@ SMTP_USER=${SMTP_USER:-}
 SMTP_PASS=${SMTP_PASS:-}
 SMTP_FROM=${SMTP_FROM:-noreply@immogestion.ca}
 
-# ── Paperclip Integration ────────────────────────────────────────────
-PAPERCLIP_PUBLIC_URL=${PAPERCLIP_PUBLIC_URL:-https://paperclip.immogestion.ca}
+# ── Public API Base for confirmation links ───────────────────────────
+PAPERCLIP_PUBLIC_URL=${PAPERCLIP_PUBLIC_URL:-https://api.immogestion.app}
 
 # ── Security ─────────────────────────────────────────────────────────
 BCRYPT_ROUNDS=12
 
-# ── Cloudflare Tunnel (uncomment and fill in after tunnel setup) ──────
-# CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+# ── Cloudflare Tunnel ────────────────────────────────────────────────
+CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
 EOF
 
 chmod 600 .env.production
 info ".env.production created (secrets generated)"
 
-# ── 7. Export DB_PASSWORD for docker-compose ──────────────────────────────
+# ── 7. Export secrets for docker-compose ────────────────────────────────
 export DB_PASSWORD
+export CLOUDFLARE_TUNNEL_TOKEN
 
 # ── 8. Build and Start ───────────────────────────────────────────────────
 info "Building and starting Docker containers..."
@@ -239,7 +241,6 @@ echo ""
 echo "    2. Set up Cloudflare Tunnel (see IMM-49):"
 echo "       - Create tunnel at Cloudflare Zero Trust dashboard"
 echo "       - Add CLOUDFLARE_TUNNEL_TOKEN to .env.production"
-echo "       - Uncomment tunnel service in docker-compose.yml"
 echo "       - docker compose up -d"
 echo ""
 echo "    3. Quick commands:"

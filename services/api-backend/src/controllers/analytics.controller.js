@@ -10,13 +10,14 @@ const GRANULARITIES = new Set(['day', 'week', 'month']);
 
 exports.getDashboard = async (req, res) => {
   try {
-    const [pipeline, hotLeads, weeklyStats, visitStats, conversionRates, leadSources] = await Promise.all([
+    const [pipeline, hotLeads, weeklyStats, visitStats, conversionRates, leadSources, inboxToVisitMetrics] = await Promise.all([
       analyticsService.getPipelineSummary(),
       analyticsService.getHotLeads(),
       analyticsService.getWeeklySummary(),
       analyticsService.getVisitStats('week'),
       analyticsService.getConversionRates('week'),
       analyticsService.getLeadSourceBreakdown(),
+      analyticsService.getInboxToVisitMetrics(),
     ]);
 
     return res.json(successResponse({
@@ -27,6 +28,7 @@ exports.getDashboard = async (req, res) => {
         visitStats,
         conversionRates,
         leadSources,
+        inboxToVisitMetrics,
       },
     }));
   } catch (error) {

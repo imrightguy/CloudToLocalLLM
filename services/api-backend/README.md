@@ -1,15 +1,31 @@
 # ImmoGestion API Backend
 
-A comprehensive API backend for the ImmoGestion leasing automation engine, built with Node.js, Express, and Drizzle ORM.
+API backend for the ImmoGestion leasing automation engine, built with Node.js, Express, and Drizzle ORM.
+
+## Product framing
+
+Core product focus:
+- Inbound marketplace message handling from channels like Facebook Messenger
+- Visit scheduling, confirmation, rescheduling, outcomes, and staff coordination
+- SMS and email as communications inside the visit workflow, not as standalone products
+
+Secondary support systems:
+- Buildings, units, leads, documents, schedules, notifications, and analytics that support the core flow
+
+Deferred or lower-priority scope:
+- Broad property-management expansion that does not directly improve message intake or visit execution
+- Deep accounting, maintenance management, and generic CRM surface area unless they directly serve the core workflow
+
+See `../../docs/TEAM-OWNERSHIP-AND-REVIEW-CADENCE.md` for the cross-team ownership and roadmap review model.
 
 ## Features
 
 - 🏢 **Building Management**: Full CRUD for buildings and units
 - 📝 **Lead Management**: Lead tracking, status updates, and bulk operations
-- 🏠 **Visit Scheduling**: Automated visit scheduling with SMS/email notifications
+- 🏠 **Visit Scheduling**: Automated visit scheduling with SMS/email confirmations and reminders
 - 📄 **Document Management**: Upload, review, and approval system for documents
 - ⏰ **Schedule Management**: Automated scheduling with recurring exceptions
-- 💬 **Communication Tools**: Email, SMS, Facebook Messenger, and phone call integration
+- 💬 **Communication Tools**: Inbound Facebook Messenger, SMS, email, and phone call integration
 - 🔐 **Authentication**: JWT-based authentication with role-based access
 - 🚦 **Rate Limiting**: Configurable rate limiting to prevent abuse
 - 🛡️ **Security**: CORS, helmet, and other security middleware
@@ -281,26 +297,18 @@ For support and questions:
 
 ## Roadmap
 
-### Phase 1 (Completed)
-- Basic CRUD operations for all entities
-- Email and SMS notification system
-- Document management
-- Basic authentication
+### Launch Scope
+- Public landing page, login wall, and core message-to-visit workflow
+- Visit coordination and confirmation workflows
+- Reporting focused on message-to-visit conversion
+- Web demo hardening and UI polish
 
-### Phase 2 (In Progress)
-- Facebook Messenger bot
-- Advanced scheduling features
-- Reporting and analytics
-- Mobile app support
-
-### Phase 3 (Planned)
-- AI-powered lead scoring
-- Automated follow-up systems
-- Integration with third-party services
-- Advanced analytics dashboard
-
-### Phase 4 (Future)
-- Machine learning predictions
-- Advanced automation features
+### Deferred / Future
+- Mobile app support for the core workflow is deferred and not part of this launch
+- Automated follow-up systems tied to visits and replies
+- Integration with third-party services that support the core workflow
+- Advanced analytics dashboard for lead and visit operations
+- Machine learning predictions that improve message or visit outcomes
+- Advanced automation features for leasing operations
 - Multi-tenant support
 - International expansion

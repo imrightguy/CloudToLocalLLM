@@ -1,4 +1,5 @@
 const swaggerSpec = require('../src/config/swagger');
+const { VALID_LEAD_STAGES } = require('../src/constants/lead-stages');
 
 function getParameter(path, method, name) {
   return swaggerSpec.paths[path][method].parameters.find((parameter) => parameter.name === name);
@@ -23,9 +24,19 @@ describe('Swagger contract regression coverage', () => {
       expect(updateSchema.properties.dateTime).toMatchObject({ type: 'string', format: 'date-time' });
       expect(updateSchema.properties.durationMinutes).toMatchObject({ type: 'integer', minimum: 1, maximum: 1440 });
       expect(updateSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
+      expect(updateSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'other']);
       expect(updateSchema.properties.tenantConfirmed).toMatchObject({ type: 'boolean' });
       expect(statusSchema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']);
       expect(statusSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
+      expect(statusSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'other']);
+    });
+
+    it('documents the reschedule payload with a required reason code', () => {
+      const rescheduleSchema = swaggerSpec.paths['/api/visits/{id}/reschedule'].patch.requestBody.content['application/json'].schema;
+
+      expect(rescheduleSchema.required).toEqual(['dateTime', 'reasonCode']);
+      expect(rescheduleSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'other']);
+      expect(rescheduleSchema.properties.sendSms).toMatchObject({ type: 'boolean', default: true });
     });
 
     it('documents visit list sorting options supported by the controller', () => {
@@ -104,6 +115,86 @@ describe('Swagger contract regression coverage', () => {
       expect(activityItem.metadata).toMatchObject({ type: 'object', additionalProperties: true });
       expect(activityItem.createdAt).toBeUndefined();
       expect(activityItem.leadName).toBeUndefined();
+
+      expect(getParameter('/api/communications/threads', 'get', 'includeMessages')).toMatchObject({
+        name: 'includeMessages',
+        schema: { type: 'boolean', default: true },
+      });
+
+      const threadSchema = swaggerSpec.components.schemas.CommunicationThread;
+      expect(threadSchema.properties.coordinationState.enum).toEqual([
+        'message_only',
+        'awaiting_employee_confirmation',
+        'awaiting_tenant_confirmation',
+        'scheduled',
+        'confirmed',
+        'in_progress',
+        'completed_interested',
+        'completed_not_interested',
+        'completed_no_show',
+        'cancelled',
+        'follow_up_required',
+      ]);
+      expect(threadSchema.properties.messages.items).toMatchObject({ $ref: '#/components/schemas/Communication' });
+    });
+
+    it('documents the dedicated marketplace inbox, timeline, message, and visit endpoints', () => {
+      expect(getParameter('/api/marketplace/inbox', 'get', 'search')).toMatchObject({
+        name: 'search',
+        schema: { type: 'string' },
+      });
+      expect(getParameter('/api/marketplace/inbox', 'get', 'stage').schema.enum).toEqual(VALID_LEAD_STAGES);
+      expect(getParameter('/api/marketplace/inbox', 'get', 'assignedEmployeeId')).toMatchObject({
+        name: 'assignedEmployeeId',
+        schema: { type: 'string', format: 'uuid' },
+      });
+      expect(getParameter('/api/marketplace/inbox', 'get', 'source')).toMatchObject({
+        name: 'source',
+        schema: { type: 'string' },
+      });
+
+      const inboxResponse = swaggerSpec.paths['/api/marketplace/inbox'].get.responses[200].content['application/json'].schema.allOf[1].properties;
+      expect(inboxResponse.data.items).toMatchObject({ $ref: '#/components/schemas/CommunicationThread' });
+      const threadProperties = swaggerSpec.components.schemas.CommunicationThread.properties;
+      expect(threadProperties.firstSeenAt).toMatchObject({ type: 'string', format: 'date-time', nullable: true });
+      expect(threadProperties.firstResponseAt).toMatchObject({ type: 'string', format: 'date-time', nullable: true });
+      expect(threadProperties.firstResponseDelayMinutes).toMatchObject({ type: 'integer', nullable: true });
+      expect(inboxResponse.metadata).toMatchObject({ $ref: '#/components/schemas/PaginationMeta' });
+
+      expect(getParameter('/api/marketplace/leads/{leadId}/timeline', 'get', 'leadId')).toMatchObject({
+        name: 'leadId',
+        in: 'path',
+        required: true,
+        schema: { type: 'string', format: 'uuid' },
+      });
+      expect(getParameter('/api/marketplace/leads/{leadId}/timeline', 'get', 'limit')).toMatchObject({
+        name: 'limit',
+        schema: { type: 'integer', default: 50 },
+      });
+      expect(getParameter('/api/marketplace/leads/{leadId}/timeline', 'get', 'hoursAgo')).toMatchObject({
+        name: 'hoursAgo',
+        schema: { type: 'integer', default: 168 },
+      });
+      expect(getParameter('/api/marketplace/leads/{leadId}/timeline', 'get', 'type').schema.enum).toEqual(['email', 'phone', 'sms', 'fb_messenger']);
+      expect(swaggerSpec.paths['/api/marketplace/leads/{leadId}/timeline'].get.responses[200].content['application/json'].schema.allOf[1].properties.data).toMatchObject({
+        allOf: [
+          { $ref: '#/components/schemas/CommunicationThread' },
+          { nullable: true },
+        ],
+      });
+
+      const messageSchema = swaggerSpec.paths['/api/marketplace/leads/{leadId}/messages'].post.requestBody.content['application/json'].schema;
+      expect(messageSchema.required).toEqual(expect.arrayContaining(['type', 'direction']));
+      expect(messageSchema.properties.content).toMatchObject({ type: 'string' });
+      expect(messageSchema.properties.body).toMatchObject({ type: 'string' });
+      expect(messageSchema.properties.attachments).toMatchObject({ type: 'array' });
+      expect(messageSchema.properties.metadata).toMatchObject({ type: 'object', additionalProperties: true });
+
+      const visitSchema = swaggerSpec.paths['/api/marketplace/leads/{leadId}/visits'].post.requestBody.content['application/json'].schema;
+      expect(visitSchema.required).toEqual(['unitId', 'employeeId', 'dateTime']);
+      expect(visitSchema.properties.dateTime).toMatchObject({ type: 'string', format: 'date-time' });
+      expect(visitSchema.properties.durationMinutes).toMatchObject({ type: 'integer', minimum: 1, maximum: 1440 });
+      expect(visitSchema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']);
     });
 
     it('documents logging Messenger communications without requiring leadId', () => {

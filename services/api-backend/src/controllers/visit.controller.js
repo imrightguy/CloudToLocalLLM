@@ -4,10 +4,21 @@ const {
 const logger = require('../utils/logger');
 const { db } = require('../database/connection');
 const {
-  visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable,
+  visitsTable, unitsTable, buildingsTable, employeesTable, leadsTable, employeeSchedulesTable, communicationThreadsTable,
 } = require('../database/schema');
 const { sendOccupantAccessRequest, sendVisitConfirmation, sendTenantConfirmationRequest } = require('../services/sms.service');
 const { generateConfirmationToken } = require('./tenant-confirmation.controller');
+const { refreshCommunicationThread } = require('../services/communication-thread.service');
+
+const VALID_VISIT_FAILURE_REASON_CODES = new Set([
+  'tenant_request',
+  'tenant_conflict',
+  'host_unavailable',
+  'access_issue',
+  'weather',
+  'tenant_no_show',
+  'other',
+]);
 
 /**
  * Check if a visit time conflicts with an employee's existing visits.
@@ -89,6 +100,72 @@ async function checkScheduleAvailability(employeeId, buildingId, dateTime, durat
 exports.checkVisitConflict = checkVisitConflict;
 exports.checkScheduleAvailability = checkScheduleAvailability;
 
+function isMeaningfulReasonCode(reasonCode) {
+  return typeof reasonCode === 'string' && VALID_VISIT_FAILURE_REASON_CODES.has(reasonCode);
+}
+
+function clearLifecycleMetadata(updateData) {
+  updateData.completedAt = null;
+  updateData.cancelledAt = null;
+  updateData.noShowAt = null;
+  updateData.reasonCode = null;
+}
+
+function setStatusLifecycleMetadata(updateData, status, reasonCode = null) {
+  const now = new Date();
+
+  if (status === 'completed') {
+    updateData.completedAt = now;
+    updateData.cancelledAt = null;
+    updateData.noShowAt = null;
+    updateData.reasonCode = null;
+    return;
+  }
+
+  if (status === 'cancelled') {
+    updateData.cancelledAt = now;
+    updateData.completedAt = null;
+    updateData.noShowAt = null;
+    updateData.reasonCode = reasonCode;
+    return;
+  }
+
+  if (status === 'no_show') {
+    updateData.noShowAt = now;
+    updateData.completedAt = null;
+    updateData.cancelledAt = null;
+    updateData.reasonCode = reasonCode;
+    return;
+  }
+
+  if (['scheduled', 'confirmed', 'in_progress'].includes(status)) {
+    clearLifecycleMetadata(updateData);
+  }
+}
+
+function setRescheduleMetadata(updateData) {
+  const now = new Date();
+  updateData.rescheduledAt = now;
+  updateData.status = 'scheduled';
+  updateData.tenantConfirmed = false;
+  updateData.tenantConfirmationRequestedAt = null;
+  updateData.tenantConfirmedAt = null;
+  updateData.tenantDeclinedAt = null;
+  updateData.employeeConfirmed = false;
+  updateData.employeeConfirmationRequestedAt = null;
+  updateData.employeeConfirmedAt = null;
+  updateData.employeeDeclinedAt = null;
+  updateData.morningOfSent = false;
+  updateData.morningReminderSentAt = null;
+  updateData.reminder24hQueuedAt = null;
+  updateData.reminder2hQueuedAt = null;
+  updateData.completedAt = null;
+  updateData.cancelledAt = null;
+  updateData.noShowAt = null;
+  updateData.reasonCode = null;
+}
+
+
 // ─── Create Visit ───
 exports.createVisit = async (req, res) => {
   try {
@@ -149,6 +226,14 @@ exports.createVisit = async (req, res) => {
       });
     }
 
+    const requestNow = new Date();
+    const sourceThreadRows = await db
+      .select({ id: communicationThreadsTable.id })
+      .from(communicationThreadsTable)
+      .where(eq(communicationThreadsTable.leadId, leadId))
+      .limit(1);
+    const sourceThread = Array.isArray(sourceThreadRows) ? sourceThreadRows[0] ?? null : null;
+
     const [visit] = await db
       .insert(visitsTable)
       .values({
@@ -158,6 +243,10 @@ exports.createVisit = async (req, res) => {
         dateTime: parsedDate,
         durationMinutes: durationMinutes || 30,
         status: status || 'scheduled',
+        tenantConfirmationRequestedAt: requestNow,
+        employeeConfirmationRequestedAt: requestNow,
+        coordinationState: 'awaiting_employee_confirmation',
+        sourceThreadId: sourceThread?.id || null,
         notes: notes?.trim() || null,
         confirmationToken: generateConfirmationToken(),
       })
@@ -194,6 +283,17 @@ exports.createVisit = async (req, res) => {
     } catch (smsErr) {
       logger.error('⚠️  Occupant SMS failed (visit created anyway):', smsErr.message);
       occupantResult = { success: false, error: smsErr.message };
+    }
+
+    if (leadId) {
+      try {
+        await refreshCommunicationThread(leadId, { includeMessages: false });
+      } catch (syncError) {
+        logger.warn('Failed to refresh communication thread after visit creation', {
+          leadId,
+          error: syncError.message,
+        });
+      }
     }
 
     res.status(201).json({
@@ -297,10 +397,24 @@ exports.getVisits = async (req, res) => {
         durationMinutes: visitsTable.durationMinutes,
         status: visitsTable.status,
         tenantConfirmed: visitsTable.tenantConfirmed,
+        tenantConfirmationRequestedAt: visitsTable.tenantConfirmationRequestedAt,
+        tenantConfirmedAt: visitsTable.tenantConfirmedAt,
+        tenantDeclinedAt: visitsTable.tenantDeclinedAt,
         occupantNotified: visitsTable.occupantNotified,
         employeeConfirmed: visitsTable.employeeConfirmed,
+        employeeConfirmationRequestedAt: visitsTable.employeeConfirmationRequestedAt,
+        employeeConfirmedAt: visitsTable.employeeConfirmedAt,
+        employeeDeclinedAt: visitsTable.employeeDeclinedAt,
         morningOfSent: visitsTable.morningOfSent,
+        morningReminderSentAt: visitsTable.morningReminderSentAt,
+        reminder24hQueuedAt: visitsTable.reminder24hQueuedAt,
+        reminder2hQueuedAt: visitsTable.reminder2hQueuedAt,
         outcome: visitsTable.outcome,
+        reasonCode: visitsTable.reasonCode,
+        completedAt: visitsTable.completedAt,
+        cancelledAt: visitsTable.cancelledAt,
+        noShowAt: visitsTable.noShowAt,
+        rescheduledAt: visitsTable.rescheduledAt,
         notes: visitsTable.notes,
         isActive: visitsTable.isActive,
         createdAt: visitsTable.createdAt,
@@ -349,10 +463,24 @@ exports.getVisits = async (req, res) => {
         durationMinutes: v.durationMinutes,
         status: v.status,
         tenantConfirmed: v.tenantConfirmed,
+        tenantConfirmationRequestedAt: v.tenantConfirmationRequestedAt,
+        tenantConfirmedAt: v.tenantConfirmedAt,
+        tenantDeclinedAt: v.tenantDeclinedAt,
         occupantNotified: v.occupantNotified,
         employeeConfirmed: v.employeeConfirmed,
+        employeeConfirmationRequestedAt: v.employeeConfirmationRequestedAt,
+        employeeConfirmedAt: v.employeeConfirmedAt,
+        employeeDeclinedAt: v.employeeDeclinedAt,
         morningOfSent: v.morningOfSent,
+        morningReminderSentAt: v.morningReminderSentAt,
+        reminder24hQueuedAt: v.reminder24hQueuedAt,
+        reminder2hQueuedAt: v.reminder2hQueuedAt,
         outcome: v.outcome,
+        reasonCode: v.reasonCode,
+        completedAt: v.completedAt,
+        cancelledAt: v.cancelledAt,
+        noShowAt: v.noShowAt,
+        rescheduledAt: v.rescheduledAt,
         notes: v.notes,
         isActive: v.isActive,
         createdAt: v.createdAt,
@@ -452,7 +580,7 @@ exports.updateVisit = async (req, res) => {
     const {
       unitId, employeeId, leadId, dateTime, durationMinutes,
       status, tenantConfirmed, employeeConfirmed, morningOfSent,
-      outcome, notes, isActive,
+      outcome, reasonCode, completedAt, cancelledAt, noShowAt, rescheduledAt, notes, isActive,
     } = req.body;
 
     // Check existence
@@ -521,9 +649,25 @@ exports.updateVisit = async (req, res) => {
 
     // Build update payload
     const updateData = { updatedAt: new Date() };
-    if (unitId !== undefined) {updateData.unitId = unitId;}
-    if (employeeId !== undefined) {updateData.employeeId = employeeId;}
-    if (leadId !== undefined) {updateData.leadId = leadId;}
+    const normalizedReasonCode = reasonCode === undefined
+      ? undefined
+      : (reasonCode === null ? null : String(reasonCode).trim() || null);
+
+    if (normalizedReasonCode !== undefined
+      && normalizedReasonCode !== null
+      && !isMeaningfulReasonCode(normalizedReasonCode)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid reasonCode. Must be one of: tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other, or null',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
+
+    if (unitId !== undefined) { updateData.unitId = unitId; }
+    if (employeeId !== undefined) { updateData.employeeId = employeeId; }
+    if (leadId !== undefined) { updateData.leadId = leadId; }
     if (dateTime !== undefined) {
       const parsed = new Date(dateTime);
       if (Number.isNaN(parsed.getTime())) {
@@ -533,15 +677,87 @@ exports.updateVisit = async (req, res) => {
         });
       }
       updateData.dateTime = parsed;
+      if (!existing.dateTime || parsed.getTime() !== new Date(existing.dateTime).getTime()) {
+        setRescheduleMetadata(updateData);
+      }
     }
-    if (durationMinutes !== undefined) {updateData.durationMinutes = durationMinutes;}
-    if (status !== undefined) {updateData.status = status;}
-    if (tenantConfirmed !== undefined) {updateData.tenantConfirmed = tenantConfirmed;}
-    if (employeeConfirmed !== undefined) {updateData.employeeConfirmed = employeeConfirmed;}
-    if (morningOfSent !== undefined) {updateData.morningOfSent = morningOfSent;}
-    if (outcome !== undefined) {updateData.outcome = outcome;}
-    if (notes !== undefined) {updateData.notes = notes?.trim() || null;}
-    if (isActive !== undefined) {updateData.isActive = isActive;}
+    if (durationMinutes !== undefined) { updateData.durationMinutes = durationMinutes; }
+
+    if (status !== undefined) {
+      updateData.status = status;
+      if (status === 'cancelled' || status === 'no_show') {
+        if (!isMeaningfulReasonCode(normalizedReasonCode)) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              message: 'reasonCode is required when marking a visit cancelled or no-show',
+              code: 'VALIDATION_ERROR',
+            },
+          });
+        }
+        setStatusLifecycleMetadata(updateData, status, normalizedReasonCode);
+      } else {
+        setStatusLifecycleMetadata(updateData, status);
+      }
+    }
+
+    if (tenantConfirmed !== undefined) {
+      updateData.tenantConfirmed = tenantConfirmed;
+      updateData.tenantConfirmedAt = tenantConfirmed ? new Date() : null;
+      updateData.tenantDeclinedAt = tenantConfirmed ? null : new Date();
+    }
+    if (employeeConfirmed !== undefined) {
+      updateData.employeeConfirmed = employeeConfirmed;
+      updateData.employeeConfirmedAt = employeeConfirmed ? new Date() : null;
+      updateData.employeeDeclinedAt = employeeConfirmed ? null : new Date();
+    }
+    if (morningOfSent !== undefined) { updateData.morningOfSent = morningOfSent; }
+    if (outcome !== undefined) { updateData.outcome = outcome; }
+    if (normalizedReasonCode !== undefined && status !== 'cancelled' && status !== 'no_show') {
+      updateData.reasonCode = normalizedReasonCode;
+    }
+    if (completedAt !== undefined) {
+      const parsed = completedAt ? new Date(completedAt) : null;
+      if (parsed && Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'completedAt must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+        });
+      }
+      updateData.completedAt = parsed;
+    }
+    if (cancelledAt !== undefined) {
+      const parsed = cancelledAt ? new Date(cancelledAt) : null;
+      if (parsed && Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'cancelledAt must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+        });
+      }
+      updateData.cancelledAt = parsed;
+    }
+    if (noShowAt !== undefined) {
+      const parsed = noShowAt ? new Date(noShowAt) : null;
+      if (parsed && Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'noShowAt must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+        });
+      }
+      updateData.noShowAt = parsed;
+    }
+    if (rescheduledAt !== undefined) {
+      const parsed = rescheduledAt ? new Date(rescheduledAt) : null;
+      if (parsed && Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'rescheduledAt must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+        });
+      }
+      updateData.rescheduledAt = parsed;
+    }
+    if (notes !== undefined) { updateData.notes = notes?.trim() || null; }
+    if (isActive !== undefined) { updateData.isActive = isActive; }
 
     const [updated] = await db
       .update(visitsTable)
@@ -566,6 +782,117 @@ exports.updateVisit = async (req, res) => {
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'VISIT_UPDATE_FAILED' },
+    });
+  }
+};
+
+// ─── Reschedule Visit ───
+exports.rescheduleVisit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dateTime, sendSms = true, notes } = req.body;
+
+    const [existing] = await db
+      .select()
+      .from(visitsTable)
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
+      .limit(1);
+
+    if (!existing || existing.isActive === false) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Visit not found', code: 'VISIT_NOT_FOUND' },
+      });
+    }
+
+    const parsedDate = new Date(dateTime);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    const [unit] = await db
+      .select({ buildingId: unitsTable.buildingId })
+      .from(unitsTable)
+      .where(eq(unitsTable.id, existing.unitId))
+      .limit(1);
+
+    if (unit) {
+      const scheduleErr = await checkScheduleAvailability(existing.employeeId, unit.buildingId, parsedDate, existing.durationMinutes);
+      if (scheduleErr) {
+        return res.status(409).json({
+          success: false,
+          error: { message: scheduleErr, code: 'SCHEDULE_CONFLICT' },
+        });
+      }
+    }
+
+    const conflict = await checkVisitConflict(existing.employeeId, parsedDate, existing.durationMinutes, id);
+    if (conflict) {
+      return res.status(409).json({
+        success: false,
+        error: {
+          message: 'Employee already has a visit at this time',
+          code: 'VISIT_CONFLICT',
+          details: { conflictingVisitId: conflict.id, conflictingTime: conflict.dateTime },
+        },
+      });
+    }
+
+    const updateData = {
+      dateTime: parsedDate,
+      updatedAt: new Date(),
+    };
+    setRescheduleMetadata(updateData);
+
+    if (notes !== undefined) {
+      updateData.notes = notes?.trim() || null;
+    }
+
+    const [updated] = await db
+      .update(visitsTable)
+      .set(updateData)
+      .where(and(
+        eq(visitsTable.id, id),
+        eq(visitsTable.isActive, true),
+      ))
+      .returning();
+
+    if (sendSms) {
+      try {
+        await sendVisitConfirmation(updated.id);
+        await sendTenantConfirmationRequest(updated.id);
+      } catch (smsErr) {
+        logger.warn('Failed to send reschedule confirmation SMS', {
+          visitId: updated.id,
+          error: smsErr.message,
+        });
+      }
+    }
+
+    if (updated?.leadId) {
+      try {
+        await refreshCommunicationThread(updated.leadId, { includeMessages: false });
+      } catch (syncError) {
+        logger.warn('Failed to refresh communication thread after visit reschedule', {
+          leadId: updated.leadId,
+          visitId: updated.id,
+          error: syncError.message,
+        });
+      }
+    }
+
+    res.json({ success: true, data: updated, message: 'Visit rescheduled successfully' });
+  } catch (error) {
+    logger.error('Error rescheduling visit:', error);
+    res.status(500).json({
+      success: false,
+      error: { message: 'Internal server error', code: 'VISIT_RESCHEDULE_FAILED' },
     });
   }
 };
@@ -613,7 +940,7 @@ exports.deleteVisit = async (req, res) => {
 exports.updateVisitStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, outcome, notes } = req.body;
+    const { status, outcome, reasonCode, notes } = req.body;
 
     const validStatuses = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show'];
 
@@ -644,11 +971,28 @@ exports.updateVisitStatus = async (req, res) => {
     }
 
     const updateData = { status, updatedAt: new Date() };
+    const normalizedReasonCode = reasonCode === undefined
+      ? undefined
+      : (reasonCode === null ? null : String(reasonCode).trim() || null);
 
-    // Auto-set confirmation flags based on status
+    if (normalizedReasonCode !== undefined
+      && normalizedReasonCode !== null
+      && !isMeaningfulReasonCode(normalizedReasonCode)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid reasonCode. Must be one of: tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other, or null',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
+
     if (status === 'confirmed') {
+      const now = new Date();
       updateData.tenantConfirmed = true;
       updateData.employeeConfirmed = true;
+      updateData.tenantConfirmedAt = updateData.tenantConfirmedAt || now;
+      updateData.employeeConfirmedAt = updateData.employeeConfirmedAt || now;
     }
 
     if (outcome !== undefined) {
@@ -665,6 +1009,24 @@ exports.updateVisitStatus = async (req, res) => {
       updateData.outcome = outcome;
     }
 
+    if (status === 'cancelled' || status === 'no_show') {
+      if (!isMeaningfulReasonCode(normalizedReasonCode)) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'reasonCode is required when marking a visit cancelled or no-show',
+            code: 'VALIDATION_ERROR',
+          },
+        });
+      }
+      setStatusLifecycleMetadata(updateData, status, normalizedReasonCode);
+    } else {
+      setStatusLifecycleMetadata(updateData, status);
+      if (normalizedReasonCode !== undefined) {
+        updateData.reasonCode = normalizedReasonCode;
+      }
+    }
+
     if (notes !== undefined) {
       updateData.notes = notes?.trim() || null;
     }
@@ -678,12 +1040,83 @@ exports.updateVisitStatus = async (req, res) => {
       ))
       .returning();
 
+    if (updated?.leadId) {
+      try {
+        await refreshCommunicationThread(updated.leadId, { includeMessages: false });
+      } catch (syncError) {
+        logger.warn('Failed to refresh communication thread after visit status update', {
+          leadId: updated.leadId,
+          visitId: updated.id,
+          error: syncError.message,
+        });
+      }
+    }
+
     res.json({ success: true, data: updated, message: 'Visit status updated successfully' });
   } catch (error) {
     logger.error('Error updating visit status:', error);
     res.status(500).json({
       success: false,
       error: { message: 'Internal server error', code: 'VISIT_STATUS_UPDATE_FAILED' },
+    });
+  }
+};
+
+exports.rescheduleVisit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dateTime, reasonCode, notes } = req.body;
+
+    if (!dateTime) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'dateTime is required', code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    const parsed = new Date(dateTime);
+    if (Number.isNaN(parsed.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    const normalizedReasonCode = reasonCode === null ? null : String(reasonCode || '').trim() || null;
+    if (!normalizedReasonCode) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'reasonCode is required when rescheduling a visit',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
+
+    if (!VALID_VISIT_FAILURE_REASON_CODES.has(normalizedReasonCode)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid reason code. Must be one of: tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
+
+    req.body = {
+      ...req.body,
+      dateTime: parsed.toISOString(),
+      reasonCode: normalizedReasonCode,
+      notes,
+      rescheduledAt: new Date().toISOString(),
+    };
+
+    return exports.updateVisit(req, res);
+  } catch (error) {
+    logger.error('Error rescheduling visit:', error);
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Internal server error', code: 'VISIT_RESCHEDULE_FAILED' },
     });
   }
 };

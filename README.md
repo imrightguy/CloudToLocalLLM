@@ -1,12 +1,12 @@
 # ImmoGestion
 
-Leasing automation engine for Quebec landlords. Flutter mobile app.
+Leasing automation engine for Quebec landlords, centered on marketplace inbound messages and visit coordination.
 
 ## 🏗️ Architecture
 
-- **Flutter app** (`lib/`) - Mobile-first property management UI
+- **Flutter web app** (`lib/`) - Public landing page plus authenticated app surface
 - **Dart service layer** (`lib/services/`) - Service classes consuming REST APIs
-- **Mock data** (`lib/data/`) - Demo data for development
+- **Demo data and fixtures** (`lib/data/`) - Seeded data for the live demo and tests
 
 ## 🚀 Quick Start
 
@@ -14,33 +14,39 @@ Leasing automation engine for Quebec landlords. Flutter mobile app.
 # Install dependencies
 flutter pub get
 
-# Run on mobile device
-flutter run -d android
-flutter run -d ios
-
 # Run on web
 flutter run -d chrome
-
-# Build for production
-flutter build apk --release
-flutter build ios --release
 ```
 
-## 📱 Features
+## 🎯 Demo Scope
 
-### Core Modules
-- **Dashboard** - Revenue tracking, occupancy rates, performance metrics
-- **Pipeline** - Lead management through leasing stages
-- **Visits** - Schedule and manage property viewings
-- **Buildings** - Multi-property portfolio management
-- **Calendar** - Visit scheduling and reminders
-- **Documents** - Lease management and storage
+The current public demo is intentionally narrow:
 
-### Automation Features
-- **SMS/Email** - Automated communication with prospects
-- **Facebook Messenger** - Chat-based lead generation
-- **Analytics** - Real-time performance tracking
-- **Notifications** - Automated alerts and reminders
+1. a lead arrives
+2. the lead is qualified and assigned
+3. a visit is scheduled and confirmed
+4. the team follows up by SMS
+5. the outcome is visible in the workflow
+
+What must be shown live:
+- lead inbox / lead list
+- one lead detail view
+- one visit schedule or visit detail view
+- the confirmation SMS / confirmation link flow
+- the status change or outcome update after the visit
+
+What can wait:
+- analytics dashboards
+- settings pages
+- employee management
+- document management
+- broad reporting views
+- deep admin/config screens
+- mobile builds or platform variants
+
+## 🤝 Team Operating Model
+
+See `docs/TEAM-OWNERSHIP-AND-REVIEW-CADENCE.md` for the cross-team ownership map and roadmap review cadence, and `docs/MESSAGE-TO-VISIT-OPERATING-METRICS.md` for the core funnel scorecard.
 
 ## 📁 Project Structure
 
@@ -49,7 +55,7 @@ ImmoGestion/
 ├── lib/                      # Flutter app
 │   ├── screens/             # App screens (dashboard, pipeline, buildings, visits, etc.)
 │   ├── services/            # Dart service classes (API, auth, leads, buildings, etc.)
-│   ├── data/                # Mock data
+│   ├── data/                # Demo data
 │   ├── models.dart          # Data models
 │   └── main.dart            # Entry point
 ├── assets/                   # Static assets
@@ -65,28 +71,14 @@ ImmoGestion/
 - **Real estate investors** requiring analytics
 - **Small agencies** managing 5-50 properties
 
-## 🔄 Development Status
+## 📌 Current Status
 
-### ✅ Completed
-- Flutter app UI with Quebec localization
-- Dart service layer (API, auth, leads, buildings, visits, analytics)
-- Mock data for demo purposes
-- Basic navigation and layouts
-- Responsive design for mobile/tablet
-
-### 🚧 In Progress
-- Real API integration (replace mock data)
-- Authentication flow
-- SMS integration
-
-### 📋 Next Steps
-- Real API integration (replace mock data)
-- Mobile app builds (Android/iOS)
-- Production deployment
-- Analytics dashboard
+- Public landing page and app login wall are the public entry points
+- Core web workflow is the launch focus; mobile builds are deferred
+- The repo is in demo-hardening mode, not broad feature-expansion mode
 
 ## 📧 Contact
 
 - **Email**: simon@immogestion.ca
-- **Demo**: Available for Quebec landlords
+- **Demo**: Public landing at immogestion.app; app login at app.immogestion.app
 - **Focus**: Streamlined leasing automation for local market

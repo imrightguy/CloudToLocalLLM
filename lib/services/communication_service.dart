@@ -38,6 +38,40 @@ class CommunicationService {
     return [];
   }
 
+  /// GET /marketplace/inbox?search=...&stage=...&assignedEmployeeId=...&source=...&page=...&limit=...
+  Future<List<MarketplaceInboxThread>> getMarketplaceInboxThreads({
+    String? search,
+    String? stage,
+    String? assignedEmployeeId,
+    String? source,
+    int page = 1,
+    int limit = 50,
+  }) async {
+    final params = <String, String>{
+      'page': page.toString(),
+      'limit': limit.toString(),
+    };
+    if (search != null && search.isNotEmpty) params['search'] = search;
+    if (stage != null && stage.isNotEmpty) params['stage'] = stage;
+    if (assignedEmployeeId != null && assignedEmployeeId.isNotEmpty) {
+      params['assignedEmployeeId'] = assignedEmployeeId;
+    }
+    if (source != null && source.isNotEmpty) params['source'] = source;
+
+    final query = params.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+    final result = await ApiService.instance.get('/marketplace/inbox?$query');
+
+    final data = result['data'];
+    if (data is List) {
+      return data
+          .map((e) => MarketplaceInboxThread.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
+  }
+
   /// GET /communications/activity?limit=...
   Future<List<CommunicationItem>> getActivity({int limit = 5}) async {
     final result =

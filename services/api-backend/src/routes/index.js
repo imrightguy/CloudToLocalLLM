@@ -7,6 +7,7 @@ const employeeRoutes = require('./employee.routes');
 const leadRoutes = require('./lead.routes');
 const leaseRoutes = require('./lease.routes');
 const visitRoutes = require('./visit.routes');
+const marketplaceRoutes = require('./marketplace.routes');
 const documentRoutes = require('./document.routes');
 const scheduleRoutes = require('./schedule.routes');
 const communicationRoutes = require('./communication.routes');
@@ -19,6 +20,8 @@ const notificationRoutes = require('./notification.routes');
 const adminRoutes = require('./admin.routes');
 const paymentRoutes = require('./payment.routes');
 const renewalRoutes = require('./renewal.routes');
+const renovationRoutes = require('./renovation.routes');
+const observationResultRoutes = require('./observation-result.routes');
 
 const router = express.Router();
 
@@ -52,6 +55,7 @@ router.use('/employees', employeeRoutes);
 router.use('/leads', leadRoutes);
 router.use('/leases', leaseRoutes);
 router.use('/visits', visitRoutes);
+router.use('/marketplace', marketplaceRoutes);
 router.use('/documents', documentRoutes);
 router.use('/schedules', scheduleRoutes);
 router.use('/communications', communicationRoutes);
@@ -64,5 +68,7 @@ router.use('/confirm', tenantConfirmationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/renewals', renewalRoutes);
+router.use('/renovations', renovationRoutes);
+router.use('/companies/:companyId/observation-results', observationResultRoutes);
 
 module.exports = router;

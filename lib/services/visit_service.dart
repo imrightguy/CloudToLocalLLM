@@ -29,7 +29,7 @@ class VisitService {
     bool forceRefresh = false,
   }) async {
     final cacheKey =
-        'visits_${status ?? '_'}_p$page';
+        'visits_${dateFrom?.toIso8601String().split('T').first ?? '_'}_${dateTo?.toIso8601String().split('T').first ?? '_'}_${status ?? '_'}_p${page}_l$limit';
     if (!forceRefresh) {
       final cached = CacheService.instance.get(cacheKey);
       if (cached != null) {
@@ -125,11 +125,18 @@ class VisitService {
   /// PATCH /visits/:id/status — change visit status (e.g. confirm, cancel).
   Future<VisitItem> updateVisitStatus(
     String id,
-    String newStatus,
-  ) async {
+    String newStatus, {
+    String? outcome,
+    String? reasonCode,
+    String? notes,
+  }) async {
+    final payload = <String, dynamic>{'status': newStatus};
+    if (outcome != null) payload['outcome'] = outcome;
+    if (reasonCode != null) payload['reasonCode'] = reasonCode;
+    if (notes != null) payload['notes'] = notes;
     final result = await ApiService.instance.patch(
       '/visits/$id/status',
-      {'status': newStatus},
+      payload,
     );
     CacheService.instance.invalidateAll();
     return VisitItem.fromJson(result['data'] as Map<String, dynamic>);
@@ -146,12 +153,14 @@ class VisitService {
     String id, {
     required DateTime newDateTime,
     bool sendSms = true,
+    String? notes,
   }) async {
     final result = await ApiService.instance.patch(
       '/visits/$id/reschedule',
       {
         'dateTime': newDateTime.toIso8601String(),
         'sendSms': sendSms,
+        if (notes != null) 'notes': notes,
       },
     );
     CacheService.instance.invalidateAll();

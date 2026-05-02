@@ -89,6 +89,7 @@ jest.mock('../../src/database/schema', () => ({
   unitsTable: { id: 'id', buildingId: 'buildingId', label: 'label', rentCents: 'rentCents', status: 'status' },
   buildingsTable: { id: 'id', name: 'name' },
   leadsTable: { id: 'id', fullName: 'fullName' },
+  unitReadinessTable: { id: 'id', unitId: 'unitId', currentRenovationRecordId: 'currentRenovationRecordId', opsStatus: 'opsStatus', leasingStatus: 'leasingStatus', blockingCount: 'blockingCount', blockingSummary: 'blockingSummary', readyAt: 'readyAt', handedOffAt: 'handedOffAt', leasedAt: 'leasedAt', updatedAt: 'updatedAt', createdAt: 'createdAt' },
 }));
 
 const leaseController = require('../../src/controllers/lease.controller');
@@ -251,6 +252,29 @@ describe('getLeaseById', () => {
         rent: 1500,
         unit: expect.objectContaining({ id: 'unit-1', rent: 1500 }),
         building: expect.objectContaining({ id: 'bld-1' }),
+      }),
+    }));
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// getUnitReadinessByUnitId
+// ═══════════════════════════════════════════════════════════════════
+describe('getUnitReadinessByUnitId', () => {
+  it('returns the leasing-facing readiness projection for a unit', async () => {
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'unit-1', buildingId: 'bld-1' }]);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'readiness-1', unitId: 'unit-1', currentRenovationRecordId: 'reno-1', opsStatus: 'ready_for_leasing', leasingStatus: 'ready', blockingCount: 0, blockingSummary: null }]);
+
+    const res = mockRes();
+    await leaseController.getUnitReadinessByUnitId({ params: { id: 'unit-1' } }, res);
+
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      data: expect.objectContaining({
+        unitId: 'unit-1',
+        opsStatus: 'ready_for_leasing',
+        leasingStatus: 'ready',
       }),
     }));
   });

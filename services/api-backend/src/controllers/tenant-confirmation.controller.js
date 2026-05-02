@@ -6,6 +6,7 @@ const { db } = require('../database/connection');
 const {
   visitsTable, employeesTable, leadsTable, unitsTable, buildingsTable, smsLogsTable,
 } = require('../database/schema');
+const { refreshCommunicationThread } = require('../services/communication-thread.service');
 
 function esc(str) {
   if (!str) {return '';}
@@ -281,6 +282,18 @@ const submitConfirmation = async (req, res) => {
     }
 
     logger.info(`🔗 Tenant web confirmation: token=${token.substring(0, 8)}... action=${action}, visit=${visit.id}`);
+
+    if (visit.leadId) {
+      try {
+        await refreshCommunicationThread(visit.leadId, { includeMessages: false });
+      } catch (syncError) {
+        logger.warn('Failed to refresh communication thread after tenant confirmation', {
+          leadId: visit.leadId,
+          visitId: visit.id,
+          error: syncError.message,
+        });
+      }
+    }
 
     // Return HTML or JSON based on Accept header
     if (req.accepts('html')) {

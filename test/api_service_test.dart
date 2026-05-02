@@ -12,9 +12,32 @@ void main() {
       expect(e.statusCode, 404);
     });
 
+    test('invalid credentials error is recognized from status and code', () {
+      const e = ApiException(
+        'Invalid credentials',
+        statusCode: 401,
+        code: 'INVALID_CREDENTIALS',
+      );
+      expect(e.isInvalidCredentials, isTrue);
+      expect(e.userFacingMessage, 'Courriel ou mot de passe invalide.');
+    });
+
+    test('duplicate account error is recognized from message text', () {
+      const e = ApiException(
+        'User already exists. Use another email.',
+        statusCode: 422,
+      );
+      expect(e.isDuplicateAccount, isTrue);
+      expect(
+        e.userFacingMessage,
+        'Un compte existe déjà pour cette adresse courriel.',
+      );
+    });
+
     test('statusCode defaults to null', () {
       const e = ApiException('oops');
       expect(e.statusCode, isNull);
+      expect(e.code, isNull);
     });
 
     test('toString includes message and statusCode', () {

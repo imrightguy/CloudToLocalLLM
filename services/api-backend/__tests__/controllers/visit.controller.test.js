@@ -12,7 +12,7 @@ jest.mock('../../src/utils/logger', () => ({
   child: jest.fn(() => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() })),
   info: jest.fn(),
   warn: jest.fn(),
-  error: jest.fn(),
+  error: jest.fn((...args) => console.log('LOGGER_ERROR', ...args)),
 }));
 
 jest.mock('../../src/services/sms.service', () => ({
@@ -23,6 +23,10 @@ jest.mock('../../src/services/sms.service', () => ({
 
 jest.mock('../../src/controllers/tenant-confirmation.controller', () => ({
   generateConfirmationToken: jest.fn(() => 'token-abc'),
+}));
+
+jest.mock('../../src/services/communication-thread.service', () => ({
+  refreshCommunicationThread: jest.fn().mockResolvedValue(null),
 }));
 
 const mockSelectChain = () => {
@@ -64,6 +68,7 @@ jest.mock('../../src/database/schema', () => ({
   employeesTable: { firstName: 'firstName', lastName: 'lastName', phone: 'phone' },
   leadsTable: { fullName: 'fullName', email: 'email', phone: 'phone' },
   employeeSchedulesTable: {},
+  communicationThreadsTable: { id: 'id', leadId: 'leadId' },
 }));
 
 const visitController = require('../../src/controllers/visit.controller');
@@ -168,6 +173,7 @@ describe('createVisit', () => {
     selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
     selectChain.limit.mockResolvedValueOnce([{ startTime: '09:00', endTime: '17:00', isActive: true }]);
     selectChain.limit.mockResolvedValueOnce([]);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'thread-1' }]);
     selectChain.limit.mockResolvedValueOnce([{ status: 'vacant' }]);
     const res = mockRes();
     await visitController.createVisit({ body: { unitId: 'unit-1', employeeId: 'emp-1', leadId: 'lead-1', dateTime: futureDate.toISOString() } }, res);
@@ -186,6 +192,7 @@ describe('createVisit', () => {
     selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
     selectChain.limit.mockResolvedValueOnce([{ startTime: '09:00', endTime: '17:00', isActive: true }]);
     selectChain.limit.mockResolvedValueOnce([]);
+    selectChain.limit.mockResolvedValueOnce([{ id: 'thread-1' }]);
     const fkError = new Error('FK');
     fkError.code = '23503';
     mockDb.insert.mockReturnValueOnce({

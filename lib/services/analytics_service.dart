@@ -92,6 +92,58 @@ class LeadSource {
       );
 }
 
+class OperationalMetricsWindow {
+  const OperationalMetricsWindow({
+    required this.inboxVolume,
+    required this.replies,
+    required this.bookings,
+    required this.completedVisits,
+    required this.noShows,
+    required this.stalledConversations,
+  });
+
+  final int inboxVolume;
+  final int replies;
+  final int bookings;
+  final int completedVisits;
+  final int noShows;
+  final int stalledConversations;
+
+  factory OperationalMetricsWindow.fromJson(Map<String, dynamic> json) =>
+      OperationalMetricsWindow(
+        inboxVolume: (json['inboxVolume'] as num?)?.toInt() ?? 0,
+        replies: (json['replies'] as num?)?.toInt() ?? 0,
+        bookings: (json['bookings'] as num?)?.toInt() ?? 0,
+        completedVisits: (json['completedVisits'] as num?)?.toInt() ?? 0,
+        noShows: (json['noShows'] as num?)?.toInt() ?? 0,
+        stalledConversations:
+            (json['stalledConversations'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class InboxToVisitMetrics {
+  const InboxToVisitMetrics({
+    required this.generatedAt,
+    required this.daily,
+    required this.weekly,
+  });
+
+  final DateTime generatedAt;
+  final OperationalMetricsWindow daily;
+  final OperationalMetricsWindow weekly;
+
+  factory InboxToVisitMetrics.fromJson(Map<String, dynamic> json) =>
+      InboxToVisitMetrics(
+        generatedAt: json['generatedAt'] != null
+            ? DateTime.parse(json['generatedAt'] as String)
+            : DateTime.now(),
+        daily: OperationalMetricsWindow.fromJson(
+            (json['daily'] as Map<String, dynamic>?) ?? {}),
+        weekly: OperationalMetricsWindow.fromJson(
+            (json['weekly'] as Map<String, dynamic>?) ?? {}),
+      );
+}
+
 class KpiMetric {
   const KpiMetric({
     required this.current,
@@ -148,6 +200,7 @@ class FullDashboardData {
     this.occupancyChart,
     this.leadFunnel,
     this.buildings,
+    this.inboxToVisitMetrics,
   });
 
   final PipelineData pipeline;
@@ -161,6 +214,7 @@ class FullDashboardData {
   final List<Map<String, dynamic>>? occupancyChart;
   final Map<String, int>? leadFunnel;
   final List<Map<String, dynamic>>? buildings;
+  final InboxToVisitMetrics? inboxToVisitMetrics;
 
   factory FullDashboardData.fromJson(Map<String, dynamic> json) {
     final pipelineJson = json['pipeline'] as Map<String, dynamic>? ?? {};
@@ -195,6 +249,11 @@ class FullDashboardData {
       buildings: (json['buildings'] as List<dynamic>?)
           ?.map((e) => e as Map<String, dynamic>)
           .toList(),
+      inboxToVisitMetrics: json['inboxToVisitMetrics'] != null
+          ? InboxToVisitMetrics.fromJson(
+              json['inboxToVisitMetrics'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }

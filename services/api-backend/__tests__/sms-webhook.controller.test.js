@@ -83,12 +83,21 @@ describe('handleIncoming', () => {
     expect(res.send).toHaveBeenCalledWith('Missing required fields');
   });
 
-  it('returns 400 if Body is missing', async () => {
-    const req = { body: { From: from, MessageSid: sid } };
+  it('returns 200 XML if Body is missing but media is present', async () => {
+    smsService.handleEmployeeReply.mockResolvedValue({ success: false, error: 'Employee not found' });
+    smsService.handleTenantReply.mockResolvedValue({ success: false, error: 'Lead not found' });
+    smsService.handleOccupantReply.mockResolvedValue({ success: false, error: 'Occupant not found' });
+
+    const req = { body: { From: from, MessageSid: sid, NumMedia: '1', MediaUrl0: 'https://example.com/photo.jpg', MediaContentType0: 'image/jpeg' } };
     const res = mockRes();
     await handleIncoming(req, res);
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.send).toHaveBeenCalledWith('Missing required fields');
+
+    expect(smsService.handleEmployeeReply).toHaveBeenCalledWith(from, '');
+    expect(smsService.handleTenantReply).toHaveBeenCalledWith(from, '');
+    expect(smsService.handleOccupantReply).toHaveBeenCalledWith(from, '');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.type).toHaveBeenCalledWith('text/xml');
+    expect(res.send).toHaveBeenCalledWith(XML_RESPONSE);
   });
 
   it('returns 400 if both From and Body are missing', async () => {

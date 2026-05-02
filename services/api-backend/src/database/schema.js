@@ -1,7 +1,12 @@
 const { sql } = require('drizzle-orm');
 const {
-  pgTable, text, integer, timestamp, boolean, jsonb, uuid, index,
+  pgTable, text, integer, timestamp, boolean, jsonb, uuid, index, uniqueIndex, numeric,
 } = require('drizzle-orm/pg-core');
+const {
+  QUALIFICATION_STATES,
+  BOOKING_STATES,
+  MARKETPLACE_REASON_CODES,
+} = require('../constants/marketplace-states');
 
 // ─── Users (app login — Simon + future admins only) ───
 const usersTable = pgTable('users', {
@@ -98,6 +103,148 @@ const unitsTable = pgTable('units', {
   statusIdx: index('units_status_idx').on(table.status),
 }));
 
+// ─── Renovation Ops ───
+const renovationsTable = pgTable('renovations', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  unitId: uuid('unit_id').notNull().references(() => unitsTable.id, { onDelete: 'cascade' }),
+  buildingId: uuid('building_id').notNull().references(() => buildingsTable.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  status: text('status').notNull().default('planned'), // planned | active | blocked | ready_for_leasing | completed | archived
+  readinessState: text('readiness_state').notNull().default('not_started'), // not_started | in_progress | blocked | ready_to_list | ready_for_leasing | ready
+  startDate: timestamp('start_date', { mode: 'date' }),
+  targetEndDate: timestamp('target_end_date', { mode: 'date' }),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  unitIdx: uniqueIndex('renovations_unit_id_unique').on(table.unitId),
+  buildingIdx: index('renovations_building_id_idx').on(table.buildingId),
+  statusIdx: index('renovations_status_idx').on(table.status),
+  readinessIdx: index('renovations_readiness_state_idx').on(table.readinessState),
+}));
+
+const renovationTasksTable = pgTable('renovation_tasks', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  renovationRecordId: uuid('renovation_record_id').notNull().references(() => renovationsTable.id, { onDelete: 'cascade' }),
+  assigneeEmployeeId: uuid('assignee_employee_id').references(() => employeesTable.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  description: text('description'),
+  status: text('status').notNull().default('todo'), // todo | in_progress | blocked | done | cancelled
+  dueDate: timestamp('due_date', { mode: 'date' }),
+  completedAt: timestamp('completed_at'),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  renovationIdx: index('renovation_tasks_renovation_record_id_idx').on(table.renovationRecordId),
+  statusIdx: index('renovation_tasks_status_idx').on(table.status),
+  assigneeIdx: index('renovation_tasks_assignee_employee_id_idx').on(table.assigneeEmployeeId),
+}));
+
+const renovationOrdersTable = pgTable('renovation_orders', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  renovationRecordId: uuid('renovation_record_id').notNull().references(() => renovationsTable.id, { onDelete: 'cascade' }),
+  taskId: uuid('task_id').references(() => renovationTasksTable.id, { onDelete: 'set null' }),
+  vendorName: text('vendor_name').notNull(),
+  itemName: text('item_name').notNull(),
+  quantityOrdered: integer('quantity_ordered').notNull(),
+  quantityReceived: integer('quantity_received').notNull().default(0),
+  status: text('status').notNull().default('draft'), // draft | ordered | partially_received | received | cancelled
+  orderedAt: timestamp('ordered_at', { mode: 'date' }),
+  expectedAt: timestamp('expected_at', { mode: 'date' }),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  renovationIdx: index('renovation_orders_renovation_record_id_idx').on(table.renovationRecordId),
+  taskIdx: index('renovation_orders_task_id_idx').on(table.taskId),
+  statusIdx: index('renovation_orders_status_idx').on(table.status),
+}));
+
+const renovationReceivingEventsTable = pgTable('renovation_receiving_events', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  orderId: uuid('order_id').notNull().references(() => renovationOrdersTable.id, { onDelete: 'cascade' }),
+  quantityReceived: integer('quantity_received').notNull(),
+  receivedAt: timestamp('received_at').notNull().defaultNow(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  orderIdx: index('renovation_receiving_events_order_id_idx').on(table.orderId),
+}));
+
+const renovationSurplusItemsTable = pgTable('renovation_surplus_items', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  renovationRecordId: uuid('renovation_record_id').notNull().references(() => renovationsTable.id, { onDelete: 'cascade' }),
+  sourceOrderId: uuid('source_order_id').references(() => renovationOrdersTable.id, { onDelete: 'set null' }),
+  taskId: uuid('task_id').references(() => renovationTasksTable.id, { onDelete: 'set null' }),
+  itemName: text('item_name').notNull(),
+  quantityAvailable: integer('quantity_available').notNull(),
+  status: text('status').notNull().default('available'), // available | reserved | used | discarded
+  location: text('location'),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  renovationIdx: index('renovation_surplus_items_renovation_record_id_idx').on(table.renovationRecordId),
+  sourceOrderIdx: index('renovation_surplus_items_source_order_id_idx').on(table.sourceOrderId),
+  statusIdx: index('renovation_surplus_items_status_idx').on(table.status),
+}));
+
+const workerIntakeRecordsTable = pgTable('worker_intake_records', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  twilioMessageSid: text('twilio_message_sid').unique(),
+  renovationRecordId: uuid('renovation_record_id').notNull().references(() => renovationsTable.id, { onDelete: 'cascade' }),
+  taskId: uuid('task_id').references(() => renovationTasksTable.id, { onDelete: 'set null' }),
+  orderId: uuid('order_id').references(() => renovationOrdersTable.id, { onDelete: 'set null' }),
+  sourcePhone: text('source_phone').notNull(),
+  workerName: text('worker_name'),
+  messageBody: text('message_body').notNull(),
+  messageKind: text('message_kind').notNull().default('update'),
+  status: text('status').notNull().default('new'),
+  confidence: numeric('confidence', { precision: 5, scale: 4 }),
+  summary: text('summary'),
+  rawPayload: jsonb('raw_payload').notNull().default('{}'),
+  mediaUrls: jsonb('media_urls').notNull().default('[]'),
+  mediaContentTypes: jsonb('media_content_types').notNull().default('[]'),
+  photoCount: integer('photo_count').notNull().default(0),
+  receivedAt: timestamp('received_at').notNull().defaultNow(),
+  reviewedAt: timestamp('reviewed_at'),
+  resolvedAt: timestamp('resolved_at'),
+  notes: text('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  twilioMessageSidIdx: uniqueIndex('worker_intake_records_twilio_message_sid_unique').on(table.twilioMessageSid),
+  renovationIdx: index('worker_intake_records_renovation_record_id_idx').on(table.renovationRecordId),
+  taskIdx: index('worker_intake_records_task_id_idx').on(table.taskId),
+  statusIdx: index('worker_intake_records_status_idx').on(table.status),
+  messageKindIdx: index('worker_intake_records_message_kind_idx').on(table.messageKind),
+}));
+
+const unitReadinessTable = pgTable('unit_readiness', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  unitId: uuid('unit_id').notNull().references(() => unitsTable.id, { onDelete: 'cascade' }),
+  currentRenovationRecordId: uuid('current_renovation_record_id').references(() => renovationsTable.id, { onDelete: 'set null' }),
+  opsStatus: text('ops_status').notNull().default('not_started'),
+  leasingStatus: text('leasing_status').notNull().default('not_ready'),
+  blockingCount: integer('blocking_count').notNull().default(0),
+  blockingSummary: text('blocking_summary'),
+  readyAt: timestamp('ready_at'),
+  handedOffAt: timestamp('handed_off_at'),
+  leasedAt: timestamp('leased_at'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (table) => ({
+  unitIdx: uniqueIndex('unit_readiness_unit_id_unique').on(table.unitId),
+  opsStatusIdx: index('unit_readiness_ops_status_idx').on(table.opsStatus),
+  leasingStatusIdx: index('unit_readiness_leasing_status_idx').on(table.leasingStatus),
+}));
+
 // ─── Employee Weekly Schedule ───
 const employeeSchedulesTable = pgTable('employee_schedules', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -124,6 +271,9 @@ const leadsTable = pgTable('leads', {
   desiredUnit: text('desired_unit'),
   source: text('source').notNull().default('other'), // facebook | website | referral | other
   stage: text('stage').notNull().default('nouveau'), // User-facing: nouveau | contacte | qualifie | visitePlanifiee | visite_planifiee | offreEnvoyee | negociation | bailSigne | signe | Internal SMS-flow: visite_completee | interesse | inactif
+  qualificationState: text('qualification_state').notNull().default('unknown'), // unknown | qualified | rejected | needs_follow_up
+  qualificationReasonCode: text('qualification_reason_code'),
+  qualificationReasonNote: text('qualification_reason_note'),
   notes: text('notes'),
   tags: jsonb('tags').default('[]'),
   language: text('language').default('fr'), // fr | en
@@ -150,11 +300,27 @@ const visitsTable = pgTable('visits', {
   durationMinutes: integer('duration_minutes').notNull().default(30),
   status: text('status').notNull().default('scheduled'), // scheduled | confirmed | in_progress | completed | cancelled | no_show
   tenantConfirmed: boolean('tenant_confirmed').notNull().default(false),
+  tenantConfirmationRequestedAt: timestamp('tenant_confirmation_requested_at'),
+  tenantConfirmedAt: timestamp('tenant_confirmed_at'),
+  tenantDeclinedAt: timestamp('tenant_declined_at'),
   occupantNotified: boolean('occupant_notified').notNull().default(false), // SMS sent to current occupant for access
   employeeConfirmed: boolean('employee_confirmed').notNull().default(false),
+  employeeConfirmationRequestedAt: timestamp('employee_confirmation_requested_at'),
+  employeeConfirmedAt: timestamp('employee_confirmed_at'),
+  employeeDeclinedAt: timestamp('employee_declined_at'),
   morningOfSent: boolean('morning_of_sent').notNull().default(false),
+  morningReminderSentAt: timestamp('morning_reminder_sent_at'),
+  reminder24hQueuedAt: timestamp('reminder_24h_queued_at'),
+  reminder2hQueuedAt: timestamp('reminder_2h_queued_at'),
   confirmationToken: text('confirmation_token').unique(), // unique token for tenant web-based confirmation
+  sourceThreadId: uuid('source_thread_id'),
   outcome: text('outcome'), // interesse | pas_interesse | no_show | null
+  reasonCode: text('reason_code'), // tenant_request | tenant_conflict | host_unavailable | access_issue | weather | tenant_no_show | other
+  completedAt: timestamp('completed_at'),
+  cancelledAt: timestamp('cancelled_at'),
+  noShowAt: timestamp('no_show_at'),
+  rescheduledAt: timestamp('rescheduled_at'),
+  coordinationState: text('coordination_state').notNull().default('message_only'), // message_only | awaiting_employee_confirmation | awaiting_tenant_confirmation | scheduled | confirmed | in_progress | completed_interested | completed_not_interested | completed_no_show | cancelled | follow_up_required
   notes: text('notes'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -162,8 +328,10 @@ const visitsTable = pgTable('visits', {
 }, (table) => ({
   dateTimeIdx: index('visits_date_time_idx').on(table.dateTime),
   statusIdx: index('visits_status_idx').on(table.status),
+  coordinationStateIdx: index('visits_coordination_state_idx').on(table.coordinationState),
   employeeIdx: index('visits_employee_id_idx').on(table.employeeId),
   leadIdx: index('visits_lead_id_idx').on(table.leadId),
+  sourceThreadIdx: index('visits_source_thread_id_idx').on(table.sourceThreadId),
 }));
 
 // ─── SMS Logs (Twilio) ───
@@ -204,6 +372,28 @@ const communicationLogsTable = pgTable('communication_logs', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 }, (table) => ({
   leadIdx: index('comm_logs_lead_id_idx').on(table.leadId),
+}));
+
+// ─── Communication Threads ───
+const communicationThreadsTable = pgTable('communication_threads', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  leadId: uuid('lead_id').notNull().references(() => leadsTable.id, { onDelete: 'cascade' }).unique(),
+  latestVisitId: uuid('latest_visit_id').references(() => visitsTable.id, { onDelete: 'set null' }),
+  bookingState: text('booking_state').notNull().default('unbooked'), // unbooked | booking_pending | scheduled | confirmed | in_progress | completed | cancelled | no_show | reschedule_requested
+  bookingReasonCode: text('booking_reason_code'),
+  bookingStateUpdatedAt: timestamp('booking_state_updated_at'),
+  coordinationState: text('coordination_state').notNull().default('message_only'),
+  messageCount: integer('message_count').notNull().default(0),
+  lastMessageAt: timestamp('last_message_at'),
+  lastMessageType: text('last_message_type'),
+  lastMessageDirection: text('last_message_direction'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  leadIdx: index('comm_threads_lead_id_idx').on(table.leadId),
+  stateIdx: index('comm_threads_coordination_state_idx').on(table.coordinationState),
+  bookingStateIdx: index('comm_threads_booking_state_idx').on(table.bookingState),
 }));
 
 // ─── Documents ───
@@ -398,6 +588,41 @@ const smsOptOutsTable = pgTable('sms_opt_outs', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+// ─── Observation Results ───
+const observationResultsTable = pgTable('observation_results', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: uuid('company_id').notNull(),
+  projectId: uuid('project_id'),
+  domain: text('domain').notNull(), // lead | message | visit | follow-up
+  sourceKind: text('source_kind').notNull(),
+  sourceRef: text('source_ref'),
+  sourceFingerprint: text('source_fingerprint'),
+  title: text('title').notNull(),
+  summary: text('summary').notNull(),
+  details: jsonb('details').notNull().default('{}'),
+  privacyClass: text('privacy_class').notNull().default('redacted'),
+  confidence: numeric('confidence', { precision: 5, scale: 4 }),
+  status: text('status').notNull().default('new'), // new | reviewed | dismissed | converted
+  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
+  communicationLogId: uuid('communication_log_id').references(() => communicationLogsTable.id, { onDelete: 'set null' }),
+  visitId: uuid('visit_id').references(() => visitsTable.id, { onDelete: 'set null' }),
+  followUpType: text('follow_up_type'),
+  followUpDueAt: timestamp('follow_up_due_at'),
+  reviewedByUserId: uuid('reviewed_by_user_id').references(() => usersTable.id, { onDelete: 'set null' }),
+  reviewedAt: timestamp('reviewed_at'),
+  dismissedAt: timestamp('dismissed_at'),
+  dismissalReason: text('dismissal_reason'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (table) => ({
+  companyIdx: index('observation_results_company_id_idx').on(table.companyId),
+  companyStatusIdx: index('observation_results_company_status_idx').on(table.companyId, table.status),
+  companyDomainIdx: index('observation_results_company_domain_idx').on(table.companyId, table.domain),
+  sourceFingerprintIdx: index('observation_results_source_fingerprint_idx').on(table.sourceFingerprint),
+  companySourceRefIdx: index('observation_results_company_source_ref_idx').on(table.companyId, table.sourceKind, table.sourceRef),
+}));
+
 module.exports = {
   usersTable,
   refreshTokensTable,
@@ -405,11 +630,19 @@ module.exports = {
   buildingsTable,
   employeeAssignmentsTable,
   unitsTable,
+  renovationsTable,
+  renovationTasksTable,
+  renovationOrdersTable,
+  renovationReceivingEventsTable,
+  renovationSurplusItemsTable,
+  workerIntakeRecordsTable,
+  unitReadinessTable,
   employeeSchedulesTable,
   leadsTable,
   visitsTable,
   smsLogsTable,
   communicationLogsTable,
+  communicationThreadsTable,
   documentsTable,
   documentsLeadsTable,
   leasesTable,
@@ -419,6 +652,7 @@ module.exports = {
   smsCampaignsTable,
   smsQueueTable,
   smsOptOutsTable,
+  observationResultsTable,
   paymentsTable,
   renewalOffersTable,
 };

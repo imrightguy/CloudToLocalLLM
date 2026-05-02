@@ -130,15 +130,12 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: immogestion-tunnel
     restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required}
     logging: *default-logging
     networks:
       - internal
     depends_on:
       - api
-      - flutter-web
 
 volumes:
   pgdata:

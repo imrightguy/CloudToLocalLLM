@@ -1,19 +1,22 @@
 FROM ubuntu:22.04 AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl git unzip xz-utils zip \
+    ca-certificates curl git unzip xz-utils zip \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /opt/flutter
 ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
 RUN flutter precache --web
 RUN flutter config --no-analytics
+RUN flutter config --enable-web
 
 WORKDIR /app
 COPY pubspec.yaml pubspec.lock ./
-RUN flutter pub get --offline
+RUN flutter pub get
 
 COPY . .
+RUN flutter create . --platforms web
 RUN flutter build web --release --base-href '/'
 
 FROM nginx:alpine

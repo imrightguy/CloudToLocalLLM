@@ -18,17 +18,19 @@ const { smsLogsTable } = require('../database/schema');
  */
 const handleIncoming = async (req, res) => {
   try {
-    const { From, Body, MessageSid } = req.body;
+    const { From, Body, MessageSid, NumMedia } = req.body;
+    const normalizedBody = typeof Body === 'string' ? Body : '';
+    const normalizedNumMedia = Number.parseInt(NumMedia, 10) || 0;
 
-    if (!From || !Body) {
-      logger.warn('⚠️  Incoming SMS webhook missing From or Body');
+    if (!From) {
+      logger.warn('⚠️  Incoming SMS webhook missing From');
       return res.status(400).send('Missing required fields');
     }
 
-    logger.info(`📩 Incoming SMS from ${From}: "${Body}" (SID: ${MessageSid})`);
+    logger.info(`📩 Incoming SMS from ${From}: "${normalizedBody}" (SID: ${MessageSid}, media=${normalizedNumMedia})`);
 
     // Check for opt-out keywords first (STOP, ARRET, etc.)
-    const parsed = handleIncomingMessage(Body);
+    const parsed = handleIncomingMessage(normalizedBody);
     if (parsed.action === 'stop') {
       logger.info(`🔇 Opt-out request from ${From}`);
       await handleOptOutReply(From);
@@ -36,7 +38,7 @@ const handleIncoming = async (req, res) => {
     }
 
     // Try employee first, then tenant
-    const employeeResult = await handleEmployeeReply(From, Body);
+    const employeeResult = await handleEmployeeReply(From, normalizedBody);
 
     if (employeeResult.success) {
       logger.info(`✅ Employee reply processed: action=${employeeResult.action}, visit=${employeeResult.visitId}`);
@@ -45,7 +47,7 @@ const handleIncoming = async (req, res) => {
 
     // If employee not found or no active visit, try tenant
     if (employeeResult.error === 'Employee not found' || employeeResult.error === 'No active visit found') {
-      const tenantResult = await handleTenantReply(From, Body);
+      const tenantResult = await handleTenantReply(From, normalizedBody);
       if (tenantResult.success) {
         logger.info(`✅ Tenant reply processed: action=${tenantResult.action}, visit=${tenantResult.visitId}`);
         return res.status(200).type('text/xml').send('<Response></Response>');
@@ -53,7 +55,7 @@ const handleIncoming = async (req, res) => {
 
       // If tenant not found, try occupant (current tenant of occupied unit)
       if (tenantResult.error === 'Lead not found' || tenantResult.error === 'No active visit found') {
-        const occupantResult = await handleOccupantReply(From, Body);
+        const occupantResult = await handleOccupantReply(From, normalizedBody);
         if (occupantResult.success) {
           logger.info(`✅ Occupant reply processed: action=${occupantResult.action}, visit=${occupantResult.visitId}`);
           return res.status(200).type('text/xml').send('<Response></Response>');

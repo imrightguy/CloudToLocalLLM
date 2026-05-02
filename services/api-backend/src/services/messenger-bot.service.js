@@ -770,10 +770,37 @@ async function handleSuggestVisit(senderId, conv, text) {
     leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: visitMsg,
   });
 
+  logger.info('[MessengerBot] message-to-visit workflow scheduled visit', {
+    leadId: conv.leadId,
+    visitId: visit?.id || null,
+    buildingId: conv.data.buildingId,
+    unitId: conv.data.unitId,
+    employeeId: slot.employeeId,
+    dateTime: visitDateTime.toISOString(),
+  });
+
   if (visit) {
     try {
-      await smsService.sendVisitConfirmation(visit.id);
-      await smsService.sendTenantConfirmationRequest(visit.id);
+      const visitConfirmationResult = await smsService.sendVisitConfirmation(visit.id);
+      const tenantConfirmationResult = await smsService.sendTenantConfirmationRequest(visit.id);
+
+      if (visitConfirmationResult.success && tenantConfirmationResult.success) {
+        logger.info('[MessengerBot] message-to-visit confirmation workflow dispatched', {
+          visitId: visit.id,
+          leadId: conv.leadId,
+          employeeSuccess: true,
+          tenantSuccess: true,
+        });
+      } else {
+        logger.warn('[MessengerBot] message-to-visit confirmation workflow had delivery failures', {
+          visitId: visit.id,
+          leadId: conv.leadId,
+          employeeSuccess: visitConfirmationResult.success,
+          tenantSuccess: tenantConfirmationResult.success,
+          employeeError: visitConfirmationResult.error || null,
+          tenantError: tenantConfirmationResult.error || null,
+        });
+      }
     } catch (err) {
       logger.error('[MessengerBot] Failed to send visit confirmation workflow:', err.message);
     }
@@ -787,7 +814,14 @@ async function handleSuggestVisit(senderId, conv, text) {
 
       const isOccupied = unitDetails?.status === 'occupied' || unitDetails?.tenantPhone;
       if (isOccupied) {
-        await smsService.sendOccupantAccessRequest(visit.id);
+        const occupantAccessResult = await smsService.sendOccupantAccessRequest(visit.id);
+        if (!occupantAccessResult.success) {
+          logger.warn('[MessengerBot] Occupant access request failed', {
+            visitId: visit.id,
+            leadId: conv.leadId,
+            error: occupantAccessResult.error || null,
+          });
+        }
       }
     } catch (err) {
       logger.error('[MessengerBot] Failed to send occupant access request:', err.message);

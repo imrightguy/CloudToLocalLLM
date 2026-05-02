@@ -263,6 +263,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: AppSpacing.xl),
             ],
 
+            if (_dashboardData?.inboxToVisitMetrics != null) ...[
+              _buildInboxToVisitMetricsSection(),
+              const SizedBox(height: AppSpacing.xl),
+            ],
+
             BuildingPerformanceCard(
               buildings: _buildings,
               onViewAll: () {
@@ -438,6 +443,183 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Text(label, style: AppTypography.chartAxisLabel),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInboxToVisitMetricsSection() {
+    final metrics = _dashboardData!.inboxToVisitMetrics!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Flux inbox → visite', style: AppTypography.sectionHeader),
+        const SizedBox(height: AppSpacing.md),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 720;
+            final dailyCard = Expanded(
+              child: _buildOperationalMetricsCard(
+                title: '24 dernières heures',
+                subtitle: 'Vue quotidienne',
+                metrics: metrics.daily,
+                accentColor: AppColors.primary,
+              ),
+            );
+            final weeklyCard = Expanded(
+              child: _buildOperationalMetricsCard(
+                title: '7 derniers jours',
+                subtitle: 'Vue hebdomadaire',
+                metrics: metrics.weekly,
+                accentColor: AppColors.skyBlue,
+              ),
+            );
+
+            if (isWide) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  dailyCard,
+                  const SizedBox(width: AppSpacing.md),
+                  weeklyCard,
+                ],
+              );
+            }
+
+            return Column(
+              children: [
+                _buildOperationalMetricsCard(
+                  title: '24 dernières heures',
+                  subtitle: 'Vue quotidienne',
+                  metrics: metrics.daily,
+                  accentColor: AppColors.primary,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _buildOperationalMetricsCard(
+                  title: '7 derniers jours',
+                  subtitle: 'Vue hebdomadaire',
+                  metrics: metrics.weekly,
+                  accentColor: AppColors.skyBlue,
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOperationalMetricsCard({
+    required String title,
+    required String subtitle,
+    required OperationalMetricsWindow metrics,
+    required Color accentColor,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: AppSpacing.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Text(title, style: AppTypography.cardTitle),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              _buildOperationalMetricTile(
+                label: 'Volume boîte',
+                value: metrics.inboxVolume,
+                color: AppColors.primary,
+                icon: Icons.inbox_outlined,
+              ),
+              _buildOperationalMetricTile(
+                label: 'Réponses',
+                value: metrics.replies,
+                color: AppColors.info,
+                icon: Icons.reply_outlined,
+              ),
+              _buildOperationalMetricTile(
+                label: 'Réservations',
+                value: metrics.bookings,
+                color: AppColors.skyBlue,
+                icon: Icons.event_available_outlined,
+              ),
+              _buildOperationalMetricTile(
+                label: 'Terminées',
+                value: metrics.completedVisits,
+                color: AppColors.success,
+                icon: Icons.check_circle_outline,
+              ),
+              _buildOperationalMetricTile(
+                label: 'No-shows',
+                value: metrics.noShows,
+                color: AppColors.error,
+                icon: Icons.cancel_outlined,
+              ),
+              _buildOperationalMetricTile(
+                label: 'Bloquées',
+                value: metrics.stalledConversations,
+                color: AppColors.warning,
+                icon: Icons.hourglass_bottom_outlined,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOperationalMetricTile({
+    required String label,
+    required int value,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      width: 150,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+          ),
+        ],
       ),
     );
   }

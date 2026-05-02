@@ -114,6 +114,7 @@ router.get('/', authenticateToken, asyncHandler(buildingController.getBuildings)
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ */
 router.post('/', authenticateToken, validate(buildingSchemas.create), asyncHandler(buildingController.createBuilding));
 
 /**

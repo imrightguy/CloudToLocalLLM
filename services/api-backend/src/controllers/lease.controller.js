@@ -10,6 +10,7 @@ const {
   VALID_TRANSITIONS,
 } = require('../models/lease');
 const { child } = require('../utils/logger');
+const { loadUnitReadinessByUnitId } = require('../services/renovation-readiness.service');
 
 const log = child({ controller: 'lease' });
 
@@ -236,6 +237,38 @@ exports.getLeaseById = async (req, res) => {
     res.status(500).json({
       success: false,
       error: { message: 'Erreur interne du serveur', code: 'LEASE_FETCH_FAILED' },
+    });
+  }
+};
+
+exports.getUnitReadinessByUnitId = async (req, res) => {
+  try {
+    const [unit] = await db.select().from(unitsTable).where(eq(unitsTable.id, req.params.id)).limit(1);
+    if (!unit) {
+      return res.status(404).json({
+        success: false,
+        error: { message: "L'unité introuvable", code: 'UNIT_NOT_FOUND' },
+      });
+    }
+
+    const unitReadiness = await loadUnitReadinessByUnitId(req.params.id);
+    if (!unitReadiness) {
+      return res.status(404).json({
+        success: false,
+        error: { message: 'Projection de readiness introuvable', code: 'UNIT_READINESS_NOT_FOUND' },
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: unitReadiness,
+      message: 'Projection de readiness récupérée avec succès',
+    });
+  } catch (error) {
+    log.error('Error fetching unit readiness projection', { error: error.message });
+    return res.status(500).json({
+      success: false,
+      error: { message: 'Erreur interne du serveur', code: 'UNIT_READINESS_FETCH_FAILED' },
     });
   }
 };

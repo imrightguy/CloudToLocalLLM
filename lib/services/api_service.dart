@@ -13,11 +13,43 @@ export 'package:http/http.dart' show MultipartFile;
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
+  final String? code;
 
-  const ApiException(this.message, {this.statusCode});
+  const ApiException(
+    this.message, {
+    this.statusCode,
+    this.code,
+  });
+
+  bool get isDuplicateAccount =>
+      code == 'USER_ALREADY_EXISTS' ||
+      code == 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL' ||
+      message.toLowerCase().contains('already exists') ||
+      message.toLowerCase().contains('already registered') ||
+      statusCode == 409;
+
+  bool get isInvalidCredentials =>
+      code == 'INVALID_CREDENTIALS' ||
+      code == 'INVALID_EMAIL_OR_PASSWORD' ||
+      message.toLowerCase().contains('invalid credentials') ||
+      message.toLowerCase().contains('invalid email or password');
+
+  String get userFacingMessage {
+    if (isDuplicateAccount) {
+      return 'Un compte existe déjà pour cette adresse courriel.';
+    }
+    if (isInvalidCredentials) {
+      return 'Courriel ou mot de passe invalide.';
+    }
+    if (code == 'ACCOUNT_INACTIVE') {
+      return 'Compte inactif. Contactez votre administrateur.';
+    }
+    return message;
+  }
 
   @override
-  String toString() => 'ApiException: $message (status: $statusCode)';
+  String toString() =>
+      'ApiException: $message (status: $statusCode${code == null ? '' : ', code: $code'})';
 }
 
 /// Singleton HTTP client with JWT authentication.
@@ -167,10 +199,18 @@ class ApiService {
 
     // Non-2xx error
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      final errorMsg = data['error'] is Map
-          ? data['error']['message'] ?? data['error'].toString()
+      final errorPayload = data['error'];
+      final errorMsg = errorPayload is Map
+          ? errorPayload['message'] ?? errorPayload.toString()
           : data['message'] ?? 'Erreur ${response.statusCode}';
-      throw ApiException(errorMsg.toString(), statusCode: response.statusCode);
+      final errorCode = errorPayload is Map
+          ? errorPayload['code']?.toString()
+          : data['code']?.toString();
+      throw ApiException(
+        errorMsg.toString(),
+        statusCode: response.statusCode,
+        code: errorCode,
+      );
     }
 
     // Success envelope: { success: true, data: … }

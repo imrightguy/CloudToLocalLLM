@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
 import '../theme/app_spacing.dart';
+import 'visit_form_screen.dart';
 
 class LeadDetailScreen extends StatefulWidget {
   const LeadDetailScreen({
@@ -283,6 +284,28 @@ class _LeadDetailScreenState extends State<LeadDetailScreen> {
 
                   // -- Stage progression buttons --
                   _buildStageButtons(stageColor),
+
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => VisitFormScreen(
+                                    initialLeadId: _lead.id,
+                                    initialDate: DateTime.now().add(const Duration(hours: 1)),
+                                  ),
+                                ),
+                              );
+                            },
+                      icon: const Icon(Icons.event_available_outlined),
+                      label: const Text('Planifier une visite'),
+                    ),
+                  ),
 
                   const SizedBox(height: 24),
 

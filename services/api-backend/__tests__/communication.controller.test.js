@@ -90,7 +90,8 @@ describe('Communication Controller Validation', () => {
 
   describe('getActivityFeed — type filter parsing', () => {
     const allTypes = [
-      'lead_created', 'visit_scheduled', 'visit_completed',
+      'lead_created', 'visit_scheduled', 'visit_completed', 'visit_cancelled',
+      'visit_no_show', 'visit_rescheduled',
       'sms_sent', 'sms_received', 'communication_logged',
     ];
 
@@ -362,6 +363,24 @@ describe('logCommunication (controller import)', () => {
     expect(body.data.type).toBe('sms');
     expect(body.data.direction).toBe('outbound');
     expect(body.message).toBe('Communication logged successfully');
+  });
+
+  it('persists body as content when content is omitted', async () => {
+    mockDbResults = [[{
+      id: 'uuid-2', type: 'sms', direction: 'outbound', status: 'sent',
+    }]];
+    const res = mockRes();
+
+    await communicationController.logCommunication(
+      { body: { type: 'sms', direction: 'outbound', body: 'Bonjour du body field' } },
+      res,
+    );
+
+    const insertChain = db.insert.mock.results[0].value;
+    expect(insertChain.values).toHaveBeenCalledWith(expect.objectContaining({
+      content: 'Bonjour du body field',
+    }));
+    expect(res.status).toHaveBeenCalledWith(201);
   });
 });
 
@@ -642,6 +661,26 @@ describe('updateCommunicationLog (controller import)', () => {
         expect.objectContaining({ _type: 'eq', val: true }),
       ]),
     }));
+  });
+
+  it('updates content from body when content is omitted', async () => {
+    mockDbResults = [[{ id: 'c1', type: 'email', direction: 'inbound', isActive: true }]];
+    const where = jest.fn().mockReturnValue({
+      returning: jest.fn().mockResolvedValue([{ id: 'c1', type: 'email', direction: 'inbound', isActive: true, content: 'Texte body mis a jour' }]),
+    });
+    const set = jest.fn().mockReturnValue({ where });
+    db.update.mockImplementationOnce(() => ({ set }));
+    const res = mockRes();
+
+    await communicationController.updateCommunicationLog(
+      { params: { id: 'c1' }, body: { body: 'Texte body mis a jour' } },
+      res,
+    );
+
+    expect(set).toHaveBeenCalledWith(expect.objectContaining({
+      content: 'Texte body mis a jour',
+    }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
   });
 
   it('returns 404 when the active-only update guard matches zero rows', async () => {

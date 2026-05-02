@@ -142,6 +142,15 @@ const sendVisitConfirmation = async (visitId) => {
       return { success: false, error: 'Missing related data for visit confirmation' };
     }
 
+    const now = new Date();
+    await db
+      .update(visitsTable)
+      .set({
+        employeeConfirmationRequestedAt: visit.employeeConfirmationRequestedAt || now,
+        updatedAt: now,
+      })
+      .where(eq(visitsTable.id, visitId));
+
     const message = `📍 Visite planifiée: ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''} avec ${lead.fullName}. Confirmez: 1=Oui, 2=Non`;
 
     const result = await sendSMS(employee.phone, message);
@@ -157,6 +166,15 @@ const sendVisitConfirmation = async (visitId) => {
       status: result.success ? 'sent' : 'failed',
       twilioStatus: result.status || null,
       errorMessage: result.error || null,
+    });
+
+    logger.info('[sms.service] visit confirmation SMS processed', {
+      visitId,
+      employeeId: employee.id,
+      leadId: lead.id,
+      success: result.success,
+      twilioSid: result.sid || null,
+      twilioStatus: result.status || null,
     });
 
     return result;
@@ -184,6 +202,15 @@ const sendTenantConfirmationRequest = async (visitId) => {
     }
 
     const lang = (lead.language === 'en') ? 'en' : 'fr';
+    const now = new Date();
+    await db
+      .update(visitsTable)
+      .set({
+        tenantConfirmationRequestedAt: visit.tenantConfirmationRequestedAt || now,
+        updatedAt: now,
+      })
+      .where(eq(visitsTable.id, visitId));
+
     const message = tenantMessages[lang].confirmationRequest(
       visit.dateTime,
       building.name,
@@ -202,6 +229,14 @@ const sendTenantConfirmationRequest = async (visitId) => {
       status: result.success ? 'sent' : 'failed',
       twilioStatus: result.status || null,
       errorMessage: result.error || null,
+    });
+
+    logger.info('[sms.service] tenant confirmation SMS processed', {
+      visitId,
+      leadId: lead.id,
+      success: result.success,
+      twilioSid: result.sid || null,
+      twilioStatus: result.status || null,
     });
 
     return result;
@@ -452,10 +487,14 @@ const sendMorningOfReminder = async (visitId) => {
 
     const result = await sendSMS(employee.phone, message);
 
-    // Mark morningOfSent on the visit
+    const now = new Date();
     await db
       .update(visitsTable)
-      .set({ morningOfSent: true, updatedAt: new Date() })
+      .set({
+        morningOfSent: true,
+        morningReminderSentAt: now,
+        updatedAt: now,
+      })
       .where(eq(visitsTable.id, visitId));
 
     await logSMS({
@@ -511,6 +550,15 @@ const sendPostVisitSurvey = async (visitId) => {
       status: result.success ? 'sent' : 'failed',
       twilioStatus: result.status || null,
       errorMessage: result.error || null,
+    });
+
+    logger.info('[sms.service] post-visit survey SMS processed', {
+      visitId,
+      employeeId: employee.id,
+      leadId: lead.id,
+      success: result.success,
+      twilioSid: result.sid || null,
+      twilioStatus: result.status || null,
     });
 
     return result;
@@ -747,10 +795,16 @@ const handleEmployeeReply = async (employeePhone, reply) => {
     switch (parsed.action) {
       case 'yes':
         if (visit.status === 'scheduled') {
-          // Employee confirmed visit → mark confirmed, send tenant confirmation
+          const now = new Date();
           await db
             .update(visitsTable)
-            .set({ status: 'confirmed', employeeConfirmed: true, updatedAt: new Date() })
+            .set({
+              status: 'confirmed',
+              employeeConfirmed: true,
+              employeeConfirmedAt: now,
+              employeeDeclinedAt: null,
+              updatedAt: now,
+            })
             .where(eq(visitsTable.id, visit.id));
 
           // Trigger tenant confirmation request
@@ -766,10 +820,17 @@ const handleEmployeeReply = async (employeePhone, reply) => {
 
       case 'no':
         if (visit.status === 'scheduled') {
-          // Employee declined visit → cancel
+          const now = new Date();
           await db
             .update(visitsTable)
-            .set({ status: 'cancelled', updatedAt: new Date() })
+            .set({
+              status: 'cancelled',
+              cancelledAt: now,
+              employeeConfirmed: false,
+              employeeDeclinedAt: now,
+              reasonCode: 'employee_declined',
+              updatedAt: now,
+            })
             .where(eq(visitsTable.id, visit.id));
           return { success: true, action: 'visit_cancelled', visitId: visit.id };
         }
@@ -786,6 +847,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
           .set({
             status: 'completed',
             outcome: 'interesse',
+            completedAt: new Date(),
             updatedAt: new Date(),
           })
           .where(eq(visitsTable.id, visit.id));
@@ -807,6 +869,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
           .set({
             status: 'completed',
             outcome: 'pas_interesse',
+            completedAt: new Date(),
             updatedAt: new Date(),
           })
           .where(eq(visitsTable.id, visit.id));
@@ -826,6 +889,7 @@ const handleEmployeeReply = async (employeePhone, reply) => {
           .set({
             status: 'no_show',
             outcome: 'no_show',
+            noShowAt: new Date(),
             updatedAt: new Date(),
           })
           .where(eq(visitsTable.id, visit.id));
@@ -841,9 +905,10 @@ const handleEmployeeReply = async (employeePhone, reply) => {
 
       case 'arrive':
         if (visit.status === 'confirmed') {
+          const now = new Date();
           await db
             .update(visitsTable)
-            .set({ status: 'in_progress', updatedAt: new Date() })
+            .set({ status: 'in_progress', updatedAt: now })
             .where(eq(visitsTable.id, visit.id));
 
           await sendLeadArrivalNotification(visit.id);
@@ -853,9 +918,10 @@ const handleEmployeeReply = async (employeePhone, reply) => {
 
       case 'termine':
         if (visit.status === 'in_progress' || visit.status === 'confirmed') {
+          const now = new Date();
           await db
             .update(visitsTable)
-            .set({ status: 'completed', updatedAt: new Date() })
+            .set({ status: 'completed', completedAt: now, updatedAt: now })
             .where(eq(visitsTable.id, visit.id));
 
           await sendLeadFeedbackRequest(visit.id);
@@ -963,10 +1029,16 @@ const handleTenantReply = async (leadPhone, reply) => {
     });
 
     const tenantConfirmed = parsed.action === 'yes';
+    const now = new Date();
 
     await db
       .update(visitsTable)
-      .set({ tenantConfirmed, updatedAt: new Date() })
+      .set({
+        tenantConfirmed,
+        tenantConfirmedAt: tenantConfirmed ? now : null,
+        tenantDeclinedAt: tenantConfirmed ? null : now,
+        updatedAt: now,
+      })
       .where(eq(visitsTable.id, visit.id));
 
     return {
@@ -1771,15 +1843,24 @@ const queueVisit24hReminder = async (visitId) => {
   const { visit, employee, lead, unit, building } = ctx;
   const message = `📍 Rappel: Visite demain ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''} avec ${lead ? lead.fullName : 'locataire'}. Confirmez votre présence.`;
 
+  const now = new Date();
   await db.insert(smsQueueTable).values({
     reminderType: 'visit_24h',
     visitId,
     phoneNumber: employee.phone,
     messageBody: message,
-    scheduledAt: new Date(),
+    scheduledAt: now,
     status: 'pending',
     maxRetries: 3,
   });
+
+  await db
+    .update(visitsTable)
+    .set({
+      reminder24hQueuedAt: visit.reminder24hQueuedAt || now,
+      updatedAt: now,
+    })
+    .where(eq(visitsTable.id, visitId));
 
   if (lead && lead.phone) {
     const leadMessage = `📍 Rappel: Votre visite est demain ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''}. Confirmez: 1=Oui, 2=Non`;
@@ -1789,7 +1870,7 @@ const queueVisit24hReminder = async (visitId) => {
       leadId: lead.id,
       phoneNumber: lead.phone,
       messageBody: leadMessage,
-      scheduledAt: new Date(),
+      scheduledAt: now,
       status: 'pending',
       maxRetries: 3,
     });
@@ -1807,15 +1888,24 @@ const queueVisit2hReminder = async (visitId) => {
   const { visit, employee, lead, unit, building } = ctx;
   const message = `⏰ Visite dans 2h! ${formatDateTime(visit.dateTime)} à ${building.name} ${unit ? unit.label : ''} avec ${lead ? lead.fullName : 'locataire'}. Départ imminent!`;
 
+  const now = new Date();
   await db.insert(smsQueueTable).values({
     reminderType: 'visit_2h',
     visitId,
     phoneNumber: employee.phone,
     messageBody: message,
-    scheduledAt: new Date(),
+    scheduledAt: now,
     status: 'pending',
     maxRetries: 3,
   });
+
+  await db
+    .update(visitsTable)
+    .set({
+      reminder2hQueuedAt: visit.reminder2hQueuedAt || now,
+      updatedAt: now,
+    })
+    .where(eq(visitsTable.id, visitId));
 
   return { success: true };
 };
@@ -2049,9 +2139,15 @@ const expireVisits = async () => {
 
     let expired = 0;
     for (const visit of visits) {
+      const now = new Date();
       await db
         .update(visitsTable)
-        .set({ status: 'cancelled', updatedAt: new Date() })
+        .set({
+          status: 'cancelled',
+          cancelledAt: now,
+          reasonCode: 'no_response',
+          updatedAt: now,
+        })
         .where(eq(visitsTable.id, visit.id));
 
       logger.info(`⏰ Visit ${visit.id} auto-cancelled: no confirmation after 24h`);

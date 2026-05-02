@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../models.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
+import '../services/communication_service.dart';
 import 'calendar_screen.dart';
 import 'dashboard_screen.dart';
 import 'pipeline_screen.dart';
@@ -13,6 +15,7 @@ import 'employees_screen.dart';
 import 'documents_screen.dart';
 import 'leases_screen.dart';
 import 'payments_screen.dart';
+import 'marketplace_inbox_screen.dart';
 import 'communications_screen.dart';
 import 'onboarding_screen.dart';
 import '../theme/app_colors.dart';
@@ -33,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _mainScreens = [
     _TabEntry(screen: _HomeTab(), label: 'Accueil'),
     _TabEntry(screen: DashboardScreen(), label: 'Tableau'),
-    _TabEntry(screen: CommunicationsScreen(), label: 'Messages'),
+    _TabEntry(screen: MarketplaceInboxScreen(), label: 'Messages'),
     _TabEntry(screen: CalendarScreen(), label: 'Calendrier'),
     _TabEntry(screen: _MoreScreen(), label: 'Plus'),
   ];
@@ -108,6 +111,13 @@ class _MoreScreen extends StatelessWidget {
                 ),
           ),
           _MoreTile(
+            icon: Icons.message_outlined,
+            label: 'Communications',
+            onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CommunicationsScreen()),
+                ),
+          ),
+          _MoreTile(
             icon: Icons.calendar_today_outlined,
             label: 'Visites',
             onTap: () => Navigator.of(context).push(
@@ -157,6 +167,16 @@ class _MoreScreen extends StatelessWidget {
                 ),
           ),
           _MoreTile(
+            icon: Icons.construction_outlined,
+            label: 'Rénovation Ops',
+            onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+          ),
+          _MoreTile(
+            icon: Icons.rate_review_outlined,
+            label: 'Revue des observations',
+            onTap: () => Navigator.of(context).pushNamed('/observations'),
+          ),
+          _MoreTile(
             icon: Icons.settings_outlined,
             label: 'Paramètres',
             onTap: () => Navigator.of(context).push(
@@ -192,6 +212,181 @@ class _MoreTile extends StatelessWidget {
   }
 }
 
+class _PrimaryFlowCard extends StatelessWidget {
+  const _PrimaryFlowCard({
+    required this.icon,
+    required this.accentColor,
+    required this.title,
+    required this.subtitle,
+    required this.actionLabel,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color accentColor;
+  final String title;
+  final String subtitle;
+  final String actionLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 260,
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              border: Border.all(color: accentColor.withValues(alpha: 0.15)),
+              boxShadow: [AppSpacing.elevationCard],
+              color: AppColors.surface,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: accentColor),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextButton.icon(
+                  onPressed: onTap,
+                  style: TextButton.styleFrom(
+                    foregroundColor: accentColor,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 36),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                  label: Text(actionLabel),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompanyAccessMissingState extends StatelessWidget {
+  const _CompanyAccessMissingState({
+    required this.userName,
+    required this.onRefresh,
+    required this.onLogout,
+  });
+
+  final String userName;
+  final Future<void> Function() onRefresh;
+  final Future<void> Function() onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.apartment_outlined,
+                      size: 42,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Accès à une compagnie requis',
+                    style: AppTypography.sectionHeader.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$userName a bien un compte, mais aucun accès à une compagnie n\'est encore configuré. Demandez à un administrateur de vous ajouter à une compagnie ou complétez la configuration initiale pour continuer.',
+                    style: AppTypography.body.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => onRefresh(),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Réessayer'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const OnboardingScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.play_circle_outline),
+                        label: const Text('Configuration initiale'),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => onLogout(),
+                        icon: const Icon(Icons.logout_rounded),
+                        label: const Text('Se déconnecter'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Extracted home tab content so it can live inside IndexedStack.
 class _HomeTab extends StatefulWidget {
   const _HomeTab();
@@ -203,6 +398,7 @@ class _HomeTab extends StatefulWidget {
 class _HomeTabState extends State<_HomeTab> {
   bool _isLoading = true;
   String? _errorMessage;
+  bool _missingCompanyAccess = false;
 
   // User profile
   String _userName = 'Utilisateur';
@@ -210,6 +406,10 @@ class _HomeTabState extends State<_HomeTab> {
 
   // Weekly summary
   Map<String, dynamic> _weeklySummary = {};
+
+  // Primary operator flow
+  List<CommunicationItem> _recentCommunications = [];
+  List<VisitItem> _upcomingVisits = [];
 
   // Activity feed
   List<_ActivityEntry> _activityFeed = [];
@@ -224,27 +424,51 @@ class _HomeTabState extends State<_HomeTab> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _missingCompanyAccess = false;
     });
     try {
+      final profileResult = await ApiService.instance.get('/auth/profile');
+      final profile = UserItem.fromJson(
+        (profileResult['data'] as Map<String, dynamic>?) ?? {},
+      );
+      final company = profile.company?.trim() ?? '';
+
+      if (company.isEmpty) {
+        setState(() {
+          _userName = profile.fullName;
+          _weeklySummary = {};
+          _recentCommunications = [];
+          _upcomingVisits = [];
+          _activityFeed = [];
+          _occupancyPct = '--';
+          _missingCompanyAccess = true;
+          _isLoading = false;
+        });
+        return;
+      }
+
+      List<CommunicationItem> communications = [];
+      try {
+        communications = await CommunicationService.instance.getCommunications(
+          limit: 5,
+        );
+      } catch (_) {
+        communications = [];
+      }
       final results = await Future.wait([
-        ApiService.instance.get('/auth/profile'),
         ApiService.instance.get('/analytics/weekly-summary'),
         ApiService.instance.get('/leads'),
         ApiService.instance.get('/visits'),
         ApiService.instance.get('/buildings'),
       ]);
 
-      // Parse user profile
-      final profile = UserItem.fromJson(
-        (results[0]['data'] as Map<String, dynamic>?) ?? {},
-      );
       _userName = profile.fullName;
 
       // Parse weekly summary
-      _weeklySummary = (results[1]['data'] as Map<String, dynamic>?) ?? {};
+      _weeklySummary = (results[0]['data'] as Map<String, dynamic>?) ?? {};
 
       // Parse buildings for occupancy
-      final buildingsData = results[4]['data'] as List<dynamic>;
+      final buildingsData = results[3]['data'] as List<dynamic>;
       int totalUnits = 0;
       int occupiedUnits = 0;
       for (final b in buildingsData) {
@@ -256,9 +480,25 @@ class _HomeTabState extends State<_HomeTab> {
           ? (occupiedUnits / totalUnits * 100).toStringAsFixed(1)
           : '0.0';
 
+      // Build inbox and visit flow snapshots.
+      final visitsData = results[2]['data'] as List<dynamic>;
+      final visits = visitsData
+          .map((visit) => VisitItem.fromJson(visit as Map<String, dynamic>))
+          .toList();
+      final now = DateTime.now();
+      final upcomingVisits = [...visits]
+        ..sort((a, b) {
+          final aTime = a.dateTime ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bTime = b.dateTime ?? DateTime.fromMillisecondsSinceEpoch(0);
+          return aTime.compareTo(bTime);
+        });
+      final futureVisits = upcomingVisits.where((visit) {
+        final dateTime = visit.dateTime;
+        return dateTime != null && !dateTime.isBefore(now);
+      }).take(3).toList();
+
       // Build activity feed from recent leads + visits
-      final leadsData = results[2]['data'] as List<dynamic>;
-      final visitsData = results[3]['data'] as List<dynamic>;
+      final leadsData = results[1]['data'] as List<dynamic>;
 
       final activities = <_ActivityEntry>[];
 
@@ -276,32 +516,63 @@ class _HomeTabState extends State<_HomeTab> {
 
       for (final v in visitsData) {
         final visit = v as Map<String, dynamic>;
+        final status = (visit['status'] as String? ?? '').toLowerCase();
         final createdAt = visit['createdAt'] as String?;
-        final status = visit['status'] as String? ?? '';
         final buildingName = visit['buildingName'] as String? ?? '';
         final unitLabel = visit['unitLabel'] as String? ?? '';
         final leadName = visit['leadName'] as String? ?? '';
+        final outcome = visit['outcome'] as String?;
+        final reasonCode = visit['reasonCode'] as String? ?? visit['failureReasonCode'] as String?;
+        final lifecycleTimestamp =
+            status == 'completed'
+                ? (visit['completedAt'] as String? ?? visit['updatedAt'] as String? ?? createdAt)
+                : status == 'cancelled'
+                    ? (visit['cancelledAt'] as String? ?? visit['updatedAt'] as String? ?? createdAt)
+                    : status == 'no_show'
+                        ? (visit['noShowAt'] as String? ?? visit['updatedAt'] as String? ?? createdAt)
+                        : status == 'scheduled' && visit['rescheduledAt'] != null
+                            ? (visit['rescheduledAt'] as String?)
+                            : (visit['updatedAt'] as String? ?? createdAt);
+        final isRescheduled = visit['rescheduledAt'] != null;
 
         String title;
-        if (status.toLowerCase() == 'completed') {
+        String detail = '$unitLabel${leadName.isNotEmpty ? ' · $leadName' : ''}';
+        if (status == 'completed') {
           title = 'Visite terminée: $buildingName';
-        } else if (status.toLowerCase() == 'confirmed') {
-          title = 'Visite confirmée: $buildingName';
-        } else if (status.toLowerCase() == 'cancelled') {
+          if (outcome != null && outcome.isNotEmpty) {
+            detail = '$detail · ${_visitOutcomeLabel(outcome)}';
+          }
+        } else if (status == 'cancelled') {
           title = 'Visite annulée: $buildingName';
+          if (reasonCode != null && reasonCode.isNotEmpty) {
+            detail = '$detail · ${_reasonCodeLabel(reasonCode)}';
+          }
+        } else if (status == 'no_show') {
+          title = 'Visite manquée: $buildingName';
+          if (reasonCode != null && reasonCode.isNotEmpty) {
+            detail = '$detail · ${_reasonCodeLabel(reasonCode)}';
+          }
+        } else if (isRescheduled) {
+          title = 'Visite reprogrammée: $buildingName';
+        } else if (status == 'confirmed') {
+          title = 'Visite confirmée: $buildingName';
         } else {
           title = 'Visite planifiée: $buildingName';
         }
 
         activities.add(_ActivityEntry(
           title: title,
-          detail: '$unitLabel${leadName.isNotEmpty ? ' · $leadName' : ''}',
-          createdAt: createdAt,
-          color: status.toLowerCase() == 'confirmed'
+          detail: detail,
+          createdAt: lifecycleTimestamp,
+          color: status == 'completed'
               ? AppColors.success
-              : status.toLowerCase() == 'cancelled'
+              : status == 'cancelled' || status == 'no_show'
                   ? AppColors.error
-                  : AppColors.skyBlue,
+                  : status == 'confirmed'
+                      ? AppColors.success
+                      : isRescheduled
+                          ? AppColors.info
+                          : AppColors.skyBlue,
           icon: Icons.calendar_today_outlined,
         ));
       }
@@ -315,6 +586,8 @@ class _HomeTabState extends State<_HomeTab> {
       });
 
       setState(() {
+        _recentCommunications = communications.take(3).toList();
+        _upcomingVisits = futureVisits;
         _activityFeed = activities.take(10).toList();
         _isLoading = false;
       });
@@ -339,6 +612,113 @@ class _HomeTabState extends State<_HomeTab> {
       return DateFormat('d MMM').format(dt);
     } catch (_) {
       return '';
+    }
+  }
+
+  Widget _buildPrimaryOperatorFlow() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Flux opérateur principal',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Commencez ici pour traiter les messages Marketplace et verrouiller les visites.',
+          style: TextStyle(
+            fontSize: 13,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            _PrimaryFlowCard(
+              icon: Icons.inbox_outlined,
+              accentColor: AppColors.primary,
+              title: 'Boîte de réception',
+              subtitle: _recentCommunications.isEmpty
+                  ? 'Messages Marketplace, SMS et appels regroupés au même endroit.'
+                  : '${_recentCommunications.first.contactName} · ${_shortPreview(_recentCommunications.first.body)}',
+              actionLabel: 'Ouvrir les messages',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const MarketplaceInboxScreen()),
+              ),
+            ),
+            _PrimaryFlowCard(
+              icon: Icons.calendar_month_outlined,
+              accentColor: AppColors.skyBlue,
+              title: 'Planifier une visite',
+              subtitle: _upcomingVisits.isEmpty
+                  ? 'Créez la prochaine visite dès qu’un lead est prêt.'
+                  : _nextVisitSummary(_upcomingVisits.first),
+              actionLabel: 'Voir les visites',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const VisitsScreen()),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _shortPreview(String text) {
+    final cleaned = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (cleaned.isEmpty) return 'Nouveau message';
+    if (cleaned.length <= 64) return cleaned;
+    return '${cleaned.substring(0, 61)}…';
+  }
+
+  String _nextVisitSummary(VisitItem visit) {
+    final dateTime = visit.dateTime;
+    final timeLabel = dateTime != null ? DateFormat('HH:mm', 'fr').format(dateTime) : visit.dateLabel;
+    final location = [visit.buildingName, visit.unitLabel]
+        .where((value) => value.trim().isNotEmpty)
+        .join(' · ');
+    return location.isEmpty
+        ? 'Prochaine visite à $timeLabel'
+        : 'Prochaine visite à $timeLabel · $location';
+  }
+
+  String _visitOutcomeLabel(String outcome) {
+    switch (outcome.toLowerCase()) {
+      case 'interesse':
+        return 'Intéressé';
+      case 'pas_interesse':
+        return 'Pas intéressé';
+      case 'no_show':
+        return 'Absent';
+      default:
+        return outcome;
+    }
+  }
+
+  String _reasonCodeLabel(String reasonCode) {
+    switch (reasonCode) {
+      case 'tenant_request':
+        return 'À la demande du locataire';
+      case 'tenant_conflict':
+        return 'Conflit d’horaire du locataire';
+      case 'host_unavailable':
+        return 'Hôte / employé indisponible';
+      case 'access_issue':
+        return 'Problème d’accès';
+      case 'weather':
+        return 'Météo';
+      case 'tenant_no_show':
+        return 'Locataire absent';
+      case 'other':
+        return 'Autre';
+      default:
+        return reasonCode;
     }
   }
 
@@ -373,6 +753,13 @@ class _HomeTabState extends State<_HomeTab> {
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+    if (_missingCompanyAccess) {
+      return _CompanyAccessMissingState(
+        userName: _userName,
+        onRefresh: _fetchHomeData,
+        onLogout: () => AuthNotifier.instance.logout(),
+      );
     }
     if (_errorMessage != null) {
       return Center(
@@ -473,6 +860,10 @@ class _HomeTabState extends State<_HomeTab> {
                 ),
               ],
             ),
+
+            const SizedBox(height: 24),
+
+            _buildPrimaryOperatorFlow(),
 
             const SizedBox(height: 24),
 

@@ -45,48 +45,38 @@ class PublicEntryScreen extends StatelessWidget {
                 children: [
                   _HeaderBar(onOpenApp: openApp),
                   const SizedBox(height: 28),
-                  Flex(
-                    direction: isWide ? Axis.horizontal : Axis.vertical,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: _HeroPanel(
+                  if (isWide)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: _HeroPanel(
+                            theme: theme,
+                            onOpenApp: openApp,
+                            onSignIn: openApp,
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        const Expanded(
+                          flex: 4,
+                          child: _FeatureColumn(),
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _HeroPanel(
                           theme: theme,
                           onOpenApp: openApp,
                           onSignIn: openApp,
                         ),
-                      ),
-                      SizedBox(width: isWide ? 24 : 0, height: isWide ? 0 : 24),
-                      Expanded(
-                        flex: 4,
-                        child: Column(
-                          children: const [
-                            _FeatureCard(
-                              icon: Icons.mark_chat_unread_outlined,
-                              title: 'Messages et suivi',
-                              description:
-                                  'Centralisez les demandes des locataires et les échanges liés aux visites.',
-                            ),
-                            SizedBox(height: 16),
-                            _FeatureCard(
-                              icon: Icons.event_available_outlined,
-                              title: 'Visites et coordination',
-                              description:
-                                  'Gardez les rendez-vous, les rappels et les confirmations au même endroit.',
-                            ),
-                            SizedBox(height: 16),
-                            _FeatureCard(
-                              icon: Icons.dashboard_outlined,
-                              title: 'Tableau de bord clair',
-                              description:
-                                  'Suivez les immeubles, les unités et les tâches prioritaires d’un coup d’œil.',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(height: 24),
+                        const _FeatureColumn(),
+                      ],
+                    ),
                   const SizedBox(height: 28),
                   _DemoRail(onOpenApp: openApp),
                 ],
@@ -130,7 +120,7 @@ class _HeaderBar extends StatelessWidget {
         ),
         TextButton(
           onPressed: onOpenApp,
-          child: const Text('Ouvrir l’application'),
+          child: const Text('Accès application'),
         ),
       ],
     );
@@ -275,6 +265,38 @@ class _MiniStat extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _FeatureColumn extends StatelessWidget {
+  const _FeatureColumn();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      children: [
+        _FeatureCard(
+          icon: Icons.mark_chat_unread_outlined,
+          title: 'Messages et suivi',
+          description:
+              'Centralisez les demandes des locataires et les échanges liés aux visites.',
+        ),
+        SizedBox(height: 16),
+        _FeatureCard(
+          icon: Icons.event_available_outlined,
+          title: 'Visites et coordination',
+          description:
+              'Gardez les rendez-vous, les rappels et les confirmations au même endroit.',
+        ),
+        SizedBox(height: 16),
+        _FeatureCard(
+          icon: Icons.dashboard_outlined,
+          title: 'Tableau de bord clair',
+          description:
+              'Suivez les immeubles, les unités et les tâches prioritaires d’un coup d’œil.',
+        ),
+      ],
     );
   }
 }

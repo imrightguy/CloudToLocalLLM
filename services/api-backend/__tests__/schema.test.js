@@ -16,6 +16,7 @@ const EXPECTED_TABLES = [
   'visitsTable',
   'smsLogsTable',
   'communicationLogsTable',
+  'communicationThreadsTable',
   'documentsTable',
   'documentsLeadsTable',
   'leasesTable',
@@ -24,9 +25,17 @@ const EXPECTED_TABLES = [
   'smsTemplatesTable',
   'smsCampaignsTable',
   'smsQueueTable',
+  'workerIntakeRecordsTable',
+  'unitReadinessTable',
+  'observationResultsTable',
   'paymentsTable',
   'renewalOffersTable',
   'smsOptOutsTable',
+  'renovationsTable',
+  'renovationTasksTable',
+  'renovationOrdersTable',
+  'renovationReceivingEventsTable',
+  'renovationSurplusItemsTable',
 ];
 
 // ── Helpers ──
@@ -46,7 +55,7 @@ function _getColumnNames(table) {
 
 // ── Schema Export Tests ──
 describe('schema exports', () => {
-  it('should export all 21 expected tables', () => {
+  it('should export all 29 expected tables', () => {
     EXPECTED_TABLES.forEach((tableName) => {
       expect(schema).toHaveProperty(tableName);
       expect(schema[tableName]).toBeDefined();
@@ -140,6 +149,103 @@ describe('unitsTable', () => {
 
   it('should have all expected columns', () => {
     cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('renovationsTable', () => {
+  const t = schema.renovationsTable;
+  const cols = [
+    'id', 'unitId', 'buildingId', 'title', 'status', 'readinessState',
+    'startDate', 'targetEndDate', 'notes', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default to planned renovation and not_started readiness', () => {
+    expect(t.status.hasDefault).toBe(true);
+    expect(t.readinessState.hasDefault).toBe(true);
+    expect(t.isActive.hasDefault).toBe(true);
+  });
+});
+
+describe('renovationTasksTable', () => {
+  const t = schema.renovationTasksTable;
+  const cols = [
+    'id', 'renovationRecordId', 'assigneeEmployeeId', 'title', 'description',
+    'status', 'dueDate', 'completedAt', 'notes', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('renovationOrdersTable', () => {
+  const t = schema.renovationOrdersTable;
+  const cols = [
+    'id', 'renovationRecordId', 'taskId', 'vendorName', 'itemName',
+    'quantityOrdered', 'quantityReceived', 'status', 'orderedAt', 'expectedAt',
+    'notes', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('renovationReceivingEventsTable', () => {
+  const t = schema.renovationReceivingEventsTable;
+  const cols = ['id', 'orderId', 'quantityReceived', 'receivedAt', 'notes', 'createdAt'];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('renovationSurplusItemsTable', () => {
+  const t = schema.renovationSurplusItemsTable;
+  const cols = [
+    'id', 'renovationRecordId', 'sourceOrderId', 'taskId', 'itemName',
+    'quantityAvailable', 'status', 'location', 'notes', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('workerIntakeRecordsTable', () => {
+  const t = schema.workerIntakeRecordsTable;
+  const cols = [
+    'id', 'renovationRecordId', 'taskId', 'orderId', 'sourcePhone', 'workerName',
+    'messageBody', 'messageKind', 'status', 'confidence', 'summary', 'rawPayload',
+    'photoCount', 'receivedAt', 'reviewedAt', 'resolvedAt', 'notes', 'isActive',
+    'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('unitReadinessTable', () => {
+  const t = schema.unitReadinessTable;
+  const cols = [
+    'id', 'unitId', 'currentRenovationRecordId', 'opsStatus', 'leasingStatus',
+    'blockingCount', 'blockingSummary', 'readyAt', 'handedOffAt', 'leasedAt',
+    'updatedAt', 'createdAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default to a not_started / not_ready projection', () => {
+    expect(t.opsStatus.hasDefault).toBe(true);
+    expect(t.leasingStatus.hasDefault).toBe(true);
+    expect(t.blockingCount.hasDefault).toBe(true);
   });
 });
 
@@ -346,6 +452,28 @@ describe('smsOptOutsTable', () => {
 
   it('should have all expected columns', () => {
     cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('observationResultsTable', () => {
+  const t = schema.observationResultsTable;
+  const cols = [
+    'id', 'companyId', 'projectId', 'domain', 'sourceKind', 'sourceRef',
+    'sourceFingerprint', 'title', 'summary', 'details', 'privacyClass',
+    'confidence', 'status', 'leadId', 'communicationLogId', 'visitId',
+    'followUpType', 'followUpDueAt', 'reviewedByUserId', 'reviewedAt',
+    'dismissedAt', 'dismissalReason', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default to company-scoped new results', () => {
+    expect(t.companyId.columnType).toBe('PgUUID');
+    expect(t.status.hasDefault).toBe(true);
+    expect(t.privacyClass.hasDefault).toBe(true);
+    expect(t.isActive.hasDefault).toBe(true);
   });
 });
 

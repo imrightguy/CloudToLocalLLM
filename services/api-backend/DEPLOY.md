@@ -7,6 +7,7 @@ Target: Hostinger VPS (31.97.140.7), Ubuntu 24.04, Docker with postgres.
 1. SSH access to the VPS (ask Simon for credentials)
 2. A Cloudflare account with the domain configured
 3. GitHub repo access (already at https://github.com/imrightguy/ImmoGestion.git)
+4. A GitHub PAT for GHCR pulls with `read:packages`, stored as the workflow secret `GHCR_TOKEN`
 
 ## Step 1: SSH Key Setup (first time only)
 
@@ -85,8 +86,13 @@ docker compose ps
 docker compose logs -f api    # Watch API logs
 docker compose logs -f postgres  # Watch DB logs
 
-# Test health:
+# Test local origin health (container-only):
 curl http://localhost:3000/health
+
+# Test public demo surfaces (Cloudflare + DNS + app boundary):
+curl https://api.immogestion.app/api/health
+curl https://immogestion.app/
+curl https://app.immogestion.app/
 ```
 
 ## Step 6: Run Migrations
@@ -106,22 +112,23 @@ docker compose exec api node -r dotenv/config scripts/seed.js
 1. Go to Zero Trust -> Networks -> Tunnels
 2. Create a new tunnel, name it "immogestion-api"
 3. Copy the tunnel token
-4. Add it to .env.production: CLOUDFLARE_TUNNEL_TOKEN=<token>
+4. Add it to `.env.production` as `CLOUDFLARE_TUNNEL_TOKEN=...` (do not leave it commented out)
 
 ### Configure Tunnel Route:
-- Public hostname: `api.immogestion.ca`
+- Public hostname: `api.immogestion.app`
 - Service: `http://api:3000` (uses Docker network)
 - Path: leave empty (all paths)
+- Public hostnames for the Flutter web surface must also be configured in Cloudflare so:
+  - `immogestion.app` serves the public landing page
+  - `app.immogestion.app` serves the login wall and authenticated app shell
 
-### In docker-compose.yml, uncomment the tunnel service:
+### In docker-compose.yml, keep the tunnel service enabled and make it depend only on the API:
 ```yaml
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: immogestion-tunnel
     restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required}
     networks:
       - internal
     depends_on:
@@ -133,10 +140,28 @@ docker compose exec api node -r dotenv/config scripts/seed.js
 docker compose up -d
 ```
 
+## Step 7b: Register webhook callback URLs
+
+These runtime hooks are required for the message + visit workflows to function end-to-end.
+
+### Meta / Facebook Messenger
+- Callback URL: `https://api.immogestion.app/api/webhooks/facebook`
+- Verify token: `FB_VERIFY_TOKEN`
+- Subscribe the app to the Messenger and Lead Ads events used by the backend (`messages`, `messaging_postbacks`, `messaging_optins`, `leadgen`)
+
+### Twilio SMS
+- Incoming message webhook: `https://api.immogestion.app/api/webhooks/sms/incoming`
+- Delivery status webhook: `https://api.immogestion.app/api/webhooks/sms/status`
+- Outbound confirmation links use `PUBLIC_URL` / `PAPERCLIP_PUBLIC_URL`, so keep those pointing at the public API host
+
+### Runtime assumption
+- The API process is the scheduler/worker for visit reminders, queue processing, and weekly digest jobs.
+- Run a single always-on API instance unless the cron tasks are refactored into a separate leader-elected worker.
+
 ## Step 8: DNS Configuration
 
-In Cloudflare DNS for immogestion.ca:
-- CNAME `api.immogestion.ca` -> tunnel UUID.cfargotunnel.com (auto-configured by tunnel)
+In Cloudflare DNS for immogestion.app:
+- CNAME `api.immogestion.app` -> tunnel UUID.cfargotunnel.com (auto-configured by tunnel)
 - The tunnel handles DNS automatically when created via dashboard
 
 ## Step 9: Verify Everything
@@ -145,8 +170,10 @@ In Cloudflare DNS for immogestion.ca:
 # Health check from VPS:
 curl http://localhost:3000/health
 
-# Health check via public URL (after tunnel):
-curl https://api.immogestion.ca/health
+# Public verification (browser-visible demo contract):
+curl https://api.immogestion.app/api/health
+curl https://immogestion.app/
+curl https://app.immogestion.app/
 
 # Check all containers:
 docker compose ps
@@ -154,6 +181,8 @@ docker compose ps
 # Check logs:
 docker compose logs --tail=50
 ```
+
+HTTP 200 from the origin or tunnel is not enough for demo readiness; confirm the public landing page and app login wall in a real browser before calling the deployment done.
 
 ## Step 10: SSL / Security
 
@@ -163,6 +192,33 @@ docker compose logs --tail=50
   - Rate limiting on API endpoints
   - Bot protection
   - WAF rules
+
+## Troubleshooting: Cloudflare 1033 / tunnel down
+
+If `https://api.immogestion.app/health` or `https://api.immogestion.app/api/health` returns a Cloudflare 1033 page, the public hostname is reachable but the tunnel has no active origin connection.
+
+Quick checks on the VPS:
+
+```bash
+cd /opt/immogestion/services/api-backend
+
+docker compose ps
+
+docker compose logs --tail=100 tunnel
+
+docker compose logs --tail=100 api
+
+curl http://localhost:3000/health
+curl http://localhost:3000/api/health
+```
+
+What to verify:
+- `api` is healthy on `http://api:3000` inside the Docker network
+- `tunnel` is running and connected with a valid `CLOUDFLARE_TUNNEL_TOKEN`
+- `api.immogestion.app` CNAME still points to the tunnel UUID
+- no firewall or VPS access issue is preventing the tunnel container from reaching Cloudflare
+
+If SSH/VPS access is unavailable, this cannot be repaired from the sandbox; restore host access first, ensure `CLOUDFLARE_TUNNEL_TOKEN` is present in `.env.production`, and then restart the tunnel container.
 
 ## Maintenance
 
@@ -304,13 +360,22 @@ docker compose logs -f flutter-web
 
 The Flutter web app is available at `http://localhost:8080` on the VPS.
 
-### Cloudflare Tunnel Route
+### Public Demo Entry Point
 
-Add a second public hostname in the Cloudflare Tunnel configuration:
-- Public hostname: `app.immogestion.ca`
-- Service: `http://flutter-web:80` (uses Docker network)
+The intended public demo entry point is `https://immogestion.app`.
+`https://app.immogestion.app` is the authenticated app surface and should show a login wall before app content.
 
-Uncomment the tunnel service in docker-compose.yml and add `flutter-web` to its `depends_on`.
+### Cloudflare Tunnel Route:
+
+Configure all public hostnames in the Cloudflare Tunnel dashboard:
+- Public hostname: `immogestion.app`
+  - Service: `http://flutter-web:80` (public landing)
+- Public hostname: `app.immogestion.app`
+  - Service: `http://flutter-web:80` (authenticated app surface)
+- Public hostname: `api.immogestion.app`
+  - Service: `http://api:3000` (uses Docker network)
+
+Note: the tunnel service is already defined in `docker-compose.yml` and depends only on the API service.
 
 ### Local Development Builds
 

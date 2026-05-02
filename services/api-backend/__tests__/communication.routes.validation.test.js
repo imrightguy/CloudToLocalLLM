@@ -1,6 +1,7 @@
 const validate = require('../src/middleware/validate');
-const { communicationSchemas } = require('../src/config/validation-schemas');
+const { communicationSchemas, marketplaceSchemas } = require('../src/config/validation-schemas');
 const communicationRouter = require('../src/routes/communication.routes');
+const marketplaceRouter = require('../src/routes/marketplace.routes');
 
 function mockReqRes(body = {}, query = {}, params = {}) {
   const res = {};
@@ -23,6 +24,13 @@ describe('Communication route validation contract', () => {
 
     expect(activityRoute).toBeDefined();
     expect(activityRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
+  });
+
+  it('protects GET /threads with validation middleware before the controller', () => {
+    const threadsRoute = communicationRouter.stack.find((layer) => layer.route?.path === '/threads' && layer.route.methods.get);
+
+    expect(threadsRoute).toBeDefined();
+    expect(threadsRoute.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
   });
 
   it('accepts marketplace communication list filters supported by the controller', () => {
@@ -86,6 +94,54 @@ describe('Communication route validation contract', () => {
       hoursAgo: 24,
       type: 'visit_scheduled,communication_logged',
     });
+  });
+
+  it('accepts conversation thread filters and includeMessages toggle', () => {
+    const { req, res, next } = mockReqRes({}, {
+      page: '3',
+      limit: '10',
+      leadId: '550e8400-e29b-41d4-a716-446655440010',
+      employeeId: '550e8400-e29b-41d4-a716-446655440011',
+      type: 'sms',
+      direction: 'outbound',
+      status: 'sent',
+      includeMessages: 'false',
+    });
+
+    validate(communicationSchemas.threads)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.query).toMatchObject({
+      page: 3,
+      limit: 10,
+      leadId: '550e8400-e29b-41d4-a716-446655440010',
+      employeeId: '550e8400-e29b-41d4-a716-446655440011',
+      type: 'sms',
+      direction: 'outbound',
+      status: 'sent',
+      includeMessages: false,
+    });
+  });
+
+  it('rejects invalid thread filters early', () => {
+    const { req, res, next } = mockReqRes({}, {
+      page: '0',
+      includeMessages: 'maybe',
+      type: 'whatsapp',
+    });
+
+    validate(communicationSchemas.threads)(req, res, next);
+
+    expect(res.status).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+    const [error] = next.mock.calls[0];
+    expect(error).toBeInstanceOf(Error);
+    expect(error.name).toBe('ValidationError');
+    expect(error.details.query).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'page' }),
+      expect.objectContaining({ field: 'type' }),
+      expect.objectContaining({ field: 'includeMessages' }),
+    ]));
   });
 
   it('rejects invalid activity feed filters early', () => {
@@ -170,5 +226,62 @@ describe('Communication route validation contract', () => {
     expect(error.details.body).toEqual(expect.arrayContaining([
       expect.objectContaining({ field: 'status' }),
     ]));
+  });
+
+  it('mounts dedicated marketplace routes with auth and validation middleware', () => {
+    const routeShapes = [
+      ['/inbox', 'get'],
+      ['/leads/:leadId/timeline', 'get'],
+      ['/leads/:leadId/messages', 'post'],
+      ['/leads/:leadId/visits', 'post'],
+    ];
+
+    for (const [path, method] of routeShapes) {
+      const route = marketplaceRouter.stack.find((layer) => layer.route?.path === path && layer.route.methods[method]);
+      expect(route).toBeDefined();
+      expect(route.route.stack.map((layer) => layer.name)).toEqual(['authenticateToken', '<anonymous>', '<anonymous>']);
+    }
+  });
+
+  it('accepts marketplace inbox filters used by Simon workflow triage', () => {
+    const { req, res, next } = mockReqRes({}, {
+      search: '3 1/2',
+      stage: 'visitePlanifiee',
+      assignedEmployeeId: '550e8400-e29b-41d4-a716-446655440001',
+      source: 'facebook',
+    });
+
+    validate(marketplaceSchemas.inbox)(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+    expect(req.query).toMatchObject({
+      search: '3 1/2',
+      stage: 'visitePlanifiee',
+      assignedEmployeeId: '550e8400-e29b-41d4-a716-446655440001',
+      source: 'facebook',
+    });
+  });
+
+  it('accepts marketplace lead message and visit payloads', () => {
+    const leadId = '550e8400-e29b-41d4-a716-446655440010';
+    const message = mockReqRes({
+      type: 'fb_messenger',
+      direction: 'inbound',
+      body: 'Bonjour, est-ce encore disponible?',
+    }, {}, { leadId });
+    const visit = mockReqRes({
+      unitId: '550e8400-e29b-41d4-a716-446655440011',
+      employeeId: '550e8400-e29b-41d4-a716-446655440012',
+      dateTime: '2026-05-01T18:00:00.000Z',
+      durationMinutes: 30,
+    }, {}, { leadId });
+
+    validate(marketplaceSchemas.leadMessage)(message.req, message.res, message.next);
+    validate(marketplaceSchemas.leadVisit)(visit.req, visit.res, visit.next);
+
+    expect(message.next).toHaveBeenCalledWith();
+    expect(visit.next).toHaveBeenCalledWith();
+    expect(message.req.params).toEqual({ leadId });
+    expect(visit.req.params).toEqual({ leadId });
   });
 });
