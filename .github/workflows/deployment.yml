@@ -36,7 +36,7 @@ jobs:
       any: ${{ steps.filter.outputs.backend == 'true' || steps.filter.outputs.flutter == 'true' || steps.filter.outputs.infra == 'true' || github.event.inputs.force_build == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
