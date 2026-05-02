@@ -1,20 +1,7 @@
-FROM ubuntu:22.04 AS builder
+FROM ghcr.io/cirruslabs/flutter:3.41.6 AS builder
 
-RUN for attempt in 1 2 3 4 5; do \
-      apt-get update && break; \
-      echo "apt-get update failed; retrying in $((attempt * 5))s"; \
-      sleep $((attempt * 5)); \
-    done \
-    && apt-get install -y --no-install-recommends \
-    ca-certificates curl git unzip xz-utils zip \
-    && update-ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /opt/flutter
-ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
-RUN flutter precache --web
-RUN flutter config --no-analytics
-RUN flutter config --enable-web
+ENV PATH="/sdks/flutter/bin:/sdks/flutter/bin/cache/dart-sdk/bin:${PATH}"
+RUN flutter config --no-analytics && flutter config --enable-web && flutter precache --web
 
 WORKDIR /app
 COPY pubspec.yaml pubspec.lock ./

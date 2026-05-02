@@ -21,7 +21,7 @@ concurrency:
 env:
   API_DIR: services/api-backend
   NODE_VERSION: '20'
-  FLUTTER_VERSION: '3.24.0'
+  FLUTTER_VERSION: '3.41.6'
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/immogestion
 
