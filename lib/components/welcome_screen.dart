@@ -48,7 +48,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               Text(
-                'Welcome back!',
+                'Runtime channel ready',
                 style: theme.textTheme.displayMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colors.textColor,
@@ -57,7 +57,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'What can I help you with today? I am your personal AI assistant, ready to explore local or cloud LLMs with you.',
+                'Talk to the selected agent runtime. Local model servers stay in support roles for memory, summaries, and background tasks.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: colors.textColorLight,
                 ),
@@ -69,22 +69,23 @@ class WelcomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _QuickAction(
-                    icon: Icons.lightbulb_outline,
-                    label: 'Explain Code',
-                    onTap: () => onAction('Explain how this code works: '),
+                    icon: Icons.route_outlined,
+                    label: 'Plan Task',
+                    onTap: () => onAction('Plan the next steps for '),
                   ),
                   const SizedBox(width: 16),
                   _QuickAction(
-                    icon: Icons.edit_note,
-                    label: 'Write Story',
-                    onTap: () => onAction('Write a short story about '),
+                    icon: Icons.desktop_windows_outlined,
+                    label: 'Desktop Action',
+                    onTap: () => onAction(
+                        'Request approval before using desktop control to '),
                   ),
                   const SizedBox(width: 16),
                   _QuickAction(
-                    icon: Icons.science_outlined,
-                    label: 'Research',
+                    icon: Icons.manage_search_outlined,
+                    label: 'Inspect Context',
                     onTap: () =>
-                        onAction('Research and summarize information about '),
+                        onAction('Inspect the current context and summarize '),
                   ),
                 ],
               ),

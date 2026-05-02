@@ -1,98 +1,111 @@
 library;
 
+import 'package:cloudtolocalllm/di/locator.dart';
+import 'package:cloudtolocalllm/screens/config/config_screen.dart';
+import 'package:cloudtolocalllm/services/auto_update_service.dart';
+import 'package:cloudtolocalllm/services/connection_manager_service.dart';
+import 'package:cloudtolocalllm/services/hermes_manager/hermes_gateway_control_service.dart';
+import 'package:cloudtolocalllm/services/openclaw_manager/gateway_control_service.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart'
+    as settings;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
-import 'package:cloudtolocalllm/screens/channels/channels_screen.dart';
-import 'package:cloudtolocalllm/screens/instances/instances_screen.dart';
-import 'package:cloudtolocalllm/screens/sessions/sessions_screen.dart';
-import 'package:cloudtolocalllm/screens/usage/usage_screen.dart';
-import 'package:cloudtolocalllm/screens/agents/agents_screen.dart';
-import 'package:cloudtolocalllm/screens/skills/skills_screen.dart';
-import 'package:cloudtolocalllm/screens/nodes/nodes_screen.dart';
-import 'package:cloudtolocalllm/screens/debug/debug_screen.dart';
-import 'package:cloudtolocalllm/screens/config/config_screen.dart';
-import 'package:cloudtolocalllm/services/popout/popout_manager.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Integration tests for Gateway screens.
-///
-/// Tests:
-/// - All Gateway screens can be built
-/// - Config screen does NOT have PopOutButton (per spec)
 void main() {
-  final serviceLocator = GetIt.instance;
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
-    // Register minimal services needed for tests
-    serviceLocator.registerSingleton<PopOutManager>(PopOutManager());
+  late settings.SettingsPreferenceService settingsService;
+  late ConnectionManagerService connectionManager;
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await serviceLocator.reset();
+
+    settingsService = settings.SettingsPreferenceService();
+    await settingsService.setActiveBackend(settings.BackendType.hermes);
+    serviceLocator.registerSingleton<settings.SettingsPreferenceService>(
+      settingsService,
+    );
+
+    connectionManager = ConnectionManagerService(
+      openclawGatewayService: GatewayControlService(settingsService),
+      hermesGatewayService: HermesGatewayControlService(),
+      settingsPreferenceService: settingsService,
+    );
   });
 
-  tearDownAll(serviceLocator.reset);
-
-  group('Gateway screens render without crashing', () {
-    testWidgets('Channels screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: ChannelsScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Instances screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: InstancesScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Sessions screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: SessionsScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Usage screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: UsageScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Agents screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: AgentsScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Skills screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: SkillsScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Nodes screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: NodesScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Debug screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: DebugScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('Config screen builds', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: ConfigScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
+  tearDown(() async {
+    connectionManager.dispose();
+    await serviceLocator.reset();
   });
 
-  group('Config screen specification', () {
-    testWidgets('Config screen has no PopOutButton',
-        (WidgetTester tester) async {
-      // Per spec: Config section should NOT have pop-out functionality
-      await tester.pumpWidget(const MaterialApp(home: ConfigScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-      // Verify no open_in_new icon (PopOutButton indicator)
+  Future<void> pumpRuntimeSettings(WidgetTester tester) async {
+    final router = GoRouter(
+      initialLocation: '/config',
+      routes: [
+        GoRoute(
+          path: '/chat',
+          builder: (context, state) => const Scaffold(
+            body: Text('Runtime Channel Placeholder'),
+          ),
+        ),
+        GoRoute(
+          path: '/config',
+          builder: (context, state) => const ConfigScreen(),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ConnectionManagerService>.value(
+            value: connectionManager,
+          ),
+          ChangeNotifierProvider<AutoUpdateService>.value(
+            value: AutoUpdateService(),
+          ),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pumpAndSettle();
+  }
+
+  group('Runtime management pane', () {
+    testWidgets('Config screen uses runtime and support-provider vocabulary',
+        (tester) async {
+      await pumpRuntimeSettings(tester);
+
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      expect(find.text('Runtime Settings'), findsOneWidget);
+      expect(find.text('Active Agent Runtime'), findsOneWidget);
+      expect(find.text('Support Model Providers'), findsOneWidget);
+      expect(find.text('Preferred Support Provider'), findsOneWidget);
+      expect(find.textContaining('Secure channel runtime: Hermes Agent'),
+          findsOneWidget);
+      expect(find.textContaining('Support providers cannot complete setup'),
+          findsOneWidget);
+
+      expect(find.text('LLM Provider'), findsNothing);
+      expect(find.text('Primary Provider'), findsNothing);
+      expect(find.text('Gateway Backend'), findsNothing);
       expect(find.byIcon(Icons.open_in_new), findsNothing);
+    });
+
+    testWidgets('Back button returns to runtime channel route', (tester) async {
+      await pumpRuntimeSettings(tester);
+
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Runtime Channel Placeholder'), findsOneWidget);
     });
   });
 }

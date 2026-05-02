@@ -824,6 +824,10 @@ class _HermesSettingsCardState extends State<_HermesSettingsCard> {
     try {
       final connectionManager = di.serviceLocator<ConnectionManagerService>();
       if (_hermesEnabled) {
+        connectionManager.configureHermesRuntime(
+          url: _url,
+          apiKey: _apiKey,
+        );
         connectionManager.setPreferredConnectionType(ConnectionType.hermes);
       } else {
         connectionManager.setPreferredConnectionType(ConnectionType.local);

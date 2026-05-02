@@ -49,7 +49,7 @@ class _CompletionStepState extends State<CompletionStep> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'OpenClaw Gateway is configured and ready to use.',
+                  'Your agent runtime is configured and ready to use.',
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -88,7 +88,7 @@ class _CompletionStepState extends State<CompletionStep> {
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                       const SizedBox(height: 12),
-                      _buildConfigRow('Provider', provider.name),
+                      _buildConfigRow('Runtime', provider.name),
                       _buildConfigRow(
                           'Type', _getProviderTypeLabel(provider.type)),
                       _buildConfigRow('URL', provider.url),

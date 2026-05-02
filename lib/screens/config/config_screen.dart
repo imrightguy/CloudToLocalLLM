@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../../widgets/common/card_section.dart';
@@ -12,6 +13,7 @@ import '../../widgets/common/error_state.dart';
 import '../../widgets/common/loading_skeleton.dart';
 import '../../widgets/common/refreshable_screen.dart';
 import '../../services/auto_update_service.dart';
+import '../../services/connection_manager_service.dart' as runtime;
 import '../../services/settings_preference_service.dart';
 import '../../di/locator.dart';
 
@@ -31,12 +33,11 @@ class _ConfigScreenState extends State<ConfigScreen>
   bool _isSaving = false;
   String? _errorMessage;
 
-  // Gateway Settings
-  String _selectedProvider = 'OpenClaw Gateway';
-  String _selectedModelTier = 'Critical';
+  // Runtime Settings
+  String _selectedSupportProvider = 'Auto';
   int _rateLimit = 1;
   bool _autoRestart = true;
-  int _gatewayTimeout = 30;
+  int _runtimeTimeout = 30;
 
   // Network Settings
   bool _useProxy = false;
@@ -111,6 +112,28 @@ class _ConfigScreenState extends State<ConfigScreen>
     if (mounted) setState(() => _activeBackend = backend);
   }
 
+  Future<void> _applyRuntimeSelection(BackendType? backend) async {
+    final connectionManager = context.read<runtime.ConnectionManagerService>();
+    switch (backend) {
+      case BackendType.hermes:
+        connectionManager.switchBackend(runtime.BackendType.hermes);
+        await connectionManager.testConnection();
+      case BackendType.openclaw:
+        connectionManager.switchBackend(runtime.BackendType.openclaw);
+        await connectionManager.testConnection();
+      case null:
+        connectionManager.clearActiveRuntime();
+    }
+  }
+
+  String _runtimeLabel(BackendType? backend) {
+    return switch (backend) {
+      BackendType.hermes => 'Hermes Agent',
+      BackendType.openclaw => 'OpenClaw Gateway',
+      null => 'None',
+    };
+  }
+
   String? _getHomeDirectory() {
     if (kIsWeb) {
       return null;
@@ -167,7 +190,12 @@ class _ConfigScreenState extends State<ConfigScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Config'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/chat'),
+          tooltip: 'Back to runtime channel',
+        ),
+        title: const Text('Runtime Settings'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -190,8 +218,8 @@ class _ConfigScreenState extends State<ConfigScreen>
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(text: 'Gateway', icon: Icon(Icons.hub)),
-            Tab(text: 'Network', icon: Icon(Icons.wifi)),
+            Tab(text: 'Runtime', icon: Icon(Icons.hub)),
+            Tab(text: 'Mesh', icon: Icon(Icons.wifi)),
             Tab(text: 'App', icon: Icon(Icons.smartphone)),
             Tab(text: 'Storage', icon: Icon(Icons.storage)),
             Tab(text: 'System', icon: Icon(Icons.info)),
@@ -223,28 +251,27 @@ class _ConfigScreenState extends State<ConfigScreen>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Active Backend Selector
         CardSection(
-          title: 'Active Backend',
+          title: 'Active Agent Runtime',
           subtitle: _activeBackend != null
-              ? 'Currently using: ${_activeBackend!.name}'
-              : 'No backend selected — choose one below',
+              ? 'Secure channel runtime: ${_runtimeLabel(_activeBackend)}'
+              : 'No runtime selected - choose one below',
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: DropdownButtonFormField<BackendType?>(
                 initialValue: _activeBackend,
                 decoration: InputDecoration(
-                  labelText: 'Gateway Backend',
+                  labelText: 'Agent Runtime',
                   border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 16),
-                  helperText: 'Select which gateway backend to use for AI requests',
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  helperText: 'Select the runtime used by the secure channel',
                 ),
                 items: const [
                   DropdownMenuItem(
                     value: null,
-                    child: Text('None (no backend)'),
+                    child: Text('None'),
                   ),
                   DropdownMenuItem(
                     value: BackendType.openclaw,
@@ -258,11 +285,12 @@ class _ConfigScreenState extends State<ConfigScreen>
                 onChanged: (value) async {
                   setState(() => _activeBackend = value);
                   await _settingsService.setActiveBackend(value);
+                  await _applyRuntimeSelection(value);
                   if (mounted) {
                     _showSnackBar(
                       value != null
-                          ? 'Active backend set to ${value.name}'
-                          : 'Backend cleared — no active gateway',
+                          ? 'Active runtime set to ${_runtimeLabel(value)}'
+                          : 'Runtime cleared',
                       isError: false,
                     );
                   }
@@ -273,33 +301,37 @@ class _ConfigScreenState extends State<ConfigScreen>
         ),
         const SizedBox(height: 16),
         CardSection(
-          title: 'LLM Provider',
+          title: 'Support Model Providers',
+          subtitle:
+              'Optional helpers for memory, summaries, OCR cleanup, and background tasks',
           children: [
             _dropdown(
-                'Primary Provider',
-                ['OpenClaw Gateway', 'LM Studio', 'Ollama', 'Custom API'],
-                _selectedProvider,
-                (v) => setState(() => _selectedProvider = v!)),
-            _dropdown(
-                'Model Tier',
-                ['Critical', 'High', 'Medium', 'Unlimited'],
-                _selectedModelTier,
-                (v) => setState(() => _selectedModelTier = v!)),
+              'Preferred Support Provider',
+              ['Auto', 'Ollama', 'LM Studio', 'OpenAI-compatible'],
+              _selectedSupportProvider,
+              (v) => setState(() => _selectedSupportProvider = v!),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Text(
+                'Support providers cannot complete setup or receive desktop-control authority unless wrapped by an agent runtime.',
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
         CardSection(
-          title: 'Request Limits',
+          title: 'Runtime Request Policy',
           children: [
             _field('Concurrent Requests', '$_rateLimit', (v) {
               final l = int.tryParse(v);
               if (l != null && l > 0) setState(() => _rateLimit = l);
-            }, numeric: true, hint: 'Max concurrent API requests'),
-            _field('Gateway Timeout (sec)', '$_gatewayTimeout', (v) {
+            }, numeric: true, hint: 'Max concurrent runtime requests'),
+            _field('Runtime Timeout (sec)', '$_runtimeTimeout', (v) {
               final l = int.tryParse(v);
-              if (l != null && l > 0) setState(() => _gatewayTimeout = l);
+              if (l != null && l > 0) setState(() => _runtimeTimeout = l);
             }, numeric: true),
-            _switch('Auto-restart Gateway on Failure', _autoRestart,
+            _switch('Auto-restart Runtime on Failure', _autoRestart,
                 (v) => setState(() => _autoRestart = v)),
           ],
         ),

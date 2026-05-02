@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../config/theme.dart';
-import '../../di/locator.dart' as di;
 import '../../models/chat_model.dart';
 import '../../services/streaming_chat_service.dart';
 import '../../services/platform_detection_service.dart';
@@ -14,13 +13,8 @@ import '../../components/message_input.dart' as msg_input;
 import '../../components/app_logo.dart';
 import '../../components/tunnel_status_button.dart';
 import '../../components/web_download_prompt.dart';
-import '../../widgets/chat/model_selector.dart';
-import '../../widgets/chat/chat_control_bar.dart';
-import '../../widgets/voice/open_voice_ui_control_panel.dart';
-import '../../widgets/voice/voice_conversation_status_card.dart';
 import '../../services/web_download_prompt_service.dart';
 import '../../services/connection_manager_service.dart';
-import '../../services/voice/voice_conversation_service.dart';
 
 import '../../components/glass_container.dart';
 import '../../components/welcome_screen.dart';
@@ -180,22 +174,22 @@ class _ChatPane extends StatefulWidget {
 }
 
 class _ChatPaneState extends State<_ChatPane> {
-  bool _showThinking = true;
-  bool _focusMode = false;
-  bool _showCronSessions = true;
-  String _currentSession = 'main';
+  final bool _focusMode = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchProviderConfig();
+      _loadData();
       _ensureChannelExists();
     });
   }
 
   Future<void> _loadData() async {
     await _fetchProviderConfig();
+    if (!mounted) return;
+    final connectionManager = context.read<ConnectionManagerService>();
+    await connectionManager.testConnection();
   }
 
   void _ensureChannelExists() {
@@ -214,57 +208,20 @@ class _ChatPaneState extends State<_ChatPane> {
     }
   }
 
-  Future<void> _onModelChanged(String? model) async {
-    if (model == null) return;
-
-    try {
-      final chatService = context.read<StreamingChatService>();
-      final connectionManager = context.read<ConnectionManagerService>();
-
-      // Update both services
-      chatService.setSelectedModel(model);
-
-      // Set active provider in OpenClaw Gateway
-      final success = await connectionManager.setActiveProvider(model);
-      if (!success) {
-        debugPrint('[HomeLayout] Failed to set active provider in backend');
-      }
-    } catch (e) {
-      debugPrint('[HomeLayout] Error changing model: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer2<StreamingChatService, ConnectionManagerService>(
       builder: (context, chatService, connectionManager, child) {
         final conversation = chatService.currentConversation;
         final spacing = AppTheme.spacingOf(context);
-        final availableModels = connectionManager.availableModels;
-        final activeModel = connectionManager.activeProviderModelId ??
-            chatService.selectedModel ??
-            (availableModels.isNotEmpty ? availableModels.first : null);
-        final isConnected = connectionManager.isConnected;
 
         final chatContent = Column(
           children: [
             if (!_focusMode)
-              _ChatHeader(
-                selectedModel: activeModel,
-                availableModels: availableModels,
-                onModelChanged: _onModelChanged,
-              ),
-            if (!_focusMode &&
-                di.serviceLocator.isRegistered<VoiceConversationService>())
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Column(
-                  children: [
-                    VoiceConversationStatusCard(showDemoControls: false),
-                    SizedBox(height: 12),
-                    OpenVoiceUIControlPanel(),
-                  ],
-                ),
+              _RuntimeChannelHeader(
+                connectionManager: connectionManager,
+                onRefresh: _loadData,
+                onConfigure: () => context.go('/config'),
               ),
             Expanded(
               child: conversation != null && conversation.messages.isNotEmpty
@@ -290,7 +247,7 @@ class _ChatPaneState extends State<_ChatPane> {
                 onSendMessage: (message) =>
                     widget.onSendMessage(chatService, message),
                 isLoading: chatService.isLoading,
-                placeholder: 'Message AI...',
+                placeholder: 'Message the active runtime...',
               ),
             ),
           ],
@@ -300,23 +257,6 @@ class _ChatPaneState extends State<_ChatPane> {
           color: Colors.transparent,
           child: Column(
             children: [
-              if (!_focusMode)
-                ChatControlBar(
-                  currentSession: _currentSession,
-                  isConnected: isConnected,
-                  onSessionChanged: (session) =>
-                      setState(() => _currentSession = session),
-                  onRefresh: _loadData,
-                  onThinkingToggle: (value) =>
-                      setState(() => _showThinking = value),
-                  onFocusModeToggle: (value) =>
-                      setState(() => _focusMode = value),
-                  onCronSessionsToggle: (value) =>
-                      setState(() => _showCronSessions = value),
-                  showThinking: _showThinking,
-                  focusMode: _focusMode,
-                  showCronSessions: _showCronSessions,
-                ),
               Expanded(child: chatContent),
             ],
           ),
@@ -326,34 +266,179 @@ class _ChatPaneState extends State<_ChatPane> {
   }
 }
 
-class _ChatHeader extends StatelessWidget {
-  final String? selectedModel;
-  final List<String> availableModels;
-  final Function(String?) onModelChanged;
-
-  const _ChatHeader({
-    required this.selectedModel,
-    required this.availableModels,
-    required this.onModelChanged,
+class _RuntimeChannelHeader extends StatelessWidget {
+  const _RuntimeChannelHeader({
+    required this.connectionManager,
+    required this.onRefresh,
+    required this.onConfigure,
   });
+
+  final ConnectionManagerService connectionManager;
+  final VoidCallback onRefresh;
+  final VoidCallback onConfigure;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final status = connectionManager.getGatewayStatus();
+    final runtimeLabel = status['backendLabel']?.toString() ??
+        _backendLabel(connectionManager.currentBackend);
+    final identity = connectionManager.activeRuntimeClient?.identity;
+    final capabilityManifest = connectionManager.activeRuntimeCapabilities;
+    final runtimeUrl = identity?.baseUrl;
+    final models = _runtimeModelCount(connectionManager);
+    final connected = connectionManager.isConnected;
+    final statusLabel = connectionManager.currentBackend == null
+        ? 'Setup needed'
+        : connected
+            ? 'Connected'
+            : 'Offline';
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
+            color: theme.dividerColor,
             width: 1,
           ),
         ),
       ),
-      child: ModelSelector(
-        selectedModel: selectedModel,
-        availableModels: availableModels,
-        onModelChanged: onModelChanged,
+      child: Row(
+        children: [
+          Icon(
+            Icons.hub_outlined,
+            color:
+                connected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Secure Runtime Channel',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  runtimeUrl == null
+                      ? runtimeLabel
+                      : '$runtimeLabel - $runtimeUrl',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _StatusChip(
+                  icon: connected ? Icons.check_circle : Icons.error_outline,
+                  label: statusLabel,
+                  color: connected ? Colors.green : colorScheme.error,
+                ),
+                _StatusChip(
+                  icon: Icons.desktop_windows_outlined,
+                  label: capabilityManifest?.desktopActionRequests == true
+                      ? 'Desktop approved'
+                      : 'Desktop gated',
+                  color: colorScheme.secondary,
+                ),
+                _StatusChip(
+                  icon: Icons.memory_outlined,
+                  label: models == 1
+                      ? '1 runtime model'
+                      : '$models runtime models',
+                  color: colorScheme.tertiary,
+                ),
+                IconButton(
+                  tooltip: 'Refresh runtime',
+                  onPressed: onRefresh,
+                  icon: const Icon(Icons.refresh),
+                ),
+                OutlinedButton.icon(
+                  onPressed: onConfigure,
+                  icon: const Icon(Icons.tune, size: 16),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _backendLabel(BackendType? backend) {
+    return switch (backend) {
+      BackendType.hermes => 'Hermes Agent',
+      BackendType.openclaw => 'OpenClaw Gateway',
+      null => 'No agent runtime selected',
+    };
+  }
+
+  static int _runtimeModelCount(ConnectionManagerService connectionManager) {
+    final capabilityModels =
+        connectionManager.activeRuntimeCapabilities?.models.length ?? 0;
+    final configuredModels = connectionManager.availableModels.length;
+    return capabilityModels > configuredModels
+        ? capabilityModels
+        : configuredModels;
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

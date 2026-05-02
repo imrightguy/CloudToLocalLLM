@@ -406,6 +406,7 @@ Future<void> setupCoreServices() async {
       serviceLocator.get<ProviderDiscoveryService>(),
       setupStatusService,
       providerConfigurationManager,
+      settings: settingsPreferenceService,
     );
     serviceLocator.registerSingleton<SetupWizardService>(setupWizardService);
 
@@ -667,22 +668,32 @@ Future<void> setupAuthenticatedServices() async {
           '[ServiceLocator] Skipping provider discovery (force setup wizard mode)');
     }
 
-    // Tunnel configuration manager - requires SharedPreferences
-    debugPrint('[ServiceLocator] Initializing TunnelConfigManager...');
-    final tunnelConfigManager = TunnelConfigManager();
-    await tunnelConfigManager.initialize();
-    serviceLocator.registerSingleton<TunnelConfigManager>(tunnelConfigManager);
+    if (AppConfig.enableLegacyTunnelServices) {
+      // Legacy tunnel configuration manager - disabled in the default runtime
+      // path while Tailscale-first connectivity replaces it.
+      debugPrint('[ServiceLocator] Initializing legacy TunnelConfigManager...');
+      final tunnelConfigManager = TunnelConfigManager();
+      await tunnelConfigManager.initialize();
+      serviceLocator
+          .registerSingleton<TunnelConfigManager>(tunnelConfigManager);
 
-    // Tunnel service - requires authentication token
-    final tunnelService = TunnelService(authService: authService);
-    serviceLocator.registerSingleton<TunnelService>(tunnelService);
+      // Legacy tunnel service - requires authentication token
+      final tunnelService = TunnelService(authService: authService);
+      serviceLocator.registerSingleton<TunnelService>(tunnelService);
+    } else {
+      debugPrint('[ServiceLocator] Legacy tunnel services disabled');
+    }
 
-    // Streaming proxy service - requires authentication token
-    final streamingProxyService =
-        StreamingProxyService(authService: authService);
-    serviceLocator.registerSingleton<StreamingProxyService>(
-      streamingProxyService,
-    );
+    if (AppConfig.enableLegacyStreamingProxyServices) {
+      // Legacy streaming proxy service - requires authentication token
+      final streamingProxyService =
+          StreamingProxyService(authService: authService);
+      serviceLocator.registerSingleton<StreamingProxyService>(
+        streamingProxyService,
+      );
+    } else {
+      debugPrint('[ServiceLocator] Legacy streaming proxy service disabled');
+    }
 
     // User container service - requires authentication token
     final userContainerService = UserContainerService(authService: authService);
@@ -727,12 +738,14 @@ Future<void> setupAuthenticatedServices() async {
     final connectionManager = ConnectionManagerService(
       openclawGatewayService: gatewayControlService,
       hermesGatewayService: hermesGatewayControlService,
+      settingsPreferenceService:
+          serviceLocator.get<SettingsPreferenceService>(),
     );
     try {
       await connectionManager.initialize().timeout(const Duration(seconds: 10));
       final providerConfigurations = await serviceLocator
           .get<ProviderConfigurationManager>()
-          .getAllProviders();
+          .getAllAgentRuntimes();
       final discoveredModels = <String>[];
       for (final providerConfiguration in providerConfigurations) {
         final models = providerConfiguration.customSettings['models'];
@@ -743,7 +756,7 @@ Future<void> setupAuthenticatedServices() async {
       if (discoveredModels.isNotEmpty) {
         connectionManager.setAvailableModels(discoveredModels);
         debugPrint(
-            '[ServiceLocator] ✓ Loaded ${discoveredModels.length} discovered models into ConnectionManagerService');
+            '[ServiceLocator] ✓ Loaded ${discoveredModels.length} runtime models into ConnectionManagerService');
       }
     } catch (e) {
       debugPrint(
@@ -928,6 +941,12 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
               baseUrl: providerInfo.baseUrl,
               port: providerInfo.port,
               timeout: const Duration(seconds: 90),
+              customSettings: {
+                'auto_configured': true,
+                'discovered_at': DateTime.now().toIso8601String(),
+                'role': ProviderRole.agentRuntime.name,
+                'type': providerInfo.type.name,
+              },
             );
             break;
 
@@ -940,6 +959,8 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
               customSettings: {
                 'auto_configured': true,
                 'discovered_at': DateTime.now().toIso8601String(),
+                'role': ProviderRole.agentRuntime.name,
+                'type': providerInfo.type.name,
                 'models': providerInfo.availableModels,
               },
             );
@@ -956,6 +977,8 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
               customSettings: {
                 'auto_configured': true,
                 'discovered_at': DateTime.now().toIso8601String(),
+                'role': ProviderRole.supportModelProvider.name,
+                'type': providerInfo.type.name,
                 'version': providerInfo.version,
                 'models': providerInfo.availableModels,
               },
@@ -972,6 +995,8 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
               customSettings: {
                 'auto_configured': true,
                 'discovered_at': DateTime.now().toIso8601String(),
+                'role': ProviderRole.supportModelProvider.name,
+                'type': providerInfo.type.name,
                 'models': providerInfo.availableModels,
               },
             );
@@ -988,6 +1013,8 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
               customSettings: {
                 'auto_configured': true,
                 'discovered_at': DateTime.now().toIso8601String(),
+                'role': ProviderRole.supportModelProvider.name,
+                'type': providerInfo.type.name,
                 'models': providerInfo.availableModels,
               },
             );
@@ -1004,12 +1031,8 @@ Future<void> _initializeProviderDiscoveryAndAutoConfig(
         debugPrint(
             '[ServiceLocator] ✓ Auto-configured ${providerInfo.name} as $providerId');
 
-        // Set Ollama as default provider if found and no preferred provider is set
-        if (providerInfo.type == ProviderType.ollama &&
-            configManager.preferredProviderId == null) {
-          await configManager.setPreferredProvider(providerId);
-          debugPrint('[ServiceLocator] ✓ Set Ollama as default provider');
-        }
+        // Support model providers are intentionally not selected as the main
+        // runtime. The setup wizard or explicit settings choose the runtime.
       } catch (e) {
         debugPrint(
             '[ServiceLocator] Failed to auto-configure ${providerInfo.name}: $e');

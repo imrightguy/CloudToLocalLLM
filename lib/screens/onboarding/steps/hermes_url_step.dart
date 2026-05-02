@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:logging/logging.dart';
+import 'package:cloudtolocalllm/config/app_config.dart';
+import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 
 final Logger _log = Logger('HermesUrlStep');
 
@@ -24,8 +27,13 @@ class _HermesUrlStepState extends State<HermesUrlStep> {
   @override
   void initState() {
     super.initState();
-    _urlController.text = widget.hermesUrl ?? '';
+    _urlController.text = widget.hermesUrl ?? AppConfig.defaultHermesUrl;
     _apiKeyController.text = widget.hermesApiKey ?? '';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<SetupWizardService>().setHermesUrl(_urlController.text);
+      }
+    });
   }
 
   @override
@@ -41,10 +49,13 @@ class _HermesUrlStepState extends State<HermesUrlStep> {
       children: [
         TextField(
           controller: _urlController,
-          decoration: const InputDecoration(
-            labelText: 'Hermes Gateway URL',
-            hintText: 'ws://localhost:1337',
+          decoration: InputDecoration(
+            labelText: 'Hermes Agent URL',
+            hintText: AppConfig.defaultHermesUrl,
           ),
+          onChanged: (value) {
+            context.read<SetupWizardService>().setHermesUrl(value);
+          },
         ),
         const SizedBox(height: 16),
         TextField(
@@ -62,14 +73,15 @@ class _HermesUrlStepState extends State<HermesUrlStep> {
               child: ElevatedButton(
                 onPressed: _urlController.text.isNotEmpty
                     ? () {
-                        // Save Hermes configuration
+                        context
+                            .read<SetupWizardService>()
+                            .setHermesUrl(_urlController.text);
                         final hermesConfig = {
                           'hermesUrl': _urlController.text,
                           'hermesApiKey': _apiKeyController.text,
                         };
                         _log.info('Hermes config: $hermesConfig');
-                        // Store in preferences
-                        // Move to next step
+                        context.read<SetupWizardService>().nextStep();
                       }
                     : null,
                 child: const Text('Save and Continue'),

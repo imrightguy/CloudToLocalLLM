@@ -68,7 +68,9 @@ class AppConfig {
   // Tier-based feature flags
   static const bool enableTierDetection = true;
   static const bool showTierInformation = true;
-  static const bool enableDirectTunnelMode = true;
+  static const bool enableDirectTunnelMode = false;
+  static const bool enableLegacyTunnelServices = false;
+  static const bool enableLegacyStreamingProxyServices = false;
 
   // ==========================================================================
   // Gateway Configuration (Runtime Configurable)

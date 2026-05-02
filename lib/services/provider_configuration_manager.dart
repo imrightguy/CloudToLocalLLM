@@ -8,7 +8,8 @@ final Logger _log = Logger('ProviderConfigurationManager');
 /// Manages provider configurations for different LLM backends.
 class ProviderConfigurationManager {
   final Map<String, ProviderConfiguration> _configurations = {};
-  String? _preferredProviderId;
+  String? _activeRuntimeProviderId;
+  String? _preferredSupportProviderId;
 
   bool isProviderConfigured(String providerId) =>
       _configurations.containsKey(providerId);
@@ -17,14 +18,57 @@ class ProviderConfigurationManager {
     _configurations[configuration.providerId] = configuration;
   }
 
-  String? get preferredProviderId => _preferredProviderId;
+  /// Backward-compatible alias for the main runtime selection.
+  String? get preferredProviderId => _activeRuntimeProviderId;
+  String? get activeRuntimeProviderId => _activeRuntimeProviderId;
+  String? get preferredSupportProviderId => _preferredSupportProviderId;
 
   Future<void> setPreferredProvider(String providerId) async {
-    _preferredProviderId = providerId;
+    await setActiveRuntimeProvider(providerId);
+  }
+
+  Future<void> setActiveRuntimeProvider(String providerId) async {
+    final configuration = _configurations[providerId];
+    if (configuration == null) {
+      throw ArgumentError('Unknown provider configuration: $providerId');
+    }
+
+    if (!_isAgentRuntimeConfiguration(configuration)) {
+      throw ArgumentError(
+        'Support model providers cannot be selected as the main agent runtime.',
+      );
+    }
+
+    _activeRuntimeProviderId = providerId;
+  }
+
+  Future<void> setPreferredSupportProvider(String providerId) async {
+    final configuration = _configurations[providerId];
+    if (configuration == null) {
+      throw ArgumentError('Unknown provider configuration: $providerId');
+    }
+
+    if (!_isSupportModelProviderConfiguration(configuration)) {
+      throw ArgumentError(
+        'Agent runtimes cannot be selected as support model providers.',
+      );
+    }
+
+    _preferredSupportProviderId = providerId;
   }
 
   Future<List<dynamic>> getAllProviders() async =>
       _configurations.values.toList(growable: false);
+
+  Future<List<ProviderConfiguration>> getAllAgentRuntimes() async =>
+      _configurations.values
+          .where(_isAgentRuntimeConfiguration)
+          .toList(growable: false);
+
+  Future<List<ProviderConfiguration>> getAllSupportModelProviders() async =>
+      _configurations.values
+          .where(_isSupportModelProviderConfiguration)
+          .toList(growable: false);
 
   Future<void> saveProvider({
     required String name,
@@ -33,8 +77,11 @@ class ProviderConfigurationManager {
     required bool isLocal,
     bool isDefault = false,
     String? version,
+    ProviderRole? role,
   }) async {
-    final providerId = name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+    final providerId =
+        name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+    final effectiveRole = role ?? type.defaultRole;
     final configuration = OpenAICompatibleProviderConfiguration(
       providerId: providerId,
       baseUrl: url,
@@ -42,16 +89,49 @@ class ProviderConfigurationManager {
       requiresAuth: !isLocal,
       customSettings: {
         'name': name,
-        'type': type.toString(),
+        'type': type.name,
+        'role': effectiveRole.name,
         'isLocal': isLocal,
         if (version != null) 'version': version,
       },
     );
     await setConfiguration(configuration);
     if (isDefault) {
-      await setPreferredProvider(providerId);
+      if (effectiveRole == ProviderRole.agentRuntime) {
+        await setActiveRuntimeProvider(providerId);
+      } else {
+        throw ArgumentError(
+          '$name is a support model provider and cannot be the main runtime.',
+        );
+      }
     }
   }
+
+  bool _isAgentRuntimeConfiguration(ProviderConfiguration configuration) {
+    final role = configuration.customSettings['role'];
+    if (role == ProviderRole.agentRuntime.name) {
+      return true;
+    }
+    if (role == ProviderRole.supportModelProvider.name) {
+      return false;
+    }
+
+    final type = configuration.customSettings['type']?.toString();
+    if (type != null) {
+      final providerType = ProviderType.values.firstWhere(
+        (value) => value.name == type || value.toString() == type,
+        orElse: () => ProviderType.openAICompatible,
+      );
+      return providerType.isAgentRuntime;
+    }
+
+    return configuration.providerType == 'hermes';
+  }
+
+  bool _isSupportModelProviderConfiguration(
+    ProviderConfiguration configuration,
+  ) =>
+      !_isAgentRuntimeConfiguration(configuration);
 
   /// Get the Hermes provider instance.
   ///

@@ -180,6 +180,20 @@ const logger = winston.createLogger({
 
 // Configuration
 const PORT = process.env.PORT || 8080;
+const LEGACY_PROXY_ROUTES_ENABLED =
+  process.env.CLOUDTOLOCALLLM_ENABLE_LEGACY_PROXY_ROUTES === 'true';
+const LEGACY_TUNNEL_ROUTES_ENABLED =
+  LEGACY_PROXY_ROUTES_ENABLED ||
+  process.env.CLOUDTOLOCALLLM_ENABLE_LEGACY_TUNNEL_ROUTES === 'true';
+const LEGACY_OLLAMA_PROXY_ENABLED =
+  LEGACY_PROXY_ROUTES_ENABLED ||
+  process.env.CLOUDTOLOCALLLM_ENABLE_LEGACY_OLLAMA_PROXY === 'true';
+const LEGACY_STREAMING_PROXY_ROUTES_ENABLED =
+  LEGACY_PROXY_ROUTES_ENABLED ||
+  process.env.CLOUDTOLOCALLLM_ENABLE_LEGACY_STREAMING_PROXY_ROUTES === 'true';
+const LEGACY_DIRECT_PROXY_ROUTES_ENABLED =
+  LEGACY_PROXY_ROUTES_ENABLED ||
+  process.env.CLOUDTOLOCALLLM_ENABLE_LEGACY_DIRECT_PROXY_ROUTES === 'true';
 
 // AuthService will be initialized in initializeHttpPollingSystem()
 
@@ -286,16 +300,20 @@ async function authenticateToken(req, res, next) {
 
 // Initialize streaming proxy manager
 
-// Create WebSocket-based tunnel routes
-const tunnelRouter = createTunnelRoutes(
-  {}, // Config placeholder
-  sshProxy,
-  logger,
-  sshAuthService,
-);
+let tunnelRouter = null;
+let monitoringRouter = null;
+if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+  // Create WebSocket-based tunnel routes
+  tunnelRouter = createTunnelRoutes(
+    {}, // Config placeholder
+    sshProxy,
+    logger,
+    sshAuthService,
+  );
 
-// Create monitoring routes
-const monitoringRouter = createMonitoringRoutes(sshProxy, logger);
+  // Create monitoring routes
+  monitoringRouter = createMonitoringRoutes(sshProxy, logger);
+}
 
 // API Routes
 // Register routes both with /api prefix (for other subdomains) and without (for api subdomain)
@@ -309,11 +327,11 @@ function registerRoutes(path, ...middlewares) {
 app.get('/api/service-version', serviceVersionHandler);
 app.get('/service-version', serviceVersionHandler);
 
-// Simplified tunnel routes
-registerRoutes('/tunnel', tunnelRouter);
-
-// Performance monitoring routes
-registerRoutes('/monitoring', monitoringRouter);
+if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+  logger.warn('Legacy tunnel routes are enabled by explicit configuration');
+  registerRoutes('/tunnel', tunnelRouter);
+  registerRoutes('/monitoring', monitoringRouter);
+}
 
 // Conversation management routes (initialized after database is ready)
 // Will be set up in initializeTunnelSystem() after dbMigrator is initialized
@@ -357,8 +375,9 @@ registerRoutes('/users', userProfileRoutes);
 // API Key management routes (for service-to-service authentication)
 registerRoutes('/api-keys', apiKeysRouter);
 
-// Tunnel lifecycle management routes
-registerRoutes('/tunnels', tunnelRoutes);
+if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+  registerRoutes('/tunnels', tunnelRoutes);
+}
 
 registerRoutes('/adaptive-rate-limiting', adaptiveRateLimitingRoutes);
 registerRoutes('/admin-metrics', adminMetricsRoutes);
@@ -368,26 +387,33 @@ registerRoutes('/backup-recovery', backupRecoveryRoutes);
 registerRoutes('/bridge-polling', bridgePollingRoutes);
 registerRoutes('/cache-metrics', cacheMetricsRoutes);
 registerRoutes('/deprecation', deprecationRoutes);
-registerRoutes('/direct-proxy', directProxyRoutes);
+if (LEGACY_DIRECT_PROXY_ROUTES_ENABLED) {
+  logger.warn('Legacy direct proxy routes are enabled by explicit configuration');
+  registerRoutes('/direct-proxy', directProxyRoutes);
+}
 registerRoutes('/error-recovery', errorRecoveryRoutes);
-registerRoutes('/failover', failoverRoutes);
-registerRoutes('/proxy-config', proxyConfigRoutes);
-registerRoutes('/proxy-diagnostics', proxyDiagnosticsRoutes);
-registerRoutes('/proxy-failover', proxyFailoverRoutes);
-registerRoutes('/proxy-health', proxyHealthRoutes);
-registerRoutes('/proxy-metrics', proxyMetricsRoutes);
-registerRoutes('/proxy-scaling', proxyScalingRoutes);
-registerRoutes('/proxy-usage', proxyUsageRoutes);
-registerRoutes('/proxy-webhooks', proxyWebhooksRoutes);
+if (LEGACY_DIRECT_PROXY_ROUTES_ENABLED) {
+  registerRoutes('/failover', failoverRoutes);
+  registerRoutes('/proxy-config', proxyConfigRoutes);
+  registerRoutes('/proxy-diagnostics', proxyDiagnosticsRoutes);
+  registerRoutes('/proxy-failover', proxyFailoverRoutes);
+  registerRoutes('/proxy-health', proxyHealthRoutes);
+  registerRoutes('/proxy-metrics', proxyMetricsRoutes);
+  registerRoutes('/proxy-scaling', proxyScalingRoutes);
+  registerRoutes('/proxy-usage', proxyUsageRoutes);
+  registerRoutes('/proxy-webhooks', proxyWebhooksRoutes);
+}
 registerRoutes('/quotas', quotasRoutes);
 registerRoutes('/rate-limit-exemptions', rateLimitExemptionsRoutes);
 registerRoutes('/rate-limit-violations', rateLimitViolationsRoutes);
 registerRoutes('/sandbox', sandboxRoutes);
-registerRoutes('/tunnel-failover', tunnelFailoverRoutes);
-registerRoutes('/tunnel-health', tunnelHealthRoutes);
-registerRoutes('/tunnel-sharing', tunnelSharingRoutes);
-registerRoutes('/tunnel-usage', tunnelUsageRoutes);
-registerRoutes('/tunnel-webhooks', tunnelWebhooksRoutes);
+if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+  registerRoutes('/tunnel-failover', tunnelFailoverRoutes);
+  registerRoutes('/tunnel-health', tunnelHealthRoutes);
+  registerRoutes('/tunnel-sharing', tunnelSharingRoutes);
+  registerRoutes('/tunnel-usage', tunnelUsageRoutes);
+  registerRoutes('/tunnel-webhooks', tunnelWebhooksRoutes);
+}
 registerRoutes('/user-activity', userActivityRoutes);
 registerRoutes('/user-deletion', userDeletionRoutes);
 // Note: versionedRoutes is a utility module, not a router - don't register it
@@ -399,8 +425,9 @@ registerRoutes(
 registerRoutes('/webhook-rate-limiting', webhookRateLimitingRoutes);
 registerRoutes('/webhook-testing', webhookTestingRoutes);
 
-// Infrastructure tunnel management routes (API key authenticated)
-registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
+if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+  registerRoutes('/infrastructure/tunnel', infrastructureTunnelRoutes);
+}
 registerRoutes('/agent/events', agentEventsRoutes);
 app.post('/api/agent/events', agentEventsRoutes);
 
@@ -410,13 +437,16 @@ setSshProxy(sshProxy);
 import { authenticateComposite } from './middleware/composite-auth.js';
 
 // Define Ollama route regex to match /api/ollama, /ollama, and their subpaths
-const OLLAMA_ROUTE_REGEX = /^\/(api\/)?ollama(\/.*)?$/;
-app.all(
-  OLLAMA_ROUTE_REGEX,
-  ...authenticateComposite,
-  addTierInfo,
-  handleOllamaProxyRequest,
-);
+if (LEGACY_OLLAMA_PROXY_ENABLED) {
+  logger.warn('Legacy Ollama proxy route is enabled by explicit configuration');
+  const OLLAMA_ROUTE_REGEX = /^\/(api\/)?ollama(\/.*)?$/;
+  app.all(
+    OLLAMA_ROUTE_REGEX,
+    ...authenticateComposite,
+    addTierInfo,
+    handleOllamaProxyRequest,
+  );
+}
 
 // User tier endpoint
 registerRoutes(
@@ -507,7 +537,7 @@ server.on('upgrade', (request, socket, head) => {
   const pathname = new URL(request.url, `http://${request.headers.host}`)
     .pathname;
 
-  if (pathname === '/ssh') {
+  if (LEGACY_TUNNEL_ROUTES_ENABLED && pathname === '/ssh') {
     if (sshProxy && sshProxy.handleUpgrade) {
       logger.info('Received WebSocket upgrade request for /ssh', {
         url: request.url,
@@ -535,22 +565,27 @@ server.on('upgrade', (request, socket, head) => {
 });
 
 // Streaming Proxy Management Endpoints
+if (LEGACY_STREAMING_PROXY_ROUTES_ENABLED) {
+  logger.warn(
+    'Legacy streaming proxy management routes are enabled by explicit configuration',
+  );
 
-// Start streaming proxy for user
-const proxyStartRoute = [authenticateToken, proxyStartHandler];
-registerRoutes('/proxy/start', ...proxyStartRoute);
+  // Start streaming proxy for user
+  const proxyStartRoute = [authenticateToken, proxyStartHandler];
+  registerRoutes('/proxy/start', ...proxyStartRoute);
 
-// Stop streaming proxy for user
-const proxyStopRoute = [authenticateToken, proxyStopHandler];
-registerRoutes('/proxy/stop', ...proxyStopRoute);
+  // Stop streaming proxy for user
+  const proxyStopRoute = [authenticateToken, proxyStopHandler];
+  registerRoutes('/proxy/stop', ...proxyStopRoute);
 
-// Provision streaming proxy for user (with test mode support)
-const proxyProvisionRoute = [authenticateToken, proxyProvisionHandler];
-registerRoutes('/streaming-proxy/provision', ...proxyProvisionRoute);
+  // Provision streaming proxy for user (with test mode support)
+  const proxyProvisionRoute = [authenticateToken, proxyProvisionHandler];
+  registerRoutes('/streaming-proxy/provision', ...proxyProvisionRoute);
 
-// Get streaming proxy status
-const proxyStatusRoute = [authenticateToken, proxyStatusHandler];
-registerRoutes('/proxy/status', ...proxyStatusRoute);
+  // Get streaming proxy status
+  const proxyStatusRoute = [authenticateToken, proxyStatusHandler];
+  registerRoutes('/proxy/status', ...proxyStatusRoute);
+}
 
 // Ollama proxy endpoints removed - using HTTP polling tunnel system instead
 
@@ -710,45 +745,49 @@ async function initializeTunnelSystem(retries = 10) {
         };
       });
 
-      // Use the same auth service for SSH proxy
-      sshAuthService = authService;
+      if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+        // Use the same auth service for SSH proxy
+        sshAuthService = authService;
 
-      // Initialize SSH Proxy
-      try {
-        sshProxy = new SSHProxy(
-          logger,
-          {
-            sshPort: parseInt(process.env.SSH_PORT) || 2222,
-          },
-          sshAuthService,
-        );
-        await sshProxy.start();
-        logger.info('SSH tunnel server initialized successfully');
+        // Initialize SSH Proxy
+        try {
+          sshProxy = new SSHProxy(
+            logger,
+            {
+              sshPort: parseInt(process.env.SSH_PORT) || 2222,
+            },
+            sshAuthService,
+          );
+          await sshProxy.start();
+          logger.info('SSH tunnel server initialized successfully');
 
-        // Register SSH proxy with health check service
-        healthCheckService.registerService('ssh-tunnel', async () => {
-          return {
-            status: sshProxy && sshProxy.isRunning ? 'healthy' : 'unhealthy',
-            message:
-              sshProxy && sshProxy.isRunning
-                ? 'SSH tunnel is running'
-                : 'SSH tunnel is not running',
-          };
-        });
-      } catch (sshError) {
-        logger.error('Failed to initialize SSH tunnel server', {
-          error: sshError.message,
-          stack: sshError.stack,
-        });
-
-        // Register SSH proxy as unhealthy
-        healthCheckService.registerService('ssh-tunnel', async () => {
-          return {
-            status: 'degraded',
-            message: 'SSH tunnel service failed to initialize (non-critical)',
+          // Register SSH proxy with health check service
+          healthCheckService.registerService('ssh-tunnel', async () => {
+            return {
+              status: sshProxy && sshProxy.isRunning ? 'healthy' : 'unhealthy',
+              message:
+                sshProxy && sshProxy.isRunning
+                  ? 'SSH tunnel is running'
+                  : 'SSH tunnel is not running',
+            };
+          });
+        } catch (sshError) {
+          logger.error('Failed to initialize SSH tunnel server', {
             error: sshError.message,
-          };
-        });
+            stack: sshError.stack,
+          });
+
+          // Register SSH proxy as unhealthy
+          healthCheckService.registerService('ssh-tunnel', async () => {
+            return {
+              status: 'degraded',
+              message: 'SSH tunnel service failed to initialize (non-critical)',
+              error: sshError.message,
+            };
+          });
+        }
+      } else {
+        logger.info('Legacy SSH tunnel server disabled by default');
       }
     } catch (error) {
       logger.warn(
@@ -769,18 +808,24 @@ async function initializeTunnelSystem(retries = 10) {
       // Don't fail the entire server startup, just log the error
     }
 
-    // Initialize tunnel service after database is ready
-    try {
-      await initializeTunnelService();
-      logger.info('Tunnel service initialized successfully');
-    } catch (error) {
-      logger.error('Failed to initialize tunnel service', {
-        error: error.message,
-      });
-      // Don't fail the entire server startup, just log the error
+    if (LEGACY_TUNNEL_ROUTES_ENABLED) {
+      // Initialize tunnel service after database is ready
+      try {
+        await initializeTunnelService();
+        logger.info('Tunnel service initialized successfully');
+      } catch (error) {
+        logger.error('Failed to initialize tunnel service', {
+          error: error.message,
+        });
+        // Don't fail the entire server startup, just log the error
+      }
     }
 
-    logger.info('WebSocket tunnel system ready');
+    logger.info(
+      LEGACY_TUNNEL_ROUTES_ENABLED
+        ? 'WebSocket tunnel system ready'
+        : 'Runtime connector system ready with legacy tunnels disabled',
+    );
 
     // Register custom shutdown handler with graceful shutdown manager
     isInitializing = false;

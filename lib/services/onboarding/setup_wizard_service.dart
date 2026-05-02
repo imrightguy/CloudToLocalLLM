@@ -9,6 +9,7 @@ import 'package:cloudtolocalllm/services/provider_discovery_service.dart';
 import 'package:cloudtolocalllm/services/setup_status_service.dart';
 import 'package:cloudtolocalllm/services/provider_configuration_manager.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
+import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 
 /// Connection method selection
 enum ConnectionMethod {
@@ -91,12 +92,18 @@ class SetupWizardService extends ChangeNotifier {
   final ProviderDiscoveryService _discovery;
   final SetupStatusService _setupStatus;
   final ProviderConfigurationManager _configManager;
+  final SettingsPreferenceService? _settings;
 
   WizardState _state = const WizardState();
   Timer? _testTimeoutTimer;
   bool _setupCompleted = false; // Track if setup was completed this session
 
-  SetupWizardService(this._discovery, this._setupStatus, this._configManager);
+  SetupWizardService(
+    this._discovery,
+    this._setupStatus,
+    this._configManager, {
+    SettingsPreferenceService? settings,
+  }) : _settings = settings;
 
   WizardState get state => _state;
   bool get isSetupCompleted => _setupCompleted;
@@ -116,9 +123,8 @@ class SetupWizardService extends ChangeNotifier {
         return true;
       }
 
-      // For now, always show wizard if no provider is configured
-      final providers = await _configManager.getAllProviders();
-      return providers.isEmpty;
+      final runtimes = await _configManager.getAllAgentRuntimes();
+      return runtimes.isEmpty;
     } catch (e) {
       debugPrint('[SetupWizard] Error checking wizard status: $e');
       return true; // Show wizard on error
@@ -227,17 +233,13 @@ class SetupWizardService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final providers = await _discovery.scanForProviders();
+      final providers = await _discovery.scanForAgentRuntimes();
 
-      final openclaw = providers.firstWhere(
-        (p) => p.type == ProviderType.openclaw,
-        orElse: () =>
-            providers.isNotEmpty ? providers.first : _createDefaultProvider(),
-      );
+      final selectedRuntime = _selectPreferredRuntime(providers);
 
       _state = _state.copyWith(
         discoveredProviders: providers,
-        selectedProvider: openclaw,
+        selectedProvider: selectedRuntime,
         isLoading: false,
         errorMessage: null,
       );
@@ -294,7 +296,12 @@ class SetupWizardService extends ChangeNotifier {
 
     try {
       final result = await _discovery.testConnection(url);
-      _state = _state.copyWith(isLoading: false);
+      _state = _state.copyWith(
+        isLoading: false,
+        errorMessage: result.isConnected
+            ? null
+            : _mapUserSafeError(_WizardOperation.connectionTest),
+      );
       notifyListeners();
       return result;
     } catch (e, stackTrace) {
@@ -346,6 +353,7 @@ class SetupWizardService extends ChangeNotifier {
       url: trimmedUrl.isNotEmpty ? trimmedUrl : AppConfig.defaultHermesUrl,
       isLocal: true,
       isAvailable: false,
+      role: ProviderRole.agentRuntime,
     );
     _state = _state.copyWith(selectedProvider: hermesProvider);
 
@@ -369,7 +377,9 @@ class SetupWizardService extends ChangeNotifier {
       // Use custom URL if provided, otherwise use provider's discovered URL
       final customUrl = _state.customUrl?.trim();
       final hermesUrl = _state.hermesUrl?.trim();
-      final providerUrl = (method == ConnectionMethod.hermes && hermesUrl != null && hermesUrl.isNotEmpty)
+      final providerUrl = (method == ConnectionMethod.hermes &&
+              hermesUrl != null &&
+              hermesUrl.isNotEmpty)
           ? hermesUrl
           : (_shouldUseCustomUrl() && customUrl != null && customUrl.isNotEmpty)
               ? customUrl
@@ -382,10 +392,14 @@ class SetupWizardService extends ChangeNotifier {
         url: providerUrl,
         isLocal: _state.selectedProvider!.isLocal,
         isDefault: true,
+        role: ProviderRole.agentRuntime,
       );
 
+      await _persistRuntimeSelection(providerUrl);
+
       // Save gateway password to secure storage
-      if (_state.gatewayPassword != null &&
+      if (_state.selectedProvider!.type == ProviderType.openclaw &&
+          _state.gatewayPassword != null &&
           _state.gatewayPassword!.isNotEmpty) {
         await _saveGatewayPassword(_state.gatewayPassword!);
       }
@@ -464,24 +478,42 @@ class SetupWizardService extends ChangeNotifier {
     return steps;
   }
 
-  ProviderInfo _createDefaultProvider() {
-    return ProviderInfo(
-      id: 'openclaw_default',
-      type: ProviderType.openclaw,
-      name: 'OpenClaw Gateway',
-      url: AppConfig.gatewayUrl,
-      isLocal: true,
-      isAvailable: false,
+  ProviderInfo? _selectPreferredRuntime(List<ProviderInfo> providers) {
+    if (providers.isEmpty) {
+      return null;
+    }
+
+    for (final type in [
+      ProviderType.hermes,
+      ProviderType.openclaw,
+      ProviderType.custom,
+    ]) {
+      final matches = providers.where((provider) => provider.type == type);
+      if (matches.isNotEmpty) {
+        return matches.first;
+      }
+    }
+
+    return providers.firstWhere(
+      (provider) => provider.canServeAsAgentRuntime,
+      orElse: () => providers.first,
     );
   }
 
   String? _validateCompleteSetupInput() {
     if (_state.selectedProvider == null) {
-      return 'Select a provider before completing setup.';
+      return 'Select an agent runtime before completing setup.';
+    }
+
+    if (!_state.selectedProvider!.canServeAsAgentRuntime) {
+      return 'Ollama, LM Studio, and raw model providers are support model providers. Select Hermes, OpenClaw, or a compatible agent runtime to complete setup.';
     }
 
     // Hermes-specific validation
     if (_state.selectedMethod == ConnectionMethod.hermes) {
+      if (_state.selectedProvider!.type != ProviderType.hermes) {
+        return 'Select a Hermes Agent runtime to complete Hermes setup.';
+      }
       final hermesUrl = _state.hermesUrl?.trim() ?? '';
       if (hermesUrl.isEmpty) {
         return 'Enter a Hermes Agent URL.';
@@ -513,6 +545,32 @@ class SetupWizardService extends ChangeNotifier {
     }
 
     return null;
+  }
+
+  Future<void> _persistRuntimeSelection(String runtimeUrl) async {
+    final settings = _settings;
+    if (settings == null) {
+      return;
+    }
+
+    switch (_state.selectedProvider!.type) {
+      case ProviderType.hermes:
+        await settings.setHermesEnabled(true);
+        await settings.setHermesUrl(runtimeUrl);
+        await settings.setActiveBackend(BackendType.hermes);
+        break;
+      case ProviderType.openclaw:
+        await settings.setHermesEnabled(false);
+        await settings.setActiveBackend(BackendType.openclaw);
+        break;
+      case ProviderType.custom:
+        await settings.setActiveBackend(null);
+        break;
+      case ProviderType.ollama:
+      case ProviderType.lmStudio:
+      case ProviderType.openAICompatible:
+        break;
+    }
   }
 
   bool _shouldUseCustomUrl() {

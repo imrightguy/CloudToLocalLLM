@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/models/provider_configuration.dart';
 
-/// Local Provider Detection Step
-/// Scans for OpenClaw Gateway on localhost:18789
+/// Local runtime detection step.
+/// Scans for compatible agent runtimes, not raw local model providers.
 class LocalDetectionStep extends StatefulWidget {
   const LocalDetectionStep({super.key});
 
@@ -57,12 +57,12 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
         ),
         const SizedBox(height: 24),
         Text(
-          'Looking for OpenClaw Gateway...',
+          'Looking for agent runtimes...',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 8),
         Text(
-          'Scanning ${AppConfig.gatewayUrl}',
+          'Scanning ${AppConfig.defaultHermesUrl} and ${AppConfig.gatewayUrl}',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey.shade600,
               ),
@@ -89,12 +89,12 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
         ),
         const SizedBox(height: 24),
         Text(
-          'OpenClaw Gateway Not Found',
+          'Agent Runtime Not Found',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 16),
         Text(
-          'We couldn\'t find OpenClaw Gateway running on your computer.',
+          'We couldn\'t find Hermes or OpenClaw running on this computer.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey.shade600,
               ),
@@ -127,8 +127,8 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
                 ],
               ),
               const SizedBox(height: 12),
-              _buildStep('1. Download OpenClaw Gateway'),
-              _buildStep('2. Extract and run: openclaw gateway start'),
+              _buildStep('1. Start Hermes Agent or OpenClaw Gateway'),
+              _buildStep('2. Verify the runtime is reachable'),
               _buildStep('3. Click "Retry" below'),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -171,7 +171,7 @@ class _LocalDetectionStepState extends State<LocalDetectionStep> {
         ),
         const SizedBox(height: 24),
         Text(
-          'OpenClaw Gateway Found!',
+          'Agent Runtime Found!',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 16),

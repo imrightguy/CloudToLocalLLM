@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:cloudtolocalllm/services/settings_preference_service.dart' hide BackendType;
+import 'package:cloudtolocalllm/services/settings_preference_service.dart'
+    hide BackendType;
 import 'package:cloudtolocalllm/services/connection_manager_service.dart';
 
 enum GatewayState {
@@ -43,7 +44,8 @@ class GatewayControlService extends ChangeNotifier {
 
   void _onConnectionChanged() {
     // Auto-check status when WebSocket connects
-    if (_connectionManager!.isConnected &&
+    if (_connectionManager!.currentBackend == BackendType.openclaw &&
+        _connectionManager!.isConnected &&
         _connectionManager!.isGatewayHealthy()) {
       debugPrint(
           '[GatewayControl] WebSocket connected, checking gateway status...');

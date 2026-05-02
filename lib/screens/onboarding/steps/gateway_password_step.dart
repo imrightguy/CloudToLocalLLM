@@ -69,11 +69,11 @@ class _GatewayPasswordStepState extends State<GatewayPasswordStep> {
   Widget build(BuildContext context) {
     return Consumer<SetupWizardService>(
       builder: (context, wizard, child) {
-        final provider = wizard.state.selectedProvider!;
-        final isOllama = provider.type == ProviderType.ollama;
+        final provider = wizard.state.selectedProvider;
 
-        // Ollama doesn't require password
-        if (isOllama) {
+        // Only OpenClaw uses the gateway token step. Hermes/custom runtimes use
+        // their own URL/test flow, and support providers are not runtime setup.
+        if (provider == null || provider.type != ProviderType.openclaw) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             wizard.nextStep();
           });

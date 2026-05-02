@@ -14,6 +14,33 @@ enum ProviderType {
   custom,
 }
 
+/// High-level role for a discovered or configured backend endpoint.
+enum ProviderRole {
+  agentRuntime,
+  supportModelProvider,
+}
+
+extension ProviderTypeRole on ProviderType {
+  bool get isAgentRuntime {
+    return switch (this) {
+      ProviderType.openclaw ||
+      ProviderType.hermes ||
+      ProviderType.custom =>
+        true,
+      ProviderType.ollama ||
+      ProviderType.lmStudio ||
+      ProviderType.openAICompatible =>
+        false,
+    };
+  }
+
+  bool get isSupportModelProvider => !isAgentRuntime;
+
+  ProviderRole get defaultRole => isAgentRuntime
+      ? ProviderRole.agentRuntime
+      : ProviderRole.supportModelProvider;
+}
+
 /// Provider information discovered on the network
 class ProviderInfo {
   final String id;
@@ -50,6 +77,7 @@ class ProviderInfo {
   final bool isAvailable;
   final String? version;
   final List<String> availableModels;
+  final ProviderRole? role;
 
   const ProviderInfo({
     required this.id,
@@ -60,7 +88,13 @@ class ProviderInfo {
     this.isAvailable = false,
     this.version,
     this.availableModels = const [],
+    this.role,
   });
+
+  ProviderRole get effectiveRole => role ?? type.defaultRole;
+  bool get canServeAsAgentRuntime => effectiveRole == ProviderRole.agentRuntime;
+  bool get canServeAsSupportModelProvider =>
+      effectiveRole == ProviderRole.supportModelProvider;
 
   /// Create from URL with auto-generated ID
   factory ProviderInfo.fromUrl({
@@ -70,6 +104,7 @@ class ProviderInfo {
     bool isLocal = true,
     bool isAvailable = false,
     String? version,
+    ProviderRole? role,
   }) {
     final id = '${type.name}_${name.toLowerCase().replaceAll(' ', '_')}';
     return ProviderInfo(
@@ -80,6 +115,7 @@ class ProviderInfo {
       isLocal: isLocal,
       isAvailable: isAvailable,
       version: version,
+      role: role,
     );
   }
 
@@ -94,6 +130,7 @@ class ProviderInfo {
         'isAvailable': isAvailable,
         'version': version,
         'availableModels': availableModels,
+        'role': effectiveRole.name,
       };
 
   factory ProviderInfo.fromJson(Map<String, dynamic> json) {
@@ -124,6 +161,15 @@ class ProviderInfo {
               ?.map((e) => e as String)
               .toList() ??
           [],
+      role: ProviderRole.values.firstWhere(
+        (e) => e.name == json['role'],
+        orElse: () => ProviderType.values
+            .firstWhere(
+              (e) => e.name == json['type'],
+              orElse: () => ProviderType.custom,
+            )
+            .defaultRole,
+      ),
     );
   }
 
@@ -137,6 +183,7 @@ class ProviderInfo {
     bool? isAvailable,
     String? version,
     List<String>? availableModels,
+    ProviderRole? role,
   }) {
     return ProviderInfo(
       id: id ?? this.id,
@@ -147,6 +194,7 @@ class ProviderInfo {
       isAvailable: isAvailable ?? this.isAvailable,
       version: version ?? this.version,
       availableModels: availableModels ?? this.availableModels,
+      role: role ?? this.role,
     );
   }
 }
@@ -729,8 +777,7 @@ class ProviderConfigurationFactory {
         final hermesConfig = config as HermesProviderConfiguration;
         final uri = Uri.parse(hermesConfig.baseUrl);
         if (uri.port != 8642) {
-          warnings
-              .add('Non-standard Hermes port detected. Default is 8642.');
+          warnings.add('Non-standard Hermes port detected. Default is 8642.');
         }
         break;
 

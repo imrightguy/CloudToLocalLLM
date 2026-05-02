@@ -26,8 +26,8 @@ class _ConnectionTestStepState extends State<ConnectionTestStep> {
   }
 
   Future<void> _runTest(SetupWizardService wizard) async {
-    // Prioritize customUrl over discovered provider URL
-    final url = wizard.state.customUrl ??
+    final url = wizard.state.hermesUrl ??
+        wizard.state.customUrl ??
         wizard.state.selectedProvider?.url ??
         AppConfig.gatewayUrl;
     await wizard.testConnection(url);
@@ -73,7 +73,7 @@ class _ConnectionTestStepState extends State<ConnectionTestStep> {
         const SizedBox(height: 16),
         _buildTestItem('DNS resolution', true),
         _buildTestItem('TCP connection', null),
-        _buildTestItem('OpenClaw API', null),
+        _buildTestItem('Runtime API', null),
       ],
     );
   }
@@ -202,7 +202,7 @@ class _ConnectionTestStepState extends State<ConnectionTestStep> {
             children: [
               _buildTestItem('DNS resolution', true),
               _buildTestItem('TCP connection', true),
-              _buildTestItem('OpenClaw API', true),
+              _buildTestItem('Runtime API', true),
             ],
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'sidebar_section.dart';
 import 'navigation_rail_item.dart';
+import '../../config/app_config.dart';
 import '../../services/connection_manager_service.dart';
 import '../../services/theme_provider.dart';
 
@@ -27,6 +28,12 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.navigationShell.currentIndex == 0) {
+      return Scaffold(
+        body: widget.navigationShell,
+      );
+    }
+
     return Scaffold(
       body: Row(
         children: [
@@ -84,15 +91,40 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
   }
 
   Widget _buildSidebarHeader() {
+    if (_sidebarCollapsed) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/app_icon.png',
+              width: 32,
+              height: 32,
+              errorBuilder: (ctx, _, __) => const Icon(Icons.hub, size: 32),
+            ),
+            const SizedBox(height: 8),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              onPressed: () =>
+                  setState(() => _sidebarCollapsed = !_sidebarCollapsed),
+              tooltip: 'Expand sidebar',
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          Image.asset('assets/images/openclaw_logo.png',
-              width: 32,
-              height: 32,
-              errorBuilder: (ctx, _, __) =>
-                  const Icon(Icons.smart_toy, size: 32)),
+          Image.asset(
+            'assets/images/app_icon.png',
+            width: 32,
+            height: 32,
+            errorBuilder: (ctx, _, __) => const Icon(Icons.hub, size: 32),
+          ),
           const SizedBox(width: 12),
           if (!_sidebarCollapsed)
             Expanded(
@@ -100,22 +132,22 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'OPENCLAW',
+                    'CloudToLocalLLM',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          letterSpacing: 2,
                           fontWeight: FontWeight.bold,
                         ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'Gateway Dashboard',
+                    'Runtime Control Plane',
                     style: Theme.of(context).textTheme.bodySmall,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
           IconButton(
-            icon: Icon(
-                _sidebarCollapsed ? Icons.chevron_right : Icons.chevron_left),
+            icon: const Icon(Icons.chevron_left),
             onPressed: () =>
                 setState(() => _sidebarCollapsed = !_sidebarCollapsed),
             tooltip: 'Collapse sidebar',
@@ -128,15 +160,14 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
   Widget _buildSidebarContent() {
     return Column(
       children: [
-        // Chat section
         SidebarSection(
           collapsed: _sidebarCollapsed,
-          title: 'Chat',
+          title: 'Channel',
           initiallyExpanded: true,
           destinations: [
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
-              title: 'Chat',
+              title: 'Runtime Channel',
               branchIndex: 0,
               navigationShell: widget.navigationShell,
               icon: Icons.chat_bubble_outline,
@@ -161,7 +192,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
             ),
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
-              title: 'Channels',
+              title: 'Secure Channels',
               branchIndex: 2,
               navigationShell: widget.navigationShell,
               icon: Icons.cable_outlined,
@@ -169,7 +200,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
             ),
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
-              title: 'Instances',
+              title: 'Runtimes',
               branchIndex: 3,
               navigationShell: widget.navigationShell,
               icon: Icons.devices_outlined,
@@ -193,7 +224,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
             ),
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
-              title: 'Cron Jobs',
+              title: 'Scheduled Tasks',
               branchIndex: 6,
               navigationShell: widget.navigationShell,
               icon: Icons.schedule_outlined,
@@ -202,11 +233,10 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
           ],
         ),
 
-        // Agent section
         SidebarSection(
           collapsed: _sidebarCollapsed,
-          title: 'Agent',
-          initiallyExpanded: true,
+          title: 'Management',
+          initiallyExpanded: false,
           destinations: [
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
@@ -226,7 +256,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
             ),
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
-              title: 'Nodes',
+              title: 'Devices',
               branchIndex: 9,
               navigationShell: widget.navigationShell,
               icon: Icons.hub_outlined,
@@ -235,7 +265,6 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
           ],
         ),
 
-        // Settings section
         SidebarSection(
           collapsed: _sidebarCollapsed,
           title: 'Settings',
@@ -243,7 +272,7 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
           destinations: [
             OpenClawNavItem(
               collapsed: _sidebarCollapsed,
-              title: 'Config',
+              title: 'Runtime Settings',
               branchIndex: 10,
               navigationShell: widget.navigationShell,
               icon: Icons.settings_outlined,
@@ -273,33 +302,44 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
 
   Widget _buildResourcesSection() {
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(_sidebarCollapsed ? 4 : 12),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => launchUrl(Uri.parse('https://docs.openclaw.ai'),
+          onTap: () => launchUrl(Uri.parse('${AppConfig.homepageUrl}/docs'),
               mode: LaunchMode.externalApplication),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: _sidebarCollapsed ? 0 : 16,
+              vertical: 12,
+            ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.menu_book_outlined,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Docs',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            child: _sidebarCollapsed
+                ? Center(
+                    child: Icon(
+                      Icons.menu_book_outlined,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  )
+                : Row(
+                    children: [
+                      Icon(
+                        Icons.menu_book_outlined,
+                        size: 20,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
-                ),
-              ],
-            ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Docs',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -311,6 +351,15 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
       builder: (context, connService, child) {
         final gatewayStatus = connService.getGatewayStatus();
         final isHealthy = connService.isGatewayHealthy();
+        final runtimeLabel =
+            gatewayStatus['backendLabel']?.toString() ?? 'No agent runtime';
+        final runtimeUrl = connService.activeRuntimeClient?.identity.baseUrl;
+        final capabilityModelCount =
+            connService.activeRuntimeCapabilities?.models.length ?? 0;
+        final configuredModelCount = connService.availableModels.length;
+        final modelCount = capabilityModelCount > configuredModelCount
+            ? capabilityModelCount
+            : configuredModelCount;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -325,32 +374,41 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
           ),
           child: Row(
             children: [
-              // Version
-              Text(
-                'Version: ${gatewayStatus['version'] ?? 'n/a'}',
-                style: Theme.of(context).textTheme.bodySmall,
+              Icon(
+                Icons.hub_outlined,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(width: 24),
-
-              // Health status
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isHealthy
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.error,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              const SizedBox(width: 8),
+              Flexible(
                 child: Text(
-                  isHealthy ? 'Healthy' : 'Offline',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
+                  runtimeUrl == null
+                      ? runtimeLabel
+                      : '$runtimeLabel - $runtimeUrl',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              const SizedBox(width: 16),
+              _BannerChip(
+                label: isHealthy ? 'Runtime healthy' : 'Runtime offline',
+                color: isHealthy
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.error,
+              ),
+              const SizedBox(width: 8),
+              _BannerChip(
+                label: 'Desktop actions require approval',
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              const SizedBox(width: 8),
+              _BannerChip(
+                label: modelCount == 1
+                    ? '1 runtime model'
+                    : '$modelCount runtime models',
+                color: Theme.of(context).colorScheme.tertiary,
               ),
               const Spacer(),
-
-              // Theme toggle
               Row(
                 children: [
                   _ThemeButton(
@@ -380,6 +438,35 @@ class _OpenClawNavigationShellState extends State<OpenClawNavigationShell> {
   void _setTheme(ThemeMode mode) {
     final themeProvider = context.read<ThemeProvider>();
     themeProvider.setThemeMode(mode);
+  }
+}
+
+class _BannerChip extends StatelessWidget {
+  const _BannerChip({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
   }
 }
 

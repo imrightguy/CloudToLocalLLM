@@ -4,7 +4,7 @@ import 'package:cloudtolocalllm/services/onboarding/setup_wizard_service.dart';
 import 'package:cloudtolocalllm/screens/onboarding/widgets/connection_method_card.dart';
 
 /// Connection Method Selection Step
-/// User selects how they connect to their backend
+/// User selects how they connect to their agent runtime
 class ConnectionMethodStep extends StatelessWidget {
   const ConnectionMethodStep({super.key});
 
@@ -25,13 +25,13 @@ class ConnectionMethodStep extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Choose your backend',
+                'Choose your agent runtime',
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
-                'Select the backend you want to connect to',
+                'Select the runtime that will power the main channel',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -43,9 +43,21 @@ class ConnectionMethodStep extends StatelessWidget {
               Column(
                 children: [
                   ConnectionMethodCard(
+                    icon: Icons.smart_toy,
+                    title: 'Hermes Agent',
+                    description:
+                        'First supported path for a local or private runtime',
+                    selected:
+                        wizard.state.selectedMethod == ConnectionMethod.hermes,
+                    onTap: () =>
+                        wizard.selectConnectionMethod(ConnectionMethod.hermes),
+                  ),
+                  const SizedBox(height: 16),
+                  ConnectionMethodCard(
                     icon: Icons.hub,
-                    title: 'OpenClaw Gateway',
-                    description: 'OpenClaw Gateway running locally or remote',
+                    title: 'OpenClaw or custom runtime',
+                    description:
+                        'OpenClaw Gateway, Tailscale device, or compatible private URL',
                     selected: wizard.state.selectedMethod ==
                             ConnectionMethod.local ||
                         wizard.state.selectedMethod ==
@@ -53,17 +65,6 @@ class ConnectionMethodStep extends StatelessWidget {
                         wizard.state.selectedMethod == ConnectionMethod.custom,
                     onTap: () =>
                         wizard.selectConnectionMethod(ConnectionMethod.local),
-                  ),
-                  const SizedBox(height: 16),
-                  ConnectionMethodCard(
-                    icon: Icons.smart_toy,
-                    title: 'Hermes Agent',
-                    description:
-                        'Hermes Agent running on this computer or remote',
-                    selected:
-                        wizard.state.selectedMethod == ConnectionMethod.hermes,
-                    onTap: () =>
-                        wizard.selectConnectionMethod(ConnectionMethod.hermes),
                   ),
                 ],
               ),
@@ -83,7 +84,7 @@ class ConnectionMethodStep extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Not sure? Choose "OpenClaw Gateway" if you\'re using the OpenClaw ecosystem.',
+                        'Ollama and LM Studio can be added later in settings for memory and helper tasks.',
                         style: TextStyle(color: Colors.amber.shade900),
                       ),
                     ),

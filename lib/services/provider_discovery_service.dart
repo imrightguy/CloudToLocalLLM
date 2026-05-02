@@ -8,20 +8,63 @@ import 'package:cloudtolocalllm/models/provider_configuration.dart';
 import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 
 /// Provider Discovery Service
-/// Discovers local LLM providers on the network
+/// Discovers agent runtimes and optional support model providers.
 
 class ProviderDiscoveryService {
   static const Duration _scanTimeout = Duration(seconds: 3);
 
-  /// Scan for available LLM providers on the network
+  /// Scan for all known endpoint types on the network.
+  ///
+  /// Agent runtimes are valid main-channel targets. Support model providers
+  /// are background helpers only and cannot satisfy setup.
   Future<List<ProviderInfo>> scanForProviders() async {
     debugPrint('[ProviderDiscovery] Scanning for providers...');
 
+    final runtimes = await scanForAgentRuntimes();
+    final supportProviders = await scanForSupportModelProviders();
+    final discovered = <ProviderInfo>[
+      ...runtimes,
+      ...supportProviders,
+    ];
+
+    debugPrint('[ProviderDiscovery] Found ${discovered.length} providers');
+    return discovered;
+  }
+
+  /// Scan only for agent runtimes that can drive the main secure channel.
+  Future<List<ProviderInfo>> scanForAgentRuntimes() async {
+    debugPrint('[ProviderDiscovery] Scanning for agent runtimes...');
+
     final List<ProviderInfo> discovered = [];
     final List<Future<ProviderInfo?>> scans = [
-      _scanOpenClawGateway(),
-      _scanLMStudio(),
       _scanHermes(),
+      _scanOpenClawGateway(),
+    ];
+
+    try {
+      final results = await Future.wait(scans, eagerError: false);
+      for (final result in results) {
+        if (result != null) {
+          discovered.add(result);
+        }
+      }
+    } catch (e) {
+      debugPrint('[ProviderDiscovery] Runtime scan error: $e');
+    }
+
+    debugPrint(
+      '[ProviderDiscovery] Found ${discovered.length} agent runtimes',
+    );
+    return discovered;
+  }
+
+  /// Scan for optional local model providers used by memory/helper tasks.
+  Future<List<ProviderInfo>> scanForSupportModelProviders() async {
+    debugPrint('[ProviderDiscovery] Scanning for support model providers...');
+
+    final List<ProviderInfo> discovered = [];
+    final List<Future<ProviderInfo?>> scans = [
+      _scanLMStudio(),
       _scanOllama(),
     ];
 
@@ -33,10 +76,12 @@ class ProviderDiscoveryService {
         }
       }
     } catch (e) {
-      debugPrint('[ProviderDiscovery] Scan error: $e');
+      debugPrint('[ProviderDiscovery] Support provider scan error: $e');
     }
 
-    debugPrint('[ProviderDiscovery] Found ${discovered.length} providers');
+    debugPrint(
+      '[ProviderDiscovery] Found ${discovered.length} support model providers',
+    );
     return discovered;
   }
 
@@ -60,6 +105,7 @@ class ProviderDiscoveryService {
           isLocal: true,
           isAvailable: true,
           version: _extractVersion(response.body),
+          role: ProviderRole.agentRuntime,
         );
       }
     } catch (e) {
@@ -87,6 +133,7 @@ class ProviderDiscoveryService {
           url: url.toString(),
           isLocal: true,
           isAvailable: true,
+          role: ProviderRole.supportModelProvider,
         );
       }
     } catch (e) {
@@ -119,6 +166,7 @@ class ProviderDiscoveryService {
           isAvailable: true,
           version: _extractVersion(response.body),
           availableModels: models,
+          role: ProviderRole.agentRuntime,
         );
       }
     } catch (e) {
@@ -148,6 +196,7 @@ class ProviderDiscoveryService {
           isLocal: true,
           isAvailable: true,
           availableModels: models,
+          role: ProviderRole.supportModelProvider,
         );
       }
     } catch (e) {
@@ -293,9 +342,8 @@ class ProviderDiscoveryService {
 
   Future<List<String>> _fetchOpenAICompatibleModels(String baseUrl) async {
     try {
-      final response = await http
-          .get(Uri.parse('$baseUrl/v1/models'))
-          .timeout(_scanTimeout);
+      final response =
+          await http.get(Uri.parse('$baseUrl/v1/models')).timeout(_scanTimeout);
       if (response.statusCode != 200) {
         return const [];
       }
@@ -309,7 +357,8 @@ class ProviderDiscoveryService {
             .toList(growable: false);
       }
     } catch (e) {
-      debugPrint('[ProviderDiscovery] Failed to fetch models from $baseUrl: $e');
+      debugPrint(
+          '[ProviderDiscovery] Failed to fetch models from $baseUrl: $e');
     }
     return const [];
   }
@@ -320,7 +369,8 @@ class ProviderDiscoveryService {
       if (data is Map && data['models'] is List) {
         return (data['models'] as List)
             .whereType<Map>()
-            .map((model) => model['name']?.toString() ?? model['model']?.toString())
+            .map((model) =>
+                model['name']?.toString() ?? model['model']?.toString())
             .whereType<String>()
             .where((name) => name.isNotEmpty)
             .toList(growable: false);

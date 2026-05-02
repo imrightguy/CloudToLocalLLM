@@ -182,7 +182,9 @@ class AgentLifecycleService extends ChangeNotifier {
 
   /// Check if service is ready (connected to OpenClaw Gateway)
   bool get isReady =>
-      _connectionManager.isConnected && _connectionManager.isGatewayHealthy();
+      _connectionManager.currentBackend == BackendType.openclaw &&
+      _connectionManager.isConnected &&
+      _connectionManager.isGatewayHealthy();
 
   void _onConnectionChanged() {
     // Auto-refresh agents when connection becomes ready
