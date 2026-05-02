@@ -1,6 +1,11 @@
 FROM ubuntu:22.04 AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN for attempt in 1 2 3 4 5; do \
+      apt-get update && break; \
+      echo "apt-get update failed; retrying in $((attempt * 5))s"; \
+      sleep $((attempt * 5)); \
+    done \
+    && apt-get install -y --no-install-recommends \
     ca-certificates curl git unzip xz-utils zip \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*

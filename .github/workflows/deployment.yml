@@ -154,20 +154,41 @@ jobs:
     name: Deploy to VPS
     runs-on: ubuntu-latest
     needs: [detect-changes, backend-build-push, flutter-build-push]
-    if: always() && needs.detect-changes.outputs.any == 'true'
+    if: >-
+      always() &&
+      needs.detect-changes.outputs.any == 'true' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     environment: production
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify deploy secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          missing=0
+          for name in VPS_HOST VPS_USER VPS_SSH_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not configured for the production environment"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_TOKEN || github.token }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             echo "[deploy] Logging into GHCR so the VPS can pull private images..."
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+            echo "$GHCR_PULL_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
 
             cd /opt/immogestion/services/api-backend
 
