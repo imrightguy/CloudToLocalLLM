@@ -304,22 +304,6 @@ exports.createUnit = async (req, res) => {
     if (value.tenantPhone) { unitInsert.tenantPhone = value.tenantPhone; }
     if (value.tenantLeaseEnd) { unitInsert.tenantLeaseEnd = new Date(value.tenantLeaseEnd); }
 
-    const unitInsert = {
-      buildingId: value.buildingId,
-      label: value.label,
-      rentCents,
-      status: value.status || 'vacant',
-    };
-
-    if (value.bedrooms !== undefined) { unitInsert.bedrooms = value.bedrooms; }
-    if (value.bathrooms !== undefined) { unitInsert.bathrooms = value.bathrooms; }
-    if (value.squareFeet !== null && value.squareFeet !== undefined) { unitInsert.squareFeet = value.squareFeet; }
-    if (value.description) { unitInsert.description = value.description; }
-    if (Array.isArray(value.amenities) && value.amenities.length > 0) { unitInsert.amenities = value.amenities; }
-    if (value.tenantName) { unitInsert.tenantName = value.tenantName; }
-    if (value.tenantPhone) { unitInsert.tenantPhone = value.tenantPhone; }
-    if (value.tenantLeaseEnd) { unitInsert.tenantLeaseEnd = new Date(value.tenantLeaseEnd); }
-
     const [unit] = await db
       .insert(unitsTable)
       .values(unitInsert)
