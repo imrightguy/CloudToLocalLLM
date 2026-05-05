@@ -4,8 +4,9 @@ const {
 const { db } = require('../database/connection');
 const { buildingsTable, unitsTable } = require('../database/schema');
 const {
-  buildingSchema, unitSchema, updateBuildingSchema, updateUnitSchema,
+  unitSchema, updateUnitSchema,
 } = require('../models/building');
+const { buildingSchemas } = require('../config/validation-schemas');
 const { child } = require('../utils/logger');
 
 const log = child({ controller: 'building' });
@@ -17,7 +18,7 @@ const log = child({ controller: 'building' });
 // ─── Create Building ───
 exports.createBuilding = async (req, res) => {
   try {
-    const { error, value } = buildingSchema.validate(req.body);
+    const { error, value } = buildingSchemas.create.body.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
@@ -157,7 +158,7 @@ exports.getBuildingById = async (req, res) => {
 exports.updateBuilding = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error, value } = updateBuildingSchema.validate(req.body);
+    const { error, value } = buildingSchemas.update.body.validate(req.body);
 
     if (error) {
       return res.status(400).json({

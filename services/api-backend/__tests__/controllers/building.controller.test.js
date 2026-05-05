@@ -12,23 +12,34 @@ jest.mock('../../src/utils/logger', () => ({
 }));
 
 jest.mock('../../src/models/building', () => ({
-  buildingSchema: {
-    validate: jest.fn((body) => {
-      if (!body.name || !body.address) {return { error: { details: [{ message: 'name and address are required' }] } };}
-      return { error: null, value: body };
-    }),
-  },
   unitSchema: {
     validate: jest.fn((body) => {
       if (!body.buildingId) {return { error: { details: [{ message: 'buildingId is required' }] } };}
       return { error: null, value: body };
     }),
   },
-  updateBuildingSchema: {
-    validate: jest.fn((body) => ({ error: null, value: body })),
-  },
   updateUnitSchema: {
     validate: jest.fn((body) => ({ error: null, value: body })),
+  },
+}));
+
+jest.mock('../../src/config/validation-schemas', () => ({
+  buildingSchemas: {
+    create: {
+      body: {
+        validate: jest.fn((body) => {
+          if (!body.name || !body.address || !body.city || !body.totalUnits) {
+            return { error: { details: [{ message: 'name, address, city, and totalUnits are required' }] } };
+          }
+          return { error: null, value: body };
+        }),
+      },
+    },
+    update: {
+      body: {
+        validate: jest.fn((body) => ({ error: null, value: body })),
+      },
+    },
   },
 }));
 
@@ -101,7 +112,7 @@ describe('createBuilding', () => {
 
   it('creates a building successfully', async () => {
     const res = mockRes();
-    await buildingController.createBuilding({ body: { name: 'Test', address: '123 St' } }, res);
+    await buildingController.createBuilding({ body: { name: 'Test', address: '123 St', city: 'Montréal', totalUnits: 1 } }, res);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
@@ -116,7 +127,7 @@ describe('createBuilding', () => {
       }),
     });
     const res = mockRes();
-    await buildingController.createBuilding({ body: { name: 'Test', address: '123 St' } }, res);
+    await buildingController.createBuilding({ body: { name: 'Test', address: '123 St', city: 'Montréal', totalUnits: 1 } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'BUILDING_CREATION_FAILED' }),
@@ -219,8 +230,8 @@ describe('getBuildingById', () => {
 // ═══════════════════════════════════════════════════════════════════
 describe('updateBuilding', () => {
   it('returns 400 on validation error', async () => {
-    const { updateBuildingSchema } = require('../../src/models/building');
-    updateBuildingSchema.validate.mockReturnValueOnce({ error: { details: [{ message: 'invalid' }] } });
+    const { buildingSchemas } = require('../../src/config/validation-schemas');
+    buildingSchemas.update.body.validate.mockReturnValueOnce({ error: { details: [{ message: 'invalid' }] } });
     const res = mockRes();
     await buildingController.updateBuilding({ params: { id: 'bld-1' }, body: {} }, res);
     expect(res.status).toHaveBeenCalledWith(400);
