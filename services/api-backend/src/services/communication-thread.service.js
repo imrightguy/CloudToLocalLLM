@@ -662,18 +662,23 @@ async function recordCommunicationActivity(payload = {}) {
   }
 
   try {
-    const [record] = await db.insert(communicationLogsTable).values({
+    const insertValues = {
       leadId,
-      employeeId,
       type,
       direction,
-      content,
-      subject,
-      attachments,
       status,
-      metadata,
       isActive: true,
-    }).returning();
+    };
+
+    if (employeeId) { insertValues.employeeId = employeeId; }
+    if (content) { insertValues.content = content; }
+    if (subject) { insertValues.subject = subject; }
+    if (Array.isArray(attachments) && attachments.length > 0) { insertValues.attachments = attachments; }
+    if (metadata && typeof metadata === 'object' && !Array.isArray(metadata) && Object.keys(metadata).length > 0) {
+      insertValues.metadata = metadata;
+    }
+
+    const [record] = await db.insert(communicationLogsTable).values(insertValues).returning();
 
     if (leadId) {
       try {
