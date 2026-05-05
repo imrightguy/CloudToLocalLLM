@@ -287,6 +287,7 @@ jest.mock('drizzle-orm', () => ({
   eq: jest.fn((col, val) => ({ _type: 'eq', col, val })),
   and: jest.fn((...conds) => ({ _type: 'and', conds })),
   desc: jest.fn((col) => ({ _type: 'desc', col })),
+  or: jest.fn((...conds) => ({ _type: 'or', conds })),
   sql: jest.fn((strings, ...values) => ({ _type: 'sql', strings, values })),
   gte: jest.fn((col, val) => ({ _type: 'gte', col, val })),
 }));
