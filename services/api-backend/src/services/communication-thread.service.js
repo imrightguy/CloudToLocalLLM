@@ -481,9 +481,17 @@ async function loadThreadContext(filters = {}) {
 
   const messagesByLeadId = new Map();
   for (const message of messages) {
-    const list = messagesByLeadId.get(message.leadId) || [];
-    list.push(message);
-    messagesByLeadId.set(message.leadId, list);
+    const normalizedLeadId = message.leadId || message.metadata?.leadId || null;
+    if (!normalizedLeadId) {
+      continue;
+    }
+
+    const list = messagesByLeadId.get(normalizedLeadId) || [];
+    list.push({
+      ...message,
+      leadId: normalizedLeadId,
+    });
+    messagesByLeadId.set(normalizedLeadId, list);
   }
 
   const visitsByLeadId = new Map();

@@ -174,12 +174,15 @@ exports.getCommunications = async (req, res) => {
     const total = countResult[0]?.count || 0;
 
     // Data
-    const communications = await db.select()
+    const communications = (await db.select()
       .from(communicationLogsTable)
       .where(and(...conditions))
       .orderBy(desc(communicationLogsTable.createdAt))
       .limit(validLimit)
-      .offset(offset);
+      .offset(offset)).map((communication) => ({
+      ...communication,
+      leadId: communication.leadId || communication.metadata?.leadId || null,
+    }));
 
     const totalPages = Math.ceil(total / validLimit);
 

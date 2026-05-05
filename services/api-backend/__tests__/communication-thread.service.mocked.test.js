@@ -5,6 +5,7 @@ jest.mock('drizzle-orm', () => ({
   ilike: jest.fn((col, val) => ({ _type: 'ilike', col, val })),
   or: jest.fn((...conds) => ({ _type: 'or', conds })),
   inArray: jest.fn((col, vals) => ({ _type: 'inArray', col, vals })),
+  sql: jest.fn((strings, ...values) => ({ _type: 'sql', strings, values })),
 }));
 
 const mockDb = {
@@ -132,6 +133,22 @@ function mockSelectChainRefreshFailure() {
   };
 }
 
+function mockSelectChainOrdered(rows) {
+  return {
+    from: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockResolvedValue(rows),
+  };
+}
+
+function mockSelectChainPlain(rows) {
+  return {
+    from: jest.fn().mockReturnThis(),
+    where: jest.fn().mockResolvedValue(rows),
+    orderBy: jest.fn().mockReturnThis(),
+  };
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -166,6 +183,57 @@ describe('communication-thread service best-effort thread refresh', () => {
       data: expect.objectContaining({ id: 'comm-1', leadId: 'lead-1' }),
     });
     expect(mockDb.select).toHaveBeenCalledTimes(2);
+  });
+
+  it('builds a conversation thread from lead metadata when communication_logs.lead_id is null', async () => {
+    const lead = {
+      id: 'lead-1',
+      fullName: 'Frontend Test Lead',
+      phone: '514-555-2026',
+      email: 'frontend.test.lead.20260505@example.com',
+      stage: 'contacte',
+      source: 'marketplace',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      createdAt: new Date('2026-05-05T12:04:54.948Z'),
+      updatedAt: new Date('2026-05-05T18:13:44.948Z'),
+    };
+    const message = {
+      id: 'comm-thread-1',
+      leadId: null,
+      metadata: { leadId: 'lead-1', source: 'imm288-browser-test' },
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — IMM-288 browser test',
+      attachments: [],
+      status: 'received',
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([lead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    const result = await service.getLeadTimeline('lead-1', { includeMessages: true });
+
+    expect(result).toMatchObject({
+      leadId: 'lead-1',
+      contactName: 'Frontend Test Lead',
+      messageCount: 1,
+      lastMessage: expect.objectContaining({
+        id: 'comm-thread-1',
+        leadId: 'lead-1',
+      }),
+      messages: [expect.objectContaining({
+        id: 'comm-thread-1',
+        leadId: 'lead-1',
+      })],
+    });
   });
 
   it('normalizes structured marketplace payloads instead of throwing on trim', async () => {
