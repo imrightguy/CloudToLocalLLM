@@ -431,22 +431,11 @@ class _HomeTabState extends State<_HomeTab> {
       final profile = UserItem.fromJson(
         (profileResult['data'] as Map<String, dynamic>?) ?? {},
       );
-      final company = profile.company?.trim() ?? '';
 
-      if (company.isEmpty) {
-        setState(() {
-          _userName = profile.fullName;
-          _weeklySummary = {};
-          _recentCommunications = [];
-          _upcomingVisits = [];
-          _activityFeed = [];
-          _occupancyPct = '--';
-          _missingCompanyAccess = true;
-          _isLoading = false;
-        });
-        return;
-      }
-
+      // The live backend is single-company and /auth/profile does not expose a
+      // `company` field. Treat successful authenticated data fetches as the real
+      // access signal instead of blocking the entire app on a null/empty company
+      // string from the profile payload.
       List<CommunicationItem> communications = [];
       try {
         communications = await CommunicationService.instance.getCommunications(
