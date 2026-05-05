@@ -5,12 +5,13 @@ RUN flutter config --no-analytics && flutter config --enable-web && flutter prec
 
 WORKDIR /app
 ARG WEB_CACHE_BUST=latest
+ARG API_BASE_URL=https://api.immogestion.app/api
 COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get
 
 COPY . .
 RUN flutter create . --platforms web
-RUN flutter build web --release --base-href '/'
+RUN flutter build web --release --base-href '/' --dart-define=API_BASE_URL=${API_BASE_URL}
 RUN set -eux; \
     mv build/web/main.dart.js "build/web/main.${WEB_CACHE_BUST}.dart.js"; \
     python3 -c "from pathlib import Path; root = Path('build/web'); p = root / 'flutter_bootstrap.js'; p.write_text(p.read_text().replace('main.dart.js', 'main.${WEB_CACHE_BUST}.dart.js')); p = root / 'index.html'; p.write_text(p.read_text().replace('flutter_bootstrap.js', 'flutter_bootstrap.js?v=${WEB_CACHE_BUST}'))"

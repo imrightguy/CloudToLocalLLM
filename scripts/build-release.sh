@@ -46,12 +46,27 @@ done
 
 cd "$PROJECT_ROOT"
 
+resolve_flutter_bin() {
+  local candidate
+  for candidate in "${FLUTTER_BIN:-}" "/mnt/data/flutter-sdk/bin/flutter" "$(command -v flutter 2>/dev/null || true)"; do
+    if [[ -n "${candidate:-}" && -x "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+FLUTTER_BIN_RESOLVED="$(resolve_flutter_bin)"
+export FLUTTER_SUPPRESS_ANALYTICS="${FLUTTER_SUPPRESS_ANALYTICS:-true}"
+export DART_SUPPRESS_ANALYTICS="${DART_SUPPRESS_ANALYTICS:-true}"
+
 if [[ "$SKIP_TESTS" == "false" ]]; then
   echo "==> Running flutter analyze..."
-  flutter analyze --no-fatal-infos
+  "$FLUTTER_BIN_RESOLVED" analyze --no-fatal-infos
 
   echo "==> Running tests..."
-  flutter test --reporter compact
+  "$FLUTTER_BIN_RESOLVED" test --reporter compact
 fi
 
 mkdir -p "$BUILD_DIR"
@@ -61,7 +76,7 @@ build_apk() {
 
   if [[ -n "${KEYSTORE_PATH:-}" && -n "${KEYSTORE_PASSWORD:-}" && -n "${KEY_ALIAS:-}" && -n "${KEY_PASSWORD:-}" ]]; then
     echo "    Signed release build"
-    flutter build apk --release \
+    "$FLUTTER_BIN_RESOLVED" build apk --release \
       --keystore-path="$KEYSTORE_PATH" \
       --keystore-password="$KEYSTORE_PASSWORD" \
       --key-alias="$KEY_ALIAS" \
@@ -70,16 +85,18 @@ build_apk() {
   else
     echo "    No keystore configured — building debug APK"
     echo "    Set KEYSTORE_PATH, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD for signed builds"
-    flutter build apk --debug
+    "$FLUTTER_BIN_RESOLVED" build apk --debug
     cp build/app/outputs/flutter-apk/app-debug.apk "$BUILD_DIR/immogestion-debug.apk"
   fi
+
 
   echo "    APK copied to $BUILD_DIR/"
 }
 
 build_web() {
   echo "==> Building web..."
-  flutter build web --release --base-href '/'
+  "$FLUTTER_BIN_RESOLVED" create . --platforms web
+  "$FLUTTER_BIN_RESOLVED" build web --release --base-href '/' --dart-define=API_BASE_URL="${API_BASE_URL:-https://api.immogestion.app/api}"
   cp -r build/web "$BUILD_DIR/web"
   echo "    Web build copied to $BUILD_DIR/web/"
 }
