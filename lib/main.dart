@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
@@ -27,9 +28,11 @@ import 'screens/onboarding_screen.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_typography.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
+  await initializeDateFormatting('fr', null);
+  await initializeDateFormatting('fr_CA', null);
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
@@ -55,6 +58,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
   }
 
   Future<void> _initApp() async {
+    await initializeDateFormatting('fr', null);
+    await initializeDateFormatting('fr_CA', null);
     await ApiService.instance.init();
     await CacheService.instance.init();
     await AuthNotifier.instance.init();

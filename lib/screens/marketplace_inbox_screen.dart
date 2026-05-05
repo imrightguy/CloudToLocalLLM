@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import '../models.dart';
 import '../services/communication_service.dart';
@@ -42,6 +43,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
     });
 
     try {
+      await initializeDateFormatting('fr', null);
+      await initializeDateFormatting('fr_CA', null);
       final now = DateTime.now();
       final visitWindowStart = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 2));
       final visitWindowEnd = DateTime(now.year, now.month, now.day, 23, 59, 59).add(const Duration(days: 30));
