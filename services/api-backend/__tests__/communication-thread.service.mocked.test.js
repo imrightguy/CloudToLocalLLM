@@ -11,6 +11,7 @@ const mockDb = {
   select: jest.fn(),
   insert: jest.fn(),
   update: jest.fn(),
+  delete: jest.fn(),
 };
 
 jest.mock('../src/database/connection', () => ({ db: mockDb }));
@@ -276,26 +277,22 @@ describe('communication-thread service best-effort thread refresh', () => {
     expect(secondValues).toHaveBeenCalledWith(expect.objectContaining({ status: 'sent' }));
   });
 
-  it('also retries when the live status check is renamed but still references communication_logs status', async () => {
+  it('retries lead-linked communication logs without leadId when the initial insert fails', async () => {
     const record = {
-      id: 'comm-5',
+      id: 'comm-6',
       leadId: 'lead-1',
       type: 'fb_messenger',
       direction: 'inbound',
       status: 'sent',
-      createdAt: new Date('2026-05-05T15:04:00Z'),
+      createdAt: new Date('2026-05-05T15:05:00Z'),
     };
 
-    const renamedStatusConstraintError = Object.assign(
-      new Error('new check violation on communication_logs status in production'),
-      {
-        code: '23514',
-        constraint: 'communication_logs_status_check_v2',
-      },
-    );
+    const leadLinkedError = Object.assign(new Error('insert failed on lead-linked communication log'), {
+      code: 'XX000',
+    });
 
     const firstValues = jest.fn().mockReturnValue({
-      returning: jest.fn().mockRejectedValue(renamedStatusConstraintError),
+      returning: jest.fn().mockRejectedValue(leadLinkedError),
     });
     const secondValues = jest.fn().mockReturnValue({
       returning: jest.fn().mockResolvedValue([record]),
@@ -313,12 +310,61 @@ describe('communication-thread service best-effort thread refresh', () => {
       type: 'fb_messenger',
       direction: 'inbound',
       content: 'Bonjour',
-      status: 'received',
     });
 
     expect(result.statusCode).toBe(201);
-    expect(firstValues).toHaveBeenCalledWith(expect.objectContaining({ status: 'received' }));
-    expect(secondValues).toHaveBeenCalledWith(expect.objectContaining({ status: 'sent' }));
+    expect(firstValues).toHaveBeenCalledWith(expect.objectContaining({ leadId: 'lead-1' }));
+    expect(secondValues.mock.calls[0][0].leadId).toBeUndefined();
+    expect(result.body.data).toMatchObject({ id: 'comm-6', leadId: 'lead-1' });
+  });
+
+
+  it('keeps the fallback communication log when relinking it to the lead fails', async () => {
+    const record = {
+      id: 'comm-7',
+      leadId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      status: 'sent',
+      createdAt: new Date('2026-05-05T15:06:00Z'),
+    };
+
+    const leadLinkedError = Object.assign(new Error('insert failed on lead-linked communication log'), {
+      code: 'XX000',
+    });
+    const relinkError = Object.assign(new Error('update failed when linking communication log to lead'), {
+      code: 'XX001',
+    });
+
+    const firstValues = jest.fn().mockReturnValue({
+      returning: jest.fn().mockRejectedValue(leadLinkedError),
+    });
+    const secondValues = jest.fn().mockReturnValue({
+      returning: jest.fn().mockResolvedValue([record]),
+    });
+    mockDb.insert
+      .mockReturnValueOnce({ values: firstValues })
+      .mockReturnValueOnce({ values: secondValues });
+    mockDb.update.mockReturnValue({
+      set: jest.fn().mockReturnValue({
+        where: jest.fn().mockRejectedValue(relinkError),
+      }),
+    });
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainLead({ id: 'lead-1', stage: 'nouveau' }))
+      .mockReturnValueOnce(mockSelectChainRefreshFailure());
+
+    const result = await service.recordCommunicationActivity({
+      leadId: 'lead-1',
+      type: 'fb_messenger',
+      direction: 'inbound',
+      content: 'Bonjour',
+    });
+
+    expect(result.statusCode).toBe(201);
+    expect(secondValues.mock.calls[0][0].leadId).toBeUndefined();
+    expect(result.body.data).toMatchObject({ id: 'comm-7', leadId: 'lead-1' });
+    expect(mockDb.delete).not.toHaveBeenCalled();
   });
 
   it('still returns the visit result when thread refresh fails after scheduling', async () => {

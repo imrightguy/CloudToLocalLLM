@@ -1,5 +1,5 @@
 const {
-  eq, and, desc, ilike, or, inArray,
+  eq, and, desc, ilike, or, inArray, sql,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -400,9 +400,13 @@ async function loadThreadContext(filters = {}) {
   }
 
   const leadIds = leads.map((lead) => lead.id);
+  const leadMatchConditions = leadIds.map((leadId) => or(
+    eq(communicationLogsTable.leadId, leadId),
+    sql`${communicationLogsTable.metadata} ->> 'leadId' = ${leadId}`,
+  ));
   const messageConditions = [
     eq(communicationLogsTable.isActive, true),
-    inArray(communicationLogsTable.leadId, leadIds),
+    or(...leadMatchConditions),
   ];
 
   if (filters.type) {
@@ -658,6 +662,9 @@ async function recordCommunicationActivity(payload = {}) {
   const attachments = normalizeCommunicationAttachments(payload.attachments);
   const status = normalizeCommunicationStatus(payload.status);
   const metadata = normalizeCommunicationMetadata(payload.metadata);
+  const metadataToPersist = leadId
+    ? { ...(metadata && typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {}), leadId }
+    : metadata;
 
   if (!type || !direction) {
     return {
@@ -682,28 +689,62 @@ async function recordCommunicationActivity(payload = {}) {
     if (content) { insertValues.content = content; }
     if (subject) { insertValues.subject = subject; }
     if (Array.isArray(attachments) && attachments.length > 0) { insertValues.attachments = attachments; }
-    if (metadata && typeof metadata === 'object' && !Array.isArray(metadata) && Object.keys(metadata).length > 0) {
-      insertValues.metadata = metadata;
+    if (metadataToPersist && typeof metadataToPersist === 'object' && !Array.isArray(metadataToPersist) && Object.keys(metadataToPersist).length > 0) {
+      insertValues.metadata = metadataToPersist;
     }
+
+    const insertCommunicationLog = async (values) => {
+      try {
+        return await db.insert(communicationLogsTable).values(values).returning();
+      } catch (insertError) {
+        if (!isCommunicationStatusConstraintError(insertError) || values.status === 'sent') {
+          throw insertError;
+        }
+
+        log.warn('Retrying communication log write with fallback status after status constraint failure', {
+          leadId,
+          status: values.status,
+          error: insertError.message,
+        });
+
+        return db.insert(communicationLogsTable).values({
+          ...values,
+          status: 'sent',
+        }).returning();
+      }
+    };
 
     let record;
     try {
-      [record] = await db.insert(communicationLogsTable).values(insertValues).returning();
+      [record] = await insertCommunicationLog(insertValues);
     } catch (insertError) {
-      if (!isCommunicationStatusConstraintError(insertError) || insertValues.status === 'sent') {
+      if (!leadId) {
         throw insertError;
       }
 
-      log.warn('Retrying communication log write with fallback status after status constraint failure', {
-        leadId,
-        status: insertValues.status,
-        error: insertError.message,
-      });
+      const leadlessValues = { ...insertValues };
+      delete leadlessValues.leadId;
 
-      [record] = await db.insert(communicationLogsTable).values({
-        ...insertValues,
-        status: 'sent',
-      }).returning();
+      const [fallbackRecord] = await insertCommunicationLog(leadlessValues);
+
+      if (fallbackRecord?.id) {
+        try {
+          await db
+            .update(communicationLogsTable)
+            .set({ leadId })
+            .where(eq(communicationLogsTable.id, fallbackRecord.id));
+          record = { ...fallbackRecord, leadId };
+        } catch (linkError) {
+          log.warn('Failed to link fallback communication log to lead after lead-linked insert failed', {
+            leadId,
+            communicationLogId: fallbackRecord.id,
+            error: linkError.message,
+          });
+          record = { ...fallbackRecord, leadId };
+        }
+      } else {
+        record = fallbackRecord;
+      }
     }
 
     if (leadId) {

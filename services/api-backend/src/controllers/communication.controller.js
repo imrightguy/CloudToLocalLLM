@@ -1,5 +1,5 @@
 const {
-  eq, and, desc, sql, gte,
+  eq, and, desc, sql, gte, or,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -43,6 +43,10 @@ exports.logCommunication = async (req, res) => {
       });
     }
 
+    const metadataToPersist = leadId
+      ? { ...(normalizeCommunicationMetadata(metadata) || {}), leadId }
+      : normalizeCommunicationMetadata(metadata);
+
     const insertValues = {
       leadId: leadId || null,
       employeeId: employeeId || null,
@@ -52,28 +56,62 @@ exports.logCommunication = async (req, res) => {
       subject: normalizeCommunicationText(subject),
       attachments: normalizeCommunicationAttachments(attachments),
       status: normalizeCommunicationStatus(status),
-      metadata: normalizeCommunicationMetadata(metadata),
+      metadata: metadataToPersist,
       isActive: true,
+    };
+
+    const insertCommunicationLog = async (values) => {
+      try {
+        return await db.insert(communicationLogsTable).values(values).returning();
+      } catch (insertError) {
+        if (!isCommunicationStatusConstraintError(insertError) || values.status === 'sent') {
+          throw insertError;
+        }
+
+        log.warn('Retrying communication log write with fallback status after status constraint failure', {
+          leadId: leadId || null,
+          status: values.status,
+          error: insertError.message,
+        });
+
+        return db.insert(communicationLogsTable).values({
+          ...values,
+          status: 'sent',
+        }).returning();
+      }
     };
 
     let record;
     try {
-      [record] = await db.insert(communicationLogsTable).values(insertValues).returning();
+      [record] = await insertCommunicationLog(insertValues);
     } catch (insertError) {
-      if (!isCommunicationStatusConstraintError(insertError) || insertValues.status === 'sent') {
+      if (!leadId) {
         throw insertError;
       }
 
-      log.warn('Retrying communication log write with fallback status after status constraint failure', {
-        leadId: leadId || null,
-        status: insertValues.status,
-        error: insertError.message,
-      });
+      const leadlessValues = { ...insertValues };
+      delete leadlessValues.leadId;
 
-      [record] = await db.insert(communicationLogsTable).values({
-        ...insertValues,
-        status: 'sent',
-      }).returning();
+      const [fallbackRecord] = await insertCommunicationLog(leadlessValues);
+
+      if (fallbackRecord?.id) {
+        try {
+          await db
+            .update(communicationLogsTable)
+            .set({ leadId })
+            .where(eq(communicationLogsTable.id, fallbackRecord.id));
+          record = { ...fallbackRecord, leadId };
+        } catch (linkError) {
+          log.warn('Failed to link fallback communication log to lead after lead-linked insert failed', {
+            leadId: leadId || null,
+            communicationLogId: fallbackRecord.id,
+            error: linkError.message,
+          });
+          record = { ...fallbackRecord, leadId };
+        }
+      } else {
+        record = fallbackRecord;
+      }
     }
 
     if (record?.leadId) {
@@ -118,7 +156,12 @@ exports.getCommunications = async (req, res) => {
     const offset = (validPage - 1) * validLimit;
 
     const conditions = [eq(communicationLogsTable.isActive, true)];
-    if (leadId) {conditions.push(eq(communicationLogsTable.leadId, leadId));}
+    if (leadId) {
+      conditions.push(or(
+        eq(communicationLogsTable.leadId, leadId),
+        sql`${communicationLogsTable.metadata} ->> 'leadId' = ${leadId}`,
+      ));
+    }
     if (employeeId) {conditions.push(eq(communicationLogsTable.employeeId, employeeId));}
     if (type) {conditions.push(eq(communicationLogsTable.type, type));}
     if (direction) {conditions.push(eq(communicationLogsTable.direction, direction));}
