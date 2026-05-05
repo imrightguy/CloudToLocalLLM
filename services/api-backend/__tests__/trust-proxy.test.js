@@ -26,7 +26,7 @@ describe('rate limiter respects X-Forwarded-For when trust proxy is enabled', ()
     expect(res.body.ip).toBe('203.0.113.50');
   });
 
-    it('ignores X-Forwarded-For when trust proxy is not set', async () => {
+  it('ignores X-Forwarded-For when trust proxy is not set', async () => {
     const app = createApp(false);
     const res = await request(app)
       .get('/test')
@@ -48,4 +48,13 @@ describe('rate limiter respects X-Forwarded-For when trust proxy is enabled', ()
     const res2 = await makeRequest('10.0.0.2');
     expect(res2.status).toBe(200);
   });
+
+  it('does not count successful requests toward the API limit', async () => {
+    const app = createApp(1);
+
+    for (let i = 0; i < 101; i += 1) {
+      const res = await request(app).get('/test').set('X-Forwarded-For', '10.0.0.9');
+      expect(res.status).toBe(200);
+    }
+  }, 20000);
 });
