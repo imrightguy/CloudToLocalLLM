@@ -3,9 +3,6 @@ const {
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const { buildingsTable, unitsTable } = require('../database/schema');
-const {
-  unitSchema, updateUnitSchema,
-} = require('../models/building');
 const { buildingSchemas } = require('../config/validation-schemas');
 const { child } = require('../utils/logger');
 
@@ -262,7 +259,7 @@ exports.deleteBuilding = async (req, res) => {
 // ─── Create Unit ───
 exports.createUnit = async (req, res) => {
   try {
-    const { error, value } = unitSchema.validate(req.body);
+    const { error, value } = buildingSchemas.createUnit.body.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
@@ -449,7 +446,7 @@ exports.getUnitById = async (req, res) => {
 exports.updateUnit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error, value } = updateUnitSchema.validate(req.body);
+    const { error, value } = buildingSchemas.updateUnit.body.validate(req.body);
 
     if (error) {
       return res.status(400).json({

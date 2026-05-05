@@ -40,6 +40,21 @@ jest.mock('../../src/config/validation-schemas', () => ({
         validate: jest.fn((body) => ({ error: null, value: body })),
       },
     },
+    createUnit: {
+      body: {
+        validate: jest.fn((body) => {
+          if (!body.buildingId || !body.unitNumber) {
+            return { error: { details: [{ message: 'buildingId and unitNumber are required' }] } };
+          }
+          return { error: null, value: body };
+        }),
+      },
+    },
+    updateUnit: {
+      body: {
+        validate: jest.fn((body) => ({ error: null, value: body })),
+      },
+    },
   },
 }));
 
@@ -314,7 +329,7 @@ describe('createUnit', () => {
     selectChain.from.mockReturnValue(selectChain);
     selectChain.limit.mockResolvedValueOnce([]);
     const res = mockRes();
-    await buildingController.createUnit({ body: { buildingId: 'bld-1', label: 'A1' } }, res);
+    await buildingController.createUnit({ body: { buildingId: 'bld-1', unitNumber: 'A1' } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'BUILDING_NOT_FOUND' }),
@@ -330,7 +345,7 @@ describe('createUnit', () => {
       }),
     });
     const res = mockRes();
-    await buildingController.createUnit({ body: { buildingId: 'bld-1', label: 'A1', rent: 1500 } }, res);
+    await buildingController.createUnit({ body: { buildingId: 'bld-1', unitNumber: 'A1', rentAmount: 1500 } }, res);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
@@ -352,7 +367,7 @@ describe('createUnit', () => {
       }),
     });
     const res = mockRes();
-    await buildingController.createUnit({ body: { buildingId: 'bld-1', label: 'A1' } }, res);
+    await buildingController.createUnit({ body: { buildingId: 'bld-1', unitNumber: 'A1' } }, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'FOREIGN_KEY_VIOLATION' }),
@@ -429,8 +444,8 @@ describe('getUnitById', () => {
 // ═══════════════════════════════════════════════════════════════════
 describe('updateUnit', () => {
   it('returns 400 on validation error', async () => {
-    const { updateUnitSchema } = require('../../src/models/building');
-    updateUnitSchema.validate.mockReturnValueOnce({ error: { details: [{ message: 'invalid' }] } });
+    const { buildingSchemas } = require('../../src/config/validation-schemas');
+    buildingSchemas.updateUnit.body.validate.mockReturnValueOnce({ error: { details: [{ message: 'invalid' }] } });
     const res = mockRes();
     await buildingController.updateUnit({ params: { id: 'unit-1' }, body: {} }, res);
     expect(res.status).toHaveBeenCalledWith(400);
