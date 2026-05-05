@@ -11,6 +11,13 @@ const {
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 const { BOOKING_STATES, QUALIFICATION_STATES } = require('../constants/marketplace-states');
 const logger = require('../utils/logger');
+const {
+  normalizeCommunicationAttachments,
+  normalizeCommunicationMetadata,
+  normalizeCommunicationStatus,
+  normalizeCommunicationText,
+  isCommunicationStatusConstraintError,
+} = require('../utils/communication');
 
 const log = typeof logger.child === 'function'
   ? logger.child({ service: 'communication-thread' })
@@ -645,11 +652,12 @@ async function recordCommunicationActivity(payload = {}) {
   const employeeId = payload.employeeId || null;
   const type = payload.type;
   const direction = payload.direction;
-  const subject = payload.subject?.trim() || null;
-  const content = payload.content?.trim() || payload.body?.trim() || null;
-  const attachments = payload.attachments || [];
-  const status = payload.status?.trim() || 'sent';
-  const metadata = payload.metadata || {};
+  const subject = normalizeCommunicationText(payload.subject);
+  const content = normalizeCommunicationText(payload.content)
+    ?? normalizeCommunicationText(payload.body);
+  const attachments = normalizeCommunicationAttachments(payload.attachments);
+  const status = normalizeCommunicationStatus(payload.status);
+  const metadata = normalizeCommunicationMetadata(payload.metadata);
 
   if (!type || !direction) {
     return {
@@ -678,7 +686,25 @@ async function recordCommunicationActivity(payload = {}) {
       insertValues.metadata = metadata;
     }
 
-    const [record] = await db.insert(communicationLogsTable).values(insertValues).returning();
+    let record;
+    try {
+      [record] = await db.insert(communicationLogsTable).values(insertValues).returning();
+    } catch (insertError) {
+      if (!isCommunicationStatusConstraintError(insertError) || insertValues.status === 'sent') {
+        throw insertError;
+      }
+
+      log.warn('Retrying communication log write with fallback status after status constraint failure', {
+        leadId,
+        status: insertValues.status,
+        error: insertError.message,
+      });
+
+      [record] = await db.insert(communicationLogsTable).values({
+        ...insertValues,
+        status: 'sent',
+      }).returning();
+    }
 
     if (leadId) {
       try {
@@ -698,7 +724,14 @@ async function recordCommunicationActivity(payload = {}) {
         log.warn('Failed to advance lead stage after communication', { leadId, error: stageError.message });
       }
 
-      await refreshCommunicationThread(leadId, { includeMessages: false });
+      try {
+        await refreshCommunicationThread(leadId, { includeMessages: false });
+      } catch (threadError) {
+        log.warn('Failed to refresh communication thread after logging communication', {
+          leadId,
+          error: threadError.message,
+        });
+      }
     }
 
     return {
@@ -784,7 +817,14 @@ async function recordMarketplaceVisit(leadId, payload = {}) {
       log.warn('Failed to advance lead stage after visit scheduling', { leadId, error: stageError.message });
     }
 
-    await refreshCommunicationThread(leadId, { includeMessages: false });
+    try {
+      await refreshCommunicationThread(leadId, { includeMessages: false });
+    } catch (threadError) {
+      log.warn('Failed to refresh communication thread after scheduling visit', {
+        leadId,
+        error: threadError.message,
+      });
+    }
   }
 
   return {

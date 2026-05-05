@@ -14,6 +14,12 @@ const {
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
+  normalizeCommunicationAttachments,
+  normalizeCommunicationMetadata,
+  normalizeCommunicationStatus,
+  normalizeCommunicationText,
+} = require('../utils/communication');
+const {
   leadsTable,
   buildingsTable,
   unitsTable,
@@ -138,10 +144,10 @@ async function logCommunication({
       employeeId: employeeId || null,
       type: type || 'fb_messenger',
       direction: direction || 'outbound',
-      content: content || null,
-      attachments: attachments || [],
-      status: status || 'sent',
-      metadata: metadata || {},
+      content: normalizeCommunicationText(content),
+      attachments: normalizeCommunicationAttachments(attachments),
+      status: normalizeCommunicationStatus(status),
+      metadata: normalizeCommunicationMetadata(metadata),
     });
 
     const insertedRows = typeof insertQuery.returning === 'function'

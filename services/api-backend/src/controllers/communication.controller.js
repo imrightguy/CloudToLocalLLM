@@ -6,6 +6,13 @@ const {
   communicationLogsTable, leadsTable, visitsTable, smsLogsTable, employeesTable, unitsTable, buildingsTable,
 } = require('../database/schema');
 const { child } = require('../utils/logger');
+const {
+  normalizeCommunicationAttachments,
+  normalizeCommunicationMetadata,
+  normalizeCommunicationStatus,
+  normalizeCommunicationText,
+  isCommunicationStatusConstraintError,
+} = require('../utils/communication');
 const { getConversationThreads, refreshCommunicationThread } = require('../services/communication-thread.service');
 
 const log = child({ controller: 'communication' });
@@ -16,7 +23,8 @@ exports.logCommunication = async (req, res) => {
     const {
       leadId, employeeId, type, direction, content, body, subject, attachments, status, metadata,
     } = req.body;
-    const messageContent = content ?? body ?? null;
+    const messageContent = normalizeCommunicationText(content)
+      ?? normalizeCommunicationText(body);
 
     const validTypes = ['sms', 'email', 'phone', 'fb_messenger'];
     const validDirections = ['inbound', 'outbound'];
@@ -35,18 +43,38 @@ exports.logCommunication = async (req, res) => {
       });
     }
 
-    const [record] = await db.insert(communicationLogsTable).values({
+    const insertValues = {
       leadId: leadId || null,
       employeeId: employeeId || null,
       type,
       direction,
       content: messageContent,
-      subject: subject || null,
-      attachments: attachments || [],
-      status: status || 'sent',
-      metadata: metadata || {},
+      subject: normalizeCommunicationText(subject),
+      attachments: normalizeCommunicationAttachments(attachments),
+      status: normalizeCommunicationStatus(status),
+      metadata: normalizeCommunicationMetadata(metadata),
       isActive: true,
-    }).returning();
+    };
+
+    let record;
+    try {
+      [record] = await db.insert(communicationLogsTable).values(insertValues).returning();
+    } catch (insertError) {
+      if (!isCommunicationStatusConstraintError(insertError) || insertValues.status === 'sent') {
+        throw insertError;
+      }
+
+      log.warn('Retrying communication log write with fallback status after status constraint failure', {
+        leadId: leadId || null,
+        status: insertValues.status,
+        error: insertError.message,
+      });
+
+      [record] = await db.insert(communicationLogsTable).values({
+        ...insertValues,
+        status: 'sent',
+      }).returning();
+    }
 
     if (record?.leadId) {
       try {

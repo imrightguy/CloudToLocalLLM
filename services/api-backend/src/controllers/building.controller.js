@@ -281,8 +281,28 @@ exports.createUnit = async (req, res) => {
       });
     }
 
-    // Convert rent (dollars) → rentCents (cents) for storage
-    const rentCents = (value.rent || 0) * 100;
+    // Convert request contract values into stored unit fields
+    const label = value.unitNumber || value.label;
+    const rentAmount = value.rentAmount ?? value.rent ?? 0;
+    const rentCents = Math.round(rentAmount * 100);
+    const status = value.status || ((value.isAvailable ?? true) ? 'vacant' : 'occupied');
+    const squareFeet = value.sqft ?? value.squareFeet ?? null;
+
+    const unitInsert = {
+      buildingId: value.buildingId,
+      label,
+      rentCents,
+      status,
+    };
+
+    if (value.bedrooms !== undefined) { unitInsert.bedrooms = value.bedrooms; }
+    if (value.bathrooms !== undefined) { unitInsert.bathrooms = value.bathrooms; }
+    if (squareFeet !== null && squareFeet !== undefined) { unitInsert.squareFeet = squareFeet; }
+    if (value.description) { unitInsert.description = value.description; }
+    if (Array.isArray(value.amenities) && value.amenities.length > 0) { unitInsert.amenities = value.amenities; }
+    if (value.tenantName) { unitInsert.tenantName = value.tenantName; }
+    if (value.tenantPhone) { unitInsert.tenantPhone = value.tenantPhone; }
+    if (value.tenantLeaseEnd) { unitInsert.tenantLeaseEnd = new Date(value.tenantLeaseEnd); }
 
     const unitInsert = {
       buildingId: value.buildingId,

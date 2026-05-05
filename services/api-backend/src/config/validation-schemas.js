@@ -5,6 +5,10 @@ const {
   BOOKING_STATES,
   MARKETPLACE_REASON_CODES,
 } = require('../constants/marketplace-states');
+const {
+  buildingSchema,
+  updateBuildingSchema,
+} = require('../models/building');
 
 const uuid = Joi.string().uuid();
 
@@ -19,25 +23,11 @@ const buildingIdParam = { params: Joi.object({ buildingId: uuid }) };
 
 const buildingSchemas = {
   create: {
-    body: Joi.object({
-      name: Joi.string().trim().min(1).max(255).required(),
-      address: Joi.string().trim().min(1).max(500).required(),
-      city: Joi.string().trim().min(1).max(255).required(),
-      province: Joi.string().trim().max(10).default('QC'),
-      postalCode: Joi.string().trim().max(10),
-      totalUnits: Joi.number().integer().min(0),
-    }),
+    body: buildingSchema,
   },
   update: {
     params: Joi.object({ id: uuid }),
-    body: Joi.object({
-      name: Joi.string().trim().min(1).max(255),
-      address: Joi.string().trim().min(1).max(500),
-      city: Joi.string().trim().min(1).max(255),
-      province: Joi.string().trim().max(10),
-      postalCode: Joi.string().trim().max(10),
-      totalUnits: Joi.number().integer().min(0),
-    }).min(1),
+    body: updateBuildingSchema.min(1),
   },
   createUnit: {
     body: Joi.object({
@@ -533,6 +523,7 @@ const scheduleSchemas = {
   create: {
     body: Joi.object({
       employeeId: uuid.required(),
+      buildingId: uuid.required(),
       dayOfWeek: Joi.number().integer().min(0).max(6).required(),
       startTime: Joi.string().pattern(/^([01]\d|2[0-3]):[0-5]\d$/).required(),
       endTime: Joi.string().pattern(/^([01]\d|2[0-3]):[0-5]\d$/).required(),
@@ -542,6 +533,7 @@ const scheduleSchemas = {
   update: {
     params: Joi.object({ id: uuid }),
     body: Joi.object({
+      buildingId: uuid,
       dayOfWeek: Joi.number().integer().min(0).max(6),
       startTime: Joi.string().pattern(/^([01]\d|2[0-3]):[0-5]\d$/),
       endTime: Joi.string().pattern(/^([01]\d|2[0-3]):[0-5]\d$/),

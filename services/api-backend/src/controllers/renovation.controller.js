@@ -27,6 +27,7 @@ const {
   VALID_RENOVATION_TASK_TRANSITIONS,
   VALID_RENOVATION_ORDER_TRANSITIONS,
   VALID_RENOVATION_SURPLUS_TRANSITIONS,
+  hasVerificationEvidence,
 } = require('../models/renovation');
 const { child } = require('../utils/logger');
 const { syncReadinessProjectionByRenovationRecordId } = require('../services/renovation-readiness.service');
@@ -279,6 +280,11 @@ exports.createRenovationTask = async (req, res) => {
       }
     }
 
+    const verificationEvidence = value.verificationEvidence || [];
+    if (value.status === 'done' && !hasVerificationEvidence(verificationEvidence)) {
+      return error(res, 422, 'MISSING_VERIFICATION_EVIDENCE', 'Une preuve de vérification est requise avant de marquer la tâche comme terminée');
+    }
+
     const [task] = await db.insert(renovationTasksTable).values({
       renovationRecordId: value.renovationRecordId,
       assigneeEmployeeId: value.assigneeEmployeeId || null,
@@ -286,6 +292,7 @@ exports.createRenovationTask = async (req, res) => {
       description: value.description || null,
       status: value.status || 'todo',
       dueDate: toDateOrNull(value.dueDate),
+      verificationEvidence,
       notes: value.notes || null,
     }).returning();
 
@@ -323,6 +330,13 @@ exports.updateRenovationTask = async (req, res) => {
       }
     }
 
+    const existingVerificationEvidence = hasVerificationEvidence(existing.verificationEvidence) ? existing.verificationEvidence : [];
+    const requestedVerificationEvidence = value.verificationEvidence !== undefined ? value.verificationEvidence : null;
+    const effectiveVerificationEvidence = requestedVerificationEvidence || existingVerificationEvidence;
+    if (value.status === 'done' && !hasVerificationEvidence(effectiveVerificationEvidence)) {
+      return error(res, 422, 'MISSING_VERIFICATION_EVIDENCE', 'Une preuve de vérification est requise avant de marquer la tâche comme terminée');
+    }
+
     const updates = { updatedAt: new Date() };
     if (value.assigneeEmployeeId !== undefined) { updates.assigneeEmployeeId = value.assigneeEmployeeId; }
     if (value.title !== undefined) { updates.title = value.title; }
@@ -331,6 +345,7 @@ exports.updateRenovationTask = async (req, res) => {
       updates.status = value.status;
       updates.completedAt = value.status === 'done' ? new Date() : null;
     }
+    if (value.verificationEvidence !== undefined) { updates.verificationEvidence = requestedVerificationEvidence; }
     if (value.dueDate !== undefined) { updates.dueDate = toDateOrNull(value.dueDate); }
     if (value.notes !== undefined) { updates.notes = value.notes; }
 

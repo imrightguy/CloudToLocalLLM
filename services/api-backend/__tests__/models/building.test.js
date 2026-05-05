@@ -9,6 +9,7 @@ describe('buildingSchema', () => {
   const validBuilding = {
     name: 'Sunset Towers',
     address: '123 Main Street, Montreal',
+    city: 'Montreal',
     totalUnits: 10,
   };
 
@@ -52,7 +53,7 @@ describe('buildingSchema', () => {
   });
 
   it('rejects missing name', () => {
-    const { error } = buildingSchema.validate({ address: '123 Main St', totalUnits: 5 });
+    const { error } = buildingSchema.validate({ city: 'Montreal', address: '123 Main St', totalUnits: 5 });
     expect(error).toBeDefined();
     expect(error.details[0].path).toContain('name');
   });
@@ -70,7 +71,7 @@ describe('buildingSchema', () => {
   });
 
   it('rejects missing address', () => {
-    const { error } = buildingSchema.validate({ name: 'Test', totalUnits: 5 });
+    const { error } = buildingSchema.validate({ name: 'Test', city: 'Montreal', totalUnits: 5 });
     expect(error).toBeDefined();
     expect(error.details[0].path).toContain('address');
   });
@@ -82,7 +83,7 @@ describe('buildingSchema', () => {
   });
 
   it('rejects missing totalUnits', () => {
-    const { error } = buildingSchema.validate({ name: 'Test', address: '123 Main St' });
+    const { error } = buildingSchema.validate({ name: 'Test', city: 'Montreal', address: '123 Main St' });
     expect(error).toBeDefined();
     expect(error.details[0].path).toContain('totalUnits');
   });
@@ -259,10 +260,9 @@ describe('unitSchema', () => {
     expect(error.details[0].path).toContain('buildingId');
   });
 
-  it('rejects missing label', () => {
+  it('allows missing label', () => {
     const { error } = unitSchema.validate({ buildingId: validUnit.buildingId, rent: 85000, status: 'vacant' });
-    expect(error).toBeDefined();
-    expect(error.details[0].path).toContain('label');
+    expect(error).toBeUndefined();
   });
 
   it('rejects label with special characters', () => {
@@ -286,10 +286,9 @@ describe('unitSchema', () => {
     expect(error).toBeDefined();
   });
 
-  it('rejects missing rent', () => {
+  it('allows missing rent', () => {
     const { error } = unitSchema.validate({ ...validUnit, rent: undefined });
-    expect(error).toBeDefined();
-    expect(error.details[0].path).toContain('rent');
+    expect(error).toBeUndefined();
   });
 
   it('rejects negative rent', () => {

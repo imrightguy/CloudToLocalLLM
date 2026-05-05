@@ -174,11 +174,15 @@ describe('renovationTasksTable', () => {
   const t = schema.renovationTasksTable;
   const cols = [
     'id', 'renovationRecordId', 'assigneeEmployeeId', 'title', 'description',
-    'status', 'dueDate', 'completedAt', 'notes', 'isActive', 'createdAt', 'updatedAt',
+    'status', 'dueDate', 'completedAt', 'verificationEvidence', 'notes', 'isActive', 'createdAt', 'updatedAt',
   ];
 
   it('should have all expected columns', () => {
     cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default verification evidence to an empty array', () => {
+    expect(t.verificationEvidence.hasDefault).toBe(true);
   });
 });
 

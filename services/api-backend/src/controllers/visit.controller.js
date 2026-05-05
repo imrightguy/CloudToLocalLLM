@@ -790,7 +790,7 @@ exports.updateVisit = async (req, res) => {
 exports.rescheduleVisit = async (req, res) => {
   try {
     const { id } = req.params;
-    const { dateTime, sendSms = true, notes } = req.body;
+    const { dateTime, sendSms = true, reasonCode, notes } = req.body;
 
     const [existing] = await db
       .select()
@@ -813,6 +813,27 @@ exports.rescheduleVisit = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
+      });
+    }
+
+    const normalizedReasonCode = reasonCode === null ? null : String(reasonCode || '').trim() || null;
+    if (!normalizedReasonCode) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'reasonCode is required when rescheduling a visit',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+    }
+
+    if (!VALID_VISIT_FAILURE_REASON_CODES.has(normalizedReasonCode)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid reason code. Must be one of: tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other',
+          code: 'VALIDATION_ERROR',
+        },
       });
     }
 
@@ -849,6 +870,7 @@ exports.rescheduleVisit = async (req, res) => {
       updatedAt: new Date(),
     };
     setRescheduleMetadata(updateData);
+    updateData.reasonCode = normalizedReasonCode;
 
     if (notes !== undefined) {
       updateData.notes = notes?.trim() || null;
@@ -1062,61 +1084,3 @@ exports.updateVisitStatus = async (req, res) => {
   }
 };
 
-exports.rescheduleVisit = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { dateTime, reasonCode, notes } = req.body;
-
-    if (!dateTime) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'dateTime is required', code: 'VALIDATION_ERROR' },
-      });
-    }
-
-    const parsed = new Date(dateTime);
-    if (Number.isNaN(parsed.getTime())) {
-      return res.status(400).json({
-        success: false,
-        error: { message: 'dateTime must be a valid ISO date string', code: 'VALIDATION_ERROR' },
-      });
-    }
-
-    const normalizedReasonCode = reasonCode === null ? null : String(reasonCode || '').trim() || null;
-    if (!normalizedReasonCode) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'reasonCode is required when rescheduling a visit',
-          code: 'VALIDATION_ERROR',
-        },
-      });
-    }
-
-    if (!VALID_VISIT_FAILURE_REASON_CODES.has(normalizedReasonCode)) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Invalid reason code. Must be one of: tenant_request, tenant_conflict, host_unavailable, access_issue, weather, tenant_no_show, other',
-          code: 'VALIDATION_ERROR',
-        },
-      });
-    }
-
-    req.body = {
-      ...req.body,
-      dateTime: parsed.toISOString(),
-      reasonCode: normalizedReasonCode,
-      notes,
-      rescheduledAt: new Date().toISOString(),
-    };
-
-    return exports.updateVisit(req, res);
-  } catch (error) {
-    logger.error('Error rescheduling visit:', error);
-    return res.status(500).json({
-      success: false,
-      error: { message: 'Internal server error', code: 'VISIT_RESCHEDULE_FAILED' },
-    });
-  }
-};

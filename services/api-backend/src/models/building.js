@@ -22,6 +22,24 @@ const buildingSchema = Joi.object({
       'string.empty': 'Address is required',
     }),
 
+  city: Joi.string()
+    .min(1)
+    .max(255)
+    .required()
+    .messages({
+      'string.empty': 'City is required',
+    }),
+
+  province: Joi.string()
+    .max(10)
+    .optional()
+    .default('QC'),
+
+  postalCode: Joi.string()
+    .max(10)
+    .optional()
+    .allow(''),
+
   totalUnits: Joi.number()
     .integer()
     .min(1)
@@ -130,20 +148,24 @@ const unitSchema = Joi.object({
   label: Joi.string()
     .min(2)
     .max(50)
-    .required()
     .pattern(/^[A-Za-z0-9\- ]+$/)
     .messages({
       'string.min': 'Unit label must be at least 2 characters long',
       'string.max': 'Unit label cannot be more than 50 characters long',
-      'string.empty': 'Unit label is required',
       'string.pattern.base': 'Unit label can only contain letters, numbers, spaces, and hyphens',
+    }),
+
+  unitNumber: Joi.string()
+    .min(1)
+    .max(50)
+    .messages({
+      'string.empty': 'Unit number is required',
     }),
 
   rent: Joi.number()
     .integer()
     .min(0)
-    .max(100000) // Max $100,000 rent per month
-    .required()
+    .max(100000)
     .messages({
       'number.base': 'Rent must be a number',
       'number.integer': 'Rent must be an integer',
@@ -151,13 +173,24 @@ const unitSchema = Joi.object({
       'number.max': 'Rent cannot exceed $100,000 per month',
     }),
 
+  rentAmount: Joi.number()
+    .min(0)
+    .max(100000)
+    .messages({
+      'number.base': 'Rent amount must be a number',
+      'number.min': 'Rent amount cannot be negative',
+      'number.max': 'Rent amount cannot exceed $100,000 per month',
+    }),
+
   status: Joi.string()
     .valid('vacant', 'occupied', 'maintenance')
     .default('vacant')
-    .required()
     .messages({
       'any.only': 'Status must be one of: vacant, occupied, maintenance',
     }),
+
+  isAvailable: Joi.boolean(),
+  type: Joi.string().valid('studio', '1br', '2br', '3br', '4br', 'other'),
 
   amenities: Joi.array()
     .items(Joi.string())
@@ -171,7 +204,7 @@ const unitSchema = Joi.object({
   squareFeet: Joi.number()
     .integer()
     .min(100)
-    .max(10000) // Max 10,000 sq ft
+    .max(10000)
     .optional()
     .messages({
       'number.base': 'Square feet must be a number',
@@ -179,6 +212,12 @@ const unitSchema = Joi.object({
       'number.min': 'Square feet must be at least 100',
       'number.max': 'Square feet cannot exceed 10,000',
     }),
+
+  sqft: Joi.number()
+    .integer()
+    .min(0)
+    .max(10000)
+    .optional(),
 
   bedrooms: Joi.number()
     .integer()

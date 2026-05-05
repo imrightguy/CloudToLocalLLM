@@ -13,6 +13,7 @@ const {
 const validBuilding = () => ({
   name: 'Tour A',
   address: '123 Rue Principale, Montréal',
+  city: 'Montreal',
   totalUnits: 50,
   occupiedUnits: 30,
   monthlyRevenue: 75000,
@@ -59,7 +60,7 @@ describe('buildingSchema', () => {
   });
 
   test('applies defaults for optional fields', () => {
-    const minimal = { name: 'AB', address: '12345', totalUnits: 1 };
+    const minimal = { name: 'AB', address: '12345', city: 'Montreal', totalUnits: 1 };
     const { error, value } = buildingSchema.validate(minimal);
     expect(error).toBeUndefined();
     expect(value.occupiedUnits).toBe(0);
@@ -68,7 +69,7 @@ describe('buildingSchema', () => {
   });
 
   test('rejects missing required name', () => {
-    const { error } = buildingSchema.validate({ address: '12345', totalUnits: 1 });
+    const { error } = buildingSchema.validate({ city: 'Montreal', address: '12345', totalUnits: 1 });
     expect(error).toBeDefined();
     expect(error.details[0].path).toContain('name');
   });

@@ -90,6 +90,7 @@ jest.mock('../../src/models/renovation', () => ({
     resolved: [],
     dismissed: [],
   },
+  hasVerificationEvidence: jest.fn((evidence) => Array.isArray(evidence) && evidence.length > 0),
 }));
 
 const mockSelectChain = () => {
@@ -155,6 +156,7 @@ jest.mock('../../src/database/schema', () => ({
     status: 'status',
     dueDate: 'dueDate',
     completedAt: 'completedAt',
+    verificationEvidence: 'verificationEvidence',
     notes: 'notes',
     isActive: 'isActive',
     createdAt: 'createdAt',
@@ -329,5 +331,41 @@ describe('renovation controller', () => {
 
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: expect.objectContaining({ orderId: 'order-1', taskId: 'task-1', status: 'linked' }) }));
+  });
+
+  it('rejects done task creation without verification evidence', async () => {
+    selectChain.limit.mockResolvedValueOnce([{ id: 'reno-1' }]);
+
+    const res = mockRes();
+    await renovationController.createRenovationTask({ body: { renovationRecordId: 'reno-1', title: 'Inspect paint', status: 'done' } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.objectContaining({ code: 'MISSING_VERIFICATION_EVIDENCE' }) }));
+  });
+
+  it('rejects done task updates without verification evidence', async () => {
+    selectChain.limit.mockResolvedValueOnce([{ id: 'task-1', renovationRecordId: 'reno-1', status: 'in_progress', verificationEvidence: [] }]);
+
+    const res = mockRes();
+    await renovationController.updateRenovationTask({ params: { id: 'task-1' }, body: { status: 'done' } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.objectContaining({ code: 'MISSING_VERIFICATION_EVIDENCE' }) }));
+  });
+
+  it('allows done task updates when verification evidence is present', async () => {
+    selectChain.limit.mockResolvedValueOnce([{ id: 'task-1', renovationRecordId: 'reno-1', status: 'in_progress', verificationEvidence: [] }]);
+    mockDb.update.mockReturnValueOnce({
+      set: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          returning: jest.fn().mockResolvedValue([{ id: 'task-1', status: 'done', completedAt: new Date('2026-05-02T19:00:00.000Z'), verificationEvidence: [{ type: 'artifact', summary: 'Photo set in shared drive', reference: 'drive://album/123' }] }]),
+        }),
+      }),
+    });
+
+    const res = mockRes();
+    await renovationController.updateRenovationTask({ params: { id: 'task-1' }, body: { status: 'done', verificationEvidence: [{ type: 'artifact', summary: 'Photo set in shared drive', reference: 'drive://album/123' }] } }, res);
+
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, data: expect.objectContaining({ status: 'done' }) }));
   });
 });

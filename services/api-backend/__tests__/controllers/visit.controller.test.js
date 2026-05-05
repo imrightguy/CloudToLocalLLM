@@ -73,6 +73,8 @@ jest.mock('../../src/database/schema', () => ({
 
 const visitController = require('../../src/controllers/visit.controller');
 const { db } = require('../../src/database/connection');
+const { sendVisitConfirmation, sendTenantConfirmationRequest } = require('../../src/services/sms.service');
+const { refreshCommunicationThread } = require('../../src/services/communication-thread.service');
 
 function mockRes() {
   const res = {};
@@ -353,6 +355,120 @@ describe('updateVisit', () => {
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       error: expect.objectContaining({ code: 'SCHEDULE_CONFLICT' }),
+    }));
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// rescheduleVisit
+// ═══════════════════════════════════════════════════════════════════
+describe('rescheduleVisit', () => {
+  it('reschedules a visit, records the reason code, sends confirmations, and refreshes the thread', async () => {
+    const existing = {
+      id: 'visit-1',
+      status: 'scheduled',
+      dateTime: futureDate,
+      durationMinutes: 30,
+      employeeId: 'emp-1',
+      unitId: 'unit-1',
+      leadId: 'lead-1',
+      isActive: true,
+    };
+    const updatedVisit = {
+      ...existing,
+      dateTime: new Date(futureDate.getTime() + 86400000),
+      reasonCode: 'tenant_conflict',
+      status: 'scheduled',
+      updatedAt: new Date(),
+    };
+    const set = jest.fn().mockReturnValue({
+      where: jest.fn().mockReturnValue({
+        returning: jest.fn().mockResolvedValue([updatedVisit]),
+      }),
+    });
+    mockDb.update.mockReturnValueOnce({ set });
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([existing]);
+    selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
+    selectChain.limit.mockResolvedValueOnce([{ startTime: '09:00', endTime: '17:00', isActive: true }]);
+    selectChain.limit.mockResolvedValueOnce([]);
+    const res = mockRes();
+    const nextDay = new Date(futureDate.getTime() + 86400000);
+
+    await visitController.rescheduleVisit({
+      params: { id: 'visit-1' },
+      body: {
+        dateTime: nextDay.toISOString(),
+        reasonCode: 'tenant_conflict',
+        notes: '  Tenant needed next day  ',
+      },
+    }, res);
+
+    expect(set).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'scheduled',
+      reasonCode: 'tenant_conflict',
+      notes: 'Tenant needed next day',
+      tenantConfirmed: false,
+      employeeConfirmed: false,
+      dateTime: nextDay,
+      rescheduledAt: expect.any(Date),
+    }));
+    expect(sendVisitConfirmation).toHaveBeenCalledWith('visit-1');
+    expect(sendTenantConfirmationRequest).toHaveBeenCalledWith('visit-1');
+    expect(refreshCommunicationThread).toHaveBeenCalledWith('lead-1', { includeMessages: false });
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      message: 'Visit rescheduled successfully',
+      data: updatedVisit,
+    }));
+  });
+
+  it('skips confirmation SMS when sendSms is false', async () => {
+    const existing = {
+      id: 'visit-1',
+      status: 'scheduled',
+      dateTime: futureDate,
+      durationMinutes: 30,
+      employeeId: 'emp-1',
+      unitId: 'unit-1',
+      leadId: 'lead-1',
+      isActive: true,
+    };
+    const updatedVisit = {
+      ...existing,
+      dateTime: new Date(futureDate.getTime() + 2 * 86400000),
+      reasonCode: 'tenant_request',
+      updatedAt: new Date(),
+    };
+    mockDb.update.mockReturnValueOnce({
+      set: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          returning: jest.fn().mockResolvedValue([updatedVisit]),
+        }),
+      }),
+    });
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([existing]);
+    selectChain.limit.mockResolvedValueOnce([{ buildingId: 'bld-1' }]);
+    selectChain.limit.mockResolvedValueOnce([{ startTime: '09:00', endTime: '17:00', isActive: true }]);
+    selectChain.limit.mockResolvedValueOnce([]);
+    const res = mockRes();
+
+    await visitController.rescheduleVisit({
+      params: { id: 'visit-1' },
+      body: {
+        dateTime: new Date(futureDate.getTime() + 2 * 86400000).toISOString(),
+        reasonCode: 'tenant_request',
+        sendSms: false,
+      },
+    }, res);
+
+    expect(sendVisitConfirmation).not.toHaveBeenCalled();
+    expect(sendTenantConfirmationRequest).not.toHaveBeenCalled();
+    expect(refreshCommunicationThread).toHaveBeenCalledWith('lead-1', { includeMessages: false });
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      message: 'Visit rescheduled successfully',
     }));
   });
 });

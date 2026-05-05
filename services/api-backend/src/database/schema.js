@@ -133,6 +133,7 @@ const renovationTasksTable = pgTable('renovation_tasks', {
   status: text('status').notNull().default('todo'), // todo | in_progress | blocked | done | cancelled
   dueDate: timestamp('due_date', { mode: 'date' }),
   completedAt: timestamp('completed_at'),
+  verificationEvidence: jsonb('verification_evidence').notNull().default('[]'),
   notes: text('notes'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -366,7 +367,7 @@ const communicationLogsTable = pgTable('communication_logs', {
   content: text('content'),
   subject: text('subject'),
   attachments: jsonb('attachments').default('[]'),
-  status: text('status').notNull().default('sent'), // sent | delivered | read | failed
+  status: text('status').notNull().default('sent'), // sent | delivered | read | failed | received
   metadata: jsonb('metadata').default('{}'),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),

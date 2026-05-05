@@ -53,6 +53,22 @@ const VALID_RENOVATION_SURPLUS_TRANSITIONS = {
   discarded: [],
 };
 
+const VERIFICATION_EVIDENCE_TYPES = ['tests', 'browser', 'deploy', 'artifact'];
+const verificationEvidenceItemSchema = Joi.object({
+  type: Joi.string().valid(...VERIFICATION_EVIDENCE_TYPES).required(),
+  summary: Joi.string().trim().min(1).max(500).required(),
+  reference: Joi.string().trim().max(2000).optional().allow(null, ''),
+}).unknown(false);
+const verificationEvidenceSchema = Joi.array().items(verificationEvidenceItemSchema).default([]);
+const optionalVerificationEvidenceSchema = Joi.array().items(verificationEvidenceItemSchema);
+
+const hasVerificationEvidence = (evidence) => Array.isArray(evidence)
+  && evidence.length > 0
+  && evidence.every((item) => item
+    && VERIFICATION_EVIDENCE_TYPES.includes(item.type)
+    && typeof item.summary === 'string'
+    && item.summary.trim().length > 0);
+
 const VALID_RENOVATION_INTAKE_MESSAGE_KINDS = ['update', 'missing_material', 'blocker', 'completion', 'surplus', 'general_note'];
 const VALID_RENOVATION_INTAKE_STATUSES = ['new', 'triaged', 'linked', 'resolved', 'dismissed'];
 const VALID_RENOVATION_INTAKE_STATUS_TRANSITIONS = {
@@ -96,6 +112,7 @@ const renovationTaskSchema = Joi.object({
   description: Joi.string().max(5000).optional().allow(null, ''),
   status: Joi.string().valid(...VALID_RENOVATION_TASK_STATUSES).default('todo'),
   dueDate: Joi.date().iso().optional().allow(null),
+  verificationEvidence: optionalVerificationEvidenceSchema,
   notes: Joi.string().max(5000).optional().allow(null, ''),
 });
 
@@ -105,6 +122,7 @@ const updateRenovationTaskSchema = Joi.object({
   description: Joi.string().max(5000).optional().allow(null, ''),
   status: Joi.string().valid(...VALID_RENOVATION_TASK_STATUSES),
   dueDate: Joi.date().iso().optional().allow(null),
+  verificationEvidence: optionalVerificationEvidenceSchema,
   notes: Joi.string().max(5000).optional().allow(null, ''),
 }).min(1);
 
@@ -227,4 +245,5 @@ module.exports = {
   VALID_RENOVATION_INTAKE_MESSAGE_KINDS,
   VALID_RENOVATION_INTAKE_STATUSES,
   VALID_RENOVATION_INTAKE_STATUS_TRANSITIONS,
+  hasVerificationEvidence,
 };
