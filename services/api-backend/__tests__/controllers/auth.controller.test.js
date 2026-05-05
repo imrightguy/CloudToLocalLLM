@@ -70,11 +70,12 @@ const mockUser = {
   email: 'test@test.com',
   firstName: 'John',
   lastName: 'Doe',
-  phone: '+15145551234',
+  phone: '+151****1234',
   role: 'admin',
   isActive: true,
   emailVerified: true,
   tokenVersion: 1,
+  company: 'ImmoGestion',
   passwordHash: '$2a$12$hash',
 };
 
@@ -216,7 +217,7 @@ describe('login', () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
       data: expect.objectContaining({
-        user: expect.objectContaining({ email: 'test@test.com' }),
+        user: expect.objectContaining({ email: 'test@test.com', company: 'ImmoGestion' }),
         tokens: expect.objectContaining({ tokenType: 'Bearer' }),
       }),
     }));
@@ -359,7 +360,7 @@ describe('getProfile', () => {
     await authController.getProfile({ user: { id: 'user-1' } }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
-      data: expect.objectContaining({ email: 'test@test.com' }),
+      data: expect.objectContaining({ email: 'test@test.com', company: 'ImmoGestion' }),
     }));
   });
 });
@@ -479,7 +480,10 @@ describe('getAllUsers', () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
       data: expect.objectContaining({
-        users: [mockUser],
+        users: [expect.objectContaining({
+          email: 'test@test.com',
+          company: 'ImmoGestion',
+        })],
         pagination: expect.objectContaining({
           total: 1,
           page: 1,
@@ -532,7 +536,10 @@ describe('getUserById', () => {
     await authController.getUserById({ params: { id: 'user-1' } }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       success: true,
-      data: mockUser,
+      data: expect.objectContaining({
+        email: 'test@test.com',
+        company: 'ImmoGestion',
+      }),
     }));
   });
 });

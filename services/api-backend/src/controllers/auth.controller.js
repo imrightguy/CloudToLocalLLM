@@ -9,13 +9,15 @@ const { child } = require('../utils/logger');
 
 const log = child({ controller: 'auth' });
 
+const COMPANY_NAME = process.env.APP_COMPANY_NAME || 'ImmoGestion';
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/** Strip passwordHash from a user row */
+/** Strip passwordHash from a user row and attach the single-company profile contract. */
 const sanitizeUser = (user) => {
   if (!user) {return null;}
   const { passwordHash: _passwordHash, ...safe } = user;
-  return safe;
+  return { ...safe, company: COMPANY_NAME };
 };
 
 /** Fields to return for user objects (excludes passwordHash) */
@@ -86,7 +88,7 @@ const register = async (req, res) => {
       });
     }
 
-    const user = created[0];
+    const user = sanitizeUser(created[0]);
 
     // Generate tokens
     const accessToken = generateAccessToken(user);
@@ -372,7 +374,7 @@ const getProfile = async (req, res) => {
 
     return res.json({
       success: true,
-      data: rows[0],
+      data: sanitizeUser(rows[0]),
       message: 'Profile retrieved successfully',
     });
   } catch (error) {
@@ -440,7 +442,7 @@ const updateProfile = async (req, res) => {
 
     return res.json({
       success: true,
-      data: updated[0],
+      data: sanitizeUser(updated[0]),
       message: 'Profile updated successfully',
     });
   } catch (error) {
@@ -554,7 +556,7 @@ const getAllUsers = async (req, res) => {
     return res.json({
       success: true,
       data: {
-        users,
+        users: users.map((user) => sanitizeUser(user)),
         pagination: {
           total: count,
           page,
@@ -594,7 +596,7 @@ const getUserById = async (req, res) => {
 
     return res.json({
       success: true,
-      data: rows[0],
+      data: sanitizeUser(rows[0]),
       message: 'User retrieved successfully',
     });
   } catch (error) {
@@ -668,7 +670,7 @@ const updateUser = async (req, res) => {
 
     return res.json({
       success: true,
-      data: updated[0],
+      data: sanitizeUser(updated[0]),
       message: 'User updated successfully',
     });
   } catch (error) {

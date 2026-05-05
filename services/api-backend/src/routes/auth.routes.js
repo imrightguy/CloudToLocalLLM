@@ -133,6 +133,7 @@ const updateUserSchema = {
  *                             firstName: { type: string }
  *                             lastName: { type: string }
  *                             role: { type: string }
+ *                             company: { type: string }
  *                         accessToken: { type: string }
  *                         refreshToken: { type: string }
  *       400:
@@ -190,6 +191,7 @@ router.post('/register', registrationLimiter, validate(registerSchema), asyncHan
  *                             firstName: { type: string }
  *                             lastName: { type: string }
  *                             role: { type: string }
+ *                             company: { type: string }
  *                         accessToken: { type: string }
  *                         refreshToken: { type: string }
  *       401:
@@ -297,6 +299,7 @@ router.post('/logout', optionalAuth, asyncHandler(authController.logout));
  *                         firstName: { type: string }
  *                         lastName: { type: string }
  *                         role: { type: string }
+ *                         company: { type: string }
  *       401:
  *         description: Not authenticated
  *         content:
