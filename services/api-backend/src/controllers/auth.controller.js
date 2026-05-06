@@ -184,11 +184,18 @@ const login = async (req, res) => {
       userAgent: req.headers['user-agent'] || null,
     });
 
-    // Update lastLogin
-    await db
-      .update(usersTable)
-      .set({ lastLogin: new Date() })
-      .where(eq(usersTable.id, user.id));
+    // Update lastLogin without blocking a successful login if audit metadata persistence fails.
+    try {
+      await db
+        .update(usersTable)
+        .set({ lastLogin: new Date() })
+        .where(eq(usersTable.id, user.id));
+    } catch (updateError) {
+      log.warn('Failed to update lastLogin during login', {
+        userId: user.id,
+        error: updateError.message,
+      });
+    }
 
     const safeUser = sanitizeUser(user);
 

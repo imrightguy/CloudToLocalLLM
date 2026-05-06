@@ -223,6 +223,30 @@ describe('login', () => {
     }));
     expect(bcrypt.compare).toHaveBeenCalledWith('pass123', mockUser.passwordHash);
   });
+
+  it('still logs in successfully when lastLogin persistence fails', async () => {
+    selectChain.from.mockReturnValue(selectChain);
+    selectChain.limit.mockResolvedValueOnce([mockUser]);
+    mockDb.update.mockReturnValueOnce({
+      set: jest.fn().mockReturnValue({
+        where: jest.fn().mockRejectedValue(new Error('last_login column write failed')),
+      }),
+    });
+
+    const res = mockRes();
+    await authController.login({
+      body: { email: 'test@test.com', password: 'pass123' },
+      ip: '127.0.0.1',
+      headers: { 'user-agent': 'test' },
+    }, res);
+
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: true,
+      data: expect.objectContaining({
+        user: expect.objectContaining({ email: 'test@test.com', company: 'ImmoGestion' }),
+      }),
+    }));
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════
