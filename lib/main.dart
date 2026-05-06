@@ -24,6 +24,7 @@ import 'screens/marketplace_inbox_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/renovation_ops_screen.dart';
 import 'screens/maintenance_command_center_screen.dart';
+import 'screens/daily_task_tracker_screen.dart';
 import 'screens/observation_review_inbox_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'theme/app_colors.dart';
@@ -83,6 +84,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     switch (location.path) {
       case '/maintenance':
         return const AuthGate(child: MaintenanceCommandCenterScreen());
+      case '/daily-tasks':
+        return const AuthGate(child: DailyTaskTrackerScreen());
       case '/renovation-ops':
         return const AuthGate(child: RenovationOpsScreen());
       default:
@@ -134,6 +137,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
             _protectedRoute((context) => const RenovationOpsScreen()),
         '/maintenance': _protectedRoute(
             (context) => const MaintenanceCommandCenterScreen()),
+        '/daily-tasks': _protectedRoute(
+            (context) => const DailyTaskTrackerScreen()),
         '/observations': _protectedRoute((context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           final findingId = args is Map<String, dynamic>

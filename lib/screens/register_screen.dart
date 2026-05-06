@@ -171,235 +171,267 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Header
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.08),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person_add_rounded,
-                        size: 44,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Créer un compte',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Rejoignez ImmoGestion',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-
-                    // Name row
-                    Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isDesktop = constraints.maxWidth >= 900;
+            return Center(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 32 : 24,
+                  vertical: isDesktop ? 24 : 8,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isDesktop ? 720 : 400,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(child: _buildLabel('Prénom')),
-                        const SizedBox(width: 16),
-                        Expanded(child: _buildLabel('Nom')),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _firstNameController,
-                            textInputAction: TextInputAction.next,
-                            textCapitalization: TextCapitalization.words,
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? 'Requis'
-                                : null,
-                            decoration: _inputDecoration(
-                              hintText: 'Simon',
-                              prefixIcon: Icons.person_outline_rounded,
-                            ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.person_add_rounded,
+                            size: 44,
+                            color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _lastNameController,
-                            textInputAction: TextInputAction.next,
-                            textCapitalization: TextCapitalization.words,
-                            validator: (v) => (v == null || v.trim().isEmpty)
-                                ? 'Requis'
-                                : null,
-                            decoration: _inputDecoration(
-                              hintText: 'Tremblay',
-                              prefixIcon: Icons.person_outline_rounded,
-                            ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Créer un compte',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Email
-                    _buildLabel('Adresse courriel'),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Veuillez entrer votre courriel';
-                        }
-                        final emailRegex =
-                            RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                        if (!emailRegex.hasMatch(value.trim())) {
-                          return 'Format invalide';
-                        }
-                        return null;
-                      },
-                      decoration: _inputDecoration(
-                        hintText: 'nom@exemple.com',
-                        prefixIcon: Icons.mail_outline_rounded,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Password
-                    _buildLabel('Mot de passe'),
-                    const SizedBox(height: 6),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _handleRegister(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer un mot de passe';
-                        }
-                        if (value.length < 6) {
-                          return 'Minimum 6 caractères';
-                        }
-                        return null;
-                      },
-                      decoration: _inputDecoration(
-                        hintText: '••••••••',
-                        prefixIcon: Icons.lock_outline_rounded,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: AppColors.textMuted,
+                        const SizedBox(height: 4),
+                        Text(
+                          'Rejoignez ImmoGestion',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                        const SizedBox(height: 28),
 
-                    if (_accountExistsMessage != null) ...[
-                      _AccountExistsNotice(
-                        message: _accountExistsMessage!,
-                        onSignIn: () {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute<void>(
-                              builder: (_) => const LoginScreen(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-
-                    // Register button
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleRegister,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor:
-                              AppColors.primary.withValues(alpha: 0.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
+                        Row(
+                          children: [
+                            Expanded(child: _buildLabel('Prénom')),
+                            const SizedBox(width: 16),
+                            Expanded(child: _buildLabel('Nom')),
+                          ],
                         ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: AppColors.surface,
-                                ),
-                              )
-                            : const Text(
-                                'Créer mon compte',
-                                style: TextStyle(
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _firstNameController,
+                                textInputAction: TextInputAction.next,
+                                textCapitalization: TextCapitalization.words,
+                                autofillHints: const [AutofillHints.givenName],
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
+                                cursorColor: AppColors.textPrimary,
+                                validator: (v) => (v == null || v.trim().isEmpty)
+                                    ? 'Requis'
+                                    : null,
+                                decoration: _inputDecoration(
+                                  hintText: 'Simon',
+                                  prefixIcon: Icons.person_outline_rounded,
+                                ),
                               ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Login link
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const LoginScreen(),
-                          ),
-                          (route) => route.isFirst,
-                        );
-                      },
-                      child: RichText(
-                        text: const TextSpan(
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 14,
-                          ),
-                          children: [
-                            TextSpan(text: 'Déjà un compte? '),
-                            TextSpan(
-                              text: 'Se connecter',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _lastNameController,
+                                textInputAction: TextInputAction.next,
+                                textCapitalization: TextCapitalization.words,
+                                autofillHints: const [AutofillHints.familyName],
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                cursorColor: AppColors.textPrimary,
+                                validator: (v) => (v == null || v.trim().isEmpty)
+                                    ? 'Requis'
+                                    : null,
+                                decoration: _inputDecoration(
+                                  hintText: 'Tremblay',
+                                  prefixIcon: Icons.person_outline_rounded,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 20),
+
+                        _buildLabel('Adresse courriel'),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          autofillHints: const [AutofillHints.username, AutofillHints.email],
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          cursorColor: AppColors.textPrimary,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Veuillez entrer votre courriel';
+                            }
+                            final emailRegex =
+                                RegExp(r'^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+                            if (!emailRegex.hasMatch(value.trim())) {
+                              return 'Format invalide';
+                            }
+                            return null;
+                          },
+                          decoration: _inputDecoration(
+                            hintText: 'nom@exemple.com',
+                            prefixIcon: Icons.mail_outline_rounded,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        _buildLabel('Mot de passe'),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _handleRegister(),
+                          autofillHints: const [AutofillHints.newPassword],
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          cursorColor: AppColors.textPrimary,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer un mot de passe';
+                            }
+                            if (value.length < 6) {
+                              return 'Minimum 6 caractères';
+                            }
+                            return null;
+                          },
+                          decoration: _inputDecoration(
+                            hintText: '••••••••',
+                            prefixIcon: Icons.lock_outline_rounded,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: AppColors.textMuted,
+                              ),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        if (_accountExistsMessage != null) ...[
+                          _AccountExistsNotice(
+                            message: _accountExistsMessage!,
+                            onSignIn: () {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+
+                        SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _handleRegister,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor:
+                                  AppColors.primary.withValues(alpha: 0.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: AppColors.surface,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Créer mon compte',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const LoginScreen(),
+                              ),
+                              (route) => route.isFirst,
+                            );
+                          },
+                          child: RichText(
+                            text: const TextSpan(
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 14,
+                              ),
+                              children: [
+                                TextSpan(text: 'Déjà un compte? '),
+                                TextSpan(
+                                  text: 'Se connecter',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -426,8 +458,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
-      prefixIcon: Icon(prefixIcon, color: AppColors.textMuted, size: 20),
+      hintStyle: const TextStyle(
+        color: AppColors.label,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+      prefixIcon: Icon(prefixIcon, color: AppColors.label, size: 20),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: AppColors.surface,

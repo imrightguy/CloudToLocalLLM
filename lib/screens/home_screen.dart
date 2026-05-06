@@ -17,7 +17,6 @@ import 'leases_screen.dart';
 import 'payments_screen.dart';
 import 'marketplace_inbox_screen.dart';
 import 'communications_screen.dart';
-import 'maintenance_command_center_screen.dart';
 import 'onboarding_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
@@ -34,64 +33,165 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  static const _mainScreens = [
-    _TabEntry(screen: _HomeTab(), label: 'Accueil'),
-    _TabEntry(screen: DashboardScreen(), label: 'Tableau'),
-    _TabEntry(screen: MarketplaceInboxScreen(), label: 'Messages'),
-    _TabEntry(screen: CalendarScreen(), label: 'Calendrier'),
-    _TabEntry(screen: _MoreScreen(), label: 'Plus'),
+  static const _navigationEntries = [
+    _NavigationEntry(
+      screen: _HomeTab(),
+      label: 'Accueil',
+      icon: Icons.home,
+    ),
+    _NavigationEntry(
+      screen: DashboardScreen(),
+      label: 'Tableau',
+      icon: Icons.dashboard_outlined,
+    ),
+    _NavigationEntry(
+      screen: MarketplaceInboxScreen(),
+      label: 'Messages',
+      icon: Icons.message_outlined,
+    ),
+    _NavigationEntry(
+      screen: CalendarScreen(),
+      label: 'Calendrier',
+      icon: Icons.calendar_month_outlined,
+    ),
+    _NavigationEntry(
+      screen: _MoreScreen(),
+      label: 'Plus',
+      icon: Icons.more_horiz,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _mainScreens.map((e) => e.screen).toList(),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textMuted,
-        elevation: 0,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Accueil',
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktopShell = constraints.maxWidth >= 1024;
+        final isExtendedRail = constraints.maxWidth >= 1280;
+        final screens = _navigationEntries.map((entry) => entry.screen).toList();
+
+        if (isDesktopShell) {
+          return Scaffold(
+            body: SafeArea(
+              child: Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: _currentIndex,
+                    onDestinationSelected: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                    extended: isExtendedRail,
+                    labelType: isExtendedRail
+                        ? null
+                        : NavigationRailLabelType.all,
+                    backgroundColor: AppColors.surface,
+                    selectedIconTheme: const IconThemeData(
+                      color: AppColors.primary,
+                    ),
+                    selectedLabelTextStyle: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    unselectedIconTheme: const IconThemeData(
+                      color: AppColors.textMuted,
+                    ),
+                    unselectedLabelTextStyle: const TextStyle(
+                      color: AppColors.textMuted,
+                    ),
+                    destinations: [
+                      for (final entry in _navigationEntries)
+                        NavigationRailDestination(
+                          icon: Icon(entry.icon),
+                          selectedIcon: Icon(entry.icon),
+                          label: Text(entry.label),
+                        ),
+                    ],
+                    leading: Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.apartment_rounded,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          if (isExtendedRail) ...[
+                            const SizedBox(height: 12),
+                            const Text(
+                              'ImmoGestion',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const VerticalDivider(width: 1),
+                  Expanded(
+                    child: IndexedStack(
+                      index: _currentIndex,
+                      children: screens,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: IndexedStack(
+            index: _currentIndex,
+            children: screens,
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            label: 'Tableau',
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: AppColors.surface,
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: AppColors.textMuted,
+            elevation: 0,
+            items: [
+              for (final entry in _navigationEntries)
+                BottomNavigationBarItem(
+                  icon: Icon(entry.icon),
+                  label: entry.label,
+                ),
+            ],
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.message_outlined),
-            label: 'Messages',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_outlined),
-            label: 'Calendrier',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'Plus',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
-class _TabEntry {
+class _NavigationEntry {
   final Widget screen;
   final String label;
-  const _TabEntry({required this.screen, required this.label});
+  final IconData icon;
+  const _NavigationEntry({
+    required this.screen,
+    required this.label,
+    required this.icon,
+  });
 }
 
 class _MoreScreen extends StatelessWidget {
@@ -176,6 +276,11 @@ class _MoreScreen extends StatelessWidget {
             icon: Icons.build_outlined,
             label: 'Centre de maintenance',
             onTap: () => Navigator.of(context).pushNamed('/maintenance'),
+          ),
+          _MoreTile(
+            icon: Icons.event_note_outlined,
+            label: 'Tâches du jour',
+            onTap: () => Navigator.of(context).pushNamed('/daily-tasks'),
           ),
           _MoreTile(
             icon: Icons.rate_review_outlined,

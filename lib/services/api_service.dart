@@ -66,10 +66,6 @@ class ApiService {
 
   static const String baseUrl = AppConfig.apiBaseUrl;
 
-  // SharedPreferences keys
-  static const _accessTokenKey = 'access_token';
-  static const _refreshTokenKey = 'refresh_token';
-
   @visibleForTesting
   http.Client client = http.Client();
 
