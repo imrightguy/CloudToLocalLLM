@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
+const { randomUUID } = require('crypto');
 
 jest.mock('jsonwebtoken');
+jest.mock('crypto', () => ({
+  ...jest.requireActual('crypto'),
+  randomUUID: jest.fn(),
+}));
 
 jest.mock('../src/database/connection', () => {
   const mockSelect = jest.fn();
@@ -310,26 +315,51 @@ describe('generateAccessToken', () => {
 });
 
 describe('generateRefreshToken', () => {
-  it('signs a refresh token with userId and tokenVersion', () => {
+  it('signs a refresh token with userId, tokenVersion, and a unique jti', () => {
+    randomUUID.mockReturnValue('refresh-jti-1');
     jwt.sign.mockReturnValue('signed-refresh-token');
 
     const token = generateRefreshToken({ id: 1, tokenVersion: 3 });
 
     expect(token).toBe('signed-refresh-token');
     expect(jwt.sign).toHaveBeenCalledWith(
-      { userId: 1, tokenVersion: 3 },
+      { userId: 1, tokenVersion: 3, jti: 'refresh-jti-1' },
       'test-refresh-secret',
       { expiresIn: '7d' },
     );
   });
 
   it('defaults tokenVersion to 1', () => {
+    randomUUID.mockReturnValue('refresh-jti-2');
     jwt.sign.mockReturnValue('signed-refresh-token');
 
     generateRefreshToken({ id: 5 });
 
     expect(jwt.sign).toHaveBeenCalledWith(
-      expect.objectContaining({ tokenVersion: 1 }),
+      expect.objectContaining({ tokenVersion: 1, jti: 'refresh-jti-2' }),
+      'test-refresh-secret',
+      { expiresIn: '7d' },
+    );
+  });
+
+  it('generates a fresh jti for each refresh token issuance', () => {
+    randomUUID
+      .mockReturnValueOnce('refresh-jti-3')
+      .mockReturnValueOnce('refresh-jti-4');
+    jwt.sign.mockReturnValue('signed-refresh-token');
+
+    generateRefreshToken({ id: 7, tokenVersion: 1 });
+    generateRefreshToken({ id: 7, tokenVersion: 1 });
+
+    expect(jwt.sign).toHaveBeenNthCalledWith(
+      1,
+      { userId: 7, tokenVersion: 1, jti: 'refresh-jti-3' },
+      'test-refresh-secret',
+      { expiresIn: '7d' },
+    );
+    expect(jwt.sign).toHaveBeenNthCalledWith(
+      2,
+      { userId: 7, tokenVersion: 1, jti: 'refresh-jti-4' },
       'test-refresh-secret',
       { expiresIn: '7d' },
     );

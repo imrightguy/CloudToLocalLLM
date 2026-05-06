@@ -1,3 +1,4 @@
+const { randomUUID } = require('crypto');
 const jwt = require('jsonwebtoken');
 const { eq } = require('drizzle-orm');
 const { db } = require('../database/connection');
@@ -64,7 +65,11 @@ const generateAccessToken = (user) => jwt.sign(
 );
 
 const generateRefreshToken = (user) => jwt.sign(
-  { userId: user.id, tokenVersion: user.tokenVersion || 1 },
+  {
+    userId: user.id,
+    tokenVersion: user.tokenVersion || 1,
+    jti: randomUUID(),
+  },
   process.env.JWT_REFRESH_SECRET,
   { expiresIn: '7d' },
 );
