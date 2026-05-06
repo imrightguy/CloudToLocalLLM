@@ -8,6 +8,10 @@ Core product focus:
 - Inbound marketplace message handling from channels like Facebook Messenger
 - Visit scheduling, confirmation, rescheduling, outcomes, and staff coordination
 - SMS and email as communications inside the visit workflow, not as standalone products
+- Messenger stays direct Meta: `facebook-webhook.controller.js` owns the Facebook webhook and `messenger-bot.service.js` owns Messenger conversation state and replies
+- Twilio stays SMS-only: `twilio.service.js` and `sms-webhook.controller.js` own SMS delivery, confirmations, reminders, and delivery-status callbacks
+- Messenger outbound follow-ups must respect Meta's 24-hour messaging policy; outside that window, use SMS or another approved follow-up path
+- The Marketplace surface is a workflow/inbox view, not a transport abstraction; do not route Messenger and Twilio through a generic channel layer
 
 Secondary support systems:
 - Buildings, units, leads, documents, schedules, notifications, and analytics that support the core flow

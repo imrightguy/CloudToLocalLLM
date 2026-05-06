@@ -17,6 +17,7 @@ const EXPECTED_TABLES = [
   'smsLogsTable',
   'communicationLogsTable',
   'communicationThreadsTable',
+  'messengerConversationsTable',
   'documentsTable',
   'documentsLeadsTable',
   'leasesTable',
@@ -55,7 +56,7 @@ function _getColumnNames(table) {
 
 // ── Schema Export Tests ──
 describe('schema exports', () => {
-  it('should export all 29 expected tables', () => {
+  it('should export all 30 expected tables', () => {
     EXPECTED_TABLES.forEach((tableName) => {
       expect(schema).toHaveProperty(tableName);
       expect(schema[tableName]).toBeDefined();
@@ -318,6 +319,19 @@ describe('communicationLogsTable', () => {
   const cols = [
     'id', 'leadId', 'employeeId', 'type', 'direction', 'content',
     'subject', 'attachments', 'status', 'metadata', 'isActive', 'createdAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('messengerConversationsTable', () => {
+  const t = schema.messengerConversationsTable;
+  const cols = [
+    'senderId', 'state', 'leadId', 'language', 'firstName', 'lastName',
+    'selectedBuildingId', 'selectedUnitId', 'lastActivityAt',
+    'conversationData', 'isActive', 'createdAt', 'updatedAt',
   ];
 
   it('should have all expected columns', () => {

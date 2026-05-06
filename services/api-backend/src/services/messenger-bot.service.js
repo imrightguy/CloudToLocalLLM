@@ -28,6 +28,7 @@ const {
   employeeSchedulesTable,
   visitsTable,
   communicationLogsTable,
+  messengerConversationsTable,
 } = require('../database/schema');
 
 const fbService = require('./facebook.service');
@@ -119,17 +120,121 @@ function parseBudget(text) {
 }
 
 /**
- * Get or create conversation state for a sender.
+ * Normalize a persisted conversation row into the in-memory shape.
  */
-function getConversation(senderId) {
-  if (!conversations.has(senderId)) {
-    conversations.set(senderId, {
-      state: STATES.NEW,
-      data: { language: 'fr', fbSenderId: senderId, communicationLogIds: [] },
-      leadId: null,
+function hydrateConversation(row, senderId) {
+  const conversationData = row?.conversationData && typeof row.conversationData === 'object' ? row.conversationData : {};
+  const communicationLogIds = Array.isArray(conversationData.communicationLogIds) ? conversationData.communicationLogIds : [];
+
+  return {
+    state: row?.state || STATES.NEW,
+    leadId: row?.leadId || null,
+    lastActivityAt: row?.lastActivityAt || new Date(),
+    data: {
+      ...conversationData,
+      language: row?.language || conversationData.language || 'fr',
+      fbSenderId: senderId,
+      firstName: row?.firstName ?? conversationData.firstName ?? null,
+      lastName: row?.lastName ?? conversationData.lastName ?? null,
+      buildingId: row?.selectedBuildingId ?? conversationData.buildingId ?? null,
+      unitId: row?.selectedUnitId ?? conversationData.unitId ?? null,
+      communicationLogIds,
+    },
+  };
+}
+
+async function persistConversation(senderId, conv) {
+  const payload = {
+    senderId,
+    state: conv.state || STATES.NEW,
+    leadId: conv.leadId || null,
+    language: conv.data?.language || 'fr',
+    firstName: conv.data?.firstName || null,
+    lastName: conv.data?.lastName || null,
+    selectedBuildingId: conv.data?.buildingId || null,
+    selectedUnitId: conv.data?.unitId || null,
+    lastActivityAt: conv.lastActivityAt || new Date(),
+    conversationData: {
+      ...conv.data,
+      communicationLogIds: Array.isArray(conv.data?.communicationLogIds) ? conv.data.communicationLogIds : [],
+    },
+    isActive: true,
+    updatedAt: new Date(),
+  };
+
+  try {
+    await db.insert(messengerConversationsTable).values({
+      ...payload,
+      createdAt: new Date(),
+    }).onConflictDoUpdate({
+      target: messengerConversationsTable.senderId,
+      set: {
+        state: payload.state,
+        leadId: payload.leadId,
+        language: payload.language,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        selectedBuildingId: payload.selectedBuildingId,
+        selectedUnitId: payload.selectedUnitId,
+        lastActivityAt: payload.lastActivityAt,
+        conversationData: payload.conversationData,
+        isActive: payload.isActive,
+        updatedAt: payload.updatedAt,
+      },
     });
+  } catch (err) {
+    logger.error('[MessengerBot] Failed to persist conversation state:', err.message);
   }
-  return conversations.get(senderId);
+}
+
+async function loadConversation(senderId) {
+  const existing = conversations.get(senderId);
+  if (existing) {
+    return existing;
+  }
+
+  try {
+    const [row] = await db
+      .select()
+      .from(messengerConversationsTable)
+      .where(eq(messengerConversationsTable.senderId, senderId))
+      .limit(1);
+
+    const conversation = row ? hydrateConversation(row, senderId) : {
+      state: STATES.NEW,
+      leadId: null,
+      lastActivityAt: new Date(),
+      data: { language: 'fr', fbSenderId: senderId, communicationLogIds: [] },
+    };
+
+    conversations.set(senderId, conversation);
+    return conversation;
+  } catch (err) {
+    logger.error('[MessengerBot] Failed to load conversation state:', err.message);
+  }
+
+  const fallback = {
+    state: STATES.NEW,
+    leadId: null,
+    lastActivityAt: new Date(),
+    data: { language: 'fr', fbSenderId: senderId, communicationLogIds: [] },
+  };
+  conversations.set(senderId, fallback);
+  return fallback;
+}
+
+async function getConversation(senderId) {
+  return loadConversation(senderId);
+}
+
+async function resetConversation(senderId) {
+  conversations.delete(senderId);
+
+  try {
+    await db.delete(messengerConversationsTable).where(eq(messengerConversationsTable.senderId, senderId));
+  } catch (err) {
+    logger.error('[MessengerBot] Failed to reset conversation state:', err.message);
+  }
 }
 
 /**
@@ -155,9 +260,11 @@ async function logCommunication({
       : await insertQuery;
 
     if (senderId && insertedRows?.[0]?.id) {
-      const conv = getConversation(senderId);
+      const conv = await getConversation(senderId);
       conv.data.communicationLogIds = conv.data.communicationLogIds || [];
       conv.data.communicationLogIds.push(insertedRows[0].id);
+      conv.lastActivityAt = new Date();
+      await persistConversation(senderId, conv);
     }
   } catch (err) {
     logger.error('[MessengerBot] Failed to log communication:', err.message);
@@ -183,7 +290,7 @@ async function backfillConversationLead(senderId, leadId) {
 }
 
 const handleIncomingAttachment = async (senderId, attachments = []) => {
-  const conv = getConversation(senderId);
+  const conv = await getConversation(senderId);
   const normalizedAttachments = Array.isArray(attachments) ? attachments : [];
   const attachmentTypes = normalizedAttachments
     .map((attachment) => attachment?.type)
@@ -340,8 +447,9 @@ async function createLeadFromConversation(senderId, conversationData) {
  */
 const handleIncomingMessage = async (senderId, messageText) => {
   const text = (messageText || '').trim();
-  const conv = getConversation(senderId);
+  const conv = await getConversation(senderId);
   const lang = conv.data.language || 'fr';
+  conv.lastActivityAt = new Date();
 
   // Log inbound message
   await logCommunication({
@@ -405,6 +513,8 @@ const handleIncomingMessage = async (senderId, messageText) => {
         ? 'Sorry, something went wrong. Simon will be notified and get back to you.'
         : 'Désolé, une erreur est survenue. Simon sera informé et vous recontactera.',
     );
+  } finally {
+    await persistConversation(senderId, conv);
   }
 };
 
@@ -860,7 +970,7 @@ async function handleSuggestVisit(senderId, conv, text) {
  * @param {string} payload - The payload string from the button
  */
 const handlePostback = async (senderId, payload) => {
-  const conv = getConversation(senderId);
+  const conv = await getConversation(senderId);
   const lang = conv.data.language || 'fr';
 
   // Log inbound postback
@@ -962,7 +1072,7 @@ const handleOptIn = async (senderId, ref) => {
   logger.info(`[MessengerBot] Opt-in from ${senderId}, ref: ${ref}`);
 
   // Treat opt-in as a new conversation
-  conversations.delete(senderId);
+  await resetConversation(senderId);
   await handleIncomingMessage(senderId, '');
 };
 

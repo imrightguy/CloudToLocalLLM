@@ -397,6 +397,23 @@ const communicationThreadsTable = pgTable('communication_threads', {
   bookingStateIdx: index('comm_threads_booking_state_idx').on(table.bookingState),
 }));
 
+// ─── Messenger Conversations ───
+const messengerConversationsTable = pgTable('messenger_conversations', {
+  senderId: text('sender_id').primaryKey(),
+  state: text('state').notNull().default('NEW'),
+  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
+  language: text('language').notNull().default('fr'),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  selectedBuildingId: uuid('selected_building_id').references(() => buildingsTable.id, { onDelete: 'set null' }),
+  selectedUnitId: uuid('selected_unit_id').references(() => unitsTable.id, { onDelete: 'set null' }),
+  lastActivityAt: timestamp('last_activity_at').notNull().defaultNow(),
+  conversationData: jsonb('conversation_data').notNull().default('{}'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // ─── Documents ───
 const documentsTable = pgTable('documents', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -644,6 +661,7 @@ module.exports = {
   smsLogsTable,
   communicationLogsTable,
   communicationThreadsTable,
+  messengerConversationsTable,
   documentsTable,
   documentsLeadsTable,
   leasesTable,

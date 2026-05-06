@@ -148,11 +148,16 @@ These runtime hooks are required for the message + visit workflows to function e
 - Callback URL: `https://api.immogestion.app/api/webhooks/facebook`
 - Verify token: `FB_VERIFY_TOKEN`
 - Subscribe the app to the Messenger and Lead Ads events used by the backend (`messages`, `messaging_postbacks`, `messaging_optins`, `leadgen`)
+- Ownership lives in `src/controllers/facebook-webhook.controller.js` for webhook ingress and `src/services/messenger-bot.service.js` for conversation logic
+- Messenger remains direct Meta only; do not introduce a transport abstraction between the webhook and the bot service
+- Messenger replies must respect Meta's 24-hour messaging window; follow-up outside that window should move to SMS or another approved channel
 
 ### Twilio SMS
 - Incoming message webhook: `https://api.immogestion.app/api/webhooks/sms/incoming`
 - Delivery status webhook: `https://api.immogestion.app/api/webhooks/sms/status`
 - Outbound confirmation links use `PUBLIC_URL` / `PAPERCLIP_PUBLIC_URL`, so keep those pointing at the public API host
+- Ownership lives in `src/services/twilio.service.js` and `src/controllers/sms-webhook.controller.js`
+- Twilio stays SMS-only for confirmations, reminders, and delivery callbacks; do not route Messenger traffic through the SMS stack
 
 ### Runtime assumption
 - The API process is the scheduler/worker for visit reminders, queue processing, and weekly digest jobs.

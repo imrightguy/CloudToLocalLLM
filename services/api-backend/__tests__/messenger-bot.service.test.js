@@ -8,6 +8,7 @@ const mockDb = {
   insert: jest.fn(),
   select: jest.fn(),
   update: jest.fn(),
+  delete: jest.fn(),
 };
 jest.mock('../src/database/connection', () => ({ db: mockDb }));
 jest.mock('../src/database/schema', () => ({
@@ -19,6 +20,7 @@ jest.mock('../src/database/schema', () => ({
   employeeSchedulesTable: 'employeeSchedulesTable',
   visitsTable: 'visitsTable',
   communicationLogsTable: 'communicationLogsTable',
+  messengerConversationsTable: 'messengerConversationsTable',
 }));
 
 const mockFbService = {
@@ -58,18 +60,30 @@ jest.mock('../src/utils/logger', () => mockLogger);
 
 let botService;
 
+const mockMessengerConversationSelect = () => ({
+  from: jest.fn().mockReturnValue({
+    where: jest.fn().mockReturnValue({
+      limit: jest.fn().mockResolvedValue([]),
+    }),
+  }),
+});
+
 beforeEach(() => {
   jest.clearAllMocks();
   jest.resetModules();
 
   // Setup mock DB chain
-  mockDb.insert.mockReturnValue({
+  mockDb.insert.mockImplementation(() => ({
     values: jest.fn().mockReturnValue({
       returning: jest.fn().mockResolvedValue([{ id: 1 }]),
+      onConflictDoUpdate: jest.fn().mockResolvedValue([]),
     }),
-  });
+  }));
   mockDb.select.mockReturnValue({
     from: jest.fn().mockReturnValue({
+      where: jest.fn().mockReturnValue({
+        limit: jest.fn().mockResolvedValue([]),
+      }),
       innerJoin: jest.fn().mockReturnValue({
         where: jest.fn().mockReturnValue({
           limit: jest.fn().mockResolvedValue([]),
@@ -82,6 +96,9 @@ beforeEach(() => {
     set: jest.fn().mockReturnValue({
       where: jest.fn().mockResolvedValue([]),
     }),
+  });
+  mockDb.delete.mockReturnValue({
+    where: jest.fn().mockResolvedValue([]),
   });
 
   mockFbService.sendTextMessage.mockResolvedValue({ recipient_id: 'test' });
@@ -343,7 +360,9 @@ describe('handleIncomingMessage — state machine', () => {
       }),
     };
 
-    mockDb.select.mockReturnValueOnce(listingSelect);
+    mockDb.select
+      .mockReturnValueOnce(mockMessengerConversationSelect())
+      .mockReturnValueOnce(listingSelect);
 
     let communicationLogId = 0;
     mockDb.insert.mockImplementation((table) => ({
@@ -418,6 +437,7 @@ describe('handleIncomingMessage — state machine', () => {
     };
 
     mockDb.select
+      .mockReturnValueOnce(mockMessengerConversationSelect())
       .mockReturnValueOnce(listingSelect)
       .mockReturnValueOnce(slotSelect)
       .mockReturnValueOnce(occupiedUnitSelect);
@@ -486,6 +506,7 @@ describe('handleIncomingMessage — state machine', () => {
     };
 
     mockDb.select
+      .mockReturnValueOnce(mockMessengerConversationSelect())
       .mockReturnValueOnce(initialListingSelect)
       .mockReturnValueOnce(emptyListingSelect);
 
@@ -578,6 +599,7 @@ describe('handleIncomingMessage — state machine', () => {
     };
 
     mockDb.select
+      .mockReturnValueOnce(mockMessengerConversationSelect())
       .mockReturnValueOnce(listingSelect)
       .mockReturnValueOnce(slotSelect)
       .mockReturnValueOnce(vacantUnitSelect);
@@ -623,24 +645,15 @@ describe('handleIncomingMessage — state machine', () => {
   });
 
   it('handles DONE state with thank you message', async () => {
-    // First trigger NEW -> transitions
     await botService.handleIncomingMessage('sender3', 'hello');
-
-    // Force to DONE state by repeated messages through state machine
-    // We'll just test the module's exported handleIncomingMessage flow
-    // Send enough messages to walk through states
     await botService.handleIncomingMessage('sender3', 'français');
     await botService.handleIncomingMessage('sender3', 'travail');
     await botService.handleIncomingMessage('sender3', 'temps plein');
     await botService.handleIncomingMessage('sender3', '2');
     await botService.handleIncomingMessage('sender3', 'non');
     await botService.handleIncomingMessage('sender3', '1200');
-
-    // Now in ASKED_BUILDING — handleBuilding queries DB which returns []
-    // This sends noListings message and sets state to DONE
     await botService.handleIncomingMessage('sender3', 'n\'importe');
 
-    // Now in DONE state
     mockFbService.sendTextMessage.mockClear();
     await botService.handleIncomingMessage('sender3', 'merci');
 
@@ -648,6 +661,41 @@ describe('handleIncomingMessage — state machine', () => {
       'sender3',
       expect.stringContaining('ImmoGestion'),
     );
+  });
+
+  it('hydrates persisted conversation state instead of restarting at NEW', async () => {
+    mockDb.select.mockReturnValueOnce({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([
+            {
+              senderId: 'sender-persisted',
+              state: 'ASKED_BUDGET',
+              leadId: null,
+              language: 'fr',
+              firstName: 'Jean',
+              lastName: 'Tremblay',
+              selectedBuildingId: null,
+              selectedUnitId: null,
+              lastActivityAt: new Date('2026-05-06T18:00:00Z'),
+              conversationData: {
+                language: 'fr',
+                reason: 'travail',
+                employment: 'temps plein',
+                occupants: 2,
+                pets: 'no',
+                communicationLogIds: ['comm-1'],
+              },
+            },
+          ]),
+        }),
+      }),
+    });
+
+    await botService.handleIncomingMessage('sender-persisted', '1200');
+
+    expect(mockFbService.sendTextMessage.mock.calls.some(([, message]) => message.includes('Bienvenue chez ImmoGestion'))).toBe(false);
+    expect(mockFbService.sendTextMessage.mock.calls.some(([, message]) => message.includes('Désolé, je n\'ai pas de logements disponibles'))).toBe(true);
   });
 
   it('handles errors gracefully', async () => {

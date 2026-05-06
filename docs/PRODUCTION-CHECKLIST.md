@@ -12,6 +12,7 @@
 - [ ] Swagger docs endpoint disabled (only served in non-production)
 - [ ] `.env.production` is NOT committed to git (verified in `.gitignore`)
 - [ ] `FB_VERIFY_TOKEN` and `FB_PAGE_ACCESS_TOKEN` are set if Messenger / Lead Ads are enabled
+- [ ] Messenger outbound follow-ups stay within Meta's 24-hour messaging window; after that, use SMS or another approved channel
 - [ ] `PUBLIC_URL` or `PAPERCLIP_PUBLIC_URL` points to the public API base used in confirmation SMS links
 
 ## Security Verification
@@ -23,6 +24,7 @@
 - [ ] Public hostnames in the Cloudflare Tunnel dashboard point `immogestion.app` to the Flutter web container and `app.immogestion.app` to the authenticated app surface
 - [ ] Facebook webhook callback configured: `https://api.immogestion.app/api/webhooks/facebook`
 - [ ] Twilio callbacks configured: `https://api.immogestion.app/api/webhooks/sms/incoming` and `https://api.immogestion.app/api/webhooks/sms/status`
+- [ ] Messenger and Twilio remain separate transport boundaries; no generic channel abstraction routes traffic between them
 - [ ] Rate limiting active: 100 req/15min global, 10 req/15min on `/api/auth`
 - [ ] Helmet.js security headers enabled (CSP, HSTS, X-Frame-Options, Referrer-Policy)
 - [ ] Nginx security headers: `server_tokens off`, X-Frame-Options, X-Content-Type-Options, Permissions-Policy
