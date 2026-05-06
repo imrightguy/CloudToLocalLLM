@@ -1,8 +1,24 @@
 const rateLimit = require('express-rate-limit');
 
+const AUTH_WINDOW_MS = parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS || '', 10) || 15 * 60 * 1000;
+const AUTH_MAX_ATTEMPTS = parseInt(process.env.AUTH_RATE_LIMIT_MAX || '', 10) || 10;
+
+function normalizedEmailFromRequest(req) {
+  if (!req || typeof req.body !== 'object' || req.body === null) {
+    return '';
+  }
+
+  const rawEmail = req.body.email;
+  return typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : '';
+}
+
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: AUTH_WINDOW_MS,
+  max: AUTH_MAX_ATTEMPTS,
+  keyGenerator: (req) => {
+    const email = normalizedEmailFromRequest(req);
+    return email ? `${req.ip}:${email}` : req.ip;
+  },
   message: {
     success: false,
     error: { message: 'Too many login attempts. Please try again later.', code: 'AUTH_RATE_LIMIT_EXCEEDED' },
