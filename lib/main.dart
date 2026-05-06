@@ -23,6 +23,7 @@ import 'screens/communications_screen.dart';
 import 'screens/marketplace_inbox_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/renovation_ops_screen.dart';
+import 'screens/maintenance_command_center_screen.dart';
 import 'screens/observation_review_inbox_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'theme/app_colors.dart';
@@ -119,6 +120,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         '/employees': _protectedRoute((context) => const EmployeesScreen()),
         '/documents': _protectedRoute((context) => const DocumentsScreen()),
         '/renovation-ops': _protectedRoute((context) => const RenovationOpsScreen()),
+        '/maintenance': _protectedRoute((context) => const MaintenanceCommandCenterScreen()),
         '/observations': _protectedRoute((context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           final findingId = args is Map<String, dynamic>

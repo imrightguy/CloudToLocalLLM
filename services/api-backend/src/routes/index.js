@@ -21,6 +21,7 @@ const adminRoutes = require('./admin.routes');
 const paymentRoutes = require('./payment.routes');
 const renewalRoutes = require('./renewal.routes');
 const renovationRoutes = require('./renovation.routes');
+const maintenanceRoutes = require('./maintenance.routes');
 const observationResultRoutes = require('./observation-result.routes');
 
 const router = express.Router();
@@ -69,6 +70,7 @@ router.use('/admin', adminRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/renewals', renewalRoutes);
 router.use('/renovations', renovationRoutes);
+router.use('/maintenance', maintenanceRoutes);
 router.use('/companies/:companyId/observation-results', observationResultRoutes);
 
 module.exports = router;

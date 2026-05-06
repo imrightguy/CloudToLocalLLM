@@ -781,13 +781,13 @@ class ScheduleItem {
 
   String get dayLabel {
     const days = [
-      'Dimanche',
       'Lundi',
       'Mardi',
       'Mercredi',
       'Jeudi',
       'Vendredi',
       'Samedi',
+      'Dimanche',
     ];
     if (dayOfWeek >= 0 && dayOfWeek < days.length) return days[dayOfWeek];
     return 'Jour $dayOfWeek';
@@ -823,6 +823,147 @@ class ScheduleItem {
     if (buildingId != null && other.buildingId != null && buildingId != other.buildingId) return false;
     return startTime.compareTo(other.endTime) < 0 &&
         other.startTime.compareTo(endTime) < 0;
+  }
+}
+
+// =============================================================================
+// Maintenance capacity planning
+// =============================================================================
+
+class MaintenanceTaskItem {
+  const MaintenanceTaskItem({
+    required this.id,
+    required this.title,
+    required this.status,
+    this.buildingId,
+    this.buildingName,
+  });
+
+  final String id;
+  final String title;
+  final String status;
+  final String? buildingId;
+  final String? buildingName;
+
+  factory MaintenanceTaskItem.fromJson(Map<String, dynamic> json) {
+    return MaintenanceTaskItem(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      buildingId: json['buildingId'] as String?,
+      buildingName: json['buildingName'] as String?,
+    );
+  }
+}
+
+class MaintenanceCapacityCandidate {
+  const MaintenanceCapacityCandidate({
+    required this.employee,
+    required this.assignments,
+    required this.schedules,
+    required this.tasks,
+    required this.openTaskCount,
+    required this.buildingTaskCount,
+    required this.fitScore,
+    required this.fitLabel,
+    required this.loadLabel,
+    required this.canDispatch,
+    required this.reasons,
+  });
+
+  final EmployeeItem employee;
+  final List<BuildingAssignment> assignments;
+  final List<ScheduleItem> schedules;
+  final List<MaintenanceTaskItem> tasks;
+  final int openTaskCount;
+  final int buildingTaskCount;
+  final int fitScore;
+  final String fitLabel;
+  final String loadLabel;
+  final bool canDispatch;
+  final List<String> reasons;
+
+  factory MaintenanceCapacityCandidate.fromJson(Map<String, dynamic> json) {
+    return MaintenanceCapacityCandidate(
+      employee: EmployeeItem.fromJson(json['employee'] as Map<String, dynamic>),
+      assignments: (json['assignments'] as List<dynamic>? ?? const [])
+          .map((e) => BuildingAssignment.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      schedules: (json['schedules'] as List<dynamic>? ?? const [])
+          .map((e) => ScheduleItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      tasks: (json['tasks'] as List<dynamic>? ?? const [])
+          .map((e) => MaintenanceTaskItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      openTaskCount: (json['openTaskCount'] as num?)?.toInt() ?? 0,
+      buildingTaskCount: (json['buildingTaskCount'] as num?)?.toInt() ?? 0,
+      fitScore: (json['fitScore'] as num?)?.toInt() ?? 0,
+      fitLabel: json['fitLabel'] as String? ?? 'Faible',
+      loadLabel: json['loadLabel'] as String? ?? 'Libre',
+      canDispatch: json['canDispatch'] as bool? ?? false,
+      reasons: (json['reasons'] as List<dynamic>? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+    );
+  }
+}
+
+class MaintenanceCapacitySummary {
+  const MaintenanceCapacitySummary({
+    required this.totalCandidates,
+    required this.dispatchableCount,
+    required this.totalOpenTasks,
+    required this.buildingOpenTasks,
+  });
+
+  final int totalCandidates;
+  final int dispatchableCount;
+  final int totalOpenTasks;
+  final int buildingOpenTasks;
+
+  factory MaintenanceCapacitySummary.fromJson(Map<String, dynamic> json) {
+    return MaintenanceCapacitySummary(
+      totalCandidates: (json['totalCandidates'] as num?)?.toInt() ?? 0,
+      dispatchableCount: (json['dispatchableCount'] as num?)?.toInt() ?? 0,
+      totalOpenTasks: (json['totalOpenTasks'] as num?)?.toInt() ?? 0,
+      buildingOpenTasks: (json['buildingOpenTasks'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
+class MaintenanceCapacityResult {
+  const MaintenanceCapacityResult({
+    required this.buildingId,
+    required this.buildingName,
+    required this.date,
+    required this.dayOfWeek,
+    required this.dayLabel,
+    required this.candidates,
+    required this.summary,
+  });
+
+  final String buildingId;
+  final String buildingName;
+  final String date;
+  final int dayOfWeek;
+  final String dayLabel;
+  final List<MaintenanceCapacityCandidate> candidates;
+  final MaintenanceCapacitySummary summary;
+
+  factory MaintenanceCapacityResult.fromJson(Map<String, dynamic> json) {
+    return MaintenanceCapacityResult(
+      buildingId: json['buildingId'] as String? ?? '',
+      buildingName: json['buildingName'] as String? ?? '',
+      date: json['date'] as String? ?? '',
+      dayOfWeek: (json['dayOfWeek'] as num?)?.toInt() ?? 0,
+      dayLabel: json['dayLabel'] as String? ?? '',
+      candidates: (json['candidates'] as List<dynamic>? ?? const [])
+          .map((e) => MaintenanceCapacityCandidate.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      summary: MaintenanceCapacitySummary.fromJson(
+        (json['summary'] as Map<String, dynamic>? ?? const {}),
+      ),
+    );
   }
 }
 

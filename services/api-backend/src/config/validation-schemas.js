@@ -185,6 +185,12 @@ const employeeSchemas = {
       assignmentId: uuid,
     }),
   },
+  capacity: {
+    query: Joi.object({
+      buildingId: uuid.required(),
+      date: Joi.date().iso().required(),
+    }),
+  },
 };
 
 const visitExpand = Joi.string().pattern(
@@ -597,6 +603,15 @@ const observationResultDismissSchema = Joi.object({
   reason: Joi.string().trim().min(1).max(2000).allow(null, ''),
 });
 
+const maintenanceSchemas = {
+  commandCenter: {
+    query: Joi.object({
+      buildingId: uuid,
+      limit: Joi.number().integer().min(1).max(50).default(12),
+    }),
+  },
+};
+
 const observationResultSchemas = {
   import: {
     params: Joi.object({ companyId: uuid.required() }),
@@ -808,6 +823,7 @@ module.exports = {
   documentSchemas,
   scheduleSchemas,
   notificationSchemas,
+  maintenanceSchemas,
   observationResultSchemas,
   smsCampaignSchemas,
   smsWebhookSchemas,

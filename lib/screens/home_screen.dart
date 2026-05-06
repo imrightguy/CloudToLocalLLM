@@ -17,6 +17,7 @@ import 'leases_screen.dart';
 import 'payments_screen.dart';
 import 'marketplace_inbox_screen.dart';
 import 'communications_screen.dart';
+import 'maintenance_command_center_screen.dart';
 import 'onboarding_screen.dart';
 import '../theme/app_colors.dart';
 import '../widgets/immo_app_bar.dart';
@@ -170,6 +171,11 @@ class _MoreScreen extends StatelessWidget {
             icon: Icons.construction_outlined,
             label: 'Rénovation Ops',
             onTap: () => Navigator.of(context).pushNamed('/renovation-ops'),
+          ),
+          _MoreTile(
+            icon: Icons.build_outlined,
+            label: 'Centre de maintenance',
+            onTap: () => Navigator.of(context).pushNamed('/maintenance'),
           ),
           _MoreTile(
             icon: Icons.rate_review_outlined,
