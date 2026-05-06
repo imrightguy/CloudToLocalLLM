@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app_config.dart';
 import '../models.dart';
+import 'auth_token_storage.dart';
 
 export 'package:http/http.dart' show MultipartFile;
 
@@ -78,12 +79,12 @@ class ApiService {
   /// Whether tokens have been loaded from storage.
   bool _initialized = false;
 
-  /// Initialise – load persisted tokens from [SharedPreferences].
+  /// Initialise – load persisted tokens from browser or shared prefs.
   Future<void> init() async {
     if (_initialized) return;
-    final prefs = await SharedPreferences.getInstance();
-    _accessToken = prefs.getString(_accessTokenKey);
-    _refreshToken = prefs.getString(_refreshTokenKey);
+    final tokens = await readAuthTokens();
+    _accessToken = tokens.accessToken;
+    _refreshToken = tokens.refreshToken;
     _initialized = true;
   }
 
@@ -103,23 +104,15 @@ class ApiService {
       };
 
   Future<void> _persistTokens(String? access, String? refresh) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (access != null) {
-      _accessToken = access;
-      await prefs.setString(_accessTokenKey, access);
-    }
-    if (refresh != null) {
-      _refreshToken = refresh;
-      await prefs.setString(_refreshTokenKey, refresh);
-    }
+    await writeAuthTokens(accessToken: access, refreshToken: refresh);
+    _accessToken = access;
+    _refreshToken = refresh;
   }
 
   Future<void> _clearTokens() async {
     _accessToken = null;
     _refreshToken = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_accessTokenKey);
-    await prefs.remove(_refreshTokenKey);
+    await clearAuthTokens();
   }
 
   // ---------------------------------------------------------------------------

@@ -79,6 +79,17 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     };
   }
 
+  Widget _buildAuthenticatedStartScreen(Uri location) {
+    switch (location.path) {
+      case '/maintenance':
+        return const AuthGate(child: MaintenanceCommandCenterScreen());
+      case '/renovation-ops':
+        return const AuthGate(child: RenovationOpsScreen());
+      default:
+        return const AuthGate(child: HomeScreen());
+    }
+  }
+
   Widget _buildStartScreen(Uri location) {
     switch (resolveEntryPointDestination(
       location: location,
@@ -89,7 +100,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       case EntryPointDestination.loginWall:
         return const LoginScreen();
       case EntryPointDestination.appShell:
-        return const AuthGate(child: HomeScreen());
+        return _buildAuthenticatedStartScreen(location);
     }
   }
 
@@ -119,8 +130,10 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         '/payments': _protectedRoute((context) => const PaymentsScreen()),
         '/employees': _protectedRoute((context) => const EmployeesScreen()),
         '/documents': _protectedRoute((context) => const DocumentsScreen()),
-        '/renovation-ops': _protectedRoute((context) => const RenovationOpsScreen()),
-        '/maintenance': _protectedRoute((context) => const MaintenanceCommandCenterScreen()),
+        '/renovation-ops':
+            _protectedRoute((context) => const RenovationOpsScreen()),
+        '/maintenance': _protectedRoute(
+            (context) => const MaintenanceCommandCenterScreen()),
         '/observations': _protectedRoute((context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           final findingId = args is Map<String, dynamic>
@@ -130,8 +143,10 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
                   : null;
           return ObservationReviewInboxScreen(initialFindingId: findingId);
         }),
-        '/communications': _protectedRoute((context) => const CommunicationsScreen()),
-        '/marketplace': _protectedRoute((context) => const MarketplaceInboxScreen()),
+        '/communications':
+            _protectedRoute((context) => const CommunicationsScreen()),
+        '/marketplace':
+            _protectedRoute((context) => const MarketplaceInboxScreen()),
         '/settings': _protectedRoute((context) => const SettingsScreen()),
         '/onboarding': _protectedRoute((context) => const OnboardingScreen()),
       },
@@ -153,16 +168,14 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       ),
       cardTheme: CardThemeData(
         elevation: 2,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
     );
@@ -184,16 +197,14 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       cardTheme: CardThemeData(
         elevation: 2,
         color: AppColors.textPrimary,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryLight,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
       dividerTheme: const DividerThemeData(

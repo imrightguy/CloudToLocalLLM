@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../services/auth_service.dart';
 import '../services/api_service.dart';
+import '../utils/browser_location.dart';
+import '../utils/entrypoint_policy.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
 import '../theme/app_colors.dart';
@@ -41,11 +43,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      // Navigate to home, replacing the login route.
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
-        (route) => false,
-      );
+      final location = currentBrowserLocation();
+      final shouldResumeProtectedRoute = isAppHost(location.host) &&
+          location.path.isNotEmpty &&
+          location.path != '/';
+
+      if (shouldResumeProtectedRoute) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          location.path,
+          (route) => false,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute<void>(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      }
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
