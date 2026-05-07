@@ -30,7 +30,7 @@ class _RenovationJobTemplatePanelState extends State<RenovationJobTemplatePanel>
       return const [];
     }
     return data
-        .whereType<Map>()
+        .whereType<Map<String, dynamic>>()
         .map((item) => RenovationJobTemplate.fromJson(Map<String, dynamic>.from(item)))
         .toList();
   }
@@ -629,8 +629,8 @@ class _RenovationJobTemplateDialogState extends State<_RenovationJobTemplateDial
             .split('\n')
             .map((line) => line.trim())
             .where((line) => line.isNotEmpty)
-            .map(_TemplateLinkInput.parse)
-            .whereType<_TemplateLinkInput>()
+            .map(TemplateLinkInput.parse)
+            .whereType<TemplateLinkInput>()
             .toList(),
         isFavorite: _isFavorite,
       );
@@ -662,7 +662,7 @@ class RenovationJobTemplateFormResult {
   final String description;
   final List<String> materials;
   final String notes;
-  final List<_TemplateLinkInput> manualProductLinks;
+  final List<TemplateLinkInput> manualProductLinks;
   final bool isFavorite;
 
   Map<String, dynamic> toPayload() => {
@@ -693,7 +693,7 @@ class RenovationJobTemplate {
   final bool isFavorite;
   final List<String> materials;
   final String? notes;
-  final List<_TemplateLinkInput> manualProductLinks;
+  final List<TemplateLinkInput> manualProductLinks;
   final List<String> suggestedMissingItems;
 
   factory RenovationJobTemplate.fromJson(Map<String, dynamic> json) {
@@ -710,19 +710,19 @@ class RenovationJobTemplate {
   }
 }
 
-class _TemplateLinkInput {
-  const _TemplateLinkInput({required this.label, required this.url, this.note});
+class TemplateLinkInput {
+  const TemplateLinkInput({required this.label, required this.url, this.note});
 
   final String label;
   final String url;
   final String? note;
 
-  factory _TemplateLinkInput.parse(String line) {
+  factory TemplateLinkInput.parse(String line) {
     final parts = line.split('|').map((part) => part.trim()).where((part) => part.isNotEmpty).toList();
     if (parts.length < 2) {
-      return _TemplateLinkInput(label: line, url: line);
+      return TemplateLinkInput(label: line, url: line);
     }
-    return _TemplateLinkInput(
+    return TemplateLinkInput(
       label: parts[0],
       url: parts[1],
       note: parts.length > 2 ? parts.sublist(2).join(' | ') : null,
@@ -743,14 +743,14 @@ List<String> _stringList(dynamic raw) {
   return raw.map((item) => item.toString()).where((item) => item.trim().isNotEmpty).toList();
 }
 
-List<_TemplateLinkInput> _linkList(dynamic raw) {
+List<TemplateLinkInput> _linkList(dynamic raw) {
   if (raw is! List) {
     return const [];
   }
   return raw
-      .whereType<Map>()
+      .whereType<Map<String, dynamic>>()
       .map((item) => Map<String, dynamic>.from(item))
-      .map((item) => _TemplateLinkInput(
+      .map((item) => TemplateLinkInput(
             label: item['label']?.toString() ?? item['url']?.toString() ?? 'Lien manuel',
             url: item['url']?.toString() ?? '',
             note: item['note']?.toString(),

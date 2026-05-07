@@ -217,10 +217,10 @@ class _MiniStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
+    return const Wrap(
       spacing: 16,
       runSpacing: 16,
-      children: const [
+      children: [
         _MiniStat(label: 'Messages', value: 'En un seul flux'),
         _MiniStat(label: 'Visites', value: 'Planifiées rapidement'),
         _MiniStat(label: 'Immeubles', value: 'Vue d’ensemble claire'),

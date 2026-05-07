@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../services/maintenance_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_typography.dart';
 import '../widgets/immo_app_bar.dart';
 
 class MaintenanceCommandCenterScreen extends StatefulWidget {
@@ -184,7 +183,7 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
                     ],
                     const SizedBox(height: AppSpacing.lg),
                     if (_hasNoData) _buildEmptyState(context) else ...[
-                      _SectionHeader(
+                      const _SectionHeader(
                         title: 'Indicateurs clés',
                         subtitle: 'Vue d’ensemble de la charge, des blocages et des communications.',
                       ),
@@ -208,7 +207,7 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xl),
-                      _SectionHeader(
+                      const _SectionHeader(
                         title: 'Propriétés',
                         subtitle: 'Chaque carte regroupe la charge de rénovation, la capacité et les prochains jalons.',
                       ),
@@ -225,7 +224,7 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl),
-                      _SectionHeader(
+                      const _SectionHeader(
                         title: 'File de travaux',
                         subtitle: 'Vue priorisée des unités qui nécessitent une intervention ou une relance.',
                       ),
@@ -244,7 +243,7 @@ class _MaintenanceCommandCenterScreenState extends State<MaintenanceCommandCente
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl),
-                      _SectionHeader(
+                      const _SectionHeader(
                         title: 'Messages locataires',
                         subtitle: 'État des derniers envois aux occupants concernés par les travaux.',
                       ),
