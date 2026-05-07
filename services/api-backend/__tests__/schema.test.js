@@ -19,8 +19,14 @@ const EXPECTED_TABLES = [
   'communicationThreadsTable',
   'messengerConversationsTable',
   'documentsTable',
+  'propertyPhotosTable',
   'documentsLeadsTable',
   'leasesTable',
+  'tenantChecklistSessionsTable',
+  'tenantChecklistStepsTable',
+  'tenantChecklistAttachmentsTable',
+  'tenantChecklistSignaturesTable',
+  'tenantChecklistEventsTable',
   'notificationPreferencesTable',
   'notificationsTable',
   'smsTemplatesTable',
@@ -31,12 +37,15 @@ const EXPECTED_TABLES = [
   'observationResultsTable',
   'paymentsTable',
   'renewalOffersTable',
+  'dossierCasesTable',
+  'dossierCaseItemsTable',
   'smsOptOutsTable',
   'renovationsTable',
   'renovationTasksTable',
   'renovationOrdersTable',
   'renovationReceivingEventsTable',
   'renovationSurplusItemsTable',
+  'renovationJobTemplatesTable',
 ];
 
 // ── Helpers ──
@@ -56,7 +65,7 @@ function _getColumnNames(table) {
 
 // ── Schema Export Tests ──
 describe('schema exports', () => {
-  it('should export all 30 expected tables', () => {
+  it('should export all 40 expected tables', () => {
     EXPECTED_TABLES.forEach((tableName) => {
       expect(schema).toHaveProperty(tableName);
       expect(schema[tableName]).toBeDefined();
@@ -352,6 +361,29 @@ describe('documentsTable', () => {
   });
 });
 
+describe('propertyPhotosTable', () => {
+  const t = schema.propertyPhotosTable;
+  const cols = [
+    'id', 'companyId', 'buildingId', 'unitId', 'roomContext', 'useCase',
+    'displayOrder', 'documentRefId', 'fileName', 'storedFileName',
+    'storageProvider', 'storageKey', 'storagePath', 'fileSizeBytes', 'mimeType', 'url',
+    'capturedAt', 'uploadedAt', 'metadata', 'uploadedByUserId', 'isActive',
+    'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default ordering, upload timestamp, metadata, and active state', () => {
+    expect(t.displayOrder.hasDefault).toBe(true);
+    expect(t.uploadedAt.hasDefault).toBe(true);
+    expect(t.metadata.hasDefault).toBe(true);
+    expect(t.isActive.hasDefault).toBe(true);
+    expect(t.storageProvider.hasDefault).toBe(true);
+  });
+});
+
 describe('documentsLeadsTable', () => {
   const t = schema.documentsLeadsTable;
   const cols = ['documentId', 'leadId', 'assignedAt'];
@@ -368,6 +400,86 @@ describe('leasesTable', () => {
     'tenantEmail', 'tenantPhone', 'rentCents', 'depositCents',
     'startDate', 'endDate', 'status', 'terms', 'signedAt',
     'createdBy', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('tenantChecklistSessionsTable', () => {
+  const t = schema.tenantChecklistSessionsTable;
+  const cols = [
+    'id', 'unitId', 'leaseId', 'checklistType', 'state', 'currentStepKey',
+    'currentStepOrder', 'tenantName', 'tenantPhone', 'startedByUserId',
+    'resumedByUserId', 'pausedByUserId', 'completedByUserId', 'submittedByUserId',
+    'startedAt', 'resumedAt', 'pausedAt', 'pausedReason', 'submittedAt',
+    'completedAt', 'reviewedByUserId', 'reviewedAt', 'confirmationNote',
+    'metadata', 'isActive', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default to a draft checklist session', () => {
+    expect(t.checklistType.hasDefault).toBe(true);
+    expect(t.state.hasDefault).toBe(true);
+    expect(t.currentStepOrder.hasDefault).toBe(true);
+    expect(t.metadata.hasDefault).toBe(true);
+  });
+});
+
+describe('tenantChecklistStepsTable', () => {
+  const t = schema.tenantChecklistStepsTable;
+  const cols = [
+    'id', 'sessionId', 'stepKey', 'stepOrder', 'title', 'description',
+    'status', 'requiredFields', 'notes', 'blockedReason', 'completedAt',
+    'metadata', 'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+
+  it('should default step status and required field metadata', () => {
+    expect(t.status.hasDefault).toBe(true);
+    expect(t.requiredFields.hasDefault).toBe(true);
+    expect(t.metadata.hasDefault).toBe(true);
+  });
+});
+
+describe('tenantChecklistAttachmentsTable', () => {
+  const t = schema.tenantChecklistAttachmentsTable;
+  const cols = [
+    'id', 'sessionId', 'stepId', 'documentRefId', 'fileName', 'mimeType',
+    'url', 'caption', 'takenAt', 'uploadedByUserId', 'metadata',
+    'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('tenantChecklistSignaturesTable', () => {
+  const t = schema.tenantChecklistSignaturesTable;
+  const cols = [
+    'id', 'sessionId', 'signatureType', 'signerName', 'signerRole', 'method',
+    'status', 'signatureData', 'signedAt', 'signedByUserId', 'metadata',
+    'createdAt', 'updatedAt',
+  ];
+
+  it('should have all expected columns', () => {
+    cols.forEach((c) => expect(hasColumn(t, c)).toBeTruthy());
+  });
+});
+
+describe('tenantChecklistEventsTable', () => {
+  const t = schema.tenantChecklistEventsTable;
+  const cols = [
+    'id', 'sessionId', 'eventType', 'actorType', 'actorUserId', 'fromState',
+    'toState', 'stepId', 'payload', 'createdAt',
   ];
 
   it('should have all expected columns', () => {

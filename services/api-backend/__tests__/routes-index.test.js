@@ -1,6 +1,8 @@
 const express = require('express');
 const supertest = require('supertest');
 
+process.env.FB_VERIFY_TOKEN = 'test_verify_token';
+
 jest.mock('../src/database/connection', () => ({
   connect: jest.fn().mockResolvedValue(true),
   db: {},
@@ -99,6 +101,28 @@ describe('routes/index', () => {
       const res = await supertest(app).get('/api/buildings/99999/unit');
 
       expect(res.status).toBe(404);
+    });
+  });
+
+  describe('webhook route exposure', () => {
+    it('exposes the Facebook webhook verification endpoint through the route index', async () => {
+      const res = await supertest(app).get('/api/webhooks/facebook')
+        .query({
+          'hub.mode': 'subscribe',
+          'hub.verify_token': 'test_verify_token',
+          'hub.challenge': 'CHALLENGE_123',
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.text).toBe('CHALLENGE_123');
+    });
+
+    it('exposes the Facebook webhook event endpoint through the route index', async () => {
+      const res = await supertest(app).post('/api/webhooks/facebook')
+        .send({ object: 'user' });
+
+      expect(res.status).toBe(200);
+      expect(res.text).toBe('EVENT_RECEIVED');
     });
   });
 });

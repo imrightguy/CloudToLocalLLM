@@ -9,6 +9,18 @@ const {
   buildingSchema,
   updateBuildingSchema,
 } = require('../models/building');
+const {
+  tenantChecklistStartSchema,
+  tenantChecklistResumeSchema,
+  tenantChecklistPauseSchema,
+  tenantChecklistSubmitSchema,
+  tenantChecklistSummaryParamsSchema,
+} = require('../models/tenant-checklist');
+const {
+  photoRecordCreateSchema,
+  photoRecordUploadSchema,
+  photoRecordListQuerySchema,
+} = require('../models/photo');
 
 const uuid = Joi.string().uuid();
 
@@ -20,6 +32,27 @@ const pagination = Joi.object({
 const uuidParam = { params: Joi.object({ id: uuid }) };
 
 const buildingIdParam = { params: Joi.object({ buildingId: uuid }) };
+
+const photoRecordSchemas = {
+  list: {
+    params: Joi.object({ companyId: uuid.required() }),
+    query: photoRecordListQuerySchema,
+  },
+  create: {
+    params: Joi.object({ companyId: uuid.required() }),
+    body: photoRecordCreateSchema,
+  },
+  upload: {
+    params: Joi.object({ companyId: uuid.required() }),
+    body: photoRecordUploadSchema,
+  },
+  download: {
+    params: Joi.object({
+      companyId: uuid.required(),
+      photoId: uuid.required(),
+    }),
+  },
+};
 
 const buildingSchemas = {
   create: {
@@ -148,6 +181,27 @@ const leaseSchemas = {
     body: Joi.object({
       signatureType: Joi.string().valid('tenant', 'landlord', 'both').default('tenant'),
     }),
+  },
+};
+
+const tenantChecklistSchemas = {
+  start: {
+    body: tenantChecklistStartSchema,
+  },
+  resume: {
+    params: Joi.object({ id: uuid }),
+    body: tenantChecklistResumeSchema,
+  },
+  pause: {
+    params: Joi.object({ id: uuid }),
+    body: tenantChecklistPauseSchema,
+  },
+  submit: {
+    params: Joi.object({ id: uuid }),
+    body: tenantChecklistSubmitSchema,
+  },
+  summary: {
+    params: tenantChecklistSummaryParamsSchema,
   },
 };
 
@@ -648,6 +702,46 @@ const observationResultSchemas = {
   },
 };
 
+const dossierCaseCategoryValues = ['maintenance', 'payment', 'visit', 'lease', 'documents', 'general'];
+const dossierCaseStatusValues = ['draft', 'in_review', 'approved', 'exported', 'archived'];
+
+const dossierCaseCreateSchema = Joi.object({
+  leadId: uuid.allow(null),
+  unitId: uuid.allow(null),
+  problemCategory: Joi.string().valid(...dossierCaseCategoryValues).required(),
+  incidentWindowStart: Joi.date().iso().allow(null),
+  incidentWindowEnd: Joi.date().iso().allow(null),
+}).min(1);
+
+const dossierCaseReviewSchema = Joi.object({
+  status: Joi.string().valid(...dossierCaseStatusValues).required(),
+  reviewNotes: Joi.string().trim().max(5000).allow(null, ''),
+}).required();
+
+const dossierCaseSchemas = {
+  list: {
+    params: Joi.object({ companyId: uuid.required() }),
+    query: Joi.object({
+      status: Joi.string().valid(...dossierCaseStatusValues),
+      limit: pagination.extract('limit'),
+    }),
+  },
+  create: {
+    params: Joi.object({ companyId: uuid.required() }),
+    body: dossierCaseCreateSchema,
+  },
+  detail: {
+    params: Joi.object({ companyId: uuid.required(), id: uuid.required() }),
+  },
+  review: {
+    params: Joi.object({ companyId: uuid.required(), id: uuid.required() }),
+    body: dossierCaseReviewSchema,
+  },
+  export: {
+    params: Joi.object({ companyId: uuid.required(), id: uuid.required() }),
+  },
+};
+
 const smsWebhookSchemas = {
   incoming: {
     body: Joi.object({
@@ -814,6 +908,8 @@ module.exports = {
   buildingSchemas,
   leadSchemas,
   leaseSchemas,
+  tenantChecklistSchemas,
+  photoRecordSchemas,
   employeeSchemas,
   visitSchemas,
   paymentSchemas,
@@ -826,6 +922,7 @@ module.exports = {
   maintenanceSchemas,
   observationResultSchemas,
   smsCampaignSchemas,
+  dossierCaseSchemas,
   smsWebhookSchemas,
   analyticsSchemas,
   tenantConfirmationSchemas,
