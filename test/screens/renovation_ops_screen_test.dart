@@ -35,6 +35,49 @@ void main() {
           headers: {'content-type': 'application/json'},
         );
       }
+      if (path.endsWith('/buildings')) {
+        return http.Response(
+          jsonEncode({
+            'success': true,
+            'data': [
+              {
+                'id': 'building-1',
+                'name': 'Place Du Parc',
+                'address': '123 rue des Pins',
+                'city': 'Montréal',
+                'totalUnits': 10,
+                'occupiedUnits': 8,
+                'monthlyRevenue': 12345,
+                'units': [],
+              },
+            ],
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }
+      if (path.endsWith('/buildings/units') && request.url.queryParameters['buildingId'] == 'building-1') {
+        return http.Response(
+          jsonEncode({
+            'success': true,
+            'data': [
+              {
+                'id': 'unit-1',
+                'buildingId': 'building-1',
+                'number': '304',
+                'type': '3 1/2',
+                'bedrooms': 1,
+                'bathrooms': 1,
+                'rent': 145000,
+                'status': 'vacant',
+                'leaseEnd': '',
+              },
+            ],
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }
       return http.Response(jsonEncode({'success': true, 'data': []}), 200, headers: {'content-type': 'application/json'});
     });
   });
@@ -75,5 +118,34 @@ void main() {
     expect(find.textContaining('Détail du logement 304'), findsOneWidget);
     expect(find.text('Tâches'), findsOneWidget);
     expect(find.text('Bloqueur principal'), findsOneWidget);
+  });
+
+  testWidgets('opens the mobile photo capture sheet from apartment detail', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: RenovationOpsScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Logement 304'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Logement 304'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('Téléverser une photo'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('Téléverser une photo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Téléverser une photo terrain'), findsOneWidget);
+    expect(find.text('Choisir une photo'), findsOneWidget);
+    expect(find.text('Logement 304'), findsWidgets);
   });
 }
