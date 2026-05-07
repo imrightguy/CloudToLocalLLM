@@ -1,9 +1,14 @@
+// ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../services/property_photo_service.dart';
 import '../widgets/immo_app_bar.dart';
+import '../widgets/property_photo_upload_sheet.dart';
+import '../widgets/renovation_job_template_panel.dart';
+import 'tenant_checklist_operator_screen.dart';
 
 class RenovationOpsScreen extends StatefulWidget {
   const RenovationOpsScreen({super.key});
@@ -18,6 +23,9 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
       id: 'A-304',
       unitLabel: '304',
       buildingName: 'Place Du Parc',
+      tenantName: 'Sophie Tremblay',
+      tenantPhone: '514 555-1020',
+      leaseId: 'lease-304-a',
       phase: _RenovationPhase.active,
       readiness: '71 % prêt',
       taskCount: 8,
@@ -37,6 +45,9 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
       id: 'B-212',
       unitLabel: '212',
       buildingName: 'Le Cardinal',
+      tenantName: 'Marc Gagnon',
+      tenantPhone: '438 555-2140',
+      leaseId: 'lease-212-b',
       phase: _RenovationPhase.blocked,
       readiness: '43 % prêt',
       taskCount: 6,
@@ -55,6 +66,9 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
       id: 'C-118',
       unitLabel: '118',
       buildingName: 'Ateliers Nord',
+      tenantName: 'Karine Leduc',
+      tenantPhone: '450 555-7812',
+      leaseId: 'lease-118-c',
       phase: _RenovationPhase.ready,
       readiness: 'Prêt pour Leasing',
       taskCount: 4,
@@ -149,6 +163,22 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
+                'Modèles de travaux',
+                style: AppTypography.sectionHeader.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Sauvegardez des gabarits réutilisables avec matériaux, notes, favoris et liens produits manuels pour accélérer les commandes.',
+                style: AppTypography.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              const RenovationJobTemplatePanel(),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
                 'Flux de travail',
                 style: AppTypography.sectionHeader.copyWith(
                   color: AppColors.textPrimary,
@@ -173,6 +203,7 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
   }
 
   void _openApartmentDetail(BuildContext context, _RenovationApartment apartment) {
+    final navigator = Navigator.of(context);
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -181,7 +212,25 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return _ApartmentDetailSheet(apartment: apartment);
+        return _ApartmentDetailSheet(
+          apartment: apartment,
+          onOpenChecklist: () {
+            navigator.pop();
+            navigator.push(
+              MaterialPageRoute(
+                builder: (_) => TenantChecklistOperatorScreen(
+                  unitId: apartment.id,
+                  unitLabel: apartment.unitLabel,
+                  buildingName: apartment.buildingName,
+                  leaseId: apartment.leaseId,
+                  tenantName: apartment.tenantName,
+                  tenantPhone: apartment.tenantPhone,
+                  checklistType: apartment.phase == _RenovationPhase.ready ? 'move_out' : 'move_in',
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }
@@ -616,9 +665,10 @@ class _HookRow extends StatelessWidget {
 }
 
 class _ApartmentDetailSheet extends StatelessWidget {
-  const _ApartmentDetailSheet({required this.apartment});
+  const _ApartmentDetailSheet({required this.apartment, required this.onOpenChecklist});
 
   final _RenovationApartment apartment;
+  final VoidCallback onOpenChecklist;
 
   @override
   Widget build(BuildContext context) {
@@ -671,6 +721,7 @@ class _ApartmentDetailSheet extends StatelessWidget {
                   children: [
                     _StatusChip(label: apartment.phase.label, color: apartment.phase.color),
                     _StatusChip(label: apartment.readiness, color: AppColors.info),
+                    _StatusChip(label: apartment.tenantName, color: AppColors.primary),
                     _StatusChip(
                       label: '${apartment.doneCount}/${apartment.taskCount} tâches',
                       color: AppColors.success,
@@ -743,14 +794,46 @@ class _ApartmentDetailSheet extends StatelessWidget {
                       label: const Text('Ajouter une tâche'),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.photo_library_outlined),
-                      label: const Text('Voir les photos'),
+                      onPressed: () async {
+                        final uploaded = await showModalBottomSheet<bool>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: AppColors.surface,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                          ),
+                          builder: (context) {
+                            return PropertyPhotoUploadSheet(
+                              initialBuildingName: apartment.buildingName,
+                              initialUnitLabel: apartment.unitLabel,
+                              apartmentLabel: 'Logement ${apartment.unitLabel}',
+                              contextSource: const ApiPropertyPhotoContextSource(),
+                              photoUploader: ApiPropertyPhotoUploader(),
+                              photoPicker: const FilePickerPhotoPicker(),
+                            );
+                          },
+                        );
+
+                        if (uploaded == true && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Photo terrain téléversée avec succès.'),
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.photo_camera_outlined),
+                      label: const Text('Téléverser une photo'),
                     ),
                     OutlinedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.verified_rounded),
                       label: const Text('Marquer prêt'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: onOpenChecklist,
+                      icon: const Icon(Icons.assignment_outlined),
+                      label: const Text('Ouvrir la checklist locataire'),
                     ),
                   ],
                 ),
@@ -873,6 +956,9 @@ class _RenovationApartment {
     required this.id,
     required this.unitLabel,
     required this.buildingName,
+    required this.tenantName,
+    required this.tenantPhone,
+    required this.leaseId,
     required this.phase,
     required this.readiness,
     required this.taskCount,
@@ -887,6 +973,9 @@ class _RenovationApartment {
   final String id;
   final String unitLabel;
   final String buildingName;
+  final String tenantName;
+  final String tenantPhone;
+  final String leaseId;
   final _RenovationPhase phase;
   final String readiness;
   final int taskCount;
