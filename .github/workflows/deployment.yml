@@ -278,9 +278,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           CURRENT=$(node -p "require('./${{ env.API_DIR }}/package.json').version")
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+          LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n 1 | sed 's/^v//')
+          BASE_VERSION=$(printf '%s\n%s\n' "$CURRENT" "$LATEST_TAG" | sort -V | tail -n 1)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
           NEW_PATCH=$((PATCH + 1))
           NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+
+          while git rev-parse -q --verify "refs/tags/v${NEW_VERSION}" >/dev/null; do
+            echo "[deploy] Tag v${NEW_VERSION} already exists, bumping again"
+            NEW_PATCH=$((NEW_PATCH + 1))
+            NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          done
+
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
           npm version $NEW_VERSION --no-git-tag-version --prefix services/api-backend
