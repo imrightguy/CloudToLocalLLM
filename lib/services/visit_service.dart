@@ -101,15 +101,16 @@ class VisitService {
   }
 
   /// POST /visits
-  /// Returns the created visit and optionally the [occupantSMS] map
-  /// if the backend sent an SMS to the unit occupant.
-  Future<({VisitItem visit, Map<String, dynamic>? occupantSMS})> createVisit(
+  /// Returns the created visit and optionally the [confirmationSMS] and
+  /// [occupantSMS] maps if the backend sent SMS notifications.
+  Future<({VisitItem visit, Map<String, dynamic>? confirmationSMS, Map<String, dynamic>? occupantSMS})> createVisit(
       Map<String, dynamic> data) async {
     final result = await ApiService.instance.post('/visits', data);
     CacheService.instance.invalidateAll();
     final visit = VisitItem.fromJson(result['data'] as Map<String, dynamic>);
+    final confirmationSMS = result['confirmationSMS'] as Map<String, dynamic>?;
     final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
-    return (visit: visit, occupantSMS: occupantSMS);
+    return (visit: visit, confirmationSMS: confirmationSMS, occupantSMS: occupantSMS);
   }
 
   /// PUT /visits/:id

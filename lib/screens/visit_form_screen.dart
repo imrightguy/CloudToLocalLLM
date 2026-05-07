@@ -160,41 +160,52 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
       });
 
       if (mounted) {
+        final confirmationSMS = result['confirmationSMS'] as Map<String, dynamic>?;
         final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
-        if (occupantSMS != null) {
-          final smsSuccess = occupantSMS['success'] as bool? ?? false;
-          final needsNotice = occupantSMS['needsNotice'] as bool? ?? false;
+        final messages = <String>[];
+        var hasFailure = false;
+        var needsNotice = false;
 
-          if (smsSuccess) {
-            String message = 'Visite créée — SMS envoyé au locataire';
-            if (needsNotice) {
-              message += '\nNote: moins de 24h de préavis';
-            }
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(message),
-                backgroundColor: needsNotice
-                    ? AppColors.warning
-                    : AppColors.success,
-                duration: Duration(seconds: needsNotice ? 5 : 3),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Visite créée, mais l\'envoi du SMS au locataire a échoué',
-                ),
-                backgroundColor: AppColors.warning,
-                duration: Duration(seconds: 4),
-              ),
-            );
+        Map<String, dynamic>? nestedResult(Object? value) => value is Map<String, dynamic> ? value : null;
+
+        String? smsLine(String label, Map<String, dynamic>? smsResult) {
+          if (smsResult == null) return null;
+          final success = smsResult['success'] as bool? ?? false;
+          final error = smsResult['error'] is Map<String, dynamic>
+              ? (smsResult['error'] as Map<String, dynamic>)['message'] as String?
+              : smsResult['error'] as String?;
+          final notice = smsResult['needsNotice'] as bool? ?? false;
+          needsNotice = needsNotice || notice;
+          if (success) {
+            return notice ? '✅ $label envoyé (préavis court)' : '✅ $label envoyé';
           }
-        } else {
+          hasFailure = true;
+          return error == null || error.isEmpty ? '⚠️ $label: échec' : '⚠️ $label: $error';
+        }
+
+        final employeeSms = nestedResult(confirmationSMS?['employee']);
+        final tenantSms = nestedResult(confirmationSMS?['tenant']);
+        final employeeLine = smsLine('SMS employé', employeeSms);
+        final tenantLine = smsLine('SMS de confirmation locataire', tenantSms);
+        final occupantLine = smsLine('SMS au locataire occupant', occupantSMS);
+
+        if (employeeLine != null) messages.add(employeeLine);
+        if (tenantLine != null) messages.add(tenantLine);
+        if (occupantLine != null) messages.add(occupantLine);
+
+        if (messages.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Visite créée avec succès'),
               backgroundColor: AppColors.success,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(messages.join('\n')),
+              backgroundColor: hasFailure || needsNotice ? AppColors.warning : AppColors.success,
+              duration: Duration(seconds: hasFailure || needsNotice ? 5 : 3),
             ),
           );
         }

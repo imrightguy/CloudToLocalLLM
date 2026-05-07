@@ -294,8 +294,18 @@ class VisitItem {
     this.dateTime,
     this.leadName,
     this.tenantConfirmed = false,
+    this.tenantConfirmationRequestedAt,
+    this.tenantConfirmedAt,
+    this.tenantDeclinedAt,
     this.employeeConfirmed = false,
+    this.employeeConfirmationRequestedAt,
+    this.employeeConfirmedAt,
+    this.employeeDeclinedAt,
     this.occupantNotified = false,
+    this.morningOfSent = false,
+    this.morningReminderSentAt,
+    this.reminder24hQueuedAt,
+    this.reminder2hQueuedAt,
     this.occupantSMS,
     this.outcome,
     this.reasonCode,
@@ -318,8 +328,18 @@ class VisitItem {
   final DateTime? dateTime;
   final String? leadName;
   final bool tenantConfirmed;
+  final DateTime? tenantConfirmationRequestedAt;
+  final DateTime? tenantConfirmedAt;
+  final DateTime? tenantDeclinedAt;
   final bool employeeConfirmed;
+  final DateTime? employeeConfirmationRequestedAt;
+  final DateTime? employeeConfirmedAt;
+  final DateTime? employeeDeclinedAt;
   final bool occupantNotified;
+  final bool morningOfSent;
+  final DateTime? morningReminderSentAt;
+  final DateTime? reminder24hQueuedAt;
+  final DateTime? reminder2hQueuedAt;
   final Map<String, dynamic>? occupantSMS;
   final String? outcome;
   final String? reasonCode;
@@ -373,8 +393,18 @@ class VisitItem {
           ? (json['lead'] as Map<String, dynamic>)['fullName'] as String?
           : json['leadName'] as String?,
       tenantConfirmed: json['tenantConfirmed'] as bool? ?? false,
+      tenantConfirmationRequestedAt: parseDate(json['tenantConfirmationRequestedAt']),
+      tenantConfirmedAt: parseDate(json['tenantConfirmedAt']),
+      tenantDeclinedAt: parseDate(json['tenantDeclinedAt']),
       employeeConfirmed: json['employeeConfirmed'] as bool? ?? false,
+      employeeConfirmationRequestedAt: parseDate(json['employeeConfirmationRequestedAt']),
+      employeeConfirmedAt: parseDate(json['employeeConfirmedAt']),
+      employeeDeclinedAt: parseDate(json['employeeDeclinedAt']),
       occupantNotified: json['occupantNotified'] as bool? ?? false,
+      morningOfSent: json['morningOfSent'] as bool? ?? false,
+      morningReminderSentAt: parseDate(json['morningReminderSentAt']),
+      reminder24hQueuedAt: parseDate(json['reminder24hQueuedAt']),
+      reminder2hQueuedAt: parseDate(json['reminder2hQueuedAt']),
       occupantSMS: json['occupantSMS'] as Map<String, dynamic>?,
       outcome: json['outcome'] as String?,
       reasonCode: json['reasonCode'] as String? ?? json['failureReasonCode'] as String?,
@@ -398,8 +428,18 @@ class VisitItem {
         'notes': notes,
         'leadName': leadName,
         'tenantConfirmed': tenantConfirmed,
+        if (tenantConfirmationRequestedAt != null) 'tenantConfirmationRequestedAt': tenantConfirmationRequestedAt!.toIso8601String(),
+        if (tenantConfirmedAt != null) 'tenantConfirmedAt': tenantConfirmedAt!.toIso8601String(),
+        if (tenantDeclinedAt != null) 'tenantDeclinedAt': tenantDeclinedAt!.toIso8601String(),
         'employeeConfirmed': employeeConfirmed,
+        if (employeeConfirmationRequestedAt != null) 'employeeConfirmationRequestedAt': employeeConfirmationRequestedAt!.toIso8601String(),
+        if (employeeConfirmedAt != null) 'employeeConfirmedAt': employeeConfirmedAt!.toIso8601String(),
+        if (employeeDeclinedAt != null) 'employeeDeclinedAt': employeeDeclinedAt!.toIso8601String(),
         'occupantNotified': occupantNotified,
+        'morningOfSent': morningOfSent,
+        if (morningReminderSentAt != null) 'morningReminderSentAt': morningReminderSentAt!.toIso8601String(),
+        if (reminder24hQueuedAt != null) 'reminder24hQueuedAt': reminder24hQueuedAt!.toIso8601String(),
+        if (reminder2hQueuedAt != null) 'reminder2hQueuedAt': reminder2hQueuedAt!.toIso8601String(),
         if (occupantSMS != null) 'occupantSMS': occupantSMS,
         if (outcome != null) 'outcome': outcome,
         if (reasonCode != null) 'reasonCode': reasonCode,

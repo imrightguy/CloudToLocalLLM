@@ -1224,6 +1224,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   if (visit.leadName != null && visit.leadName!.isNotEmpty)
                     _detailRow('Prospect', visit.leadName!),
                   if (visit.notes.isNotEmpty) _detailRow('Notes', visit.notes),
+                  if (visit.tenantConfirmationRequestedAt != null)
+                    _detailRow('Confirmation locataire demandée', _formatVisitTimestamp(visit.tenantConfirmationRequestedAt!)),
+                  if (visit.tenantConfirmedAt != null)
+                    _detailRow('Locataire confirmé le', _formatVisitTimestamp(visit.tenantConfirmedAt!)),
+                  if (visit.tenantDeclinedAt != null)
+                    _detailRow('Locataire a refusé le', _formatVisitTimestamp(visit.tenantDeclinedAt!)),
+                  if (visit.employeeConfirmationRequestedAt != null)
+                    _detailRow('Confirmation employé demandée', _formatVisitTimestamp(visit.employeeConfirmationRequestedAt!)),
+                  if (visit.employeeConfirmedAt != null)
+                    _detailRow('Employé confirmé le', _formatVisitTimestamp(visit.employeeConfirmedAt!)),
+                  if (visit.employeeDeclinedAt != null)
+                    _detailRow('Employé a refusé le', _formatVisitTimestamp(visit.employeeDeclinedAt!)),
+                  if (visit.morningReminderSentAt != null)
+                    _detailRow('Rappel du matin envoyé le', _formatVisitTimestamp(visit.morningReminderSentAt!)),
+                  if (visit.reminder24hQueuedAt != null)
+                    _detailRow('Rappel 24h planifié le', _formatVisitTimestamp(visit.reminder24hQueuedAt!)),
+                  if (visit.reminder2hQueuedAt != null)
+                    _detailRow('Rappel 2h planifié le', _formatVisitTimestamp(visit.reminder2hQueuedAt!)),
+                  _detailRow('Préavis rappel matin', visit.morningOfSent ? 'Oui' : 'Non'),
                   if (visit.completedAt != null)
                     _detailRow('Terminée le', _formatVisitTimestamp(visit.completedAt!)),
                   if (visit.cancelledAt != null)

@@ -553,6 +553,25 @@ class _VisitsScreenState extends State<VisitsScreen> {
                 if (visit.leadName != null && visit.leadName!.isNotEmpty)
                   _detailRow('Prospect', visit.leadName!),
                 if (visit.notes.isNotEmpty) _detailRow('Notes', visit.notes),
+                if (visit.tenantConfirmationRequestedAt != null)
+                  _detailRow('Confirmation locataire demandée', _formatTimestamp(visit.tenantConfirmationRequestedAt!)),
+                if (visit.tenantConfirmedAt != null)
+                  _detailRow('Locataire confirmé le', _formatTimestamp(visit.tenantConfirmedAt!)),
+                if (visit.tenantDeclinedAt != null)
+                  _detailRow('Locataire a refusé le', _formatTimestamp(visit.tenantDeclinedAt!)),
+                if (visit.employeeConfirmationRequestedAt != null)
+                  _detailRow('Confirmation employé demandée', _formatTimestamp(visit.employeeConfirmationRequestedAt!)),
+                if (visit.employeeConfirmedAt != null)
+                  _detailRow('Employé confirmé le', _formatTimestamp(visit.employeeConfirmedAt!)),
+                if (visit.employeeDeclinedAt != null)
+                  _detailRow('Employé a refusé le', _formatTimestamp(visit.employeeDeclinedAt!)),
+                if (visit.morningReminderSentAt != null)
+                  _detailRow('Rappel du matin envoyé le', _formatTimestamp(visit.morningReminderSentAt!)),
+                if (visit.reminder24hQueuedAt != null)
+                  _detailRow('Rappel 24h planifié le', _formatTimestamp(visit.reminder24hQueuedAt!)),
+                if (visit.reminder2hQueuedAt != null)
+                  _detailRow('Rappel 2h planifié le', _formatTimestamp(visit.reminder2hQueuedAt!)),
+                _detailRow('Préavis rappel matin', visit.morningOfSent ? 'Oui' : 'Non'),
                 const SizedBox(height: 8),
                 // Occupant notification status
                 _occupantStatusRow(visit),
@@ -591,6 +610,10 @@ class _VisitsScreenState extends State<VisitsScreen> {
         ],
       ),
     );
+  }
+
+  String _formatTimestamp(DateTime dateTime) {
+    return DateFormat('d MMM yyyy à HH:mm', 'fr').format(dateTime);
   }
 
   /// Display the occupant notification & tenant confirmation status with icons.
@@ -802,42 +825,54 @@ class _CreateVisitScreenState extends State<_CreateVisitScreen> {
       });
 
       if (mounted) {
-        // Check for occupant SMS notification result
+        final confirmationSMS = result['confirmationSMS'] as Map<String, dynamic>?;
         final occupantSMS = result['occupantSMS'] as Map<String, dynamic>?;
-        if (occupantSMS != null) {
-          final smsSuccess = occupantSMS['success'] as bool? ?? false;
-          final needsNotice = occupantSMS['needsNotice'] as bool? ?? false;
+        final noticeMessages = <String>[];
+        var hasFailure = false;
+        var needsNotice = false;
 
-          if (smsSuccess) {
-            String message = '✅ Visite créée — SMS envoyé au locataire';
-            if (needsNotice) {
-              message += '\n⚠️ Note: moins de 24h de préavis';
-            }
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(message),
-                backgroundColor: needsNotice
-                    ? AppColors.warning
-                    : AppColors.success,
-                duration: Duration(seconds: needsNotice ? 5 : 3),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  '⚠️ Visite créée, mais l\'envoi du SMS au locataire a échoué',
-                ),
-                backgroundColor: AppColors.warning,
-                duration: Duration(seconds: 4),
-              ),
-            );
+        Map<String, dynamic>? nestedResult(Object? value) => value is Map<String, dynamic> ? value : null;
+
+        String? smsLine(String label, Map<String, dynamic>? smsResult) {
+          if (smsResult == null) return null;
+          final success = smsResult['success'] as bool? ?? false;
+          final error = smsResult['error'] is Map<String, dynamic>
+              ? (smsResult['error'] as Map<String, dynamic>)['message'] as String?
+              : smsResult['error'] as String?;
+          final notice = smsResult['needsNotice'] as bool? ?? false;
+          needsNotice = needsNotice || notice;
+          if (success) {
+            return notice ? '✅ $label envoyé (préavis court)' : '✅ $label envoyé';
           }
-        } else {
+          hasFailure = true;
+          return error == null || error.isEmpty ? '⚠️ $label: échec' : '⚠️ $label: $error';
+        }
+
+        final employeeSms = nestedResult(confirmationSMS?['employee']);
+        final tenantSms = nestedResult(confirmationSMS?['tenant']);
+        final occupantLine = smsLine('SMS locataire', occupantSMS);
+        final employeeLine = smsLine('SMS employé', employeeSms);
+        final tenantLine = smsLine('SMS locataire / confirmation', tenantSms);
+
+        if (employeeLine != null) noticeMessages.add(employeeLine);
+        if (tenantLine != null) noticeMessages.add(tenantLine);
+        if (occupantLine != null) noticeMessages.add(occupantLine);
+
+        if (noticeMessages.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Visite créée avec succès'),
               backgroundColor: AppColors.success,
+            ),
+          );
+        } else {
+          final backgroundColor = hasFailure || needsNotice ? AppColors.warning : AppColors.success;
+          final message = noticeMessages.join('\n');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: backgroundColor,
+              duration: Duration(seconds: hasFailure || needsNotice ? 5 : 3),
             ),
           );
         }

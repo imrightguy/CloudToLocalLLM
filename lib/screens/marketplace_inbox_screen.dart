@@ -753,6 +753,11 @@ class _VisitPreviewCard extends StatelessWidget {
                     visit.dateTime != null ? _formatVisitTime(visit.dateTime!) : visit.dateLabel,
                     style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _lifecycleSummary(visit),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
                 ],
               ),
             ),
@@ -775,6 +780,22 @@ class _VisitPreviewCard extends StatelessWidget {
   }
 
   static String _formatVisitTime(DateTime dt) => DateFormat('d MMM • HH:mm', 'fr').format(dt);
+
+  static String _lifecycleSummary(VisitItem visit) {
+    final parts = <String>[];
+    if (visit.tenantConfirmedAt != null) parts.add('Locataire confirmé');
+    if (visit.employeeConfirmedAt != null) parts.add('Employé confirmé');
+    if (visit.morningReminderSentAt != null) parts.add('Rappel matin envoyé');
+    if (visit.reminder24hQueuedAt != null) parts.add('Rappel 24h');
+    if (visit.reminder2hQueuedAt != null) parts.add('Rappel 2h');
+    if (parts.isEmpty) {
+      if (visit.tenantConfirmationRequestedAt != null || visit.employeeConfirmationRequestedAt != null) {
+        return 'Confirmation demandée';
+      }
+      return 'Aucune relance encore';
+    }
+    return parts.join(' · ');
+  }
 }
 
 class _Badge extends StatelessWidget {
