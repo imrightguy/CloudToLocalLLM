@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -26,6 +27,7 @@ import 'screens/renovation_ops_screen.dart';
 import 'screens/maintenance_command_center_screen.dart';
 import 'screens/daily_task_tracker_screen.dart';
 import 'screens/observation_review_inbox_screen.dart';
+import 'screens/dossier_assistant_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_typography.dart';
@@ -34,10 +36,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('fr', null);
   await initializeDateFormatting('fr_CA', null);
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+
+  if (!kIsWeb) {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
 
   runApp(const ImmoGestionApp());
 }
@@ -88,6 +93,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         return const AuthGate(child: DailyTaskTrackerScreen());
       case '/renovation-ops':
         return const AuthGate(child: RenovationOpsScreen());
+      case '/dossiers':
+        return const AuthGate(child: DossierAssistantScreen());
       default:
         return const AuthGate(child: HomeScreen());
     }
@@ -139,6 +146,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
             (context) => const MaintenanceCommandCenterScreen()),
         '/daily-tasks': _protectedRoute(
             (context) => const DailyTaskTrackerScreen()),
+        '/dossiers': _protectedRoute((context) => const DossierAssistantScreen()),
         '/observations': _protectedRoute((context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           final findingId = args is Map<String, dynamic>
