@@ -68,6 +68,7 @@ class _FakeContextSource implements PropertyPhotoContextSource {
 
 class _FakeUploader implements PropertyPhotoUploader {
   Map<String, dynamic>? lastPayload;
+  final List<Map<String, dynamic>> payloads = <Map<String, dynamic>>[];
 
   @override
   Future<Map<String, dynamic>> uploadPhoto({
@@ -98,6 +99,7 @@ class _FakeUploader implements PropertyPhotoUploader {
       'capturedAt': capturedAt,
       'metadata': metadata,
     };
+    payloads.add(lastPayload!);
     return {'id': 'photo-1'};
   }
 }
@@ -113,10 +115,26 @@ class _FakePhotoPicker implements PhotoPicker {
   }
 }
 
+class _SequentialPhotoPicker implements PhotoPicker {
+  _SequentialPhotoPicker(this.photos);
+
+  final List<PickedPhoto> photos;
+  var _index = 0;
+
+  @override
+  Future<PickedPhoto?> pickPhoto() async {
+    if (_index >= photos.length) {
+      return null;
+    }
+    return photos[_index++];
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('ApiPropertyPhotoUploader sends multipart photo metadata to the backend', () async {
+  test('ApiPropertyPhotoUploader sends multipart photo metadata to the backend',
+      () async {
     final client = _CapturingClient();
     final uploader = ApiPropertyPhotoUploader(client: client);
 
@@ -139,22 +157,26 @@ void main() {
 
     expect(response['id'], 'photo-1');
     final request = client.lastRequest as http.MultipartRequest;
-    expect(request.url.toString(), contains('/api/companies/company-1/photos/upload'));
+    expect(request.url.toString(),
+        contains('/api/companies/company-1/photos/upload'));
     expect(request.fields['buildingId'], 'building-1');
     expect(request.fields['unitId'], 'unit-1');
     expect(request.fields['roomContext'], 'Cuisine');
     expect(request.fields['useCase'], 'maintenance');
     expect(request.fields['displayOrder'], '2');
     expect(request.fields['capturedAt'], '2026-05-07T04:59:00.000Z');
-    expect(request.fields['metadata'], jsonEncode(const {
-      'source': 'frontend_operator',
-      'surface': 'renovation_ops',
-    }));
+    expect(
+        request.fields['metadata'],
+        jsonEncode(const {
+          'source': 'frontend_operator',
+          'surface': 'renovation_ops',
+        }));
     expect(request.files.single.filename, 'photo.jpg');
     expect(request.files.single.contentType.toString(), 'image/jpeg');
   });
 
-  testWidgets('PropertyPhotoUploadSheet submits a property-scoped photo upload', (tester) async {
+  testWidgets('PropertyPhotoUploadSheet submits a property-scoped photo upload',
+      (tester) async {
     final contextSource = _FakeContextSource();
     final uploader = _FakeUploader();
     final picker = _FakePhotoPicker();
@@ -210,7 +232,84 @@ void main() {
     expect(uploader.lastPayload!['roomContext'], 'Cuisine');
     expect(uploader.lastPayload!['useCase'], 'maintenance');
     expect(uploader.lastPayload!['displayOrder'], 5);
-    expect(uploader.lastPayload!['metadata'], containsPair('surface', 'renovation_ops'));
+    expect(uploader.lastPayload!['metadata'],
+        containsPair('surface', 'renovation_ops'));
     expect(find.text('Téléverser la photo'), findsNothing);
+  });
+
+  testWidgets(
+      'PropertyPhotoUploadSheet can be reopened to capture multiple photos in sequence',
+      (tester) async {
+    final contextSource = _FakeContextSource();
+    final uploader = _FakeUploader();
+    final picker = _SequentialPhotoPicker([
+      PickedPhoto(
+        fileName: 'photo-1.jpg',
+        fileType: 'image/jpeg',
+        bytes: Uint8List.fromList(<int>[1, 1, 1]),
+      ),
+      PickedPhoto(
+        fileName: 'photo-2.jpg',
+        fileType: 'image/jpeg',
+        bytes: Uint8List.fromList(<int>[2, 2, 2]),
+      ),
+    ]);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    showModalBottomSheet<bool>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => PropertyPhotoUploadSheet(
+                        initialBuildingName: 'Place Du Parc',
+                        initialUnitLabel: '304',
+                        apartmentLabel: 'Logement 304',
+                        contextSource: contextSource,
+                        photoUploader: uploader,
+                        photoPicker: picker,
+                      ),
+                    );
+                  },
+                  child: const Text('Ouvrir'),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    Future<void> openCaptureAndSubmit(int displayOrder) async {
+      await tester.tap(find.text('Ouvrir'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Choisir une photo'));
+      await tester.tap(find.text('Choisir une photo'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).at(0), 'Cuisine');
+      await tester.enterText(find.byType(TextField).at(1), '$displayOrder');
+      await tester.tap(find.text('Téléverser la photo'));
+      await tester.pumpAndSettle();
+    }
+
+    await openCaptureAndSubmit(1);
+    await openCaptureAndSubmit(2);
+
+    expect(uploader.payloads, hasLength(2));
+    expect(uploader.payloads[0]['fileName'], 'photo-1.jpg');
+    expect(uploader.payloads[1]['fileName'], 'photo-2.jpg');
+    expect(uploader.payloads[0]['displayOrder'], 1);
+    expect(uploader.payloads[1]['displayOrder'], 2);
+    expect(
+        uploader.payloads.every((payload) =>
+            payload['metadata'].toString().contains('renovation_ops')),
+        isTrue);
   });
 }
