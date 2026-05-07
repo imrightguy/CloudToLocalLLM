@@ -358,19 +358,35 @@ class VisitItem {
   final String notes;
 
   factory VisitItem.fromJson(Map<String, dynamic> json) {
-    DateTime? parseDate(dynamic value) {
+    DateTime? parseNullableDate(dynamic value) {
       if (value == null) return null;
-      try {
-        return DateTime.parse(value as String);
-      } catch (_) {
-        return null;
-      }
+      return DateTime.parse(value as String);
     }
 
-    final parsedDateTime = parseDate(json['dateTime']);
-    final derivedDateLabel = parsedDateTime == null
-        ? null
-        : DateFormat('dd MMM yyyy', 'fr').format(parsedDateTime);
+    String formatFrenchDate(DateTime dateTime) {
+      const monthNames = [
+        'janv.',
+        'févr.',
+        'mars',
+        'avr.',
+        'mai',
+        'juin',
+        'juil.',
+        'août',
+        'sept.',
+        'oct.',
+        'nov.',
+        'déc.',
+      ];
+      final day = dateTime.day.toString().padLeft(2, '0');
+      final month = monthNames[dateTime.month - 1];
+      final year = dateTime.year.toString();
+      return '$day $month $year';
+    }
+
+    final parsedDateTime = parseNullableDate(json['dateTime']);
+    final explicitDateLabel = json['dateLabel'] as String?;
+    final derivedDateLabel = parsedDateTime == null ? null : formatFrenchDate(parsedDateTime);
 
     return VisitItem(
       id: json['id'] as String?,
@@ -381,7 +397,7 @@ class VisitItem {
       buildingName: (json['building'] is Map<String, dynamic>)
           ? (json['building'] as Map<String, dynamic>)['name'] as String? ?? ''
           : json['buildingName'] as String? ?? '',
-      dateLabel: derivedDateLabel ?? json['dateLabel'] as String? ?? '',
+      dateLabel: explicitDateLabel ?? derivedDateLabel ?? '',
       dateTime: parsedDateTime,
       status: json['status'] as String? ?? '',
       agent: (json['employee'] is Map<String, dynamic>)
@@ -393,26 +409,26 @@ class VisitItem {
           ? (json['lead'] as Map<String, dynamic>)['fullName'] as String?
           : json['leadName'] as String?,
       tenantConfirmed: json['tenantConfirmed'] as bool? ?? false,
-      tenantConfirmationRequestedAt: parseDate(json['tenantConfirmationRequestedAt']),
-      tenantConfirmedAt: parseDate(json['tenantConfirmedAt']),
-      tenantDeclinedAt: parseDate(json['tenantDeclinedAt']),
+      tenantConfirmationRequestedAt: parseNullableDate(json['tenantConfirmationRequestedAt']),
+      tenantConfirmedAt: parseNullableDate(json['tenantConfirmedAt']),
+      tenantDeclinedAt: parseNullableDate(json['tenantDeclinedAt']),
       employeeConfirmed: json['employeeConfirmed'] as bool? ?? false,
-      employeeConfirmationRequestedAt: parseDate(json['employeeConfirmationRequestedAt']),
-      employeeConfirmedAt: parseDate(json['employeeConfirmedAt']),
-      employeeDeclinedAt: parseDate(json['employeeDeclinedAt']),
+      employeeConfirmationRequestedAt: parseNullableDate(json['employeeConfirmationRequestedAt']),
+      employeeConfirmedAt: parseNullableDate(json['employeeConfirmedAt']),
+      employeeDeclinedAt: parseNullableDate(json['employeeDeclinedAt']),
       occupantNotified: json['occupantNotified'] as bool? ?? false,
       morningOfSent: json['morningOfSent'] as bool? ?? false,
-      morningReminderSentAt: parseDate(json['morningReminderSentAt']),
-      reminder24hQueuedAt: parseDate(json['reminder24hQueuedAt']),
-      reminder2hQueuedAt: parseDate(json['reminder2hQueuedAt']),
+      morningReminderSentAt: parseNullableDate(json['morningReminderSentAt']),
+      reminder24hQueuedAt: parseNullableDate(json['reminder24hQueuedAt']),
+      reminder2hQueuedAt: parseNullableDate(json['reminder2hQueuedAt']),
       occupantSMS: json['occupantSMS'] as Map<String, dynamic>?,
       outcome: json['outcome'] as String?,
       reasonCode: json['reasonCode'] as String? ?? json['failureReasonCode'] as String?,
       failureReasonCode: json['failureReasonCode'] as String? ?? json['reasonCode'] as String?,
-      completedAt: parseDate(json['completedAt']),
-      cancelledAt: parseDate(json['cancelledAt']),
-      noShowAt: parseDate(json['noShowAt']),
-      rescheduledAt: parseDate(json['rescheduledAt']),
+      completedAt: parseNullableDate(json['completedAt']),
+      cancelledAt: parseNullableDate(json['cancelledAt']),
+      noShowAt: parseNullableDate(json['noShowAt']),
+      rescheduledAt: parseNullableDate(json['rescheduledAt']),
     );
   }
 
@@ -821,13 +837,13 @@ class ScheduleItem {
 
   String get dayLabel {
     const days = [
+      'Dimanche',
       'Lundi',
       'Mardi',
       'Mercredi',
       'Jeudi',
       'Vendredi',
       'Samedi',
-      'Dimanche',
     ];
     if (dayOfWeek >= 0 && dayOfWeek < days.length) return days[dayOfWeek];
     return 'Jour $dayOfWeek';
