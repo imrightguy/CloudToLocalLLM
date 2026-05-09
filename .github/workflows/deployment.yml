@@ -206,6 +206,9 @@ jobs:
             echo "[deploy] Starting services..."
             docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
 
+            echo "[deploy] Running database migrations..."
+            docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.prod.yml exec -T api npm run migrate
+
             echo "[deploy] Waiting for API health..."
             for i in $(seq 1 20); do
               if curl -sf http://localhost:3000/health > /dev/null 2>&1; then
