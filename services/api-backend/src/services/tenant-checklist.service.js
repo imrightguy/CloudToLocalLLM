@@ -16,6 +16,8 @@ const {
   buildChecklistTemplate,
 } = require('../models/tenant-checklist');
 
+const IMMUTABLE_SESSION_STATUSES = ['completed', 'reviewed', 'archived'];
+
 const now = () => new Date();
 
 const toIso = (value) => {
@@ -59,14 +61,14 @@ const loadSessionGraph = async (sessionId, client = db) => {
     return null;
   }
 
-  const [unit, lease, steps, attachments, signatures, events] = await Promise.all([
-    fetchOne(client.select().from(unitsTable).where(eq(unitsTable.id, session.unitId))),
-    session.leaseId ? fetchOne(client.select().from(leasesTable).where(eq(leasesTable.id, session.leaseId))) : Promise.resolve(null),
-    client.select().from(tenantChecklistStepsTable).where(eq(tenantChecklistStepsTable.sessionId, sessionId)).orderBy(asc(tenantChecklistStepsTable.stepOrder)),
-    client.select().from(tenantChecklistAttachmentsTable).where(eq(tenantChecklistAttachmentsTable.sessionId, sessionId)).orderBy(desc(tenantChecklistAttachmentsTable.createdAt)),
-    client.select().from(tenantChecklistSignaturesTable).where(eq(tenantChecklistSignaturesTable.sessionId, sessionId)).orderBy(asc(tenantChecklistSignaturesTable.signedAt)),
-    client.select().from(tenantChecklistEventsTable).where(eq(tenantChecklistEventsTable.sessionId, sessionId)).orderBy(desc(tenantChecklistEventsTable.createdAt)),
-  ]);
+  const unit = await fetchOne(client.select().from(unitsTable).where(eq(unitsTable.id, session.unitId)));
+  const lease = session.leaseId
+    ? await fetchOne(client.select().from(leasesTable).where(eq(leasesTable.id, session.leaseId)))
+    : null;
+  const steps = await client.select().from(tenantChecklistStepsTable).where(eq(tenantChecklistStepsTable.sessionId, sessionId)).orderBy(asc(tenantChecklistStepsTable.stepOrder));
+  const attachments = await client.select().from(tenantChecklistAttachmentsTable).where(eq(tenantChecklistAttachmentsTable.sessionId, sessionId)).orderBy(desc(tenantChecklistAttachmentsTable.createdAt));
+  const signatures = await client.select().from(tenantChecklistSignaturesTable).where(eq(tenantChecklistSignaturesTable.sessionId, sessionId)).orderBy(asc(tenantChecklistSignaturesTable.signedAt));
+  const events = await client.select().from(tenantChecklistEventsTable).where(eq(tenantChecklistEventsTable.sessionId, sessionId)).orderBy(desc(tenantChecklistEventsTable.createdAt));
 
   return {
     session,
@@ -348,7 +350,7 @@ const startChecklistSession = async ({
 
 const resumeChecklistSession = async ({ sessionId, resumedByUserId = null, metadata = {} }) => db.transaction(async (tx) => {
   const graph = await loadSessionOrThrow(sessionId, tx);
-  if (['completed', 'archived'].includes(graph.session.state)) {
+  if (IMMUTABLE_SESSION_STATUSES.includes(graph.session.state)) {
     throw conflictError('CHECKLIST_SESSION_NOT_RESUMABLE', 'La session ne peut pas être reprise');
   }
 
@@ -376,7 +378,7 @@ const resumeChecklistSession = async ({ sessionId, resumedByUserId = null, metad
 
 const pauseChecklistSession = async ({ sessionId, pausedByUserId = null, reason = null, metadata = {} }) => db.transaction(async (tx) => {
   const graph = await loadSessionOrThrow(sessionId, tx);
-  if (['completed', 'archived'].includes(graph.session.state)) {
+  if (IMMUTABLE_SESSION_STATUSES.includes(graph.session.state)) {
     throw conflictError('CHECKLIST_SESSION_NOT_PAUSABLE', 'La session ne peut pas être mise en pause');
   }
 
@@ -414,6 +416,10 @@ const submitChecklistSession = async ({
   metadata = {},
 }) => db.transaction(async (tx) => {
   const graph = await loadSessionOrThrow(sessionId, tx);
+  if (IMMUTABLE_SESSION_STATUSES.includes(graph.session.state)) {
+    throw conflictError('CHECKLIST_SESSION_IMMUTABLE', 'La session complétée est immuable');
+  }
+
   const updatedAt = now();
 
   if (stepUpdates.length) {

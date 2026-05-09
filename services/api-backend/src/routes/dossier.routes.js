@@ -5,7 +5,7 @@ const validate = require('../middleware/validate');
 const { dossierCaseSchemas } = require('../config/validation-schemas');
 const controller = require('../controllers/dossier.controller');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get('/', authenticateToken, validate(dossierCaseSchemas.list), asyncHandler(controller.listDossierCases));
 router.post('/', authenticateToken, validate(dossierCaseSchemas.create), asyncHandler(controller.createDossierCase));
