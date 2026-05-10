@@ -50,17 +50,19 @@ docker compose -f docker-compose.prod.yml up -d  # production
 
 ### Key services
 
-| Service                    | Purpose                                        |
-| -------------------------- | ---------------------------------------------- |
-| `twilio.service.js`        | SMS sending via Twilio                         |
-| `sms.service.js`           | SMS campaign management                        |
-| `email.service.js`         | Email sending (Nodemailer)                     |
-| `facebook.service.js`      | Facebook Lead Ads integration                  |
-| `messenger-bot.service.js` | Facebook Messenger chatbot                     |
-| `notification.service.js`  | Push/multi-channel notifications               |
-| `scheduler.service.js`     | Cron jobs (renewals, payments, reminders)      |
-| `weekly-report.service.js` | Weekly analytics report generation             |
-| `analytics.service.js`     | Business metrics and KPIs                      |
+| Service | Purpose |
+| --- | --- |
+| `twilio.service.js` | SMS sending via Twilio |
+| `whatsapp.service.js` | WhatsApp messaging via Twilio Conversations |
+| `conversation-router.service.js` | Cross-channel thread management (WhatsApp + SMS + Messenger) |
+| `sms.service.js` | SMS campaign management |
+| `email.service.js` | Email sending (Nodemailer) |
+| `facebook.service.js` | Facebook Lead Ads integration |
+| `messenger-bot.service.js` | Facebook Messenger chatbot |
+| `notification.service.js` | Push/multi-channel notifications |
+| `scheduler.service.js` | Cron jobs (renewals, payments, reminders) |
+| `weekly-report.service.js` | Weekly analytics report generation |
+| `analytics.service.js` | Business metrics and KPIs |
 
 ### Database tables (Drizzle/PostgreSQL)
 
@@ -83,6 +85,7 @@ docker compose -f docker-compose.prod.yml up -d  # production
 - `notifications` — in-app notifications
 - `notification_preferences` — user notification settings
 - `communication_logs` — multi-channel communication history
+- `whatsapp_conversations` — WhatsApp conversation state tracking
 - `documents` — document storage references
 - `documents_leads` — document-lead associations
 - `refresh_tokens` — JWT refresh token storage

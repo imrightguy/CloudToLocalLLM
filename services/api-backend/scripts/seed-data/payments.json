@@ -1,0 +1,192 @@
+[
+  {
+    "leaseIndex": 0,
+    "amountCents": 165000,
+    "dueDate": "2026-01-01",
+    "paidDate": "2025-12-28",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-01-001"
+  },
+  {
+    "leaseIndex": 0,
+    "amountCents": 165000,
+    "dueDate": "2026-02-01",
+    "paidDate": "2026-01-30",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-02-001"
+  },
+  {
+    "leaseIndex": 0,
+    "amountCents": 165000,
+    "dueDate": "2026-03-01",
+    "paidDate": "2026-02-27",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-03-001"
+  },
+  {
+    "leaseIndex": 0,
+    "amountCents": 165000,
+    "dueDate": "2026-04-01",
+    "paidDate": "2026-03-31",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-04-001"
+  },
+  {
+    "leaseIndex": 0,
+    "amountCents": 165000,
+    "dueDate": "2026-05-01",
+    "paidDate": "2026-04-29",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-05-001"
+  },
+  {
+    "leaseIndex": 1,
+    "amountCents": 145000,
+    "dueDate": "2026-01-01",
+    "paidDate": "2025-12-30",
+    "status": "paid",
+    "method": "check",
+    "reference": "DEMO-2026-01-002"
+  },
+  {
+    "leaseIndex": 1,
+    "amountCents": 145000,
+    "dueDate": "2026-02-01",
+    "paidDate": "2026-02-03",
+    "status": "paid",
+    "method": "check",
+    "reference": "DEMO-2026-02-002"
+  },
+  {
+    "leaseIndex": 1,
+    "amountCents": 145000,
+    "dueDate": "2026-03-01",
+    "paidDate": "2026-03-02",
+    "status": "paid",
+    "method": "check",
+    "reference": "DEMO-2026-03-002"
+  },
+  {
+    "leaseIndex": 1,
+    "amountCents": 145000,
+    "dueDate": "2026-04-01",
+    "paidDate": null,
+    "status": "pending",
+    "method": null,
+    "reference": null
+  },
+  {
+    "leaseIndex": 2,
+    "amountCents": 98000,
+    "dueDate": "2026-01-01",
+    "paidDate": "2025-12-29",
+    "status": "paid",
+    "method": "transfer",
+    "reference": "DEMO-2026-01-003"
+  },
+  {
+    "leaseIndex": 2,
+    "amountCents": 98000,
+    "dueDate": "2026-02-01",
+    "paidDate": "2026-01-31",
+    "status": "paid",
+    "method": "transfer",
+    "reference": "DEMO-2026-02-003"
+  },
+  {
+    "leaseIndex": 2,
+    "amountCents": 98000,
+    "dueDate": "2026-03-01",
+    "paidDate": "2026-02-28",
+    "status": "paid",
+    "method": "transfer",
+    "reference": "DEMO-2026-03-003"
+  },
+  {
+    "leaseIndex": 2,
+    "amountCents": 98000,
+    "dueDate": "2026-04-01",
+    "paidDate": "2026-03-30",
+    "status": "paid",
+    "method": "transfer",
+    "reference": "DEMO-2026-04-003"
+  },
+  {
+    "leaseIndex": 3,
+    "amountCents": 102000,
+    "dueDate": "2026-01-01",
+    "paidDate": "2025-12-27",
+    "status": "paid",
+    "method": "auto_debit",
+    "reference": "DEMO-2026-01-004"
+  },
+  {
+    "leaseIndex": 3,
+    "amountCents": 102000,
+    "dueDate": "2026-02-01",
+    "paidDate": "2026-01-31",
+    "status": "paid",
+    "method": "auto_debit",
+    "reference": "DEMO-2026-02-004"
+  },
+  {
+    "leaseIndex": 3,
+    "amountCents": 102000,
+    "dueDate": "2026-03-01",
+    "paidDate": "2026-02-28",
+    "status": "paid",
+    "method": "auto_debit",
+    "reference": "DEMO-2026-03-004"
+  },
+  {
+    "leaseIndex": 4,
+    "amountCents": 105000,
+    "dueDate": "2026-01-01",
+    "paidDate": "2025-12-30",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-01-005"
+  },
+  {
+    "leaseIndex": 4,
+    "amountCents": 105000,
+    "dueDate": "2026-02-01",
+    "paidDate": "2026-02-06",
+    "status": "paid",
+    "method": "interac",
+    "reference": "DEMO-2026-02-005"
+  },
+  {
+    "leaseIndex": 4,
+    "amountCents": 105000,
+    "dueDate": "2026-03-01",
+    "paidDate": null,
+    "status": "late",
+    "lateFeeCents": 5000,
+    "method": null,
+    "reference": null
+  },
+  {
+    "leaseIndex": 5,
+    "amountCents": 145000,
+    "dueDate": "2026-04-01",
+    "paidDate": null,
+    "status": "pending",
+    "method": null,
+    "reference": null
+  },
+  {
+    "leaseIndex": 5,
+    "amountCents": 145000,
+    "dueDate": "2026-05-01",
+    "paidDate": null,
+    "status": "pending",
+    "method": null,
+    "reference": null
+  }
+]

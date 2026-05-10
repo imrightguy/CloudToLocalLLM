@@ -21,13 +21,9 @@ const adminRoutes = require('./admin.routes');
 const paymentRoutes = require('./payment.routes');
 const renewalRoutes = require('./renewal.routes');
 const renovationRoutes = require('./renovation.routes');
-const renovationJobTemplateRoutes = require('./renovation-job-template.routes');
 const maintenanceRoutes = require('./maintenance.routes');
-const tenantChecklistRoutes = require('./tenant-checklist.routes');
 const observationResultRoutes = require('./observation-result.routes');
-const dossierRoutes = require('./dossier.routes');
-const photoRoutes = require('./photo.routes');
-const demoRoutes = require('./demo.routes');
+const twilioWhatsAppRoutes = require('./twilio-whatsapp.routes');
 
 const router = express.Router();
 
@@ -75,12 +71,8 @@ router.use('/admin', adminRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/renewals', renewalRoutes);
 router.use('/renovations', renovationRoutes);
-router.use('/companies/:companyId/renovation-job-templates', renovationJobTemplateRoutes);
 router.use('/maintenance', maintenanceRoutes);
-router.use('/tenant-checklists', tenantChecklistRoutes);
-router.use('/companies/:companyId/dossiers', dossierRoutes);
-router.use('/companies/:companyId/photos', photoRoutes);
 router.use('/companies/:companyId/observation-results', observationResultRoutes);
-router.use('/demo', demoRoutes);
+router.use('/webhooks/twilio/whatsapp', twilioWhatsAppRoutes);
 
 module.exports = router;

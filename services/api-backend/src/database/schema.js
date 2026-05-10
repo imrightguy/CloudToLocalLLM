@@ -434,6 +434,20 @@ const messengerConversationsTable = pgTable('messenger_conversations', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
+// ─── WhatsApp Conversations ───
+const whatsappConversationsTable = pgTable('whatsapp_conversations', {
+  phoneNumber: text('phone_number').primaryKey(),
+  state: text('state').notNull().default('NEW'),
+  leadId: uuid('lead_id').references(() => leadsTable.id, { onDelete: 'set null' }),
+  language: text('language').notNull().default('fr'),
+  profileName: text('profile_name'),
+  conversationData: jsonb('conversation_data').notNull().default('{}'),
+  lastActivityAt: timestamp('last_activity_at').notNull().defaultNow(),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 // ─── Documents ───
 const documentsTable = pgTable('documents', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -877,6 +891,7 @@ module.exports = {
   communicationLogsTable,
   communicationThreadsTable,
   messengerConversationsTable,
+  whatsappConversationsTable,
   documentsTable,
   propertyPhotosTable,
   documentsLeadsTable,
