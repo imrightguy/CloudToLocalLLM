@@ -317,7 +317,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               if (value == null || value.trim().isEmpty) {
                 return 'Veuillez entrer votre courriel';
               }
-              final emailRegex = RegExp(r'^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+              final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
               if (!emailRegex.hasMatch(value.trim())) {
                 return 'Format invalide';
               }

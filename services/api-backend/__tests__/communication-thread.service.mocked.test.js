@@ -268,6 +268,120 @@ describe('communication-thread service best-effort thread refresh', () => {
     }
   });
 
+  it('falls back to lead stage when persisted Messenger qualification state is unknown', async () => {
+    const lead = {
+      id: 'lead-unknown',
+      fullName: 'Fallback Lead',
+      phone: '514-555-2027',
+      email: 'fallback.lead.20260505@example.com',
+      stage: 'contacte',
+      source: 'marketplace',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'unknown',
+      qualificationReasonCode: null,
+      qualificationReasonNote: null,
+      createdAt: new Date('2026-05-05T12:04:54.948Z'),
+      updatedAt: new Date('2026-05-05T18:13:44.948Z'),
+    };
+    const message = {
+      id: 'comm-thread-unknown',
+      leadId: 'lead-unknown',
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — IMM-523 browser test',
+      attachments: [],
+      status: 'received',
+      metadata: { leadId: 'lead-unknown', source: 'imm523-browser-test' },
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([lead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    const result = await service.getConversationThreads({
+      source: 'messenger',
+      includeMessages: false,
+    });
+
+    expect(result.pagination.total).toBe(1);
+    expect(result.threads).toHaveLength(1);
+    expect(result.threads[0]).toMatchObject({
+      leadId: 'lead-unknown',
+      contactName: 'Fallback Lead',
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'budget_mismatch',
+      qualificationReasonNote: 'Lead still needs follow-up after Messenger engagement.',
+      lastMessage: expect.objectContaining({
+        id: 'comm-thread-unknown',
+        type: 'fb_messenger',
+      }),
+    });
+  });
+
+  it('treats an active Messenger inquiry with a new lead stage as needing first qualification', async () => {
+    const lead = {
+      id: 'lead-new',
+      fullName: 'New Inquiry',
+      phone: '514-555-2028',
+      email: 'new.inquiry.20260505@example.com',
+      stage: 'nouveau',
+      source: 'facebook',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'unknown',
+      qualificationReasonCode: null,
+      qualificationReasonNote: null,
+      createdAt: new Date('2026-05-05T12:04:54.948Z'),
+      updatedAt: new Date('2026-05-05T18:13:44.948Z'),
+    };
+    const message = {
+      id: 'comm-thread-new',
+      leadId: 'lead-new',
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — IMM-523 browser test',
+      attachments: [],
+      status: 'received',
+      metadata: { leadId: 'lead-new', source: 'imm523-browser-test' },
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([lead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    const result = await service.getConversationThreads({
+      source: 'messenger',
+      includeMessages: false,
+    });
+
+    expect(result.pagination.total).toBe(1);
+    expect(result.threads).toHaveLength(1);
+    expect(result.threads[0]).toMatchObject({
+      leadId: 'lead-new',
+      contactName: 'New Inquiry',
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'other',
+      qualificationReasonNote: 'Lead still needs first qualification after Messenger engagement.',
+      lastMessage: expect.objectContaining({
+        id: 'comm-thread-new',
+        type: 'fb_messenger',
+      }),
+    });
+  });
+
   it('returns persisted Messenger qualification fields when filtering by source=messenger', async () => {
     const lead = {
       id: 'lead-1',

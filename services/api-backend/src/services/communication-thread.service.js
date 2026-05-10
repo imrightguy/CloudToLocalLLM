@@ -282,7 +282,7 @@ function normalizeInboxSourceFilter(source) {
 }
 
 function deriveQualificationSnapshot(lead, latestMessage, threadRow) {
-  if (lead.qualificationState) {
+  if (lead.qualificationState && lead.qualificationState !== 'unknown') {
     return {
       qualificationState: lead.qualificationState ?? null,
       qualificationReasonCode: lead.qualificationReasonCode ?? null,
@@ -309,14 +309,6 @@ function deriveQualificationSnapshot(lead, latestMessage, threadRow) {
     };
   }
 
-  if (lead.stage === 'contacte' || lead.stage === 'visite_completee') {
-    return {
-      qualificationState: 'needs_follow_up',
-      qualificationReasonCode: 'budget_mismatch',
-      qualificationReasonNote: 'Lead still needs follow-up after Messenger engagement.',
-    };
-  }
-
   if (lead.stage === 'qualifie'
     || lead.stage === 'visitePlanifiee'
     || lead.stage === 'visite_planifiee'
@@ -331,10 +323,18 @@ function deriveQualificationSnapshot(lead, latestMessage, threadRow) {
     };
   }
 
+  if (lead.stage === 'contacte' || lead.stage === 'visite_completee') {
+    return {
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'budget_mismatch',
+      qualificationReasonNote: 'Lead still needs follow-up after Messenger engagement.',
+    };
+  }
+
   return {
-    qualificationState: 'unknown',
-    qualificationReasonCode: null,
-    qualificationReasonNote: null,
+    qualificationState: 'needs_follow_up',
+    qualificationReasonCode: 'other',
+    qualificationReasonNote: 'Lead still needs first qualification after Messenger engagement.',
   };
 }
 
