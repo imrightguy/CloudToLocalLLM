@@ -6,10 +6,11 @@ const { eq, sql } = require('drizzle-orm');
 const {
   buildingsTable, unitsTable, employeesTable, employeeAssignmentsTable,
   employeeSchedulesTable, leadsTable, visitsTable, leasesTable,
-  communicationLogsTable, smsLogsTable,
+  communicationLogsTable, smsLogsTable, paymentsTable, usersTable,
 } = require('../src/database/schema');
 
 const SEED_TAG = '__DEMO_SEED__';
+const bcrypt = require('bcryptjs');
 
 const loadData = (filename) => JSON.parse(
   fs.readFileSync(path.join(__dirname, 'seed-data', filename), 'utf8'),
@@ -182,6 +183,7 @@ const seedVisits = async (ids) => {
 
 const seedLeases = async (ids) => {
   const leases = loadData('leases.json');
+  const leaseRows = [];
   let count = 0;
   for (const l of leases) {
     const unitId = ids.units[l.unitIndex];
@@ -205,9 +207,17 @@ const seedLeases = async (ids) => {
     const [row] = await db.insert(leasesTable).values(values)
       .onConflictDoNothing({ target: [leasesTable.unitId, leasesTable.tenantFirstName, leasesTable.tenantLastName, leasesTable.startDate] })
       .returning();
-    if (row) count++;
+    if (row) {
+      count++;
+      leaseRows.push(row);
+    } else {
+      const [existing] = await db.select({ id: leasesTable.id }).from(leasesTable)
+        .where(eq(leasesTable.unitId, unitId)).limit(1);
+      if (existing) leaseRows.push(existing);
+    }
   }
-  console.log(`  Leases: ${count} created`);
+  ids.leases = leaseRows.map((r) => r.id);
+  console.log(`  Leases: ${count} created, ${ids.leases.length} total`);
 };
 
 const seedCommunications = async (ids) => {
@@ -252,6 +262,50 @@ const seedSmsLogs = async (ids) => {
   console.log(`  SMS Logs: ${count} created`);
 };
 
+const seedPayments = async (ids) => {
+  const payments = loadData('payments.json');
+  let count = 0;
+  for (const p of payments) {
+    const leaseId = ids.leases[p.leaseIndex];
+    if (!leaseId) continue;
+    const values = {
+      leaseId,
+      amountCents: p.amountCents,
+      lateFeeCents: p.lateFeeCents || 0,
+      dueDate: new Date(p.dueDate),
+      status: p.status,
+      method: p.method || null,
+      reference: p.reference || null,
+    };
+    if (p.paidDate) values.paidDate = new Date(p.paidDate);
+    const [row] = await db.insert(paymentsTable).values(values).returning();
+    if (row) count++;
+  }
+  console.log(`  Payments: ${count} created`);
+};
+
+const seedDemoUser = async () => {
+  const email = process.env.DEMO_USER_EMAIL || 'demo@immogestion.app';
+  const password = process.env.DEMO_USER_PASSWORD || 'Demo2025!';
+  const existing = await db.select({ id: usersTable.id }).from(usersTable)
+    .where(eq(usersTable.email, email)).limit(1);
+  if (existing.length) {
+    console.log(`  Demo user: already exists (${email})`);
+    return;
+  }
+  const passwordHash = await bcrypt.hash(password, 12);
+  await db.insert(usersTable).values({
+    email,
+    passwordHash,
+    firstName: 'Demo',
+    lastName: 'Utilisateur',
+    role: 'admin',
+    isActive: true,
+    emailVerified: true,
+  });
+  console.log(`  Demo user: created (${email})`);
+};
+
 const updateBuildingOccupancy = async (ids) => {
   for (const buildingId of ids.buildings) {
     const occupiedUnits = await db.select({ count: sql`count(*)::int` })
@@ -269,7 +323,7 @@ const seedDemoData = async () => {
   await connect();
   console.log('Seeding demo data...\n');
 
-  const ids = { buildings: [], units: [], employees: [], leads: [] };
+  const ids = { buildings: [], units: [], employees: [], leads: [], leases: [] };
 
   await seedBuildings(ids);
   await seedUnits(ids);
@@ -279,13 +333,14 @@ const seedDemoData = async () => {
   await seedLeads(ids);
   await seedVisits(ids);
   await seedLeases(ids);
+  await seedPayments(ids);
   await seedCommunications(ids);
   await seedSmsLogs(ids);
   await updateBuildingOccupancy(ids);
+  await seedDemoUser();
 
   console.log('\nDemo data seeding completed!');
   await closeDatabase();
-  process.exit(0);
 };
 
 const clearDemoData = async () => {
@@ -294,7 +349,7 @@ const clearDemoData = async () => {
   console.log('Clearing demo data...\n');
 
   const tablesToClean = [
-    'sms_logs', 'communication_logs', 'visits', 'leases',
+    'payments', 'sms_logs', 'communication_logs', 'visits', 'leases',
     'leads', 'employee_schedules', 'employee_assignments',
     'units', 'employees', 'buildings',
   ];
@@ -320,18 +375,17 @@ const clearDemoData = async () => {
 
   console.log('\nDemo data cleared!');
   await closeDatabase();
-  process.exit(0);
 };
 
 if (require.main === module) {
   const command = process.argv[2];
   if (command === '--clear') {
-    clearDemoData().catch((err) => {
+    clearDemoData().then(() => process.exit(0)).catch((err) => {
       console.error('Clear failed:', err);
       process.exit(1);
     });
   } else {
-    seedDemoData().catch((err) => {
+    seedDemoData().then(() => process.exit(0)).catch((err) => {
       console.error('Seed failed:', err);
       process.exit(1);
     });
