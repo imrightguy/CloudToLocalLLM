@@ -341,7 +341,6 @@ const seedDemoData = async () => {
 
   console.log('\nDemo data seeding completed!');
   await closeDatabase();
-  process.exit(0);
 };
 
 const clearDemoData = async () => {
@@ -376,18 +375,17 @@ const clearDemoData = async () => {
 
   console.log('\nDemo data cleared!');
   await closeDatabase();
-  process.exit(0);
 };
 
 if (require.main === module) {
   const command = process.argv[2];
   if (command === '--clear') {
-    clearDemoData().catch((err) => {
+    clearDemoData().then(() => process.exit(0)).catch((err) => {
       console.error('Clear failed:', err);
       process.exit(1);
     });
   } else {
-    seedDemoData().catch((err) => {
+    seedDemoData().then(() => process.exit(0)).catch((err) => {
       console.error('Seed failed:', err);
       process.exit(1);
     });

@@ -6,7 +6,6 @@ const DEMO_WRITE_EXEMPT_PATHS = [
   '/demo/login',
   '/auth/login',
   '/auth/refresh',
-  '/auth/demo-login',
   '/admin/seed',
 ];
 
