@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:immogestion/screens/conversation_detail_screen.dart';
+import 'package:immogestion/screens/marketplace_inbox_screen.dart';
 import 'package:immogestion/screens/sms_conversation_screen.dart';
 import 'package:immogestion/screens/visit_form_screen.dart';
 import 'package:immogestion/services/api_service.dart';
@@ -79,6 +80,20 @@ void main() {
       },
     );
 
+    testWidgets(
+      'MarketplaceInboxScreen renders Messenger qualification chips in the thread list',
+      (tester) async {
+        await tester.pumpWidget(const MaterialApp(home: MarketplaceInboxScreen()));
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Sarah Tremblay'), findsOneWidget);
+        expect(find.text('Messenger'), findsWidgets);
+        expect(find.text('À relancer'), findsWidgets);
+        expect(find.text('Budget incompatible'), findsOneWidget);
+        expect(find.text('No matching listings were found. Simon will follow up.'), findsOneWidget);
+      },
+    );
 
     testWidgets(
       'VisitFormScreen preselects the original lead when the API returns it',
@@ -112,6 +127,34 @@ Future<http.Response> _handleMockRequest(http.Request request) async {
   if (path.contains('/communications/logs') ||
       path.contains('/sms/conversation/')) {
     return _jsonResponse({'success': true, 'data': []});
+  }
+
+  if (path.contains('/marketplace/inbox')) {
+    return _jsonResponse({
+      'success': true,
+      'data': [
+        {
+          'leadId': 'lead-789',
+          'contactId': 'lead-789',
+          'contactName': 'Sarah Tremblay',
+          'contactPhone': '5145550101',
+          'messageCount': 3,
+          'coordinationState': 'message_only',
+          'qualificationState': 'needs_follow_up',
+          'qualificationReasonCode': 'budget_mismatch',
+          'qualificationReasonNote': 'No matching listings were found. Simon will follow up.',
+          'lastMessageAt': '2026-05-10T09:30:00.000Z',
+          'lastMessage': {
+            'id': 'comm-1',
+            'type': 'fb_messenger',
+            'direction': 'inbound',
+            'status': 'delivered',
+            'body': 'Bonjour, est-ce que le 3 1/2 est encore disponible?',
+            'createdAt': '2026-05-10T09:30:00.000Z',
+          },
+        },
+      ],
+    });
   }
 
   if (path.contains('/buildings/units')) {

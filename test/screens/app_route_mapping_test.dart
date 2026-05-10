@@ -25,6 +25,15 @@ void main() {
       expect((widget as AuthGate).child, isA<MarketplaceInboxScreen>());
     });
 
+    test('maps /marketplace to the marketplace inbox screen', () {
+      final widget = buildAuthenticatedStartScreen(
+        Uri.parse('https://app.immogestion.app/marketplace'),
+      );
+
+      expect(widget, isA<AuthGate>());
+      expect((widget as AuthGate).child, isA<MarketplaceInboxScreen>());
+    });
+
     test('maps /visits to the visits screen', () {
       final widget = buildAuthenticatedStartScreen(
         Uri.parse('https://app.immogestion.app/visits/'),

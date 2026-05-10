@@ -164,6 +164,40 @@ void main() {
     });
   });
 
+  group('MarketplaceInboxThread', () {
+    test('fromJson parses qualification fields', () {
+      final thread = MarketplaceInboxThread.fromJson({
+        'leadId': 'lead-1',
+        'contactId': 'lead-1',
+        'contactName': 'Sarah Tremblay',
+        'contactPhone': '5145550101',
+        'messageCount': 3,
+        'coordinationState': 'message_only',
+        'qualificationState': 'needs_follow_up',
+        'qualificationReasonCode': 'budget_mismatch',
+        'qualificationReasonNote': 'No matching listings were found.',
+      });
+
+      expect(thread.qualificationState, 'needs_follow_up');
+      expect(thread.qualificationReasonCode, 'budget_mismatch');
+      expect(thread.qualificationReasonNote, 'No matching listings were found.');
+    });
+
+    test('defaults qualification fields to null when absent', () {
+      final thread = MarketplaceInboxThread.fromJson({
+        'contactId': 'lead-2',
+        'contactName': 'Marc Gagnon',
+        'contactPhone': '4385550102',
+        'messageCount': 1,
+        'coordinationState': 'scheduled',
+      });
+
+      expect(thread.qualificationState, isNull);
+      expect(thread.qualificationReasonCode, isNull);
+      expect(thread.qualificationReasonNote, isNull);
+    });
+  });
+
   group('UnitItem', () {
     test('fromJson parses nested amenities map', () {
       final unit = UnitItem.fromJson({

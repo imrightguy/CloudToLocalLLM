@@ -729,21 +729,26 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
             ],
           ),
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () => _openThread(item),
-              child: Text(action),
-            ),
-            TextButton(
-              onPressed: () => _openBooking(
-                initialDate: DateTime.now().add(const Duration(hours: 1)),
-                leadId: item.contactId.isNotEmpty ? item.contactId : item.leadId,
+        trailing: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => _openThread(item),
+                child: Text(action),
               ),
-              child: const Text('Visite'),
-            ),
-          ],
+              TextButton(
+                onPressed: () => _openBooking(
+                  initialDate: DateTime.now().add(const Duration(hours: 1)),
+                  leadId: item.contactId.isNotEmpty ? item.contactId : item.leadId,
+                ),
+                child: const Text('Visite'),
+              ),
+            ],
+          ),
         ),
       ),
     );
