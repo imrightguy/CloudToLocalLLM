@@ -10,7 +10,7 @@
  */
 
 const {
-  eq, and, lte, sql, asc, inArray,
+  eq, and, lte, sql, asc, desc, inArray,
 } = require('drizzle-orm');
 const { db } = require('../database/connection');
 const {
@@ -19,6 +19,11 @@ const {
   normalizeCommunicationStatus,
   normalizeCommunicationText,
 } = require('../utils/communication');
+const { isSeededMarketplaceMode, isDemoMarketplaceLead } = require('./marketplace-mode');
+const {
+  QUALIFICATION_STATES,
+  MARKETPLACE_REASON_CODES,
+} = require('../constants/marketplace-states');
 const {
   leadsTable,
   buildingsTable,
@@ -33,6 +38,7 @@ const {
 
 const fbService = require('./facebook.service');
 const smsService = require('./sms.service');
+const { refreshCommunicationThread } = require('./communication-thread.service');
 const {
   checkVisitConflict,
   checkScheduleAvailability,
@@ -117,6 +123,55 @@ function parseBudget(text) {
   const cleaned = (text || '').replace(/[^0-9.,]/g, '').replace(',', '.');
   const dollars = parseFloat(cleaned);
   return Number.isNaN(dollars) ? null : Math.round(dollars * 100);
+}
+
+function buildQualificationReasonNote(conversationData, summary) {
+  const profileParts = [
+    conversationData?.reason && `reason=${conversationData.reason}`,
+    conversationData?.employment && `employment=${conversationData.employment}`,
+    Number.isFinite(conversationData?.occupants) ? `occupants=${conversationData.occupants}` : null,
+    conversationData?.pets && `pets=${conversationData.pets}`,
+    Number.isFinite(conversationData?.budgetCents) ? `budget=$${(conversationData.budgetCents / 100).toFixed(0)}` : null,
+  ].filter(Boolean);
+
+  const parts = [summary, profileParts.length ? `profile: ${profileParts.join('; ')}` : null]
+    .filter(Boolean);
+
+  return parts.join(' | ');
+}
+
+async function updateLeadQualification(leadId, {
+  stage = null,
+  qualificationState,
+  qualificationReasonCode = null,
+  qualificationReasonNote = null,
+}) {
+  if (!leadId || !qualificationState || !QUALIFICATION_STATES.includes(qualificationState)) {
+    return;
+  }
+
+  const payload = {
+    qualificationState,
+    qualificationReasonCode: qualificationReasonCode && MARKETPLACE_REASON_CODES.includes(qualificationReasonCode)
+      ? qualificationReasonCode
+      : null,
+    qualificationReasonNote: qualificationReasonNote || null,
+    updatedAt: new Date(),
+  };
+
+  if (stage) {
+    payload.stage = stage;
+  }
+
+  try {
+    await db
+      .update(leadsTable)
+      .set(payload)
+      .where(eq(leadsTable.id, leadId));
+    await refreshCommunicationThread(leadId, { includeMessages: false });
+  } catch (err) {
+    logger.error('[MessengerBot] Failed to update lead qualification:', err.message);
+  }
 }
 
 /**
@@ -268,6 +323,330 @@ async function logCommunication({
     }
   } catch (err) {
     logger.error('[MessengerBot] Failed to log communication:', err.message);
+  }
+}
+
+const MESSENGER_FOLLOW_UP_WINDOW_MS = 24 * 60 * 60 * 1000;
+const MESSENGER_HANDOFF_REASON = 'meta_24h_window_expired';
+
+function toValidDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isMessengerFollowUpExpired({ conversationLastActivityAt, lastCommunicationAt, now = new Date() }) {
+  const timestamps = [conversationLastActivityAt, lastCommunicationAt]
+    .map(toValidDate)
+    .filter(Boolean);
+
+  if (timestamps.length === 0) {
+    return false;
+  }
+
+  const mostRecent = new Date(Math.max(...timestamps.map((timestamp) => timestamp.getTime())));
+  return now.getTime() - mostRecent.getTime() > MESSENGER_FOLLOW_UP_WINDOW_MS;
+}
+
+async function getLeadById(leadId) {
+  if (!leadId) {
+    return null;
+  }
+
+  const [lead] = await db
+    .select({
+      id: leadsTable.id,
+      fullName: leadsTable.fullName,
+      phone: leadsTable.phone,
+      email: leadsTable.email,
+      source: leadsTable.source,
+      stage: leadsTable.stage,
+      qualificationState: leadsTable.qualificationState,
+      qualificationReasonCode: leadsTable.qualificationReasonCode,
+      qualificationReasonNote: leadsTable.qualificationReasonNote,
+      tags: leadsTable.tags,
+    })
+    .from(leadsTable)
+    .where(eq(leadsTable.id, leadId))
+    .limit(1);
+
+  return lead || null;
+}
+
+async function getLatestMessengerCommunicationAt(leadId) {
+  if (!leadId) {
+    return null;
+  }
+
+  const [row] = await db
+    .select({ createdAt: communicationLogsTable.createdAt })
+    .from(communicationLogsTable)
+    .where(and(
+      eq(communicationLogsTable.leadId, leadId),
+      eq(communicationLogsTable.type, 'fb_messenger'),
+    ))
+    .orderBy(desc(communicationLogsTable.createdAt))
+    .limit(1);
+
+  return row?.createdAt || null;
+}
+
+async function getPersistedConversationLastActivityAt({ senderId = null, leadId = null }) {
+  const conditions = [];
+  if (senderId) {
+    conditions.push(eq(messengerConversationsTable.senderId, senderId));
+  } else if (leadId) {
+    conditions.push(eq(messengerConversationsTable.leadId, leadId));
+  } else {
+    return null;
+  }
+
+  const [row] = await db
+    .select({ lastActivityAt: messengerConversationsTable.lastActivityAt })
+    .from(messengerConversationsTable)
+    .where(and(...conditions))
+    .limit(1);
+
+  return row?.lastActivityAt || null;
+}
+
+async function sendPolicyAwareFollowUp({
+  senderId,
+  leadId = null,
+  lead = null,
+  message,
+  conversationLastActivityAt = null,
+  lastCommunicationAt = null,
+  metadata = {},
+  context = 'messenger_follow_up',
+}) {
+  let resolvedLead = lead || null;
+  let resolvedConversationLastActivityAt = conversationLastActivityAt;
+  let resolvedLastCommunicationAt = lastCommunicationAt;
+
+  if (!resolvedConversationLastActivityAt) {
+    resolvedConversationLastActivityAt = await getPersistedConversationLastActivityAt({
+      senderId,
+      leadId: leadId || resolvedLead?.id || null,
+    });
+  }
+
+  if (!resolvedLastCommunicationAt && !resolvedConversationLastActivityAt) {
+    resolvedLastCommunicationAt = await getLatestMessengerCommunicationAt(leadId || resolvedLead?.id || null);
+  }
+
+  const shouldUseSms = isMessengerFollowUpExpired({
+    conversationLastActivityAt: resolvedConversationLastActivityAt,
+    lastCommunicationAt: resolvedLastCommunicationAt,
+  });
+  if (!resolvedLead && (shouldUseSms || metadata.forceLeadLookup)) {
+    resolvedLead = await getLeadById(leadId);
+  }
+
+  const handoffMetadata = {
+    ...metadata,
+    followUpContext: context,
+    handoffReason: shouldUseSms ? MESSENGER_HANDOFF_REASON : null,
+    fallbackTransport: shouldUseSms ? 'sms' : 'fb_messenger',
+  };
+
+  if (isSeededMarketplaceMode()) {
+    if (!resolvedLead) {
+      resolvedLead = await getLeadById(leadId);
+    }
+
+    if (!isDemoMarketplaceLead(resolvedLead)) {
+      return {
+        success: false,
+        transport: 'demo',
+        fallbackUsed: false,
+        handoffReason: null,
+        error: 'Demo marketplace mode only accepts seeded leads',
+      };
+    }
+
+    await logCommunication({
+      senderId,
+      leadId: resolvedLead.id || leadId || null,
+      type: 'fb_messenger',
+      direction: 'outbound',
+      content: message,
+      status: 'sent',
+      metadata: {
+        ...handoffMetadata,
+        transport: 'demo',
+        demoMarketplaceMode: true,
+      },
+    });
+
+    if (resolvedLead?.id) {
+      await refreshCommunicationThread(resolvedLead.id, { includeMessages: false });
+    }
+
+    return {
+      success: true,
+      transport: 'demo',
+      fallbackUsed: false,
+      handoffReason: null,
+      demoMarketplaceMode: true,
+    };
+  }
+
+  if (shouldUseSms && resolvedLead?.phone) {
+    const smsResult = await smsService.sendLeadFollowUpSms({
+      leadId: resolvedLead.id || leadId || null,
+      phoneNumber: resolvedLead.phone,
+      messageBody: message,
+      metadata: handoffMetadata,
+    });
+
+    await logCommunication({
+      senderId,
+      leadId: resolvedLead.id || leadId || null,
+      type: 'sms',
+      direction: 'outbound',
+      content: message,
+      status: smsResult.success ? 'sent' : 'failed',
+      metadata: {
+        ...handoffMetadata,
+        transport: 'sms',
+        smsSid: smsResult.sid || null,
+      },
+    });
+
+    if (resolvedLead?.id) {
+      await refreshCommunicationThread(resolvedLead.id, { includeMessages: false });
+    }
+
+    return {
+      success: smsResult.success,
+      transport: 'sms',
+      fallbackUsed: true,
+      handoffReason: MESSENGER_HANDOFF_REASON,
+      result: smsResult,
+    };
+  }
+
+  if (shouldUseSms && !resolvedLead?.phone) {
+    await logCommunication({
+      senderId,
+      leadId: resolvedLead?.id || leadId || null,
+      type: 'fb_messenger',
+      direction: 'outbound',
+      content: message,
+      status: 'failed',
+      metadata: {
+        ...handoffMetadata,
+        transport: 'fb_messenger',
+        failureReason: 'missing_phone_number',
+      },
+    });
+
+    return {
+      success: false,
+      transport: 'fb_messenger',
+      fallbackUsed: false,
+      handoffReason: MESSENGER_HANDOFF_REASON,
+      error: 'Missing phone number for SMS fallback',
+    };
+  }
+
+  try {
+    await fbService.sendTextMessage(senderId, message);
+    await logCommunication({
+      senderId,
+      leadId: resolvedLead?.id || leadId || null,
+      type: 'fb_messenger',
+      direction: 'outbound',
+      content: message,
+      metadata: {
+        ...handoffMetadata,
+        transport: 'fb_messenger',
+      },
+    });
+
+    if (resolvedLead?.id) {
+      await refreshCommunicationThread(resolvedLead.id, { includeMessages: false });
+    }
+
+    return {
+      success: true,
+      transport: 'fb_messenger',
+      fallbackUsed: false,
+      handoffReason: null,
+    };
+  } catch (error) {
+    logger.warn('[MessengerBot] Messenger follow-up send failed, attempting SMS fallback', {
+      leadId: resolvedLead?.id || leadId || null,
+      error: error.message,
+      context,
+    });
+
+    if (!resolvedLead?.phone) {
+      await logCommunication({
+        senderId,
+        leadId: resolvedLead?.id || leadId || null,
+        type: 'fb_messenger',
+        direction: 'outbound',
+        content: message,
+        status: 'failed',
+        metadata: {
+          ...handoffMetadata,
+          transport: 'fb_messenger',
+          failureReason: 'missing_phone_number',
+          messengerError: error.message,
+        },
+      });
+      return {
+        success: false,
+        transport: 'fb_messenger',
+        fallbackUsed: false,
+        handoffReason: MESSENGER_HANDOFF_REASON,
+        error: 'Missing phone number for SMS fallback',
+      };
+    }
+
+    const smsResult = await smsService.sendLeadFollowUpSms({
+      leadId: resolvedLead.id || leadId || null,
+      phoneNumber: resolvedLead.phone,
+      messageBody: message,
+      metadata: {
+        ...handoffMetadata,
+        messengerError: error.message,
+        transport: 'sms',
+      },
+    });
+
+    await logCommunication({
+      senderId,
+      leadId: resolvedLead.id || leadId || null,
+      type: 'sms',
+      direction: 'outbound',
+      content: message,
+      status: smsResult.success ? 'sent' : 'failed',
+      metadata: {
+        ...handoffMetadata,
+        transport: 'sms',
+        messengerError: error.message,
+        smsSid: smsResult.sid || null,
+      },
+    });
+
+    if (resolvedLead?.id) {
+      await refreshCommunicationThread(resolvedLead.id, { includeMessages: false });
+    }
+
+    return {
+      success: smsResult.success,
+      transport: 'sms',
+      fallbackUsed: true,
+      handoffReason: MESSENGER_HANDOFF_REASON,
+      error: smsResult.error || error.message,
+      result: smsResult,
+    };
   }
 }
 
@@ -491,28 +870,35 @@ const handleIncomingMessage = async (senderId, messageText) => {
         await handleSuggestVisit(senderId, conv, text);
         break;
       case STATES.DONE:
-        await fbService.sendTextMessage(senderId, t('thankYou', lang));
-        await logCommunication({
+        await sendPolicyAwareFollowUp({
           senderId,
-          leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: t('thankYou', lang),
+          leadId: conv.leadId,
+          message: t('thankYou', lang),
+          conversationLastActivityAt: conv.lastActivityAt,
+          context: 'done_state_thank_you',
         });
         break;
       default:
-        await fbService.sendTextMessage(senderId, t('fallback', lang));
-        await logCommunication({
+        await sendPolicyAwareFollowUp({
           senderId,
-          leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: t('fallback', lang),
+          leadId: conv.leadId,
+          message: t('fallback', lang),
+          conversationLastActivityAt: conv.lastActivityAt,
+          context: 'unknown_state_fallback',
         });
         conv.state = STATES.DONE;
     }
   } catch (err) {
     logger.error('[MessengerBot] Error handling message:', err);
-    await fbService.sendTextMessage(
+    await sendPolicyAwareFollowUp({
       senderId,
-      lang === 'en'
+      leadId: conv.leadId,
+      message: lang === 'en'
         ? 'Sorry, something went wrong. Simon will be notified and get back to you.'
         : 'Désolé, une erreur est survenue. Simon sera informé et vous recontactera.',
-    );
+      conversationLastActivityAt: conv.lastActivityAt,
+      context: 'handler_error',
+    });
   } finally {
     await persistConversation(senderId, conv);
   }
@@ -660,6 +1046,7 @@ async function handleBudget(senderId, conv, text) {
     const lead = await createLeadFromConversation(senderId, conv.data);
     conv.leadId = lead.id;
     await backfillConversationLead(senderId, lead.id);
+    await refreshCommunicationThread(lead.id, { includeMessages: false });
   } catch (err) {
     logger.error('[MessengerBot] Failed to create lead:', err.message);
   }
@@ -672,6 +1059,13 @@ async function handleBudget(senderId, conv, text) {
   });
 
   if (listings.length === 0) {
+    await updateLeadQualification(conv.leadId, {
+      stage: 'contacte',
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'budget_mismatch',
+      qualificationReasonNote: buildQualificationReasonNote(conv.data, 'No matching listings were found. Simon will follow up.'),
+    });
+
     const noMsg = t('noListings', lang);
     await fbService.sendTextMessage(senderId, noMsg);
     await logCommunication({
@@ -702,6 +1096,13 @@ async function handleBudget(senderId, conv, text) {
         },
       ],
     };
+  });
+
+  await updateLeadQualification(conv.leadId, {
+    stage: 'qualifie',
+    qualificationState: 'qualified',
+    qualificationReasonCode: 'other',
+    qualificationReasonNote: buildQualificationReasonNote(conv.data, `Matched ${listings.length} listing(s) on Messenger.`),
   });
 
   await fbService.sendGenericTemplate(senderId, elements);
@@ -742,11 +1143,20 @@ async function handleSuggestVisit(senderId, conv, text) {
   const wantsVisit = lower.includes('yes') || lower.includes('oui') || lower.includes('✅') || lower.includes('schedule') || lower.includes('planifier');
 
   if (!wantsVisit) {
+    await updateLeadQualification(conv.leadId, {
+      stage: 'inactif',
+      qualificationState: 'rejected',
+      qualificationReasonCode: 'no_longer_interested',
+      qualificationReasonNote: buildQualificationReasonNote(conv.data, 'User declined the visit request.'),
+    });
+
     const msg = t('thankYou', lang);
-    await fbService.sendTextMessage(senderId, msg);
-    await logCommunication({
+    await sendPolicyAwareFollowUp({
       senderId,
-      leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: msg,
+      leadId: conv.leadId,
+      message: msg,
+      conversationLastActivityAt: conv.lastActivityAt,
+      context: 'suggest_visit_declined',
     });
     conv.state = STATES.DONE;
     return;
@@ -760,14 +1170,20 @@ async function handleSuggestVisit(senderId, conv, text) {
     });
 
     if (listings.length === 0) {
+      await updateLeadQualification(conv.leadId, {
+        stage: 'contacte',
+        qualificationState: 'needs_follow_up',
+        qualificationReasonCode: 'budget_mismatch',
+        qualificationReasonNote: buildQualificationReasonNote(conv.data, 'No matching listings were found when the user requested a visit.'),
+      });
+
       const noListingsMsg = t('noListings', lang);
-      await fbService.sendTextMessage(senderId, noListingsMsg);
-      await logCommunication({
+      await sendPolicyAwareFollowUp({
         senderId,
         leadId: conv.leadId,
-        type: 'fb_messenger',
-        direction: 'outbound',
-        content: noListingsMsg,
+        message: noListingsMsg,
+        conversationLastActivityAt: conv.lastActivityAt,
+        context: 'suggest_visit_no_listings',
       });
       conv.state = STATES.DONE;
       return;
@@ -809,13 +1225,22 @@ async function handleSuggestVisit(senderId, conv, text) {
   }
 
   if (validatedSlots.length === 0) {
+    await updateLeadQualification(conv.leadId, {
+      stage: 'contacte',
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'schedule_conflict',
+      qualificationReasonNote: buildQualificationReasonNote(conv.data, 'No available visit slots were found.'),
+    });
+
     const noSlotsMsg = lang === 'en'
       ? 'No available time slots found for this building. Simon will contact you to arrange a visit.'
       : 'Aucun créneau disponible pour cet immeuble. Simon vous contactera pour organiser une visite.';
-    await fbService.sendTextMessage(senderId, noSlotsMsg);
-    await logCommunication({
+    await sendPolicyAwareFollowUp({
       senderId,
-      leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: noSlotsMsg,
+      leadId: conv.leadId,
+      message: noSlotsMsg,
+      conversationLastActivityAt: conv.lastActivityAt,
+      context: 'suggest_visit_no_slots',
     });
     conv.state = STATES.DONE;
     return;
@@ -837,9 +1262,13 @@ async function handleSuggestVisit(senderId, conv, text) {
           unitId: conv.data.unitId,
           assignedEmployeeId: slot.employeeId,
           stage: 'visite_planifiee',
+          qualificationState: 'qualified',
+          qualificationReasonCode: 'other',
+          qualificationReasonNote: buildQualificationReasonNote(conv.data, 'Visit scheduled from Messenger qualification.'),
           updatedAt: new Date(),
         })
         .where(eq(leadsTable.id, conv.leadId));
+      await refreshCommunicationThread(conv.leadId, { includeMessages: false });
     } catch (err) {
       logger.error('[MessengerBot] Failed to update lead:', err.message);
     }
@@ -880,10 +1309,12 @@ async function handleSuggestVisit(senderId, conv, text) {
     ? `📅 Your visit is scheduled for ${formattedDate} with ${slot.firstName} ${slot.lastName}.`
     : `📅 Votre visite est planifiée pour le ${formattedDate} avec ${slot.firstName} ${slot.lastName}.`;
 
-  await fbService.sendTextMessage(senderId, visitMsg);
-  await logCommunication({
+  await sendPolicyAwareFollowUp({
     senderId,
-    leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: visitMsg,
+    leadId: conv.leadId,
+    message: visitMsg,
+    conversationLastActivityAt: conv.lastActivityAt,
+    context: 'visit_scheduled_summary',
   });
 
   logger.info('[MessengerBot] message-to-visit workflow scheduled visit', {
@@ -942,6 +1373,8 @@ async function handleSuggestVisit(senderId, conv, text) {
     } catch (err) {
       logger.error('[MessengerBot] Failed to send occupant access request:', err.message);
     }
+
+    await refreshCommunicationThread(conv.leadId, { includeMessages: false });
   }
 
   if (!conv.data.phone) {
@@ -953,10 +1386,12 @@ async function handleSuggestVisit(senderId, conv, text) {
     });
   }
 
-  await fbService.sendTextMessage(senderId, t('visitBooked', lang));
-  await logCommunication({
+  await sendPolicyAwareFollowUp({
     senderId,
-    leadId: conv.leadId, type: 'fb_messenger', direction: 'outbound', content: t('visitBooked', lang),
+    leadId: conv.leadId,
+    message: t('visitBooked', lang),
+    conversationLastActivityAt: conv.lastActivityAt,
+    context: 'visit_booking_confirmation',
   });
 
   conv.state = STATES.DONE;
@@ -1058,7 +1493,13 @@ const handlePostback = async (senderId, payload) => {
 
   // Unknown payload — treat as fallback
   logger.warn('[MessengerBot] Unknown postback payload:', payload);
-  await fbService.sendTextMessage(senderId, t('fallback', lang));
+  await sendPolicyAwareFollowUp({
+    senderId,
+    leadId: conv.leadId,
+    message: t('fallback', lang),
+    conversationLastActivityAt: conv.lastActivityAt,
+    context: 'unknown_postback_fallback',
+  });
 };
 
 // ─── Opt-In Handler (messaging_optins event) ───
@@ -1085,4 +1526,6 @@ module.exports = {
   getVisitSlots,
   createLeadFromConversation,
   detectLanguage,
+  isMessengerFollowUpExpired,
+  sendPolicyAwareFollowUp,
 };

@@ -18,6 +18,16 @@ bool isPublicLandingPath(String path) {
   return path.isEmpty || path == '/' || path == '/index.html';
 }
 
+String normalizeAppPath(String path) {
+  if (path.isEmpty) {
+    return '/';
+  }
+  if (path == '/') {
+    return path;
+  }
+  return path.replaceAll(RegExp(r'/+$'), '');
+}
+
 EntryPointDestination resolveEntryPointDestination({
   required Uri location,
   required bool isLoggedIn,

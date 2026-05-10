@@ -177,6 +177,9 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
             contactName: contactName,
             contactPhone: contactPhone,
             contactInitials: contactInitials,
+            qualificationState: item.qualificationState,
+            qualificationReasonCode: item.qualificationReasonCode,
+            qualificationReasonNote: item.qualificationReasonNote,
           ),
         ),
       );
@@ -563,6 +566,69 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
     return remainder == 0 ? 'Réponse en $hours h' : 'Réponse en $hours h $remainder min';
   }
 
+  String _qualificationStateLabel(String? state) {
+    switch (state?.toLowerCase()) {
+      case 'qualified':
+        return 'Qualifié';
+      case 'rejected':
+        return 'Rejeté';
+      case 'needs_follow_up':
+        return 'À relancer';
+      case 'unknown':
+      case null:
+      case '':
+        return 'Qualification inconnue';
+      default:
+        return state!;
+    }
+  }
+
+  Color _qualificationStateColor(String? state) {
+    switch (state?.toLowerCase()) {
+      case 'qualified':
+        return AppColors.success;
+      case 'rejected':
+        return AppColors.error;
+      case 'needs_follow_up':
+        return AppColors.warning;
+      case 'unknown':
+      case null:
+      case '':
+        return AppColors.textMuted;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  String _qualificationReasonLabel(String? reasonCode) {
+    switch (reasonCode?.toLowerCase()) {
+      case 'budget_mismatch':
+        return 'Budget incompatible';
+      case 'not_ready_to_move':
+        return 'Pas prêt à déménager';
+      case 'duplicate_inquiry':
+        return 'Demande en double';
+      case 'already_rented':
+        return 'Déjà loué';
+      case 'no_longer_interested':
+        return 'Plus intéressé';
+      case 'tenant_unavailable':
+        return 'Locataire indisponible';
+      case 'employee_unavailable':
+        return 'Employé indisponible';
+      case 'schedule_conflict':
+        return 'Conflit d’horaire';
+      case 'access_issue':
+        return 'Accès impossible';
+      case 'weather':
+        return 'Météo';
+      case 'other':
+        return 'Autre';
+      default:
+        return reasonCode?.replaceAll('_', ' ') ?? '';
+    }
+  }
+
   Widget _buildInboxItem(MarketplaceInboxThread item) {
     final action = _suggestedAction(item);
     final direction = item.lastMessage?.direction.toLowerCase() == 'inbound' ? 'Entrant' : 'Sortant';
@@ -606,6 +672,36 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              if ((item.qualificationState ?? '').trim().isNotEmpty ||
+                  (item.qualificationReasonCode ?? '').trim().isNotEmpty ||
+                  (item.qualificationReasonNote ?? '').trim().isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _Badge(
+                      label: _qualificationStateLabel(item.qualificationState),
+                      color: _qualificationStateColor(item.qualificationState),
+                    ),
+                    if ((item.qualificationReasonCode ?? '').trim().isNotEmpty)
+                      _Badge(
+                        label: _qualificationReasonLabel(item.qualificationReasonCode),
+                        color: AppColors.warning,
+                      ),
+                  ],
+                ),
+                if ((item.qualificationReasonNote ?? '').trim().isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    item.qualificationReasonNote!.trim(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
+                ],
+              ],
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
@@ -633,21 +729,26 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
             ],
           ),
         ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () => _openThread(item),
-              child: Text(action),
-            ),
-            TextButton(
-              onPressed: () => _openBooking(
-                initialDate: DateTime.now().add(const Duration(hours: 1)),
-                leadId: item.contactId.isNotEmpty ? item.contactId : item.leadId,
+        trailing: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => _openThread(item),
+                child: Text(action),
               ),
-              child: const Text('Visite'),
-            ),
-          ],
+              TextButton(
+                onPressed: () => _openBooking(
+                  initialDate: DateTime.now().add(const Duration(hours: 1)),
+                  leadId: item.contactId.isNotEmpty ? item.contactId : item.leadId,
+                ),
+                child: const Text('Visite'),
+              ),
+            ],
+          ),
         ),
       ),
     );

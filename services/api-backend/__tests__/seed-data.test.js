@@ -115,6 +115,13 @@ describe('Seed Data Validation', () => {
       });
     });
 
+    it('should include qualification metadata on at least one lead', () => {
+      const qualifiedLead = leads.find((l) => l.qualificationState);
+      expect(qualifiedLead).toBeTruthy();
+      expect(qualifiedLead.qualificationReasonCode).toBeTruthy();
+      expect(qualifiedLead.qualificationReasonNote).toBeTruthy();
+    });
+
     it('should have valid sources', () => {
       const validSources = ['facebook', 'website', 'referral', 'other'];
       leads.forEach((l) => {
@@ -177,10 +184,10 @@ describe('Seed Data Validation', () => {
       expect(comms.length).toBeGreaterThanOrEqual(5);
     });
 
-    it('should have SMS communications', () => {
-      comms.forEach((c) => {
-        expect(c.type).toBe('sms');
-      });
+    it('should have Messenger communications', () => {
+      const types = new Set(comms.map((c) => c.type));
+      expect(types).toContain('fb_messenger');
+      expect(types).toContain('sms');
     });
 
     it('should have both inbound and outbound', () => {

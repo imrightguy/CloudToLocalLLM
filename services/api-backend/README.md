@@ -22,8 +22,19 @@ Deferred or lower-priority scope:
 
 See `../../docs/TEAM-OWNERSHIP-AND-REVIEW-CADENCE.md` for the cross-team ownership and roadmap review model.
 
-## Features
+## Demo marketplace data mode
 
+Set `MARKETPLACE_DATA_MODE=seeded` (or `demo` / `mock`) when you need the Marketplace inbox and visit workflows to stay on seeded demo leads only. In this mode:
+
+- `GET /api/marketplace/inbox`
+- `GET /api/marketplace/leads/:leadId/timeline`
+- `POST /api/marketplace/leads/:leadId/messages`
+- `POST /api/marketplace/leads/:leadId/visits`
+- Messenger policy-aware follow-ups remain local and do not call live Messenger or SMS transports
+
+The seeded path is intentionally tagged by the demo seed data (`__DEMO_SEED__`) so it stays separate from live records.
+
+## Features
 - 🏢 **Building Management**: Full CRUD for buildings and units
 - 📝 **Lead Management**: Lead tracking, status updates, and bulk operations
 - 🏠 **Visit Scheduling**: Automated visit scheduling with SMS/email confirmations and reminders

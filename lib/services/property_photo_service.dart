@@ -4,11 +4,12 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
+import '../app_config.dart';
 import '../models.dart';
 import 'api_service.dart';
 import 'unit_service.dart';
 
-const String propertyPhotoCompanyId = '388be569-9d9d-46e2-b548-7bf0167cb11b';
+const String propertyPhotoCompanyId = AppConfig.demoCompanyId;
 
 abstract class PropertyPhotoContextSource {
   Future<List<BuildingItem>> getBuildings();

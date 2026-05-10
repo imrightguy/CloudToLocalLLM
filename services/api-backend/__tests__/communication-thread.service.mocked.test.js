@@ -52,6 +52,9 @@ jest.mock('../src/database/schema', () => ({
     desiredUnit: 'leadsTable.desiredUnit',
     assignedEmployeeId: 'leadsTable.assignedEmployeeId',
     notes: 'leadsTable.notes',
+    qualificationState: 'leadsTable.qualificationState',
+    qualificationReasonCode: 'leadsTable.qualificationReasonCode',
+    qualificationReasonNote: 'leadsTable.qualificationReasonNote',
     createdAt: 'leadsTable.createdAt',
     updatedAt: 'leadsTable.updatedAt',
     isActive: 'leadsTable.isActive',
@@ -154,9 +157,290 @@ beforeEach(() => {
 });
 
 describe('communication-thread service best-effort thread refresh', () => {
+  it('filters seeded marketplace inbox results down to demo-tagged leads', async () => {
+    const originalMode = process.env.MARKETPLACE_DATA_MODE;
+    process.env.MARKETPLACE_DATA_MODE = 'seeded';
+
+    const liveLead = {
+      id: 'lead-live',
+      fullName: 'Live Lead',
+      phone: '514-555-0001',
+      email: 'live@example.com',
+      stage: 'contacte',
+      source: 'facebook',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'unknown',
+      qualificationReasonCode: null,
+      qualificationReasonNote: null,
+      tags: { live: true },
+      createdAt: new Date('2026-05-05T12:00:00.000Z'),
+      updatedAt: new Date('2026-05-05T12:00:00.000Z'),
+    };
+    const demoLead = {
+      id: 'lead-demo',
+      fullName: 'Demo Lead',
+      phone: '514-555-0002',
+      email: 'demo@example.com',
+      stage: 'qualifie',
+      source: 'facebook',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'qualified',
+      qualificationReasonCode: 'other',
+      qualificationReasonNote: 'Seeded demo lead',
+      tags: { __DEMO_SEED__: true },
+      createdAt: new Date('2026-05-05T12:10:00.000Z'),
+      updatedAt: new Date('2026-05-05T12:10:00.000Z'),
+    };
+    const message = {
+      id: 'comm-demo-1',
+      leadId: 'lead-demo',
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — demo inbox',
+      attachments: [],
+      status: 'received',
+      metadata: { leadId: 'lead-demo' },
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([liveLead, demoLead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    try {
+      const result = await service.getConversationThreads({
+        source: 'messenger',
+        includeMessages: false,
+      });
+
+      expect(result.pagination.total).toBe(1);
+      expect(result.threads).toHaveLength(1);
+      expect(result.threads[0]).toMatchObject({
+        leadId: 'lead-demo',
+        contactName: 'Demo Lead',
+        qualificationState: 'qualified',
+        lastMessage: expect.objectContaining({
+          id: 'comm-demo-1',
+          type: 'fb_messenger',
+        }),
+      });
+    } finally {
+      process.env.MARKETPLACE_DATA_MODE = originalMode;
+    }
+  });
+
+  it('rejects seeded-marketplace writes for non-demo leads', async () => {
+    const originalMode = process.env.MARKETPLACE_DATA_MODE;
+    process.env.MARKETPLACE_DATA_MODE = 'seeded';
+
+    mockDb.select.mockReturnValueOnce(mockSelectChainLead({
+      id: 'lead-live',
+      stage: 'nouveau',
+      tags: { live: true },
+    }));
+
+    try {
+      const result = await service.recordCommunicationActivity({
+        leadId: 'lead-live',
+        type: 'fb_messenger',
+        direction: 'inbound',
+        content: 'Bonjour',
+      });
+
+      expect(result.statusCode).toBe(403);
+      expect(result.body).toMatchObject({
+        success: false,
+        error: {
+          code: 'DEMO_MARKETPLACE_ONLY',
+        },
+      });
+      expect(mockDb.insert).not.toHaveBeenCalled();
+    } finally {
+      process.env.MARKETPLACE_DATA_MODE = originalMode;
+    }
+  });
+
+  it('falls back to lead stage when persisted Messenger qualification state is unknown', async () => {
+    const lead = {
+      id: 'lead-unknown',
+      fullName: 'Fallback Lead',
+      phone: '514-555-2027',
+      email: 'fallback.lead.20260505@example.com',
+      stage: 'contacte',
+      source: 'marketplace',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'unknown',
+      qualificationReasonCode: null,
+      qualificationReasonNote: null,
+      createdAt: new Date('2026-05-05T12:04:54.948Z'),
+      updatedAt: new Date('2026-05-05T18:13:44.948Z'),
+    };
+    const message = {
+      id: 'comm-thread-unknown',
+      leadId: 'lead-unknown',
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — IMM-523 browser test',
+      attachments: [],
+      status: 'received',
+      metadata: { leadId: 'lead-unknown', source: 'imm523-browser-test' },
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([lead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    const result = await service.getConversationThreads({
+      source: 'messenger',
+      includeMessages: false,
+    });
+
+    expect(result.pagination.total).toBe(1);
+    expect(result.threads).toHaveLength(1);
+    expect(result.threads[0]).toMatchObject({
+      leadId: 'lead-unknown',
+      contactName: 'Fallback Lead',
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'budget_mismatch',
+      qualificationReasonNote: 'Lead still needs follow-up after Messenger engagement.',
+      lastMessage: expect.objectContaining({
+        id: 'comm-thread-unknown',
+        type: 'fb_messenger',
+      }),
+    });
+  });
+
+  it('treats an active Messenger inquiry with a new lead stage as needing first qualification', async () => {
+    const lead = {
+      id: 'lead-new',
+      fullName: 'New Inquiry',
+      phone: '514-555-2028',
+      email: 'new.inquiry.20260505@example.com',
+      stage: 'nouveau',
+      source: 'facebook',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'unknown',
+      qualificationReasonCode: null,
+      qualificationReasonNote: null,
+      createdAt: new Date('2026-05-05T12:04:54.948Z'),
+      updatedAt: new Date('2026-05-05T18:13:44.948Z'),
+    };
+    const message = {
+      id: 'comm-thread-new',
+      leadId: 'lead-new',
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — IMM-523 browser test',
+      attachments: [],
+      status: 'received',
+      metadata: { leadId: 'lead-new', source: 'imm523-browser-test' },
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([lead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    const result = await service.getConversationThreads({
+      source: 'messenger',
+      includeMessages: false,
+    });
+
+    expect(result.pagination.total).toBe(1);
+    expect(result.threads).toHaveLength(1);
+    expect(result.threads[0]).toMatchObject({
+      leadId: 'lead-new',
+      contactName: 'New Inquiry',
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'other',
+      qualificationReasonNote: 'Lead still needs first qualification after Messenger engagement.',
+      lastMessage: expect.objectContaining({
+        id: 'comm-thread-new',
+        type: 'fb_messenger',
+      }),
+    });
+  });
+
+  it('returns persisted Messenger qualification fields when filtering by source=messenger', async () => {
+    const lead = {
+      id: 'lead-1',
+      fullName: 'Frontend Test Lead',
+      phone: '514-555-2026',
+      email: 'frontend.test.lead.20260505@example.com',
+      stage: 'qualifie',
+      source: 'facebook',
+      desiredUnit: null,
+      assignedEmployeeId: null,
+      notes: null,
+      qualificationState: 'qualified',
+      qualificationReasonCode: 'other',
+      qualificationReasonNote: 'Replying on Messenger and ready to move forward.',
+      createdAt: new Date('2026-05-05T12:04:54.948Z'),
+      updatedAt: new Date('2026-05-05T18:13:44.948Z'),
+    };
+    const message = {
+      id: 'comm-thread-1',
+      leadId: 'lead-1',
+      employeeId: null,
+      type: 'fb_messenger',
+      direction: 'inbound',
+      subject: null,
+      content: 'Bonjour — IMM-288 browser test',
+      attachments: [],
+      status: 'received',
+      metadata: { leadId: 'lead-1', source: 'imm288-browser-test' },
+      createdAt: new Date('2026-05-05T18:31:08.502Z'),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockSelectChainOrdered([lead]))
+      .mockReturnValueOnce(mockSelectChainOrdered([message]))
+      .mockReturnValueOnce(mockSelectChainOrdered([]))
+      .mockReturnValueOnce(mockSelectChainPlain([]));
+
+    const result = await service.getConversationThreads({
+      source: 'messenger',
+      includeMessages: false,
+    });
+
+    expect(result.pagination.total).toBe(1);
+    expect(result.threads).toHaveLength(1);
+    expect(result.threads[0]).toMatchObject({
+      contactName: 'Frontend Test Lead',
+      qualificationState: 'qualified',
+      qualificationReasonCode: 'other',
+      qualificationReasonNote: 'Replying on Messenger and ready to move forward.',
+      lastMessage: expect.objectContaining({
+        id: 'comm-thread-1',
+        type: 'fb_messenger',
+      }),
+    });
+  });
+
   it('still returns 201 when marketplace message thread refresh fails', async () => {
-    const record = {
-      id: 'comm-1',
+     const record = {
+       id: 'comm-1',
       leadId: 'lead-1',
       type: 'fb_messenger',
       direction: 'inbound',

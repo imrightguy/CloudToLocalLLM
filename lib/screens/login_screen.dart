@@ -45,13 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       final location = currentBrowserLocation();
-      final shouldResumeProtectedRoute = isAppHost(location.host) &&
-          location.path.isNotEmpty &&
-          location.path != '/';
+      final routePath = normalizeAppPath(location.path);
+      final shouldResumeProtectedRoute =
+          isAppHost(location.host) && routePath != '/';
 
       if (shouldResumeProtectedRoute) {
         Navigator.of(context).pushNamedAndRemoveUntil(
-          location.path,
+          routePath,
           (route) => false,
         );
       } else {
@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
               if (value == null || value.trim().isEmpty) {
                 return 'Veuillez entrer votre courriel';
               }
-              final emailRegex = RegExp(r'^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+              final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
               if (!emailRegex.hasMatch(value.trim())) {
                 return 'Format de courriel invalide';
               }

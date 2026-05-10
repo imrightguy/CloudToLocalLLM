@@ -80,7 +80,8 @@ const handleIncoming = async (req, res) => {
  */
 const handleStatus = async (req, res) => {
   try {
-    const { MessageSid, SmsStatus, ErrorMessage } = req.body;
+    const { MessageSid, SmsStatus, MessageStatus, ErrorMessage } = req.body;
+    const normalizedStatus = SmsStatus || MessageStatus || null;
 
     if (!MessageSid) {
       return res.status(400).send('Missing MessageSid');
@@ -95,19 +96,19 @@ const handleStatus = async (req, res) => {
       read: 'read',
     };
 
-    const mappedStatus = statusMap[SmsStatus] || SmsStatus || 'unknown';
+    const mappedStatus = statusMap[normalizedStatus] || normalizedStatus || 'unknown';
 
     await db
       .update(smsLogsTable)
       .set({
-        twilioStatus: SmsStatus || null,
+        twilioStatus: normalizedStatus,
         status: mappedStatus,
         errorMessage: ErrorMessage || null,
         updatedAt: new Date(),
       })
       .where(eq(smsLogsTable.twilioSid, MessageSid));
 
-    logger.info(`📊 SMS status update: SID=${MessageSid} → ${SmsStatus}`);
+    logger.info(`📊 SMS status update: SID=${MessageSid} → ${normalizedStatus}`);
 
     return res.status(200).send('OK');
   } catch (error) {

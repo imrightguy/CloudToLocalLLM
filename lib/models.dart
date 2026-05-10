@@ -1584,6 +1584,9 @@ class MarketplaceInboxThread {
     required this.contactName,
     required this.contactPhone,
     required this.contactInitials,
+    this.qualificationState,
+    this.qualificationReasonCode,
+    this.qualificationReasonNote,
     required this.messageCount,
     required this.coordinationState,
     this.lastMessageAt,
@@ -1599,6 +1602,9 @@ class MarketplaceInboxThread {
   final String contactName;
   final String contactPhone;
   final String contactInitials;
+  final String? qualificationState;
+  final String? qualificationReasonCode;
+  final String? qualificationReasonNote;
   final int messageCount;
   final String coordinationState;
   final DateTime? lastMessageAt;
@@ -1638,6 +1644,9 @@ class MarketplaceInboxThread {
       contactName: contactName,
       contactPhone: json['contactPhone'] as String? ?? '',
       contactInitials: json['contactInitials'] as String? ?? initials,
+      qualificationState: json['qualificationState'] as String?,
+      qualificationReasonCode: json['qualificationReasonCode'] as String?,
+      qualificationReasonNote: json['qualificationReasonNote'] as String?,
       messageCount: (json['messageCount'] as num?)?.toInt() ?? 0,
       coordinationState: json['coordinationState'] as String? ?? 'message_only',
       lastMessageAt: parseDate(json['lastMessageAt']),

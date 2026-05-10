@@ -778,8 +778,10 @@ const smsWebhookSchemas = {
       MessageSid: Joi.string().trim().max(64).required(),
       SmsStatus: Joi.string()
         .valid('queued', 'sent', 'delivered', 'undelivered', 'failed', 'read'),
+      MessageStatus: Joi.string()
+        .valid('queued', 'sent', 'delivered', 'undelivered', 'failed', 'read'),
       ErrorMessage: Joi.string().trim().max(500),
-    }),
+    }).or('SmsStatus', 'MessageStatus'),
   },
   schedule: {
     body: Joi.object({

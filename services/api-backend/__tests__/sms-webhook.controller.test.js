@@ -305,6 +305,24 @@ describe('handleStatus', () => {
     },
   );
 
+  it('accepts MessageStatus as a fallback field', async () => {
+    const req = { body: { MessageSid: sid, MessageStatus: 'delivered' } };
+    const res = mockRes();
+
+    await handleStatus(req, res);
+
+    expect(db.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        twilioStatus: 'delivered',
+        status: 'delivered',
+        errorMessage: null,
+        updatedAt: expect.any(Date),
+      }),
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith('OK');
+  });
+
   it('includes ErrorMessage when provided', async () => {
     const errMsg = 'Carrier rejected';
     const req = { body: { MessageSid: sid, SmsStatus: 'failed', ErrorMessage: errMsg } };

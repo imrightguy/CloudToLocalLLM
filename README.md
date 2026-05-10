@@ -28,12 +28,20 @@ The current public demo is intentionally narrow:
 4. the team follows up by SMS
 5. the outcome is visible in the workflow
 
-What must be shown live:
+These demo-critical flows are backed by seeded demo company data rather than live upstream records:
 - lead inbox / lead list
 - one lead detail view
 - one visit schedule or visit detail view
 - the confirmation SMS / confirmation link flow
 - the status change or outcome update after the visit
+
+Marketplace demo/live boundary:
+- set `MARKETPLACE_DATA_MODE=seeded` (or `demo` / `mock`) to keep inbox/timeline/message/visit workflows on demo-tagged leads only
+- `/api/marketplace/inbox`
+- `/api/marketplace/leads/:leadId/timeline`
+- `/api/marketplace/leads/:leadId/messages`
+- `/api/marketplace/leads/:leadId/visits`
+- Messenger policy-aware follow-ups stay local in seeded mode and do not call live Messenger or SMS transports
 
 What can wait:
 - analytics dashboards

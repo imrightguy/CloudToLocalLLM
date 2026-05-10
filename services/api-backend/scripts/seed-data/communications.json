@@ -2,7 +2,7 @@
   {
     "leadIndex": 3,
     "employeeIndex": 0,
-    "type": "sms",
+    "type": "fb_messenger",
     "direction": "outbound",
     "content": "Bonjour Catherine! Merci pour votre intérêt. J'ai une visite disponible jeudi à 10h pour le 2½ au 4827 St-Denis. Ça vous convient?",
     "status": "delivered",
@@ -11,7 +11,7 @@
   {
     "leadIndex": 3,
     "employeeIndex": 0,
-    "type": "sms",
+    "type": "fb_messenger",
     "direction": "inbound",
     "content": "Oui jeudi 10h c'est parfait! À bientôt",
     "status": "read",

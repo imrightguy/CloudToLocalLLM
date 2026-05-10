@@ -14,12 +14,18 @@ class ConversationDetailScreen extends StatefulWidget {
     required this.contactName,
     required this.contactPhone,
     required this.contactInitials,
+    this.qualificationState,
+    this.qualificationReasonCode,
+    this.qualificationReasonNote,
   });
 
   final String contactId;
   final String contactName;
   final String contactPhone;
   final String contactInitials;
+  final String? qualificationState;
+  final String? qualificationReasonCode;
+  final String? qualificationReasonNote;
 
   @override
   State<ConversationDetailScreen> createState() =>
@@ -103,6 +109,156 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
     if (messageDate == today) return "Aujourd'hui";
     if (messageDate == yesterday) return 'Hier';
     return DateFormat('d MMMM yyyy', 'fr').format(dt);
+  }
+
+  bool get _hasQualificationInfo {
+    return (widget.qualificationState ?? '').trim().isNotEmpty ||
+        (widget.qualificationReasonCode ?? '').trim().isNotEmpty ||
+        (widget.qualificationReasonNote ?? '').trim().isNotEmpty;
+  }
+
+  String _qualificationStateLabel(String? state) {
+    switch (state?.toLowerCase()) {
+      case 'qualified':
+        return 'Qualifié';
+      case 'rejected':
+        return 'Rejeté';
+      case 'needs_follow_up':
+        return 'À relancer';
+      case 'unknown':
+      case null:
+      case '':
+        return 'Qualification inconnue';
+      default:
+        return state!;
+    }
+  }
+
+  Color _qualificationStateColor(String? state) {
+    switch (state?.toLowerCase()) {
+      case 'qualified':
+        return AppColors.success;
+      case 'rejected':
+        return AppColors.error;
+      case 'needs_follow_up':
+        return AppColors.warning;
+      case 'unknown':
+      case null:
+      case '':
+        return AppColors.textMuted;
+      default:
+        return AppColors.primary;
+    }
+  }
+
+  String _qualificationReasonLabel(String? reasonCode) {
+    switch (reasonCode?.toLowerCase()) {
+      case 'budget_mismatch':
+        return 'Budget incompatible';
+      case 'not_ready_to_move':
+        return 'Pas prêt à déménager';
+      case 'duplicate_inquiry':
+        return 'Demande en double';
+      case 'already_rented':
+        return 'Déjà loué';
+      case 'no_longer_interested':
+        return 'Plus intéressé';
+      case 'tenant_unavailable':
+        return 'Locataire indisponible';
+      case 'employee_unavailable':
+        return 'Employé indisponible';
+      case 'schedule_conflict':
+        return 'Conflit d’horaire';
+      case 'access_issue':
+        return 'Accès impossible';
+      case 'weather':
+        return 'Météo';
+      case 'other':
+        return 'Autre';
+      default:
+        return reasonCode?.replaceAll('_', ' ') ?? '';
+    }
+  }
+
+  Widget _buildQualificationChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQualificationBanner() {
+    final stateLabel = _qualificationStateLabel(widget.qualificationState);
+    final reasonLabel = _qualificationReasonLabel(widget.qualificationReasonCode);
+    final reasonNote = widget.qualificationReasonNote?.trim() ?? '';
+    final accentColor = _qualificationStateColor(widget.qualificationState);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accentColor.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(Icons.verified_outlined, color: accentColor, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Qualification Messenger',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildQualificationChip(stateLabel, accentColor),
+                    if (reasonLabel.isNotEmpty) _buildQualificationChip(reasonLabel, AppColors.warning),
+                  ],
+                ),
+                if (reasonNote.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    reasonNote,
+                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -190,6 +346,7 @@ class _ConversationDetailScreenState extends State<ConversationDetailScreen> {
                 )
               : Column(
                   children: [
+                    if (_hasQualificationInfo) _buildQualificationBanner(),
                     Expanded(
                       child: ListView.builder(
                         reverse: true,

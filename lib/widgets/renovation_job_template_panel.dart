@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app_config.dart';
 import '../services/api_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -13,7 +14,7 @@ class RenovationJobTemplatePanel extends StatefulWidget {
 }
 
 class _RenovationJobTemplatePanelState extends State<RenovationJobTemplatePanel> {
-  static const String _companyId = '388be569-9d9d-46e2-b548-7bf0167cb11b';
+  static const String _companyId = AppConfig.demoCompanyId;
 
   late Future<List<RenovationJobTemplate>> _templatesFuture;
 
