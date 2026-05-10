@@ -36,8 +36,14 @@ const mockSmsService = {
   sendVisitConfirmation: jest.fn(),
   sendTenantConfirmationRequest: jest.fn(),
   sendOccupantAccessRequest: jest.fn(),
+  sendLeadFollowUpSms: jest.fn(),
 };
 jest.mock('../src/services/sms.service', () => mockSmsService);
+
+const mockCommunicationThreadService = {
+  refreshCommunicationThread: jest.fn().mockResolvedValue(null),
+};
+jest.mock('../src/services/communication-thread.service', () => mockCommunicationThreadService);
 
 jest.mock('../src/controllers/tenant-confirmation.controller', () => ({
   generateConfirmationToken: jest.fn(() => 'token-abc'),
@@ -68,6 +74,14 @@ const mockMessengerConversationSelect = () => ({
   }),
 });
 
+function getLeadUpdatePayloads() {
+  return mockDb.update.mock.calls
+    .map(([table], index) => (table === 'leadsTable'
+      ? mockDb.update.mock.results[index].value.set.mock.calls[0][0]
+      : null))
+    .filter(Boolean);
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   jest.resetModules();
@@ -83,6 +97,7 @@ beforeEach(() => {
     from: jest.fn().mockReturnValue({
       where: jest.fn().mockReturnValue({
         limit: jest.fn().mockResolvedValue([]),
+        orderBy: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue([]) }),
       }),
       innerJoin: jest.fn().mockReturnValue({
         where: jest.fn().mockReturnValue({
@@ -92,10 +107,11 @@ beforeEach(() => {
       }),
     }),
   });
-  mockDb.update.mockReturnValue({
-    set: jest.fn().mockReturnValue({
+  mockDb.update.mockImplementation(() => {
+    const set = jest.fn().mockReturnValue({
       where: jest.fn().mockResolvedValue([]),
-    }),
+    });
+    return { set };
   });
   mockDb.delete.mockReturnValue({
     where: jest.fn().mockResolvedValue([]),
@@ -109,6 +125,7 @@ beforeEach(() => {
   mockSmsService.sendVisitConfirmation.mockResolvedValue({ success: true });
   mockSmsService.sendTenantConfirmationRequest.mockResolvedValue({ success: true });
   mockSmsService.sendOccupantAccessRequest.mockResolvedValue({ success: true });
+  mockSmsService.sendLeadFollowUpSms.mockResolvedValue({ success: true });
   mockCheckVisitConflict.mockResolvedValue(null);
   mockCheckScheduleAvailability.mockResolvedValue(null);
 
@@ -344,6 +361,42 @@ describe('handleIncomingMessage — state machine', () => {
     expect(mockFbService.sendQuickReplies).toHaveBeenCalled();
   });
 
+  it('hydrates a persisted conversation after restart and resumes from the saved state', async () => {
+    const persistedConversation = {
+      senderId: 'sender-restart',
+      state: 'ASKED_REASON',
+      leadId: 'lead-123',
+      language: 'en',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      selectedBuildingId: 'building-1',
+      selectedUnitId: 'unit-1',
+      lastActivityAt: new Date('2026-05-10T04:00:00.000Z'),
+      conversationData: {
+        reason: 'work',
+        communicationLogIds: [11, 12],
+      },
+    };
+
+    mockDb.select.mockReturnValueOnce({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue([persistedConversation]),
+        }),
+      }),
+    });
+
+    await botService.handleIncomingMessage('sender-restart', 'full time');
+
+    expect(mockFbService.sendQuickReplies).toHaveBeenCalledWith(
+      'sender-restart',
+      'What is your current employment status?',
+      expect.any(Array),
+    );
+    expect(mockFbService.getUserProfile).not.toHaveBeenCalled();
+  });
+
+
   it('backfills pre-lead Messenger logs onto the created lead once budget is collected', async () => {
     const listingSelect = {
       from: jest.fn().mockReturnValue({
@@ -389,6 +442,9 @@ describe('handleIncomingMessage — state machine', () => {
     expect(mockDb.update.mock.results[0].value.set).toHaveBeenCalledWith(expect.objectContaining({
       leadId: 'lead-backfill',
     }));
+    expect(mockCommunicationThreadService.refreshCommunicationThread).toHaveBeenCalledWith('lead-backfill', {
+      includeMessages: false,
+    });
   });
 
   it('creates messenger-booked visits with confirmation token and shared visit notifications', async () => {
@@ -468,6 +524,25 @@ describe('handleIncomingMessage — state machine', () => {
     expect(visitInsertIndex).toBeGreaterThan(-1);
     const visitInsertValues = mockDb.insert.mock.results[visitInsertIndex].value.values.mock.calls[0][0];
 
+    const leadUpdatePayloads = getLeadUpdatePayloads();
+    expect(leadUpdatePayloads).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        stage: 'qualifie',
+        qualificationState: 'qualified',
+        qualificationReasonCode: 'other',
+      }),
+      expect.objectContaining({
+        stage: 'visite_planifiee',
+        qualificationState: 'qualified',
+        qualificationReasonCode: 'other',
+      }),
+    ]));
+    expect(leadUpdatePayloads.at(-1)).toEqual(expect.objectContaining({
+      stage: 'visite_planifiee',
+      qualificationState: 'qualified',
+      qualificationReasonNote: expect.stringContaining('Visit scheduled from Messenger qualification.'),
+    }));
+
     expect(visitInsertValues).toEqual(expect.objectContaining({
       unitId: 'unit-1',
       employeeId: 'emp-1',
@@ -478,6 +553,15 @@ describe('handleIncomingMessage — state machine', () => {
     expect(mockSmsService.sendVisitConfirmation).toHaveBeenCalledWith('visit-1');
     expect(mockSmsService.sendTenantConfirmationRequest).toHaveBeenCalledWith('visit-1');
     expect(mockSmsService.sendOccupantAccessRequest).toHaveBeenCalledWith('visit-1');
+    expect(mockCommunicationThreadService.refreshCommunicationThread).toHaveBeenNthCalledWith(1, 'lead-1', {
+      includeMessages: false,
+    });
+    expect(mockCommunicationThreadService.refreshCommunicationThread).toHaveBeenNthCalledWith(2, 'lead-1', {
+      includeMessages: false,
+    });
+    expect(mockCommunicationThreadService.refreshCommunicationThread).toHaveBeenNthCalledWith(3, 'lead-1', {
+      includeMessages: false,
+    });
   });
 
   it('logs the no-listings handoff when availability disappears before visit booking', async () => {
@@ -530,6 +614,21 @@ describe('handleIncomingMessage — state machine', () => {
     await botService.handleIncomingMessage('sender-no-listings', 'n\'importe');
     await botService.handlePostback('sender-no-listings', 'VISIT_YES');
 
+    const leadUpdatePayloads = getLeadUpdatePayloads();
+    expect(leadUpdatePayloads).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        stage: 'qualifie',
+        qualificationState: 'qualified',
+        qualificationReasonCode: 'other',
+      }),
+      expect.objectContaining({
+        stage: 'contacte',
+        qualificationState: 'needs_follow_up',
+        qualificationReasonCode: 'budget_mismatch',
+      }),
+    ]));
+    expect(leadUpdatePayloads.at(-1).qualificationReasonNote).toContain('No matching listings were found when the user requested a visit.');
+
     const communicationPayloads = mockDb.insert.mock.calls
       .map(([table], index) => (table === 'communicationLogsTable'
         ? mockDb.insert.mock.results[index].value.values.mock.calls[0][0]
@@ -543,6 +642,61 @@ describe('handleIncomingMessage — state machine', () => {
         content: 'Désolé, je n\'ai pas de logements disponibles correspondant à vos critères. Je transfère votre demande à Simon.',
       }),
     ]));
+  });
+
+  it('marks a lead as rejected when the user declines the visit after qualification', async () => {
+    const listingSelect = {
+      from: jest.fn().mockReturnValue({
+        innerJoin: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([
+              {
+                unit: { id: 'unit-1' },
+                building: { id: 'building-1', name: 'Le Château', address: '123 Rue Test' },
+              },
+            ]),
+          }),
+        }),
+      }),
+    };
+
+    mockDb.select
+      .mockReturnValueOnce(mockMessengerConversationSelect())
+      .mockReturnValueOnce(listingSelect);
+
+    mockDb.insert.mockImplementation((table) => ({
+      values: jest.fn().mockReturnValue({
+        returning: jest.fn().mockResolvedValue(
+          table === 'leadsTable'
+            ? [{ id: 'lead-decline', fullName: 'Jean Tremblay' }]
+            : [{ id: 1 }],
+        ),
+      }),
+    }));
+
+    await botService.handleIncomingMessage('sender-decline', 'bonjour');
+    await botService.handleIncomingMessage('sender-decline', 'français');
+    await botService.handleIncomingMessage('sender-decline', 'travail');
+    await botService.handleIncomingMessage('sender-decline', 'temps plein');
+    await botService.handleIncomingMessage('sender-decline', '2');
+    await botService.handleIncomingMessage('sender-decline', 'non');
+    await botService.handleIncomingMessage('sender-decline', '1200');
+    await botService.handlePostback('sender-decline', 'SELECT_UNIT_unit-1_building-1');
+    await botService.handlePostback('sender-decline', 'VISIT_NO');
+
+    const leadUpdatePayloads = getLeadUpdatePayloads();
+    expect(leadUpdatePayloads).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        stage: 'qualifie',
+        qualificationState: 'qualified',
+      }),
+      expect.objectContaining({
+        stage: 'inactif',
+        qualificationState: 'rejected',
+        qualificationReasonCode: 'no_longer_interested',
+      }),
+    ]));
+    expect(leadUpdatePayloads.at(-1).qualificationReasonNote).toContain('User declined the visit request.');
   });
 
   it('skips conflicting messenger visit slots and books the next valid employee slot', async () => {
@@ -731,6 +885,104 @@ describe('handlePostback', () => {
     await botService.handlePostback('sender_reason', 'REASON_WORK');
 
     expect(mockFbService.sendQuickReplies).toHaveBeenCalled();
+  });
+});
+
+// ─── Messenger follow-up policy ───
+
+describe('sendPolicyAwareFollowUp', () => {
+  it('keeps seeded marketplace follow-ups local in demo mode', async () => {
+    const originalMode = process.env.MARKETPLACE_DATA_MODE;
+    process.env.MARKETPLACE_DATA_MODE = 'seeded';
+
+    mockFbService.sendTextMessage.mockClear();
+    mockSmsService.sendLeadFollowUpSms.mockClear();
+
+    try {
+      const result = await botService.sendPolicyAwareFollowUp({
+        senderId: 'sender-demo',
+        lead: {
+          id: 'lead-demo',
+          phone: '+15145550002',
+          tags: { __DEMO_SEED__: true },
+        },
+        message: 'Bonjour — demo follow-up',
+        conversationLastActivityAt: new Date('2026-05-05T10:00:00.000Z'),
+        lastCommunicationAt: new Date('2026-05-05T09:30:00.000Z'),
+      });
+
+      expect(result).toMatchObject({
+        success: true,
+        transport: 'demo',
+        fallbackUsed: false,
+        demoMarketplaceMode: true,
+      });
+      expect(mockFbService.sendTextMessage).not.toHaveBeenCalled();
+      expect(mockSmsService.sendLeadFollowUpSms).not.toHaveBeenCalled();
+    } finally {
+      process.env.MARKETPLACE_DATA_MODE = originalMode;
+    }
+  });
+
+  it('routes stale follow-ups through SMS with a handoff reason', async () => {
+    const result = await botService.sendPolicyAwareFollowUp({
+      senderId: 'sender-stale',
+      lead: {
+        id: 'lead-stale',
+        phone: '+15145550123',
+      },
+      message: 'Simon prendra contact avec vous bientôt.',
+      conversationLastActivityAt: new Date(Date.now() - (25 * 60 * 60 * 1000)),
+      context: 'test_follow_up',
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      success: true,
+      transport: 'sms',
+      fallbackUsed: true,
+      handoffReason: 'meta_24h_window_expired',
+    }));
+    expect(mockSmsService.sendLeadFollowUpSms).toHaveBeenCalledWith(expect.objectContaining({
+      leadId: 'lead-stale',
+      phoneNumber: '+15145550123',
+      messageBody: 'Simon prendra contact avec vous bientôt.',
+    }));
+    expect(mockFbService.sendTextMessage).not.toHaveBeenCalled();
+  });
+
+  it('records a failed communication when no phone number is available for SMS fallback', async () => {
+    const result = await botService.sendPolicyAwareFollowUp({
+      senderId: 'sender-no-phone',
+      lead: {
+        id: 'lead-no-phone',
+        phone: null,
+      },
+      message: 'Simon prendra contact avec vous bientôt.',
+      conversationLastActivityAt: new Date(Date.now() - (25 * 60 * 60 * 1000)),
+      context: 'test_follow_up',
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      success: false,
+      transport: 'fb_messenger',
+      fallbackUsed: false,
+      handoffReason: 'meta_24h_window_expired',
+    }));
+
+    const failedLogInsert = mockDb.insert.mock.calls.find(([table]) => table === 'communicationLogsTable');
+    expect(failedLogInsert).toBeDefined();
+  });
+
+  it('treats a fresh conversation as Messenger-eligible', () => {
+    expect(botService.isMessengerFollowUpExpired({
+      conversationLastActivityAt: new Date(Date.now() - (2 * 60 * 60 * 1000)),
+    })).toBe(false);
+  });
+
+  it('marks a stale conversation as expired after 24 hours', () => {
+    expect(botService.isMessengerFollowUpExpired({
+      conversationLastActivityAt: new Date(Date.now() - (25 * 60 * 60 * 1000)),
+    })).toBe(true);
   });
 });
 

@@ -14,16 +14,18 @@ void main() {
 
     test('isDevelopment is true by default', () {
       expect(AppConfig.isDevelopment, isTrue);
+      expect(AppConfig.isDemo, isFalse);
       expect(AppConfig.isStaging, isFalse);
       expect(AppConfig.isProduction, isFalse);
     });
   });
 
   group('AppEnvironment', () {
-    test('has three values', () {
-      expect(AppEnvironment.values.length, 3);
+    test('has four values', () {
+      expect(AppEnvironment.values.length, 4);
       expect(AppEnvironment.values, containsAll([
         AppEnvironment.development,
+        AppEnvironment.demo,
         AppEnvironment.staging,
         AppEnvironment.production,
       ]));

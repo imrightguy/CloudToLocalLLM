@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app_config.dart';
 import '../models.dart';
 import '../services/api_service.dart';
 import '../theme/app_colors.dart';
@@ -15,7 +16,7 @@ class DossierAssistantScreen extends StatefulWidget {
 }
 
 class _DossierAssistantScreenState extends State<DossierAssistantScreen> {
-  static const String _companyId = '388be569-9d9d-46e2-b548-7bf0167cb11b';
+  static const String _companyId = AppConfig.demoCompanyId;
 
   final TextEditingController _reviewNotesController = TextEditingController();
   bool _isLoading = true;

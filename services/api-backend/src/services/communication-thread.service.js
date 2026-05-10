@@ -12,6 +12,10 @@ const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
 const { BOOKING_STATES, QUALIFICATION_STATES } = require('../constants/marketplace-states');
 const logger = require('../utils/logger');
 const {
+  isDemoMarketplaceLead,
+  isSeededMarketplaceMode,
+} = require('./marketplace-mode');
+const {
   normalizeCommunicationAttachments,
   normalizeCommunicationMetadata,
   normalizeCommunicationStatus,
@@ -264,6 +268,76 @@ function compareThreadSnapshots(a, b) {
   return activityB - activityA;
 }
 
+function normalizeInboxSourceFilter(source) {
+  if (!source) {
+    return null;
+  }
+
+  const normalized = String(source).trim().toLowerCase();
+  if (normalized === 'messenger' || normalized === 'fb_messenger') {
+    return 'messenger';
+  }
+
+  return normalized;
+}
+
+function deriveQualificationSnapshot(lead, latestMessage, threadRow) {
+  if (lead.qualificationState) {
+    return {
+      qualificationState: lead.qualificationState ?? null,
+      qualificationReasonCode: lead.qualificationReasonCode ?? null,
+      qualificationReasonNote: lead.qualificationReasonNote ?? null,
+    };
+  }
+
+  const hasMessengerActivity = latestMessage?.type === 'fb_messenger'
+    || threadRow?.lastMessageType === 'fb_messenger';
+
+  if (!hasMessengerActivity) {
+    return {
+      qualificationState: null,
+      qualificationReasonCode: null,
+      qualificationReasonNote: null,
+    };
+  }
+
+  if (lead.stage === 'inactif') {
+    return {
+      qualificationState: 'rejected',
+      qualificationReasonCode: 'no_longer_interested',
+      qualificationReasonNote: 'Lead is inactive after Messenger follow-up.',
+    };
+  }
+
+  if (lead.stage === 'contacte' || lead.stage === 'visite_completee') {
+    return {
+      qualificationState: 'needs_follow_up',
+      qualificationReasonCode: 'budget_mismatch',
+      qualificationReasonNote: 'Lead still needs follow-up after Messenger engagement.',
+    };
+  }
+
+  if (lead.stage === 'qualifie'
+    || lead.stage === 'visitePlanifiee'
+    || lead.stage === 'visite_planifiee'
+    || lead.stage === 'offreEnvoyee'
+    || lead.stage === 'negociation'
+    || lead.stage === 'bailSigne'
+    || lead.stage === 'signe') {
+    return {
+      qualificationState: 'qualified',
+      qualificationReasonCode: 'other',
+      qualificationReasonNote: 'Lead qualified through Messenger engagement.',
+    };
+  }
+
+  return {
+    qualificationState: 'unknown',
+    qualificationReasonCode: null,
+    qualificationReasonNote: null,
+  };
+}
+
 function cleanSnapshot(snapshot, includeMessages) {
   const {
     _lastInboundAt,
@@ -304,6 +378,7 @@ function buildSnapshot(lead, threadRow, messages, visits, includeMessages) {
     contactName: lead.fullName,
     contactPhone: lead.phone,
     contactInitials: getInitials(lead.fullName),
+    ...deriveQualificationSnapshot(lead, latestMessage, threadRow),
     messageCount: threadRow?.messageCount ?? orderedMessages.length,
     lastMessageAt: latestMessage?.createdAt ?? threadRow?.lastMessageAt ?? null,
     firstSeenAt: firstResponseMetrics.firstSeenAt,
@@ -327,6 +402,7 @@ function buildSnapshot(lead, threadRow, messages, visits, includeMessages) {
 
 function buildLeadConditions(filters = {}) {
   const conditions = [eq(leadsTable.isActive, true)];
+  const normalizedSource = normalizeInboxSourceFilter(filters.source);
 
   if (filters.leadId) {
     conditions.push(eq(leadsTable.id, filters.leadId));
@@ -336,8 +412,8 @@ function buildLeadConditions(filters = {}) {
     conditions.push(eq(leadsTable.stage, filters.stage));
   }
 
-  if (filters.source) {
-    conditions.push(eq(leadsTable.source, filters.source));
+  if (normalizedSource && normalizedSource !== 'messenger') {
+    conditions.push(eq(leadsTable.source, normalizedSource));
   }
 
   if (filters.assignedEmployeeId) {
@@ -379,6 +455,10 @@ async function loadThreadContext(filters = {}) {
       desiredUnit: leadsTable.desiredUnit,
       assignedEmployeeId: leadsTable.assignedEmployeeId,
       notes: leadsTable.notes,
+      qualificationState: leadsTable.qualificationState,
+      qualificationReasonCode: leadsTable.qualificationReasonCode,
+      qualificationReasonNote: leadsTable.qualificationReasonNote,
+      tags: leadsTable.tags,
       createdAt: leadsTable.createdAt,
       updatedAt: leadsTable.updatedAt,
     })
@@ -386,7 +466,11 @@ async function loadThreadContext(filters = {}) {
     .where(leadWhere)
     .orderBy(desc(leadsTable.updatedAt));
 
-  if (leads.length === 0) {
+  const marketplaceLeads = isSeededMarketplaceMode()
+    ? leads.filter((lead) => isDemoMarketplaceLead(lead))
+    : leads;
+
+  if (marketplaceLeads.length === 0) {
     return {
       threads: [],
       pagination: {
@@ -399,7 +483,7 @@ async function loadThreadContext(filters = {}) {
     };
   }
 
-  const leadIds = leads.map((lead) => lead.id);
+  const leadIds = marketplaceLeads.map((lead) => lead.id);
   const leadMatchConditions = leadIds.map((leadId) => or(
     eq(communicationLogsTable.leadId, leadId),
     sql`${communicationLogsTable.metadata} ->> 'leadId' = ${leadId}`,
@@ -516,9 +600,19 @@ async function loadThreadContext(filters = {}) {
     ))
     .filter(Boolean);
 
+  const normalizedSource = normalizeInboxSourceFilter(filters.source);
   const filteredSnapshots = snapshots.filter((snapshot) => {
     if (!filters.type && !filters.direction && !filters.status) {
+      if (normalizedSource === 'messenger') {
+        return snapshot.lastMessage?.type === 'fb_messenger';
+      }
+
       return true;
+    }
+
+    if (normalizedSource === 'messenger'
+      && snapshot.lastMessage?.type !== 'fb_messenger') {
+      return false;
     }
 
     const latest = snapshot.lastMessage;
@@ -684,6 +778,43 @@ async function recordCommunicationActivity(payload = {}) {
     };
   }
 
+  let marketplaceLead = null;
+
+  if (leadId && isSeededMarketplaceMode()) {
+    [marketplaceLead] = await db
+      .select({
+        id: leadsTable.id,
+        stage: leadsTable.stage,
+        tags: leadsTable.tags,
+      })
+      .from(leadsTable)
+      .where(eq(leadsTable.id, leadId))
+      .limit(1);
+
+    if (!marketplaceLead) {
+      return {
+        statusCode: 400,
+        body: {
+          success: false,
+          error: { message: 'Invalid leadId or employeeId', code: 'FOREIGN_KEY_ERROR' },
+        },
+      };
+    }
+
+    if (!isDemoMarketplaceLead(marketplaceLead)) {
+      return {
+        statusCode: 403,
+        body: {
+          success: false,
+          error: {
+            message: 'Marketplace seeded mode only accepts demo leads',
+            code: 'DEMO_MARKETPLACE_ONLY',
+          },
+        },
+      };
+    }
+  }
+
   try {
     const insertValues = {
       leadId,
@@ -823,6 +954,43 @@ async function recordMarketplaceVisit(leadId, payload = {}) {
         error: { message: 'leadId is required', code: 'VALIDATION_ERROR' },
       },
     };
+  }
+
+  let marketplaceLead = null;
+
+  if (isSeededMarketplaceMode()) {
+    [marketplaceLead] = await db
+      .select({
+        id: leadsTable.id,
+        stage: leadsTable.stage,
+        tags: leadsTable.tags,
+      })
+      .from(leadsTable)
+      .where(eq(leadsTable.id, leadId))
+      .limit(1);
+
+    if (!marketplaceLead) {
+      return {
+        statusCode: 400,
+        body: {
+          success: false,
+          error: { message: 'Invalid leadId or employeeId', code: 'FOREIGN_KEY_ERROR' },
+        },
+      };
+    }
+
+    if (!isDemoMarketplaceLead(marketplaceLead)) {
+      return {
+        statusCode: 403,
+        body: {
+          success: false,
+          error: {
+            message: 'Marketplace seeded mode only accepts demo leads',
+            code: 'DEMO_MARKETPLACE_ONLY',
+          },
+        },
+      };
+    }
   }
 
   const { createVisit } = require('../controllers/visit.controller');

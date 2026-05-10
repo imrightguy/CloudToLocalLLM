@@ -4,6 +4,10 @@
 
 Quebec leasing automation engine — Node.js REST API backend for managing buildings, leases, tenants, payments, renewals, SMS campaigns, and analytics. Flutter web frontend served via Docker.
 
+## Issue-scoped execution
+
+If an issue gives concrete steps, follow those first and do not restart generic discovery (issue re-listing, GOAL/docs rereads, queue-health preflights, or skill-loading chatter) unless the issue explicitly asks for it or a missing prerequisite blocks execution. For issue-scoped replacement runs, the issue description plus the latest authoritative issue comments are the source of truth and must override broader repo guidance, stale continuity, and prior run trails when they conflict. If the issue already names exact credentials, URLs, IDs, or live API results, treat them as final and do not re-derive or question them unless the issue explicitly says they are missing or stale.
+
 ## Commands
 
 ### API Backend (`services/api-backend/`)

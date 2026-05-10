@@ -61,9 +61,14 @@ router.post('/sms/incoming', validate(smsWebhookSchemas.incoming), asyncHandler(
  *             properties:
  *               MessageSid:
  *                 type: string
+ *               SmsStatus:
+ *                 type: string
+ *                 enum: [queued, sent, delivered, undelivered, failed, read]
+ *                 description: Twilio status callback field (legacy/supported)
  *               MessageStatus:
  *                 type: string
- *                 enum: [queued, sent, delivered, undelivered, failed]
+ *                 enum: [queued, sent, delivered, undelivered, failed, read]
+ *                 description: Alternate Twilio status callback field accepted for compatibility
  *     responses:
  *       200:
  *         description: Status acknowledged

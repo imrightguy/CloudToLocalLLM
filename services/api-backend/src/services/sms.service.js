@@ -1190,6 +1190,31 @@ const handleOptOutReply = async (phoneNumber) => {
   return { success: true, action: 'opted_out' };
 };
 
+const sendLeadFollowUpSms = async ({ leadId = null, phoneNumber, messageBody, metadata = {} }) => {
+  try {
+    const result = await sendSMS(phoneNumber, messageBody);
+
+    await logSMS({
+      twilioSid: result.sid || null,
+      leadId,
+      phoneNumber,
+      direction: 'outbound',
+      messageBody,
+      status: result.success ? 'sent' : 'failed',
+      twilioStatus: result.status || null,
+      errorMessage: result.error || null,
+    });
+
+    return {
+      ...result,
+      metadata,
+    };
+  } catch (error) {
+    logger.error('❌ sendLeadFollowUpSms error:', error.message);
+    return { success: false, error: error.message, metadata };
+  }
+};
+
 // ─── Template Validation ───────────────────────────────────────────────────────
 
 const validateTemplateRender = (renderedBody) => {
@@ -2182,6 +2207,7 @@ module.exports = {
   sendVisitConfirmation,
   sendTenantConfirmationRequest,
   sendOccupantAccessRequest,
+  sendLeadFollowUpSms,
   sendMorningOfReminder,
   sendPostVisitSurvey,
   sendLeadArrivalNotification,

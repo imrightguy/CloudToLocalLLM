@@ -1,4 +1,4 @@
-enum AppEnvironment { development, staging, production }
+enum AppEnvironment { development, demo, staging, production }
 
 class AppConfig {
   AppConfig._();
@@ -13,8 +13,12 @@ class AppConfig {
         defaultValue: 'development',
       );
 
+  static const String demoCompanyId = '388be569-9d9d-46e2-b548-7bf0167cb11b';
+
   static AppEnvironment get environment {
     switch (_envString) {
+      case 'demo':
+        return AppEnvironment.demo;
       case 'staging':
         return AppEnvironment.staging;
       case 'production':
@@ -25,6 +29,7 @@ class AppConfig {
   }
 
   static bool get isProduction => environment == AppEnvironment.production;
+  static bool get isDemo => environment == AppEnvironment.demo;
   static bool get isStaging => environment == AppEnvironment.staging;
   static bool get isDevelopment => environment == AppEnvironment.development;
 }

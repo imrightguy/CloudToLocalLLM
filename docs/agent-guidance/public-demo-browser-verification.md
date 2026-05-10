@@ -2,7 +2,7 @@
 
 ## Zoidbot operational corrections — public demo / browser verification
 
-These corrections are mandatory for ImmoGestion public-route, frontend, Cloudflare, and demo-readiness work.
+These corrections are mandatory for ImmoGestion public-route, frontend, Cloudflare, and demo-readiness work. They do not override issue-scoped execution instructions for live product/debug/deploy issues; in those runs, follow the issue description and latest authoritative comments first and only use browser-verification guidance when the issue itself asks for it.
 
 - HTTP 200 / curl is not enough for public demo readiness.
 - Use `/paperclip/ImmoGestion/scripts/browser-check.js https://app.immogestion.app/` for real browser checks.
