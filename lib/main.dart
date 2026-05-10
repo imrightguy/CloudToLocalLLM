@@ -47,6 +47,50 @@ Future<void> main() async {
   runApp(const ImmoGestionApp());
 }
 
+Widget buildAuthenticatedStartScreen(Uri location) {
+  switch (normalizeAppPath(location.path)) {
+    case '/dashboard':
+      return const AuthGate(child: DashboardScreen());
+    case '/pipeline':
+      return const AuthGate(child: PipelineScreen());
+    case '/calendar':
+      return const AuthGate(child: CalendarScreen());
+    case '/visits':
+      return const AuthGate(child: VisitsScreen());
+    case '/messages':
+    case '/marketplace':
+      return const AuthGate(child: MarketplaceInboxScreen());
+    case '/communications':
+      return const AuthGate(child: CommunicationsScreen());
+    case '/buildings':
+      return const AuthGate(child: BuildingsScreen());
+    case '/leases':
+      return const AuthGate(child: LeasesScreen());
+    case '/payments':
+      return const AuthGate(child: PaymentsScreen());
+    case '/employees':
+      return const AuthGate(child: EmployeesScreen());
+    case '/documents':
+      return const AuthGate(child: DocumentsScreen());
+    case '/renovation-ops':
+      return const AuthGate(child: RenovationOpsScreen());
+    case '/maintenance':
+      return const AuthGate(child: MaintenanceCommandCenterScreen());
+    case '/daily-tasks':
+      return const AuthGate(child: DailyTaskTrackerScreen());
+    case '/dossiers':
+      return const AuthGate(child: DossierAssistantScreen());
+    case '/observations':
+      return const AuthGate(child: ObservationReviewInboxScreen());
+    case '/settings':
+      return const AuthGate(child: SettingsScreen());
+    case '/onboarding':
+      return const AuthGate(child: OnboardingScreen());
+    default:
+      return const AuthGate(child: HomeScreen());
+  }
+}
+
 class ImmoGestionApp extends StatefulWidget {
   const ImmoGestionApp({super.key});
 
@@ -85,20 +129,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     };
   }
 
-  Widget _buildAuthenticatedStartScreen(Uri location) {
-    switch (location.path) {
-      case '/maintenance':
-        return const AuthGate(child: MaintenanceCommandCenterScreen());
-      case '/daily-tasks':
-        return const AuthGate(child: DailyTaskTrackerScreen());
-      case '/renovation-ops':
-        return const AuthGate(child: RenovationOpsScreen());
-      case '/dossiers':
-        return const AuthGate(child: DossierAssistantScreen());
-      default:
-        return const AuthGate(child: HomeScreen());
-    }
-  }
+  Widget _buildAuthenticatedStartScreen(Uri location) =>
+      buildAuthenticatedStartScreen(location);
 
   Widget _buildStartScreen(Uri location) {
     switch (resolveEntryPointDestination(
@@ -158,6 +190,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         }),
         '/communications':
             _protectedRoute((context) => const CommunicationsScreen()),
+        '/messages': _protectedRoute((context) => const MarketplaceInboxScreen()),
         '/marketplace':
             _protectedRoute((context) => const MarketplaceInboxScreen()),
         '/settings': _protectedRoute((context) => const SettingsScreen()),

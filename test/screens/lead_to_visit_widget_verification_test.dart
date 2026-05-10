@@ -54,31 +54,31 @@ void main() {
     );
 
     testWidgets(
-      'SmsConversationScreen opens VisitFormScreen with the source contact id',
+      'ConversationDetailScreen shows Messenger qualification status and reason',
       (tester) async {
-        const contactId = 'lead-456';
-
         await tester.pumpWidget(
           const MaterialApp(
-            home: SmsConversationScreen(
-              contactId: contactId,
-              contactName: 'Marc Gagnon',
-              contactPhone: '+1 438 555-0102',
+            home: ConversationDetailScreen(
+              contactId: 'lead-789',
+              contactName: 'Sarah Tremblay',
+              contactPhone: '+1 514 555-0101',
+              contactInitials: 'ST',
+              qualificationState: 'needs_follow_up',
+              qualificationReasonCode: 'budget_mismatch',
+              qualificationReasonNote: 'No matching listings were found. Simon will follow up.',
             ),
           ),
         );
 
         await tester.pumpAndSettle();
-        await tester.tap(find.byTooltip('Planifier une visite'));
-        await tester.pumpAndSettle();
 
-        expect(find.byType(VisitFormScreen), findsOneWidget);
-
-        final visitForm =
-            tester.widget<VisitFormScreen>(find.byType(VisitFormScreen));
-        expect(visitForm.initialLeadId, contactId);
+        expect(find.text('Qualification Messenger'), findsOneWidget);
+        expect(find.text('À relancer'), findsWidgets);
+        expect(find.text('Budget incompatible'), findsOneWidget);
+        expect(find.text('No matching listings were found. Simon will follow up.'), findsOneWidget);
       },
     );
+
 
     testWidgets(
       'VisitFormScreen preselects the original lead when the API returns it',
