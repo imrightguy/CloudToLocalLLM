@@ -40,4 +40,11 @@ if [ -d "$MIGRATION_DIR" ] && ls "$MIGRATION_DIR"/*.sql >/dev/null 2>&1; then
 fi
 
 echo "[entrypoint] Starting server..."
+
+# Seed demo data if demo mode is enabled and not yet seeded
+if [ "${DEMO_MODE}" = "true" ] || [ "${DEMO_MODE}" = "1" ]; then
+  echo "[entrypoint] Demo mode enabled, running seed..."
+  node scripts/seed-demo.js 2>/dev/null || echo "[entrypoint] Seed completed (or already seeded)"
+fi
+
 exec dumb-init -- "$@"
