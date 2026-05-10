@@ -47,6 +47,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       DB_HOST: postgres
+      DEMO_MODE: ${DEMO_MODE:-false}
       # NOTE: DATABASE_URL should be set in .env.production with postgres://user:pass@postgres:5432/immogestion
       # (using "postgres" as hostname, not localhost, since they share a Docker network)
     volumes:
@@ -89,6 +90,7 @@ services:
       "
     environment:
       DB_HOST: postgres
+      DEMO_MODE: ${DEMO_MODE:-false}
       DB_PORT: 5432
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
