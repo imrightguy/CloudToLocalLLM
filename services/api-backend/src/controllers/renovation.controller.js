@@ -31,6 +31,7 @@ const {
 } = require('../models/renovation');
 const { child } = require('../utils/logger');
 const { syncReadinessProjectionByRenovationRecordId } = require('../services/renovation-readiness.service');
+const { getMaintenanceCommandCenter } = require('../services/maintenance-command-center.service');
 
 const log = child({ controller: 'renovation' });
 
@@ -41,6 +42,28 @@ const parsePagination = (query) => {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 20));
   return { page, limit, offset: (page - 1) * limit };
 };
+
+const mapMaintenanceDashboard = (data) => ({
+  summary: {
+    activeApartments: Array.isArray(data.backlog) ? data.backlog.length : 0,
+    readyApartments: Array.isArray(data.backlog)
+      ? data.backlog.filter((item) => item.phase === 'ready').length
+      : 0,
+    overdueTasks: data.summary?.overdueTaskCount ?? 0,
+    dueSoonTasks: data.summary?.dueSoonTaskCount ?? 0,
+    properties: data.summary?.propertyCount ?? 0,
+  },
+  apartments: Array.isArray(data.backlog) ? data.backlog : [],
+  byBuilding: Array.isArray(data.properties)
+    ? data.properties.map((property) => ({
+      buildingName: property.buildingName,
+      apartmentCount: property.unitCount ?? 0,
+      overdueTaskCount: property.overdueTaskCount ?? 0,
+      dueSoonTaskCount: property.dueSoonTaskCount ?? 0,
+    }))
+    : [],
+  asOf: data.asOf ?? null,
+});
 
 const success = (res, data, message, metadata) => {
   const payload = { success: true, data, message };
@@ -77,6 +100,18 @@ const loadRenovationTask = async (id) => {
 const loadRenovationOrder = async (id) => {
   const [order] = await db.select().from(renovationOrdersTable).where(eq(renovationOrdersTable.id, id)).limit(1);
   return order || null;
+};
+
+exports.getDashboard = async (req, res) => {
+  try {
+    const { buildingId = null, limit = 12 } = req.query;
+    const dashboard = mapMaintenanceDashboard(await getMaintenanceCommandCenter({ buildingId, limit }));
+
+    return success(res, dashboard, 'Tableau des tâches du jour récupéré avec succès');
+  } catch (err) {
+    log.error('Error fetching renovation dashboard', { error: err.message });
+    return error(res, 500, 'RENOVATION_DASHBOARD_FETCH_FAILED', 'Erreur interne du serveur');
+  }
 };
 
 const loadReceivingEvents = async (orderId) => db
