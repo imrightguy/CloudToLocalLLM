@@ -7,6 +7,10 @@ const DEMO_WRITE_EXEMPT_PATHS = [
   '/auth/login',
   '/auth/refresh',
   '/admin/seed',
+  '/api/demo/login',
+  '/api/auth/login',
+  '/api/auth/refresh',
+  '/api/admin/seed',
 ];
 
 function isExemptPath(path) {
