@@ -27,6 +27,7 @@ const tenantChecklistRoutes = require('./tenant-checklist.routes');
 const observationResultRoutes = require('./observation-result.routes');
 const dossierRoutes = require('./dossier.routes');
 const photoRoutes = require('./photo.routes');
+const demoRoutes = require('./demo.routes');
 
 const router = express.Router();
 
@@ -80,5 +81,6 @@ router.use('/tenant-checklists', tenantChecklistRoutes);
 router.use('/companies/:companyId/dossiers', dossierRoutes);
 router.use('/companies/:companyId/photos', photoRoutes);
 router.use('/companies/:companyId/observation-results', observationResultRoutes);
+router.use('/demo', demoRoutes);
 
 module.exports = router;

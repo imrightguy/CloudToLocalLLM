@@ -12,6 +12,7 @@ const { initTwilio } = require('./services/twilio.service');
 const { startScheduler, stopScheduler } = require('./services/scheduler.service');
 const { startWeeklyReport, stopWeeklyReport } = require('./services/weekly-report.service');
 const { apiLimiter } = require('./middleware/rateLimiters');
+const { demoModeContext, demoWriteGuard } = require('./middleware/demo-mode');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -55,6 +56,8 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(apiLimiter);
+app.use(demoModeContext);
+app.use(demoWriteGuard);
 
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.path}`, { method: req.method, path: req.path });
