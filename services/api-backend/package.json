@@ -47,7 +47,7 @@
     "twilio": "^6.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
     "globals": "^17.6.0",
