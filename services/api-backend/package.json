@@ -1,6 +1,6 @@
 {
   "name": "immogestion-api",
-  "version": "1.0.42",
+  "version": "1.0.43",
   "description": "Quebec leasing automation engine API backend",
   "main": "src/server.js",
   "scripts": {
