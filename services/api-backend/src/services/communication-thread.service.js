@@ -778,10 +778,8 @@ async function recordCommunicationActivity(payload = {}) {
     };
   }
 
-  let marketplaceLead = null;
-
   if (leadId && isSeededMarketplaceMode()) {
-    [marketplaceLead] = await db
+    const [marketplaceLead] = await db
       .select({
         id: leadsTable.id,
         stage: leadsTable.stage,
@@ -956,10 +954,8 @@ async function recordMarketplaceVisit(leadId, payload = {}) {
     };
   }
 
-  let marketplaceLead = null;
-
   if (isSeededMarketplaceMode()) {
-    [marketplaceLead] = await db
+    const [marketplaceLead] = await db
       .select({
         id: leadsTable.id,
         stage: leadsTable.stage,
