@@ -33,7 +33,7 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^4.22.1",
-    "express-rate-limit": "^6.11.2",
+    "express-rate-limit": "^8.5.1",
     "formidable": "^3.5.4",
     "helmet": "^8.1.0",
     "joi": "^17.13.3",
