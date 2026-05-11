@@ -1,5 +1,16 @@
 const rateLimiters = require('../src/middleware/rateLimiters');
 
+function mockRes() {
+  const res = {
+    set: jest.fn(),
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    getHeader: jest.fn(),
+    once: jest.fn(),
+  };
+  return res;
+}
+
 describe('rate limiters', () => {
   it('exports all expected limiters', () => {
     expect(rateLimiters.authLimiter).toBeDefined();
@@ -19,98 +30,78 @@ describe('rate limiters', () => {
     expect(typeof apiLimiter).toBe('function');
   });
 
-  it('authLimiter calls next for requests under limit', (done) => {
+  it('authLimiter calls next for requests under limit', () => {
     const req = {
       ip: '127.0.0.1',
       headers: {},
       app: { get: jest.fn().mockReturnValue('127.0.0.1') },
     };
-    const res = {
-      set: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      getHeader: jest.fn(),
-    };
-    const next = () => {
-      done();
-    };
+    const res = mockRes();
 
-    rateLimiters.authLimiter(req, res, next);
+    return new Promise((resolve) => {
+      rateLimiters.authLimiter(req, res, () => {
+        resolve();
+      });
+    });
   });
 
-  it('registrationLimiter calls next for requests under limit', (done) => {
+  it('registrationLimiter calls next for requests under limit', () => {
     const req = {
       ip: '127.0.0.2',
       headers: {},
       app: { get: jest.fn().mockReturnValue('127.0.0.1') },
     };
-    const res = {
-      set: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      getHeader: jest.fn(),
-    };
-    const next = () => {
-      done();
-    };
+    const res = mockRes();
 
-    rateLimiters.registrationLimiter(req, res, next);
+    return new Promise((resolve) => {
+      rateLimiters.registrationLimiter(req, res, () => {
+        resolve();
+      });
+    });
   });
 
-  it('passwordChangeLimiter calls next for requests under limit', (done) => {
+  it('passwordChangeLimiter calls next for requests under limit', () => {
     const req = {
       ip: '127.0.0.3',
       headers: {},
       app: { get: jest.fn().mockReturnValue('127.0.0.1') },
     };
-    const res = {
-      set: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      getHeader: jest.fn(),
-    };
-    const next = () => {
-      done();
-    };
+    const res = mockRes();
 
-    rateLimiters.passwordChangeLimiter(req, res, next);
+    return new Promise((resolve) => {
+      rateLimiters.passwordChangeLimiter(req, res, () => {
+        resolve();
+      });
+    });
   });
 
-  it('passwordResetLimiter calls next for requests under limit', (done) => {
+  it('passwordResetLimiter calls next for requests under limit', () => {
     const req = {
       ip: '127.0.0.4',
       headers: {},
       app: { get: jest.fn().mockReturnValue('127.0.0.1') },
     };
-    const res = {
-      set: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      getHeader: jest.fn(),
-    };
-    const next = () => {
-      done();
-    };
+    const res = mockRes();
 
-    rateLimiters.passwordResetLimiter(req, res, next);
+    return new Promise((resolve) => {
+      rateLimiters.passwordResetLimiter(req, res, () => {
+        resolve();
+      });
+    });
   });
 
-  it('apiLimiter calls next for requests under limit', (done) => {
+  it('apiLimiter calls next for requests under limit', () => {
     const req = {
       ip: '127.0.0.5',
       headers: {},
       app: { get: jest.fn().mockReturnValue('127.0.0.1') },
     };
-    const res = {
-      set: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-      getHeader: jest.fn(),
-    };
-    const next = () => {
-      done();
-    };
+    const res = mockRes();
 
-    rateLimiters.apiLimiter(req, res, next);
+    return new Promise((resolve) => {
+      rateLimiters.apiLimiter(req, res, () => {
+        resolve();
+      });
+    });
   });
 });
