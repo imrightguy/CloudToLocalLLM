@@ -175,7 +175,6 @@ class _RevenueChartCardState extends State<RevenueChartCard> {
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
           getTooltipColor: (_) => AppColors.surface,
-          tooltipRoundedRadius: 8,
           tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
