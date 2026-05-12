@@ -1,6 +1,6 @@
 name: immogestion
 description: Leasing automation engine for Quebec landlords
-version: 1.0.46+1
+version: 1.0.47+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
