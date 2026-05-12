@@ -34,6 +34,30 @@ void main() {
       expect((widget as AuthGate).child, isA<MarketplaceInboxScreen>());
     });
 
+    test('maps /leads/:id to the lead detail route screen', () {
+      final widget = buildAuthenticatedStartScreen(
+        Uri.parse('https://app.immogestion.app/leads/lead-123'),
+      );
+
+      expect(widget, isA<AuthGate>());
+      expect(
+        (widget as AuthGate).child.runtimeType.toString(),
+        contains('LeadDetailRouteScreen'),
+      );
+    });
+
+    test('maps /visits/:id to the visit detail route screen', () {
+      final widget = buildAuthenticatedStartScreen(
+        Uri.parse('https://app.immogestion.app/visits/visit-123'),
+      );
+
+      expect(widget, isA<AuthGate>());
+      expect(
+        (widget as AuthGate).child.runtimeType.toString(),
+        contains('VisitDetailRouteScreen'),
+      );
+    });
+
     test('maps /visits to the visits screen', () {
       final widget = buildAuthenticatedStartScreen(
         Uri.parse('https://app.immogestion.app/visits/'),

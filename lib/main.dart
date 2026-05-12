@@ -6,10 +6,15 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/cache_service.dart';
+import 'services/lead_service.dart';
+import 'services/visit_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/public_entry_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/lead_detail_screen.dart';
+import 'screens/visit_detail_screen.dart';
+import 'screens/visit_form_screen.dart';
 import 'utils/browser_location.dart';
 import 'utils/entrypoint_policy.dart';
 import 'screens/pipeline_screen.dart';
@@ -45,50 +50,6 @@ Future<void> main() async {
   }
 
   runApp(const ImmoGestionApp());
-}
-
-Widget buildAuthenticatedStartScreen(Uri location) {
-  switch (normalizeAppPath(location.path)) {
-    case '/dashboard':
-      return const AuthGate(child: DashboardScreen());
-    case '/pipeline':
-      return const AuthGate(child: PipelineScreen());
-    case '/calendar':
-      return const AuthGate(child: CalendarScreen());
-    case '/visits':
-      return const AuthGate(child: VisitsScreen());
-    case '/messages':
-    case '/marketplace':
-      return const AuthGate(child: MarketplaceInboxScreen());
-    case '/communications':
-      return const AuthGate(child: CommunicationsScreen());
-    case '/buildings':
-      return const AuthGate(child: BuildingsScreen());
-    case '/leases':
-      return const AuthGate(child: LeasesScreen());
-    case '/payments':
-      return const AuthGate(child: PaymentsScreen());
-    case '/employees':
-      return const AuthGate(child: EmployeesScreen());
-    case '/documents':
-      return const AuthGate(child: DocumentsScreen());
-    case '/renovation-ops':
-      return const AuthGate(child: RenovationOpsScreen());
-    case '/maintenance':
-      return const AuthGate(child: MaintenanceCommandCenterScreen());
-    case '/daily-tasks':
-      return const AuthGate(child: DailyTaskTrackerScreen());
-    case '/dossiers':
-      return const AuthGate(child: DossierAssistantScreen());
-    case '/observations':
-      return const AuthGate(child: ObservationReviewInboxScreen());
-    case '/settings':
-      return const AuthGate(child: SettingsScreen());
-    case '/onboarding':
-      return const AuthGate(child: OnboardingScreen());
-    default:
-      return const AuthGate(child: HomeScreen());
-  }
 }
 
 class ImmoGestionApp extends StatefulWidget {
@@ -129,8 +90,43 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
     };
   }
 
-  Widget _buildAuthenticatedStartScreen(Uri location) =>
-      buildAuthenticatedStartScreen(location);
+  Widget _buildAuthenticatedStartScreen(Uri location) {
+    final segments = location.pathSegments;
+
+    if (segments.length == 2 && segments[0] == 'leads') {
+      final leadId = Uri.decodeComponent(segments[1]);
+      return AuthGate(child: _LeadDetailRouteScreen(leadId: leadId));
+    }
+
+    if (segments.length == 2 && segments[0] == 'visits' && segments[1] != 'new') {
+      final visitId = Uri.decodeComponent(segments[1]);
+      return AuthGate(child: _VisitDetailRouteScreen(visitId: visitId));
+    }
+
+    if (segments.length == 2 && segments[0] == 'visits' && segments[1] == 'new') {
+      final leadId = location.queryParameters['leadId'];
+      final date = DateTime.tryParse(location.queryParameters['date'] ?? '');
+      return AuthGate(
+        child: VisitFormScreen(
+          initialLeadId: leadId,
+          initialDate: date,
+        ),
+      );
+    }
+
+    switch (location.path) {
+      case '/maintenance':
+        return const AuthGate(child: MaintenanceCommandCenterScreen());
+      case '/daily-tasks':
+        return const AuthGate(child: DailyTaskTrackerScreen());
+      case '/renovation-ops':
+        return const AuthGate(child: RenovationOpsScreen());
+      case '/dossiers':
+        return const AuthGate(child: DossierAssistantScreen());
+      default:
+        return const AuthGate(child: HomeScreen());
+    }
+  }
 
   Widget _buildStartScreen(Uri location) {
     switch (resolveEntryPointDestination(
@@ -196,7 +192,49 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         '/settings': _protectedRoute((context) => const SettingsScreen()),
         '/onboarding': _protectedRoute((context) => const OnboardingScreen()),
       },
+      onGenerateRoute: _buildDynamicRoute,
     );
+  }
+
+  Route<dynamic>? _buildDynamicRoute(RouteSettings settings) {
+    final name = settings.name;
+    if (name == null || name.isEmpty) {
+      return null;
+    }
+
+    final uri = Uri.parse(name);
+    final segments = uri.pathSegments;
+
+    if (segments.length == 2 && segments[0] == 'leads') {
+      final leadId = Uri.decodeComponent(segments[1]);
+      return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => _LeadDetailRouteScreen(leadId: leadId),
+      );
+    }
+
+    if (segments.length == 2 && segments[0] == 'visits' && segments[1] == 'new') {
+      final leadId = uri.queryParameters['leadId'];
+      final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
+      return MaterialPageRoute<void>(
+        settings: settings,
+        fullscreenDialog: true,
+        builder: (_) => VisitFormScreen(
+          initialLeadId: leadId,
+          initialDate: date,
+        ),
+      );
+    }
+
+    if (segments.length == 2 && segments[0] == 'visits' && segments[1] != 'new') {
+      final visitId = Uri.decodeComponent(segments[1]);
+      return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => _VisitDetailRouteScreen(visitId: visitId),
+      );
+    }
+
+    return null;
   }
 
   ThemeData _buildLightTheme() {
@@ -257,6 +295,85 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         color: Color(0xFF334155),
         thickness: 1,
       ),
+    );
+  }
+}
+
+class _LeadDetailRouteScreen extends StatelessWidget {
+  const _LeadDetailRouteScreen({required this.leadId});
+
+  final String leadId;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: LeadService.instance.getLead(leadId, forceRefresh: true),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Détails du prospect')),
+            body: Center(
+              child: Text('Impossible de charger le prospect: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        final lead = snapshot.data;
+        if (lead == null) {
+          return const Scaffold(
+            body: Center(child: Text('Prospect introuvable')),
+          );
+        }
+
+        return LeadDetailScreen(
+          lead: lead,
+          onStageChanged: () {},
+        );
+      },
+    );
+  }
+}
+
+class _VisitDetailRouteScreen extends StatelessWidget {
+  const _VisitDetailRouteScreen({required this.visitId});
+
+  final String visitId;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: VisitService.instance.getVisit(visitId, forceRefresh: true),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Détails de la visite')),
+            body: Center(
+              child: Text('Impossible de charger la visite: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        final visit = snapshot.data;
+        if (visit == null) {
+          return const Scaffold(
+            body: Center(child: Text('Visite introuvable')),
+          );
+        }
+
+        return VisitDetailScreen(visit: visit);
+      },
     );
   }
 }
