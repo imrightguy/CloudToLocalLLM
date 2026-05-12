@@ -1,6 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import '../models.dart';
+import '../services/api_service.dart';
+import '../services/lease_service.dart';
+import '../services/maintenance_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
@@ -18,120 +23,249 @@ class RenovationOpsScreen extends StatefulWidget {
 }
 
 class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
-  static const List<_RenovationApartment> _apartments = [
-    _RenovationApartment(
-      id: 'A-304',
-      unitLabel: '304',
-      buildingName: 'Place Du Parc',
-      tenantName: 'Sophie Tremblay',
-      tenantPhone: '514 555-1020',
-      leaseId: 'lease-304-a',
-      phase: _RenovationPhase.active,
-      readiness: '71 % prêt',
-      taskCount: 8,
-      doneCount: 5,
-      blockerCount: 1,
-      nextStep: 'Peinture finale et inspection cuisine',
-      updatedAt: 'Aujourd’hui • 14 h 20',
-      blockerNote: 'Attente d’un luminaire pour le salon',
-      tasks: [
-        _RenovationTask(title: 'Retirer les anciens luminaires', status: _TaskStatus.done),
-        _RenovationTask(title: 'Reboucher les trous', status: _TaskStatus.done),
-        _RenovationTask(title: 'Peinture des murs', status: _TaskStatus.inProgress),
-        _RenovationTask(title: 'Installer les fixtures finales', status: _TaskStatus.blocked),
-      ],
-    ),
-    _RenovationApartment(
-      id: 'B-212',
-      unitLabel: '212',
-      buildingName: 'Le Cardinal',
-      tenantName: 'Marc Gagnon',
-      tenantPhone: '438 555-2140',
-      leaseId: 'lease-212-b',
-      phase: _RenovationPhase.blocked,
-      readiness: '43 % prêt',
-      taskCount: 6,
-      doneCount: 2,
-      blockerCount: 2,
-      nextStep: 'Réception partielle après la livraison',
-      updatedAt: 'Aujourd’hui • 09 h 05',
-      blockerNote: 'Tuiles de salle de bain et hotte manquantes',
-      tasks: [
-        _RenovationTask(title: 'Démo salle de bain', status: _TaskStatus.done),
-        _RenovationTask(title: 'Commander les tuiles', status: _TaskStatus.blocked),
-        _RenovationTask(title: 'Installer la hotte', status: _TaskStatus.todo),
-      ],
-    ),
-    _RenovationApartment(
-      id: 'C-118',
-      unitLabel: '118',
-      buildingName: 'Ateliers Nord',
-      tenantName: 'Karine Leduc',
-      tenantPhone: '450 555-7812',
-      leaseId: 'lease-118-c',
-      phase: _RenovationPhase.ready,
-      readiness: 'Prêt pour Leasing',
-      taskCount: 4,
-      doneCount: 4,
-      blockerCount: 0,
-      nextStep: 'Transmettre le statut de readiness au module Leasing',
-      updatedAt: 'Hier • 18 h 40',
-      blockerNote: '',
-      tasks: [
-        _RenovationTask(title: 'Nettoyage final', status: _TaskStatus.done),
-        _RenovationTask(title: 'Photos de clôture', status: _TaskStatus.done),
-        _RenovationTask(title: 'Validation readiness', status: _TaskStatus.done),
-      ],
-    ),
-  ];
+  bool _isLoading = true;
+  String? _errorMessage;
+  _RenovationOpsSummary _summary = const _RenovationOpsSummary(
+    activeApartments: 0,
+    blockedCount: 0,
+    completedTasks: 0,
+    readyForLeasing: 0,
+  );
+  List<_RenovationApartment> _apartments = const [];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ImmoAppBar(title: 'Rénovation Ops'),
-      body: RefreshIndicator(
-        onRefresh: () async {},
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ModuleBoundaryCard(
-                onOpenLeasingBridge: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Leasing ne consomme que le statut de readiness.'),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: AppSpacing.lg),
+  void initState() {
+    super.initState();
+    _loadDashboard();
+  }
+
+  Future<void> _loadDashboard() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final dashboard = await MaintenanceService.instance.getCommandCenter(limit: 12);
+      final apartments = await _buildApartments(dashboard.backlog);
+      final summary = _RenovationOpsSummary(
+        activeApartments: dashboard.summary.renovationCount,
+        blockedCount: dashboard.summary.blockedCount,
+        completedTasks: apartments.fold<int>(0, (sum, apartment) => sum + apartment.doneCount),
+        readyForLeasing: dashboard.summary.readyCount,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _summary = summary;
+        _apartments = apartments;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _summary = const _RenovationOpsSummary(
+          activeApartments: 0,
+          blockedCount: 0,
+          completedTasks: 0,
+          readyForLeasing: 0,
+        );
+        _apartments = const [];
+        _errorMessage = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<List<_RenovationApartment>> _buildApartments(List<MaintenanceCommandCenterBacklogItem> backlog) async {
+    return Future.wait(backlog.map((item) async {
+      List<_RenovationTask> renovationTasks = const [];
+      try {
+        final renovationResponse = await ApiService.instance.get('/renovations/${item.id}');
+        final renovationData = (renovationResponse['data'] as Map<String, dynamic>?) ?? const {};
+        renovationTasks = (renovationData['tasks'] as List<dynamic>? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .map((task) => _RenovationTask(
+                  title: task['title'] as String? ?? 'Tâche',
+                  status: _TaskStatus.fromBackend(task['status'] as String? ?? 'todo'),
+                ))
+            .toList();
+      } catch (_) {
+        renovationTasks = const [];
+      }
+
+      LeaseItem? lease;
+      try {
+        lease = await LeaseService.instance.getLeaseByUnit(item.unitId);
+      } catch (_) {
+        lease = null;
+      }
+      return _RenovationApartment(
+        id: item.id,
+        unitId: item.unitId,
+        unitLabel: item.unitLabel,
+        buildingName: item.buildingName,
+        tenantName: _tenantNameFor(lease),
+        tenantPhone: _tenantPhoneFor(item, lease),
+        leaseId: lease?.id ?? '',
+        phase: _RenovationPhase.fromBackend(item.phase),
+        readiness: item.readiness,
+        taskCount: item.taskCount,
+        doneCount: item.doneCount,
+        blockerCount: item.blockerCount,
+        nextStep: item.nextStep,
+        updatedAt: _formatRenovationTimestamp(item.updatedAt),
+        blockerNote: item.blockerNote,
+        tasks: renovationTasks,
+      );
+    }));
+  }
+
+  String _tenantNameFor(LeaseItem? lease) {
+    final leaseName = lease?.tenantName?.trim();
+    if (leaseName != null && leaseName.isNotEmpty) {
+      return leaseName;
+    }
+    return 'Locataire inconnu';
+  }
+
+  String _tenantPhoneFor(MaintenanceCommandCenterBacklogItem item, LeaseItem? lease) {
+    final leasePhone = lease?.tenantPhone?.trim();
+    if (leasePhone != null && leasePhone.isNotEmpty) {
+      return leasePhone;
+    }
+    final fallback = item.tenantPhone?.trim();
+    if (fallback != null && fallback.isNotEmpty) {
+      return fallback;
+    }
+    return '—';
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: SizedBox(
+        width: 28,
+        height: 28,
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.inbox_outlined, color: AppColors.textMuted),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Aucun logement de rénovation pour le moment',
+              style: AppTypography.bodyBold.copyWith(color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Le tableau de bord est connecté, mais aucun chantier actif n’est revenu du backend.',
+              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            OutlinedButton.icon(
+              onPressed: _loadDashboard,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Rafraîchir'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.error),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Impossible de charger le tableau de bord de rénovation',
+              style: AppTypography.bodyBold.copyWith(color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              _errorMessage ?? 'Erreur inconnue',
+              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ElevatedButton.icon(
+              onPressed: _loadDashboard,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Réessayer'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: _loadDashboard,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ModuleBoundaryCard(
+              onOpenLeasingBridge: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Leasing ne consomme que le statut de readiness.'),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (_errorMessage != null) ...[
+              _buildErrorState(),
+            ] else if (_apartments.isEmpty) ...[
+              _buildEmptyState(),
+            ] else ...[
               Wrap(
                 spacing: AppSpacing.md,
                 runSpacing: AppSpacing.md,
-                children: const [
+                children: [
                   _SummaryCard(
                     label: 'Appartements actifs',
-                    value: '2',
+                    value: _summary.activeApartments.toString(),
                     icon: Icons.construction_outlined,
                     accentColor: AppColors.primary,
                   ),
                   _SummaryCard(
                     label: 'Bloqueurs ouverts',
-                    value: '3',
+                    value: _summary.blockedCount.toString(),
                     icon: Icons.warning_amber_rounded,
                     accentColor: AppColors.warning,
                   ),
                   _SummaryCard(
                     label: 'Tâches terminées',
-                    value: '11',
+                    value: _summary.completedTasks.toString(),
                     icon: Icons.task_alt_rounded,
                     accentColor: AppColors.success,
                   ),
                   _SummaryCard(
                     label: 'Prêts pour Leasing',
-                    value: '1',
+                    value: _summary.readyForLeasing.toString(),
                     icon: Icons.verified_rounded,
                     accentColor: AppColors.info,
                   ),
@@ -161,44 +295,61 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                'Modèles de travaux',
-                style: AppTypography.sectionHeader.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Sauvegardez des gabarits réutilisables avec matériaux, notes, favoris et liens produits manuels pour accélérer les commandes.',
-                style: AppTypography.body.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const RenovationJobTemplatePanel(),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                'Flux de travail',
-                style: AppTypography.sectionHeader.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              const _WorkflowLane(),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                'Hooks prévus',
-                style: AppTypography.sectionHeader.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              const _HookPanel(),
             ],
-          ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Modèles de travaux',
+              style: AppTypography.sectionHeader.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Sauvegardez des gabarits réutilisables avec matériaux, notes, favoris et liens produits manuels pour accélérer les commandes.',
+              style: AppTypography.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const RenovationJobTemplatePanel(),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Flux de travail',
+              style: AppTypography.sectionHeader.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const _WorkflowLane(),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Hooks prévus',
+              style: AppTypography.sectionHeader.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            const _HookPanel(),
+          ],
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: ImmoAppBar(
+        title: 'Rénovation Ops',
+        actions: [
+          IconButton(
+            tooltip: 'Rafraîchir',
+            onPressed: _loadDashboard,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: _isLoading ? _buildLoadingState() : _buildContent(context),
     );
   }
 
@@ -219,12 +370,12 @@ class _RenovationOpsScreenState extends State<RenovationOpsScreen> {
             navigator.push(
               MaterialPageRoute(
                 builder: (_) => TenantChecklistOperatorScreen(
-                  unitId: apartment.id,
+                  unitId: apartment.unitId,
                   unitLabel: apartment.unitLabel,
                   buildingName: apartment.buildingName,
-                  leaseId: apartment.leaseId,
-                  tenantName: apartment.tenantName,
-                  tenantPhone: apartment.tenantPhone,
+                  leaseId: apartment.leaseId.isEmpty ? null : apartment.leaseId,
+                  tenantName: apartment.tenantName == 'Locataire inconnu' ? null : apartment.tenantName,
+                  tenantPhone: apartment.tenantPhone == '—' ? null : apartment.tenantPhone,
                   checklistType: apartment.phase == _RenovationPhase.ready ? 'move_out' : 'move_in',
                 ),
               ),
@@ -448,7 +599,7 @@ class _ApartmentCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               LinearProgressIndicator(
-                value: apartment.doneCount / apartment.taskCount,
+                value: apartment.taskCount == 0 ? 0 : apartment.doneCount / apartment.taskCount,
                 backgroundColor: AppColors.surfaceVariant,
                 valueColor: AlwaysStoppedAnimation<Color>(apartment.phase.color),
                 minHeight: 8,
@@ -936,6 +1087,17 @@ enum _RenovationPhase {
   final String label;
   final Color color;
   final IconData icon;
+
+  static _RenovationPhase fromBackend(String value) {
+    switch (value) {
+      case 'ready':
+        return ready;
+      case 'blocked':
+        return blocked;
+      default:
+        return active;
+    }
+  }
 }
 
 enum _TaskStatus {
@@ -949,11 +1111,52 @@ enum _TaskStatus {
   final String label;
   final Color color;
   final IconData icon;
+
+  static _TaskStatus fromBackend(String value) {
+    switch (value) {
+      case 'in_progress':
+        return inProgress;
+      case 'blocked':
+        return blocked;
+      case 'done':
+        return done;
+      default:
+        return todo;
+    }
+  }
+}
+
+String _formatRenovationTimestamp(DateTime? value) {
+  if (value == null) {
+    return '—';
+  }
+  return DateFormat('d MMM • HH:mm', 'fr').format(value.toLocal());
+}
+
+class _RenovationOpsSummary {
+  const _RenovationOpsSummary({
+    required this.activeApartments,
+    required this.blockedCount,
+    required this.completedTasks,
+    required this.readyForLeasing,
+  });
+
+  final int activeApartments;
+  final int blockedCount;
+  final int completedTasks;
+  final int readyForLeasing;
+
+  bool get isEmpty =>
+      activeApartments == 0 &&
+      blockedCount == 0 &&
+      completedTasks == 0 &&
+      readyForLeasing == 0;
 }
 
 class _RenovationApartment {
   const _RenovationApartment({
     required this.id,
+    required this.unitId,
     required this.unitLabel,
     required this.buildingName,
     required this.tenantName,
@@ -971,6 +1174,7 @@ class _RenovationApartment {
   });
 
   final String id;
+  final String unitId;
   final String unitLabel;
   final String buildingName;
   final String tenantName;
