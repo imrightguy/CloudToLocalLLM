@@ -333,7 +333,7 @@ jobs:
 
   deploy:
     needs: [ai_change_analysis, build_images]
-    if: always() && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
+    if: always() && inputs.release_version == '' && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
