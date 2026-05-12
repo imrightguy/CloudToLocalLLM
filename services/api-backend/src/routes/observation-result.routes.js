@@ -1,6 +1,6 @@
 const express = require('express');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const controller = require('../controllers/observation-result.controller');
 const { authenticateToken } = require('../auth/jwt.middleware');
 const { asyncHandler } = require('../utils/apiResponse');
