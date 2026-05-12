@@ -35,7 +35,7 @@ jobs:
           APPIMAGE_NAME="cloudtolocalllm-${VERSION}-x86_64.AppImage"
           curl -fsSL -o /tmp/${APPIMAGE_NAME}.sha256 "https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${APPIMAGE_NAME}.sha256"
           CHECKSUM=$(awk '{print $1}' /tmp/${APPIMAGE_NAME}.sha256)
-          AUR_VERSION_OVERRIDE="$VERSION" AUR_APPIMAGE_SHA256="$CHECKSUM" ./scripts/packaging/update_aur_pkgbuild.sh
+          AUR_VERSION_OVERRIDE="$VERSION" AUR_APPIMAGE_SHA256="$CHECKSUM" bash ./scripts/packaging/update_aur_pkgbuild.sh
 
       - name: Push to AUR
         run: |
