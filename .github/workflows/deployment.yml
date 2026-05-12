@@ -10,6 +10,11 @@ on:
         required: false
         default: false
         type: boolean
+      release_version:
+        description: "Desktop release version to publish (for example 10.1.202)"
+        required: false
+        default: ""
+        type: string
       deep_reset:
         description: "Perform Nuclear Reset (Stop stack and prune everything)"
         required: false
@@ -55,6 +60,7 @@ jobs:
         id: analyze
         run: |
           echo "Executing git-based analysis of changes..."
+          RELEASE_VERSION="${{ inputs.release_version }}"
           if [ "${{ github.event_name }}" == "push" ]; then
             DIFF_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} || git diff --name-only HEAD^ HEAD)
           else
@@ -97,7 +103,11 @@ jobs:
           BUMP="false"
           NEW_VERSION=$(jq -r '.version' assets/version.json || echo "0.0.0")
 
-          if [ -n "$COMPONENTS_CLEAN" ]; then
+          if [ -n "$RELEASE_VERSION" ]; then
+            COMPONENTS_CLEAN="linux,windows"
+            BUMP="true"
+            NEW_VERSION="$RELEASE_VERSION"
+          elif [ -n "$COMPONENTS_CLEAN" ]; then
             BUMP="true"
             IFS='.' read -r -a v <<< "$NEW_VERSION"
             v[2]=$((v[2] + 1))
@@ -179,7 +189,7 @@ jobs:
 
   publish_desktop_releases:
     needs: [ai_change_analysis, build_desktop_apps]
-    if: always() && needs.ai_change_analysis.outputs.bump_needed == 'true' && needs.build_desktop_apps.result == 'success'
+    if: always() && (needs.ai_change_analysis.outputs.bump_needed == 'true' || inputs.release_version != '') && needs.build_desktop_apps.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -247,11 +257,17 @@ jobs:
           cd ../../../../../
 
       - name: Create GitHub Release
+        id: create_release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/linux/*,dist/windows/*,dist/aur/*"
           tag: "v${{ needs.ai_change_analysis.outputs.new_version }}"
           name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
+          artifactErrorsFailBuild: true
+          allowUpdates: true
+          removeArtifacts: true
+          immutableCreate: true
+          makeLatest: true
           body: |
             ## Quick Install
 
@@ -277,17 +293,44 @@ jobs:
             ---
 
             Automated desktop builds for v${{ needs.ai_change_analysis.outputs.new_version }}
-          allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify published release assets
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
+          APPIMAGE="cloudtolocalllm-${VERSION}-x86_64.AppImage"
+          APPIMAGE_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${APPIMAGE}"
+          SHA_URL="${APPIMAGE_URL}.sha256"
+          DEB_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/cloudtolocalllm_${VERSION}_amd64.deb"
+          TARBALL_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Linux-x64.tar.gz"
+          WINDOWS_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Windows-x64.zip"
+
+          curl -fsSL -o /tmp/${APPIMAGE} "${APPIMAGE_URL}"
+          curl -fsSL -o /tmp/${APPIMAGE}.sha256 "${SHA_URL}"
+          ACTUAL_SHA=$(sha256sum /tmp/${APPIMAGE} | awk '{print $1}')
+          EXPECTED_SHA=$(awk '{print $1}' /tmp/${APPIMAGE}.sha256)
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+
+          for url in "$DEB_URL" "$TARBALL_URL" "$WINDOWS_URL"; do
+            curl -fsSI "$url" >/dev/null
+          done
 
       - name: Publish to AUR
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
+          set -euo pipefail
           if [ -z "$AUR_SSH_PRIVATE_KEY" ]; then
             echo "AUR_SSH_PRIVATE_KEY not set, skipping AUR publication"
             exit 0
           fi
+
+          VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
+          APPIMAGE_NAME="cloudtolocalllm-${VERSION}-x86_64.AppImage"
+          curl -fsSL -o /tmp/${APPIMAGE_NAME}.sha256 "https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${APPIMAGE_NAME}.sha256"
+          RELEASE_SHA=$(awk '{print $1}' /tmp/${APPIMAGE_NAME}.sha256)
+          AUR_VERSION_OVERRIDE="$VERSION" AUR_APPIMAGE_SHA256="$RELEASE_SHA" ./scripts/packaging/update_aur_pkgbuild.sh
 
           mkdir -p ~/.ssh
           echo "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa

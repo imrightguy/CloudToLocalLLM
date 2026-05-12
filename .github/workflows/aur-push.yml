@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release'
+        description: 'Version to publish to AUR'
         required: true
         default: '10.1.200'
 
@@ -12,51 +12,43 @@ jobs:
   aur-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout aur-package
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          repository: CloudToLocalLLM-online/CloudToLocalLLM
-          path: aur-package
-          ref: main
-          sparse-checkout: |
-            aur-package
-          sparse-checkout-cone-mode: false
 
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/id_ed
-          echo "${{ secrets.AUR_SSH_PUB }}" > ~/.ssh/id_ed.pub
-          chmod 600 ~/.ssh/id_ed
-          chmod 644 ~/.ssh/id_ed.pub
-          
-          # Add known hosts
-          echo "${{ secrets.AUR_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan aur.archlinux.org > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-          
-          # Verify SSH key
-          echo "=== SSH Key ==="
-          head -1 ~/.ssh/id_ed
-          echo "=== SSH Pub Key ==="
-          cat ~/.ssh/id_ed.pub
-          echo "=== Known Hosts ==="
-          cat ~/.ssh/known_hosts
 
       - name: Configure git
         run: |
-          git config --global user.email "christopher.maltais@gmail.com"
-          git config --global user.name "Christopher Maltais"
+          git config --global user.email 'ci@cloudtolocalllm.online'
+          git config --global user.name 'CloudToLocalLLM CI'
 
-      - name: Test SSH connection
+      - name: Prepare PKGBUILD from published release
         run: |
-          echo "=== Testing SSH ==="
-          ssh -T git@aur.archlinux.org 2>&1 || true
-          
+          set -euo pipefail
+          VERSION='${{ inputs.version }}'
+          APPIMAGE_NAME="cloudtolocalllm-${VERSION}-x86_64.AppImage"
+          curl -fsSL -o /tmp/${APPIMAGE_NAME}.sha256 "https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${APPIMAGE_NAME}.sha256"
+          CHECKSUM=$(awk '{print $1}' /tmp/${APPIMAGE_NAME}.sha256)
+          AUR_VERSION_OVERRIDE="$VERSION" AUR_APPIMAGE_SHA256="$CHECKSUM" ./scripts/packaging/update_aur_pkgbuild.sh
+
       - name: Push to AUR
         run: |
-          cd aur-package
-          git remote add aur git@aur.archlinux.org:cloudtolocalllm.git || true
-          echo "=== Pushing to AUR ==="
-          git remote -v
-          # AUR uses main branch
-          git push aur main -v
+          set -euo pipefail
+          rm -rf /tmp/aur-repo
+          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
+          cd /tmp/aur-repo
+          cp "$GITHUB_WORKSPACE/dist/aur/PKGBUILD" .
+          cp "$GITHUB_WORKSPACE/dist/aur/.SRCINFO" .
+          git add PKGBUILD .SRCINFO
+          if git diff --cached --quiet; then
+            echo 'No AUR changes to push'
+            exit 0
+          fi
+          git commit -m "Update to v${{ inputs.version }}"
+          git push origin master

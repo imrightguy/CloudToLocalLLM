@@ -3,15 +3,14 @@
 # CloudToLocalLLM AUR PKGBUILD Update Script
 # Updates PKGBUILD with current version and checksum for AppImage
 
-set -e
+set -euo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PKGBUILD_TEMPLATE="$PROJECT_ROOT/build-tools/packaging/aur/PKGBUILD"
 AUR_OUTPUT_DIR="$PROJECT_ROOT/dist/aur"
-VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)
-GITHUB_REPO="rightguy/CloudToLocalLLM"
+VERSION="${AUR_VERSION_OVERRIDE:-$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)}"
 
 # Functions
 print_status() { echo -e "\033[0;34m[INFO]\033[0m $1"; }
@@ -32,9 +31,14 @@ cp "$PKGBUILD_TEMPLATE" "$AUR_OUTPUT_DIR/PKGBUILD"
 # Update version
 sed -i "s/pkgver=VERSION/pkgver=$VERSION/" "$AUR_OUTPUT_DIR/PKGBUILD"
 
-# Calculate checksum if AppImage exists locally
+# Calculate checksum from explicit override first, then local AppImage if present
 APPIMAGE="$PROJECT_ROOT/dist/linux/cloudtolocalllm-${VERSION}-x86_64.AppImage"
-if [ -f "$APPIMAGE" ]; then
+CHECKSUM="${AUR_APPIMAGE_SHA256:-}"
+if [ -n "$CHECKSUM" ]; then
+    print_status "Using provided AppImage checksum from AUR_APPIMAGE_SHA256..."
+    sed -i "s/sha256sums=('SKIP')/sha256sums=('$CHECKSUM')/" "$AUR_OUTPUT_DIR/PKGBUILD"
+    print_success "Updated PKGBUILD with provided checksum: $CHECKSUM"
+elif [ -f "$APPIMAGE" ]; then
     print_status "Calculating checksum for $APPIMAGE..."
     CHECKSUM=$(sha256sum "$APPIMAGE" | cut -d' ' -f1)
     sed -i "s/sha256sums=('SKIP')/sha256sums=('$CHECKSUM')/" "$AUR_OUTPUT_DIR/PKGBUILD"

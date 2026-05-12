@@ -25,14 +25,9 @@ log_info "Starting local AUR package test..."
 log_info "Building Flutter Linux release..."
 flutter build linux --release
 
-# 2. Package into tarball (standard format)
-log_info "Packaging Linux bundle..."
-mkdir -p "$DIST_DIR"
-STAGING_DIR=$(mktemp -d)
-mkdir -p "$STAGING_DIR/CloudToLocalLLM"
-cp -r "$PROJECT_ROOT/build/linux/x64/release/bundle/"* "$STAGING_DIR/CloudToLocalLLM/"
-tar -czf "$DIST_DIR/CloudToLocalLLM-Linux-x64.tar.gz" -C "$STAGING_DIR" CloudToLocalLLM
-rm -rf "$STAGING_DIR"
+# 2. Package AppImage for AUR
+log_info "Building AppImage package..."
+"$PROJECT_ROOT/scripts/packaging/build_appimage.sh"
 cd "$PROJECT_ROOT"
 
 # 3. Prepare AUR test directory
@@ -43,26 +38,22 @@ cp "$PROJECT_ROOT/build-tools/packaging/aur/PKGBUILD" "$AUR_TEST_DIR/"
 
 # 4. Modify PKGBUILD for local testing
 VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | sed 's/version: *//g' | cut -d'+' -f1)
-CHECKSUM=$(sha256sum "$DIST_DIR/CloudToLocalLLM-Linux-x64.tar.gz" | cut -d' ' -f1)
+APPIMAGE_PATH="$DIST_DIR/cloudtolocalllm-${VERSION}-x86_64.AppImage"
+CHECKSUM=$(sha256sum "$APPIMAGE_PATH" | cut -d' ' -f1)
 
 log_info "Updating PKGBUILD with local version ($VERSION) and checksum..."
 sed -i "s/pkgver=VERSION/pkgver=$VERSION/" "$AUR_TEST_DIR/PKGBUILD"
-sed -i "s|source=(.*)|source=(\"local://CloudToLocalLLM-Linux-x64.tar.gz\")|" "$AUR_TEST_DIR/PKGBUILD"
+sed -i "s|source=(.*)|source=(\"cloudtolocalllm-${VERSION}-x86_64.AppImage\")|" "$AUR_TEST_DIR/PKGBUILD"
 sed -i "s/sha256sums=(.*)/sha256sums=('$CHECKSUM')/" "$AUR_TEST_DIR/PKGBUILD"
 
-# Link the local tarball so makepkg can find it
-ln -sf "$DIST_DIR/CloudToLocalLLM-Linux-x64.tar.gz" "$AUR_TEST_DIR/CloudToLocalLLM-Linux-x64.tar.gz"
+# Link the local AppImage so makepkg can find it
+ln -sf "$APPIMAGE_PATH" "$AUR_TEST_DIR/cloudtolocalllm-${VERSION}-x86_64.AppImage"
 
 # 5. Build and install the package
 log_info "Running makepkg -si..."
 cd "$AUR_TEST_DIR"
 
 # Note: We use --noconfirm for automation.
-# We also use a custom PROTOCOL handler or just tell makepkg it's local
-# Actually, if the filename is in the source array and present in the dir, it works.
-# But we need to remove the protocol to avoid it trying to download.
-sed -i "s|source=(\"local://|source=(\"|" "$AUR_TEST_DIR/PKGBUILD"
-
 makepkg -si --noconfirm
 
 log_success "AUR package installed successfully!"
