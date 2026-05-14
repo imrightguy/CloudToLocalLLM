@@ -26,7 +26,7 @@ jobs:
           SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
         run: |
           set -euo pipefail
-          SSH_KEY="${VM_SSH_PRIVATE_KEY:-${SWARM_SSH_KEY:-}}"
+          SSH_KEY="${SWARM_SSH_KEY:-${VM_SSH_PRIVATE_KEY:-}}"
           if [ -z "$SSH_KEY" ]; then
             echo "No SSH key secret is available" >&2
             exit 1
