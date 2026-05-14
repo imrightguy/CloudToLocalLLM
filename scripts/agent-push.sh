@@ -167,4 +167,7 @@ if [[ $dry_run -eq 0 ]]; then
   git push -u origin "$current_branch"
 fi
 
+echo '==> Branch pushed. Next step: open a PR and hand off to DevOps for merge/release.'
+echo "==> Suggested command: scripts/agent-open-pr.sh --title \"$message\" --body \"Verification:\n- <exact commands>\n\nScope:\n- <changed files>\n\nDevOps notes:\n- <merge/deploy concerns>\""
+
 echo '==> Done'

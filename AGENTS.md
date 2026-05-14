@@ -8,6 +8,18 @@ Quebec leasing automation engine — Node.js REST API backend for managing build
 
 If an issue gives concrete steps, follow those first and do not restart generic discovery (issue re-listing, GOAL/docs rereads, queue-health preflights, or skill-loading chatter) unless the issue explicitly asks for it or a missing prerequisite blocks execution. For issue-scoped replacement runs, the issue description plus the latest authoritative issue comments are the source of truth and must override broader repo guidance, stale continuity, and prior run trails when they conflict. If the issue already names exact credentials, URLs, IDs, or live API results, treat them as final and do not re-derive or question them unless the issue explicitly says they are missing or stale.
 
+## Agent execution workflow
+
+When acting as an implementation agent in this repo, follow this exact path:
+1. create or switch to your own `agent/*` branch
+2. change only the files for your assigned slice
+3. run targeted verification for that slice
+4. push your `agent/*` branch
+5. open a PR
+6. stop and hand off to DevOps for merge/release
+
+Do not push implementation work directly to `main`. Do not self-merge to `main`. Do not treat local verification as release authority.
+
 ## Commands
 
 ### API Backend (`services/api-backend/`)
