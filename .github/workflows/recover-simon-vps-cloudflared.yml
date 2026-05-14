@@ -64,8 +64,8 @@ jobs:
           remote_log="$(mktemp)"
           trap 'rm -f "$token_file" "$remote_log"' EXIT
           printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" > "$token_file"
-          if ! scp -q "$token_file" simon-vps:/tmp/cloudflared.token 2>"$remote_log"; then
-            echo "::error title=Cloudflared recovery::scp failed: $(tail -n 20 "$remote_log" | tr '\n' ' ')"
+          if ! ssh simon-vps 'cat > /tmp/cloudflared.token' <"$token_file" 2>"$remote_log"; then
+            echo "::error title=Cloudflared recovery::token transfer failed: $(tail -n 20 "$remote_log" | tr '\n' ' ')"
             exit 1
           fi
 
