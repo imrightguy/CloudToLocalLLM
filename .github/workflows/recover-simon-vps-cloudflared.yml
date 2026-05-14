@@ -13,6 +13,9 @@ on:
         required: false
         default: root
         type: string
+  repository_dispatch:
+    types:
+      - recover_simon_vps_cloudflared
 
 permissions:
   contents: read
