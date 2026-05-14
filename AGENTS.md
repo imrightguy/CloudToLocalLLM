@@ -32,6 +32,13 @@ docker compose up -d           # full stack (api + postgres + flutter-web)
 docker compose -f docker-compose.prod.yml up -d  # production
 ```
 
+### Agent commit/push helper
+
+```
+scripts/agent-push.sh --message "ai(AgentName): change summary" --files path/to/file [more/files]
+scripts/agent-push.sh --message "ai(AgentName): change summary" --files path/to/file --verify 'exact test command'
+```
+
 - Node.js >=18, CommonJS (`require`)
 - Database: PostgreSQL via Drizzle ORM
 - Auth: JWT with refresh tokens (bcryptjs hashing)
@@ -104,6 +111,7 @@ docker compose -f docker-compose.prod.yml up -d  # production
 - **JS files**: CommonJS (`require`), `kebab-case.js`
 - **Tests**: `*.test.js` in `__tests__/` inside the service
 - **Commits**: conventional commits; automated commits use `ai(AgentName): description`
+- **Agent push rule**: when an agent changes code or workflow files and the user expects the work to land, the agent must verify the changed slice, commit only the intended files, and push the current branch. Do not leave verified code stranded in the local working tree. Use `scripts/agent-push.sh` with an explicit file list so dirty unrelated files do not get swept into the commit.
 - **No comments** in code unless asked
 - **Language**: Quebec French for user-facing strings, English for code
 
