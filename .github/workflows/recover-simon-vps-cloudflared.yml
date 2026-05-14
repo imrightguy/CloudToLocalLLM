@@ -72,40 +72,40 @@ jobs:
           install -d -m 755 /etc/systemd/system
 
           cat > /etc/cloudflared/cloudtolocalllm.yml <<EOF
-tunnel: ${TUNNEL_ID}
-ingress:
-  - hostname: app.cloudtolocalllm.online
-    service: http://127.0.0.1:3100
-  - hostname: api.cloudtolocalllm.online
-    service: http://127.0.0.1:3100
-  - service: http_status:404
-EOF
+          tunnel: ${TUNNEL_ID}
+          ingress:
+            - hostname: app.cloudtolocalllm.online
+              service: http://127.0.0.1:3100
+            - hostname: api.cloudtolocalllm.online
+              service: http://127.0.0.1:3100
+            - service: http_status:404
+          EOF
 
           install -m 600 /tmp/cloudflared.token /etc/cloudflared/${TUNNEL_ID}.token
           rm -f /tmp/cloudflared.token
 
           cat > /etc/systemd/system/cloudflared-cloudtolocalllm.service <<EOF
-[Unit]
-Description=cloudflared CloudToLocalLLM tunnel
-After=network-online.target
-Wants=network-online.target
+          [Unit]
+          Description=cloudflared CloudToLocalLLM tunnel
+          After=network-online.target
+          Wants=network-online.target
 
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/cloudflared --config /etc/cloudflared/cloudtolocalllm.yml tunnel run --token-file /etc/cloudflared/${TUNNEL_ID}.token
-Restart=always
-RestartSec=5
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/cloudflared --config /etc/cloudflared/cloudtolocalllm.yml tunnel run --token-file /etc/cloudflared/${TUNNEL_ID}.token
+          Restart=always
+          RestartSec=5
 
-[Install]
-WantedBy=multi-user.target
-EOF
+          [Install]
+          WantedBy=multi-user.target
+          EOF
 
           systemctl daemon-reload
           systemctl enable --now cloudflared-cloudtolocalllm.service
           systemctl is-active --quiet cloudflared-cloudtolocalllm.service
           test -f /etc/cloudflared/${TUNNEL_ID}.token
           test -f /etc/cloudflared/cloudtolocalllm.yml
-REMOTE
+          REMOTE
 
       - name: Verify
         run: |
