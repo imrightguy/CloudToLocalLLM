@@ -32,11 +32,12 @@ docker compose up -d           # full stack (api + postgres + flutter-web)
 docker compose -f docker-compose.prod.yml up -d  # production
 ```
 
-### Agent commit/push helper
+### Agent branch/push helpers
 
 ```
-scripts/agent-push.sh --message "ai(AgentName): change summary" --files path/to/file [more/files]
-scripts/agent-push.sh --message "ai(AgentName): change summary" --files path/to/file --verify 'exact test command'
+scripts/agent-push.sh --message "ai(AgentName): change summary" --branch agent/name-task --files path/to/file [more/files]
+scripts/agent-push.sh --message "ai(AgentName): change summary" --branch agent/name-task --files path/to/file --verify 'exact test command'
+scripts/agent-open-pr.sh --title "ai(AgentName): change summary" --body "verification + scope"
 ```
 
 - Node.js >=18, CommonJS (`require`)
@@ -111,7 +112,8 @@ scripts/agent-push.sh --message "ai(AgentName): change summary" --files path/to/
 - **JS files**: CommonJS (`require`), `kebab-case.js`
 - **Tests**: `*.test.js` in `__tests__/` inside the service
 - **Commits**: conventional commits; automated commits use `ai(AgentName): description`
-- **Agent push rule**: when an agent changes code or workflow files and the user expects the work to land, the agent must verify the changed slice, commit only the intended files, and push the current branch. Do not leave verified code stranded in the local working tree. Use `scripts/agent-push.sh` with an explicit file list so dirty unrelated files do not get swept into the commit.
+- **Agent branch rule**: agents do not land work on `main`. Each agent works on its own `agent/*` branch, verifies only its changed slice, pushes that branch, and opens a PR for DevOps review.
+- **Merge/release rule**: DevOps owns the merge to `main` and the release/deploy decision. Agents can push branches and open PRs; they do not self-merge verified work into `main`.
 - **No comments** in code unless asked
 - **Language**: Quebec French for user-facing strings, English for code
 

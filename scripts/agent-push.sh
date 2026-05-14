@@ -4,19 +4,21 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  scripts/agent-push.sh --message "ai(AgentName): change summary" --files <path> [<path> ...] [--verify '<command>'] [--dry-run]
+  scripts/agent-push.sh --message "ai(AgentName): change summary" --files <path> [<path> ...] [--verify '<command>'] [--branch agent/name-task] [--dry-run]
 
 Purpose:
-  Stage only the listed files, create one commit, and push the current branch to origin.
+  Create or switch to an agent branch, stage only the listed files, create one commit, and push that branch to origin.
 
 Examples:
   scripts/agent-push.sh \
     --message "ai(Codex): fix app entrypoint routing" \
+    --branch agent/codex-app-entrypoint \
     --files lib/main.dart lib/utils/entrypoint_policy.dart \
     --verify './scripts/flutter_with_cleanup.sh test test/main_start_screen_test.dart'
 
   scripts/agent-push.sh \
     --message "ai(Hermes): update deployment workflow" \
+    --branch agent/hermes-deploy-workflow \
     --files .github/workflows/deployment.yml AGENTS.md \
     --dry-run
 EOF
@@ -25,7 +27,11 @@ EOF
 message=''
 verify_cmd=''
 dry_run=0
+branch=''
+allow_protected_branch=0
+allow_non_agent_branch=0
 files=()
+protected_branches_regex='^(main|master|production|release)$'
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -38,6 +44,19 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || { echo 'Missing value for --verify' >&2; exit 1; }
       verify_cmd="$2"
       shift 2
+      ;;
+    --branch)
+      [[ $# -ge 2 ]] || { echo 'Missing value for --branch' >&2; exit 1; }
+      branch="$2"
+      shift 2
+      ;;
+    --allow-protected-branch)
+      allow_protected_branch=1
+      shift
+      ;;
+    --allow-non-agent-branch)
+      allow_non_agent_branch=1
+      shift
       ;;
     --files)
       shift
@@ -71,13 +90,36 @@ repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
 }
 cd "$repo_root"
 
-current_branch=$(git rev-parse --abbrev-ref HEAD)
-[[ "$current_branch" != "HEAD" ]] || { echo 'Detached HEAD is not supported.' >&2; exit 1; }
-
 git remote get-url origin >/dev/null 2>&1 || {
   echo 'Remote origin is not configured.' >&2
   exit 1
 }
+
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+[[ "$current_branch" != "HEAD" ]] || { echo 'Detached HEAD is not supported.' >&2; exit 1; }
+
+if [[ -n "$branch" && "$branch" != "$current_branch" ]]; then
+  if git show-ref --verify --quiet "refs/heads/$branch"; then
+    echo "==> Switching to existing branch $branch"
+    [[ $dry_run -eq 1 ]] || git switch "$branch"
+  else
+    echo "==> Creating branch $branch"
+    [[ $dry_run -eq 1 ]] || git switch -c "$branch"
+  fi
+  current_branch="$branch"
+fi
+
+if [[ $allow_protected_branch -eq 0 && "$current_branch" =~ $protected_branches_regex ]]; then
+  echo "Refusing to commit/push directly on protected branch: $current_branch" >&2
+  echo "Use --branch agent/<name-task> or pass --allow-protected-branch intentionally." >&2
+  exit 1
+fi
+
+if [[ $allow_non_agent_branch -eq 0 && ! "$current_branch" =~ ^agent/ ]]; then
+  echo "Refusing to push non-agent branch: $current_branch" >&2
+  echo 'Agent work must land on agent/* branches unless --allow-non-agent-branch is set.' >&2
+  exit 1
+fi
 
 for path in "${files[@]}"; do
   if [[ ! -e "$path" ]]; then
@@ -100,7 +142,7 @@ if [[ -n "$verify_cmd" ]]; then
   fi
 fi
 
-echo '==> Staging files'
+echo "==> Staging files on $current_branch"
 for path in "${files[@]}"; do
   echo "  $path"
   if [[ $dry_run -eq 0 ]]; then
@@ -122,7 +164,7 @@ fi
 
 echo "==> Push target: origin $current_branch"
 if [[ $dry_run -eq 0 ]]; then
-  git push origin "$current_branch"
+  git push -u origin "$current_branch"
 fi
 
 echo '==> Done'

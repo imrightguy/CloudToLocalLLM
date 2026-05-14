@@ -1,0 +1,28 @@
+name: Branch Discipline
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  branch-discipline:
+    name: Agent/DevOps branch policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate source branch naming
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$HEAD_REF" ]]; then
+            echo "Missing head ref on pull_request event." >&2
+            exit 1
+          fi
+
+          if [[ "$HEAD_REF" =~ ^agent/ ]] || [[ "$HEAD_REF" =~ ^devops/ ]]; then
+            echo "Accepted branch: $HEAD_REF"
+            exit 0
+          fi
+
+          echo "Pull requests into main must come from agent/* or devops/* branches. Got: $HEAD_REF" >&2
+          exit 1
