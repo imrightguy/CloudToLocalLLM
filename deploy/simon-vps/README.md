@@ -42,6 +42,8 @@ sudo CLOUDFLARE_TUNNEL_ID=62da6c19-947b-4bf6-acad-100a73de4e0d \
   ./deploy/simon-vps/install-cloudflared-cloudtolocalllm.sh
 sudo systemctl status cloudflared-cloudtolocalllm --no-pager -l
 sudo journalctl -u cloudflared-cloudtolocalllm -n 100 --no-pager
+
+The recovery workflow can also install the same token-backed Simon VPS service automatically from GitHub Actions secrets.
 ```
 
 ## Notes
