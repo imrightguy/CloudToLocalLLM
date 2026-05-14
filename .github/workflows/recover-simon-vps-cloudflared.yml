@@ -61,11 +61,15 @@ jobs:
           fi
 
           token_file="$(mktemp)"
-          trap 'rm -f "$token_file"' EXIT
+          remote_log="$(mktemp)"
+          trap 'rm -f "$token_file" "$remote_log"' EXIT
           printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" > "$token_file"
-          scp -q "$token_file" simon-vps:/tmp/cloudflared.token
+          if ! scp -q "$token_file" simon-vps:/tmp/cloudflared.token 2>"$remote_log"; then
+            echo "::error title=Cloudflared recovery::scp failed: $(tail -n 20 "$remote_log" | tr '\n' ' ')"
+            exit 1
+          fi
 
-          ssh simon-vps 'bash -s' <<'REMOTE'
+          if ! ssh simon-vps 'bash -s' >"$remote_log" 2>&1 <<'REMOTE'; then
           set -euo pipefail
           TUNNEL_ID="62da6c19-947b-4bf6-acad-100a73de4e0d"
           install -d -m 755 /etc/cloudflared
@@ -106,6 +110,9 @@ jobs:
           test -f /etc/cloudflared/${TUNNEL_ID}.token
           test -f /etc/cloudflared/cloudtolocalllm.yml
           REMOTE
+            echo "::error title=Cloudflared recovery::ssh failed: $(tail -n 20 "$remote_log" | tr '\n' ' ')"
+            exit 1
+          fi
 
       - name: Verify
         run: |
