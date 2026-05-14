@@ -13,12 +13,10 @@ on:
         description: Simon VPS host
         required: false
         default: 31.97.140.7
-        type: string
       user:
         description: SSH user
         required: false
         default: root
-        type: string
   repository_dispatch:
     types:
       - recover_simon_vps_cloudflared
