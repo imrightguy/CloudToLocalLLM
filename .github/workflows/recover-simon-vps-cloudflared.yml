@@ -29,6 +29,9 @@ permissions:
 jobs:
   install_cloudflared:
     runs-on: ubuntu-latest
+    env:
+      SIMON_HOST: 31.97.140.7
+      SIMON_USER: root
     steps:
       - uses: actions/checkout@v4
 
@@ -49,8 +52,8 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           {
             echo "Host simon-vps"
-            echo "  HostName ${{ inputs.host }}"
-            echo "  User ${{ inputs.user }}"
+            echo "  HostName ${SIMON_HOST}"
+            echo "  User ${SIMON_USER}"
             echo "  IdentityFile ~/.ssh/id_ed25519"
             echo "  StrictHostKeyChecking no"
             echo "  UserKnownHostsFile /dev/null"
