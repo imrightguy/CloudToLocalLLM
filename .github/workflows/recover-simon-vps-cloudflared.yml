@@ -7,19 +7,6 @@ on:
     paths:
       - .github/workflows/recover-simon-vps-cloudflared.yml
       - deploy/simon-vps/**
-  workflow_dispatch:
-    inputs:
-      host:
-        description: Simon VPS host
-        required: false
-        default: 31.97.140.7
-      user:
-        description: SSH user
-        required: false
-        default: root
-  repository_dispatch:
-    types:
-      - recover_simon_vps_cloudflared
 
 permissions:
   contents: read
