@@ -50,3 +50,4 @@ The recovery workflow can also install the same token-backed Simon VPS service a
 - The web build uses `--dart-define` values so the deployed app can point at the VPS origin instead of the hardcoded production domains.
 - This package intentionally uses a separate port instead of taking over 80/443, because Simon's VPS already hosts other services.
 - For a later public DNS/TLS cutover, put Cloudflare/Tailscale in front of this port instead of changing the app again.
+- The recovery workflow is push-only and watches `deploy/simon-vps/**` plus the workflow file itself.
