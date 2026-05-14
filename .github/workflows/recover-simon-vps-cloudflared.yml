@@ -49,6 +49,9 @@ jobs:
         env:
           CLOUDFLARE_TUNNEL_ID: ${{ secrets.CLOUDFLARE_TUNNEL_ID }}
           CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
+          DISPLAY: :0
+          SSH_ASKPASS: /bin/true
+          SSH_ASKPASS_REQUIRE: force
         run: |
           set -euo pipefail
           if [ -z "${CLOUDFLARE_TUNNEL_ID:-}" ]; then
