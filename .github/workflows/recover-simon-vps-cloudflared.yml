@@ -1,6 +1,12 @@
 name: Recover Simon VPS Cloudflared
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/recover-simon-vps-cloudflared.yml
+      - deploy/simon-vps/**
   workflow_dispatch:
     inputs:
       host:
