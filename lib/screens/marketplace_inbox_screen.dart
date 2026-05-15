@@ -59,8 +59,10 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
       }
 
       final now = DateTime.now();
-      final visitWindowStart = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 2));
-      final visitWindowEnd = DateTime(now.year, now.month, now.day, 23, 59, 59).add(const Duration(days: 30));
+      final visitWindowStart = DateTime(now.year, now.month, now.day)
+          .subtract(const Duration(days: 2));
+      final visitWindowEnd = DateTime(now.year, now.month, now.day, 23, 59, 59)
+          .add(const Duration(days: 30));
 
       final results = await Future.wait<dynamic>([
         CommunicationService.instance.getMarketplaceInboxThreads(
@@ -112,7 +114,10 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
       if (_selectedFilter == 'failed') {
         return item.lastMessage?.status.toLowerCase() == 'failed';
       }
-      if (_selectedFilter == 'sms' || _selectedFilter == 'email' || _selectedFilter == 'call' || _selectedFilter == 'fb_messenger') {
+      if (_selectedFilter == 'sms' ||
+          _selectedFilter == 'email' ||
+          _selectedFilter == 'call' ||
+          _selectedFilter == 'fb_messenger') {
         return item.lastMessage?.type.toLowerCase() == _selectedFilter;
       }
       return true;
@@ -133,12 +138,17 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
     }).toList();
   }
 
-  int get _inboundCount =>
-      _threads.where((item) => item.lastMessage?.direction.toLowerCase() == 'inbound' || item.needsResponse).length;
+  int get _inboundCount => _threads
+      .where((item) =>
+          item.lastMessage?.direction.toLowerCase() == 'inbound' ||
+          item.needsResponse)
+      .length;
 
-  int get _responseNeededCount => _threads.where((item) => item.needsResponse).length;
+  int get _responseNeededCount =>
+      _threads.where((item) => item.needsResponse).length;
 
-  int get _followUpCount => _threads.where((item) => item.firstResponseAt != null).length;
+  int get _followUpCount =>
+      _threads.where((item) => item.firstResponseAt != null).length;
 
   int get _visitCount => _sortedUpcomingVisits.length;
 
@@ -154,7 +164,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
   String _suggestedAction(MarketplaceInboxThread item) {
     final lastMessage = item.lastMessage;
     if (item.needsResponse) return 'Répondre';
-    if (item.coordinationState == 'scheduled' || item.coordinationState == 'confirmed') return 'Visite';
+    if (item.coordinationState == 'scheduled' ||
+        item.coordinationState == 'confirmed') return 'Visite';
     if (item.coordinationState == 'follow_up_required') return 'Relancer';
     if (lastMessage?.status.toLowerCase() == 'failed') return 'Réessayer';
     switch (lastMessage?.type.toLowerCase()) {
@@ -196,7 +207,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   item.lastMessage?.body ?? 'Aucun message disponible',
-                  style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.body
+                      .copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 const Text(
@@ -217,8 +229,10 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
       return;
     }
 
-    final contactId = item.contactId.isNotEmpty ? item.contactId : (item.leadId ?? '');
-    final contactName = item.contactName.isNotEmpty ? item.contactName : 'Prospect';
+    final contactId =
+        item.contactId.isNotEmpty ? item.contactId : (item.leadId ?? '');
+    final contactName =
+        item.contactName.isNotEmpty ? item.contactName : 'Prospect';
     final contactPhone = item.contactPhone;
     final contactInitials = item.contactInitials;
     if (item.lastMessage?.type.toLowerCase() == 'sms') {
@@ -323,7 +337,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
     final dateTime = visit.dateTime;
     if (dateTime == null) return visit.status;
     final isToday = DateTime(dateTime.year, dateTime.month, dateTime.day)
-        .isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day));
+        .isAtSameMomentAs(DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day));
     if (isToday && visit.status.toLowerCase() == 'scheduled') {
       return 'Aujourd’hui';
     }
@@ -339,7 +354,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
           IconButton(
             tooltip: 'Planifier une visite',
             icon: const Icon(Icons.event_available_outlined),
-            onPressed: () => _openBooking(initialDate: DateTime.now().add(const Duration(hours: 1))),
+            onPressed: () => _openBooking(
+                initialDate: DateTime.now().add(const Duration(hours: 1))),
           ),
           IconButton(
             tooltip: 'Rafraîchir',
@@ -382,7 +398,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
         foregroundColor: Colors.white,
         icon: const Icon(Icons.calendar_month_outlined),
         label: const Text('Planifier'),
-        onPressed: () => _openBooking(initialDate: DateTime.now().add(const Duration(hours: 1))),
+        onPressed: () => _openBooking(
+            initialDate: DateTime.now().add(const Duration(hours: 1))),
       ),
     );
   }
@@ -524,12 +541,14 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.event_available_outlined, color: AppColors.primary),
+              const Icon(Icons.event_available_outlined,
+                  color: AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Visites à venir',
-                  style: AppTypography.sectionHeader.copyWith(color: AppColors.textPrimary),
+                  style: AppTypography.sectionHeader
+                      .copyWith(color: AppColors.textPrimary),
                 ),
               ),
               TextButton(
@@ -539,7 +558,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                     return;
                   }
                   Navigator.of(context).push(
-                    MaterialPageRoute<void>(builder: (_) => const CalendarScreen()),
+                    MaterialPageRoute<void>(
+                        builder: (_) => const CalendarScreen()),
                   );
                 },
                 child: const Text('Calendrier'),
@@ -581,7 +601,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
         Expanded(
           child: Text(
             'Messages à traiter',
-            style: AppTypography.sectionHeader.copyWith(color: AppColors.textPrimary),
+            style: AppTypography.sectionHeader
+                .copyWith(color: AppColors.textPrimary),
           ),
         ),
         Text(
@@ -609,7 +630,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
             const SizedBox(height: AppSpacing.sm),
             Text(
               _errorMessage!,
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style:
+                  const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.md),
@@ -631,7 +653,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
       decoration: AppSpacing.cardDecoration(),
       child: const Column(
         children: [
-          Icon(Icons.mark_email_read_outlined, size: 48, color: AppColors.textMuted),
+          Icon(Icons.mark_email_read_outlined,
+              size: 48, color: AppColors.textMuted),
           SizedBox(height: AppSpacing.md),
           Text(
             'Aucune conversation ne correspond à ce filtre',
@@ -691,7 +714,9 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
     }
     final hours = (minutes / 60).floor();
     final remainder = minutes % 60;
-    return remainder == 0 ? 'Réponse en $hours h' : 'Réponse en $hours h $remainder min';
+    return remainder == 0
+        ? 'Réponse en $hours h'
+        : 'Réponse en $hours h $remainder min';
   }
 
   String _qualificationStateLabel(String? state) {
@@ -759,14 +784,18 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
 
   Widget _buildInboxItem(MarketplaceInboxThread item) {
     final action = _suggestedAction(item);
-    final direction = item.lastMessage?.direction.toLowerCase() == 'inbound' ? 'Entrant' : 'Sortant';
+    final direction = item.lastMessage?.direction.toLowerCase() == 'inbound'
+        ? 'Entrant'
+        : 'Sortant';
     final previewText = item.lastMessage?.body.isNotEmpty == true
         ? item.lastMessage!.body
         : item.lastMessage?.subject.isNotEmpty == true
             ? item.lastMessage!.subject
             : 'Aucun message enregistré';
     final type = item.lastMessage?.type ?? 'note';
-    final lastActivityLabel = item.lastMessageAt != null ? _formatTime(item.lastMessageAt!) : 'Sans activité';
+    final lastActivityLabel = item.lastMessageAt != null
+        ? _formatTime(item.lastMessageAt!)
+        : 'Sans activité';
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: AppSpacing.cardDecoration(),
@@ -782,7 +811,9 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
           children: [
             Expanded(
               child: Text(
-                item.contactName.isNotEmpty ? item.contactName : item.contactPhone,
+                item.contactName.isNotEmpty
+                    ? item.contactName
+                    : item.contactPhone,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -827,7 +858,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                     ),
                     if ((item.qualificationReasonCode ?? '').trim().isNotEmpty)
                       _Badge(
-                        label: _qualificationReasonLabel(item.qualificationReasonCode),
+                        label: _qualificationReasonLabel(
+                            item.qualificationReasonCode),
                         color: AppColors.warning,
                       ),
                   ],
@@ -838,7 +870,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                     item.qualificationReasonNote!.trim(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ],
@@ -850,19 +883,25 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                 children: [
                   Text(
                     direction,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
                   _Badge(
                     label: _coordinationStateLabel(item.coordinationState),
-                    color: item.needsResponse ? AppColors.error : AppColors.success,
+                    color: item.needsResponse
+                        ? AppColors.error
+                        : AppColors.success,
                   ),
                   _Badge(
                     label: _firstResponseLabel(item),
-                    color: item.needsResponse ? AppColors.warning : AppColors.primary,
+                    color: item.needsResponse
+                        ? AppColors.warning
+                        : AppColors.primary,
                   ),
                   Text(
                     lastActivityLabel,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textMuted),
                   ),
                 ],
               ),
@@ -883,7 +922,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
               TextButton(
                 onPressed: () => _openBooking(
                   initialDate: DateTime.now().add(const Duration(hours: 1)),
-                  leadId: item.contactId.isNotEmpty ? item.contactId : item.leadId,
+                  leadId:
+                      item.contactId.isNotEmpty ? item.contactId : item.leadId,
                 ),
                 child: const Text('Visite'),
               ),
@@ -921,6 +961,23 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
 
     return 'Visite: ${parts.join(' · ')}';
   }
+
+  String _statusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return 'Confirmée';
+      case 'completed':
+        return 'Terminée';
+      case 'cancelled':
+        return 'Annulée';
+      case 'no_show':
+        return 'Absent';
+      case 'scheduled':
+        return 'Planifiée';
+      default:
+        return status;
+    }
+  }
 }
 
 class _SummaryCard extends StatelessWidget {
@@ -957,8 +1014,12 @@ class _SummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text(value,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -1001,7 +1062,8 @@ class _VisitPreviewCard extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.event_available_outlined, color: AppColors.primary),
+              child: const Icon(Icons.event_available_outlined,
+                  color: AppColors.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1014,18 +1076,25 @@ class _VisitPreviewCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    visit.leadName?.isNotEmpty == true ? visit.leadName! : 'Prospect',
-                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    visit.leadName?.isNotEmpty == true
+                        ? visit.leadName!
+                        : 'Prospect',
+                    style: const TextStyle(
+                        fontSize: 13, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    visit.dateTime != null ? _formatVisitTime(visit.dateTime!) : visit.dateLabel,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    visit.dateTime != null
+                        ? _formatVisitTime(visit.dateTime!)
+                        : visit.dateLabel,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _lifecycleSummary(visit),
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -1034,11 +1103,14 @@ class _VisitPreviewCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _Badge(label: visit.status.toUpperCase(), color: AppColors.success),
+                _Badge(
+                    label: visit.status.toUpperCase(),
+                    color: AppColors.success),
                 const SizedBox(height: 8),
                 Text(
                   badge,
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -1048,7 +1120,8 @@ class _VisitPreviewCard extends StatelessWidget {
     );
   }
 
-  static String _formatVisitTime(DateTime dt) => DateFormat('d MMM • HH:mm', 'fr').format(dt);
+  static String _formatVisitTime(DateTime dt) =>
+      DateFormat('d MMM • HH:mm', 'fr').format(dt);
 
   static String _lifecycleSummary(VisitItem visit) {
     final parts = <String>[];
@@ -1058,7 +1131,8 @@ class _VisitPreviewCard extends StatelessWidget {
     if (visit.reminder24hQueuedAt != null) parts.add('Rappel 24h');
     if (visit.reminder2hQueuedAt != null) parts.add('Rappel 2h');
     if (parts.isEmpty) {
-      if (visit.tenantConfirmationRequestedAt != null || visit.employeeConfirmationRequestedAt != null) {
+      if (visit.tenantConfirmationRequestedAt != null ||
+          visit.employeeConfirmationRequestedAt != null) {
         return 'Confirmation demandée';
       }
       return 'Aucune relance encore';

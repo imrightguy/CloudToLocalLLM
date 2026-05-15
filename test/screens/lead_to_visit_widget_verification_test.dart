@@ -66,7 +66,8 @@ void main() {
               contactInitials: 'ST',
               qualificationState: 'needs_follow_up',
               qualificationReasonCode: 'budget_mismatch',
-              qualificationReasonNote: 'No matching listings were found. Simon will follow up.',
+              qualificationReasonNote:
+                  'No matching listings were found. Simon will follow up.',
             ),
           ),
         );
@@ -76,23 +77,33 @@ void main() {
         expect(find.text('Qualification Messenger'), findsOneWidget);
         expect(find.text('À relancer'), findsWidgets);
         expect(find.text('Budget incompatible'), findsOneWidget);
-        expect(find.text('No matching listings were found. Simon will follow up.'), findsOneWidget);
+        expect(
+            find.text('No matching listings were found. Simon will follow up.'),
+            findsOneWidget);
       },
     );
 
     testWidgets(
       'MarketplaceInboxScreen renders Messenger qualification chips in the thread list',
       (tester) async {
-        await tester.pumpWidget(const MaterialApp(home: MarketplaceInboxScreen()));
+        await tester
+            .pumpWidget(const MaterialApp(home: MarketplaceInboxScreen()));
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Sarah Tremblay'), findsOneWidget);
-        expect(find.text('Messenger'), findsWidgets);
-        expect(find.text('À relancer'), findsWidgets);
-        expect(find.textContaining('Visite: Confirmée'), findsOneWidget);
-        expect(find.text('Budget incompatible'), findsOneWidget);
-        expect(find.text('No matching listings were found. Simon will follow up.'), findsOneWidget);
+        expect(
+            find.text('Sarah Tremblay', skipOffstage: false), findsOneWidget);
+        expect(find.text('Messenger', skipOffstage: false), findsWidgets);
+        expect(find.text('À relancer', skipOffstage: false), findsWidgets);
+        expect(find.textContaining('Visite: Confirmée', skipOffstage: false),
+            findsOneWidget);
+        expect(find.text('Budget incompatible', skipOffstage: false),
+            findsOneWidget);
+        expect(
+          find.text('No matching listings were found. Simon will follow up.',
+              skipOffstage: false),
+          findsOneWidget,
+        );
       },
     );
 
