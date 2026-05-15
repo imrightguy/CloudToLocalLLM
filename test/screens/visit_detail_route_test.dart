@@ -35,6 +35,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    expect(find.textContaining('Locataire confirmé'), findsOneWidget);
     final detailsTooltip = find.byTooltip('Ouvrir le détail de la visite de Sarah Tremblay');
     expect(detailsTooltip, findsOneWidget);
 
@@ -75,6 +76,7 @@ VisitItem _testVisit() {
     'employeeConfirmedAt': '2026-06-11T12:05:00.000',
     'occupantNotified': true,
     'morningOfSent': true,
+    'morningReminderSentAt': '2026-06-11T07:00:00.000',
   });
 }
 
@@ -98,6 +100,7 @@ Future<http.Response> _handleMockRequest(http.Request request) async {
             'employeeConfirmed': true,
             'occupantNotified': true,
             'morningOfSent': true,
+            'morningReminderSentAt': '2026-06-11T07:00:00.000',
           },
         ],
         'metadata': {
@@ -133,6 +136,7 @@ Future<http.Response> _handleMockRequest(http.Request request) async {
           'employeeConfirmedAt': '2026-06-11T12:05:00.000',
           'occupantNotified': true,
           'morningOfSent': true,
+          'morningReminderSentAt': '2026-06-11T07:00:00.000',
         },
       }),
       200,

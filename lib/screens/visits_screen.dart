@@ -95,6 +95,25 @@ class _VisitsScreenState extends State<VisitsScreen> {
     return status.toLowerCase() == 'confirmed';
   }
 
+  int _countConfirmedTenant(List<VisitItem> visits) {
+    return visits.where((visit) => visit.tenantConfirmed).length;
+  }
+
+  int _countConfirmedEmployee(List<VisitItem> visits) {
+    return visits.where((visit) => visit.employeeConfirmed).length;
+  }
+
+  int _countPendingTenant(List<VisitItem> visits) {
+    return visits.where((visit) => visit.occupantNotified && !visit.tenantConfirmed).length;
+  }
+
+  int _countRemindersQueued(List<VisitItem> visits) {
+    return visits.where((visit) =>
+        visit.morningReminderSentAt != null ||
+        visit.reminder24hQueuedAt != null ||
+        visit.reminder2hQueuedAt != null).length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,6 +174,10 @@ class _VisitsScreenState extends State<VisitsScreen> {
     final total = filtered.length;
     final confirmed = _countByStatus('confirmed');
     final pending = _countByStatus('scheduled');
+    final tenantConfirmed = _countConfirmedTenant(filtered);
+    final employeeConfirmed = _countConfirmedEmployee(filtered);
+    final pendingTenant = _countPendingTenant(filtered);
+    final remindersQueued = _countRemindersQueued(filtered);
 
     return RefreshIndicator(
       onRefresh: _fetchVisits,
@@ -287,6 +310,39 @@ class _VisitsScreenState extends State<VisitsScreen> {
                       ],
                     ),
                   ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _StateSummaryCard(
+                  label: 'Locataires confirmés',
+                  value: '$tenantConfirmed',
+                  color: AppColors.success,
+                  icon: Icons.verified_user_outlined,
+                ),
+                _StateSummaryCard(
+                  label: 'Employés confirmés',
+                  value: '$employeeConfirmed',
+                  color: AppColors.primary,
+                  icon: Icons.badge_outlined,
+                ),
+                _StateSummaryCard(
+                  label: 'Locataires en attente',
+                  value: '$pendingTenant',
+                  color: AppColors.warning,
+                  icon: Icons.schedule_outlined,
+                ),
+                _StateSummaryCard(
+                  label: 'Rappels planifiés',
+                  value: '$remindersQueued',
+                  color: AppColors.info,
+                  icon: Icons.notifications_active_outlined,
                 ),
               ],
             ),
@@ -483,6 +539,16 @@ class _VisitsScreenState extends State<VisitsScreen> {
                                 ),
                               ),
                             ],
+                            if (_visitLifecycleSummary(visit).isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                _visitLifecycleSummary(visit),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             Row(
                               children: [
@@ -594,6 +660,34 @@ class _VisitsScreenState extends State<VisitsScreen> {
         );
       },
     );
+  }
+
+  String _visitLifecycleSummary(VisitItem visit) {
+    final parts = <String>[];
+
+    if (visit.tenantConfirmed) {
+      parts.add('Locataire confirmé');
+    } else if (visit.tenantConfirmationRequestedAt != null) {
+      parts.add('Locataire à confirmer');
+    } else if (visit.occupantNotified) {
+      parts.add('Locataire notifié');
+    }
+
+    if (visit.employeeConfirmed) {
+      parts.add('Employé confirmé');
+    } else if (visit.employeeConfirmationRequestedAt != null) {
+      parts.add('Employé à confirmer');
+    }
+
+    if (visit.morningReminderSentAt != null) {
+      parts.add('Rappel matin envoyé');
+    } else if (visit.reminder24hQueuedAt != null) {
+      parts.add('Rappel 24h en file');
+    } else if (visit.reminder2hQueuedAt != null) {
+      parts.add('Rappel 2h en file');
+    }
+
+    return parts.join(' · ');
   }
 
   Widget _detailRow(String label, String value) {
@@ -713,6 +807,64 @@ class _VisitsScreenState extends State<VisitsScreen> {
         .then((_) {
       if (mounted) _fetchVisits();
     });
+  }
+}
+
+class _StateSummaryCard extends StatelessWidget {
+  const _StateSummaryCard({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.all(16),
+      decoration: AppSpacing.cardDecoration(),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

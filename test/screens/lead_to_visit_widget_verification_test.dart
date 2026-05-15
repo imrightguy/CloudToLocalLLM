@@ -90,6 +90,7 @@ void main() {
         expect(find.text('Sarah Tremblay'), findsOneWidget);
         expect(find.text('Messenger'), findsWidgets);
         expect(find.text('À relancer'), findsWidgets);
+        expect(find.textContaining('Visite: Confirmée'), findsOneWidget);
         expect(find.text('Budget incompatible'), findsOneWidget);
         expect(find.text('No matching listings were found. Simon will follow up.'), findsOneWidget);
       },
@@ -142,8 +143,20 @@ Future<http.Response> _handleMockRequest(http.Request request) async {
           'coordinationState': 'message_only',
           'qualificationState': 'needs_follow_up',
           'qualificationReasonCode': 'budget_mismatch',
-          'qualificationReasonNote': 'No matching listings were found. Simon will follow up.',
+          'qualificationReasonNote':
+              'No matching listings were found. Simon will follow up.',
           'lastMessageAt': '2026-05-10T09:30:00.000Z',
+          'latestVisit': {
+            'id': 'visit-1',
+            'status': 'confirmed',
+            'tenantConfirmed': true,
+            'tenantConfirmedAt': '2026-05-10T08:00:00.000Z',
+            'employeeConfirmed': true,
+            'employeeConfirmedAt': '2026-05-10T08:05:00.000Z',
+            'morningOfSent': true,
+            'morningReminderSentAt': '2026-05-10T07:00:00.000Z',
+            'dateTime': '2026-05-12T14:00:00.000Z',
+          },
           'lastMessage': {
             'id': 'comm-1',
             'type': 'fb_messenger',

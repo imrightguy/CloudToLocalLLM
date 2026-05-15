@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import '../models.dart';
+import '../demo/demo_store.dart';
+import '../services/demo_mode.dart';
 import '../services/communication_service.dart';
 import '../services/visit_service.dart';
 import '../services/building_service.dart';
@@ -44,7 +46,18 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
 
     try {
       await initializeDateFormatting('fr', null);
-      await initializeDateFormatting('fr_CA', null);
+
+      if (DemoMode.isInternalDemoMode) {
+        final store = DemoStore.instance;
+        if (!mounted) return;
+        setState(() {
+          _threads = store.threads;
+          _upcomingVisits = store.visits;
+          _isLoading = false;
+        });
+        return;
+      }
+
       final now = DateTime.now();
       final visitWindowStart = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 2));
       final visitWindowEnd = DateTime(now.year, now.month, now.day, 23, 59, 59).add(const Duration(days: 30));
@@ -129,6 +142,10 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
 
   int get _visitCount => _sortedUpcomingVisits.length;
 
+  int _coordinationStateCount(String state) {
+    return _threads.where((item) => item.coordinationState == state).length;
+  }
+
   void _updateFilter(String filter) {
     setState(() => _selectedFilter = filter);
     _fetchInbox();
@@ -155,6 +172,51 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
   }
 
   Future<void> _openThread(MarketplaceInboxThread item) async {
+    if (DemoMode.isInternalDemoMode) {
+      DemoStore.instance.markThreadResponded(item.contactId);
+      if (!mounted) return;
+      await showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.contactName,
+                  style: AppTypography.sectionHeader.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(item.contactPhone, style: AppTypography.body),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  item.lastMessage?.body ?? 'Aucun message disponible',
+                  style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                const Text(
+                  'Action démo enregistrée: la conversation passe en suivi local.',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.success,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+      if (mounted) {
+        _fetchInbox();
+      }
+      return;
+    }
+
     final contactId = item.contactId.isNotEmpty ? item.contactId : (item.leadId ?? '');
     final contactName = item.contactName.isNotEmpty ? item.contactName : 'Prospect';
     final contactPhone = item.contactPhone;
@@ -187,6 +249,25 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
   }
 
   Future<void> _openBooking({DateTime? initialDate, String? leadId}) async {
+    if (DemoMode.isInternalDemoMode) {
+      final visit = DemoStore.instance.scheduleVisit(
+        leadId: leadId,
+        dateTime: initialDate,
+      );
+      if (!mounted) return;
+      await _fetchInbox();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Visite démo créée pour ${visit.leadName ?? 'le prospect'} le ${visit.dateLabel}.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     await Navigator.of(context).push(
       MaterialPageRoute<bool>(
         builder: (_) => VisitFormScreen(
@@ -278,6 +359,8 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     children: [
                       _buildSummaryRow(),
+                      const SizedBox(height: AppSpacing.md),
+                      _buildVisitStateSummary(),
                       const SizedBox(height: AppSpacing.lg),
                       _buildSearchBar(),
                       const SizedBox(height: AppSpacing.md),
@@ -332,6 +415,45 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
           value: '$_visitCount',
           icon: Icons.event_available_outlined,
           color: AppColors.success,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVisitStateSummary() {
+    return Wrap(
+      spacing: AppSpacing.md,
+      runSpacing: AppSpacing.md,
+      children: [
+        _SummaryCard(
+          label: 'Attente locataire',
+          value: '${_coordinationStateCount('awaiting_tenant_confirmation')}',
+          icon: Icons.person_search_outlined,
+          color: AppColors.warning,
+        ),
+        _SummaryCard(
+          label: 'Attente employé',
+          value: '${_coordinationStateCount('awaiting_employee_confirmation')}',
+          icon: Icons.badge_outlined,
+          color: AppColors.indigo,
+        ),
+        _SummaryCard(
+          label: 'Planifiées',
+          value: '${_coordinationStateCount('scheduled')}',
+          icon: Icons.event_available_outlined,
+          color: AppColors.primary,
+        ),
+        _SummaryCard(
+          label: 'Confirmées',
+          value: '${_coordinationStateCount('confirmed')}',
+          icon: Icons.verified_outlined,
+          color: AppColors.success,
+        ),
+        _SummaryCard(
+          label: 'Relances',
+          value: '${_coordinationStateCount('follow_up_required')}',
+          icon: Icons.reply_outlined,
+          color: AppColors.error,
         ),
       ],
     );
@@ -411,9 +533,15 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const CalendarScreen()),
-                ),
+                onPressed: () {
+                  if (DemoMode.isInternalDemoMode) {
+                    Navigator.of(context).pushNamed('/visits');
+                    return;
+                  }
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const CalendarScreen()),
+                  );
+                },
                 child: const Text('Calendrier'),
               ),
             ],
@@ -672,6 +800,18 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (item.latestVisit != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  _visitLifecycleSummary(item.latestVisit!),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
               if ((item.qualificationState ?? '').trim().isNotEmpty ||
                   (item.qualificationReasonCode ?? '').trim().isNotEmpty ||
                   (item.qualificationReasonNote ?? '').trim().isNotEmpty) ...[
@@ -752,6 +892,34 @@ class _MarketplaceInboxScreenState extends State<MarketplaceInboxScreen> {
         ),
       ),
     );
+  }
+
+  String _visitLifecycleSummary(VisitItem visit) {
+    final parts = <String>[_statusLabel(visit.status)];
+
+    if (visit.tenantConfirmed) {
+      parts.add('Locataire confirmé');
+    } else if (visit.tenantConfirmationRequestedAt != null) {
+      parts.add('Locataire à confirmer');
+    } else if (visit.occupantNotified) {
+      parts.add('Locataire notifié');
+    }
+
+    if (visit.employeeConfirmed) {
+      parts.add('Employé confirmé');
+    } else if (visit.employeeConfirmationRequestedAt != null) {
+      parts.add('Employé à confirmer');
+    }
+
+    if (visit.morningReminderSentAt != null) {
+      parts.add('Rappel matin envoyé');
+    } else if (visit.reminder24hQueuedAt != null) {
+      parts.add('Rappel 24h en file');
+    } else if (visit.reminder2hQueuedAt != null) {
+      parts.add('Rappel 2h en file');
+    }
+
+    return 'Visite: ${parts.join(' · ')}';
   }
 }
 
