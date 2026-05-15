@@ -91,41 +91,7 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
   }
 
   Widget _buildAuthenticatedStartScreen(Uri location) {
-    final segments = location.pathSegments;
-
-    if (segments.length == 2 && segments[0] == 'leads') {
-      final leadId = Uri.decodeComponent(segments[1]);
-      return AuthGate(child: _LeadDetailRouteScreen(leadId: leadId));
-    }
-
-    if (segments.length == 2 && segments[0] == 'visits' && segments[1] != 'new') {
-      final visitId = Uri.decodeComponent(segments[1]);
-      return AuthGate(child: _VisitDetailRouteScreen(visitId: visitId));
-    }
-
-    if (segments.length == 2 && segments[0] == 'visits' && segments[1] == 'new') {
-      final leadId = location.queryParameters['leadId'];
-      final date = DateTime.tryParse(location.queryParameters['date'] ?? '');
-      return AuthGate(
-        child: VisitFormScreen(
-          initialLeadId: leadId,
-          initialDate: date,
-        ),
-      );
-    }
-
-    switch (location.path) {
-      case '/maintenance':
-        return const AuthGate(child: MaintenanceCommandCenterScreen());
-      case '/daily-tasks':
-        return const AuthGate(child: DailyTaskTrackerScreen());
-      case '/renovation-ops':
-        return const AuthGate(child: RenovationOpsScreen());
-      case '/dossiers':
-        return const AuthGate(child: DossierAssistantScreen());
-      default:
-        return const AuthGate(child: HomeScreen());
-    }
+    return buildAuthenticatedStartScreen(location);
   }
 
   Widget _buildStartScreen(Uri location) {
@@ -172,9 +138,10 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
             _protectedRoute((context) => const RenovationOpsScreen()),
         '/maintenance': _protectedRoute(
             (context) => const MaintenanceCommandCenterScreen()),
-        '/daily-tasks': _protectedRoute(
-            (context) => const DailyTaskTrackerScreen()),
-        '/dossiers': _protectedRoute((context) => const DossierAssistantScreen()),
+        '/daily-tasks':
+            _protectedRoute((context) => const DailyTaskTrackerScreen()),
+        '/dossiers':
+            _protectedRoute((context) => const DossierAssistantScreen()),
         '/observations': _protectedRoute((context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           final findingId = args is Map<String, dynamic>
@@ -186,7 +153,8 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
         }),
         '/communications':
             _protectedRoute((context) => const CommunicationsScreen()),
-        '/messages': _protectedRoute((context) => const MarketplaceInboxScreen()),
+        '/messages':
+            _protectedRoute((context) => const MarketplaceInboxScreen()),
         '/marketplace':
             _protectedRoute((context) => const MarketplaceInboxScreen()),
         '/settings': _protectedRoute((context) => const SettingsScreen()),
@@ -213,7 +181,9 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       );
     }
 
-    if (segments.length == 2 && segments[0] == 'visits' && segments[1] == 'new') {
+    if (segments.length == 2 &&
+        segments[0] == 'visits' &&
+        segments[1] == 'new') {
       final leadId = uri.queryParameters['leadId'];
       final date = DateTime.tryParse(uri.queryParameters['date'] ?? '');
       return MaterialPageRoute<void>(
@@ -226,7 +196,9 @@ class _ImmoGestionAppState extends State<ImmoGestionApp> {
       );
     }
 
-    if (segments.length == 2 && segments[0] == 'visits' && segments[1] != 'new') {
+    if (segments.length == 2 &&
+        segments[0] == 'visits' &&
+        segments[1] != 'new') {
       final visitId = Uri.decodeComponent(segments[1]);
       return MaterialPageRoute<void>(
         settings: settings,
@@ -319,7 +291,8 @@ class _LeadDetailRouteScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(title: const Text('Détails du prospect')),
             body: Center(
-              child: Text('Impossible de charger le prospect: ${snapshot.error}'),
+              child:
+                  Text('Impossible de charger le prospect: ${snapshot.error}'),
             ),
           );
         }
@@ -375,6 +348,56 @@ class _VisitDetailRouteScreen extends StatelessWidget {
         return VisitDetailScreen(visit: visit);
       },
     );
+  }
+}
+
+Widget buildAuthenticatedStartScreen(Uri location) {
+  final normalizedPath = normalizeAppPath(location.path);
+  final segments = location.pathSegments;
+
+  if (normalizedPath == '/messages' || normalizedPath == '/marketplace') {
+    return const AuthGate(child: MarketplaceInboxScreen());
+  }
+
+  if (normalizedPath == '/visits') {
+    return const AuthGate(child: VisitsScreen());
+  }
+
+  if (segments.length == 2 && segments[0] == 'leads') {
+    final leadId = Uri.decodeComponent(segments[1]);
+    return AuthGate(child: _LeadDetailRouteScreen(leadId: leadId));
+  }
+
+  if (segments.length == 2 && segments[0] == 'visits' && segments[1] == 'new') {
+    final leadId = location.queryParameters['leadId'];
+    final date = DateTime.tryParse(location.queryParameters['date'] ?? '');
+    return AuthGate(
+      child: VisitFormScreen(
+        initialLeadId: leadId,
+        initialDate: date,
+      ),
+    );
+  }
+
+  if (segments.length == 2 &&
+      segments[0] == 'visits' &&
+      segments[1].isNotEmpty &&
+      segments[1] != 'new') {
+    final visitId = Uri.decodeComponent(segments[1]);
+    return AuthGate(child: _VisitDetailRouteScreen(visitId: visitId));
+  }
+
+  switch (normalizedPath) {
+    case '/maintenance':
+      return const AuthGate(child: MaintenanceCommandCenterScreen());
+    case '/daily-tasks':
+      return const AuthGate(child: DailyTaskTrackerScreen());
+    case '/renovation-ops':
+      return const AuthGate(child: RenovationOpsScreen());
+    case '/dossiers':
+      return const AuthGate(child: DossierAssistantScreen());
+    default:
+      return const AuthGate(child: HomeScreen());
   }
 }
 

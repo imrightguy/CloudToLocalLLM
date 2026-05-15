@@ -18,17 +18,27 @@ void main() {
       expect(AppConfig.isStaging, isFalse);
       expect(AppConfig.isProduction, isFalse);
     });
+
+    test('demo mode defaults to the live api data source', () {
+      expect(AppConfig.demoModeEnabled, isFalse);
+      expect(AppConfig.demoDataSource, 'api');
+      expect(AppConfig.usesInternalDemoData, isFalse);
+      expect(AppConfig.usesLiveApi, isTrue);
+      expect(AppConfig.activeDemoProfile, 'none');
+    });
   });
 
   group('AppEnvironment', () {
     test('has four values', () {
       expect(AppEnvironment.values.length, 4);
-      expect(AppEnvironment.values, containsAll([
-        AppEnvironment.development,
-        AppEnvironment.demo,
-        AppEnvironment.staging,
-        AppEnvironment.production,
-      ]));
+      expect(
+          AppEnvironment.values,
+          containsAll([
+            AppEnvironment.development,
+            AppEnvironment.demo,
+            AppEnvironment.staging,
+            AppEnvironment.production,
+          ]));
     });
   });
 }
