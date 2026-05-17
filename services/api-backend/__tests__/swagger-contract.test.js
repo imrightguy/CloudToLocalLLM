@@ -24,18 +24,18 @@ describe('Swagger contract regression coverage', () => {
       expect(updateSchema.properties.dateTime).toMatchObject({ type: 'string', format: 'date-time' });
       expect(updateSchema.properties.durationMinutes).toMatchObject({ type: 'integer', minimum: 1, maximum: 1440 });
       expect(updateSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
-      expect(updateSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'other']);
+      expect(updateSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'employee_declined', 'no_response', 'other']);
       expect(updateSchema.properties.tenantConfirmed).toMatchObject({ type: 'boolean' });
       expect(statusSchema.properties.status.enum).toEqual(['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']);
       expect(statusSchema.properties.outcome.enum).toEqual(['interesse', 'pas_interesse', 'no_show']);
-      expect(statusSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'other']);
+      expect(statusSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'employee_declined', 'no_response', 'other']);
     });
 
     it('documents the reschedule payload with a required reason code', () => {
       const rescheduleSchema = swaggerSpec.paths['/api/visits/{id}/reschedule'].patch.requestBody.content['application/json'].schema;
 
       expect(rescheduleSchema.required).toEqual(['dateTime', 'reasonCode']);
-      expect(rescheduleSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'other']);
+      expect(rescheduleSchema.properties.reasonCode.enum).toEqual(['tenant_request', 'tenant_conflict', 'host_unavailable', 'access_issue', 'weather', 'tenant_no_show', 'employee_declined', 'no_response', 'other']);
       expect(rescheduleSchema.properties.sendSms).toMatchObject({ type: 'boolean', default: true });
     });
 
@@ -135,6 +135,19 @@ describe('Swagger contract regression coverage', () => {
         'cancelled',
         'follow_up_required',
       ]);
+      expect(threadSchema.properties.bookingState.enum).toEqual([
+        'unbooked',
+        'booking_pending',
+        'scheduled',
+        'confirmed',
+        'in_progress',
+        'completed',
+        'cancelled',
+        'no_show',
+        'reschedule_requested',
+      ]);
+      expect(threadSchema.properties.bookingReasonCode).toMatchObject({ type: 'string', nullable: true });
+      expect(threadSchema.properties.bookingStateUpdatedAt).toMatchObject({ type: 'string', format: 'date-time', nullable: true });
       expect(threadSchema.properties.messages.items).toMatchObject({ $ref: '#/components/schemas/Communication' });
     });
 

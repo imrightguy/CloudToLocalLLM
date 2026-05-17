@@ -318,6 +318,7 @@ describe('communication-thread service best-effort thread refresh', () => {
       qualificationState: 'needs_follow_up',
       qualificationReasonCode: 'budget_mismatch',
       qualificationReasonNote: 'Lead still needs follow-up after Messenger engagement.',
+      bookingState: 'unbooked',
       lastMessage: expect.objectContaining({
         id: 'comm-thread-unknown',
         type: 'fb_messenger',
@@ -375,6 +376,7 @@ describe('communication-thread service best-effort thread refresh', () => {
       qualificationState: 'needs_follow_up',
       qualificationReasonCode: 'other',
       qualificationReasonNote: 'Lead still needs first qualification after Messenger engagement.',
+      bookingState: 'unbooked',
       lastMessage: expect.objectContaining({
         id: 'comm-thread-new',
         type: 'fb_messenger',
@@ -431,6 +433,7 @@ describe('communication-thread service best-effort thread refresh', () => {
       qualificationState: 'qualified',
       qualificationReasonCode: 'other',
       qualificationReasonNote: 'Replying on Messenger and ready to move forward.',
+      bookingState: 'booking_pending',
       lastMessage: expect.objectContaining({
         id: 'comm-thread-1',
         type: 'fb_messenger',
@@ -509,6 +512,7 @@ describe('communication-thread service best-effort thread refresh', () => {
       leadId: 'lead-1',
       contactName: 'Frontend Test Lead',
       messageCount: 1,
+      bookingState: 'unbooked',
       lastMessage: expect.objectContaining({
         id: 'comm-thread-1',
         leadId: 'lead-1',

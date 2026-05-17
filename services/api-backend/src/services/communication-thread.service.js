@@ -9,7 +9,7 @@ const {
   visitsTable,
 } = require('../database/schema');
 const { VALID_LEAD_STAGES } = require('../constants/lead-stages');
-const { BOOKING_STATES, QUALIFICATION_STATES } = require('../constants/marketplace-states');
+const { BOOKING_STATES } = require('../constants/marketplace-states');
 const logger = require('../utils/logger');
 const {
   isDemoMarketplaceLead,
@@ -238,6 +238,97 @@ function deriveThreadState({ threadState, leadStage, latestVisit }) {
   return 'message_only';
 }
 
+function normalizeBookingState(state) {
+  if (!state || !BOOKING_STATES.includes(state)) {
+    return null;
+  }
+
+  return state;
+}
+
+function deriveBookingSnapshot(lead, latestVisit, threadRow) {
+  if (latestVisit) {
+    const bookingStateUpdatedAt = latestVisit.updatedAt
+      ?? latestVisit.completedAt
+      ?? latestVisit.cancelledAt
+      ?? latestVisit.noShowAt
+      ?? latestVisit.rescheduledAt
+      ?? latestVisit.createdAt
+      ?? null;
+
+    if (latestVisit.status === 'cancelled') {
+      return {
+        bookingState: 'cancelled',
+        bookingReasonCode: latestVisit.reasonCode ?? null,
+        bookingStateUpdatedAt,
+      };
+    }
+
+    if (latestVisit.status === 'no_show') {
+      return {
+        bookingState: 'no_show',
+        bookingReasonCode: latestVisit.reasonCode ?? null,
+        bookingStateUpdatedAt,
+      };
+    }
+
+    if (latestVisit.status === 'completed') {
+      return {
+        bookingState: 'completed',
+        bookingReasonCode: latestVisit.reasonCode ?? null,
+        bookingStateUpdatedAt,
+      };
+    }
+
+    if (latestVisit.status === 'in_progress') {
+      return {
+        bookingState: 'in_progress',
+        bookingReasonCode: null,
+        bookingStateUpdatedAt,
+      };
+    }
+
+    if (latestVisit.status === 'confirmed'
+      || (latestVisit.tenantConfirmed && latestVisit.employeeConfirmed)) {
+      return {
+        bookingState: 'confirmed',
+        bookingReasonCode: null,
+        bookingStateUpdatedAt,
+      };
+    }
+
+    return {
+      bookingState: 'scheduled',
+      bookingReasonCode: latestVisit.reasonCode ?? null,
+      bookingStateUpdatedAt,
+    };
+  }
+
+  const persistedState = normalizeBookingState(threadRow?.bookingState);
+  if (persistedState) {
+    return {
+      bookingState: persistedState,
+      bookingReasonCode: threadRow?.bookingReasonCode ?? null,
+      bookingStateUpdatedAt: threadRow?.bookingStateUpdatedAt ?? threadRow?.lastMessageAt ?? null,
+    };
+  }
+
+  const isReadyToBook = lead.qualificationState === 'qualified'
+    || lead.stage === 'qualifie'
+    || lead.stage === 'visitePlanifiee'
+    || lead.stage === 'visite_planifiee'
+    || lead.stage === 'offreEnvoyee'
+    || lead.stage === 'negociation'
+    || lead.stage === 'bailSigne'
+    || lead.stage === 'signe';
+
+  return {
+    bookingState: isReadyToBook ? 'booking_pending' : 'unbooked',
+    bookingReasonCode: null,
+    bookingStateUpdatedAt: lead.updatedAt ?? lead.createdAt ?? null,
+  };
+}
+
 function compareThreadSnapshots(a, b) {
   const responseNeededA = a.firstResponseAt ? 1 : 0;
   const responseNeededB = b.firstResponseAt ? 1 : 0;
@@ -379,6 +470,7 @@ function buildSnapshot(lead, threadRow, messages, visits, includeMessages) {
     contactPhone: lead.phone,
     contactInitials: getInitials(lead.fullName),
     ...deriveQualificationSnapshot(lead, latestMessage, threadRow),
+    ...deriveBookingSnapshot(lead, latestVisit, threadRow),
     messageCount: threadRow?.messageCount ?? orderedMessages.length,
     lastMessageAt: latestMessage?.createdAt ?? threadRow?.lastMessageAt ?? null,
     firstSeenAt: firstResponseMetrics.firstSeenAt,
@@ -549,10 +641,13 @@ async function loadThreadContext(filters = {}) {
         inArray(visitsTable.leadId, leadIds),
       ))
       .orderBy(desc(visitsTable.dateTime)),
-    db
+      db
       .select({
         leadId: communicationThreadsTable.leadId,
         coordinationState: communicationThreadsTable.coordinationState,
+        bookingState: communicationThreadsTable.bookingState,
+        bookingReasonCode: communicationThreadsTable.bookingReasonCode,
+        bookingStateUpdatedAt: communicationThreadsTable.bookingStateUpdatedAt,
         messageCount: communicationThreadsTable.messageCount,
         lastMessageAt: communicationThreadsTable.lastMessageAt,
         lastMessageType: communicationThreadsTable.lastMessageType,
@@ -685,6 +780,9 @@ async function refreshCommunicationThread(leadId, options = {}) {
         .set({
           latestVisitId: null,
           coordinationState: 'message_only',
+          bookingState: 'unbooked',
+          bookingReasonCode: null,
+          bookingStateUpdatedAt: null,
           messageCount: 0,
           lastMessageAt: null,
           lastMessageType: null,
@@ -704,6 +802,9 @@ async function refreshCommunicationThread(leadId, options = {}) {
   const updateData = {
     latestVisitId,
     coordinationState: thread.coordinationState,
+    bookingState: normalizeBookingState(thread.bookingState) || 'unbooked',
+    bookingReasonCode: thread.bookingReasonCode ?? null,
+    bookingStateUpdatedAt: thread.bookingStateUpdatedAt ? new Date(thread.bookingStateUpdatedAt) : null,
     messageCount: thread.messageCount,
     lastMessageAt: thread.lastMessageAt ? new Date(thread.lastMessageAt) : null,
     lastMessageType: lastMessage?.type ?? null,

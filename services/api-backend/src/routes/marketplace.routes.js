@@ -34,12 +34,14 @@ const listTimeline = async (req, res) => {
       ? {
         leadId: result.leadId,
         coordinationState: result.coordinationState,
+        bookingState: result.bookingState,
         messageCount: result.messageCount,
         lastMessageAt: result.lastMessageAt,
       }
       : {
         leadId: req.params.leadId,
         coordinationState: null,
+        bookingState: null,
         messageCount: 0,
         lastMessageAt: null,
       },
