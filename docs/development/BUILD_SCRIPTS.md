@@ -63,7 +63,14 @@ This guide explains the different build scripts available in CloudToLocalLLM and
 - **Size**: ~13MB (includes Flutter web build and all dependencies)
 - **Installation**: Extract and run `CloudToLocalLLM.exe`
 - **Advantages**: No installation required, portable, works on all Windows versions
-- **Recommended for**: All users, especially those who prefer portable applications
+- **Recommended for**: Testing, temporary use, and users who prefer portable applications
+
+### ✅ Inno Setup Installer Package
+
+- **Status**: Implemented in the GitHub Actions Windows build lane
+- **Output**: `CloudToLocalLLM-Windows-x64-Setup.exe`
+- **Installation**: Guided installer with Start Menu shortcut, optional desktop shortcut, and per-user URL-scheme registration
+- **Recommended for**: Most Windows users
 
 ### ❌ MSI Installer Package
 

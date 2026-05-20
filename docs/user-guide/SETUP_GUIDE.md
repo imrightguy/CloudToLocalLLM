@@ -119,6 +119,8 @@ Get the latest release for your platform:
 2. Run the installer.
 3. Launch CloudToLocalLLM from the Start Menu.
 
+If you only need a temporary or portable setup, download the Windows ZIP bundle instead and run `CloudToLocalLLM.exe` directly.
+
 ### Linux AppImage
 
 ```bash

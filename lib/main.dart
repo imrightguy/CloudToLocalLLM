@@ -27,6 +27,8 @@ import 'package:cloudtolocalllm/services/log_buffer_service.dart';
 import 'package:cloudtolocalllm/services/theme_provider.dart';
 import 'package:cloudtolocalllm/services/platform_detection_service.dart';
 import 'package:cloudtolocalllm/services/google_workspace_service.dart';
+import 'package:cloudtolocalllm/services/url_scheme_registration_service.dart'
+    if (dart.library.html) 'package:cloudtolocalllm/services/url_scheme_registration_service_stub.dart';
 import 'web_plugins_stub.dart'
     if (dart.library.html) 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:cloudtolocalllm/widgets/tray_initializer.dart';
@@ -64,7 +66,17 @@ void main([List<String> args = const []]) async {
 
   // TEMPORARY: Skip Sentry to test app loading
   debugPrint('[Main] Skipping Sentry for testing');
+  unawaited(_registerWindowsUrlScheme());
   _runAppWithoutSentry();
+}
+
+Future<void> _registerWindowsUrlScheme() async {
+  try {
+    final registered = await UrlSchemeRegistrationService.registerUrlScheme();
+    debugPrint('[Main] Windows URL scheme registration result: $registered');
+  } catch (e) {
+    debugPrint('[Main] Windows URL scheme registration failed: $e');
+  }
 }
 
 void _runAppWithoutSentry() {

@@ -59,9 +59,8 @@ For a runtime on another machine, install Tailscale on both devices and confirm 
 Typical installer options:
 
 - Desktop shortcut
-- Start with Windows
-- System tray integration
-- Add to PATH where supported
+- Start Menu shortcut
+- URL callback registration for desktop auth flows
 
 ### Updates
 

@@ -219,6 +219,12 @@ jobs:
           name: windows-bundle
           path: build/windows/x64/runner/Release
 
+      - name: Download Windows Installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/windows
+
       - name: Package Linux Distributions
         run: |
           # Install FUSE for AppImage build
@@ -284,6 +290,7 @@ jobs:
             - **Arch Linux**: AUR package files in `dist/aur/`
 
             ### Windows
+            - Installer: `CloudToLocalLLM-Windows-x64-Setup.exe`
             - Portable ZIP: `CloudToLocalLLM-Windows-x64.zip`
 
             ## What's New
@@ -304,6 +311,7 @@ jobs:
           SHA_URL="${APPIMAGE_URL}.sha256"
           DEB_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/cloudtolocalllm_${VERSION}_amd64.deb"
           TARBALL_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Linux-x64.tar.gz"
+          WINDOWS_INSTALLER_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Windows-x64-Setup.exe"
           WINDOWS_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Windows-x64.zip"
 
           curl -fsSL -o /tmp/${APPIMAGE} "${APPIMAGE_URL}"
@@ -312,7 +320,7 @@ jobs:
           EXPECTED_SHA=$(awk '{print $1}' /tmp/${APPIMAGE}.sha256)
           test "$ACTUAL_SHA" = "$EXPECTED_SHA"
 
-          for url in "$DEB_URL" "$TARBALL_URL" "$WINDOWS_URL"; do
+          for url in "$DEB_URL" "$TARBALL_URL" "$WINDOWS_INSTALLER_URL" "$WINDOWS_URL"; do
             curl -fsSI "$url" >/dev/null
           done
 

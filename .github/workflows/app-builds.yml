@@ -14,6 +14,16 @@ on:
       windows_artifact:
         description: "Name of the uploaded Windows bundle"
         value: windows-bundle
+      windows_installer_artifact:
+        description: "Name of the uploaded Windows installer"
+        value: windows-installer
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Optional version string to apply before build"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   build_linux:
@@ -74,8 +84,19 @@ jobs:
           flutter pub get
           flutter build windows --release
 
+      - name: Build Windows Installer
+        shell: pwsh
+        run: |
+          ./scripts/packaging/build_windows_installer.ps1
+
       - name: Upload Windows Bundle
         uses: actions/upload-artifact@v4
         with:
           name: windows-bundle
           path: build/windows/x64/runner/Release/
+
+      - name: Upload Windows Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/windows/CloudToLocalLLM-Windows-x64-Setup.exe
