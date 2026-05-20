@@ -414,7 +414,7 @@ jobs:
         env:
           SIMON_HOST: 31.97.140.7
           SIMON_USER: root
-          SIMON_SSH_KEY_FILE: ~/.ssh/simon_vps_key
+          SIMON_SSH_KEY_FILE: /home/runner/.ssh/simon_vps_key
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_DOMAIN: cloudtolocalllm.online
