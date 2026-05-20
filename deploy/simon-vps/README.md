@@ -34,20 +34,23 @@ docker compose ps
 
 ## Dedicated Cloudflared tunnel
 
-This host keeps ImmoGestion untouched. If Cloudflare Tunnel is used for public access, install the Simon-VPS-specific unit and config with:
+This host keeps ImmoGestion untouched. CloudToLocalLLM's public path is a dedicated Cloudflare Tunnel on Simon's VPS.
+
+Manual install:
 
 ```bash
-sudo CLOUDFLARE_TUNNEL_ID=62da6c19-947b-4bf6-acad-100a73de4e0d \
-  CLOUDFLARE_TUNNEL_TOKEN_FILE=/etc/cloudflared/62da6c19-947b-4bf6-acad-100a73de4e0d.token \
+sudo CLOUDFLARE_TUNNEL_ID=b0aebd5d-5fdf-4dc1-b64c-932c4ee8b400 \
+  CLOUDFLARE_TUNNEL_TOKEN_FILE=/path/to/cloudflared.token \
   ./deploy/simon-vps/install-cloudflared-cloudtolocalllm.sh
 sudo systemctl status cloudflared-cloudtolocalllm --no-pager -l
 sudo journalctl -u cloudflared-cloudtolocalllm -n 100 --no-pager
-
-The recovery workflow can also install the same token-backed Simon VPS service automatically from GitHub Actions secrets.
 ```
 
+Automated paths:
+- `deployment.yml` is the normal CI/CD path for pushing code to Simon's VPS and reconciling Cloudflare.
+- `recover-simon-vps-cloudflared.yml` is the manual recovery workflow for tunnel/DNS drift.
+
 ## Notes
-- The web build uses `--dart-define` values so the deployed app can point at the VPS origin instead of the hardcoded production domains.
+- The web build uses `--dart-define` values so the deployed app can point at the VPS origin instead of hardcoded stale targets.
 - This package intentionally uses a separate port instead of taking over 80/443, because Simon's VPS already hosts other services.
-- For a later public DNS/TLS cutover, put Cloudflare/Tailscale in front of this port instead of changing the app again.
-- The recovery workflow is push-only and watches `deploy/simon-vps/**` plus the workflow file itself.
+- Public HTTPS is delivered by Cloudflare Tunnel; raw `:3100` is for on-box verification, not the canonical public website path.

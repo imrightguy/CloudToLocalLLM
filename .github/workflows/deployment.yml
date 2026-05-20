@@ -72,7 +72,7 @@ jobs:
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/|build-tools/installers/windows/"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
 
@@ -213,11 +213,19 @@ jobs:
           name: linux-bundle
           path: build/linux/x64/release/bundle
 
-      - name: Download Windows Bundle
+      - name: Download Windows Release Assets
         uses: actions/download-artifact@v4
         with:
-          name: windows-bundle
-          path: build/windows/x64/runner/Release
+          name: windows-release-assets
+          path: dist/windows
+
+      - name: Verify Windows Release Assets
+        run: |
+          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
+          test -f "dist/windows/cloudtolocalllm-${VERSION}-portable.zip"
+          test -f "dist/windows/cloudtolocalllm-${VERSION}-portable.zip.sha256"
+          test -f "dist/windows/CloudToLocalLLM-Windows-${VERSION}-Setup.exe"
+          test -f "dist/windows/CloudToLocalLLM-Windows-${VERSION}-Setup.exe.sha256"
 
       - name: Package Linux Distributions
         run: |
@@ -228,9 +236,9 @@ jobs:
           mkdir -p dist/linux
           # Create standard bundle tarball with a top-level directory
           STAGING_DIR=$(mktemp -d)
-          mkdir -p $STAGING_DIR/cloudtolocalllm
-          cp -r build/linux/x64/release/bundle/* $STAGING_DIR/cloudtolocalllm/
-          tar -czf dist/linux/CloudToLocalLLM-Linux-x64.tar.gz -C $STAGING_DIR cloudtolocalllm
+          mkdir -p "$STAGING_DIR/cloudtolocalllm"
+          cp -a build/linux/x64/release/bundle/. "$STAGING_DIR/cloudtolocalllm/"
+          tar -czf dist/linux/cloudtolocalllm-linux-x64.tar.gz -C "$STAGING_DIR" cloudtolocalllm
 
           # Build .deb package
           chmod +x scripts/packaging/build_deb.sh
@@ -244,23 +252,11 @@ jobs:
           chmod +x scripts/packaging/update_aur_pkgbuild.sh
           ./scripts/packaging/update_aur_pkgbuild.sh
 
-      - name: Generate Installer Script
-        run: |
-          chmod +x scripts/packaging/build_installer.sh
-          ./scripts/packaging/build_installer.sh
-
-      - name: Package Windows Distribution
-        run: |
-          mkdir -p dist/windows
-          cd build/windows/x64/runner/Release
-          zip -r ../../../../../dist/windows/CloudToLocalLLM-Windows-x64.zip .
-          cd ../../../../../
-
       - name: Create GitHub Release
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/linux/*,dist/windows/*,dist/aur/*"
+          artifacts: "dist/linux/*,dist/windows/cloudtolocalllm-${{ needs.ai_change_analysis.outputs.new_version }}-portable.zip,dist/windows/cloudtolocalllm-${{ needs.ai_change_analysis.outputs.new_version }}-portable.zip.sha256,dist/windows/CloudToLocalLLM-Windows-${{ needs.ai_change_analysis.outputs.new_version }}-Setup.exe,dist/windows/CloudToLocalLLM-Windows-${{ needs.ai_change_analysis.outputs.new_version }}-Setup.exe.sha256,dist/aur/*"
           tag: "v${{ needs.ai_change_analysis.outputs.new_version }}"
           name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
           artifactErrorsFailBuild: true
@@ -278,13 +274,14 @@ jobs:
             ## Downloads
 
             ### Linux
-            - **AppImage** (Recommended): `CloudToLocalLLM-x86_64.AppImage`
+            - **AppImage** (Recommended): `cloudtolocalllm-x86_64.AppImage`
             - **Debian/Ubuntu**: `.deb` package
             - **Portable**: `.tar.gz` bundle
             - **Arch Linux**: AUR package files in `dist/aur/`
 
             ### Windows
-            - Portable ZIP: `CloudToLocalLLM-Windows-x64.zip`
+            - `cloudtolocalllm-${{ needs.ai_change_analysis.outputs.new_version }}-portable.zip`
+            - `CloudToLocalLLM-Windows-${{ needs.ai_change_analysis.outputs.new_version }}-Setup.exe`
 
             ## What's New
 
@@ -295,185 +292,135 @@ jobs:
             Automated desktop builds for v${{ needs.ai_change_analysis.outputs.new_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Verify published release assets
+      - name: Verify GitHub Release Assets Published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.ai_change_analysis.outputs.new_version }}
+          RELEASE_TAG: v${{ needs.ai_change_analysis.outputs.new_version }}
+          GITHUB_API_BASE_URL: https://api.github.com
+          RETRY_ATTEMPTS: 6
+          RETRY_DELAY_SECONDS: 10
+        run: python3 scripts/release/verify_github_release_assets.py
+
+      - name: Publish to AUR
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
           VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
-          APPIMAGE="cloudtolocalllm-${VERSION}-x86_64.AppImage"
-          APPIMAGE_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${APPIMAGE}"
-          SHA_URL="${APPIMAGE_URL}.sha256"
-          DEB_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/cloudtolocalllm_${VERSION}_amd64.deb"
-          TARBALL_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Linux-x64.tar.gz"
-          WINDOWS_URL="https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/CloudToLocalLLM-Windows-x64.zip"
+          SSH_WORK_DIR="$(mktemp -d /tmp/aur-ssh.XXXXXX)"
+          AUR_KEY_FILE="$SSH_WORK_DIR/id_rsa"
+          AUR_KNOWN_HOSTS="$SSH_WORK_DIR/known_hosts"
+          AUR_REPO_DIR=""
+          cleanup_aur_publication() {
+            ssh-agent -k >/dev/null 2>&1 || true
+            rm -rf "$SSH_WORK_DIR" "$AUR_REPO_DIR"
+          }
+          trap cleanup_aur_publication EXIT
+          printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > "$AUR_KEY_FILE"
+          chmod 600 "$AUR_KEY_FILE"
+          ssh-keyscan aur.archlinux.org > "$AUR_KNOWN_HOSTS"
 
-          curl -fsSL -o /tmp/${APPIMAGE} "${APPIMAGE_URL}"
-          curl -fsSL -o /tmp/${APPIMAGE}.sha256 "${SHA_URL}"
-          ACTUAL_SHA=$(sha256sum /tmp/${APPIMAGE} | awk '{print $1}')
-          EXPECTED_SHA=$(awk '{print $1}' /tmp/${APPIMAGE}.sha256)
-          test "$ACTUAL_SHA" = "$EXPECTED_SHA"
+          # Use ssh-agent to handle the key
+          eval "$(ssh-agent -s)"
+          ssh-add "$AUR_KEY_FILE"
+          export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=$AUR_KNOWN_HOSTS -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes"
 
-          for url in "$DEB_URL" "$TARBALL_URL" "$WINDOWS_URL"; do
-            curl -fsSI "$url" >/dev/null
-          done
+          # Handle initial repository setup
+          AUR_REPO_DIR="$(mktemp -d /tmp/aur-repo.XXXXXX)"
+          if ! git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git "$AUR_REPO_DIR"; then
+            echo "AUR repository does not exist yet. Creating local placeholder..."
+            mkdir -p "$AUR_REPO_DIR"
+            cd "$AUR_REPO_DIR"
+            git init
+            git remote add origin ssh://aur@aur.archlinux.org/cloudtolocalllm.git
+          else
+            cd "$AUR_REPO_DIR"
+          fi
 
-      - name: Prepare AUR package metadata (no publish)
-        run: |
-          set -euo pipefail
-          VERSION="${{ needs.ai_change_analysis.outputs.new_version }}"
-          APPIMAGE_NAME="cloudtolocalllm-${VERSION}-x86_64.AppImage"
-          curl -fsSL -o /tmp/${APPIMAGE_NAME}.sha256 "https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases/download/v${VERSION}/${APPIMAGE_NAME}.sha256"
-          RELEASE_SHA=$(awk '{print $1}' /tmp/${APPIMAGE_NAME}.sha256)
-          AUR_VERSION_OVERRIDE="$VERSION" AUR_APPIMAGE_SHA256="$RELEASE_SHA" bash ./scripts/packaging/update_aur_pkgbuild.sh
+          cp -f "$GITHUB_WORKSPACE/dist/aur/PKGBUILD" .
 
-          mkdir -p /tmp/aur-metadata
-          cp -f "$GITHUB_WORKSPACE/dist/aur/PKGBUILD" /tmp/aur-metadata/PKGBUILD
-          docker run --rm -v /tmp/aur-metadata:/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
-          sudo chown -R $(id -u):$(id -g) /tmp/aur-metadata
-          cp -f /tmp/aur-metadata/.SRCINFO "$GITHUB_WORKSPACE/dist/aur/.SRCINFO"
+          # Generate .SRCINFO using docker
+          docker run --rm -v "$(pwd)":/pkg -w /pkg archlinux:latest bash -c "pacman -Syu --noconfirm base-devel && useradd -m builduser && chown -R builduser /pkg && sudo -u builduser makepkg --printsrcinfo > .SRCINFO"
+
+          # Fix permissions as the docker container changed ownership of the files
+          sudo chown -R "$(id -u):$(id -g)" .
+
+          git config user.name "CloudToLocalLLM CI"
+          git config user.email "ci@cloudtolocalllm.online"
+          git add PKGBUILD .SRCINFO
+
+          if git diff --cached --quiet; then
+            echo "No changes to AUR package"
+          else
+            git commit -m "Update to v${{ needs.ai_change_analysis.outputs.new_version }}"
+            git push origin master
+          fi
 
   deploy:
-    needs: [ai_change_analysis, build_images]
-    if: always() && inputs.release_version == '' && needs.ai_change_analysis.outputs.web_changed == 'true' && needs.build_images.result == 'success'
+    needs: [ai_change_analysis, run_tests]
+    if: >-
+      always() &&
+      inputs.release_version == '' &&
+      (
+        needs.ai_change_analysis.outputs.api_changed == 'true' ||
+        needs.ai_change_analysis.outputs.web_changed == 'true' ||
+        needs.ai_change_analysis.outputs.postgres_changed == 'true' ||
+        needs.ai_change_analysis.outputs.streaming_changed == 'true'
+      ) &&
+      (needs.run_tests.result == 'success' || needs.run_tests.result == 'skipped' || contains(github.event.head_commit.message, '[skip tests]'))
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy Web to Kubernetes (k3s CT)
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Build Simon VPS web bundle
         env:
-          SWARM_HOST: ${{ secrets.SWARM_HOST }}
-          SWARM_USER: ${{ secrets.SWARM_USER }}
+          APP_ORIGIN: https://cloudtolocalllm.online
+          API_BASE_URL: https://cloudtolocalllm.online
+          ADMIN_SERVER_URL_WEB: https://cloudtolocalllm.online
+          HOMEPAGE_URL: https://cloudtolocalllm.online
+          APP_URL: https://app.cloudtolocalllm.online
+          ADMIN_CENTER_URL: https://cloudtolocalllm.online
+          TUNNEL_SSH_URL: wss://cloudtolocalllm.online/ssh
+          TUNNEL_SSH_URL_DEV: wss://cloudtolocalllm.online/ssh
+        run: |
+          set -euo pipefail
+          chmod +x deploy/simon-vps/build-web.sh
+          deploy/simon-vps/build-web.sh
+          test -f build/web/index.html
+
+      - name: Prepare Simon VPS SSH key
+        env:
+          SIMON_VPS_SSH_PRIVATE_KEY: ${{ secrets.SIMON_VPS_SSH_PRIVATE_KEY }}
+          VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
-          SWARM_CTID: ${{ secrets.SWARM_CTID }}
-          K8S_HOST: ${{ secrets.K8S_HOST }}
-          K8S_USER: ${{ secrets.K8S_USER }}
-          K8S_SSH_KEY: ${{ secrets.K8S_SSH_KEY }}
-          K8S_CTID: ${{ secrets.K8S_CTID }}
-          KUBECONFIG_BASE64: ${{ secrets.KUBECONFIG_BASE64 }}
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          GH_DEFAULT_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-
-          REPO_LOWER="cloudtolocalllm-online/cloudtolocalllm"
-          VERSION=${{ needs.ai_change_analysis.outputs.new_version }}
-          IMAGE="ghcr.io/${REPO_LOWER}/web:${VERSION}-${{ github.run_number }}"
-          GHCR_USER="${GHCR_USERNAME:-${GITHUB_ACTOR}}"
-          GHCR_PASS="${GHCR_TOKEN:-${GH_DEFAULT_TOKEN}}"
-
-          echo "Deploying image: ${IMAGE}"
-
-          deploy_via_kubeconfig() {
-            local kubeconfig_base64="$1"
-            if [ -z "$kubeconfig_base64" ]; then
-              return 1
-            fi
-            echo "Deploying via kubeconfig..."
-            echo "$kubeconfig_base64" | base64 -d > /tmp/kubeconfig
-            chmod 600 /tmp/kubeconfig
-            export KUBECONFIG=/tmp/kubeconfig
-            
-            kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true
-            kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true
-            kubectl -n cloudtolocalllm create deployment web --image="${IMAGE}"
-            kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}' || true
-            kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web
-            kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s
-            kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web
-            echo "Deployment via kubeconfig succeeded"
-            return 0
-          }
-
-          deploy_via_ssh() {
-            local label="$1"
-            local host="$2"
-            local user="$3"
-            local key_file="$4"
-            local ctid="$5"
-
-            if [ -z "$host" ] || [ -z "$user" ] || [ -z "$key_file" ]; then
-              return 1
-            fi
-
-            local attempt
-            for attempt in 1 2 3; do
-              echo "Deploy attempt ${attempt}/3 via ${label} (${user}@${host})"
-              REMOTE_CMD="set -euo pipefail; kubectl create namespace cloudtolocalllm --dry-run=client -o yaml | kubectl apply -f - || true; kubectl -n cloudtolocalllm delete deployment web --ignore-not-found || true; kubectl -n cloudtolocalllm create deployment web --image='${IMAGE}'; kubectl -n cloudtolocalllm patch deployment/web --type=merge -p '{\"spec\":{\"template\":{\"spec\":{\"imagePullSecrets\":[{\"name\":\"regcred\"}]}}}' || true; kubectl -n cloudtolocalllm get service web >/dev/null 2>&1 || kubectl -n cloudtolocalllm expose deployment web --port=8080 --target-port=8080 --name=web; kubectl -n cloudtolocalllm rollout status deploy/web --timeout=300s; kubectl -n cloudtolocalllm get deploy,svc,pods -l app=web"
-              if ssh -i "$key_file" -o BatchMode=yes -o ConnectTimeout=30 -o StrictHostKeyChecking=no "$user@$host" "$REMOTE_CMD"
-              then
-                echo "Deployment succeeded via ${label}"
-                return 0
-              fi
-              sleep 15
-            done
-            return 1
-          }
-
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-
-          if [ -n "${SWARM_SSH_KEY:-}" ]; then
-            printf '%s\n' "$SWARM_SSH_KEY" > ~/.ssh/swarm_key
-            chmod 600 ~/.ssh/swarm_key
+          SSH_KEY="${SIMON_VPS_SSH_PRIVATE_KEY:-${VM_SSH_PRIVATE_KEY:-${SWARM_SSH_KEY:-}}}"
+          if [ -z "$SSH_KEY" ]; then
+            echo "No Simon VPS SSH key secret is available" >&2
+            exit 1
           fi
-          if [ -n "${K8S_SSH_KEY:-}" ]; then
-            printf '%s\n' "$K8S_SSH_KEY" > ~/.ssh/k8s_key
-            chmod 600 ~/.ssh/k8s_key
-          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/simon_vps_key
+          chmod 600 ~/.ssh/simon_vps_key
 
-          if deploy_via_kubeconfig "${KUBECONFIG_BASE64:-}"; then
-            exit 0
-          fi
-
-          if deploy_via_ssh "SWARM" "${SWARM_HOST:-}" "${SWARM_USER:-}" "$HOME/.ssh/swarm_key" "${SWARM_CTID:-201}"; then
-            exit 0
-          fi
-
-          if deploy_via_ssh "K8S" "${K8S_HOST:-}" "${K8S_USER:-}" "$HOME/.ssh/k8s_key" "${K8S_CTID:-201}"; then
-            exit 0
-          fi
-
-          echo "All deployment targets failed"
-          echo ""
-          echo "To configure deployment, add one of the following to GitHub secrets:"
-          echo "  1. KUBECONFIG_BASE64 - Base64-encoded kubeconfig (recommended)"
-          echo "  2. K8S_HOST, K8S_USER, K8S_SSH_KEY - SSH access to k8s cluster"
-          echo "  3. SWARM_HOST, SWARM_USER, SWARM_SSH_KEY - SSH access to Proxmox"
-          exit 1
-
-      - name: Purge Cloudflare cache
-        if: always()
+      - name: Deploy Simon VPS and reconcile Cloudflare tunnel
         env:
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
-          CLOUDFLARE_DNS_API_TOKEN: ${{ secrets.CLOUDFLARE_DNS_API_TOKEN }}
-          CLOUDFLARE_TUNNEL_API_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_API_TOKEN }}
+          SIMON_HOST: 31.97.140.7
+          SIMON_USER: root
+          SIMON_SSH_KEY_FILE: ~/.ssh/simon_vps_key
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_DOMAIN: cloudtolocalllm.online
+          CLOUDFLARE_TUNNEL_ID: b0aebd5d-5fdf-4dc1-b64c-932c4ee8b400
+          USE_PREBUILT_WEB: true
         run: |
           set -euo pipefail
-
-          CF_TOKEN="${CLOUDFLARE_CACHE_PURGE_TOKEN:-}"
-          if [ -z "$CF_TOKEN" ]; then
-            CF_TOKEN="${CLOUDFLARE_DNS_API_TOKEN:-}"
-          fi
-          if [ -z "$CF_TOKEN" ]; then
-            CF_TOKEN="${CLOUDFLARE_TUNNEL_API_TOKEN:-}"
-          fi
-
-          if [ -z "${CLOUDFLARE_ZONE_ID:-}" ]; then
-            echo "CLOUDFLARE_ZONE_ID is required for cache purge"
-            exit 1
-          fi
-
-          if [ -z "$CF_TOKEN" ]; then
-            echo "No Cloudflare API token available for cache purge"
-            exit 1
-          fi
-
-          RESPONSE=$(curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CF_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}')
-
-          echo "$RESPONSE"
-          python -c 'import json, sys; r=json.loads(sys.argv[1]); ok=r.get("success", False); print("Cloudflare cache purge succeeded" if ok else "Cloudflare cache purge failed: {}".format(r.get("errors", []))); sys.exit(0 if ok else 1)' "$RESPONSE"
+          chmod +x scripts/deploy-simon-vps.sh
+          bash scripts/deploy-simon-vps.sh

@@ -1,123 +1,60 @@
 name: Recover Simon VPS Cloudflared
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/recover-simon-vps-cloudflared.yml
-      - deploy/simon-vps/**
+  workflow_dispatch:
+    inputs:
+      host:
+        description: Simon VPS host
+        required: false
+        default: 31.97.140.7
+      user:
+        description: SSH user
+        required: false
+        default: root
+  repository_dispatch:
+    types:
+      - recover_simon_vps_cloudflared
 
 permissions:
   contents: read
 
 jobs:
-  install_cloudflared:
+  recover_cloudflared:
     runs-on: ubuntu-latest
-    env:
-      SIMON_HOST: 31.97.140.7
-      SIMON_USER: root
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - name: Prepare SSH key
+      - name: Prepare Simon VPS SSH key
         env:
+          SIMON_VPS_SSH_PRIVATE_KEY: ${{ secrets.SIMON_VPS_SSH_PRIVATE_KEY }}
           VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
         run: |
           set -euo pipefail
-          SSH_KEY="${VM_SSH_PRIVATE_KEY:-${SWARM_SSH_KEY:-}}"
+          SSH_KEY="${SIMON_VPS_SSH_PRIVATE_KEY:-${VM_SSH_PRIVATE_KEY:-${SWARM_SSH_KEY:-}}}"
           if [ -z "$SSH_KEY" ]; then
-            echo "No SSH key secret is available" >&2
+            echo "No Simon VPS SSH key secret is available" >&2
             exit 1
           fi
-
           install -d -m 700 ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          {
-            echo "Host simon-vps"
-            echo "  HostName ${SIMON_HOST}"
-            echo "  User ${SIMON_USER}"
-            echo "  IdentityFile ~/.ssh/id_ed25519"
-            echo "  StrictHostKeyChecking no"
-            echo "  UserKnownHostsFile /dev/null"
-          } > ~/.ssh/config
-          chmod 600 ~/.ssh/config
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/simon_vps_key
+          chmod 600 ~/.ssh/simon_vps_key
 
-      - name: Install tunnel token and service
+      - name: Reconcile Cloudflare tunnel and public DNS
         env:
-          CLOUDFLARE_TUNNEL_ID: ${{ secrets.CLOUDFLARE_TUNNEL_ID }}
-          CLOUDFLARE_TUNNEL_TOKEN: ${{ secrets.CLOUDFLARE_TUNNEL_TOKEN }}
-          DISPLAY: :0
-          SSH_ASKPASS: /bin/true
-          SSH_ASKPASS_REQUIRE: force
+          SIMON_HOST: ${{ inputs.host || '31.97.140.7' }}
+          SIMON_USER: ${{ inputs.user || 'root' }}
+          SIMON_SSH_KEY_FILE: ~/.ssh/simon_vps_key
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_DOMAIN: cloudtolocalllm.online
+          CLOUDFLARE_TUNNEL_ID: b0aebd5d-5fdf-4dc1-b64c-932c4ee8b400
+          SYNC_REPO: false
+          DEPLOY_APP: false
+          RECONCILE_CLOUDFLARE: true
+          VERIFY_PUBLIC: true
         run: |
           set -euo pipefail
-          if [ -z "${CLOUDFLARE_TUNNEL_ID:-}" ]; then
-            echo "CLOUDFLARE_TUNNEL_ID is missing" >&2
-            exit 1
-          fi
-          if [ -z "${CLOUDFLARE_TUNNEL_TOKEN:-}" ]; then
-            echo "CLOUDFLARE_TUNNEL_TOKEN is missing" >&2
-            exit 1
-          fi
-
-          token_file="$(mktemp)"
-          remote_log="$(mktemp)"
-          trap 'rm -f "$token_file" "$remote_log"' EXIT
-          printf '%s' "$CLOUDFLARE_TUNNEL_TOKEN" > "$token_file"
-          if ! ssh -vvv simon-vps 'cat > /tmp/cloudflared.token' <"$token_file" 2>"$remote_log"; then
-            echo "::error title=Cloudflared recovery::token transfer failed: $(tail -n 20 "$remote_log" | tr '\n' ' ')"
-            exit 1
-          fi
-
-          if ! ssh simon-vps 'bash -s' >"$remote_log" 2>&1 <<'REMOTE'; then
-          set -euo pipefail
-          TUNNEL_ID="62da6c19-947b-4bf6-acad-100a73de4e0d"
-          install -d -m 755 /etc/cloudflared
-          install -d -m 755 /etc/systemd/system
-
-          cat > /etc/cloudflared/cloudtolocalllm.yml <<EOF
-          tunnel: ${TUNNEL_ID}
-          ingress:
-            - hostname: app.cloudtolocalllm.online
-              service: http://127.0.0.1:3100
-            - hostname: api.cloudtolocalllm.online
-              service: http://127.0.0.1:3100
-            - service: http_status:404
-          EOF
-
-          install -m 600 /tmp/cloudflared.token /etc/cloudflared/${TUNNEL_ID}.token
-          rm -f /tmp/cloudflared.token
-
-          cat > /etc/systemd/system/cloudflared-cloudtolocalllm.service <<EOF
-          [Unit]
-          Description=cloudflared CloudToLocalLLM tunnel
-          After=network-online.target
-          Wants=network-online.target
-
-          [Service]
-          Type=simple
-          ExecStart=/usr/local/bin/cloudflared --config /etc/cloudflared/cloudtolocalllm.yml tunnel run --token-file /etc/cloudflared/${TUNNEL_ID}.token
-          Restart=always
-          RestartSec=5
-
-          [Install]
-          WantedBy=multi-user.target
-          EOF
-
-          systemctl daemon-reload
-          systemctl enable --now cloudflared-cloudtolocalllm.service
-          systemctl is-active --quiet cloudflared-cloudtolocalllm.service
-          test -f /etc/cloudflared/${TUNNEL_ID}.token
-          test -f /etc/cloudflared/cloudtolocalllm.yml
-          REMOTE
-            echo "::error title=Cloudflared recovery::ssh failed: $(tail -n 20 "$remote_log" | tr '\n' ' ')"
-            exit 1
-          fi
-
-      - name: Verify
-        run: |
-          set -euo pipefail
-          ssh simon-vps 'systemctl is-active cloudflared-cloudtolocalllm.service && test -f /etc/cloudflared/62da6c19-947b-4bf6-acad-100a73de4e0d.token && sed -n "1,80p" /etc/cloudflared/cloudtolocalllm.yml'
+          chmod +x scripts/deploy-simon-vps.sh
+          bash scripts/deploy-simon-vps.sh

@@ -1,7 +1,12 @@
-tunnel: 62da6c19-947b-4bf6-acad-100a73de4e0d
+# Reference ingress shape for the Simon VPS Cloudflare tunnel.
+# The live tunnel uses Cloudflare remote_config; keep this file aligned with
+# the intended public contract for manual audits and recovery.
+tunnel: b0aebd5d-5fdf-4dc1-b64c-932c4ee8b400
 ingress:
+  - hostname: api.cloudtolocalllm.online
+    service: http://127.0.0.1:3100
   - hostname: app.cloudtolocalllm.online
     service: http://127.0.0.1:3100
-  - hostname: api.cloudtolocalllm.online
+  - hostname: cloudtolocalllm.online
     service: http://127.0.0.1:3100
   - service: http_status:404

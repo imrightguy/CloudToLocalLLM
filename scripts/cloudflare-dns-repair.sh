@@ -1,75 +1,70 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Cloudflare DNS Repair Script
-# Version: 1.6.0 (Secure Refactor)
-# Usage: CLOUDFLARE_API_KEY=xxx scripts/cloudflare-dns-repair.sh
+DOMAIN="${CLOUDFLARE_DOMAIN:-cloudtolocalllm.online}"
+TUNNEL_ID="${CLOUDFLARE_TUNNEL_ID:-b0aebd5d-5fdf-4dc1-b64c-932c4ee8b400}"
+TARGET_CNAME="${TUNNEL_ID}.cfargotunnel.com"
 
-set -e
+log_info() { printf '\033[0;34m[INFO]\033[0m %s\n' "$1"; }
+log_success() { printf '\033[0;32m[SUCCESS]\033[0m %s\n' "$1"; }
+log_error() { printf '\033[0;31m[ERROR]\033[0m %s\n' "$1" >&2; }
 
-# Secure Configuration (Inject via Env)
-CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL:-"cmaltais@cloudtolocalllm.online"}
-DOMAIN=${CLOUDFLARE_DOMAIN:-"cloudtolocalllm.online"}
-TUNNEL_ID=${CLOUDFLARE_TUNNEL_ID:-"62da6c19-947b-4bf6-acad-100a73de4e0d"}
-TARGET_CNAME="$TUNNEL_ID.cfargotunnel.com"
-
-# Logging functions
-log_info() { echo -e "\033[0;34m[INFO]\033[0m $1"; }
-log_success() { echo -e "\033[0;32m[SUCCESS]\033[0m $1"; }
-log_error() { echo -e "\033[0;31m[ERROR]\033[0m $1"; }
-
-# Mandatory Env Check
-if [ -z "$CLOUDFLARE_API_KEY" ]; then
-    log_error "CLOUDFLARE_API_KEY environment variable is mandatory."
-    exit 1
+if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+  log_error "CLOUDFLARE_API_TOKEN is mandatory"
+  exit 1
 fi
 
-cf_api_call() {
-    curl -s -X "$1" "https://api.cloudflare.com/client/v4/$2" \
-        -H "X-Auth-Email: $CLOUDFLARE_EMAIL" \
-        -H "X-Auth-Key: $CLOUDFLARE_API_KEY" \
-        -H "Content-Type: application/json" \
-        ${3:+-d "$3"}
+python3 <<'PY'
+import json, os, ssl, urllib.request
+
+domain = os.environ['DOMAIN']
+tunnel_id = os.environ['TUNNEL_ID']
+target_cname = os.environ['TARGET_CNAME']
+api_token = os.environ['CLOUDFLARE_API_TOKEN'].strip()
+base = 'https://api.cloudflare.com/client/v4'
+headers = {
+    'Authorization': f'Bearer {api_token}',
+    'Content-Type': 'application/json',
+    'User-Agent': 'cloudtolocalllm-cloudflare-dns-repair'
 }
+ctx = ssl.create_default_context()
 
-main() {
-    log_info "Starting Secure DNS Repair for $DOMAIN"
-    
-    # 1. Resolve Zone ID
-    ZONE_ID=$(cf_api_call "GET" "zones?name=$DOMAIN" | jq -r '.result[0].id')
-    if [ -z "$ZONE_ID" ] || [ "$ZONE_ID" == "null" ]; then
-        log_error "Could not find Zone ID for $DOMAIN."
-        exit 1
-    fi
-    log_info "Zone ID: $ZONE_ID"
+def api(method, path, payload=None):
+    data = None if payload is None else json.dumps(payload).encode()
+    req = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+    with urllib.request.urlopen(req, timeout=60, context=ctx) as resp:
+        body = json.load(resp)
+    if not body.get('success'):
+        raise RuntimeError(f'Cloudflare API failure for {path}: {body}')
+    return body['result']
 
-    # 2. Repair CNAME alignment
-    ENDPOINTS=("" "app" "api" "argocd" "grafana")
-    for SUB in "${ENDPOINTS[@]}"; do
-        FULL_NAME="${SUB:+$SUB.}$DOMAIN"
-        log_info "Verifying $FULL_NAME..."
-        
-        # Check current record
-        CURRENT_RECORD=$(cf_api_call "GET" "zones/$ZONE_ID/dns_records?name=$FULL_NAME&type=CNAME")
-        RECORD_ID=$(echo "$CURRENT_RECORD" | jq -r '.result[0].id')
-        CONTENT=$(echo "$CURRENT_RECORD" | jq -r '.result[0].content')
+zone = api('GET', f'/zones?name={domain}')
+if not zone:
+    raise SystemExit(f'Zone not found for {domain}')
+zone_id = zone[0]['id']
+records = api('GET', f'/zones/{zone_id}/dns_records?per_page=100')
+by_name = {record['name']: record for record in records}
+mutations = []
+for name in [domain, f'app.{domain}', f'api.{domain}']:
+    payload = {
+        'type': 'CNAME',
+        'name': name,
+        'content': target_cname,
+        'proxied': True,
+        'ttl': 1,
+    }
+    current = by_name.get(name)
+    if current:
+        result = api('PUT', f"/zones/{zone_id}/dns_records/{current['id']}", payload)
+        mutations.append({'action': 'updated', 'name': name, 'id': result['id']})
+    else:
+        result = api('POST', f'/zones/{zone_id}/dns_records', payload)
+        mutations.append({'action': 'created', 'name': name, 'id': result['id']})
+for record in records:
+    if record['name'] == f'*.{domain}' and record['type'] == 'A' and record['content'] == '208.110.72.50':
+        api('DELETE', f"/zones/{zone_id}/dns_records/{record['id']}")
+        mutations.append({'action': 'deleted', 'name': record['name'], 'id': record['id']})
+print(json.dumps({'zone_id': zone_id, 'tunnel_id': tunnel_id, 'mutations': mutations}, indent=2))
+PY
 
-        if [ "$CONTENT" == "$TARGET_CNAME" ]; then
-            log_success "$FULL_NAME is already aligned with $TARGET_CNAME."
-            continue
-        fi
-
-        if [ "$RECORD_ID" != "null" ]; then
-            log_info "Realigning $FULL_NAME (ID: $RECORD_ID) to $TARGET_CNAME..."
-            cf_api_call "PUT" "zones/$ZONE_ID/dns_records/$RECORD_ID" \
-                '{"type":"CNAME","name":"'"$FULL_NAME"'","content":"'"$TARGET_CNAME"'","proxied":true,"ttl":1}' | jq -r '.success'
-        else
-            log_info "Creating new record for $FULL_NAME pointing to $TARGET_CNAME..."
-            cf_api_call "POST" "zones/$ZONE_ID/dns_records" \
-                '{"type":"CNAME","name":"'"$FULL_NAME"'","content":"'"$TARGET_CNAME"'","proxied":true,"ttl":1}' | jq -r '.success'
-        fi
-    done
-    
-    log_success "DNS Stack Integrity Restored."
-}
-
-main "$@"
+log_success "DNS stack aligned to ${TARGET_CNAME}"
