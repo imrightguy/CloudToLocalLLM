@@ -20,10 +20,7 @@ jobs:
             ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
           fi
           chmod 644 ~/.ssh/known_hosts
-          printf 'Host aur.archlinux.org
-  IdentityFile ~/.ssh/id_ed25519
-  IdentitiesOnly yes
-' > ~/.ssh/config
+          printf '%s\n' 'Host aur.archlinux.org' '  IdentityFile ~/.ssh/id_ed25519' '  IdentitiesOnly yes' > ~/.ssh/config
           chmod 600 ~/.ssh/config
 
           # Clone and delete
