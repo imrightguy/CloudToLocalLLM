@@ -47,14 +47,80 @@ else
     print_status "AppImage not found locally ($APPIMAGE), PKGBUILD will use SKIP for checksums"
 fi
 
-# Generate .SRCINFO if makepkg is available
+# Generate .SRCINFO
 if command -v makepkg &> /dev/null; then
-    print_status "Generating .SRCINFO..."
+    print_status "Generating .SRCINFO with makepkg..."
     cd "$AUR_OUTPUT_DIR"
     makepkg --printsrcinfo > .SRCINFO
     print_success ".SRCINFO generated"
 else
-    print_status "makepkg not found, skipping .SRCINFO generation"
+    print_status "makepkg not found, generating .SRCINFO with fallback parser..."
+    python3 - "$AUR_OUTPUT_DIR/PKGBUILD" "$AUR_OUTPUT_DIR/.SRCINFO" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+pkgbuild_path = Path(sys.argv[1])
+srcinfo_path = Path(sys.argv[2])
+text = pkgbuild_path.read_text()
+
+def scalar(name: str) -> str:
+    m = re.search(rf'^{name}=(.+)$', text, re.M)
+    if not m:
+        raise SystemExit(f'missing field: {name}')
+    value = m.group(1).strip()
+    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+        value = value[1:-1]
+    return value
+
+def array(name: str) -> list[str]:
+    m = re.search(rf'^{name}=\((.*?)\)$', text, re.M)
+    if not m:
+        return []
+    vals = re.findall(r'"([^"]*)"|\'([^\']*)\'', m.group(1))
+    return [a or b for a, b in vals]
+
+pkgname = scalar('pkgname')
+pkgver = scalar('pkgver')
+pkgrel = scalar('pkgrel')
+pkgdesc = scalar('pkgdesc')
+url = scalar('url')
+arch = array('arch')
+licenses = array('license')
+depends = array('depends')
+provides = array('provides')
+conflicts = array('conflicts')
+options = array('options')
+sha256sums = array('sha256sums')
+appimage = f'{pkgname}-{pkgver}-x86_64.AppImage'
+source = f'{appimage}::{url}/releases/download/v{pkgver}/{appimage}'
+
+lines = [
+    f'pkgbase = {pkgname}',
+    f'\tpkgdesc = {pkgdesc}',
+    f'\tpkgver = {pkgver}',
+    f'\tpkgrel = {pkgrel}',
+    f'\turl = {url}',
+]
+for item in arch:
+    lines.append(f'\tarch = {item}')
+for item in licenses:
+    lines.append(f'\tlicense = {item}')
+for item in depends:
+    lines.append(f'\tdepends = {item}')
+for item in provides:
+    lines.append(f'\tprovides = {item}')
+for item in conflicts:
+    lines.append(f'\tconflicts = {item}')
+for item in options:
+    lines.append(f'\toptions = {item}')
+lines.append(f'\tsource = {source}')
+for item in sha256sums:
+    lines.append(f'\tsha256sums = {item}')
+lines.extend(['', f'pkgname = {pkgname}', ''])
+srcinfo_path.write_text('\n'.join(lines))
+PY
+    print_success ".SRCINFO generated with fallback parser"
 fi
 
 print_success "AUR package files prepared in $AUR_OUTPUT_DIR"
