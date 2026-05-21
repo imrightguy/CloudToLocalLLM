@@ -9,23 +9,26 @@ jobs:
     steps:
       - name: Remove cloudtolocalllm-appimage from AUR
         env:
-          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
-          if [ -z "$AUR_SSH_PRIVATE_KEY" ]; then
-            echo "AUR_SSH_PRIVATE_KEY not set"
-            exit 1
-          fi
-
           mkdir -p ~/.ssh
-          echo "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
-
-          eval $(ssh-agent -s)
-          ssh-add ~/.ssh/id_rsa
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.AUR_SSH_PUB }}" > ~/.ssh/id_ed25519.pub
+          chmod 600 ~/.ssh/id_ed25519
+          chmod 644 ~/.ssh/id_ed25519.pub
+          if [ -n "${{ secrets.AUR_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.AUR_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+          fi
+          chmod 644 ~/.ssh/known_hosts
+          printf 'Host aur.archlinux.org
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+' > ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
           # Clone and delete
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-remove || exit 0
+          GIT_SSH_COMMAND='ssh -F ~/.ssh/config' git clone ssh://aur@aur.archlinux.org/cloudtolocalllm-appimage.git /tmp/aur-remove || exit 0
           cd /tmp/aur-remove
           
           # Remove all files
@@ -34,6 +37,6 @@ jobs:
           git config user.name "rightguy"
           git config user.email "christopher.maltais@gmail.com"
           git commit -m "Remove package - consolidated into cloudtolocalllm" || echo "Nothing to remove"
-          git push origin master || echo "Push failed"
+          GIT_SSH_COMMAND='ssh -F ~/.ssh/config' git push origin master || echo "Push failed"
           
           echo "cloudtolocalllm-appimage removal complete"

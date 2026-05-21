@@ -18,10 +18,21 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AUR_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan aur.archlinux.org > ~/.ssh/known_hosts
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.AUR_SSH_PUB }}" > ~/.ssh/id_ed25519.pub
+          chmod 600 ~/.ssh/id_ed25519
+          chmod 644 ~/.ssh/id_ed25519.pub
+          if [ -n "${{ secrets.AUR_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.AUR_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan aur.archlinux.org > ~/.ssh/known_hosts
+          fi
           chmod 644 ~/.ssh/known_hosts
+          printf 'Host aur.archlinux.org
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+' > ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       - name: Configure git
         run: |
@@ -41,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf /tmp/aur-repo
-          git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
+          GIT_SSH_COMMAND='ssh -F ~/.ssh/config' git clone ssh://aur@aur.archlinux.org/cloudtolocalllm.git /tmp/aur-repo
           cd /tmp/aur-repo
           cp "$GITHUB_WORKSPACE/dist/aur/PKGBUILD" .
           cp "$GITHUB_WORKSPACE/dist/aur/.SRCINFO" .
@@ -51,4 +62,4 @@ jobs:
             exit 0
           fi
           git commit -m "Update to v${{ inputs.version }}"
-          git push origin master
+          GIT_SSH_COMMAND='ssh -F ~/.ssh/config' git push origin master
