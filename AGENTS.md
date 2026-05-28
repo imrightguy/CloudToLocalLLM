@@ -17,6 +17,14 @@ Core orientation: secure agent channel, avatar/voice companion, desktop control,
 - Agent runtime management remains important but should not be the first UI surface.
 - Prefer Tailscale for secure private connectivity. The cloud connector model is one isolated container per user, joined to that user's tailnet.
 
+## GitHub issues are the work-tracking source of truth
+
+- Canonical issue tracker: `https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues`
+- Treat GitHub issues, issue comments, labels, milestones, and linked PRs as the authoritative source of truth for active bugs, feature requests, prioritization, and execution status.
+- Do not treat ad hoc chat requests, stale plans, local TODO notes, or archived docs as authoritative if they conflict with the current GitHub issue state.
+- Before starting or changing substantive work, check for an existing issue, linked discussion, or open PR and align your work to that record.
+- If work is not represented in GitHub issues yet, create or update the relevant issue so the repo state and the agent's actions stay aligned.
+
 ## Commands
 
 ### Flutter app

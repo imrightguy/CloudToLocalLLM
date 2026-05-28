@@ -25,6 +25,7 @@ Project-specific conventions
 - Commit messages: conventional form with agent prefix for automated commits (example: `ai(Cursor): update provider DI`). Keep small, focused commits.
 - Formatting & lint: run `flutter format .`, `flutter analyze` before pushing; Node code: `eslint`, `npm audit`.
 - DI pattern: `lib/di/locator.dart` registers services in `setupCoreServices()` and `setupAuthenticatedServices()` — prefer adding services via these functions.
+- GitHub issues are the work-tracking source of truth: `https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/issues`. Treat issue bodies, comments, labels, milestones, and linked PRs as canonical for active work state and priority. Do not let local notes, chat context, or stale plans override a live issue without updating the issue.
 
 Integration & cross-component notes
 - Auth: Auth0 is used; web uses a JS bridge (`auth0-bridge.js`) while desktop uses native flows. See `auth_service.dart` and `auth0_*_service.dart`.

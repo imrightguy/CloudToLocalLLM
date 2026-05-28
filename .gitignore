@@ -58,6 +58,10 @@ certbot/
 *.key
 *.crt
 
+# Android signing (never commit)
+**/release-keystore.jks
+**/key.properties
+
 # Binary tools and local config
 .config/
 

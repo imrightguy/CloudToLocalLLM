@@ -107,8 +107,8 @@ class _FeatureCards extends StatelessWidget {
         ),
         _FeatureCard(
           icon: Icons.hub_outlined,
-          title: 'OpenClaw Gateway',
-          description: 'Local AI management',
+          title: 'Agent Runtimes',
+          description: 'Hermes, OpenClaw, and compatible gateways',
         ),
         _FeatureCard(
           icon: Icons.face_outlined,

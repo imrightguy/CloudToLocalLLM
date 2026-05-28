@@ -72,7 +72,7 @@ jobs:
 
           COMPONENTS=""
           if echo "$DIFF_FILES" | grep -qE "services/api-backend/|config/docker/Dockerfile.api-backend"; then COMPONENTS="$COMPONENTS,api"; fi
-          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/"; then COMPONENTS="$COMPONENTS,web,linux,windows"; fi
+          if echo "$DIFF_FILES" | grep -qE "web/|lib/|build/web/|config/docker/Dockerfile.web|config/swarm/"; then COMPONENTS="$COMPONENTS,web,linux,windows,android"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.postgres|config/docker/postgres-|config/docker/init.sql|services/postgres/"; then COMPONENTS="$COMPONENTS,postgres"; fi
           if echo "$DIFF_FILES" | grep -qE "config/docker/Dockerfile.streaming-proxy|services/streaming-proxy/"; then COMPONENTS="$COMPONENTS,streaming"; fi
 
@@ -225,6 +225,13 @@ jobs:
           name: windows-installer
           path: dist/windows
 
+      - name: Download Android APKs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: android-apk-*
+          path: dist/android
+          merge-multiple: true
+
       - name: Package Linux Distributions
         run: |
           # Install FUSE for AppImage build
@@ -266,7 +273,7 @@ jobs:
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/linux/*,dist/windows/*,dist/aur/*"
+          artifacts: "dist/linux/*,dist/windows/*,dist/android/*,dist/aur/*"
           tag: "v${{ needs.ai_change_analysis.outputs.new_version }}"
           name: "Release v${{ needs.ai_change_analysis.outputs.new_version }}"
           artifactErrorsFailBuild: true
@@ -292,6 +299,11 @@ jobs:
             ### Windows
             - Installer: `CloudToLocalLLM-Windows-x64-Setup.exe`
             - Portable ZIP: `CloudToLocalLLM-Windows-x64.zip`
+
+            ### Android
+            - **ARM64** (most phones): `app-arm64-v8a-release.apk`
+            - **ARM32** (older devices): `app-armeabi-v7a-release.apk`
+            - **x86_64** (emulators/tablets): `app-x86_64-release.apk`
 
             ## What's New
 
