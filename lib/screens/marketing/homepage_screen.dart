@@ -156,7 +156,7 @@ class HomepageScreen extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: 'OpenClaw Agent Manager',
+                      text: 'Aiman — Your AI, Your Way',
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: const Color(0xFFe0d7ff),
                         fontWeight: FontWeight.w300,
@@ -176,7 +176,7 @@ class HomepageScreen extends StatelessWidget {
                   horizontal: isMobile ? 8.0 : 0.0,
                 ),
                 child: Text(
-                  'Your private AI companion. Manage OpenClaw, watch your avatar evolve, control your desktop with vision. Privacy-first, locally-powered agent.',
+                  'Meet your Aiman — a private AI that knows you. Built for real connection, not cloud capture. Runs entirely on your machine, zero data leaks, zero monthly fees.',
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: const Color(0xFFf0edff).withValues(alpha: 0.9),
                     fontWeight: FontWeight.w400,
@@ -260,7 +260,7 @@ class HomepageScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Install CloudToLocalLLM and OpenClaw Gateway with a single command.',
+            'Install CloudToLocalLLM and your Aiman with a single command.',
             style: TextStyle(
               color: Theme.of(context)
                   .colorScheme
@@ -347,36 +347,36 @@ class HomepageScreen extends StatelessWidget {
   }) {
     final pillars = [
       {
-        'icon': '💬',
-        'title': 'Unified Chat',
-        'desc': 'Multi-model support with streaming and deep history.',
+        'icon': '🧠',
+        'title': 'Aiman',
+        'desc': 'Your personal AI — learns your patterns, remembers your context, always private.',
       },
       {
-        'icon': '🔌',
-        'title': 'OpenClaw Manager',
-        'desc': 'Start, stop, and monitor your local gateway lifecycle.',
+        'icon': '🤖',
+        'title': 'Aigent',
+        'desc': 'Acts for you: schedules, research, automation, desktop control.',
       },
       {
-        'icon': '🎨',
-        'title': 'Evolving Avatar',
-        'desc': 'Visual companion that grows in personality over time.',
+        'icon': '💛',
+        'title': 'Aimotions',
+        'desc': 'Connects with you — tone-aware, expressive, never cold.',
       },
       {
-        'icon': '💻',
-        'title': 'Desktop Control',
-        'desc': 'Automate launches, windows, and system integration.',
+        'icon': '🌱',
+        'title': 'Aidration',
+        'desc': 'Grows with you. Personality, memory, and capabilities evolve over time.',
       },
       {
-        'icon': '👁️',
-        'title': 'Vivid Vision',
-        'desc': 'Screen analysis and OCR powered by local intelligence.',
+        'icon': '🔒',
+        'title': 'Local-First',
+        'desc': 'Everything runs on your hardware. No cloud dependency. No data leaving your home.',
       },
     ];
 
     return Column(
       children: [
         Text(
-          'Core Pillars',
+          'Meet Your Aiman',
           style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: ThemeConfig.primaryColor,
@@ -384,7 +384,7 @@ class HomepageScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Built for privacy, powered by locality.',
+          'Not another chatbot. A companion that grows with you.',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context)
                     .colorScheme
@@ -476,7 +476,7 @@ class HomepageScreen extends StatelessWidget {
       child: Column(
         children: [
           const Text(
-            'Ready to take back your privacy?',
+            'Your data stays yours. Always.',
             style: TextStyle(
               color: Colors.white,
               fontSize: 28,
@@ -486,7 +486,7 @@ class HomepageScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Join the early access and start your journey with a local AI that truly belongs to you.',
+            'AI that respects your privacy. Runs entirely on your machine, backed by your terms. No cloud lock-in, no data mining, no subscription required.',
             style: TextStyle(
               color: Colors.white70,
               fontSize: 16,
@@ -496,8 +496,7 @@ class HomepageScreen extends StatelessWidget {
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
-              final uri = Uri.parse(
-                  'https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases');
+              final uri = Uri.parse('https://github.com/CloudToLocalLLM-online/CloudToLocalLLM/releases');
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri);
               }
@@ -511,7 +510,7 @@ class HomepageScreen extends StatelessWidget {
               ),
             ),
             child: const Text(
-              'Download Latest Release',
+              'Get Started Free',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
@@ -540,7 +539,7 @@ class HomepageScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Prefer the browser? Access the full agent dashboard through our high-performance web stream.',
+            'Prefer the browser? Access your full Aiman through our high-performance web stream — any device on your tailnet.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(context)
