@@ -1,0 +1,132 @@
+name: "🌐 Web Deploy (standalone)"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'config/docker/Dockerfile.web'
+      - '.github/workflows/web-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: cloudtolocalllm-online/cloudtolocalllm/web
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Build Flutter web
+        run: |
+          flutter pub get
+          flutter build web --release
+
+      - name: Log into GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          TAG="${{ github.sha }}"
+          docker build -f config/docker/Dockerfile.web -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$TAG .
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$TAG ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$TAG
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to Simon VPS
+        env:
+          VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
+          SIMON_HOST: 31.97.140.7
+          SIMON_USER: root
+        run: |
+          set -euo pipefail
+          SSH_KEY="${VM_SSH_PRIVATE_KEY:-${SWARM_SSH_KEY:-}}"
+          if [ -z "$SSH_KEY" ]; then
+            echo "No SSH key available" >&2
+            exit 1
+          fi
+
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          {
+            echo "Host simon-vps"
+            echo "  HostName ${SIMON_HOST}"
+            echo "  User ${SIMON_USER}"
+            echo "  IdentityFile ~/.ssh/id_ed25519"
+            echo "  StrictHostKeyChecking no"
+            echo "  UserKnownHostsFile /dev/null"
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+          TAG="${{ github.sha }}"
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$TAG"
+
+          echo "Deploying $IMAGE to Simon's VPS..."
+
+          ssh simon-vps bash -s << 'SSH'
+            set -euo pipefail
+            cd /opt/cloudtolocalllm/deploy/simon-vps
+
+            # Pull fresh images
+            docker compose --env-file .env pull
+
+            # Update the web service image tag
+            sed -i "s|image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:.*|image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest|" docker-compose.yml
+
+            # Recreate web container
+            docker compose --env-file .env up -d --no-deps web
+
+            echo "Health check..."
+            sleep 3
+            for i in 1 2 3 4 5; do
+              if curl -sf http://127.0.0.1:3100/health > /dev/null 2>&1; then
+                echo "✅ Web service is healthy"
+                exit 0
+              fi
+              echo "Waiting... attempt $i"
+              sleep 3
+            done
+            echo "❌ Web service health check failed"
+            exit 1
+          SSH
+
+      - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
+        run: |
+          set -euo pipefail
+          CF_TOKEN="${CLOUDFLARE_CACHE_PURGE_TOKEN:-}"
+          if [ -z "$CF_TOKEN" ]; then
+            echo "No Cloudflare token, skipping cache purge"
+            exit 0
+          fi
+          curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
+          echo "Cloudflare cache purged"
