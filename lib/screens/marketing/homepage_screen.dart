@@ -177,7 +177,7 @@ class HomepageScreen extends StatelessWidget {
                   horizontal: isMobile ? 8.0 : 0.0,
                 ),
                 child: Text(
-                  'Meet your Aiman — a private AI that knows you. Built for real connection, not cloud capture. Runs entirely on your machine, zero data leaks, zero monthly fees.',
+                  'Meet your Aiman — a private AI that knows you. Built for real connection, not cloud capture. Runs entirely on your machine, zero data leaks, sync optional.',
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: const Color(0xFFf0edff).withValues(alpha: 0.9),
                     fontWeight: FontWeight.w400,
