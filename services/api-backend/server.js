@@ -345,8 +345,8 @@ registerRoutes('/auth', authRoutes);
 // Session management routes
 registerRoutes('/auth/sessions', sessionRoutes);
 
-// Client log ingestion
-registerRoutes('/client-logs', ...authenticateJWT, clientLogRoutes);
+// Client log ingestion (no auth — logged before user authenticates)
+registerRoutes('/client-logs', clientLogRoutes);
 
 // Database health check routes
 registerRoutes('/db', dbHealthRoutes);
