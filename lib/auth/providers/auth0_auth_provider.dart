@@ -173,7 +173,8 @@ class Auth0AuthProvider implements AuthProvider {
     await _mutex.protect(() async {
       try {
         if (kIsWeb) {
-          await handleCallback();
+          // Jump straight to Auth0 redirect — user explicitly wants to log in.
+          // handleCallback()/onLoad() blocks for 20s trying silent auth, skip it.
           await Auth0Web(_domain, _clientId).loginWithRedirect(
             audience: _audience,
             scopes: {'openid', 'profile', 'email', 'offline_access'},
