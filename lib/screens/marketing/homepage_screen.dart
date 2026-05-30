@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../config/theme_config.dart';
 
 /// Marketing homepage screen - web-only
+/// CI trigger: 20260530
 /// Replicates the static site design with unified theme system
 /// Supports responsive layout (mobile, tablet, desktop)
 class HomepageScreen extends StatelessWidget {
