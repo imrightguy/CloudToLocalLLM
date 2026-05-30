@@ -59,7 +59,7 @@ jobs:
         env:
           VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
-          SIMON_HOST: 100.78.31.6
+          SIMON_HOST: 31.97.140.7
           SIMON_USER: cloudtolocalllm
         run: |
           set -euo pipefail
