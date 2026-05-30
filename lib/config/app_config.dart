@@ -4,7 +4,7 @@ import 'package:cloudtolocalllm/services/settings_preference_service.dart';
 /// Application configuration constants
 class AppConfig {
   // App Information
-  static const String appName = 'CloudToLocalLLM';
+  static const String appName = 'Aiman';
   static const String appVersion = '10.1.187';
   static const String appDescription =
       'Privacy-first local AI workspace with support for multiple AI backends. Login is optional and used only to enable Cloud Relay and secure tunnels.';
