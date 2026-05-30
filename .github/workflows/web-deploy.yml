@@ -60,7 +60,7 @@ jobs:
           VM_SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           SWARM_SSH_KEY: ${{ secrets.SWARM_SSH_KEY }}
           SIMON_HOST: 31.97.140.7
-          SIMON_USER: cloudtolocalllm
+          SIMON_USER: zoidbot
         run: |
           set -euo pipefail
           SSH_KEY="${VM_SSH_PRIVATE_KEY:-${SWARM_SSH_KEY:-}}"
@@ -82,38 +82,26 @@ jobs:
           } > ~/.ssh/config
           chmod 600 ~/.ssh/config
 
-          # Ship build/web to VPS — no GHCR auth needed
+          # Tar+scp Flutter build to VPS
           tar -czf /tmp/web_build.tar.gz -C build/web .
-          scp /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
+          echo "Upload size: $(wc -c < /tmp/web_build.tar.gz) bytes"
+          scp -o StrictHostKeyChecking=no /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
 
-          ssh simon-vps bash -s << 'SSH'
-            set -euo pipefail
-            cd /opt/cloudtolocalllm/deploy/simon-vps
+          # SCP deploy script and run it on VPS
+          ssh simon-vps "cd /opt/cloudtolocalllm/deploy/simon-vps && rm -rf ../../build/web/* && tar -xzf /tmp/web_build.tar.gz -C ../../build/web/ && rm /tmp/web_build.tar.gz && docker compose --env-file .env build web && docker compose --env-file .env up -d --no-deps web"
 
-            # Extract Flutter web build into build/web
-            mkdir -p ../../build/web
-            rm -rf ../../build/web/*
-            tar -xzf /tmp/web_build.tar.gz -C ../../build/web/
-
-            # Build web container with fresh Flutter output
-            docker compose --env-file .env build web --no-cache
-
-            # Recreate web container
-            docker compose --env-file .env up -d --no-deps web
-
-            echo "Health check..."
+          # Health check
+          sleep 3
+          for i in 1 2 3 4 5; do
+            if curl -sf "https://app.cloudtolocalllm.online/healthz" > /dev/null 2>&1; then
+              echo "✅ Web service is healthy"
+              exit 0
+            fi
+            echo "Waiting... attempt $i"
             sleep 3
-            for i in 1 2 3 4 5; do
-              if curl -sf http://127.0.0.1:3100/healthz > /dev/null 2>&1; then
-                echo "✅ Web service is healthy"
-                exit 0
-              fi
-              echo "Waiting... attempt $i"
-              sleep 3
-            done
-            echo "❌ Web service health check failed"
-            exit 1
-          SSH
+          done
+          echo "❌ Web service health check failed"
+          exit 1
 
       - name: Purge Cloudflare cache
         env:
@@ -126,7 +114,7 @@ jobs:
             exit 0
           fi
           curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CLOUDFLARE_CACHE_PURGE_TOKEN}" \
+            -H "Authorization: Bearer ${CLOU...N}" \
             -H "Content-Type: application/json" \
             --data '{"purge_everything":true}'
           echo "Cloudflare cache purged"
