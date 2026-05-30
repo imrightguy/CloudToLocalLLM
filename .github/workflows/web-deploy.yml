@@ -82,20 +82,21 @@ jobs:
           } > ~/.ssh/config
           chmod 600 ~/.ssh/config
 
-          TAG="${{ github.sha }}"
-          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$TAG"
-
-          echo "Deploying $IMAGE to Simon's VPS..."
+          # Ship build/web to VPS — no GHCR auth needed
+          tar -czf /tmp/web_build.tar.gz -C build/web .
+          scp /tmp/web_build.tar.gz simon-vps:/tmp/web_build.tar.gz
 
           ssh simon-vps bash -s << 'SSH'
             set -euo pipefail
             cd /opt/cloudtolocalllm/deploy/simon-vps
 
-            # Pull fresh images
-            docker compose --env-file .env pull
+            # Extract Flutter web build into build/web
+            mkdir -p ../../build/web
+            rm -rf ../../build/web/*
+            tar -xzf /tmp/web_build.tar.gz -C ../../build/web/
 
-            # Update the web service image tag
-            sed -i "s|image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:.*|image: ghcr.io/cloudtolocalllm-online/cloudtolocalllm/web:latest|" docker-compose.yml
+            # Build web container with fresh Flutter output
+            docker compose --env-file .env build web --no-cache
 
             # Recreate web container
             docker compose --env-file .env up -d --no-deps web
@@ -103,7 +104,7 @@ jobs:
             echo "Health check..."
             sleep 3
             for i in 1 2 3 4 5; do
-              if curl -sf http://127.0.0.1:3100/health > /dev/null 2>&1; then
+              if curl -sf http://127.0.0.1:3100/healthz > /dev/null 2>&1; then
                 echo "✅ Web service is healthy"
                 exit 0
               fi
